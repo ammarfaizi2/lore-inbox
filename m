@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVASTcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVASTfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVASTcN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 14:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVASTcN
+	id S261866AbVASTfr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 14:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVASTfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 14:32:13 -0500
-Received: from smtp-out-02.utu.fi ([130.232.202.172]:13004 "EHLO
-	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S261863AbVASTcG
+	Wed, 19 Jan 2005 14:35:47 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:1947 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261866AbVASTfm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 14:32:06 -0500
-Date: Wed, 19 Jan 2005 21:31:58 +0200
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: [RFC][PATCH] /proc/<pid>/rlimit
-In-reply-to: <20050118204457.GA7824@ti64.telemetry-investments.com>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Wed, 19 Jan 2005 14:35:42 -0500
+Date: Wed, 19 Jan 2005 11:34:20 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
        linux-kernel@vger.kernel.org
-Message-id: <200501192131.59252.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <20050118204457.GA7824@ti64.telemetry-investments.com>
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050119193419.GH14545@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <20050119094342.GB25623@elf.ucw.cz> <20050119171323.GB14545@atomide.com> <20050119174858.GB12647@dualathlon.random> <20050119181947.GF14545@atomide.com> <20050119191208.GC12647@dualathlon.random> <20050119191731.GG14545@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050119191731.GG14545@atomide.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 January 2005 22:44, Bill Rugolsky Jr. wrote:
-> This patch against 2.6.11-rc1-bk6 adds /proc/<pid>/rlimit to export
-> per-process resource limit settings.  It was written to help analyze
-> daemon core dump size settings, but may be more generally useful.
-> Tested on 2.6.10. Sample output:
+* Tony Lindgren <tony@atomide.com> [050119 11:20]:
+> * Andrea Arcangeli <andrea@suse.de> [050119 11:12]:
+> > On Wed, Jan 19, 2005 at 10:19:47AM -0800, Tony Lindgren wrote:
+> > > If you have a chance, can you please provide me with some more info
+> > > on your system, see my recent reply to Pavel in this thread for the
+> > 
+> > It's a normal UP athlon 1ghz, it should be quite widespread hardware.
+> > I know at least another system that had the problem of system time going
+> > in the future with 2.6 at the same rate of mine. Still it could be an
+> > hardware issue after all if nobody else can reproduce it. At HZ=100 the
+> > system time is again perfectly accurate like in 2.4, so probably at least
+> > the PIT is ok.
+> 
+> I've tested it with a celeron a300 box, tyan s2460 dual athlon,
+> tyan tiger 100 dual p3, and fujitsu p1110 crusoe laptop. Fujitsu I
+> may not have tested with TSC, but others work with both ACPI PM
+> timer and TSC.
+> 
+> Maybe try disabling or enabling ACPI PM timer? Or maybe it does not
+> use TSC or ACPI PM timer, and that there's some bug in my patch that
+> kills the plain PIT timer?
 
-A "cool feature" would be if you could do
-echo nofile 8192 8192 >/proc/`pidof thatserverproess`/rlimit
-:-)
+It could be HPET that kills it. I don't have any boxes with HPET
+timer, can you try without HPET?
+
+Tony

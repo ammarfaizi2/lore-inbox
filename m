@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266691AbRGQQWT>; Tue, 17 Jul 2001 12:22:19 -0400
+	id <S266698AbRGQQUj>; Tue, 17 Jul 2001 12:20:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266725AbRGQQWJ>; Tue, 17 Jul 2001 12:22:09 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:11239 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266691AbRGQQUy>;
-	Tue, 17 Jul 2001 12:20:54 -0400
-Message-ID: <3B546603.7ABCB96D@mandrakesoft.com>
-Date: Tue, 17 Jul 2001 12:21:23 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre5 i686)
-X-Accept-Language: en
+	id <S266706AbRGQQU3>; Tue, 17 Jul 2001 12:20:29 -0400
+Received: from ns3.keyaccesstech.com ([209.47.245.85]:2314 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S266698AbRGQQUV>; Tue, 17 Jul 2001 12:20:21 -0400
+Date: Tue, 17 Jul 2001 12:20:20 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: Alan Shutko <ats@acm.org>
+cc: William Scott Lockwood III <scottlockwood@hotmail.com>,
+        David Woodhouse <dwmw2@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [VERY OT] Re: 2.4.6-ac5 gives wrong cache info for Duron in
+ /proc/cpuinfo
+In-Reply-To: <87u20b36g5.fsf@wesley.springies.com>
+Message-ID: <Pine.LNX.4.33.0107171209060.29611-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-To: daniel sheltraw <l5gibson@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI and ioports question
-In-Reply-To: <F1137cu85K9kINc0VUy00019f37@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-daniel sheltraw wrote:
-> I have a question about ioports on PCI devices but first: If
-> there is a better mailing list for asking these types of questions
-> would you kindly direct me there.
-> 
-> The question is this. When do I need to use ioremap for ioports
-> on a PCI device (PC architecture)? Is the answer: always except
-> when the physical address is within the 64K - 1M ISA region (legacy
-> ports).
+On Tue, 17 Jul 2001, Alan Shutko wrote:
 
-For I/O ports, which have values between 0x0000 and 0xFFFF, you use
-inb/inw/inl and outb/outw/outl, and do not use ioremap.
+> It's a reasonably new standard that hasn't caught on, because many
+> people think that "kibibyte" is stupid.
 
-For ISA and PCI memory regions (which are completely different from I/O
-ports), you always use ioremap, and talk to the regions use
-readb/readw/readl and writeb/writew/writel.
+Kibibbles N Bits! N Bits!! N Bits!!!
 
-There exist isa_xxx functions but do not use these:  these are only for
-outdated drivers which have not yet been converted to use ioremap.
+Sorry, I had to say it ;)
+
+  http://www.koin.com/athome/wisebuys/athome-wisebuys-980223-184529.html
 
 -- 
-Jeff Garzik      | "I wouldn't be so judgemental
-Building 1024    |  if you weren't such a sick freak."
-MandrakeSoft     |             -- goats.com
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+
+

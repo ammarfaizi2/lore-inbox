@@ -1,75 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315536AbSHDRYU>; Sun, 4 Aug 2002 13:24:20 -0400
+	id <S318152AbSHDRa2>; Sun, 4 Aug 2002 13:30:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316185AbSHDRYU>; Sun, 4 Aug 2002 13:24:20 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:3797 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315536AbSHDRYT>;
-	Sun, 4 Aug 2002 13:24:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com
-Subject: Re: large page patch (fwd) (fwd)
-Date: Sun, 4 Aug 2002 13:25:42 -0400
-User-Agent: KMail/1.4.1
-Cc: torvalds@transmeta.com, gh@us.ibm.com, Martin.Bligh@us.ibm.com,
-       wli@holomorpy.com, linux-kernel@vger.kernel.org
-References: <15691.24200.512998.875390@napali.hpl.hp.com> <15692.12781.344389.519591@napali.hpl.hp.com> <20020803.173111.78037842.davem@redhat.com>
-In-Reply-To: <20020803.173111.78037842.davem@redhat.com>
+	id <S318163AbSHDRa1>; Sun, 4 Aug 2002 13:30:27 -0400
+Received: from mailrelay.nefonline.de ([212.114.153.196]:55056 "EHLO
+	mailrelay.nefonline.de") by vger.kernel.org with ESMTP
+	id <S318152AbSHDRa0>; Sun, 4 Aug 2002 13:30:26 -0400
+Message-Id: <200208041733.TAA19750@myway.myway.de>
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Alex Davis" <alex14641@yahoo.com>,
+       "alien.ant@ntlworld.com" <alien.ant@ntlworld.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Sun, 04 Aug 2002 19:33:55 +0200 (CDT)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
+In-Reply-To: <1028485394.14195.41.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208041325.42210.frankeh@watson.ibm.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: 2.4.19 IDE Partition Check issue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 August 2002 08:31 pm, David S. Miller wrote:
->    From: David Mosberger <davidm@napali.hpl.hp.com>
->    Date: Sat, 3 Aug 2002 12:41:33 -0700
+On 04 Aug 2002 19:23:14 +0100, Alan Cox wrote:
+
+>On Sun, 2002-08-04 at 16:58, Daniela Engert wrote:
+>> ALi IDE controllers up to revision C4h don't support LBA48 in DMA mode,
+>> later revisions can do both PIO and DMA with LBA48 addressing. Check
+>> out ALi's Windows drivers to see how the manufacturer itself worked
+>> around this problem (it's kinda obvious).
 >
->    It appears that Juan Navarro, the primary author behind the Rice
->    project, is working on breaking down the superpage benefits they
->    observed.  That would tell us how much benefit is due to page-coloring
->    and how much is due to TLB effects.  Here in our lab, we do have some
->    (weak) empirical evidence that some of the SPECint benchmarks benefit
->    primarily from page-coloring, but clearly there are others that are
->    TLB limited.
->
-> There was some comparison done between large-page vs. plain
-> page coloring for a bunch of scientific number crunchers.
->
-> Only one benefitted from page coloring and not from TLB
-> superpage use.
->
+>Ok I've disabled LBA48 for revisions < 0xC4 lets see if that helps
 
-I would expect that from scientific apps, which often go through their
-dataset in a fairy regular pattern. If sequential, then page coloring
-is at its best, because your cache can become the limiting factor, if
-you can't squeeze data into the cache due to false sharing in the same
-cache class.
+Better make that <= 0xC4.
 
-The way I see page coloring is that any hard work done in virtual space
-(either by compiler or by app writer [ latter holds for numerical apps ])
-to be cache friendly, is not circumvented by a <stupid> physical page 
-assignment by the OS that leads to less than complete cache utilization.
-That's why the cache index bits from the address are carried over or
-are kept the same in virtual and physical address. That's the purpose of
-page coloring.....
-
-This regular access pattern is not necessarily true in apps like JVM or other 
-object oriented code where data accesses can be less predictive. There page 
-coloring might not help you at all.
-
-> The ones that benefitted from both coloring and superpages, the
-> superpage gain was about equal to the coloring gain.  Basically,
-> superpages ended up giving the necessary coloring :-)
->
-> Search for the topic "Areas for superpage discussion" in the
-> sparclinux@vger.kernel.org list archives, it has pointers to
-> all the patches and test programs involved.
+Ciao,
+  Dani
 
 
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)

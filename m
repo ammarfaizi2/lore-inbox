@@ -1,32 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVBYOou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVBYOp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbVBYOou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 09:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVBYOou
+	id S262710AbVBYOp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 09:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVBYOp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 09:44:50 -0500
-Received: from 0x63.nu ([62.65.122.157]:48866 "EHLO gagarin.0x63.nu")
-	by vger.kernel.org with ESMTP id S262709AbVBYOoo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 09:44:44 -0500
-Date: Fri, 25 Feb 2005 15:44:41 +0100
-From: Christoffer Gurell <orbit@0x63.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: problem with ps2 and trackpoint in 2.6.11-rc4
-Message-ID: <20050225144441.GB19743@h55p111.delphi.afb.lu.se>
-References: <20050225142007.GA19743@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050225142007.GA19743@h55p111.delphi.afb.lu.se>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 25 Feb 2005 09:45:29 -0500
+Received: from smarthost1.sentex.ca ([64.7.153.18]:53513 "EHLO
+	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
+	id S262710AbVBYOpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 09:45:17 -0500
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>
+Cc: "'Greg Folkert'" <greg@gregfolkert.net>,
+       "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: Greg's Decree! (was Re: Linus' decrees?) 
+Date: Fri, 25 Feb 2005 09:45:14 -0500
+Organization: Connect Tech Inc.
+Message-ID: <005501c51b48$9daf3df0$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <200502250055.j1P0tShW006447@laptop11.inf.utfsm.cl>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears i had more problems than a not working trackpoint in 2.6.11-rc4. 
-When i use the trackpoint and klick the mousebutten in 2.6.11-rc3 the 
-mousepointer makes strange jumps across the screen. I cant find any
-pattern to the jumps, it just happens now and then. 
+From: linux-kernel-owner@vger.kernel.org 
+> I'd vote for Documentation/Policies
 
- / Christoffer Gurell
+I'll second.
+
+..Stu
 

@@ -1,127 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271825AbTHHUFU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 16:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271831AbTHHUFU
+	id S271827AbTHHUJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 16:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271831AbTHHUJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 16:05:20 -0400
-Received: from [217.186.31.86] ([217.186.31.86]:3851 "EHLO
-	gate.geos.net.eu.org") by vger.kernel.org with ESMTP
-	id S271825AbTHHUFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 16:05:09 -0400
-To: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: 2.4.21/2.4.22-rc1: apic problems on SNI D823 board
-From: geos@epost.de (Georg Schwarz)
-Date: Fri, 8 Aug 2003 22:05:07 +0200
-Message-ID: <1fze73d.4iy0e11h1o7ayM@geos.net.eu.org>
-Organization: private
-User-Agent: MacSOUP/D-2.5b3 (Mac OS 8.1)
+	Fri, 8 Aug 2003 16:09:16 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:32516 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S271827AbTHHUI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 16:08:59 -0400
+Message-ID: <3F3402F7.A8986417@SteelEye.com>
+Date: Fri, 08 Aug 2003 16:07:19 -0400
+From: Paul Clements <Paul.Clements@SteelEye.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Lou Langholtz <ldl@aros.net>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.0-test2-mm] nbd: fix send/receive/shutdown/disconnect races
+References: <3F2FE078.6020305@aros.net> <3F300760.8F703814@SteelEye.com> <3F303430.1080908@aros.net> <3F30510A.E918924B@SteelEye.com> <3F30AF81.4070308@aros.net> <3F332ED7.712DFE5D@SteelEye.com> <3F334396.7030008@aros.net> <3F33D41E.89CFA182@SteelEye.com>
+Content-Type: multipart/mixed;
+ boundary="------------873E788DA8D98DBB005A05B5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux kernel maintainers,
+This is a multi-part message in MIME format.
+--------------873E788DA8D98DBB005A05B5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-the following problem (aka bug?) appeared in 2.4.21 and still exists in
-2.4.22-rc1 (kernels prior to 2.4.21 work fine):
+Here's the updated patch to fix several race conditions in nbd. It
+requires reverting the already included (but incomplete)
+nbd-race-fix.patch that's in -mm5.
 
-SETUP:
-I've got a Siemens Nixdorf PCD-5T. That PC uses a Siemens D823
-motherboard with dual Pentium 133 CPUs. According to lspci it has an
-Intel Corp. 82434LX [Mercury/Neptune] chipset. It's an ISA/EISA/PCI
-system with two IDE ports (RZ1000 chip), fd, serial, parallel, PS/2
-onboard. I'm also using a PCI graphics card, an Adaptec AHA 2940 PCI
-SCSI controller, a 3c509 EISA NIC and an Adlib ISA sound card. The
-system is running Debian 3.0.
+This patch fixes the following race conditions:
 
-PROBLEM:
-With 2.4.21 or 2.4.22-rc1 (both with and without SMP support included)
-the system on startup does not find an IRQ for the floppy controller,
-and when it comes to probing the IDE disks I get "irq probe failed" and
-later "lost interrupt".
+1) adds an increment of req->ref_count to eliminate races between
+do_nbd_request and nbd_end_request, which resulted in the freeing of
+in-use requests -- there were races between send/receive, send/shutdown
+(killall -9 nbd-client), and send/disconnect (nbd-client -d), which are
+now all fixed
 
-If I boot with "noapic" kernel command line option things do work.
+2) adds locking and properly orders the code in NBD_CLEAR_SOCK to
+eliminate races with other code
 
-If there's any more info I can provide (kernel configs maybe?) or things
-I could test please do not hesitste to let me know.
-I'd appreciate your feedback.
+3) adds an lo->sock check to nbd_clear_que to eliminate races between
+do_nbd_request and nbd_clear_que, which resulted in the dequeuing of
+active requests
 
-Georg
+4) adds an lo->sock check to NBD_DO_IT to eliminate races with
+NBD_CLEAR_SOCK, which caused an Oops when "nbd-client -d" was called
 
+--
+Paul
+--------------873E788DA8D98DBB005A05B5
+Content-Type: text/x-diff; charset=us-ascii;
+ name="nbd-race_fixes.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nbd-race_fixes.diff"
 
+--- linux-2.6.0-test2-mm4-PRISTINE/drivers/block/nbd.c	Sun Jul 27 12:58:51 2003
++++ linux-2.6.0-test2-mm4/drivers/block/nbd.c	Fri Aug  8 15:23:33 2003
+@@ -136,10 +136,23 @@ static void nbd_end_request(struct reque
+ {
+ 	int uptodate = (req->errors == 0) ? 1 : 0;
+ 	request_queue_t *q = req->q;
++	struct nbd_device *lo = req->rq_disk->private_data;
+ 	unsigned long flags;
+ 
+ 	dprintk(DBG_BLKDEV, "%s: request %p: %s\n", req->rq_disk->disk_name,
+ 			req, uptodate? "done": "failed");
++
++	spin_lock(&lo->queue_lock);
++	while (req->ref_count > 1) { /* still in send */
++		spin_unlock(&lo->queue_lock);
++		printk(KERN_DEBUG "%s: request %p still in use (%d), waiting\n",
++		    lo->disk->disk_name, req, req->ref_count);
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule_timeout(HZ); /* wait a second */
++		spin_lock(&lo->queue_lock);
++	}
++	spin_unlock(&lo->queue_lock);
++
+ #ifdef PARANOIA
+ 	requests_out++;
+ #endif
+@@ -490,6 +503,7 @@ static void do_nbd_request(request_queue
+ 		}
+ 
+ 		list_add(&req->queuelist, &lo->queue_head);
++		req->ref_count++; /* make sure req does not get freed */
+ 		spin_unlock(&lo->queue_lock);
+ 
+ 		nbd_send_req(lo, req);
+@@ -499,12 +513,16 @@ static void do_nbd_request(request_queue
+ 					lo->disk->disk_name);
+ 			spin_lock(&lo->queue_lock);
+ 			list_del_init(&req->queuelist);
++			req->ref_count--;
+ 			spin_unlock(&lo->queue_lock);
+ 			nbd_end_request(req);
+ 			spin_lock_irq(q->queue_lock);
+ 			continue;
+ 		}
+ 
++		spin_lock(&lo->queue_lock);
++		req->ref_count--;
++		spin_unlock(&lo->queue_lock);
+ 		spin_lock_irq(q->queue_lock);
+ 		continue;
+ 
+@@ -548,27 +566,27 @@ static int nbd_ioctl(struct inode *inode
+                 if (!lo->sock)
+ 			return -EINVAL;
+                 nbd_send_req(lo, &sreq);
+-                return 0 ;
++                return 0;
+  
+ 	case NBD_CLEAR_SOCK:
++		error = 0;
++		down(&lo->tx_lock);
++		lo->sock = NULL;
++		up(&lo->tx_lock);
++		spin_lock(&lo->queue_lock);
++		file = lo->file;
++		lo->file = NULL;
++		spin_unlock(&lo->queue_lock);
+ 		nbd_clear_que(lo);
+ 		spin_lock(&lo->queue_lock);
+ 		if (!list_empty(&lo->queue_head)) {
+-			spin_unlock(&lo->queue_lock);
+-			printk(KERN_ERR "%s: Some requests are in progress -> can not turn off.\n",
+-					lo->disk->disk_name);
+-			return -EBUSY;
++			printk(KERN_ERR "nbd: disconnect: some requests are in progress -> please try again.\n");
++			error = -EBUSY;
+ 		}
+-		file = lo->file;
+-		if (!file) {
+-			spin_unlock(&lo->queue_lock);
+-			return -EINVAL;
+-		}
+-		lo->file = NULL;
+-		lo->sock = NULL;
+ 		spin_unlock(&lo->queue_lock);
+-		fput(file);
+-		return 0;
++		if (file)
++			fput(file);
++		return error;
+ 	case NBD_SET_SOCK:
+ 		if (lo->file)
+ 			return -EBUSY;
+@@ -616,10 +634,13 @@ static int nbd_ioctl(struct inode *inode
+ 		 * there should be a more generic interface rather than
+ 		 * calling socket ops directly here */
+ 		down(&lo->tx_lock);
+-		printk(KERN_WARNING "%s: shutting down socket\n",
++		if (lo->sock) {
++			printk(KERN_WARNING "%s: shutting down socket\n",
+ 				lo->disk->disk_name);
+-		lo->sock->ops->shutdown(lo->sock, SEND_SHUTDOWN|RCV_SHUTDOWN);
+-		lo->sock = NULL;
++			lo->sock->ops->shutdown(lo->sock,
++				SEND_SHUTDOWN|RCV_SHUTDOWN);
++			lo->sock = NULL;
++		}
+ 		up(&lo->tx_lock);
+ 		spin_lock(&lo->queue_lock);
+ 		file = lo->file;
+@@ -631,6 +652,13 @@ static int nbd_ioctl(struct inode *inode
+ 			fput(file);
+ 		return lo->harderror;
+ 	case NBD_CLEAR_QUE:
++		down(&lo->tx_lock);
++		if (lo->sock) {
++			up(&lo->tx_lock);
++			return 0; /* probably should be error, but that would
++				   * break "nbd-client -d", so just return 0 */
++		}
++		up(&lo->tx_lock);
+ 		nbd_clear_que(lo);
+ 		return 0;
+ 	case NBD_PRINT_DEBUG:
 
+--------------873E788DA8D98DBB005A05B5--
 
-PS: additional Info (output from 2.4.20 dmsg; might help you?)
-Please note the "IO-APIC (apicid-pin) 2-0 not connected" line. Maybe
-that's the issue?
-
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=0
-number of MP IRQ sources: 16.
-number of IO-APIC #2 registers: 16.
-testing the IO APIC.......................
-
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 000F0011
-.......     : max redirection entries: 000F
-.......     : PRQ implemented: 0
-.......     : IO APIC version: 0011
-.... register #02: 00000000
-.......     : arbitration: 00
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 003 03  0    0    0   0   0    1    1    39
- 02 003 03  0    0    0   0   0    1    1    31
- 03 003 03  0    0    0   0   0    1    1    41
- 04 003 03  0    0    0   0   0    1    1    49
- 05 003 03  0    0    0   0   0    1    1    51
- 06 003 03  0    0    0   0   0    1    1    59
- 07 003 03  0    0    0   0   0    1    1    61
- 08 003 03  0    0    0   0   0    1    1    69
- 09 003 03  1    1    0   0   0    1    1    71
- 0a 003 03  1    1    0   0   0    1    1    79
- 0b 003 03  0    0    0   0   0    1    1    81
- 0c 003 03  0    0    0   0   0    1    1    89
- 0d 003 03  0    0    0   0   0    1    1    91
- 0e 003 03  0    0    0   0   0    1    1    99
- 0f 003 03  0    0    0   0   0    1    1    A1
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ5 -> 0:5
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ10 -> 0:10
-IRQ11 -> 0:11
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-.................................... done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 133.3419 MHz.
-..... host bus clock speed is 66.6704 MHz.
-cpu: 0, clocks: 666704, slice: 222234
-CPU0<T0:666704,T1:444464,D:6,S:222234,C:666704>
-cpu: 1, clocks: 666704, slice: 222234
-CPU1<T0:666704,T1:222224,D:12,S:222234,C:666704>
-checking TSC synchronization across CPUs: passed.
-Waiting on wait_init_idle (map = 0x2)
-All processors have done init_idle
-
-
-
--- 
-Georg Schwarz    http://home.pages.de/~schwarz/
- geos@epost.de     +49 177 8811442

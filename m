@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281592AbRKMKk6>; Tue, 13 Nov 2001 05:40:58 -0500
+	id <S281594AbRKMKnr>; Tue, 13 Nov 2001 05:43:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281595AbRKMKki>; Tue, 13 Nov 2001 05:40:38 -0500
-Received: from auucp0.ams.ops.eu.uu.net ([195.129.70.39]:22460 "EHLO
-	auucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
-	id <S281591AbRKMKkT>; Tue, 13 Nov 2001 05:40:19 -0500
-Date: Tue, 13 Nov 2001 11:38:32 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: J Sloan <jjs@pobox.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: report: tun device
-In-Reply-To: <3BF0EE24.7661D843@pobox.com>
-Message-ID: <Pine.LNX.4.33.0111131138001.16924-100000@schoen3.schoen.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281597AbRKMKnh>; Tue, 13 Nov 2001 05:43:37 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:13701 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281594AbRKMKn0>;
+	Tue, 13 Nov 2001 05:43:26 -0500
+Date: Tue, 13 Nov 2001 02:43:14 -0800 (PST)
+Message-Id: <20011113.024314.11053028.davem@redhat.com>
+To: kaos@ocs.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, girouard@us.ibm.com,
+        indou.takao@jp.fujitsu.com, ctindel@ieee.org, mhuth@mvista.com
+Subject: Re: Linux 2.4.15-pre4 - merge with Alan 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <12029.1005628638@kao2.melbourne.sgi.com>
+In-Reply-To: <Pine.LNX.4.33.0111121056260.1078-100000@penguin.transmeta.com>
+	<12029.1005628638@kao2.melbourne.sgi.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+   From: Keith Owens <kaos@ocs.com.au>
+   Date: Tue, 13 Nov 2001 16:17:18 +1100
 
-No I downloaded 2.4.14 and applied patch-2.4.15.pre3
+   drivers/net/bonding.c has #include <limits.h>, exposing the kernel to
+   user space dependencies.  It must be removed.
+   
+   I could not find a maintainer for this beast so cc'ed to seevral users
+   in the changelog.
+   
+Documentation/networking/bonding.txt says:
 
-Kees
+Current developement on this driver is posted to:
+ - http://www.sourceforge.net/projects/bonding/
 
-On Tue, 13 Nov 2001, J Sloan wrote:
+But I've made the fix and sent it off to Linus for you :)
 
-> kees wrote:
->
-> > Hi
-> >
-> > I have build 2.4.15pre3 but stil can't use /dev/net/tun (vtund).
-> >
-> >
-> > Nov 13 08:38:29 schoen3 vtund[16676]: Can't allocate tun device. File
->
-> Did you upgrade from a pre-2.4.6 kernel?
->
-> mirai.cx: /home/jjs
-> (tty/dev/pts/2): bash: 1003 > uname -a
-> Linux mirai.cx 2.4.15-pre4 #2 Mon Nov 12 22:55:11 PST 2001 i686 GenuineIntel
-> mirai.cx: /home/jjs
-> (tty/dev/pts/2): bash: 1002 > ifconfig tun0
-> tun0      Link encap:Point-to-Point Protocol
->           inet addr:192.168.111.254  P-t-P:192.168.111.253
-> Mask:255.255.255.255
->           UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1450  Metric:1
->           RX packets:17 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:10
->
->
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

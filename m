@@ -1,89 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUGVXRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267369AbUGVXU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267368AbUGVXRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 19:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267369AbUGVXRm
+	id S267369AbUGVXU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 19:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUGVXU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 19:17:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56969 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267368AbUGVXRj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 19:17:39 -0400
-Date: Thu, 22 Jul 2004 19:16:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ryan Arnold <rsa@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: Re: [announce] HVCS for inclusion in 2.6 tree
-Message-Id: <20040722191637.52ab515a.akpm@osdl.org>
-In-Reply-To: <1090528007.3161.7.camel@localhost>
-References: <1089819720.3385.66.camel@localhost>
-	<16633.55727.513217.364467@cargo.ozlabs.ibm.com>
-	<1090528007.3161.7.camel@localhost>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 22 Jul 2004 19:20:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50356 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267369AbUGVXUY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 19:20:24 -0400
+Subject: Re: sched domains bringup race?
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <40FB78D5.1070604@yahoo.com.au>
+References: <1089944026.32312.47.camel@nighthawk>
+	 <20040718134559.A25488@unix-os.sc.intel.com>
+	 <40FB78D5.1070604@yahoo.com.au>
+Content-Type: text/plain
+Message-Id: <1090533339.3041.13.camel@booger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 22 Jul 2004 16:55:40 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Arnold <rsa@us.ibm.com> wrote:
->
-> hvcs_to_mainline_draft2.patch  text/x-patch (80516 bytes)
->
-> +int khvcsd(void *unused)
-> +{
-> +	struct hvcs_struct *hvcsd = NULL;
-> +	struct list_head *element;
-> +	struct list_head *safe_temp;
-> +	int hvcs_todo_mask;
-> +
-> +	daemonize("khvcsd");
-> +
-> +	allow_signal(SIGTERM);
-> +
-> +	do {
-> +		wait_queue_t wait = __WAITQUEUE_INITIALIZER(wait, current);
-> +		hvcs_todo_mask = 0;
-> +		hvcs_kicked = 0;
-> +		wmb();
-> +		list_for_each_safe(element, safe_temp, &hvcs_structs) {
-> +			hvcsd = list_entry(element, struct hvcs_struct, next);
-> +				hvcs_todo_mask |= hvcs_io(hvcsd);
-> +		}
-> +
-> +		/* If any of the hvcs adapters want to try a write or quick read
-> +		 * don't schedule(), yield a smidgen then execute the hvcs_io
-> +		 * thread again for those that want the write. */
-> +		 if (hvcs_todo_mask & (HVCS_TRY_WRITE | HVCS_QUICK_READ)) {
-> +			yield();                 
-> +			continue;
-> +		}
-> +
-> +		add_wait_queue(&hvcs_wait_queue, &wait);
-> +		set_current_state(TASK_INTERRUPTIBLE);
-> +		if (!hvcs_kicked)
-> +			schedule();
-> +		set_current_state(TASK_RUNNING);
-> +		remove_wait_queue(&hvcs_wait_queue, &wait);
-> +
-> +	} while (!signal_pending(current));
-> +
-> +	complete_and_exit(&hvcs_exited,0);
-> +}
->
- 
-I'm not a big fan of using signals for in-kernel IPC.  (What happens if
-root accidentally does `kill -TERM $(pidof khvcsd)', btw?) And daemonize()
-is deprecated.
+On Mon, 2004-07-19 at 02:31, Nick Piggin wrote:
+> Keshavamurthy Anil S wrote:
+> > Even on my system which is Intel 865 chipset (P4 with HT enabled system) 
+> > I see a bug check somewhere in the schedular_tick during boot.
+> > However if I move the sched_init_smp() after do_basic_setup() the
+> > kernel boots without any problem. Any clue here?
+> 
+> There shouldn't be any problem doing that if we have to, obviously we
+> need to know why. Is it possible that cpu_sibling_map, or one of the
+> CPU masks isn't set up correctly at the time of the call?
 
-It should be possible to use the kthread infrastructure here - it does most
-of this stuff for you.  Use kthread_stop() in the killer and
-kthread_should_stop() within khvcsd().  kthread_stop() is synchronous, so
-you don't need to do the complete() stuff here.
+In 2.6.8-rc1-mm1 at least, backing this patch out fixed it for me on
+ppc64:
 
-It should not be necessary to re-add to the wait queue head on each pass
-around the loop.
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc1/2.6.8-rc1-mm1/broken-out/detect-too-early-schedule-attempts.patch
 
-khvcsd() can have static scope.
+Code with statements of the form:
 
+if (system_state == SYSTEM_BOOTING)
+	/* do something boot-specific */
+else
+	/* do something assuming system_state == SYSTEM_RUNNING */
+
+is broken by this change.  Parts of the cpu bringup code in arch/ppc64
+do this (and thus need to be fixed if the above change is kept). 
+Chances are there is similar code in some x86 setups.
+
+Nathan
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270387AbUJWCCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269936AbUJWB6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270387AbUJWCCu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 22:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269496AbUJWB7a
+	id S269936AbUJWB6q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269852AbUJWBue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:59:30 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:15116 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S269347AbUJWBuS (ORCPT
+	Fri, 22 Oct 2004 21:50:34 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:12044 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S269805AbUJWBs3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:50:18 -0400
-Date: Fri, 22 Oct 2004 21:51:12 -0400
+	Fri, 22 Oct 2004 21:48:29 -0400
+Date: Fri, 22 Oct 2004 21:49:24 -0400
 From: "John W. Linville" <linville@tuxdriver.com>
 To: Francois Romieu <romieu@fr.zoreil.com>
 Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [patch netdev-2.6 0/2] r8169: vlan hwaccel fixes
-Message-ID: <20041023015111.GC32031@tuxdriver.com>
+Subject: [patch netdev-2.6 3/3] r8169: simplify trick if() expression
+Message-ID: <20041023014923.GB32031@tuxdriver.com>
 Mail-Followup-To: Francois Romieu <romieu@fr.zoreil.com>,
 	netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
 References: <20041022005737.GA1945@tuxdriver.com> <20041022202851.GB4216@electric-eye.fr.zoreil.com>
@@ -26,20 +26,25 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 10:28:51PM +0200, Francois Romieu wrote:
-> John W. Linville <linville@tuxdriver.com> :
-> > Patch 2:
-> [nice explanation]
-> 
-> Any objection against me replacing the actual comment of patch #2 (i.e.
-> "why" instead of "how") and splitting the "if ((tp->>vlgrp = grp))" over
-> two lines ?
+Simplify tricky if() expression in rtl8169_vlan_rx_register().
 
-Not quite sure which comment you mean, but I'm sure that's fine.
-I posted a third patch to fix-up that tricky if() -- you're right,
-it is a little TOO clever... :-)
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+You're probably right -- the "if ((tp->vlgrp = grp))" line is probably
+a little TOO clever... :-)
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+ drivers/net/r8169.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+--- ./drivers/net/r8169.c.orig	2004-10-22 21:44:06.050154952 -0400
++++ ./drivers/net/r8169.c	2004-10-22 21:44:26.228087440 -0400
+@@ -703,7 +703,8 @@ static void rtl8169_vlan_rx_register(str
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&tp->lock, flags);
+-	if ((tp->vlgrp = grp))
++	tp->vlgrp = grp;
++	if (tp->vlgrp)
+ 		tp->cp_cmd |= RxVlan;
+ 	else
+ 		tp->cp_cmd &= ~RxVlan;

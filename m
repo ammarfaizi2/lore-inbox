@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272298AbRHXSsk>; Fri, 24 Aug 2001 14:48:40 -0400
+	id <S268286AbRHXTIo>; Fri, 24 Aug 2001 15:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272299AbRHXSsb>; Fri, 24 Aug 2001 14:48:31 -0400
-Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:36957 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S272298AbRHXSs1>; Fri, 24 Aug 2001 14:48:27 -0400
-Date: Fri, 24 Aug 2001 14:48:42 -0400
-From: Mark Frazer <mark@somanetworks.com>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Anwar P <anwarp@mail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: What version of the kernel fixes these VM issues?
-Message-ID: <20010824144842.A9414@somanetworks.com>
-Mail-Followup-To: Nicolas Pitre <nico@cam.org>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Anwar P <anwarp@mail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108241354520.25240-100000@xanadu.home> <Pine.LNX.4.33.0108241425190.25240-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0108241425190.25240-100000@xanadu.home>; from nico@cam.org on Fri, Aug 24, 2001 at 02:25:55PM -0400
-Organization: Detectable, well, not really
+	id <S272299AbRHXTIe>; Fri, 24 Aug 2001 15:08:34 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:2948 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S268286AbRHXTIZ>;
+	Fri, 24 Aug 2001 15:08:25 -0400
+Date: Fri, 24 Aug 2001 16:02:56 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
+        <oesi@plan9.de>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <200108241833.f7OIX1Q26223@maila.telia.com>
+Message-ID: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nicolas.  You should run vmstat and watch the paging activity.
-We've seen our ARM boards get driven to a standstill by paging when
-they run out of RAM.  We have no swap either.  To make things worse,
-our flash loads are compressed, so we burn all our CPU in decompression
-when paging back in.  If you have no swap, the only thing that can be
-booted out are executable pages.
+On Fri, 24 Aug 2001, Roger Larsson wrote:
 
-Kernel folk:  do /proc/sys/vm/{pagecache,buffermem} still do anything?
-Could Nicolas still limit the pagecache using these?
+> Not having the patch gives you another effect - disk arm is
+> moving from track to track in a furiously tempo...
 
-cheers
--mark
+Fully agreed, but remember that when you reach the point
+where the readahead windows are pushing each other out
+you'll be off even worse.
 
-Nicolas Pitre <nico@cam.org> [01/08/24 14:38]:
-> 
-> 
-> On Fri, 24 Aug 2001, Nicolas Pitre wrote:
-> 
-> > I have a totally different setup but I can reproduce the same behavior on
-> > the system I have here:
-> >
-> > ARM board with 32 MB RAM, no flash, NFS root.
-> 
-> Sorry I meant no swap.
-> 
-> 
-> Nicolas
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I guess in the long run we should have automatic collapse
+of the readahead window when we find that readahead window
+thrashing is going on, in the short term I think it is
+enough to have the maximum readahead size tunable in /proc,
+like what is happening in the -ac kernels.
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265496AbTFMT54 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 15:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265502AbTFMT54
+	id S265502AbTFMT7T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 15:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbTFMT7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 15:57:56 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:60933 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265496AbTFMT5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 15:57:55 -0400
-Date: Fri, 13 Jun 2003 21:11:42 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: John Bradford <john@grabjohn.com>
-cc: terje_fb@yahoo.no, <linux-kernel@vger.kernel.org>
-Subject: Re: Real multi-user linux
-In-Reply-To: <200306131743.h5DHhNdv000312@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.44.0306132106250.29353-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Jun 2003 15:59:19 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:57730 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265502AbTFMT7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 15:59:17 -0400
+Date: Fri, 13 Jun 2003 13:09:03 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Bug in 2.5.70-mm9: df: `/': Value too large for defined data
+ type
+Message-Id: <20030613130903.600310f0.akpm@digeo.com>
+In-Reply-To: <200306131250.51502.schlicht@uni-mannheim.de>
+References: <20030613013337.1a6789d9.akpm@digeo.com>
+	<200306131250.51502.schlicht@uni-mannheim.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Jun 2003 20:13:04.0395 (UTC) FILETIME=[3261CDB0:01C331E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
+>
+> When I enter 'df' in my bash with -mm9 I get following:
+>   Filesystem           1k-blocks      Used Available Use% Mounted on
+>   df: `/': Value too large for defined data type
 
-> > >     The next stage will be non PC boards supporting more than
-> > > one graphics display output. Every now and then you see such a
-> > > board. I seen a 8 graphics chip board with 8 video outputs.
-> 
-> > As the number of terminals increases you might want to investigate the
-> > possibility of terminal driving units connected to the main box, like
-> > this:
-> 
-> [snip diagram]
-> 
-> Of course, those terminal driving units could actually then just be
-> replaced with multiple-display-and-keyboard-enabled X servers.
-> 
-> So, instead of trying to add more and more terminals to a single box,
-> you could stick with four-headed X servers, which would probably be
-> more scalable.
-
-The biggest limitation is the PCI bus. Only so many cards can go in. I 
-guess you could fill the machine up with graphics cards and go with 
-external USB audio and TV tuner cards. One to match each graphics card.
+The statfs64 patch isn't doing the right thing with reiserfs.  I shall
+fix it.  Thanks.
 

@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267877AbUHPTAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUHPTBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267877AbUHPTAd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 15:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267863AbUHPTAd
+	id S267901AbUHPTBW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 15:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267879AbUHPTAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 15:00:33 -0400
-Received: from pop.gmx.net ([213.165.64.20]:51119 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267889AbUHPS5v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 14:57:51 -0400
-X-Authenticated: #1725425
-Date: Mon, 16 Aug 2004 21:09:49 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk, jwendel10@comcast.net
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-Message-Id: <20040816210949.3d024844.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040816195750.6419699f.Ballarin.Marc@gmx.de>
-References: <411FD919.9030702@comcast.net>
-	<20040816143817.0de30197.Ballarin.Marc@gmx.de>
-	<1092661385.20528.25.camel@localhost.localdomain>
-	<20040816195750.6419699f.Ballarin.Marc@gmx.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 Aug 2004 15:00:49 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:28318 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267866AbUHPS7J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 14:59:09 -0400
+Subject: [PATCH] 2.4.27 scsi PHYS_4G merging doesn't work
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-sDlE0W05TSiV1q0LqtCW"
+Organization: 
+Message-Id: <1092682753.3641.868.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Aug 2004 14:59:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are the additional commands I permit right now. It allows me to blank
-a CDRW and record in TAO mode. k3b needs MODE_SELECT_10  even
-for read-only access.
+
+--=-sDlE0W05TSiV1q0LqtCW
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Hi Marcelo,
+
+We recently found that, BH_PHYS_4G() handling in scsi-merge
+code is broken. Instead of creating new segment when the IO
+crosses 4G boundary, its forcing to create a new request.
+So we end up not merging IOs and start doing small IOs.
+
+Only requirement is, driver can't handle crossing 4G boundary
+in a single segment - but we can have multiple segments doing
+IOs all over the place.
+
+Here is the patch to fix it (suggested by Jens Axboe).
+
+Thanks,
+Badari
 
 
 
-		safe_for_read(GPCMD_GET_CONFIGURATION),
-		safe_for_read(GPCMD_GET_PERFORMANCE),
-		safe_for_read(MODE_SELECT_10),
+--=-sDlE0W05TSiV1q0LqtCW
+Content-Disposition: attachment; filename=4g-merge.patch
+Content-Type: text/plain; name=4g-merge.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-		safe_for_write(ALLOW_MEDIUM_REMOVAL),
-		safe_for_write(REZERO_UNIT),
-		safe_for_write(SYNCHRONIZE_CACHE),
-		safe_for_write(GPCMD_SET_SPEED),
-		safe_for_write(GPCMD_SEND_OPC),
-		safe_for_write(GPCMD_BLANK),
-		safe_for_write(GPCMD_CLOSE_TRACK),
-		safe_for_write(0x5c), //whatever this might be
+--- linux-2.4.27.org/drivers/scsi/scsi_merge.c	2004-08-16 11:20:59.957655240 -0700
++++ linux-2.4.27/drivers/scsi/scsi_merge.c	2004-08-16 11:24:30.150701040 -0700
+@@ -418,7 +418,7 @@ __inline static int __scsi_back_merge_fn
+ 		return 0;
+ 
+ 	if (!BH_PHYS_4G(req->bhtail, bh))
+-		return 0;
++		goto new_end_segment;
+ 
+ 	if (use_clustering) {
+ 		/* 
+@@ -477,7 +477,7 @@ __inline static int __scsi_front_merge_f
+ 		return 0;
+ 
+ 	if (!BH_PHYS_4G(bh, req->bh))
+-		return 0;
++		goto new_start_segment;
+ 
+ 	if (use_clustering) {
+ 		/* 
+@@ -640,7 +640,7 @@ __inline static int __scsi_merge_request
+ 		return 0;
+ 
+ 	if (!BH_PHYS_4G(req->bhtail, next->bh))
+-		return 0;
++		goto dont_combine;
+ 
+ 	/*
+ 	 * The main question is whether the two segments at the boundaries
 
-Shouldn't most GPCMD_* commands be safe for reading or writing, at least
-for CD devices?
-Are commands like MODE_SELECT_10 really safe for read?
+--=-sDlE0W05TSiV1q0LqtCW--
 
-Regards

@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSFTLpG>; Thu, 20 Jun 2002 07:45:06 -0400
+	id <S313867AbSFTLvS>; Thu, 20 Jun 2002 07:51:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSFTLpF>; Thu, 20 Jun 2002 07:45:05 -0400
-Received: from mail.spylog.com ([194.67.35.220]:61383 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S313773AbSFTLpE>;
-	Thu, 20 Jun 2002 07:45:04 -0400
-Date: Thu, 20 Jun 2002 15:44:59 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre10aa3
-Message-ID: <20020620114459.GA13532@spylog.ru>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20020620055933.GA1308@dualathlon.random>
+	id <S314077AbSFTLvS>; Thu, 20 Jun 2002 07:51:18 -0400
+Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:2178 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S313867AbSFTLvR>; Thu, 20 Jun 2002 07:51:17 -0400
+Date: Thu, 20 Jun 2002 12:50:36 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: (2.5.23) buffer layer error at buffer.c:2326
+Message-ID: <20020620125036.B3824@redhat.com>
+References: <Pine.LNX.4.44.0206192007210.1263-100000@netfinity.realnet.co.sz> <3D10E358.D82DB604@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020620055933.GA1308@dualathlon.random>
-User-Agent: Mutt/1.4i
-Organization: SpyLOG ltd.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D10E358.D82DB604@zip.com.au>; from akpm@zip.com.au on Wed, Jun 19, 2002 at 01:02:32PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea Arcangeli,
+Hi,
 
+On Wed, Jun 19, 2002 at 01:02:32PM -0700, Andrew Morton wrote:
 
-Kernel 2.4.19pre10aa3 + hidden_arp (from LVS)
+> What this says is: I still need to get down and set up a fault simulator
+> and make sure that we're doing all the right things when I/O errors occur.
 
+I've got one for 2.4:
 
+	http://people.redhat.com/sct/patches/testdrive/
 
-...
-Intel(R) PRO/100 Fast Ethernet Adapter - Loadable driver, ver 1.8.38
-Copyright (c) 2002 Intel Corporation
+The testdrive-1.1-for-2.4.19pre10.patch can do random fault injection,
+at pseudo-random intervals of selectable frequency, on reads or writes
+or both.  It's a modified loop.o which requires a separate
+testdrive.o, and you just losetup it over a block device (or, more
+easily, "mount -o loop /dev/foo /mnt/bar".)  
 
-eth0: Intel(R) 8255x-based Ethernet Adapter
-  Mem:0xfb101000  IRQ:18  Speed:100 Mbps  Dx:Full
-  Hardware receive checksums enabled
-  cpu cycle saver enabled
-...
+It can trace IOs and will watch for suspicious activity such as
+overlapping IOs being submitted.  The fault injection code trips in
+before the bh request ever gets to the underlying block device.  
 
-...
-eth0 e100_wait_exec_cmd: Wait failed.
-hw tcp v4 csum failed
-hw tcp v4 csum failed
-hw tcp v4 csum failed
-hw tcp v4 csum failed
-hw tcp v4 csum failed
-hw tcp v4 csum failed
-hw tcp v4 csum failed
-...
+It shouldn't be too hard to adapt it to bio if you want.
 
-
-Than this message is caused? It something serious also can be problems?
-
-
-bye.
---
+Cheers,
+ Stephen

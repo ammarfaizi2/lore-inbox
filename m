@@ -1,66 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262577AbTCMVwZ>; Thu, 13 Mar 2003 16:52:25 -0500
+	id <S262578AbTCMVw3>; Thu, 13 Mar 2003 16:52:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262579AbTCMVwY>; Thu, 13 Mar 2003 16:52:24 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:47542 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262577AbTCMVwV>; Thu, 13 Mar 2003 16:52:21 -0500
-Date: Thu, 13 Mar 2003 19:02:32 -0300
-From: Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Allow to compile IDE as module
-Message-ID: <20030313220232.GF23024@duckman.distro.conectiva>
-References: <20030313200804.GE23024@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IU5/I01NYhRvwH70"
-Content-Disposition: inline
-In-Reply-To: <20030313200804.GE23024@duckman.distro.conectiva>
-User-Agent: Mutt/1.5.3i
+	id <S262581AbTCMVw3>; Thu, 13 Mar 2003 16:52:29 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:37548 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S262578AbTCMVwW>;
+	Thu, 13 Mar 2003 16:52:22 -0500
+Message-Id: <200303132100.h2DL00ix005791@eeyore.valparaiso.cl>
+To: Larry McVoy <lm@bitmover.com>
+cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror) 
+In-Reply-To: Your message of "Wed, 12 Mar 2003 14:01:56 PST."
+             <20030312220156.GE30788@work.bitmover.com> 
+Date: Thu, 13 Mar 2003 17:00:00 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy <lm@bitmover.com> said:
+> On Wed, Mar 12, 2003 at 03:45:39PM -0600, Kai Germaschewski wrote:
+> > On Wed, 12 Mar 2003, Larry McVoy wrote:
+> > > > Larry, this brings up something I was meaning to ask you before this
+> > > > thread exploded.  What happens to those "logical change" numbers over
+> > > > time?
+> > > 
+> > > They are stable in the CVS tree because the CVS tree isn't distributed.
+> > > So "Logical change 1.900" in the context of the exported CVS tree is 
+> > > always the same thing.  That's one advantage centralized has, things
+> > > don't shift around on you.
+> > 
+> > Isn't there a more general problem, though? (I hope I'm wrong)
+> > 
+> > You want to update the CVS tree near-realtime. However, the longest-path
+> > through your graph may change with new merges, but CVS of course cannot
+> > cope with already committed data changing (already committed csets may 
+> > all of a sudden not be in the longest path anymore)? This is a CVS 
+> > limitation, of course, but still a problem AFAICS.
+> 
+> Yup, you're right, there is a tradeoff between real time updates and 
+> best path.  We've already seen it in incremental updates.
+> 
+> We were talking about this internally when your mail came in.  I suspect
+> it isn't really a problem in practice because we can always redo the
+> entire export from scratch and get an optimal path.
 
---IU5/I01NYhRvwH70
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Then the CVS tree won't be stable, and so useless to remote people just
+wanting to "cvs update" their stuff. Or am I missing something here?
 
+> Wayne pointed out that in the cases where it collapses a pile of csets
+> that is usually because Linus pulled some wad from somebody and one could
+> argue the collapse is a good thing.  But it depends, sometimes it is and
+> sometimes it isn't.  Our commercial users have frequently asked for a
+> way to "collapse the tree and clean up the noise in the graphs", in fact,
+> one called this morning and said "that BK to CVS thing, could that be a BK
+> to cleaner-BK thing?" so opinions vary on what is the perfect
+> granularity.
 
-Oops. Don't apply it.
-I've not tested it before, and noticed that it is not so
-simple. There are other parts that are being included on
-vmlinux that need symbols from the ide module.
+I'd add the possibility to group csets into super-csets (and so on, why
+not?), without ever losing the individual pieces. Masoch^Wadventurous folks
+could then grovel around inside as needed. Linus' 2.5.63 --> 2.5.64 would
+then just be such a super-cset, separately manipulable.
 
-On Thu, Mar 13, 2003 at 05:08:04PM -0300, Eduardo Pereira Habkost wrote:
-> Marcelo, the following patch fixes drivers/ide/Makefile
-> to allow to use CONFIG_BLK_DEV_IDE=3Dm.
->=20
-> --=20
-> Eduardo
->=20
-<snip>
-> +
-> +obj-$(CONFIG_BLK_DEV)			+=3D ide-obj-y
-
-Ouch, it would not work, anyway.
-I promise that I will test the changes, next time.  :-)
-
---=20
-Eduardo
-
---IU5/I01NYhRvwH70
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+cP/4caRJ66w1lWgRAvOsAJ4kxrGKIydNmyC4hZqnJZ2T6WfJQQCfTSdx
-guJuirUlFKt0MM6SyRno5w8=
-=NbXG
------END PGP SIGNATURE-----
-
---IU5/I01NYhRvwH70--
+No, I have no clue of how to do this.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

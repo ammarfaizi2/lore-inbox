@@ -1,48 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265875AbUFXWY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265775AbUFXWWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265875AbUFXWY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 18:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbUFXWW5
+	id S265775AbUFXWWr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 18:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbUFXWWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 18:22:57 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:37267
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265887AbUFXWVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 18:21:46 -0400
-Date: Fri, 25 Jun 2004 00:21:50 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>, nickpiggin@yahoo.com.au,
-       tiwai@suse.de, ak@suse.de, ak@muc.de, tripperda@nvidia.com,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-ID: <20040624222150.GZ30687@dualathlon.random>
-References: <s5hhdt1i4yc.wl@alsa2.suse.de> <20040624112900.GE16727@wotan.suse.de> <s5h4qp1hvk0.wl@alsa2.suse.de> <20040624164258.1a1beea3.ak@suse.de> <s5hy8mdgfzj.wl@alsa2.suse.de> <20040624152946.GK30687@dualathlon.random> <40DAF7DF.9020501@yahoo.com.au> <20040624165200.GM30687@dualathlon.random> <20040624165629.GG21066@holomorphy.com> <20040624145441.181425c8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624145441.181425c8.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Thu, 24 Jun 2004 18:22:01 -0400
+Received: from fujitsu1.fujitsu.com ([192.240.0.1]:16779 "EHLO
+	fujitsu1.fujitsu.com") by vger.kernel.org with ESMTP
+	id S265875AbUFXWUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 18:20:07 -0400
+Date: Thu, 24 Jun 2004 15:19:30 -0700
+From: Yasunori Goto <ygoto@us.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [Lhms-devel] Re: [Lhns-devel] Merging Nonlinear and Numa style memory hotplug
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       Linux-Node-Hotplug <lhns-devel@lists.sourceforge.net>,
+       linux-mm <linux-mm@kvack.org>,
+       "BRADLEY CHRISTIANSEN [imap]" <bradc1@us.ibm.com>
+In-Reply-To: <1088083724.3918.390.camel@nighthawk>
+References: <20040623184303.25D9.YGOTO@us.fujitsu.com> <1088083724.3918.390.camel@nighthawk>
+Message-Id: <20040624135838.F009.YGOTO@us.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.07.02
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 02:54:41PM -0700, Andrew Morton wrote:
-> First thing to do is to identify some workload which needs the patch. 
 
-that's quite trivial, boot a 2G box, malloc(1G), bzero(1GB), swapoff -a,
-then the machine will lockup.
+Dave-san.
 
-Depending on the architecture (more precisely depending if it starts
-allocating ram from the end or from the start of the physical memory),
-you may have to load 1G of data into pagecache first, like reading from
-/dev/hda 1G (without closing the file) will work fine, then run the
-above malloc + bzero + swapoff.
+Probably, all of your advices are right.
+I was confused between my emulation environment and true NUMA machine.
+I will modify them. Thanks a lot.
 
-Most people will never report this because everybody has swap and they
-simply run a lot slower than they could run if they didn't need to pass
-through the swap device to relocate memory because memory would been allocated
-in the right place in the first place. this plus the various oom killer
-breakages that gets dominated by the nr_swap_pages > 0 check, are the
-reasons 2.6 is unusable w/o swap. 
+BTW, I have a question about nonlinear patch.
+It is about difference between phys_section[] and mem_section[]
+I suppose that phys_section[] looks like no-meaning now.
+If it isn't necessary, __va() and __pa() translation can be more simple.
+What is the purpose of phys_section[]. Is it for ppc64?
+
+Bye.
+
+> Some more comments on the first patch:
+> 
+> +#ifdef CONFIG_HOTPLUG_MEMORY_OF_NODE
+> +               if (node_online(nid)) {
+> +                       allocate_pgdat(nid);
+> +                       printk ("node %d will remap to vaddr %08lx\n", nid,
+> +                               (ulong) node_remap_start_vaddr[nid]);
+> +               }else
+> +                       NODE_DATA(nid)=NULL;
+> +#else
+>                 allocate_pgdat(nid);
+>                 printk ("node %d will remap to vaddr %08lx - %08lx\n", nid,
+>                         (ulong) node_remap_start_vaddr[nid],
+>                         (ulong) pfn_to_kaddr(highstart_pfn
+>                             - node_remap_offset[nid] + node_remap_size[nid]));
+> +#endif
+> 
+> I don't think this chunk is very necessary.  The 'NODE_DATA(nid)=NULL;'
+> is superfluous because the node_data[] is zeroed at boot:
+> 
+> NUMA:
+> #define NODE_DATA(nid) (node_data[nid])
+> non-NUMA:
+> #define NODE_DATA(nid) (&contig_page_data)
+> 
+> Why not just make it:
+> 
+> +               if (!node_online(nid))
+> +			continue;
+> 
+> That should at least get rid of the ifdef.
+> 
+> -       bootmap_size = init_bootmem_node(NODE_DATA(0), min_low_pfn, 0, system_max_low_pfn);
+> +       bootmap_size = init_bootmem_node(NODE_DATA(0), min_low_pfn, 0,
+> +           (system_max_low_pfn > node_end_pfn[0]) ?
+> +           node_end_pfn[0] : system_max_low_pfn);
+> 
+> -       register_bootmem_low_pages(system_max_low_pfn);
+> +       register_bootmem_low_pages((system_max_low_pfn > node_end_pfn[0]) ?
+> +           node_end_pfn[0] : system_max_low_pfn);
+> 
+> How about using a temp variable here instead of those nasty conditionals?
+> 
+> +
+> +#ifdef CONFIG_HOTPLUG_MEMORY_OF_NODE
+> +               if (node_online(nid)){
+> +                       if (nid)
+> +                               memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
+> +                       NODE_DATA(nid)->pgdat_next = pgdat_list;
+> +                       pgdat_list = NODE_DATA(nid);
+> +                       NODE_DATA(nid)->enabled = 1;
+> +               }
+> +#else
+>                 if (nid)
+>                         memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
+>                 NODE_DATA(nid)->pgdat_next = pgdat_list;
+>                 pgdat_list = NODE_DATA(nid);
+> +#endif
+> 
+> I'd just take the ifdef out.  Wouldn't this work instead?
+> 
+> -               if (nid)
+> -                       memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
+> -               NODE_DATA(nid)->pgdat_next = pgdat_list;
+> -               pgdat_list = NODE_DATA(nid);
+> +               if (node_online(nid)){
+> +                       if (nid)
+> +                               memset(NODE_DATA(nid), 0, sizeof(pg_data_t));
+> +                       NODE_DATA(nid)->pgdat_next = pgdat_list;
+> +                       pgdat_list = NODE_DATA(nid);
+> +                       NODE_DATA(nid)->enabled = 1;
+> +               }
+> 
+> +void set_max_mapnr_init(void)
+> +{
+> ...
+> +       struct page *hsp=0;
+> 
+> Should just be 'struct page *hsp = NULL;'
+> 
+> +       for(i = 0; i < numnodes; i++) {
+> +               if (!NODE_DATA(i))
+> +                       continue;
+> +               pgdat = NODE_DATA(i);
+> +               size = pgdat->node_zones[ZONE_HIGHMEM].present_pages;
+> +               if (!size)
+> +                       continue;
+> +               hsp = pgdat->node_zones[ZONE_HIGHMEM].zone_mem_map;
+> +               if (hsp)
+> +                       break;
+> +       }
+> 
+> Doesn't this just find the lowest-numbered node's highmem?  Are you sure
+> that no NUMA systems have memory at lower physical addresses on
+> higher-numbered nodes?  I'm not sure that this is true.
+> 
+> +       if (hsp)
+> +               highmem_start_page = hsp;
+> +       else
+> +               highmem_start_page = (struct page *)-1;
+> 
+> By not just BUG() here?  Do you check for 'highmem_start_page == -1' somewhere?
+> 
+> @@ -478,12 +482,35 @@ void __init mem_init(void)
+>         totalram_pages += __free_all_bootmem();
+> 
+>         reservedpages = 0;
+> +
+> +#ifdef CONFIG_HOTPLUG_MEMORY_OF_NODE
+> +       for (nid = 0; nid < numnodes; nid++){
+> +               int start, end;
+> +
+> +               if ( !node_online(nid))
+> +                       continue;
+> +               if ( node_start_pfn[nid] >= max_low_pfn )
+> +                       break;
+> +
+> +               start = node_start_pfn[nid];
+> +               end = ( node_end_pfn[nid] < max_low_pfn) ?
+> +                       node_end_pfn[nid] : max_low_pfn;
+> +
+> +               for ( tmp = start; tmp < end; tmp++)
+> +                       /*
+> +                        * Only count reserved RAM pages
+> +                        */
+> +                       if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
+> +                               reservedpages++;
+> +       }
+> +#else
+> 
+> Again, I don't see what this loop is used for.  You appear to be trying
+> to detect which nodes have lowmem.  Is there currently any x86 NUMA
+> architecture that has lowmem on any node but node 0?
+> 
+> 
+> 
+> -- Dave
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email sponsored by Black Hat Briefings & Training.
+> Attend Black Hat Briefings & Training, Las Vegas July 24-29 - 
+> digital self defense, top technical experts, no vendor pitches, 
+> unmatched networking opportunities. Visit www.blackhat.com
+> _______________________________________________
+> Lhns-devel mailing list
+> Lhns-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lhns-devel
+
+-- 
+Yasunori Goto <ygoto at us.fujitsu.com>
+
+

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280999AbRKYTKp>; Sun, 25 Nov 2001 14:10:45 -0500
+	id <S281005AbRKYTRH>; Sun, 25 Nov 2001 14:17:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281000AbRKYTKh>; Sun, 25 Nov 2001 14:10:37 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:43405 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S280999AbRKYTKT>;
-	Sun, 25 Nov 2001 14:10:19 -0500
-Message-ID: <3C014214.F79290F7@pobox.com>
-Date: Sun, 25 Nov 2001 11:10:12 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.16-pre1 not compiling without SMP
-In-Reply-To: <3C013407.7C639D34@jep.dhis.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S281006AbRKYTQ4>; Sun, 25 Nov 2001 14:16:56 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:23818 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S281005AbRKYTQt>;
+	Sun, 25 Nov 2001 14:16:49 -0500
+Date: Sun, 25 Nov 2001 20:16:31 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: kubla@sciobyte.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+Message-Id: <20011125201631.6f381261.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
+In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com>
+	<Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josep Lladonosa i Capell wrote:
+On Sun, 25 Nov 2001 10:17:15 -0800 (PST)
+Linus Torvalds <torvalds@transmeta.com> wrote:
 
-> Hello,
->
-> just the subject :-)
->
+[about Gods' pure nature]  ;-)
 
-Certainly it compiled for me without smp!
+lets face it, guys: God gave us the stones, its our free decision if we either
+throw them at each other or build a house to live in.
 
-Perhaps you should send in some more
-information so that it might be possible
-to see what issues you may have -
+:-)
 
-linux distro & version?
-compiler version?
+Well, in fact I'd rather let the Eagles fly in my house, than Rolling the
+Stones ...
+But that's a personal decision :-)
 
-cu
-
-jjs
+Take it easy,
+Stephan
 

@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbUJXOlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbUJXOpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbUJXOlz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 10:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUJXOlz
+	id S261504AbUJXOpB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 10:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUJXOpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 10:41:55 -0400
-Received: from mail.lindows.com ([130.94.123.204]:50148 "EHLO mail.lindows.com")
-	by vger.kernel.org with ESMTP id S261503AbUJXOlx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 10:41:53 -0400
-Message-ID: <417BBF32.7050808@linspireinc.com>
-Date: Sun, 24 Oct 2004 07:41:54 -0700
-From: Clifford Beshers <clifford.beshers@linspireinc.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040525 Debian/1.6-5.1.0.50.lindows0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: 2.6.9-mm1
-References: <20041022032039.730eb226.akpm@osdl.org> <4179425A.3080903@namesys.com>
-In-Reply-To: <4179425A.3080903@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Lindows-Footer: yes
+	Sun, 24 Oct 2004 10:45:01 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:34243 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261504AbUJXOo6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 10:44:58 -0400
+Date: Sun, 24 Oct 2004 07:44:48 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041024144448.GA575@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+References: <41752E53.8060103@pobox.com> <20041019153126.GG18939@work.bitmover.com> <41753B99.5090003@pobox.com> <4d8e3fd304101914332979f86a@mail.gmail.com> <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com> <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4d8e3fd304102403241e5a69a5@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 24, 2004 at 12:24:42PM +0200, Paolo Ciarrocchi wrote:
+> On Sat, 23 Oct 2004 09:12:53 -0700, Larry McVoy <lm@bitmover.com> wrote:
+> > On Tue, Oct 19, 2004 at 03:11:55PM -0700, Linus Torvalds wrote:
+> > > On Tue, 19 Oct 2004, Paolo Ciarrocchi wrote:
+> > > > I know I'm pedantic but can we all see the list of bk trees ("patches
+> > > > ready for mainstream" and "patches eventually ready for mainstream")
+> > > > that we'll be used by Linus ?
+> > >
+> > > Even _I_ don't have that kind of list.
+> > 
+> > I don't know how you could have that sort of list.  We have some idea
+> > of the potential size of that list and it's huge.  Based on the lease
+> > requests back to us (BK is lease based, it connects back to us once a
+> > month), we estimate that there well over 10,000 clones of the Linux kernel
+> > in BK.  If even 1/10th of those are going to have a patch for Linus that's
+> > 1,000 potential patches.  Pretty hard to keep that all in your head.
+> 
+> Well, I'm not interested in having the list of all the bk trees used
+> during the develpoment of a release.
+> I was looking to the trees used by mantainers.
 
-Hans Reiser wrote:
+And how do you define a maintainer?  That's a moving target.  Part of the
+beauty of the Linux development model is that mini forks are not only
+allowed, they are encouraged.  So people can go off on their own and do
+something interesting.  Who knows?  One of those people could be the next
+Alan.  
 
-> Lindows is planning on shipping with reiser4 in its next release. I 
-> would very much like to see our inclusion before that.
+> That number should me really different from "1,000".
 
-Yes, and we would very much like to see it in the mainstream kernel, 
-rather than an mm branch.   It is perfectly acceptable to turn off the 
-namespace features and trim anything else that might introduce 
-incompatibility or instability.  Our goal is to ship it as an advanced 
-but integrated feature, i.e., we do not want to ship two kernels and/or 
-lose other features such as bootsplash, software suspend, etc.
---
-
-This message contains information which may be confidential and privileged. Unless you are the 
-addressee (or authorized to receive for the addressee), you may not use, copy or disclose to anyone 
-the message or any information contained in the message. If you have received the message in error, 
-please advise the sender and delete the message.  Thank you.
+Sure.  But even so it's a moving target and labeling a set of people as 
+maintainers implies that other people aren't.  I suspect Linus isn't 
+that interested in the labels, he'll take good code from anyone.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

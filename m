@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289033AbSAIVz6>; Wed, 9 Jan 2002 16:55:58 -0500
+	id <S289037AbSAIV5s>; Wed, 9 Jan 2002 16:57:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289037AbSAIVzu>; Wed, 9 Jan 2002 16:55:50 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:64440 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S289033AbSAIVzf>; Wed, 9 Jan 2002 16:55:35 -0500
-Message-Id: <5.1.0.14.2.20020109215335.02cfc780@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 09 Jan 2002 21:55:34 +0000
-To: Greg KH <greg@kroah.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20020109214022.GE21963@kroah.com>
-In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk>
+	id <S289038AbSAIV5j>; Wed, 9 Jan 2002 16:57:39 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:33150 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S289037AbSAIV5f>; Wed, 9 Jan 2002 16:57:35 -0500
+Date: Wed, 9 Jan 2002 23:57:22 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, Jani Forssell <jani.forssell@viasys.com>
+Subject: Re: Via KT133 pci corruption: stock 2.4.18pre2 oopses as well
+Message-ID: <20020109235722.L1200@niksula.cs.hut.fi>
+In-Reply-To: <20020108215818.J1331@niksula.cs.hut.fi> <E16O2fD-0007Vn-00@the-village.bc.nu> <20020108221315.U1200@niksula.cs.hut.fi> <20020109144549.L1331@niksula.cs.hut.fi>, <20020109144549.L1331@niksula.cs.hut.fi>; <20020109172604.N1331@niksula.cs.hut.fi> <3C3CAF85.8BD5E2E1@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C3CAF85.8BD5E2E1@zip.com.au>; from akpm@zip.com.au on Wed, Jan 09, 2002 at 01:00:53PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 21:40 09/01/2002, Greg KH wrote:
->On Wed, Jan 09, 2002 at 09:34:34PM +0000, Anton Altaparmakov wrote:
-> > Partition discovery is currently done within the kernel itself. The code
-> > will effectively 'just' move out into user space. As such it is not 
-> present
-> > in /sbin now but it will be in initramfs. The same is true for various
-> > other code I can imagine moving out of kernel mode into initramfs...
->
->For this code, I can see it staying in the kernel source tree, and being
->built as part of the kernel build process, right?
+On Wed, Jan 09, 2002 at 01:00:53PM -0800, you [Andrew Morton] claimed:
+> Ville Herva wrote:
+> > 
+> > >>EIP; c0131ce0 <sync_page_buffers+10/b0>   <=====
+> 
+> Looks like a corrupted `next' pointer in the page's buffer_head
+> ring.  Your report is identical to Todd Eigenschink's repeatable
+> oops.  http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.3/0689.html
+> 
+> In another thread, yesterday, we were discussing the elusive
+> "end_request: buffer-list destroyed" crash.
 
-I would think that is a good idea but I am not sure that is what is planned 
-/ will happen. Keeping it outside would have the advantage that a newer 
-partition recognizer (or whatever other code) can be applied to any 
-existing kernel version (that supports initramfs).
+(...)
+ 
+> There were VM changes, and a messy, complex and undocumented change to
+> sync_page_buffers(), which was the point at which I ceased to understand
+> that function.
 
-Anton
+Nice, yet one more variable to the equation ;). And I thought I could rule
+out kernel bugs by reproducing this on supposedly stable kernel (the 2.2.20
+I used had all sort of patches in it; ide, e2compr and raid to name the
+largest ones.)
+
+This could be a sync_page_buffers() bug, but what puzzles me is that I can
+reproduce the oopses on 2.2 as well (although they can of course be
+different oopses). 
+
+Also, I'm seeing ide and network corruption that would very much point to
+pci transfer corruption. Of course, it can be that the oopses are not caused
+by that.
+
+> It could just be some random memory scribbler.  Dunno yet.  It's awfully
+> repeatable.
+
+Yep.
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+-- v --
 
+v@iki.fi

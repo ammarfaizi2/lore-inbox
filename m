@@ -1,51 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265575AbTFRW0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 18:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265576AbTFRW0Z
+	id S265574AbTFRWZl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 18:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265575AbTFRWZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 18:26:25 -0400
-Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:4286 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S265575AbTFRW0U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 18:26:20 -0400
-Subject: [2.5.72] Oops on x86_64 running 32-bit code
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1055976017.25153.74.camel@serpentine.internal.keyresearch.com>
+	Wed, 18 Jun 2003 18:25:41 -0400
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:65468 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S265574AbTFRWZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 18:25:39 -0400
+Date: Wed, 18 Jun 2003 23:40:20 +0100
+From: Dave Bentham <dave.bentham@ntlworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.21 crash
+Message-Id: <20030618234020.18252c84.dave@telekon>
+In-Reply-To: <200306162148.h5GLmXsN002578@telekon.davesnet>
+References: <200306162148.h5GLmXsN002578@telekon.davesnet>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 18 Jun 2003 15:40:17 -0700
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried running BitKeeper under vanilla 2.5.72:
+Hi,
 
-PML4 7ac6c067 PGD 7a872067 PMD 0
-Oops: 0010 [1Ü
-CPU 1
-Pid: 3236, comm: bk Not tainted
-RIP: 0010:[<0000000000000000>Ü [<0000000000000000>Ü
-RSP: 0018:0000010037f88368  EFLAGS: 00010216
-RAX: 0000000000004000 RBX: 000001007d4f2500 RCX: 0000000000000000
-RDX: 000001007d4f2500 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: 0000000000000000 R08: 000001007a8e6000 R09: 0000000000000000
-R10: 00000000009a0004 R11: 0000000000000000 R12: ffffffff80132f80
-R13: 0000010037f881a8 R14: 0000010037f881a8 R15: 000001007e8e99c0
-FS:  000000000054c480(0000) GS:ffffffff8041fd80(005b) knlGS:00000000a001b280
-CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
-CR2: 0000000000000000 CR3: 000000007ff14000 CR4: 00000000000007a0
-Process bk (pid: 3236, stackpage=1007cd31a90)
-Stack: 0000000000000000 0000000000000000 0000000000000441 00000000ffffbb00
-       0000000000000246 0000000000000000 00000000ffffb698 00000000ffffb600
-       0000000000000004 00000000ffffe405
-Call Trace:<ffffffff80113b38>ädefault_do_nmi+56ü <ffffffff8011c787>ädo_nmi+87ü
-       <ffffffff801126dc>änmi+112ü <ffffffff801320f2>äload_balance+34ü
-                                                                                
-                                                                                
-Code:  Bad RIP value.
+Regarding this issue I have been advised to setup a serial console to
+capture the 'kernel panic' debug output. For the record, I can get the
+panic from the BASH prompt _before_ starting X/WM just by mounting my
+CDRW drive.
 
+However, I think I need some advice on setting up the serial console. I
+have attached another PC (WinXP with HyperTerminal) serially to my panic
+Linux PC. Following the Remote Terminal HOWTO I have achieved some
+success... but all I see on HyperTerminal is:
+
+   LILO 22.3.2 boot:
+   Loading Linux_2.4.21................
+   BIOS data check successful
+
+   Mandrake Linux release 9.0 (dolphin) for i586
+   Kernel 2.4.21 on an i686 / ttyS0
+   telekon.davesnet login:
+
+It seems to start piping the stuff to ttyS0, but then gives up after
+a few progress-dots: I'm missing the main kernel blurb (its all on the
+attached monitor), and also the panic stuff appears only on the attached
+monitor.
+
+Excerpt of butchered lilo.conf
+
+boot=/dev/hda
+map=/boot/map
+#vga=normal
+default=Linux_2.4.21
+keytable=/boot/uk.klt
+prompt
+nowarn
+timeout=100
+#message=/boot/message
+#menu-scheme=wb:bw:wb:bw
+ignore-table
+# serial term bits
+serial = 0,9600n8
+image = /boot/vmlinuz-2.4.21
+	root = /dev/hda3
+	label = Linux_2.4.21
+	read-only
+#	vga=788
+	append = "devfs=mount hdd=ide-scsi console=tty0 console=ttyS0,9600n8"
+
+
+Any help gratefully recieved!
+
+Thanks
+
+Dave
+
+On Mon, 16 Jun 2003 22:48:33 +0100
+dave.bentham@ntlworld.com wrote:
+
+> Hello
+> 
+> I upgraded my kernel on a Mandrake 9.0 base from 2.4.20 to the new
+> 2.4.21 tonight - built from source patches as I always do; followed by
+> reinstalling the NVidia drivers and ALSA.
+> 
+> But there seems to be a major failure when the computer just stops
+> with no warning. Two scenarios that seem to repeat it include starting
+> Loki's Heretic2 off, and mounting the CDRW drive via WindowMaker dock
+> app. I cannot do anything when this happens; can't hotkey out of X,
+> can't telnet to it from my other networked PC. I have to power down
+> and back up.
+> 
+> It seems to be a few seconds after the trigger that the lock up
+> occurs, and also it starts flashing the keyboard Caps Lock and Scroll
+> Lock LEDs in step at about 1 Hz. I'm sure its trying to tell me
+> something...
+> 
+> Thanks in advance
+> 
+> Dave
+> 
+
+
+-- 
+A computer without Microsoft is like chocolate cake without mustard.
 

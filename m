@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266488AbUHVHgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUHVHtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266488AbUHVHgV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 03:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266505AbUHVHgV
+	id S266512AbUHVHtx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 03:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUHVHtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 03:36:21 -0400
-Received: from gate.perex.cz ([82.113.61.162]:28652 "EHLO mail.perex.cz")
-	by vger.kernel.org with ESMTP id S266488AbUHVHgU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 03:36:20 -0400
-Date: Sun, 22 Aug 2004 09:27:57 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Julien BLACHE <jb@jblache.org>
-Cc: linux-kernel@vger.kernel.org, tiwai@suse.de
-Subject: Re: [PATCH 2.6] [SOUND] Add back beep support to snd-powermac
-In-Reply-To: <87fz6g6u82.fsf@frigate.technologeek.org>
-Message-ID: <Pine.LNX.4.58.0408220918500.1778@pnote.perex-int.cz>
-References: <87fz6g6u82.fsf@frigate.technologeek.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Aug 2004 03:49:53 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:43186 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266512AbUHVHtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 03:49:52 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040821140501.GA4189@elte.hu>
+References: <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
+	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
+	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
+	 <20040820195540.GA31798@elte.hu>  <20040821140501.GA4189@elte.hu>
+Content-Type: text/plain
+Message-Id: <1093160993.817.46.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 22 Aug 2004 03:49:53 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Aug 2004, Julien BLACHE wrote:
-
-> Hi,
+On Sat, 2004-08-21 at 10:05, Ingo Molnar wrote:
+> i've uploaded the -P7 patch:
 > 
-> The attached patch adds back the beep support to sound/ppc/pmac.c, aka
-> snd-powermac, and adds a dependency on INPUT in sound/ppc/Kconfig (for
-> obvious reason, read on :).
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P7
 
-A similar patch is already in our ALSA tree (thus in -mm kernels).
+Here's a pretty bad one, over 500 usecs in rt_garbage_collect:
 
-						Jaroslav
+http://krustophenia.net/testresults.php?dataset=2.6.8.1-P7#/var/www/2.6.8.1-P7/trace7.txt
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+Lee
+

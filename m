@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263826AbUEXCOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUEXCTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263826AbUEXCOY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 22:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263827AbUEXCOY
+	id S263827AbUEXCTv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 22:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbUEXCTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 22:14:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34730 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263826AbUEXCOW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 22:14:22 -0400
-Date: Sun, 23 May 2004 19:13:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: rettw@rtwnetwork.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 high CPU utilization with multimedia apps {Scanned}
-Message-Id: <20040523191348.27b0492b.akpm@osdl.org>
-In-Reply-To: <32786.192.168.0.243.1085363267.squirrel@webmail.rtwsecurenet.com>
-References: <32847.192.168.0.243.1085236590.squirrel@webmail.rtwsecurenet.com>
-	<20040522172724.6c804068.akpm@osdl.org>
-	<32786.192.168.0.243.1085363267.squirrel@webmail.rtwsecurenet.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 May 2004 22:19:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36482 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263827AbUEXCTu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 22:19:50 -0400
+Message-ID: <40B15BB5.4040508@pobox.com>
+Date: Sun, 23 May 2004 22:19:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 4g/4g for 2.6.6
+References: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com> <Pine.LNX.4.58.0405231329460.25502@ppc970.osdl.org> <40B10EC1.3030602@pobox.com> <Pine.LNX.4.58.0405231854240.25502@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405231854240.25502@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rettw@rtwnetwork.com wrote:
->
-> Hi Andrew,
-> 
-> > This could be an artifact from the instrumentation - if
-> > the application is
-> > doing short bursts of work the 1000Hz clock may be
-> > providing more accurate
-> > sampling.
-> >
-> > In 2.6, edit include/asm/param.h and set HZ to 100 and
-> > then redo the
-> > measurement.
-> >
-> That did it - the CPU utilization is back down to what I
-> am used to seeing on 2.4. - Now, the question is - what
-> was more accurate?  Was 2.4 producing abnormally low
-> numbers?  Or 2.6 abnormally high?
+Linus Torvalds wrote:
+> Oh, well. I don't expect _everybody_ to switch to x86-64 immediately, but 
+> I hope we can hold out long enough without 4g that it does work out this 
+> time.
 
-It's hard to tell.  I'd assume that the 1000Hz number are
-more accurate due to the improved sampling frequency.
+I think the switchover will happen fairly rapidly, since it is 
+positioned "the upgrade you get next time you buy a new computer", 
+similar to the current PATA->SATA switchover.
 
-If you want a really accurate estimate of CPU usage you could use
-`cyclesoak' from http://www.zip.com.au/~akpm/linux/#zc.  It works by
-running a low-priority busy-wait loop and then seeing how much CPU is left
-over for it by the real workload.  It's not 100% accurate unless you run
-your test load with SCHED_FIFO or SCHED_OTHER policy, but it's close.
+Since these CPUs run in 32-bit mode just fine, I bet you wind up with 
+people running Intel or AMD 64-bit CPUs long they abandon their 32-bit 
+OS.  I recall people often purchasing gigabit ethernet cards long before 
+they had a gigabit switch, simply because it was the volume technology 
+that was being at the time.  I think the same thing is going to happen 
+here, with AMD64 and EM64T.
 
-Making the in-kernel instrumentation more accurate would be possible, but
-would incur additional overhead in the CPU scheduler and interrupt handlers
-- we don't see a lot of call for it.
+AMD got a lot of things right with this one...
 
-But yes, one needs to be cautious when comparing 2.4 CPU load measurements
-against 2.6 kernels.
+	Jeff
 
->  One interesting thing,
-> just below the define statements in the file mentioned
-> above is a conditional define that sets HZ to 100 anyway,
-> if not already defined - it almost seems that the 1000
-> value is bogus to begin with.
 
-Nope, we use 1000Hz on most architectures.

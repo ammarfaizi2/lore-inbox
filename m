@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262824AbSLOVd5>; Sun, 15 Dec 2002 16:33:57 -0500
+	id <S262828AbSLOVoS>; Sun, 15 Dec 2002 16:44:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262828AbSLOVd4>; Sun, 15 Dec 2002 16:33:56 -0500
-Received: from services.cam.org ([198.73.180.252]:19636 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S262824AbSLOVd4>;
-	Sun, 15 Dec 2002 16:33:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [PATCH] kexec for 2.5.51....
-Date: Sun, 15 Dec 2002 16:41:49 -0500
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <200212141215.49449.tomlins@cam.org> <200212141859.07191.tomlins@cam.org> <m11y4jatbe.fsf@frodo.biederman.org>
-In-Reply-To: <m11y4jatbe.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212151641.49062.tomlins@cam.org>
+	id <S262859AbSLOVoS>; Sun, 15 Dec 2002 16:44:18 -0500
+Received: from mrmorr.lnk.telstra.net ([139.130.12.153]:47621 "EHLO
+	cheesypoof.guarana.org") by vger.kernel.org with ESMTP
+	id <S262828AbSLOVoS>; Sun, 15 Dec 2002 16:44:18 -0500
+Date: Mon, 16 Dec 2002 08:52:03 +1100
+From: kevin@sylandro.com
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 st + aic7xxx (Adaptec 19160B) + VIA KT333 repeatable freeze
+Message-ID: <20021215215203.GA29455@guarana.org>
+Reply-To: kevin@sylandro.com
+References: <1047.1039952560@ocs3.intra.ocs.com.au> <17460000.1039982505@aslan.btc.adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17460000.1039982505@aslan.btc.adaptec.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 15, 2002 04:03 pm, Eric W. Biederman wrote:
-> Ed Tomlinson <tomlins@cam.org> writes:
-> > Why not include this info in kexec -h ?  Bet it would prevent a few
-> > failure reports...
->
-> I will look, at that.
->  
-> > Two more possible additions to the kexec command.  
-> >
-> > 1. kexec -q which returns rc=1 and types the pending selection and
-> >    its command/append string if one exists and returns rc=0 if nothing
-> >    is pending.  
->
-> This would require effort to little purpose.  If you just call kexec
-> it loads the kernel and then calls shutdown -r now.  So the loaded kernel
-> should be a transient entity anyway.
+On Sun, Dec 15, 2002 at 01:01:45PM -0700, Justin T. Gibbs wrote:
+> > On Fri, 13 Dec 2002 11:51:27 +1100, 
+> > Kevin Easton <kevin@sylandro.com> wrote:
+> >> I'm not sure exactly where this problem fits in, but I'm getting a 
+> >> completely repeatable freeze (100% lockup, no response to keyboard)
+> >> triggered by writing to /dev/st0 (dd if=/dev/urandom of=/dev/st0 bs=512
+> >> count=163840 will reproduce it).
+> >> So... does anyone have any ideas how I should start trying to track this
+> >> down?
+> 
+> You might also look into your BIOS to ensure that the option "PCI Byte
+> Merging" is disabled.  This option allows the chipset to perform illegal
+> byte merging on the PCI bus that will upset the Adaptec.  Since the byte
+> merging will only occur in certain scenarios (heavily dependent on what
+> is going on with the SCSI bus), you may only see the lockup when accessing
+> a particular device or running a certain program.
+> 
+> The latest versions of the aic7xxx and aic79xx drivers will automatically
+> detect this broken VIA behavior and will fall back to using PIO for register
+> access.  Although I haven't generated patches against 2.4.20, you can pull
+> down a src tarball for 2.4.X that should just drop in:
 
-Consider, you are not sure what kexec has been setup to do (maybe 
-some other admin has something setup to take a crash dump etc).  You 
-do not want to destroy this setup, so you do kexec -q  
+OK, will do - thanks.  I don't think the BIOS on this board has such an
+option, so I might have to put up with PIO register access.
 
-Think being able to query the pending kexec is very usefull.  Also
-using an rc means that scripts can use it too.
+	- Kevin.
 
-> > 2. kexec -c which clears any pending kernels.
->
-> This I can and should do.  The kernel side is already implemented.
-
-Thanks  
-
-Ed Tomlinson

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265337AbSJXHEA>; Thu, 24 Oct 2002 03:04:00 -0400
+	id <S265330AbSJXHCg>; Thu, 24 Oct 2002 03:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265338AbSJXHEA>; Thu, 24 Oct 2002 03:04:00 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:56754 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265337AbSJXHD6>;
-	Thu, 24 Oct 2002 03:03:58 -0400
-Date: Thu, 24 Oct 2002 12:53:18 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Rob Landley <landley@trommello.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Son of crunch time: the list v1.2.
-Message-ID: <20021024125318.B30624@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <20021021135137.2801edd2.rusty@rustcorp.com.au> <3DB4B1B9.4070303@pobox.com> <20021023155853.A28909@in.ibm.com> <200210231103.20711.landley@trommello.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210231103.20711.landley@trommello.org>; from landley@trommello.org on Wed, Oct 23, 2002 at 11:03:20AM -0500
+	id <S265332AbSJXHCg>; Thu, 24 Oct 2002 03:02:36 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:54501 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S265330AbSJXHCf>;
+	Thu, 24 Oct 2002 03:02:35 -0400
+Message-ID: <3DB79C79.9050200@candelatech.com>
+Date: Thu, 24 Oct 2002 00:08:41 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gilad Ben-Yossef <gilad@benyossef.com>
+CC: jw schultz <jw@pegasys.ws>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: over&out (Re: feature request - why not make netif_rx() a	pointer?)
+References: <20021023003959.GA23155@bougret.hpl.hp.com>	<004c01c27a99$927b8a30$800a140a@SLNW2K> <3DB6AC40.20007@nortelnetworks.com>	<008b01c27ab0$760be900$800a140a@SLNW2K>  <20021023225916.GA6395@pegasys.ws> <1035440743.9164.24.camel@gby.benyossef.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 11:03:20AM -0500, Rob Landley wrote:
-> On Wednesday 23 October 2002 05:28, Vamsi Krishna S . wrote:
-> 
-> > We are not proposing the entire dprobes patch to be in kernel. It doesn't
-> > have to be. We are proposing for inclusion the "kprobes" patchset at
-> > http://www-124.ibm.com/linux/patches/?project_id=141 which provides
-> > the basic infrastructure in the kernel for setting up and handling
-> > breakpoints automatically in kernel space. Once this small piece is in,
-> > we can implement comprehensive tools like dynamic probes as external
-> > kernel modules without having to patch the kernel.
-> 
-> Okay, so if patch 1 is kprobes itself, what exactly is the status of patches 
-> 2-4?  (Optional but nice?  Cleanups?  Or are you pushing as hard for them as 
-> for part 1?)
-> 
-2-4 are additional features which are required to implement a tool like
-dprobes. It is nice to have them all in the kernel, so full-featured tools
-like dprobes could be built without touching the kernel.
+Gilad Ben-Yossef wrote:
 
-> I thought 2-4 paved the way for dprobes, but if you're not trying to get 
-> dprobes in...?
+> IANAL but AFAIK the GPL V2 requires you to either distribute the
+> source/patch together with the binary or include a *written* obligation
+> valid for three years to supply the sources to any thrid party.
 > 
-dprobes doesn't have to be in the mainline kernel, but dprobes (or
-any such tool) requires some basic support from the kernel for setting
-up breakpoints. kprobes provides these fundamental facilities which
-are useable as-is.
+> So, for example, if you disribute the binary on a CD, or some embedded
+> device, sticking the patch somewhere on your web site with an obscure
+> link pointing to them is technicaly a violation of the GPL.
 
-Thanks,
-Vamsi.
+You could hide the source in the documentation, no one ever reads that ;)
+
+Ben
 
 -- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

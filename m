@@ -1,104 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131596AbRATSvE>; Sat, 20 Jan 2001 13:51:04 -0500
+	id <S131539AbRATSvP>; Sat, 20 Jan 2001 13:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131539AbRATSup>; Sat, 20 Jan 2001 13:50:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51463 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131461AbRATSul>;
-	Sat, 20 Jan 2001 13:50:41 -0500
-Date: Sat, 20 Jan 2001 19:50:27 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: andersg@0x63.nu, linux-kernel@vger.kernel.org
-Subject: Re: lvm-oops in 2.4.1pre8
-Message-ID: <20010120195027.Q30779@suse.de>
-In-Reply-To: <20010120184106.A355@h55p111.delphi.afb.lu.se> <20010120192553.K8717@athlon.random>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="mSxgbZZZvrAyzONB"
-Content-Disposition: inline
-In-Reply-To: <20010120192553.K8717@athlon.random>; from andrea@suse.de on Sat, Jan 20, 2001 at 07:25:53PM +0100
+	id <S131721AbRATSvE>; Sat, 20 Jan 2001 13:51:04 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:63627 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S131461AbRATSus>;
+	Sat, 20 Jan 2001 13:50:48 -0500
+Date: Sat, 20 Jan 2001 13:50:40 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+cc: Otto Meier <gf435@gmx.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "neilb@cse.unsw.edu.au" <neilb@cse.unsw.edu.au>
+Subject: Re: Serious file system corruption with RAID5+SMP and kernels
+ above2.4.0
+In-Reply-To: <Pine.LNX.4.30.0101201930500.16941-100000@talentix.dwd.de>
+Message-ID: <Pine.SGI.4.31L.02.0101201349560.1762158-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I can't even get RAID5 to assemble thew md devices under 2.4.0 and
+2.4.1-pre7.
 
---mSxgbZZZvrAyzONB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Sat, Jan 20 2001, Andrea Arcangeli wrote:
-> On Sat, Jan 20, 2001 at 06:41:06PM +0100, andersg@0x63.nu wrote:
-> > hi,
-> > 
-> > got this oops when doing a 
-> > vgextend -v vgroot /dev/ide/host2/bus0/target0/lun0/part2 \
-> > /dev/ide/host2/bus1/target0/lun0/part2
-> 
-> You should upgrade to 0.9.1_beta2 that should merge all the known fixes out
-> there. It's planned for inclusion into 2.4.1.
+On Sat, 20 Jan 2001, Holger Kiehl wrote:
 
-If you are doing updates, could you include this patch too? All it does
-is waste memory.
+> Date: Sat, 20 Jan 2001 19:42:04 +0100 (CET)
+> From: Holger Kiehl <Holger.Kiehl@dwd.de>
+> To: Otto Meier <gf435@gmx.net>
+> Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+>      "neilb@cse.unsw.edu.au" <neilb@cse.unsw.edu.au>
+> Subject: Re: Serious file system corruption with RAID5+SMP and kernels
+>     above2.4.0
+>
+> On Sat, 20 Jan 2001, Otto Meier wrote:
+>
+> > Two days ago I tried new kernels on my SMP SW RAID5 System
+> > and expirienced serous file system corruption with kernels 2.4.1-pre8,9 as 2.4.0-ac8,9,10.
+> > The same error has been reported by other people on this list. With 2.4.0 release
+> > everything runs fine. So I backsteped to it and had no error since.
+> >
+> I just tried 2.4.0 and still get filesystem corruption. My system is
+> also SMP and SW Raid5. So far I have tried 2.4.0, 2.4.1-pre3,8 and
+> 2.4.0-ac10 and all corrupt my filesystem. 2.2.18 is ok.
+>
+> With the help of Manfred Spraul I can now reproduce this problem
+> within 10 minutes.
+>
+> Holger
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 
---mSxgbZZZvrAyzONB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=lvm-request_fn-1
-
---- /kt/linux-2.4.1-pre9/drivers/md/lvm.c	Fri Dec 29 23:07:22 2000
-+++ drivers/md/lvm.c	Sat Jan 20 19:50:59 2001
-@@ -208,9 +208,6 @@
- extern int lvm_init(void);
- #endif
- 
--static void lvm_dummy_device_request(request_queue_t *);
--#define	DEVICE_REQUEST	lvm_dummy_device_request
--
- static int lvm_make_request_fn(request_queue_t*, int, struct buffer_head*);
- 
- static int lvm_blk_ioctl(struct inode *, struct file *, uint, ulong);
-@@ -464,7 +461,6 @@
- 	lvm_hd_name_ptr = lvm_hd_name;
- #endif
- 
--	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), DEVICE_REQUEST);
- 	blk_queue_make_request(BLK_DEFAULT_QUEUE(MAJOR_NR), lvm_make_request_fn);
- 
- 	/* optional read root VGDA */
-@@ -504,7 +500,6 @@
- 	if (unregister_blkdev(MAJOR_NR, lvm_name) < 0) {
- 		printk(KERN_ERR "%s -- unregister_blkdev failed\n", lvm_name);
- 	}
--	blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
- 
- 	gendisk_ptr = gendisk_ptr_prev = gendisk_head;
- 	while (gendisk_ptr != NULL) {
-@@ -1730,21 +1725,6 @@
- 	return;
- }
- #endif
--
--
--/*
-- * this one never should be called...
-- */
--static void lvm_dummy_device_request(request_queue_t * t)
--{
--	printk(KERN_EMERG
--	     "%s -- oops, got lvm request for %02d:%02d [sector: %lu]\n",
--	       lvm_name,
--	       MAJOR(CURRENT->rq_dev),
--	       MINOR(CURRENT->rq_dev),
--	       CURRENT->sector);
--	return;
--}
- 
- 
- /*
-
---mSxgbZZZvrAyzONB--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

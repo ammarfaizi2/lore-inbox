@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129508AbQKFROe>; Mon, 6 Nov 2000 12:14:34 -0500
+	id <S129596AbQKFRNY>; Mon, 6 Nov 2000 12:13:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129519AbQKFRO2>; Mon, 6 Nov 2000 12:14:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16468 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129508AbQKFRON>; Mon, 6 Nov 2000 12:14:13 -0500
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: jas88@cam.ac.uk (James A. Sutherland)
-Date: Mon, 6 Nov 2000 17:12:30 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse),
-        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+	id <S129572AbQKFRNO>; Mon, 6 Nov 2000 12:13:14 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:49650 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129061AbQKFRM4>;
+	Mon, 6 Nov 2000 12:12:56 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <00110617033201.01646@dax.joh.cam.ac.uk> 
+In-Reply-To: <00110617033201.01646@dax.joh.cam.ac.uk>  <200011061657.eA6Gv0w08964@pincoya.inf.utfsm.cl> 
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Keith Owens <kaos@ocs.com.au>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <00110613370501.01541@dax.joh.cam.ac.uk> from "James A. Sutherland" at Nov 06, 2000 01:35:28 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13spou-0006P0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 06 Nov 2000 17:12:16 +0000
+Message-ID: <7101.973530736@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So autoload the module with a "dont_screw_with_mixer" option. When the kernel
-> first boots, initialise the mixer to suitable settings (load the module with 
-> "do_screw_with_mixer" or whatever); thereafter, the driver shouldn't change
-> the mixer settings on load.
 
-Which is part of what persistent module data lets you do. And without having
-to mess with dont_screw_with_mixer (which if you get it wrong btw can be 
-fatal and hang the hardware)
+jas88@cam.ac.uk said:
+>  So set them on startup. NOT when the driver is first loaded. Put it
+> in the rc.d scripts. 
+
+No. You should initialise the hardware completely when the driver is 
+reloaded. Although the expected case is that the levels just happen to be 
+the same as the last time the module was loaded, you can't know that the 
+machine hasn't been suspended and resumed since then.
+
+
+jas88@cam.ac.uk said:
+>  No need. Let userspace save it somewhere, if that's needed. 
+
+Don't troll, James. Reread the thread and see why doing it in userspace is 
+too late.
+
+--
+dwmw2
 
 
 -

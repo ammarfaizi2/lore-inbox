@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261994AbSITJVK>; Fri, 20 Sep 2002 05:21:10 -0400
+	id <S261819AbSITJbl>; Fri, 20 Sep 2002 05:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261997AbSITJVK>; Fri, 20 Sep 2002 05:21:10 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:24706 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261994AbSITJVI>; Fri, 20 Sep 2002 05:21:08 -0400
-Message-Id: <200209200926.g8K9QCY04663@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: inbox
-To: Padraig Brady <padraig.brady@corvil.com>
-cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 fs: no userspace writes == no disk writes ? 
-In-Reply-To: Message from Padraig Brady <padraig.brady@corvil.com> 
-   of "Fri, 20 Sep 2002 10:19:07 BST." <3D8AE80B.9090902@corvil.com> 
-Mime-Version: 1.0
-Content-Type: text/plain
-Date: Fri, 20 Sep 2002 11:26:12 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+	id <S261925AbSITJbl>; Fri, 20 Sep 2002 05:31:41 -0400
+Received: from mta.sara.nl ([145.100.16.144]:31906 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S261819AbSITJbk>;
+	Fri, 20 Sep 2002 05:31:40 -0400
+Date: Fri, 20 Sep 2002 11:36:40 +0200
+Mime-Version: 1.0 (Apple Message framework v482)
+Content-Type: multipart/mixed; boundary=Apple-Mail-1-520309516
+Subject: [patch] 2.5.36 reiserfs super.c
+From: Remco Post <r.post@sara.nl>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Message-Id: <778038AA-CC7C-11D6-AF50-000393911DE2@sara.nl>
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Padraig Brady wrote:
-> > Rob van Nieuwkerk wrote:
-> > 
-> >> Hi Pádraig,
-> >>
-> >> Pádraig Brady wrote:
-> >>
-> >>> Rob van Nieuwkerk wrote:
-> >>>
-> >>>> Hi Alan,
-> >>>>
-> >>>>
-> >>>>> On Fri, 2002-09-20 at 00:04, Andrew Morton wrote:
-> >>>>>
-> >>>>>
-> >>>>>> There are frequently written areas of an ext3 filesystem - the
-> >>>>>> journal, the superblock.  Those would wear out pretty quickly.
-> >>>>>
-> >>>>>
-> >>>>> CF is -supposed- to wear level.
-> >>>>
-> >>>>
-> >>>> Yes I know.
-> >>>>
-> >>>> But I haven't been able to find any specs from any CF manufacturer
-> >>>> about this mechanism, percentage of spare sectors or number of allowed
-> >>>> write-cycles in general.
-> >>>
-> >>>
-> >>> me either.
-> >>>
-> >>> Why don't you just mount the fs ro ?
-> >>>
-> >>> Pádraig
-> >>
-> >>
-> >>
-> >> Ehm .., because I need to store data on it ..
-> > 
-> > 
-> > Ehm, well remount,rw before you store data on it
-> > and remount,ro when finished?
-> 
-> Note you can organise things (links from /etc/various /dev/various /var
-> to ramdisk/tmpfs/...) so that you never have to mount the CF rw.
 
-Yes I know.  That will happen for the root partition anyway.
-The whole discussion is about a dedicated data logging partition/fs
-on the CF.
+--Apple-Mail-1-520309516
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
 
-	greetings,
-	Rob van Nieuwkerk
+Hi,
+
+small patch to include mm.h in fs/reiserfs/super.c
+
+
+--Apple-Mail-1-520309516
+Content-Disposition: attachment;
+	filename=reiserfs2.patch
+Content-Transfer-Encoding: 7bit
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="reiserfs2.patch"
+
+--- linux-2.5/fs/reiserfs/super.c.org	Fri Sep 20 11:28:40 2002
++++ linux-2.5/fs/reiserfs/super.c	Thu Sep 19 20:59:46 2002
+@@ -13,6 +13,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/mm.h>
+ #include <linux/vmalloc.h>
+ #include <linux/time.h>
+ #include <asm/uaccess.h>
+
+--Apple-Mail-1-520309516
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+
+
+--
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+PGP keys at http://home.sara.nl/~remco/keys.asc
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer 
+industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+
+
+--Apple-Mail-1-520309516--
+

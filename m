@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTJDOWl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 10:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTJDOWk
+	id S262061AbTJDOn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 10:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbTJDOn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 10:22:40 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:16518 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262061AbTJDOWj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 10:22:39 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: mlockall and mmap of IO devices don't mix
-Date: Sat, 4 Oct 2003 16:19:49 +0200
-User-Agent: KMail/1.5.4
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       Joe Korty <joe.korty@ccur.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-References: <CFYv.787.23@gated-at.bofh.it> <200310041202.08742.ioe-lkml@rameria.de> <20031004111336.C18928@flint.arm.linux.org.uk>
-In-Reply-To: <20031004111336.C18928@flint.arm.linux.org.uk>
+	Sat, 4 Oct 2003 10:43:59 -0400
+Received: from nan-smtp-06.noos.net ([212.198.2.75]:60730 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id S262061AbTJDOn6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 10:43:58 -0400
+Message-ID: <3F7EDCDD.7090500@free.fr>
+Date: Sat, 04 Oct 2003 16:44:45 +0200
+From: Philippe Lochon <plochon.n0spam@free.fr>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en, fr-fr, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: P4C800E-Dlx: ICH5/S-ATA and Intel Pro onboard network incompatibility
+ ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310041619.49392.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Hi,
 
-CC'ed linux-mm and Andrew Morton for expertise.
+I'm running Mandrake 9.2RC1 (kernel 2.4.22) and I can't make work S-ATA 
+boot drive and Intel Pro onboard network.
 
-On Saturday 04 October 2003 12:13, Russell King wrote:
-> It has to be correct.  We do the following in a hell of a lot of places:
->
-> 	pfn = pte_pfn(pte);
-> 	if (pfn_valid(pfn)) {
-> 		struct page *page = pfn_to_page(pfn);
-> 		/* do something with page */
-> 	}
->
-> basically this type of thing happens in any of the PTE manipulation
-> functions (eg, copy_page_range, zap_pte_range, etc.)
+The Asus P4C800E-Dlx in the only mainboard in the P4x800 family with 
+ICH5R and Intel 82547EI (Gb onboard chip, it uses e1000 driver).
 
-These functions are called always with pages, where we know, that this
-is RAM, AFICS. Since sometimes other things are encoded in the PTE, whe
-check this via pfn_valid().
+The chips share the same IRQ :
+# grep eth0 /proc/interrupts
+  17:         83   IO-APIC-level  Intel ICH5, eth0
+(note that there's no error about this in syslog)
 
-If I'm wrong about this the gurus from LINUX-MM should complain loudly.
+1) Boot on S-ATA drive / Mandrake 9.2RC1 with "acpi=off"
+-> boot OK, but no ping, "NETDEV WATCHDOG: eth0: transmit timed out" in 
+syslog.
+(full log and config on http://plochon.free.fr/mdk92RC1.html )
 
-> If pfn_valid is returning false positives, and you happen to mmap() an
-> area which gives false positives from a user space application, your
-> kernel will either oops or will corrupt RAM when that application exits.
->
-> I believe the comment in mmzone.h therefore is an opinion, and indicates
-> a concern for performance rather than correctness and stability.
+2) Boot on S-ATA drive / Mandrake 9.2RC1 with "acpi=off" and "noapic"
+-> boot hang (when displays "hde: attached ide_disk driver" where hde is 
+the S-ATA boot drive)
 
-I hope you are wrong about this, but I'm not totally sure. So I included
-the linux-mm mailing list and Andrew Morton for expert advice.
+3) Same tests but boot on CD with Knoppix 3.3 (Kernel 2.4.22)
+-> same results
 
-Regards
+4) S-ATA drive physically removed, boot on CD / Knoppix 3.3 with 
+"acpi=off" and "noapic"
+-> boot OK, network OK : it works !
 
-Ingo Oeser
+Is there a way to make S-ATA and Intel Pro work together, or is it an 
+incompatibility ?
+
+Thanks,
+Philippe
+
+My hardware configuration:
+P4C800E-Dlx, P4C@2.6Ghz, 256Mb, 1 Seagate S-ATA drive plugged on 
+standard S-ATA connector (-> not on S-ATA RAID connector)
+IDE Bios settings :
+Onboard IDE operate mode	: Enhanced mode
+Enhanced mode support on	: S-ATA
+Configure S-ATA as RAID		: No
 
 

@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292805AbSB1AW2>; Wed, 27 Feb 2002 19:22:28 -0500
+	id <S292969AbSB1AVj>; Wed, 27 Feb 2002 19:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293047AbSB1AVk>; Wed, 27 Feb 2002 19:21:40 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:59040 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293097AbSB1AUj>; Wed, 27 Feb 2002 19:20:39 -0500
-Date: Wed, 27 Feb 2002 16:20:33 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: (better) syscalls for setting task affinity
-Message-ID: <20020227162033.A31585@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <1014853522.1109.234.camel@phantasy>
-Mime-Version: 1.0
+	id <S293095AbSB1AUU>; Wed, 27 Feb 2002 19:20:20 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5124 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292969AbSB1AUG>; Wed, 27 Feb 2002 19:20:06 -0500
+Subject: Re: Linux 2.4.19pre1-ac1
+To: afranck@gmx.de (Andreas Franck)
+Date: Thu, 28 Feb 2002 00:34:29 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), florin@iucha.net (Florin Iucha),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <02022800441601.01097@dg1kfa> from "Andreas Franck" at Feb 28, 2002 01:13:23 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1014853522.1109.234.camel@phantasy>; from rml@tech9.net on Wed, Feb 27, 2002 at 06:45:21PM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16gEWj-0006aD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 06:45:21PM -0500, Robert Love wrote:
-> [ This post adds length and pointer checks to the syscalls such that we
-> can portably change the size of cpus_allowed. ]
+> Will try this now, sounds possible - but does patch really use shared memory?
+> I will try to narrow it down a bit. There also were some changes to 
+> mm/memory.c between 2.4.18-rc2-ac2 and 2.4.18-ac1. Also a possibility?
 
-Great!  That is what I was going to suggest to your first patch.
+Could be - as far as I can tell they are also in vanilla 2.4.18 (the
+ptrace ones)
 
--- 
-Mike
+Alan

@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVBKIjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVBKIjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVBKIjS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 03:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVBKIjS
+	id S261761AbVBKIjD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVBKIjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 03:39:18 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:9654 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261348AbVBKIjM (ORCPT
+	Fri, 11 Feb 2005 03:39:03 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:55172 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262223AbVBKIiI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 03:39:12 -0500
-Date: Fri, 11 Feb 2005 09:40:53 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "d.c" <aradorlinux@yahoo.es>
-Cc: Roman Zippel <zippel@linux-m68k.org>, lm@bitmover.com, jonsmirl@gmail.com,
-       tytso@mit.edu, romieu@fr.zoreil.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050211084053.GB3263@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"d.c" <aradorlinux@yahoo.es>, Roman Zippel <zippel@linux-m68k.org>,
-	lm@bitmover.com, jonsmirl@gmail.com, tytso@mit.edu,
-	romieu@fr.zoreil.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0502081942200.6118@scrub.home> <20050209000733.GA6308@thunk.org> <Pine.LNX.4.61.0502090208580.6118@scrub.home> <9e47339105020818242fd9f6fa@mail.gmail.com> <Pine.LNX.4.61.0502090328490.30794@scrub.home> <20050209023928.GB4828@bitmover.com> <Pine.LNX.4.61.0502090346470.30794@scrub.home> <20050209034030.GC4828@bitmover.com> <Pine.LNX.4.61.0502091651400.30794@scrub.home> <20050210203437.5fe88be0.aradorlinux@yahoo.es>
+	Fri, 11 Feb 2005 03:38:08 -0500
+Date: Fri, 11 Feb 2005 09:34:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: George Anzinger <george@mvista.com>
+Cc: William Weston <weston@lysdexia.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+Message-ID: <20050211083408.GB3349@elte.hu>
+References: <20050204100347.GA13186@elte.hu> <Pine.LNX.4.58.0502081135340.21618@echo.lysdexia.org> <20050209115121.GA13608@elte.hu> <Pine.LNX.4.58.0502091233360.4599@echo.lysdexia.org> <20050210075234.GC9436@elte.hu> <420BC23F.6030308@mvista.com> <20050210204031.GA17260@elte.hu> <420BCC9C.8080807@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050210203437.5fe88be0.aradorlinux@yahoo.es>
+In-Reply-To: <420BCC9C.8080807@mvista.com>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 08:34:37PM +0100, d.c wrote:
 
-> El Thu, 10 Feb 2005 00:22:39 +0100 (CET),
-> Roman Zippel <zippel@linux-m68k.org> escribió:
-> 
-> > To remind you the main problem was and is still, that the kernel history 
-> > is locked into bk. At this point I'm not really sure, whether all bk user 
-> > realize this, as you constantly try to distract them with random 
-> 
-> Yes, it's locked, so?
-> 
-> Roman, You are losing lot of time discussing this. What you need to do is to talk
-> with bk USERS. Larry has no influence in people's decisions, and people has
-> chosen BK and they know very well what they were doing.
+* George Anzinger <george@mvista.com> wrote:
 
-Not exactly true. The BK licence changed a few times since Linus 
-started using it. IIRC, the restrictions on 'exporting the metadata'
-as well as the one on 'work with someone hacking on other random SCM'
-were NOT in the licence at that time.
+> Possibly from:
+> define __raw_spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
+> #define __raw_spin_unlock_wait(x) \
+> 	do { barrier(); } while(__spin_is_locked(x))
+> in asm/spinlock.h
+> 
+> should that be __raw_spin_is_locked(x) instead?
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+yeah. Is this in the ARM patch? I havent applied the ARM patch yet,
+waiting to see Thomas Gleixner's generic-hardirq based one. (which is
+more compelling from an architectural and long-term maintainance POV -
+but also more work to address all of RMK's concerns.)
+
+	Ingo

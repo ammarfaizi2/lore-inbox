@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVBTKZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVBTKgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVBTKZa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 05:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVBTKZa
+	id S261794AbVBTKgx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 05:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBTKgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 05:25:30 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51729 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261789AbVBTKZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 05:25:21 -0500
-Date: Sun, 20 Feb 2005 10:25:16 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       =?iso-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad G41 PCMCIA problems
-Message-ID: <20050220102516.E9509@flint.arm.linux.org.uk>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	=?iso-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
-	linux-kernel@vger.kernel.org
-References: <20050220092208.GA12738@hardeman.nu> <20050220092659.A9509@flint.arm.linux.org.uk> <20050220095211.GB12738@hardeman.nu> <20050220102059.GA17462@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050220102059.GA17462@isilmar.linta.de>; from linux@dominikbrodowski.net on Sun, Feb 20, 2005 at 11:20:59AM +0100
+	Sun, 20 Feb 2005 05:36:53 -0500
+Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:44039 "EHLO
+	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S261794AbVBTKgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 05:36:51 -0500
+Message-Id: <200502201036.j1KAagE04722@blake.inputplus.co.uk>
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       darcs-users@darcs.net
+Subject: Re: [darcs-users] Re: [BK] upgrade will be needed 
+In-Reply-To: <20050219171457.GA20285@abridgegame.org> 
+Date: Sun, 20 Feb 2005 10:36:42 +0000
+From: Ralph Corderoy <ralph@inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 20, 2005 at 11:20:59AM +0100, Dominik Brodowski wrote:
-> > Is the hole between 0x36f6fa000 and 0x3f700000?
-> > 
-> > And what would be the proper way of fixing it (assuming that IBM won't 
-> > issue a fixed BIOS)?
+
+Hi,
+
+David Roundy, creator of darcs, wrote:
+> On Sat, Feb 19, 2005 at 05:42:13PM +0100, Andrea Arcangeli wrote:
+> > I read in the webpage of the darcs kernel repository that they had
+> > to add RAM serveral times to avoid running out of memory. They
+> > needed more than 1G IIRC, and that was enough for me to lose
+> > interest into it.  You're right I blamed the functional approach and
+> > so I felt it was going to be a mess to fix the ram utilization, but
+> > as someone else pointed out, perhaps it's darcs to blame and not
+> > haskell. I don't know.
 > 
-> passing "reserve=0x3f6fa000,0x600" as kernel boot option. Please also post
-> /proc/iomem for further debugging, especially if this didn't help.
+> Darcs' RAM use has indeed already improved somewhat... I'm not exactly
+> sure how much.  I'm not quite sure how to measure peak virtual memory
+> usage, and most of the time darcs' memory use while doing the linux
+> kernel conversion is under a couple of hundred megabytes.
 
-You're missing a zero in the length. 8)
+Wouldn't calling sbrk(0) help?  I don't know if the Haskell run-time
+ever shrinks the data segment, if not, it could just be called at the
+end.  Or a `strace -e trace=brk darcs ...' might do.  But I guess darcs
+has other VM usage that doesn't show in this figure?  Does /proc/$$/maps
+if running under Linux help?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+A consistent way to measure would be handy for observing changes over
+time.
+
+Cheers,
+
+
+Ralph.
+

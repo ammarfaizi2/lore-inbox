@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281533AbRKZJoF>; Mon, 26 Nov 2001 04:44:05 -0500
+	id <S281546AbRKZJsq>; Mon, 26 Nov 2001 04:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281537AbRKZJn4>; Mon, 26 Nov 2001 04:43:56 -0500
-Received: from i212.netz.at ([194.152.163.212]:5637 "EHLO pixelwings.com")
-	by vger.kernel.org with ESMTP id <S281533AbRKZJns> convert rfc822-to-8bit;
-	Mon, 26 Nov 2001 04:43:48 -0500
-Date: Mon, 26 Nov 2001 10:43:48 +0100
-From: Clemens Schwaighofer <cs@pixelwings.com>
+	id <S281547AbRKZJs0>; Mon, 26 Nov 2001 04:48:26 -0500
+Received: from bartender.antefacto.net ([193.120.245.19]:3463 "EHLO
+	bartender.internal.antefacto.com") by vger.kernel.org with ESMTP
+	id <S281546AbRKZJsR>; Mon, 26 Nov 2001 04:48:17 -0500
+Date: Mon, 26 Nov 2001 09:47:55 +0000
+From: "John P. Looney" <john@antefacto.com>
 To: linux-kernel@vger.kernel.org
-Subject: ftp welcome message in 2.4 ftp directory?
-Message-ID: <160410000.1006767828@gullevek.piwi.intern>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Subject: Re: Etiquette of getting a driver into the kernel
+Message-ID: <20011126094754.R3188@antefacto.com>
+Reply-To: john@antefacto.com
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <mailman.1006511470.4667.linux-kernel2news@redhat.com> <200111241846.fAOIk8B01067@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wxIXENaY2CYUgF8u"
 Content-Disposition: inline
+In-Reply-To: <200111241846.fAOIk8B01067@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.23i
+X-OS: Red Hat Linux 7.2/Linux 2.4.15-greased-turkey
+X-URL: http://www.redbrick.dcu.ie/~valen
+X-GnuPG-publickey: http://www.redbrick.dcu.ie/~valen/public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Wouldn't it be smart to but a welcome message into the FTP directory of the 
-2.4 kernel that gives hints what problems there are with the latest kernel 
-(loop problem in .14, etc ...) and what patches are there to apply for 
-fixing it.
+--wxIXENaY2CYUgF8u
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think this would help a lot of people who are not reading this mailing 
-list and would save the mailing list of a lot of repeating mails (think of 
-the loop problem).
+On Sat, Nov 24, 2001 at 01:46:08PM -0500, Pete Zaitcev mentioned:
+> You must resolve the licensing issue first. Once you are
+> done, send it to linux-usb-devel@lists.sourceforge.net.
+> The USB subsystem has an active maintainer currently.
 
-I think this would be a good step forward.
+ Thanks. I don't think that'll happen. It turns out that the driver
+maintainer doesn't want the driver circulated, as newer versions of the
+device are usb-storage compliant, and don't need a specific driver. He
+reckons it would confuse people. Ah well.
 
--- 
-"Der Krieg ist ein Massaker von Leuten, die sich nicht kennen, zum
-Nutzen von Leuten, die sich kennen, aber nicht massakrieren"
-- Paul Valéry (1871-1945)
-mfg, Clemens Schwaighofer                       PIXELWINGS Medien GMBH
-Kandlgasse 15/5, A-1070 Wien                      T: [+43 1] 524 58 50
-JETZT NEU! MIT FEWA GEWASCHEN       -->      http://www.pixelwings.com
+John
+
+--=20
+_______________________________________
+John Looney             Chief Scientist
+a n t e f a c t o     t: +353 1 8586004
+www.antefacto.com     f: +353 1 8586014
+
+
+--wxIXENaY2CYUgF8u
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8Ag/KYBVPvqzGrWgRAtXqAJ42hn8stJIXBX+5uQkEdktDduUDaACeLoK1
+LWjppWKh9FoHY8pkaZhwvgE=
+=HkeX
+-----END PGP SIGNATURE-----
+
+--wxIXENaY2CYUgF8u--

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbTHVMdf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 08:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbTHVMby
+	id S263113AbTHVMbk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 08:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbTHVMbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 08:31:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19207 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263075AbTHVL1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 07:27:11 -0400
-Date: Fri, 22 Aug 2003 12:27:04 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Bill J.Xu" <xujz@neusoft.com>
-Cc: Charles Lepple <clepple@ghz.cc>, linux-kernel@vger.kernel.org
-Subject: Re: "ctrl+c" disabled!
-Message-ID: <20030822122704.A12903@flint.arm.linux.org.uk>
-Mail-Followup-To: "Bill J.Xu" <xujz@neusoft.com>,
-	Charles Lepple <clepple@ghz.cc>, linux-kernel@vger.kernel.org
-References: <036601c367e0$01adabc0$2a01010a@avwindows> <3F457A19.8E8A1F65@gmx.de> <04b901c36852$dccc7660$2a01010a@avwindows> <3F45830A.5C0F5BCA@gmx.de> <053301c3685c$9ea6fe50$2a01010a@avwindows> <bi45b6$kor$1@sea.gmane.org> <05a501c36869$a7aeee60$2a01010a@avwindows>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Aug 2003 08:31:40 -0400
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:34459 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S263113AbTHVLHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 07:07:44 -0400
+Message-ID: <20030822110830.15262.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <05a501c36869$a7aeee60$2a01010a@avwindows>; from xujz@neusoft.com on Fri, Aug 22, 2003 at 12:55:48PM +0800
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Luis Medinas" <metalgodin@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 22 Aug 2003 19:08:30 +0800
+Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
+X-Originating-Ip: 194.65.14.75
+X-Originating-Server: ws5-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 12:55:48PM +0800, Bill J.Xu wrote:
-> Yeah,that is the result after pressing ctrl+c, ctrl+d. maybe od do not get the "ctrl+c" signal.
-> But I use SecureCRT with the same configration at the same PC to telnet the linux box,everything is OK.
-> So I think that if there is some thing wrong with linux kernel?
+>I try to make this modem working.
+>It works very well on kernel 2.4 series.
+>It work with some kernel 2.6 until test2-mm1.
+>But since test2-mm1, the newer kernel doesn't work anymore.
+>There is 2 related drivers for this modem.
+>The one which is included in the kernel and which can be found here :
+>http://www.linux-usb.org/SpeedTouch/
+>and the one which I've always used until now :
+>speedtouch.sourceforge.net
 
-Check /proc/tty/driver/serial for framing errors.
+>when I notice that the old one doesn't work anymore, I try with the driver 
+>which included in the kernel, without success.
 
-Also check that both ends of your serial link are appropriately configured.
+>It crashed when I do "pppd call adsl".
+>I can load the firmware.
 
+Looks like this is happening to all 2.6.0-test3 users with speedtouch usb modems
+And i heard that speedtouch.sf.net developers want to leave 2.6 tree stabilize more a little bit to continue develop drivers with the correct support.
+
+Im sure we can help test drivers with the correct support for 2.6 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
+Powered by Outblaze

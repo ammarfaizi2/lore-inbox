@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312833AbSDBJVn>; Tue, 2 Apr 2002 04:21:43 -0500
+	id <S312834AbSDBJgF>; Tue, 2 Apr 2002 04:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312834AbSDBJVd>; Tue, 2 Apr 2002 04:21:33 -0500
-Received: from pro18.it.dtu.dk ([130.225.76.218]:47301 "EHLO pro18.it.dtu.dk")
-	by vger.kernel.org with ESMTP id <S312833AbSDBJVV>;
-	Tue, 2 Apr 2002 04:21:21 -0500
-Message-ID: <3CA9780B.7040900@fugmann.dhs.org>
-Date: Tue, 02 Apr 2002 11:21:15 +0200
-From: Anders Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020401 Debian/2:0.9.9-3pre4v5
-X-Accept-Language: en
+	id <S312836AbSDBJfz>; Tue, 2 Apr 2002 04:35:55 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:15118 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S312834AbSDBJfo>; Tue, 2 Apr 2002 04:35:44 -0500
+Message-ID: <3CA97B1A.13E6765D@aitel.hist.no>
+Date: Tue, 02 Apr 2002 11:34:18 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Process info
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Subject: Re: [Q] FAT driver enhancement
+In-Reply-To: <20020328135555.U6796-100000@snail.stack.nl> <871ye479sz.fsf@devron.myhome.or.jp>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+OGAWA Hirofumi wrote:
+> 
+> Jos Hulzink <josh@stack.nl> writes:
+> 
+> > Hi,
+> >
+> > A while ago I initiated a thread about mounting a NTFS partition as FAT
+> > partition. The problem is that FAT partitions do not have a real
+> > fingerprint, so the FAT driver mounts almost anything.
+> >
+> > The current 2.5 driver only tests if some values in the bootsector are
+> > non-zero. IMHO, this is not strict enough. For example, the number of FATs
+> > is always 1 or 2 (anyone ever seen more ?). Besides, when there are two
+> > FATs, all entries in those FATs should be equal. If they are not, we deal
+> > with a non-FAT or broken FAT partition, and we should not mount.
+> >
+> > It's not a real fingerprint, but what are the chances all sectors of what
+> > we think is the FAT are equal on non-FAT filesystems ? Yes, when you just
+> > did a
+> >
+> > dd if=/dev/zero of=/dev/partition; mkfs.somefs /dev/partition
+> >
+> > there is a chance, but that's an empty filesystem. Data corruption isn't
+> > that bad on an empty disk. We know that a FAT is at the beginning of a
+> > partition and I assume that any other filesystem will fill up those first
+> > sectors very soon.
+> >
+> > Questions:
+> >
+> > 1) How do you think about the checking of the FAT tables ? It definitely
+> >    will slow down the mount.
+> 
+> Unfortunately if FAT table has bad sector, FAT tables may not be the
+> same.
 
-Is it possible to obtain per process statistics in linux 2.4/2.5?
-e.g. #ticks the process is assigned to a PE (Processing element), #ticks 
-  suspended (blocked) state, #ticks on runqueue? etc.
+And then you don't want to mount unless you know what you
+are doing.  And those knowing what they are doing can be bothered
+to use some kind of "force" option in this case.  Or perhaps an
+option that selects which FAT to trust.
 
-The reason for me asking is that I want to simulate some load-cases on 
-Linux, and therefore need some real data on how process on behaves.
-(How much CPU-time does it want/need, How often does the process suspend 
-itself and for how long, etc.)
-
-Anyone out there who as information on this. I was hoping to simulate a 
-gcc process. Then add 200 of them, and see how my small simulator 
-behaves, and compare this to how things are actually working in Linux.
-(the old `make bzImage -j 200` test.)
-
-Regards
-Anders Fugmann
-
-
-
-
-
-
-
-
-
+Helge Hafting

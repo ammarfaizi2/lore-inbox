@@ -1,86 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317385AbSINRBR>; Sat, 14 Sep 2002 13:01:17 -0400
+	id <S317371AbSINQ5h>; Sat, 14 Sep 2002 12:57:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317392AbSINRBR>; Sat, 14 Sep 2002 13:01:17 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:62085 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S317385AbSINRBQ>; Sat, 14 Sep 2002 13:01:16 -0400
-Date: Sat, 14 Sep 2002 14:05:49 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-cc: linux-kernel@vger.kernel.org, <conman@kolivas.net>
-Subject: Re: your mail
-In-Reply-To: <20020914123948.26265.qmail@linuxmail.org>
-Message-ID: <Pine.LNX.4.44L.0209141405160.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317373AbSINQ5h>; Sat, 14 Sep 2002 12:57:37 -0400
+Received: from 62-190-202-1.pdu.pipex.net ([62.190.202.1]:41732 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S317371AbSINQ5g>; Sat, 14 Sep 2002 12:57:36 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209141709.g8EH9Bts002237@darkstar.example.net>
+Subject: Re: Possible bug and question about ide_notify_reboot in drivers/ide/ide.c (2.4.19)
+To: alex14641@yahoo.com (Alex Davis)
+Date: Sat, 14 Sep 2002 18:09:11 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020913023744.78077.qmail@web40510.mail.yahoo.com> from "Alex Davis" at Sep 12, 2002 07:37:44 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Sep 2002, Paolo Ciarrocchi wrote:
+> Second, why do we need to put the disks on standby before halting?
 
-> I think that only the _memload_ test is not
-> working with 2.5.*, am I wrong?
+So that data that is in their internal RAM cache is flushed before the power is switched off.
 
-You're right, the memload test doesn't work with 2.5 but
-needs the following patch...
+> I ask because putting the disks on standby puts my hard drives into a coma!!
+> When I power up after a halt, I have to go into the BIOS and force auto-detect to wake
+> them back up. I've removed the "standby" code and things seem to be functioning normally.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+That is very strange.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+> I have an Epox 8K7A motherboard with two Maxtor Hard drives (model 5T040H4).
 
-Spamtraps of the month:  september@surriel.com trac@trac.org
+Never experienced that with a Maxtor hard disk.  Best person to ask would be Alan.
 
-
---- contest-0.1/mem_load.c.orig	2002-09-13 23:36:47.000000000 -0400
-+++ contest-0.1/mem_load.c	2002-09-14 11:10:07.000000000 -0400
-@@ -47,24 +47,25 @@
-   switch (type) {
-
-   case 0: /* RAM */
--    if ((position = strstr(buffer, "Mem:")) == (char *) NULL) {
--      fprintf (stderr, "Can't parse \"Mem:\" in /proc/meminfo\n");
-+    if ((position = strstr(buffer, "MemTotal:")) == (char *) NULL) {
-+      fprintf (stderr, "Can't parse \"MemTotal:\" in /proc/meminfo\n");
-       exit (-1);
-     }
--    sscanf (position, "Mem:  %ul", &size);
-+    sscanf (position, "MemTotal:  %ul", &size);
-     break;
-
-   case 1:
--    if ((position = strstr(buffer, "Swap:")) == (char *) NULL) {
--      fprintf (stderr, "Can't parse \"Swap:\" in /proc/meminfo\n");
-+    if ((position = strstr(buffer, "SwapTotal:")) == (char *) NULL) {
-+      fprintf (stderr, "Can't parse \"SwapTotal:\" in /proc/meminfo\n");
-       exit (-1);
-     }
--    sscanf (position, "Swap: %ul", &size);
-+    sscanf (position, "SwapTotal: %ul", &size);
-     break;
-
-   }
-
--  return (size / MB);
-+  /* convert from kB to MB */
-+  return (size / KB);
-
- }
-
---- contest-0.1/mem_load.h.orig	2002-09-14 11:09:28.000000000 -0400
-+++ contest-0.1/mem_load.h	2002-09-14 11:09:42.000000000 -0400
-@@ -24,6 +24,7 @@
-
- #define MAX_BUF_SIZE 1024          /* size of /proc/meminfo in bytes */
- #define MB (1024 * 1024)           /* 2^20 bytes */
-+#define KB 1024
- #define MAX_MEM_IN_MB (1024 * 64)  /* 64 GB */
-
- /* Tuning parameter.  Increase if you are getting an 'unreasonable' load
-
+John.

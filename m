@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264074AbTKMM5p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 07:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbTKMM5o
+	id S264040AbTKMMsU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 07:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264074AbTKMMsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 07:57:44 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:48288 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S264074AbTKMM5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 07:57:43 -0500
-Date: Thu, 13 Nov 2003 07:57:39 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Dax Kelson <dax@gurulabs.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: List of SCO files
-In-Reply-To: <1068691791.13135.41.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0311130756340.22062-100000@chimarrao.boston.redhat.com>
+	Thu, 13 Nov 2003 07:48:20 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:36878 "EHLO
+	int-mx1.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S264040AbTKMMsT (ORCPT <rfc822;linux-kernel@vger.redhat.com>);
+	Thu, 13 Nov 2003 07:48:19 -0500
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Linux Kernel <linux-kernel@vger.redhat.com>
+Subject: 2.6.0-test9 and /dev/initctl
+Date: Thu, 13 Nov 2003 23:48:12 +1100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311132348.12766.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Nov 2003, Benjamin Herrenschmidt wrote:
+With kernel 2.6.0-test9 running on both Fedora and Debian/unstable there is a 
+problem with file handles.
 
-> Or just include/asm-m68k/spinlock.h :)
+It seems that the kernel somehow gets an open file handle for /dev/initctl (I 
+still haven't determined how) and then passes it on to any processes it forks 
+(IE modprobe and hotplug).
 
-> #ifndef __M68K_SPINLOCK_H
-> #define __M68K_SPINLOCK_H
-> #error "m68k doesn't do SMP yet"
-> #endif
-
-I wonder if that reflects the state SCO's OSes are in,
-with respect to the technologies they claim that IBM
-misappropriated ;)
+This shows up when running SE Linux as neither modprobe nor hotplug are 
+permitted to access /dev/initctl in any way and the kernel message log 
+records the access that was denied.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 

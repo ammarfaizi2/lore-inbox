@@ -1,59 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262780AbTDRDJm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 23:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTDRDJm
+	id S262785AbTDRDOc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 23:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTDRDOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 23:09:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16264 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262780AbTDRDJl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 23:09:41 -0400
-Message-ID: <3E9F6F35.2010101@pobox.com>
-Date: Thu, 17 Apr 2003 23:21:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marc Wilson <msw@cox.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Via-Rhine dirve in 2.4.21-pre7
-References: <1049706637.963.6.camel@athlon> <1050602030.988.4.camel@athlon> <20030417175924.GE25696@gtf.org> <20030418024709.GD14527@moonkingdom.net>
-In-Reply-To: <20030418024709.GD14527@moonkingdom.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Apr 2003 23:14:32 -0400
+Received: from evrtwa1-ar9-4-65-254-215.evrtwa1.dsl-verizon.net ([4.65.254.215]:53189
+	"EHLO omgwallhack.org") by vger.kernel.org with ESMTP
+	id S262785AbTDRDO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 23:14:28 -0400
+Subject: ACPI Problem
+From: Julian Blake Kongslie <jblake@omgwallhack.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xGKwoQ+C5slTWKt7XL2H"
+Organization: 
+Message-Id: <1050636363.1889.13.camel@festa.omgwallhack.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Apr 2003 20:26:03 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Wilson wrote:
-> On Thu, Apr 17, 2003 at 01:59:24PM -0400, Jeff Garzik wrote:
-> 
->>Until further notice, please do not attempt to use Via IOAPIC support.
->>This has nothing to do with via-rhine, and remains an open issue.
-> 
-> 
-> I thought I'd read everything about the Rhine and Via in my lurking on
-> lkml, but I must have missed something.  This box here is an Abit KD7-RAID
-> (Via KT400 + Rhine II) and I have IOAPIC enabled and am using Roger's latest
-> driver with 2.4.21-pre6 with great success.
-[...]
-> eth0: VIA VT6102 Rhine-II at 0xd800, 00:50:8d:45:af:b7, IRQ 23.
-[...]
-> What am I missing here?  It sounds like it's dangerous to use, but it
-> doesn't look like it's broken.
+
+--=-xGKwoQ+C5slTWKt7XL2H
+Content-Type: multipart/mixed; boundary="=-cyCcaJjxSNsFtESDQbRj"
 
 
-If it works for you, great!
+--=-cyCcaJjxSNsFtESDQbRj
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It doesn't work at all for some people, and it works until you hit high 
-loads, for others.  Besides all the bug reports I've seen, Alan Cox has 
-noted it's an open issue as well.  He may have more info on the APIC 
-details.
+I asked this a while ago, but I didn't get a fix, and the problem still
+exists...
 
-Basically there are a lot of "I boot with 'noapic', and suddenly 
-everything works" reports.
+I'm on an IBM Thinkpad a30p laptop, using a 2.5.66 kernel, and I can't
+use ACPI. On bootup, ACPI tables are found, but there is a problem in
+the ECDT, and ACPI disables itself. Exerpt from my dmesg is attached.
 
-	Jeff
+This problem is not in 2.4 (because the ECDT isn't used?), but it is in
+kernels as early as 2.5.50. I haven't checked earlier kernels, but I can
+if someone honestly thinks that would help.
+
+I've gotten several emails from other people with similar systems, all
+IBM laptops, regarding my earlier posts on this problem, asking if I
+found a solution. This leads me to believe that it is an incompatability
+with the ACPI implementation on IBM laptops. I, personally, am willing
+to accept partial functionality because of a broken BIOS, but right now
+I get no ACPI support at all, which is really disappointing.
+
+ACPI section of .config is attached.
+
+I can provide any other details that may be needed, and I will gladly
+test bogus patches and dangerous fixes ;-) -- IBM gave me an awesome
+warranty on this laptop, and I don't mind losing it for a few days if
+they need to replace it.
+
+Thanks in advance.
+
+--=20
+
+-Julian Blake Kongslie
+<jblake@omgwallhack.org>
+
+Herre Gud! Jeg har en o/ks i hodet!
 
 
+--=-cyCcaJjxSNsFtESDQbRj
+Content-Disposition: attachment; filename=dmesg
+Content-Type: text/plain; name=dmesg; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+ACPI: Subsystem revision 20030228
+ tbxface-0117 [03] acpi_load_tables      : ACPI Tables successfully acquire=
+d
+Parsing all Control Methods:...............................................=
+...........................................................................=
+...........................................................................=
+...........................................................................=
+...........................................................................=
+.......................................
+Table [DSDT] - 1259 Objects with 63 Devices 386 Methods 18 Regions
+Parsing all Control Methods:
+Table [SSDT] - 0 Objects with 0 Devices 0 Methods 0 Regions
+ACPI Namespace successfully loaded at root c05d8b5c
+evxfevnt-0092 [04] acpi_enable           : Transition to ACPI mode successf=
+ul
+   evgpe-0416 [06] ev_create_gpe_block   : GPE Block: 2 registers at 000000=
+0000001028
+   evgpe-0421 [06] ev_create_gpe_block   : GPE Block defined as GPE0 to GPE=
+15
+   evgpe-0138 [08] ev_save_method_info   : GPE number associated with metho=
+d _L18 is not valid
+   evgpe-0416 [06] ev_create_gpe_block   : GPE Block: 2 registers at 000000=
+000000102C
+   evgpe-0421 [06] ev_create_gpe_block   : GPE Block defined as GPE16 to GP=
+E31
+   evgpe-0138 [08] ev_save_method_info   : GPE number associated with metho=
+d _L18 is not valid
+ACPI: Found ECDT
+ACPI: Could not use ECDT
+evxfevnt-0137 [06] acpi_disable          : ACPI mode disabled
+ utalloc-0986 [05] ut_dump_allocations   : No outstanding allocations.
+
+--=-cyCcaJjxSNsFtESDQbRj
+Content-Disposition: attachment; filename=config
+Content-Type: text/plain; name=config; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+#
+# ACPI Support
+#
+CONFIG_ACPI=3Dy
+# CONFIG_ACPI_HT_ONLY is not set
+CONFIG_ACPI_BOOT=3Dy
+CONFIG_ACPI_SLEEP=3Dy
+CONFIG_ACPI_SLEEP_PROC_FS=3Dy
+CONFIG_ACPI_AC=3Dy
+CONFIG_ACPI_BATTERY=3Dy
+CONFIG_ACPI_BUTTON=3Dy
+CONFIG_ACPI_FAN=3Dy
+CONFIG_ACPI_PROCESSOR=3Dy
+CONFIG_ACPI_THERMAL=3Dy
+CONFIG_ACPI_TOSHIBA=3Dy
+CONFIG_ACPI_DEBUG=3Dy
+CONFIG_ACPI_BUS=3Dy
+CONFIG_ACPI_INTERPRETER=3Dy
+CONFIG_ACPI_EC=3Dy
+CONFIG_ACPI_POWER=3Dy
+CONFIG_ACPI_PCI=3Dy
+CONFIG_ACPI_SYSTEM=3Dy
+CONFIG_APM=3Dy
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+CONFIG_APM_DO_ENABLE=3Dy
+CONFIG_APM_CPU_IDLE=3Dy
+CONFIG_APM_DISPLAY_BLANK=3Dy
+CONFIG_APM_RTC_IS_GMT=3Dy
+CONFIG_APM_ALLOW_INTS=3Dy
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+
+--=-cyCcaJjxSNsFtESDQbRj--
+
+--=-xGKwoQ+C5slTWKt7XL2H
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+n3BL+6o3+Z/zOlURAuKhAJsH70jEaxdZg2YKw59EdB/tTN314ACfcUmu
+RclsWiqsWIX0c7SvBBkujQ8=
+=2pLc
+-----END PGP SIGNATURE-----
+
+--=-xGKwoQ+C5slTWKt7XL2H--

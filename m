@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270695AbTHFKG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 06:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270696AbTHFKG4
+	id S274995AbTHFKIX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 06:08:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274996AbTHFKIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 06:06:56 -0400
-Received: from mathematik.uni-freiburg.de ([132.230.2.117]:29830 "EHLO
-	uni-freiburg.de") by vger.kernel.org with ESMTP id S270695AbTHFKGz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 06:06:55 -0400
-Message-ID: <3F30D33C.3010904@mathematik.uni-freiburg.de>
-Date: Wed, 06 Aug 2003 12:06:52 +0200
-From: Claus-Justus Heine <claus@mathematik.uni-freiburg.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030312
-X-Accept-Language: de-at, de, en-us, en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: Adrian Bunk <bunk@fs.tum.de>, heine@instmath.rwth-aachen.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: time for some drivers to be removed?
-References: <200308051242.h75CgSj6028203@harpo.it.uu.se> <20030805130324.GC16091@fs.tum.de> <16175.45710.993756.301205@gargle.gargle.HOWL> <20030805134823.GD16091@fs.tum.de> <16175.47282.627835.2678@gargle.gargle.HOWL>
-In-Reply-To: <16175.47282.627835.2678@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 06:08:23 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6597 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S274995AbTHFKIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 06:08:20 -0400
+Date: Wed, 6 Aug 2003 12:08:15 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <d.nuetzel@wearabrain.de>
+Cc: Tony Lindgren <tony@atomide.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: 2.4.22-rc1 + ACPI patch: amd76x_pm do not work any longer
+Message-ID: <20030806100815.GH16091@fs.tum.de>
+References: <200308060621.06216.d.nuetzel@wearabrain.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200308060621.06216.d.nuetzel@wearabrain.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Wed, Aug 06, 2003 at 06:21:06AM +0200, Dieter Nützel wrote:
+> Hello,
 
-Mikael Pettersson schrieb:
-> Adrian Bunk writes:
->  > On Tue, Aug 05, 2003 at 03:35:10PM +0200, Mikael Pettersson wrote:
->  > > 
->  > > ftape-4.04? That's been a non-integrated external package for ages and ages.
->  > > I doubt there's been any updates in it for 2.5/2.6 kernels.
->  > >...
->  > 
->  > Is there a good reason why it wasn't / isn't integrated?
+Hi Dieter,
+
+> I had it running very well on my dual Athlon MP 1900+ for several months 
+> before. Latest Kernel was 2.4.22-pre5+ACPI patch.
 > 
-> Claus-Justus (the official maintainer) never bothered doing it.
+> Any changes?
+> I changed lm_sensors from 2.7.0 (?) to 2.8.0
+> 
+> System:
+> dual Athlon MP 1900+
+> MSI K7D Master-L
+> 
+> 2.4.22-rc1
+> acpi-20030730-2.4.22-pre8.diff
+> preempt-kernel-rml-2.4.21-1.patch
+>...
 
-I gave up trying to update the in-kernel ftape version because I my updates 
-didn't come through (that was before the 2.2 and again before the 2.4 kernels 
-were released). There are more pleasant wastes of time than to try to go 
-through a one-man super-maintainer's eye of a needle.
+does an unpatched 2.4.22-rc1 work?
 
-Actually, the in-kernel version of ftape should be replaced or deleted, it is 
-damn outdated anyway and buggy.
+If yes, please check which of the two patches causes the problem.
 
-In principle, there were some attempts to elect a new ftape-maintainer some 
-time ago (Roby Basak, if I remember right).
+> Thanks.
 
-I could provide a kernel patch for 2.4 and 2.6 to update the in-kernel version 
-of ftape if that is wanted.
+cu
+Adrian
 
-Otherwise I'd suggest to remove me from the maintainer's list and/or delete 
-ftape from the kernel source tree.
+-- 
 
-Greetings
-
-Claus
-
---
-    Dipl.-Math. Claus-Justus Heine
-    Institute for Applied Mathematics              Phone: +49-761-203-5647
-    Hermann-Herder-Str. 10                         Fax: +49-761-203-5632
-    Freiburg University
-    79104 Freiburg / Brsg., Germany
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268952AbTCDBZQ>; Mon, 3 Mar 2003 20:25:16 -0500
+	id <S268971AbTCDBlW>; Mon, 3 Mar 2003 20:41:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268953AbTCDBZQ>; Mon, 3 Mar 2003 20:25:16 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:4351 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268952AbTCDBZQ>;
-	Mon, 3 Mar 2003 20:25:16 -0500
-Date: Tue, 4 Mar 2003 02:35:30 +0100 (MET)
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-Message-Id: <200303040135.h241ZUkf019356@harpo.it.uu.se>
-To: pavel@ucw.cz
-Subject: Re: Switch APIC to driver model
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S268973AbTCDBlW>; Mon, 3 Mar 2003 20:41:22 -0500
+Received: from mx01.cyberus.ca ([216.191.240.22]:46340 "EHLO mx01.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S268971AbTCDBlV>;
+	Mon, 3 Mar 2003 20:41:21 -0500
+Date: Mon, 3 Mar 2003 20:51:06 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: "David S. Miller" <davem@redhat.com>
+cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Greg KH <greg@kroah.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Alexey N. Kuznetsov" <kuznet@ms2.inr.ac.ru>,
+       "" <david.knierim@tekelec.com>,
+       Robert Olsson <Robert.Olsson@data.slu.se>,
+       Donald Becker <becker@scyld.com>, "" <linux-kernel@vger.kernel.org>,
+       "" <alexander@netintact.se>, "" <raarts@office.netland.nl>
+Subject: Re: PCI init issues
+In-Reply-To: <1046707275.16884.3.camel@rth.ninka.net>
+Message-ID: <20030303204829.M67734@shell.cyberus.ca>
+References: <20030302121050.F61365@shell.cyberus.ca> 
+ <20030303151412.A15195@jurassic.park.msu.ru> <1046707275.16884.3.camel@rth.ninka.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003 23:48:01 +0100, Pavel Machek wrote:
->This switches to driver model, making suspend-to-ram possible. Please
->apply,
->								Pavel
->
->--- clean/arch/i386/kernel/apic.c	2003-02-28 15:10:01.000000000 +0100
->+++ linux/arch/i386/kernel/apic.c	2003-02-28 15:33:45.000000000 +0100
 
-This version works a lot better than the previous one(s). My P4,
-which suspends/resumes via apm just fine with UP_APIC, survived
-two suspend/resume cycles with this patch: one synchronous
-(apm --suspend), and one asynchronous (short press on power button).
-Not having IDE oops in a BUG_ON() is a definite improvement.
 
-I had to add an #include <linux/device.h> to apm.c, a patch hunk
-failed in oprofile, and there are some cosmetic things I don't like.
-I'll merge this with my previous version tomorrow.
+On Mon, 3 Mar 2003, David S. Miller wrote:
 
-/Mikael
+> Anyone know if FreeBSD fares better in situations like this?
+
+All BSDs apparently have this problem. Ive heard rumors of windows XP
+working just fine with the same setup on these mboards.
+Unfortunately up north we have igloos so i cant verify these rumors ;->
+
+cheers,
+jamal

@@ -1,90 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUCFHVm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 02:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbUCFHVm
+	id S261405AbUCFIXi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 03:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbUCFIXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 02:21:42 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:5297 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261606AbUCFHVh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 02:21:37 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Sat, 6 Mar 2004 03:23:38 -0500
+Received: from mailgate.uni-paderborn.de ([131.234.22.32]:60361 "EHLO
+	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S261405AbUCFIXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 03:23:35 -0500
+Message-ID: <40498A7F.5070306@uni-paderborn.de>
+Date: Sat, 06 Mar 2004 09:23:27 +0100
+From: Bjoern Schmidt <lucky21@uni-paderborn.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Badness in pci_find_subsys at drivers/pci/search.c:167
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16457.31740.99944.563029@napali.hpl.hp.com>
-Date: Fri, 5 Mar 2004 23:21:32 -0800
-To: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>,
-       vojtech@suse.cz, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       pochini@shiny.it, davidm@hpl.hp.com
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
-In-Reply-To: <16457.26208.980359.82768@napali.hpl.hp.com>
-References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>
-	<20031028013013.GA3991@kroah.com>
-	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>
-	<3FA12A2E.4090308@pacbell.net>
-	<16289.29015.81760.774530@napali.hpl.hp.com>
-	<16289.55171.278494.17172@napali.hpl.hp.com>
-	<3FA28C9A.5010608@pacbell.net>
-	<16457.12968.365287.561596@napali.hpl.hp.com>
-	<404959A5.6040809@pacbell.net>
-	<16457.26208.980359.82768@napali.hpl.hp.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
+X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
+X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=1.594,
+	required 4, FROM_ENDS_IN_NUMS 0.87, RCVD_IN_NJABL 0.10,
+	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
+X-UNI-PB_FAK-EIM-MailScanner-SpamScore: s
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 5 Mar 2004 21:49:20 -0800, David Mosberger <davidm@linux.hpl.hp.com> said:
+Is there a possibility to find out which device caused this error?
+It's the first time that it has been arisen...
+The kernels version is v2.6.3, do you need more "input"?
 
-  David> It's not an issue of DMA coherency, it's an issue of DMA
-  David> vs. interrupt ordering.  I believe the WHD interrupt is
-  David> arriving at the CPU before the DMA update to the HCCA is
-  David> done.
+Mar  6 08:58:21 gigabyte kernel: Badness in pci_find_subsys at 
+drivers/pci/search.c:167
+Mar  6 08:58:21 gigabyte kernel: Call Trace:
+Mar  6 08:58:21 gigabyte kernel: [<c02385c9>] pci_find_subsys+0xf9/0x110
+Mar  6 08:58:21 gigabyte kernel: [<c0238611>] pci_find_device+0x31/0x40
+Mar  6 08:58:21 gigabyte kernel: [<c02383e9>] pci_find_slot+0x29/0x50
+Mar  6 08:58:21 gigabyte kernel: [<c046220d>] os_pci_init_handle+0x39/0x68
+Mar  6 08:58:21 gigabyte kernel: [<c02f6f5f>] _nv001243rm+0x1f/0x24
+Mar  6 08:58:21 gigabyte kernel: [<c043d815>] _nv000816rm+0x2f5/0x384
+Mar  6 08:58:21 gigabyte kernel: [<c03a602c>] _nv003801rm+0xd8/0x100
+Mar  6 08:58:21 gigabyte kernel: [<c043d34f>] _nv000809rm+0x2f/0x34
+Mar  6 08:58:21 gigabyte kernel: [<c03a6e50>] _nv003816rm+0xf0/0x104
+Mar  6 08:58:21 gigabyte kernel: [<c03a570e>] _nv003795rm+0x6ea/0xaec
+Mar  6 08:58:21 gigabyte kernel: [<c030f967>] _nv004046rm+0x3a3/0x3b0
+Mar  6 08:58:21 gigabyte kernel: [<c04112a7>] _nv001476rm+0x277/0x45c
+Mar  6 08:58:21 gigabyte kernel: [<c02f9a9a>] _nv000896rm+0x4a/0x64
+Mar  6 08:58:21 gigabyte kernel: [<c02fb2b4>] rm_isr_bh+0xc/0x10
+Mar  6 08:58:21 gigabyte kernel: [<c04601bd>] nv_kern_isr_bh+0xf/0x13
+Mar  6 08:58:21 gigabyte kernel: [<c01245e6>] tasklet_action+0x46/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c01243f5>] do_softirq+0x95/0xa0
+Mar  6 08:58:21 gigabyte kernel: [<c010bb0b>] do_IRQ+0xfb/0x130
+Mar  6 08:58:21 gigabyte kernel: [<c0109de0>] common_interrupt+0x18/0x20
+Mar  6 08:58:21 gigabyte kernel: [<c011428a>] speedstep_set_state+0xfa/0x160
+Mar  6 08:58:21 gigabyte kernel: [<c0114514>] speedstep_target+0x54/0x60
+Mar  6 08:58:21 gigabyte kernel: [<c04979a2>] __cpufreq_driver_target+0x22/0x30
+Mar  6 08:58:21 gigabyte kernel: [<c0498418>] cpufreq_governor_performance+0x38/0x40
+Mar  6 08:58:21 gigabyte kernel: [<c0497a92>] __cpufreq_governor+0x62/0x120
+Mar  6 08:58:21 gigabyte kernel: [<c0497e73>] __cpufreq_set_policy+0x113/0x180
+Mar  6 08:58:21 gigabyte kernel: [<c0497f2b>] cpufreq_set_policy+0x4b/0x90
+Mar  6 08:58:21 gigabyte kernel: [<c0497234>] store_scaling_governor+0xa4/0xc0
+Mar  6 08:58:21 gigabyte kernel: [<c04973fd>] store+0x5d/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c018b45b>] flush_write_buffer+0x3b/0x50
+Mar  6 08:58:21 gigabyte kernel: [<c018b4d0>] sysfs_write_file+0x60/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c0153c98>] vfs_write+0xb8/0x130
+Mar  6 08:58:21 gigabyte kernel: [<c0153dc2>] sys_write+0x42/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c01093fb>] syscall_call+0x7/0xb
+Mar  6 08:58:21 gigabyte kernel:
+Mar  6 08:58:21 gigabyte kernel: Badness in pci_find_subsys at 
+drivers/pci/search.c:167
+Mar  6 08:58:21 gigabyte kernel: Call Trace:
+Mar  6 08:58:21 gigabyte kernel: [<c02385c9>] pci_find_subsys+0xf9/0x110
+Mar  6 08:58:21 gigabyte kernel: [<c0238611>] pci_find_device+0x31/0x40
+Mar  6 08:58:21 gigabyte kernel: [<c02383e9>] pci_find_slot+0x29/0x50
+Mar  6 08:58:21 gigabyte kernel: [<c046220d>] os_pci_init_handle+0x39/0x68
+Mar  6 08:58:21 gigabyte kernel: [<c02f6f5f>] _nv001243rm+0x1f/0x24
+Mar  6 08:58:21 gigabyte kernel: [<c03a815d>] _nv003797rm+0xa9/0x128
+Mar  6 08:58:21 gigabyte kernel: [<c0414ba1>] _nv001490rm+0x55/0xe4
+Mar  6 08:58:21 gigabyte kernel: [<c043d854>] _nv000816rm+0x334/0x384
+Mar  6 08:58:21 gigabyte kernel: [<c03a602c>] _nv003801rm+0xd8/0x100
+Mar  6 08:58:21 gigabyte kernel: [<c043d34f>] _nv000809rm+0x2f/0x34
+Mar  6 08:58:21 gigabyte kernel: [<c03a6e50>] _nv003816rm+0xf0/0x104
+Mar  6 08:58:21 gigabyte kernel: [<c03a570e>] _nv003795rm+0x6ea/0xaec
+Mar  6 08:58:21 gigabyte kernel: [<c030f967>] _nv004046rm+0x3a3/0x3b0
+Mar  6 08:58:21 gigabyte kernel: [<c04112a7>] _nv001476rm+0x277/0x45c
+Mar  6 08:58:21 gigabyte kernel: [<c02f9a9a>] _nv000896rm+0x4a/0x64
+Mar  6 08:58:21 gigabyte kernel: [<c02fb2b4>] rm_isr_bh+0xc/0x10
+Mar  6 08:58:21 gigabyte kernel: [<c04601bd>] nv_kern_isr_bh+0xf/0x13
+Mar  6 08:58:21 gigabyte kernel: [<c01245e6>] tasklet_action+0x46/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c01243f5>] do_softirq+0x95/0xa0
+Mar  6 08:58:21 gigabyte kernel: [<c010bb0b>] do_IRQ+0xfb/0x130
+Mar  6 08:58:21 gigabyte kernel: [<c0109de0>] common_interrupt+0x18/0x20
+Mar  6 08:58:21 gigabyte kernel: [<c011428a>] speedstep_set_state+0xfa/0x160
+Mar  6 08:58:21 gigabyte kernel: [<c0114514>] speedstep_target+0x54/0x60
+Mar  6 08:58:21 gigabyte kernel: [<c04979a2>] __cpufreq_driver_target+0x22/0x30
+Mar  6 08:58:21 gigabyte kernel: [<c0498418>] cpufreq_governor_performance+0x38/0x40
+Mar  6 08:58:21 gigabyte kernel: [<c0497a92>] __cpufreq_governor+0x62/0x120
+Mar  6 08:58:21 gigabyte kernel: [<c0497e73>] __cpufreq_set_policy+0x113/0x180
+Mar  6 08:58:21 gigabyte kernel: [<c0497f2b>] cpufreq_set_policy+0x4b/0x90
+Mar  6 08:58:21 gigabyte kernel: [<c0497234>] store_scaling_governor+0xa4/0xc0
+Mar  6 08:58:21 gigabyte kernel: [<c04973fd>] store+0x5d/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c018b45b>] flush_write_buffer+0x3b/0x50
+Mar  6 08:58:21 gigabyte kernel: [<c018b4d0>] sysfs_write_file+0x60/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c0153c98>] vfs_write+0xb8/0x130
+Mar  6 08:58:21 gigabyte kernel: [<c0153dc2>] sys_write+0x42/0x70
+Mar  6 08:58:21 gigabyte kernel: [<c01093fb>] syscall_call+0x7/0xb
 
-Actually, it looks like I misunderstood the OHCI spec on first reading.
-It seems like the causal relationship goes like this:
+-- 
+Greetings
+Bjoern Schmidt
 
- (1) Start of Frame -> (2) update HccaFrameNumber -> (3) trigger SF interrupt
 
-Now, suppose you get a WDH interrupt between (1) and (2).  You'd read
-the old frame-number yet by the time the interrupt from (3) arrives
-the HC might already be accessing the ED that you're about to remove.
-
-If this is correct, then the first patch is probably a better
-approach:
-
-===== drivers/usb/host/ohci-q.c 1.48 vs edited =====
---- 1.48/drivers/usb/host/ohci-q.c	Tue Mar  2 05:52:46 2004
-+++ edited/drivers/usb/host/ohci-q.c	Fri Mar  5 17:25:55 2004
-@@ -438,7 +451,7 @@
- 	 * behave.  frame_no wraps every 2^16 msec, and changes right before
- 	 * SF is triggered.
- 	 */
--	ed->tick = OHCI_FRAME_NO(ohci->hcca) + 1;
-+	ed->tick = OHCI_FRAME_NO(ohci->hcca) + 2;
- 
- 	/* rm_list is just singly linked, for simplicity */
- 	ed->ed_next = ohci->ed_rm_list;
-
-This actually makes tons of sense if you think of it like jiffies: you
-need to make sure you delay at least one full frame-interval.  If you
-set the tick to "+ 1" and the current tick is almost over, that
-requirement is violated.  Setting it to "+ 2" should be safe.  The
-only problem I can think of is if the delay between point (1) and (2)
-were to exceed one frame-interval (1 msec).  While unlikely, the right
-PCI topology and heavy bus traffic perhaps could cause such delays.
-However, even then it's probably OK because the HC would presumably
-stall when trying to update the HccaFrameNumber the second time and
-the previous update hasn't completed yet.
-
-Here is one little piece of evidence that's consistent with this
-explanation: last week I tried to rip some audio tracks off a CD.
-With PIO, this caused interrupts to get delayed 2-3msec and that
-caused all kinds of weird effects on the USB bus.  Mostly, I'd
-suddenly lose the keyboard or the mouse, though reconnecting them
-would "fix" the problem for a short time.
-
-	--david

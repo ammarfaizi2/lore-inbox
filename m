@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265447AbSJSBbX>; Fri, 18 Oct 2002 21:31:23 -0400
+	id <S265449AbSJSBcz>; Fri, 18 Oct 2002 21:32:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265448AbSJSBbX>; Fri, 18 Oct 2002 21:31:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52684 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265447AbSJSBbW>;
-	Fri, 18 Oct 2002 21:31:22 -0400
-Date: Fri, 18 Oct 2002 18:29:41 -0700 (PDT)
-Message-Id: <20021018.182941.20261290.davem@redhat.com>
-To: dipankar@in.ibm.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lockfree rtcache using RCU
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021019065210.A26806@in.ibm.com>
-References: <20021019065210.A26806@in.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265450AbSJSBcy>; Fri, 18 Oct 2002 21:32:54 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:18131
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S265449AbSJSBcy>; Fri, 18 Oct 2002 21:32:54 -0400
+Date: Fri, 18 Oct 2002 21:38:49 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Greg KH <greg@kroah.com>
+cc: pavel@bug.ucw.cz, <linux-kernel@vger.kernel.org>
+Subject: Re: Zaurus support for usbnet.c
+In-Reply-To: <20021018210224.GB9777@kroah.com>
+Message-ID: <Pine.LNX.4.44.0210182137130.5873-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dipankar Sarma <dipankar@in.ibm.com>
-   Date: Sat, 19 Oct 2002 06:52:10 +0530
+On Fri, 18 Oct 2002, Greg KH wrote:
 
-   This patch was discussed along with results months ago and Davem
-   asked me to send it to him for inclusion when RCU core is in.
-   Now that the RCU core is in, please include it.
+> Doesn't the usbdnet.c driver support the Zaurus?
 
-Patch applied, thanks.
+Both the Zaurus and the iPAQ are using a SA1110 which is already supported 
+by usbnet.
+
+
+Nicolas
+

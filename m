@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVAZAMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbVAZAH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVAZAMF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 19:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVAZALU
+	id S262252AbVAZAH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 19:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbVAZAGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 19:11:20 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:21967 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262264AbVAZAJE
+	Tue, 25 Jan 2005 19:06:49 -0500
+Received: from mx01.qsc.de ([213.148.129.14]:13953 "EHLO mx01.qsc.de")
+	by vger.kernel.org with ESMTP id S262247AbVAZAEG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 19:09:04 -0500
-Subject: Re: [PATCH 2/4] page_cache_readahead: remove duplicated code
-From: Ram <linuxram@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <41F63493.309B0ADB@tv-sign.ru>
-References: <41F63493.309B0ADB@tv-sign.ru>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1106698119.3298.57.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 25 Jan 2005 16:08:39 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 19:04:06 -0500
+In-Reply-To: <41F68473.8080705@pointblue.com.pl>
+References: <41F65F1E.3070504@pointblue.com.pl> <41F68473.8080705@pointblue.com.pl>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <C7B3933A-6F2D-11D9-BA4F-000393AF911C@exactcode.de>
+Content-Transfer-Encoding: 8BIT
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: =?ISO-8859-1?Q?Ren=E9_Rebe?= <rene@exactcode.de>
+Subject: Re: swap is never used on ultrasparc64/32 - 2.6.11-rc2 (STILL NOT SOLVED)
+Date: Wed, 26 Jan 2005 01:03:59 +0100
+To: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+X-Mailer: Apple Mail (2.619)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 03:59, Oleg Nesterov wrote:
-> Cases "no ahead window" and "crossed into ahead window"
-> can be unified.
+Hi,
 
+On 25. Jan 2005, at 18:40 Uhr, Grzegorz Piotr Jaskiewicz wrote:
 
-No. There is a reason why we had some duplication. With your patch,
-we will end up reading-on-demand instead of reading ahead.
+[...]
 
-When we notice a sequential reads have resumed, we first read in the
-data that is requested. 
-However if the read request is for more pages than what are being held
-in the current window, we make the ahead window as the current window
-and read in more pages in the ahead window. Doing that gives the
-opportunity of always having pages in the ahead window when the next
-sequential read request comes in.  If we apply this patch, we will
-always have to read the pages that are being requested instead of
-satisfying them from the ahead window.
+I can confirm this. What is your last kernel that worked? I have no 
+data at hand - but I'm sure in either 2.6.8 or 2.6.10 swapping did 
+work.
 
-Ok, if this does not make it clear, here is another way of proving that
-your patch does not exactly behave the way it did earlier.
+Yours,
 
-With your patch you will have only one call to
-block_page_cache_readahead(), when earlier there could be cases where
-block_page_cache_readahead() could be called twice.
-
-Am I am making sense?
-RP
- 
+-- 
+René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+             http://www.exactcode.de | http://www.exactcode.de/t2
+             +49 (0)30  255 897 45
 

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265657AbUANBEg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 20:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUANBEg
+	id S265624AbUANBHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 20:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbUANBHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 20:04:36 -0500
-Received: from waste.org ([209.173.204.2]:2222 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265657AbUANBEZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 20:04:25 -0500
-Date: Tue, 13 Jan 2004 19:04:18 -0600
-From: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, amitkale@emsyssoft.com
-Subject: Re: netpoll bug - kgdboe on x86_64
-Message-ID: <20040114010418.GD28521@waste.org>
-References: <20040114001830.60F5DC60FC@h00e098094f32.ne.client2.attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040114001830.60F5DC60FC@h00e098094f32.ne.client2.attbi.com>
-User-Agent: Mutt/1.3.28i
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 13 Jan 2004 20:07:16 -0500
+Received: from forty.greenhydrant.com ([208.48.139.185]:2744 "EHLO
+	forty.greenhydrant.com") by vger.kernel.org with ESMTP
+	id S265667AbUANBFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 20:05:24 -0500
+Message-ID: <3730.208.48.139.163.1074042322.squirrel@www.greenhydrant.com>
+In-Reply-To: <20040114000812.GA8570@piper.madduck.net>
+References: <20040113150319.1e309dcb.rddunlap@osdl.org>
+    <3156.208.48.139.163.1074037125.squirrel@www.greenhydrant.com>
+    <20040114000812.GA8570@piper.madduck.net>
+Date: Tue, 13 Jan 2004 17:05:22 -0800 (PST)
+Subject: Re: modprobe failed: digest_null
+From: "David Rees" <drees@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 07:18:30PM -0500, Jim Houston wrote:
-> 
-> Hi Matt,
+On Tue, January 13, 2004 at 4:08 pm, martin f krafft wrote:
+> also sprach David Rees <drees@greenhydrant.com> [2004.01.14.0038 +0100]:
+>> Running on Fedora Core 1 compiled with gcc 3.3.2.  Didn't see these with
+>> 2.6.0.
+>
+> Neither did I. Are you running IPsec?
 
-Jim, fix your email address, you sent that as Jim Houston <jhouston@new.localdomain>.
+No IPsec, though I do have the crypto stuff compiled as modules.
 
-> I'm trying to get kgdboe working on x86_64.  I noticed that
-> netpoll_rx is calling the rx_hook with negative values for the length.
-> The attached patch fixes the problem. 
-
-This patch looks correct. I can't recall what I was thinking when I
-tossed the -4 in there. It looks suspiciously like I did it to
-mindlessly compensate for a bug where I took the sizeof a pointer
-rather than a type, but I would _never_ do that. I'll send this on to
-jgarzik who's queueing netpoll stuff for me.
-
-> Jim Houston - Concurrent Computer Corp.
-> 
-> 
-> +++ 2.6.1-rc1-mm2/net/core/netpoll.c	2004-01-13 18:58:09.311479928 -0500
-> @@ -400,7 +400,7 @@ int netpoll_rx(struct sk_buff *skb)
->  
->  		if (np->rx_hook)
->  			np->rx_hook(np, ntohs(uh->source),
-> -				    (char *)(uh+1), ulen-sizeof(uh)-4);
-> +				    (char *)(uh+1), ulen-sizeof(struct udphdr));
->  
->  		return 1;
->  	}
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+-Dave

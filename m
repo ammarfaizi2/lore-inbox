@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUGXTgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUGXTya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUGXTgN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 15:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUGXTgN
+	id S262418AbUGXTya (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 15:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUGXTya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 15:36:13 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:37329 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262328AbUGXTgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 15:36:09 -0400
-Subject: Re: [ANNOUNCE] ketchup 0.8
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040724031453.GQ18675@waste.org>
-References: <20040723185504.GJ18675@waste.org>
-	 <1090632808.1471.20.camel@mindpipe> <20040724020644.GN18675@waste.org>
-	 <1090638263.1471.24.camel@mindpipe>  <20040724031453.GQ18675@waste.org>
-Content-Type: text/plain
-Message-Id: <1090697770.845.19.camel@mindpipe>
+	Sat, 24 Jul 2004 15:54:30 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:62903 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262418AbUGXTy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 15:54:29 -0400
+Date: Sat, 24 Jul 2004 12:54:01 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Andreas Henriksson" <andreas@fjortis.info>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Delete cryptoloop
+Message-Id: <20040724125401.4d42b3ad.pj@sgi.com>
+In-Reply-To: <opsbnavpsunsiesp@localhost>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>
+	<1090672906.8587.66.camel@ghanima>
+	<20040724095245.73ca26fe.akpm@osdl.org>
+	<opsbnavpsunsiesp@localhost>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 24 Jul 2004 15:36:11 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-23 at 23:14, Matt Mackall wrote:
-> On Fri, Jul 23, 2004 at 11:04:24PM -0400, Lee Revell wrote:
-> > On Fri, 2004-07-23 at 22:06, Matt Mackall wrote:
-> > > Oops. Should be fixed by:
-> > > 
-> > > http://selenic.com/ketchup/ketchup-0.8.1
-> > 
-> > Now it seems to work, but I get:
-> > 
-> > ...downloads some stuff...
-> > patching file sound/pci/intel8x0.c
-> > patching file sound/pci/nm256/nm256.c
-> > patching file sound/ppc/pmac.c
-> > ketchup: patch /home/rlrevell/.ketchup/patch-2.6.8-rc1.bz2 failed: 256
-> > 
-> > Not checking the return value from patch correctly?
-> 
-> That return code suggests some hunks failed. Can you check for .rej
-> files?
+Andrew suggested:
+> printk("cryptoloop will be ... June 30, 2005 ...
 
-There were no .rej files.  I ran it again and it said I was up to date. 
-Is it possible that a mirror was not fully synced?
+Andreas asked:
+> If EXPERIMENTAL isn't discuraging enough why not use BROKEN? 
 
-The easy fix would be to have it just try again automatically if it sees
-this.
+Won't printk's will reach a wider proportion of the intended audience
+than CONFIG variations?
 
-Lee
+And the specificity of the date-certain in the printk enables individual
+planning and adaptive behaviour that the timelessness of CONFIG labels
+can't touch.
 
+Does your printk idea work for devfs as well, Andrew?
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

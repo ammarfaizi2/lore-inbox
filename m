@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263110AbSJFCKW>; Sat, 5 Oct 2002 22:10:22 -0400
+	id <S263174AbSJFCLm>; Sat, 5 Oct 2002 22:11:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263120AbSJFCKW>; Sat, 5 Oct 2002 22:10:22 -0400
-Received: from packet.digeo.com ([12.110.80.53]:51844 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263110AbSJFCKV>;
-	Sat, 5 Oct 2002 22:10:21 -0400
-Message-ID: <3D9F9CD5.CEB61219@digeo.com>
-Date: Sat, 05 Oct 2002 19:15:49 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S263189AbSJFCLm>; Sat, 5 Oct 2002 22:11:42 -0400
+Received: from opt-out.cdt.org ([206.112.85.61]:21435 "EHLO mail.cdt.org")
+	by vger.kernel.org with ESMTP id <S263174AbSJFCLj>;
+	Sat, 5 Oct 2002 22:11:39 -0400
+Date: Sat, 5 Oct 2002 22:17:10 -0400 (EDT)
+From: Daniel Berlin <dberlin@dberlin.org>
 To: Rob Landley <landley@trommello.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - 
- (NUMA))
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Oct 2002 02:15:51.0202 (UTC) FILETIME=[4AB9B820:01C26CDE]
+Cc: tom_gall@mac.com, Larry McVoy <lm@bitmover.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <200210060128.g961S11J485516@pimout4-ext.prodigy.net>
+Message-ID: <Pine.LNX.4.44.0210052208130.19932-100000@dberlin.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+
+
+On Fri, 4 Oct 2002, Rob Landley wrote:
+
+> On Friday 04 October 2002 05:33 pm, tom_gall@mac.com wrote:
 > 
-> And the work that matters for the desktop is LATENCY work.
+> > Yeah I understand what your intent is and I'm not flaming you. I have a
+> > problem with the wording in that claus.  Unfortunately you're not a
+> > lawyer so your stated intent means little, it's the language in the
+> > license that has meaning.
+> 
+>  Actually, his stated intent means an awful lot, if you can get it in 
+>  writing. 
+Not in the case of this license.
 
-100% true.
+>  Which, thanks to the archived nature of this list, you have.  (Remember, the 
+> legal basis for contract law is just informed consent and the recording 
+> thereof.  The license itself is merely a formal and carefully worded version 
+> of "what he said".)
+> 
+> A verbal contract may only be worth the paper it's printed on, but it IS 
+> legally binding if you can prove it.
 
-You should resist any confusion between IO latency and CPU
-scheduling latency.  They really are worlds apart.
+Do a google search on "fully integrated agreement" and "parol evidence 
+rule".
 
-In a stock 2.4 kernel it is hugely rare for the kernel to stall
-a ready-to-run task for longer than a monitor refresh interval,
-so I continue to disbelieve any claims that the low-latency
-and preemptivity patches make any difference in desktop use.
+>  And even relatively casual statements, 
+> if recorded, can show up to haunt you in court later on.
 
-(And 2.5 improves on this a _lot_.  The now-departed buffer LRU
-and truncate list walks were the main culprits)
+Only if you haven't got a fully integrated agreement. If you do, they'd 
+never appear in court. If you look at the license, you'll note it has a 
+merger clause ("This License represents the complete agreement between You and BitMover 
+regarding the BitKeeper Software covered by this License.").
+I'm sure it's there specifically so the parol evidence rule applies 
+completely.
 
-Any attempt to link IO priority with nice is probably doomed
-to confused failure.  It should be a clearly separated concept.
-There are priority inversions everywhere, too.
+--Dan
 
-I disagree with you on the new CPU scheduler.  In my experience
-it is significantly worse than the old one - a `make -j3' is
-still sending interactive applications on extended lunch breaks.
-Not that I have tried to tune this away.
 
-Deadline scheduler is critical.  As is a correct setting for
-/proc/sys/vm/dirty_async_ratio and the soon-to-be-born
-/proc/sys/vm/swappiness.  These will boot up with sane values,
-as much as is humanly possible.
-
-It's not all kernel though.  Application (KDE) startup is *slow*,
-even when zero I/O is performed.  Presumably because of the vtable
-dynamic linking thing.  I'm not sure how the prelinking work is
-getting along, but the initial figures I saw on that indicated
-that the benefit may not be sufficient.

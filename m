@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287406AbRL3Ntn>; Sun, 30 Dec 2001 08:49:43 -0500
+	id <S287414AbRL3Nod>; Sun, 30 Dec 2001 08:44:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287399AbRL3Ntd>; Sun, 30 Dec 2001 08:49:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34567 "EHLO
+	id <S287407AbRL3NoY>; Sun, 30 Dec 2001 08:44:24 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31751 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287406AbRL3NtT>; Sun, 30 Dec 2001 08:49:19 -0500
-Subject: Re: [kbuild-devel] Re: State of the new config & build system
-To: landley@trommello.org (Rob Landley)
-Date: Sun, 30 Dec 2001 13:59:28 +0000 (GMT)
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011230134125.VUHO28486.femail48.sdc1.sfba.home.com@there> from "Rob Landley" at Dec 30, 2001 12:39:43 AM
+	id <S287406AbRL3NoM>; Sun, 30 Dec 2001 08:44:12 -0500
+Subject: Re: [PATCH, COMPILE-FIX, TYPO] drivers/char/pc110pad.c
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Sun, 30 Dec 2001 13:54:49 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <3C2F138C.63EAAE71@colorfullife.com> from "Manfred Spraul" at Dec 30, 2001 02:15:56 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16KgUq-0001H9-00@the-village.bc.nu>
+Message-Id: <E16KgQL-0001G3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Just a minor point, but what about non-PCI/ISA ide?
-> > The CML1 rules seem to imply that this set is empty.
-> 
-> There are, apparently, paralell port IDE devices.
-> 
-> I've never seen one, but we've got drivers for them.  See PARIDE and 
-> paride_devices.
+> The bug was introduced between 2.4.17 and 2.5.1: someone added
+> spinlocks instead of cli(), without adding his name to the changelog.
 
-There are IDE drives on just about every conceivable bus or interface.
-	
+It was broken as part of the weird cli -> spinlock patch that someone added.
+I'd fixed it but there is no SMP PC110 so I never tested that case.
+
+Alan

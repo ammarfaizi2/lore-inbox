@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268037AbUHKOPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUHKO0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268037AbUHKOPm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 10:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268069AbUHKOPm
+	id S268069AbUHKO0H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 10:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268070AbUHKO0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 10:15:42 -0400
-Received: from styx.suse.cz ([82.119.242.94]:47242 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S268037AbUHKOPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 10:15:33 -0400
-Date: Wed, 11 Aug 2004 16:17:11 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Sascha Wilde <wilde@sha-bang.de>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       "David N. Welton" <davidw@eidetix.com>
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-Message-ID: <20040811141710.GA2659@ucw.cz>
-References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com> <200408110131.14114.dtor_core@ameritech.net> <20040811122711.GA5759@ucw.cz> <20040811134316.GA2399@kenny.sha-bang.local>
+	Wed, 11 Aug 2004 10:26:07 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:59919 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S268069AbUHKO0E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 10:26:04 -0400
+Message-ID: <20040811182602.A2055@castle.nmd.msu.ru>
+Date: Wed, 11 Aug 2004 18:26:02 +0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Jirka Kosina <jikos@jikos.cz>, Giuliano Pochini <pochini@shiny.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: FW: Linux kernel file offset pointer races
+References: <XFMail.20040805104213.pochini@shiny.it> <Pine.LNX.4.58.0408051228400.2791@twin.jikos.cz> <20040807171500.GA26084@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040811134316.GA2399@kenny.sha-bang.local>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <20040807171500.GA26084@logos.cnet>; from "Marcelo Tosatti" on Sat, Aug 07, 2004 at 02:15:00PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 03:43:16PM +0200, Sascha Wilde wrote:
-> On Wed, Aug 11, 2004 at 02:27:11PM +0200, Vojtech Pavlik wrote:
-> > On Wed, Aug 11, 2004 at 01:31:13AM -0500, Dmitry Torokhov wrote:
-> > > On Thursday 05 August 2004 07:48 am, David N. Welton wrote:
-> > > > By putting a series of 'crashme/reboot' calls into the kernel, I 
-> > > > narrowed a possibl cause of it down to this bit of code in 
-> > > > drivers/input/serio.c:753
-> [...]
-> > > Could you please try the patch below? I am interested in tests both with
-> > > and without keyboard/mouse. The main idea is to leave ports that have been
-> > > disabled by BIOS alone... The patch compiles but otherwise untested. Against
-> > > 2.6.7.
+BTW, f_pos assignments are non-atomic on IA-32 since it's a 64-bit value.
+The file position is protected by the BKL in llseek(), but I do not see any
+serialization neither in sys_read() nor in generic_file_read() and other
+methods.
+
+Have we accepted that the file position may be corrupted after crossing 2^32
+boundary by 2 processes reading in parallel from the same file?
+Or am I missing something?
+
+	Andrey
+
+On Sat, Aug 07, 2004 at 02:15:00PM -0300, Marcelo Tosatti wrote:
+> On Thu, Aug 05, 2004 at 12:30:23PM +0200, Jirka Kosina wrote:
+> > On Thu, 5 Aug 2004, Giuliano Pochini wrote:
 > > 
-> > Well, this has a problem - plugging a mouse later will never work, as
-> > the interface will be disabled by the BIOS if a mouse is not present at
-> > boot.
+> > > I don't remember if this issue has already been discussed here:
+> > > -----FW: <Pine.LNX.4.44.0408041220550.26961-100000@isec.pl>-----
+> > > Date: Wed, 4 Aug 2004 12:22:42 +0200 (CEST)
+> > > From: Paul Starzetz <ihaquer@isec.pl>
+> > > To: bugtraq@securityfocus.com, vulnwatch@vulnwatch.org,
+> > >  full-disclosure@lists.netsys.com
+> > > Subject: Linux kernel file offset pointer races
+> > 
+> > It hasn't been discussed here, but at 
+> > http://linux.bkbits.net:8080/linux-2.4/gnupatch@411064f7uz3rKDb73dEb4vCqbjEIdw 
+> > you can find a patchset fixing (some of) the mentioned problems. This 
+> > patchset is from 2.4.27-rc5
 > 
-> Is PS/2 supposed to support hotpluging at all?  I guess it's not, but I may
-> be wrong...
- 
-Electrically it's fine - the data and clock lines are pulled-up open-collector.
-
-Protocol-wise it's also OK, each device announces itself after it's
-plugged in.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> "some of" ? 
+> 
+> Do you know any unfixed still broken piece of driver code ? 

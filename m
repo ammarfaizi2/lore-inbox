@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267204AbSLRIqX>; Wed, 18 Dec 2002 03:46:23 -0500
+	id <S267206AbSLRIvx>; Wed, 18 Dec 2002 03:51:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267206AbSLRIqX>; Wed, 18 Dec 2002 03:46:23 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:52750 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267204AbSLRIqX>; Wed, 18 Dec 2002 03:46:23 -0500
-Message-Id: <200212180835.gBI8ZDs22220@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: lk maintainers
-Date: Wed, 18 Dec 2002 11:24:26 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200212170628.gBH6Scs15943@Port.imtp.ilyichevsk.odessa.ua> <200212180600.gBI60js21347@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.50.0212180227100.8420-100000@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.50.0212180227100.8420-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S267207AbSLRIvx>; Wed, 18 Dec 2002 03:51:53 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:64523 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S267206AbSLRIvw>; Wed, 18 Dec 2002 03:51:52 -0500
+Date: Wed, 18 Dec 2002 09:59:02 +0100
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "'Ducrot Bruno'" <poup@poupinou.org>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>, acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH] S4bios for 2.5.52.
+Message-ID: <20021218085902.GD1012@poup.poupinou.org>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A5B1@orsmsx119.jf.intel.com> <Pine.LNX.4.44.0212171611460.21707-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0212171611460.21707-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 December 2002 05:29, Zwane Mwaikambo wrote:
-> On Wed, 18 Dec 2002, Denis Vlasenko wrote:
-> > > > Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
-> > > > 	Send kernel configuration bug reports and suggestions to me.
-> > > > 	Also I'll be more than happy to accept help enties for kernel
-> > > > config options (Configure.help).
-> > >
-> > > Can't say i've seen this fellow in a while either.
-> >
-> > If 'lk maintainers' will get excessively long, I'll start pruning.
-> > Do you think I should do it now?
->
-> If it's supposed to be current information and to be used by bug
-> reporters, then by all means, chop away ;)
+On Tue, Dec 17, 2002 at 04:14:41PM -0600, Kai Germaschewski wrote:
+> On Tue, 17 Dec 2002, Grover, Andrew wrote:
+> 
+> > > From: Ducrot Bruno [mailto:poup@poupinou.org] 
+> > > This patch add s4bios support for 2.5.52.
+> 
+> > > echo 4 > /proc/acpi/sleep is for swsusp;
+> > > echo 4b > /proc/acpi/sleep is for s4bios.
+> > 
+> > I still am not clear on why we would want s4bios in 2.5.x, since we have S4.
+> > Like you said, S4bios is easier to implement, but since Pavel has done much
+> > of the heavy lifting required for S4 proper, I don't see the need.
+> 
+> Let me counter this, I have to admit that I didn't try the patch yet, but
+> my laptop does S4 BIOS, and I'd definitely prefer that to swsusp, since
+> it's much faster and also I somewhat have more faith into S4 BIOS than
+> swsusp (as in: after resuming, it'll most likely either work or crash, but
+> not cause any weird kinds of corruption). Since it does not need not much
+> more to support it than S3, I don't see why you wouldn't want to give
+> users the option?
+> 
 
-It is suppsed to be accurate. That is why there are timestamps.
-OTOH I should mark some entries <no longer true>, also with timestamp.
---
-vda
+In fact, I agree with Andrew.  But Pavel insist and want it,
+and since it is really straightforward to have it in 2.5
+because Pavel have already done all the work, why not giving
+him a little gift for Christmas ?
+
+A final word:  S4bios is way much _slower_ by nature than S4OS, especially
+at suspend path, which is what we don't want if we have to go to S4 due
+to an emergency.
+
+Kai, if you see that S4OS is slower, it is probably a bug that have to be
+fixed in swsusp.
+
+Cheers,
+
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

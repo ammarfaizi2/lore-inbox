@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270152AbTGNLqG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 07:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270096AbTGNLqG
+	id S270406AbTGNLoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 07:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270407AbTGNLoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 07:46:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:28110 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270407AbTGNLo0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 07:44:26 -0400
-Date: Mon, 14 Jul 2003 05:00:09 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Jones <davej@codemonkey.org.uk>, John Bradford <john@grabjohn.com>,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: Linux v2.6.0-test1
-Message-ID: <20030714120009.GH15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	John Bradford <john@grabjohn.com>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <200307141150.h6EBoe1P000738@81-2-122-30.bradfords.org.uk> <20030714115313.GA21773@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030714115313.GA21773@suse.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 14 Jul 2003 07:44:16 -0400
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:55943 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S270406AbTGNLny
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 07:43:54 -0400
+Date: Mon, 14 Jul 2003 13:52:29 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+In-Reply-To: <20030714114144.GB5187@suse.de>
+Message-ID: <Pine.LNX.4.53.0307141350380.20642@dot.kde.org>
+References: <20030711140219.GB16433@suse.de> <20030714083058.GC3706@pern.dea.icai.upco.es>
+ <20030714114144.GB5187@suse.de>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 12:50:40PM +0100, John Bradford wrote:
->> Oh well, it just seems strange to be asking people to test
->> 2.6.0-root-my-box, without making the consequences a bit clearer.
+On Mon, 14 Jul 2003, Dave Jones wrote:
 
-On Mon, Jul 14, 2003 at 12:53:13PM +0100, Dave Jones wrote:
-> If you don't have the time/energy to trawl linux-kernel, testing the
-> many zillions of `sploits out there to see what works and what doesn't
-> may be more fun. (Although most if not all should be failing, so it
-> may also get boring very quickly). It'd be nice if someone like osdl
-> could add such testing to nightly regression tests. Some of them may
-> even be candidates for LTP perhaps ?
+> I've no objection to taking "heres links to packages for xxx distro"
+> texts if people want to write them, but I don't have the time, nor
+> knowledge to add these for every distro out there.
 
-Some work has been done here, though I'm not sure how much; I'll try to
-get the IBM people involved with it to chime in.
+If you wish to include Ark Linux:
 
+=== CUT ===
+Ark Linux users can simply use
+"apt-get update; apt-get install kernel26"
+to get 2.6.0-test1 and everything it depends on.
+=== CUT ===
 
--- wli
+LLaP
+bero
+
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php

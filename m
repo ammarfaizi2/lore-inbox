@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264591AbTDPVB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 17:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264593AbTDPVB1
+	id S264589AbTDPVOr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 17:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbTDPVOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 17:01:27 -0400
-Received: from jordan.pp.org.pl ([213.186.82.147]:31648 "EHLO jordan.pp.org.pl")
-	by vger.kernel.org with ESMTP id S264591AbTDPVB0 (ORCPT
+	Wed, 16 Apr 2003 17:14:47 -0400
+Received: from ls401.hinet.hr ([195.29.150.2]:63179 "EHLO ls401.hinet.hr")
+	by vger.kernel.org with ESMTP id S264589AbTDPVOq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 17:01:26 -0400
-Date: Wed, 16 Apr 2003 22:14:07 +0200
-From: Bartlomiej Czardybon <bart@czardybon.net>
+	Wed, 16 Apr 2003 17:14:46 -0400
+Date: Wed, 16 Apr 2003 23:26:37 +0200
+From: Mario Mikocevic <mozgy@hinet.hr>
 To: linux-kernel@vger.kernel.org
-Subject: uhci_hcd kernel panic in 2.5.67
-Message-ID: <20030416201407.GA8570@pik-net.pl>
+Subject: Advice needed: libaio and 2.4.x
+Message-ID: <20030416212637.GA10967@danielle.hinet.hr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi,
 
-I find uhci_hcd module behaving very strangely on my system (Fujitsu Siemens
-Lifebook S-4546).
+I've succesfully installed Oracle 9 on RH 9.
+(9on9 nice buzzword :)
+It even works nice in cluster mode (two nodes).
 
-When I do (rmmod uhci_hcd ; modprobe uhci_hcd) I _always_ get kernel panic.
-Call Trace is different from panic to panic but it always ends in
-do_IRQ -> do_softirq.
+My oracle guy wants to use AIO and I wonder are there any caveats
+with patching 2.4.21-pre7 (currently running) with latest aio patch !?
 
-dmesg | grep uhci - from my system:
---
-drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver v2.0
-uhci-hcd 00:07.2: Intel Corp. 82440MX USB Universa
-uhci-hcd 00:07.2: irq 15, io base 00001ca0
-uhci-hcd 00:07.2: new USB bus registered, assigned bus number 1
---
+TIA,
 
-Additionaly sometimes the kernel hangs on boot while loading uhci_hcd module.
 
-Exactly the same effects I've been experiencing in 2.5.66.
-
-In default RedHat8 kernel (2.4.21 with patches) everything seems to be ok.
-
-Best regards,
---
-Bart
+-- 
+Mario Mikoèeviæ (Mozgy)
+mozgy at hinet dot hr
+It's never too late to have a good childhood! The older you are, the better the toys!
+My favourite FUBAR ...

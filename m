@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVADN1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVADNaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVADN1G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 08:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVADN0v
+	id S261638AbVADNaO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 08:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVADNaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 08:26:51 -0500
-Received: from smtp.telefonica.net ([213.4.129.135]:37040 "EHLO
-	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S261623AbVADNX4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 08:23:56 -0500
-Message-ID: <41DA79EB.20102@telefonica.net>
-Date: Tue, 04 Jan 2005 12:11:39 +0100
-From: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 resuming laptop from suspension f*cks usb subsystem
-References: <41D2C4FA.7010806@telefonica.net> <20050103220704.GB25250@elf.ucw.cz>
-In-Reply-To: <20050103220704.GB25250@elf.ucw.cz>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jan 2005 08:30:14 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:37831 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261638AbVADN3H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 08:29:07 -0500
+Message-Id: <200501041327.j04DRhfQ007850@laptop11.inf.utfsm.cl>
+To: Felipe Alfaro Solana <lkml@mac.com>
+cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@stusta.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+Subject: Re: starting with 2.7 
+In-Reply-To: Message from Felipe Alfaro Solana <lkml@mac.com> 
+   of "Mon, 03 Jan 2005 23:03:53 BST." <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Tue, 04 Jan 2005 10:27:43 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felipe Alfaro Solana <lkml@mac.com> said:
 
->>In 2.6.10, resuming from suspend mode just (randomly) crashes the USB 
->>subsystem, and I get the same messages (not sure about the whole message 
->>but the "-84" part really is there) over and over again until I reboot.
->>    
->>
->
->Does it still happen with noapic? 2.6.10 has some interrupt related
->problems with APIC...
->
->								Pavel
->  
->
-I have just rebooted 2.6.10 with this LILO command line
+[...]
 
-    LILO Boot: Linux-2.6.10 noapic
+> Gosh! I bought an ATI video card, I bought a VMware license, etc.... I 
+> want to keep using them. Changing a "stable" kernel will continuously 
+> annoy users and vendors.
 
-and if that disables APIC, then I've got the same problem. After 
-suspending the laptop
-two times, I get the same lines (described below) and the usb system 
-goes nuts. After
-removing & inserting uhci_hcd everything works fine again.
+If you are sooo attached to this, just keep a distribution for which
+vendors give you drivers. But when the vendor decides the product has to
+die to get you to buy the next "completely redone" (== minor fixes and
+updates) version, you are stranded for good.
 
-The lines are (endless loop):
-drivers/usb/input/hid-core.c: input irq status -84 received
+> I think new developments will force a 2.7 branch: when 2.6 feature set 
+> stabilizes, people will keep more time testing a stable, relatively 
+> static kernel base, finding bugs, instead of trying to keep up with 
+> changes.
 
+And when 2.7 opens, very few developers will tend 2.6; and as 2.7 diverges
+from it, fewer and fewer fixes will find their way back. And so you finally
+get a rock-stable (== unchanging) 2.6, but hopelessly out of date and thus
+unfixable (if nothing else because there are no people around who remember
+how it worked).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268491AbRGXWGK>; Tue, 24 Jul 2001 18:06:10 -0400
+	id <S266093AbRGXWUg>; Tue, 24 Jul 2001 18:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268493AbRGXWGA>; Tue, 24 Jul 2001 18:06:00 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:32526 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268491AbRGXWFk>; Tue, 24 Jul 2001 18:05:40 -0400
-Date: Tue, 24 Jul 2001 19:05:36 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>,
-        Ben LaHaise <bcrl@redhat.com>, Mike Galbraith <mikeg@wen-online.de>
+	id <S266069AbRGXWUZ>; Tue, 24 Jul 2001 18:20:25 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:7504 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S266067AbRGXWUM>; Tue, 24 Jul 2001 18:20:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Patrick Dreker <patrick@dreker.de>
+Organization: Chaos Inc.
+To: Rik van Riel <riel@conectiva.com.br>
 Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <Pine.LNX.4.21.0107241722310.2263-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33L.0107241903410.20326-100000@duckman.distro.conectiva>
+Date: Wed, 25 Jul 2001 00:16:10 +0200
+X-Mailer: KMail [version 1.2.9]
+Cc: Linus Torvalds <torvalds@transmeta.com>, <phillips@bonn-fries.net>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0107241731400.20326-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0107241731400.20326-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15PATS-0000A5-00@wintermute>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Marcelo Tosatti wrote:
-> On Tue, 24 Jul 2001, Daniel Phillips wrote:
+Am Dienstag, 24. Juli 2001 22:32 schrieb Rik van Riel:
+> On Tue, 24 Jul 2001, Patrick Dreker wrote:
 >
-> > Today's patch tackles the use-once problem, that is, the problem of
+> 	[snip program with mmap()]
 >
-> Well, as I see the patch should remove the problem where
-> drop_behind() deactivates pages of a readahead window even if
-> some of those pages are not "used-once" pages, right ?
+> > I have tested this on my Athlon 600 with 128 Megs of RAM, and it
+> > does not make any difference whether I use plain 2.4.7 or
+> > 2.4.5-use-once.
 >
-> I just want to make sure the performance improvements you're
-> seeing caused by the fix of this _particular_ problem.
+> As expected. Only programs using generic_file_{read,write}()
+> will be impacted at the moment.
+D'oh... got some thing wrong there it seems :-(
+Anyways, I still have some old routines in the program doing the same via 
+read(). I have tried that (although the program is pretty silly, as it reads 
+the 240megs in 4 byte chunks.... the call overhead probably is the bigger 
+problem there...) and it improved the runtime by aproximately 20% using the 
+use_once patch.
 
-Fully agreed.
+linux-2.4.7:
+22.300u 135.310s 2:41.38 97.6%  0+0k 0+0io 110pf+0w
 
-Especially since it was a one-liner change from worse
-performance to better performance (IIRC) it would be
-nice to see exactly WHY the system behaves the way it
-does.  ;)
+linux-2.4.5-use_once:
+14.980u 108.870s 2:09.79 95.4%  0+0k 0+0io 200pf+0w
 
-Reading a bunch of 2Q, LRU/k, ... papers and thinking
-about the problem very carefully should help us a bit
-in this.  Lots of researches have already looked into
-this particular problem in quite a lot of detail.
+Both measurements taken after reboot and while running KDE2.2
+As stated: I am still willing to do further experiments... (read()ing larger 
+chunks at once?)
 
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- 
+Patrick Dreker

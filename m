@@ -1,43 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261942AbRFGQos>; Thu, 7 Jun 2001 12:44:48 -0400
+	id <S261988AbRFGRCd>; Thu, 7 Jun 2001 13:02:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261968AbRFGQoi>; Thu, 7 Jun 2001 12:44:38 -0400
-Received: from [208.48.139.185] ([208.48.139.185]:27339 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S261942AbRFGQoY>; Thu, 7 Jun 2001 12:44:24 -0400
-Date: Thu, 7 Jun 2001 09:44:18 -0700
-From: David Rees <dbr@greenhydrant.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: temperature standard - global config option?
-Message-ID: <20010607094418.A23719@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B1F51DB.54BE78CA@iph.to> <Pine.LNX.4.21.0106071519120.3702-100000@ns1.Aniela.EU.ORG>
+	id <S261990AbRFGRCX>; Thu, 7 Jun 2001 13:02:23 -0400
+Received: from t2.redhat.com ([199.183.24.243]:11256 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261988AbRFGRCM>; Thu, 7 Jun 2001 13:02:12 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3397.991927659@ocs4.ocs-net> 
+In-Reply-To: <3397.991927659@ocs4.ocs-net> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Russell King <rmk@arm.linux.org.uk>, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0106071519120.3702-100000@ns1.Aniela.EU.ORG>; from lk@Aniela.EU.ORG on Thu, Jun 07, 2001 at 03:20:03PM +0300
+Date: Thu, 07 Jun 2001 18:01:39 +0100
+Message-ID: <7192.991933299@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 07, 2001 at 03:20:03PM +0300, L. K. wrote:
-> On Thu, 7 Jun 2001, Philips wrote:
-> 
-> > 	Kelvins good idea in general - it is always positive ;-)
-> > 
-> > 	0.01*K fits in 16 bits and gives reasonable range.
-> > 
-> > 	but may be something like K<<6 could be a option? (to allow use of shifts
-> > instead of muls/divs). It would be much more easier to extract int part.
-> > 
-> > 	just my 2 eurocents.
-> 
-> Why not make it in Celsius ? Is more easy to read it this way.
 
-It's easier for you as a user to read, but slightly harder to deal with inside the code.  
-It's really a user-space issue, inside the kernel should be as standardized as possible, and
-Kelvins make the most sense there.
+kaos@ocs.com.au said:
+> Russell King <rmk@arm.linux.org.uk> wrote:
+> > supply kernel binary images as long as they make available the source
+> > code to the people they supply the kernel binary to, and no more.
 
--Dave
+> GNU General Public License Version 2, June 1991.  Section 3(b) says
+> "any third party", not just customers.
+
+It does indeed. Pick any three words and take them out of context, however, 
+and the result is utterly meaningless.
+
+The paragraph from which you took those words is listed as one of three
+_alternatives_. One of the alternatives does not require that the source be
+made available to "any third party".
+
+> Nothing in the GPL restricts the source being supplied to "the people
+> they supply the kernel binary to, and no more".
+
+If the source is not distributed with the binary, you are correct.
+If the source _is_ distributed with the binary, you are wrong. See option (a) below:
+
+GPL>  3. You may copy and distribute the Program (or a work based on it,
+GPL> under Section 2) in object code or executable form under the terms of
+GPL> Sections 1 and 2 above provided that you also do one of the following:
+GPL> 
+GPL>     a) Accompany it with the complete corresponding machine-readable
+GPL>     source code, which must be distributed under the terms of Sections
+GPL>     1 and 2 above on a medium customarily used for software interchange; or,
+GPL> 
+GPL>     b) Accompany it with a written offer, valid for at least three
+GPL>     years, to give any third party, for a charge no more than your
+GPL>     cost of physically performing source distribution, a complete
+GPL>     machine-readable copy of the corresponding source code, to be
+GPL>     distributed under the terms of Sections 1 and 2 above on a medium
+GPL>     customarily used for software interchange; or,
+GPL> 
+GPL>     c) Accompany it with the information you received as to the offer
+GPL>     to distribute corresponding source code.  (This alternative is
+GPL>     allowed only for noncommercial distribution and only if you
+GPL>     received the program in object code or executable form with such
+GPL>     an offer, in accord with Subsection b above.)
+
+
+I may choose option (a). Which does not oblige me to give source to a third
+party.
+
+You can ship source with the binaries, _OR_ you must make sure the source is 
+available to all third parties. You don't have to do both.
+
+--
+dwmw2
+
+

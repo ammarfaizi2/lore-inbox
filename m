@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313814AbSDIIC7>; Tue, 9 Apr 2002 04:02:59 -0400
+	id <S313815AbSDIIGc>; Tue, 9 Apr 2002 04:06:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313815AbSDIIC7>; Tue, 9 Apr 2002 04:02:59 -0400
-Received: from [62.245.135.174] ([62.245.135.174]:28326 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S313814AbSDIIC5>;
-	Tue, 9 Apr 2002 04:02:57 -0400
-Message-ID: <3CB2A02C.87B42E9D@TeraPort.de>
-Date: Tue, 09 Apr 2002 10:02:52 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5-ac3 i686)
-X-Accept-Language: en, de
+	id <S313820AbSDIIGb>; Tue, 9 Apr 2002 04:06:31 -0400
+Received: from dsl-linz6-241-149.utaonline.at ([212.152.241.149]:19697 "EHLO
+	falke.mail") by vger.kernel.org with ESMTP id <S313815AbSDIIGa>;
+	Tue, 9 Apr 2002 04:06:30 -0400
+Message-ID: <3CB29DAD.DE763FEB@falke.mail>
+Date: Tue, 09 Apr 2002 09:52:13 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Tyan S2462 reboot problems
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/09/2002 10:02:52 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/09/2002 10:02:58 AM,
-	Serialize complete at 04/09/2002 10:02:58 AM
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: COMPILE BUG: SiS DRM Support
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-MDRemoteIP: 10.0.0.13
+X-Return-Path: thomas@winischhofer.net
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
- what (which config option) could be the reason for a reboot hang on a
-S2462 (2x1900MP, 2GB, BIOS 2.09) between POST/BIOS and LILO?
+> > > Is there any obvious reasons why this isn't compiling?
+> > Try compiling with SiS framebuffer device (CONFIG_FB_SIS and
+> > CONFIG_FB_SIS_300 or CONFIG_FB_SIS_315) activated... the SiS DRI driver
+> > needs it... don't ask me why ;)
+> 
+> Because they share common code. It is actually better that they work
+> together since this way they will not step on each others toes. Someday I
+> plan to merge both the fbdev and drm interfaces together.
 
- The situation is that I have kernels. One of them hangs said system(s)
-reproducible when doing a reboot, that other works fine. When the
-systems "hang", they hang before LILO gets started. Just a white block
-cursor on the left-upper corner of the screen.
+More precisely, the framebuffer driver contains all the chipset and
+therefore the memory (amount/type) detection stuff. It checks for
+eventual Turbo/Commandqueue capabilities (which differ significantly
+depending on the actual chipset used) and sets up a memory heap taking
+all the hardware specifics into account. Moving the memory management to
+the DRM module will result in a lot of duplicate code and a lack of
+common memory management.
 
- On cold start or on pressing the reset button both kernels boot fine.
-Any ideas? The working  kernel is 2.4.17SMP as shipped by
-FujitsuSiemens/Redhat. The bad one is 2.4.18-ac3+trondsNFSstuff. The
-config files are not identical. Thats why I ask which of the options
-could cause the effect.
+If you don't want to use the framebuffer, start it with no video mode
+specified or with mode=none (or mode:none if as kernel parameter)
 
-TIA
-Martin
+Thomas
+
+PS: For updates of the SiS VGA drivers, please check my homepage.
+
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Thomas Winischhofer
+Vienna/Austria                 
+mailto:thomas@winischhofer.net            http://www.winischhofer.net/
+

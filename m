@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262775AbTKWSAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 13:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTKWSAF
+	id S263378AbTKWSQv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 13:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263387AbTKWSQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 13:00:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38891 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262775AbTKWSAB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 13:00:01 -0500
-Date: Sun, 23 Nov 2003 09:59:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x86: SIGTRAP handling differences from 2.4 to 2.6
-In-Reply-To: <bppjkt$ik0$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0311230954460.17378-100000@home.osdl.org>
+	Sun, 23 Nov 2003 13:16:51 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:14210
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263378AbTKWSQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 13:16:50 -0500
+Date: Sun, 23 Nov 2003 13:15:32 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Aubin LaBrosse <arl8778@rit.edu>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DRI and AGP on 2.6.0-test9
+In-Reply-To: <1069571959.9574.46.camel@rain.rh.rit.edu>
+Message-ID: <Pine.LNX.4.53.0311231313110.2498@montezuma.fsmlabs.com>
+References: <1069571959.9574.46.camel@rain.rh.rit.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 23 Nov 2003, Aubin LaBrosse wrote:
 
-On 22 Nov 2003, H. Peter Anvin wrote:
-> > 
-> > Hmm.. Looking at the signal sending code, we actually do special-case 
-> > "init" there already - but only for the "kill -1" case. If the test for 
-> > "pid > 1" was moved into "group_send_sig_info()" instead, that would 
-> > pretty much do it, I think.
-> > 
+> Hi all, 
 > 
-> Okay... I'm going to ask the obvious dumb question:
+> I'm having a problem with 2.6.0-test9 and DRI.  dmesg tells me:
 > 
-> Why do we bother special-casing init at all?
+> [drm] Initialized radeon 1.9.0 20020828 on minor 0
+> [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+> [drm:radeon_unlock] *ERROR* Process 4113 using kernel context 0
 
-Because the kernel depends on it existing. "init" literally _is_ special 
-from a kernel standpoint, because its' the "reaper of zombies" (and, may I 
-add, that would be a great name for a rock band).
+For my curiosity, can you try compiling the Radeom/drm and AGP driver into 
+the kernel?
 
-So without init, the kernel wouldn't have anybody to fall back on when a 
-parent process dies, and would become very very unhappy. Historically it 
-actually oopsed the kernel.
+> anyway, some more information:
+> 
+> this is a 2-cpu machine, AMD MP2000+'s on a Tyan Tiger MPX board
+> (AMD-760MPX chipset ) 4xAGP, Radeon AIW (the original one, so i suspect
+> 7200. certainly r200, which afaik requires no proprietary drivers at all
+> for dri to work. Perhaps it is an smp issue?  anyway, here's my kernel
+> config:
 
-UNIX semantics literally _require_ that "getppid()" should return 1 if 
-your parent dies, and that's "current->p_parent->tgid". So we have to have 
-a parent with pid 1, and thus init really _is_ special.
-
-Yeah, we could have _other_ special cases (we could create another process 
-that is invisible and has pid 1), but the fact is, _some_ special case is 
-required. It might as well be "you can't kill init".
-
-		Linus
-
+I just tried test9-mm5 with a radeon 9000 on an smp machine with the 
+desired results.

@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVCNT6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVCNT7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbVCNT6A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 14:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVCNT57
+	id S261800AbVCNT7G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 14:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVCNT7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:57:59 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:19954 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261779AbVCNT55
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:57:57 -0500
-Subject: Re: 2.6.11-bk10 build problems
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kai@germaschewski.name
-In-Reply-To: <20050314194930.GB17373@mars.ravnborg.org>
-References: <1110829177.19340.8.camel@localhost>
-	 <20050314194930.GB17373@mars.ravnborg.org>
+	Mon, 14 Mar 2005 14:59:06 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:40606 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261790AbVCNT67 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 14:58:59 -0500
+Subject: Re: [PATCH] 2.6.11-mm3 patch for ext3 writeback "nobh" option
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <1110828554.6288.109.camel@laptopd505.fenrus.org>
+References: <1110827903.24286.275.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110828554.6288.109.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 11:57:39 -0800
-Message-Id: <1110830259.19340.17.camel@localhost>
+Organization: 
+Message-Id: <1110830057.24286.284.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Mar 2005 11:54:17 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-14 at 20:49 +0100, Sam Ravnborg wrote:
-> On popular request 'make install' no longer try to update vmlinux.
-> This is to avoid errornous recompilation when installing the kernel
-> as root especially when fetching kernel via nfs where path may have
-> changed.
+On Mon, 2005-03-14 at 11:29, Arjan van de Ven wrote:
+> On Mon, 2005-03-14 at 11:18 -0800, Badari Pulavarty wrote:
+> > Hi Andrew,
+> > 
+> > Here is the 2.6.11-mm3 version of patch for adding "nobh"
+> > support for ext3 writeback mode.
+> 
+> can you explain why this is an option ? It's not like the on disk layout
+> changes or something... is there a reason to ever not want this?
 
-That makes sense, but it's still quite a surprise, and a serious change
-in behavior from as long as I've been compiling kernels.
+I am slowly trying to reduce the uses of "bufferhead"s in the ext3.
+We can get away not attaching a bufferheads for the pages in
+ext3 writeback mode easily. But for ordered mode, its doable
+but tricky.
 
-How about a new "make install-norebuild" or something that doesn't
-change current, relied-upon behavior?  Seems like the weirdos^Wusers
-doing kernel fetches over nfs are probably the minority, and their small
-numbers can be much more easily educated than the masses who expect
-'make menuconfig; make install' to do what it's always done.  
+There are few cases, I didn't handle in my patch (just to reduce
+the code complexity)
+	
+	- I still create bufferheads for filesystem 
+	blocksize != PAGE_SIZE
 
-If that's too invasive, how about restoring the old behavior with a
-warning to stderr for a release or two?
+	- In case of a truncate and the page is not uptodate
+	(needs to do IO to read the page) - I attach buffers.
+	I had code to eliminate this - but Andrew didn't like it :(
 
--- Dave
+
+I want to get more run-time before making it a default.
+
+Thanks,
+Badari
 

@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312279AbSDCXfa>; Wed, 3 Apr 2002 18:35:30 -0500
+	id <S312486AbSDCXfK>; Wed, 3 Apr 2002 18:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312476AbSDCXfV>; Wed, 3 Apr 2002 18:35:21 -0500
-Received: from ns.suse.de ([213.95.15.193]:63241 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312279AbSDCXfG>;
-	Wed, 3 Apr 2002 18:35:06 -0500
-To: Craig <penguin@wombat.ca>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+	id <S312476AbSDCXfB>; Wed, 3 Apr 2002 18:35:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42759 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312279AbSDCXeu>; Wed, 3 Apr 2002 18:34:50 -0500
 Subject: Re: [PATCH] 2.4: BOOTPC /proc info.
-In-Reply-To: <1017802992.2940.602.camel@phantasy.suse.lists.linux.kernel> <Pine.LNX.4.42.0204031759090.711-100000@wombat.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Apr 2002 01:35:02 +0200
-Message-ID: <p73vgb8s6e1.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+To: penguin@wombat.ca (Craig)
+Date: Thu, 4 Apr 2002 00:51:54 +0100 (BST)
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.42.0204031759090.711-100000@wombat> from "Craig" at Apr 03, 2002 06:09:30 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16suXi-0004nG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig <penguin@wombat.ca> writes:
+> So what do people think?  Should this go in 2.4 or 2.5?
+> Is this worthwhile to pursue putting this in (it's very useful to us,
+> so we figured others could use it)?
+> Should i send this to Linus for 2.5 inclusion as well?
 
-> Marcelo,
->   This patch is against 2.4.19-pre5, please apply.
-
-This is unbelievable ugly. Can't you just save the packet as a binary
-buffer, output it as binary in /proc and parse and format it in user space ?
-
-Better would be to not use bootpc at all in kernel, but run it in initrd
-(that is the long term plan anyways, removing dhcp/bootp completely
-and only supporting them from initrd) 
-
-
--Andi
-
+The longer term goal is to remove this stuff from the kernel and push it 
+into the initrd support. Instead of kernel hacks you use an initrd that
+runs the real bootpc. 

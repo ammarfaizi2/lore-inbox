@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136514AbREGSTI>; Mon, 7 May 2001 14:19:08 -0400
+	id <S136541AbREGSVi>; Mon, 7 May 2001 14:21:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136516AbREGSSt>; Mon, 7 May 2001 14:18:49 -0400
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:54967 "EHLO
-	phenoxide.engr.valinux.com") by vger.kernel.org with ESMTP
-	id <S136514AbREGSSl>; Mon, 7 May 2001 14:18:41 -0400
-Date: Mon, 7 May 2001 11:18:22 -0700
-From: Johannes Erdfelt <jerdfelt@valinux.com>
-To: Shane Wegner <shane@cm.nu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.20pre1: Problems with SMP
-Message-ID: <20010507111822.I903@valinux.com>
-In-Reply-To: <20010506175050.A1968@cm.nu> <E14wiNn-0003JF-00@the-village.bc.nu> <20010507102053.A2276@cm.nu> <20010507110250.H903@valinux.com> <20010507111436.A17314@cm.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010507111436.A17314@cm.nu>; from shane@cm.nu on Mon, May 07, 2001 at 11:14:36AM -0700
+	id <S136522AbREGSV2>; Mon, 7 May 2001 14:21:28 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:65032 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S136520AbREGSVO>; Mon, 7 May 2001 14:21:14 -0400
+Date: Mon, 7 May 2001 11:21:13 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <alexander.eichhorn@rz.tu-ilmenau.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Question] Explanation of zero-copy networking
+In-Reply-To: <E14wlUi-0003WQ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105071106470.10009-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 07, 2001, Shane Wegner <shane@cm.nu> wrote:
-> On Mon, May 07, 2001 at 11:02:50AM -0700, Johannes Erdfelt wrote:
-> > On Mon, May 07, 2001, Shane Wegner <shane@cm.nu> wrote:
-> > > 
-> > > That does indeed correct the problem.  2.2.20pre1 now works
-> > > as expected.
-> > 
-> > Hmm, that uses a VIA based chipset. I didn't know they did SMP yet. Does
-> > 2.4 work on this system?
-> 
-> The last 2.4 kernel I tried was 2.4.3 I believe and it
-> worked fine more or less.  I haven't tried any later 2.4
-> kernels yet.
+On Mon, 7 May 2001, Alan Cox wrote:
 
-That's fine. The I/O APIC code is different and I tried to make the 2.2
-code work like the 2.4 code with minimal changes. However, the changes
-aren't trivial. I'll take a quick look and see if I can find any more
-significant differences.
+> > documented so far) detailed description of the newly
+> > implemented zero-copy mechanisms in the network-stack.
+> > We are interested in how to use it (changed network-API?)
+> > and also in the internal architecture.
+>
+> It is built around sendfile. Trying to do zero copy on pages with user space
+> mappings get so horribly non pretty it is better to build the API from the
+> physical side of things.
 
-I wonder if I have a VIA board laying around here.
+so there's still single copy for write() of a mmap()ed page?
 
-JE
+since i'm naive about the high-end databases -- do they have a mechanism
+to access zero-copy?  i suppose sendfile() on a raw device fd would
+work... nice.
+
+-dean
 

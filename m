@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131392AbRCWX7h>; Fri, 23 Mar 2001 18:59:37 -0500
+	id <S131464AbRCXABH>; Fri, 23 Mar 2001 19:01:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131393AbRCWX7a>; Fri, 23 Mar 2001 18:59:30 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:44806 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131392AbRCWX6m>; Fri, 23 Mar 2001 18:58:42 -0500
-Date: Fri, 23 Mar 2001 08:21:35 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Richard Jerrell <jerrell@missioncriticallinux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm/memory.c, 2.4.1 : memory leak with swap cache (updated)
-In-Reply-To: <Pine.LNX.4.21.0103231042380.20061-200000@jerrell.lowell.mclinux.com>
-Message-ID: <Pine.LNX.4.21.0103230820430.1863-100000@imladris.rielhome.conectiva>
+	id <S131410AbRCXAA7>; Fri, 23 Mar 2001 19:00:59 -0500
+Received: from ip167-165.fli-ykh.psinet.ne.jp ([210.129.167.165]:23747 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S131419AbRCXAAk>;
+	Fri, 23 Mar 2001 19:00:40 -0500
+Message-ID: <3ABBE36F.89847A3C@yk.rim.or.jp>
+Date: Sat, 24 Mar 2001 08:59:43 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: ja, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kurt Garloff <garloff@suse.de>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Interesting post from the MC project to linux-kernel. :block while 
+ spinlock held...
+In-Reply-To: <3AB8E3E8.F3204180@yk.rim.or.jp> <20010322180528.B6264@garloff.casa-etp.nl>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Richard Jerrell wrote:
-> > Your idea is nice, but the patch lacks a few things:
-> > 
-> > - SMP locking, what if some other process faults in this page
-> >   between the atomic_read of the page count and the test later?
-> 
-> It can't happen.  free_pte is called with the page_table_lock held in 
-> addition to having the mmap_sem downed.
+Hello Garloff-san,
 
-The page_table_lock and the mmap_sem only protect the *current*
-task. Think about something like an apache with 500 children who
-COW share the same page...
+Actually, a good question.
 
-> > - testing if our process is the _only_ user of this swap page,
-> >   for eg. apache you'll have lots of COW-shared pages .. it would
-> >   be good to keep the page in memory for our siblings
-> 
-> This is already done in free_page_and_swap_cache.
+I have been trying to find the details of the verification tool from stanford
 
-Ok ...
+but to no avail.
+Maybe we should ask the posters from the Stanford directly.
 
-regards,
+(Oops. I thought I posted this to linux-scsi, but did I post
+linux-kernel instead? Apologies.)
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Kurt Garloff wrote:
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+> On Thu, Mar 22, 2001 at 02:24:56AM +0900, Chiaki Ishikawa wrote:
+> > --- begin quote ---
+> > > enclosed are 163 potential bugs in 2.4.1 where blocking functions are
+> > > called with either interrupts disabled or a spin lock held. The
+> > > checker works by:
+> >
+> > Here's the file manifest. Apologies.
+> >
+> > drivers/atm/idt77105.c
+> > drivers/atm/iphase.c
+> > drivers/atm/uPD98402.c
+> > drivers/block/cciss.c
+> > drivers/block/cpqarray.c
+> > drivers/char/applicom.c
+> >     ...
+> > drivers/scsi/aha1542.c            <--- some scsi files
+> > drivers/scsi/atp870u.c             <----
+> > drivers/scsi/psi240i.c               <----
+> > drivers/scsi/sym53c416.c        <----
+> > drivers/scsi/tmscsim.c              <----
+>   ^^^^^^^^^^^^^^^^^^^^^^
+>
+> How do I fond about about details?
+>
+> R
 

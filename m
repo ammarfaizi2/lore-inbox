@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266091AbTCEQiN>; Wed, 5 Mar 2003 11:38:13 -0500
+	id <S267256AbTCEQkN>; Wed, 5 Mar 2003 11:40:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbTCEQiM>; Wed, 5 Mar 2003 11:38:12 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57098 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266091AbTCEQiM>; Wed, 5 Mar 2003 11:38:12 -0500
-Message-ID: <3E662A5C.4060307@zytor.com>
-Date: Wed, 05 Mar 2003 08:48:28 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: DervishD <raul@pleyades.net>, linux-kernel@vger.kernel.org
-Subject: Re: Unable to boot a raw kernel image :??
-References: <200303051633.h25GXkYk005773@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200303051633.h25GXkYk005773@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267260AbTCEQkN>; Wed, 5 Mar 2003 11:40:13 -0500
+Received: from f83.law9.hotmail.com ([64.4.9.83]:37135 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S267256AbTCEQkM>;
+	Wed, 5 Mar 2003 11:40:12 -0500
+X-Originating-IP: [68.14.170.144]
+From: "turm eric" <turmeric2@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel issue
+Date: Wed, 05 Mar 2003 16:50:38 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F83FprhMOgRGkQ6mByS00023670@hotmail.com>
+X-OriginalArrivalTime: 05 Mar 2003 16:50:38.0568 (UTC) FILETIME=[5998AE80:01C2E337]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> 
-> Doesn't the in kernel bootloader have uses other than booting from
-> floppy?  What if you want to boot from a custom network boot prom?
-> 
+I was just wondering how you all felt about linux being used by the army to 
+crush the world
+under the jackboot of the US empire, and to kill babies? Thank you.
 
-Then you probably need Etherboot.  The in-kernel boot loader
-(bootsect.S) will not help you.
-
-	-hpa
-
+_________________________________________________________________
+The new MSN 8: smart spam protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 

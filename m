@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292841AbSCSVWC>; Tue, 19 Mar 2002 16:22:02 -0500
+	id <S292752AbSCSVXc>; Tue, 19 Mar 2002 16:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292846AbSCSVVw>; Tue, 19 Mar 2002 16:21:52 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36368 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S292870AbSCSVVi>; Tue, 19 Mar 2002 16:21:38 -0500
-Date: Tue, 19 Mar 2002 22:21:30 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pavel Machek <pavel@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Olivier Galibert <galibert@pobox.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020319212130.GG12260@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com> <3C8D69E3.3080908@mandrakesoft.com> <20020311223439.A2434@zalem.nrockv01.md.comcast.net> <3C8D8061.4030503@mandrakesoft.com> <20020314141342.B37@toy.ucw.cz> <3C91D571.5070806@mandrakesoft.com> <20020318192004.GB194@elf.ucw.cz> <20020319102926.B9997@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S292852AbSCSVXW>; Tue, 19 Mar 2002 16:23:22 -0500
+Received: from zamok.crans.org ([138.231.136.6]:34503 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S292752AbSCSVXK>;
+	Tue, 19 Mar 2002 16:23:10 -0500
+To: Jaanus Toomsalu <jaanus@amd.matti.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HighPoint HPT372/374 full support?
+In-Reply-To: <20020318140848.C9EEB25717@amd.matti.ee>
+X-PGP-KeyID: 0xF22A794E
+X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
+From: Vincent Bernat <bernat@free.fr>
+Organization: Kabale Inc
+Date: Tue, 19 Mar 2002 22:23:06 +0100
+Message-ID: <m3u1rcuu9x.fsf@neo.loria>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
+ i686-pc-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+OoO En ce début d'après-midi ensoleillé du lundi 18 mars 2002, vers
+15:08, Jaanus Toomsalu <jaanus@amd.matti.ee> disait:
 
-> > > commands.  With the proper sequencing, you can even do power management 
-> > > of the drives in userspace.  You don't want to do system suspend/resume 
-> > > that way, but you can certainly have a userspace policy daemon running, 
-> > > that powers-down and powers-up the drives, etc.
-> > 
-> > See noflushd, Hdparm is able to powersave disks well, already, and it
-> > was in 2.2.X, too.
-> 
-> Not all of them safely, though. Many a drive will corrupt data if it
-> receives a command when not spinned up. You need to issue a wake command
-> first, which hdparm doesn't, it just leaves it to the kernel to issue a
-> read command or whatever to wake the drive ...
+> Is there any hints to get this UDMA133 chip to work. Currently it seems to 
+> reported work over WIP (WorkInProgress), but on my onboard ABIT KR7A-RAID i 
+> get DMA disabled message and all hardisks on HPT372 IDE channel are "lost" 
+> after that.
 
-Is this common disk bug, or are they permitted to behave like that?
+I have the same problem here, but just when I try to use md to setup a
+disk array. In fact, I can dd to /dev/null two disks at the same time
+(each on its separate controller) without any troubles (each disk
+through output is 40 MB/s). Software raid with hptraid works fine but
+I don't get significant performance improvement. But each time I try
+to use md, I always get the same problem than you. mkraid, raidstop or
+anything which access /dev/md0 triggers a DMA problem.
 
-									Pavel
+I have asked the question in linux-raid mailing list yesterday but got
+no solution so far.
+
+I have upgraded to newest BIOS patched with the latest BIOS from
+Highpoint (2.31) and there is no change (but I think the BIOS is not
+used). I have tried with a vanilla 2.4.18 and with 2.4.19-pre3-ac1.
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+I NO LONGER WANT MY MTV
+I NO LONGER WANT MY MTV
+I NO LONGER WANT MY MTV
+-+- Bart Simpson on chalkboard in episode 3G02

@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263221AbTLMDXh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 22:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTLMDXg
+	id S263463AbTLMDxP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 22:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTLMDxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 22:23:36 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:56457 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S263221AbTLMDXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 22:23:35 -0500
-Date: Fri, 12 Dec 2003 19:23:30 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: More questions about 2.6 /proc/meminfo was: (Mem: and Swap: lines in /proc/meminfo)
-Message-ID: <20031213032330.GA1769@matchmail.com>
-Mail-Followup-To: Rik van Riel <riel@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312120658001.17287-100000@chimarrao.boston.redhat.com> <20031212181206.GL15401@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Dec 2003 22:53:15 -0500
+Received: from xavier.comcen.com.au ([203.23.236.73]:35085 "EHLO
+	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S263463AbTLMDxM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 22:53:12 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: george@mvista.com
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+Date: Sat, 13 Dec 2003 13:56:16 +1000
+User-Agent: KMail/1.5.1
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031212181206.GL15401@matchmail.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312131356.16016.ross@datscreative.com.au>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VmallocUsed is being reported in /proc/meminfo in 2.6 now.
+>Having had cause to try and figure out all this, I vote for the following being 
+> included in the source somewhere... 
+>-g 
 
-Is VmallocUsed contained within any of the other memory reported below?
+Please consider adding
 
-How can I get VmallocUsed from userspace in earlier kernels (2.[024])?
+2c. Alternatively the OUT0 output of the 8254 PIT (IOW the timer source) may be 
+directly connected to the INTIN0 input of the first I/O APIC. 
 
-And the same questions with PageTables too. :)
+which we have found for nforce2 boards.
+ref:
 
-Are Dirty: and Writeback: counted in Inactive: or are they seperate?
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/2375.html
 
-Does Mapped: include all files mmap()ed, or only the executable ones?
+Ross Dickson
 
-MemTotal:       514880 kB
-MemFree:        268440 kB
-Buffers:         10736 kB
-Cached:          98064 kB
-SwapCached:          0 kB
-Active:         161732 kB
-Inactive:        54756 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       514880 kB
-LowFree:        268440 kB
-SwapTotal:      627024 kB
-SwapFree:       627024 kB
-Dirty:              48 kB
-Writeback:           0 kB
-Mapped:         155292 kB
-Slab:            16712 kB
-Committed_AS:   288808 kB
-PageTables:       1816 kB
-VmallocTotal:   507896 kB
-VmallocUsed:     26472 kB
-VmallocChunk:   481176 kB
 
+>bill davidsen wrote: 
+> > In article <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>, 
+> > Maciej W. Rozycki <macro@ds2.pg.gda.pl> wrote: 
+> > 
+> > | The I/O APIC NMI watchdog utilizes the property of being transparent to a 
+> > | single IRQ source of a specially reconfigured 8259A PIC (the master one in 
+> > | the IA32 PC architecture). There are more prerequisites that have to be 
+> > | met and all indeed are for a 100% compatible PC as specified by the 
+> > | Intel's Multiprocessor Specification. 
+> > | 
+> > | 1. The INT output of the master 8259A PIC has to be connected to the LINT0 
+> > | (or LINTIN0; the name varies by implementations) inputs of all local APICs 
+> > | in the system. 
+> > | 
+> > | 2a. The OUT0 output of the 8254 PIT (IOW the timer source) has to be 
+> > | directly connected to the INTIN2 input of the first I/O APIC. 
+> > | 
+> > | 2b. Alternatively the INT output of the master 8259A PIC has to be 
+> > | connected to the INTIN0 input of the first I/O APIC. 
+> > | 
+> > | 3. There must be no glue logic that would change logical properties of the 
+> > | signal between the INT output of the master 8259A PIC and the respective 
+> > | APIC interrupt inputs. 
+> > | 
+> > | In practice, assuming the MP IRQ routing information provided the BIOS has 
+> > | been correct (which is not always the case), prerequisites #1 and #2 have 
+> > | been met so far, but #3 has proved to be occasionally problematic. 
+> > 
+> > In practice many system seem to take a good bit of guessing and testing. 
+> > I have an old P-II which only works with acpi=force and nmi_watchdog=2, 
+> > for instance. 
+> > 
+> > It would be nice if there were a program which could poke at the 
+> > hardware and suggest options which might work, as in eliminating the 
+> > ones which can be determined not to work. Absent that trial and error 
+> > rule, unfortunately. 
+ 

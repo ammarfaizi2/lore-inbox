@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUENXKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbUEOBWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbUENXKz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUENXKM
+	id S263126AbUEOBWq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 21:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbUENXIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:10:12 -0400
-Received: from mail.kroah.org ([65.200.24.183]:52700 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263204AbUENXIH convert rfc822-to-8bit
+	Fri, 14 May 2004 19:08:51 -0400
+Received: from mail.kroah.org ([65.200.24.183]:50908 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263126AbUENXIB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:08:07 -0400
+	Fri, 14 May 2004 19:08:01 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.6
-In-Reply-To: <10845760414160@kroah.com>
+In-Reply-To: <10845760412992@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
 Date: Fri, 14 May 2004 16:07:21 -0700
-Message-Id: <10845760412992@kroah.com>
+Message-Id: <10845760411194@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,113 +23,105 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.5.12, 2004/04/28 11:51:03-07:00, greg@kroah.com
+ChangeSet 1.1587.5.13, 2004/05/02 20:28:38-07:00, sebek64@post.cz
 
-My cleanups to the smbios driver.
-
-
- drivers/firmware/smbios.c |   44 +++++++++++++-------------------------------
- 1 files changed, 13 insertions(+), 31 deletions(-)
+[PATCH] Class support for ppdev.c
 
 
-diff -Nru a/drivers/firmware/smbios.c b/drivers/firmware/smbios.c
---- a/drivers/firmware/smbios.c	Fri May 14 15:59:57 2004
-+++ b/drivers/firmware/smbios.c	Fri May 14 15:59:57 2004
-@@ -10,9 +10,9 @@
-  *
-  * This code takes information provided by SMBIOS tables
-  * and presents it in sysfs as:
-- *    /sys/firmware/smbios/smbios
-- *				|--> /table_entry_point
-- *				|--> /table
-+ *    /sys/firmware/smbios
-+ *			|--> /table_entry_point
-+ *			|--> /table
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License v2.0 as published by
-@@ -42,7 +42,6 @@
- struct smbios_device {
- 	struct smbios_table_entry_point table_eps;
- 	unsigned int smbios_table_real_length;
--	struct kobject kobj;
+ drivers/char/ppdev.c |   45 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 43 insertions(+), 2 deletions(-)
+
+
+diff -Nru a/drivers/char/ppdev.c b/drivers/char/ppdev.c
+--- a/drivers/char/ppdev.c	Fri May 14 15:59:42 2004
++++ b/drivers/char/ppdev.c	Fri May 14 15:59:42 2004
+@@ -59,6 +59,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/sched.h>
++#include <linux/device.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/ioctl.h>
+ #include <linux/parport.h>
+@@ -739,6 +740,8 @@
+ 	return mask;
+ }
+ 
++static struct class_simple *ppdev_class;
++
+ static struct file_operations pp_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.llseek		= no_llseek,
+@@ -750,23 +753,59 @@
+ 	.release	= pp_release,
  };
  
- /* there shall be only one */
-@@ -143,7 +142,7 @@
- smbios_read_table_entry_point(struct kobject *kobj, char *buffer,
- 				loff_t pos, size_t size)
++static void pp_attach(struct parport *port)
++{
++	class_simple_device_add(ppdev_class, MKDEV(PP_MAJOR, port->number),
++			NULL, "parport%d", port->number);
++}
++
++static void pp_detach(struct parport *port)
++{
++	class_simple_device_remove(MKDEV(PP_MAJOR, port->number));
++}
++
++static struct parport_driver pp_driver = {
++	.name		= CHRDEV,
++	.attach		= pp_attach,
++	.detach		= pp_detach,
++};
++
+ static int __init ppdev_init (void)
  {
--	struct smbios_device *sdev = to_smbios_device(kobj);
-+	struct smbios_device *sdev = &the_smbios_device;
- 	const char *p = (const char *)&(sdev->table_eps);
- 	unsigned int count =
- 		size > sizeof(sdev->table_eps) ?
-@@ -156,7 +155,7 @@
- smbios_read_table(struct kobject *kobj, char *buffer,
- 				loff_t pos, size_t size)
- {
--	struct smbios_device *sdev = to_smbios_device(kobj);
-+	struct smbios_device *sdev = &the_smbios_device;
- 	u8 *buf;
- 	unsigned int count = sdev->smbios_table_real_length - pos;
- 	int i = 0;
-@@ -204,30 +203,16 @@
+-	int i;
++	int i, err = 0;
  
- static decl_subsys(smbios,&ktype_smbios,NULL);
+ 	if (register_chrdev (PP_MAJOR, CHRDEV, &pp_fops)) {
+ 		printk (KERN_WARNING CHRDEV ": unable to get major %d\n",
+ 			PP_MAJOR);
+ 		return -EIO;
+ 	}
++	ppdev_class = class_simple_create(THIS_MODULE, CHRDEV);
++	if (IS_ERR(ppdev_class)) {
++		err = PTR_ERR(ppdev_class);
++		goto out_chrdev;
++	}
+ 	devfs_mk_dir("parports");
+ 	for (i = 0; i < PARPORT_MAX; i++) {
+ 		devfs_mk_cdev(MKDEV(PP_MAJOR, i),
+ 				S_IFCHR | S_IRUGO | S_IWUGO, "parports/%d", i);
+ 	}
++	if (parport_register_driver(&pp_driver)) {
++		printk (KERN_WARNING CHRDEV ": unable to register with parport\n");
++		goto out_class;
++	}
  
--static inline void
--smbios_device_unregister(struct smbios_device *sdev)
-+static void smbios_device_unregister(void)
- {
--	sysfs_remove_bin_file(&sdev->kobj, &tep_attr );
--	sysfs_remove_bin_file(&sdev->kobj, &table_attr );
--	kobject_unregister(&sdev->kobj);
-+	sysfs_remove_bin_file(&smbios_subsys.kset.kobj, &tep_attr );
-+	sysfs_remove_bin_file(&smbios_subsys.kset.kobj, &table_attr );
+ 	printk (KERN_INFO PP_VERSION "\n");
+-	return 0;
++	goto out;
++
++out_class:
++	for (i = 0; i < PARPORT_MAX; i++)
++		devfs_remove("parports/%d", i);
++	devfs_remove("parports");
++	class_simple_destroy(ppdev_class);
++out_chrdev:
++	unregister_chrdev(PP_MAJOR, CHRDEV);
++out:
++	return err;
  }
  
--static int
--smbios_device_register(struct smbios_device *sdev)
-+static void __init smbios_device_register(void)
- {
--	int error;
--
--	if (!sdev)
--		return 1;
--
--	kobject_set_name(&sdev->kobj, "smbios");
--	kobj_set_kset_s(sdev,smbios_subsys);
--	error = kobject_register(&sdev->kobj);
--	if (!error){
--		sysfs_create_bin_file(&sdev->kobj, &tep_attr );
--		sysfs_create_bin_file(&sdev->kobj, &table_attr );
--	}
--	return error;
-+	sysfs_create_bin_file(&smbios_subsys.kset.kobj, &tep_attr );
-+	sysfs_create_bin_file(&smbios_subsys.kset.kobj, &table_attr );
- }
- 
- static int __init
-@@ -247,10 +232,7 @@
- 	if (rc)
- 		return rc;
- 
--	rc = smbios_device_register(&the_smbios_device);
--
--	if (rc)
--		firmware_unregister(&smbios_subsys);
-+	smbios_device_register();
- 
- 	return rc;
- }
-@@ -258,7 +240,7 @@
- static void __exit
- smbios_exit(void)
- {
--	smbios_device_unregister(&the_smbios_device);
-+	smbios_device_unregister();
- 	firmware_unregister(&smbios_subsys);
+ static void __exit ppdev_cleanup (void)
+@@ -775,7 +814,9 @@
+ 	/* Clean up all parport stuff */
+ 	for (i = 0; i < PARPORT_MAX; i++)
+ 		devfs_remove("parports/%d", i);
++	parport_unregister_driver(&pp_driver);
+ 	devfs_remove("parports");
++	class_simple_destroy(ppdev_class);
+ 	unregister_chrdev (PP_MAJOR, CHRDEV);
  }
  
 

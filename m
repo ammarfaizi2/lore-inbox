@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318503AbSGaVFR>; Wed, 31 Jul 2002 17:05:17 -0400
+	id <S317865AbSGaVEQ>; Wed, 31 Jul 2002 17:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318505AbSGaVFR>; Wed, 31 Jul 2002 17:05:17 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:13565 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S318503AbSGaVEg>; Wed, 31 Jul 2002 17:04:36 -0400
-Date: Wed, 31 Jul 2002 17:08:02 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
+	id <S318503AbSGaVEQ>; Wed, 31 Jul 2002 17:04:16 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:13505 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S317865AbSGaVEP>; Wed, 31 Jul 2002 17:04:15 -0400
+Date: Wed, 31 Jul 2002 17:07:40 -0400
+To: "Peter J. Braam" <braam@clusterfs.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc3aa4
-Message-ID: <20020731170802.R10270@redhat.com>
-References: <20020730060218.GB1181@dualathlon.random>
+Subject: Re: BIG files & file systems
+Message-ID: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: "Peter J. Braam" <braam@clusterfs.com>,
+	linux-kernel@vger.kernel.org
+References: <20020731131620.M15238@lustre.cfs>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020730060218.GB1181@dualathlon.random>; from andrea@suse.de on Tue, Jul 30, 2002 at 08:02:18AM +0200
+In-Reply-To: <20020731131620.M15238@lustre.cfs>
+User-Agent: Mutt/1.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 08:02:18AM +0200, Andrea Arcangeli wrote:
-> 	Merged async-io from Benjamin LaHaise after purifying it from the
-> 	/proc/libredhat.so mess that made it not binary compatible with 2.5.
+On Wed, Jul 31, 2002 at 01:16:20PM -0600, Peter J. Braam wrote:
+> Hi, 
 > 
-> 	While merging I did a number of cleanups and fixes, to mention a few of
-> 	them I fixed a shell root exploit in map_user_kvect by using
-> 	get_user_pages (that honours VM_MAYWRITE), it avoids corruption of
-> 	KM_IRQ0 by doing spin_lock_irq in aio_read_evt, and a number of other
-> 	minor not security and not stability related changes.  Left out the
-> 	networking async-io, it can be merged trivially at a later stage (if
-> 	needed :).
+> I've just been told that some "limitations" of the following kind will
+> remain:
+>   page index = unsigned long
+>   ino_t      = unsigned long
 
-Care to explain the problem and provide a separate patch for all the 
-people who aren't using your tree of patches?  If there's a problem 
-as you claim, then it likely affects map_user_kiobuf too.
+The number of files is not limited by ino_t, just look at the
+iget5_locked operation in fs/inode.c. It is possible to have your own
+n-bit file identifier, and simply provide your own comparison function.
+The ino_t then becomes the 'hash-bucket' in which the actual inode is
+looked up.
 
-		-ben
+For the page_index, maybe at some point someone manages to cleanly mix
+large pages (2MB?) with the current 4KB pages. Very large files could
+then use the page_index as an index into these large pages which should
+allow for 9PB files (or something close to that).
+
+Jan

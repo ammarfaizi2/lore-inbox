@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264846AbRGSCju>; Wed, 18 Jul 2001 22:39:50 -0400
+	id <S264865AbRGSDNr>; Wed, 18 Jul 2001 23:13:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbRGSCjj>; Wed, 18 Jul 2001 22:39:39 -0400
-Received: from gatekeeper.zeitgeist.com ([204.243.76.2]:50917 "EHLO
-	charon.ny.zeitgeist.com") by vger.kernel.org with ESMTP
-	id <S264846AbRGSCjd>; Wed, 18 Jul 2001 22:39:33 -0400
-Message-Id: <200107190239.f6J2dNU01537@thx1138.ny.zeitgeist.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: "Michael Stiller" <michael@toyland.ping.de>, linux-kernel@vger.kernel.org
-Subject: Re: PCI hiccup installing Lucent/Orinoco carbus PCI adapter 
-In-Reply-To: Your message of "18 Jul 2001 08:56:06 +0200."
-             <20010718065606.1125.qmail@toyland.ping.de> 
-Mime-Version: 1.0
+	id <S264874AbRGSDNi>; Wed, 18 Jul 2001 23:13:38 -0400
+Received: from adsl-63-200-86-10.dsl.scrm01.pacbell.net ([63.200.86.10]:22022
+	"EHLO frx774.dhs.org") by vger.kernel.org with ESMTP
+	id <S264865AbRGSDNY>; Wed, 18 Jul 2001 23:13:24 -0400
+From: Jesse Wyant <jrwyant@frx774.dhs.org>
+Message-Id: <200107190313.f6J3DNI00574@frx774.dhs.org>
+Subject: Re: Unable to handle kernel paging request at virtual address
+To: sacher@dvoid.org (Dominik Sacher)
+Date: Wed, 18 Jul 2001 20:13:22 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01071620272102.02650@jukebox.juke.net> from "Dominik Sacher" at Jul 16, 2001 08:27:21 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 18 Jul 2001 22:39:23 -0400
-From: David HM Spector <spector@zeitgeist.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael,
 
-It was very hard to get the info on whether or not the BIOS was allocating an 
-INT for the Orinoco PCI cardbus because it flies by so damned fast.  
-However, after (literally) taking a picture of the screen with a digital 
-camera (oy!!) I was able to determine that the BIOS is NOT allocating an 
-INT for this card.  
+> hi !
+> i not a kernel hacker, so i don't know, whom to write to.
+> maybe you can help !
+> i get several application-crashs on my redhat7.1 (updated to kernel 2.4.3-12) 
+> and every crash produces some kind of this:
 
-Everything else is in the box seems to be allocated properly.  I even removed 
-all but the video card just to make sure that it wasn't a resource constraint 
-problem... 
+I've seen similar `Oopses' when I've compiled my ALSA sound drivers (for
+my i815e motherboard's AC'97 audio) for the wrong kernel, or didn't do a 
+`make clean' before recompiling ALSA.  But, to determine the problem, you
+need to run your Oops output through 'ksymoops', do a 'man ksymoops' for
+usage instructions.  This will attach library calls to all those pointers
+in the Oops outputs.  That is where I would see that my Oopses were due
+to ALSA, you should be able to better root-cause the problem this way.
 
-My next step is to get 2.4.6 up to see if that patch fixes it, but my machine 
-keeps hanging up just after activating the swap space.  Haven't figured that 
-one out yet, but I think it mught be a large memory problem as my
-machine has 1GB of main memory.
+-jesse
 
-_DHMS
-
--- 
---------------------------------------------------------------------------------
-David HM Spector                        Network Design & Infrastructure Security
-spector@zeitgeist.com               -or-                     spector@spector.com
-Amateur Radio: W2DHM (ARRL life member) GridSquare: FN30hv (40.52'45"N 73.21'21"W) 
--.-. --- -. -. . -.-. -  .-- .. - ....  .- -- .- - . ..- .-.  .-. .- -.. .. ---
-Those who will not reason, are bigots, those who cannot, are fools, and those who 
-dare not, are slaves.     -George Gordon Noel Byron [a.k.a Lord Byron](1788-1824)
-
-
-
-
+Jesse Wyant
+------------------------------------------------------------
+An Englishman never enjoys himself, except for a noble purpose.
+		-- A.P. Herbert
 

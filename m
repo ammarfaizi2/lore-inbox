@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVCFGEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVCFGL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVCFGEK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 01:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVCFGEK
+	id S261324AbVCFGL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 01:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVCFGL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 01:04:10 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:8167 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261325AbVCFGED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 01:04:03 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: Sun, 6 Mar 2005 17:03:46 +1100
-MIME-Version: 1.0
+	Sun, 6 Mar 2005 01:11:26 -0500
+Received: from 64-85-47-3.ip.van.radiant.net ([64.85.47.3]:26629 "EHLO
+	vlinkmail") by vger.kernel.org with ESMTP id S261324AbVCFGLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 01:11:18 -0500
+Date: Sat, 5 Mar 2005 21:56:35 -0800
+From: Greg KH <greg@kroah.com>
+To: James Nelson <james4765@cwazy.co.uk>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1/13] speedtch: Clean up printk()'s in drivers/usb/atm/speedtch.c
+Message-ID: <20050306055635.GA12662@kroah.com>
+References: <20050305233712.7648.24364.93822@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16938.40258.932869.915285@cse.unsw.edu.au>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11
-In-Reply-To: message from Trond Myklebust on Sunday March 6
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
-	<1110068394l.11446l.1l@werewolf.able.es>
-	<1110088096.16110.3.camel@lade.trondhjem.org>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20050305233712.7648.24364.93822@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday March 6, trond.myklebust@fys.uio.no wrote:
-> su den 06.03.2005 Klokka 00:19 (+0000) skreiv J.A. Magallon:
+On Sat, Mar 05, 2005 at 05:37:13PM -0600, James Nelson wrote:
+> Add a KERN_WARNING constant to a printk() that is missing it, and add a driver
+> prefix to another two in drivers/usb/atm/speedtch.c
+
+Please CC: usb patches to the usb maintainer, it makes it a bit hard for
+him to apply them otherwise :)
+
+> Signed-off-by: James Nelson <james4765@gmail.com>
 > 
-> > static int __init init_nfsd(void)
-> > {
-> > ...
-> >     if (proc_mkdir("fs/nfs", NULL)) {
-> >         struct proc_dir_entry *entry;
-> >         entry = create_proc_entry("fs/nfs/exports", 0, NULL);
-> >         if (entry)
-> >             entry->proc_fops =  &exports_operations;
-> >     }
-> > ...
-> > 
-> > But nfs-utils 1.0.7 say that you can mount nfsd at /proc/fs/nfsd.
-> > What 'exports' would kernel use ? Just duplicate info or a bug ?
-> 
-> Not sure why /proc/fs/nfs was originally chosen (perhaps Neil
-> knows?),
+> diff -Nurp -x dontdiff-osdl --exclude='*~' linux-2.6.11-mm1-original/drivers/usb/atm/speedtch.c linux-2.6.11-mm1/drivers/usb/atm/speedtch.c
+> --- linux-2.6.11-mm1-original/drivers/usb/atm/speedtch.c	2005-03-05 13:29:48.000000000 -0500
+> +++ linux-2.6.11-mm1/drivers/usb/atm/speedtch.c	2005-03-05 13:36:44.000000000 -0500
+> @@ -192,8 +192,8 @@ static int speedtch_set_swbuff(struct sp
+>  			      0x32, 0x40, state ? 0x01 : 0x00,
+>  			      0x00, NULL, 0, 100);
+>  	if (ret < 0) {
+> -		printk("Warning: %sabling SW buffering: usb_control_msg returned %d\n",
+> -		     state ? "En" : "Dis", ret);
+> +		printk(KERN_WARNING "%s: %sabling SW buffering: usb_control_msg returned %d\n",
+> +		     speedtch_driver_name, state ? "En" : "Dis", ret);
 
-No, before my time.
-/proc/fs/nfs/exports has "always" been a file listing the kernels
-current understanding of the exports table.
-The same information is provided by the "/exports" file in the nfsd
-filesystem which (obviously) can be mounted anywhere you like, but
-nfs-utils will only work with it if it is mounted on /proc/fs/nfsd
-(the preferred location) or /proc/fs/nfs (because for a little while
-/proc/fs/nfsd didn't exist).
+No, please, if you are going to convert anything like this, use the
+dev_dbg(), dev_warn(), and assorted macros instead.  Or if nothing else,
+the usb subsystem has it's own dbg(), err() and warn() macros that
+should be gotten rid of, but that's a lot of changes...
 
-> but the above code has nothing to do with where you mount the "nfsd"
-> filesystem. It is rather part of the legacy support for older versions
-> of nfs-utils.
-> 
-> We should aim to deprecate it at some point soon.
+These comments pretty much go for all of your patches in this series,
+please rework them all.
 
-I would like to deprecate the nfssvc system call and /proc/fs/nfs, and
-I was planning to do it when 2.7 came out .....
-Maybe June 2005 would be a good time to mark it 'deprecated' and June
-2006 would be a good time to remove it.
+thanks,
 
-NeilBrown
+greg k-h

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSFEHhn>; Wed, 5 Jun 2002 03:37:43 -0400
+	id <S312601AbSFEHjC>; Wed, 5 Jun 2002 03:39:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313060AbSFEHhm>; Wed, 5 Jun 2002 03:37:42 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29013 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312558AbSFEHhk>; Wed, 5 Jun 2002 03:37:40 -0400
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: J Sloan <joe@tmsusa.com>, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org>
-	<E17FQPj-0001Rr-00@starship> <3CFD8C07.6030607@tmsusa.com>
-	<E17FS6T-0001UR-00@starship>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Jun 2002 01:28:14 -0600
-Message-ID: <m1lm9uw5f5.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S312498AbSFEHjA>; Wed, 5 Jun 2002 03:39:00 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:39581 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S313477AbSFEHih>;
+	Wed, 5 Jun 2002 03:38:37 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Joseph Pingenot <trelane@digitasaru.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Build error on 2.5.20 under unstable debian 
+In-Reply-To: Your message of "Wed, 05 Jun 2002 02:25:59 EST."
+             <20020605022558.A2745@ksu.edu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Wed, 05 Jun 2002 17:38:26 +1000
+Message-ID: <23055.1023262706@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@bonn-fries.net> writes:
+On Wed, 5 Jun 2002 02:25:59 -0500, 
+Joseph Pingenot <trelane@digitasaru.net> wrote:
+>Hey, thanks for the nifty tool.  What docs are available so that I can
+>  learn the Magic of the Script?  :)
 
-> Improving the average latency of systems is a worthy goal, and there's
-> no denying that 'sorta realtime' has its place, however it's no substitute
-> for the real thing.  A soft realtime system screws up only on occasion,
-> but - bugs excepted - a hard realtime system *never* does.
+Years of hacking on ELF formats :(
 
-Engineering assumption.  Your hardware and/or software always contains
-at least one bug.  Therefore even in hard real time you must design
-and code for the failure case.  Hard real time is just doing
-everything humanly possible to meet it's deadlines. 
+>Error: ./drivers/usb/host/uhci-hcd.o .rodata refers to 00000f98 R_386_32          .text.exit
+>Error: ./drivers/usb/host/built-in.o .rodata refers to 00000f98 R_386_32          .text.exit
 
-The difference with soft real time, is that something that is humanly
-possible to do was left off.
+Ignore drivers/usb/host/built-in.o, it is a conglomerate that contains
+one object, the script cannot distinguish between that and a normal
+object.
 
-Despite the strong relationship to mathematics there are no absolutes
-in computer science.  Especially hard real time.
+>Looks like uhci-hcd.o and built-in.o are the culprits.  Now, if only
+>  I knew what the rest meant.  :)  They're referring to a symbol 
+>  R_386_32?  I'm going to assume this is an x86-based bit of stuff
+>  included from the x86-specific stuff.  Teach me.  ;)
 
-Eric
+R_386_32 is an ELF relocation type for ix86 binaries.  It means that
+uhci-hcd.c has code that refers to a function defined as __exit.  The
+only such function is uhci_hcd_cleanup but I cannot see where it is
+being referenced.  The USB people should be able to track this one
+down.
+

@@ -1,48 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130660AbRC0HWn>; Tue, 27 Mar 2001 02:22:43 -0500
+	id <S130683AbRC0H0x>; Tue, 27 Mar 2001 02:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130683AbRC0HWf>; Tue, 27 Mar 2001 02:22:35 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:16659 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130660AbRC0HWY>;
-	Tue, 27 Mar 2001 02:22:24 -0500
-Date: Tue, 27 Mar 2001 09:21:15 +0200
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: regression testing
-Message-ID: <20010327092115.A3974@almesberger.net>
-In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com> <m1wv9g23t5.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1wv9g23t5.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Fri, Mar 23, 2001 at 03:11:02AM -0700
+	id <S130685AbRC0H0n>; Tue, 27 Mar 2001 02:26:43 -0500
+Received: from [12.14.232.16] ([12.14.232.16]:15432 "EHLO c4.tant.com")
+	by vger.kernel.org with ESMTP id <S130683AbRC0H0b>;
+	Tue, 27 Mar 2001 02:26:31 -0500
+From: "Richard Smith" <ras2@tant.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Tue, 27 Mar 2001 01:25:18 -0600
+Reply-To: "Richard Smith" <ras2@tant.com>
+X-Mailer: PMMail 2000 Professional (2.10.2010) For Windows 95 (4.0.1212)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Compact flash disk and slave drives in 2.4.2
+Message-Id: <E14hnqw-0006sU-00@c4.tant.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Yes user-mode linux
-> could help here (you could stress test the core kernel without worry
-> that when it crashes your machine will crash as well).  
+I spent most of the day today trying to track down why the embedded system I am working 
+on would not recognize hdb on boot.  It refused to show in the devices list even though I 
+specifically told the kernel it existed with the hdb=c,h,s option.
 
-A similar approach can be used for very detailed tests of specific
-subsystems. E.g. that's what we've started doing, kind of as a by-product
-of some other work, with tcsim, which runs most of the traffic control
-subsystem in user space. (ftp://icaftp.epfl.ch/pub/linux/tcng/)
+After working on what seemed like a hardware problem for quite a while I finally decided 
+that there must be something flaky in the ide driver code and began to add some debug 
+printk's
 
-The advantage over using UML is that we have a much simpler environment,
-allowing for more straightforward integration, and we can exercise tight
-control over infrastructure parts like timers or network events. Once
-UML is part of the mainstream kernel, it would be interesting to try to
-obtain the same functionality with UML too.
+In which I found the following in ide.c:
 
-Some added goodies include the ability to run kernel code with malloc
-debuggers like Electric Fence, which has already helped to find a few
-real bugs. (Does EFence work with UML ?)
+/*
+ * CompactFlash cards and their brethern pretend to be removable hard disks,
+ * except:
+ *      (1) they never have a slave unit, and
+ *      (2) they don't have doorlock mechanisms.
+ * This test catches them, and is invoked elsewhere when setting appropriate
+ * config bits.
+ *
+*/
 
-- Werner
+Since hda in my system is a CompactFlash card I began to look further and then with some 
+discovered the following in ide-probe.c
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+        /*
+         * Prevent long system lockup probing later for non-existant
+         * slave drive if the hwif is actually a flash memory card of some variety:
+         */
+        if (drive_is_flashcard(drive)) {
+                ide_drive_t *mate = &HWIF(drive)->drives[1^drive->select.b.unit];
+                if (!mate->ata_flash) {
+                        mate->present = 0;
+                ide_drive_t *mate = &HWIF(drive)->drives[1^drive->select.b.unit]
+                        mate->noprobe = 1;
+                }
+        }
+
+Now perhaps I am just way out on the wacky edge of things but I don't agree with the 
+above in the slightest.  We use CF's in conjunction with slaves all the time.  Almost all 
+of our embedded devices boot from CF's and I routinely add a HD as a slave to the system 
+to do developement with but it's always been under DOS.  
+
+I comment out the check above and all is well... hdb shows up as expected.   
+
+Can someone explain to me why the above check was added and if its continued existence is 
+necessary?  Whats this long system lockup thing mentioned?
+
+Even if there is some danger of a long lockup I suggest that at least a message that its 
+ignoring hdb is the least it could do rather than sliently ignoreing it.  Especially when 
+I specifically told it a hdb existed via the command line.  Shouldn't command line 
+parameters take precidence?  
+
+I not subscribed to the kernel-list so please copy me in the response.
+
+Thanks.
+
+
+--
+Richard A. Smith    ras2@tant.com 
+"I'd hang out with science kids - they can blow things up!
+ I mean, what's cooler than that?"
+                                                   - Tori Amos
+
+

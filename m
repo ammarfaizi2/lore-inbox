@@ -1,61 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbUCMKYE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 05:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUCMKYE
+	id S263079AbUCMKZa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 05:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbUCMKZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 05:24:04 -0500
-Received: from dp.samba.org ([66.70.73.150]:38108 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263078AbUCMKYB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 05:24:01 -0500
-Date: Sat, 13 Mar 2004 21:23:04 +1100
-From: Anton Blanchard <anton@samba.org>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix NUMA compile with large cpumasks
-Message-ID: <20040313102303.GC27964@krispykreme>
-Mime-Version: 1.0
+	Sat, 13 Mar 2004 05:25:30 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:47596 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263079AbUCMKZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 05:25:24 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Sat, 13 Mar 2004 21:25:14 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16466.57738.590102.717396@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+In-Reply-To: message from Andrew Morton on Thursday March 11
+References: <20040310233140.3ce99610.akpm@osdl.org>
+	<16465.3163.999977.302378@notabene.cse.unsw.edu.au>
+	<20040311172244.3ae0587f.akpm@osdl.org>
+	<16465.20264.563965.518274@notabene.cse.unsw.edu.au>
+	<20040311235009.212d69f2.akpm@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday March 11, akpm@osdl.org wrote:
+> > I thought I might try selectively removing patches, but it isn't clear
+> > what order the borken-out patches were applied it.
+> > If you have an ordered list, I can try a binary search.
+> 
+> See the `series' file in the broken-out directory.
+> 
 
-Hi,
+Ahh... would you consider moving that up one level, or spelling it
+"Series" or "00series" or something to make it stand out for the
+uninitiated??
 
-The recent NUMA changes fail to compile with large cpumasks, we need
-to use a temporary to get around the type checking.
+> > Or if you can suggest some patches that I can try backing out....
+> 
+> Maybe turn off -mregparm?  Or back off the 4g/4g patches?  Maybe they broke
+> non-4:4 code comehow.
+> 
 
-Anton
+Looks like it might be a good guess....
 
----
+I cannot reach the reset button on the weekend, so I wrote a little
+boot-time script which would apply the next patch, mail me, recompile,
+install, and reboot.
 
- gr26_work-anton/mm/page_alloc.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+It got up to stop-using-dirty-pages.patch and died because of the
+spin_unlock in mm/page.c - I left SPINLOCK_DEBUG configured :-(
 
-diff -puN mm/page_alloc.c~numacompile mm/page_alloc.c
---- gr26_work/mm/page_alloc.c~numacompile	2004-03-13 02:27:10.474086886 -0600
-+++ gr26_work-anton/mm/page_alloc.c	2004-03-13 02:28:15.514771414 -0600
-@@ -1155,6 +1155,8 @@ static int __init find_next_best_node(in
- 	int best_node = -1;
- 
- 	for (i = 0; i < numnodes; i++) {
-+		cpumask_t tmp;
-+
- 		/* Start from local node */
- 		n = (node+i)%numnodes;
- 
-@@ -1166,7 +1168,8 @@ static int __init find_next_best_node(in
- 		val = node_distance(node, n);
- 
- 		/* Give preference to headless and unused nodes */
--		if (!cpus_empty(node_to_cpumask(n)))
-+		tmp = node_to_cpumask(n);
-+		if (!cpus_empty(tmp))
- 			val += PENALTY_FOR_NODE_WITH_CPUS;
- 
- 		/* Slight preference for less loaded node */
+But that only leaves
 
-_
+   235  stop-using-io-pages.patch
+   236  stop-using-locked-pages.patch
+   237  stop-using-clean-pages.patch
+   238  unslabify-pgds-and-pmds.patch
+   239  slab-stop-using-page-list.patch
+   240  page_alloc-stop-using-page-list.patch
+   241  hugetlb-stop-using-page-list.patch
+   242  pageattr-stop-using-page-list.patch
+   243  readahead-stop-using-page-list.patch
+   244  compound-pages-stop-using-lru.patch
+   245  remove-page-list.patch
+   246  remap-file-pages-prot-2.6.4-rc1-mm1-A1.patch
+   247  remap-file-pages-prot-ia64-2.6.4-rc2-mm1-A0.patch
+   248  list_del-debug.patch
+   249  oops-dump-preceding-code.patch
+   250  lockmeter.patch
+   251  lockmeter-ia64-fix.patch
+   252  4g-2.6.0-test2-mm2-A5.patch
+   253  4g4g-locked-userspace-copy.patch
+   254  ia32-4k-stacks.patch
+   255  ia32-4k-stacks-build-fix.patch
+   256  4k-stacks-in-modversions-magic.patch
+   257  ppc-fixes.patch
+   258  ppc-fixes-dependency-fix.patch
+
+of which, the 4g and the 4k-stack patches look most likely.
+I'll finish the hunt when I get back to the office.
+
+Thanks,
+NeilBrown

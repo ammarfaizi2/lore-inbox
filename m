@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265135AbTBFXtL>; Thu, 6 Feb 2003 18:49:11 -0500
+	id <S267353AbTBFXwT>; Thu, 6 Feb 2003 18:52:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267351AbTBFXtL>; Thu, 6 Feb 2003 18:49:11 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:43213 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S265135AbTBFXtL>;
-	Thu, 6 Feb 2003 18:49:11 -0500
-Date: Fri, 7 Feb 2003 10:58:38 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: syscall documentation (2)
-Message-Id: <20030207105838.303df6c9.sfr@canb.auug.org.au>
-In-Reply-To: <UTC200302062008.h16K8Aa23600.aeb@smtp.cwi.nl>
-References: <UTC200302062008.h16K8Aa23600.aeb@smtp.cwi.nl>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267361AbTBFXwT>; Thu, 6 Feb 2003 18:52:19 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:58385 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267353AbTBFXwR>; Thu, 6 Feb 2003 18:52:17 -0500
+Date: Fri, 7 Feb 2003 01:01:01 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       <linux-kernel@vger.kernel.org>, <jgarzik@pobox.com>
+Subject: Re: [PATCH] Restore module support.
+In-Reply-To: <20030206232515.GA29093@kroah.com>
+Message-ID: <Pine.LNX.4.44.0302070037230.32518-100000@serv>
+References: <20030204233310.AD6AF2C04E@lists.samba.org>
+ <Pine.LNX.4.44.0302062358140.32518-100000@serv> <20030206232515.GA29093@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Feb 2003 21:08:10 +0100 (MET) Andries.Brouwer@cwi.nl wrote:
->
-> The next new page is futex.2.
-> 
-> Comments welcome.
-> Andries
-> aeb@cwi.nl
-> 
-> -------------------------------
-> NAME
->        futex - Fast Userspace Locking system call
-> 
-> SYNOPSIS
->        #include <linux/futex.h>
-> 
->        #include <sys/time.h>
-> 
->        int  sys_futex (void *futex, int op, int val, const struct
->        timespec *timeout);
+Hi,
 
-In discussions with Rusty, we decided that the first parameter
-to sys_futex should be a u32 * i.e. a pointer to a 32 bit quantity
-in user space.  This is what is assumed by the code at the moment.
-The kernel doesn't really care if it is signed or not as the only
-test done on it is for equality.
+On Thu, 6 Feb 2003, Greg KH wrote:
 
-I will be submitting a patch to that effect shortly.  This also makes
-it much easier to do the compatibility layer interface ...
+> But what are the modutils numbers? :)
 
->        The futex argument needs to point to  an  aligned  integer
-                                                            ^^^^^^^
-32 bit quantity
+There should be no real difference as I'd like to integrate Kai's patch too.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+> Come on, what Rusty did was the "right thing to do" and has made life
+> easier for all of the arch maintainers (or so says the ones that I've
+> talked to), and has made my life easier with regards to
+> MODULE_DEVICE_TABLE() logic, which will enable the /sbin/hotplug
+> scripts/binary to shrink a _lot_.
+
+What was the "right thing to do"?
+There were certainly a few interesting changes, but I'd like discuss them 
+first. For example there is more than one solution to improve the 
+MODULE_DEVICE_TABLE() logic (*), so how is Rusty's better?
+
+bye, Roman
+
+(*) http://marc.theaimsgroup.com/?l=linux-kernel&m=104405265719327&w=2
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=104437966220610&w=2
+

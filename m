@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279865AbRKGDN5>; Tue, 6 Nov 2001 22:13:57 -0500
+	id <S280743AbRKGDVh>; Tue, 6 Nov 2001 22:21:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280634AbRKGDNq>; Tue, 6 Nov 2001 22:13:46 -0500
-Received: from queen.bee.lk ([203.143.12.182]:21638 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S279865AbRKGDNj>;
-	Tue, 6 Nov 2001 22:13:39 -0500
-Date: Wed, 7 Nov 2001 09:13:14 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Robert Love <rml@tech9.net>, torvalds@transmeta.com
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Terminator <jimmy@mtc.dhs.org>,
-        linux-kernel@vger.kernel.org
-Subject: Are -final releases realy FINAL? (Was Re: kernel 2.4.14 compiling fail for loop device)
-Message-ID: <20011107091314.A11202@bee.lk>
-In-Reply-To: <Pine.LNX.4.33.0111051936090.18663-100000@www.mtc.dhs.org> <20011105194316.B665@mikef-linux.matchmail.com> <1005019360.897.2.camel@phantasy>
+	id <S280750AbRKGDV2>; Tue, 6 Nov 2001 22:21:28 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:14794 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S280663AbRKGDVY>;
+	Tue, 6 Nov 2001 22:21:24 -0500
+Date: Wed, 7 Nov 2001 14:19:56 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, acl-devel@bestbits.at,
+        linux-xfs@oss.sgi.com
+Subject: Re: [RFC][PATCH] extended attributes
+Message-ID: <20011107141956.F591676@wobbly.melbourne.sgi.com>
+In-Reply-To: <20011107111224.C591676@wobbly.melbourne.sgi.com> <20011107023218.A4754@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1005019360.897.2.camel@phantasy>; from rml@tech9.net on Mon, Nov 05, 2001 at 11:02:36PM -0500
+In-Reply-To: <20011107023218.A4754@wotan.suse.de>; from ak@suse.de on Wed, Nov 07, 2001 at 02:32:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 11:02:36PM -0500, Robert Love wrote:
->
-> On Mon, 2001-11-05 at 22:43, Mike Fedyk wrote:
-> >
-> > Did anyone have this problem with pre8???
+hello again Andi,
+
+On Wed, Nov 07, 2001 at 02:32:18AM +0100, Andi Kleen wrote:
+> I think it would be better to have a statefull readdir instead.
+> The kernel supports it via the ->private_data field of struct file
+> (not through fork,but that looks like a generic vfs bug) 
 > 
-> Nope, it was added post-pre8 to final.  The deactivate_page function was
-> removed completely.
+> EA_FIRST_ENTRY to reset the fd the first entry, EA_READ_ENTRY to 
+> read the next one.
 
-Look, Linus.  Things should _not_ happen this way.
+I'm not sure this would work for the extattr/lextattr variants where
+we don't have an fd to hold the state.  Should the list operation
+be restricted to the fextattr variant, perhaps?  I'm not sure about
+all the implications of that, will have to see what everyone else
+thinks I guess.
 
-Why do we add non-trivial changes when going from last -preX of a test kernel
-series to -final?
+eg. the opening of the file before allowing a list operation could
+have implications for XFSs DMAPI support (open might recall data from
+tape), where the management tools need to be able to list these DMAPI
+related attributes without affecting the backing storage, I believe -
+I'll have to ask some DMAPI gurus about that one though.
 
-Please make the last stable -preX the -final _without_ any changes.  This is
-the third time this caused problem in recent times (2.4.11-dontuse, parport
-compile problems and now loop.o), and why don't we learn from previous
-mistakes?
+Thanks for the input.
 
-Isn't it stupid that some tarballs in the /pub/linux/kernel/v2.4/ do not even
-compile, while those in /pub/linux/kernel/testing/ does?
-
-Regards,
-
-Anuradha
+cheers.
 
 -- 
-
-Debian GNU/Linux (kernel 2.4.14-pre7)
-
-I cannot conceive that anybody will require multiplications at the rate
-of 40,000 or even 4,000 per hour ...
-		-- F. H. Wales (1936)
-
+Nathan

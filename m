@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130436AbRCIGRm>; Fri, 9 Mar 2001 01:17:42 -0500
+	id <S130442AbRCIGfd>; Fri, 9 Mar 2001 01:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130443AbRCIGRc>; Fri, 9 Mar 2001 01:17:32 -0500
-Received: from kwanon.research.canon.com.au ([203.12.172.254]:46097 "HELO
-	kwanon.research.canon.com.au") by vger.kernel.org with SMTP
-	id <S130436AbRCIGR2>; Fri, 9 Mar 2001 01:17:28 -0500
-Message-ID: <20010309061700.17719.qmail@cass.research.canon.com.au>
-From: gjohnson@research.canon.com.au
-Subject: Re: Resolving physical addresses
-To: davem@redhat.com (David S. Miller)
-Date: Fri, 9 Mar 2001 17:17:00 +1100 (EST)
-Cc: gjohnson@research.canon.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <15016.29137.743441.608694@pizda.ninka.net> from "David S. Miller" at Mar 08, 2001 10:01:53 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S130441AbRCIGfY>; Fri, 9 Mar 2001 01:35:24 -0500
+Received: from www.wen-online.de ([212.223.88.39]:32530 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130438AbRCIGfP>;
+	Fri, 9 Mar 2001 01:35:15 -0500
+Date: Fri, 9 Mar 2001 07:34:49 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "J. Dow" <jdow@earthlink.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft begining to open source Windows 2000?
+In-Reply-To: <00fe01c0a85b$e2492a70$0a25a8c0@wizardess.wiz>
+Message-ID: <Pine.LNX.4.33.0103090717200.1595-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you,
+On Thu, 8 Mar 2001, J. Dow wrote:
 
-But how do I get the physical address out of the page
-structure? It is non-obvious to me. Is there some majic
-macro? We are talking about 'struct page' in mm.h, correct?
+> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+>
+> > > Please check out this article. Looks like microsoft know open source is the
+> > > thing of the future. I would consider that it is a begining step for full
+> > > blown GPL!!!!
+> >
+> > Oh sure
+> >
+> > Maybe 1200 people
+> >
+> > "Users are prohibited from amending"
+> >
+> > Sorry but Linus had > 1200 people able to modify his code in 1992
+>
+> So did BillyG. The difference is that BillyG's were all overworked hackers
+> that were on the MS campus under BillyG's whip^H^H^H^Hpay. I treated that
+> as proof that you need WAY more than that many monkeys to generate something
+> stable and workable, if you adopted the Mongol hordes programming style.
+>
+> BillyG HAS thousands changing the source code. He pays them to do it.
+> Linus has far fewer actually changing the source code if I read this
+> list correctly. Experience suggests this is as it should be. Even in
+> coding "too many cooks spoil the broth."
 
-Greg.
+True (afaikt).  A major difference is that those few who actually make
+changes have to defend their changes in an open forum.  They can't do a
+half-assed job (intentionally or otherwise) and have it not be noticed.
 
-Quoth David S. Miller:
-> In 2.4.x pte_page() gives a pointer to a page struct, not an address
-> as in 2.2.x.
+We have a lot more people contributing to quality control and providing
+input for designers than actual designers.
 
--- 
-+------------------------------------------------------+
-| Do you want to know more? www.geocities.com/worfsom/ |
-|              ..ooOO Greg Johnson OOoo..              |
-| HW/SW Engineer        gjohnson@research.canon.com.au |
-| Canon Information Systems Research Australia (CISRA) |
-| 1 Thomas Holt Dr., North Ryde, NSW, 2113,  Australia |
-|      "I FLEXed my BISON and it went YACC!" - me.     |
-+------------------------------------------------------+
+	-Mike
 

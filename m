@@ -1,71 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267915AbRGRSgo>; Wed, 18 Jul 2001 14:36:44 -0400
+	id <S267867AbRGRSdp>; Wed, 18 Jul 2001 14:33:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267917AbRGRSgY>; Wed, 18 Jul 2001 14:36:24 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:34311 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S267914AbRGRSgS>;
-	Wed, 18 Jul 2001 14:36:18 -0400
-Date: Wed, 18 Jul 2001 15:36:17 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>, Dave McCracken <dmc@austin.ibm.com>,
-        Dirk Wetter <dirkw@rentec.com>
-Subject: [PATCH] swap usage of high memory (fwd)
-Message-ID: <Pine.LNX.4.33L.0107181529100.28730-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267914AbRGRSde>; Wed, 18 Jul 2001 14:33:34 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:23537 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S267867AbRGRSd1>; Wed, 18 Jul 2001 14:33:27 -0400
+Message-Id: <5.1.0.14.2.20010718191532.00b01140@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 18 Jul 2001 19:34:09 +0100
+To: Rajeev Bector <rajeev_bector@yahoo.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: vmalloc and kiobuf questions ?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010718174612.48434.qmail@web14405.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan, Linus,
+At 18:46 18/07/2001, Rajeev Bector wrote:
+>MM Gurus,
 
-Dave found a stupid bug in the swapin code, leading to
-bad balancing problems in the VM.
+I am definitely not an MM guru but I can try and answer one of your 
+questions...
 
-I suspect marcelo's zone VM hack could even go away
-with this patch applied ;)
+>   In trying to understand how to map driver
+>memory into user space memory, I have the following
+>questions:
+>
+>1) Is there a limit to how much memory
+>    I can allocate using vmalloc() ?
+>    (This is regular RAM)
 
-Rik
----------- Forwarded message ----------
-Date: Wed, 18 Jul 2001 13:15:07 -0500
-From: Dave McCracken <dmc@austin.ibm.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-mm@kvack.org
-Subject: Patch for swap usage of high memory
+First of all, note that vmalloc() allocates memory in multiples of PAGE_SIZE.
 
+The maximum you can request is given by (num_physpages << PAGE_SHIFT). - 
+You need to #include <linux/mm.h>; to get num_physpages.
 
-This patch fixes the problem where pages allocated for swap space reads
-will not be allocated from high memory.
+In fact, before calling vmalloc(), you are well advised to check that you 
+are not calling it with a size which rounded up to PAGE_SIZE is beyond 
+above stated maximum, otherwise the result is a call to BUG()...
 
-Rik, could you please forward this to the kernel mailing list?  I am
-temporarily unable to reach it directly due to ECN problems.
+Also, it is a bad idea to call vmalloc() with a zero size as this results 
+in a call to BUG(), too.
 
-Thanks,
-Dave McCracken
+You can look at linux/mm/vmalloc.c::__vmalloc() for the test it performs 
+and to see it calling BUG()...
 
---------
+As an aside, it may be of interest to know that the pages returned by 
+vmalloc() can be HIGHMEM ones. If you don't want that you can use vmalloc_32().
 
---- linux-2.4.6/mm/swap_state.c	Mon Jun 11 21:15:27 2001
-+++ linux-2.4.6-mm/mm/swap_state.c	Wed Jul 18 12:56:01 2001
-@@ -226,7 +226,7 @@
- 	if (found_page)
- 		goto out_free_swap;
+I will leave your other questions to the real MM gurus...
 
--	new_page = alloc_page(GFP_USER);
-+	new_page = alloc_page(GFP_HIGHUSER);
- 	if (!new_page)
- 		goto out_free_swap;	/* Out of memory */
+Hope this helps,
 
---------
+         Anton
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmc@austin.ibm.com                                      T/L   678-3059
+>2) I want to map the vmalloc'ed memory
+>    to user space via mmap(). I've read
+>    that remap_page_range() will not do it
+>    and I have to do it using nopage
+>    handlers ? Is that true ? Is there
+>    a simple answer to why is that the case ?
+>
+>3) I've also read the kiobufs will simplify
+>    all this. Is there a documentation on
+>    kiobufs - what they can and cannot do ?
+>    Are kiobufs part of the standard kernel
+>    now ?
+>Thanks in advance for your answers !
+>
+>Rajeev
+>
+>
+>__________________________________________________
+>Do You Yahoo!?
+>Get personalized email addresses from Yahoo! Mail
+>http://personal.mail.yahoo.com/
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

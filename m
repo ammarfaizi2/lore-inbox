@@ -1,59 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbRANXAo>; Sun, 14 Jan 2001 18:00:44 -0500
+	id <S129664AbRANXCY>; Sun, 14 Jan 2001 18:02:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbRANXAe>; Sun, 14 Jan 2001 18:00:34 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:15630 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129523AbRANXAc>;
-	Sun, 14 Jan 2001 18:00:32 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
-In-Reply-To: Your message of "Sun, 14 Jan 2001 13:47:29 -0800."
-             <Pine.LNX.4.10.10101141344430.4505-100000@penguin.transmeta.com> 
-Mime-Version: 1.0
+	id <S129706AbRANXCO>; Sun, 14 Jan 2001 18:02:14 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:40197 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S129664AbRANXCF>;
+	Sun, 14 Jan 2001 18:02:05 -0500
+Message-ID: <3A623EE8.644A572D@candelatech.com>
+Date: Sun, 14 Jan 2001 17:06:00 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Question on 2.2.18 and setting a device to PROMISC.
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 15 Jan 2001 10:00:22 +1100
-Message-ID: <17493.979513222@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jan 2001 13:47:29 -0800 (PST), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->On Sun, 14 Jan 2001, David Woodhouse wrote:
->> That's the one flaw in the inter_module_get() stuff - we could do with a
->> way to put entries in the table at _compile_ time, rather than _only_ at
->> run time. 
->
->Ok, I can buy that. Not having to initialize explicitly would be nice, but
->if so we should make module loading do it automatically too ...
+This code works in 2.4.0:  (The important part is the dev_set_promiscuity()
+method.)
 
-It might be nice but it is also expensive.  Adding static
-inter_module_xxx tables requires
+int vlan_dev_set_mac_address(struct net_device *dev, void* addr_struct_p) {
+        int i;
+        struct sockaddr *addr = (struct sockaddr*)(addr_struct_p);
 
-* changes to linux/modules.h to define the new table format and
-* changes to vmlinux.lds for _every_ architecture to bring all the
-  static tables together in vmlinux and
-* new initialisation code in module.c to read and load all the static
-  tables at boot time and
-* extra code in modutils to find any static tables in modules and
-* an extension to struct modules to let modutils pass information about
-  the static tables to the kernel and
-* the kernel code will only work with an upgraded modutils.
+        if (netif_running(dev)) {
+                return -EBUSY;
+        }
+	memcpy(dev->dev_addr, addr->sa_data, dev->addr_len);
+        
+        printk("%s: Setting MAC address to ", dev->name);
+        for (i = 0; i < 6; i++) {
+                printk(" %2.2x", dev->dev_addr[i]);
+        }
+        printk(".\n");
 
-That is a lot of work for a very few special cases.  OTOH, you could
-just add a few lines of __initcall code in two source files (which I
-did when I wrote inter_module_xxx) and swap the order of 3 lines in
-drivers/mtd/Makefile.  Guess which alternative I am going for?
+        if (memcmp(dev->vlan_dev->real_dev->dev_addr, dev->dev_addr, dev->addr_len) != 0) {
+                if (dev->vlan_dev->real_dev->flags & IFF_PROMISC) {
+                        /* Already promiscious...leave it alone. */
+                        printk("VLAN (%s):  Good, underlying device (%s) is already promiscious.\n",
+                               dev->name, dev->vlan_dev->real_dev->name);
+                }
+                else {
+                        printk("VLAN (%s):  Setting underlying device (%s) to promiscious mode.\n",
+                               dev->name, dev->vlan_dev->real_dev->name);
+                        dev_set_promiscuity(dev->vlan_dev->real_dev, 1);
+                }
+        }
+        else {
+                printk("VLAN (%s):  Underlying device (%s) has same MAC, not checking promiscious mode.\n",
+                       dev->name, dev->vlan_dev->real_dev->name);
+        }           
 
-IMHO any automatic method that relies on ELF sections and/or modutils
-support is the wrong approach, it is a complex solution with external
-dependencies when we already have a simple solution with no external
-dependencies.  What next, static tables for file system registration,
-for device registration?
+        return 0;
+}
 
+
+
+But this code in the 2.2.18 kernel does not work.  Specifically,
+the dev_set_promiscuity method fails to actually make the interface
+promiscious.  Anyone know why?
+
+
+int vlan_dev_set_mac_address(struct device *dev, void* addr_struct_p) {
+        int i;
+        struct sockaddr *addr = (struct sockaddr*)(addr_struct_p);
+
+        if (dev->start) {
+                return -EBUSY;
+        }
+	memcpy(dev->dev_addr, addr->sa_data, dev->addr_len);
+        
+        printk("%s: Setting MAC address to ", dev->name);
+        for (i = 0; i < 6; i++) {
+                printk(" %2.2x", dev->dev_addr[i]);
+        }
+        printk(".\n");
+
+        if (memcmp(dev->vlan_dev->real_dev->dev_addr, dev->dev_addr, dev->addr_len) != 0) {
+                if (dev->vlan_dev->real_dev->flags & IFF_PROMISC) {
+                        /* Already promiscious...leave it alone. */
+                        printk("VLAN (%s):  Good, underlying device (%s) is already promiscious.\n",
+                               dev->name, dev->vlan_dev->real_dev->name);
+                }
+                else {
+                        printk("VLAN (%s):  Setting underlying device (%s) to promiscious mode.\n",
+                               dev->name, dev->vlan_dev->real_dev->name);
+                        dev_set_promiscuity(dev->vlan_dev->real_dev, 1);
+                }
+        }
+        else {
+                printk("VLAN (%s):  Underlying device (%s) has same MAC, not checking promiscious mode.\n",
+                       dev->name, dev->vlan_dev->real_dev->name);
+        }
+        return 0;
+}
+
+
+-- 
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276897AbRJHODR>; Mon, 8 Oct 2001 10:03:17 -0400
+	id <S276899AbRJHOFR>; Mon, 8 Oct 2001 10:05:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276899AbRJHOC6>; Mon, 8 Oct 2001 10:02:58 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:50575 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S276897AbRJHOCu>; Mon, 8 Oct 2001 10:02:50 -0400
-Message-ID: <3BC1B23C.1070400@wipro.com>
-Date: Mon, 08 Oct 2001 19:33:40 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S276901AbRJHOFH>; Mon, 8 Oct 2001 10:05:07 -0400
+Received: from [216.191.240.114] ([216.191.240.114]:27525 "EHLO
+	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S276899AbRJHOEu>;
+	Mon, 8 Oct 2001 10:04:50 -0400
+Date: Mon, 8 Oct 2001 09:58:22 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: <kuznet@ms2.inr.ac.ru>
+cc: Andreas Dilger <adilger@turbolabs.com>, <Robert.Olsson@data.slu.se>,
+        <mingo@elte.hu>, <linux-kernel@vger.kernel.org>, <bcrl@redhat.com>,
+        <netdev@oss.sgi.com>, <torvalds@transmeta.com>,
+        <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <200110051917.XAA23007@ms2.inr.ac.ru>
+Message-ID: <Pine.GSO.4.30.0110080948330.5473-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-To: Sebastian Heidl <heidl@zib.de>, linux-kernel@vger.kernel.org
-Subject: Re: implementation of SIOCGIFFCOUNT
-In-Reply-To: <20011008155237.C811@csr-pc1.zib.de>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 5 Oct 2001 kuznet@ms2.inr.ac.ru wrote:
 
-Pass '0' as the size argument and u will get the total size (sizeof struct * number of interfaces)
-back. The only thing is u have to make two calls, which u would do anyway.
-
-Balbir
-
-Sebastian Heidl wrote:
-
->Hi,
+> Hello!
 >
->is there a specific reason for SIOCGIFCOUNT not being implemented
->in  the kernel ? All occurences lead to net/core/dev.c dev_ioctl(...)
->which just returns -EINVAL for this command. So one has to guess
->the number of struct ifreq structures to pass to a SIOCGIFCONF
->call.
+> > One question which I have is why would you ever want to continue polling
+> > if there is no work to be done?  Is it a tradeoff between the amount of
+> > time to handle an IRQ vs. the time to do a poll?
 >
->enlighten me, please ;-)
->_sh_
+> Yes. IRQ even taken alone eat non-trivial amount of resources.
+>
+> Actually, I remember Jamal worked with machine, which had
+> no io-apic and only irq ack/mask/unmask eated >15% of cpu there. :-)
 >
 
+This was Robert actually; conclusion was Interupts are very expensive. If
+we can get rid of as many of them as possible, we are getting a side
+benefit. I cant find the old data, but Robert has some data over here:
+http://robur.slu.se/Linux/net-development/experiments/010301
 
 
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
+> "some hysteresis" is right word. This loop is an experiment with still
+> unknown result yet. Originally, Jamal proposed to spin several times.
+> I killed this.
 
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
+It was a good idea you killed it, now that i think in retrospect,
+The solution is much cleaner without it.
 
+> Robert proposed to check inifinite loop yet. (Note,
+> jiffies check is just a way to get rid of completely idle devices,
+> one jiffie is enough lonf time to be considered infinite).
+>
 
---------------InterScan_NT_MIME_Boundary--
+In my opinion we really dont need this. I did some quick testing, with and
+without it and i dont see any differences.
+
+cheers,
+jamal
+

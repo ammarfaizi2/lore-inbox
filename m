@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUG1VD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUG1VFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUG1VD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbUG1VD6
+	id S263850AbUG1VFG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 17:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUG1VFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:03:58 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:45210 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263775AbUG1VCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:02:40 -0400
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, suparna@in.ibm.com,
-       fastboot@osdl.org, mbligh@aracnet.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jbarnes@engr.sgi.com
-In-Reply-To: <20040728133337.06eb0fca.akpm@osdl.org>
-References: <16734.1090513167@ocs3.ocs.com.au>
-	 <20040725235705.57b804cc.akpm@osdl.org>
-	 <m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-	 <200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
-	 <m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
-	 <20040728133337.06eb0fca.akpm@osdl.org>
-Content-Type: text/plain
+	Wed, 28 Jul 2004 17:05:06 -0400
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:34739 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S263847AbUG1VEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 17:04:21 -0400
+From: Carsten Rietzschel <cr7@os.inf.tu-dresden.de>
+Organization: TU Dresden - Operating System Group 
+To: "Saksena, Manas" <Manas.Saksena@timesys.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
+Date: Wed, 28 Jul 2004 22:59:20 +0200
+User-Agent: KMail/1.6.82
+Cc: "Lee Revell" <rlrevell@joe-job.com>, "Ingo Molnar" <mingo@elte.hu>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "William Lee Irwin III" <wli@holomorphy.com>,
+       "Lenar L?hmus" <lenar@vision.ee>, "Andrew Morton" <akpm@osdl.org>,
+       "Arjan van de Ven" <arjanv@redhat.com>,
+       "Wood, Scott" <Scott.Wood@timesys.com>
+References: <3D848382FB72E249812901444C6BDB1D036EDFD3@exchange.timesys.com>
+In-Reply-To: <3D848382FB72E249812901444C6BDB1D036EDFD3@exchange.timesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1091044742.31698.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 28 Jul 2004 20:59:04 +0100
+Content-Disposition: inline
+Message-Id: <200407282259.20577.cr7@os.inf.tu-dresden.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-07-28 at 21:33, Andrew Morton wrote:
-> We really don't want to be calling driver shutdown functions from a crashed
-> kernel.
+Hi all,
 
-Then at the very least you need to disable bus mastering and have
-specialist recovery functions for problematic devices. The bus
-mastering one is essential otherwise bus masters will continue to
-DMA random data into your new universe.
+> i've uploaded -L2:
+>
+> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-L2
+>
 
-Other stuff like graphics cards and IDE may need care too.
+While trying to combine voluntary-preempt-2.6.8-rc2-L2 with software suspend 2 
+(swsusp2) I noticed that:
+a) with voluntary-preempt = 3
+      - writing suspend image to disk is very slow
+      - resume fails !
+b) with voluntary-preempt = 2
+      - writing suspend image to disk is very slow
+      - resume works but very slow
+c) with voluntary-preempt = 1/0
+      - all works as expected
 
+It might be interesting for you to test it with suspend(1) / pm_disk (sorry, 
+these don't work for me). I wonder if they'll also fail.
+
+Regards,
+Carsten

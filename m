@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317535AbSFKUoU>; Tue, 11 Jun 2002 16:44:20 -0400
+	id <S317539AbSFKU5I>; Tue, 11 Jun 2002 16:57:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317537AbSFKUoU>; Tue, 11 Jun 2002 16:44:20 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:30700 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317535AbSFKUoS>;
-	Tue, 11 Jun 2002 16:44:18 -0400
-Date: Tue, 11 Jun 2002 13:44:18 -0700
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andi Kleen <ak@muc.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Multicast netlink for non-root process
-Message-ID: <20020611134418.A22893@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S317540AbSFKU5I>; Tue, 11 Jun 2002 16:57:08 -0400
+Received: from h189n1fls22o974.telia.com ([213.64.79.189]:18679 "HELO
+	tippex.localdomain") by vger.kernel.org with SMTP
+	id <S317539AbSFKU5H> convert rfc822-to-8bit; Tue, 11 Jun 2002 16:57:07 -0400
+X-Mailer: exmh version 2.5_20020515 01/15/2001 with nmh-1.0.4
+To: DervishD <raul@pleyades.net>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: QoS on incoming data 
+In-Reply-To: Message from DervishD <raul@pleyades.net> 
+   of "Tue, 11 Jun 2002 21:30:47 +0200." <3D064FE7.mail1Z311DBJT@viadomus.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 11 Jun 2002 22:57:01 +0200
+From: Anders Eriksson <aeriksson@fastmail.fm>
+Message-Id: <20020611205706.E3A8B470D@tippex.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
 
-	I'm developping an application that need to monitor every
-network interface of the system. Network interfaces are
-virtual/dynamic and go up and down all the time, so to keep track of
-my interface list, I'm listening for RTM_NEWLINK events on the
-RTnetLink socket (RTMGRP_LINK multicast group).
+You said way back that it was only wget that did hog the andbith, 
+right? Assuming that you speak to the same servers all the time (i.e. 
+for both the wget and non-wget cases), how about playing with the tcp 
+windows? If the send and receive machines are the same, any 
+difference have to come from different tcp setups. Check what 
+options, if any wget and others are setting. I bet announcing a large 
+receive window can folld your upstream network (your ISP's queues) 
+and make the rest of the tcp timer magics run on longer control 
+loops, this making it respond to changes more sluggishly.
 
-	Problem : this works only as ROOT.
-	And my mother told me that having my application running as
-root is bad for my health.
+/Anders
 
-	The cause is here :
------------ net/netlink/af_netlink.c - l322 ------------------
 
-static int netlink_bind(struct socket *sock, struct sockaddr *addr, int addr_len)
-{
-[...]
-	/* Only superuser is allowed to listen multicasts */
-	if (nladdr->nl_groups && !capable(CAP_NET_ADMIN))
-		return -EPERM;
---------------------------------------------------------------
+>>>>> On Tue, 11 Jun 2002, "DervishD" == DervishD wrote:
 
-	Why ?
-	Why ?
-	Why ?
+  DervishD> Hi all :)
 
-	Have a good day...
+  DervishD> After reading a bit of the HOWTO about traffic control
+  DervishD> and advanced routing, I have a doubt about the queue
+  DervishD> disciplines and traffic shaping.
 
-	Jean
+  DervishD> I've seen that, except the 'ingress' qdisc (and maybe the
+  DervishD> hierarchycal token bucket) all other qdisc's seem to be
+  DervishD> only valid for outgoing traffic, although I suppose that
+  DervishD> some of those qdisc could be easily applied to incoming
+  DervishD> traffic.
+
+  DervishD> But the key point is that: I think that the better way of
+  DervishD> controlling the incoming bandwidth is the Token Bucket
+  DervishD> Filter, just as the autor of the HOWTO says, but I think
+  DervishD> (may be wrong here) that the TBF is only valid for
+  DervishD> outgoing traffic. Moreover, if, just as the HOWTO says,
+  DervishD> we set up the TBF for controlling the incoming traffic
+  DervishD> at, lets say, 250kb/s for an ADSL access of 256kb/s, it
+  DervishD> won't control the outgoing traffic, since the bandwidth of
+  DervishD> that traffic is just 128kb/s. That is: TBF is not valid if
+  DervishD> applied to both incoming and outgoing traffic, and anyway
+  DervishD> I think that only controls the outgoing part.
+
+  DervishD> Please excuse the continous questions about this subject,
+  DervishD> but I'm new to this and wanting to understand a bit this
+  DervishD> powerful feature.
+
+  DervishD> Thanks in advance :) Raúl - To unsubscribe from this list:
+  DervishD> send the line "unsubscribe linux-kernel" in the body of a
+  DervishD> message to majordomo@vger.kernel.org More majordomo info
+  DervishD> at http://vger.kernel.org/majordomo- info.html Please read
+  DervishD> the FAQ at http://www.tux.org/lkml/
+
+

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265870AbRGPTja>; Mon, 16 Jul 2001 15:39:30 -0400
+	id <S267686AbRGPTkB>; Mon, 16 Jul 2001 15:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267686AbRGPTjU>; Mon, 16 Jul 2001 15:39:20 -0400
-Received: from f86.law7.hotmail.com ([216.33.237.86]:11283 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S265870AbRGPTjJ>;
-	Mon, 16 Jul 2001 15:39:09 -0400
-X-Originating-IP: [198.252.187.206]
-From: "daniel sheltraw" <l5gibson@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCI and interrupts
-Date: Mon, 16 Jul 2001 14:39:07 -0500
+	id <S267691AbRGPTju>; Mon, 16 Jul 2001 15:39:50 -0400
+Received: from AMontpellier-201-1-2-148.abo.wanadoo.fr ([193.253.215.148]:65292
+	"EHLO awak") by vger.kernel.org with ESMTP id <S267686AbRGPTjk>;
+	Mon, 16 Jul 2001 15:39:40 -0400
+Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Jeff Hartmann <jhartmann@valinux.com>
+Cc: John Cavan <johnc@damncats.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3B53413A.6060501@valinux.com>
+In-Reply-To: <E15M6jC-0005PK-00@the-village.bc.nu>
+	<3B532BB7.1050300@valinux.com> <3B533578.A4B6C25F@damncats.org> 
+	<3B53413A.6060501@valinux.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 16 Jul 2001 21:34:48 +0200
+Message-Id: <995312089.987.8.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F86vW5seWpRXg1MlIra00019133@hotmail.com>
-X-OriginalArrivalTime: 16 Jul 2001 19:39:07.0411 (UTC) FILETIME=[FA52F630:01C10E2E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello kernel developers
+On 16 Jul 2001 13:32:10 -0600, Jeff Hartmann wrote:
+ 
+> > Would it not be a bit more robust to have a wrapper module that pulls in
+> > the correct one on demand? In other words, for the radeon, you would
+> > still have the radeon.o module, but it would determine which child
+> > module to load depending on the version of X that is requesting it. Thus
+> > XFree86 would not require any changes and the backwards compatibility
+> > would be maintained invisibly.
+> > 
+> > John
+> > 
+> No, because the 2D ddx module is the one doing all the versioning.  It 
+> doesn't tell the kernel its version number etc., but the ddx module gets 
+> the version from the kernel, and fails if its the wrong one.  If the 
+> kernel was the one doing the checking, then your suggestiong would be a 
+> nice way of handling it.
 
-I am asking this question here because of a lack of results with
-my post to the linux-parport list. I hope you don't mind.
+Well ... you're gonna change the API anyway, so you could add that in
+the protocol.
+Still, I'm a bit disappointed with this ever-changing API. A bit
+un-linux if you ask me.
 
-I have an Intek21 PCI parallel port (PCI vendor id=14DB,
-device id=2120) which is advertised as supporting interrupt
-sharing. I am writing a custom driver for this card in place
-of a previously working custom driver for an ISA parallel port.
-The problem is I can not get hardware interrupts to work.
-
-The /proc/pci file reports that the card is using IRQ 11
-as does the pci_dev struct. Also pci_read_config_byte tells me
-that INTA is being used for this card. I enable interrupts
-as with the former ISA device but I get no interrupts (my
-ISR is never called upon level triggering pin 10).
-
-I have also tried changing modes in using the ECR register
-at base + 0x402 but still no interrupts.
-
-Does anyone know what might be going on with this card? Does
-anyone have similar experience with this card?
-
-Thanks once again,
-Daniel
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
+Xav
 

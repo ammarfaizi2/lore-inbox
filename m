@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbUJ1Gv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbUJ1Gvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262886AbUJ1Gv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbUJ1GuG
+	id S262824AbUJ1Gvb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbUJ1GuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:50:06 -0400
-Received: from mo.optusnet.com.au ([203.10.68.101]:31168 "EHLO
-	mo.optusnet.com.au") by vger.kernel.org with ESMTP id S262818AbUJ1Gr7
+	Thu, 28 Oct 2004 02:50:20 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:58087 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S262878AbUJ1GqA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:47:59 -0400
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
-       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: My thoughts on the "new development model"
-References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
-	<200410261719.56474.edt@aei.ca>
-	<Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
-	<417F315A.9060906@comcast.net>
-From: michael@optusnet.com.au
-Date: 28 Oct 2004 16:46:58 +1000
-In-Reply-To: <417F315A.9060906@comcast.net>
-Message-ID: <m1sm7znxul.fsf@mo.optusnet.com.au>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 28 Oct 2004 02:46:00 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] ide-2.6 update
+Date: Thu, 28 Oct 2004 02:45:58 -0400
+User-Agent: KMail/1.7
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-ide@vger.kernel.org
+References: <58cb370e04102706074c20d6d7@mail.gmail.com> <200410271305.06265.gene.heskett@verizon.net> <Pine.LNX.4.58.0410271019140.28839@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410271019140.28839@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410280245.58167.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 01:45:59 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser <nigelenki@comcast.net> writes:
-[ .. lots of stuff .. ]
-> Let's make 2.7 what 2.6 is now (a relatively stable kernel that gets
-> relatively stable feature enhancements continuously), rather than what
-> 2.5 was (a hell of a lot of patches and then a hell of a lot of
-> debugging), and make 2.6 more restrictive than 2.4 in that it should be
-> strictly bugfixes (including security bugs) and no backported drivers or
-> features.
+On Wednesday 27 October 2004 13:20, Linus Torvalds wrote:
+>On Wed, 27 Oct 2004, Gene Heskett wrote:
+>> >current linus' -bk tree, latest -bk snapshot should also be OK
+>>
+>> Drat.  I can't afford bitkeeper, either the time or the resources.
+>> So I assume this will be in 2.6.10-rc2 or 3?
+>
+>You can also just do the the daily snapshots - in
+>/pub/linux/kernel/v2.6/snapshots.
+>
+>But yes, I'm also pulling Bartlomiej's tree into the next release,
+> so if you can wait..
+>
+>  Linus
 
-There seems to be a lot of strange notions on this concept of 'stable'.
-The only thing that makes a kernel 'stable' is time. Not endless
-bugfixes. Just time. The idea of stable software is software that not
-going to give you any suprises, software that you can trust.
+I went after 2.6.10-rc1, and the bk6 patch for it, and its been 
+running here for about 2 hours, no hits, no runs, no errors so far.
+I watched a little tvtime, browsed with FF for an hour or so, and of 
+course kmail runs full time here.  And amanda just finished up.  It 
+feels good, and Just Works(tm).
 
-That's NOT the same as bug free software. For a start, there's no such
-thing. For another, many bugs are perfectly acceptable in a production
-environment as long as they're not impacting. (The linux kernel is a
-very large piece of work. Few installations would use even 20% of the
-total kernel functionality).
-
-If you want a stable kernel version, pick one (almost any one will
-do). Test the hell of out it with your application(s). If it fails,
-fix the bug, or pick a different version. rinse, repeat.
-
-Now you've got a kernel that tests clean with your app. DON'T
-CHANGE IT!! 
-
-Ta-Dah! You've got a stable kernel.
-
-Now why would you change it? The only possible reasons
-are that your testing was terrible and you missed a bug,
-in which case you can go back to step 1, or that you
-want a new feature. In which case you can go back to
-step 1.
-
-That wasn't too hard, was it. Even better, you didn't see
-anything in there about 2.6 v 2.7 or other such fluff.
-
-Michael.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

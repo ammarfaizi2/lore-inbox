@@ -1,58 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290491AbSAYBvW>; Thu, 24 Jan 2002 20:51:22 -0500
+	id <S290492AbSAYBxW>; Thu, 24 Jan 2002 20:53:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290492AbSAYBvM>; Thu, 24 Jan 2002 20:51:12 -0500
-Received: from adsl-64-166-42-58.dsl.scrm01.pacbell.net ([64.166.42.58]:35847
-	"EHLO tim.plush.org") by vger.kernel.org with ESMTP
-	id <S290491AbSAYBu4>; Thu, 24 Jan 2002 20:50:56 -0500
-Date: Thu, 24 Jan 2002 17:50:52 -0800
-To: Brian Lavender <brian@brie.com>
+	id <S290494AbSAYBxN>; Thu, 24 Jan 2002 20:53:13 -0500
+Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:62434 "EHLO
+	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S290492AbSAYBw6>; Thu, 24 Jan 2002 20:52:58 -0500
+Date: Thu, 24 Jan 2002 20:52:48 -0500
+To: knobo@linpro.no
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: VAIO IRQ assignment problem of USB controller
-Message-ID: <20020125015052.GA2153@foo.plush.org>
-Mail-Followup-To: grosa, Brian Lavender <brian@brie.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020124173421.B8732@brie.com>
+Subject: Re: compile error -rmap12a and 2.4.18-pre7
+Message-ID: <20020125015248.GA27418@opeth.ath.cx>
+In-Reply-To: <ujpadv3tj87.fsf@false.linpro.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
 Content-Disposition: inline
-In-Reply-To: <20020124173421.B8732@brie.com>
-User-Agent: Mutt/1.3.25i
-From: Gabriel Rosa <grosa@plush.org>
+In-Reply-To: <ujpadv3tj87.fsf@false.linpro.no>
+User-Agent: Mutt/1.3.27i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, Jan 24, 2002 at 05:34:21PM -0800, Brian Lavender wrote:
-> I have a Sony VAIO PCG-GR170K laptop with a memory stick which operates
-> off of the USB controller with device ID 00:1d.2. The laptop has a total
-> of three USB controllers.  The first two are getting IRQ's, but the third
-> one is not. Under Win2k, it assigns all three USB controllers IRQ 9. I
-> checked the bios for USB options, and the only option I could find is to
-> set a "Non PNP" OS.  I found no other USB options. I am currently using
-> kernel 2.4.9 from Redhat compiled from the source RPM.  I am guessing
-> that this must be a problem somewhere in the PCI IRQ configuration.
-> Any other suggestions aside from downloading 2.4.17?
-> 
-[snip]
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hey Brian,
+I believe you applied this in the reverse order. Patch
+=2E17->.18-pre7->rmap12a. Use
+http://www.cs.unc.edu/~chenda/Other/2.4.18-pre7_to_rmap12a.diff
 
-the mem stick + 2 usb ports my Z505LS work fine with 2.4.16+
-(both usb ports have been tested, but the mem stick not [however, it shows
-up fine at boot time]).
+I did a sanity build, and the kernel did compile and link correctly
+using default config (though I did not reboot as I'm running tied up at
+the moment).
 
-You might also want to run 2.4.teen because of the new support for the
-Sony programmable controller (althought that seems to have gone into 2.4.5)
-(under char devices, i believe).
+On Fri, Jan 25, 2002 at 12:36:08AM +0100, knobo@linpro.no wrote:
+> Hi
+>=20
+> I applied first rmap12a ant then 2.4.18-pre7
+>=20
+> then I removed line 502 (i think) "nr_pages--" from
+> linux/mm/vmscan.c. (thanx to mjc)
+>=20
+> Then I did  make dep clean bzImage.=20
+>=20
+> then I got some warnings:
+> In file included from /usr/src/linux/include/linux/modversions.h:144,
+>                  from /usr/src/linux/include/linux/module.h:21,
+>                  from dec_and_lock.c:1:
+> /usr/src/linux/include/linux/modules/ksyms.ver:249: warning: `__ver_waitf=
+or_one_page' redefined
+> /usr/src/linux/include/linux/modules/buffer.ver:13: warning: this is the =
+location of the previous definition
+>=20
+> And finally:
+>=20
+> fs/fs.o(__ksymtab+0x38): multiple definition of `__ksymtab_waitfor_one_pa=
+ge'
+> kernel/kernel.o(__ksymtab+0x548): first defined here
+> fs/fs.o(.kstrtab+0xfb): multiple definition of `__kstrtab_waitfor_one_pag=
+e'
+> kernel/kernel.o(.kstrtab+0x10fa): first defined here
+> make: *** [vmlinux] Error 1
+>=20
+>=20
+>=20
+> Then I turned off loadable module support, and the kernel compiled ok.
 
-See: http://groups.google.com/groups?q=linux+sony+programmable+controller&hl=en&selm=linux.kernel.20010604153515.A31991%40ontario.alcove-fr&rnum=1
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 
-I think I told you about the GVaioControl app that I use for brightness at the
-big installfest over the summer, but this seems to actually enable the function
-keys.
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--Gabe
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-ps. heh, it's weird seeing people you know on LK :)
+iD8DBQE8ULpwMwVVFhIHlU4RAgXdAJ9r6NIOl8MfIC64qOPj41335+tyUACfax4F
+ELFfOi7OfNaieTGlfc1WCho=
+=tQUK
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--

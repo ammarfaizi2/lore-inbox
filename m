@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262901AbRFQVUK>; Sun, 17 Jun 2001 17:20:10 -0400
+	id <S262915AbRFQV0K>; Sun, 17 Jun 2001 17:26:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262915AbRFQVUA>; Sun, 17 Jun 2001 17:20:00 -0400
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:30661 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S262901AbRFQVTu>; Sun, 17 Jun 2001 17:19:50 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: David Flynn <Dave@keston.u-net.com>,
-        Daniel Phillips <phillips@bonn-fries.net>, rjd@xyzzy.clara.co.uk,
-        linux-kernel@vger.kernel.org
+	id <S262922AbRFQV0A>; Sun, 17 Jun 2001 17:26:00 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:63247 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262915AbRFQVZr>; Sun, 17 Jun 2001 17:25:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>
 Subject: Re: Newbie idiotic questions.
-In-Reply-To: <200106171227.f5HCRZu10829@xyzzy.clara.co.uk> <0106171701100P.00879@starship> <3B2CC7DC.EEAF3253@mandrakesoft.com> <00c301c0f743$9da4d9f0$1901a8c0@node0.idium.eu.org> <3B2CD29E.948D6BF2@mandrakesoft.com>
-From: Bill Pringlemeir <bpringle@sympatico.ca>
-Date: 17 Jun 2001 17:17:30 -0400
-In-Reply-To: Jeff Garzik's message of "Sun, 17 Jun 2001 11:54:06 -0400"
-Message-ID: <m2g0cy24d1.fsf@sympatico.ca>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
+Date: Sun, 17 Jun 2001 23:28:34 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Flynn <Dave@keston.u-net.com>, rjd@xyzzy.clara.co.uk,
+        Bill Pringlemeir <bpringle@sympatico.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0106171628350.15952-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0106171628350.15952-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <0106172328340U.00879@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
-[snip]
- Jeff> It's the preference of the maintainer.  It's a tossup: using
- Jeff> the type in the kmalloc makes the type being allocated obvious.
- Jeff> But using sizeof(*var) is a tiny bit more resistant to change.
+On Sunday 17 June 2001 22:37, Alexander Viro wrote:
+> On Sun, 17 Jun 2001, Daniel Phillips wrote:
+> > Well, since we are still beating this one to death, I'd written a "knew"
+> > macro as well, and put it aside.  It does the assignment for you too:
+> >
+> >    #define knew(p) ((p) = (typeof(p)) kmalloc(sizeof(*(p)), GFP_KERNEL))
+> >
+> > Terse and clear at the same time, and type safe.  I still don't like it
+> > much.
+>
+> And ungreppable, not to mention gratitious use of GNU extension.
 
-Ok, thanks.  I was looking at fixing an `actual bug' in this driver
-and I was wonder what else I could/should do while there.  I didn't
-necessarily want to change `sizeof(struct Type)' to `sizeof(*value)'.
-I considered that change to be somewhat dubious, even though I like
-`sizeof(*value)'.  Of course, I unwittingly demonstrated what dangers
-lie in making cosmetic changes [I was on my way to a party at the time
-and my girlfriend was calling, excuses, excuses...].
+typeof?  It's rather popular in the kernel already.  Besides, who is going to 
+compile this with anything other than gcc?
 
-So, It looks like I might fix the actual race condition, post that
-diff, fix any other small oddities, post that diff.  If no one
-complains, etc I can ask the maintainer.  Of course I will test it
-myself as well.
+I don't see your point about greppability.
 
-regards,
-Bill Pringlemeir.
-
-
-
+--
+Daniel

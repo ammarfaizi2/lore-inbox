@@ -1,197 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271288AbRHOQm1>; Wed, 15 Aug 2001 12:42:27 -0400
+	id <S271287AbRHOQlR>; Wed, 15 Aug 2001 12:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271284AbRHOQmS>; Wed, 15 Aug 2001 12:42:18 -0400
-Received: from palrel2.hp.com ([156.153.255.234]:13791 "HELO palrel2.hp.com")
-	by vger.kernel.org with SMTP id <S271283AbRHOQmI>;
-	Wed, 15 Aug 2001 12:42:08 -0400
-Message-ID: <F341E03C8ED6D311805E00902761278C04728E8D@xfc04.fc.hp.com>
-From: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-To: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results sho
-	w this)
-Date: Wed, 15 Aug 2001 09:42:17 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S271285AbRHOQlI>; Wed, 15 Aug 2001 12:41:08 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:54300 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271283AbRHOQlB>; Wed, 15 Aug 2001 12:41:01 -0400
+Date: Wed, 15 Aug 2001 18:40:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "David S. Miller" <davem@redhat.com>, thockin@sun.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: poll change
+Message-ID: <20010815184058.B12403@athlon.random>
+In-Reply-To: <20010815163256.E7382@athlon.random> <Pine.LNX.4.21.0108151725490.1005-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0108151725490.1005-100000@localhost.localdomain>; from hugh@veritas.com on Wed, Aug 15, 2001 at 05:30:04PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are the numbers for 2.4.9pre3
+On Wed, Aug 15, 2001 at 05:30:04PM +0100, Hugh Dickins wrote:
+> On Wed, 15 Aug 2001, Andrea Arcangeli wrote:
+> > 
+> > Since 2.2 we have the free_pgtables to release the pagetables under
+> > unused pgd slots, that was used to work pretty well last time I checked.
+> 
+> Funny you mention that: I noticed a while back that actually
+> it doesn't work well with i386 PAE - presumably looks for an empty 1GB.
 
-            500     497     1.3   149177  300 3 U    5070624   1 48  2  2
-2.0
-           1000     995     2.0   298633  300 3 U   10141248   1 48  2  2
-2.0
-           1500    1487     2.0   446234  300 3 U   15210624   1 48  2  2
-2.0
-peak IOPS: 55% of 2.4.5pre1
+correct, we'd need the equivalent for the pmd too, this applies to the
+other 3-level (or more) pagetables archs too.
 
-The response time strangeness has thankfully gone away.
-
-I will run 2.4.9pre4 later today.
-Erik
-
-> -----Original Message-----
-> From: HABBINGA,ERIK (HP-Loveland,ex1) 
-> Sent: Monday, August 13, 2001 10:41 AM
-> To: 'linux-kernel@vger.kernel.org'
-> Subject: re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results
-> show this)
-> 
-> 
-> Here are some SPEC SFS NFS testing 
-> (http://www.spec.org/osg/sfs97) results I've been doing over 
-> the past few weeks that shows NFS performance degrading since 
-> the 2.4.5pre1 kernel.  I've kept the hardware constant, only 
-> changing the kernel.  I'm prevented by management from 
-> releasing our top numbers, but have given our results 
-> normalized to the 2.4.5pre1 kernel.  I've also shown the 
-> results from the first three SPEC runs to show the response 
-> time trend.
-> 
-> Normally, response time should start out very low, increasing 
-> slowly until the maximum load of the system under test is 
-> reached.  Starting with 2.4.8pre8, the response time starts 
-> very high, and then decreases.  Very bizarre behaviour.
-> 
-> The spec results consist of the following data (only the 
-> first three numbers are significant for this discussion)
-> - load.  The load the SPEC prime client will try to get out 
-> of the system under test.  Measured in I/O's per second (IOPS).
-> - throughput.  The load seen from the system under test.  
-> Measured in IOPS
-> - response time.  Measured in milliseconds
-> - total operations
-> - elapsed time.  Measured in seconds
-> - NFS version. 2 or 3
-> - Protocol. UDP (U) or TCP (T)
-> - file set size in megabytes
-> - number of clients
-> - number of SPEC SFS processes
-> - biod reads
-> - biod writes
-> - SPEC SFS version
-> 
-> The 2.4.8pre4 and 2.4.8 tests were invalid.  Too many (> 1%) 
-> of the RPC calls between the SPEC prime client and the system 
-> under test failed.  This is not a good thing.
-> 
-> I'm willing to try out any ideas on this system to help find 
-> and fix the performance degradation.
-> 
-> Erik Habbinga
-> Hewlett Packard
-> 
-> Hardware:
-> 4 processors, 4GB ram
-> 45 fibre channel drives, set up in hardware RAID 0/1
-> 2 direct Gigabit Ethernet connections between SPEC SFS prime 
-> client and system under test
-> reiserfs
-> all NFS filesystems exported with sync,no_wdelay to insure 
-> O_SYNC writes to storage
-> NFS v3 UDP
-> 
-> Results:
-> 2.4.5pre1
->             500     497     0.8   149116  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1004     1.0   300240  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1501     1.0   448807  299 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS: 100% of 2.4.5pre1
-> 
-> 2.4.5pre2
->             500     497     1.0   149195  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1005     1.2   300449  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1502     1.2   449057  299 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS: 91% of 2.4.5pre1
-> 
-> 2.4.5pre3
->             500     497     1.0   149095  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1004     1.1   300135  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1502     1.2   449069  299 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS: 91% of 2.4.5pre1
-> 
-> 2.4.5pre4
->    wouldn't run (stale NFS file handle error)
-> 
-> 2.4.5pre5
->    wouldn't run (stale NFS file handle error)
-> 
-> 2.4.5pre6
->    wouldn't run (stale NFS file handle error)
-> 
-> 2.4.7
->             500     497     1.2   149206  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1005     1.5   300503  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1502     1.3   449232  299 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS: 65% of 2.4.5pre1
-> 
-> 2.4.8pre1
->    wouldn't run
-> 
-> 2.4.8pre4
->             500     497     1.1   149180  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1002     1.2   299465  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1502     1.3   449190  299 3 U   15210624  
->  1 48  2  2 2.0
-> INVALID
-> peak IOPS: 54% of 2.4.5pre1
-> 
-> 2.4.8pre6
->             500     497     1.1   149168  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1004     1.3   300246  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1502     1.3   449135  299 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS 55% of 2.4.5pre1
-> 
-> 2.4.8pre7
->             500     498     1.5   149367  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1006     2.2   301829  300 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1502     2.2   449244  299 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS: 58% of 2.4.5pre1
-> 
-> 2.4.8pre8
->             500     597     8.3   179030  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1019     6.5   304614  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1538     4.5   461335  300 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS: 48% of 2.4.5pre1
-> 
-> 2.4.8
->             500     607     7.1   181981  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000     997     7.0   299243  300 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1497     2.9   447475  299 3 U   15210624  
->  1 48  2  2 2.0
-> INVALID
-> peak IOPS: 45% of 2.4.5pre1
-> 
-> 2.4.9pre2
->    wouldn't run (NFS readdir errors)
-> 
+Andrea

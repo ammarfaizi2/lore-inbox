@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVAVDLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVAVDZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbVAVDLt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 22:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVAVDLt
+	id S262656AbVAVDZW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 22:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVAVDZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 22:11:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47556 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262659AbVAVDLi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 22:11:38 -0500
-Date: Fri, 21 Jan 2005 19:11:36 -0800 (PST)
-From: Bryce Harrington <bryce@osdl.org>
-To: Chris Wright <chrisw@osdl.org>
-cc: <dev@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <stp-devel@lists.sourceforge.net>
-Subject: Re: [LTP] Re: [Dev] Re: Kernel Panic with LTP on 2.6.11-rc1 (was
- Re: LTP Results for 2.6.x and 2.4.x)
-In-Reply-To: <Pine.LNX.4.33.0501211706430.32650-100000@osdlab.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0501211838240.32650-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Jan 2005 22:25:22 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:28454
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262656AbVAVDZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 22:25:16 -0500
+Date: Sat, 22 Jan 2005 04:25:16 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Roland McGrath <roland@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: seccomp for 2.6.11-rc1-bk8
+Message-ID: <20050122032516.GF11112@dualathlon.random>
+References: <20050121125558.GA5596@elte.hu> <200501212131.j0LLVkJ8013886@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501212131.j0LLVkJ8013886@magilla.sf.frob.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Jan 2005, Bryce Harrington wrote:
-> On Fri, 21 Jan 2005, Chris Wright wrote:
-> > * Andrew Morton (akpm@osdl.org) wrote:
-> > > Bryce Harrington <bryce@osdl.org> wrote:
-> > > I am unable to find the oops trace amongst all that stuff.  Help?
-> > >
-> > > (It would have been handy to include it in the bug report, actually)
-> >
-> > Yes, it would.  Or at least some better granularity leading up to the
-> > problem.  I ran growfiles locally on 2.6.11-rc-bk and didn't have any
-> > problem.  Could you strace growfiles and see what it was doing when it
-> > killed the machine?
->
-> Okay, I'll set up another run and try collecting that info.  Is there
-> any other data that would be useful to collect while I'm at it?
+On Fri, Jan 21, 2005 at 01:31:46PM -0800, Roland McGrath wrote:
+> When gdb has a bug, people want to be able to kill it and get on with using
+> their program, not have their program always be killed too.
 
-Well, I'm not having much luck.  strace isn't installed on the system
-(and is giving errors when trying to compile it).  Also, the ssh session
-(and sshd) quits whenever I try running the following growfiles command
-manually, so I'm having trouble replicating the kernel panic manually.
+What I need is that the program is killed right away synchronously as
+soon as the "debugger" detaches (to me that's a needed feature). No
+matter why the debugger detached.  This is the opposite of what
+ptrace/strace does right now.
 
-# growfiles -W gf14 -b -e 1 -u -i 0 -L 20 -w -l -C 1 -T 10 glseek19 glseek19.2
+Just try to attach to a task with strace -p, then kill strace with -9,
+the task will keep going like if nothing has happened. I need the child
+killed too instead (before the parent unptrace the child).
 
-Anyway, if anyone wants to investigate this further, I can provide
-access to the machine (email me).  Otherwise, I'm probably just going to
-wait for -rc2 and see if the problem's still there.
+Probably the reason why the app gets killed is that gdb is the ptrace
+task is the process leader of the process group like Ingo suggested. But
+I'd rather not depend on leaders/groups/pids/signals, when I can do it
+with do_exit and a check on the syscall number.
 
-Thanks,
-Bryce
+Ptrace does a lot more of what I need, I don't care about parameters or
+anything more than the syscall number, I don't need to change the
+retvals during syscall return or to check registers or to stop a task.
+Even the auditing subsystem could be implemented by putting all tasks
+under strace and by having the ptracers communicating with each other
+with pipes to generate a global info. But it wouldn't be as reliable and
+as simple as having kernel code doing it.
 
-
-
+I'm still open to do it with ptrace if there's a consensus on l-k to do
+it in that direction, it's probably going to work fine too but if I
+didn't feel safer with seccomp I would be doing ptrace in the first
+place, it's not like I forgotten I could do it with ptrace too (like
+Pavel already reminded me some month ago).

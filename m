@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268511AbTBOBF6>; Fri, 14 Feb 2003 20:05:58 -0500
+	id <S268477AbTBOBUm>; Fri, 14 Feb 2003 20:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268514AbTBOBF6>; Fri, 14 Feb 2003 20:05:58 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:56760 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268511AbTBOBFe>;
-	Fri, 14 Feb 2003 20:05:34 -0500
-Date: Fri, 14 Feb 2003 17:12:27 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org
+	id <S268482AbTBOBUm>; Fri, 14 Feb 2003 20:20:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49673 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268477AbTBOBUk>;
+	Fri, 14 Feb 2003 20:20:40 -0500
+Message-ID: <3E4D981D.209@pobox.com>
+Date: Fri, 14 Feb 2003 20:30:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Synchronous signal delivery..
-Message-Id: <20030214171227.39c493d2.rddunlap@osdl.org>
-In-Reply-To: <20030215010153.GE4333@bjl1.jlokier.co.uk>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com>
-	<20030214024046.GA18214@bjl1.jlokier.co.uk>
-	<Pine.LNX.4.50.0302141603220.988-100000@blue1.dev.mcafeelabs.com>
-	<20030215010153.GE4333@bjl1.jlokier.co.uk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <Pine.LNX.4.44.0302141704280.1296-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0302141704280.1296-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Feb 2003 01:01:53 +0000
-Jamie Lokier <jamie@shareable.org> wrote:
+Linus Torvalds wrote:
+> On Sat, 15 Feb 2003, Matti Aarnio wrote:
+> 
+>>Do we need new syscall(s) ?  Could it all be done with netlink ?
+> 
+> 
+> We'd need the same new system call - the one to associate signals of this 
+> process with the netlink thing.
+> 
+> (Yeah, the "system call" could be an ioctl entry, but quite frankly, 
+> that's much WORSE than adding a system call. It's just system calls 
+> without type checking).
 
-| Davide Libenzi wrote:
-...
-| > 
-| > Hmm ... using read() you'll lose the timeout capability, that IMHO is
-| > pretty nice.
-| 
-| Very good point.
-| 
-| Timeouts could be events too - probably a good idea as they can then
-| be absolute, relative, attached to different system clocks (monotonic
-| vs. timeofday).  I think the POSIX timer work is like that.
 
-Hi Davide, Jamie-
+I have been lobbying for sys_garzik(2) for years... while you're in 
+there adding stuff, can you slip that in too please?
 
-Yep.  And there are people (plural :) who would still like to get
-that patch accepted into 2.5 too....
+... :)
 
-| It seems like a good idea to be able to attach one timeout event in
-| the same system call as the event_read call itself - because it is
-| _so_ common to vary the expiry time every time.
-| 
-| Then again, it is also extremely common to write this:
-| 
-| 	gettimeofday(...)
-| 	// calculate time until next application timer expires.
-| 	// Note also race condition here, if we're preempted.
-| 	read_events(..., next_app_time - timeofday)
-| 	// we need to know the current time.
-| 	gettimeofday(...)
-| 
-| So perhaps the current select/poll/epoll timeout method is not
-| particularly optimal as it is?
+More seriously, and a bit of a tangent, I wonder how much attention we 
+need to give netlink.  Because it either has the potential to be used as 
+a de facto in-kernel event-passing API, or it's too heavyweight for 
+that, implying [IMO] we need a netlink-lite.
 
---
-~Randy
+I _don't_ want to see mini-netlinks springing up every time we need 
+[a]sync <foo> delivery inside the kernel.
+
+	Jeff
+
+
+

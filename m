@@ -1,47 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269750AbTGVHFW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 03:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269919AbTGVHFW
+	id S269919AbTGVHJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 03:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269942AbTGVHJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 03:05:22 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:2065 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S269750AbTGVHFT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 03:05:19 -0400
-Date: Tue, 22 Jul 2003 09:19:57 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Samuel Flory <sflory@rackable.com>
-Cc: Charles Lepple <clepple@ghz.cc>, michaelm <admin@www0.org>,
-       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: Make menuconfig broken
-Message-ID: <20030722071957.GA1470@mars.ravnborg.org>
-Mail-Followup-To: Samuel Flory <sflory@rackable.com>,
-	Charles Lepple <clepple@ghz.cc>, michaelm <admin@www0.org>,
-	linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-References: <20030721163517.GA597@www0.org> <32425.216.12.38.216.1058806931.squirrel@www.ghz.cc> <3F1C8739.2030707@rackable.com> <3F1C888B.8040500@rackable.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F1C888B.8040500@rackable.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 22 Jul 2003 03:09:11 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:54149 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S269919AbTGVHJI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 03:09:08 -0400
+Message-ID: <3F1CE6B6.4020909@softhome.net>
+Date: Tue, 22 Jul 2003 09:24:38 +0200
+From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: luciano@lsd.di.uminho.pt, root@chaos.analogic.com
+Subject: Re: SVR4 STREAMS (for example LiS)
+References: <bJGh.25l.15@gated-at.bofh.it> <bJZH.2jj.29@gated-at.bofh.it> <bKj0.2yr.3@gated-at.bofh.it>
+In-Reply-To: <bKj0.2yr.3@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 05:42:51PM -0700, Samuel Flory wrote:
+Luciano Miguel Ferreira Rocha wrote:
+> On Mon, Jul 21, 2003 at 10:38:38AM -0400, Richard B. Johnson wrote:
+>>Streams are an extension of buffered I/O implimented by the 'C'
+>>runtime library. Streams really have nothing to do with the
+>>internal workings of kernel I/O. As far as kernel I/O goes,
+>>one reads() and writes() from user-space.
 > 
->  There is no option for CONFIG_VT, and CONFIG_VT_CONSOLE under 
-> character devices in "make menuconfig.
+> Actually, SysV Streams do.
 > 
->  This works:
-> rm .config
-> make mrproper
-> cp arch/i386/defconfig .config
-> make menuconfig
+> An ex, for openning a pty, on svr4:
+> fds = open(pts_name, O_RDWR)
+> ioctl(fds, I_PUSH, "ptem")
+> ioctl(fds, I_PUSH, "ldterm")
+> ioctl(fds, I_PUSH, "ttcompat")
+> 
+> Where ptem, ldterm, ttcompat work as independent modules converting the
+> stream, resulting in a pseudo-terminal implementation.
+> 
+> New programs should just use openpty directly, and let libc take care
+> of the actual implementation.
+> 
+> Also, BSD sockets were implemented using streams also, thus the compatibility
+> libraries.
+> 
+> Anyway, I see no point in caring wether streams are used or not in normal
+> programs.
+> 
 
-The preferred way to achieve the default configuration is to use:
-make defconfig
+    Not every one has normal programmes and normal needs [1].
+    Use of STREAMS allows you easily build up your own network protocol 
+stack for example.
 
-See also "make help" for a list of more options.
+    Sun's autopush(1M) looks really cool.
+    http://docs.sun.com/db/doc/805-3173/6j31cplrg?a=view
 
-	Sam
+    Configure special device and just feed it your programme.
+    Not more - not less.
+
+    As of me I see not that much uses of STREAMS somewhere outside of 
+terminal conversions and network stack manipulations. And some rare (but 
+  nasty indeed) occasions of stupid binary programmes, which happend to 
+be used and happend to need something special.
+
+    On behalf of conclusion I would summarize: STREAMS are Ok, but 
+potentially slow and hard to configure (I can easily imagine situation 
+when app trying to manipulate already prepared by admin stream 
+/something like this).
+
+[1] <blatant rant on>I absolutely do not need to use 64GB of memory - 
+but kernel includes HIGH_MEM support. Is it normal for 32bit PC to have 
+that much memory? *No*. Do you run any normal programme which does need 
+64GB of memory? I bet *No*.<blatant rant off> There are a lot of 
+examples of _not_ normal features - read "bloat" - in kernel. And I'm 
+not talking about user-land... ;-)
+

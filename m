@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317906AbSGKUki>; Thu, 11 Jul 2002 16:40:38 -0400
+	id <S317905AbSGKUjH>; Thu, 11 Jul 2002 16:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317907AbSGKUkf>; Thu, 11 Jul 2002 16:40:35 -0400
-Received: from dsl-213-023-020-056.arcor-ip.net ([213.23.20.56]:36014 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317906AbSGKUkd>;
-	Thu, 11 Jul 2002 16:40:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>, Douglas Gilbert <dougg@torque.net>
-Subject: Re: direct-to-BIO for O_DIRECT
-Date: Thu, 11 Jul 2002 22:43:05 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       linux-kernel@vger.kernel.org
-References: <3D2A5F34.F38B893F@torque.net> <3D2A6608.7C43EE3@zip.com.au>
-In-Reply-To: <3D2A6608.7C43EE3@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17SkmH-0002Vu-00@starship>
+	id <S317906AbSGKUjG>; Thu, 11 Jul 2002 16:39:06 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:53233 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317905AbSGKUjE>; Thu, 11 Jul 2002 16:39:04 -0400
+Subject: Re: Q: preemptible kernel and interrupts consistency.
+From: Robert Love <rml@tech9.net>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D2DEB91.57FA34E6@tv-sign.ru>
+References: <3D2DEB91.57FA34E6@tv-sign.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Jul 2002 13:41:47 -0700
+Message-Id: <1026420107.1178.279.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 July 2002 06:26, Andrew Morton wrote:
-> Ben had lightweight sg structures called `kvecs' and `kveclets'. And
-> library functions to map pages into them.  And code to attach them
-> to BIOs.  So we'll be looking at getting that happening.
+On Thu, 2002-07-11 at 13:33, Oleg Nesterov wrote:
 
-And as I recall, a grand plan was hatched at the kernel summit to
-slice and dice all the various forms of block IO into that model.
+> Documentation/preempt-locking.txt states, that
+> disabled interrupts prevents preemption.
+> 
+> Well, unless process does not touch TIF_NEED_RESCHED.
 
-Seeing -> believing
+Yes, you are right, if need_resched is set under you, you will preempt
+off the last unlock, even if interrupts are disabled.
 
--- 
-Daniel
+However, the only places that set need_resched like that are the
+scheduler and they do so also under lock so we are safe.
+
+Also, in your example, being in an interrupt handler bumps the
+preempt_count so even the scenario you give will not cause a
+preemption.  If we did not bump the unlock, then your example would give
+a lot of "scheduling in interrupt" BUGs so we would know it ;-)
+
+All that said, there is a bug: the send_reschedule IPI can set
+need_resched on another CPU.  If the other CPU happens to have
+interrupts disabled, we can in fact preempt.  I have a patch for this I
+will submit shortly.
+
+	Robert Love
+

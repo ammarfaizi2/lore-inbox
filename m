@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279064AbRKHMI3>; Thu, 8 Nov 2001 07:08:29 -0500
+	id <S276369AbRKHML2>; Thu, 8 Nov 2001 07:11:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277246AbRKHMIT>; Thu, 8 Nov 2001 07:08:19 -0500
-Received: from p51-max27.syd.ihug.com.au ([203.173.151.115]:40464 "EHLO
-	bugger.jampot.org") by vger.kernel.org with ESMTP
-	id <S277188AbRKHMIO>; Thu, 8 Nov 2001 07:08:14 -0500
-Message-ID: <3BEA7525.7070807@ihug.com.au>
-Date: Thu, 08 Nov 2001 23:05:57 +1100
-From: Cyrus <cyjamten@ihug.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S273269AbRKHMLS>; Thu, 8 Nov 2001 07:11:18 -0500
+Received: from leeor.math.technion.ac.il ([132.68.115.2]:22446 "EHLO
+	leeor.math.technion.ac.il") by vger.kernel.org with ESMTP
+	id <S276369AbRKHMLJ>; Thu, 8 Nov 2001 07:11:09 -0500
+Date: Thu, 8 Nov 2001 14:10:58 +0200 (IST)
+From: "Zvi Har'El" <rl@math.technion.ac.il>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, "Nadav Har'El" <nyh@math.technion.ac.il>
+Subject: Re: ext3 vs resiserfs vs xfs
+In-Reply-To: <3BEA6725.739463C2@redhat.com>
+Message-ID: <Pine.GSO.4.33.0111081407130.28492-100000@leeor.math.technion.ac.il>
 MIME-Version: 1.0
-Newsgroups: alt.os.linux,alt.os.linux.slackware,comp.os.linux.hardware,linux.dev.kernel
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: AMD761Agpgart+Radeon64DDR+kernel+2.4.14...no go...
-In-Reply-To: <20011108113615.F27652@suse.de> <Pine.LNX.4.33.0111081322570.8555-100000@localhost.localdomain> <20011108123808.I27652@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+On Thu, 8 Nov 2001, Arjan van de Ven wrote:
 
-i've been having problems with starting my xserver all the time... my 
-monitor tells me that i have no connection at all after starting X... 
-complete system failure... no sysrq keys and stuff.. this is my fifth to 
-seventh install of slackware 8 in approximately 3 weeks... errors in 
-filesystems and reiserfs couldn't handle the crashing anymore and tells 
-me i couldn't mount my root filesystem (superblock errors, etc.)...
+>
+> The basic idea is "everything which can be a module will be a module",
+> even scsi is a module. And if you use grub, it's 100% transparent as the
+> initrd
+> will be automatically added to the grub config when you install the RH
+> kernel rpm;
+> even if you use lilo the initrd is supposed to be made for you
 
-anyway, i'm just curious if this is about the radeon drivers or the amd 
-761 agpgart that Robert Love had made.. with all due respect to Robert 
-he did a good job... my amd chipset wasn't even recognized before this 
-patch-turned main stream kernel supported hardware...(but is it really 
-supported?). my friend is also experiencing the same problems and he has 
-the amd 751 chipset and the radeon combo as well... i've tried quite a 
-lot of things just to make my machine perform like a real linux box 
-should be but to no avail... X keeps me down as in crashes 7 out of 8 
-times i start X... i've read and researched on this issue for months and 
-i'm still one of the guys who hasn't found the answer...
+Is there no overhead (except in boot time) in using initrd? If there is, and
+ext3fs becomes the normative fs, IMHO ext3 should be part of the kernel, and
+not an add-on.
 
-if anyone could have pity on us amd and radeon owners and point us to 
-the right path i would really appreciate it... i don't really want to 
-spend more money to buy some new hardware again just to keep my system 
-in tip-top shape... i've just spent a lot on my recent upgrade 
-(motherboard and video card)... i had to replace two of my harddisks as 
-well because they had bad sectors and such after all the crashing...
+Thanks,
 
-hope anyone can enlighten us with this issue....
-
-cheers!!!
-
-
-cyrus
-
+Zvi.
 
 -- 
-  Cyrus Santos
-
-Registered Linux User # 220455
-Sydney, Australia
-
-"To make mistakes is human, but to really foul things up requires a
-computer....."
-
-#!/bin/rm -Rf *
+Dr. Zvi Har'El     mailto:rl@math.technion.ac.il     Department of Mathematics
+tel:+972-54-227607                   Technion - Israel Institute of Technology
+fax:+972-4-8324654 http://www.math.technion.ac.il/~rl/     Haifa 32000, ISRAEL
+"If you can't say somethin' nice, don't say nothin' at all." -- Thumper (1942)
+                          Thursday, 22 Heshvan 5762,  8 November 2001,  2:07PM
 

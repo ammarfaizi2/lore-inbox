@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVBKRgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVBKRgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbVBKRgR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 12:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVBKRfY
+	id S262297AbVBKRgS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 12:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVBKRe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 12:35:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:42909 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262304AbVBKRby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 12:31:54 -0500
-Date: Fri, 11 Feb 2005 17:31:43 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] device-mapper: multipath
-Message-ID: <20050211173143.GA11278@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050211171506.GX10195@agk.surrey.redhat.com>
+	Fri, 11 Feb 2005 12:34:56 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:38379 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262300AbVBKRb1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 12:31:27 -0500
+Date: Fri, 11 Feb 2005 09:31:18 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Al Borchers <alborchers@steinerpoint.com>
+Cc: david-b@pacbell.net, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] add wait_event_*_lock() functions
+Message-ID: <20050211173118.GA2372@us.ibm.com>
+References: <1108105628.420c599cf3558@my.visi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050211171506.GX10195@agk.surrey.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <1108105628.420c599cf3558@my.visi.com>
+X-Operating-System: Linux 2.6.11-rc3 (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#include "dm.h"
-> +#include "dm-path-selector.h"
-> +#include "dm-bio-list.h"
-> +#include "dm-bio-record.h"
-> +
-> +#include <linux/ctype.h>
-> +#include <linux/init.h>
-> +#include <linux/mempool.h>
-> +#include <linux/module.h>
-> +#include <linux/pagemap.h>
-> +#include <linux/slab.h>
-> +#include <linux/time.h>
-> +#include <linux/workqueue.h>
-> +#include <asm/atomic.h>
+On Fri, Feb 11, 2005 at 01:07:08AM -0600, Al Borchers wrote:
+> 
+> 
+> On Thursday 10 February 2005 9:39 am, Nishanth Aravamudan wrote:
+> >> It came up on IRC that the wait_cond*() functions from
+> >> usb/serial/gadget.c could be useful in other parts of the kernel. Does
+> >> the following patch make sense towards this?
+> 
+> Sure, if people want to use these.
+> 
+> I did not push them because they seemed a bit "heavy weight",
+> but the construct is useful and general.
 
-Always include private headers after public ones.
+I think that is very much the case. As I was setting up patches for the
+Kernel-Janitors to clean up the wait-queue usage in the kernel, I found
+I was unable to use wait_event*(), as locks needed to be
+released/grabbed around the sleep. wait_event_*_lock() fixes this
+problem, clearly :)
 
-> +MODULE_DESCRIPTION(DM_NAME " multipath target");
-> +MODULE_AUTHOR("Sistina Software <dm-devel@redhat.com>");
+> The docs should explain that the purpose is to wait atomically on
+> a complex condition, and that the usage pattern is to hold the
+> lock when using the wait_event_* functions or when changing any
+> variable that might affect the condition and waking up the waiting
+> processes.
 
-Isn't this Red Hat now?
+I will submit a new patch which documents the general structure of the
+wait_event_*() class of functions, including what you have written.
 
-> +#ifndef	DM_MPATH_H
-> +#define	DM_MPATH_H
-> +
-> +#include <linux/device-mapper.h>
-
-no needed, a forward-declaration for struct dm_dev is enough.
-
-> +EXPORT_SYMBOL(dm_register_path_selector);
-> +EXPORT_SYMBOL(dm_unregister_path_selector);
-
-I though we agreed to only allow GPL'ed path selectors at OSDL?
-
-> +#ifndef	DM_PATH_SELECTOR_H
-> +#define	DM_PATH_SELECTOR_H
-> +
-> +#include <linux/device-mapper.h>
-
-again, doesn't look like it's needed.
-
+Thanks,
+Nish

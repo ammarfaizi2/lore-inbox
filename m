@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265814AbUFXQLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUFXQMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265814AbUFXQLP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 12:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUFXQLP
+	id S264377AbUFXQMU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 12:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUFXQMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 12:11:15 -0400
-Received: from web81301.mail.yahoo.com ([206.190.37.76]:45915 "HELO
-	web81301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265814AbUFXQLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 12:11:13 -0400
-Message-ID: <20040624161113.92578.qmail@web81301.mail.yahoo.com>
-Date: Thu, 24 Jun 2004 09:11:13 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: RE: Continue: psmouse.c - synaptics touchpad driver sync problem
-To: Marc Waeckerlin <marc.waeckerlin@siemens.com>
-Cc: t.hirsch@web.de, laflipas@telefonica.net, linux-kernel@vger.kernel.org
+	Thu, 24 Jun 2004 12:12:20 -0400
+Received: from mail.jambit.com ([62.245.207.83]:29456 "EHLO mail.jambit.com")
+	by vger.kernel.org with ESMTP id S264377AbUFXQLd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 12:11:33 -0400
+Message-ID: <00b801c45a05$e22be3c0$c100a8c0@wakatipu>
+From: "Michael Kerrisk" <mtk-lists@jambit.com>
+To: "Oleg Drokin" <green@linuxhacker.ru>,
+       "Michael Kerrisk" <mtk-lists@jambit.com>
+Cc: <linux-kernel@vger.kernel.org>, "Hans Reiser" <reiser@namesys.com>,
+       "Vladimir Saveliev" <vs@namesys.com>, "Chris Mason" <mason@suse.com>,
+       "mk" <michael.kerrisk@gmx.net>
+References: <041c01c45875$0368e340$c100a8c0@wakatipu> <200406231111.i5NBBFwF201534@car.linuxhacker.ru> <005e01c459f7$6a8546d0$c100a8c0@wakatipu> <20040624155840.GG2362@linuxhacker.ru>
+Subject: Re: Strange NOTAIL inheritance behaviour in Reiserfs 3.6
+Date: Thu, 24 Jun 2004 18:11:18 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Am Mittwoch, 23. Juni 2004 17.59 schrieb Dmitry Torokhov unter "RE:
-> Continue:
-> psmouse.c - synaptics touchpad driver sync problem":
-> > Also, if you have time, please change #undef DEBUG to #define DEBUG in
-> > drivers/input/serio/i8042.c, reboot, play a bit with touchpad; plug
-> > external keyboard and send me output of "dmesg -s 100000".
-> 
-> dmesg looks like this, even with a log_buf_len=131072 boot-parameter,
-> there's
-> nothiung else left. These are the interesting parts:
-> 
-> [dmesg starts here, this is first line]
-> erio/i8042.c: 80 <- i8042 (interrupt, aux1, 12) [158589]
-<skip>
+> On Thu, Jun 24, 2004 at 04:27:44PM +0200, Michael Kerrisk wrote:
+> > >
+> > > MK>     # mount -t reiserfs /dev/hda12 /testfs
+> > > Does it work as expected if you add "-o attrs" to the mount command?
+> > Yes!  Thanks.  However, it is a little unfortunate that if one fails
+> > to use this option, then:
+> > 1. "chattr +t" (and I suppose underlying ioctl()s) can still be used to
+> >    set this attribute on a directory, without any error resulting.
+> >    It would be better if an error is reported.
+>
+> Well, initial idea was to allow people to at least reset attributes
+> in case of operationg with disabled attributes processing.
 
-> All the other lines look similar to:
-> drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux1, 12) [158654]
-> 
-> There is no more left from the boot process. That means, the trace is so
-> frequent, that it overflows long before I can get the dmesg. I also tried
-> with 33554432 Bytes, but there seem to be a size limit?
-> 
-> I don't think it makes sense to attach the full trace (>100kB), I don't
-> want
-> to send too large messages, what do you think?
+This seems to a bad idea.  Why should I be able to reset
+attributes if the FS is mounted without "-o attrs"?  That
+seems to thwart the point of excluding "-o attrs".  In any
+case, how about at least an error when one tries to *set*
+attributes when "-o attrs" was specified?
 
-You still need to use "dmesg -s 100000" even if you specifie logbuf_len.
-Anyway, the data probably goes into /var/log/messages as well... If it is
-there please send it my way (not on the list). I should be able to handle
-100K e-mail.
+> > 2. The attribute is then inherited by files created in that directory,
+> >    but has no effect.
+>
+> Yes, attribute inheritance is working. The only part that is disabled
+> by default is copying from fs-specific attribute storage to actual VFS
+inode
+> attributes.
+>
+> > 3. A later explicit "chattr + t" on the files themselves DOES result in
+> >    unpacking of the tails.  Why?
+>
+> There is a check in attributes setting code (and attributes
+setting/cleaning
+> is enabled), that tests if NOTAIL attribute is set, that calls tails
+> unpacking if so. Next time you write to that file it will be packed back
+> (if possible).
 
-Thanks,
+Strange ;-).
 
-Dmitry 
+> I agree that all of this is not very intuitive, though.
+
+Okay -- thanks Oleg.
+
+Cheers,
+
+Michael
+

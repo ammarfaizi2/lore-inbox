@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130299AbQK1VMm>; Tue, 28 Nov 2000 16:12:42 -0500
+        id <S130007AbQK1VNc>; Tue, 28 Nov 2000 16:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130763AbQK1VMd>; Tue, 28 Nov 2000 16:12:33 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:15030 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S130007AbQK1VMT>;
-        Tue, 28 Nov 2000 16:12:19 -0500
-Date: Tue, 28 Nov 2000 15:41:55 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: linux-kernel@vger.kernel.org, tytso@valinux.com,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.0-test11 ext2 fs corruption
-In-Reply-To: <E2BA5DE1AE9@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0011281520100.11331-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S130632AbQK1VNN>; Tue, 28 Nov 2000 16:13:13 -0500
+Received: from sith.mimuw.edu.pl ([193.0.97.1]:7431 "HELO sith.mimuw.edu.pl")
+        by vger.kernel.org with SMTP id <S130007AbQK1VMl>;
+        Tue, 28 Nov 2000 16:12:41 -0500
+Date: Tue, 28 Nov 2000 21:43:09 +0100
+From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] no RLIMIT_NPROC for root, please
+Message-ID: <20001128214309.F2680@sith.mimuw.edu.pl>
+Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.0-test11-pre6 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Why is RLIMIT_NPROC apllied to root(uid 0) processes? It's not kernel job to
+prevent admin from shooting him/her self in the foot.
 
-On Tue, 28 Nov 2000, Petr Vandrovec wrote:
+root should be able to do fork() regardless of any limits,
+and IMHO the following patch is the right thing.
 
-> > two ranges? Then it looks like something way below the fs level... Weird.
-> > Could you verify it with dd?
-> 
-> Yes, it is identical copy. But I do not think that hdd can write same
-> data into two places with one command...
-> 
-> vana:/# dd if=/dev/hdd1 bs=4096 count=27 skip=722433 | md5sum
-> 27+0 records in
-> 27+0 records out
-> 613de4a7ea664ce34b2a9ec8203de0f4
-> vana:/# dd if=/dev/hdd1 bs=4096 count=27 skip=558899 | md5sum
-> 27+0 records in
-> 27+0 records out
-> 613de4a7ea664ce34b2a9ec8203de0f4
-> vana:/#
 
-Bloody hell... OK, let's see. Both ranges are covered by multiple files
-and are way larger than one page. I.e. anything on pagecache level is
-extremely unlikely - pages are not searched by physical location on
-disk. And I really doubt that it's ext2_get_block() - we would have
-to get a systematic error (constant offset), then read the data in
-for no good reason, then forget the page->buffers, then get the right
-values fro ext2_get_block(), leave the data unmodified _and_ write it.
+--- linux/kernel/fork.c~	Tue Sep  5 23:48:59 2000
++++ linux/kernel/fork.c	Sun Nov 26 20:22:20 2000
+@@ -560,7 +560,8 @@
+ 	*p = *current;
+ 
+ 	retval = -EAGAIN;
+-	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur)
++	if (p->user->uid &&
++	   (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur))
+ 		goto bad_fork_free;
+ 	atomic_inc(&p->user->__count);
+ 	atomic_inc(&p->user->processes);
 
-It almost looks like a request in queue got fscked up retaining the
-->bh from one of the previous (also coalesced) requests and having
-correct ->sector. Weird.
-
-Linus, Andrea - any ideas? Situation looks so: after massive file creation
-a range of disk with the data from new files (many new files) got
-duplicated over another range - one with the data from older files
-(also many of them). 27 blocks, block size == 4Kb. No intersection
-between inodes, fsck is happy with fs, just a data ending up in two
-places on disk. No warnings from IDE or ext2 drivers.
-
-Kernel: test11 built with 2.95.2, so gcc bug may very well be there.
-However, I really wonder what could trigger it in ll_rw_blk.c - 5:1
-that shit had hit the fan there.
-
+Jan
+-- 
+Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
+baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
+BOFH, type MANIAC         |                   -- TROOPS by Kevin Rubio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

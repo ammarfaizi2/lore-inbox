@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132461AbRBRMI4>; Sun, 18 Feb 2001 07:08:56 -0500
+	id <S130375AbRBRMZD>; Sun, 18 Feb 2001 07:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132596AbRBRMIq>; Sun, 18 Feb 2001 07:08:46 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:29750 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S132461AbRBRMIb>; Sun, 18 Feb 2001 07:08:31 -0500
-Date: Sun, 18 Feb 2001 13:19:42 +0100 (CET)
-From: Francis Galiegue <fg@mandrakesoft.com>
+	id <S131776AbRBRMYw>; Sun, 18 Feb 2001 07:24:52 -0500
+Received: from [212.17.18.2] ([212.17.18.2]:26635 "EHLO technoart.net")
+	by vger.kernel.org with ESMTP id <S130375AbRBRMYo>;
+	Sun, 18 Feb 2001 07:24:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Perchine <dyp@perchine.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <96oau0$j6q$1@forge.intermeta.de>
-Message-ID: <Pine.LNX.4.21.0102181316380.884-100000@toy.mandrakesoft.com>
+Subject: fsync vs fdatasync on Linux
+Date: Sun, 18 Feb 2001 18:22:59 +0600
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-Id: <01021818225902.00766@dyp.perchine.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Feb 2001, Henning P. Schmiedehausen wrote:
+Hello,
 
-> 
-> Uniform support from most of the hard- and software vendors on this
-> planet. Support for 50.000+ different hardware expansions with all
-> their features from grabber cards to color printers and network cards
-> to 3D graphics accelerators for their whole product line.
-> 
-> That's not innovation, you're correct. But that's 99% of what users
-> care about.
-> 
+as fas as I can see from fdatasync man page, and from the latest kernel 
+sources (2.4.1ac3, fs/buffer.c), they are equivalent.
 
-Yeah, which means: users don't care whether the driver is closed- or
-open-source. Why not making it open source, then?
+Using of fdatasync in database can gain significant gain on systems which 
+supports it (on HP it gains up to 25% with pg_bench on PostgreSQL 7.1b5).
 
-No matter how hard one will yell it around - vendors don't lose anything in
-releasing open source drivers and/or specs; on the opposite, they gain broader
-support.
+Are there any plans to implement this correctly? And due to what problems it 
+was not implemented yet?
 
 -- 
-Francis Galiegue, fg@mandrakesoft.com - Normand et fier de l'être
-"Programming is a race between programmers, who try and make more and more
-idiot-proof software, and universe, which produces more and more remarkable
-idiots. Until now, universe leads the race"  -- R. Cook
+Sincerely Yours,
+Denis Perchine
 
+----------------------------------
+E-Mail: dyp@perchine.com
+HomePage: http://www.perchine.com/dyp/
+FidoNet: 2:5000/120.5
+----------------------------------

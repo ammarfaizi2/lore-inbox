@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282625AbRK0TFp>; Tue, 27 Nov 2001 14:05:45 -0500
+	id <S282600AbRK0TDf>; Tue, 27 Nov 2001 14:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282598AbRK0TFf>; Tue, 27 Nov 2001 14:05:35 -0500
-Received: from bagel.indexdata.dk ([212.242.69.115]:40113 "EHLO
-	bagel.indexdata.dk") by vger.kernel.org with ESMTP
-	id <S282625AbRK0TFY>; Tue, 27 Nov 2001 14:05:24 -0500
-Date: Tue, 27 Nov 2001 20:05:22 +0100
-From: Heikki Levanto <heikki@indexdata.dk>
+	id <S282625AbRK0TD0>; Tue, 27 Nov 2001 14:03:26 -0500
+Received: from sj1-3-1-20.iserver.com ([128.121.122.117]:16394 "EHLO
+	sj1-3-1-20.iserver.com") by vger.kernel.org with ESMTP
+	id <S282600AbRK0TDT>; Tue, 27 Nov 2001 14:03:19 -0500
+Date: Tue, 27 Nov 2001 19:03:18 +0000
+From: Nathan Myers <ncm-nospam@cantrip.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.16: "Address family not supported" on RH IBM T23
-Message-ID: <20011127200522.B27480@indexdata.dk>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, alan@redhat.com,
+        torvalds@transmeta.com, marcelo@conectiva.com.br
+Subject: Re: [BUG] Bad #define, nonportable C, missing {}
+Message-ID: <20011127190318.A91208@cantrip.org>
+Mail-Followup-To: Nathan Myers <ncm-nospam@cantrip.org>,
+	linux-kernel@vger.kernel.org, vda@port.imtp.ilyichevsk.odessa.ua,
+	alan@redhat.com, torvalds@transmeta.com, marcelo@conectiva.com.br
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried to compile 2.4.16 on my brand new IBM T23. 
+vda wrote in http://marc.theaimsgroup.com/?l=linux-kernel&m=100687040003540&w=2:
+> On Monday 26 November 2001 18:28, Alan Cox wrote:
+> > > > MODINC(x,y) (x = (x % y) + 1)
+> > >
+> > > drivers/message/i2o/i2o_config.c:#define MODINC(x,y) (x = x++ % y)
+> > >
+> > > Alan, can you clarify what this macro is doing?
+> > > What about making it less confusing?
+> >
+> > Nothing to do with me 8). I didnt write that bit of the i2o code. I agree
+> > its both confusing and buggy. Send a fix ?
+> 
+> This is a test to be sure my replacement is equivalent:
+> --------------------
+> #include <stdio.h>
+> #define MODINC(x,y) (x = x++ % y)
+> #define MODULO_INC(x,y) ((x) = ((x)%(y))+1)
+> ...
 
-Small problem: Kernel panic at start, null pointer reference when
-initializing agp code. Disabled agp, and boots OK. Probably too new
-motherboard? Should I report what details?
+If they really are equivalent, you have certainly found a bug.
 
+Examining the code in i2o_config.c, it is expected that the q_in argument 
+ranges from 0 to I2O_EVT_Q_LEN-1, but the result of MODINC can never 
+be 0, and may equal I2O_EVT_Q_LEN, overindexing the array member 
+event_q and clobbering all the remaining members (including q_in).
 
-Large problem: Network won't come up. Says:
-> Cannot open netlink socket: Address family not supported by protocol
+The correct fix appears to be 
 
-This happens both to lo and eth0, with a stock kernel, only option I changed
-was the agp (see above).  Can boot past this, but no networking configured.
+  #define MODULO_INC(x,y) ((x) = ((x)+1)%(y))
 
-Invoking ifup by hand causes same behaviour. 
-
-Manually running ifconfig lo 127.0.0.1 and ifconfig lo up work. Same for
-eth0.
-
-More digging pointed me to redhat's ifup script (7.2 with latest updates),
-in the function is_available, there is a line that tests 'ip -o link'. This
-is what gives the error messages in ifup (as well as when run by hand).
-Could not find much documentation for that /sbin/ip, redhat special?
-
-Problem does not occur on redhat 7.2 default kernel 2.4.7-10, nor on the one
-their thing upgraded my box to, 2.4.9-13 
-
-Does this indicate a kernel problem, redhat problem, or my problem?
-
-
-Thank you in advance
-
-	Heikki Levanto
-
-
-P.S. I try to follow the list, but would still appreciate a direct cc if you
-have any comments, suggestions, or workarounds.
-
-
--- 
-Heikki Levanto            heikki@indexdata.dk            "In Murphy We Turst"
+Nathan Myers
+ncm at cantrip dot org

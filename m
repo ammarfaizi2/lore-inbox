@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265879AbUHFML2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUHFMmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbUHFML2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 08:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265883AbUHFML1
+	id S261474AbUHFMmX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 08:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUHFMmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 08:11:27 -0400
-Received: from holomorphy.com ([207.189.100.168]:36555 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265879AbUHFMLZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 08:11:25 -0400
-Date: Fri, 6 Aug 2004 05:11:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Albert Cahalan <albert@users.sf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: [proc.txt] Fix /proc/pid/statm documentation
-Message-ID: <20040806121118.GE17188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Roger Luethi <rl@hellgate.ch>, Albert Cahalan <albert@users.sf.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	linux-mm@kvack.org
-References: <1091754711.1231.2388.camel@cube> <20040806094037.GB11358@k3.hellgate.ch> <20040806104630.GA17188@holomorphy.com> <20040806120123.GA23081@k3.hellgate.ch>
+	Fri, 6 Aug 2004 08:42:23 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:58119 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261474AbUHFMmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 08:42:21 -0400
+Date: Fri, 6 Aug 2004 14:30:56 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+       greearb@candelatech.com, akpm@osdl.org, alan@redhat.com,
+       jgarzik@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: VLAN support for 3c59x/3c90x
+Message-ID: <20040806123056.GA23005@alpha.home.local>
+References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <410B67B1.4080906@pobox.com> <20040731101152.GG1545@alpha.home.local> <20040731141222.GJ2429@mea-ext.zmailer.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040806120123.GA23081@k3.hellgate.ch>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040731141222.GJ2429@mea-ext.zmailer.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 02:01:23PM +0200, Roger Luethi wrote:
-> Your call, obviously -- do you think it's worthwhile? I didn't CC you
-> on my initial posting because I wanted to avoid the impression that I am
-> trying to make this your problem somehow. Priorities as I see them are:
-> - Document statm content somewhere. I posted a patch to document
->   the current state. It could be complemented with a description of
->   what it is supposed to do.
-> - Come to some agreement on what the proper values should be and
->   change kernels accordingly. I'm inclined to favor keeping the first two
->   (albeit redundant) fields and setting the rest to 0, simply because for
->   them too many different de-facto semantics live in exisiting kernels.
->   A year ago, the first field was broken in 2.4 as well (not sure if/when
->   it got fixed), but I can see why it is useful to keep around until top
->   has found a better source. Same for the second field, the only one that
->   has always been correct AFAIK.
+Hi Matti,
 
-Some of the 2.4 semantics just don't make sense. I would not find it
-difficult to explain what I believe correct semantics to be in a written
-document.
+On Sat, Jul 31, 2004 at 05:12:22PM +0300, Matti Aarnio wrote:
+<...> 
+> In the receive descriptors there might appear a TL bit (Frame Too Long),
+> which is just telling that frame size exceeds 1518 bytes.
+> If RW (Receive Watchdog; RDES0<4>) has tripped, then there is at least
+> 2048 bytes long frame, most likely longer than 2560 bytes.
+> 
+> Based on my reading of  ds21143hrm.pdf  (copy of which I have), I do
+> think it is safe to just receive larger frames with Tulip, and IGNORE
+> the "TL" bit.
+> 
+> Receiving 1522 byte frames from ethernet with Tulip should be trivial.
+> Will that be true with 21140 -- oddly I don't have a copy of 21140 HRM
+> in PDF form...  Possibly I got it in paper long ago.
 
-The largest barrier is that the accounting has a large code impact.
+I've just found a document on intel's site comparing 21140 and 21143.
+Its reference is 27810701 and its title : "21140-AF to 21143-xD Upgrade".
 
+Since there's nothing about the subject in this document, I assume that
+they behave equally. I don't have the time right now, but probably will
+during this week-end to make new tests with the doc. For those
+interested, the 21143 HRM's reference is 27807401.
 
-On Fri, Aug 06, 2004 at 02:01:23PM +0200, Roger Luethi wrote:
-> - Provide additional information in proc files other than statm.
->   The problems with undocumented records are evident, but
->   /proc/pid/status may be getting too heavy for frequent parsing. It's
->   not realistic to redesign proc at this point, but it would be nice
->   to have some documented understanding about the direction of proc
->   evolution.
+Regards,
+Willy
 
-It will likely be easier to merge improvements of /proc/$PID/status as
-the operations there are far less frequent and the accounting less
-invasive.
-
-
--- wli

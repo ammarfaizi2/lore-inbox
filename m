@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbULTIpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbULTIsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbULTIpA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 03:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbULTIo7
+	id S261202AbULTIsY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 03:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbULTIsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 03:44:59 -0500
-Received: from illchn-static-203.199.197.226.vsnl.net.in ([203.199.197.226]:8206
-	"EHLO md3.vsnl.net.in") by vger.kernel.org with ESMTP
-	id S261206AbULTIof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 03:44:35 -0500
-Message-ID: <003001c4e670$3f5ef590$1600a8c0@sdsaravanan>
-Reply-To: "V.Meenatchi Sundaram" <vms@qmaxtech.com>
-From: "V.Meenatchi Sundaram" <vms@qmaxtech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Send me the solution for the error "USB disconnect on device 00:1d.7-7 address 3
-Date: Mon, 20 Dec 2004 14:15:24 +0530
-Organization: Qmax Test Equipments Pvt. Ltd.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Dec 2004 03:48:23 -0500
+Received: from em.njupt.edu.cn ([202.119.230.11]:57743 "HELO njupt.edu.cn")
+	by vger.kernel.org with SMTP id S261248AbULTIrr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 03:47:47 -0500
+Message-ID: <303535658.02371@njupt.edu.cn>
+X-WebMAIL-MUA: [10.10.136.115]
+From: "Zhenyu Wu" <y030729@njupt.edu.cn>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 20 Dec 2004 17:40:58 +0800
+Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
 X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Subject: About kernel panic!
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-  We have wriiten  driver program for usb interface card which was
-manufactured
-by our company.In the driver, First  downloaded  the firmware
-supplied by Cypress Inc.This firmware implements a vendor specific
-command that will allow  to download the firmware to external RAM. At the
-time of
-downloading  the firmware for the ez-usb chip(in probe fn).
-The following Error has occured from the dmesg.
+Hello, Everyone,
 
+I think i have met lots of troubles when i am programming in the kernel, so, i
+want to get
+some help.
 
-"yes!!!!registered
-USB device now attached to USBSample------->0
-usbsample: probe succeeded
-usb.c: USB disconnect on device 00:1d.7-7 address 2
-enter in to disconnect
-hub.c: new USB device 00:1d.7-7, assigned address 3
-usb.c: USB device 3 (vend/prod 0x4832/0x8003) is not claimed by any active
-drive
-r.
-usb.c: USB disconnect on device 00:1d.7-7 address 3   "
+One of my troubles is that, sometimes, the program can work well, but sometimes,
+there are
+kernel panics. So, does someone else meet such questions, what is the major
+reasons? From the
+indication of the log messages, i can find the messages on allocting the memory, i
+remember, 
+i use the kmalloc to do it, but is there something wrong? 
 
+Thanks,
 
-That is the message has given "the USB disconnect on device" error.
-Send me the solution
-
-          Regards
-V.Meenatchi Sundaram,
 

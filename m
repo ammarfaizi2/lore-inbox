@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290733AbSAYRSz>; Fri, 25 Jan 2002 12:18:55 -0500
+	id <S290738AbSAYRTz>; Fri, 25 Jan 2002 12:19:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290736AbSAYRSp>; Fri, 25 Jan 2002 12:18:45 -0500
-Received: from tux.gsfc.nasa.gov ([128.183.191.134]:42187 "EHLO
-	tux.gsfc.nasa.gov") by vger.kernel.org with ESMTP
-	id <S290733AbSAYRSj>; Fri, 25 Jan 2002 12:18:39 -0500
-Date: Fri, 25 Jan 2002 12:18:37 -0500
-From: John Kodis <kodis@mail630.gsfc.nasa.gov>
-To: linux-kernel@vger.kernel.org
-Cc: palmerj@zanshin.gsfc.nasa.gov
-Subject: Mounting OS-X "Unix" filesystems on Linux
-Message-ID: <20020125171837.GA31376@tux.gsfc.nasa.gov>
-Mail-Followup-To: John Kodis <kodis@mail630.gsfc.nasa.gov>,
-	linux-kernel@vger.kernel.org, palmerj@zanshin.gsfc.nasa.gov
+	id <S290740AbSAYRTs>; Fri, 25 Jan 2002 12:19:48 -0500
+Received: from ns.suse.de ([213.95.15.193]:8717 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290738AbSAYRTd>;
+	Fri, 25 Jan 2002 12:19:33 -0500
+Date: Fri, 25 Jan 2002 18:19:31 +0100
+From: Dave Jones <davej@suse.de>
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>, Vojtech Pavlik <vojtech@suse.cz>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+Message-ID: <20020125181931.G28068@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Liakakis Kostas <kostas@skiathos.physics.auth.gr>,
+	Ed Sweetman <ed.sweetman@wmich.edu>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1011972717.22707.42.camel@psuedomode> <Pine.GSO.4.21.0201251802491.19355-100000@skiathos.physics.auth.gr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0201251802491.19355-100000@skiathos.physics.auth.gr>; from kostas@skiathos.physics.auth.gr on Fri, Jan 25, 2002 at 06:10:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to mount an OS-X Unix filesystem on Linux.  I haven't had
-any luck at this, and wondered whether this is a known problem, or if
-I'm doing something wrong.
+On Fri, Jan 25, 2002 at 06:10:35PM +0200, Liakakis Kostas wrote:
 
-I formatted a zip disk on a Mac OS-X, selecting the "Unix" filesystem
-type and no partitions.  I then inserted this disk in the /dev/hdd,
-the zip drive on my PC.  I tried mounting hdd and hdd1 through hdd4
-using types of auto, ufs, udf, sysv, and one or two others, all to no
-avail.
+ > I guess this is the PowerNOW! feature of the mobile Athlons/Durons with
+ > the Palomino core. I think this is totaly different than STPGNT. And this
+ > would be worth implementing if it can be supported on desktop Athlon/Duron
+ > models/mobos.
+ > 
+ > Anybody has more info about this?
+
+ I checked in powernow-k7.c to the cpufreq CVS today.
+ So far it doesn't do anything other than detect the ability
+ to scale voltage/speed. I'll add that later.
 
 -- 
-John Kodis                                    Goddard Space Flight Center
-kodis@mail630.gsfc.nasa.gov                      Greenbelt, Maryland, USA
-Phone: 301-286-7376                                     Fax: 301-286-1771
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

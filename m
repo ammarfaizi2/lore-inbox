@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270746AbUJVIqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270782AbUJVIsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270746AbUJVIqs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270782AbUJVIqs
+	id S270782AbUJVIsm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270804AbUJVIsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:46:48 -0400
-Received: from gate.firmix.at ([80.109.18.208]:34962 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S270746AbUJVIqo (ORCPT
+	Fri, 22 Oct 2004 04:48:41 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:7659 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S270782AbUJVIrM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 04:46:44 -0400
-Subject: Re: Linux v2.6.9 and GPL Buyout
-From: Bernd Petrovitsch <bernd@firmix.at>
+	Fri, 22 Oct 2004 04:47:12 -0400
+Date: Fri, 22 Oct 2004 10:48:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41757478.4090402@drdos.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
-	 <417550FB.8020404@drdos.com>
-	 <1098218286.8675.82.camel@mentorng.gurulabs.com>
-	 <41757478.4090402@drdos.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Message-Id: <1098434791.17993.9.camel@tara.firmix.at>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Message-ID: <20041022084823.GA14847@elte.hu>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Fri, 22 Oct 2004 10:46:31 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417550FB.8020404@drdos.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ shortened CC: because it is not that inreseting ]
 
-On Tue, 2004-10-19 at 14:09 -0600, Jeff V. Merkey wrote:
-[...]
-> No.  They seem to have some factual concrete evidence IP covered under 
-> Employee
-> agreements was used and subsequently converted into Linux, and they are 
-> very
-> confident of this.  From a cursory viewpoint, it looks valid.  I think 
+first i was slighly puzzled and suspected that your mail server somehow
+delayed your outgoing email for ~1.5 years then i found what i believe
+is the secret message hidden in your email:
 
-They did not and do not show in court anything (and didn't showed
-anything that passed the simple checks in other places) though they were
-askes several times by the judge.
-So AFAICT and IMHO (and IANAL) there is no reason to believe they have
-anything (except false accusations, rumors, FUD, creative selection of
-truth, and lies).
-So even from cursory viewpoint one should primarily see the pure facts
-and afterwards (with separate quality) believe in words.
+* Jeff V. Merkey <jmerkey@drdos.com> wrote:
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+> [...] The memory sickness [...]
+> [...] I was experiencing  [...]
+> [...] is constant [...]
 
+please confirm decoding was correct! Meanwhile our secret message back
+to agent 000 is:
+
+  IN THAT CONDITION MUST NOT POST TO LKML UNDER ANY CIRCUMSTANCE!
+
+[this message has been caps-encrypted. COMPARTMENTED 12B3. EYES ONLY.]
+
+	Ingo

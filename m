@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281047AbRKYUgZ>; Sun, 25 Nov 2001 15:36:25 -0500
+	id <S281042AbRKYUdP>; Sun, 25 Nov 2001 15:33:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281048AbRKYUgP>; Sun, 25 Nov 2001 15:36:15 -0500
-Received: from cpe-66-1-134-68.ca.sprintbbd.net ([66.1.134.68]:64717 "HELO
-	core.sitedirection.com") by vger.kernel.org with SMTP
-	id <S281047AbRKYUgJ>; Sun, 25 Nov 2001 15:36:09 -0500
-Message-ID: <006701c175f1$d9b10630$0f00a8c0@minniemouse>
-From: "Jon" <marsaro@interearth.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <87adxbxkk1.fsf@toboggan.in.ibm.com>
-Subject: Re: i815 Card ...Machine Freezes
-Date: Sun, 25 Nov 2001 12:43:34 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S281046AbRKYUdF>; Sun, 25 Nov 2001 15:33:05 -0500
+Received: from f05s15.cac.psu.edu ([128.118.141.58]:51162 "EHLO
+	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
+	id <S281042AbRKYUcy>; Sun, 25 Nov 2001 15:32:54 -0500
+Subject: Re: /var corruption after 2.4.15 and 2.5.0 reboot
+From: Phil Sorber <aafes@psu.edu>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Niels Christiansen <nchr@us.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0111251227110.7354-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.40.0111251227110.7354-100000@blue1.dev.mcafeelabs.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-tTZC0Nc4YeJ4nnetXcmP"
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 25 Nov 2001 15:32:46 -0500
+Message-Id: <1006720366.4329.18.camel@praetorian>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Power Management in the BIOS on or compiled into your Kernel?
 
-Regards,
+--=-tTZC0Nc4YeJ4nnetXcmP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Jon
------ Original Message -----
-From: "Sid Carter" <sidcarter@symonds.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, November 25, 2001 1:32 AM
-Subject: i815 Card ...Machine Freezes
+On Sun, 2001-11-25 at 15:29, Davide Libenzi wrote:
+>=20
+> Pls apply Al's patch or use Linus's -pre01
 
+isn't it marcello's pre1 now?
 
-> Hi,
->
-> My Machine with a Intel i815 card hangs if it is not used for
-> sometime. The monitor goes blank and after sometime if I don't use the
-> machine , the system hangs. I can't even use the power switch to
-> poweroff the machine. I have to pull out the power cable from the back
-> of the machine. Kernel am using is 2.4.14 with SGi's XFS Patch.
->
-> And when I am using X, If I switch from X to console and vice-versa
-> more than once, my machine hangs. Is this a known problem ? The logs
-> show no errors at all. Let me know if more info is required.
->
-> The relevant output of lspci below:
->
-> 00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory
-Controller Hub (rev 02)
-> 00:02.0 VGA compatible controller: Intel Corp. 82815 CGC [Chipset Graphics
-Controller] (rev 02)
->
-> TIA
-> Regards
->         Carter
-> --
-> The only difference between your girlfriend and a barracuda is the
-nailpolish.
->
-> Sid Carter                                                   Debian
-GNU/Linux.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--=20
+Phil Sorber
+AIM: PSUdaemon
+IRC: irc.openprojects.net #psulug PSUdaemon
+GnuPG: keyserver - pgp.mit.edu
+
+--=-tTZC0Nc4YeJ4nnetXcmP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8AVVuXm6Gwek+iaQRAvECAJ96+lN/noCYsSo/NC0N7PBRnVzqXQCdHShd
+j8OhBqzlQumx44IbrBf7Fps=
+=ZMSa
+-----END PGP SIGNATURE-----
+
+--=-tTZC0Nc4YeJ4nnetXcmP--
 

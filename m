@@ -1,83 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262662AbVBCOdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbVBCO3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262662AbVBCOdy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 09:33:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbVBCObl
+	id S263045AbVBCO3b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 09:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbVBCO3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 09:31:41 -0500
-Received: from serv4.servweb.de ([82.96.83.76]:22738 "EHLO serv4.servweb.de")
-	by vger.kernel.org with ESMTP id S263865AbVBCO2n (ORCPT
+	Thu, 3 Feb 2005 09:29:30 -0500
+Received: from gprs214-99.eurotel.cz ([160.218.214.99]:22241 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263146AbVBCOWb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 09:28:43 -0500
-Date: Thu, 3 Feb 2005 15:28:37 +0100
-From: Patrick Plattes <patrick@erdbeere.net>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: security contact draft
-Message-ID: <20050203142837.GA30981@erdbeere.net>
-References: <20050113125503.C469@build.pdx.osdl.net>
+	Thu, 3 Feb 2005 09:22:31 -0500
+Date: Thu, 3 Feb 2005 15:22:03 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
+Message-ID: <20050203142203.GB1402@elf.ucw.cz>
+References: <200502021428.12134.rjw@sisk.pl> <200502031230.20302.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de> <200502031420.37560.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050113125503.C469@build.pdx.osdl.net>
+In-Reply-To: <200502031420.37560.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Hi!
 
-i think security mailing list is a good idea. normally i would prefere a
-full open list, but in some cases this could be the right way.
+> > > So, would it be acceptable to check in _suspend() if the state is S4
+> > > and drop the frequency in that case or do nothing otherwise?
+> > 
+> > No. The point is that this is _very_ system-specific. Some systems resume
+> > always at full speed, some always at low speed; for S4 the behaviour may be
+> > completely unpredictable. And in fact I wouldn't want my desktop P4 drop th
+> > 12.5 % frequency if I ask it to suspend to disk, too. "Ignoring" the warning
+> > seems to be the best thing to me. The good thing is, after all, that cpufreq
+> > detected this situation and tries to correct for it.
+> 
+> Well, the warning is not a big problem, as far as I'm concerned.  The problem is
+> that the box often reboots when it's woken up on batteries and this certainly
+> is related to cpufreq (ie it does not happen if cpufreq is not compiled in).
+> 
+> Pavel has suggested that it may happen when the frequency of
+> the CPU is too high on resume, so I'm trying to verify if this is the case.  If so,
+> which I'm not entirely convinced about yet, I'll be going to provide a fix
+> for it, but I wouldn't like to do anything that's not acceptable from the
+> start.
 
-i have an additional idea. maybe it is useful to push the mails on the
-list into publc space automaticly after a delay of $NUMDAYS+$MAX -
-according to alans idea. with this little feature we could be sure, that
-no security report will be 'forgotten'.
+Well, try to force your machine to 2GHz while it is on battery. If it
+crashes, you have verified it is indeed the problem. [Insert standard
+disclaimer about exploding batteries here.]
 
-this 'public space' could be an open security list where anyone else is
-able to comment reports, fixes and bugs.
+> I'm currently thinking that the proper approach may be to add a ->suspend()
+> routine to struct cpufreq_driver and call the driver-specific ->suspend()
+> (if one is defined) from cpufreq_suspend().  Then, it'll be possible to do
+> whatever-is-necessary on a per-driver basis.  Just a thought. :-)
 
-bye,
-patrick
-
-On Thu, Jan 13, 2005 at 12:55:03PM -0800, Chris Wright wrote:
-> To keep the conversation concrete, here's a pretty rough stab at
-> documenting the policy.
-> 
->  Linux kernel developers take security very seriously.  As such, we'd
->  like to know when a security bug is found so that it can be fixed and
->  disclosed as quickly as possible.
-> 
->  1) Contact
-> 
->  The Linux kernel security contact is $CONTACTADDR.  This is a private
->  list of security officers who will help verify the bug report and develop
->  and release a fix.  It is possible that the security officers will bring
->  in extra help from area maintainers to understand and fix the security
->  vulnerability.
-> 
->  It is preferred that mail sent to the security contact is encrypted
->  with $PUBKEY.
-> 
->  As it is with any bug, the more information provided the easier it
->  will be to diagnose and fix.  Please review the procedure outlined in
->  REPORTING-BUGS if you are unclear about what information is helpful.
->  Any exploit code is very helpful and will not be released without
->  consent from the reporter unless it's already been made public.
-> 
->  2) Disclosure
-> 
->  The goal of the kernel security contact is to work with the bug submitter
->  to bug resolution as well as disclosure.  We prefer to fully disclose
->  the bug as soon as possible.  It is reasonable to delay disclosure when
->  the bug or the fix is not yet fully understood, the solution is not
->  well-tested or for vendor coordination.  However, we expect these delays
->  to be short, measurable in days, not weeks or months.  As a basic default
->  policy, we expect report to disclosure to be on the order of $NUMDAYS.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Yes, that seems like right solution.
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

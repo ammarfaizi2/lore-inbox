@@ -1,63 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVBWHVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVBWHbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVBWHVK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 02:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVBWHVK
+	id S261355AbVBWHbD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 02:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVBWHbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 02:21:10 -0500
-Received: from fire.osdl.org ([65.172.181.4]:12007 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261345AbVBWHVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 02:21:06 -0500
-Date: Tue, 22 Feb 2005 23:20:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: jlan@sgi.com, lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net, tim@physik3.uni-rostock.de,
-       erikj@subway.americas.sgi.com, limin@dbear.engr.sgi.com,
-       jbarnes@sgi.com
+	Wed, 23 Feb 2005 02:31:03 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:21670 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261355AbVBWHaw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 02:30:52 -0500
 Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-Id: <20050222232002.4d934465.akpm@osdl.org>
-In-Reply-To: <421C2B99.2040600@ak.jp.nec.com>
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Jay Lan <jlan@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, LSE-Tech <lse-tech@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Jesse Barnes <jbarnes@sgi.com>, Paul Jackson <pj@sgi.com>,
+       Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <421B9205.7060704@sgi.com>
 References: <42168D9E.1010900@sgi.com>
-	<20050218171610.757ba9c9.akpm@osdl.org>
-	<421993A2.4020308@ak.jp.nec.com>
-	<421B955A.9060000@sgi.com>
-	<421C2B99.2040600@ak.jp.nec.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	 <20050218171610.757ba9c9.akpm@osdl.org>
+	 <1108968681.8398.44.camel@frecb000711.frec.bull.fr>
+	 <421B9205.7060704@sgi.com>
+Date: Wed, 23 Feb 2005 08:30:50 +0100
+Message-Id: <1109143851.16029.40.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/02/2005 08:39:44,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/02/2005 08:39:47,
+	Serialize complete at 23/02/2005 08:39:47
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kaigai Kohei <kaigai@ak.jp.nec.com> wrote:
->
->  The common agreement for the method of dealing with process aggregation
->  has not been constructed yet, I understood. And, we will not able to
->  integrate each process aggregation model because of its diverseness.
-> 
->  For example, a process which belong to JOB-A must not belong any other
->  'JOB-X' in CSA-model. But, In ELSA-model, a process in BANK-B can concurrently
->  belong to BANK-B1 which is a child of BANK-B.
-> 
->  And, there are other defferences:
->  Whether a process not to belong to any process-aggregation is permitted or not ?
->  Whether a process-aggregation should be inherited to child process or not ?
->  (There is possibility not to be inherited in a rule-based process aggregation like CKRM)
-> 
->  Some process-aggregation model have own philosophy and implemantation,
->  so it's hard to integrate. Thus, I think that common 'fork/exec/exit' event handling
->  framework to implement any kinds of process-aggregation.
+On Tue, 2005-02-22 at 12:11 -0800, Jay Lan wrote:
+>  How ELSA adds per process accounting data
+> to your grouping (banks) when a process exit? How do you save
+> accounting data you need in task_struct before it is disposed? BSD
+> handles that through acct_process() hook at do_exit(). CSA also
+> depends on a hook at do_exit() to merge per-process data to per-job
+> data. How does ELSA handle this without a need of a do_exit() hook?
 
-We really want to avoid doing such stuff in-kernel if at all possible, of
-course.
+  There are three parts in ELSA. 
 
-Is it not possible to implement the fork/exec/exit notifications to
-userspace so that a daemon can track the process relationships and perform
-aggregation based upon individual tasks' accounting?  That's what one of
-the accounting systems is proposing doing, I believe.
+  There is a job daemon that does process aggregation. It needs a hook
+in the do_fork() routine to be able to manage group of processes. So
+this part handles process-aggregation by maintaining a complete picture
+of the process/thread hierarchy. 
 
-(In fact, why do we even need the notifications?  /bin/ps can work this
-stuff out).
+  You can interact with the job daemon with classical IPC and message
+operations. Thus we wrote a second part that is the interface between
+the user and the job daemon. Through this interface you can add and
+remove a process in/from a group, you can stop the job daemon and you
+can dump information in a file about current group of processes. 
+
+  This file (that contains information about group of processes) is used
+by ELSA, with the accounting file provided by the accton(8) command and
+the BSD accounting, to provide per-group of process accounting. So the
+third part of ELSA is a parser and also an analyzer. 
+
+  The architecture of ELSA is as follow (I hope that the ASCII picture
+will be readable):
+
+
+         KERNEL             |         USER SPACE
+                            |
+    -------------------     |       --------------- 
+   | 1. Fork connector |  Netlink  | 2. Job Daemon |
+   |                   |---------->|               |
+    -------------------     |       ---------------
+                            |         ^
+                            |         | IPC  -----------------
+                            |          ---->| 3. Interface    |
+                            |               |   (webmin, ...) |---
+                            |           --->|                 |   |
+                            |          |     -----------------    |
+                                       |                   Per-group of
+                                 Accounting File            processes
+                                 (see accton(8))            accounting
+
+
+You can see how it works on the following web page:
+http://elsa.sourceforge.net/sample_session.html
+In the session we're using the fork_history.ko which will be replace by
+the fork hook connector.
+
+Best regards,
+Guillaume
+
 

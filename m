@@ -1,48 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbUFJSNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUFJSRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbUFJSNP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 14:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUFJSNP
+	id S262238AbUFJSRy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 14:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUFJSRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 14:13:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37087 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262213AbUFJSNL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 14:13:11 -0400
-Date: Thu, 10 Jun 2004 11:12:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, agk@redhat.com
-Subject: Re: [PATCH] 2/5: Device-mapper: kcopyd
-Message-Id: <20040610111223.04a0c142.akpm@osdl.org>
-In-Reply-To: <200406100816.18263.kevcorry@us.ibm.com>
-References: <20040602154129.GO6302@agk.surrey.redhat.com>
-	<20040609231805.029672aa.akpm@osdl.org>
-	<200406100816.18263.kevcorry@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 10 Jun 2004 14:17:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17678 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262238AbUFJSRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 14:17:47 -0400
+Date: Thu, 10 Jun 2004 19:17:40 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Couple of sysfs patches
+Message-ID: <20040610191740.B6833@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org
+References: <20040610144658.31403.qmail@web81309.mail.yahoo.com> <20040610170607.A5830@flint.arm.linux.org.uk> <20040610161442.GC31787@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040610161442.GC31787@kroah.com>; from greg@kroah.com on Thu, Jun 10, 2004 at 09:14:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Corry <kevcorry@us.ibm.com> wrote:
->
->  On Thursday 10 June 2004 6:18 am, Andrew Morton wrote:
->  > Alasdair G Kergon <agk@redhat.com> wrote:
->  > > kcopyd
->  > >
->  > > ...
->  > > +/* FIXME: this should scale with the number of pages */
->  > > +#define MIN_JOBS 512
->  >
->  > This pins at least 2MB of RAM up-front, even if devicemapper is not in use.
+On Thu, Jun 10, 2004 at 09:14:42AM -0700, Greg KH wrote:
+> On Thu, Jun 10, 2004 at 05:06:07PM +0100, Russell King wrote:
+> > 
+> > Now that I can see the platform device interfaces multipling like rabbits,
+> > (to GregKH) I think that the patch I submitted for platform_add_device
+> > suffers from this problem as well, and I should've thrown that code
+> > into platform_register_device itself.
+> > 
+> > Greg - comments?  Would you like a new patch which does that, or do you
+> > think that's too risky?
 > 
->  Is that really the case?
+> Hm, I don't think it's too risky.  Make up a patch and let's see how it
+> looks.
+> 
+> I'm just worried that this "simple" interface really isn't so simple, as
+> it's almost just as much work to manage it as a normal platform device.
 
-No, sorry, I had CONFIG_DEBUG_PAGEALLOC turned on...
+Ok, here's a patch so you can see what I'm suggesting above.  This is
+on top of the previous patch I sent.  Merely discards one over-eager
+rabbit [1] and moves the code into platform_device_register().
 
-130k is still quite a lot.  Bear in mind that this memory is never used
-unless the page allocation attept fails.  The mempool is there to prevent
-OOM deadlocks and it is usually the case that a single mempool item is
-sufficient for that.
+[1]: No animals were harmed in the creation of this patch.
+
+diff -u -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej linux-tolinus/drivers/base/platform.c linux/drivers/base/platform.c
+--- linux-tolinus/drivers/base/platform.c	Thu Jun 10 18:52:45 2004
++++ linux/drivers/base/platform.c	Thu Jun 10 19:15:59 2004
+@@ -55,51 +55,24 @@
+ }
+ 
+ /**
+- *	platform_add_device - add one platform device
+- *	@dev: platform device
+- *
+- *	Adds one platform device, claiming the memory resources
+- */
+-int platform_add_device(struct platform_device *dev)
+-{
+-	int i;
+-
+-	for (i = 0; i < dev->num_resources; i++) {
+-		struct resource *p, *r = &dev->resource[i];
+-
+-		r->name = dev->dev.bus_id;
+-
+-		p = NULL;
+-		if (r->flags & IORESOURCE_MEM)
+-			p = &iomem_resource;
+-		else if (r->flags & IORESOURCE_IO)
+-			p = &ioport_resource;
+-
+-		if (p && request_resource(p, r)) {
+-			printk(KERN_ERR
+-			       "%s%d: failed to claim resource %d\n",
+-			       dev->name, dev->id, i);
+-			break;
+-		}
+-	}
+-	if (i == dev->num_resources)
+-		platform_device_register(dev);
+-	return 0;
+-}
+-
+-/**
+  *	platform_add_devices - add a numbers of platform devices
+  *	@devs: array of platform devices to add
+  *	@num: number of platform devices in array
+  */
+ int platform_add_devices(struct platform_device **devs, int num)
+ {
+-	int i;
++	int i, ret = 0;
+ 
+-	for (i = 0; i < num; i++)
+-		platform_add_device(devs[i]);
++	for (i = 0; i < num; i++) {
++		ret = platform_device_register(devs[i]);
++		if (ret) {
++			while (--i > 0)
++				platform_device_unregister(devs[i]);
++			break;
++		}
++	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /**
+@@ -109,6 +82,8 @@
+  */
+ int platform_device_register(struct platform_device * pdev)
+ {
++	int i, ret = 0;
++
+ 	if (!pdev)
+ 		return -EINVAL;
+ 
+@@ -119,9 +94,37 @@
+ 	
+ 	snprintf(pdev->dev.bus_id,BUS_ID_SIZE,"%s%u",pdev->name,pdev->id);
+ 
+-	pr_debug("Registering platform device '%s'. Parent at %s\n",
+-		 pdev->dev.bus_id,pdev->dev.parent->bus_id);
+-	return device_register(&pdev->dev);
++	for (i = 0; i < pdev->num_resources; i++) {
++		struct resource *p, *r = &pdev->resource[i];
++
++		r->name = pdev->dev.bus_id;
++
++		p = NULL;
++		if (r->flags & IORESOURCE_MEM)
++			p = &iomem_resource;
++		else if (r->flags & IORESOURCE_IO)
++			p = &ioport_resource;
++
++		if (p && request_resource(p, r)) {
++			printk(KERN_ERR
++			       "%s%d: failed to claim resource %d\n",
++			       pdev->name, pdev->id, i);
++
++			while (--i > 0)
++				release_resource(&pdev->resource[i]);
++			ret = -EBUSY;
++			break;
++		}
++	}
++
++	if (ret == 0) {
++		pr_debug("Registering platform device '%s'. Parent at %s\n",
++			 pdev->dev.bus_id,pdev->dev.parent->bus_id);
++
++		ret = device_register(&pdev->dev);
++	}
++
++	return ret;
+ }
+ 
+ void platform_device_unregister(struct platform_device * pdev)
+diff -u -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej linux-tolinus/include/linux/device.h linux/include/linux/device.h
+--- linux-tolinus/include/linux/device.h	Thu Jun 10 18:52:46 2004
++++ linux/include/linux/device.h	Thu Jun 10 19:15:03 2004
+@@ -392,7 +392,6 @@
+ 
+ extern struct resource *platform_get_resource(struct platform_device *, unsigned int, unsigned int);
+ extern int platform_get_irq(struct platform_device *, unsigned int);
+-extern int platform_add_device(struct platform_device *);
+ extern int platform_add_devices(struct platform_device **, int);
+ 
+ /* drivers/base/power.c */
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272139AbTG1Bul (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 21:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272121AbTG1ABc
+	id S272060AbTG1CBa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272057AbTG1ABL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:32 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272935AbTG0XBi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:01:38 -0400
-Date: Sun, 27 Jul 2003 20:58:27 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307271958.h6RJwRn3029545@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: dont assume newer cpus have the same magic registers
+	Sun, 27 Jul 2003 20:01:11 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:49539 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id S272689AbTG0XTB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 19:19:01 -0400
+Date: Mon, 28 Jul 2003 01:37:48 +0100 (BST)
+From: James Stevenson <james@stev.org>
+To: Doruk Fisek <dfisek@fisek.com.tr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: hw tcp v4 csum failed
+In-Reply-To: <20030727100246.4bfb860c.dfisek@fisek.com.tr>
+Message-ID: <Pine.LNX.4.44.0307280135420.4847-100000@jlap.stev.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Venkatesh Pallipadi@intel)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/arch/i386/kernel/nmi.c linux-2.6.0-test2-ac1/arch/i386/kernel/nmi.c
---- linux-2.6.0-test2/arch/i386/kernel/nmi.c	2003-07-10 21:10:49.000000000 +0100
-+++ linux-2.6.0-test2-ac1/arch/i386/kernel/nmi.c	2003-07-16 18:28:14.000000000 +0100
-@@ -162,9 +162,15 @@
- 	case X86_VENDOR_INTEL:
- 		switch (boot_cpu_data.x86) {
- 		case 6:
-+			if (boot_cpu_data.x86_model > 0xd)
-+				break;
-+
- 			wrmsr(MSR_P6_EVNTSEL0, 0, 0);
- 			break;
- 		case 15:
-+			if (boot_cpu_data.x86_model > 0x3)
-+				break;
-+
- 			wrmsr(MSR_P4_IQ_CCCR0, 0, 0);
- 			wrmsr(MSR_P4_CRU_ESCR0, 0, 0);
- 			break;
-@@ -348,9 +354,15 @@
- 	case X86_VENDOR_INTEL:
- 		switch (boot_cpu_data.x86) {
- 		case 6:
-+			if (boot_cpu_data.x86_model > 0xd)
-+				return;
-+
- 			setup_p6_watchdog();
- 			break;
- 		case 15:
-+			if (boot_cpu_data.x86_model > 0x3)
-+				return;
-+
- 			if (!setup_p4_watchdog())
- 				return;
- 			break;
+
+> Hi,
+> 
+>  I am getting "hw tcp v4 csum failed" errors using a BCM5701 ethernet
+> adapter with the tigon3 driver in a vanilla 2.4.20 kernel.
+> 
+>  There seems to be no apparent problem (probably because of low-load).
+> 
+>  What can be the cause of these errors?
+ 
+if it isnt a software problem.
+
+Its probably a problem releated to the cable or surrounding
+interference on the cable.
+
+a) loose connection either on back of machine or @ the hub / switch etc..
+b) there is a large power supply sitting very close to the cable.
+   i have seen the transformers on scanners / printers etc.. strong enough
+   todo this is the cable gets wrapped around it
+
+	James 
+

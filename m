@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129080AbRBOM17>; Thu, 15 Feb 2001 07:27:59 -0500
+	id <S129071AbRBOMjU>; Thu, 15 Feb 2001 07:39:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129075AbRBOM1t>; Thu, 15 Feb 2001 07:27:49 -0500
-Received: from saraksh.alkar.net ([195.248.191.65]:31243 "EHLO smtp3.alkar.net")
-	by vger.kernel.org with ESMTP id <S129080AbRBOM1h>;
-	Thu, 15 Feb 2001 07:27:37 -0500
-Message-ID: <3A8BCA93.A578E20@namesys.botik.ru>
-Date: Thu, 15 Feb 2001 15:24:51 +0300
-From: "Vladimir V. Saveliev" <vs@namesys.botik.ru>
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: torvalds@transmeta.com
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: typo in 2.4.1/fs/dquot.c
-Content-Type: multipart/mixed;
- boundary="------------E658EBB7E1C22F070581AF97"
+	id <S129199AbRBOMjL>; Thu, 15 Feb 2001 07:39:11 -0500
+Received: from mail.n-online.net ([195.30.220.100]:46599 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S129071AbRBOMi5>; Thu, 15 Feb 2001 07:38:57 -0500
+Date: Thu, 15 Feb 2001 13:36:50 +0100
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: eth0: Something Wicked happened! 2008.
+X-Mailer: Thomas Foerster's registered AK-Mail 3.1 publicbeta2a [ger]
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010215123907Z129071-513+6617@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E658EBB7E1C22F070581AF97
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Hello,
 
-Hi
+yesterday i successfully set up Linux-2.2.18 on a new machine 
+(Pentium-III-667, D-Link 530TX (via-rhine) network-card, 256MB Ram).
 
-The attached is a fix for typo in 2.4.1/fs/dquot.c. It is not fixed yet
-in 2.4.2pre3.
-This typo causes quotactl (Q_GETQUOTA & GRPQUOTA, ..) to return EPERM.
+The system is now running for about 1 day, and now i get lot's of these messages :
 
-Jan Kara (jack@suse.cz) confirmed that this is really a typo and that
-the fix is a right one.
+eth0: Something Wicked happened! 2008.
 
-Thanks,
-vs
+This happened on another machine a few months ago (never appeared again for months now).
 
+What does this mean?? Is my NIC damaged??
 
---------------E658EBB7E1C22F070581AF97
-Content-Type: text/plain; charset=koi8-r;
- name="dquot.c.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dquot.c.patch"
-
---- dquot.c.orig	Wed Feb 14 04:08:26 2001
-+++ dquot.c	Wed Feb 14 04:09:00 2001
-@@ -1536,7 +1536,7 @@
- 			break;
- 		case Q_GETQUOTA:
- 			if (((type == USRQUOTA && current->euid != id) ||
--			     (type == GRPQUOTA && in_egroup_p(id))) &&
-+			     (type == GRPQUOTA && !in_egroup_p(id))) &&
- 			    !capable(CAP_SYS_RESOURCE))
- 				goto out;
- 			break;
-
---------------E658EBB7E1C22F070581AF97--
+Thanx a lot,
+  Thomas
 

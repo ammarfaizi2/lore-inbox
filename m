@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277214AbRJDTNO>; Thu, 4 Oct 2001 15:13:14 -0400
+	id <S277014AbRJDTkN>; Thu, 4 Oct 2001 15:40:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277211AbRJDTNE>; Thu, 4 Oct 2001 15:13:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:20982 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S277212AbRJDTMw>; Thu, 4 Oct 2001 15:12:52 -0400
-Message-ID: <3BBCB41A.B7C66E03@mvista.com>
-Date: Thu, 04 Oct 2001 12:10:18 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S277215AbRJDTkD>; Thu, 4 Oct 2001 15:40:03 -0400
+Received: from [209.237.5.66] ([209.237.5.66]:9933 "EHLO clyde.stargateip.com")
+	by vger.kernel.org with ESMTP id <S276984AbRJDTjo>;
+	Thu, 4 Oct 2001 15:39:44 -0400
+From: "Ian Thompson" <ithompso@stargateip.com>
+To: "Helge Hafting" <helgehaf@idb.hist.no>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: How can I jump to non-linux address space?
+Date: Thu, 4 Oct 2001 12:40:01 -0700
+Message-ID: <NFBBIBIEHMPDJNKCIKOBEEIACAAA.ithompso@stargateip.com>
 MIME-Version: 1.0
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-CC: Christian Schroeder <c-h.schroeder@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Problems with Kernel 2.4.10 on SMP
-In-Reply-To: <20011003145729Z276343-760+20191@vger.kernel.org> <20011003220850.H3638@arthur.ubicom.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3BBC2603.7C1327AC@idb.hist.no>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
-> 
-> On Wed, Oct 03, 2001 at 04:56:51PM +0200, Christian Schroeder wrote:
-> > since I've been experisnsing large problems with my linux box crashing and
-> > crashing again, I want to give you this bug report, maybe someone else has
-> > the same problem. I used the bug report format in explained in the kernel
-> > sources.
-> 
-> [...]
-> 
-> > [7.3]
-> > snd-pcm-oss            18816   1 (autoclean)
-> > snd-pcm-plugin         14256   0 (autoclean) [snd-pcm-oss]
-> > snd-mixer-oss           5280   0 (autoclean) [snd-pcm-oss]
-> > NVdriver              723872  14 (autoclean)
->   ^^^^^^^^
-> You have the NVidia binary only module loaded on your system. Either
-> get support from NVidia, or try to recreate the bug without this
-> module.
-> 
-> Erik
-> 
-Also, turn on the NMI watchdog!  See Documentation
-.../Documentation/nmi_watchdog.txt in your kernel tree.
+Helge,
 
-George
+Thanks for your advice!  It's brought up a couple of other question, if you
+don't mind:
+
+> The kernel can get to know - all you need is code that maps the
+> ROM address range into some available virtual address range.
+> Look at device driver code - they do such mapping for ROM and/or
+> memory-based io regions.
+
+I've seen the mapping of the single RAM address range, but I don't see where
+it is possible to add in another range for ROM.  What functions should I
+look for that do this mapping?
+
+> Do that ROM code work when the MMU has remapped its adresses so it
+> appears at some adress completely different from the bus address?  (only
+> if it contains relative jumps only - no absolute addresses.) Does
+> it work with 4G segments?  Does it work at all in protected mode,
+> with all interrupts routed to the linux kernel instead of the bios?
+> Does this code expect to find something (data, device interfaces,
+> vga memory) at certain addresses?  If so, this must be mapped too.
+
+I've run this code (in ROM) successfully before starting the kernel.  I
+believe the cache is disabled, and interrupts are not needed (and are off).
+The code does not refer to anything within the kernel.  I've tried turning
+off the MMU completely before branching, but this seems to hang the system.
+=(
+
+Any ideas of what I should look for to turn off, aside from just shutting
+down the MMU?  If I map the ROM address range into a virtual addr range,
+won't I run into problems once I'm running the code, such as physical
+addresses being interpreted by virtual ones?
+
+btw, this is running on an XScale (strongARM).
+
+Thanks again,
+-ian
+

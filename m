@@ -1,27 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292856AbSCCEDU>; Sat, 2 Mar 2002 23:03:20 -0500
+	id <S292804AbSCCEzT>; Sat, 2 Mar 2002 23:55:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293053AbSCCEDK>; Sat, 2 Mar 2002 23:03:10 -0500
-Received: from web9205.mail.yahoo.com ([216.136.129.38]:23106 "HELO
-	web9205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292856AbSCCEDC>; Sat, 2 Mar 2002 23:03:02 -0500
-Message-ID: <20020303040301.76871.qmail@web9205.mail.yahoo.com>
-Date: Sat, 2 Mar 2002 20:03:01 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: PATCH 2.4.18-rc2-ac1: hang on spinlock in "expand_stack"
-To: linux-kernel@vger.kernel.org
+	id <S293053AbSCCEzJ>; Sat, 2 Mar 2002 23:55:09 -0500
+Received: from [206.40.202.198] ([206.40.202.198]:47491 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S292804AbSCCEzC>; Sat, 2 Mar 2002 23:55:02 -0500
+Date: Sat, 2 Mar 2002 20:54:07 -0800 (PST)
+From: John Heil <kerndev@sc-software.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Are Datasheets for Promise chipsets available anywhere?
+Message-ID: <Pine.LNX.4.33.0203022052370.1286-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This bug also exists in 2.4.19pre2-ac2
 
--Alex
+Subject says it all
 
+Thanks
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - sign up for Fantasy Baseball
-http://sports.yahoo.com
+-
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
+

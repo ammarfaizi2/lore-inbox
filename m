@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264547AbUAYRMF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 12:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUAYRMF
+	id S264575AbUAYROz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 12:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUAYROz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 12:12:05 -0500
-Received: from mail.aknet.ru ([194.220.14.170]:33544 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S264547AbUAYRMB (ORCPT
+	Sun, 25 Jan 2004 12:14:55 -0500
+Received: from [213.92.5.19] ([213.92.5.19]:29404 "EHLO mid-2.inet.it")
+	by vger.kernel.org with ESMTP id S264575AbUAYROx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 12:12:01 -0500
-Message-ID: <4013F8C7.1020105@aknet.ru>
-Date: Sun, 25 Jan 2004 20:11:35 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20031212
-X-Accept-Language: ru, en
+	Sun, 25 Jan 2004 12:14:53 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: Kernels > 2.6.1-mm3 do not boot.
+Date: Sun, 25 Jan 2004 18:12:41 +0100
+User-Agent: KMail/1.6
+Cc: Adrian Bunk <bunk@fs.tum.de>, Eric <eric@cisu.net>,
+       linux-kernel@vger.kernel.org
+References: <200401232253.08552.eric@cisu.net> <200401251639.56799.cova@ferrara.linux.it> <200401251628.i0PGS9Lh030629@turing-police.cc.vt.edu>
+In-Reply-To: <200401251628.i0PGS9Lh030629@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: problems connecting to kernel.bkbits.net
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200401251812.41184.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alle Sunday 25 January 2004 17:28, Valdis.Kletnieks@vt.edu ha scritto:
 
-Hello.
+> Does it work if you disable -funit-at-a-time?  I had a problem with that
+> totally wedging a kernel right after the decompressing/loading messages.
 
-I used a BK->CVS gateway on kernel.bkbits.net
-for some time, but it is already several
-month that I can't connect to it any more.
-Is it still alive?
+Yep, the patch posted by Adrian removed -funit-at-a-time and now it works, 
+thanks.
 
-Here is what I have:
-
-$ cvs update
-cvs [update aborted]: connect to kernel.bkbits.net(192.132.92.14):2401 
-failed: No route to host
-
-$ traceroute kernel.bkbits.net
-  1  gate (192.168.3.1)  5.823 ms  16.544 ms  8.973 ms
-  2  RINNet-MSU.iitp.ru (194.220.14.45)  12.531 ms  143.000 ms  69.300 ms
-  3  RINNet-IITP.iitp.ru (194.220.14.129)  134.844 ms  212.712 ms 
-190.928 ms
-[.....]
-20  svl-edge-09.inet.qwest.net (205.171.14.98)  312.245 ms *  204.768 ms
-21  63.150.59.90 (63.150.59.90)  268.390 ms  217.756 ms  218.520 ms
-22  216.240.36.206 (216.240.36.206)  218.669 ms  248.692 ms  218.659 ms
-23  kernel.bkbits.net (192.132.92.14)  214.393 ms !<10>  243.426 ms 
-!<10> *
-
-$ ping kernel.bkbits.net
-PING kernel.bkbits.net (192.132.92.14) from 192.168.3.28 : 56(84) 
-bytes of data.64 bytes from kernel.bkbits.net (192.132.92.14): 
-icmp_seq=0 ttl=44 time=239.295 msec
-64 bytes from kernel.bkbits.net (192.132.92.14): icmp_seq=1 ttl=44 
-time=230.619 msec
-
---- kernel.bkbits.net ping statistics ---
-2 packets transmitted, 2 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 230.619/234.957/239.295/4.338 ms
-
-
-Now I am lost. ping is fine, but traceroute
-shows code 10, which is "Host prohibited".
-Any ideas what can that be?
-I have googled a lot, but I have found
-nothing that looks even nearly similar to the
-problem I am having.
+-- 
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129867AbRAUCxa>; Sat, 20 Jan 2001 21:53:30 -0500
+	id <S130449AbRAUDQO>; Sat, 20 Jan 2001 22:16:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131816AbRAUCxU>; Sat, 20 Jan 2001 21:53:20 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:17067 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S129867AbRAUCxN>; Sat, 20 Jan 2001 21:53:13 -0500
-Date: Sun, 21 Jan 2001 03:42:46 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.LNX.4.10.10101201629110.10849-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.10.10101210304510.19540-100000@zeus.fh-brandenburg.de>
+	id <S131185AbRAUDQF>; Sat, 20 Jan 2001 22:16:05 -0500
+Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:39923 "EHLO
+	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S130449AbRAUDPy>; Sat, 20 Jan 2001 22:15:54 -0500
+Message-ID: <3A6A558D.5E0CF29E@att.net>
+Date: Sat, 20 Jan 2001 22:20:45 -0500
+From: Michael Lindner <mikel@att.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Wedgwood <cw@f00f.org>
+CC: Dan Maas <dmaas@dcine.com>, Edgar Toernig <froese@gmx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  
+ available
+In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694254.B52AE20B@att.net> <3A6A09F2.8E5150E@gmx.de> <022f01c08342$088f67b0$0701a8c0@morph> <20010121133433.A1112@metastasis.f00f.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+OK, 2.4.0 kernel installed, and a new set of numbers:
 
-On Sat, 20 Jan 2001, Linus Torvalds wrote:
+test		kernel		ping-pongs/s. @ total CPU util	w/SOL_NDELAY
+sample (2 skts)	2.2.18		100 @ 0.1%			800 @ 1%
+sample (1 skt)	2.2.18		8000 @ 100%			8000 @ 50%
+real app	2.2.18		100 @ 0.1%			800 @ 1%
 
-> But think like a good hardware designer.
-> 
-> In 99% of all cases, where do you want the results of a read to end up?
-> Where do you want the contents of a write to come from?
-> 
-> Right. Memory.
-> 
-> Now, optimize for the common case. Make the common case go as fast as you
-> can, with as little latency and as high bandwidth as you can.
-> 
-> What kind of hardware would _you_ design for the point-to-point link?
-> 
-> I'm claiming that you'd do a nice DMA engine for each link point. There
-> wouldn't be any reason to have any other buffers (except, of course,
-> minimal buffers inside the IO chip itself - not for the whole packet, but
-> for just being able to handle cases where you don't have 100% access to
-> the memory bus all the time - and for doing things like burst reads and
-> writes to memory etc).
-> 
-> I'm _not_ seeing the point for a high-performance link to have a generic
-> packet buffer. 
+sample (2 skts)	2.4.0		8000 @ 50%			8000 @ 50%
+sample (1 skt)	2.4.0		10000 @ 50%			10000 @ 50%
+real app	2.4.0		1200 @ 50%			1200 @ 50%
 
-I completely agree, if we are talking about standard pc hardware. I was
-more thinking about some dedicated hardware, where you want to get the
-data directly to the correct place. If the hardware does a bit more with
-the data you need large buffers. In a standard pc the main cpu does most
-of the data processing, but in dedicated hardware you might have several
-cards each with it's own logic and memory and here the cpu does manage
-that stuff only. You can do all this of course from user space, but this
-means you have to copy the data around, what you don't want with such
-hardware, when the kernel can help you a bit.
+real app	Windows 2K	4000 @ 100%
 
-bye, Roman
+The two points that still seem strange to me are:
 
+1. The 1 socket case is still 25% faster than the 2 socket case in 2.4.0
+(in 2.2.18 the 1 socket case was 10x faster).
+
+2. Linux never devotes more than 50% of the CPU (average over a long
+run) to the two processes (25% to each process, with the rest of the
+time idle).
+
+I'd really love to show that Linux is a viable platform for our SW, and
+I think it would be doable if I could figure out how to get the other
+50% of my CPU involved. An "strace -rT" of the real app on 2.4.0 looks
+like this for each ping/pong.
+
+     0.052371 send(7, "\0\0\0
+\177\0\0\1\3243\0\0\0\2\4\236\216\341\0\0\v\277"..., 32, 0) = 32
+<0.000529>
+     0.000882 rt_sigprocmask(SIG_BLOCK, ~[], [RT_0], 8) = 0 <0.000021>
+     0.000242 rt_sigprocmask(SIG_SETMASK, [RT_0], NULL, 8) = 0
+<0.000021>
+     0.000173 select(8, [3 4 6 7], NULL, NULL, NULL) = 1 (in [6])
+<0.000047>
+     0.000328 read(6, "\0\0\0 ", 4)     = 4 <0.000031>
+     0.000179 read(6,
+"\177\0\0\1\3242\0\0\0\2\4\236\216\341\0\0\7\327\177\0\0"..., 28) = 28
+<0.000075>
+
+--
+Mike Lindner
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

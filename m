@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263109AbSJBPx4>; Wed, 2 Oct 2002 11:53:56 -0400
+	id <S263128AbSJBQKQ>; Wed, 2 Oct 2002 12:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263110AbSJBPx4>; Wed, 2 Oct 2002 11:53:56 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:35704 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S263109AbSJBPxz>; Wed, 2 Oct 2002 11:53:55 -0400
-Date: Wed, 02 Oct 2002 08:59:54 -0700
-From: Ken Savage <kens1835@shaw.ca>
-Subject: 3ware Escalade 7500 init problems on 2.4.19
+	id <S263129AbSJBQKQ>; Wed, 2 Oct 2002 12:10:16 -0400
+Received: from warrior.services.quay.plus.net ([212.159.14.227]:33485 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S263128AbSJBQKP>; Wed, 2 Oct 2002 12:10:15 -0400
+Date: Wed, 2 Oct 2002 16:35:28 +0100
+From: Stig Brautaset <stig@brautaset.org>
 To: linux-kernel@vger.kernel.org
-Message-id: <200210020859.54621.kens1835@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-User-Agent: KMail/1.4.1
+Subject: 2.5.40: unresolved symbols in apm.o
+Message-ID: <20021002153528.GA11109@arwen.brautaset.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Location: London, UK
+X-URL: http://brautaset.org
+X-KeyServer: wwwkeys.nl.pgp.net
+X-PGP/GnuPG-Key: 9336ADC1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there..
+When trying to compile apm as a module, I get this error when I do 
+"make modules_install":
 
-Just received a 3ware 7500-8 RAID card and am trying to get it installed
-on a dual Athlon system with 4GB of RAM, running 2.4.19.
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.40; fi
+depmod: *** Unresolved symbols in /lib/modules/2.5.40/kernel/arch/i386/kernel/apm.o
+depmod:         cpu_gdt_table
+make: *** [_modinst_post] Error 1
 
-SCSI support and SCSI disk support are enabled.
-Low level support for 3w-xxxx is enabled.
-The RAID has been flashed to the latest hardware revision.
-
-Kernel loads up fine, and gets to initializing the card, where it waits
-for a while as it attempts to init and reinit, etc, the card.  Ultimately,
-it simply resets the card and takes the card offline.  'dmesg' reports
-the following in the kernel log:
-
-scsi0 : Found a 3ware Storage Controller at 0xc400, IRQ: 11, P-chip: 1.3
-scsi0 : 3ware Storage Controller
-3w-xxxx: scsi0: Unit #0: Command (0xf4d53800) timed out, resetting card.
-3w-xxxx: scsi0: Unit #0: Command (0xf4d53800) timed out, resetting card.
-3w-xxxx: scsi0: Reset succeeded.
-3w-xxxx: scsi0: Unit #0: Command (0xf4d53800) timed out, resetting card.
-scsi: device set offline - not ready or command retry failed after host reset: 
-host 0 channel 0 id 0 lun 0
+If I chose to compile apm directly into the kernel, there's no problems.
+Please let me know if I should post the .config where the error occurs.
 
 
-Any ideas what the problem might be?
-
-Ken Savage  kens1835@shaw.ca
-AllResearch.com
-
+Stig
+-- 
+brautaset.org

@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263967AbRFXJuy>; Sun, 24 Jun 2001 05:50:54 -0400
+	id <S263975AbRFXJzO>; Sun, 24 Jun 2001 05:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263958AbRFXJuo>; Sun, 24 Jun 2001 05:50:44 -0400
-Received: from beasley.gator.com ([63.197.87.202]:59921 "EHLO
-	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S263971AbRFXJu1>; Sun, 24 Jun 2001 05:50:27 -0400
-From: "George Bonser" <george@gator.com>
-To: "Rick Hohensee" <humbubba@smarty.smart.net>,
-        <linux-kernel@vger.kernel.org>
+	id <S264007AbRFXJzE>; Sun, 24 Jun 2001 05:55:04 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38075 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263975AbRFXJy7>;
+	Sun, 24 Jun 2001 05:54:59 -0400
+Date: Sun, 24 Jun 2001 05:54:56 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: George Bonser <george@gator.com>
+cc: Rick Hohensee <humbubba@smarty.smart.net>, linux-kernel@vger.kernel.org
 Subject: RE: The Joy of Forking
-Date: Sun, 24 Jun 2001 02:50:05 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJAECHDHAA.george@gator.com>
+In-Reply-To: <CHEKKPICCNOGICGMDODJAECHDHAA.george@gator.com>
+Message-ID: <Pine.GSO.4.21.0106240554410.9773-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <200106240950.FAA07005@smarty.smart.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	no SMP
-> 	x86 only (and similar, e.g. Crusoe)
 
-Never 
+
+On Sun, 24 Jun 2001, George Bonser wrote:
+
+> > 	no SMP
+> > 	x86 only (and similar, e.g. Crusoe)
+> 
+> Never 
+
+YHBT. YHL.
+

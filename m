@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317447AbSFRP0O>; Tue, 18 Jun 2002 11:26:14 -0400
+	id <S317448AbSFRP3Q>; Tue, 18 Jun 2002 11:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317448AbSFRP0N>; Tue, 18 Jun 2002 11:26:13 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:4045 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317447AbSFRP0M>; Tue, 18 Jun 2002 11:26:12 -0400
-Date: Tue, 18 Jun 2002 16:58:24 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Jonathan Abbey <jonabbey@arlut.utexas.edu>
-Cc: linux-kernel@vger.kernel.org
+	id <S317450AbSFRP3P>; Tue, 18 Jun 2002 11:29:15 -0400
+Received: from ns2.arlut.utexas.edu ([129.116.174.1]:36877 "EHLO
+	ns2.arlut.utexas.edu") by vger.kernel.org with ESMTP
+	id <S317448AbSFRP3O>; Tue, 18 Jun 2002 11:29:14 -0400
+Date: Tue, 18 Jun 2002 10:28:56 -0500
+From: Jonathan Abbey <jonabbey@arlut.utexas.edu>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Jonathan Abbey <jonabbey@arlut.utexas.edu>, linux-kernel@vger.kernel.org
 Subject: Re: oops in 2.4.18-3 kswapd?
-In-Reply-To: <20020618100046.A23353@arlut.utexas.edu>
-Message-ID: <Pine.LNX.4.44.0206181655530.1263-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020618102856.A25439@arlut.utexas.edu>
+References: <20020618100046.A23353@arlut.utexas.edu> <Pine.LNX.4.44.0206181655530.1263-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.44.0206181655530.1263-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Tue, Jun 18, 2002 at 04:58:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Jonathan Abbey wrote:
+On Tue, Jun 18, 2002 at 04:58:24PM +0200, Zwane Mwaikambo wrote:
+| 
+| *sigh* this could become an FAQ, new nVidia driver seems to have worked 
+| its magic on that kernel (__free_pages_ok). Try running the 2314 drivers 
+| or perhaps the 2960.
 
-> Got the following on a RedHat 7.3 system with, yes, the NVidia driver
-> added.
-> 
-> Jun 18 04:03:38 greatland kernel: ------------[ cut here ]------------
-> Jun 18 04:03:38 greatland kernel: kernel BUG at page_alloc.c:117!
-> Jun 18 04:03:38 greatland kernel: invalid operand: 0000
-> Jun 18 04:03:38 greatland kernel: sr_mod es1371 ac97_codec gameport soundcore agpgart NVdriver binfmt_misc autof
-> Jun 18 04:03:38 greatland kernel: CPU:    0
-> Jun 18 04:03:38 greatland kernel: EIP:    0010:[<c0132dc7>]    Tainted: P 
-> Jun 18 04:03:38 greatland kernel: EFLAGS: 00010282
-> Jun 18 04:03:38 greatland kernel: 
-> Jun 18 04:03:38 greatland kernel: EIP is at __free_pages_ok [kernel] 0x57 (2.4.18-3)
-> Jun 18 04:03:38 greatland kernel: eax: 00000020   ebx: c1128170   ecx: 00000001   edx: 0001f4fb
-> Jun 18 04:03:38 greatland kernel: esi: 00000000   edi: c02ccf5c   ebp: 00000000   esp: c1715f58
-> Jun 18 04:03:38 greatland kernel: ds: 0018   es: 0018   ss: 0018
+I'm running 2960.  Will investigate other options.
 
-*sigh* this could become an FAQ, new nVidia driver seems to have worked 
-its magic on that kernel (__free_pages_ok). Try running the 2314 drivers 
-or perhaps the 2960.
+Thanks for a surprisingly idiot-tolerant reply. ;-)
 
-Cheers,
-	Zwane Mwaikambo
+| Cheers,
+| 	Zwane Mwaikambo
+| -- 
+| http://function.linuxpower.ca
+
 -- 
-http://function.linuxpower.ca
-		
-
+-------------------------------------------------------------------------------
+Jonathan Abbey 				              jonabbey@arlut.utexas.edu
+Applied Research Laboratories                 The University of Texas at Austin
+Ganymede, a GPL'ed metadirectory for UNIX     http://www.arlut.utexas.edu/gash2

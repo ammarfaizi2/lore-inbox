@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316588AbSGQT3m>; Wed, 17 Jul 2002 15:29:42 -0400
+	id <S316585AbSGQTd7>; Wed, 17 Jul 2002 15:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316589AbSGQT3m>; Wed, 17 Jul 2002 15:29:42 -0400
-Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:16830 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316586AbSGQT2p>;
-	Wed, 17 Jul 2002 15:28:45 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Daniel Phillips <phillips@arcor.de>
-To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: HZ, preferably as small as possible
-Date: Wed, 17 Jul 2002 21:33:07 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com> <agtl95$ihe$1@penguin.transmeta.com>
-In-Reply-To: <agtl95$ihe$1@penguin.transmeta.com>
+	id <S316586AbSGQTd7>; Wed, 17 Jul 2002 15:33:59 -0400
+Received: from pD952AE51.dip.t-dialin.net ([217.82.174.81]:37276 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316585AbSGQTd6>; Wed, 17 Jul 2002 15:33:58 -0400
+Date: Wed, 17 Jul 2002 13:35:22 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: bill davidsen <davidsen@tmr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Rusty's module talk at the Kernel Summit
+In-Reply-To: <ah4cao$2ne$1@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0207171333010.3452-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <E17UuXr-0004PH-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 July 2002 07:06, Linus Torvalds wrote:
-> There is, of course, the option to do variable frequency (and make it
-> integer multiples of the exposed "constant HZ" so that kernel code
-> doesn't actually need to _care_ about the variability). There are
-> patches to play with things like that.
+Hi,
 
-We don't have to feel restricted to integer multiples.  I'll paste in my 
-earlier post, for your convenience:
+On 17 Jul 2002, bill davidsen wrote:
+> | int module_do_blah(struct blah *blah, didel_t dei)
+> | #ifdef __MODULE__
+> | {
+> | 	locking_code();
+> | 	pure_module_do_blah(blah, dei)
+> | 	unlocking_code();
+> | }
+> | 
+> | int pure_module_do_blah(struct blah *blah, didel_t dei)
+> | #endif /* __MODULE__ */
+> 
+> I might write the un/lock code as a macro rather than use the ifdef, but
+> that's a style thing.
 
-> ...If somebody wants a cruder scheduling interval than the raw timer
-> interrupt, that's child's play, just step the interval down.  The
-> only slightly challenging thing is do that without restricting
-> choice of rate for the raw timer and scheduler, respectively.  Here,
-> a novel application of Bresenham's algorithm (the line drawing
-> algorithm) works nicely: at each raw interrupt, subtract the period
-> of the raw interrupt from an accumulator; if the result is less
-> than zero, add the period of the scheduler to the accumlator and
-> drop into the scheduler's part of the timer interrupt.
+Well, this was the "unpacked" version. Of course one could do that much 
+better as a macro MODULE_CALL or whatever. However, Roman Zippel promised 
+to come up with a better solution, and he did come up with a solution. I 
+didn't yet look at it too much (I've had a trip around the world for 
+administration purposes), but I don't exclude that it migh be a better 
+one.
 
-[which just increments the timer variable I believe]
-
-> This Bresenham trick works for arbitrary collections of interrupt
-> rates, all with different periods.  It has the property that,
-> over time, the total number of invocations at each rate remains
-> *exactly* correct, and so long as the raw interrupt runs at a
-> reasonably high rate, displacement isn't that bad either.
-
-This technique is scarcely less efficient than the cruder method.
-
+							Regards,
+							Thunder
 -- 
-Daniel
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

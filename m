@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbUEFRFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUEFRGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbUEFRFS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:05:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUEFRFS
+	id S261468AbUEFRGy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 13:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUEFRGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:05:18 -0400
-Received: from waste.org ([209.173.204.2]:7360 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261439AbUEFRFN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:05:13 -0400
-Date: Thu, 6 May 2004 12:05:02 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-Message-ID: <20040506170501.GD28459@waste.org>
-References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu>
+	Thu, 6 May 2004 13:06:54 -0400
+Received: from nodns-212-69-243-51.first4it.co.uk ([212.69.243.51]:25101 "HELO
+	linuxoutlaws.co.uk") by vger.kernel.org with SMTP id S261468AbUEFRGt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 13:06:49 -0400
+Date: Thu, 6 May 2004 18:00:56 +0100
+From: Rob Shakir <rob@rshk.co.uk>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at fs/ext3/balloc.c:942!
+Message-ID: <20040506170056.GA12754@rshk.co.uk>
+References: <Pine.LNX.4.58.0405051729140.2284@montezuma.fsmlabs.com> <20040505222408.GA10030@rshk.co.uk> <1083846724.11249.16.camel@watt.suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405061518.i46FIAY2016476@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1083846724.11249.16.camel@watt.suse.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 11:18:10AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> It's a Good Idea to do this in -mm, to flush out all the binary
-> modules that are known to have issues with this (have we identified
-> anybody other than NVidia that actually *has* a problem)?
+On Thu, May 06, 2004 at 08:32:04AM -0400, Chris Mason wrote:
+> There was an additional error message from reiserfs before the bug,
+> could you please look for it in your logs?
 
-Anything that uses current() or the like will be unhappy, though it
-may work half the time. So just about anything binary-only is liable
-to hit it. We can catch most of this by adding "4KSTACKS" to the
-global build flags, but I think stuff like the Nvidia wrapper layer
-shoots itself in the foot here by silently ignoring this check.
+The messages preceding the bug in the logs were:
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+5140
+0: file_release
+1: reiserfs_vfs_truncate_file
+PAP-5140: search_by_key: schedule occurred in do_balance!------------[ cut here ]------------
+
+I apologise for not adding those in the initial bug report. 
+
+> 
+> Looks like you're on 2.6.5, the reiserfs logging fixes in 2.6.6-rc2 and
+> higher fix a few different ways you can oops in search_by_key.
+> 
+
+Thanks, I'll try that and see if it fixes the problem.
+
+Rob

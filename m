@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264790AbRF1Wpm>; Thu, 28 Jun 2001 18:45:42 -0400
+	id <S264803AbRF1WtC>; Thu, 28 Jun 2001 18:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264794AbRF1Wpd>; Thu, 28 Jun 2001 18:45:33 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:32885 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S264790AbRF1Wp0>; Thu, 28 Jun 2001 18:45:26 -0400
-Date: Thu, 28 Jun 2001 18:45:22 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Jes Sorensen <jes@sunsite.dk>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
- achi ne
-In-Reply-To: <15163.45534.977835.569473@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0106281840330.32276-100000@toomuch.toronto.redhat.com>
+	id <S264807AbRF1Wsw>; Thu, 28 Jun 2001 18:48:52 -0400
+Received: from m29-mp1-cvx1b.col.ntl.com ([213.104.72.29]:41605 "EHLO
+	[213.104.72.29]") by vger.kernel.org with ESMTP id <S264794AbRF1Wsj>;
+	Thu, 28 Jun 2001 18:48:39 -0400
+To: Jason McMullan <jmcmullan@linuxcare.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com>
+From: John Fremlin <vii@users.sourceforge.net>
+Date: 28 Jun 2001 23:47:53 +0100
+In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com> (Jason McMullan's message of "Tue, 26 Jun 2001 15:58:38 -0400")
+Message-ID: <m24rt0gr1i.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, David S. Miller wrote:
 
-> Shit happens Ben.  One has to draw the line somewhere.
+[...]
 
-Yup, sure does.
+> 	immediate: RAM, on-chip cache, etc. 
+> 	fast:	   Flash reads, ROMs, etc.
+> 	medium:    Hard drives, CD-ROMs, 100Mb ethernet, etc.
+> 	slow:	   Flash writes, floppy disks,  CD-WR burners
+> 	packeted:  Reads/write should be in as large a packet as possible
+> 
+> Embedded Case
 
-> Sure, once 2.5.x has the interfaces, we'll add the "dummy" ones
-> to 2.4.x, but only then.  I don't even know %100 how I want the
-> damn thing to look yet.
+[...]
 
-Well, better start suggesting fixes to the work that other people are
-doing instead of saying "nope, ya gotta wait".
+> Desktop Case
 
-> There are so many issues with 64-bit DAC support, that many of
-> the people whining in this thread have not even considered, and
-> these very issues will be what shapes the eventual API to use.
->
-> For example.  I have IOMMU's on my machine, there is no real need to
-> use 64-bit DAC in %99 of cases.  In fact, DAC transfers run slower
-> because they cannot use the DMA caching in the PCI controller.
+I'm not sure there's any point in separating the cases like this.  The
+complex part of the VM is the caching part => to be a good cache you
+must take into account the speed of accesses to the cached medium,
+including warm up times for sleepy drives etc.
 
-Well, let me introduce you to some high end fibre channel devices.  These
-controllers can keep hundreds of thousands of io requests active at a
-given time, and those requests can be very large.  In fact, they can be so
-large that the memory mappings that would need to remain active simply
-cannot fit inside of a 32 bit address space.
+It would be really cool if the VM could do that, so e.g. in the ideal
+world you could connect up a slow harddrive and have its contents
+cached as swap on your fast harddrive(!) (not a new idea btw and
+already implemented elsewhere). I.e. from the point of view of the VM a
+computer is just a group of data storage units and it's allowed to use
+up certain parts of each one to do stuff
 
-> How do you represent this with the undocumented API ia64 has decided
-> to use?  You can't convey this information to the driver, because the
-> driver may say "I don't care if it's slower, I want the large
-> addressing because otherwise I'd consume or overflow the IOMMU
-> resources".  How do you say "SAC is preferred for performance" with
-> ia64's API?  You can't.
+[...]
 
-How is SAC useful on ia64?  All the machines are going to be shipped with
-more than 4GB of RAM, and they need an IOMMU.
+-- 
 
-Like it or not, 64 bit DMA is here, NOW.  Not during the 2.6, but during
-2.4.  We can either start fixing the ia64 APIs and replacing them with
-something that's "Right" or we can continue with ad hoc solutions.
-
-		-ben
-
+	http://ape.n3.net

@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311148AbSCHVhq>; Fri, 8 Mar 2002 16:37:46 -0500
+	id <S311145AbSCHVm1>; Fri, 8 Mar 2002 16:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311145AbSCHVhg>; Fri, 8 Mar 2002 16:37:36 -0500
-Received: from rj.sgi.com ([204.94.215.100]:38815 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S311148AbSCHVhT>;
-	Fri, 8 Mar 2002 16:37:19 -0500
-Date: Fri, 8 Mar 2002 13:37:08 -0800 (PST)
-From: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
-In-Reply-To: <18990000.1015622208@flay>
-Message-ID: <Pine.LNX.4.33.0203081325560.18968-100000@dbear.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311149AbSCHVmS>; Fri, 8 Mar 2002 16:42:18 -0500
+Received: from adsl-209-233-33-110.dsl.snfc21.pacbell.net ([209.233.33.110]:22511
+	"EHLO lorien.emufarm.org") by vger.kernel.org with ESMTP
+	id <S311145AbSCHVmC>; Fri, 8 Mar 2002 16:42:02 -0500
+Date: Fri, 8 Mar 2002 13:41:49 -0800
+From: Danek Duvall <duvall@emufarm.org>
+To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: root-owned /proc/pid files for threaded apps?
+Message-ID: <20020308214148.GA750@lorien.emufarm.org>
+Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
+	Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020308222942.A7163@devcon.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Mar 2002, Martin J. Bligh wrote:
+On Fri, Mar 08, 2002 at 10:29:42PM +0100, Andreas Ferber wrote:
 
-> >> If you applied an SGI patch that makes the zonelist contain all the zones
-> >> of your machine, then the zonelist should not be NULL.
-> >> If you allocate memory with gfp_mask & GFP_ZONEMASK == GFP_NORMAL from a
-> >> HIGHMEM only node, then the first entry on the corresponding zonelist
-> >> should be the first NORMAL zone on some other node.
-> >> Am I missing something here ?
-> >
-> > You're missing the fact that I'm missing the SGI patch ;-)
-Oh, I see. I was missing something then...;-)
+> On Fri, Mar 08, 2002 at 12:31:57PM -0800, Danek Duvall wrote:
+> 
+> > So it also turns out that either by changing that argument to 0 or
+> > just reverting that hunk of the patch, xmms starts skipping whenever
+> > mozilla loads a page, even a really simple one.
+> 
+> ie. always when mozilla tries to do a socket(PF_INET6, ...), which
+> ends up requesting the ipv6 module. 
 
+I don't think so -- modprobe logs its attempts in /var/log/ksymoops/ and
+there aren't nearly as many attempts to load net-pf-10 logged there as
+pages I reloaded.
 
->
-> I should have also mentioned that:
->
-> 1) I shouldn't need the SGI patch, though it might help performance.
-Why shouldn't you need it ? It is NUMA generic, and totally arch
-independent.
-And it actually helps performance. I also allows the kernel to have a
-single memory allocation path. I think it is cleaner than calling _alloc_pages()
-from numa.c
+Besides if you were right, it would do the same thing in the unchanged
+ac kernel -- try to load ipv6 each time and fail -- and I'd presumably
+see the skipping there, too.
 
-> 2) The kernel panics without my fix, and runs fine with it.
-I hope so  :-)
-But your fix is at the same time useless and harmless for UMA machines.
-OTOH, the SGI patch doesn't modify __alloc_pages(). I think I'm a little
-too picky here...
+> > Disk activity and other network activity don't seem to cause the
+> > skipping, and the skipping disappears when I go back to an unaltered
+> > ac kernel, so there seems to be something wrong with set_user(0, 0)
+> > as well, just a different problem.
+> 
+> Uhm, this one seems rather strange.
 
-Cheers,
-Samuel.
+No argument from me.
 
+> Maybe it's related to the wmb() done by set_user() if dumpclear is
+> set? (although it's actually a nop on most x86 (which arch are you
+> using?))
 
+AMD K6-III, just to be specific.
 
+> Just for testing, can you try moving the wmb() in set_user()
+> (kernel/sys.c, line 512 in 2.4.19-pre2-ac3) out of the if statement?
+
+I'd expect to see the skipping regardless, then, right?  I'll give it a
+shot tonight and report back.
+
+Thanks,
+Danek

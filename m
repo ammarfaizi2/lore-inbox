@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbUKTSzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263150AbUKTTIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbUKTSzv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbUKTSzu
+	id S263150AbUKTTIe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 14:08:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbUKTTIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:55:50 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:32672 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263152AbUKTSzY (ORCPT
+	Sat, 20 Nov 2004 14:08:34 -0500
+Received: from holomorphy.com ([207.189.100.168]:22664 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263154AbUKTTIa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:55:24 -0500
-Date: Sat, 20 Nov 2004 10:55:07 -0800
-From: Janis Johnson <janis187@us.ibm.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       Janis Johnson <janis187@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] cpumask_t initializers
-Message-ID: <20041120185507.GA4122@us.ibm.com>
-References: <1100915156.4653.13.camel@arrakis>
+	Sat, 20 Nov 2004 14:08:30 -0500
+Date: Sat, 20 Nov 2004 11:08:18 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       clameter@sgi.com, benh@kernel.crashing.org, hugh@veritas.com,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V11 [0/7]: overview
+Message-ID: <20041120190818.GX2714@holomorphy.com>
+References: <20041120042340.GJ2714@holomorphy.com> <419EC829.4040704@yahoo.com.au> <20041120053802.GL2714@holomorphy.com> <419EDB21.3070707@yahoo.com.au> <20041120062341.GM2714@holomorphy.com> <419EE911.20205@yahoo.com.au> <20041119225701.0279f846.akpm@osdl.org> <419EEE7F.3070509@yahoo.com.au> <1834180000.1100969975@[10.10.2.4]> <Pine.LNX.4.58.0411200911540.20993@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1100915156.4653.13.camel@arrakis>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0411200911540.20993@ppc970.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 05:45:57PM -0800, Matthew Dobson wrote:
-> 
-> Janis Johnson, a GCC hacker, told me the following:
->> Extra parens can be thrown away in expressions, but the syntax for
->> initializers has curly braces on the outside of the list.  GCC doesn't
->> seem to mind if there are parens outside the braces for a struct
->> initializer, but that's probably a bug and could change in a future
->> version of GCC's C parser.
-> 
-> So, in order to both make my code compile and future-proof (heh) the
-> CPU_MASK_* initializers I wrote up this little patch.  This DEFINITELY
-> needs to be tested further (I've compile-tested it on x86, x86 NUMA,
-> x86_64 & ppc64), but the good news is that any breakage from the patch
-> will be compile-time breakage and should be obvious.
-> 
-> The fact that GCC's parser may change in the future to disallow struct
-> initializers wrapped in parens kind of scares me, because just about
-> every struct initializer I've ever seen in the kernel is wrapped in
-> parens!!  This needs to be delved into further, but I'm leaving for home
-> for a week for Thanksgiving and will have limited access to email.
+On Sat, Nov 20, 2004 at 09:14:11AM -0800, Linus Torvalds wrote:
+> I will pretty much guarantee that if you put the per-thread patches next
+> to some abomination with per-cpu allocation for each mm, the choice will
+> be clear. Especially if the per-cpu/per-mm thing tries to avoid false
+> cacheline sharing, which sounds really "interesting" in itself.
+> And without the cacheline sharing avoidance, what's the point of this 
+> again? It sure wasn't to make the code simpler. It was about performance 
+> and scalability.
 
-I'm not an expert on the C language (I just pass for one in this
-building) so this ought to be looked at by someone who is.  As for
-changes to the C parser, Joseph Myers is writing a recursive-descent
-C parser for GCC tentatively slated to replace the existing C parser
-for GCC 4.1.
+"The perfect is the enemy of the good."
 
-Janis
+The "perfect" cacheline separation achieved that way is at the cost of
+destabilizing the kernel. The dense per-cpu business is only really a
+concession to the notion that the counter needs to be split up at all,
+which has never been demonstrated with performance measurements. In fact,
+Robin Holt has performance measurements demonstrating the opposite.
+
+The "good" alternatives are negligibly different wrt. performance, and
+don't carry the high cost of rwlock starvation that breaks boxen.
+
+
+-- wli

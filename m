@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280351AbRKEIPD>; Mon, 5 Nov 2001 03:15:03 -0500
+	id <S280339AbRKEIQX>; Mon, 5 Nov 2001 03:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280344AbRKEIOx>; Mon, 5 Nov 2001 03:14:53 -0500
-Received: from brev.stud.ntnu.no ([129.241.56.70]:48301 "EHLO
-	brev.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S280342AbRKEIOi>; Mon, 5 Nov 2001 03:14:38 -0500
-Date: Mon, 5 Nov 2001 09:14:22 +0100
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: linux-kernel@vger.kernel.org
-Subject: knfsd error ?
-Message-ID: <20011105091422.C23683@stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
+	id <S280341AbRKEIQN>; Mon, 5 Nov 2001 03:16:13 -0500
+Received: from zero.tech9.net ([209.61.188.187]:57102 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S280339AbRKEIP4>;
+	Mon, 5 Nov 2001 03:15:56 -0500
+Subject: Re: 2.4.13-ac5-preempt, overflow in cached memory stat?
+From: Robert Love <rml@tech9.net>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
+Date: 05 Nov 2001 03:15:46 -0500
+Message-Id: <1004948146.806.4.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some days ago I mentioned a couple of problems with the eepro100-driver,
-after a lot of input and testing, it seems like it's a fault in the nfs-code
-somewhere.
+On Mon, 2001-11-05 at 03:21, Zwane Mwaikambo wrote:
+> Thanks, I just saw a thread discussing the very same issue i had, i'll
+> download both ac7 and the ac6 preempt patch and give it a try.
 
-Testing was done with one nfs-server, running linux 2.4.13 and one
-nfs-client (either a Dell PowerEdge 2550 with 1GB RAM and Intel EEpro100
-network card, or a Sun Enterprise 450 with 4GB RAM and hme-interface).
-Running bonnie++ on the solaris-server over a nfs-mounted share:
+Please let me know.. I've had a few reports and I want to consider this
+bug fixed -- and not even our fault: the best kind.
 
-Sun Solaris 8 [nfs-client] <-> Linux [nfs-daemon]
+I went ahead and rediffed the patch against 2.4.13-ac7, the -ac6 will
+apply fine.  For future use however, it will be up at
 
-3Com-NIC in server: NFS-timeout after some minutes when doing "Writing
-                    intelligently"-test. Max. throughput of 8.5MB/s
-EEpro100 in server: NFS-timeout after some minutes when doing "Writing
-                    intelligently"-test. Max. throughput of 8.5MB/s
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/
 
+soon as the it syncs.
 
-Linux [nfs-client] <-> Linux [nfs-daemon]
+> PS I know you keep hearing this, but that preempt patch makes for some
+> damn smooth interactive performance ;)
 
-3Com-NIC in server: Everything was fine, no errors whatsoever. Max.
-                    throughput of 11MB/s.
-EEpro100 in server: Everything was fine, no errors whatsoever. Max.
-                    throughput of 11MB/s
+I can't hear it enough :)
 
+	Robert Love
 
-I'd be glad to help figure out _why_ we get nfs-timeout when we do sun
-solaris <-> linux. Just tell me what to run or do :)
-
-If you need any more info about setup and tests, please tell me, and I'll be
-glad to provide the details.
-
--- 
-Thomas

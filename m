@@ -1,131 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278371AbRJSMVE>; Fri, 19 Oct 2001 08:21:04 -0400
+	id <S278376AbRJSMb4>; Fri, 19 Oct 2001 08:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278375AbRJSMUz>; Fri, 19 Oct 2001 08:20:55 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:19723 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S278371AbRJSMUm>;
-	Fri, 19 Oct 2001 08:20:42 -0400
-Date: Fri, 19 Oct 2001 16:21:02 +0400
+	id <S278377AbRJSMbr>; Fri, 19 Oct 2001 08:31:47 -0400
+Received: from redbull.speedroad.net ([195.139.232.25]:6921 "HELO
+	redbull.speedroad.net") by vger.kernel.org with SMTP
+	id <S278376AbRJSMba>; Fri, 19 Oct 2001 08:31:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Arnvid Karstad <arnvid@karstad.org>
+Reply-To: arnvid@karstad.org
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] MODULE_DEVICE_TABLE for Multi-Tech serial card driver
-Message-ID: <20011019162102.B3170@orbita1.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tEFtbjk+mNEviIIX"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 3:51pm  up 7 days,  4:01,  4 users,  load average: 0.24, 0.12, 0.15
-X-Uname: Linux orbita1.ru 2.2.20pre2 
-From: Andrey Panin <pazke@orbita1.ru>
+Subject: kernel panic with 2.4.10 and tokenring
+Date: Fri, 19 Oct 2001 14:31:10 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011019123139Z278376-17409+1743@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---tEFtbjk+mNEviIIX
-Content-Type: multipart/mixed; boundary="uh9ZiVrAOUUm9fzH"
-Content-Disposition: inline
+After appx 1.5 week uptime one of my Linux machines at work crashed horribly 
+while doing an scp from my laptop to back up it. The linux machine is an IBM 
+300GL pc with Celeron CPU and intel 810 chipset. The pc is also equip'ed with
+an Madge Smart 16/4 PCI Ringenode mk2. 
 
+The Tokenring card were configured with the kernel's driver.
 
---uh9ZiVrAOUUm9fzH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The messsages log seems also to be filled with 
+tr0: (DA=24DCED10 not recognized) <6>
 
+This error message als lacks the "newline" that i would guess it should have 
+had... hence making them all be a long line.
 
-Ugh .. yet another MODULE_DEVICE_TABLE, looks like many drivers lack it.
-Also some static zero initializers removed.
+The kernel crash message were as following
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---uh9ZiVrAOUUm9fzH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-isicom
-Content-Transfer-Encoding: quoted-printable
+pde = 00000000
+Oops = 0002
+CPU: 0
+EIP: 0010:[<c01f2250>] found 01f220c = netif_rx
+EFLAGS: 00010046
+eax: 00000000 ebx: c1b87680 ecx: 00000246 edx: c02d06e0
+esi: 00000286 edi: 00000000 ebp: c030b618 esp: c0293efc
+ds: 0018  es: 0018 ss: 0018
+Process  swapper (pid: 0, stackpage=c0293000)
+Stack: XXXXXXX
 
-diff -u -X dontdiff linux.old/drivers/char/isicom.c linux/drivers/char/isic=
-om.c
---- linux.old/drivers/char/isicom.c	Mon Oct 15 15:34:17 2001
-+++ linux/drivers/char/isicom.c	Fri Oct 19 16:19:06 2001
-@@ -60,24 +60,27 @@
-=20
- #include <linux/isicom.h>
-=20
--static int device_id[] =3D {      0x2028,
--				0x2051,
--				0x2052,
--				0x2053,
--				0x2054,
--				0x2055,
--				0x2056,
--				0x2057,
--				0x2058
--			};
-+static struct pci_device_id isicom_pci_tbl[] =3D {
-+	{ VENDOR_ID, 0x2028, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2051, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2052, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2053, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2054, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2055, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2056, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2057, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ VENDOR_ID, 0x2058, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ 0 }
-+};
-+MODULE_DEVICE_TABLE(pci, isicom_pci_tbl);
-=20
--static int isicom_refcount =3D 0;
-+static int isicom_refcount;
- static int prev_card =3D 3;	/*	start servicing isi_card[0]	*/
--static struct isi_board * irq_to_board[16] =3D { NULL, };
-+static struct isi_board * irq_to_board[16];
- static struct tty_driver isicom_normal, isicom_callout;
--static struct tty_struct * isicom_table[PORT_COUNT] =3D { NULL, };
--static struct termios * isicom_termios[PORT_COUNT] =3D { NULL, };
--static struct termios * isicom_termios_locked[PORT_COUNT] =3D { NULL, };
-+static struct tty_struct * isicom_table[PORT_COUNT];
-+static struct termios * isicom_termios[PORT_COUNT];
-+static struct termios * isicom_termios_locked[PORT_COUNT];
-=20
- static struct isi_board isi_card[BOARD_COUNT];
- static struct isi_port  isi_ports[PORT_COUNT];
-@@ -1974,7 +1977,7 @@
- 		for (idx=3D0; idx < DEVID_COUNT; idx++) {
- 			dev =3D NULL;
- 			for (;;){
--				if (!(dev =3D pci_find_device(VENDOR_ID, device_id[idx], dev)))
-+				if (!(dev =3D pci_find_device(VENDOR_ID, isicom_pci_tbl[idx].device, d=
-ev)))
- 					break;
- 				if (card >=3D BOARD_COUNT)
- 					break;
-@@ -1988,7 +1991,7 @@
- 								       * space.
- 								       */
- 				pciirq =3D dev->irq;
--				printk(KERN_INFO "ISI PCI Card(Device ID 0x%x)\n", device_id[idx]);
-+				printk(KERN_INFO "ISI PCI Card(Device ID 0x%x)\n", isicom_pci_tbl[idx]=
-.device);
- 				/*
- 				 * allot the first empty slot in the array
- 				 */			=09
+Call Trace:
+[<c01bf7fb>] found c01bf640 = tsm380tr_rcv_stats_irq
+[<c01be08e>] found c01be03c = tsm380tr_interupt
+[<c0107d5d>] found c0107e2c = handle_IRQ_event
+[<c0107ebe>] found c0107e50 = do_IRQ
+[<c0105150>] exact match = default_idle
+[<c0105150>] exact match = default_idle
+[<c0109c98>] found c0109c93 = call_do_IRQ
+[<c0105150>] exact match = default_idle
+[<c0105150>] exact match = default_idle
+[<c0105173>] found c0105150  = default_idle
+[<c01051d9>] found c0105198 = cpu_idle
+[<c0105000>] 3 exact matches = _stext, stext & rest_init
+[<c0105027>] foud c0105000 = rest_init
 
---uh9ZiVrAOUUm9fzH--
+Code: ff 80 d8 00 00 00 8d 42 0c 89 43 08 8b 50 04 ff 40 08 89 03
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
---tEFtbjk+mNEviIIX
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Seems to be a issue with the kernel driver for the madge card? would this 
+issue be solved by upgrading to 2.4.12 ? or downgrading to 2.2.19+madge's own 
+driver?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Regards,
 
-iD8DBQE70BquBm4rlNOo3YgRAhVIAJ9Lky4J8JBJUep8PUuqhubxT+AssACfdYOi
-OzvC0FX5GyoQR+WGI/h7u5A=
-=PlsD
------END PGP SIGNATURE-----
-
---tEFtbjk+mNEviIIX--
+Arnvid Karstad

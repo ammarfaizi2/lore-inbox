@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316571AbSFPUob>; Sun, 16 Jun 2002 16:44:31 -0400
+	id <S316572AbSFPUy7>; Sun, 16 Jun 2002 16:54:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316572AbSFPUob>; Sun, 16 Jun 2002 16:44:31 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11283 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316571AbSFPUo3>; Sun, 16 Jun 2002 16:44:29 -0400
-Date: Sun, 16 Jun 2002 22:44:33 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ducrot Bruno <poup@poupinou.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       ducrot@poupinou.org
-Subject: Re: S4bios support
-Message-ID: <20020616204433.GB2147@atrey.karlin.mff.cuni.cz>
-References: <20020612192820.GA114@elf.ucw.cz> <20020614171429.GA5331@poup.poupinou.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020614171429.GA5331@poup.poupinou.org>
-User-Agent: Mutt/1.3.28i
+	id <S316576AbSFPUy6>; Sun, 16 Jun 2002 16:54:58 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:25523 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316572AbSFPUy5> convert rfc822-to-8bit; Sun, 16 Jun 2002 16:54:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: James Bottomley <James.Bottomley@steeleye.com>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: /proc/scsi/map
+Date: Sun, 16 Jun 2002 22:54:42 +0200
+User-Agent: KMail/1.4.1
+Cc: Andries.Brouwer@cwi.nl, garloff@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, sancho@dauskardt.de,
+       linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net, dougg@torque.net
+References: <200206161725.g5GHP6S23020@localhost.localdomain>
+In-Reply-To: <200206161725.g5GHP6S23020@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206162254.42323.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Jun 12, 2002 at 09:28:21PM +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > I ported s4bios support to 2.5.21 and make it somehow work on my
-> > machine. It suspend, resumes (with nice graphics ;-), but kernel does
-> > not wake up devices properly. If someone wants to play...
-> 
-> What kind of issues you got ?
+Am Sonntag, 16. Juni 2002 19:25 schrieb James Bottomley:
+> Since we already have a huge long list of different ways to identify
+> different devices, I don't think coding any one or even a set of such
+> methods into the kernel would satisfy everyone.
+>
+> What about a different approach:
+>
+> We already (nearly) have the scsimon patches to do hot plug events on
+> SCSI devices incorporated.  Any identification could be done from the
+> scsi device hotplug script (i.e. if you see it's USB, get the GID, if
+> it's enterprise storage get the WWN, try the filesystem UUID etc).  Then
+> all the hotplug script does is plug this device into some type of volume
+> idenfication scheme like /dev/volume/<name>.
 
-Lockup on awake.
+How would you find out what a device is ?
+If the kernel has to supply the information anyway, you could
+just as well pass all information to the script or devfs.
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+	Regards
+		Oliver
+

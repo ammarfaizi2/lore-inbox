@@ -1,74 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVBBBVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVBBB2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVBBBVR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 20:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVBBBVL
+	id S261987AbVBBB2F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 20:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVBBB2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 20:21:11 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19852 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261983AbVBBBUq (ORCPT
+	Tue, 1 Feb 2005 20:28:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:28843 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261987AbVBBB2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 20:20:46 -0500
-Date: Tue, 1 Feb 2005 17:20:17 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page fault scalability patch V16 [3/4]: Drop page_table_lock in
- handle_mm_fault
-In-Reply-To: <1107304296.5131.13.camel@npiggin-nld.site>
-Message-ID: <Pine.LNX.4.58.0502011718240.5549@schroedinger.engr.sgi.com>
-References: <41E5B7AD.40304@yahoo.com.au>  <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
-  <41E5BC60.3090309@yahoo.com.au>  <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-  <20050113031807.GA97340@muc.de>  <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
-  <20050113180205.GA17600@muc.de>  <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
-  <20050114043944.GB41559@muc.de>  <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
-  <20050114170140.GB4634@muc.de>  <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
-  <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com> 
- <41FF00CE.8060904@yahoo.com.au>  <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
- <1107304296.5131.13.camel@npiggin-nld.site>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Feb 2005 20:28:01 -0500
+Date: Tue, 1 Feb 2005 17:27:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: "Mark A. Greer" <mgreer@mvista.com>, phil@netroedge.com,
+       sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
+Message-ID: <20050202012723.GA16465@kroah.com>
+References: <200502020315.14281.adobriyan@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502020315.14281.adobriyan@mail.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005, Nick Piggin wrote:
+On Wed, Feb 02, 2005 at 03:15:14AM +0200, Alexey Dobriyan wrote:
+ 
+> P. S.: struct mv64xxx_i2c_data revisited...
+> 
+> > +	uint			state;
+> > +	ulong			reg_base_p;
+> 
+> Silly request, but... Maybe this should be changed to plain old "unsigned int"
+> and "unsigned long". Please. I just don't understand why people use "uint",
+> "u_int", "uInt", "UINT", "uINT", "uint_t" which are always typedef'ed to
+> "unsigned int".
 
-> > The unmapping in rmap.c would change the pte. This would be discovered
-> > after acquiring the spinlock later in do_wp_page. Which would then lead to
-> > the operation being abandoned.
-> Oh yes, but suppose your page_cache_get is happening at the same time
-> as free_pages_check, after the page gets freed by the scanner? I can't
-> actually think of anything that would cause a real problem (ie. not a
-> debug check), off the top of my head. But can you say there _isn't_
-> anything?
->
-> Regardless, it seems pretty dirty to me. But could possibly be made
-> workable, of course.
+Not a silly request at all.  Please use the u32, u64 and so on values
+instead.  That way we know what you mean, and it's portable.
 
-Would it make you feel better if we would move the spin_unlock back to the
-prior position? This would ensure that the fallback case is exactly the
-same.
+thanks,
 
-Index: linux-2.6.10/mm/memory.c
-===================================================================
---- linux-2.6.10.orig/mm/memory.c	2005-01-31 08:59:07.000000000 -0800
-+++ linux-2.6.10/mm/memory.c	2005-02-01 10:55:30.000000000 -0800
-@@ -1318,7 +1318,6 @@ static int do_wp_page(struct mm_struct *
- 		}
- 	}
- 	pte_unmap(page_table);
--	page_table_atomic_stop(mm);
-
- 	/*
- 	 * Ok, we need to copy. Oh, well..
-@@ -1326,6 +1325,7 @@ static int do_wp_page(struct mm_struct *
- 	if (!PageReserved(old_page))
- 		page_cache_get(old_page);
-
-+	page_table_atomic_stop(mm);
- 	if (unlikely(anon_vma_prepare(vma)))
- 		goto no_new_page;
- 	if (old_page == ZERO_PAGE(address)) {
+greg k-h

@@ -1,237 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271923AbRHVEHN>; Wed, 22 Aug 2001 00:07:13 -0400
+	id <S271925AbRHVEn6>; Wed, 22 Aug 2001 00:43:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271925AbRHVEGy>; Wed, 22 Aug 2001 00:06:54 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:5767 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S271923AbRHVEGm>; Wed, 22 Aug 2001 00:06:42 -0400
-Date: Wed, 22 Aug 2001 00:06:39 -0400
-From: Chris Mason <mason@suse.com>
-To: alan@redhat.com, Alexander Viro <viro@math.psu.edu>
-cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        lvm-devel@sistina.com
-Subject: Re: [PATCH] LVM snapshot support for reiserfs and others
-Message-ID: <227990000.998453199@tiny>
-In-Reply-To: <992230000.997472946@tiny>
-In-Reply-To: <992230000.997472946@tiny>
-X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
-MIME-Version: 1.0
+	id <S271927AbRHVEns>; Wed, 22 Aug 2001 00:43:48 -0400
+Received: from member.michigannet.com ([207.158.188.18]:268 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S271925AbRHVEni>; Wed, 22 Aug 2001 00:43:38 -0400
+Date: Wed, 22 Aug 2001 00:43:20 -0400
+From: Paul <set@pobox.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] [resolution]
+Message-ID: <20010822004319.A234@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, Brian Gerst <bgerst@didntduck.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010819004703.A226@squish.home.loc> <3B831CDF.4CC930A7@didntduck.org> <20010821232557.G218@squish.home.loc> <3B832904.491AFE0E@didntduck.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3B832904.491AFE0E@didntduck.org>; from bgerst@didntduck.org on Tue, Aug 21, 2001 at 11:37:40PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Brian Gerst <bgerst@didntduck.org>, on Tue Aug 21, 2001 [11:37:40 PM] said:
+> Paul wrote:
+> > 
+> > Brian Gerst <bgerst@didntduck.org>, on Tue Aug 21, 2001 [10:45:51 PM] said:
+> > > > CPU:    0
+> > > > EIP:    0010:[<c0180a18>]
+> > > > Using defaults from ksymoops -t elf32-i386 -a i386
+> > > > EFLAGS: 00010002
+> > > > eax: 00001000   ebx: c4562368   ecx: 00000000   edx: 00000001
+> > > > esi: c4562368   edi: c4a954d4   ebp: 00000001   esp: c6887d88
+> > > > ds: 008   es: 0000   ss: 0018
+> > >                 ^^^^
+> > > Here is your problem.  %es is set to the null segment.  I had my
+> > > suspicions about the segment reload optimisation in the -ac kernels, and
+> > > this proves it.  Try backing out the changes to arch/i386/kernel/entry.S
+> > > and include/asm-i386/hw_irq.h and see if that fixes the problem.
+> > >
 
-Ok, here's a version against 2.4.8-ac8, tested against ext2 and
-reiserfs.  Andreas reported ext3 success with the last patch,
-and none of the LVM guys have complained yet ;-)
+[....]
 
-BTW [sistina folks], it might be a good idea to update lvm-1.0.x 
-the 2.4.4 VFS-lock patches no longer apply cleanly.
+> Try the attached diff.
+> 
 
-Alan, please include:
+	Dear Brian;
 
--chris
+	Well, with this backed out, I cannot get an oops anymore.
+	Thanks.
 
-# allow LVM to lock the filesystem during snapshot creation, so the
-# FS can flush pending changes and put things into a consistent state.
-#
-# includes small fix to current reiserfs support, forcing a transaction
-# commit during the lock.
-#
-#
-diff -Nru a/drivers/md/lvm.c b/drivers/md/lvm.c
---- a/drivers/md/lvm.c	Tue Aug 21 23:55:59 2001
-+++ b/drivers/md/lvm.c	Tue Aug 21 23:55:59 2001
-@@ -182,9 +182,6 @@
- #define DEVICE_OFF(device)
- #define LOCAL_END_REQUEST
- 
--/* lvm_do_lv_create calls fsync_dev_lockfs()/unlockfs() */
--/* #define	LVM_VFS_ENHANCEMENT */
--
- #include <linux/config.h>
- #include <linux/version.h>
- 
-@@ -1933,12 +1930,8 @@
- 	if (lv_ptr->lv_access & LV_SNAPSHOT) {
- 		lv_t *org = lv_ptr->lv_snapshot_org, *last;
- 
--		/* sync the original logical volume */
--		fsync_dev(org->lv_dev);
--#ifdef	LVM_VFS_ENHANCEMENT
- 		/* VFS function call to sync and lock the filesystem */
- 		fsync_dev_lockfs(org->lv_dev);
--#endif
- 
- 		down(&org->lv_snapshot_sem);
- 		org->lv_access |= LV_SNAPSHOT_ORG;
-@@ -1962,12 +1955,10 @@
- 	else
- 		set_device_ro(lv_ptr->lv_dev, 1);
- 
--#ifdef	LVM_VFS_ENHANCEMENT
- /* VFS function call to unlock the filesystem */
- 	if (lv_ptr->lv_access & LV_SNAPSHOT) {
- 		unlockfs(lv_ptr->lv_snapshot_org->lv_dev);
- 	}
--#endif
- 
- 	lv_ptr->vg = vg_ptr;
- 
-diff -Nru a/fs/buffer.c b/fs/buffer.c
---- a/fs/buffer.c	Tue Aug 21 23:55:59 2001
-+++ b/fs/buffer.c	Tue Aug 21 23:55:59 2001
-@@ -350,6 +350,34 @@
- 	fsync_dev(dev);
- }
- 
-+int fsync_dev_lockfs(kdev_t dev)
-+{
-+	/* you are not allowed to try locking all the filesystems
-+	** on the system, your chances of getting through without
-+	** total deadlock are slim to none.
-+	*/
-+	if (!dev)
-+		return fsync_dev(dev) ;
-+
-+	sync_buffers(dev, 0);
-+
-+	lock_kernel();
-+	/* note, the FS might need to start transactions to 
-+	** sync the inodes, or the quota, no locking until
-+	** after these are done
-+	*/
-+	sync_inodes(dev);
-+	DQUOT_SYNC(dev);
-+	/* if inodes or quotas could be dirtied during the
-+	** sync_supers_lockfs call, the FS is responsible for getting
-+	** them on disk, without deadlocking against the lock
-+	*/
-+	sync_supers_lockfs(dev) ;
-+	unlock_kernel();
-+
-+	return sync_buffers(dev, 1) ;
-+}
-+
- asmlinkage long sys_sync(void)
- {
- 	fsync_dev(0);
-diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
---- a/fs/reiserfs/super.c	Tue Aug 21 23:55:59 2001
-+++ b/fs/reiserfs/super.c	Tue Aug 21 23:55:59 2001
-@@ -66,7 +66,7 @@
-     reiserfs_prepare_for_journal(s, SB_BUFFER_WITH_SB(s), 1);
-     journal_mark_dirty(&th, s, SB_BUFFER_WITH_SB (s));
-     reiserfs_block_writes(&th) ;
--    journal_end(&th, s, 1) ;
-+    journal_end_sync(&th, s, 1) ;
-   }
-   s->s_dirt = dirty;
-   unlock_kernel() ;
-diff -Nru a/fs/super.c b/fs/super.c
---- a/fs/super.c	Tue Aug 21 23:55:59 2001
-+++ b/fs/super.c	Tue Aug 21 23:55:59 2001
-@@ -637,6 +637,18 @@
- 			sb->s_op->write_super(sb);
- 	unlock_super(sb);
- }
-+
-+static inline void write_super_lockfs(struct super_block *sb)
-+{
-+	lock_super(sb);
-+	if (sb->s_root && sb->s_op) {
-+		if (sb->s_dirt && sb->s_op->write_super)
-+			sb->s_op->write_super(sb);
-+		if (sb->s_op->write_super_lockfs)
-+			sb->s_op->write_super_lockfs(sb);
-+	}
-+	unlock_super(sb);
-+}
-  
- /*
-  * Note: check the dirty flag before waiting, so we don't
-@@ -670,6 +682,48 @@
- 		} else
- 			sb = sb_entry(sb->s_list.next);
- 	spin_unlock(&sb_lock);
-+}
-+
-+/*
-+ * Note: don't check the dirty flag before waiting, we want the lock
-+ * to happen every time this is called.  dev must be non-zero
-+ */
-+void sync_supers_lockfs(kdev_t dev)
-+{
-+	struct super_block * sb;
-+
-+	if (dev) {
-+		sb = get_super(dev);
-+		if (sb) {
-+			write_super_lockfs(sb);
-+			drop_super(sb);
-+		}
-+	}
-+}
-+
-+void unlockfs(kdev_t dev)
-+{
-+	struct super_block * sb;
-+
-+	if (dev) {
-+		/* we cannot lock the super here because someone
-+		** might be waiting on the unlock with the
-+		** super already locked
-+		**
-+		** so, we grab the mount semaphore instead, we have
-+		** to make sure nobody is mounting during our
-+		** unlock operation.  The FS won't unmount because it
-+		** was locked.
-+		*/
-+		down(&mount_sem);
-+		sb = get_super(dev);
-+		if (sb) {
-+			if (sb->s_op && sb->s_op->unlockfs)
-+				sb->s_op->unlockfs(sb) ;
-+			drop_super(sb);
-+		}
-+		up(&mount_sem);
-+	}
- }
- 
- /**
-diff -Nru a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Tue Aug 21 23:55:59 2001
-+++ b/include/linux/fs.h	Tue Aug 21 23:55:59 2001
-@@ -1223,6 +1223,7 @@
- extern void write_inode_now(struct inode *, int);
- extern void sync_dev(kdev_t);
- extern int fsync_dev(kdev_t);
-+extern int fsync_dev_lockfs(kdev_t);
- extern int fsync_super(struct super_block *);
- extern int fsync_no_super(kdev_t);
- extern void sync_inodes_sb(struct super_block *);
-@@ -1232,6 +1233,8 @@
- extern void filemap_fdatasync(struct address_space *);
- extern void filemap_fdatawait(struct address_space *);
- extern void sync_supers(kdev_t);
-+extern void sync_supers_lockfs(kdev_t);
-+extern void unlockfs(kdev_t);
- extern int bmap(struct inode *, int);
- extern int notify_change(struct dentry *, struct iattr *);
- extern int permission(struct inode *, int);
-diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
---- a/kernel/ksyms.c	Tue Aug 21 23:55:59 2001
-+++ b/kernel/ksyms.c	Tue Aug 21 23:55:59 2001
-@@ -178,6 +178,8 @@
- EXPORT_SYMBOL(invalidate_inode_pages);
- EXPORT_SYMBOL(truncate_inode_pages);
- EXPORT_SYMBOL(fsync_dev);
-+EXPORT_SYMBOL(fsync_dev_lockfs);
-+EXPORT_SYMBOL(unlockfs);
- EXPORT_SYMBOL(fsync_no_super);
- EXPORT_SYMBOL(permission);
- EXPORT_SYMBOL(vfs_permission);
+Paul
+set@pobox.com
+
+> --
+> 						Brian Gerst
+> --- linux-2.4.8-ac7/arch/i386/kernel/entry.S	Mon Aug 20 19:21:49 2001
+> +++ linux-2.4.8/arch/i386/kernel/entry.S	Sat Jul  7 13:55:12 2001
+> @@ -106,14 +106,10 @@
+>  	popl %edi;	\
+>  	popl %ebp;	\
+>  	popl %eax;	\
+> -	cmpl $__KERNEL_DS,(%esp); \
+> -	je 4f ; \
+>  1:	popl %ds;	\
+>  2:	popl %es;	\
+>  	addl $4,%esp;	\
+>  3:	iret;		\
+> -4:	addl $12,%esp;	\
+> -	iret; \
+>  .section .fixup,"ax";	\
+>  4:	movl $0,(%esp);	\
+>  	jmp 1b;		\
+> @@ -289,11 +285,9 @@
+>  	pushl %esi			# push the error code
+>  	pushl %edx			# push the pt_regs pointer
+>  	movl $(__KERNEL_DS),%edx
+> -	cmpl %edx,%ecx
+> -	jz	1f
+>  	movl %edx,%ds
+>  	movl %edx,%es
+> -1:	GET_CURRENT(%ebx)
+> +	GET_CURRENT(%ebx)
+>  	call *%edi
+>  	addl $8,%esp
+>  	jmp ret_from_exception
+> --- linux-2.4.8-ac7/include/asm-i386/hw_irq.h	Mon Aug 20 19:22:19 2001
+> +++ linux-2.4.8/include/asm-i386/hw_irq.h	Sat Jul  7 13:55:40 2001
+> @@ -95,10 +95,6 @@
+>  #define __STR(x) #x
+>  #define STR(x) __STR(x)
+>  
+> -/* 
+> - * A segment register reload is rather expensive. Try to avoid it 
+> - * if possible. 
+> - */ 
+>  #define SAVE_ALL \
+>  	"cld\n\t" \
+>  	"pushl %es\n\t" \
+> @@ -110,12 +106,9 @@
+>  	"pushl %edx\n\t" \
+>  	"pushl %ecx\n\t" \
+>  	"pushl %ebx\n\t" \
+> -	"movl $" STR(__KERNEL_DS) ",%eax\n\t" \
+> -	"cmpl %eax,7*4(%esp)\n\t"  \
+> -	"je 1f\n\t"  \
+> -	"movl %eax,%ds\n\t" \
+> -	"movl %eax,%es\n\t" \
+> -	"1:\n\t"
+> +	"movl $" STR(__KERNEL_DS) ",%edx\n\t" \
+> +	"movl %edx,%ds\n\t" \
+> +	"movl %edx,%es\n\t"
+>  
+>  #define IRQ_NAME2(nr) nr##_interrupt(void)
+>  #define IRQ_NAME(nr) IRQ_NAME2(IRQ##nr)
 

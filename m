@@ -1,105 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316542AbSE3KPL>; Thu, 30 May 2002 06:15:11 -0400
+	id <S316545AbSE3KZy>; Thu, 30 May 2002 06:25:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316544AbSE3KPK>; Thu, 30 May 2002 06:15:10 -0400
-Received: from pop.gmx.net ([213.165.64.20]:63978 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316542AbSE3KPJ> convert rfc822-to-8bit;
-	Thu, 30 May 2002 06:15:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] 2.2.21-2-secure
-Date: Thu, 30 May 2002 12:13:59 +0200
-X-Mailer: KMail [version 1.4]
-Organization: WOLK - Working Overloaded Linux Kernel
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200205301148.02949.mcp@linux-systeme.de>
-Cc: wolk-announce@lists.sourceforge.net, wolk-devel@lists.sourceforge.net
+	id <S316567AbSE3KZx>; Thu, 30 May 2002 06:25:53 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:55795 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S316545AbSE3KZw>; Thu, 30 May 2002 06:25:52 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020530064048.GJ19308@atrey.karlin.mff.cuni.cz> 
+To: Jan Hubicka <jh@suse.cz>
+Cc: Pavel Machek <pavel@suse.cz>, Dave Jones <davej@suse.de>,
+        Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        "J.A. Magallon" <jamagallon@able.es>, Luca Barbieri <ldb@ldb.ods.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4} 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 30 May 2002 11:25:14 +0100
+Message-ID: <27631.1022754314@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-Just another release for the 2.2 kernel tree.
-Many people still uses 2.2 and also wants it
-instead 2.4 tree for some good reasons.
+jh@suse.cz said:
+>  I don't do that at the moment.  I am thinking about teaching it to
+> use SSE moves for moving/clearing 64bit and larger values in memory.
+> (ie for inlining constantly sized string operations)
 
-So i've decided to make also a 2.2 Patchset.
-It is not so big like wolk, but nice.
+Please ensure that we get -mno-implicit-fp and/or -mno-implicit-sse options 
+to GCC _long_ before there's any chance of actually _needing_ to use them 
+to get a correct kernel compile.
 
---------------------------------------------------
-This is the 2nd release of the 2.2.21-secure tree.
---------------------------------------------------
-
-Downloadable also at http://sf.net/projects/wolk
-
-- Based on 2.2.21 Final
-
-2.2.21-2 includes the following Patches:
-----------------------------------------
-o OpenWall 1 for 2.2.21
-o HAP 1 for OpenWall 1 for 2.2.21
-o Stealth Networking
-o RAID v2.2.20-raid 4
-    - Autodetect
-    - Boot support (linear, striped)
-o Ext3 Filesystem Support v0.07a
-o IFF Dynamic Patch
-o PPPoE
-o CryptoAPI (Kerneli) 2.2.18-3
-o CIPE (Crypto IP Encapsulation)
-o Extended Attributes and ACL Support for ext2
-    - EA v0.8.26
-    - ACL v0.8.27
-o Some NIC Driver adds:
-    - COMPEX-RL100a / Winbond-W89c840 PCI Ethernet
-    - Myson MTD803 PCI Ethernet
-    - National Semiconductor DP8381x series PCI Ethernet
-    - National Semiconductor DP8382x series PCI Ethernet
-    - Sundance ST201 "Alta" PCI Ethernet
-o Adaptec AIC7xxx v6.2.4 Driver
-o Most Patches of the AA-Kernel v2.2.21pre2aa2 tree
-o MPPE v0.9.5
-    ppp_mppe is a module to support Microsoft
-    Point to Point Encryption in pppd. Mainly for
-    use in conjunction with pptpd to allow windows
-    machines to setup "secure" VPN's. :)
-o BIGMEM (highmem) to allocate Memory >1GB
-o USAGI v20020513-2.2.20
-o BadRAM / BadMEM v2.2.19B
-o FreeS/WAN v1.97
-o IDE Backport from 2.4.x (IDE-Ole) v2.2.21.05202002
-o IP Virtual Server v1.08 for 2.2 Kernels
-o Tekram DC395 SCSI Controller Driver v1.40
-
-
-Changes in 2.2.21-2
--------------------
-o   add:        IDE Backport from 2.4.x (IDE-Ole) v2.2.21.05202002
-o   add:        IP Virtual Server v1.08 for 2.2 Kernels
-o   add:        Tekram DC395 SCSI Controller Driver v1.40
-o   update:     OpenWall and HAP to its newest Version
-o   removed:    New IDE from Andre Hedrick in favor of IDE-Ole
-o   removed:    ReiserFS Code
-
-
-Todo for the next releases:
----------------------------
-o   Nothing yet :-)
-
-
-Want to see a patch included to this tree? Let me know!
-
--- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824  080A 569D E2E3 DB44 1A16
-Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+--
+dwmw2
 
 

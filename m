@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317521AbSINVMT>; Sat, 14 Sep 2002 17:12:19 -0400
+	id <S317520AbSINVUe>; Sat, 14 Sep 2002 17:20:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317540AbSINVMT>; Sat, 14 Sep 2002 17:12:19 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13585
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317521AbSINVMS>; Sat, 14 Sep 2002 17:12:18 -0400
-Date: Sat, 14 Sep 2002 14:14:52 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alex Davis <alex14641@yahoo.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, miquels@cistron.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
-In-Reply-To: <20020914195223.48337.qmail@web40510.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.10.10209141359590.6925-100000@master.linux-ide.org>
+	id <S317525AbSINVUe>; Sat, 14 Sep 2002 17:20:34 -0400
+Received: from 653272hfc53.tampabay.rr.com ([65.32.72.53]:5651 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id <S317520AbSINVUd>; Sat, 14 Sep 2002 17:20:33 -0400
+Message-ID: <3D83A943.3010200@davehollis.com>
+Date: Sat, 14 Sep 2002 17:25:23 -0400
+From: David T Hollis <dhollis@davehollis.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020825
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: Srinivas Chavva <chavvasrini@yahoo.com>
+Subject: Re: Configuring kernel
+References: <20020913184715.62063.qmail@web13205.mail.yahoo.com> <02091315021800.01433@aragorn>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Sep 2002, Alex Davis wrote:
+I seem to remember either the early RH 7.x series or 6.x series did not 
+necessarily install ncurses by default, thus make menuconfig did not 
+run.  If you did a very slim install, you may not have the right 
+libraries to do what you need.  Do an 'rpm -q ncurses ncurses-devel' and 
+see what you get.  If either is not found, make menuconfig will not run.
 
-> > Hint 1. Other people make disks too.
-> I'm glad you and I realize that. It seems that others might not. So
-> far, in this thread, only one person using one brand of disk (IBM)
-> has found something in writing about the cache issue. Let's see, 
-> that leaves Maxtor/Quantum, Seagate, Fujitsu, .....
+Adam Jaskiewicz wrote:
 
-I can list a bunch, but I know about them under heavy NDA's with anvils
-looming over head.
+>>I downloaded the sofware and opened it in the /usr/src
+>>directory. I did the following
+>>1. unzipped the tar file
+>>2. mv linux linux-2.4.16
+>>3 ln -s linux-2.4.16 linux
+>>4. changed to linux directory and issued the command
+>>make mproper.
+>>Then when I issued the command make xconfig I was
+>>getting errors. I got similar errors when I tried to
+>>use the following commands make menuconfig, make
+>>config.
+>>    
+>>
+>
+>What errors did you get? We need to know what the errors are to help you.
+>
+>  
+>
+>>When I used the command uname -i I still was getting
+>>the kernel version as 2.4.2.
+>>I do not know why this error is coming.
+>>    
+>>
+>
+>This is not an error. If you did not install a new kernel and reboot your 
+>computer with the new kernel, uname will still have the same kernel version. 
+>Once you have properly configured, compiled and installed the kernel and its 
+>modules, you reboot the computer to apply the new kernel. Then uname will 
+>give you the new version.
+>
+>  
+>
 
-Like what happens if a drive issues a self flush cache and receives an
-error so the next issue from user/kernel space will cause the device to
-internally deadlock.  Yeah this is a firmware bug, imho.  Yet when it was
-to be addressed by the commitee, "NONE" of the drive vendors reported back
-their behavior, iirc.  Thus the proposal was dropped.
 
-> > Hint 2. The guys who did the code include a member of the standards
-> > committee.
-> And your point is...?? Does this somehow preclude them being wrong??
-
-You should come in the room sometime and watch.
-It is not so much being wrong, it is all in the language.
-
-There are things in the standard, which make Bill Clinton look squeaky
-clean.  You think Clinton's "is" was bad.
-
-Try this one, "READ_VERIFY"
-
-You issue a write to platter, then a read_verify to have the device do an
-internal comparison.  Usually a bastardized benchmark pile of dung.
-Some drive vendors in the past would pull the data out of dirty disk
-buffer cache, and not off the platters.  Translation it never made it to
-platter, and you never know if it did.  When caught by their competitors,
-the language change to "shall have been read off the platter some time in
-the past".  Yet you just issued a write to platter, so that means that
-data can not have been read in the past but must be in the future.
-
-Future/Past the pull it out of cache.
-
-Want more to make your guts turn?
-
-Andre Hedrick
-LAD Storage Consulting Group
 

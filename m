@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266975AbSKLWHt>; Tue, 12 Nov 2002 17:07:49 -0500
+	id <S266970AbSKLWHG>; Tue, 12 Nov 2002 17:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266979AbSKLWHs>; Tue, 12 Nov 2002 17:07:48 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:36016 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266975AbSKLWHm>;
-	Tue, 12 Nov 2002 17:07:42 -0500
-Subject: LTP - gettimeofday02 FAIL
-From: Paul Larson <plars@linuxtestproject.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-Rdp/Zx/T+Qk2cY6A8sMP"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 12 Nov 2002 16:11:14 -0600
-Message-Id: <1037139074.10626.37.camel@plars>
-Mime-Version: 1.0
+	id <S266971AbSKLWHG>; Tue, 12 Nov 2002 17:07:06 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:12810 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S266970AbSKLWHF>;
+	Tue, 12 Nov 2002 17:07:05 -0500
+Message-ID: <3DD0D42E.8040706@iinet.net.au>
+Date: Tue, 12 Nov 2002 21:13:02 +1100
+From: Nero <neroz@iinet.net.au>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john slee <indigoid@higherplane.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 18 potential security holes
+References: <5.1.0.14.2.20021111143426.045c4d90@rdg12.pobox.stanford.edu> <20021112072607.GC17478@higherplane.net>
+In-Reply-To: <5.1.0.14.2.20021111143426.045c4d90@rdg12.pobox.stanford.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+john slee wrote:
 
---=-Rdp/Zx/T+Qk2cY6A8sMP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Mon, Nov 11, 2002 at 02:35:06PM -0800, Russell Greene wrote:
+>
+> >You can look at this checker as essentially tracking whether the
+> >information from an untrusted source (e.g., from copy_from_user) can 
+> reach
+> >a trusting sink (e.g., an array index).
+>
+>
+> great to see stanford running this again!  it has been extremely helpful
+> in the past
+>
+> thanks!
+>
+> j.
 
-I've been getting a somewhat random error in a few of the recent 2.5
-kernels with SMP machines.  I noticed this on a 2.5.47 bk pull, but I
-was also able to reproduce it on 2.5.46.  I haven't tried any earlier
-kernels yet.  The LTP gettimeofday02 test sometimes fails with this
-message:
-gettimeofday02    0  INFO  :  checking if gettimeofday is monotonous,
-takes 30s
-gettimeofday02    1  FAIL  :  Time is going backwards (old
-1037138184.846333 vs new 1037138184.843346!
 
-I have not been able to reproduce this on a single processor machine
-though.
+Why isn't the code for this available?
 
-Basically, all the test does is:
-gettimeofday(&tv1, NULL);
-while(!done) {
-	gettimeofday(&tv2, NULL);
-	FAIL if tv2 < tv1
-	tv1 =3D tv2;
-}
-
-Any ideas on what could be causing this?
-
-Thanks,
-Paul Larson
-
---=-Rdp/Zx/T+Qk2cY6A8sMP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAj3RfIIACgkQbkpggQiFDqfoKACfQuIXZxqa2VbHEoXrMxboHcHM
-N3MAn2qie9TzkZ3EUn+8cjNVmOklYT7D
-=8CoB
------END PGP SIGNATURE-----
-
---=-Rdp/Zx/T+Qk2cY6A8sMP--
 

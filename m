@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266570AbUG0SxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266573AbUG0SxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266570AbUG0SxI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUG0SxG
+	id S266573AbUG0SxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUG0SwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:53:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52866 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266558AbUG0SmL (ORCPT
+	Tue, 27 Jul 2004 14:52:19 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51136 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266575AbUG0Sqx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:42:11 -0400
-Date: Tue, 27 Jul 2004 11:42:05 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: <marcelo.tosatti@cyclades.com>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: USB: correct dbg() arguments in pl2303
-Message-Id: <20040727114205.3c877336@lembas.zaitcev.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jul 2004 14:46:53 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: colpatch@us.ibm.com
+Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to pcibus_to_node()
+Date: Tue, 27 Jul 2004 11:40:29 -0700
+User-Agent: KMail/1.6.2
+Cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@sgi.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+References: <1090887007.16676.18.camel@arrakis> <200407270822.43870.jbarnes@engr.sgi.com> <1090953179.18747.19.camel@arrakis>
+In-Reply-To: <1090953179.18747.19.camel@arrakis>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407271140.29818.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch by Phil Dibowitz.
+On Tuesday, July 27, 2004 11:32 am, Matthew Dobson wrote:
+> >   ...
+> > #ifdef CONFIG_NUMA
+> >   int node; /* or nodemask_t if necessary */
+> > #endif
+> >   ...
+> >
+> > to struct pci_bus instead?  That would make the existing code paths a
+> > little faster and avoid the need for a global array, which tends to lead
+> > to TLB misses.
+>
+> I like that idea!  Stick a nodemask_t in struct pci_bus, initialize it
+> to NODE_MASK_ALL.  If a particular arch wants to put something more
+> accurate in there, then great, if not, we're just in the same boat we're
+> in now.
 
-diff -urp -X dontdiff linux-2.4.27-rc3/drivers/usb/serial/pl2303.c linux-2.4.27-rc3-usbx/drivers/usb/serial/pl2303.c
---- linux-2.4.27-rc3/drivers/usb/serial/pl2303.c	2004-07-25 23:00:17.000000000 -0700
-+++ linux-2.4.27-rc3-usbx/drivers/usb/serial/pl2303.c	2004-07-27 11:07:39.000000000 -0700
-@@ -652,7 +652,7 @@ static void pl2303_break_ctl (struct usb
- 		state = BREAK_OFF;
- 	else
- 		state = BREAK_ON;
--	dbg("%s - turning break %s", state==BREAK_OFF ? "off" : "on", __FUNCTION__);
-+	dbg("%s - turning break %s", __FUNCTION__, state==BREAK_OFF ? "off" : "on");
- 
- 	result = usb_control_msg (serial->dev, usb_sndctrlpipe (serial->dev, 0),
- 				  BREAK_REQUEST, BREAK_REQUEST_TYPE, state, 
+Cool, sounds like that'll work well.
+
+> I'm trying to keep the dependency of topology on what the pci_dev and
+> pci_bus structs look like to a minimum.  That's why I'd like to keep the
+> topology function based on PCI bus numbers (or possibly struct pci_bus),
+> not struct pci_dev.  The pci_bus is what really has the node affinity
+> anyway, and the device only has that affinity through the fact that it
+> is physically plugged into a particular bus.
+
+Sure, that make sense.  And it's easy enough to get a pci_bus from a pci_dev 
+that we probably won't run into trouble.
+
+Thanks,
+Jesse

@@ -1,61 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264037AbTE0SJM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbTE0SI1
+	id S263996AbTE0SN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTE0SNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:08:27 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:31753 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S264016AbTE0SGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:06:43 -0400
-Date: Tue, 27 May 2003 20:19:39 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: John Stoffel <stoffel@lucent.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       DevilKin-LKML <devilkin-lkml@blindguardian.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.70 compile error
-In-Reply-To: <16083.35048.737099.575241@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.44.0305272010550.12110-100000@serv>
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
- <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com>
- <200305271729.49047.devilkin-lkml@blindguardian.org> <20030527153619.GJ8978@holomorphy.com>
- <16083.35048.737099.575241@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 May 2003 14:13:00 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:56209
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264050AbTE0SMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 14:12:43 -0400
+Date: Tue, 27 May 2003 20:25:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       manish <manish@storadinc.com>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527182547.GG3767@dualathlon.random>
+References: <3ED2DE86.2070406@storadinc.com> <200305271952.34843.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271457090.756@freak.distro.conectiva> <200305272004.02376.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305272004.02376.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 27 May 2003, John Stoffel wrote:
-
->   *
->   * Processor type and features
->   *
->   Subarchitecture Type (PC-compatible, Voyager (NCR), NUMAQ (IBM/Sequent), Summit/EXA (IBM x440), Support for other sub-arch SMP systems with more than 8 CPUs, SGI 320/540 (Visual Workstation), Generic architecture (Summit, bigsmp, default)) [PC-compatible] (NEW) 
+On Tue, May 27, 2003 at 08:08:43PM +0200, Marc-Christian Petersen wrote:
+> On Tuesday 27 May 2003 19:57, Marcelo Tosatti wrote:
 > 
+> Hi Marcelo,
 > 
-> What the hell am I supposed to enter here?  This is just friggin ugly
-> and un-readable.  It should be cleaned up.
+> > > I do, people I know do also, numbers of those people only _I_ know are
+> > > about ~30. I've reported this problem over a year ago while 2.4.19-pre
+> > > time.
+> > Can you please try to reproduce it with -aa?
+> not again ;)
+> 
+> I've tried almost all known kernel tree's around, every kernel has the same 
+> effect. I even tried SuSE and Redhat Kernels.
+> 
+> I've 'wasted' tons of time just find a solution for it.
+> 
+> Andrea introduced, to address _exact_ this problem (pauses, stops, mouse is 
+> dead etc.), his lowlatency elevator. Side effect: decreases i/o throughput, 
 
-I agree and I already fixed this here, so with the next update this will 
-look like this:
+not exactly decreases I/O throughput, the latest I/O benchmarks I seen
+from Randy (dbench/tiotest/bonnie/etc..) were still the fastest and it
+included the lowlatency elevator patch. So it may not help latency but
+it doesn't hurt in the numbers, at least not in the high end (that in
+theory is the one that needs the overkill length in the I/O queue most).
 
-Subarchitecture Type
-> 1. PC-compatible (X86_PC)
-  2. Voyager (NCR) (X86_VOYAGER)
-  3. NUMAQ (IBM/Sequent) (X86_NUMAQ)
-  4. Summit/EXA (IBM x440) (X86_SUMMIT)
-  5. Support for other sub-arch SMP systems with more than 8 CPUs (X86_BIGSMP)
-  6. SGI 320/540 (Visual Workstation) (X86_VISWS)
-  7. Generic architecture (Summit, bigsmp, default) (X86_GENERICARCH) (NEW)
-choice[1-7]: 
+However it definitely helps latency for me and I had a number of
+positive reports.
 
-This has other advantages too, one can see now which options were newly 
-added and the individual help texts are accessible.
+Also make sure that you elvtune -r 0 -w 0 /dev/hda, also the journaling
+may affect the latency so you can try with plain ext2 to be sure it's
+not a fs issue.
 
-bye, Roman
+the lowlatency elevator patch may not be perfect but it definitely seems
+to work better here. especially since there's no apparent throughput
+loss, it makes lots of sense to keep it applied, or it would waste lots
+of ram for apparently no gain.
 
+> and the "pauses/stops" are still there. Much less but not gone.
+> 
+> The _only_ workaround yet (known to the public) is to change nr_requests in 
+> drivers/block/ll_rw_blk.c from 128 to 4 which gives a performance hit of 
+> about 40% (not acceptable in any way).
+> 
+> .oO( I am quite sure I've mailed you all this stuff privately in response to 
+>       your private mail to me ;) )Oo.
+> 
+> ciao, Marc
+> 
+
+
+Andrea

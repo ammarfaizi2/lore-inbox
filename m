@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318764AbSIFQKR>; Fri, 6 Sep 2002 12:10:17 -0400
+	id <S319239AbSIFQRU>; Fri, 6 Sep 2002 12:17:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318772AbSIFQKR>; Fri, 6 Sep 2002 12:10:17 -0400
-Received: from sc-grnvl-66-169-5-131.chartersc.net ([66.169.5.131]:33207 "EHLO
-	rhino") by vger.kernel.org with ESMTP id <S318764AbSIFQKP>;
-	Fri, 6 Sep 2002 12:10:15 -0400
-Subject: Re: ide drive dying?
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0209061141190.30387-100000@router.windsormachine.com>
-References: <Pine.LNX.4.33.0209061141190.30387-100000@router.windsormachine.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Sep 2002 12:14:53 -0400
-Message-Id: <1031328893.16365.243.camel@rhino>
+	id <S319229AbSIFQRT>; Fri, 6 Sep 2002 12:17:19 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:41466 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319194AbSIFQRR>; Fri, 6 Sep 2002 12:17:17 -0400
+Date: Fri, 6 Sep 2002 08:34:37 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Oktay Akbal <oktay.akbal@s-tec.de>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: qlogic failover multipath
+Message-ID: <20020906153437.GA2164@beaverton.ibm.com>
+Mail-Followup-To: Oktay Akbal <oktay.akbal@s-tec.de>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <Pine.LNX.4.44.0209051043570.2844-100000@omega.s-tec.de> <Pine.LNX.4.44.0209061142150.12655-100000@omega.s-tec.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209061142150.12655-100000@omega.s-tec.de>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 11:42, Mike Dresser wrote:
-> On 6 Sep 2002, Alan Cox wrote:
+Oktay Akbal [oktay.akbal@s-tec.de] wrote:
+> Hello,
 > 
-> > On Fri, 2002-09-06 at 16:26, Mike Dresser wrote:
-> > > eBAY, and buy yourself a new drive.  You can pickup 80 gig drives for
-> > > around 80 bucks nowadays.  I used to recommend Maxtors, until they said
-> > > they're cutting their warranty to one year from three.  I don't know what
-> > > to use anymore.
-> >
-> > At current drive density and reliabilities - raid. Software raid setups
-> > are so cheap there is little point not running RAID on IDE nowdays
-> >
-> Well, I was looking more on the side of the Windows PC's here at the
-> office, it's a bit expensive to start running raid on those.
+> we do have some Problems with some qlogic 2202f fibrechannel card.
+> When trying to use failover via plugging out some cable or using
+> qlogics sansurfer to set an alternate path, there seem to be no errors,
+> but everything works extremly slow and does not recover.
 > 
-> Mike
+> This was used with driver 6.0b23 as from suse kernel 2.4.18.
+> 
+> When trying 6.1b2 or b5 the disks get recognized as multiple scsi-disks,
+> is this wanted for use with md multipath personality ?
+> Is there a way to enable previos behavior ?
 
-Well, I haven't examined this empirically, but as the quantity of disk
-drives in an organization continues increasing, so does the probability
-of disk failure, any one of which can mean lost time/money, etc.  Drive
-reliability is likely not increasing at the same rate that density is,
-so the likelihood of lost data is probably increasing.  Since LAN speeds
-continue to increase, it might start making sense now in clusters of
-more than a few machines to make each machine less reliant on its own
-disk storage (to the point of not at all other than big swap space) and
-use the LAN more.  On the LAN put the money into a quality shared
-resource - a heavy duty UPS'd, etc. RAID system.  Especially if a RAID
-system is as easy to build/maintain/use as Alan alludes to (don't know -
-never built one).
+You can edit the qla_settings.h file and set MPIO_SUPPORT to 1 or I
+believe if you use the qla2x00src-v6.1b5-fo archive that this should
+already be set to 1.
 
-Billy
+-Mike
+-- 
+Michael Anderson
+andmike@us.ibm.com
 

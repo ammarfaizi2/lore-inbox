@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263742AbRFEI1p>; Tue, 5 Jun 2001 04:27:45 -0400
+	id <S263874AbRFEI1Z>; Tue, 5 Jun 2001 04:27:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263803AbRFEI1f>; Tue, 5 Jun 2001 04:27:35 -0400
-Received: from [194.128.63.73] ([194.128.63.73]:1968 "EHLO
-	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
-	id <S263742AbRFEI1X>; Tue, 5 Jun 2001 04:27:23 -0400
-Message-ID: <3B1C986B.BA6522CC@ukaea.org.uk>
-Date: Tue, 05 Jun 2001 09:29:31 +0100
-From: Neil Conway <nconway.list@ukaea.org.uk>
-Organization: UKAEA Fusion
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S263804AbRFEI1Q>; Tue, 5 Jun 2001 04:27:16 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:29967 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S263742AbRFEI1C>;
+	Tue, 5 Jun 2001 04:27:02 -0400
+Date: Tue, 5 Jun 2001 10:25:00 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: George Bonser <george@gator.com>
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.6-pre1 unresolved symbols
+In-Reply-To: <CHEKKPICCNOGICGMDODJKENIDDAA.george@gator.com>
+Message-ID: <Pine.LNX.4.33.0106051023530.2339-200000@localhost.localdomain>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: IDE corruption, 2.2, VIA chipset in PIO mode
-In-Reply-To: <E156y8B-0005eg-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1166221113-991729500=:2339"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > Sigh.  Ah, I think I see a nice brown bag, in a nice deep hole.
-> 
-> Its only a pointer. PIO speed cable errors tend to  imply a bad cable problem
-> (eg not properly connected ribbon). So it could still be that the problem is
-> elsewhere
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Ah OK.  Though a cable fault does seem consistent with the evidence...
-(I swear I read the FAQ before posting!)
+--8323328-1166221113-991729500=:2339
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-In practice, does a BadCRC error EVER imply a crap/buggy chipset?
 
-On the flip side, the cable isn't too long, isn't damaged, and was very
-definitely seated properly (I did it personally and took some care over
-that).  On the third hand, I don't know where it came from, and somebody
-had spilled coffee on it in a previous life :-) (not the connectors!).
+On Tue, 5 Jun 2001, George Bonser wrote:
 
-To approach the question from a different angle completely: DARE I use
-the VIA 686A in UDMA-33/66[/100 if capable?] mode, or is it not really
-up to the job?  I've seen so many posts on a search for "linux via ide
-corruption" that I'm uneasy about repeating the experiments on what is a
-production box...
+> depmod:         do_softirq
+> depmod:         tasklet_hi_schedule
 
-thanks,
-Neil
-PS: 80pin cables on the way :-)
+forgot about those - the attached softirq-2.4.6-A0 patch exports these
+symbols.
+
+	Ingo
+
+--8323328-1166221113-991729500=:2339
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="softirq-2.4.6-A0"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0106051025000.2339@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="softirq-2.4.6-A0"
+
+LS0tIGxpbnV4L2tlcm5lbC9rc3ltcy5jLm9yaWcJVHVlIEp1biAgNSAwOTo1
+OTo0NCAyMDAxDQorKysgbGludXgva2VybmVsL2tzeW1zLmMJVHVlIEp1biAg
+NSAxMDowMDoxOCAyMDAxDQpAQCAtNTM1LDYgKzUzNSw5IEBADQogRVhQT1JU
+X1NZTUJPTCh0YXNrbGV0X2luaXQpOw0KIEVYUE9SVF9TWU1CT0wodGFza2xl
+dF9raWxsKTsNCiBFWFBPUlRfU1lNQk9MKF9fcnVuX3Rhc2tfcXVldWUpOw0K
+K0VYUE9SVF9TWU1CT0woZG9fc29mdGlycSk7DQorRVhQT1JUX1NZTUJPTCh0
+YXNrbGV0X3NjaGVkdWxlKTsNCitFWFBPUlRfU1lNQk9MKHRhc2tsZXRfaGlf
+c2NoZWR1bGUpOw0KIA0KIC8qIGluaXQgdGFzaywgZm9yIG1vdmluZyBrdGhy
+ZWFkIHJvb3RzIC0gb3VnaHQgdG8gZXhwb3J0IGEgZnVuY3Rpb24gPz8gKi8N
+CiANCg==
+--8323328-1166221113-991729500=:2339--

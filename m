@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbUKWTey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbUKWThJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbUKWTey (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbUKWTda
+	id S261540AbUKWThJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKWTfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:33:30 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:51142 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261429AbUKWTbQ (ORCPT
+	Tue, 23 Nov 2004 14:35:04 -0500
+Received: from colino.net ([213.41.131.56]:1011 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S261504AbUKWTdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:31:16 -0500
-Message-ID: <41A3902C.60004@engr.sgi.com>
-Date: Tue, 23 Nov 2004 11:31:56 -0800
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-CC: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Erik Jacobson <erikj@dbear.engr.sgi.com>
-Subject: Re: [PATCH 2.6.9] fork: add a hook in do_fork()
-References: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>	 <20041123090325.GA22114@infradead.org> <1101202407.6210.87.camel@frecb000711.frec.bull.fr>
-In-Reply-To: <1101202407.6210.87.camel@frecb000711.frec.bull.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 23 Nov 2004 14:33:03 -0500
+Date: Tue, 23 Nov 2004 20:32:17 +0100
+From: Colin Leroy <colin@colino.net>
+Cc: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
+Subject: Re: [PATCH] let fat handle MS_SYNCHRONOUS flag
+Message-ID: <20041123203217.6668fb5e@jack.colino.net>
+In-Reply-To: <20041118194959.3f1a3c8e.colin@colino.net>
+References: <20041118194959.3f1a3c8e.colin@colino.net>
+X-Mailer: Sylpheed-Claws 0.9.12cvs166.1 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is great!
+On 18 Nov 2004 at 19h11, Colin Leroy wrote:
 
-We have one more user of PAGG! :)
+Hi, 
 
-Happy Thanksgiving,
-  - jay
+> this patch is an RFC patch not to be applied.
 
+no one has any comments ? Is it so broken ? ;)
 
-Guillaume Thouvenin wrote:
-> On Tue, 2004-11-23 at 09:03 +0000, Christoph Hellwig wrote:
-> 
->>On Tue, Nov 23, 2004 at 07:03:17AM +0100, Guillaume Thouvenin wrote:
->>
->>>   For a module, I need to execute a function when a fork occurs. My
->>>solution is to add a pointer to a function (called fork_hook) in the
->>>do_fork() and if this pointer isn't NULL, I call the function. To update
->>>the pointer to the function I export a symbol (called trace_fork) that
->>>defines another function with two parameters (the hook and an
->>>identifier). This function provides a simple mechanism to manage access
->>>to the fork_hook variable.
->>>
->>
->>Use SGI's PAGG patches if you want such hooks.  Also this is clearly
->>a _GPL export.
-> 
-> 
-> PAGG is more intrusive than my patch due to the management of groups of
-> processes. This hook in the fork allows me to provide a solution to do
-> per-group accounting with a module. If PAGG is added in the Linux Kernel
-> Tree it could be the solution, you are right. 
-> 
-> Guillaume 
-> 
-
+-- 
+Colin
+  6a65 206e 2761 7272 6976 6520 7061 7320
+  e020 6372 6f69 7265 2071 7527 696c 2079
+  2065 6e20 6169 7420 756e 2071 7569 2061
+  2072 6567 6172 64e9 20e7 6120 5c21 0a00

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261390AbSJMAPY>; Sat, 12 Oct 2002 20:15:24 -0400
+	id <S261382AbSJMANL>; Sat, 12 Oct 2002 20:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261387AbSJMAOc>; Sat, 12 Oct 2002 20:14:32 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:54537 "EHLO
+	id <S261384AbSJMANL>; Sat, 12 Oct 2002 20:13:11 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:50697 "EHLO
 	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S261386AbSJMAOF>; Sat, 12 Oct 2002 20:14:05 -0400
+	id <S261382AbSJMANJ>; Sat, 12 Oct 2002 20:13:09 -0400
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] removes posix option of fat (3/5)
+Subject: [PATCH] fix error code which fat_fill_super() returns (1/5)
 From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 13 Oct 2002 09:19:49 +0900
-Message-ID: <877kgnb36i.fsf@devron.myhome.or.jp>
+Date: Sun, 13 Oct 2002 09:18:36 +0900
+Message-ID: <87fzvbb38j.fsf@devron.myhome.or.jp>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,84 +20,102 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This removes the posix option of vfat. The current posix options works
-only as an alias of name_check=s.
-
+This fixes the error code which fat_fill_super() returns.
 Please apply.
 
 
- Documentation/filesystems/vfat.txt |    8 --------
- fs/fat/inode.c                     |    8 +++-----
- include/linux/msdos_fs_sb.h        |    1 -
- 3 files changed, 3 insertions(+), 14 deletions(-)
+ fs/fat/inode.c   |   10 ++++++++--
+ fs/msdos/namei.c |    6 +-----
+ fs/vfat/namei.c  |    6 +-----
+ 3 files changed, 10 insertions(+), 12 deletions(-)
 -- 
 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-diff -urNp fat_vfat_opt_shift/Documentation/filesystems/vfat.txt fat_kill_posixfs/Documentation/filesystems/vfat.txt
---- fat_vfat_opt_shift/Documentation/filesystems/vfat.txt	2002-10-12 13:22:08.000000000 +0900
-+++ fat_kill_posixfs/Documentation/filesystems/vfat.txt	2002-10-13 07:39:16.000000000 +0900
-@@ -31,10 +31,6 @@ uni_xlate=<bool> -- Translate unhandled 
- 		 illegal on the vfat filesystem.  The escape sequence
- 		 that gets used is ':' and the four digits of hexadecimal
- 		 unicode.
--posix=<bool>  -- Allow names of same letters, different case such as
--                 'LongFileName' and 'longfilename' to coexist.  This has some
--                 problems currently because 8.3 conflicts are not handled
--                 correctly for POSIX filesystem compliance.
- nonumtail=<bool> -- When creating 8.3 aliases, normally the alias will
-                  end in '~1' or tilde followed by some number.  If this
-                  option is set, then if the filename is 
-@@ -66,10 +62,6 @@ TODO
-   a get next directory entry approach.  The only thing left that uses
-   raw scanning is the directory renaming code.
+diff -urNp linux-2.5.42/fs/fat/inode.c fat_super_err_fix/fs/fat/inode.c
+--- linux-2.5.42/fs/fat/inode.c	2002-10-12 13:22:07.000000000 +0900
++++ fat_super_err_fix/fs/fat/inode.c	2002-10-13 03:18:25.000000000 +0900
+@@ -639,7 +639,7 @@ int fat_fill_super(struct super_block *s
+ 	int logical_sector_size, fat_clusters, debug, cp, first;
+ 	unsigned int total_sectors, rootdir_sectors;
+ 	unsigned char media;
+-	long error = -EIO;
++	long error;
+ 	char buf[50];
+ 	int i;
+ 	char cvf_format[21];
+@@ -662,6 +662,7 @@ int fat_fill_super(struct super_block *s
+ 	sbi->dir_ops = fs_dir_inode_ops;
+ 	sbi->cvf_format = &default_cvf;
  
--* Fix the POSIX filesystem support to work in 8.3 space.  This involves
--  renaming aliases if a conflict occurs between a new filename and
--  an old alias.  This is quite a mess.
--
++	error = -EINVAL;
+ 	if (!parse_options((char *)data, &debug, &sbi->options,
+ 			   cvf_format, cvf_options))
+ 		goto out_fail;
+@@ -670,6 +671,7 @@ int fat_fill_super(struct super_block *s
+ 	/* set up enough so that it can read an inode */
+ 	init_MUTEX(&sbi->fat_lock);
  
- POSSIBLE PROBLEMS
- ----------------------------------------------------------------------
-diff -urNp fat_vfat_opt_shift/fs/fat/inode.c fat_kill_posixfs/fs/fat/inode.c
---- fat_vfat_opt_shift/fs/fat/inode.c	2002-10-13 07:30:59.000000000 +0900
-+++ fat_kill_posixfs/fs/fat/inode.c	2002-10-13 07:39:16.000000000 +0900
-@@ -236,7 +236,7 @@ static int parse_options(char *options, 
- 	opts->name_check = 'n';
- 	opts->conversion = 'b';
- 	opts->quiet = opts->showexec = opts->sys_immutable = opts->dotsOK =  0;
--	opts->utf8 = opts->unicode_xlate = opts->posixfs = 0;
-+	opts->utf8 = opts->unicode_xlate = 0;
- 	opts->numtail = 1;
- 	opts->nocase = 0;
- 	*debug = 0;
-@@ -383,8 +383,8 @@ static int parse_options(char *options, 
- 			if (ret) opts->unicode_xlate = val;
- 		}
- 		else if (is_vfat && !strcmp(this_char,"posix")) {
--			ret = simple_getbool(value, &val);
--			if (ret) opts->posixfs = val;
-+			printk("FAT: posix option is obsolete, "
-+			       "not supported now\n");
- 		}
- 		else if (is_vfat && !strcmp(this_char,"nonumtail")) {
- 			ret = simple_getbool(value, &val);
-@@ -417,8 +417,6 @@ static int parse_options(char *options, 
- 			break;
++	error = -EIO;
+ 	sb_min_blocksize(sb, 512);
+ 	bh = sb_bread(sb, 0);
+ 	if (bh == NULL) {
+@@ -848,13 +850,14 @@ int fat_fill_super(struct super_block *s
+ 		goto out_invalid;
  	}
- out:
--	if (opts->posixfs)
--		opts->name_check = 's';
- 	if (opts->unicode_xlate)
- 		opts->utf8 = 0;
- 	
-diff -urNp fat_vfat_opt_shift/include/linux/msdos_fs_sb.h fat_kill_posixfs/include/linux/msdos_fs_sb.h
---- fat_vfat_opt_shift/include/linux/msdos_fs_sb.h	2002-10-12 13:22:08.000000000 +0900
-+++ fat_kill_posixfs/include/linux/msdos_fs_sb.h	2002-10-13 07:39:16.000000000 +0900
-@@ -22,7 +22,6 @@ struct fat_mount_options {
- 		 isvfat:1,        /* 0=no vfat long filename support, 1=vfat support */
- 		 utf8:1,	  /* Use of UTF8 character set (Default) */
- 		 unicode_xlate:1, /* create escape sequences for unhandled Unicode */
--		 posixfs:1,       /* Allow names like makefile and Makefile to coexist */
- 		 numtail:1,       /* Does first alias have a numeric '~1' type tail? */
- 		 atari:1,         /* Use Atari GEMDOS variation of MS-DOS fs */
- 		 nocase:1;	  /* Does this need case conversion? 0=need case conversion*/
+ 
++	error = -EINVAL;
+ 	if (!strcmp(cvf_format, "none"))
+ 		i = -1;
+ 	else
+ 		i = detect_cvf(sb, cvf_format);
+ 	if (i >= 0) {
+ 		if (cvf_formats[i]->mount_cvf(sb, cvf_options))
+-			goto out_invalid;
++			goto out_fail;
+ 	}
+ 
+ 	cp = sbi->options.codepage ? sbi->options.codepage : 437;
+@@ -912,6 +915,9 @@ int fat_fill_super(struct super_block *s
+ 
+ out_invalid:
+ 	error = -EINVAL;
++	if (!silent)
++		printk(KERN_INFO "VFS: Can't find a valid FAT filesystem"
++		       " on dev %s.\n", sb->s_id);
+ 
+ out_fail:
+ 	if (root_inode)
+diff -urNp linux-2.5.42/fs/msdos/namei.c fat_super_err_fix/fs/msdos/namei.c
+--- linux-2.5.42/fs/msdos/namei.c	2002-10-12 13:22:08.000000000 +0900
++++ fat_super_err_fix/fs/msdos/namei.c	2002-10-13 03:18:25.000000000 +0900
+@@ -604,12 +604,8 @@ int msdos_fill_super(struct super_block 
+ 	int res;
+ 
+ 	res = fat_fill_super(sb, data, silent, &msdos_dir_inode_operations, 0);
+-	if (res) {
+-		if (res == -EINVAL && !silent)
+-			printk(KERN_INFO "VFS: Can't find a valid"
+-			       " MSDOS filesystem on dev %s.\n", sb->s_id);
++	if (res)
+ 		return res;
+-	}
+ 
+ 	sb->s_root->d_op = &msdos_dentry_operations;
+ 	return 0;
+diff -urNp linux-2.5.42/fs/vfat/namei.c fat_super_err_fix/fs/vfat/namei.c
+--- linux-2.5.42/fs/vfat/namei.c	2002-10-12 13:22:11.000000000 +0900
++++ fat_super_err_fix/fs/vfat/namei.c	2002-10-13 03:18:25.000000000 +0900
+@@ -1284,12 +1284,8 @@ int vfat_fill_super(struct super_block *
+ 	struct msdos_sb_info *sbi;
+   
+ 	res = fat_fill_super(sb, data, silent, &vfat_dir_inode_operations, 1);
+-	if (res) {
+-		if (res == -EINVAL && !silent)
+-			printk(KERN_INFO "VFS: Can't find a valid"
+-			       " VFAT filesystem on dev %s.\n", sb->s_id);
++	if (res)
+ 		return res;
+-	}
+ 
+ 	sbi = MSDOS_SB(sb);
+ 

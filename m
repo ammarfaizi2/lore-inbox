@@ -1,52 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261805AbTCQR2t>; Mon, 17 Mar 2003 12:28:49 -0500
+	id <S261786AbTCQR0v>; Mon, 17 Mar 2003 12:26:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261810AbTCQR2t>; Mon, 17 Mar 2003 12:28:49 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63536 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261805AbTCQR2s>; Mon, 17 Mar 2003 12:28:48 -0500
-Date: Mon, 17 Mar 2003 12:39:39 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why is get_current() not const function?
-Message-ID: <20030317123939.H13397@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20030313061926.S3910@devserv.devel.redhat.com.suse.lists.linux.kernel> <b53pqi$ud9$1@penguin.transmeta.com.suse.lists.linux.kernel> <m3u1e1ykeq.fsf@averell.firstfloor.org>
+	id <S261798AbTCQR0u>; Mon, 17 Mar 2003 12:26:50 -0500
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:31468 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id <S261786AbTCQR0t>;
+	Mon, 17 Mar 2003 12:26:49 -0500
+Date: Mon, 17 Mar 2003 18:38:51 +0100
+From: wind-lkml@cocodriloo.com
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: riel@surriel.com, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vm, program load, page faulting, ...
+Message-ID: <20030317173851.GC11526@wind.cocodriloo.com>
+References: <20030317151004.GR20188@holomorphy.com> <Pine.LNX.4.44.0303171100300.2571-100000@chimarrao.boston.redhat.com> <20030317165223.GA11526@wind.cocodriloo.com> <m3hea2gcoz.fsf@lexa.home.net> <20030317171246.GB11526@wind.cocodriloo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="jho1yZJdad60DJr+"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3u1e1ykeq.fsf@averell.firstfloor.org>; from ak@muc.de on Mon, Mar 17, 2003 at 06:26:05PM +0100
+In-Reply-To: <20030317171246.GB11526@wind.cocodriloo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 06:26:05PM +0100, Andi Kleen wrote:
-> torvalds@transmeta.com (Linus Torvalds) writes:
-> 
-> >>					 and why on x86-64
-> >>the movq %%gs:0, %0 inline asm is volatile with "memory" clobber?
-> >
-> > Can't help you on that one, but it looks like it uses various helper
-> > functions for doing the x86-64 per-processor data structures, and I bet
-> > those helper functions are shared by _other_ users who definitely want
-> > to have their data properly re-read. Ie "current()" may be constant in
-> > process context, but that sure isn't true about a lot of other things in
-> > the per-processor data structures.
-> 
-> Yes, that's the big issue. const current requires non volatile read_pda()
-> and making read_pda non volatile breaks lots of code currently and probably
-> needs an audit over all users.
 
-Well, that's one that is not particularly hard to fix.
-Either a new set of pda access macros without volatile and memory clobber
-can be written, or just get_current can use its own asm, ie.
-static inline struct task_struct *get_current(void)
-{
-	struct task_struct *t;
-	asm ("movq %%gs:%c1,%0" : "=r" (t) : "i"(pda_offset(pcurrent)));
-	return t;
-}
+--jho1yZJdad60DJr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	Jakub
+On Mon, Mar 17, 2003 at 06:12:46PM +0100, wind-lkml@cocodriloo.com wrote:
+> On Mon, Mar 17, 2003 at 07:50:04PM +0300, Alex Tomas wrote:
+> > >>>>> wind  (w) writes:
+> > 
+> >  w> On Mon, Mar 17, 2003 at 11:01:31AM -0500, Rik van Riel wrote:
+> >  >> On Mon, 17 Mar 2003, William Lee Irwin III wrote:
+> >  >> > On Sat, 15 Mar 2003, Paul Albrecht wrote:
+> >  >> > >> ... Why does the kernel page fault on text pages, present in
+> >  >> the page > >> cache, when a program starts? Couldn't the pte's for
+> >  >> text present in the > >> page cache be resolved when they're
+> >  >> mapped to memory?
+> >  >> > 
+> > 
+> >  w> You should ask Andrew about his patch to do exactly that: he
+> >  w> forced all PROC_EXEC mmaps to be nonlinear-mapped and this forced
+> >  w> all programs to suck entire binaries into memory...  I recall he
+> >  w> saw at least 25% improvement at launching gnome.
+> > 
+> > they talked about pages _already present_ in pagecache.
+> 
+> I wonder if this could be done by walking and faulting
+> all pages at fs/binfmt_elf.c::elf_map just after do_mmap...
+> will try it just now :)
+
+OK, this is not tested, since I'm compiling it now... feel free
+to correct :)
+
+
+--jho1yZJdad60DJr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="binfmt_elf.c.diff"
+
+--- orig/fs/binfmt_elf.c	Mon Mar 17 18:26:59 2003
++++ work/fs/binfmt_elf.c	Mon Mar 17 18:26:31 2003
+@@ -259,12 +259,23 @@ create_elf_tables(struct linux_binprm *b
+ static inline unsigned long
+ elf_map (struct file *filep, unsigned long addr, struct elf_phdr *eppnt, int prot, int type)
+ {
+-	unsigned long map_addr;
++	unsigned long map_addr, pgoff;
++	struct mm *mm;
+ 
+ 	down_write(&current->mm->mmap_sem);
+ 	map_addr = do_mmap(filep, ELF_PAGESTART(addr),
+ 			   eppnt->p_filesz + ELF_PAGEOFFSET(eppnt->p_vaddr), prot, type,
+ 			   eppnt->p_offset - ELF_PAGEOFFSET(eppnt->p_vaddr));
++
++	/* preload elf image  */
++
++	mm = current->mm;
++	addr = ELF_PAGESTART(addr);
++	for(pgoff = 0; pgoff < eppnt->p_filesz;){
++		do_mmap_pgoff(mm, filep, addr, PAGE_SIZE, prot, type, pgoff);
++		addr += PAGE_SIZE;
++		pgoff += PAGE_SIZE;
++	}
+ 
+ 	up_write(&current->mm->mmap_sem);
+ 	return(map_addr);
+
+--jho1yZJdad60DJr+--

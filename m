@@ -1,92 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266167AbUGESxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266156AbUGES7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUGESxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 14:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUGESxK
+	id S266156AbUGES7f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 14:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUGES7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 14:53:10 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43745 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266167AbUGESxA
+	Mon, 5 Jul 2004 14:59:35 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40418 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266156AbUGES7c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 14:53:00 -0400
+	Mon, 5 Jul 2004 14:59:32 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Andries Brouwer <aebr@win.tue.nl>
 Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring HDIO_GETGEO semantics)
-Date: Mon, 5 Jul 2004 20:58:16 +0200
+Date: Mon, 5 Jul 2004 21:05:05 +0200
 User-Agent: KMail/1.5.3
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+Cc: Szakacsits Szabolcs <szaka@sienet.hu>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>,
        "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
        Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
        linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
        buytenh@gnu.org, msw@redhat.com
-References: <Pine.LNX.4.21.0407051733310.14602-100000@mlf.linux.rulez.org>
-In-Reply-To: <Pine.LNX.4.21.0407051733310.14602-100000@mlf.linux.rulez.org>
+References: <Pine.LNX.4.21.0407041920480.11076-100000@mlf.linux.rulez.org> <200407051513.48334.bzolnier@elka.pw.edu.pl> <20040705140044.GB24899@wsdw14.win.tue.nl>
+In-Reply-To: <20040705140044.GB24899@wsdw14.win.tue.nl>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200407052058.16478.bzolnier@elka.pw.edu.pl>
+Message-Id: <200407052105.05585.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 of July 2004 20:09, Szakacsits Szabolcs wrote:
-> On Mon, 5 Jul 2004, Bartlomiej Zolnierkiewicz wrote:
-> > On Monday 05 of July 2004 14:14, Szakacsits Szabolcs wrote:
-> > >     - nobody could point out any _technical_ benefit why the new
-> > > HDIO_GETGEO code is better than the old one (the _way_ Andries wanted
-> > > to
-> >
-> > Andries pointed it many times but you seem to completely ignore it
+
+Andries, the question was "What should we do with HDIO_GETGEO breakage?"
+not "Why does somebody need the BIOS geometry?". :-)
+
+We can fix HDIO_GETGEO to behave like in 2.4 or remove it (preferable),
+current situation is bad.
+
+On Monday 05 of July 2004 16:00, Andries Brouwer wrote:
+> On Mon, Jul 05, 2004 at 03:13:48PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > We can restore ide-geometry.c or try to return values obtained from
+> > EDD code through IDE driver.  Alternatively we can add new ioctl for
+> > start of partition and remove HDIO_GETGEO from IDE driver completely
+> > but probably it is too late for this for 2.6 (we should do it early
+> > in 2.7 then).  Andries?
 >
-> Hmmm. I'm recovering people's partition tables in my spare time,
-> voluntarily, free of charge when they got trashed due to Andries' and
-> Andrew's bugs over the last two years (gpart, testdisk and parted's
-> rescue mode don't always work),
+> For Linux purposes geometry is almost irrelevant.
+> (But, as I remarked in another letter, some RAIDs need something.)
 >
->      http://mlf.linux.rulez.org/mlf/ezaz/ntfsresize.html#troubleshoot
+> This means as a first approximation that "geometry" is not a kernel
+> business. Certainly the present discussion is not about the ide-driver.
+> Indeed, what people want is the geometry that a certain BIOS will assign
+> to a disk. That depends on the BIOS, and on whether the user has
+> set things up with Normal / Large / LBA in the BIOS setup.
+> (In case the disk was left out of the BIOS setup, this particular
+> concept of geometry does not exist at all.)
 >
-> I reported them several bugs, hints, reasons, potential reasons, guesses,
-> user feature request both privately and publicly.
+> So, the question is whether information from the BIOS can be
+> exposed. Well, that is not impossible, and EDD already does this.
 >
-> I do know very well Andries' arguments, I've learnt them the hard way.
-> Actually I responded them several times, even in this thread.
-
-OK
-
-> > I also pointed out that IDE driver _doesn't_ need BIOS geometry et all.
+> Why would people want to know what a BIOS would do?
+> So far I have mostly seen two classes of wishes.
+> One is to install lots of new Windows systems on blank disks
+> - that is done faster and more conveniently from Linux -
+> where there is no partition table yet to inspect.
+> The other is to create or modify NTFS filesystems.
 >
-> Thanks but I thought it was off-topic and think the same now, too. It was
-> explained several times.
-
-How can this be off-topic?  In case of IDE disks HDIO_GETGEO is handled by
-ide-disk driver.  In 2.4 there was ide-geometry.c file (part of IDE driver)
-which contained code for retrieving BIOS geometry (Andries removed it in 2.5),
-Restoring 2.4 way of handling HDIO_GETGEO requires changes to the IDE driver.
-
-> However none of you who responded seems to understand, still, what I want
-> to say.
+> Such are reasonable wishes, but rather special purpose.
+> For the time being I have good hopes that it will turn out
+> to be possible to do these things. Maybe using present EDD.
+> Maybe by extending EDD a little.
 >
-> You can't fix, for example, parted 1.6.11 and all earlier versions when
-> one does a 2.4 -> 2.6 kernel upgrade. If a user uses an old enough tool on
-> the new kernels then it can trash its partition table whatever the OS it
-> is (not only the geometry but the layout in sectors, too).
+> Five years ago I wrote a library that takes collected BIOS info,
+> and collected Linux info, and tries to match BIOS disks with
+> Linux disks. Of course it is impossible to do this right, but
+> one can find heuristics that often work. Such heuristics do not
+> belong in the kernel, but a user space application can decide,
+> given the known situation, whether a guess is probably right,
+> or perhaps consult the user.
 >
-> Also, sometimes [even very popular] distros ship one or two old tools, no
-> need for kernel upgrade. Whenever a user use the shipped old tool on 2.6
-> it can trash the partition table, being during install or later.
-
-I understand this perfectly and I'm thinking about the best way to solve it.
-
-> You, Bartlomiej Zolnierkiewicz, Andries Brouwer and Steffen Winterfeldt
-> say don't care about those people. OK, at least now it's documented
-> and this thread can be pointed out as a reference in the future.
-
-Calm down because your false accusations are also documented now. ;-)
-
-> Since there is nothing I could do more if maintainers aren't willing to
-> fix their more destructive 2.6 kernel code, the case is closed from my
-> part by this email.
-
-Bartlomiej
+> I am awaiting the discussion with Szaka.
+>
+> Andries
 

@@ -1,95 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbUKGFFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbUKGFpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbUKGFFR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 00:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUKGFFR
+	id S261539AbUKGFpv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 00:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUKGFpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 00:05:17 -0500
-Received: from siaag1ae.compuserve.com ([149.174.40.7]:36545 "EHLO
-	siaag1ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S261537AbUKGFFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 00:05:03 -0500
-Date: Sun, 7 Nov 2004 00:02:07 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Kernel memory requirements and BK
-To: Art Haas <ahaas@airmail.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200411070004_MC3-1-8E11-3F5E@compuserve.com>
+	Sun, 7 Nov 2004 00:45:51 -0500
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:42151 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261539AbUKGFpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 00:45:42 -0500
+Message-ID: <418DB67D.2000903@kolivas.org>
+Date: Sun, 07 Nov 2004 16:45:33 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+To: linux <linux-kernel@vger.kernel.org>
+Cc: Peter Williams <pwil3058@bigpond.net.au>
+Subject: [PATCH] Plugsched for 2.6.10-rc1-mm3
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB5E3912CF309AB635081A01B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Art Haas wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB5E3912CF309AB635081A01B
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> With the 2.6.9 and 2.6.10-rc kernels, BK bombs out with
-> out-of-memory errors once the repository checking begins.
+While mainline seems uninterested in pluggable cpu schedulers, it seems 
+the demand and response off-list has been rather large so I'll continue 
+to develop it.
 
-There's nothing wrong with BK's performance that can't be
-solved by a terahertz processor and a terabyte of RAM. ;)
+http://ck.kolivas.org/patches/plugsched/2.6.10-rc1-mm3/
 
-But these patches might help:
+has a patch tarball and a rolled up patch for applying the current 
+plugsched infrastructure.
 
-===============================================================================
-# vm_pages_scanned_active_list.patch
-#
-#       Stop kswapd from looping.
-#
-#       Patch by Nick Piggin 24 Oct 2004
-#       Signed-off-by: Andrew Morton <akpm@osdl.org>
-#       Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-#       Status: in 2.6.10
-#
---- 2.6.9/mm/vmscan.c
-+++ 2.6.9.1/mm/vmscan.c
-@@ -574,7 +574,6 @@ static void shrink_cache(struct zone *zo
-                        nr_taken++;
-                }
-                zone->nr_inactive -= nr_taken;
--               zone->pages_scanned += nr_taken;
-                spin_unlock_irq(&zone->lru_lock);
- 
-                if (nr_taken == 0)
-@@ -675,6 +674,7 @@ refill_inactive_zone(struct zone *zone, 
-                }
-                pgscanned++;
-        }
-+       zone->pages_scanned += pgscanned;
-        zone->nr_active -= pgmoved;
-        spin_unlock_irq(&zone->lru_lock);
- 
-===============================================================================
-# spurious_oomkill.patch
-#
-#       Prevent spurious out of memory process kills.
-#       Reported to work by testers on lkml.
-#
-#       Patch by Rik van Riel <riel@redhat.com>
-#       Status: NOT in 2.6.10
-#
---- 2.6.9/mm/vmscan.c
-+++ 2.6.9.1/mm/vmscan.c
-@@ -379,7 +379,7 @@
- 
-                referenced = page_referenced(page, 1);
-                /* In active use or really unfreeable?  Activate it. */
--               if (referenced && page_mapping_inuse(page))
-+               if (referenced && sc->priority && page_mapping_inuse(page))
-                        goto activate_locked;
- 
- #ifdef CONFIG_SWAP
-@@ -715,7 +715,7 @@
-                if (page_mapped(page)) {
-                        if (!reclaim_mapped ||
-                            (total_swap_pages == 0 && PageAnon(page)) ||
--                           page_referenced(page, 0)) {
-+                           (page_referenced(page, 0) && sc->priority)) {
-                                list_add(&page->lru, &l_active);
-                                continue;
-                        }
-===============================================================================
 
---Chuck Ebbert  06-Nov-04  23:55:23
+Changes:
+Rolled up the bugfixes into their respective parent patches.
+Added an optional private set_task_cpu.
+Privatised get_idle for kgdb.
+Privatised normalise rt sysrq.
+Updated staircase cpu scheduler.
+
+
+Planned:
+More shared code between schedulers.
+Sysfs tunables.
+
+
+Note that mm3 has some vm bugs leading to compile problems and 
+instability that you'd need to add on if you wish to try these patches.
+
+Cheers,
+Con
+
+--------------enigB5E3912CF309AB635081A01B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBjbZ/ZUg7+tp6mRURAuDKAJ9ic7jcNzshLslE62StfrlN/7q4UgCdFJxH
+IFg3hKd2Hya07tLd4B2WY0Y=
+=vTat
+-----END PGP SIGNATURE-----
+
+--------------enigB5E3912CF309AB635081A01B--

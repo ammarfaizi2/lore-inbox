@@ -1,79 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132535AbRDNUOk>; Sat, 14 Apr 2001 16:14:40 -0400
+	id <S132537AbRDNUQK>; Sat, 14 Apr 2001 16:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132537AbRDNUOU>; Sat, 14 Apr 2001 16:14:20 -0400
-Received: from barry.mail.mindspring.net ([207.69.200.25]:42266 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S132535AbRDNUOR>; Sat, 14 Apr 2001 16:14:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jeff Lightfoot <jeffml@pobox.com>
-Reply-To: jeffml@pobox.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon runtime problems
-Date: Sat, 14 Apr 2001 14:14:17 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <E14oRie-000556-00@the-village.bc.nu>
-In-Reply-To: <E14oRie-000556-00@the-village.bc.nu>
+	id <S132539AbRDNUQB>; Sat, 14 Apr 2001 16:16:01 -0400
+Received: from 24.68.117.103.on.wave.home.com ([24.68.117.103]:2692 "EHLO
+	cs865114-a.amp.dhs.org") by vger.kernel.org with ESMTP
+	id <S132537AbRDNUPr>; Sat, 14 Apr 2001 16:15:47 -0400
+Date: Sat, 14 Apr 2001 16:15:43 -0400 (EDT)
+From: Arthur Pedyczak <arthur-p@home.com>
+To: Aaron Lunansky <alunansky@rim.net>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: loop problems continue in 2.4.3
+In-Reply-To: <A9FD1B186B99D4119BCC00D0B75B4D8107F45B05@xch01ykf.rim.net>
+Message-ID: <Pine.LNX.4.33.0104141612250.27637-100000@cs865114-a.amp.dhs.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <01041414141700.00938@earth>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ sent to linux-kernel due to Alan rejecting all mail from 
-Earthlink/Mindspring, I'm assuming he is still interested in the 
-report though ]
+On Sat, 14 Apr 2001, Aaron Lunansky wrote:
+Why not indeed? - should have thought about it myself
 
-On Saturday 14 April 2001 09:13, Alan Cox wrote:
-> Can the folks who are seeing crashes running athlon optimised
-> kernels all mail me
+Well, I wrote the script. It has been running for 10 minutes now mounting
+and unmounting an iso image. Nothing happens.
+I guess I should be happy.
+Still don't undertand where the original Oops
+came
+from
 
-I have two Athlon machines with mysterious (no oops) lockups.  I've 
-just started running them as 586 to see if that stops the lockups.
-
-The first one:
-> -	CPU model/stepping
-model		: 4
-model name	: AMD Athlon(tm) Processor
-stepping		: 2
-cpu MHz	: 1195.214
-
-> -	Chipset
-VIA KT133/KM133
-(Iwill KK266)
-
-> -	Amount of RAM
-MemTotal:       770960 kB
-
-> -	/proc/mtrr output
-reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
-reg01: base=0x20000000 ( 512MB), size= 256MB: write-back, count=1
-reg02: base=0xd4000000 (3392MB), size=  32MB: write-combining, count=2
-reg05: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=2
-
-> -	compiler used
-gcc 2.95.4
-
-The second one:
-> -	CPU model/stepping
-
-model		: 4
-model name	: AMD Athlon(tm) Processor
-stepping		: 2
-cpu MHz	: 1000.050
-
-> -	Chipset
-VIA KT133/KM133
-(MSI K7TPro)
-
-> -	Amount of RAM
-MemTotal:       255588 kB
-
-> -	/proc/mtrr output
-reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg05: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=1
-
-> -	compiler used
-gcc 2.95.4
+> If you're intent on making it oops why not write a script to
+mount/unmount
+> it repeatedly?
+>
+>
+> Regards,
+> Aaron
+>
+>
+> -----Original Message-----
+> From: Arthur Pedyczak <arthur-p@home.com>
+> To: Jens Axboe <axboe@suse.de>
+> CC: Linux kernel list <linux-kernel@vger.kernel.org>; Jeff Garzik
+> <jgarzik@mandrakesoft.com>
+> Sent: Sat Apr 14 08:46:49 2001
+> Subject: Re: loop problems continue in 2.4.3
+>
+> On Sat, 14 Apr 2001, Jens Axboe wrote:
+>
+> [ SNIP..................]
+> > > =====================
+> > > Apr 13 20:50:03 cs865114-a kernel: Unable to handle kernel paging
+> request at virtual address 7e92bfd7
+> >
+> > Please disable syslog decoding (it sucks) and feed it through ksymoops
+> > instead.
+> >
+> > In other words, reproduce and dmesg | ksymoops instead.
+> >
+> >
+> I tried to reproduce the error this morning and couldn't. Same kernel
+> (2.4.3), same setup, same iso file. It mounted/unmounted 10 times with no
+> problem. DOn't know what to think.
+>
+> Arthur
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

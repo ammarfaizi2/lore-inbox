@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267139AbSKSUY2>; Tue, 19 Nov 2002 15:24:28 -0500
+	id <S267149AbSKSUYf>; Tue, 19 Nov 2002 15:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267149AbSKSUY2>; Tue, 19 Nov 2002 15:24:28 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7178 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267139AbSKSUY1>; Tue, 19 Nov 2002 15:24:27 -0500
-Date: Tue, 19 Nov 2002 20:31:29 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: ARM kernel module loader.
-Message-ID: <20021119203128.E5535@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Rusty Russell <rusty@rustcorp.com.au>
+	id <S267152AbSKSUYf>; Tue, 19 Nov 2002 15:24:35 -0500
+Received: from bitmover.com ([192.132.92.2]:14505 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267149AbSKSUYd>;
+	Tue, 19 Nov 2002 15:24:33 -0500
+Date: Tue, 19 Nov 2002 12:31:15 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [RFC/CFT] Separate obj/src dir
+Message-ID: <20021119123115.C16028@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+References: <20021119201110.GA11192@mars.ravnborg.org> <Pine.LNX.3.95.1021119151730.5943A-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.95.1021119151730.5943A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Nov 19, 2002 at 03:22:45PM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, here's the problem I'm currently facing.
+On Tue, Nov 19, 2002 at 03:22:45PM -0500, Richard B. Johnson wrote:
+> On Tue, 19 Nov 2002, Sam Ravnborg wrote:
+> 
+> > Based on some initial work by Kai Germaschewski I have made a
+> > working prototype of separate obj/src tree.
+> > 
+> > Usage example:
+> > #src located in ~/bk/linux-2.5.sepobj
+> > mkdir ~/compile/v2.5
+> > cd ~/compile/v2.5
+> > sh ../../kb/v2.5/kbuild
+> 
+> [SNIPPED...]
+> 
+> I have a question; "What problem is this supposed to solve?"
+> This looks like a M$ism to me. Real source trees don't
+> look like this. If you don't have write access to the source-
+> code tree, you are screwed on a real project anyway. That's
+> why we have CVS, tar and other tools to provide a local copy.
 
-KAO's insmod used to do various fixups (trampolines of 8 bytes in length)
-before inserting modules into the kernel on ARM to make sure the PC24
-branch relocations were able to reach the kernel binary image in memory.
-PC24 relocations have a maximum range of +/- 32MB, and the kernel may be
-(on current architectures) up to 256MB to 512MB away.
+It can be really nice to maintain a bunch of different architectures at
+the same time from the same tree.  It also makes it really easy to 
+"clean" a tree.
 
-With Rusty's in-kernel module linker, there's a catch-22 situation here.
-The module linker has callouts to architecture code to ask for the size
-of various sections before allocating an area.
-
-This is perfect in this situation, since all you need to do is calculate
-how many trampolines you'd need to reach the main kernel binary, and add
-that onto the core module size.
-
-However, to know how many trampolines you'd need, you need to scan the
-relocations and symbols, counting the number of symbols that need
-trampolines.  The problem here is that we haven't read any of the module
-into kernel space, so this information isn't available.
-
-What is available though is the total number of relocations in the file,
-which could be massively larger than the number of trampolines required.
-
-(For the time being, ARM has the code implemented that performs the
-basic linking, but obviously without the trampolines.  Since this
-effectively means modules will never work, I've also made module_alloc
-always return NULL to force failure until we have a solution.)
-
-Comments?  Ideas?  Solutions that don't require:
-
-- rewriting the core module loading code
-- introducing a vrealloc() function
-- wasting lots of memory on trampoline entries that won't be used
-
-Ideally, I'd like to be able to allocate a trampoline table for one
-module and re-use trampoline entries for many modules to minimise the
-cache impacts.
-
+On the other hand, I do wonder whether ccache could be used to get the
+same effect.  Sam?
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

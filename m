@@ -1,102 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264077AbTH1Pt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTH1Pt4
+	id S264176AbTH1Pvs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbTH1Pvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:49:56 -0400
-Received: from sojef.skynet.be ([195.238.2.127]:166 "EHLO sojef.skynet.be")
-	by vger.kernel.org with ESMTP id S264077AbTH1Ptw (ORCPT
+	Thu, 28 Aug 2003 11:51:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57061 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264176AbTH1Pvp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:49:52 -0400
-Message-ID: <001301c36d7b$f96cfbe0$0400a8c0@LAPTOP>
-From: "Hans Lambrechts" <hans.lambrechts@skynet.be>
-To: "Patrick McHardy" <kaber@trash.net>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Netfilter Development Mailinglist" 
-	<netfilter-devel@lists.netfilter.org>
-References: <pcKD.6BP.19@gated-at.bofh.it> <200308280850.h7S8oxGx001862@pc.skynet.be> <3F4E1823.7060600@trash.net>
-Subject: Re: Linux 2.4.23-pre1
-Date: Thu, 28 Aug 2003 17:49:32 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 28 Aug 2003 11:51:45 -0400
+Date: Thu, 28 Aug 2003 08:46:40 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Tomasz Czaus <tomasz_czaus@go2.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
+Message-Id: <20030828084640.68fe827d.rddunlap@osdl.org>
+In-Reply-To: <200308281548.44803.tomasz_czaus@go2.pl>
+References: <200308281548.44803.tomasz_czaus@go2.pl>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Patrick,
+On Thu, 28 Aug 2003 15:48:44 +0200 Tomasz Czaus <tomasz_czaus@go2.pl> wrote:
 
-forwarding and NAT works as before
+| Hello,
+| 
+| when my system is booting I can see such a message:
+| 
+| kernel: MCE: The hardware reports a non fatal, correctable incident occurred 
+| on CPU 0.
+| kernel: Bank 0: e664000000000185
+| 
+| What does it mean ??? My kernel 2.6.0-test4 has applyed "Nick's scheduler 
+| policy v8" patch. 
 
-greetings,
-Hans
+Use "parsemce" from here:
+  http://www.codemonkey.org.uk/projects/parsemce/
+to decode it.
 
------ Original Message ----- 
-From: "Patrick McHardy" <kaber@trash.net>
-To: "Hans Lambrechts" <hans.lambrechts@skynet.be>
-Cc: <linux-kernel@vger.kernel.org>; "Netfilter Development Mailinglist"
-<netfilter-devel@lists.netfilter.org>
-Sent: Thursday, August 28, 2003 4:56 PM
-Subject: Re: Linux 2.4.23-pre1
+| When I boot 2.4.x kernel I can't see this message.
 
+So 2.6 has more/better/different processor error checking.
 
-> Please try this patch.
->
-> Regards,
-> Patrick
->
-> Hans Lambrechts wrote:
->
-> >Greetings,
-> >
-> >
-> >
-> >>Harald Welte:
-> >>  o [NETFILTER]: Backport iptables AH/ESP fixes from 2.6.x
-> >>  o [NETFILTER]: Fix uninitialized return in iptables tftp
-> >>  o [NETFILTER]: NAT optimization
-> >>  o [NETFILTER]: Conntrack optimization (LIST_DELETE)
-> >>
-> >>
-> >>
-> >
-> >
-> >I see this in my log:
-> >
-> >Aug 28 10:45:44 pc kernel: MASQUERADE: No route: Rusty's brain broke!
-> >Aug 28 10:46:10 pc last message repeated 13 times
-> >Aug 28 10:48:42 pc kernel: NET: 1 messages suppressed.
-> >Aug 28 10:48:42 pc kernel: MASQUERADE: No route: Rusty's brain broke!
-> >Aug 28 10:48:43 pc kernel: MASQUERADE: Route sent us somewhere else.
-> >
-> >Forwarding and masquerading doesn't work anymore.
-> >
-> >Hans
-> >
-> >
->
-
-
-----------------------------------------------------------------------------
-----
-
-
-> ===== net/ipv4/netfilter/ipt_MASQUERADE.c 1.6 vs edited =====
-> --- 1.6/net/ipv4/netfilter/ipt_MASQUERADE.c Tue Aug 12 11:30:12 2003
-> +++ edited/net/ipv4/netfilter/ipt_MASQUERADE.c Thu Aug 28 16:54:15 2003
-> @@ -90,6 +90,7 @@
->  #ifdef CONFIG_IP_ROUTE_FWMARK
->   key.fwmark = (*pskb)->nfmark;
->  #endif
-> + key.oif = 0;
->   if (ip_route_output_key(&rt, &key) != 0) {
->                  /* Funky routing can do this. */
->                  if (net_ratelimit())
->
-
-
+--
+~Randy

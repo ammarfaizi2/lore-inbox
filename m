@@ -1,55 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbTDKQvs (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTDKQvs (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 12:51:48 -0400
-Received: from [203.197.168.150] ([203.197.168.150]:9989 "HELO
-	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
-	id S261293AbTDKQvp (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 12:51:45 -0400
-Message-ID: <3E96F517.7020002@tataelxsi.co.in>
-Date: Fri, 11 Apr 2003 22:32:15 +0530
-From: "Sriram Narasimhan" <nsri@tataelxsi.co.in>
-Organization: Tata Elxsi
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id S261288AbTDKQ4S (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTDKQ4S (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 12:56:18 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:32658 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261288AbTDKQ4P (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 12:56:15 -0400
+Date: Fri, 11 Apr 2003 19:07:53 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
 To: linux-kernel@vger.kernel.org
-Subject: sk_buff doubt
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: netfilter-devel@lists.samba.org
+Subject: [PATCH] net/ipv6/netfilter warning removal 2.[45]
+Message-ID: <Pine.LNX.4.51.0304111904240.17912@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-A doubt in sk_buff. I am running the fcc_enet driver provided in the PPC 
-architecture tree for MPC8260 on ADS board.
-Kernel version is 2.4.1. The driver has been modified to be loaded as a 
-module.
-When IFNET provides the sk_buff to transmit I store them up in an array 
-and at transmit complete I release the sk_buff.
+there are simple warning to remove in 4 files there, here are the
+warnings:
+net/ipv6/netfilter/ip6t_rt.c: In function `match':
+net/ipv6/netfilter/ip6t_rt.c:133: warning: assignment from incompatible pointer type
+net/ipv6/netfilter/ip6t_frag.c: In function `match':
+net/ipv6/netfilter/ip6t_frag.c:150: warning: assignment from incompatible pointer type
+net/ipv6/netfilter/ip6t_esp.c: In function `match':
+net/ipv6/netfilter/ip6t_esp.c:126: warning: assignment from incompatible pointer type
+net/ipv6/netfilter/ip6t_ah.c: In function `match':
+net/ipv6/netfilter/ip6t_ah.c:136: warning: assignment from incompatible pointer type
 
-When the module is unloaded, I release all the sk_buffs.
-When I release the sk_buff I get the following output. Am I doing 
-anything wrong here ?
------------------------------------------------------------------------------------------
+And here is the patch to remove those by using casts.
 
-# ifconfig eth1 10.1.70.56 netmask 255.255.0.0 up
-eth1: config: auto-negotiation on, 10FDX, 10HDX.
-# ping 10.1.1.1
-Inside fcc_enet_start_xmit... skb: c01e5c60
-Inside fcc_enet_start_xmit... skb: c01e5620
-Inside fcc_enet_start_xmit... skb: c01e5080
-No response from 10.1.1.1
-# lsmod
-Module                  Size  Used by
-enet                   12512   0  (unused)
-# rmmod enet
-Warning: kfree_skb passed an skb still on a list (from c208360c).
-kernel BUG at skbuff.c:277!
-Oops: Exception in kernel mode, sig: 4
+It applies both to 2.4.20 and 2.5.67.
 
------------------------------------------------------------------------------------------
+Regards,
+Maciej
 
-Sriram
+diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.c
+--- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.c	2003-04-11 18:41:29.000000000 +0200
++++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.c	2003-04-11 18:49:41.000000000 +0200
+@@ -133,7 +133,7 @@
+        		return 0;
+        }
 
+-       ah=skb->data+ptr;
++       ah = (struct ahhdr *) skb->data+ptr;
+
+        DEBUGP("IPv6 AH LEN %u %u ", hdrlen, ah->hdrlen);
+        DEBUGP("RES %04X ", ah->reserved);
+Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.ko differ
+Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.o differ
+diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.c
+--- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.c	2003-04-11 18:41:29.000000000 +0200
++++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.c	2003-04-11 18:48:24.000000000 +0200
+@@ -123,7 +123,7 @@
+        		return 0;
+        }
+
+-	esp=skb->data+ptr;
++	esp = (struct esphdr *) skb->data+ptr;
+
+ 	DEBUGP("IPv6 ESP SPI %u %08X\n", ntohl(esp->spi), ntohl(esp->spi));
+
+Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.ko differ
+Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.o differ
+diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.c
+--- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.c	2003-04-11 18:41:29.000000000 +0200
++++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.c	2003-04-11 18:48:09.000000000 +0200
+@@ -147,7 +147,7 @@
+        		return 0;
+        }
+
+-       frag=skb->data+ptr;
++       frag = (struct fraghdr *) skb->data+ptr;
+
+        DEBUGP("IPv6 FRAG LEN %u %u ", hdrlen, frag->hdrlen);
+        DEBUGP("INFO %04X ", frag->info);
+Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.ko differ
+Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.o differ
+diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_rt.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_rt.c
+--- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_rt.c	2003-04-11 18:41:29.000000000 +0200
++++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_rt.c	2003-04-11 18:53:36.000000000 +0200
+@@ -130,7 +130,7 @@
+        		return 0;
+        }
+
+-       route=skb->data+ptr;
++       route = (struct ipv6_rt_hdr *) skb->data+ptr;
+
+        DEBUGP("IPv6 RT LEN %u %u ", hdrlen, route->hdrlen);
+        DEBUGP("TYPE %04X ", route->type);

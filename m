@@ -1,123 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263237AbVCKJNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263238AbVCKJVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263237AbVCKJNy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 04:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbVCKJNy
+	id S263238AbVCKJVP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 04:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbVCKJVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 04:13:54 -0500
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:51217 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S263237AbVCKJNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 04:13:41 -0500
-Date: Fri, 11 Mar 2005 10:13:58 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <greg@kroah.com>
-Cc: Josh Boyer <jdub@us.ibm.com>, Gred Knorr <kraxel@bytesex.org>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [01/11] fix amd64 2.6.11 oops on modprobe (saa7110)
-Message-Id: <20050311101358.79d216e7.khali@linux-fr.org>
-In-Reply-To: <20050311075723.GB29099@kroah.com>
-References: <20050310230519.GA22112@kroah.com>
-	<20050310230753.GB22112@kroah.com>
-	<1110505061.8075.3.camel@windu.rchland.ibm.com>
-	<20050311075723.GB29099@kroah.com>
-X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 11 Mar 2005 04:21:15 -0500
+Received: from village.ehouse.ru ([193.111.92.18]:6917 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S263238AbVCKJVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 04:21:06 -0500
+From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+To: linux-kernel@vger.kernel.org
+Subject: mm/memory.c:97: bad pmd ... v2.6.11 amd64
+Date: Fri, 11 Mar 2005 12:21:04 +0300
+User-Agent: KMail/1.7.2
+Cc: admin@list.net.ru
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503111221.04497.rathamahata@ehouse.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, all,
+Hello all,
 
-> > Not that I really care, but isn't there a rule that a patch "... can
-> > not contain any "trivial" fixes in it (spelling changes, whitespace
-> > cleanups, etc.)"?
-> 
-> Good point.  Jean, care to respin the patch?
+I've just found following messages in dmesg of my smp
+amd64 box. Is this a sign of broken hardware (box passed
+memtest86 for 24 hours two months ago) or kernel problem?
 
-Sure, sorry for the trouble.
-
----
-
-This is a rewrite of the saa7110_write_block function, which was
-plain broken in the case where the underlying adapter supports
-I2C_FUNC_I2C. It also includes related fixes which ensure that
-different parts of the driver agree on the number of registers the
-chip has.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
---- linux-2.6.11/drivers/media/video/saa7110.c.orig	2005-03-03 08:01:14.000000000 +0100
-+++ linux-2.6.11/drivers/media/video/saa7110.c	2005-03-11 10:06:09.000000000 +0100
-@@ -60,8 +60,10 @@
- 
- #define	I2C_SAA7110		0x9C	/* or 0x9E */
- 
-+#define SAA7110_NR_REG		0x35
-+
- struct saa7110 {
--	unsigned char reg[54];
-+	u8 reg[SAA7110_NR_REG];
- 
- 	int norm;
- 	int input;
-@@ -95,31 +97,28 @@
- 		     unsigned int       len)
- {
- 	int ret = -1;
--	u8 reg = *data++;
-+	u8 reg = *data;		/* first register to write to */
- 
--	len--;
-+	/* Sanity check */
-+	if (reg + (len - 1) > SAA7110_NR_REG)
-+		return ret;
- 
- 	/* the saa7110 has an autoincrement function, use it if
- 	 * the adapter understands raw I2C */
- 	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		struct saa7110 *decoder = i2c_get_clientdata(client);
- 		struct i2c_msg msg;
--		u8 block_data[54];
- 
--		msg.len = 0;
--		msg.buf = (char *) block_data;
-+		msg.len = len;
-+		msg.buf = (char *) data;
- 		msg.addr = client->addr;
--		msg.flags = client->flags;
--		while (len >= 1) {
--			msg.len = 0;
--			block_data[msg.len++] = reg;
--			while (len-- >= 1 && msg.len < 54)
--				block_data[msg.len++] =
--				    decoder->reg[reg++] = *data++;
--			ret = i2c_transfer(client->adapter, &msg, 1);
--		}
-+		msg.flags = 0;
-+		ret = i2c_transfer(client->adapter, &msg, 1);
-+
-+		/* Cache the written data */
-+		memcpy(decoder->reg + reg, data + 1, len - 1);
- 	} else {
--		while (len-- >= 1) {
-+		for (++data, --len; len; len--) {
- 			if ((ret = saa7110_write(client, reg++,
- 						 *data++)) < 0)
- 				break;
-@@ -192,7 +191,7 @@
- 	return 0;
- }
- 
--static const unsigned char initseq[] = {
-+static const unsigned char initseq[1 + SAA7110_NR_REG] = {
- 	0, 0x4C, 0x3C, 0x0D, 0xEF, 0xBD, 0xF2, 0x03, 0x00,
- 	/* 0x08 */ 0xF8, 0xF8, 0x60, 0x60, 0x00, 0x86, 0x18, 0x90,
- 	/* 0x10 */ 0x00, 0x59, 0x40, 0x46, 0x42, 0x1A, 0xFF, 0xDA,
-
+mm/memory.c:97: bad pmd ffff81009773fc78(00002aaaaaaabab8).
+mm/memory.c:97: bad pmd ffff81009773fc80(0000000000000003).
+mm/memory.c:97: bad pmd ffff81009773fc88(00007ffffffffe3e).
+mm/memory.c:97: bad pmd ffff81009773fc90(00007ffffffffe3f).
+mm/memory.c:97: bad pmd ffff81009773fc98(00007ffffffffe40).
+mm/memory.c:97: bad pmd ffff81009773fca8(00007ffffffffe41).
+mm/memory.c:97: bad pmd ffff81009773fcb0(00007ffffffffe42).
+mm/memory.c:97: bad pmd ffff81009773fcb8(00007ffffffffe43).
+mm/memory.c:97: bad pmd ffff81009773fcc0(00007ffffffffe44).
+mm/memory.c:97: bad pmd ffff81009773fcc8(00007ffffffffe45).
+mm/memory.c:97: bad pmd ffff81009773fcd0(00007ffffffffe46).
+mm/memory.c:97: bad pmd ffff81009773fcd8(00007ffffffffe47).
+mm/memory.c:97: bad pmd ffff81009773fce0(00007ffffffffe48).
+mm/memory.c:97: bad pmd ffff81009773fce8(00007ffffffffe49).
+mm/memory.c:97: bad pmd ffff81009773fcf0(00007ffffffffe4a).
+mm/memory.c:97: bad pmd ffff81009773fcf8(00007ffffffffe4b).
+mm/memory.c:97: bad pmd ffff81009773fd00(00007ffffffffe4c).
+mm/memory.c:97: bad pmd ffff81009773fd08(00007ffffffffe4d).
+mm/memory.c:97: bad pmd ffff81009773fd10(00007ffffffffe4e).
+mm/memory.c:97: bad pmd ffff81009773fd18(00007ffffffffe4f).
+mm/memory.c:97: bad pmd ffff81009773fd20(00007ffffffffe50).
+mm/memory.c:97: bad pmd ffff81009773fd30(0000000000000010).
+mm/memory.c:97: bad pmd ffff81009773fd38(00000000078bfbff).
+mm/memory.c:97: bad pmd ffff81009773fd40(0000000000000006).
+mm/memory.c:97: bad pmd ffff81009773fd48(0000000000001000).
+mm/memory.c:97: bad pmd ffff81009773fd50(0000000000000011).
+mm/memory.c:97: bad pmd ffff81009773fd58(0000000000000064).
+mm/memory.c:97: bad pmd ffff81009773fd60(0000000000000003).
+mm/memory.c:97: bad pmd ffff81009773fd68(0000000000400040).
+mm/memory.c:97: bad pmd ffff81009773fd70(0000000000000004).
+mm/memory.c:97: bad pmd ffff81009773fd78(0000000000000038).
+mm/memory.c:97: bad pmd ffff81009773fd80(0000000000000005).
+mm/memory.c:97: bad pmd ffff81009773fd88(0000000000000009).
+mm/memory.c:97: bad pmd ffff81009773fd90(0000000000000007).
+mm/memory.c:97: bad pmd ffff81009773fd98(00002aaaaaaab000).
+mm/memory.c:97: bad pmd ffff81009773fda0(0000000000000008).
+mm/memory.c:97: bad pmd ffff81009773fdb0(0000000000000009).
+mm/memory.c:97: bad pmd ffff81009773fdb8(0000000000417a40).
+mm/memory.c:97: bad pmd ffff81009773fdc0(000000000000000b).
+mm/memory.c:97: bad pmd ffff81009773fdc8(0000000000000065).
+mm/memory.c:97: bad pmd ffff81009773fdd0(000000000000000c).
+mm/memory.c:97: bad pmd ffff81009773fdd8(0000000000000065).
+mm/memory.c:97: bad pmd ffff81009773fde0(000000000000000d).
+mm/memory.c:97: bad pmd ffff81009773fde8(0000000000000198).
+mm/memory.c:97: bad pmd ffff81009773fdf0(000000000000000e).
+mm/memory.c:97: bad pmd ffff81009773fdf8(0000000000000198).
+mm/memory.c:97: bad pmd ffff81009773fe00(0000000000000017).
+mm/memory.c:97: bad pmd ffff81009773fe10(000000000000000f).
+mm/memory.c:97: bad pmd ffff81009773fe18(00007ffffffffe37).
+mm/memory.c:97: bad pmd ffff81009773fe30(7800000000000000).
+mm/memory.c:97: bad pmd ffff81009773fe38(00000034365f3638).
 
 -- 
-Jean Delvare
+Sergey S. Kostyliov <rathamahata@ehouse.ru>
+Jabber ID: rathamahata@jabber.org

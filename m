@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131542AbQLIWfh>; Sat, 9 Dec 2000 17:35:37 -0500
+	id <S132343AbQLIWfi>; Sat, 9 Dec 2000 17:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132343AbQLIWf1>; Sat, 9 Dec 2000 17:35:27 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:2056 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131542AbQLIWfN>; Sat, 9 Dec 2000 17:35:13 -0500
-Date: Sat, 9 Dec 2000 16:00:27 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Bob Lorenzini <hwm@ns.newportharbornet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18-25 DELL Laptop Video Problems
-Message-ID: <20001209160027.A15007@vger.timpanogas.org>
-In-Reply-To: <20001209154916.A14937@vger.timpanogas.org> <Pine.LNX.4.21.0012091400590.17164-100000@newportharbornet.com>
+	id <S132344AbQLIWf1>; Sat, 9 Dec 2000 17:35:27 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30982 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S132343AbQLIWfR>; Sat, 9 Dec 2000 17:35:17 -0500
+Date: Sat, 9 Dec 2000 23:06:15 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swapoff weird
+Message-ID: <20001209230615.C5542@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20001209222427.A1542@bug.ucw.cz> <Pine.LNX.4.21.0012091941170.19389-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0012091400590.17164-100000@newportharbornet.com>; from hwm@ns.newportharbornet.com on Sat, Dec 09, 2000 at 02:03:08PM -0800
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.21.0012091941170.19389-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Sat, Dec 09, 2000 at 07:41:54PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2000 at 02:03:08PM -0800, Bob Lorenzini wrote:
-> On Sat, 9 Dec 2000, Jeff V. Merkey wrote:
+> On Sat, 9 Dec 2000, Pavel Machek wrote:
 > 
-> > 
-> > 
-> > 2.2.18-25 with Frame Buffer enabled will frizt and trash LCD displays
-> > on DELL laptop computers when the system kicks into graphics mode,
-> > and attempts to display the penguin images on the screen.  It 
-> > renders the anaconda installer dead in the water when you attempt 
-> > even a text mode install (not graphics) of a 2.2.18-25 kernel (and 24)
-> > on a DELL laptop.  Is there a way to turn on frame buffer without 
-> > kicking the kernel into mode 274 and killing DELL laptops during
-> > a text based install?
+> > It is possible to remove swapfile in use. Great, but how do you
+> > swap off then? Who is to blame?
 > 
-> Jeff the change that broke or first broke is in 2.2.17-15 if thats any help.
+> As usual, root is to blame ;)
+
+I do not agree. It is too easy to get to situation like this.
+
+> > root@bug:~# swapoff /tmp/swap
+> > swapoff: /tmp/swap: No such file or directory
+> > root@bug:~# > /tmp/swap
+> > root@bug:~# swapoff /tmp/swap
+> > swapoff: /tmp/swap: Invalid argument
+> > root@bug:~#
 > 
-> Bob
+> Don't let your automatic /tmp cleaners remove the swap
+> file ;)
+> 
+> > How do I get out of this bad situation?
+> 
+> Reboot.
 
-Alan,
+I'm afraid even reboot will not work.
 
-Id there a workaround for this for DELL laptops.  Frame buffer needs
-to be enabled because you don't really know what system you are on
-until after it installs, and the X probing stuff needs it enabled in
-order to properly detect the hardware.  Any ideas?
-
-:-)
-
-Jeff
-
+I can't swapoff.  Therefore filesystem is busy (it must be -- kernel
+might be writing to file on it!). And no way to get out of that. 
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

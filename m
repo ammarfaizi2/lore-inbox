@@ -1,34 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUENNsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265281AbUENNuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265288AbUENNsn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 09:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUENNsn
+	id S265281AbUENNuc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 09:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUENNuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 09:48:43 -0400
-Received: from legolas.drinsama.de ([62.91.17.164]:39342 "EHLO
-	legolas.drinsama.de") by vger.kernel.org with ESMTP id S265281AbUENNsg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 09:48:36 -0400
-Subject: Re: Bug in bridge interface removal?
-From: Erich Schubert <erich@debian.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1084542378.17594.12.camel@wintermute.xmldesign.de>
-References: <1084542378.17594.12.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Organization: Debian GNU/Linux Developers
-Message-Id: <1084542509.17594.15.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 
-Date: Fri, 14 May 2004 15:48:29 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 14 May 2004 09:50:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33172 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265281AbUENNuY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 09:50:24 -0400
+Date: Fri, 14 May 2004 09:48:08 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Fruhwirth Clemens <clemens-dated-1085404045.d167@endorphin.org>
+cc: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] AES i586 optimized, regparm fixed
+In-Reply-To: <20040514130724.GA8081@ghanima.endorphin.org>
+Message-ID: <Xine.LNX.4.44.0405140945590.20213-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, this is fixed in 2.6, and the fix is neater than mine.
-I only looked at "del_nbp".
+On Fri, 14 May 2004, Fruhwirth Clemens wrote:
 
-Backporting that from 2.6.x is probably nicer than my fix.
+> James, if the patch suits your taste, please take care of forwarding it to
+> Andrew or Linus.
 
-Greetings,
-Erich
+There is still the binary license issue, and how to ensure this is built 
+instead of the generic AES module for the right architectures.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

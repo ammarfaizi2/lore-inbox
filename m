@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264719AbUD1KSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264721AbUD1KVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264719AbUD1KSu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 06:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264720AbUD1KSu
+	id S264721AbUD1KVb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 06:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUD1KVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 06:18:50 -0400
-Received: from benzin.geggus.net ([82.139.198.100]:37905 "EHLO
-	benzin.geggus.net") by vger.kernel.org with ESMTP id S264719AbUD1KSs
+	Wed, 28 Apr 2004 06:21:30 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:32983 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264721AbUD1KVU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 06:18:48 -0400
-To: linux-kernel@vger.kernel.org
-Path: news.geggus.net!not-for-mail
-From: Sven Geggus <sven-im-usenet@gegg.us>
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-Date: Wed, 28 Apr 2004 12:18:46 +0200 (CEST)
-Organization: Geggus clan, virtual section
-Message-ID: <c6o0e6$2ck$1@benzin.geggus.net>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen> <20040427230203.1e4693ac.akpm@osdl.org>
-NNTP-Posting-Host: ::1
-X-Trace: benzin.geggus.net 1083147526 2453 ::1 (28 Apr 2004 10:18:46 GMT)
-X-Complaints-To: usenet@geggus.net
-NNTP-Posting-Date: Wed, 28 Apr 2004 10:18:46 +0000 (UTC)
-X-TERMINAL: rxvt
-X-OS: Debian GNU/Linux (Kernel 2.4.26-exec-shield)
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-exec-shield (i686))
+	Wed, 28 Apr 2004 06:21:20 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8bit
+Message-ID: <16527.34205.472659.465932@laputa.namesys.com>
+Date: Wed, 28 Apr 2004 14:21:17 +0400
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: David Lang <dlang@digitalinsight.com>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: File system compression, not at the block layer
+In-Reply-To: <20040428100916.GA29219@wohnheim.fh-wedel.de>
+References: <408951CE.3080908@techsource.com>
+	<Pine.LNX.4.58.0404271753380.20613@dlang.diginsite.com>
+	<20040428100916.GA29219@wohnheim.fh-wedel.de>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Jörn Engel writes:
+ > On Tue, 27 April 2004 18:00:11 -0700, David Lang wrote:
+ > > 
+ > > to answer the fundamental question that was asked in this thread but not
+ > > answered.
+ > > 
+ > > the reason why we want to compress at the block level instead of over the
+ > > entire file is that sometimes we want to do random seeks into the middle
+ > > of the file or replace a chunk in the middle of a file (edits, inserts,
+ > > etc). by doing the compression in a block the worst that you have to do is
+ > > to read that one block, decompress it and get your data out (or modify the
+ > > block, compress it and put it back on disk). if your unit of compression
+ > > is the entire file each of these options will require manipulating basicly
+ > > the entire file (Ok, reads you can possibly stop after you found your
+ > > data)
+ > 
+ > *IF* your unit of compression...
+ > 
+ > If that is the complete block device, you're stupid and deserve what
+ > you get.  If it is the file, same thing.  No difference.
+ > 
+ > Do it at the file system level or don't do it at all.
 
-> It's a shame this wasn't reported earlier.
+File system where unit of disk space allocation is smaller than disk
+block (i.e., several files can use portions of the same disk block) can
+efficiently use various "units of compression": 100 bytes, device block
+size, N-blocks, etc.
 
-I did report this behaviour in <c6gi0f$g6i$1@benzin.geggus.net> a few days
-ago.
+ > 
+ > Jörn
 
-> Please confirm that the problem is observed on the NFS client and not the
-> NFS server?  I'll assume the client.
-
-Shure! The problem is observed on the NFS client, a diskless machine in my
-case.
-
-> What other filesystems are in use on the client?
-
-Non in my case!
-
-> Please describe the NFS mount options and the number of CPUs and the amount
-> of memory in the machine.
-
-NFS mount options are default and my machine does not use an SMP Kernel (AMD
-Athlon 2000+, Single CPU).
-
-Sven
-
--- 
-/*
- * Wirzenius wrote this portably, Torvalds fucked it up :-)
- */                        (taken from /usr/src/linux/lib/vsprintf.c)
-/me is giggls@ircnet, http://sven.gegg.us/ on the Web
+Nikita.

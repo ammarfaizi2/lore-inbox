@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266155AbRF2TDF>; Fri, 29 Jun 2001 15:03:05 -0400
+	id <S266158AbRF2Syy>; Fri, 29 Jun 2001 14:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266156AbRF2TCz>; Fri, 29 Jun 2001 15:02:55 -0400
-Received: from www.microgate.com ([216.30.46.105]:21517 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S266155AbRF2TCk>; Fri, 29 Jun 2001 15:02:40 -0400
-Message-ID: <009201c100d6$6ad50030$0c00a8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: "Pavel Machek" <pavel@suse.cz>, <landley@webofficenow.com>,
-        "Schilling, Richard" <RSchilling@affiliatedhealth.org>,
-        <hps@intermeta.de>,
-        "Henning P. Schmiedehausen" <mailgate@hometree.net>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <51FCCCF0C130D211BE550008C724149E01165690@mail1.affiliatedhealth.org> <01062114211800.00692@localhost.localdomain> <20010629002710.C525@bug.ucw.cz>
-Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
-Date: Fri, 29 Jun 2001 14:02:25 -0600
+	id <S266154AbRF2Sye>; Fri, 29 Jun 2001 14:54:34 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:12782 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S266155AbRF2Sya>;
+	Fri, 29 Jun 2001 14:54:30 -0400
+Message-ID: <3B3CCF08.3E2E6AA8@mandrakesoft.com>
+Date: Fri, 29 Jun 2001 14:55:04 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: John Jasen <jjasen@datafoundation.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: a couple of NICs that don't NIC
+In-Reply-To: <Pine.LNX.4.30.0106291223560.9716-100000@flash.datafoundation.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is this accurate? I never knew NT was mach-based. I do not think NT
-> 1-3 were actually ever shipped, first was NT 3.5 right?
-> Pavel
+John Jasen wrote:
+> kernels: 2.4.4
+> 
+> drivers used: kernel 8139too
+> 
+> symptoms: the system would hang under heavy network traffic, and need to
+> be powercycled backed to life.
 
-NT 3.1 was the 1st to ship.
+fixed in 2.4.6-pre6
 
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation www.microgate.com
-
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

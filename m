@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130658AbQKDFz7>; Sat, 4 Nov 2000 00:55:59 -0500
+	id <S132432AbQKDGPe>; Sat, 4 Nov 2000 01:15:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131537AbQKDFzu>; Sat, 4 Nov 2000 00:55:50 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:45981 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S130658AbQKDFzj>; Sat, 4 Nov 2000 00:55:39 -0500
-From: kumon@flab.fujitsu.co.jp
-Date: Sat, 4 Nov 2000 14:55:30 +0900
-Message-Id: <200011040555.OAA02581@asami.proc.flab.fujitsu.co.jp>
-To: linux-kernel@vger.kernel.org
-cc: andrewm@uow.edu.au, dean-list-linux-kernel@arctic.org
-Cc: viro@math.psu.edu
-Subject: Preemptive scheduling of woken-up processes
-In-Reply-To: <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
-Reply-To: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132459AbQKDGPY>; Sat, 4 Nov 2000 01:15:24 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:53514 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132432AbQKDGPS>;
+	Sat, 4 Nov 2000 01:15:18 -0500
+Message-ID: <3A03A915.DA71BEAC@mandrakesoft.com>
+Date: Sat, 04 Nov 2000 01:13:41 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Håvard Garnes <hhg@iname.com>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Oops when loading 3c509-module in test10
+In-Reply-To: <3A01BF94.B139AA34@iname.com>
+Content-Type: multipart/mixed;
+ boundary="------------9F953E6509A060278DB5EF55"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current schduler has a problem handling waken up processes.
+This is a multi-part message in MIME format.
+--------------9F953E6509A060278DB5EF55
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-In the current kernel woken up processes probably try to preempt CPU
-from the currently running process.
+Håvard Garnes wrote:
+> 
+> This occurs when the 3c509-module is being loaded at startup, and in
+> /proc/modules it is listed as (initialising). It it worth mentioning
+> that I have two 3c509-cards in my computer. This worked in test8.
 
-That is the fundamental reason of the negative scalability of Apache
-on a large SMP system, which has been reported already.
-The modification of scheduler is introduced  between test8 and test9.
-So, test9 owes two problems for the Apache performance.
-One for flock, another for scheduler.
+Oops.  This is one of the newer (and better) ISA modules, which actually
+does allocate its device structure correctly.
 
+Please apply this patch...
 
-Detailed Description:
-
-When a process releases the semaphore, it wakes up the slept process
-through wake_up_process(). Then, schedule_idle() has the final duty.
-
-In the current scheduler logic, the woken up process may preempt CPU
-from the current process if the goodness tells to do so.  This is done
-even if there are lots of idle CPUs. This severy disables parallel
-execution on a MP system.  The previously runnning process is runnable
-but wating on run queue until the next scheduling timing, which
-possibly is few milliseconds later.
-
-# We've not yet proved above senario by experimentation. We'll do in
-# next week if it is needed. 
-
-I think this scheduling policy is bad for MP systems.
-Basically, the waken up process should run on the previous CPU ,
-or, should run on an idle CPU.
-This policy has been adopted in test8, and that is better, I think.
-
-# Sorry to whom get this mail twice. I mistook LK-ML address.
+	Jeff
 
 
---
-Computer Systems Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+-- 
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
+--------------9F953E6509A060278DB5EF55
+Content-Type: text/plain; charset=us-ascii;
+ name="3c509.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="3c509.patch"
+
+Index: linux_2_4/drivers/net/3c509.c
+diff -u linux_2_4/drivers/net/3c509.c:1.1.1.5 linux_2_4/drivers/net/3c509.c:1.1.1.3
+--- linux_2_4/drivers/net/3c509.c:1.1.1.5	Tue Oct 31 13:21:47 2000
++++ linux_2_4/drivers/net/3c509.c	Sun Oct 22 13:29:58 2000
+@@ -434,6 +436,13 @@
+ 	/* Free the interrupt so that some other card can use it. */
+ 	outw(0x0f00, ioaddr + WN0_IRQ);
+  found:
++	if (dev == NULL) {
++		dev = init_etherdev(dev, sizeof(struct el3_private));
++		if (dev == NULL) {
++			release_region(ioaddr, EL3_IO_EXTENT);
++			return -ENOMEM;
++		}
++	}
+ 	memcpy(dev->dev_addr, phys_addr, sizeof(phys_addr));
+ 	dev->base_addr = ioaddr;
+ 	dev->irq = irq;
+
+--------------9F953E6509A060278DB5EF55--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

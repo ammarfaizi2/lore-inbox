@@ -1,40 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbUJ3SUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbUJ3SUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbUJ3SUr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 14:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbUJ3STt
+	id S261264AbUJ3SUs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 14:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUJ3STm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 14:19:49 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:46739 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261295AbUJ3SRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 14:17:05 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+	Sat, 30 Oct 2004 14:19:42 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43528 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261264AbUJ3SFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 14:05:39 -0400
+Date: Sat, 30 Oct 2004 20:05:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with hotplug functions
-Date: Sat, 30 Oct 2004 13:16:58 -0500
-User-Agent: KMail/1.6.2
-Cc: Marcel Holtmann <marcel@holtmann.org>
-References: <1099153682.16247.30.camel@pegasus>
-In-Reply-To: <1099153682.16247.30.camel@pegasus>
-MIME-Version: 1.0
+Subject: [2.6 patch] small proc_fs cleanups
+Message-ID: <20041030180508.GS4374@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410301316.58908.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 October 2004 11:28 am, Marcel Holtmann wrote:
-> Hi,
-> 
-> I have a little problem with the hotplug functions and in particular
-> with the one from firmware_class. The problem is that the extra env
-> variables are not set when hotplug is called.
+The patch below does the following cleanups in the proc_fs code:
+- remove an unused global function
+- make two functions static
 
-Hm, that must be the reason why firmare loading for my atmel wireless
-card stopped working recently.
 
--- 
-Dmitry
+diffstat output:
+ fs/proc/kcore.c         |   17 -----------------
+ fs/proc/proc_misc.c     |    4 ++--
+ include/linux/proc_fs.h |    5 -----
+ 3 files changed, 2 insertions(+), 24 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm2-full/include/linux/proc_fs.h.old	2004-10-30 14:44:47.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/include/linux/proc_fs.h	2004-10-30 14:45:11.000000000 +0200
+@@ -231,13 +231,8 @@
+ static inline void kclist_add(struct kcore_list *new, void *addr, size_t size)
+ {
+ }
+-static inline struct kcore_list * kclist_del(void *addr)
+-{
+-	return NULL;
+-}
+ #else
+ extern void kclist_add(struct kcore_list *, void *, size_t);
+-extern struct kcore_list *kclist_del(void *);
+ #endif
+ 
+ struct proc_inode {
+--- linux-2.6.10-rc1-mm2-full/fs/proc/kcore.c.old	2004-10-30 14:45:22.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/proc/kcore.c	2004-10-30 14:45:36.000000000 +0200
+@@ -68,23 +68,6 @@
+ 	write_unlock(&kclist_lock);
+ }
+ 
+-struct kcore_list *
+-kclist_del(void *addr)
+-{
+-	struct kcore_list *m, **p = &kclist;
+-
+-	write_lock(&kclist_lock);
+-	for (m = *p; m; p = &m->next) {
+-		if (m->addr == (unsigned long)addr) {
+-			*p = m->next;
+-			write_unlock(&kclist_lock);
+-			return m;
+-		}
+-	}
+-	write_unlock(&kclist_lock);
+-	return NULL;
+-}
+-
+ static size_t get_kcore_size(int *nphdr, size_t *elf_buflen)
+ {
+ 	size_t try, size;
+--- linux-2.6.10-rc1-mm2-full/fs/proc/proc_misc.c.old	2004-10-30 14:46:32.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/proc/proc_misc.c	2004-10-30 14:47:49.000000000 +0200
+@@ -359,7 +359,7 @@
+ 	.release	= seq_release,
+ };
+ 
+-int show_stat(struct seq_file *p, void *v)
++static int show_stat(struct seq_file *p, void *v)
+ {
+ 	int i;
+ 	extern unsigned long total_forks;
+@@ -509,7 +509,7 @@
+ 	.show  = show_interrupts
+ };
+ 
+-int interrupts_open(struct inode *inode, struct file *filp)
++static int interrupts_open(struct inode *inode, struct file *filp)
+ {
+ 	return seq_open(filp, &int_seq_ops);
+ }
+

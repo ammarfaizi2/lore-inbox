@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUJYRZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbUJYRfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbUJYRZs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUJYRQc
+	id S261221AbUJYRfB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 13:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbUJYRaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 13:16:32 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:11941 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S261153AbUJYRQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 13:16:10 -0400
-Date: Mon, 25 Oct 2004 10:16:04 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Paul Mundt <lethal@linux-sh.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 13/17] 4level support for sh
-Message-ID: <20041025171604.GJ25154@smtp.west.cox.net>
-References: <417CAA06.mail3ZK11VJ7Y@wotan.suse.de> <20041025082232.GA1419@linux-sh.org> <20041025160959.GB26306@verdi.suse.de> <20041025162510.GB9937@linux-sh.org> <20041025163211.GI25154@smtp.west.cox.net> <20041025170401.GB9142@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025170401.GB9142@wotan.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 25 Oct 2004 13:30:01 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:51672 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S261218AbUJYR33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:29:29 -0400
+Date: Mon, 25 Oct 2004 13:29:11 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH 8/28] VFS: Remove MNT_EXPIRE support
+In-reply-to: <417D34D4.3040406@sun.com>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, raven@themaw.net
+Message-id: <417D37E7.8030605@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <10987153211852@sun.com> <10987153522992@sun.com>
+ <20041025150446.GB1603@infradead.org> <417D34D4.3040406@sun.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 07:04:01PM +0200, Andi Kleen wrote:
-> On Mon, Oct 25, 2004 at 09:32:11AM -0700, Tom Rini wrote:
-> > On Mon, Oct 25, 2004 at 07:25:10PM +0300, Paul Mundt wrote:
-> > > On Mon, Oct 25, 2004 at 06:09:59PM +0200, Andi Kleen wrote:
-> > > > BTW separate objdir build seems to be totally broken on sh and 
-> > > > it adds random bogus symlinks to the source tree when you do 
-> > > > that. Perhaps you can fix that too.
-> > > > 
-> > > Tom Rini was working on that stuff, I've not tested it myself. I thought
-> > > this was all fixed by now though, Tom?
-> > 
-> > The last problem with SH and O= I found was with EMBEDDED_RAMDISK.
-> > Andi, can you be more specific about bogus symlinks ?  Unless I broke
-> > something when copying from ARM, it shouldn't have any more, or less,
-> > problems than ARM for include/asm/foo symlinks.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Mike Waychison wrote:
+> Christoph Hellwig wrote:
 > 
-> I tried a separate objdir compilation which eventually didn't work.
-> But my original source tree had several symlinks and a machtypes.h file 
-> now in include/asm-sh*/* which messed up diffs.
+>>>On Mon, Oct 25, 2004 at 10:42:32AM -0400, Mike Waychison wrote:
+>>>
+>>>
+>>>>Drop support for MNT_EXPIRE (flag to umount(2)).  Nobody was using it and it
+>>>>didn't fit into the new expiry framework.
+>>>
+>>>
+>>>umm, this is a user API, you can't simply drop it.
+>>>
+> 
+> 
+> I also wanted to add that given the current interface that is found in
+> mainline, there is no way for userspace to even set a mountpoint as
+> expiring.  The only consumer is still AFS which handles the
+> mark_mounts_for_expiry stuff itself.
+> 
+> So even if userspace wanted to use MNT_EXPIRE, it couldn't.
+> 
 
-Was this stock 2.6.9 or -bk at some point?  All of the O= changes went
-in after 2.6.9 went out as part of akpm's first resync.
+Gah, nevermind. I'm an idiot.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+MNT_EXPIRE allows userspace to do the countdown itself.  For some reason
+I assumed the mount in question had to be on a mnt_fslink list.
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBfTfndQs4kOxk3/MRAo5/AJ42AGwgKaRoEoA1Pto55DClNF3ZFwCfQna8
+02yxxTF3wB30aguYzaumWII=
+=oTA1
+-----END PGP SIGNATURE-----

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280016AbRKNCb3>; Tue, 13 Nov 2001 21:31:29 -0500
+	id <S280028AbRKNCvO>; Tue, 13 Nov 2001 21:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280017AbRKNCbT>; Tue, 13 Nov 2001 21:31:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:22925 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280016AbRKNCbD>;
-	Tue, 13 Nov 2001 21:31:03 -0500
-Date: Tue, 13 Nov 2001 18:29:56 -0800 (PST)
-Message-Id: <20011113.182956.75780493.davem@redhat.com>
-To: goemon@anime.net
-Cc: nitrax@giron.wox.org, linux-kernel@vger.kernel.org
-Subject: Re: What Athlon chipset is most stable in Linux?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0111131317540.3250-100000@anime.net>
-In-Reply-To: <001201c16c45$dc2b6820$0201a8c0@HOMER>
-	<Pine.LNX.4.30.0111131317540.3250-100000@anime.net>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S280030AbRKNCvF>; Tue, 13 Nov 2001 21:51:05 -0500
+Received: from rigel.neo.shinko.co.jp ([210.225.91.71]:3314 "EHLO
+	rigel.neo.shinko.co.jp") by vger.kernel.org with ESMTP
+	id <S280028AbRKNCuz>; Tue, 13 Nov 2001 21:50:55 -0500
+Message-ID: <3BF1DBFF.C02A5274@neo.shinko.co.jp>
+Date: Wed, 14 Nov 2001 11:50:39 +0900
+From: nakai <nakai@neo.shinko.co.jp>
+X-Mailer: Mozilla 4.78 [ja] (WinNT; U)
+X-Accept-Language: ja,en,pdf
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: badblocks fails with promise 100TX2
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dan Hollis <goemon@anime.net>
-   Date: Tue, 13 Nov 2001 13:19:07 -0800 (PST)
-   
-   AMD761 ... is what you want.
+When I run badblocks, it failed, sometime it hanged OS.
 
-Unless you actually plan on actually using the AGP slot without
-crashes/hangs.
+Condition:
+    runs 2 badblocks command at same time, check different drives.
+    EX) badblocks /dev/hdh4; badblocks /dev/hde4
+    /dev/hdh and /dev/hde is connected to promise fasttrak 66
+    (with pdc20267 chip). I also tested with fasttrak 100TX2 (with
+    pdc20268), and got same results.
+    Duron(800)/VT133/VIA686b
+    RedHat7.1(with 2.4.10 kernel)
+Results:
+    They report many blocks(are broken). If I kill one badblocks
+    command, another badblocks command stops reporting blocks. 
+    I think there is conflict when read out.
+    On 2.4.2, there is no problem (but can not use fasttrak 100).
+    
+I know, there is some changes on ide-pci.c between 2.4.2 and 2.4.10,
+and many changes on pdc202xx.c. Something go wrong?
+I just want to build software RAID. But by this problem, I can
+not build Software RAID with new promise 100TX2 card.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+-- 
+-=-=-=-=  SHINKO ELECTRIC INDUSTRIES CO., LTD.           =-=-=-=-
+=-=-=-=-    Core Technology Research & Laboratory,       -=-=-=-=
+-=-=-=-=      Infomation Technology Research Dept.       =-=-=-=-
+=-=-=-=-  Name:Hisakazu Nakai          TEL:026-283-2866  -=-=-=-=
+-=-=-=-=  Mail:nakai@neo.shinko.co.jp  FAX:026-283-2820  =-=-=-=-

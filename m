@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131921AbRASRx0>; Fri, 19 Jan 2001 12:53:26 -0500
+	id <S135777AbRASR5b>; Fri, 19 Jan 2001 12:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132879AbRASRxR>; Fri, 19 Jan 2001 12:53:17 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:56078 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131921AbRASRxG>;
-	Fri, 19 Jan 2001 12:53:06 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101191752.UAA24169@ms2.inr.ac.ru>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 19 Jan 2001 20:52:53 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010118220428.G28276@athlon.random> from "Andrea Arcangeli" at Jan 18, 1 10:04:28 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S136499AbRASR5W>; Fri, 19 Jan 2001 12:57:22 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:54791 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S135777AbRASR5I>; Fri, 19 Jan 2001 12:57:08 -0500
+Message-Id: <200101191756.f0JHuns30179@aslan.scsiguy.com>
+To: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Patch for aic7xxx 2.4.0 test12 hang 
+In-Reply-To: Your message of "Fri, 19 Jan 2001 11:40:16 CST."
+             <3A687C00.FAD6FFBE@mailhost.cs.rose-hulman.edu> 
+Date: Fri, 19 Jan 2001 10:56:49 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>This is a temporary patch to keep the scsi driver from eating
+>your data.... I am working on a real fix....
+>
+>Leslie Donaldson
 
-> I thought setsockopt is meant to set an option in the socket,
+What is the firmware revision of your Seagate drives?  There
+were several models shipped in the recent past with firware that
+would cause the drive to drop off the bus under high load.
 
-It is not.
+There is also a known issue with U160 modes and the currently
+embedded aic7xxx driver.  You might want to try the Adaptec
+supported driver from here:
 
-setsockopt() is simply a bit more clever extension to ioctl(),
-which is adapted (in bsd style though) to understand layering
-and has an explicit length to data.
+http://people.FreeBSD.org/~gibbs/linux/
 
-It is prefered for all the operations on sockets,
-and it is "must", if argument is not plain integer or operation
-is specific to some protocol layer.
+6.09 BETA should be released later today.
 
-
-> controls the I/O (aka ioctl ;). Anyways either ioctl or setsockopt is fine in
-> pratice
-
-After BKL is moved down.
-
-
-
-> NAGLE algorithm is only one, CORK algorithm is another different algorithm.
-
-It is one algorithm. They differ only by amount of incomplete segments
-allowed to be in flight. I.e. (in order of increased latency):
-
-"nodelay" - Infinity
-unnamed   - > 1
-"nagle"   - 1
-"cork"    - 0
-
-
-Alexey
+--
+Justin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

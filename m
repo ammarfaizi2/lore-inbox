@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261659AbTCQNpS>; Mon, 17 Mar 2003 08:45:18 -0500
+	id <S261559AbTCQOIE>; Mon, 17 Mar 2003 09:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261662AbTCQNpS>; Mon, 17 Mar 2003 08:45:18 -0500
-Received: from 39.208-78-194.adsl-fix.skynet.be ([194.78.208.39]:19313 "EHLO
-	mail.macqel.be") by vger.kernel.org with ESMTP id <S261659AbTCQNpQ>;
-	Mon, 17 Mar 2003 08:45:16 -0500
-Message-Id: <200303171356.h2HDu9U30575@mail.macqel.be>
-Subject: sundance DFE-580TX DL10050B patch
-To: linux-kernel@vger.kernel.org
-Date: Mon, 17 Mar 2003 14:56:09 +0100 (CET)
-From: "Philippe De Muyter" <phdm@macqel.be>
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261662AbTCQOIE>; Mon, 17 Mar 2003 09:08:04 -0500
+Received: from wireless-12-106-137-195.fortmail.com ([12.106.137.195]:64423
+	"EHLO desk.wscott1.homeip.net") by vger.kernel.org with ESMTP
+	id <S261559AbTCQOID>; Mon, 17 Mar 2003 09:08:03 -0500
+Date: Mon, 17 Mar 2003 09:18:38 -0500 (EST)
+Message-Id: <20030317.091838.74743468.wscott@bitmover.com>
+To: pavel@suse.cz
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org, ockman@penguincomputing.com,
+       dev@bitmover.com
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+From: Wayne Scott <wscott@bitmover.com>
+In-Reply-To: <20030316134558.GH8057@zaurus.ucw.cz>
+References: <20030312034330.GA9324@work.bitmover.com>
+	<20030316134558.GH8057@zaurus.ucw.cz>
+X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+From: Pavel Machek <pavel@suse.cz>
+> As far as I can see, linux-2.5 repository has over 17000 ChangeSets,
+> that means half the granularity.
 
-trying to use the bonding functionality with a DFE-580TX quad port board,
-I discovered I had to change the sundance.c driver to write the station
-address with word access; that's actually what the sundance technology st201
-and the ic+ IP100 data sheets say, so that should be ok in the general
-case.
+I assume this has already been answered since this is Monday morning
+and I haven't finished my mountain of email (I try not to read it on
+weekends), but I will answer this anyway.
 
-Philippe
+The ChangeSet file has many csets and we only capture around 1/2 of
+them in CVS ChangeSet file.  The extra ChangeSets are grouped together
+with the merge cset where they were added to the path we are
+recording.  That is correct, but it is not the whole story.
 
-Philippe De Muyter  phdm@macqel.be  Tel +32 27029044
-Macq Electronique SA  rue de l'Aeronef 2  B-1140 Bruxelles  Fax +32 27029077
+What happens is that most csets modifiy a non overlapping set of
+files.  So while we didn't get every delta to the ChangeSet file, we
+did capture >90% of the actual changes to the source files in the
+tree.
 
---- drivers/net/sundance.c	Mon Mar 17 13:15:48 2003
-+++ drivers/net/sundance.c	Thu Feb 13 11:56:43 2003
-@@ -853,8 +853,10 @@
- 	writel(np->rx_ring_dma, ioaddr + RxListPtr);
- 	/* The Tx list pointer is written as packets are queued. */
- 
--	for (i = 0; i < 6; i++)
--		writeb(dev->dev_addr[i], ioaddr + StationAddr + i);
-+	/* Station address must be written as 16 bit words with the DL10050B chip. */
-+	for (i = 0; i < 6; i += 2)
-+		writew((dev->dev_addr[i + 1] << 8) + dev->dev_addr[i],
-+			   ioaddr + StationAddr + i);
- 
- 	/* Initialize other registers. */
- 	writew(dev->mtu + 14, ioaddr + MaxFrameSize);
+Perhaps that will help explain things.
+
+-Wayne
+

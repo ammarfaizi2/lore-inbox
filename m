@@ -1,62 +1,213 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263830AbTJCSq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 14:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbTJCSq6
+	id S263832AbTJCTEy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 15:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263833AbTJCTEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 14:46:58 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:19328 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263830AbTJCSq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 14:46:57 -0400
-Date: Fri, 3 Oct 2003 19:47:27 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310031847.h93IlRAl000348@81-2-122-30.bradfords.org.uk>
-To: Erik Bourget <erik@midmaine.com>, Tomasz Rola <rtomek@cis.com.pl>
+	Fri, 3 Oct 2003 15:04:53 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:57301 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263832AbTJCTEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 15:04:49 -0400
+Date: Fri, 3 Oct 2003 21:04:45 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87k77m89kt.fsf@loki.odinnet>
-References: <Pine.LNX.3.96.1031003200237.19402A-100000@pioneer.space.nemesis.pl>
- <87k77m89kt.fsf@loki.odinnet>
-Subject: Re: CMD680, kernel 2.4.21, and heartache
+Subject: Re: [PATCH][IDE] small cleanup for AMD/nVidia IDE driver
+Message-ID: <20031003190445.GB748@ucw.cz>
+References: <200310032034.01122.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310032034.01122.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Erik Bourget <erik@midmaine.com>:
-> Tomasz Rola <rtomek@cis.com.pl> writes:
+On Fri, Oct 03, 2003 at 08:34:01PM +0200, Bartlomiej Zolnierkiewicz wrote:
 > 
-> > On Fri, 3 Oct 2003, Erik Bourget wrote:
-> >
-> >> Erik Bourget <erik@midmaine.com> writes:
-> >> 
-> >> (194)Temperature             0x0002   196   196   000       1441854
-> >
-> > You should definitely take a look at other drives data in all computers,
-> > esp. temperature. Consult this with max allowed temperature as defined by
-> > hd manufacturer for this specific type of the drive (should be somewhere
-> > on their website or on google). Each disk is different but the general
-> > safe bet for a limit is 40-45 oC, from what I know.
-> >
-> > Your room may be cool but it's better to check.
+> Almost identical to VIA's patch.
+
+Both look fine. I'll be sending you an update for AMD-8111 @UDMA133 and
+for nForce3 soon, too.
+
 > 
-> Yeah, it says 196, and that's bizarre.  196 whats?  From looking at other
-> example output, the '1441854' number is usually the true deg. C of the
-> machine.  But I'm reasonably sure that it's not at a million and a half
-> centigrade.
+> --bartlomiej
+> 
+> [IDE] small cleanup for AMD/nVidia IDE driver
+> 
+> ide_pci_setup_ports() from setup-pci.c checks if port is disabled, if so
+> d->init_setup_dma() and d->init_hwif() won't be called.  There is no need
+> to check it once again inside init_hwif_amd74xx(), init_dma_amd74xx()
+> and amd74xx_tune_drive() (hwif->tuneproc will be NULL for disabled port).
+> Therefore remove amd_enabled variable and now unnecessary init_dma_amd74xx().
+> Also do not set .init_{iops, dma} to NULL in amd74xx.h (amd74xx_chipsets[]
+> is declared static).  Bump driver's version number to reflect changes.
+> 
+>  drivers/ide/pci/amd74xx.c |   25 ++++---------------------
+>  drivers/ide/pci/amd74xx.h |   15 ---------------
+>  2 files changed, 4 insertions(+), 36 deletions(-)
+> 
+> diff -puN drivers/ide/pci/amd74xx.c~ide-amd-enabled-cleanup drivers/ide/pci/amd74xx.c
+> --- linux-2.6.0-test6-bk2/drivers/ide/pci/amd74xx.c~ide-amd-enabled-cleanup	2003-10-03 20:22:25.372286072 +0200
+> +++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/amd74xx.c	2003-10-03 20:22:41.094895872 +0200
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Version 2.9
+> + * Version 2.11
+>   *
+>   * AMD 755/756/766/8111 and nVidia nForce IDE driver for Linux.
+>   *
+> @@ -65,7 +65,6 @@ static struct amd_ide_chip {
+>  };
+>  
+>  static struct amd_ide_chip *amd_config;
+> -static unsigned char amd_enabled;
+>  static unsigned int amd_80w;
+>  static unsigned int amd_clock;
+>  
+> @@ -103,7 +102,7 @@ static int amd74xx_get_info(char *buffer
+>  
+>  	amd_print("----------AMD BusMastering IDE Configuration----------------");
+>  
+> -	amd_print("Driver Version:                     2.9");
+> +	amd_print("Driver Version:                     2.11");
+>  	amd_print("South Bridge:                       %s", pci_name(bmide_dev));
+>  
+>  	pci_read_config_byte(dev, PCI_REVISION_ID, &t);
+> @@ -250,9 +249,6 @@ static int amd_set_drive(ide_drive_t *dr
+>  
+>  static void amd74xx_tune_drive(ide_drive_t *drive, u8 pio)
+>  {
+> -	if (!((amd_enabled >> HWIF(drive)->channel) & 1))
+> -		return;
+> -
+>  	if (pio == 255) {
+>  		amd_set_drive(drive, ide_find_best_mode(drive, XFER_PIO | XFER_EPIO));
+>  		return;
+> @@ -330,9 +326,6 @@ static unsigned int __init init_chipset_
+>  			break;
+>  	}
+>  
+> -	pci_read_config_dword(dev, AMD_IDE_ENABLE, &u);
+> -	amd_enabled = ((u & 1) ? 2 : 0) | ((u & 2) ? 1 : 0);
+> -
+>  /*
+>   * Take care of prefetch & postwrite.
+>   */
+> @@ -408,8 +401,8 @@ static void __init init_hwif_amd74xx(ide
+>          hwif->mwdma_mask = 0x07;
+>          hwif->swdma_mask = 0x07;
+>  
+> -        if (!(hwif->udma_four))
+> -                hwif->udma_four = ((amd_enabled & amd_80w) >> hwif->channel) & 1;
+> +	if (!hwif->udma_four)
+> +		hwif->udma_four = (amd_80w >> hwif->channel) & 1;
+>          hwif->ide_dma_check = &amd74xx_ide_dma_check;
+>          if (!noautodma)
+>                  hwif->autodma = 1;
+> @@ -417,16 +410,6 @@ static void __init init_hwif_amd74xx(ide
+>          hwif->drives[1].autodma = hwif->autodma;
+>  }
+>  
+> -/*
+> - * We allow the BM-DMA driver only work on enabled interfaces.
+> - */
+> -
+> -static void __init init_dma_amd74xx(ide_hwif_t *hwif, unsigned long dmabase)
+> -{
+> -	if ((amd_enabled >> hwif->channel) & 1)
+> -		ide_setup_dma(hwif, dmabase, 8);
+> -}
+> -
+>  extern void ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
+>  
+>  static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
+> diff -puN drivers/ide/pci/amd74xx.h~ide-amd-enabled-cleanup drivers/ide/pci/amd74xx.h
+> --- linux-2.6.0-test6-bk2/drivers/ide/pci/amd74xx.h~ide-amd-enabled-cleanup	2003-10-03 20:22:25.375285616 +0200
+> +++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/amd74xx.h	2003-10-03 20:22:25.379285008 +0200
+> @@ -27,7 +27,6 @@ static ide_pci_host_proc_t amd74xx_procs
+>  
+>  static unsigned int init_chipset_amd74xx(struct pci_dev *, const char *);
+>  static void init_hwif_amd74xx(ide_hwif_t *);
+> -static void init_dma_amd74xx(ide_hwif_t *, unsigned long);
+>  
+>  static ide_pci_device_t amd74xx_chipsets[] __devinitdata = {
+>  	{	/* 0 */
+> @@ -35,9 +34,7 @@ static ide_pci_device_t amd74xx_chipsets
+>  		.device		= PCI_DEVICE_ID_AMD_COBRA_7401,
+>  		.name		= "AMD7401",
+>  		.init_chipset	= init_chipset_amd74xx,
+> -		.init_iops	= NULL,
+>  		.init_hwif	= init_hwif_amd74xx,
+> -		.init_dma	= init_dma_amd74xx,
+>  		.channels	= 2,
+>  		.autodma	= AUTODMA,
+>  		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+> @@ -48,9 +45,7 @@ static ide_pci_device_t amd74xx_chipsets
+>  		.device		= PCI_DEVICE_ID_AMD_VIPER_7409,
+>  		.name		= "AMD7409",
+>  		.init_chipset	= init_chipset_amd74xx,
+> -		.init_iops	= NULL,
+>  		.init_hwif	= init_hwif_amd74xx,
+> -		.init_dma	= init_dma_amd74xx,
+>  		.channels	= 2,
+>  		.autodma	= AUTODMA,
+>  		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+> @@ -61,9 +56,7 @@ static ide_pci_device_t amd74xx_chipsets
+>  		.device		= PCI_DEVICE_ID_AMD_VIPER_7411,
+>  		.name		= "AMD7411",
+>  		.init_chipset	= init_chipset_amd74xx,
+> -		.init_iops	= NULL,
+>  		.init_hwif	= init_hwif_amd74xx,
+> -		.init_dma	= init_dma_amd74xx,
+>  		.channels	= 2,
+>  		.autodma	= AUTODMA,
+>  		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+> @@ -74,9 +67,7 @@ static ide_pci_device_t amd74xx_chipsets
+>  		.device		= PCI_DEVICE_ID_AMD_OPUS_7441,
+>  		.name		= "AMD7441",
+>  		.init_chipset	= init_chipset_amd74xx,
+> -		.init_iops	= NULL,
+>  		.init_hwif	= init_hwif_amd74xx,
+> -		.init_dma	= init_dma_amd74xx,
+>  		.channels	= 2,
+>  		.autodma	= AUTODMA,
+>  		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+> @@ -87,9 +78,7 @@ static ide_pci_device_t amd74xx_chipsets
+>  		.device		= PCI_DEVICE_ID_AMD_8111_IDE,
+>  		.name		= "AMD8111",
+>  		.init_chipset	= init_chipset_amd74xx,
+> -		.init_iops	= NULL,
+>  		.init_hwif	= init_hwif_amd74xx,
+> -		.init_dma	= init_dma_amd74xx,
+>  		.autodma	= AUTODMA,
+>  		.channels	= 2,
+>  		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
+> @@ -101,9 +90,7 @@ static ide_pci_device_t amd74xx_chipsets
+>  		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE_IDE,
+>  		.name		= "NFORCE",
+>  		.init_chipset	= init_chipset_amd74xx,
+> -		.init_iops	= NULL,
+>  		.init_hwif	= init_hwif_amd74xx,
+> -		.init_dma	= init_dma_amd74xx,
+>  		.channels	= 2,
+>  		.autodma	= AUTODMA,
+>  		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> @@ -115,9 +102,7 @@ static ide_pci_device_t amd74xx_chipsets
+>  		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE,
+>  		.name		= "NFORCE2",
+>  		.init_chipset	= init_chipset_amd74xx,
+> -		.init_iops	= NULL,
+>  		.init_hwif	= init_hwif_amd74xx,
+> -		.init_dma	= init_dma_amd74xx,
+>  		.channels	= 2,
+>  		.autodma	= AUTODMA,
+>  		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> 
+> _
+> 
 
-The units of the value, worst, and threshold fields are not important
-- it's all relative.
-
-Yes, the raw value field is usually the temperature in C as measured
-by an on-board sensor, but as far as I know, there is no _requirement_
-for it to be.  I've seen disks which report the power on hours in
-minutes, for example.
-
-I think the raw value field is really provided for extra-information
-purposes - it's better to use the value, worst and threshold fields.
-
-Basically, as long as the value field doesn't reach the threshold
-field, don't worry about that aspect of the drive.  Note, the value
-may count up or down.  The worst field may or may not be preserved
-over a power cycle, that is drive dependant.
-
-John.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

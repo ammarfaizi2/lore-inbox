@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317488AbSHWJix>; Fri, 23 Aug 2002 05:38:53 -0400
+	id <S317351AbSHWJn7>; Fri, 23 Aug 2002 05:43:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318109AbSHWJix>; Fri, 23 Aug 2002 05:38:53 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:33534 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S317488AbSHWJiw>;
-	Fri, 23 Aug 2002 05:38:52 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andre Hedrick <andre@linux-ide.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-flash device and hard disk on same controller
-Date: Fri, 23 Aug 2002 13:44:33 +0200
-Message-Id: <20020823114433.10784@192.168.4.1>
-In-Reply-To: <Pine.LNX.4.10.10208222014450.13077-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10208222014450.13077-100000@master.linux-ide.org>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S317359AbSHWJn7>; Fri, 23 Aug 2002 05:43:59 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:55313 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317351AbSHWJn7>; Fri, 23 Aug 2002 05:43:59 -0400
+Date: Fri, 23 Aug 2002 10:47:44 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephen Tweedie <sct@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/2] 2.4.20-pre4/ext3: ext3 dirty buffer management
+Message-ID: <20020823104744.A12076@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stephen Tweedie <sct@redhat.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+References: <200208222319.g7MNJY509078@sisko.scot.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208222319.g7MNJY509078@sisko.scot.redhat.com>; from sct@redhat.com on Fri, Aug 23, 2002 at 12:19:34AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The problem is that immediately after bootup ATA devices do not respond
->until
->> their media has spun up.  Which is both required by the spec, and
->observed in
->> practice.   Which is likely a problem if this code is run a few seconds
->after
->> bootup.  Which makes it quite possible the drive will ignore the
->EXECUTE DEVICE
->> DIAGNOSTICS and your error code won't be valid when the bsy flag
->> clears.   I don't know how serious that would be. 
->
->We did POST already.
+On Fri, Aug 23, 2002 at 12:19:34AM +0100, Stephen Tweedie wrote:
+> Hi Marcelo, 
+> 
+> This patch set contains the biggest recent change to ext3: a change to
+> the way it deals with other dirty buffers in the system, making it
+> robust against things like dump(8) or tune2fs(8) playing with the block
+> device on a live filesystem.  This patch has been in ext3 CVS for some
+> time now.
+> 
+> I'll follow up with the other smaller fixes and tweaks in the next
+> batch.
 
-Well... x86 PCs with ordinary BIOSes did. Other firmwares,
-embedded devices, whatever.... may not, or eventually the firmware
-will have reset everything prior to booting the kernel (go figure
-why, but that happens).
-
-It's not difficult nor harmful to wait for that dawn busy bit to
-go away, so why not do it ?
-
-Ben.
-
-
+No patch attached..

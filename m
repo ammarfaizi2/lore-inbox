@@ -1,86 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132226AbRDJPdA>; Tue, 10 Apr 2001 11:33:00 -0400
+	id <S132327AbRDJPql>; Tue, 10 Apr 2001 11:46:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132281AbRDJPcu>; Tue, 10 Apr 2001 11:32:50 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:46607 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132226AbRDJPcb>;
-	Tue, 10 Apr 2001 11:32:31 -0400
-Date: Tue, 10 Apr 2001 16:31:15 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] ext2-fs filesystem corruption since 2.4.0-test6, fix
-Message-ID: <Pine.LNX.4.30.0104101610450.4659-200000@elte.hu>
+	id <S132318AbRDJPqc>; Tue, 10 Apr 2001 11:46:32 -0400
+Received: from [216.97.27.1] ([216.97.27.1]:4624 "EHLO
+	alabaster.propagation.net") by vger.kernel.org with ESMTP
+	id <S132313AbRDJPqQ>; Tue, 10 Apr 2001 11:46:16 -0400
+Message-ID: <008801c0c1d5$652210a0$1501a8c0@ramphome.com>
+Reply-To: "Reverend EvvL X" <EvvL@RustedHalo.net>
+From: "Reverend EvvL X" <EvvL@RustedHalo.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <986664971.1224.4.camel@bugeyes.wcu.edu> <008401c0c167$73f14d80$8d19b018@c779218a> <986874119.4770.0.camel@bugeyes.wcu.edu>
+Subject: Re: UDMA(66) drive coming up as UDMA(33)?
+Date: Tue, 10 Apr 2001 08:46:21 -0700
+Organization: The RustedHalo Network
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655616-1717260262-986913075=:4659"
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+I'm currently running a BP6 with a on board HPT366 and a 7200rpm
+drive. From what I've seen with my setup at home that 19.51 MB/s
+sounds just about right for a hdparm test. When the manual is
+refering to the "UDMA 4 66 Mb/s" their talking about the maximum
+burst rate for the ATA bus not the max transfer rate, someone
+please correct me if I'm worng.
 
---655616-1717260262-986913075=:4659
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+-Eric Olinger
+
+----- Original Message -----
+From: "David St.Clair" <dstclair@cs.wcu.edu>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, April 09, 2001 8:41 PM
+Subject: Re: UDMA(66) drive coming up as UDMA(33)?
 
 
-the attached patch fixes the ext2-fs filesystem corruption that initially
-showed up during stress-tests running on Red Hat's internal testsystems,
-and which bug kept us busy for a long time. We suspect that a number of
-filesystem corruption bugs reported to l-k were caused by this bug too.
+> Well, I'm positive what I have is an 80pin cable. I may try a diffrent
+> one.  I guess I could benchmark the drive in windows and see how it
+> compares to linux. (Both are on the same drive). The HPT366 chip is
+> integrated on the BE6 motherboard.
+>
+> The manual says PIO 4 mode should get about 16.6 Mb/s, UDMA 2 33 Mb/s,
+> and UDMA 4 66 Mb/s.  Does anyone know what the correct numbers I should
+> be seeing in linux? (/w hdparm -t)
+>
+> Again, my hardware is:
+>
+> Quantum Fireball KA 13.6 7200 rpm HD
+> Abit BE6 /w integrated HPT366 chip
+>
+> Kernel 2.4.3
+>
+>
+> Thanks,
+>
+> David St.Clair
+>
+>
+>
+>
+> On 09 Apr 2001 19:39:23 -0700, Nicholas Knight wrote:
+> > ----- Original Message -----
+> > From: "David St.Clair" <dstclair@cs.wcu.edu>
+> > To: <linux-kernel@vger.kernel.org>
+> > Sent: Saturday, April 07, 2001 10:36 AM
+> > Subject: UDMA(66) drive coming up as UDMA(33)?
+> >
+> >
+> > > I'm trying to get my hard drive to use UDMA/66.  I'm thinking the
+cable
+> > > is not being detected.  When the HPT366 bios is set to UDMA 4; using
+> > > hdparm -t, I get a transfer rate of 19.51 MB/s. When the HPT366 bios
+is
+> > > set to PIO 4 the transfer rate is the same. Is this normal for a
+UDMA/66
+> > > drive? What makes me think something is wrong is that the log says
+> >
+> > The speed is dependant on the drive, and has absilutely nothing to do
+with
+> > the UDMA mode, beyond that the controller and cable need to be able to
+> > support at least the speed the drive is recieving/outputting data in
+order
+> > for the drive to operate at full speed, 19.51MB/sec sounds right for a
+good
+> > 7200RPM HDD
+> >
+> > >
+> > > "ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:pio" <-- PIO?
+> >
+> > hmm this is a little odd but I don't know the ins and outs of the HPT366
+> > controller
+> >
+> > >
+> > > and
+> > >
+> > > "hde: 27067824 sectors (13859 MB) w/371KiB Cache, CHS=26853/16/63,
+> > > UDMA(33)" <--- UDMA(33)? shouldn't it be UDMA(66)?
+> > >
+> >
+> > this certainly sounds like it's not detecting the cable properly... have
+you
+> > tried replacing it with a new cable that you KNOW supports ATA/66?
+> >
+> >
+> > > HPT366: onboard version of chipset, pin1=1 pin2=2
+> >
+> > is the HPT366 controller in an add-in card or built into the
+motherboard? it
+> > looks like it's builtin from this line
+> >
+> > the bottom line here is that the cable probably isn't being detected
+> > properly for some reason, I doubt if it's a kernel problem, the cable is
+> > probably "bad", try picking up a new ATA/66+ cable and putting it in
+there
+> > this shouldn't actually cause you problems unless you're often
+transferring
+> > more than 33MB/sec though, which isn't likely on a desktop system,
+ATA/66
+> > and ATA/100 are *generaly* overkill for most desktop systems, even for
+many
+> > powerusers
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-after lots of bug-hunting and bug-finding, the main bug turned out to be
-this one: a block that might still (or already) be allocated by ext2fs was
-bforgot()ten by ext2_get_block(). The (incorrect) assumption of the code
-was that this rare case can only happen in case of a parallel truncate()
-to this inode. In reality there might be enough delay to this particular
-process in which window this same block might have gotten reallocated and
-dirtied again. Thus the bforget() discards possibly valid metadata, most
-commonly indirect blocks, causing filesystem corruption.
-
-via customized Cerberus testruns the bug used to trigger within 20 minutes
-on SMP systems, and within a couple of hours on UP systems. (initially it
-was very hard to trigger the bug, it tooks days of nonstop high-load tests
-for the corruption to trigger.) Alex Romosan's report to l-k looks
-suspiciously similar to the failures we've been getting.
-
-The corruption has been introduced in 2.4.0-test6. With this patch applied
-we've been unable to reproduce any kind of filesystem corruption under the
-most extreme 'enterprise' loads. The attached patch applies to 2.4.4-pre1
-cleanly and compiles, boots just fine. There is a sister-bug in minix-fs
-as well, the patch fixes that bug too. The patch also includes two
-inode-dirtying fixes, which bugs never caused any filesystem corruptions
-but were incorrect nevertheless.
-
-	Ingo
-
---655616-1717260262-986913075=:4659
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ext2fs-corruption-2.4.4-A0"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0104101631150.4659@elte.hu>
-Content-Description: 
-Content-Disposition: attachment; filename="ext2fs-corruption-2.4.4-A0"
-
-LS0tIGxpbnV4L2ZzL2V4dDIvaW5vZGUuYy5vcmlnCVR1ZSBBcHIgMTAgMTk6
-MDA6MzUgMjAwMQ0KKysrIGxpbnV4L2ZzL2V4dDIvaW5vZGUuYwlUdWUgQXBy
-IDEwIDE5OjA2OjI1IDIwMDENCkBAIC01NjgsNyArNTY4LDcgQEANCiANCiBj
-aGFuZ2VkOg0KIAl3aGlsZSAocGFydGlhbCA+IGNoYWluKSB7DQotCQliZm9y
-Z2V0KHBhcnRpYWwtPmJoKTsNCisJCWJyZWxzZShwYXJ0aWFsLT5iaCk7DQog
-CQlwYXJ0aWFsLS07DQogCX0NCiAJZ290byByZXJlYWQ7DQpAQCAtNzk5LDgg
-Kzc5OSw4IEBADQogCQkJCS8qIFdyaXRlcjogLT5pX2Jsb2NrcyAqLw0KIAkJ
-CQlpbm9kZS0+aV9ibG9ja3MgLT0gYmxvY2tzICogY291bnQ7DQogCQkJCS8q
-IFdyaXRlcjogZW5kICovDQotCQkJCWV4dDJfZnJlZV9ibG9ja3MgKGlub2Rl
-LCBibG9ja190b19mcmVlLCBjb3VudCk7DQogCQkJCW1hcmtfaW5vZGVfZGly
-dHkoaW5vZGUpOw0KKwkJCQlleHQyX2ZyZWVfYmxvY2tzIChpbm9kZSwgYmxv
-Y2tfdG9fZnJlZSwgY291bnQpOw0KIAkJCWZyZWVfdGhpczoNCiAJCQkJYmxv
-Y2tfdG9fZnJlZSA9IG5yOw0KIAkJCQljb3VudCA9IDE7DQpAQCAtODExLDgg
-KzgxMSw4IEBADQogCQkvKiBXcml0ZXI6IC0+aV9ibG9ja3MgKi8NCiAJCWlu
-b2RlLT5pX2Jsb2NrcyAtPSBibG9ja3MgKiBjb3VudDsNCiAJCS8qIFdyaXRl
-cjogZW5kICovDQotCQlleHQyX2ZyZWVfYmxvY2tzIChpbm9kZSwgYmxvY2tf
-dG9fZnJlZSwgY291bnQpOw0KIAkJbWFya19pbm9kZV9kaXJ0eShpbm9kZSk7
-DQorCQlleHQyX2ZyZWVfYmxvY2tzIChpbm9kZSwgYmxvY2tfdG9fZnJlZSwg
-Y291bnQpOw0KIAl9DQogfQ0KIA0K
---655616-1717260262-986913075=:4659--

@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbTKXTf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 14:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbTKXTf3
+	id S263821AbTKXTkS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 14:40:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTKXTkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 14:35:29 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:7040 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S263876AbTKXTfZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 14:35:25 -0500
-Date: Mon, 24 Nov 2003 19:35:09 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Larry McVoy <lm@bitmover.com>, Ricky Beam <jfbeam@bluetronic.net>,
-       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: data from kernel.bkbits.net
-Message-ID: <20031124193509.GA2220@mail.shareable.org>
-References: <20031124155034.GA13896@work.bitmover.com> <Pine.GSO.4.33.0311241405070.13188-100000@sweetums.bluetronic.net> <20031124192432.GA20839@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031124192432.GA20839@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 24 Nov 2003 14:40:18 -0500
+Received: from ghostwheel.llnl.gov ([134.9.11.149]:7839 "EHLO
+	ghostwheel.llnl.gov") by vger.kernel.org with ESMTP id S263821AbTKXTkN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 14:40:13 -0500
+Date: Mon, 24 Nov 2003 11:39:35 -0800 (PST)
+From: Chuck Harding <charding@llnl.gov>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.23-rc4
+In-Reply-To: <Pine.LNX.4.44.0311241656430.8709-100000@logos.cnet>
+Message-ID: <Pine.LNX.4.58.0311241138090.16425@ghostwheel.llnl.gov>
+References: <Pine.LNX.4.44.0311241656430.8709-100000@logos.cnet>
+Organization: Lawrence Livermore National Laboratory
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> Any other questions?
+The top-level Makefile's EXTRAVERSION gets set to -rc3
 
-At risk of sounding like second level support,
+On Mon, 24 Nov 2003, Marcelo Tosatti wrote:
 
-  1. Are you able to copy the raw partitions (e.g. using dd) to
-     another disk or system?
+>
+> Hi,
+>
+> Here goes -rc4, fixing modular IDE breakage present in 2.4.23 kernels.
+>
+> Hopefully this will become final.
+>
+> Enjoy
+>
+> Summary of changes from v2.4.23-rc3 to v2.4.23-rc4
+> ============================================
+>
+> <arekm:pld-linux.org>:
+>   o Fix modular IDE
+>
+> <lethal:unusual.internal.linux-sh.org>:
+>   o sh64: Fixup zImage build for recent ITLB/DTLB changes
+>   o sh64: Update defconfig
+>   o sh: SH7751 documentation updates
+>   o sh/sh64: Clear IRQ_INPROGRESS in setup_irq()
+>   o sh: Add SH-DSP support
+>
+> Richard Curnow:
+>   o sh64: Update MAINTAINERS
+>
+> Willy Tarreau:
+>   o fix 2 broken links in bonding documentation
+>
 
-  2. Do you see similar error messages when copying the raw partitions?
-
-  3. When you mount the _copies_ of the partitions, do you see similar
-     error messages?
-
-That'll differentiate whether it's a pure disk/driver problem or
-something triggered by a filesystem problem.  As a bonus, if the disks
-are both dying (maybe you had a lightning strike), then you'll have
-the data copied somewhere safe.
-
--- Jamie
+-- 
+Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
+Senior Computer Associate      ICCD/SDD/ICRMG     Fax: 925-422-8920
+Lawrence Livermore National Laboratory      Computation Directorate
+Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
+-- What you enjoy is much more important than what you have. --

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbUBXPsx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 10:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUBXPsx
+	id S262286AbUBXPua (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 10:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbUBXPua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 10:48:53 -0500
-Received: from moutng.kundenserver.de ([212.227.126.173]:6339 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262261AbUBXPsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 10:48:50 -0500
-Message-ID: <403B7245.1000208@t-st.org>
-Date: Tue, 24 Feb 2004 16:48:21 +0100
-From: Tillmann Steinbrecher <t-st@t-st.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-DE; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: de-de, de-at, de, en-us, en
+	Tue, 24 Feb 2004 10:50:30 -0500
+Received: from amdext.amd.com ([139.95.251.1]:5538 "EHLO amdext.amd.com")
+	by vger.kernel.org with ESMTP id S262286AbUBXPuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 10:50:20 -0500
+Message-ID: <99F2150714F93F448942F9A9F112634C0FD384E3@txexmtae.amd.com>
+From: richard.brunner@amd.com
+To: linux-kernel@vger.kernel.org
+Subject: RE: IOMMUs was Re: Intel vs AMD x86-64
+Date: Tue, 24 Feb 2004 09:50:02 -0600
 MIME-Version: 1.0
-To: Ben Collins <bcollins@phunnypharm.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6.3 + external firewire dvd writer - frequent freezes
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 6C25AD134583306-01-01
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:440c24a95efadc9d8e1374cf9e681760
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> > I'm using an external FireWire DVD writer (Plextor 708 in case w/Oxford
-> > 911 chipset). This was working fine until kernel 2.6.2.
-> > 
-> > Since I upgraded to 2.6.3, it frequently happens that the system totally
-> > freezes when trying to write a DVD. It's really a hard crash, no mouse
-> > movement, no ping on the network. Reset required.
-> > 
-> > It doesn't happen each time I try to burn a DVD, but in about 20% the
-> > cases. So basically the writer is unusable with 2.6.3
+> -----Original Message-----
+> From: Andi Kleen [mailto:ak@suse.de] 
 
-> Can you enable spinlock debug so we can see if this is a race condition
-> somewhere?
+ 
+> On Opteron the IOMMU code (ab)uses the built in AGPv3 GART in 
+> the CPU, which 
+> was originally intended for AGP. AMD converted it to be able 
+> to remap PCI especially for Linux, which I think deserves applause.
+> 
+> It works surprisingly well even though it was not designed as 
+> a real IOMMU. Of course one of the main advantages of a real 
+> IOMMU - preventing arbitary memory corruption from broken 
+> devices - is lost because the remapping table is just a hole 
+> in the memory. I'm 
+> secretly hoping that when there is more support for Linux at 
+> chipset vendors they will someday add a bit to isolate all 
+> traffic that doesn't go through the GART from the main 
+> memory. This way you could get a much more reliable system 
+> that can tolerate broken PCI devices at a moderate 
+> performance penalty.
 
-Thanks for your reply.  What option do I have to enable exactly? 
-CONFIG_DEBUG_SPINLOCK_SLEEP? Anything else required? Also, how do I get 
-access to the results of the debugging? I mean, it's really a hard 
-crash, no messages visible (that is, when running X), no logging to 
-syslog, etc.
+Andi is being modest. It was he and Andrea Arcangeli who convinced 
+me we had a problem. We found a way to trick the AGP
+GART hardware into helping, and then they turned it into a 
+"real" solution and helped us work the warts out of the BIOS 
+to enable it.
 
-Also - can this possibly be related to the "growisofs problem with 
-2.6.3" that was discussed at various places (and a patch was posted too) 
-- I have this problem, too, since the upgrade to 2.6.3. Just in case you 
-havent followed the discussion, here are two links:
-
-http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&selm=c153vj%242vep%241%40FreeBSD.csie.NCTU.edu.tw
-http://groups.google.com/groups?q=growisofs+2.6.3&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=linux.scsi.20040221112550.6aec57eb.mike%40it-loops.com&rnum=4
-
-Right now I can't do tests, since I'm away from home, and if I trigger a 
-crash from remote I'm in trouble since I still need the machine; but I'm 
-willing to test patches as soon as I'm back.
-
-bye,
-Tillmann

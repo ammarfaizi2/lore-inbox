@@ -1,87 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265786AbTATNPE>; Mon, 20 Jan 2003 08:15:04 -0500
+	id <S265777AbTATNKW>; Mon, 20 Jan 2003 08:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265791AbTATNPD>; Mon, 20 Jan 2003 08:15:03 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:47365 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S265786AbTATNO7>;
-	Mon, 20 Jan 2003 08:14:59 -0500
-Date: Mon, 20 Jan 2003 14:23:58 +0100 (CET)
-From: venom@sns.it
+	id <S265786AbTATNKV>; Mon, 20 Jan 2003 08:10:21 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:54022 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S265777AbTATNKV>;
+	Mon, 20 Jan 2003 08:10:21 -0500
+Date: Mon, 20 Jan 2003 14:19:24 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: ReiserFS corruption with kernel 2.5.59
-Message-ID: <Pine.LNX.4.43.0301201418180.1075-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: CD Changer
+Message-ID: <20030120131924.GO30184@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <002c01c2c001$f36db9f0$0a01a8c0@aaprilhome> <20030120072329.GI30184@lug-owl.de> <00d201c2c083$5aceb460$0500000b@shiva.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rZHzn+A9B7nBTGyj"
+Content-Disposition: inline
+In-Reply-To: <00d201c2c083$5aceb460$0500000b@shiva.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+x-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
-I was using reiserFS for the root FS on a desktop, just to test kernel 2.5.59,
-and I started to get those messages:
 
-PAP-14030: direct2indirect: pasted or inserted byte exists in the tree [5094
-5096 0x1001 IND]. Use fsck to repair.
+--rZHzn+A9B7nBTGyj
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Of course I repaired the FS.
+On Mon, 2003-01-20 07:56:31 -0500, Alexandre April <alexandre.april@sympati=
+co.ca>
+wrote in message <00d201c2c083$5aceb460$0500000b@shiva.com>:
+> Does it work for IDE CD changer as well ?
 
-System was under a really light I/O load, and stared to have those problems
-after a couple of days of uptime.
+Well, they don't exactly have "LUNs", as this is a SCSI thing. You'd
+possibly try the ide-scsi module on it, though. Basically, _all_ CD-ROM
+drives are (based on their commands) SCSI devices controlled over an IDE
+bus. Maybe ide-scsi works here...
 
-System is:
-Pentium III 933 Mhz, 256 KB L2 cache
-512 MB RAM
-i810 MB chipset
+MfG, JBG
 
-kernel is 2.5.59 compiled with gcc 3.2.1 and binutils 2.13.90.0.16
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
+   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
 
-Disk is a Maxtor 32049H2, connected to an ATA66 intel 82801AA controller.
+--rZHzn+A9B7nBTGyj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-/proc/pci is:
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory Controller
-Hub (rev 2).
-      Prefetchable 32 bit memory at 0x44000000 [0x47ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Intel Corp. 82815 815 Chipset AGP Bridge (rev 2).
-      Master Capable.  Latency=64.  Min Gnt=12.
-  Bus  0, device  30, function  0:
-    PCI bridge: Intel Corp. 82801AA PCI Bridge (rev 2).
-      Master Capable.  No bursts.  Min Gnt=6.
-  Bus  0, device  31, function  0:
-    ISA bridge: Intel Corp. 82801AA ISA Bridge (LPC) (rev 2).
-  Bus  0, device  31, function  1:
-    IDE interface: Intel Corp. 82801AA IDE (rev 2).
-      I/O at 0x2460 [0x246f].
-  Bus  0, device  31, function  2:
-    USB Controller: Intel Corp. 82801AA USB (rev 2).
-      IRQ 19.
-      I/O at 0x2440 [0x245f].
-  Bus  0, device  31, function  5:
-    Multimedia audio controller: Intel Corp. 82801AA AC'97 Audio (rev 2).
-      IRQ 17.
-      I/O at 0x2000 [0x20ff].
-      I/O at 0x2400 [0x243f].
-  Bus  1, device   0, function  0:
-    VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 4).
-      IRQ 18.
-      Master Capable.  Latency=64.  Min Gnt=16.Max Lat=32.
-      Prefetchable 32 bit memory at 0x42000000 [0x43ffffff].
-      Non-prefetchable 32 bit memory at 0x40300000 [0x40303fff].
-      Non-prefetchable 32 bit memory at 0x40800000 [0x40ffffff].
-  Bus  2, device   8, function  0:
-    Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 120).
-      IRQ 16.
-      Master Capable.  Latency=64.  Min Gnt=10.Max Lat=10.
-      I/O at 0x1000 [0x107f].
-      Non-prefetchable 32 bit memory at 0x40000000 [0x4000007f].
+iD8DBQE+K/dcHb1edYOZ4bsRApCtAJ9ZtoB6m8fIzKep/Jsa0RhbV6gW8wCfbiGc
+Lfc8vns8RttKFtPM8LPp1WQ=
+=jvHr
+-----END PGP SIGNATURE-----
 
-Hope this helps
-
-Luigi
-
-
-
-
+--rZHzn+A9B7nBTGyj--

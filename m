@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316877AbSFQJ6M>; Mon, 17 Jun 2002 05:58:12 -0400
+	id <S316878AbSFQKCA>; Mon, 17 Jun 2002 06:02:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316878AbSFQJ6K>; Mon, 17 Jun 2002 05:58:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58633 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316877AbSFQJ6K>;
-	Mon, 17 Jun 2002 05:58:10 -0400
-Message-ID: <3D0DB3A7.C32CCAE9@zip.com.au>
-Date: Mon, 17 Jun 2002 03:02:15 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S316880AbSFQKB7>; Mon, 17 Jun 2002 06:01:59 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:18828 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316878AbSFQKB7>; Mon, 17 Jun 2002 06:01:59 -0400
+Date: Mon, 17 Jun 2002 11:34:33 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Robert Love <rml@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "David S. Miller" <davem@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mbligh@us.ibm.com>
+Subject: Re: [patch] 2.4.19-pre10-ac2: O(1) scheduler merge, -A3.
+In-Reply-To: <Pine.LNX.4.44.0206171050050.9574-100000@e2>
+Message-ID: <Pine.LNX.4.44.0206171101370.1263-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "laptop mode" for floppies too?
-References: <E17JssS-0006aL-00@alf.amelek.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marek Michalkiewicz wrote:
-> 
-> Hi,
-> 
-> I've just read (in Kernel Traffic - don't have enough time to follow
-> linux-kernel directly...) about your proposed "laptop mode" patch
-> (basically writing all dirty blocks to disk after it spins up - looks
-> like a good idea to me).  Similar problem exists with floppies (also
-> in desktop PCs) - it takes a while to spin up, so I think it would
-> make sense to write all dirty blocks just before spinning down, so
-> that the drive is less likely to spin up again soon.
+<Martin Bligh added to CC>
 
-I kinda lost interest in `laptop mode'.  The proposed simple, specific
-implementation seemed to be deemed insufficient by many people, and
-I believe that a fully-blown per-queue implementation would add an
-unjustifiable amount of complexity.  So I guess I'll submit the patch
-which allows ext3 commit intervals to be tuned and leave it at that.
+On Mon, 17 Jun 2002, Ingo Molnar wrote:
 
-The key idea of writing back all dirty data when the disk is spun up
-for a read can be implemented by a userspace daemon which polls /proc/stat
-anyway.
+> irqbalance uses the set_ioapic_affinity() method to set affinity. The
+> clustered APIC code is broken if it doesnt handle this properly. (i dont
+> have such hardware so i cant tell, but it indeed doesnt appear to handle
+> this case properly.) By wrapping around at node boundary the irqbalance
+> code will work just fine.
 
-> So it would be nice to have more general support for this feature in
-> the block device layer (not limited to IDE devices).  Is anyone working
-> on something like that (for 2.5)?
+I agree, Also we have to be careful about the usage of cpu_online_map in 
+balance_irq, there might need to be a bit of reworking of some of the 
+other parts to get this working e.g. being able to determine which node a 
+specific IOAPIC register is on (perhaps there might be 1 or 2 IOAPICs / 
+node) etc etc. Martin?
 
-Nobody is working on that.
+> i agree that this could be a problem, but set_ioapic_affinity() can be
+> made dependent on the actual NUMA setup that is used. This is absolutely
+> needed anyway for a proper /proc/irq/*/smp_affinity feature.
 
-You could get this effect by setting the `kupdate' interval short and
-by setting the "maximum age of dirty data" small.  So in 2.4 terms,
-set the fifth parameter in /proc/sys/vm/bdflush to 100 (one second)
-and set the sixth parameter to 200.
+Agreed.
 
-That will penalise the hard disk rather nastily, however.
+Thanks,
+	Zwane
+-- 
+http://function.linuxpower.ca
+		
 
-A proper solution is not feasible with the 2.4 data structures.
-In 2.5, making the "maximum age of dirty data" be a per-queue
-tunable is in fact pretty simple.  The trickiest part would be
-exposing the per-queue tunables to userspace, actually.
 
-I do need to revisit this stuff - we need a way of being able
-to incorporate the nominal write bandwidth of the backing device
-into the memory balancing decisions.  I'll take a look at your
-idea when I get onto that.
-
--

@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264993AbUELGVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264982AbUELGVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264993AbUELGVn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 02:21:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265023AbUELGVm
+	id S264982AbUELGVq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 02:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbUELGVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 02:21:42 -0400
-Received: from findaloan.ca ([66.11.177.6]:33154 "EHLO findaloan.ca")
-	by vger.kernel.org with ESMTP id S264993AbUELGMQ (ORCPT
+	Wed, 12 May 2004 02:21:46 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:8342 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264982AbUELGP2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 02:12:16 -0400
-Date: Tue, 11 May 2004 09:34:28 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, len.brown@intel.com
-Subject: Re: Linux 2.6.6
-Message-ID: <20040511133428.GA5635@mark.mielke.cc>
-Mail-Followup-To: Tomas Szepe <szepe@pinerecords.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	len.brown@intel.com
-References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org> <20040510105129.GB25969@picchio.gall.it> <20040510204450.GA2758@louise.pinerecords.com>
+	Wed, 12 May 2004 02:15:28 -0400
+Date: Wed, 12 May 2004 09:05:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Cache queue_congestion_on/off_threshold
+Message-ID: <20040512070543.GC1803@suse.de>
+References: <20040510143024.GF14403@suse.de> <200405120532.i4C5WCF25908@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040510204450.GA2758@louise.pinerecords.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200405120532.i4C5WCF25908@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 10:44:50PM +0200, Tomas Szepe wrote:
-> On May-10 2004, Mon, 12:51 +0200
-> Daniele Venzano <webvenza@libero.it> wrote:
-> > I have problems booting 2.6.6 (2.6.5 was fine). The boot stops at ide
-> > detection, on cdrom probing, the last two messages I am seeing are:
-> > ide-cd: cmd 0x5a timed out
-> > hdc: lost interrupt
-> This problem also affects my 2001 1.0 GHz Athlon box (VIA KT133a chipset).
-> Len's final patch (proposed fix) from the "hdc: lost interrupt..." thread
-> seems to work for me, too.
+On Tue, May 11 2004, Chen, Kenneth W wrote:
+> >>>> Jens Axboe wrote on Monday, May 10, 2004 7:30 AM
+> > > >
+> > > > Actually, with the good working batching we might get away with killing
+> > > > freereq completely. Have you tested that (if not, could you?)
+> > >
+> > > Sorry, I'm clueless on "good working batching".  If you could please give
+> > > me some pointers, I will definitely test it.
+> >
+> > Something like this.
+> >
+> > --- linux-2.6.6/drivers/block/ll_rw_blk.c~	2004-05-10 16:23:45.684726955 +0200
+> > +++ linux-2.6.6/drivers/block/ll_rw_blk.c	2004-05-10 16:29:04.333792268 +0200
+> > @@ -2138,8 +2138,8 @@
+> >
+> >  static int __make_request(request_queue_t *q, struct bio *bio)
+> >  {
+> > -	struct request *req, *freereq = NULL;
+> >  	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, ra;
+> > +	struct request *req;
+> >  	sector_t sector;
+> >
+> >
+> > [snip] ...
+> 
+> I'm still working on this.  With this patch, several processes stuck
+> in "D" state and never finish.  Suspect it's the barrier thing, it
+> jumps through blk_plug_device() and might goof up the queue afterwards.
 
-I was also affected by this - 1200 Mhz Athlon, VIA KT133 chipset as well.
-
-I won't be trying Len's patch until tonight.
-
-mark
+I'll do a quick test run (and review) of the patch, it wasn't even
+compiled here. So the chance of a slip-up is non-zero.
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+Jens Axboe
 

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271487AbRIFRDs>; Thu, 6 Sep 2001 13:03:48 -0400
+	id <S271486AbRIFRDG>; Thu, 6 Sep 2001 13:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271498AbRIFRDg>; Thu, 6 Sep 2001 13:03:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:53769 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271487AbRIFRDa>;
-	Thu, 6 Sep 2001 13:03:30 -0400
-Date: Thu, 6 Sep 2001 19:03:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Wietse Venema <wietse@porcupine.org>
-Cc: Andrey Savochkin <saw@saw.sw.com.sg>,
-        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
+	id <S271487AbRIFRC4>; Thu, 6 Sep 2001 13:02:56 -0400
+Received: from sal.qcc.sk.ca ([198.169.27.3]:62730 "HELO sal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S271486AbRIFRCo>;
+	Thu, 6 Sep 2001 13:02:44 -0400
+Date: Thu, 6 Sep 2001 11:03:02 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
-Message-ID: <20010906190349.A10470@gruyere.muc.suse.de>
-In-Reply-To: <20010906204423.B23109@castle.nmd.msu.ru> <20010906165051.7EA29BC06C@spike.porcupine.org>
+Message-ID: <20010906110302.B2323@qcc.sk.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010906203854.A23109@castle.nmd.msu.ru> <20010906164314.74F68BC06C@spike.porcupine.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010906165051.7EA29BC06C@spike.porcupine.org>; from wietse@porcupine.org on Thu, Sep 06, 2001 at 12:50:51PM -0400
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010906164314.74F68BC06C@spike.porcupine.org>; from wietse@porcupine.org on Thu, Sep 06, 2001 at 12:43:14PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 12:50:51PM -0400, Wietse Venema wrote:
-> That is not practical. Surely there is an API to find out if an IP
-> address connects to the machine itself. If every UNIX system on
-> this planet can do it, then surely Linux can do it.
+Wietse Venema <wietse@porcupine.org> wrote:
+> 
+> An SMTP MTA is required to correctly recognize user@[ip.address]
+> as local.  That's the rules, like it or not. These address forms
+> are actually being used, like it or not.
 
-It's not possible in the general case; e.g. it has to ignore NAT rules
-and some of the more advanced features of policy routing
+Yes.  MTAs have to work around this; qmail does a reasonable job.  Why
+not look at how djb does this?  See ipme.c.
+ 
+> It also is desirable for an MTA to treat clients on local subnets
+> different than strangers that happen to be on the same class A,
+> like it or not.  Failure to do so can make one end up on black
+> lists, like it or not.
 
-The API is rtnetlink. You can send a RTM_GETROUTE message and the kernel
-will send you the routing entry for it; which has the RTN_LOCAL type for
-local addresses.  
-
-> The same issue is true for local subnets. Surely there exists an
-> API to find out what subnetworks a machine is attached to. If every
-> UNIX system on this planet can do it, then surely Linux can do it.
-
-You could resolve the backwards address using rtnetlink again and check
-the resulting route for LINK scope.  Again it is only an approximation
-and will break in some/many cases.
-
-
--Andi
+Having an MTA automatically treat clients on "local subnets" differently
+than the rest of the 'net at large is definitely _not_ desirable.  The
+administrator should have to explicitly configure the MTA to grant
+additional access to every subnet he desires; anything else is begging
+for trouble in the form of absued relaying privileges.
+ 
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,223 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263264AbVCEBMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263427AbVCEAno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbVCEBMV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 20:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbVCEBLS
+	id S263427AbVCEAno (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263512AbVCEAjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 20:11:18 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:32226 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263489AbVCEBEu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 20:04:50 -0500
-Subject: Re: [PATCH] 2.6.11-mm1 "nobh" support for ext3 writeback mode
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050304164553.29811e8f.akpm@osdl.org>
-References: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050304162331.4a7dfdb8.akpm@osdl.org>
-	 <1109982557.7236.65.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050304164553.29811e8f.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-PScnJQ9tU2LuDjxqOqt4"
-Organization: 
-Message-Id: <1109984528.7236.72.camel@dyn318077bld.beaverton.ibm.com>
+	Fri, 4 Mar 2005 19:39:49 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:992 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S263522AbVCEA03 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 19:26:29 -0500
+Date: Fri, 4 Mar 2005 16:26:21 -0800
+To: "David S. Miller" <davem@davemloft.net>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6 IrDA] stir4200 turnaround calculation fix
+Message-ID: <20050305002621.GD23895@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Mar 2005 17:02:08 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-PScnJQ9tU2LuDjxqOqt4
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Fri, 2005-03-04 at 16:45, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > > What's all this doing?  (It needs comments please - it's very unobvious).
-> > 
-> > All its trying to do is - to make sure the page is uptodate so that
-> > it can zero out the portion thats needed. 
-> 
-> OK.
-> 
-> > I can do getblock() and ll_rw_block(READ) instead. I was
-> > trying to re-use the code and mpage_readpage() drops the lock.
-> > What do you think ?
-> 
-> Can you just call ->prepare_write, as nobh_truncate_page() does?  That'll
-> cause a nested transaction, but that's legal.
-> 
-
-Please ignore my previous patch. I forgot to clear "err" value.
-
-Here is the updated patch.
-
-Thanks,
-Badari
+ir261_stir_turn.diff :
+~~~~~~~~~~~~~~~~~~~~
+		<Patch from John K. Luebs>
+	o [CORRECT] Proper turnaround computations in the stir4200 driver
+	o [CORRECT] Take care of Tx packet without IrDA metadata (speed)
+Signed-off-by: John K. Luebs <jkluebs@lu...>
+Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
 
 
-
---=-PScnJQ9tU2LuDjxqOqt4
-Content-Disposition: attachment; filename=ext3-writeback-nobh.patch6
-Content-Type: text/x-patch; name=ext3-writeback-nobh.patch6; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -Naurp -Xdontdiff linux-2.6.11/fs/ext3/inode.c linux-2.6.11.new/fs/ext3/inode.c
---- linux-2.6.11/fs/ext3/inode.c	2005-03-04 16:43:22.536143072 -0800
-+++ linux-2.6.11.new/fs/ext3/inode.c	2005-03-04 18:02:13.418939568 -0800
-@@ -20,6 +20,7 @@
-  * 	(jj@sunsite.ms.mff.cuni.cz)
-  *
-  *  Assorted race fixes, rewrite of ext3_get_block() by Al Viro, 2000
-+ *  Add "nobh" support for ext3 writeback mode - pbadari@us.ibm.com
-  */
+diff -u -p linux/drivers/net/irda/stir4200.d0.c  linux/drivers/net/irda/stir4200.c
+--- linux/drivers/net/irda/stir4200.d0.c	Mon Feb  7 16:35:45 2005
++++ linux/drivers/net/irda/stir4200.c	Mon Feb  7 16:37:25 2005
+@@ -671,7 +671,8 @@ static void turnaround_delay(const struc
+ 		return;
  
- #include <linux/module.h>
-@@ -1016,7 +1017,10 @@ retry:
- 		ret = PTR_ERR(handle);
- 		goto out;
- 	}
--	ret = block_prepare_write(page, from, to, ext3_get_block);
-+	if (test_opt(inode->i_sb, NOBH))
-+		ret = nobh_prepare_write(page, from, to, ext3_get_block);
-+	else
-+		ret = block_prepare_write(page, from, to, ext3_get_block);
- 	if (ret)
- 		goto prepare_write_failed;
+ 	do_gettimeofday(&now);
+-	us -= (now.tv_sec - stir->rx_time.tv_sec) * USEC_PER_SEC;
++	if (now.tv_sec - stir->rx_time.tv_sec > 0)
++		us -= USEC_PER_SEC;
+ 	us -= now.tv_usec - stir->rx_time.tv_usec;
+ 	if (us < 10)
+ 		return;
+@@ -787,7 +788,7 @@ static int stir_transmit_thread(void *ar
+ 				stir_send(stir, skb);
+ 			dev_kfree_skb(skb);
  
-@@ -1100,7 +1104,12 @@ static int ext3_writeback_commit_write(s
- 	new_i_size = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
- 	if (new_i_size > EXT3_I(inode)->i_disksize)
- 		EXT3_I(inode)->i_disksize = new_i_size;
--	ret = generic_commit_write(file, page, from, to);
-+
-+	if (test_opt(inode->i_sb, NOBH))
-+		ret = nobh_commit_write(file, page, from, to);
-+	else
-+		ret = generic_commit_write(file, page, from, to);
-+
- 	ret2 = ext3_journal_stop(handle);
- 	if (!ret)
- 		ret = ret2;
-@@ -1385,7 +1394,11 @@ static int ext3_writeback_writepage(stru
- 		goto out_fail;
- 	}
- 
--	ret = block_write_full_page(page, ext3_get_block, wbc);
-+	if (test_opt(inode->i_sb, NOBH))
-+		ret = nobh_writepage(page, ext3_get_block, wbc);
-+	else
-+		ret = block_write_full_page(page, ext3_get_block, wbc);
-+
- 	err = ext3_journal_stop(handle);
- 	if (!ret)
- 		ret = err;
-@@ -1646,13 +1659,41 @@ static int ext3_block_truncate_page(hand
- 	unsigned blocksize, iblock, length, pos;
- 	struct inode *inode = mapping->host;
- 	struct buffer_head *bh;
--	int err;
-+	int err = 0;
- 	void *kaddr;
- 
- 	blocksize = inode->i_sb->s_blocksize;
- 	length = blocksize - (offset & (blocksize - 1));
- 	iblock = index << (PAGE_CACHE_SHIFT - inode->i_sb->s_blocksize_bits);
- 
-+	if (test_opt(inode->i_sb, NOBH) && !page_has_buffers(page)) {
-+		if (!PageUptodate(page)) {
-+			struct buffer_head map_bh;
-+			bh = &map_bh;
-+			bh->b_state = 0;
-+			clear_buffer_mapped(bh);
-+			ext3_get_block(inode, iblock, bh, 0);
-+			if (!buffer_mapped(bh)) 
-+				goto unlock;
-+			err = -EIO;
-+			set_bh_page(bh, page, 0);
-+			bh->b_this_page = 0;
-+			bh->b_size = 1 << inode->i_blkbits;
-+			ll_rw_block(READ, 1, &bh);
-+			wait_on_buffer(bh);
-+			if (!buffer_uptodate(bh))
-+				goto unlock;
-+			SetPageMappedToDisk(page);
-+		}
-+		kaddr = kmap_atomic(page, KM_USER0);
-+		memset(kaddr + offset, 0, length);
-+		flush_dcache_page(page);
-+		kunmap_atomic(kaddr, KM_USER0);
-+		set_page_dirty(page);
-+		err = 0;
-+		goto unlock;
-+	}
-+	
- 	if (!page_has_buffers(page))
- 		create_empty_buffers(page, blocksize, 0);
- 
-diff -Naurp -Xdontdiff linux-2.6.11/fs/ext3/super.c linux-2.6.11.new/fs/ext3/super.c
---- linux-2.6.11/fs/ext3/super.c	2005-03-01 23:38:38.000000000 -0800
-+++ linux-2.6.11.new/fs/ext3/super.c	2005-03-04 16:45:22.038975880 -0800
-@@ -576,7 +576,7 @@ enum {
- 	Opt_resgid, Opt_resuid, Opt_sb, Opt_err_cont, Opt_err_panic, Opt_err_ro,
- 	Opt_nouid32, Opt_check, Opt_nocheck, Opt_debug, Opt_oldalloc, Opt_orlov,
- 	Opt_user_xattr, Opt_nouser_xattr, Opt_acl, Opt_noacl,
--	Opt_reservation, Opt_noreservation, Opt_noload,
-+	Opt_reservation, Opt_noreservation, Opt_noload, Opt_nobh,
- 	Opt_commit, Opt_journal_update, Opt_journal_inum,
- 	Opt_abort, Opt_data_journal, Opt_data_ordered, Opt_data_writeback,
- 	Opt_usrjquota, Opt_grpjquota, Opt_offusrjquota, Opt_offgrpjquota,
-@@ -611,6 +611,7 @@ static match_table_t tokens = {
- 	{Opt_reservation, "reservation"},
- 	{Opt_noreservation, "noreservation"},
- 	{Opt_noload, "noload"},
-+	{Opt_nobh, "nobh"},
- 	{Opt_commit, "commit=%u"},
- 	{Opt_journal_update, "journal=update"},
- 	{Opt_journal_inum, "journal=%u"},
-@@ -924,6 +925,9 @@ clear_qf_name:
- 			match_int(&args[0], &option);
- 			*n_blocks_count = option;
- 			break;
-+		case Opt_nobh:
-+			set_opt(sbi->s_mount_opt, NOBH);
-+			break;
- 		default:
- 			printk (KERN_ERR
- 				"EXT3-fs: Unrecognized mount option \"%s\" "
-@@ -1563,6 +1567,19 @@ static int ext3_fill_super (struct super
- 		break;
- 	}
- 
-+	if (test_opt(sb, NOBH)) {
-+		if (sb->s_blocksize_bits != PAGE_CACHE_SHIFT) {
-+			printk(KERN_WARNING "EXT3-fs: Ignoring nobh option "
-+				"since filesystem blocksize doesn't match "
-+				"pagesize\n");
-+			clear_opt(sbi->s_mount_opt, NOBH);
-+		}
-+		if (!(test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_WRITEBACK_DATA)) {
-+			printk(KERN_WARNING "EXT3-fs: Ignoring nobh option - "
-+				"its supported only with writeback mode\n");
-+			clear_opt(sbi->s_mount_opt, NOBH);
-+		}
-+	}
- 	/*
- 	 * The journal_load will have done any necessary log recovery,
- 	 * so we can safely mount the rest of the filesystem now.
-diff -Naurp -Xdontdiff linux-2.6.11/include/linux/ext3_fs.h linux-2.6.11.new/include/linux/ext3_fs.h
---- linux-2.6.11/include/linux/ext3_fs.h	2005-03-01 23:38:10.000000000 -0800
-+++ linux-2.6.11.new/include/linux/ext3_fs.h	2005-03-04 16:46:29.101780784 -0800
-@@ -357,6 +357,7 @@ struct ext3_inode {
- #define EXT3_MOUNT_POSIX_ACL		0x08000	/* POSIX Access Control Lists */
- #define EXT3_MOUNT_RESERVATION		0x10000	/* Preallocation */
- #define EXT3_MOUNT_BARRIER		0x20000 /* Use block barriers */
-+#define EXT3_MOUNT_NOBH			0x40000 /* No bufferheads */
- 
- /* Compatibility, for having both ext2_fs.h and ext3_fs.h included at once */
- #ifndef _LINUX_EXT2_FS_H
-
---=-PScnJQ9tU2LuDjxqOqt4--
-
+-			if (stir->speed != new_speed) {
++			if ((new_speed != -1) && (stir->speed != new_speed)) {
+ 				if (fifo_txwait(stir, -1) ||
+ 				    change_speed(stir, new_speed))
+ 					break;

@@ -1,34 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbVAUXri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVAUXvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262617AbVAUXri (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 18:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbVAUXpP
+	id S262604AbVAUXvn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 18:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbVAUXsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 18:45:15 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:55254 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262610AbVAUXo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 18:44:56 -0500
-Date: Fri, 21 Jan 2005 15:44:51 -0800
-From: Mitch Williams <mitch.a.williams@intel.com>
-X-X-Sender: mawilli1@mawilli1-desk2.amr.corp.intel.com
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: re: sysfs patches
-Message-ID: <Pine.CYG.4.58.0501211541490.3848@mawilli1-desk2.amr.corp.intel.com>
-ReplyTo: "Mitch Williams" <mitch.a.williams@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Jan 2005 18:48:55 -0500
+Received: from news.suse.de ([195.135.220.2]:9965 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262610AbVAUXqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 18:46:18 -0500
+Subject: Re: [ea-in-inode 0/5] Further fixes
+From: Andreas Gruenbacher <agruen@suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Andrew Tridgell <tridge@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1106348336.1989.484.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <20050120020124.110155000@suse.de>
+	 <1106348336.1989.484.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1106351172.19651.102.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 22 Jan 2005 00:46:12 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My apologies -- I appear to have sent the patches out in reverse order.
-Please apply patch 3 before the other two.
+On Fri, 2005-01-21 at 23:58, Stephen C. Tweedie wrote:
+> Hi Andreas,
+> 
+> On Thu, 2005-01-20 at 02:01, Andreas Gruenbacher wrote:
+> 
+> > here is a set of fixes for ext3 in-inode attributes:
+> 
+> Obvious first question --- have these diffs survived the same
+> torture-by-tridgell that the previous batch suffered?
 
-This is the first time I've used our automated tools to make small patches
-out of big ones, but I think I have it figured out now.
+No. The fixes are a lot less intrusive than the full xattr rework
+though. I obviously ran tests; this included dbench.
 
-Thanks for your patience.
+Tridge, can you beat the code some more?
 
--Mitch Williams
+Andrew has the five fixes in 2.6.11-rc1-mm2.
+
+-- Andreas.
 

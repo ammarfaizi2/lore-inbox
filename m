@@ -1,79 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbULHH36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbULHHdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbULHH36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbULHH34
+	id S262068AbULHHdv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 02:33:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbULHHbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:29:56 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3493 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262054AbULHH1R (ORCPT
+	Wed, 8 Dec 2004 02:31:52 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:35722 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262058AbULHH3k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:27:17 -0500
-Date: Wed, 8 Dec 2004 08:26:16 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Time sliced CFQ io scheduler
-Message-ID: <20041208072616.GD19522@suse.de>
-References: <20041202114836.6b2e8d3f.akpm@osdl.org> <20041202195232.GA26695@suse.de> <20041208003736.GD16322@dualathlon.random> <1102467253.8095.10.camel@npiggin-nld.site> <20041208013732.GF16322@dualathlon.random> <20041207180033.6699425b.akpm@osdl.org> <20041208065534.GF3035@suse.de> <1102489719.8095.56.camel@npiggin-nld.site> <20041208071141.GB19522@suse.de> <1102490389.8095.69.camel@npiggin-nld.site>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102490389.8095.69.camel@npiggin-nld.site>
+	Wed, 8 Dec 2004 02:29:40 -0500
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org,
+       Ian.Pratt@cl.cam.ac.uk
+Subject: [2/6] Xen VMM #4: return code for arch_free_page
+In-reply-to: Your message of "Wed, 08 Dec 2004 07:28:16 GMT."
+             <E1CbwFE-0006PZ-00@mta1.cl.cam.ac.uk> 
+Date: Wed, 08 Dec 2004 07:29:31 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CbwGR-0006Qn-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08 2004, Nick Piggin wrote:
-> On Wed, 2004-12-08 at 08:11 +0100, Jens Axboe wrote:
-> > On Wed, Dec 08 2004, Nick Piggin wrote:
-> > > On Wed, 2004-12-08 at 07:55 +0100, Jens Axboe wrote:
-> 
-> > > > Currently I think the time sliced cfq is the best all around. There's
-> > > > still a few kinks to be shaken out, but generally I think the concept is
-> > > > sounder than AS.
-> > > > 
-> > > 
-> > > But aren't you basically unconditionally allowing a 4ms idle time after
-> > > reads? The complexity of AS (other than all the work we had to do to get
-> > > the block layer to cope with it), is getting it to turn off at (mostly)
-> > > the right times. Other than that, it is basically the deadline
-> > > scheduler.
-> > 
-> > Yes, the concept is similar and there will be time wasting currently.
-> > I've got some cases covered that AS doesn't, and there are definitely
-> > some the other way around as well.
-> > 
-> 
-> Oh? What have you got covered that AS doesn't? (I'm only reading the
-> patch itself, which isn't trivial to follow).
 
-You are only thinking in terms of single process characteristics like
-will it exit and think times, the inter-process characteristics are very
-hap hazard. You might find the applied code easier to read, I think.
+This patch adds a return value to the existing arch_free_page function
+that indicates whether the normal free routine still has work to
+do. The only architecture that currently uses arch_free_page is arch
+'um'. arch xen needs this for 'foreign pages' - pages that don't
+belong to the page allocator but are instead managed by custom
+allocators. Such pages are marked using PG_arch_1.
 
-> > If you have any test cases/programs, I'd like to see them.
-> > 
-> 
-> Hmm, damn. Lots of stuff. I guess some of the notable ones that I've
-> had trouble with are OraSim (Oracle might give you a copy), Andrew's
-> patch scripts when applying a stack of patches, pgbench... can't
-> really remember any others off the top of my head.
+Signed-off-by: ian.pratt@cl.cam.ac.uk
 
-The patch scripts case is interesting, last night (when committing other
-patches) I was thinking I should try and bench that today. It has a good
-mix of reads and writes.
+---
 
-There's still lots of tuning in the pipe line. As I wrote originally,
-this was basically just a quick hack that I was surprised did so well
-:-) It has grown a little since then and I think the concept is really
-sound, so I'll continue to work on it.
 
-> I've got a small set of basic test programs that are similar to the
-> sort of tests you've been running in this thread as well.
-
-Ok
-
--- 
-Jens Axboe
+diff -Nurp pristine-linux-2.6.10-rc3/include/linux/gfp.h tmp-linux-2.6.10-rc3-xen.patch/include/linux/gfp.h
+--- pristine-linux-2.6.10-rc3/include/linux/gfp.h	2004-12-03 21:53:07.000000000 +0000
++++ tmp-linux-2.6.10-rc3-xen.patch/include/linux/gfp.h	2004-12-08 00:52:40.000000000 +0000
+@@ -74,8 +74,12 @@ struct vm_area_struct;
+  * optimized to &contig_page_data at compile-time.
+  */
+ 
++/*
++ * If arch_free_page returns non-zero then the generic free_page code can
++ * immediately bail: the arch-specific function has done all the work.
++ */
+ #ifndef HAVE_ARCH_FREE_PAGE
+-static inline void arch_free_page(struct page *page, int order) { }
++#define arch_free_page(page, order) 0
+ #endif
+ 
+ extern struct page *
+diff -Nurp pristine-linux-2.6.10-rc3/mm/page_alloc.c tmp-linux-2.6.10-rc3-xen.patch/mm/page_alloc.c
+--- pristine-linux-2.6.10-rc3/mm/page_alloc.c	2004-12-03 21:52:41.000000000 +0000
++++ tmp-linux-2.6.10-rc3-xen.patch/mm/page_alloc.c	2004-12-08 00:56:48.000000000 +0000
+@@ -278,7 +278,8 @@ void __free_pages_ok(struct page *page, 
+ 	LIST_HEAD(list);
+ 	int i;
+ 
+-	arch_free_page(page, order);
++	if (arch_free_page(page, order))
++		return;
+ 
+ 	mod_page_state(pgfree, 1 << order);
+ 	for (i = 0 ; i < (1 << order) ; ++i)
+@@ -508,7 +509,8 @@ static void fastcall free_hot_cold_page(
+ 	struct per_cpu_pages *pcp;
+ 	unsigned long flags;
+ 
+-	arch_free_page(page, 0);
++	if (arch_free_page(page, 0))
++		return;
+ 
+ 	kernel_map_pages(page, 1, 0);
+ 	inc_page_state(pgfree);
+diff -Nurp pristine-linux-2.6.10-rc2/arch/um/kernel/physmem.c tmp-linux-2.6.10-rc2-xen.patch/arch/um/kernel/physmem.c
+--- pristine-linux-2.6.10-rc2/arch/um/kernel/physmem.c	2004-11-19 20:04:30.000000000 +0000
++++ tmp-linux-2.6.10-rc2-xen.patch/arch/um/kernel/physmem.c	2004-11-19 20:05:33.000000000 +0000
+@@ -225,7 +225,7 @@ EXPORT_SYMBOL(physmem_forget_descriptor)
+ EXPORT_SYMBOL(physmem_remove_mapping);
+ EXPORT_SYMBOL(physmem_subst_mapping);
+ 
+-void arch_free_page(struct page *page, int order)
++void __arch_free_page(struct page *page, int order)
+ {
+ 	void *virt;
+ 	int i;
+diff -Nurp pristine-linux-2.6.10-rc2/include/asm-um/page.h tmp-linux-2.6.10-rc2-xen.patch/include/asm-um/page.h
+--- pristine-linux-2.6.10-rc2/include/asm-um/page.h	2004-11-19 20:04:52.000000000 +0000
++++ tmp-linux-2.6.10-rc2-xen.patch/include/asm-um/page.h	2004-11-19 20:05:33.000000000 +0000
+@@ -46,7 +46,8 @@ extern void *to_virt(unsigned long phys)
+ extern struct page *arch_validate(struct page *page, int mask, int order);
+ #define HAVE_ARCH_VALIDATE
+ 
+-extern void arch_free_page(struct page *page, int order);
++extern void __arch_free_page(struct page *page, int order);
++#define arch_free_page(page, order) (__arch_free_page((page), (order)), 0)
+ #define HAVE_ARCH_FREE_PAGE
+ 
+ #endif
 

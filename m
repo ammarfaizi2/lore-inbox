@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267161AbSLEAkS>; Wed, 4 Dec 2002 19:40:18 -0500
+	id <S267162AbSLEAn5>; Wed, 4 Dec 2002 19:43:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267162AbSLEAkS>; Wed, 4 Dec 2002 19:40:18 -0500
-Received: from dp.samba.org ([66.70.73.150]:58828 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267161AbSLEAkR>;
-	Wed, 4 Dec 2002 19:40:17 -0500
-Date: Thu, 5 Dec 2002 11:47:44 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021205004744.GB2741@zax.zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	linux-kernel@vger.kernel.org
-References: <200212041747.gB4HlEF03005@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212041747.gB4HlEF03005@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	id <S267163AbSLEAn5>; Wed, 4 Dec 2002 19:43:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54532 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267162AbSLEAn4>;
+	Wed, 4 Dec 2002 19:43:56 -0500
+Message-ID: <3DEEA2EF.3040004@pobox.com>
+Date: Wed, 04 Dec 2002 19:50:55 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Alexander Viro <viro@math.psu.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix ppdev compile breakage
+Content-Type: multipart/mixed;
+ boundary="------------050601040200000308060007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 11:47:14AM -0600, James Bottomley wrote:
-> Currently our only DMA API is highly PCI specific (making any non-pci bus with 
-> a DMA controller create fake PCI devices to help it function).
-> 
-> Now that we have the generic device model, it should be equally possible to 
-> rephrase the entire API for generic devices instead of pci_devs.
-> 
-> This patch does just that (for x86---although I also have working code for 
-> parisc, that's where I actually tested the DMA capability).
-> 
-> The API is substantially the same as the PCI DMA one, with one important 
-> exception with regard to consistent memory:
-> 
-> The PCI api has pci_alloc_consistent which allocates only consistent memory 
-> and fails the allocation if none is available thus leading to driver writers 
-> who might need to function with inconsistent memory to detect this and employ 
-> a fallback strategy.
-> 
-> The new DMA API allows a driver to advertise its level of consistent memory 
-> compliance to dma_alloc_consistent.  There are essentially two levels:
-> 
-> - I only work with consistent memory, fail if I cannot get it, or
-> - I can work with inconsistent memory, try consistent first but return 
-> inconsistent if it's not available.
+This is a multi-part message in MIME format.
+--------------050601040200000308060007
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Do you have an example of where the second option is useful?  Off hand
-the only places I can think of where you'd use a consistent_alloc()
-rather than map_single() and friends is in cases where the hardware's
-behaviour means you absolutely positively have to have consistent
-memory.
+Cleaning up after viro ;-)
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+--------------050601040200000308060007
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+--- 1.17/drivers/char/ppdev.c	Tue Dec  3 12:53:57 2002
++++ edited/drivers/char/ppdev.c	Wed Dec  4 19:49:05 2002
+@@ -751,6 +751,8 @@
+ 
+ static int __init ppdev_init (void)
+ {
++	int i;
++
+ 	if (register_chrdev (PP_MAJOR, CHRDEV, &pp_fops)) {
+ 		printk (KERN_WARNING CHRDEV ": unable to get major %d\n",
+ 			PP_MAJOR);
+
+--------------050601040200000308060007--
+

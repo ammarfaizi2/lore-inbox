@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261601AbSI0QwP>; Fri, 27 Sep 2002 12:52:15 -0400
+	id <S262149AbSI0Q6h>; Fri, 27 Sep 2002 12:58:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261608AbSI0QwP>; Fri, 27 Sep 2002 12:52:15 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:44557 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261601AbSI0QwO>;
-	Fri, 27 Sep 2002 12:52:14 -0400
-Date: Fri, 27 Sep 2002 09:55:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [RFC] LSM changes for 2.5.38
-Message-ID: <20020927165556.GH11530@kroah.com>
-References: <20020927003210.A2476@sgi.com> <20020926225147.GC7304@kroah.com> <20020927174849.A32207@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020927174849.A32207@infradead.org>
-User-Agent: Mutt/1.4i
+	id <S262153AbSI0Q6h>; Fri, 27 Sep 2002 12:58:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9229 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262149AbSI0Q6g>; Fri, 27 Sep 2002 12:58:36 -0400
+Date: Fri, 27 Sep 2002 10:05:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@zip.com.au>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 'virtual => physical page mapping cache', vcache-2.5.38-B8
+In-Reply-To: <Pine.LNX.4.44.0209271856480.15791-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209271001030.2013-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 05:48:49PM +0100, Christoph Hellwig wrote:
-> > capable is needed to be checked, as we are not modifying the existing
-> > permission logic.
+
+On Fri, 27 Sep 2002, Ingo Molnar wrote:
 > 
-> I odn't think it makes sense to have two security checks that both
-> end up in the LSM code after each other..
+> i agree, first hashing the vcache should work. There are some details:  
+> if we first hash the vcache then we have to set up the queue in a way for
+> the callback function to notice that this queue is not futex-hashed (ie.  
+> not live) yet. Otherwise the callback function might attempt to rehash it.  
+> This means one more branch in the callback function, not a problem.
 
-For cases like the module_* hooks, and the other examples you pointed
-out, I agree.
+Not necessarily. You can solve _this_ problem by just holding the futex 
+lock over the whole operation. If the COW happens "early" on another CPU, 
+it will then be serialized by the futex lock in the callback function.
 
-For other cases, capable() is just not fine grained enough to actually
-know what is going on (like CAP_SYS_ADMIN).  In those cases you need an
-extra hook to determine where in the kernel you are.
+The futex lock itself is hopefully not going to be contended very much,
+making the "get it early" approach acceptable. Although if it later _does_
+get contended, we'll need to split it up some way: it cannot be hashed
+sanely with the above approach, since there are no unique sub-indexes to
+hash off as the physical page and offset have zero correlation with the VM
+/ virtual address.
 
-thanks,
+		Linus
 
-greg k-h

@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271227AbTGWTV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271236AbTGWTSr
+	id S271228AbTGWTVb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 15:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271235AbTGWTSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:18:47 -0400
-Received: from verein.lst.de ([212.34.189.10]:23187 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S271235AbTGWTRq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 15:17:46 -0400
-Date: Wed, 23 Jul 2003 21:32:46 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: uClinux development list <uclinux-dev@uclinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase
-Message-ID: <20030723193246.GA836@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	uClinux development list <uclinux-dev@uclinux.org>,
-	linux-kernel@vger.kernel.org
-References: <200307232046.46990.bernie@develer.com>
+	Wed, 23 Jul 2003 15:18:53 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:43025
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S271233AbTGWTRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 15:17:42 -0400
+Date: Wed, 23 Jul 2003 12:32:47 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: different behaviour with badblocks on 2.6.0-test1-mm1-07int
+Message-ID: <20030723193247.GI1176@matchmail.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030722214253.GD1176@matchmail.com> <20030723081844.GB1324@home.woodlands> <200307231324.h6NDO5qj009710@turing-police.cc.vt.edu> <20030723151950.GA2218@home.woodlands> <20030723170107.GH1176@matchmail.com> <20030723190929.GB1288@home.woodlands>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307232046.46990.bernie@develer.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
+In-Reply-To: <20030723190929.GB1288@home.woodlands>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 08:46:46PM +0200, Bernardo Innocenti wrote:
-> Hello,
+On Thu, Jul 24, 2003 at 12:39:29AM +0530, Apurva Mehta wrote:
+> * Mike Fedyk <mfedyk@matchmail.com> [2003-07-23 22:41]:
+> > > I am using 2.1.14.. Still no luck with it reading disks.. 
+> > 
+> > Maybe you need to mount sysfs on /sys?
 > 
-> code bloat can be very harmful on embedded targets, but it's
-> generally inconvenient for any platform. I've measured the
-> code increase between 2.4.21 and 2.6.0-test1 on a small
-> kernel configuration for ColdFire:
+> Right, gkrellm does report some disk usage now, but it is far from
+> accurate. It registers barely any of the disk activity. Starting
+> Firebird or Opera may occasionally register one spike on the
+> graph. Mostly, the disk activity is not reported. 
 > 
->    text    data     bss     dec     hex filename
->  640564   39152  134260  813976   c6b98 linux-2.4.x/linux
->  845924   51204   78896  976024   ee498 linux-2.5.x/vmlinux
-> 
-> I could provide the exact .config file for both kernels to
-> anybody interested. They are almost the same: no filesystems
-> except JFFS2, IPv4 and a bunch of small drivers. I have no
-> SMP, security, futexes, modules and anything else not
-> strictly needed to execute processes.
+> This seems to be a gkrellm bug since vmstat reports disk usage more
+> accurately, although I haven't really looked closely at the output..
 
-Yes, we need to get this down again.  What compiler and compiler
-flags are you using?  Could you retry with the following ripped
-from include/linux/compiler.h:
+Ok let's forget about gkrellm because I see similar numbers in vmstat.
 
-#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
-#define inline          __inline__ __attribute__((always_inline))
-#define __inline__      __inline__ __attribute__((always_inline))
-#define __inline        __inline__ __attribute__((always_inline))
-#endif
-
-I'd especially be interested in the fs/ numbers after this.
-
-Also -Os on both would be quite cool.
+Now, let's get back to the origional issue, which is "Why the fuck is
+badblocks reading when it should only be writing, and why does it only
+happen on a 2.6-test kernel?!!"

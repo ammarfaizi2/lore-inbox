@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310204AbSCKXy6>; Mon, 11 Mar 2002 18:54:58 -0500
+	id <S310205AbSCLAA3>; Mon, 11 Mar 2002 19:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310205AbSCKXys>; Mon, 11 Mar 2002 18:54:48 -0500
-Received: from mail.rttinc.com ([139.142.30.71]:43274 "HELO mail.rttinc.com")
-	by vger.kernel.org with SMTP id <S310204AbSCKXyg>;
-	Mon, 11 Mar 2002 18:54:36 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Brad Pepers <brad@linuxcanada.com>
-Organization: Linux Canada Inc.
-To: dipankar@in.ibm.com
-Subject: Re: Multi-threading
-Date: Mon, 11 Mar 2002 16:53:45 -0700
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020312010618.A32259@in.ibm.com>
-In-Reply-To: <20020312010618.A32259@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S310212AbSCLAAU>; Mon, 11 Mar 2002 19:00:20 -0500
+Received: from insgate.stack.nl ([131.155.140.2]:13830 "HELO skynet.stack.nl")
+	by vger.kernel.org with SMTP id <S310205AbSCLAAF>;
+	Mon, 11 Mar 2002 19:00:05 -0500
+Date: Tue, 12 Mar 2002 01:00:00 +0100 (CET)
+From: Jos Hulzink <josh@stack.nl>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+In-Reply-To: <Pine.LNX.4.44L.0203111819130.2181-100000@imladris.surriel.com>
+Message-ID: <20020312004810.Y36769-100000@snail.stack.nl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020311235442Z310204-890+125062@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 March 2002 12:36, Dipankar Sarma wrote:
-> In article <20020311182111Z310364-889+120750@vger.kernel.org> Brad Pepers 
-wrote:
-> > There was a message posted by Jim Starkey about his experiences using
-> > threads on Linux and the problems debugging them.  It came down to two
-> > things:
-> >
-> > 2. Linux is missing an atomic use-count mechanism which returns values
-> > like the Microsoft InterlockedIncrement/Decrement functions do.
->
-> Can't this be done using atomic_dec_and_test() and the likes ?
-> Google tells me that windoze InterlockedIncrement/Decrement stuff
-> does the almost same thing. Why can't refcounting be
-> implemented using just atomic_inc/dec and/or atomic_inc/dec_and_test ?
+On Mon, 11 Mar 2002, Rik van Riel wrote:
+> Personally I've given up on using 2.5 on my machines.
 
-The atomic_dec_and_test certainly handles the most often used case and is 
-good enough.  Apparently it would be nice to have the value back sometimes 
-too though.
+Gee... and I should trust my 80 GB of IDE disks to mud-throwing kiddies
+like you guys ? I was working on some FAT enhancements in the 2.5 tree,
+but I agree with Rik. Maybe I should just forget 2.5.
 
-The atomic_inc_and_test is not much good though since the case you most often 
-want to track is the 0 to 1 transition and not -1 to 0!
+Jos
 
--- 
-Brad Pepers
-brad@linuxcanada.com

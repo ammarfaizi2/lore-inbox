@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289495AbSAOK7e>; Tue, 15 Jan 2002 05:59:34 -0500
+	id <S289498AbSAOLPB>; Tue, 15 Jan 2002 06:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289496AbSAOK7Z>; Tue, 15 Jan 2002 05:59:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:12705 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289495AbSAOK7L>;
-	Tue, 15 Jan 2002 05:59:11 -0500
-Date: Tue, 15 Jan 2002 02:57:41 -0800 (PST)
-Message-Id: <20020115.025741.73663681.davem@redhat.com>
-To: tyketto@wizard.com
+	id <S289500AbSAOLOu>; Tue, 15 Jan 2002 06:14:50 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:28426 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S289498AbSAOLOb>;
+	Tue, 15 Jan 2002 06:14:31 -0500
+Date: Tue, 15 Jan 2002 12:14:24 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Gerd Knorr <kraxel@bytesex.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: atyfb in 2.5.2
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020115094953.GA24170@wizard.com>
-In-Reply-To: <20020115094953.GA24170@wizard.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: Re: Memory problem with bttv driver
+Message-Id: <20020115121424.10bb89b2.skraw@ithnet.com>
+In-Reply-To: <slrna480cv.68d.kraxel@bytesex.org>
+In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com>
+	<E16QETz-0002yD-00@the-village.bc.nu>
+	<20020115004205.A12407@werewolf.able.es>
+	<slrna480cv.68d.kraxel@bytesex.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: A Guy Called Tyketto <tyketto@wizard.com>
-   Date: Tue, 15 Jan 2002 01:49:53 -0800
+On 15 Jan 2002 10:17:03 GMT
+Gerd Knorr <kraxel@bytesex.org> wrote:
 
-   make[4]: Entering directory `/usr/src/linux/drivers/video/aty'
-   gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
-   -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
-   -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     
-   -DEXPORT_SYMTAB -c atyfb_base.c
-   atyfb_base.c: In function `aty_init':
-   atyfb_base.c:1989: incompatible types in assignment
 
-Replace the "-1" on that line with "NODEV".
+> MM wise it shouldn't make a difference whenever you are using 0.7.83 or
+> 0.7.88 (I've mailed 0.7.88 patches to macelo for 2.4.18 btw).  The 0.8.x
+> versions have a complete different way to do the memory management.
+
+No vmallocs?
+
+Regards,
+Stephan
+
+

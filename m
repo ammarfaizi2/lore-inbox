@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287924AbSAPVhU>; Wed, 16 Jan 2002 16:37:20 -0500
+	id <S289135AbSAPVzt>; Wed, 16 Jan 2002 16:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287947AbSAPVhF>; Wed, 16 Jan 2002 16:37:05 -0500
-Received: from blueberrysolutions.com ([195.165.170.195]:5512 "EHLO
-	blueberrysolutions.com") by vger.kernel.org with ESMTP
-	id <S287924AbSAPVfr>; Wed, 16 Jan 2002 16:35:47 -0500
-Date: Wed, 16 Jan 2002 23:35:40 +0200 (EET)
-From: Tony Glader <Tony.Glader@blueberrysolutions.com>
-X-X-Sender: <teg@blueberrysolutions.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.17 oops
-Message-ID: <Pine.LNX.4.33.0201162332010.14511-100000@blueberrysolutions.com>
+	id <S289156AbSAPVzk>; Wed, 16 Jan 2002 16:55:40 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:30500 "EHLO
+	tsmtp1.mail.isp") by vger.kernel.org with ESMTP id <S289135AbSAPVz3>;
+	Wed, 16 Jan 2002 16:55:29 -0500
+Date: Wed, 16 Jan 2002 22:59:26 +0100
+From: Diego Calleja <grundig@teleline.es>
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Rik spreading bullshit about VM
+Reply-To: grundig@teleline.es
+In-Reply-To: <20020116200459.E835@athlon.random>
+In-Reply-To: <20020116200459.E835@athlon.random>
+X-Mailer: Spruce 0.7.4 for X11 w/smtpio 0.8.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020116215533Z289135-13997+6272@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
+> attached) and most important I don't have a single bugreport about the
+> current 2.4.18pre2aa2 VM (except perhaps the bdflush wakeup that seems
+> to be a little too late and that deals to lower numbers with slow write
+> load etc.., fixable with bdflush tuning). Mainline VM kills too easily,
 
-As I few days ago wrote about 2.2.17 oops's...
+Well, I haven't reported it yet, but booting my box with mem=4M
+gave as result: (running 2.4.18-pre2aa2):
+diego# cat /var/log/messages | grep gfp
+Jan 13 15:37:10 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 16:06:28 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 18:37:21 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 21:58:32 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+Jan 15 21:58:33 localhost kernel: __alloc_pages: 0-order allocation failed
+(gfp=0xf0/0)
+diego# 
 
-I still get them daily and I'm sure that hardware isn't problem - I have 
-changed everything in my computer. It is a Pentium 75. After (about) a 24 
-hours uptime I will get lot of oops's,but iptables still working. Oops's 
-will come shortly after boot, if processor has heavy load or i/o is big.
+Each script of /etc/rc.d was killed by VM when it was started, there wasn't
+any "OOM", just
+"VM killed..." or something similar.
+As /etc/rc.d scripts were killed, I couldn't start swap.
 
----- 8< -----
+The gfp=0x... numbers were not always the same, but I can't remember them
+because syslogd wasn't running.
+I can repeat this if you want and I'll copy all messages.
 
-Unable to handle kernel paging request at virtual address 00001200
- 00001200
- *pde = 00000000
- Oops: 0000
- CPU:    0
- EIP:    0010:[<00001200>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
- EFLAGS: 00013202
- eax: 00000001   ebx: c024ce60   ecx: c380b000   edx: 00000012
- esi: 00000012   edi: 00000018   ebp: 00000361   esp: c11f7f28
- ds: 0018   es: 0018   ss: 0018
- Process kswapd (pid: 4, stackpage=c11f7000)
- Stack: c109eec0 c0126983 c024ce60 00000197 c11f6000 00000051 000001d0 
-c01fd4c8
-      c0265ee0 c11e35a0 c10c7590 00000000 00000020 000001d0 00000006 
-00002946
-       c0126af6 00000006 0000000e c01fd4c8 00000006 000001d0 c01fd4c8 
-00000000
- Call Trace: [shrink_cache+691/752] [shrink_caches+86/128] 
-[try_to_free_pages+48/8
- Code:  Bad EIP value.
+..I remember running 2.2.14 in a 386 box with 4MB of RAM and 8 or 16 of
+swap. It was veeery slow, but even I could run apache :-)...
 
----- 8< ----
 
+
+> this is fixed in -aa VM and -aa VM has a number of other issues
+> resolved, but mainline 2.4 vm isn't that far either. In the last few
+> days I was playing with pte-highmem, soon I will spend some time merging
+> -aa VM into mainline with Marcelo if he likes to.
+> 
+> Andrea
+> 
+> PS. I know the interviewer and he's usually very accurate, so I don't
+> think this could be a misunderstanding where you say one thing and they
+> writer another one just to create troubles.
+> 
+> 

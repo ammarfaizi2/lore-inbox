@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272122AbRHXP0i>; Fri, 24 Aug 2001 11:26:38 -0400
+	id <S272144AbRHXPkC>; Fri, 24 Aug 2001 11:40:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272133AbRHXP0S>; Fri, 24 Aug 2001 11:26:18 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:45695
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S272122AbRHXP0Q>; Fri, 24 Aug 2001 11:26:16 -0400
-Message-ID: <3B867225.5010008@fugmann.dhs.org>
-Date: Fri, 24 Aug 2001 17:26:29 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S272189AbRHXPjm>; Fri, 24 Aug 2001 11:39:42 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:27402 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S272150AbRHXPjb>;
+	Fri, 24 Aug 2001 11:39:31 -0400
+Date: Fri, 24 Aug 2001 17:39:10 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] const initdata.
-In-Reply-To: <E15aIjC-0005vy-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: Fred <fred@arkansaswebs.com>, Tony Hoyle <tmh@nothing-on.tv>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: File System Limitations
+In-Reply-To: <E15a4Gz-0004uz-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108241737520.5592-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ah.. I misread the first posting.
+I am just curious,
+did you compiled your glibc against a  2.2 or 2.4 kernel headers???
 
-Then we are down to zero .h and 43 .c files that are affected.
-(a total of 121 lines containing 'const' before '__initdata')
+Luigi
 
-Can these be fixed without testing (ie. through a script).
-If so, I'm willing to post a patch.
+On Fri, 24 Aug 2001, Alan Cox wrote:
 
-Regards
-Anders Fugmann
-
-
-
-
-
-Alan Cox wrote:
->>How "bad" is it to have __initdata declared static?
->>
-> 
-> static is fine as it just changes name scoping, const however can try and
-> put data in other places such as code segments. That breaks stuff when
-> compiling with certain gcc versions
-> 
-> 
-
+> > glibc-2.2.2-10
+>
+> Your C library is new enough
+>
+> > [root@bits /a5]# dd if=/dev/zero of=./tgb count=4000 bs=1M
+> > File size limit exceeded (core dumped)
+>
+> But your dd program might not be
+>
+> Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

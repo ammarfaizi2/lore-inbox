@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266112AbRF2Qcv>; Fri, 29 Jun 2001 12:32:51 -0400
+	id <S266116AbRF2Qhn>; Fri, 29 Jun 2001 12:37:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266113AbRF2Qcl>; Fri, 29 Jun 2001 12:32:41 -0400
-Received: from datafoundation.com ([209.150.125.194]:44304 "EHLO
+	id <S266115AbRF2Qhc>; Fri, 29 Jun 2001 12:37:32 -0400
+Received: from datafoundation.com ([209.150.125.194]:45584 "EHLO
 	datafoundation.com") by vger.kernel.org with ESMTP
-	id <S266112AbRF2Qcc>; Fri, 29 Jun 2001 12:32:32 -0400
-Date: Fri, 29 Jun 2001 12:32:31 -0400 (EDT)
+	id <S266117AbRF2Qh1>; Fri, 29 Jun 2001 12:37:27 -0400
+Date: Fri, 29 Jun 2001 12:37:26 -0400 (EDT)
 From: John Jasen <jjasen@datafoundation.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: a couple of NICs that don't NIC
-Message-ID: <Pine.LNX.4.30.0106291223560.9716-100000@flash.datafoundation.com>
+cc: <gibbs@freebsd.org>, <dima@datafoundation.com>
+Subject: problems with aic7xxx driver 6.1.11 (fwd)
+Message-ID: <Pine.LNX.4.30.0106291237030.9716-100000@flash.datafoundation.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In these cases, both network interface cards fall over under moderate to
-heavy traffic.
+---------- Forwarded message ----------
+Date: Mon, 25 Jun 2001 11:31:32 -0400 (EDT)
+From: John Jasen <jjasen@datafoundation.com>
+To: gibbs@freebsd.org
+Cc: Dima Meschaninov <dima@datafoundation.com>
+Subject: problems with aic7xxx driver 6.1.11
 
-1) 01:05.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
-(rev 08)
 
-kernels: 2.2.19 and 2.4.4
+#1) It seems that the new aic7xxx drivers do not detect raid controllers,
+et al on the bus, as we have an nStor NexStor 8le that is completely
+invisible to your driver.
 
-drivers used: kernel eepro100 (2.2.19 and 2.4.4) and intel e100 (2.4.4)
+#2) There seem to be a few problems with the new driver, where it can
+easily get confused into a reset loop. (see below for a rough
+description)
 
-symptoms: the system would spontaneously reboot under heavy NFS traffic,
-with no console or /var/log/messages reports.
+---------- Forwarded message ----------
+Date: Mon, 25 Jun 2001 11:20:08 -0400
+From: Dmitry Meshchaninov <dima@datafoundation.com>
+To: John Jasen <jjasen@datafoundation.com>
+Subject: Description of SCSI situation on zathras
 
-This could be reliably reproduced by mounting an exported directory, and
-looping "find /mounted/directory -depth -print | xargs cat >/dev/null"
+Looks like we have had power down at night. Afterwards, the scsi tray was
+in a strange state - the system BIOS didn't find anything on the bus, and
+naturally the linux driver didn't either.
 
-2) SMC EZNET 10/100 nic, using a realtek chipset
+After we power cycled scsi tray and rebooted the system, the system BIOS
+detected all the scsi devices but the linux driver still was blind.
 
-kernels: 2.4.4
+It said something about timeouts during lun probing and marked all the
+devicess offline, and we tried it via reboot/powercycle of the system at
+least 2-3 times.
 
-drivers used: kernel 8139too
-
-symptoms: the system would hang under heavy network traffic, and need to
-be powercycled backed to life.
-
-ping -f could cause it, as could the test above.
-
-Nothing of interest to report via console or syslog.
-
-I've currently replaced these cards with the Netgear FA310 series, using
-the tulip driver (01:0b.0 Ethernet controller: Lite-On Communications Inc
-LNE100TX (rev 20)) and have had no problems, so being able to help in
-testing would probably be more difficult.
+After we setup the old driver everything went fine.
 
 

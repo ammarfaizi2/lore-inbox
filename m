@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUIAMxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUIAM5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266465AbUIAMxM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 08:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUIAMxI
+	id S266391AbUIAM5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 08:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUIAM5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 08:53:08 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:1163 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266386AbUIAMwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 08:52:23 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <41356321.4030307@namesys.com>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
-	 <41352279.7020307@slaphack.com>  <41356321.4030307@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094039355.2475.38.camel@localhost.localdomain>
+	Wed, 1 Sep 2004 08:57:24 -0400
+Received: from ozlabs.org ([203.10.76.45]:8423 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266391AbUIAMzR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 08:55:17 -0400
+Date: Wed, 1 Sep 2004 22:51:00 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc64] Print backtrace in EEH code
+Message-ID: <20040901125100.GQ26072@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 12:49:16 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-01 at 06:50, Hans Reiser wrote:
-> Yes, changing cat to use openat() is no big deal. 1-2% additional coding 
-> cost for cat, who cares? 
 
-Large cost on its own. The FSF would almost certainly reject such a
-change until someone had written portable emulation of the feature for 
-every other platform which would mean vendor patches which would
-essentially mean it wouldn't happen.
+Hi,
 
-I know I rarely agree with Hans but I think he's right on this one, it
-has to work with the existing open() API.
+We should print a stack backtrace when we get EEH errors, it makes
+debugging the cause of the fail easier.
 
-Alan
+Anton
 
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+===== eeh.c 1.29 vs edited =====
+--- 1.29/arch/ppc64/kernel/eeh.c	Mon Aug 23 18:14:40 2004
++++ edited/eeh.c	Mon Aug 30 09:02:41 2004
+@@ -447,6 +447,10 @@
+ 
+ 		spin_unlock_irqrestore(&slot_errbuf_lock, flags);
+ 
++		printk(KERN_ERR "EEH: MMIO failure (%d) on device:%s %s\n",
++		       rets[0], pci_name(dev), pci_pretty_name(dev));
++		WARN_ON(1);
++
+ 		/*
+ 		 * XXX We should create a separate sysctl for this.
+ 		 *
+@@ -454,14 +458,11 @@
+ 		 * the system in light of potential corruption, we
+ 		 * can use it here.
+ 		 */
+-		if (panic_on_oops) {
++		if (panic_on_oops)
+ 			panic("EEH: MMIO failure (%d) on device:%s %s\n",
+ 			      rets[0], pci_name(dev), pci_pretty_name(dev));
+-		} else {
++		else
+ 			__get_cpu_var(ignored_failures)++;
+-			printk(KERN_INFO "EEH: MMIO failure (%d) on device:%s %s\n",
+-			       rets[0], pci_name(dev), pci_pretty_name(dev));
+-		}
+ 	} else {
+ 		__get_cpu_var(false_positives)++;
+ 	}

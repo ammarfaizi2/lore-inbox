@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264055AbSIVNQc>; Sun, 22 Sep 2002 09:16:32 -0400
+	id <S264058AbSIVNXJ>; Sun, 22 Sep 2002 09:23:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264058AbSIVNQc>; Sun, 22 Sep 2002 09:16:32 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5071 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264055AbSIVNQb>;
-	Sun, 22 Sep 2002 09:16:31 -0400
-Date: Sun, 22 Sep 2002 09:21:40 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Adrian Bunk <bunk@fs.tum.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.38
-In-Reply-To: <Pine.NEB.4.44.0209221444040.18211-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.GSO.4.21.0209220918130.22740-100000@weyl.math.psu.edu>
+	id <S264060AbSIVNXJ>; Sun, 22 Sep 2002 09:23:09 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55533 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264058AbSIVNXI>; Sun, 22 Sep 2002 09:23:08 -0400
+Date: Sun, 22 Sep 2002 15:28:13 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: pdc4030.c doesn't compile in 2.5.38
+Message-ID: <Pine.NEB.4.44.0209221522290.18211-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+FYI:
 
-On Sun, 22 Sep 2002, Adrian Bunk wrote:
+<--  snip  -->
 
-> On Sat, 21 Sep 2002, Linus Torvalds wrote:
-> 
-> >...
-> > Alexander Viro <viro@math.psu.edu>:
-> >   o gendisk for pcd, cdu31a, cm206, mcd, mcdx, sbpcd, jsflash, mtdblock_ro,
-> >     pf, swim3, loop, aztcd, gscd, optcd, sjcd, sonycd, stram, rd, nbd, xpram,
-> >     acorn floppy, swim_iop
-> >...
-> 
-> 
-> Below are the trivial fixes for some typos introduced by these changes:
-[snip]
+...
+  gcc -Wp,-MD,./.pdc4030.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.38-full/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -I/home/bunk/linux/kernel-2.5/linux-2.5.38-full/arch/i386/mach-generic
+-nostdinc -iwithprefix include  -I../  -DKBUILD_BASENAME=pdc4030   -c -o
+pdc4030.o pdc4030.c
+pdc4030.c: In function `promise_read_intr':
+pdc4030.c:465: too few arguments to function
+pdc4030.c: In function `promise_complete_pollfunc':
+pdc4030.c:542: too few arguments to function
+pdc4030.c: In function `promise_multwrite':
+pdc4030.c:587: structure has no member named `bh'
+pdc4030.c:593: structure has no member named `bh'
+pdc4030.c:594: dereferencing pointer to incomplete type
+pdc4030.c:596: dereferencing pointer to incomplete type
+pdc4030.c: In function `do_pdc4030_io':
+pdc4030.c:738: switch quantity not an integer
+pdc4030.c:793: warning: int format, pointer arg (arg 3)
+pdc4030.c:794: too few arguments to function
+pdc4030.c:741: warning: unreachable code at beginning of switch statement
+make[3]: *** [pdc4030.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.38-full/drivers/ide/legacy'
 
-Thanks.  Other fixes: typos in partitions/check.c, block/floppy.c and
-acorn/block/fd1772.c + replacement of #define with inline in block/floppy.c
-(fd_eject()).
+<--  snip  -->
 
-diff -urN C38-0/fs/partitions/check.c C38-fix/fs/partitions/check.c
---- C38-0/fs/partitions/check.c	Sun Sep 22 01:08:03 2002
-+++ C38-fix/fs/partitions/check.c	Sun Sep 22 04:02:19 2002
-@@ -362,7 +362,7 @@
- 		pos = devfs_generate_path(dev->disk_de, rname+3, sizeof(rname)-3);
- 		if (pos >= 0) {
- 			strncpy(rname + pos, "../", 3);
--			devfs_mk_symlink(devfs_handle, vname,
-+			devfs_mk_symlink(cdroms, vname,
- 					 DEVFS_FL_DEFAULT,
- 					 rname + pos, &slave, NULL);
- 			devfs_auto_unregister(dev->de, slave);
-diff -urN C38-tapeblock/drivers/block/floppy.c C38-current/drivers/block/floppy.c
---- C38-tapeblock/drivers/block/floppy.c	Sun Sep 22 01:08:02 2002
-+++ C38-current/drivers/block/floppy.c	Sun Sep 22 06:38:34 2002
-@@ -600,7 +600,10 @@
- 					 * expressed in units of 512 bytes */
- 
- #ifndef fd_eject
--#define fd_eject(x) -EINVAL
-+static inline int fd_eject(int drive)
-+{
-+	return -EINVAL;
-+}
- #endif
- 
- #ifdef DEBUGT
-@@ -4556,7 +4559,7 @@
- 
- void cleanup_module(void)
- {
--	int i;
-+	int drive;
- 		
- 	unregister_sys_device(&device_floppy);
- 	devfs_unregister (devfs_handle);
-diff -urN C38-pd_cleanup/drivers/acorn/block/fd1772.c C38-acorn_fix/drivers/acorn/block/fd1772.c
---- C38-pd_cleanup/drivers/acorn/block/fd1772.c	Sun Sep 22 01:08:02 2002
-+++ C38-acorn_fix/drivers/acorn/block/fd1772.c	Sun Sep 22 08:45:24 2002
-@@ -1542,7 +1542,7 @@
- static struct gendisk *floppy_find(int minor)
- {
- 	int drive = minor & 3;
--	if ((minor>> 2) > NUM_DISK_TYPES || minor >= FD_MAX_UNITS)
-+	if ((minor>> 2) > NUM_DISK_TYPES || drive >= FD_MAX_UNITS)
- 		return NULL;
- 	return &disks[drive];
- }
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+
+
 

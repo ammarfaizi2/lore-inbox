@@ -1,167 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUHBLgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUHBLj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266473AbUHBLgY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 07:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUHBLfz
+	id S266467AbUHBLj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 07:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUHBLjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 07:35:55 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:38385 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S266458AbUHBLf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 07:35:28 -0400
-Message-ID: <410E26FC.208@bull.net>
-Date: Mon, 02 Aug 2004 13:35:24 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
+	Mon, 2 Aug 2004 07:39:25 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:51172 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S266469AbUHBLjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 07:39:12 -0400
+Message-ID: <410E27DC.4090009@grupopie.com>
+Date: Mon, 02 Aug 2004 12:39:08 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: [Patch for review] BSD accounting IO stats
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 02/08/2004 13:40:11,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 02/08/2004 13:40:14,
-	Serialize complete at 02/08/2004 13:40:14
-Content-Type: multipart/mixed;
- boundary="------------090602090500060908070107"
+To: "David N. Welton" <davidw@dedasys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] speedy boot from usb devices
+References: <87fz79xk5q.fsf@dedasys.com>
+In-Reply-To: <87fz79xk5q.fsf@dedasys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.53; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090602090500060908070107
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+David N. Welton wrote:
+> [ Please CC replies to me - thanks! ]
+> 
+> Hi,
+> 
+> I gather that there isn't much interest in this idea on behalf of the
+> 'mainstream', because initrd is a far more flexible solution, but I
+> happen to like the idea of booting quickly from a USB device, without
+> wasting a bunch of time and space for an initrd, and we're using this
+> in a product as well, so without further ado, I'll point you at
+> 
+> http://dedasys.com/freesoftware/patches/
+> 
+> where you can get blkdev_wakeup.patch
+> 
+>         Works like so: whenever a block device comes on line, it
+>         signals this fact to a wait queue, so that the init process
+>         can stop and wait for slow devices, in particular things such
+>         as USB storage devices, which are much slower than IDE
+>         devices.  The init process checks the list of available
+>         devices and compares it with the desired root device, and if
+>         there is a match, proceeds with the initialization process,
+>         secure in the knowledge that the device in question has been
+>         brought up.  This is useful if one wants to boot quickly from
+>         a USB storage device without a trimmed-down kernel, and
+>         without going through the whole initrd slog.
+> 
+> Comments, critiques, suggestions and ideas are all welcome.
 
-Hello,
+I find this to be very useful. I always found the "sleep for a while 
+until the device we want appears" approach very cumbersome.
 
-  Here is a small patch for 2.6.8-rc2 that updates information about 
-bytes and blocks read and written. Fields are already in the BSD 
-accounting files but they are never updated. The patch is based on the 
-CSA accounting patch and it doesn't interfere with Tim Schmielau changes 
-(BSD process accounting version 3).
+However, after looking at your patch, it seems that having a 
+get_blkdevs() function that alloc's an array of strings, and return it 
+to a function that only compares the strings against the name it is 
+looking for and drops the array altogether, is a little overkill.
 
- Modifications are:
-    - It adds four counters in the task_struct (chars read, chars
-      written, blocks read and blocks written). I think it's interesting to
-      separate read and write even if this difference is not made in the
-      BSD accounting.
+Why not have a simple blkdev_exists(char *name) function in genhd.c, 
+call it directly, and drop the match_root_name() function completely?
 
-    - Those fields are updated in:
-        fs/read_write.c for bytes
-                 [in sys_read(), sys_readv(), sys_write() and sys_writev]
-        drivers/block/ll_rw_blk.c for blocks
-                 [in drive_stat_acct()]
+Maybe I'm missing something, but it seems much simpler...
 
- 
-Hope This Help
-Guillaume
-
-
---------------090602090500060908070107
-Content-Type: text/plain;
- name="patch-2.6.8-rc2+BSDacct_IO"
-Content-Disposition: inline;
- filename="patch-2.6.8-rc2+BSDacct_IO"
-Content-Transfer-Encoding: 7bit
-
-diff -uprN -X dontdiff linux-2.6.8-rc2/drivers/block/ll_rw_blk.c linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c
---- linux-2.6.8-rc2/drivers/block/ll_rw_blk.c	2004-07-18 06:57:42.000000000 +0200
-+++ linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c	2004-07-27 09:17:33.149321480 +0200
-@@ -1949,10 +1949,12 @@ void drive_stat_acct(struct request *rq,
- 
- 	if (rw == READ) {
- 		disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
-+		current->rblk += nr_sectors;
- 		if (!new_io)
- 			disk_stat_inc(rq->rq_disk, read_merges);
- 	} else if (rw == WRITE) {
- 		disk_stat_add(rq->rq_disk, write_sectors, nr_sectors);
-+		current->wblk += nr_sectors;
- 		if (!new_io)
- 			disk_stat_inc(rq->rq_disk, write_merges);
- 	}
-diff -uprN -X dontdiff linux-2.6.8-rc2/fs/read_write.c linux-2.6.8-rc2+BSDacct_IO/fs/read_write.c
---- linux-2.6.8-rc2/fs/read_write.c	2004-07-18 06:58:50.000000000 +0200
-+++ linux-2.6.8-rc2+BSDacct_IO/fs/read_write.c	2004-07-27 09:20:11.872191936 +0200
-@@ -279,6 +279,9 @@ asmlinkage ssize_t sys_read(unsigned int
- 		fput_light(file, fput_needed);
- 	}
- 
-+	if (ret > 0)
-+		current->rchar++;
-+
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(sys_read);
-@@ -295,6 +298,9 @@ asmlinkage ssize_t sys_write(unsigned in
- 		fput_light(file, fput_needed);
- 	}
- 
-+	if (ret > 0)
-+		current->wchar++;
-+
- 	return ret;
- }
- 
-@@ -517,6 +523,9 @@ sys_readv(unsigned long fd, const struct
- 		fput_light(file, fput_needed);
- 	}
- 
-+	if (ret > 0)
-+		current->rchar++;
-+
- 	return ret;
- }
- 
-@@ -533,6 +542,9 @@ sys_writev(unsigned long fd, const struc
- 		fput_light(file, fput_needed);
- 	}
- 
-+	if (ret > 0)
-+		current->wchar++;
-+
- 	return ret;
- }
- 
-diff -uprN -X dontdiff linux-2.6.8-rc2/include/linux/sched.h linux-2.6.8-rc2+BSDacct_IO/include/linux/sched.h
---- linux-2.6.8-rc2/include/linux/sched.h	2004-07-18 06:57:42.000000000 +0200
-+++ linux-2.6.8-rc2+BSDacct_IO/include/linux/sched.h	2004-07-27 09:21:08.567572928 +0200
-@@ -465,6 +465,8 @@ struct task_struct {
- 	char comm[16];
- /* file system info */
- 	int link_count, total_link_count;
-+/* I/O info: chars read/written, blocks read/written */
-+	unsigned long rchar, wchar, rblk, wblk;
- /* ipc stuff */
- 	struct sysv_sem sysvsem;
- /* CPU-specific state of this task */
-diff -uprN -X dontdiff linux-2.6.8-rc2/kernel/acct.c linux-2.6.8-rc2+BSDacct_IO/kernel/acct.c
---- linux-2.6.8-rc2/kernel/acct.c	2004-07-18 06:58:37.000000000 +0200
-+++ linux-2.6.8-rc2+BSDacct_IO/kernel/acct.c	2004-07-27 09:22:30.623098592 +0200
-@@ -465,8 +465,8 @@ static void do_acct_process(long exitcod
- 	}
- 	vsize = vsize / 1024;
- 	ac.ac_mem = encode_comp_t(vsize);
--	ac.ac_io = encode_comp_t(0 /* current->io_usage */);	/* %% */
--	ac.ac_rw = encode_comp_t(ac.ac_io / 1024);
-+	ac.ac_io = encode_comp_t(current->rchar + current->wchar);
-+	ac.ac_rw = encode_comp_t(current->rblk + current->wblk);
- 	ac.ac_minflt = encode_comp_t(current->min_flt);
- 	ac.ac_majflt = encode_comp_t(current->maj_flt);
- 	ac.ac_swaps = encode_comp_t(0);
-diff -uprN -X dontdiff linux-2.6.8-rc2/kernel/fork.c linux-2.6.8-rc2+BSDacct_IO/kernel/fork.c
---- linux-2.6.8-rc2/kernel/fork.c	2004-07-18 06:57:42.000000000 +0200
-+++ linux-2.6.8-rc2+BSDacct_IO/kernel/fork.c	2004-07-27 09:23:27.111511048 +0200
-@@ -960,6 +960,7 @@ struct task_struct *copy_process(unsigne
- 
- 	p->utime = p->stime = 0;
- 	p->cutime = p->cstime = 0;
-+	p->rchar = p->wchar = p->rblk = p->wblk = 0;
- 	p->lock_depth = -1;		/* -1 = no lock */
- 	p->start_time = get_jiffies_64();
- 	p->security = NULL;
-
-
-
---------------090602090500060908070107--
+-- 
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"

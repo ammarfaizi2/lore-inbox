@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265696AbUFOPxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265718AbUFOPyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265696AbUFOPxV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 11:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUFOPxV
+	id S265718AbUFOPyO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 11:54:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbUFOPyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 11:53:21 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2832 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265696AbUFOPxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 11:53:20 -0400
-Date: Tue, 15 Jun 2004 16:53:14 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/5] kbuild: default kernel image
-Message-ID: <20040615165314.A7666@flint.arm.linux.org.uk>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204405.GB15243@mars.ravnborg.org> <20040614220549.L14403@flint.arm.linux.org.uk> <20040615044020.GC16664@mars.ravnborg.org> <20040615093807.A1164@flint.arm.linux.org.uk> <20040615153836.GC11113@smtp.west.cox.net>
+	Tue, 15 Jun 2004 11:54:14 -0400
+Received: from beholder.math.fu-berlin.de ([160.45.44.200]:57475 "EHLO
+	beholder.fefe.de") by vger.kernel.org with ESMTP id S265718AbUFOPyE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 11:54:04 -0400
+Date: Tue, 15 Jun 2004 17:53:54 +0200
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: ieee1394 still utterly broken in 2.6.7-rc3
+Message-ID: <20040615155354.GA7988@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040615153836.GC11113@smtp.west.cox.net>; from trini@kernel.crashing.org on Tue, Jun 15, 2004 at 08:38:36AM -0700
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 08:38:36AM -0700, Tom Rini wrote:
-> I think what Sam was saying is that you document what boards are
-> supported by what firmwares, in the Kconfig.  But what I don't think Sam
-> saw would be just how ugly that's going to look (and become another
-> point where every new board port touches, and possibly conflicts with
-> another new board port).
+Is it too much to ask to at least revert back to the ieee1394 code from
+2.6.3 before shipping the final 2.6.7?
 
-Indeed - however, take a peek at arch/arm/tools/mach-types - that's a
-list of the various machines which the ARM kernel may or may not have
-been ported to.  Something suggests that creating a list of machine
-types in the Kconfig help documentation will probably be unmanageable.
+Firewire was dysfunctional sind 2.6.3, and still has not been fixed,
+despite several updates to the code.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Please, 2.6 is supposed to be a stable kernel, for people to use in
+production environments.
+
+Here's what happens with every kernel since 2.6.4:
+
+  kernel boots
+  finds firewire hard disk
+  creates device
+  boot sequence tries to mount disk
+  computer hangs
+  I pull the cable
+  computer continues booting, just without firewire disk
+
+It's an Athlon mainboard with VIA chipset.
+
+Felix

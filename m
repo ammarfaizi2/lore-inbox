@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289532AbSBNCar>; Wed, 13 Feb 2002 21:30:47 -0500
+	id <S289455AbSBNCbs>; Wed, 13 Feb 2002 21:31:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289487AbSBNCah>; Wed, 13 Feb 2002 21:30:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57092 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289455AbSBNCaa>;
-	Wed, 13 Feb 2002 21:30:30 -0500
-Message-ID: <3C6B2144.1986141F@mandrakesoft.com>
-Date: Wed, 13 Feb 2002 21:30:28 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.5-pre1
-In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <20020213231656.GA24236@merlin.emma.line.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S289487AbSBNCbk>; Wed, 13 Feb 2002 21:31:40 -0500
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:56588 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S289455AbSBNCb2>; Wed, 13 Feb 2002 21:31:28 -0500
+Subject: (Here's the right .config info) Re: 2.5.5-pre1 -- rd.c:271: In
+	function `rd_make_request': too many arguments to function
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1013653000.1574.4.camel@turbulence.megapathdsl.net>
+In-Reply-To: <1013653000.1574.4.camel@turbulence.megapathdsl.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 13 Feb 2002 18:28:01 -0800
+Message-Id: <1013653682.1574.7.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> 
-> On Wed, 13 Feb 2002, Linus Torvalds wrote:
-> 
-> > This is a _huge_ patch, mainly because it includes three big pending
-> > things: the ALSA merge [...]
-> 
-> Regression test: Does that ALSA stuff that's just been merged support
-> 16bit I/O on Creative Labs Sound Blaster Vibra 16X (DSP 4.xx, those with
-> the two 8-bit-DMA channels rather than the usual 1 8-bit and 1 16-bit
-> DMA channel as found on other ISA sound blaster cards)?
+Included the wrong .config chunk.  Here is the correct one.
 
-Doesn't matter 1) The OSS drivers are still all there
+On Wed, 2002-02-13 at 18:16, Miles Lane wrote:
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=athlon   
+> -DKBUILD_BASENAME=rd  -c -o rd.o rd.c
+> rd.c: In function `rd_make_request':
+> rd.c:271: too many arguments to function
+> make[3]: *** [rd.o] Error 1
 
-Doesn't matter 2) We finally have a sound maintainer who can respond to
-this... with code!  :)
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+
+

@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbUEWP3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUEWPcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbUEWP3p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUEWP3p
+	id S263079AbUEWPcD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUEWPcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:29:45 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:14183 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263000AbUEWP3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:29:23 -0400
-Date: Sun, 23 May 2004 08:29:15 -0700
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: consistent ioctl for getting all net interfaces?
-Message-ID: <20040523152914.GH25346@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Tigran Aivazian <tigran@veritas.com>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <pan.2004.05.23.04.28.28.143054@triplehelix.org> <Pine.LNX.4.44.0405231616290.3600-100000@einstein.homenet>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RhUH2Ysw6aD5utA4"
+	Sun, 23 May 2004 11:32:03 -0400
+Received: from mail-relay-3.tiscali.it ([212.123.84.93]:48064 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S263079AbUEWPbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 11:31:52 -0400
+From: Lorenzo Allegrucci <l_allegrucci@despammed.com>
+Organization: -ENOENT
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
+Date: Sun, 23 May 2004 17:32:15 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200405222107.55505.l_allegrucci@despammed.com> <20040523091137.GB5415@suse.de> <20040523100348.GJ1952@suse.de>
+In-Reply-To: <20040523100348.GJ1952@suse.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0405231616290.3600-100000@einstein.homenet>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.6i
-From: joshk@triplehelix.org (Joshua Kwan)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405231732.15600.l_allegrucci@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 23 May 2004 12:03, Jens Axboe wrote:
 
---RhUH2Ysw6aD5utA4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Here's a rolled up updated version that tries to get async notification
+> of missing barrier support working as well. reiser currently doesn't
+> cope with that correctly (fails mount), ext3 seems to but gets stuck.
+> Andrew has that fixed already, I think :-)
+>
+> Lorenzo, can you test this on top of 2.6.6-mm5?
 
-On Sun, May 23, 2004 at 04:20:57PM +0100, Tigran Aivazian wrote:
-> Note that a more simple solution is also possible but is less portable
-> (because will depend on glibc version).
+Problem fixed, but there is some performance regression
 
-That uses if_nameindex, right? It's also affected by kernel version.
+ext3 (default)
+untar		read		copy		remove
+0m53.861s	0m24.942s	1m30.164s	0m20.664s
+0m7.132s	0m1.191s	0m0.766s	0m0.076s
+0m5.807s	0m3.345s	0m9.996s	0m1.719s
 
-> 		if(ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
-> 			DPRINTF("ioctl(SIOCGIFCONF), errno=3D%d (%s)\n",
-> 					errno, strerror(errno));
-> 			if (ifc.ifc_buf)
-> 				free(ifc.ifc_buf);
-> 			ret =3D TERR_IOCTL;
-> 			goto outclose;
-> 		}
+ext3 (-o barrier=1)
+untar		read		copy		remove
+0m52.117s	0m28.502s	1m51.153s	0m25.561s
+0m7.231s	0m1.209s	0m0.738s	0m0.071s
+0m6.117s	0m3.191s	0m9.347s	0m1.635s
 
-As I said, when I tried SIOCGIFCONF, results varied..
-I think it's slightly more reliable to just keep using /proc/net/dev for
-now. (My parser is more robust than viro's ;))
-
-I took a look at the net-tools ifconfig source and saw that it also
-parsed /proc/net/dev to pick up what SIOCGIFCONF didn't. Shudder.
-
---=20
-Joshua Kwan
-
---RhUH2Ysw6aD5utA4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
-
-iQIVAwUBQLDDSaOILr94RG8mAQJYiQ//VlNxoAoMlCxBFUFJiV0R014TYi/Dn60G
-6dVKyQAfFBScC4tAYYOGhdxpN4RlivmerEOqwfgpc2Aj5E0UE0O/CT5w2MeHmUsF
-EvVVP0K+C3bSbfGSGhnH1/2KLQNWO9gmGg+cSFQjyiRKGQZ4rh1GoRaqrie116X+
-tlzmYzKqU2hWmYXrLmByTH+MZqOjVN2v4i47/JdP7FWgQBvBTZlbvNahSFq+3Iac
-uwaJl+1Uey9yx71T6JbgP7ppUmJItxzIXSO/wQb8t/V6rh1Vwr+n88sewUzLOReJ
-bjDJC+i8XaThxHrpbV3lv2eDmRhfiKb1sDIE2xCAQ6m/KPs7C/4wDthLuImCaGxX
-iZafTieAxqPo5u7IUQL2FaPuaSAT69fiHrn0ClvcAPa6kBTzjaFoWvPTc/z7pG9A
-E2W/XQWIP3qs6Fo5O6h94KY1GQMB3726/KB8UvpugLhgzFtC6dto9/Lv9MjLzf4F
-jms/70wbP7NrxR+50GDhC/AiEWDiIxyBTRubjcIraO0qc9Ego6fIApejIG+0kKo8
-6SPDol0ZNLpMTW/mirUUbL4IWVdXSziGZ5dRZLeCSlMAqT1NjxojoEaLsB/N6XT8
-uWeqz2wUklizC4kfZzEO/hpEbTzKk16wnDpA2EhCmjzM8+uy1NuhaaQqbxnSo1+s
-IYRvUrJ3Pgc=
-=YPFl
------END PGP SIGNATURE-----
-
---RhUH2Ysw6aD5utA4--
+-- 
+Lorenzo

@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319410AbSHNVsh>; Wed, 14 Aug 2002 17:48:37 -0400
+	id <S319316AbSHNWHn>; Wed, 14 Aug 2002 18:07:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319412AbSHNVsh>; Wed, 14 Aug 2002 17:48:37 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:48079 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S319410AbSHNVsg>;
-	Wed, 14 Aug 2002 17:48:36 -0400
-Date: Wed, 14 Aug 2002 14:52:29 -0700
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problem : can't make pipe non-blocking on 2.5.X
-Message-ID: <20020814215229.GA24373@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020814181902.GA24047@bougret.hpl.hp.com> <87lm79ru51.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87lm79ru51.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S319319AbSHNWHn>; Wed, 14 Aug 2002 18:07:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24271 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S319316AbSHNWHm>; Wed, 14 Aug 2002 18:07:42 -0400
+Date: Thu, 15 Aug 2002 00:11:29 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre2-ac1
+In-Reply-To: <200208141634.g7EGYGO29387@devserv.devel.redhat.com>
+Message-ID: <Pine.NEB.4.44.0208142359070.1351-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 15, 2002 at 06:46:18AM +0900, OGAWA Hirofumi wrote:
-> 
-> F_GETFL should be,
->     flags = fcntl(trigger_pipe[0], F_GETFL, 0);
+On Wed, 14 Aug 2002, Alan Cox wrote:
 
-	Oups. I'll fix that. Thanks !
+>...
+> Linux 2.4.20-pre2-ac1
+>...
+> o	Clean up locking a little in ps2esdi		(me)
+> 	| This driver needs much love and attention
+>...
 
-> > ------------- Output 2.5.25 ----------------
-> > GET FLAGS : 0 - 40045F18
-> > SET FLAGS : -1 - 22
-> > ------------- Output 2.4.20-pre2 -----------
-> > GET FLAGS : 0 - 40043F18
-> > SET FLAGS : 0 - 0
-> > --------------------------------------------
-> 
-> Looks like effect of different implement of O_DIRECT(0x40000).
-> Thanks.
+It doesn't compile:
 
-	Work in progress, I guess. Thanks...
+<--  snip  -->
 
-	Jean
+...
+gcc -D__KERNEL__
+-I/home/bunk/linux/kernel-2.4/linux-2.4.19-full-nohotplug/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=ps2esdi  -c
+-o ps2esdi.o ps2esdi.c
+ps2esdi.c: In function `ps2esdi_readwrite':
+ps2esdi.c:583: `io_request_irq' undeclared (first use in this function)
+ps2esdi.c:583: (Each undeclared identifier is reported only once
+ps2esdi.c:583: for each function it appears in.)
+make[3]: *** [ps2esdi.o] Error 1
+make[3]: Leaving directory
+`/home/bunk/linux/kernel-2.4/linux-2.4.19-full-nohotplug/drivers/block'
+
+<--  snip  -->
+
+
+It seems the following was intended?
+
+
+--- drivers/block/ps2esdi.c.old	2002-08-15 00:01:33.000000000 +0200
++++ drivers/block/ps2esdi.c	2002-08-15 00:02:52.000000000 +0200
+@@ -580,10 +580,10 @@
+ 	     cylinder, head, sector,
+ 	     CURRENT->current_nr_sectors, drive);
+
+-	spin_unlock_irq(&io_request_irq);
++	spin_unlock_irq(&io_request_lock);
+ 	/* send the command block to the controller */
+ 	err = ps2esdi_out_cmd_blk(cmd_blk);
+-	spin_lock_irq(&io_request_irq);
++	spin_lock_irq(&io_request_lock);
+
+ 	if (err) {
+ 		printk(KERN_ERR "%s: Controller failed\n", DEVICE_NAME);
+
+
+cu
+Adrian
+
+

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbSK3UMi>; Sat, 30 Nov 2002 15:12:38 -0500
+	id <S265844AbSK3UNd>; Sat, 30 Nov 2002 15:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbSK3UMi>; Sat, 30 Nov 2002 15:12:38 -0500
-Received: from uranus.lan-ks.de ([194.45.71.1]:51972 "EHLO uranus.lan-ks.de")
-	by vger.kernel.org with ESMTP id <S265628AbSK3UMi> convert rfc822-to-8bit;
-	Sat, 30 Nov 2002 15:12:38 -0500
-X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.5.50] wrong permissions for vfat directories
-X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
-X-Message-Flag: This space is intentionally left blank
-X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
-X-Note: sending SPAM is a violation of both german and US law and will
-	at least trigger a complaint at your provider's postmaster.
-X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
-     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
-X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
-X-No-Archive: yes
-From: Jochen Hein <jochen@jochen.org>
-Date: Sat, 30 Nov 2002 20:46:20 +0100
-Message-ID: <87hedyon77.fsf@gswi1164.jochen.org>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
+	id <S267049AbSK3UNc>; Sat, 30 Nov 2002 15:13:32 -0500
+Received: from mta01ps.bigpond.com ([144.135.25.133]:47812 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S265844AbSK3UNc>; Sat, 30 Nov 2002 15:13:32 -0500
+Message-ID: <3DE91CBF.295C1491@bigpond.net.au>
+Date: Sun, 01 Dec 2002 06:17:03 +1000
+From: Chris Ison <cisos@bigpond.net.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20-rc2 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: kernel space access to user space functions
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I realize I asked this previously, but the answer given was not to the
+question I asked.
 
-I do mount vfat with autofs, and options umask=002 there.  mount
-and /proc/mounts confirms that: 
+How can I get a kernel module to call a function within a program?
 
-/dev/hda5 on /mount/d type vfat (rw,umask=002,gid=1000)
+The reason being I am creating a software midi driver and already have a
+small program that does what I want the driver to do, problem is all the
+math in the program is floating point.
 
-The directory permissions don't allow writing:
+What I would like to do, is be able to run the program, and have the
+kernel software midi driver call a function within the program to que up
+midi events, and have the program do all the hard work of the wavetable
+synth.
 
-[20:45:35]:gswi1164:(vc/5):/mount/d/Dateien/ipaq$ ls -ld .
-drwxr-xr-x    2 root     jochen      32768 2002-11-30 20:37 ./
+This way, any improvements to the software don't have to be translated
+to the driver, and visa versa.
 
-Jochen
-
--- 
-Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.
+How can I make this happen. And please give an example.

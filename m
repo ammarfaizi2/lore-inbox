@@ -1,170 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268950AbTCARe6>; Sat, 1 Mar 2003 12:34:58 -0500
+	id <S268964AbTCARiR>; Sat, 1 Mar 2003 12:38:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268959AbTCARe6>; Sat, 1 Mar 2003 12:34:58 -0500
-Received: from [219.65.95.179] ([219.65.95.179]:5760 "HELO
-	magrathea.home.amit.net") by vger.kernel.org with SMTP
-	id <S268950AbTCARez> convert rfc822-to-8bit; Sat, 1 Mar 2003 12:34:55 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Amit Shah <shahamit@gmx.net>
-To: mingo@elte.hu
-Subject: [PATCH] taskqueue to workqueue update for specialix driver
-Date: Sat, 1 Mar 2003 23:17:02 +0530
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
+	id <S268965AbTCARiQ>; Sat, 1 Mar 2003 12:38:16 -0500
+Received: from static-b2-191.highspeed.eol.ca ([64.56.236.191]:519 "EHLO
+	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id <S268964AbTCARiM>;
+	Sat, 1 Mar 2003 12:38:12 -0500
+Message-ID: <3E60F26E.5000402@brad-x.com>
+Date: Sat, 01 Mar 2003 12:48:30 -0500
+From: Brad Laue <brad@brad-x.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030223
+X-Accept-Language: en-us, en, zh-cn, zh-hk, zh-sg,
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200303012317.02095.shahamit@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: airo.o + kfree_skb crash - 2.4.20
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates the Specialix driver with the workqueue interface. It applies to the 2.5.63 kernel. Please apply.
+Using the kernel PCMCIA and airo.o module. This occurred after 90
+minutes of use, where the card was streaming under a megabit of traffic
+at all times. Lost control of everything but video and the USB bus.
 
-diff -Naur -X /home/Amit/lib/dontdiff a/drivers/char/specialix.c b/drivers/char/specialix.c
---- a/drivers/char/specialix.c	Wed Feb 19 14:38:04 2003
-+++ b/drivers/char/specialix.c	Sat Mar  1 17:06:59 2003
-@@ -63,10 +63,12 @@
-  * Revision 1.10: Oct 22  1999 / Jan 21 2000. 
-  *                Added stuff for setserial. 
-  *                Nicolas Mailhot (Nicolas.Mailhot@email.enst.fr)
-- * 
-+ * Revision 1.11: Mar 1 2003. 
-+ *                update all the task queues to work queues.
-+ *                Amit Shah <amitshah@gmx.net>
-  */
- 
--#define VERSION "1.10"
-+#define VERSION "1.11"
- 
- 
- /*
-@@ -171,8 +173,6 @@
- #define MIN(a,b) ((a) < (b) ? (a) : (b))
- #endif
- 
--DECLARE_TASK_QUEUE(tq_specialix);
--
- #undef RS_EVENT_WRITE_WAKEUP
- #define RS_EVENT_WRITE_WAKEUP	0
- 
-@@ -608,10 +608,11 @@
- 	 * For now I must introduce another one - SPECIALIX_BH.
- 	 * Still hope this will be changed in near future.
- 	 * -- Dmitry.
-+	 *
-+	 * FIXME: update this comment for the workqueue interface.
- 	 */
- 	set_bit(event, &port->event);
--	queue_task(&port->tqueue, &tq_specialix);
--	mark_bh(SPECIALIX_BH);
-+	schedule_work(&port->work);
- }
- 
- 
-@@ -696,7 +697,7 @@
- 	
- 	*tty->flip.char_buf_ptr++ = ch;
- 	tty->flip.count++;
--	queue_task(&tty->flip.tqueue, &tq_timer);
-+	schedule_delayed_work(&tty->flip.work, 1);
- }
- 
- 
-@@ -727,7 +728,7 @@
- 		*tty->flip.flag_buf_ptr++ = 0;
- 		tty->flip.count++;
- 	}
--	queue_task(&tty->flip.tqueue, &tq_timer);
-+	schedule_delayed_work(&tty->flip.work, 1);
- }
- 
- 
-@@ -834,7 +835,7 @@
- 			printk ( "Sending HUP.\n");
- #endif
- 			MOD_INC_USE_COUNT;
--			if (schedule_task(&port->tqueue_hangup) == 0)
-+			if (schedule_work(&port->work_hangup) == 0)
- 				MOD_DEC_USE_COUNT;
- 		} else {
- #ifdef SPECIALIX_DEBUG
-@@ -2133,11 +2134,11 @@
- 
- 
- /*
-- * This routine is called from the scheduler tqueue when the interrupt
-- * routine has signalled that a hangup has occurred.  The path of
-- * hangup processing is:
-+ * This routine is called from the scheduler workqueue when the
-+ * interrupt routine has signalled that a hangup has occurred.  The
-+ * path of hangup processing is:
-  *
-- * 	serial interrupt routine -> (scheduler tqueue) ->
-+ * 	serial interrupt routine -> (scheduler workqueue) ->
-  * 	do_sx_hangup() -> tty->hangup() -> sx_hangup()
-  * 
-  */
-@@ -2196,12 +2197,6 @@
- }
- 
- 
--static void do_specialix_bh(void)
--{
--	 run_task_queue(&tq_specialix);
--}
--
--
- static void do_softint(void *private_)
- {
- 	struct specialix_port	*port = (struct specialix_port *) private_;
-@@ -2229,7 +2224,6 @@
- 		printk(KERN_ERR "sx: Couldn't get free page.\n");
- 		return 1;
- 	}
--	init_bh(SPECIALIX_BH, do_specialix_bh);
- 	memset(&specialix_driver, 0, sizeof(specialix_driver));
- 	specialix_driver.magic = TTY_DRIVER_MAGIC;
- 	specialix_driver.name = "ttyW";
-@@ -2286,10 +2280,10 @@
- 		sx_port[i].callout_termios = specialix_callout_driver.init_termios;
- 		sx_port[i].normal_termios  = specialix_driver.init_termios;
- 		sx_port[i].magic = SPECIALIX_MAGIC;
--		sx_port[i].tqueue.routine = do_softint;
--		sx_port[i].tqueue.data = &sx_port[i];
--		sx_port[i].tqueue_hangup.routine = do_sx_hangup;
--		sx_port[i].tqueue_hangup.data = &sx_port[i];
-+
-+		INIT_WORK(&sx_port[i].work, do_softint, &sx_port[i]);
-+		INIT_WORK(&sx_port[i].work_hangup, do_sx_hangup, &sx_port[i]);
-+
- 		sx_port[i].close_delay = 50 * HZ/100;
- 		sx_port[i].closing_wait = 3000 * HZ/100;
- 		init_waitqueue_head(&sx_port[i].open_wait);
-diff -Naur -X /home/Amit/lib/dontdiff a/drivers/char/specialix_io8.h b/drivers/char/specialix_io8.h
---- a/drivers/char/specialix_io8.h	Thu Oct 31 17:19:35 2002
-+++ b/drivers/char/specialix_io8.h	Sat Mar  1 17:06:50 2003
-@@ -124,8 +124,8 @@
- 	struct termios		callout_termios;
- 	wait_queue_head_t	open_wait;
- 	wait_queue_head_t	close_wait;
--	struct tq_struct	tqueue;
--	struct tq_struct	tqueue_hangup;
-+	struct work_struct	work;
-+	struct work_struct	work_hangup;
- 	short			wakeup_chars;
- 	short			break_length;
- 	unsigned short		closing_wait;
+Cisco AiroNet 350 card. Several protocols in use at the time including
+HTTP/SSH/NFS.
 
+Linux Odyssey.brad-x.com 2.4.20 #10 Fri Feb 28 10:57:59 EST 2003 i686
+
+KSymoops:
+
+Feb 28 11:01:15 Odyssey kernel: cs: IO port probe 0x0a00-0x0aff: clean.
+Feb 28 11:01:15 Odyssey kernel: ac97_codec: AC97 Audio codec, id:
+\203\204v9(SigmaTel STAC9721/23)
+Feb 28 14:59:22 Odyssey kernel: cs: memory probe 0xa0000000-0xa0ffffff:
+clean.
+Feb 28 16:16:08 Odyssey kernel: Warning: kfree_skb passed an skb still
+on a list (from c01201ba).
+Feb 28 16:16:08 Odyssey kernel: kernel BUG at skbuff.c:315!
+Feb 28 16:16:08 Odyssey kernel: invalid operand: 0000
+Feb 28 16:16:08 Odyssey kernel: CPU:    0
+Feb 28 16:16:08 Odyssey kernel: EIP:    0010:[start_request+164/528]
+Tainted: P
+Feb 28 16:16:08 Odyssey kernel: EIP:    0010:[<c01dca24>]    Tainted: P
+Using defaults from ksymoops -t elf32-i386 -a i386
+Feb 28 16:16:08 Odyssey kernel: EFLAGS: 00010286
+Feb 28 16:16:08 Odyssey kernel: eax: 00000045   ebx: c8c504a0   ecx:
+cec36000
+edx: cec37f7c
+Feb 28 16:16:08 Odyssey kernel: esi: c12f1f84   edi: 00000000   ebp:
+c12f0000
+esp: c12f1f6c
+Feb 28 16:16:08 Odyssey kernel: ds: 0018   es: 0018   ss: 0018
+Feb 28 16:16:08 Odyssey kernel: Process keventd (pid: 2, stackpage=c12f1000)
+Feb 28 16:16:08 Odyssey kernel: Stack: c0244620 c01201ba 00000000
+c12f1f84 c01201ba c8c504a0 ca2dc2e4 ca2dc2e4
+Feb 28 16:16:08 Odyssey kernel:        00000000 00000000 c0128df3
+c0256d70 c12f1fb0 00000000 c12f0560 c12f0570
+Feb 28 16:16:08 Odyssey kernel:        c12f0000 00000001 00000000
+c0253fa0 00010000 00000000 00000700 c0128cc0
+Feb 28 16:16:08 Odyssey kernel: Call Trace:
+[sys_old_getrlimit+42/224] [sys_old_getrlimit+42/224]
+[vmalloc_area_pages+243/368] [vmfree_area_pages+320/384] [rest_init+0/40]
+Feb 28 16:16:08 Odyssey kernel: Call Trace:    [<c01201ba>] [<c01201ba>]
+[<c0128df3>] [<c0128cc0>] [<c0105000>]
+Feb 28 16:16:08 Odyssey kernel:   [<c01057ce>] [<c0128cc0>]
+Feb 28 16:16:08 Odyssey kernel: Code: 0f 0b 3b 01 b1 38 24 c0 8b 5c 24
+14 e9 0e
+ff ff ff 8d 74 26
+
+
+  >>EIP; c01dca24 <__kfree_skb+f4/110>   <=====
+
+  >>ebx; c8c504a0 <___strtok+897dc6c/1062382c>
+  >>ecx; cec36000 <___strtok+e9637cc/1062382c>
+  >>edx; cec37f7c <___strtok+e965748/1062382c>
+  >>esi; c12f1f84 <___strtok+101f750/1062382c>
+  >>ebp; c12f0000 <___strtok+101d7cc/1062382c>
+  >>esp; c12f1f6c <___strtok+101f738/1062382c>
+
+Trace; c01201ba <__run_task_queue+5a/140>
+Trace; c01201ba <__run_task_queue+5a/140>
+Trace; c0128df3 <schedule_task+1a3/230>
+Trace; c0128cc0 <schedule_task+70/230>
+Trace; c0105000 <empty_zero_page+1000/1380>
+Trace; c01057ce <kernel_thread+2e/240>
+Trace; c0128cc0 <schedule_task+70/230>
+
+Code;  c01dca24 <__kfree_skb+f4/110>
+00000000 <_EIP>:
+Code;  c01dca24 <__kfree_skb+f4/110>   <=====
+    0:   0f 0b                     ud2a      <=====
+Code;  c01dca26 <__kfree_skb+f6/110>
+    2:   3b 01                     cmp    (%ecx),%eax
+Code;  c01dca28 <__kfree_skb+f8/110>
+    4:   b1 38                     mov    $0x38,%cl
+Code;  c01dca2a <__kfree_skb+fa/110>
+    6:   24 c0                     and    $0xc0,%al
+Code;  c01dca2c <__kfree_skb+fc/110>
+    8:   8b 5c 24 14               mov    0x14(%esp,1),%ebx
+Code;  c01dca30 <__kfree_skb+100/110>
+    c:   e9 0e ff ff ff            jmp    ffffff1f <_EIP+0xffffff1f>
+Code;  c01dca35 <__kfree_skb+105/110>
+   11:   8d 74 26 00               lea    0x0(%esi,1),%esi
 
 -- 
-Amit Shah
-http://amitshah.nav.to/
-
-The most exciting phrase to hear in science, the one that heralds new
-discoveries, is not "Eureka!" (I found it!) but "That's funny ..."
-                -- Isaac Asimov
-		
+// -- http://www.BRAD-X.com/ -- //
 
 

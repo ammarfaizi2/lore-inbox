@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263084AbUDPMrF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 08:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUDPMrF
+	id S263147AbUDPMxL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 08:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUDPMxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 08:47:05 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5504 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263084AbUDPMrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 08:47:01 -0400
-Date: Fri, 16 Apr 2004 13:51:23 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200404161251.i3GCpNDq000170@81-2-122-30.bradfords.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10404160327060.22035-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10404160327060.22035-100000@master.linux-ide.org>
-Subject: Re: SATA support merge in 2.4.27
+	Fri, 16 Apr 2004 08:53:11 -0400
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:35738 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263147AbUDPMxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 08:53:08 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.5] problems with synaptics/psmouse/atkbd
+Date: Fri, 16 Apr 2004 07:53:00 -0500
+User-Agent: KMail/1.6.1
+Cc: Mattia Dongili <dongili@supereva.it>, vojtech@suse.cz
+References: <20040416102903.GA1790@inferi.kami.home>
+In-Reply-To: <20040416102903.GA1790@inferi.kami.home>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404160753.01175.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Andre Hedrick <andre@linux-ide.org>:
+On Friday 16 April 2004 05:29 am, Mattia Dongili wrote:
+> [please could you Cc me as I'm not subscribed to linux-kernel]
 > 
-> Since we are going over the cliff, lets get there faster!
+> Hi,
 > 
-> Has 2.2 or 2.0 ever been audited for security issues, and fixed?
-> 
-> Whee this is fun!
+> I'm having problems (since 2.6.3 now trying with 2.6.5).
+> Main symptom is that my synaptics touchpad isn't detected after a cold
+> boot. After a warm boot it's detected correctly though.
 
-I don't really see the relevence of what you're saying.
+Does it help if you load USB modules (*hci-hcd) first and then psmouse?
 
-Maybe I wasn't clear when I said 'audited for security issues' - I meant
-ensuring that fixes for 2.4 also eventually went in to 2.6.  I'm not talking
-about doing any kind of complete audit of the entire codebase.
-
-For a long time, (since before 2.6.0), there were known local root exploits
-that had been fixed in 2.4 and not in 2.6.  I never saw those fixed, but I
-don't have the details of them to hand, nor do I have the time to search
-through years of mailing list archives at the moment.  However, I am also not
-claiming that 2.6 is stable, (yet).
-
-John.
+-- 
+Dmitry

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288854AbSBIKyR>; Sat, 9 Feb 2002 05:54:17 -0500
+	id <S288851AbSBIK5r>; Sat, 9 Feb 2002 05:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288851AbSBIKyI>; Sat, 9 Feb 2002 05:54:08 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:29893 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S288850AbSBIKxv>; Sat, 9 Feb 2002 05:53:51 -0500
-Message-Id: <200202081922.g18JM147001331@tigger.cs.uni-dortmund.de>
-To: Martin Wirth <Martin.Wirth@dlr.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] New locking primitive for 2.5 
-In-Reply-To: Message from Martin Wirth <Martin.Wirth@dlr.de> 
-   of "Thu, 07 Feb 2002 16:38:57 +0100." <3C629F91.2869CB1F@dlr.de> 
-Date: Fri, 08 Feb 2002 20:22:01 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S291913AbSBIK5h>; Sat, 9 Feb 2002 05:57:37 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:23237 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S288845AbSBIK5Z>; Sat, 9 Feb 2002 05:57:25 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Alexander Viro <viro@math.psu.edu>,
+        Andrew Morton <akpm@zip.com.au>, Martin Wirth <Martin.Wirth@dlr.de>,
+        Robert Love <rml@tech9.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        haveblue <haveblue@us.ibm.com>
+Subject: Re: [RFC] New locking primitive for 2.5
+Date: Fri, 8 Feb 2002 22:40:12 +0100
+Message-Id: <20020208214012.26611@smtp.wanadoo.fr>
+In-Reply-To: <3C642F52.ABD14619@mandrakesoft.com>
+In-Reply-To: <3C642F52.ABD14619@mandrakesoft.com>
+X-Mailer: CTM PowerMail 3.1.1 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Wirth <Martin.Wirth@dlr.de> said:
-> This is a request for comment on a new locking primitive
-> called a combilock.
-> 
-> The goal of this development is:
-> 
-> 1. To allow for a better SMP scalability of semaphores used as Mutex
-> 2. As a replacement for long held spinlocks in an preemptible kernel
-> 
-> The new lock uses a combination of a spinlock and a (mutex-)semaphore.
-> You can lock it for short-term issues in a spin-lock mode:
-> 
->         combi_spin_lock(struct combilock *x)
->         combi_spin_unlock(struct combilock *x)
-> 
-> and for longer lasting tasks in a sleeping mode by:
-> 
->         combi_mutex_lock(struct combilock *x)
->         combi_mutex_unlock(struct combilock *x)
+>Are there architectures out there that absolutely must implement this
+>with a spinlock?  Your suggested API of functions to read/write 64-bit
+>values atomically would work for such a case, but still I am just
+>curious.
 
-Can you sleep if acquired as the spinlock?
+At least PPC32 can't do that without a spinlock_irq
 
-Is there any measurable (or at least plausible reason why there should be)
-performance improvement? (No, "should make preemptible kernel faster"
-doesn't cut it at all for me). Or any hope that it will substantially
-simplify kernel programming with _no_ performance degradation by replacing
-both semphores and spinlocks?
--- 
-Horst von Brand			     http://counter.li.org # 22616
+Ben.
+
+

@@ -1,68 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUD3WTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUD3WVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUD3WTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 18:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUD3WTk
+	id S261712AbUD3WVF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 18:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUD3WVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 18:19:40 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:25385 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261680AbUD3WTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 18:19:39 -0400
-Date: Fri, 30 Apr 2004 15:11:38 -0700
-From: Paul Jackson <pj@sgi.com>
-To: bart@samwel.tk
-Cc: miller@techsource.com, vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au,
-       jgarzik@pobox.com, akpm@osdl.org, brettspamacct@fastclick.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-Id: <20040430151138.73bb98c9.pj@sgi.com>
-In-Reply-To: <1083328293.2204.53.camel@samwel.tk>
-References: <40904A84.2030307@yahoo.com.au>
-	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	<20040429133613.791f9f9b.pj@sgi.com>
-	<409175CF.9040608@techsource.com>
-	<20040429144737.3b0c736b.pj@sgi.com>
-	<40917F1E.8040106@techsource.com>
-	<20040429154632.4ca07cf9.pj@sgi.com>
-	<40918AD2.9060602@techsource.com>
-	<1083328293.2204.53.camel@samwel.tk>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 30 Apr 2004 18:21:05 -0400
+Received: from outmx013.isp.belgacom.be ([195.238.3.64]:958 "EHLO
+	outmx013.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261654AbUD3WU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 18:20:58 -0400
+Subject: [PATCH 2.6.6-rc3-mm1] Add maxthinktime to sysfs
+From: FabF <Fabian.Frederick@skynet.be>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-MV0GVh2ZnxVHGGGezb6t"
+Message-Id: <1083364002.6303.9.camel@bluerhyme.real3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 01 May 2004 00:26:42 +0200
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx013.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thought experiment: what would happen when you set the hypothetical
-> cpu-nice and io-nice knobs very differently?
 
-If there was one, single implementation hook in the kernel where making
-some decision depend on a user setting cleanly adapted both i/o and cpu
-priority, then yes, your thought experiment would recommend that this
-one hook was sufficient, and lead to a single user knob to control it.
+--=-MV0GVh2ZnxVHGGGezb6t
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-But in this case, there are obviously two implementation hooks - the
-classic one in the scheduler that affects cpu usage, and another off in
-some i/o code that affects i/o usage.
+Andrew,
 
-So then the question comes - do we have one knob over this that is
-ganged to both hooks, or do we have two knobs, one per hook.
+	Here's a patch to add the asio maxthinktime to sysfs.
+Could you apply ?
 
-Ganging these two hooks together, to control them in synchrony to a
-single user setting, is a policy choice.  It's saying that we don't
-think you will ever want to run them out of sync, so as a matter of
-policy, we are ganging them together.
+Regards,
+Fabian
 
-I prefer to avoid nonessential policy in the kernel.  Best to simply
-expose each independent kernel facility, 1-to-1, to the user.  Let
-them decide when and if if these two settings should be ganged.
+--=-MV0GVh2ZnxVHGGGezb6t
+Content-Disposition: attachment; filename=maxthinktime1.diff
+Content-Type: text/x-patch; name=maxthinktime1.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-I find gratuitous (not needed for system reliability) policy in the
-kernel to be a greater negative than another system call.
+diff -Naur orig/drivers/block/as-iosched.c edited/drivers/block/as-iosched.c
+--- orig/drivers/block/as-iosched.c	2004-04-30 20:10:43.000000000 +0200
++++ edited/drivers/block/as-iosched.c	2004-05-01 00:02:59.000000000 +0200
+@@ -65,7 +65,7 @@
+  * or doing a lengthy computation. A small penalty can be justified there, and
+  * will still catch out those processes that constantly have large thinktimes.
+  */
+-#define MAX_THINKTIME (HZ/50UL)
++unsigned long maxthinktime=(HZ/50UL);
+ 
+ /* Bits in as_io_context.state */
+ enum as_io_states {
+@@ -869,7 +869,7 @@
+ 			if (test_bit(AS_TASK_IORUNNING, &aic->state)
+ 							&& in_flight == 0) {
+ 				thinktime = jiffies - aic->last_end_request;
+-				thinktime = min(thinktime, MAX_THINKTIME-1);
++				thinktime = min(thinktime, maxthinktime-1);
+ 			} else
+ 				thinktime = 0;
+ 			as_update_thinktime(ad, aic, thinktime);
+@@ -1951,6 +1951,7 @@
+ {									\
+ 	return as_var_show(__VAR, (page));			\
+ }
++SHOW_FUNCTION(as_maxthinktime_show, maxthinktime);
+ SHOW_FUNCTION(as_readexpire_show, ad->fifo_expire[REQ_SYNC]);
+ SHOW_FUNCTION(as_writeexpire_show, ad->fifo_expire[REQ_ASYNC]);
+ SHOW_FUNCTION(as_anticexpire_show, ad->antic_expire);
+@@ -1968,6 +1969,7 @@
+ 		*(__PTR) = (MAX);					\
+ 	return ret;							\
+ }
++STORE_FUNCTION(as_maxthinktime_store, &maxthinktime, 0, LONG_MAX);
+ STORE_FUNCTION(as_readexpire_store, &ad->fifo_expire[REQ_SYNC], 0, INT_MAX);
+ STORE_FUNCTION(as_writeexpire_store, &ad->fifo_expire[REQ_ASYNC], 0, INT_MAX);
+ STORE_FUNCTION(as_anticexpire_store, &ad->antic_expire, 0, INT_MAX);
+@@ -1977,6 +1979,11 @@
+ 			&ad->batch_expire[REQ_ASYNC], 0, INT_MAX);
+ #undef STORE_FUNCTION
+ 
++static struct as_fs_entry as_maxthinktime = {
++	.attr = {.name = "maxthinktime", .mode = S_IRUGO | S_IWUSR },
++	.show = as_maxthinktime_show,
++	.store = as_maxthinktime_store,
++};
+ static struct as_fs_entry as_est_entry = {
+ 	.attr = {.name = "est_time", .mode = S_IRUGO },
+ 	.show = as_est_show,
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--=-MV0GVh2ZnxVHGGGezb6t--
+

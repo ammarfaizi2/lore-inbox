@@ -1,57 +1,238 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137081AbREKI7A>; Fri, 11 May 2001 04:59:00 -0400
+	id <S137086AbREKJIJ>; Fri, 11 May 2001 05:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137082AbREKI6u>; Fri, 11 May 2001 04:58:50 -0400
-Received: from pat.uio.no ([129.240.130.16]:45238 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S137081AbREKI6i>;
-	Fri, 11 May 2001 04:58:38 -0400
-MIME-Version: 1.0
-Message-ID: <15099.43446.132871.699151@charged.uio.no>
-Date: Fri, 11 May 2001 10:58:30 +0200
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.4 linearize UDP RPC requests using GFP_KERNEL...
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+	id <S137085AbREKJHu>; Fri, 11 May 2001 05:07:50 -0400
+Received: from [202.54.26.202] ([202.54.26.202]:8438 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S137082AbREKJHj>;
+	Fri, 11 May 2001 05:07:39 -0400
+X-Lotus-FromDomain: HSS
+From: npunmia@hss.hns.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <65256A49.0030CA26.00@sandesh.hss.hns.com>
+Date: Fri, 11 May 2001 14:37:11 +0530
+Subject: Problem with select in Linux!
+Mime-Version: 1.0
+Content-type: multipart/mixed;
+	Boundary="0__=dltXQeFTnMKfOnD683iUft1yk6wfySHrvedcK0UqZ34EMTK13oO3A0p5"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--0__=dltXQeFTnMKfOnD683iUft1yk6wfySHrvedcK0UqZ34EMTK13oO3A0p5
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+
 
 Hi,
+     I am facing 2 problems in Linux 2.2.16-22:
+[1] In the server program (tmgr_main1.c)  attached herewith, i am waiting on
+events on the select system call on 3 sockets.
 
-  The zero-copy TCP patch that was integrated in 2.4.4 has allowed us
-to move the task of reassembling of the fragments into one buffer
-until we're out of the ->data_ready() bottom half context.
-  In 2.4.4 therefore, the nfsd thread can end up calling the function
-skb_linearize(), in order to allocate a new buffer and copy over the
-fragments.
+  First I run the server program and its 3 client programs. If do a sendto in
+this program just before waiting for select  or do a sendto in response  to read
+events received by select, the message sent goes to the respective client and
+the programs work perfectly fine.
 
-  IMHO allocating the buffer using GFP_ATOMIC is a mistake. As I said
-we're in a thread context, so sleeping in GFP_KERNEL is safe. In
-addition, the cost of dropping the request if we can't allocate the
-buffer is heavy in that the client has to wait for a timeout, and then
-retry.
+However If i run only the server and do not run the client programs, then the
+sendto done in the server program sends a message/event to the server itself (
+which is waiting on events on that sockfd also) .
 
-I'd therefore like to propose the following change.
+When i tried the above thing on SunOS 5.5.1 it worked  perfectly fine!
 
-Cheers,
-  Trond
+(See attached file: server.c)
 
---- linux-2.4.4/net/sunrpc/svcsock.c.orig	Fri Apr 27 23:15:01 2001
-+++ linux-2.4.4/net/sunrpc/svcsock.c	Fri May 11 10:08:36 2001
-@@ -383,7 +383,7 @@
- 
- 	/* Sorry. */
- 	if (skb_is_nonlinear(skb)) {
--		if (skb_linearize(skb, GFP_ATOMIC) != 0) {
-+		if (skb_linearize(skb, GFP_KERNEL) != 0) {
- 			kfree_skb(skb);
- 			svc_sock_received(svsk, 0);
- 			return 0;
+The output of this program is as follows:
+[npunmia@msatpd1 tm1]$ ./a.out
+
+        In Test Manager main function !
+        Signal Handler installed!
+        Message sent to MRS!
+        Waiting on select system call....
+        Data received from MRS!
+        Error in receive!
+        Servicing a MRS request!
+        Message received =
+--0__=dltXQeFTnMKfOnD683iUft1yk6wfySHrvedcK0UqZ34EMTK13oO3A0p5
+Content-type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-transfer-encoding: quoted-printable
+
+
+=80?c
+        Waiting on select system call....
+        Shutting down the test manager!
+        [npunmia@msatpd1 tm1]$
+
+
+
+
+[2]  The second problem occurs when i do a sendto 2 or more times in th=
+is server
+program. This time also I run only  the server and do not run the
+destination/clients programs. The point to note here is that i get a Co=
+nnection
+Refused error  every second time i do a sendto! The first time the mess=
+age is
+sent correctly to the client , the second time i get Connection Refused=
+ error ,
+third time the message is sent correctly to the client, and so on.
+(I have commented the second sendto  before select . To try problem no.=
+ 2 you
+can remove the comments and run it)
+     a) Why am i not getting a connection refused error consistently ev=
+ery time
+i do a sendto?
+     b) Why at all am i getting a connection refused error in UDP  in t=
+he first
+place??
+     c) When i try the above thing on SunOS, the message is sent from t=
+he server
+correctly every time, even though the client processes are not alive an=
+d i do
+not get any error!!!
+
+
+The output  on running the above program(remove the comments from the s=
+econd
+sendto before select)   is as follows:
+
+[npunmia@msatpd1 tm1]$ ./a.out
+        In Test Manager main function !
+        Signal Handler installed!
+        Message sent to MRS!
+        Error in send to MRS
+Error: Connection refused
+Waiting on select system call....
+        Shutting down the test manager!
+[npunmia@msatpd1 tm1]$
+
+
+
+
+Regards,
+Niraj Punmia,
+
+Software Engineer,
+Hughes Software  Systems,
+Plot 31, Sector 18,
+Gurgaon- 122 015,
+Haryana, India.
+Off: 0124-6346666. Extn 2350.
+
+
+
+
+
+
+=
+
+--0__=dltXQeFTnMKfOnD683iUft1yk6wfySHrvedcK0UqZ34EMTK13oO3A0p5
+Content-type: application/octet-stream;
+	name="server.c"
+Content-Disposition: attachment; filename="server.c"
+Content-transfer-encoding: base64
+
+I2luY2x1ZGU8c3RkaW8uaD4NCiNpbmNsdWRlPHN5cy90eXBlcy5oPg0KI2luY2x1ZGU8c3lzL3Nv
+Y2tldC5oPg0KI2luY2x1ZGU8bmV0aW5ldC9pbi5oPg0KI2luY2x1ZGU8YXJwYS9pbmV0Lmg+DQoj
+aW5jbHVkZTxzaWduYWwuaD4NCiNpbmNsdWRlPHN5cy9wYXJhbS5oPg0KI2luY2x1ZGU8c3lzL3Rp
+bWUuaD4NCg0KDQojZGVmaW5lIFRNX0dVSV9QT1JUIDYwMDAwICAvLyBpbiBUTSBmb3IgR1VJDQoj
+ZGVmaW5lIFRNX01SU19QT1JUIDYwMDAxICAvLyBpbiBUTSBmb3IgTVJTDQojZGVmaW5lIFRNX01Q
+X1BPUlQgNjAwMDINCg0KI2RlZmluZSBHVUlfVE1fUE9SVCA1MDAwMCAvLyBpbiBHVUkgZm9yIFRN
+DQojZGVmaW5lIE1SU19UTV9QT1JUIDUwMDAxIC8vIGluIE1SUyBmb3IgVE0NCiNkZWZpbmUgTVBf
+VE1fUE9SVCA1MDAwMg0KDQovLyNkZWZpbmUgVE1fSE9TVF9BRERSICIxMzkuODUuMjQzLjkwIg0K
+DQppbnQgZ3VpU29ja0ZkLCBtcnNTb2NrRmQsIG1wU29ja0ZkOw0KDQp2b2lkIHRlcm1pbmF0ZVRt
+Z3IoKQ0Kew0KCXByaW50ZigiU2h1dHRpbmcgZG93biB0aGUgdGVzdCBtYW5hZ2VyIVxuXHQiKTsN
+CgljbG9zZShndWlTb2NrRmQpOw0KCWNsb3NlKG1yc1NvY2tGZCk7DQoJY2xvc2UobXBTb2NrRmQp
+Ow0KCWV4aXQoMCk7DQp9IA0Kdm9pZCB0aW1lckhhbmRsZXIoKQ0Kew0KICAgICAgICBwcmludGYo
+IlNlbmQgaGVhcnRiZWF0IHNpZ25hbCB0byBTU0VcbiIpOw0KfQ0KDQppbnQgbWFpbigpDQp7DQpp
+bnQgIGNsaV9sZW4sIG1heGZkcDE7DQpzdHJ1Y3Qgc29ja2FkZHJfaW4gZ3VpU29ja0FkZHIsIG1y
+c1NvY2tBZGRyLCBtcFNvY2tBZGRyLCBjbGlfYWRkcjsNCmNoYXIgbWVzZ1s1MF07DQpmZF9zZXQg
+YWxsc2V0Ow0KZmRfc2V0IHJzZXQ7DQpzdHJ1Y3QgaXRpbWVydmFsIHZhbHVlOw0KDQoJcHJpbnRm
+KCJcblx0SW4gVGVzdCBNYW5hZ2VyIG1haW4gZnVuY3Rpb24gIVxuXHQiKTsNCg0KCXNpZ25hbChT
+SUdJTlQsdGVybWluYXRlVG1ncik7DQoJc2lnbmFsKFNJR1FVSVQsdGVybWluYXRlVG1ncik7DQoJ
+c2lnbmFsKFNJR0hVUCx0ZXJtaW5hdGVUbWdyKTsNCglzaWduYWwoU0lHQUxSTSx0aW1lckhhbmRs
+ZXIpOw0KCXByaW50ZigiU2lnbmFsIEhhbmRsZXIgaW5zdGFsbGVkIVxuXHQiKTsNCg0KCXZhbHVl
+Lml0X2ludGVydmFsLnR2X3NlYyA9IDU7IC8vcmVzZXQgdmFsdWUsIGFjdHVhbCB0aW1lciB2YWx1
+ZQ0KICAgICAgICB2YWx1ZS5pdF9pbnRlcnZhbC50dl91c2VjID0gMDsNCiAgICAgICAgdmFsdWUu
+aXRfdmFsdWUudHZfc2VjID0gMTsgLy8gb25seSBvbmNlLCBmaXJzdCB0aW1lLCBjb3VudGRvd24N
+CiAgICAgICAgdmFsdWUuaXRfdmFsdWUudHZfdXNlYyA9MDsNCg0KCS8qaWYoc2V0aXRpbWVyKElU
+SU1FUl9SRUFMLCZ2YWx1ZSxOVUxMKSA8IDApDQogICAgICAgIHsNCiAgICAgICAgICAgICAgICBw
+cmludGYoIkVycm9yIGluIHRpbWVyXG4iKTsNCiAgICAgICAgfSovDQoNCg0KCWlmICgoZ3VpU29j
+a0ZkID0gc29ja2V0KEFGX0lORVQsIFNPQ0tfREdSQU0sIDApKSA8IDApDQoJew0KCQlwcmludGYo
+IlNvY2tldCBTeXN0ZW0gQ2FsbCBmYWlsZWQhXG5cdCIpOw0KCQlleGl0KDEpOw0KCX0NCg0KCWJ6
+ZXJvKChjaGFyICopICZndWlTb2NrQWRkciwgc2l6ZW9mKGd1aVNvY2tBZGRyKSk7DQoJZ3VpU29j
+a0FkZHIuc2luX2ZhbWlseSA9IEFGX0lORVQ7DQoJZ3VpU29ja0FkZHIuc2luX2FkZHIuc19hZGRy
+ID0gaHRvbmwoSU5BRERSX0FOWSk7DQoJZ3VpU29ja0FkZHIuc2luX3BvcnQgPSBodG9ucyhUTV9H
+VUlfUE9SVCk7DQoJDQoJaWYgKGJpbmQoZ3VpU29ja0ZkLCAoc3RydWN0IHNvY2thZGRyICopICZn
+dWlTb2NrQWRkciwgc2l6ZW9mKGd1aVNvY2tBZGRyKSkgPCAwKQl7DQoJCXByaW50ZigiRXJyb3Ig
+aW4gYmluZCFcblx0Iik7DQoJCWV4aXQoMSk7DQoJfQ0KDQoJaWYgKChtcnNTb2NrRmQgPSBzb2Nr
+ZXQoQUZfSU5FVCwgU09DS19ER1JBTSwgMCkpIDwgMCkNCgl7DQoJCXByaW50ZigiU29ja2V0IFN5
+c3RlbSBDYWxsIGZhaWxlZCFcblx0Iik7DQoJCWV4aXQoMSk7DQoJfQ0KDQoJYnplcm8oKGNoYXIg
+KikgJm1yc1NvY2tBZGRyLCBzaXplb2YobXJzU29ja0FkZHIpKTsNCgltcnNTb2NrQWRkci5zaW5f
+ZmFtaWx5ID0gQUZfSU5FVDsNCgltcnNTb2NrQWRkci5zaW5fYWRkci5zX2FkZHIgPSBodG9ubChJ
+TkFERFJfQU5ZKTsNCgltcnNTb2NrQWRkci5zaW5fcG9ydCA9IGh0b25zKFRNX01SU19QT1JUKTsN
+Cg0KCWlmIChiaW5kKG1yc1NvY2tGZCwgKHN0cnVjdCBzb2NrYWRkciAqKSAmbXJzU29ja0FkZHIs
+IHNpemVvZihtcnNTb2NrQWRkcikpIDwgMCkJew0KCQlwcmludGYoIkVycm9yIGluIGJpbmQhXG5c
+dCIpOw0KCQlleGl0KDEpOw0KCX0NCgkNCglpZiAoKG1wU29ja0ZkID0gc29ja2V0KEFGX0lORVQs
+IFNPQ0tfREdSQU0sIDApKSA8IDApDQoJew0KCQlwcmludGYoIlNvY2tldCBTeXN0ZW0gQ2FsbCBm
+YWlsZWQhXG5cdCIpOw0KCQlleGl0KDEpOw0KCX0NCg0KCWJ6ZXJvKChjaGFyICopICZtcFNvY2tB
+ZGRyLCBzaXplb2YobXBTb2NrQWRkcikpOw0KCW1wU29ja0FkZHIuc2luX2ZhbWlseSA9IEFGX0lO
+RVQ7DQoJbXBTb2NrQWRkci5zaW5fYWRkci5zX2FkZHIgPSBodG9ubChJTkFERFJfQU5ZKTsNCglt
+cFNvY2tBZGRyLnNpbl9wb3J0ID0gaHRvbnMoVE1fTVBfUE9SVCk7DQoNCg0KCWlmIChiaW5kKG1w
+U29ja0ZkLCAoc3RydWN0IHNvY2thZGRyICopICZtcFNvY2tBZGRyLCBzaXplb2YobXBTb2NrQWRk
+cikpIDwgMCkJew0KCQlwcmludGYoIkVycm9yIGluIGJpbmQhXG5cdCIpOw0KCQlleGl0KDEpOw0K
+CX0NCglGRF9aRVJPKCZhbGxzZXQpOw0KCUZEX1NFVChndWlTb2NrRmQsICZhbGxzZXQpOw0KCUZE
+X1NFVChtcnNTb2NrRmQsICZhbGxzZXQpOw0KCUZEX1NFVChtcFNvY2tGZCwgJmFsbHNldCk7DQoJ
+Ly9wcmludGYoIiVkICVkICVkXG4iLGd1aVNvY2tGZCxtcnNTb2NrRmQsbXBTb2NrRmQpOw0KCQ0K
+CW1heGZkcDEgPSBtcFNvY2tGZCArIDE7DQoNCgkJCWJ6ZXJvKChjaGFyICopICZjbGlfYWRkciwg
+c2l6ZW9mKGNsaV9hZGRyKSk7DQogIAkgICAgICAgIAljbGlfYWRkci5zaW5fZmFtaWx5ID0gQUZf
+SU5FVDsNCiAgICAgICAgCQljbGlfYWRkci5zaW5fYWRkci5zX2FkZHIgPSBodG9ubChJTkFERFJf
+QU5ZKTsNCiAgICAgICAgCQljbGlfYWRkci5zaW5fcG9ydCA9IGh0b25zKE1SU19UTV9QT1JUKTsN
+CgkJCWlmKHNlbmR0byhtcnNTb2NrRmQsICZtZXNnLCBzaXplb2YobWVzZyksIDAsICZjbGlfYWRk
+ciwgc2l6ZW9mKGNsaV9hZGRyKSkgPCAwKQ0KCQkJew0KCQkJCXByaW50ZigiRXJyb3IgaW4gc2Vu
+ZCB0byBNUlNcbiIpOw0KCQkJCXBlcnJvcigiRXJyb3IiKTsNCgkJCX0NCgkJCWVsc2UNCgkJCXsN
+CgkJCQlwcmludGYoIk1lc3NhZ2Ugc2VudCB0byBNUlMhXG5cdCIpOw0KCQkJfQ0KDQovKiBSZW1v
+dmUgdGhlIGZvbGxvd2luZyBjb21tZW50IGZvciBwcm9iZWxtIG5vLiAyICEgKi8NCg0KLyoNCgkJ
+CWlmKHNlbmR0byhtcnNTb2NrRmQsICZtZXNnLCBzaXplb2YobWVzZyksIDAsICZjbGlfYWRkciwg
+c2l6ZW9mKGNsaV9hZGRyKSkgPCAwKQ0KCQkJew0KCQkJCXByaW50ZigiRXJyb3IgaW4gc2VuZCB0
+byBNUlNcbiIpOw0KCQkJCXBlcnJvcigiRXJyb3IiKTsNCgkJCX0NCgkJCWVsc2UNCgkJCXsNCgkJ
+CQlwcmludGYoIk1lc3NhZ2Ugc2VudCB0byBNUlMhXG5cdCIpOyANCgkJCX0gKi8NCgkNCgl3aGls
+ZSgxKQ0KCXsNCgkJcHJpbnRmKCJXYWl0aW5nIG9uIHNlbGVjdCBzeXN0ZW0gY2FsbC4uLi5cblx0
+Iik7CQ0KCQlyc2V0ID0gYWxsc2V0Ow0KCQlpZihzZWxlY3QobWF4ZmRwMSwgJnJzZXQsIE5VTEws
+IE5VTEwsIDApIDwgMCkNCgkJew0KCQkJLy9wcmludGYoIkVycm9yIGluIHNlbGVjdCBzeXN0ZW0g
+Y2FsbCAhXG5cdCIpOw0KCQkJLyogV2hlbmV2ZXIgdGhlIHRpbWVyIGV4cGlyZXMgYW5kIFNJR0FM
+Uk0gc2lnbmFsIGlzIHJlY2VpdmVkICwgdGhlcmUgaXMgYW4gZXJyb3IgaW4gdGhlIHNlbGVjdCBz
+eXN0ZW0gY2FsbCAqLw0KDQoJCQljb250aW51ZTsgDQoJCQkvKiBzaW5jZSAgdSBhcmUgZ2V0dGlu
+ZyBhbiBlcnJvciBpbiBzZWxlY3QsIGl0IGlzIGVudGVyaW5nIGd1aSBwb3J0aW9uIGFuZCB3YWl0
+aW5nIG9uIHJlY3Zmcm9tICwgaGVuY2UgdGhlICJjb250aW51ZSIgd29ya2Fyb3VuZCovDQoJCX0g
+DQoJCWlmKEZEX0lTU0VUKGd1aVNvY2tGZCwgJnJzZXQpKQ0KCQl7DQoJCQlwcmludGYoIkRhdGEg
+cmVjZWl2ZWQgZnJvbSBHVUkhXG5cdCIpOw0KCQkJY2xpX2xlbiA9IHNpemVvZihjbGlfYWRkcik7
+DQoJCQlpZihyZWN2ZnJvbShndWlTb2NrRmQsICZtZXNnLCBzaXplb2YobWVzZyksIDAsICZjbGlf
+YWRkciwgJmNsaV9sZW4pIDwgMCkNCgkJCXsNCgkJCQlwcmludGYoIkVycm9yIGluIHJlY2VpdmUh
+XG5cdCIpOw0KCQkJfQ0KCQkJcHJpbnRmKCJTZXJ2aWNpbmcgYSBHVUkgcmVxdWVzdCFcblx0Iik7
+DQoJCQlwcmludGYoIk1lc3NhZ2UgcmVjZWl2ZWQgPSAlc1xuXHQiLG1lc2cpOw0KDQoJCQliemVy
+bygoY2hhciAqKSAmY2xpX2FkZHIsIHNpemVvZihjbGlfYWRkcikpOw0KICAJICAgICAgICAJY2xp
+X2FkZHIuc2luX2ZhbWlseSA9IEFGX0lORVQ7DQogICAgICAgIAkJY2xpX2FkZHIuc2luX2FkZHIu
+c19hZGRyID0gaHRvbmwoSU5BRERSX0FOWSk7DQogICAgICAgIAkJY2xpX2FkZHIuc2luX3BvcnQg
+PSBodG9ucyhNUlNfVE1fUE9SVCk7DQoNCg0KCQkJaWYoc2VuZHRvKG1yc1NvY2tGZCwgJm1lc2cs
+IHNpemVvZihtZXNnKSwgMCwgJmNsaV9hZGRyLCBzaXplb2YoY2xpX2FkZHIpKSA8IDApDQoJCQl7
+DQoJCQkJcHJpbnRmKCJFcnJvciBpbiBzZW5kIHRvIEdVSVxuIik7DQoJCQl9DQoJCQlwcmludGYo
+Ik1lc3NhZ2Ugc2VudCB0byBNUlMhXG5cdCIpOw0KDQoJIA0KCQl9DQoJCWlmKEZEX0lTU0VUKG1y
+c1NvY2tGZCwgJnJzZXQpKQ0KCQl7DQoJCXByaW50ZigiRGF0YSByZWNlaXZlZCBmcm9tIE1SUyFc
+blx0Iik7DQoJCWNsaV9sZW4gPSBzaXplb2YoY2xpX2FkZHIpOw0KCQlpZihyZWN2ZnJvbShtcnNT
+b2NrRmQsICZtZXNnLCBzaXplb2YobWVzZyksIDAsICZjbGlfYWRkciwgJmNsaV9sZW4pIDwgMCkN
+CgkJew0KCQkJcHJpbnRmKCJFcnJvciBpbiByZWNlaXZlIVxuXHQiKTsNCgkJfQ0KCQlwcmludGYo
+IlNlcnZpY2luZyBhIE1SUyByZXF1ZXN0IVxuXHQiKTsNCgkJcHJpbnRmKCJNZXNzYWdlIHJlY2Vp
+dmVkID0gJXNcblx0IixtZXNnKTsgDQoJCX0NCg0KCQlpZihGRF9JU1NFVChtcFNvY2tGZCwgJnJz
+ZXQpKQ0KCQl7DQoJCXByaW50ZigiRGF0YSByZWNlaXZlZCBmcm9tIE1QIVxuXHQiKTsNCgkJY2xp
+X2xlbiA9IHNpemVvZihjbGlfYWRkcik7DQoJCWlmKHJlY3Zmcm9tKG1wU29ja0ZkLCAmbWVzZywg
+c2l6ZW9mKG1lc2cpLCAwLCAmY2xpX2FkZHIsICZjbGlfbGVuKSA8IDApDQoJCXsNCgkJCXByaW50
+ZigiRXJyb3IgaW4gcmVjZWl2ZSFcblx0Iik7DQoJCX0NCgkJcHJpbnRmKCJTZXJ2aWNpbmcgYSBN
+UCByZXF1ZXN0IVxuXHQiKTsNCgkJcHJpbnRmKCJNZXNzYWdlIHJlY2VpdmVkID0gJXNcblx0Iixt
+ZXNnKTsNCgkJfQkNCgl9CQ0KCXJldHVybiAwOwkJIA0KfSANCgkgDQo=
+
+--0__=dltXQeFTnMKfOnD683iUft1yk6wfySHrvedcK0UqZ34EMTK13oO3A0p5--
 

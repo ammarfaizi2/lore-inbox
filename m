@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129777AbRAEXef>; Fri, 5 Jan 2001 18:34:35 -0500
+	id <S129777AbRAEXjP>; Fri, 5 Jan 2001 18:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129895AbRAEXeZ>; Fri, 5 Jan 2001 18:34:25 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:29063 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S129777AbRAEXeJ>;
-	Fri, 5 Jan 2001 18:34:09 -0500
-Message-ID: <3A5659DE.90103B95@pobox.com>
-Date: Fri, 05 Jan 2001 15:33:50 -0800
+	id <S129895AbRAEXjG>; Fri, 5 Jan 2001 18:39:06 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:30343 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S129777AbRAEXi7>;
+	Fri, 5 Jan 2001 18:38:59 -0500
+Message-ID: <3A565B09.C7225703@pobox.com>
+Date: Fri, 05 Jan 2001 15:38:49 -0800
 From: J Sloan <jjs@pobox.com>
 Organization: Mirai Consulting
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Mike <mike@khi.sdnpk.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-irda@pasta.cs.UiT.No" <linux-irda@pasta.cs.UiT.No>
-Subject: Re: How can I create root disk in Redhat 6.0
-In-Reply-To: <3A55AAF7.4F5EDFCD@khi.sdnpk.org>
+To: Nicolas Parpandet <nparpand@perinfo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel network problem ?
+In-Reply-To: <000d01c07724$8fa531f0$8900030a@nicolasp>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike wrote:
+Nicolas Parpandet wrote:
 
-> Hi !!
+> Hi all,
 >
-> When i boot linux from rescue disk, i get following message:
+> I'm testing 2.4 series for few weeks,
+> even the last prerelease
 >
-> VFS: Insert root floppy disk to be loaded in RAM disk and press ENTER
+> I've seen stranges things  :
 >
-> Now how can i create a root disk... I am trying to boot Redhat 6.0
+> I cannot access to some ips adresses ! :
+> in http or in smtp using "konqueror", "netscape",
+> "mail",  "telnet 25".
+>
+> I cannot login to hotmail (in the web page:http)
+> or send mail (smtp) to hotmail users (don't blame me !!)
+> All the others network things works well, the network in general seems
+> good only very few sites like hotmail doesn't works.
 
-A Slackware boot disk can do wonders here -
+Do you have "explicit congestion notification" enabled?
 
-I never cared for Red Hat's rescue disks - even though I have
-run Red Hat since '97, I still use Slackware boot/root floppies for
-this type of situation...
+If so,
+
+echo "0" >  /proc/sys/net/ipv4/tcp_ecn
 
 jjs
-
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

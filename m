@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270988AbUJUVcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271012AbUJVDd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270988AbUJUVcz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270990AbUJUV3E
+	id S271012AbUJVDd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 23:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271011AbUJVDdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:29:04 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:23004 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S270836AbUJUV1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:27:54 -0400
-Subject: Re: Proposal: Desktop kernel bk tree/patchset.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <417780CB.4060106@yahoo.com.au>
-References: <1098344977.4146.21.camel@desktop.cunninghams>
-	 <417780CB.4060106@yahoo.com.au>
-Content-Type: text/plain
-Message-Id: <1098393711.4146.35.camel@desktop.cunninghams>
+	Thu, 21 Oct 2004 23:33:01 -0400
+Received: from main.gmane.org ([80.91.229.2]:28604 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270994AbUJVDbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 23:31:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Date: Thu, 21 Oct 2004 21:30:06 -0700
+Message-ID: <m2wtxj74tt.fsf@tnuctip.rychter.com>
+References: <4176E08B.2050706@techsource.com>
+	<4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net>
+	<200410220238.13071.jk-lkml@sci.fi>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 22 Oct 2004 07:21:52 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 66-27-68-14.san.rr.com
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.5 (chayote, linux)
+Cancel-Lock: sha1:lw7bM8MufZgOUu3nLglQ094Uako=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>>>>> "Jan" == Jan Knutar <jk-lkml@sci.fi> writes:
+ Jan> On Thursday 21 October 2004 19:34, Stephen Wille Padnos wrote:
+ >> I'm thinking more like microcode.  The functional blocks on the chip
+ >> would be capable of being "rewired" by the OS, depending on the
+ >> applications being run.  All of the functions would still operate
+ >> out of card-local memory.
 
-On Thu, 2004-10-21 at 19:26, Nick Piggin wrote:
-> I don't think it would be a really good idea to have an official tree
-> for desktop users. A staging area for desktop improvements, sure that
-> would be no problem. But if you really have some good improvements,
-> they should eventually get into the mainline kernel where you can
-> expect a pretty good (or not terribly bad) review and testing process.
+ Jan> Are you thinking something along the lines of an
+ Jan> optimizing+profiling host-CPU-software-renderer to
+ Jan> FPGA-reprogrammed JIT accelerator? :)
 
-Yeah; I'm thinking more a staging area where people who use Linux for
-desktop work (as I do) can bang on the PM support and other enhancements
-they'd be after. Not an end in itself.
+ Jan> The idea of reprogramming the hardware to toss out the line
+ Jan> drawing and other things that GTK and friends probably only
+ Jan> present to X as pixmaps anyway, and use that 'die space' for
+ Jan> something else, is certainly appealing.
 
-> On the other hand, I understand you're probably frustrated at the slow
-> pace and politics of getting more ambitious patches into the kernel.
+ Jan> Of course, for a software -> hardware JITc, I think the budget
+ Jan> required would be a few magnitudes more than mentioned here
+ Jan> earlier, and half a decade of debugging or more ontop..
 
-Actually, I'm not at all. The slowness in merging suspend2 has so far
-been because I've been putting lots of work into trying to get
-everything neater and tidier, so I only have myself to blame there :>.
-I'm hoping to begin another round of posting patches shortly, hopefully
-this time including the substance of the patches.
+This isn't *strictly* related to the main topic of this discussion, but:
+You might want to look at the Stretch CPU (http://www.stretchinc.com/),
+which, incidentally, runs Linux. Or rather the Xtensa part of it does.
 
-> I'd go for angle of aiming to get things into -mm. Andrew generally
-> doesn't mind brewing things up there, even if there is no clear path
-> for merging into 2.6 at the time... so long as they're pretty stable
-> and not going to cause rejects all over the tree, of course.
-
-Yes, I'm aiming for -mm. Stability isn't a problem, and it touches a lot
-less of the tree than it used to: the main changes now are refrigerator
-improvements and hooks.
-
-> Just my two cents.
-
-Appreciated!
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
+--J.
 

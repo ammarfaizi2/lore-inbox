@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265690AbTFNQ2E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 12:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbTFNQ2E
+	id S265688AbTFNQ0p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 12:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbTFNQ0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 12:28:04 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:14053 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S265690AbTFNQ17
+	Sat, 14 Jun 2003 12:26:45 -0400
+Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:58360 "EHLO
+	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S265688AbTFNQ0p
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 12:27:59 -0400
-Message-ID: <20030614164144.8583.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
+	Sat, 14 Jun 2003 12:26:45 -0400
+Date: Sat, 14 Jun 2003 18:16:24 +0200
+From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
+To: Krzysiek Taraszka <dzimi@pld.org.pl>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, stefan@stefan-foerster.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.21 released
+Message-ID: <20030614161624.GB865@deimos.one.pl>
+References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613165628.GE28609@in-ws-001.cid-net.de> <20030613165625.GA573@deimos.one.pl> <20030613193709.49f22332.skraw@ithnet.com> <20030613171903.GA797@deimos.one.pl> <Pine.LNX.4.50L.0306141753020.20957-100000@ep09.kernel.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Lars Unin" <lars_unin@linuxmail.org>
-To: hahn@physics.mcmaster.ca
-Cc: linux-kernel@vger.kernel.org
-Date: Sun, 15 Jun 2003 00:41:44 +0800
-Subject: Re: kernel spinlocks; when to use; when appropriate?
-X-Originating-Ip: 62.7.148.93
-X-Originating-Server: ws5-2.us4.outblaze.com
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.50L.0306141753020.20957-100000@ep09.kernel.pl>
+User-Agent: Mutt/1.4.1i
+X-Age: 23 (1980.09.27 - libra)
+X-Girl: one will be enough!
+X-IM: JID:dEiMoS_DK@jabber.org ICQ:59367544 GG:88988
+X-Operating-System: Slackware GNU/Linux, kernel 2.4.21, up 1 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I wrote a while ago (thanks to you guys on LKML I almost 
-understand now):
+On Sat, Jun 14, 2003 at 05:59:38PM +0200, Krzysiek Taraszka wrote:
+> I have got the same problem few days ago. Quick fix was: append="noapic 
+> acpi=off"
+> I did not check new apci stuff, maybe acpi maintainers fixed that bug ? If 
+> they are changes should go as soon as possible into Marcelo bk tree :)
 
-> >    When is is appropriate to use spinlocks in the kernel,
-><snipped> 
- Then Mark hahn wrote:
+I discover that the simple way will be not to use the CONFIG_X86_UP_IOAPIC.
+But I don't know if it is the good solution.
 
-> jeez.  it's verging on rude to ask this sort of question,
-> when you have the vast expanses of kernel code right there
-> in front of you, chocked full of spinlocks.  the mere fact
-> that the list has tens of thousands of readers should make 
-> you try to help yourself first.
- 
- Well <sirens heard> its verging on rude to send me an email thats
-rude <people heard in background> and has this theme:
+For me, the simple way is too use the GOOD WORKING APM :-)
 
- You are a two year old, to learn what the words "quarks" mean you
-should read Quantum Thoeries by Lazzengberg, then use a particle 
-accelerator to Quantify and factualise it, OR
-
- Like asking a 6 year old where babies come from... Lets face 
-it, how many 6 year olds can work out the full process without
-a book expalining it, or someone telling them...
-
- Its verging on rude also to assume even though <Voices heard 
-"PUT THE GUN DOWN, NOBODY HAS TO DIE"> <Hahns palms held outstretched>
-nobody wants to read my question, that I would want to read such
-an answer, so tell me <"NOW BRAVO TEAM, GO GO,"> why the rant by you? 
-
-BRAVO TEAM GO GO! SUSPECT IS UNARMED. REPEAT. SUSPECT IS UNARMED.
-
- Chill. ;-)
- Lars.
 -- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
-
-Powered by Outblaze
+# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #

@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269019AbUIAArp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269205AbUIAAsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269019AbUIAArp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 20:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUHaTlw
+	id S269205AbUIAAsz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 20:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269131AbUIAAsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:41:52 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:21965 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268873AbUHaTiW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:38:22 -0400
-Date: Tue, 31 Aug 2004 21:38:08 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <111617109.20040831213808@tnonline.net>
-To: Tonnerre <tonnerre@thundrix.ch>
-CC: V13 <v13@priest.com>, Hans Reiser <reiser@namesys.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
-In-Reply-To: <20040831190814.GA15493@thundrix.ch>
-References: <41323AD8.7040103@namesys.com> <200408312055.56335.v13@priest.com>
- <36793180.20040831201736@tnonline.net> <20040831190814.GA15493@thundrix.ch>
+	Tue, 31 Aug 2004 20:48:37 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:3341 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S268840AbUHaTl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:41:29 -0400
+Message-ID: <4134DC9E.4060904@techsource.com>
+Date: Tue, 31 Aug 2004 16:16:30 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Julien Oster <usenet-20040502@usenet.frodoid.org>
+CC: Miles Lane <miles.lane@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+References: <200408191822.48297.miles.lane@comcast.net> <87hdqyogp4.fsf@killer.ninja.frodoid.org>
+In-Reply-To: <87hdqyogp4.fsf@killer.ninja.frodoid.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  
 
-> Salut,
+Julien Oster wrote:
+> Miles Lane <miles.lane@comcast.net> writes:
+> 
+> 
+>>http://www.theregister.co.uk/2004/07/08/dtrace_user_take/:
+>>"Sun sees DTrace as a big advantage for Solaris over other versions of Unix 
+>>and Linux."
+> 
+> 
+> That article is way too hypey.
+> 
+> It sounds like one of those strange american commercials you see
+> sometimes at night, where two overenthusiastic persons are telling you
+> how much that strange fruit juice machine has changed their lives,
+> with making them loose 200 pounds in 6 days and improving their
+> performance at beach volleyball a lot due to subneutronic antigravity
+> manipulation. You usually can't watch those commercials for longer
+> than 5 minutes.
+> 
+> The same applies to that article, I couldn't even read it completely,
+> it was just too much.
+> 
+> And is it just me or did that article really take that long to
+> mentioning what dtrace actually IS?
+> 
+> Come on, it's profiling. As presented by that article, it is even more
+> micro optimization than one would think. What with tweaking the disk
+> I/O improvements and all... If my harddisk accesses were a microsecond
+> more immediate or my filesystem giving a quantum more transfer rate,
+> it would be nice, but I certainly wouldn't get enthusiastic and I bet
+> nobody would even notice.
+> 
+> Maybe, without that article, I would recognize it as a fine thing (and
+> by "fine" I don't mean "the best thing since sliced bread"), but that
+> piece of text was just too ridiculous to take anything serious.
+> 
+> I sure hope that article is meant sarcastically. By the way, did I
+> miss something or is profiling suddenly a new thing again?
+> 
 
-> On Tue, Aug 31, 2004 at 08:17:36PM +0200, Spam wrote:
->>   How  are  things  done on Windows platforms when there are files and
->>   directories  with the same name? In Unix that is imposible. How does
->>   it  work  for  environments  like  Cygwin  etc? What happen to tools
->>   that run in them?
+[I have 4000 emails from lkml to read, so please forgive me if this 
+discussion is dead.]
 
-> In  NTFS it's  illegal  IIRC.  At least  the  fs correction  utilities
-> complain about a block being assigned to two files.
+DTrace was exactly what we needed here to figure out what was making our 
+E450 server perform so badly.  We managed to find and eliminate all 
+sorts of bottlenecks, and now, all of our NFS activity is CPU bound on 
+the server.
 
-  I  meant  a  file  and a directory with the same name, not two files
-  with the same name :) subtle but important difference.
-
-  ie,  you can have a file named "foo" and a directory named "foo" and
-  they won't collide.
-  
-
-> Same with HFS+.
-
-> Sometimes  there seem to  be several  things with  the same  name. But
-> that's because of hidden extensions (.lnk for example).
-
-> I'm talking out of the book here, maybe the real-world implementations
-> of Windows  are different. I can't  tell, I only used  Windows once to
-> ssh into a screwed-up router.
-
-> 				Tonnerre
-
+Perhaps Linux never suffers from these sorts of problems that require 
+tuning things such as inode cache sizes, etc???
 

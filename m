@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271664AbRHQO0w>; Fri, 17 Aug 2001 10:26:52 -0400
+	id <S271667AbRHQO0c>; Fri, 17 Aug 2001 10:26:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271665AbRHQO0m>; Fri, 17 Aug 2001 10:26:42 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271664AbRHQO00>; Fri, 17 Aug 2001 10:26:26 -0400
-Date: Fri, 17 Aug 2001 10:26:34 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: David Madore <david.madore@ens.fr>
+	id <S271665AbRHQO0W>; Fri, 17 Aug 2001 10:26:22 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:38395 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S271664AbRHQO0D>;
+	Fri, 17 Aug 2001 10:26:03 -0400
+Date: Fri, 17 Aug 2001 09:26:10 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Terje Eggestad <terje.eggestad@scali.no>, Andi Kleen <ak@suse.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: broken memory chip -> software fix?
-In-Reply-To: <20010817161505.A25194@clipper.ens.fr>
-Message-ID: <Pine.LNX.3.95.1010817101952.256A-100000@chaos.analogic.com>
+Subject: Re: [PATCH] processes with shared vm
+Message-ID: <36530000.998058370@baldur>
+In-Reply-To: <998038019.7627.21.camel@pc-16.office.scali.no>
+In-Reply-To: <997973469.7632.10.camel@pc-16.suse.lists.linux.kernel>
+ <oupelqbw0z4.fsf@pigdrop.muc.suse.de>
+ <998038019.7627.21.camel@pc-16.office.scali.no>
+X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Aug 2001, David Madore wrote:
 
-> Hi all.
-> 
-> I have a broken bit in my memory - at address 0x04d5ae38 if you want
-> to know the details (bit 29 of the double word there sometimes reads
-> as 1 when it was written as 0, in particular if bit 15 is at 1).  I
-> discovered this by observing a one-bit corruption of some files, and
-> diagnosed it by running memtest86.
-> 
-> Now that I know the address, is there a way I can prevent Linux from
-> using that region of memory in any way?  The simplest and cleanest
-> way, would be, I guess, for a userland process I would write to ask of
-> the kernel to map permanently and unswappably the page at physical
-> location 0x04d5a000 to its virtual address space.  (Besides, that
-> would let me play with that broken bit.)
-> 
-> So: is there a way for a userland process (running at euid 0) to
-> request of the kernel an explicit physical address to virtual address
-> translation?  If so, how?  I would prefer not to have to patch the
-> kernel, if at all possible.
-> 
-> Thanks,
-> 
+--On Friday, August 17, 2001 10:46:59 +0200 Terje Eggestad 
+<terje.eggestad@scali.no> wrote:
 
-mmap(0x04d5a000, PAGE_SIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_FIXED, fd,
-           ^^^^ page boundary
-0);
+> hought of all that, yes ps will have O(n^2) BUT ONLY FOR CLONED PROCS.
+> How many cloned procs do you usually have????
+>
+> Even if I agree that there should be a linked list of all the cloned
+> procs, it means major changes to the data structs in the kernel.
+>
+> With the number of threaded programs out there, this is "good enough".
 
-'MAP_FIXED' is your friend. This will take the offending page size 
-(0x1000) on x86, out of use and give it to you. 'fd' is initialized
-by opening /dev/mem.
+There is a simpler way to do this.  All tasks belong to a thread group, and 
+while thread groups are connected via a different clone flag 
+(CLONE_THREAD), in practice CLONE_THREAD and CLONE_VM are generally used 
+together.  It would be trivial to add TGID to the information in /proc, 
+then assume all tasks with the same TGID have the same VM as well.  It 
+would be just one more line in the /proc output and not require any 
+additional overhead.
 
-Cheers,
-Dick Johnson
+Dave McCracken
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

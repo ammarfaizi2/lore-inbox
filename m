@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUFUVIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266468AbUFUVLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUFUVIv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 17:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUFUVIv
+	id S266468AbUFUVLm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 17:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUFUVLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 17:08:51 -0400
-Received: from gprs187-64.eurotel.cz ([160.218.187.64]:17025 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S266463AbUFUVIt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 17:08:49 -0400
-Date: Mon, 21 Jun 2004 23:09:27 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Michael Langley <nwo@hacked.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with psmouse detecting generic ImExPS/2
-Message-ID: <20040621210927.GC2078@ucw.cz>
-References: <20040621021651.4667bf43.nwo@hacked.org> <20040621082831.GC1200@ucw.cz> <20040621124506.18b1f67a.nwo@hacked.org> <20040621183459.GA1969@ucw.cz> <20040621143253.759e21c1.nwo@hacked.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040621143253.759e21c1.nwo@hacked.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Jun 2004 17:11:41 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:9358 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266471AbUFUVLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 17:11:31 -0400
+Message-ID: <40D74EFE.1000500@nortelnetworks.com>
+Date: Mon, 21 Jun 2004 17:11:26 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: BUG?:   G5 not using all available memory
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 02:32:53PM -0500, Michael Langley wrote:
 
-> > > [root@purgatory root]# modprobe psmouse proto=exps
-> > > Jun 21 12:41:36 purgatory kernel: input: ImExPS/2 Generic Wheel Mouse on isa0060/serio1
-> > > 
-> > > Much thanks for the help.  I couldn't live without the extra buttons in X.
-> > 
-> > Can you check if this patch fixes it for you as well?
+I've got a G5 with 2GB of memory, running 2.6.7, ppc architecture (not ppc64), 
+with the following config options (let me know if others are relevent)
 
-> Indeed, it does.  And much more efficiently.  Thanks again.
+# CONFIG_CMDLINE_BOOL is not set
+#
+# Advanced setup
+#
+CONFIG_ADVANCED_OPTIONS=y
+# CONFIG_HIGHMEM_START_BOOL is not set
+CONFIG_HIGHMEM_START=0xfe000000
+# CONFIG_LOWMEM_SIZE_BOOL is not set
+CONFIG_LOWMEM_SIZE=0x30000000
+# CONFIG_KERNEL_START_BOOL is not set
+CONFIG_KERNEL_START=0xc0000000
 
-Ok, I'll push it upstream.
+After boot, I get the following output in dmesg:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Memory: 510080k available (3144k kernel code, 1532k data, 168k init, 0k highmem)
+
+
+What's going on?  Why can't I see all my memory?
+
+Chris

@@ -1,148 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTEIRCU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 13:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTEIRCU
+	id S263340AbTEIRFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 13:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbTEIRFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 13:02:20 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:33240 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263354AbTEIRCP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 13:02:15 -0400
-Date: Fri, 09 May 2003 08:00:35 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 693] New: boot hang early, probably because of shared IRQ not handled correctly by hcd.c / usb_hcd_irq
-Message-ID: <36070000.1052492435@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 9 May 2003 13:05:11 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:51854 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263340AbTEIRFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 13:05:08 -0400
+Message-ID: <3EBBE26E.9090606@us.ibm.com>
+Date: Fri, 09 May 2003 10:16:30 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Jamie Lokier <jamie@shareable.org>, Roland McGrath <roland@redhat.com>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+References: <Pine.LNX.4.44.0305090944420.9705-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> On Fri, 9 May 2003, Dave Hansen wrote:
+> 
+>>We've been playing with patches in the -mjb tree which make PAGE_OFFSET
+>>and TASK_SIZE move to some weird values.  I have it to the point where I
+>>could do a 3.875:0.125 user:kernel split.
+> 
+> That's still not "weird" in the current sense.
+> 
+> We've always (well, for a long time) been able to handle a TASK_SIZE that 
+> has a 111..00000 pattern - and in fact we used to _depend_ on that kind of 
+> pattern, because macros like "virt_to_phys()" were simple bitwise-and 
+> operations. There may be some code in the kernel that still depends on 
+> that kind of bitwise operation with TASK_SIZE.
+> 
+> Your 3.875:0.125 split still fits that pattern, and thus doesn't create 
+> any new cases.
+> 
+> In contrast, a TASK_SIZE of 0xc1000000 can no longer just "mask off" the 
+> kernel address bits. And _that_ is what I meant with "strange value".
 
-http://bugme.osdl.org/show_bug.cgi?id=693
+Ahhh, weird*er* :)
 
-           Summary: boot hang early, probably because of shared IRQ not
-                    handled correctly by hcd.c / usb_hcd_irq
-    Kernel Version: 2.5.69-bk4
-            Status: NEW
-          Severity: blocking
-             Owner: greg@kroah.com
-         Submitter: stephane.loeuillet@tiscali.fr
+These patches at least address a small class of problems where it is
+assumed that the kernel pagetable entries start at the beginning of a
+pmd.  Anyway, 2.5.68-mjb3 boots with a 0xE1000000 PAGE_OFFSET with PAE
+on a 4GB machine.  It does "just work", at least in Martin's tree.
 
+3343MB HIGHMEM available.
+368MB LOWMEM available.
 
-Distribution: Mandrake 9.1 x86
+elm3b82:~# cat /proc/meminfo
+MemTotal:      3758468 kB
+MemFree:       3728368 kB
+Buffers:          1696 kB
+Cached:           8184 kB
+SwapCached:          0 kB
+Active:           7640 kB
+Inactive:         4936 kB
+HighTotal:     3424228 kB
+HighFree:      3412224 kB
+LowTotal:       334240 kB
+LowFree:        316144 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:             304 kB
+Writeback:           0 kB
+Mapped:           5900 kB
+Slab:             6292 kB
+Committed_AS:     7024 kB
+PageTables:        472 kB
+VmallocTotal:   114680 kB
+VmallocUsed:      2400 kB
+VmallocChunk:   112280 kB
 
-Hardware Environment: NForce2 chipset (no IGP but has 2 built in ETH100 + AC97 +
-OHCI + EHCI) + external USB2-IDE disk drive
-
-Problem Description:
-
-quite early in the boot process (/root not yet mounted, so hardware/pci
-probing), it hangs, repeating me the now usual 'irq 10 : nobody noticed!'
-several times (looking at arch/i386/kernel/irq.c: handle_IRQ_event, i would say
-it displayed it 100 times)
-
-then system is frozen.
-
-as there has been some IRQ changes not long ago in 2.5 kernel, i think this bug
-is quite new. but i saw another bug report with "irq 5 : nobody noticed!" but
-this time in ISApnp probe (which i haven't compiled in)
-
-the other bug report : http://bugzilla.kernel.org/show_bug.cgi?id=615
-perhaps a related one :
-http://www.ussg.iu.edu/hypermail/linux/kernel/0305.0/0521.html
-
-=============================================================================
-partial trace (hand made, from numbers displayed and System.map content)
-
-c010c4f0 T handle_IRQ_event
-c010c730 T do_IRQ
-c010acf0 t common_interrupt
-c01208b0 T do_softirq
-c010c730 T do_IRQ
-c010acf0 t common_interrupt
-c010cd50 T setup_irq
-c02319e0 T usb_hcd_irq
-c010c880 T request_irq
-c02340e0 T usb_deregister_dev
-c01c80e0 t pci_device_probe
-c02002d0 t bus_match
-c02003e0 t driver_attach
-c0200b30 T driver_register
-c01c8230 T pci_register_driver
-c01c8230 T pci_register_driver
-=============================================================================
-here is the function i suppose to be the guilty one : 
-
-drivers/usb/core/hcd.c : 
-
-irqreturn_t usb_hcd_irq (int irq, void *__hcd, struct pt_regs * r)
-{
-	struct usb_hcd		*hcd = __hcd;
-	int			start = hcd->state;
-
-	if (unlikely (hcd->state == USB_STATE_HALT))	/* irq sharing? */
-		return IRQ_NONE;
-
-	hcd->driver->irq (hcd, r);
-	if (hcd->state != start && hcd->state == USB_STATE_HALT)
-		usb_hc_died (hcd);
-	return IRQ_HANDLED;
-}
-
-unfortunatly, my C knowlegde is quite limited, so i don't know how to fix it myself.
-
-=============================================================================
-partial lspci -vv output (only hardware using IRQ 10 when booting my 2.4.21) :
-
-00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller (rev a3)
-(prog-if 10 [OHCI])
-	Subsystem: Asustek Computer, Inc. A7N8X Mainboard
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping-
-SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-	Latency: 0 (750ns min, 250ns max)
-	Interrupt: pin A routed to IRQ 10
-	Region 0: Memory at e8085000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:06.0 Multimedia audio controller: nVidia Corporation nForce2 AC97 Audio
-Controler (MCP) (rev a1)
-	Subsystem: Asustek Computer, Inc.: Unknown device 8095
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping-
-SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-	Latency: 0 (500ns min, 1250ns max)
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at c000 [size=256]
-	Region 1: I/O ports at c400 [size=128]
-	Region 2: Memory at e8086000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-02:01.0 Ethernet controller: 3Com Corporation 3C920B-EMB Integrated Fast
-Ethernet Controller (rev 40)
-	Subsystem: Asustek Computer, Inc.: Unknown device 80ab
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping-
-SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-	Latency: 32 (2500ns min, 2500ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at b000 [size=128]
-	Region 1: Memory at e5000000 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

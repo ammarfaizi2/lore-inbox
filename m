@@ -1,118 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265379AbTFZDPm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 23:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbTFZDPl
+	id S265373AbTFZDMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 23:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbTFZDMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 23:15:41 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:31754 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S265379AbTFZDP2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 23:15:28 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "Larry McVoy" <lm@bitmover.com>,
-       "David Lang" <david.lang@digitalinsight.com>
-Cc: "Timothy Miller" <miller@techsource.com>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Werner Almesberger" <wa@almesberger.net>,
-       "Stephan von Krawczynski" <skraw@ithnet.com>,
-       <miquels@cistron-office.nl>, <linux-kernel@vger.kernel.org>
-Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Date: Wed, 25 Jun 2003 20:29:26 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGCEFADBAA.rwhite@casabyte.com>
+	Wed, 25 Jun 2003 23:12:15 -0400
+Received: from smtp51.safecom.co.nz ([146.171.16.51]:64005 "EHLO
+	smtp51.safecom.co.nz") by vger.kernel.org with ESMTP
+	id S265373AbTFZDMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 23:12:08 -0400
+Message-ID: <2DE9C01365D7F443AC48EEA6A357FB4F6C79B4@coastapps.westcoastdhb.org.nz>
+From: Miles Roper <mroper@westcoastdhb.org.nz>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "Thinstation-Developer (E-mail)" 
+	<thinstation-developer@lists.sourceforge.net>
+Subject: buffer mem
+Date: Thu, 26 Jun 2003 15:25:58 +1200
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20030626010936.GA17417@work.bitmover.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In point of fact I don't agree at all with the assertion that "companies
-doing proprietary work are doing (all/nearly all/most) the innovation"
-because that is statistically false.
+Hi,
 
-There is a huge volume of innovation that is happening non-commercially.
+Been searching around on the net for an answer to this and haven't found
+much after several hours.
 
-The fact that an even more huge number of OSS (Free) software is made to
-interoperate with, mimic, or replace proprietary systems leads the lazy mind
-to a false perception that there is no open source innovation or at least
-the size of same is insignificant.
+My question is optimising a 2.4.20 version of the kernel for a low memory
+machine.  One thing I've been trying to find out is how do you reduce the
+amount of buffer mem,
 
-The "lazy mind" part comes in two flavors.
+doing a free 
 
-1) Proprietary vendor makes feature X, OSS guy makes completely independent
-X, so OSS guy is useless and didn't really innovate.  A current hot-line
-example is "Symmetric Multi-Processing".  IBM created "multiprocessing"
-decades ago and it has existed in all of their mainframe lines (check out
-any IBM 360 and 370 docs).  SCO claims to have "invented SMP" because there
-is some in "their" Unix System V product code.  Linux has SMP code that
-totally transcends the Unix cruft.  But who had the idea first and who stole
-from whom gets lost in the rhetoric.  Who was the innovator?  The idea that
-whatever was built by the Linux SMP stuff "didn't innovate" because some of
-the gross-scale labels are the same is just plain lazy thinking.
+              total         used         free       shared      buffers
+  Mem:       321448        35080       286368            0         4892
+ Swap:            0            0            0
+Total:       321448        35080       286368
 
-2) EVEN IF 99.9% of all the open source software is mimicry of something
-else, The only definition of "more innovation" that has any meaning is the
-comparison of the "weight of innovation" between the 0.1% non-mimicry OSS
-and the whatever-percent of non-mimicry is happening in proprietary
-software.  It is easy for the lazy analyst to maintain that the "weight of
-innovation" taking place on either side of the line is either bolstered or
-poisoned by its ratio to total output, but that is not the case.
+always returns a buffer of around 4000, I would like to reduce this to
+around 1000, as the machine I'm compiling the kernel for (not the one above)
+has 16 meg of memory.  In the 2.2 kernel there was some parameters in
+/proc/sys/vm called buffermem, in a lot of the documentation that ships with
+2.4.20 talks about this, but after searching on the net it seems like these
+were removed in the 2.4 kernel and only applies to 2.2
 
-Neither dollars spent nor ego committed to a product line is a measure of
-"innovation."  You can only make a comparison if you refine away (throw out)
-every element that is not innovative and then compare the remainders.
+I've found some documentation on some embedded systems tips which is meant
+to reduce kernel memory requirements and have made these changes
 
-Its like art.  Saying that all the innovation is happening in proprietary
-software because there is so much mimicware in open source is like saying
-all the good music is being made by the RIAA because you can see that all
-the bad garage bands mean that "'on the whole' there are no good musicians
-out there that aren't getting paid for it."
+Description					VARIABLE		OLD
+NEW	File
+Number of supported disks		DK_MAX_MAJOR	16	4
+include/linux/kernal_stat.h
+Number of supported disks		DK_MAX_DISK 	16	4
+include/linux/kernal_stat.h
+Maximum block device driver number	MAX_BLKDEV		255	40
+include/linux/major.h
+kmsg message log size			LOG_BUF_MEM		16384	8192
+kernel/printk.c
+Maxium number of tty consoles		MAX_NR_CONSOLES	63	10
+include/linux/tty.h
 
-Don't be myopic.
+So is there any other variables controlling the buffer mem, and/or any other
+variables that can safely reduce the memory requirements.
 
-Creativity and innovation happen because of the actions of individuals.
-Companies spend money to put out good software, but they also make lots of
-crapware.  OSS Individuals spend good time to make good software because
-they need good software, but they also make lots of crapware.  And time is
-money in every way that matters to the discussion of innovation.
+Cheers
 
-There is a difference between focus and result.  Companies focus because by
-dint of where they think they can make capital returns on their investments.
-Individuals focus by dint of where they think they can improve their
-situation.  When you apply that to software, individuals make software that
-will improve their lives and companies make software they think they can
-sell.
-
-More often than not, that means that the individuals working on their own
-are going to be more focused on good, practical, not-overly-complicated,
-easy to use, solutions while companies are being distracted by margins and
-deadlines.  That inevitably means that there will be a lot of
-short-and-sloppy individual work.  But *ideas* are short and sloppy, hence
-the "rough idea" stage of any development.  And once the rough idea exists,
-the refinement to usability takes place to make each implementation
-individually stand or fall.
-
-And that focus is the core of innovation.
-
-That a large self-organizing body of people which get together and "fix up"
-the part they know, or care about, or need of a particular job-lot of ideas
-means that the OSS model, when applied to thing "enough" people think are
-important, will net a better product.
-
-And, when it works, no company can marshal the pure brain power and *FOCUS*
-to compete with that.
-
-And when it doesn't work no company would send the resources down the pipe
-that an OSS project can squander on a boondoggle.
-
-All else is posing or whining or tawdry lament.
-
-Rob.
-
+Miles

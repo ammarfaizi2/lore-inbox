@@ -1,67 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318591AbSHUSMw>; Wed, 21 Aug 2002 14:12:52 -0400
+	id <S318607AbSHUSUP>; Wed, 21 Aug 2002 14:20:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318601AbSHUSMw>; Wed, 21 Aug 2002 14:12:52 -0400
-Received: from monster.nni.com ([216.107.0.51]:25618 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S318591AbSHUSMv>;
-	Wed, 21 Aug 2002 14:12:51 -0400
-Date: Wed, 21 Aug 2002 14:16:42 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: moret@cs.umn.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with modules (modutils) and 2.5.31 kernel
-Message-Id: <20020821141642.5eab2a42.arodland@noln.com>
-In-Reply-To: <7675.1029905417@kao2.melbourne.sgi.com>
-References: <20020821022519.GA2554@cs.unm.edu>
-	<7675.1029905417@kao2.melbourne.sgi.com>
-X-Mailer: Sylpheed version 0.8.1claws38 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="N_q7sw1=.ZzOqBKV"
+	id <S318608AbSHUSUP>; Wed, 21 Aug 2002 14:20:15 -0400
+Received: from gate.perex.cz ([194.212.165.105]:22034 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S318607AbSHUSUN>;
+	Wed, 21 Aug 2002 14:20:13 -0400
+Date: Wed, 21 Aug 2002 20:21:05 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ALSA 0.9.0rc3
+Message-ID: <Pine.LNX.4.33.0208212008330.5936-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---N_q7sw1=.ZzOqBKV
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Hello,
 
-On Wed, 21 Aug 2002 14:50:17 +1000
-Keith Owens <kaos@ocs.com.au> wrote:
+	Linus, please, apply these patches with latest ALSA code to 2.5 
+tree:
 
-> On Tue, 20 Aug 2002 20:25:19 -0600, 
-> moret@cs.unm.edu wrote:
-> >I searched for, but could not find references to, a problem
-> >I have with 2.5.31 and modutils.
-> >  insmod, depmod, update-modules all fail with the message:
-> >
-> >=>   kernel: QM_SYMBOLS: Bad address
-> 
-> Disable CONFIG_PREEMPT and rebuild the kernel.
+Plain patch:
+------------
 
-or, as per a previous thread on the same issue, change line 181 of
-arch/i386/mm/fault.c from:
+ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-1.489.1.1.patch.gz
+ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-1.501.patch.gz
 
-if (preempt_count() || !mm)
+BK send/receive format (including nice per file comments/changelogs):
+---------------------------------------------------------------------
 
-to:
+ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-1.489.1.1.bk.gz
+ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-1.501.bk.gz
 
-if (in_interrupt() || !mm)
+BK linux-sound repository
+-------------------------
 
-and rebuild.
+bk pull http://linux-sound.bkbits.net/main
 
-Sorry, no time to fool around with diff right now. Hope it was helpful.
---hobbs
+ChangeSets: 1.489.1.1 and 1.501
 
---N_q7sw1=.ZzOqBKV
-Content-Type: application/pgp-signature
+Web: http://linux-sound.bkbits.net
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Description:
+------------
 
-iD8DBQE9Y9kPQ3MWXxdwvVwRAuQbAJ4o4rLFrP18gdMBjXYEx2ezP2mToQCfR42Q
-ms7Akr6o89B8heESB8qnXpw=
-=2EJg
------END PGP SIGNATURE-----
+ALSA 0.9.0rc3 release
 
---N_q7sw1=.ZzOqBKV--
+* fixes for x86-64
+* fixed ioctl32 wrapper
+* removed compatibility __NO_VERSION__ defines
+* C99-like structure initializers for all code
+* Control interface
+  - fixed read() behaviour
+* PCM interface
+  - added support for more PCM formats (up to 512)
+    - added 24-bit formats for USB audio
+  - removed drain call from the snd_pcm_close() function, data are 
+    always dropped
+  - added support for Scatter-Gather DMA
+  - added SBUS DMA support by David S. Miller <davem@redhat.com>
+* Timer interface
+  - fixed kmod behaviour for system timers
+  - fixed read() behaviour
+* RawMidi interface
+  - fixed read() behaviour
+* Sequencer interface
+  - reset the timer at continue if not initialized yet
+  - check the possible infinite loop in priority queues
+  - fixed deadlock at snd_seq_timer_start/stop
+* intel8x0 driver
+  - fixed pci id of AMD8111
+* via686 driver
+  - added Scatter-Gather DMA support
+  - fixes in AC97 codec initialization
+* opti92x/93x driver
+  - overall fixes
+* via8233 driver
+  - fixed playback of mono samples
+  - added Scatter-Gather DMA support
+* EMU10K1/Audigy driver
+  - added Scatter-Gather DMA support for playback
+  - added workaround for capture (ring buffer pointer)
+* NM256 driver
+  - fixed the lock up on NM256 ZX (Dell Latitude Cpt)
+* CS46xx driver
+  - added support for new DSP images
+  - experimental rear and SPDIF outputs
+* added snd-usbaudio and snd-usbmidi driver
+* ymfpci driver
+  - fixed GPIO read/write
+  - added snd_rear_switch option
+* ice1712 driver
+* fixed SMP dead-lock (CS8427 I2C code)
+* HDSP driver
+  - overall code improvement
+* CS4236 driver
+  - new ISA PnP ID
+* CS4281 driver
+  - added the power management code
+* PPC Keywest
+  - fixed the initialization of driver
+* serial-u16550
+  - added support for generic adapter
+* renamed dt0197h -> dt019x driver
+* ac97 code
+  - added VIA and Conexant codecs
+  - added AD1981A codec from Analog Devices
+  - added the ids for ITE chips
+  - separated codec specific initialization
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
+

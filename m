@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVAJPvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVAJPvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVAJPvP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 10:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVAJPvP
+	id S262298AbVAJPvf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 10:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVAJPvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 10:51:15 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50833
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262295AbVAJPvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 10:51:07 -0500
-Message-ID: <53311.212.184.22.162.1105372175.squirrel@www.tglx.de>
-In-Reply-To: <20050110145615.GC2226@smtp.west.cox.net>
-References: <20050110013508.1.patchmail@tglx>
-    <1105318804.17853.5.camel@tglx.tec.linutronix.de>
-    <20050110145615.GC2226@smtp.west.cox.net>
-Date: Mon, 10 Jan 2005 16:49:35 +0100 (CET)
-Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [3/3]
-From: tglx@linutronix.de
-To: "Tom Rini" <trini@kernel.crashing.org>
-Cc: "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar" <mingo@elte.hu>,
-       "LKML" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 10 Jan 2005 10:51:33 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:63648 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262298AbVAJPvV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 10:51:21 -0500
+Subject: Re: [RFC/PATCH] add support for sysdev class attributes
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050108050729.GA7587@kroah.com>
+References: <1105136891.13391.20.camel@pants.austin.ibm.com>
+	 <20050108050729.GA7587@kroah.com>
+Content-Type: text/plain
+Date: Mon, 10 Jan 2005 09:58:03 -0600
+Message-Id: <1105372684.27280.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.1.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jan 10, 2005 at 02:00:04AM +0100, Thomas Gleixner wrote:
->
->> This patch adjusts the PPC entry code to use the fixed up
->> preempt_schedule() handling in 2.6.10-mm2
->>
->> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
->>
->> ---
->>  entry.S |    4 ++--
->>  1 files changed, 2 insertions(+), 2 deletions(-)
->> ---
->> Index: 2.6.10-mm1/arch/ppc/kernel/entry.S
->> ===================================================================
->> --- 2.6.10-mm1/arch/ppc/kernel/entry.S  (revision 141)
->> +++ 2.6.10-mm1/arch/ppc/kernel/entry.S  (working copy)
->> @@ -624,12 +624,12 @@
->>         beq+    restore
->>         andi.   r0,r3,MSR_EE    /* interrupts off? */
->>         beq     restore         /* don't schedule if so */
->> -1:     lis     r0,PREEMPT_ACTIVE@h
->> +1:     li      r0,1
->
-> Perhaps I just don't have enough context, but is there good reason to
-> use a magic constant instead of a define ?
->
+On Fri, 2005-01-07 at 21:07 -0800, Greg KH wrote:
+> On Fri, Jan 07, 2005 at 04:28:12PM -0600, Nathan Lynch wrote:
+> > @@ -88,6 +123,12 @@ int sysdev_class_register(struct sysdev_
+> >  	INIT_LIST_HEAD(&cls->drivers);
+> >  	cls->kset.subsys = &system_subsys;
+> >  	kset_set_kset_s(cls, system_subsys);
+> > +
+> > +	/* I'm not going to claim to understand this; see
+> > +	 * fs/sysfs/file::check_perm for how sysfs_ops are selected
+> > +	 */
+> > +	cls->kset.kobj.ktype = &sysdev_class_ktype;
+> > +
+> 
+> I think you need to understand this, and then submit a patch without
+> such a comment :)
+> 
+> And probably without such code, as I don't think you need to do that.
 
-True. I will wait for Ingo's final solution and fix this proper.
+Sure, now I'm not sure how I convinced myself that bit was needed.
+Things work fine without it.
 
-tglx
+Before I repatch, does sysdev_class_ktype need a release function?
 
+
+Thanks,
+Nathan
 
 

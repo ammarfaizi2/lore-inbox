@@ -1,27 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129403AbRBVUSX>; Thu, 22 Feb 2001 15:18:23 -0500
+	id <S129510AbRBVUWe>; Thu, 22 Feb 2001 15:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129454AbRBVUSR>; Thu, 22 Feb 2001 15:18:17 -0500
-Received: from 64-32-144-137.nyc1.phoenixdsl.net ([64.32.144.137]:16910 "HELO
-	mail.ovits.net") by vger.kernel.org with SMTP id <S129403AbRBVUSI>;
-	Thu, 22 Feb 2001 15:18:08 -0500
-Date: Thu, 22 Feb 2001 15:19:24 -0500
-From: Mordechai Ovits <movits@ovits.net>
-To: linux-kernel@vger.kernel.org
-Subject: CPRM is dead; Thanks Andre!
-Message-ID: <20010222151924.A11436@ovits.net>
+	id <S129527AbRBVUWT>; Thu, 22 Feb 2001 15:22:19 -0500
+Received: from [216.218.132.86] ([216.218.132.86]:12540 "EHLO
+	web2.workspot.net") by vger.kernel.org with ESMTP
+	id <S129510AbRBVUWL>; Thu, 22 Feb 2001 15:22:11 -0500
+Subject: Re: (BUG) 3c509b and kernel 2.4.x
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Satellite-Tracking: 0x4B305AFF
+To: lazarus@workspot.net
+From: Lazarus Long <lazarus@workspot.net>
+Cc: becker@webserv.gsfc.nasa.gov, linux-kernel@vger.kernel.org
+Message-Id: <E14W2Eo-0006e5-00@web2.workspot.net>
+Date: Thu, 22 Feb 2001 12:21:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See:
-http://www.theregister.co.uk/content/2/17107.html
+In reply to message
+  From: Lazarus Long <lazarus@workspot.net>
+  Subject: (BUG) 3c509b and kernel 2.4.x
+  Date: Tue, 20 Feb 2001 12:13:59 -0800
 
-IBM withdrew the proposal.
+(Replying to my own message. :-/ )
 
-mordy
+>Non-modular support for 3Com EtherLinkIII cards, specifically the ISA
+>3c509b, worked fine in kernel 2.2.18.
+>
+>CONFIG_EL3=y
+>
+>What worked in kernel 2.2.18 does not work in kernel 2.4.1 however.
+
+Nor does it work in 2.4.2 or 2.4.2-ac1.
+
+>Please CC: lazarus@workspot.com in any discussion, as I am not on the list.
+
+Again.
+
+--------------------------------------------------------------
+Get "Your Linux Desktop on the Net" at http://www.workspot.com

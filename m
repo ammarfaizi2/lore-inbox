@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265389AbUEUGcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265308AbUEUGdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265389AbUEUGcT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 02:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbUEUGcS
+	id S265308AbUEUGdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 02:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265415AbUEUGc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 02:32:18 -0400
-Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:23023 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S265389AbUEUGb5
+	Fri, 21 May 2004 02:32:59 -0400
+Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:23535 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S265412AbUEUGcH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 02:31:57 -0400
-Date: Fri, 21 May 2004 15:31:54 +0900
-Message-ID: <m2fz9up9yd.wl%ysato@users.sourceforge.jp>
+	Fri, 21 May 2004 02:32:07 -0400
+Date: Fri, 21 May 2004 15:32:04 +0900
+Message-ID: <m2ekpep9y3.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 new ide driver support
+Subject: [PATCH] H8/300 module support update
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,204 +23,340 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- new config items
-- interface setup
-- io cleanup
+- add module support code
+- add H8/300 ELF infomation
+- fix kcore ELF format
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nur linux-2.6.6-bk4/arch/h8300/Kconfig.ide linux-2.6.6-h8300/arch/h8300/Kconfig.ide
---- linux-2.6.6-bk4/arch/h8300/Kconfig.ide	2004-05-11 14:30:44.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/Kconfig.ide	2004-05-21 02:44:25.000000000 +0900
-@@ -1,23 +1,44 @@
- # uClinux H8/300 Target Board Selection Menu (IDE)
+diff -Nur linux-2.6.6-bk4/arch/h8300/kernel/Makefile linux-2.6.6-h8300/arch/h8300/kernel/Makefile
+--- linux-2.6.6-bk4/arch/h8300/kernel/Makefile	2004-05-11 14:30:25.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/kernel/Makefile	2004-05-21 02:44:25.000000000 +0900
+@@ -6,5 +6,6 @@
  
-+if (H8300H_AKI3068NET)
- menu "IDE Extra configuration"
- 
- config H8300_IDE_BASE
--	hex "IDE regitser base address"
-+	hex "IDE register base address"
- 	depends on IDE
-+	default 0
- 	help
- 	  IDE registers base address
- 
- config H8300_IDE_ALT
--	hex "IDE regitser alternate address"
-+	hex "IDE register alternate address"
- 	depends on IDE
-+	default 0
- 	help
- 	  IDE alternate registers address
- 
- config H8300_IDE_IRQ
- 	int "IDE IRQ no"
- 	depends on IDE
-+	default 0
- 	help
--	  IDE I/F using IRQ no
--
-+	  IDE use IRQ no
- endmenu
-+endif
+ obj-y := process.o traps.o ptrace.o ints.o \
+ 	 sys_h8300.o time.o semaphore.o signal.o \
+-         setup.o h8300_ksyms.o gpio.o init_task.o \
+-         syscalls.o
++         setup.o gpio.o init_task.o syscalls.o
 +
-+if (H8300H_H8MAX)
-+config H8300_IDE_BASE
-+	hex
-+	depends on IDE
-+	default 0x200000
-+
-+config H8300_IDE_ALT
-+	hex
-+	depends on IDE
-+	default 0x60000c
-+
-+config H8300_IDE_IRQ
-+	int
-+	depends on IDE
-+	default 5
-+endif
-diff -Nur linux-2.6.6-bk4/arch/h8300/kernel/setup.c linux-2.6.6-h8300/arch/h8300/kernel/setup.c
---- linux-2.6.6-bk4/arch/h8300/kernel/setup.c	2004-05-11 14:30:44.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/kernel/setup.c	2004-05-14 21:44:12.000000000 +0900
-@@ -40,16 +40,12 @@
++obj-$(CONFIG_MODULES) += module.o h8300_ksyms.o 
+diff -Nur linux-2.6.6-bk4/arch/h8300/kernel/h8300_ksyms.c linux-2.6.6-h8300/arch/h8300/kernel/h8300_ksyms.c
+--- linux-2.6.6-bk4/arch/h8300/kernel/h8300_ksyms.c	2004-01-09 16:00:03.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/kernel/h8300_ksyms.c	2004-05-21 02:44:25.000000000 +0900
+@@ -17,6 +17,7 @@
+ #include <asm/checksum.h>
+ #include <asm/hardirq.h>
+ #include <asm/current.h>
++#include <asm/gpio.h>
  
- #if defined(__H8300H__)
- #define CPU "H8/300H"
-+#include <asm/regs306x.h>
- #endif
+ //asmlinkage long long __ashrdi3 (long long, int);
+ //asmlinkage long long __lshrdi3 (long long, int);
+@@ -38,8 +39,6 @@
  
- #if defined(__H8300S__)
- #define CPU "H8S"
--#endif
+ EXPORT_SYMBOL(ip_fast_csum);
+ 
+-EXPORT_SYMBOL(mach_enable_irq);
+-EXPORT_SYMBOL(mach_disable_irq);
+ EXPORT_SYMBOL(kernel_thread);
+ 
+ /* Networking helper routines. */
+@@ -103,10 +102,10 @@
+ EXPORT_SYMBOL_NOVERS(__umoddi3);
+ EXPORT_SYMBOL_NOVERS(__umodsi3);
+ 
+-EXPORT_SYMBOL_NOVERS(_current_task);
 -
--#if defined(CONFIG_INTELFLASH)
--#define BLKOFFSET 512
--#else
--#define BLKOFFSET 0
-+#include <asm/regs267x.h>
- #endif
- 
- #define STUBSIZE 0xc000;
-@@ -58,8 +54,6 @@
- unsigned long memory_start;
- unsigned long memory_end;
- 
--struct task_struct *_current_task;
--
- char command_line[512];
- char saved_command_line[512];
- 
-@@ -107,12 +101,11 @@
- 	memory_start = (unsigned long) &_ramstart;
- 
- 	/* allow for ROMFS on the end of the kernel */
--	if (memcmp((void *)(memory_start + BLKOFFSET), "-rom1fs-", 8) == 0) {
-+	if (memcmp((void *)memory_start, "-rom1fs-", 8) == 0) {
- #if defined(CONFIG_BLK_DEV_INITRD)
--		initrd_start = memory_start += BLKOFFSET;
-+		initrd_start = memory_start;
- 		initrd_end = memory_start += be32_to_cpu(((unsigned long *) (memory_start))[2]);
- #else
--		memory_start += BLKOFFSET;
- 		memory_start += be32_to_cpu(((unsigned long *) memory_start)[2]);
- #endif
- 	}
-@@ -190,6 +183,16 @@
- 	 */
- 	paging_init();
- 	h8300_gpio_init();
-+#if defined(CONFIG_H8300_AKI3068NET) && defined(CONFIG_IDE)
-+	{
-+#define AREABIT(addr) (1 << (((addr) >> 21) & 7))
-+		/* setup BSC */
-+		volatile unsigned char *abwcr = (volatile unsigned char *)ABWCR;
-+		volatile unsigned char *cscr = (volatile unsigned char *)CSCR;
-+		*abwcr &= ~(AREABIT(CONFIG_H8300_IDE_BASE) | AREABIT(CONFIG_H8300_IDE_ALT));
-+		*cscr  |= (AREABIT(CONFIG_H8300_IDE_BASE) | AREABIT(CONFIG_H8300_IDE_ALT)) | 0x0f;
-+	}
++#ifdef MAGIC_ROM_PTR
+ EXPORT_SYMBOL_NOVERS(is_in_rom);
 +#endif
- #ifdef DEBUG
- 	printk(KERN_DEBUG "Done setup_arch\n");
- #endif
-diff -ur linux-2.6.6-bk4/include/asm-h8300/io.h linux-2.6.6-h8300/include/asm-h8300/io.h
---- linux-2.6.6-bk4/include/asm-h8300/io.h	2004-05-21 02:17:29.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/io.h	2004-05-21 14:09:24.000000000 +0900
-@@ -33,21 +33,29 @@
-  * swap functions are sometimes needed to interface little-endian hardware
-  */
  
--/*
-- * CHANGES
-- * 
-- * 020325   Added some #define's for the COBRA5272 board
-- *          (hede)
-- */
+-EXPORT_SYMBOL_NOVERS(h8300_reserved_gpio)
+-EXPORT_SYMBOL_NOVERS(h8300_free_gpio)
+-EXPORT_SYMBOL_NOVERS(h8300_set_gpio_dir)
++EXPORT_SYMBOL_NOVERS(h8300_reserved_gpio);
++EXPORT_SYMBOL_NOVERS(h8300_free_gpio);
++EXPORT_SYMBOL_NOVERS(h8300_set_gpio_dir);
+diff -Nur linux-2.6.6-bk4/arch/h8300/kernel/module.c linux-2.6.6-h8300/arch/h8300/kernel/module.c
+--- linux-2.6.6-bk4/arch/h8300/kernel/module.c	1970-01-01 09:00:00.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/kernel/module.c	2004-05-21 02:44:25.000000000 +0900
+@@ -0,0 +1,122 @@
++#include <linux/moduleloader.h>
++#include <linux/elf.h>
++#include <linux/vmalloc.h>
++#include <linux/fs.h>
++#include <linux/string.h>
++#include <linux/kernel.h>
++
++#if 0
++#define DEBUGP printk
++#else
++#define DEBUGP(fmt...)
++#endif
++
++void *module_alloc(unsigned long size)
++{
++	if (size == 0)
++		return NULL;
++	return vmalloc(size);
++}
++
++
++/* Free memory returned from module_alloc */
++void module_free(struct module *mod, void *module_region)
++{
++	vfree(module_region);
++	/* FIXME: If module_region == mod->init_region, trim exception
++           table entries. */
++}
++
++/* We don't need anything special. */
++int module_frob_arch_sections(Elf_Ehdr *hdr,
++			      Elf_Shdr *sechdrs,
++			      char *secstrings,
++			      struct module *mod)
++{
++	return 0;
++}
++
++int apply_relocate(Elf32_Shdr *sechdrs,
++		   const char *strtab,
++		   unsigned int symindex,
++		   unsigned int relsec,
++		   struct module *me)
++{
++	printk(KERN_ERR "module %s: RELOCATION unsupported\n",
++	       me->name);
++	return -ENOEXEC;
++}
++
++int apply_relocate_add(Elf32_Shdr *sechdrs,
++		       const char *strtab,
++		       unsigned int symindex,
++		       unsigned int relsec,
++		       struct module *me)
++{
++	unsigned int i;
++	Elf32_Rela *rela = (void *)sechdrs[relsec].sh_addr;
++
++	DEBUGP("Applying relocate section %u to %u\n", relsec,
++	       sechdrs[relsec].sh_info);
++	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rela); i++) {
++		/* This is where to make the change */
++		uint32_t *loc = (uint32_t *)(sechdrs[sechdrs[relsec].sh_info].sh_addr
++					     + rela[i].r_offset);
++		/* This is the symbol it is referring to.  Note that all
++		   undefined symbols have been resolved.  */
++		Elf32_Sym *sym = (Elf32_Sym *)sechdrs[symindex].sh_addr
++			+ ELF32_R_SYM(rela[i].r_info);
++		uint32_t v = sym->st_value + rela[i].r_addend;
++		uint32_t dot = sechdrs[symindex].sh_addr + rela[i].r_offset;
++
++		switch (ELF32_R_TYPE(rela[i].r_info)) {
++		case R_H8_DIR24R8:
++			loc = (uint32_t *)((uint32_t)loc - 1);
++			*loc = (*loc & 0xff000000) | ((*loc & 0xffffff) + v);
++			break;
++		case R_H8_DIR24A8:
++			*loc += v;
++			break;
++		case R_H8_DIR32:
++		case R_H8_DIR32A16:
++			*loc += v;
++			break;
++		case R_H8_PCREL16:
++			v -= dot + 2;
++			if ((Elf32_Sword)v > 0x7fff || 
++			    (Elf32_Sword)v < -(Elf32_Sword)0x8000)
++				goto overflow;
++			else 
++				*(unsigned short *)loc = v;
++			break;
++		case R_H8_PCREL8:
++			v -= dot + 1;
++			if ((Elf32_Sword)v > 0x7f || 
++			    (Elf32_Sword)v < -(Elf32_Sword)0x80)
++				goto overflow;
++			else 
++				*(unsigned char *)loc = v;
++			break;
++		default:
++			printk(KERN_ERR "module %s: Unknown relocation: %u\n",
++			       me->name, ELF32_R_TYPE(rela[i].r_info));
++			return -ENOEXEC;
++		}
++	}
++	return 0;
++ overflow:
++	printk(KERN_ERR "module %s: relocation offset overflow: %p\n",
++	       me->name, rela[i].r_offset);
++	return -ENOEXEC;
++}
++
++int module_finalize(const Elf_Ehdr *hdr,
++		    const Elf_Shdr *sechdrs,
++		    struct module *me)
++{
++	return 0;
++}
++
++void module_arch_cleanup(struct module *mod)
++{
++}
+diff -Nur linux-2.6.6-bk4/arch/h8300/kernel/vmlinux.lds.S linux-2.6.6-h8300/arch/h8300/kernel/vmlinux.lds.S
+--- linux-2.6.6-bk4/arch/h8300/kernel/vmlinux.lds.S	2004-05-21 02:17:15.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/kernel/vmlinux.lds.S	2004-05-21 02:44:25.000000000 +0900
+@@ -104,6 +104,21 @@
+ 		 *(__ksymtab)
+ 	___stop___ksymtab = .;
+ 
++	___start___ksymtab_gpl = .;	/* Kernel symbol table: GPL-only symbols */
++
++	*(__ksymtab_gpl)
++	___stop___ksymtab_gpl = .;
++
++	___start___kcrctab = .;	/* Kernel symbol table: Normal symbols */
++	*(__kcrctab)
++	___stop___kcrctab = .;
++
++	___start___kcrctab_gpl = .;	/* Kernel symbol table: GPL-only symbols */
++	*(__kcrctab_gpl)
++	___stop___kcrctab_gpl = .;
++
++	*(__ksymtab_strings)	/* Kernel symbol table: strings */
++
+ 	. = ALIGN(0x4) ;
+ 	__etext = . ;
+ #if defined(CONFIG_ROMKERNEL)
+diff -ur linux-2.6.6-bk4/fs/proc/kcore.c linux-2.6.6-h8300/fs/proc/kcore.c
+--- linux-2.6.6-bk4/fs/proc/kcore.c	2004-01-09 15:59:43.000000000 +0900
++++ linux-2.6.6-h8300/fs/proc/kcore.c	2004-05-21 13:59:18.000000000 +0900
+@@ -183,7 +183,11 @@
+ 	elf->e_entry	= 0;
+ 	elf->e_phoff	= sizeof(struct elfhdr);
+ 	elf->e_shoff	= 0;
++#if defined(CONFIG_H8300)
++	elf->e_flags	= ELF_FLAGS;
++#else
+ 	elf->e_flags	= 0;
++#endif
+ 	elf->e_ehsize	= sizeof(struct elfhdr);
+ 	elf->e_phentsize= sizeof(struct elf_phdr);
+ 	elf->e_phnum	= nphdr;
+diff -ur linux-2.6.6-bk4/include/asm-h8300/elf.h linux-2.6.6-h8300/include/asm-h8300/elf.h
+--- linux-2.6.6-bk4/include/asm-h8300/elf.h	2004-01-09 15:59:43.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/elf.h	2004-05-21 13:59:17.000000000 +0900
+@@ -13,26 +13,30 @@
+ 
+ #define ELF_NGREG (sizeof(struct user_regs_struct) / sizeof(elf_greg_t))
+ typedef elf_greg_t elf_gregset_t[ELF_NGREG];
 -
- static inline unsigned short _swapw(volatile unsigned short v)
- {
--    return ((v << 8) | (v >> 8));
-+	unsigned short r,t;
-+	__asm__("mov.b %w2,%x1\n\t"
-+		"mov.b %x2,%w1\n\t"
-+		"mov.w %1,%0"
-+		:"=r"(r),"=r"(t)
-+		:"r"(v));
-+	return r;
- }
- 
- static inline unsigned int _swapl(volatile unsigned long v)
- {
--    return ((v << 24) | ((v & 0xff00) << 8) | ((v & 0xff0000) >> 8) | (v >> 24));
-+	unsigned int r,t;
-+	__asm__("mov.b %w2,%x1\n\t"
-+		"mov.b %x2,%w1\n\t"
-+		"mov.w %f1,%e0\n\t"
-+		"mov.w %e2,%f1\n\t"
-+		"mov.b %w1,%x0\n\t"
-+		"mov.b %x1,%w0"
-+		:"=r"(r),"=r"(t)
-+		:"r"(v));
-+	return r;
- }
- 
- #define readb(addr) \
-@@ -96,7 +104,7 @@
- 	volatile unsigned short *ap = (volatile unsigned short *) addr;
- 	unsigned short *bp = (unsigned short *) buf;
- 	while (len--)
--		*ap = *bp++;
-+		*ap = _swapw(*bp++);
- }
- 
- static inline void io_outsl(unsigned int addr, const void *buf, int len)
-@@ -104,7 +112,7 @@
- 	volatile unsigned int *ap = (volatile unsigned int *) addr;
- 	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
--		*ap = *bp++;
-+		*ap = _swapl(*bp++);
- }
- 
- static inline void io_insb(unsigned int addr, void *buf, int len)
-@@ -129,7 +137,7 @@
- 	volatile unsigned short *ap = (volatile unsigned short *) addr;
- 	unsigned short *bp = (unsigned short *) buf;
- 	while (len--)
--		*bp++ = *ap;
-+		*bp++ = _swapw(*ap);
- }
- 
- static inline void io_insl(unsigned int addr, void *buf, int len)
-@@ -137,7 +145,7 @@
- 	volatile unsigned int *ap = (volatile unsigned int *) addr;
- 	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
--		*bp++ = *ap;
-+		*bp++ = _swapl(*ap);
- }
+-typedef struct user_m68kfp_struct elf_fpregset_t;
++typedef unsigned long elf_fpregset_t;
  
  /*
+  * This is used to ensure we don't load something for the wrong architecture.
+  */
+-#define elf_check_arch(x) ((x)->e_machine == EM_68K)
++#define elf_check_arch(x) ((x)->e_machine == EM_H8_300)
+ 
+ /*
+  * These are used to set parameters in the core dumps.
+  */
+ #define ELF_CLASS	ELFCLASS32
+ #define ELF_DATA	ELFDATA2MSB
+-#define ELF_ARCH	EM_H8_300H
++#define ELF_ARCH	EM_H8_300
++#if defined(__H8300H__)
++#define ELF_FLAGS       0x810000
++#endif
++#if defined(__H8300S__)
++#define ELF_FLAGS       0x820000
++#endif
+ 
+ #define ELF_PLAT_INIT(_r)	_r->er1 = 0
+ 
+ #define USE_ELF_CORE_DUMP
+ #define ELF_EXEC_PAGESIZE	4096
+-#endif
+ 
+ /* This is the location that an ET_DYN program is loaded if exec'ed.  Typical
+    use of this is to invoke "./ld.so someprog" to test out a new version of
+@@ -55,3 +59,49 @@
+ #ifdef __KERNEL__
+ #define SET_PERSONALITY(ex, ibcs2) set_personality(PER_LINUX)
+ #endif
++
++#define R_H8_NONE       0
++#define R_H8_DIR32      1
++#define R_H8_DIR32_28   2
++#define R_H8_DIR32_24   3
++#define R_H8_DIR32_16   4
++#define R_H8_DIR32U     6
++#define R_H8_DIR32U_28  7
++#define R_H8_DIR32U_24  8
++#define R_H8_DIR32U_20  9
++#define R_H8_DIR32U_16 10
++#define R_H8_DIR24     11
++#define R_H8_DIR24_20  12
++#define R_H8_DIR24_16  13
++#define R_H8_DIR24U    14
++#define R_H8_DIR24U_20 15
++#define R_H8_DIR24U_16 16
++#define R_H8_DIR16     17
++#define R_H8_DIR16U    18
++#define R_H8_DIR16S_32 19
++#define R_H8_DIR16S_28 20
++#define R_H8_DIR16S_24 21
++#define R_H8_DIR16S_20 22
++#define R_H8_DIR16S    23
++#define R_H8_DIR8      24
++#define R_H8_DIR8U     25
++#define R_H8_DIR8Z_32  26
++#define R_H8_DIR8Z_28  27
++#define R_H8_DIR8Z_24  28
++#define R_H8_DIR8Z_20  29
++#define R_H8_DIR8Z_16  30
++#define R_H8_PCREL16   31
++#define R_H8_PCREL8    32
++#define R_H8_BPOS      33
++#define R_H8_PCREL32   34
++#define R_H8_GOT32O    35
++#define R_H8_GOT16O    36
++#define R_H8_DIR16A8   59
++#define R_H8_DIR16R8   60
++#define R_H8_DIR24A8   61
++#define R_H8_DIR24R8   62
++#define R_H8_DIR32A16  63
++#define R_H8_ABS32     65
++#define R_H8_ABS32A16 127
++
++#endif
+diff -ur linux-2.6.6-bk4/include/asm-h8300/module.h linux-2.6.6-h8300/include/asm-h8300/module.h
+--- linux-2.6.6-bk4/include/asm-h8300/module.h	2004-05-11 14:30:12.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/module.h	2004-05-21 02:07:48.000000000 +0900
+@@ -3,5 +3,9 @@
+ /*
+  * This file contains the H8/300 architecture specific module code.
+  */
++struct mod_arch_specific { };
++#define Elf_Shdr Elf32_Shdr
++#define Elf_Sym Elf32_Sym
++#define Elf_Ehdr Elf32_Ehdr
+ 
+ #endif /* _ASM_H8/300_MODULE_H */
+diff -ur linux-2.6.6-bk4/include/linux/elf.h linux-2.6.6-h8300/include/linux/elf.h
+--- linux-2.6.6-bk4/include/linux/elf.h	2004-05-11 14:30:47.000000000 +0900
++++ linux-2.6.6-h8300/include/linux/elf.h	2004-05-21 02:55:24.000000000 +0900
+@@ -81,8 +81,7 @@
+ 
+ #define EM_V850		87	/* NEC v850 */
+ 
+-#define EM_H8_300H      47      /* Hitachi H8/300H */
+-#define EM_H8S          48      /* Hitachi H8S     */
++#define EM_H8_300       46      /* Hitachi H8/300,300H,H8S */
+ 
+ /*
+  * This is an interim value that we will use until the committee comes

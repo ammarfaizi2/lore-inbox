@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268281AbTBMTcy>; Thu, 13 Feb 2003 14:32:54 -0500
+	id <S268274AbTBMTj1>; Thu, 13 Feb 2003 14:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268280AbTBMTcy>; Thu, 13 Feb 2003 14:32:54 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27523
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268281AbTBMTcx>; Thu, 13 Feb 2003 14:32:53 -0500
-Subject: Re: Kill "testing by UNISYS" message
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20030213103721.GE14151@atrey.karlin.mff.cuni.cz>
-References: <20030210171336.GA10875@elf.ucw.cz>
-	 <1044969854.12906.18.camel@irongate.swansea.linux.org.uk>
-	 <20030213103721.GE14151@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045168991.6493.12.camel@irongate.swansea.linux.org.uk>
+	id <S268276AbTBMTj1>; Thu, 13 Feb 2003 14:39:27 -0500
+Received: from a127-0-0-1.xs4all.nl ([213.84.70.4]:7684 "HELO
+	quadpro.stupendous.org") by vger.kernel.org with SMTP
+	id <S268274AbTBMTj1>; Thu, 13 Feb 2003 14:39:27 -0500
+Date: Thu, 13 Feb 2003 20:49:17 +0100
+From: Jurjen Oskam <jurjen@quadpro.stupendous.org>
+To: linux-kernel@vger.kernel.org
+Subject: Accessing the same disk via multiple channels
+Message-ID: <20030213194917.GA8479@quadpro.stupendous.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 13 Feb 2003 20:43:11 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-13 at 10:37, Pavel Machek wrote:
-> Hi!
-> 
-> 
-> > > -	printk(KERN_INFO "Linux NET4.0 for Linux 2.4\n");
-> > > -	printk(KERN_INFO "Based upon Swansea University Computer Society NET3.039\n");
-> > > -
-> > 
-> > No problem with that but please ensure the Swansea University Computer Society part is
-> > already in, or ends up in the top of file comments so the copyright info is preserved.
-> 
-> Updated patch follows... hope it is okay this way.
+Hi everybody,
 
-Certainly fine by me
+here's something I've been wondering about. On my work, we have
+an EMC2 Symmetrix in a SAN environment, with (until now) only
+AIX boxes attached to the SAN.
 
+Each server is equipped with 2 FibreChannel cards. The SAN is
+configured to present the same disk (which is in fact a virtual
+Symmetrix device) over two channels. This means the host sees
+two physical devices (as far as that host's concerned) which is
+in fact really only one device. In linux terms: /dev/sda and /dev/sdc
+are exactly the same disks, but the (standard) OS doesn't know this.
+
+EMC2 provide a piece of software called PowerPath, which takes advantage of
+this situation. It provides yet another device (let's say /dev/powersda), which
+uses the (identical) native devices /dev/sda and /dev/sdc. If one of those
+two would disappear, access to powersda would still be possible.
+
+How does linux as it is now handle the situation of one physical device
+presented via multiple paths (without extra software)?
+
+-- 
+Jurjen Oskam
+
+PGP Key available at http://www.stupendous.org/

@@ -1,560 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVCZF0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVCZF2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVCZF0I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 00:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVCZF0I
+	id S261996AbVCZF2B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 00:28:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVCZF2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 00:26:08 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:55120 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261996AbVCZFYk (ORCPT
+	Sat, 26 Mar 2005 00:28:00 -0500
+Received: from hera.kernel.org ([209.128.68.125]:54741 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261996AbVCZF1N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 00:24:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=cqYESQXU7RFq70xsrYXtUgSFWtsR8P5JyOz/n1iQ9R1wnPvDE0JkfEbB3VWuPXpH6JeSnh7c4TQMK0DI+183Jpw3XiiZnPlg1cK66yKPANydOqgtpadT4s15E+hUYjdG6O60i8yvvBY1N3BDkdbYkUxAF8N5PgCWDSO/G6sMNBg=
-Date: Sat, 26 Mar 2005 14:24:35 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: [PATCH libata-dev-2.6] sata_sil: updated mod15write workaround
-Message-ID: <20050326052435.GA25544@htj.dyndns.org>
+	Sat, 26 Mar 2005 00:27:13 -0500
+Date: Fri, 25 Mar 2005 21:46:31 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.30-rc2
+Message-ID: <20050326004631.GC17637@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, Jeff.
+Hi,
 
- This is the updated version of mod15write workaround.  Changes are
+Here goes the second release candidate for v2.4.30.
 
- * sg list restoration on completion
- * debug code to verify sg list doesn't get changed
- * updated against the latest libata-dev-2.6
- * more comments
+It contains a bunch of security updates (ext2 mkdir leak, af_bluetooth range
+checking, isofs corrupt media, load_elf_library DoS), an ia64 update, another 
+round of networking fixes, amongst others.
 
- I think the code is okay, but I left the debug code there just in
-case.  The debug code is inside #ifdef and can be removed easily once
-testing is complete.
+If nothing terrible shows up, this will become v2.4.30.
 
- Thanks.
+Please help with testing!
 
+Summary of changes from v2.4.30-rc1 to v2.4.30-rc2
+============================================
 
- Signed-off-by: Tejun Heo <htejun@gmail.com>
+<davem:sunset.davemloft.net>:
+  o [TG3]: Add missing CHIPREV_5750_{A,B}X defines
+  o [TG3]: Missing counter bump in tigon3_4gb_hwbug_workaround()
+  o [TG3]: Update driver version and reldate
 
+<magnus.damm:gmail.com>:
+  o eepro100: fix module parameter description typo
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/03/26 14:16:23+09:00 tj@htj.dyndns.org 
-#   cosmetic
-# 
-# drivers/scsi/sata_sil.c
-#   2005/03/26 14:13:44+09:00 tj@htj.dyndns.org +17 -4
-#   xxx
-# 
-# ChangeSet
-#   2005/03/26 12:32:07+09:00 tj@htj.dyndns.org 
-#   Merge htj.dyndns.org:/mnt/tj-work/os/ata/libata-dev-2.6
-#   into htj.dyndns.org:/mnt/tj-work/os/ata/libata-work
-# 
-# drivers/scsi/sata_sil.c
-#   2005/03/26 12:32:01+09:00 tj@htj.dyndns.org +0 -0
-#   Auto merged
-# 
-# ChangeSet
-#   2005/03/26 12:29:29+09:00 tj@htj.dyndns.org 
-#   sg restoration implemented
-#   M15W_DEBUG
-# 
-# drivers/scsi/sata_sil.c
-#   2005/03/26 12:29:21+09:00 tj@htj.dyndns.org +54 -2
-#   sg restoration implemented
-#   M15W_DEBUG
-# 
-# ChangeSet
-#   2005/03/16 08:45:47+09:00 tj@htj.dyndns.org 
-#   comments
-# 
-# drivers/scsi/sata_sil.c
-#   2005/03/16 08:45:39+09:00 tj@htj.dyndns.org +36 -10
-#   comments
-# 
-# ChangeSet
-#   2005/03/16 02:14:47+09:00 tj@htj.dyndns.org 
-#   m15w workaround works now
-# 
-# drivers/scsi/sata_sil.c
-#   2005/03/16 02:14:40+09:00 tj@htj.dyndns.org +54 -25
-#   m15w workaround works now
-# 
-# ChangeSet
-#   2005/03/15 22:16:44+09:00 tj@htj.dyndns.org 
-#   xxx
-# 
-# drivers/scsi/sata_sil.c
-#   2005/03/15 22:16:35+09:00 tj@htj.dyndns.org +89 -36
-#   xxx
-# 
-# ChangeSet
-#   2005/03/15 16:36:29+09:00 tj@htj.dyndns.org 
-#   initial implementaion of mod15write workaround
-# 
-# drivers/scsi/sata_sil.c
-#   2005/03/15 16:36:21+09:00 tj@htj.dyndns.org +139 -11
-#   initial implementaion of mod15write workaround
-# 
-diff -Nru a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
---- a/drivers/scsi/sata_sil.c	2005-03-26 14:17:50 +09:00
-+++ b/drivers/scsi/sata_sil.c	2005-03-26 14:17:50 +09:00
-@@ -71,9 +71,12 @@
- 
- static int sil_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
- static void sil_dev_config(struct ata_port *ap, struct ata_device *dev);
-+static void sil_qc_prep (struct ata_queued_cmd *qc);
-+static void sil_eng_timeout (struct ata_port *ap);
- static u32 sil_scr_read (struct ata_port *ap, unsigned int sc_reg);
- static void sil_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
- static void sil_post_set_mode (struct ata_port *ap);
-+static void sil_host_stop (struct ata_host_set *host_set);
- 
- static struct pci_device_id sil_pci_tbl[] = {
- 	{ 0x1095, 0x3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
-@@ -151,15 +154,16 @@
- 	.bmdma_start            = ata_bmdma_start,
- 	.bmdma_stop		= ata_bmdma_stop,
- 	.bmdma_status		= ata_bmdma_status,
--	.qc_prep		= ata_qc_prep,
-+	.qc_prep		= sil_qc_prep,
- 	.qc_issue		= ata_qc_issue_prot,
--	.eng_timeout		= ata_eng_timeout,
-+	.eng_timeout		= sil_eng_timeout,
- 	.irq_handler		= ata_interrupt,
- 	.irq_clear		= ata_bmdma_irq_clear,
- 	.scr_read		= sil_scr_read,
- 	.scr_write		= sil_scr_write,
- 	.port_start		= ata_port_start,
- 	.port_stop		= ata_port_stop,
-+	.host_stop		= sil_host_stop,
- };
- 
- static struct ata_port_info sil_port_info[] = {
-@@ -202,6 +206,53 @@
- 	/* ... port 3 */
- };
- 
-+/*
-+ * Context to loop over write requests > 15 sectors for Mod15Write bug.
-+ *
-+ * The following libata layer fields are saved at the beginning and
-+ * mangled as necessary.
-+ *
-+ * qc->sg		: To fool ata_fill_sg().
-+ * qc->n_elem		: ditto.
-+ * qc->flags		: Except for the last iteration, ATA_QCFLAG_DMAMAP
-+ *			  should be off on entering ata_interrupt() such
-+ *			  that ata_qc_complete() doesn't call ata_sg_clean()
-+ *			  before sil_m15w_chunk_complete(), but the flags
-+ *			  should be set for ata_qc_prep() to work.  This flag
-+ *			  handling is the hackiest part of this workaround.
-+ * qc->complete_fn	: Overrided to sil_m15w_chunk_complete().
-+ *
-+ * The following cxt fields are used to iterate over write requests.
-+ *
-+ * next_block		: The starting block of the next chunk.
-+ * next_sg		: The first sg entry of the next chunk.
-+ * left			: Total bytes left.
-+ * cur_sg_ofs		: Number of processed bytes in the first sg entry
-+ *			  of this chunk.
-+ * next_sg_ofs		: Number of bytes to be processed in the last sg
-+ *			  entry of this chunk.
-+ * next_sg_len		: Number of bytes to be processed in the first sg
-+ *			  entry of the next chunk.
-+ */
-+#define M15W_DEBUG
-+struct sil_m15w_cxt {
-+	u64			next_block;
-+	struct scatterlist *	next_sg;
-+	unsigned int		left;
-+	unsigned int		cur_sg_ofs;
-+	unsigned int		next_sg_ofs;
-+	unsigned int		next_sg_len;
-+	int			timedout;
-+
-+	struct scatterlist *	orig_sg;
-+	unsigned int		orig_nelem;
-+	unsigned long		orig_flags;
-+	ata_qc_cb_t		orig_complete_fn;
-+#ifdef M15W_DEBUG
-+	struct scatterlist	sg_copy[LIBATA_MAX_PRD];
-+#endif
-+};
-+
- MODULE_AUTHOR("Jeff Garzik");
- MODULE_DESCRIPTION("low-level driver for Silicon Image SATA controller");
- MODULE_LICENSE("GPL");
-@@ -242,6 +293,227 @@
- 	readl(addr);	/* flush */
- }
- 
-+static inline u64 sil_m15w_read_tf_block (struct ata_taskfile *tf)
-+{
-+	u64 block = 0;
-+
-+	BUG_ON(!(tf->flags & ATA_TFLAG_LBA));
-+
-+	block |= (u64)tf->lbal;
-+	block |= (u64)tf->lbam << 8;
-+	block |= (u64)tf->lbah << 16;
-+
-+	if (tf->flags & ATA_TFLAG_LBA48) {
-+		block |= (u64)tf->hob_lbal << 24;
-+		block |= (u64)tf->hob_lbam << 32;
-+		block |= (u64)tf->hob_lbah << 40;
-+	} else
-+		block |= (u64)(tf->device & 0xf) << 24;
-+
-+	return block;
-+}
-+
-+static inline void sil_m15w_rewrite_tf (struct ata_taskfile *tf,
-+					u64 block, u16 nsect)
-+{
-+	BUG_ON(!(tf->flags & ATA_TFLAG_LBA));
-+
-+	tf->nsect = nsect & 0xff;
-+	tf->lbal = block & 0xff;
-+	tf->lbam = (block >> 8) & 0xff;
-+	tf->lbah = (block >> 16) & 0xff;
-+
-+	if (tf->flags & ATA_TFLAG_LBA48) {
-+		tf->hob_nsect = (nsect >> 8) & 0xff;
-+		tf->hob_lbal = (block >> 24) & 0xff;
-+		tf->hob_lbam = (block >> 32) & 0xff;
-+		tf->hob_lbah = (block >> 40) & 0xff;
-+	} else {
-+		tf->device &= ~0xf;
-+		tf->device |= (block >> 24) & 0xf;
-+	}
-+}
-+
-+static void sil_m15w_next(struct ata_queued_cmd *qc)
-+{
-+	struct sil_m15w_cxt *cxt = qc->private_data;
-+	struct scatterlist *sg;
-+	unsigned int todo, res, nelem;
-+
-+	if (qc->sg != cxt->next_sg) {
-+		sg_dma_address(qc->sg) -= cxt->cur_sg_ofs;
-+		sg_dma_len(qc->sg) += cxt->cur_sg_ofs;
-+		cxt->cur_sg_ofs = 0;
-+	}
-+	cxt->cur_sg_ofs += cxt->next_sg_ofs;
-+
-+	qc->sg = sg = cxt->next_sg;
-+	sg_dma_address(sg) += cxt->next_sg_ofs;
-+	sg_dma_len(sg) = cxt->next_sg_len;
-+
-+	res = todo = min_t(unsigned int, cxt->left, 15 << 9);
-+
-+	nelem = 0;
-+	while (sg_dma_len(sg) <= res) {
-+		res -= sg_dma_len(sg);
-+		sg++;
-+		nelem++;
-+	}
-+
-+	if (todo < cxt->left) {
-+		cxt->next_sg = sg;
-+		cxt->next_sg_ofs = res;
-+		cxt->next_sg_len = sg_dma_len(sg) - res;
-+		if (res) {
-+			nelem++;
-+			sg_dma_len(sg) = res;
-+		}
-+	} else {
-+		cxt->next_sg = NULL;
-+		cxt->next_sg_ofs = 0;
-+		cxt->next_sg_len = 0;
-+	}
-+
-+	DPRINTK("block=%llu nelem=%u todo=%u left=%u\n",
-+		cxt->next_block, nelem, todo, cxt->left);
-+
-+	qc->n_elem = nelem;
-+	sil_m15w_rewrite_tf(&qc->tf, cxt->next_block, todo >> 9);
-+	cxt->left -= todo;
-+	cxt->next_block += todo >> 9;
-+}
-+
-+static inline void sil_m15w_restore_qc (struct ata_queued_cmd *qc)
-+{
-+	struct sil_m15w_cxt *cxt = qc->private_data;
-+
-+	DPRINTK("ENTER\n");
-+
-+	sg_dma_address(qc->sg) -= cxt->cur_sg_ofs;
-+	sg_dma_len(qc->sg) += cxt->cur_sg_ofs;
-+	if (cxt->next_sg_ofs)
-+		sg_dma_len(cxt->next_sg) += cxt->next_sg_len;
-+	qc->sg = cxt->orig_sg;
-+	qc->n_elem = cxt->orig_nelem;
-+	qc->flags |= cxt->orig_flags;
-+	qc->complete_fn = cxt->orig_complete_fn;
-+#ifdef M15W_DEBUG
-+	{
-+		int i, j;
-+		for (i = 0; i < qc->n_elem; i++)
-+			if (memcmp(&cxt->sg_copy[i], &qc->sg[i],
-+				   sizeof(qc->sg[0])))
-+				break;
-+		if (i < qc->n_elem) {
-+			printk(KERN_ERR "sil_m15w: sg mismatch\n");
-+			printk(KERN_ERR "orig: ");
-+			for (j = 0; j < qc->n_elem; j++)
-+				printk("%s%08x:%04u ",
-+				       i == j ? "*" : "",
-+				       (u32)sg_dma_address(&cxt->sg_copy[j]),
-+				       sg_dma_len(&cxt->sg_copy[j]));
-+			printk("\n");
-+			printk(KERN_ERR "used: ");
-+			for (j = 0; j < qc->n_elem; j++)
-+				printk("%s%08x:%04u ",
-+				       i == j ? "*" : "",
-+				       (u32)sg_dma_address(&qc->sg[j]),
-+				       sg_dma_len(&qc->sg[j]));
-+			printk("\n");
-+		}
-+	}
-+#endif
-+}
-+
-+static int sil_m15w_chunk_complete (struct ata_queued_cmd *qc, u8 drv_stat)
-+{
-+	struct sil_m15w_cxt *cxt = qc->private_data;
-+
-+	DPRINTK("ENTER\n");
-+
-+	if (unlikely(cxt->timedout))
-+		drv_stat |= ATA_BUSY;	/* Any better error status? */
-+
-+	/* Complete the command immediately on error */
-+	if (unlikely(drv_stat & (ATA_ERR | ATA_BUSY | ATA_DRQ))) {
-+		sil_m15w_restore_qc(qc);
-+		ata_qc_complete(qc, drv_stat);
-+		return 1;
-+	}
-+
-+	sil_m15w_next(qc);
-+	
-+	qc->flags |= cxt->orig_flags;
-+	ata_qc_prep(qc);
-+	qc->flags &= ~ATA_QCFLAG_DMAMAP;
-+
-+	/* On last iteration, restore fields such that normal
-+	 * completion path is run */
-+	if (!cxt->left)
-+		sil_m15w_restore_qc(qc);
-+	sil_ops.qc_issue(qc);
-+	return 1;
-+}
-+
-+static void sil_qc_prep (struct ata_queued_cmd *qc)
-+{
-+	struct sil_m15w_cxt *cxt = qc->private_data;
-+
-+	if (unlikely(cxt && qc->tf.flags & ATA_TFLAG_WRITE && qc->nsect > 15)) {
-+		BUG_ON(cxt->left);
-+		if (qc->tf.protocol == ATA_PROT_DMA) {
-+			/* Okay, begin mod15write workaround */
-+			cxt->next_block = sil_m15w_read_tf_block(&qc->tf);
-+			cxt->next_sg = qc->sg;
-+			cxt->left = qc->nsect << 9;
-+			cxt->cur_sg_ofs = 0;
-+			cxt->next_sg_ofs = 0;
-+			cxt->next_sg_len = sg_dma_len(qc->sg);
-+			cxt->timedout = 0;
-+
-+			/* Save fields we're gonna mess with.  Read comments
-+			 * above struct sil_m15w_cxt for more info. */
-+			cxt->orig_sg = qc->sg;
-+			cxt->orig_nelem = qc->n_elem;
-+			cxt->orig_flags = qc->flags & ATA_QCFLAG_DMAMAP;
-+			cxt->orig_complete_fn = qc->complete_fn;
-+			qc->complete_fn = sil_m15w_chunk_complete;
-+#ifdef M15W_DEBUG
-+			{
-+				int i;
-+				for (i = 0; i < qc->n_elem; i++)
-+					cxt->sg_copy[i] = qc->sg[i];
-+			}
-+#endif
-+			DPRINTK("MOD15WRITE, block=%llu nsect=%u\n",
-+				cxt->next_block, qc->nsect);
-+			sil_m15w_next(qc);
-+
-+			ata_qc_prep(qc);
-+			qc->flags &= ~ATA_QCFLAG_DMAMAP;
-+			return;
-+		} else
-+			printk(KERN_WARNING "ata%u(%u): write request > 15 "
-+			       "issued using non-DMA protocol.  Drive may "
-+			       "lock up.\n", qc->ap->id, qc->dev->devno);
-+	}
-+
-+	ata_qc_prep(qc);
-+}
-+
-+static void sil_eng_timeout (struct ata_port *ap)
-+{
-+	struct ata_queued_cmd *qc = ata_qc_from_tag(ap, ap->active_tag);
-+
-+	if (qc && qc->private_data) {
-+		struct sil_m15w_cxt *cxt = qc->private_data;
-+		if (cxt->left)
-+			cxt->timedout = 1;
-+	}
-+
-+	ata_eng_timeout(ap);
-+}
-+
- static inline unsigned long sil_scr_addr(struct ata_port *ap, unsigned int sc_reg)
- {
- 	unsigned long offset = ap->ioaddr.scr_addr;
-@@ -276,6 +548,12 @@
- 		writel(val, mmio);
- }
- 
-+static void sil_host_stop (struct ata_host_set *host_set)
-+{
-+	/* Free mod15write context array. */
-+	kfree(host_set->private_data);
-+}
-+
- /**
-  *	sil_dev_config - Apply device/host-specific errata fixups
-  *	@ap: Port containing device to be examined
-@@ -286,17 +564,12 @@
-  *	We apply two errata fixups which are specific to Silicon Image,
-  *	a Seagate and a Maxtor fixup.
-  *
-- *	For certain Seagate devices, we must limit the maximum sectors
-- *	to under 8K.
-+ *	For certain Seagate devices, we cannot issue write requests
-+ *	larger than 15 sectors.
-  *
-  *	For certain Maxtor devices, we must not program the drive
-  *	beyond udma5.
-  *
-- *	Both fixups are unfairly pessimistic.  As soon as I get more
-- *	information on these errata, I will create a more exhaustive
-- *	list, and apply the fixups to only the specific
-- *	devices/hosts/firmwares that need it.
-- *
-  *	20040111 - Seagate drives affected by the Mod15Write bug are blacklisted
-  *	The Maxtor quirk is in the blacklist, but I'm keeping the original
-  *	pessimistic fix for the following reasons...
-@@ -304,6 +577,15 @@
-  *	Windows	driver, maybe only one is affected.  More info would be greatly
-  *	appreciated.
-  *	- But then again UDMA5 is hardly anything to complain about
-+ *
-+ *	20050316 Tejun Heo - Proper Mod15Write workaround implemented.
-+ *	sata_sil doesn't report affected Seagate drives as having max
-+ *	sectors of 15 anymore, but handle write requests larger than
-+ *	15 sectors by looping over it inside this driver proper.  This
-+ *	is messy but it's better to isolate this kind of peculiar bug
-+ *	handling inside individual drivers than tainting libata layer.
-+ *	This workaround results in unhampered read performance and
-+ *	much better write performance.
-  */
- static void sil_dev_config(struct ata_port *ap, struct ata_device *dev)
- {
-@@ -311,6 +593,7 @@
- 	unsigned char model_num[40];
- 	const char *s;
- 	unsigned int len;
-+	int i;
- 
- 	ata_dev_id_string(dev->id, model_num, ATA_ID_PROD_OFS,
- 			  sizeof(model_num));
-@@ -328,15 +611,23 @@
- 			break;
- 		}
- 	
--	/* limit requests to 15 sectors */
-+	/* Activate mod15write quirk workaround */
- 	if (quirks & SIL_QUIRK_MOD15WRITE) {
-+		struct sil_m15w_cxt *cxt;
-+
- 		printk(KERN_INFO "ata%u(%u): applying Seagate errata fix\n",
- 		       ap->id, dev->devno);
--		ap->host->max_sectors = 15;
--		ap->host->hostt->max_sectors = 15;
--		dev->flags |= ATA_DFLAG_LOCK_SECTORS;
-+
-+		cxt = ap->host_set->private_data;
-+		cxt += ap->port_no * ATA_MAX_QUEUE;
-+		for (i = 0; i < ATA_MAX_QUEUE; i++)
-+			ap->qcmd[i].private_data = cxt++;
-+
- 		return;
- 	}
-+	/* Clear qcmd->private_data if mod15write quirk isn't present */
-+	for (i = 0; i < ATA_MAX_QUEUE; i++)
-+		ap->qcmd[i].private_data = NULL;
- 
- 	/* limit to udma5 */
- 	if (quirks & SIL_QUIRK_UDMA5MAX) {
-@@ -350,7 +641,8 @@
- static int sil_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
- {
- 	static int printed_version;
--	struct ata_probe_ent *probe_ent = NULL;
-+	struct ata_probe_ent *probe_ent;
-+	struct sil_m15w_cxt *m15w_cxt;
- 	unsigned long base;
- 	void *mmio_base;
- 	int rc;
-@@ -383,11 +675,17 @@
- 	if (rc)
- 		goto err_out_regions;
- 
--	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
--	if (probe_ent == NULL) {
--		rc = -ENOMEM;
-+	rc = -ENOMEM;
-+
-+	tmp = sizeof(m15w_cxt[0]) * ATA_MAX_PORTS * ATA_MAX_QUEUE;
-+	m15w_cxt = kmalloc(tmp, GFP_KERNEL);
-+	if (m15w_cxt == NULL)
- 		goto err_out_regions;
--	}
-+	memset(m15w_cxt, 0, tmp);
-+
-+	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
-+	if (probe_ent == NULL)
-+		goto err_out_free_m15w;
- 
- 	memset(probe_ent, 0, sizeof(*probe_ent));
- 	INIT_LIST_HEAD(&probe_ent->node);
-@@ -401,6 +699,7 @@
-        	probe_ent->irq = pdev->irq;
-        	probe_ent->irq_flags = SA_SHIRQ;
- 	probe_ent->host_flags = sil_port_info[ent->driver_data].host_flags;
-+	probe_ent->private_data = m15w_cxt;
- 
- 	mmio_base = ioremap(pci_resource_start(pdev, 5),
- 		            pci_resource_len(pdev, 5));
-@@ -467,6 +766,8 @@
- 
- err_out_free_ent:
- 	kfree(probe_ent);
-+err_out_free_m15w:
-+	kfree(m15w_cxt);
- err_out_regions:
- 	pci_release_regions(pdev);
- err_out:
+<mlafon:arkoon.net>:
+  o CAN-2005-0400: ext2 mkdir() directory entry random kernel memory leak
+
+<relf:os2.ru>:
+  o fs/hpfs/*: fix HPFS support under 64-bit kernel
+
+<sj-netfilter:cookinglinux.org>:
+  o [NETFILTER]: Fix another DECLARE_MUTEX in header file
+
+Bjorn Helgaas:
+  o ia64: force all kernel sections into one and the same segment
+  o ia64: round iommu allocations to power-of-two sizes
+  o ia64: fix perfmon typo in /proc/pal/CPU*/processor_info w.r.t. BERR
+  o ia64: add missing syscall-slot
+  o ia64: Update defconfigs
+
+Chris Wright:
+  o isofs: Some more defensive checks to keep corrupt isofs images from corrupting memory/oopsing
+
+Dave Kleikamp:
+  o JFS: remove aops from directory inodes
+
+David Mosberger:
+  o Fix pte_modify() bug which allowed mprotect() to change too many bits
+  o ia64: Fix _PAGE_CHG_MASK so PROT_NONE works again.  Caught by Linus
+
+Greg Banks:
+  o link_path_walk refcount problem allows umount of active filesystem
+
+Herbert Xu:
+  o [CRYPTO]: Mark myself as co-maintainer
+  o [NETLINK]: Fix multicast bind/autobind race
+  o CAN-2005-0794: Potential DOS in load_elf_library
+
+Keith Owens:
+  o [IA64] Sanity check unw_unwind_to_user
+  o [IA64] Tighten up unw_unwind_to_user check
+
+Linus Torvalds:
+  o isofs: Handle corupted rock-ridge info slightly better
+  o isofs: more "corrupted iso image" error cases
+
+Marcel Holtmann:
+  o CAN-2005-0750: Fix af_bluetooth range checking bug, discovered by Ilja van Sprundel <ilja@suresec.org>
+
+Marcelo Tosatti:
+  o Change VERSION to 2.4.30-rc2
+
+Michael Chan:
+  o [TG3]: Add 5705_plus flag
+  o [TG3]: Flush status block in tg3_interrupt()
+  o [TG3]: Add unstable PLL workaround for 5750
+  o [TG3]: Fix jumbo frames phy settings
+  o [TG3]: Fix ethtool set functions
+  o [TG3]: Add Broadcom copyright
+
+Neil Brown:
+  o nlm: fix f_count leak
+  o [PATCH md: allow degraded raid1 array to resync after an unclean shutdown
+
+Pablo Neira:
+  o [NETFILTER]: Fix DECLARE_MUTEX in header file
+
+Patrick McHardy:
+  o [NETFILTER]: fix return values of ipt_recent checkentry
+  o [NETFILTER]: Fix ip_ct_selective_cleanup(), and rename ip_ct_iterate_cleanup()
+  o [NETFILTER]: Fix cleanup in ipt_recent
+  o [NETFILTER]: Fix ip6tables ESP matching with "-p all"
+  o [NETFILTER]: Fix refreshing of overlapping expectations
+  o [NETFILTER]: Fix IP/TCP option logging
+  o [TUN]: Fix check for underflow
+
+Pete Zaitcev:
+  o USB: fix oops in serial_write
+  o USB: Fix baud selection in mct_u232
+
+Simon Horman:
+  o [IPVS]: Fix comment typos
+  o Backport v2.6 ATM copy-to-user signedness fix
+  o earlyquirk.o is needed for CONFIG_ACPI_BOOT
+
+Stephen Hemminger:
+  o [TCP]: BIC not binary searching correctly
+
+Wensong Zhang:
+  o [IPVS]: Update mark->cw in the WRR scheduler while service is updated
+
+Yanmin Zhang:
+  o [IA64] clean up ptrace corner cases
 

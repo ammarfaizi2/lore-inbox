@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263181AbVCXUWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVCXUVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263181AbVCXUWL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 15:22:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbVCXUWL
+	id S261500AbVCXUVG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 15:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVCXUVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 15:22:11 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:63449 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S263096AbVCXUVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 15:21:41 -0500
-Message-ID: <42432132.4080105@ens-lyon.org>
-Date: Thu, 24 Mar 2005 21:21:06 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stefano Rivoir <s.rivoir@gts.it>, linux-kernel@vger.kernel.org,
-       airlied@gmail.com
-Subject: Re: 2.6.12-rc1-mm2
-References: <20050324044114.5aa5b166.akpm@osdl.org>	<200503241540.33012.s.rivoir@gts.it>	<4242DA5A.4020904@ens-lyon.org>	<200503241631.30681.s.rivoir@gts.it> <20050324120504.32ee0656.akpm@osdl.org>
-In-Reply-To: <20050324120504.32ee0656.akpm@osdl.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
+	Thu, 24 Mar 2005 15:21:05 -0500
+Received: from pirx.hexapodia.org ([199.199.212.25]:1355 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S261500AbVCXUUp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 15:20:45 -0500
+Date: Thu, 24 Mar 2005 12:20:40 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: dtor_core@ameritech.net
+Cc: Stefan Seyfried <seife@suse.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050324202040.GC9005@hexapodia.org>
+References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de> <20050324181059.GA18490@hexapodia.org> <d120d500050324111826335f67@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d500050324111826335f67@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
-> Stefano Rivoir <s.rivoir@gts.it> wrote:
->>>--- linux-mm/include/linux/agp_backend.h.old    2005-03-24
->>>16:17:25.000000000 +0100
->>>+++ linux-mm/include/linux/agp_backend.h        2005-03-24
->>>16:10:25.000000000 +0100
->>>@@ -100,6 +100,7 @@
->>>  extern int agp_bind_memory(struct agp_memory *, off_t);
->>>  extern int agp_unbind_memory(struct agp_memory *);
->>>  extern void agp_enable(struct agp_bridge_data *, u32);
->>>+extern struct agp_bridge_data * (*agp_find_bridge)(struct pci_dev *);
->>>  extern struct agp_bridge_data *agp_backend_acquire(struct pci_dev *);
->>>  extern void agp_backend_release(struct agp_bridge_data *);
->>
->>Right, that fixed it for me.
->>
+On Thu, Mar 24, 2005 at 02:18:40PM -0500, Dmitry Torokhov wrote:
+> On Thu, 24 Mar 2005 10:10:59 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
+> > So I added i8042.noaux to my kernel command line, rebooted, insmodded
+> > intel_agp, started X, and verified no touchpad action.  Then I
+> > suspended, and it worked fine.  After restart, I suspended again - also
+> > fine.
+> > 
+> > So I think that fixed it.  But no touchpad is a bit annoying. :)
 > 
-> 
-> There were contradictory patches in flight and I stuck the latest drm tree
-> into rc1-mm2 at the last minute, alas.  You should revert
-> agp-make-some-code-static.patch.
-> 
-> But I assume that fixing the compile warnings does not fix the oopses which
-> Stefano and Brice are seeing?
+> Try adding i8042.nomux instead of i8042.noaux, it should keep your
+> touchpad in working condition. Please let me know if it still wiorks.
 
-My patch does fix both the compile warnings and my oops on my Radeon laptop.
+With nomux the touchpad works again, but suspend blocks in the same
+place as without nomux.
 
-Brice
+(How can I verify that "nomux" was accepted?  It shows up on the "Kernel
+command line" but there's no other mention of it in dmesg.)
+
+-andy

@@ -1,74 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbTANHl7>; Tue, 14 Jan 2003 02:41:59 -0500
+	id <S261451AbTANHqs>; Tue, 14 Jan 2003 02:46:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbTANHl7>; Tue, 14 Jan 2003 02:41:59 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:14558 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S261353AbTANHl5>; Tue, 14 Jan 2003 02:41:57 -0500
-Date: Tue, 14 Jan 2003 20:50:48 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: Weird sound problems on Dell Latitude C840 resolved..
-Message-ID: <229640000.1042530648@localhost.localdomain>
-In-Reply-To: <200301140614.h0E6EVqZ024755@turing-police.cc.vt.edu>
-References: <200301140614.h0E6EVqZ024755@turing-police.cc.vt.edu>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261518AbTANHqs>; Tue, 14 Jan 2003 02:46:48 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44768 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261451AbTANHqr>; Tue, 14 Jan 2003 02:46:47 -0500
+Date: Tue, 14 Jan 2003 08:55:35 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Dominik Brodowski <linux@brodo.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.58
+Message-ID: <20030114075535.GL21826@fs.tum.de>
+References: <Pine.LNX.4.44.0301132205550.6784-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301132205550.6784-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are general Dell laptop problems, and so far as I can tell, there's 
-no solution yet to either.  Audio is quite hard (except to get apps to use 
-bigger buffers; try googling for 'hammerfall cardbus dell', it's a common 
-problem).
-
-This page:
-http://www-106.ibm.com/developerworks/library/l-hw2.html
-may contain a solution to the audio issue, too, I just discovered.
-
-The clock problem is something Linux should deal with.  Like to look into 
-it?  I can help somewhat.
-
-Andrew
+On Mon, Jan 13, 2003 at 10:14:29PM -0800, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.5.57 to v2.5.58
+> ============================================
+>...
+> Dominik Brodowski <linux@brodo.de>:
+>...
+>   o cpufreq: per-CPU initialization
+>...
 
 
---On Tuesday, January 14, 2003 01:14:31 -0500 Valdis.Kletnieks@vt.edu wrote:
+This change broke the compilation of several cpufreq drivers:
 
-> A while back, I reported nasty sound distortion/echoing problems
-> on a C840.  Well, this is a follow-up that I found the cause of the
-> problem...
->
-> I was also running gkrellm, with it's APM monitor activated.  Whenever
-> it read from /proc/apm, this would cause a call to the BIOS down in
-> apm_get_power_status().  As near as I can tell, on this particular Dell,
-> calling the APM drops interrupts on the floor even if you run with
-> CONFIG_APM_ALLOW_INTS.  Another effect of this was a badly drifting
-> clock (which is how I found this in the first place) - doing a
-> a 'grep timer /proc/interrupts', waiting 4 or 5 minutes of wall clock
-> time, doing it again, and doing the math showed only 980 or so interrupts
-> per second.  The clock drift exhibits itself under 2.4.18 as well,
-> but it wasn't breaking audio.
->
-> My guess is that the 2.4 driver for the i810 audio is a bit more tolerant
-> of the occasional dropped interrupt (it seems to like to keep a lot of
-> data already queued in the ring buffer), but the 2.5 driver runs in much
-> more 'just in time' mode.  As a result, if the kernel gets suspended while
-> we monkey around in the BIOS, we get a data underrun, causing my problems.
->
-> For what it's worth, the i8k plugin for gkrellm also causes clock drift,
-> but doesn't seem to upset the audio driver.
->
-> (OK, so it's not as glorious as debugging APIC issues on a NUMAQ system.
-> On the other hand, there's probably a lot more Latitudes out there than
-> NUMAQ boxes, and more importantly to *me*, I have to deal with this
-> particular Latitude 8-10 hours a day.  And somebody made a comment about
-> open source being driven to scratch itches... ;)
->
-> /Valdis
->
 
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,arch/i386/kernel/cpu/cpufreq/.powernow-k6.o.d -D__KERNEL__ 
+-Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=k6 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=powernow_k6 -DKBUILD_MODNAME=powernow_k6   -c -o 
+arch/i386/kernel/cpu/cpufreq/powernow-k6.o 
+arch/i386/kernel/cpu/cpufreq/powernow-k6.c
+arch/i386/kernel/cpu/cpufreq/powernow-k6.c:230: macro 
+`cpufreq_unregister' used without args
+make[3]: *** [arch/i386/kernel/cpu/cpufreq/powernow-k6.o] Error 1
+
+<--  snip  -->
+
+
+It seems the following was intended:
+
+--- linux-2.5.58/include/linux/cpufreq.h.old	2003-01-14 08:53:27.000000000 +0100
++++ linux-2.5.58/include/linux/cpufreq.h	2003-01-14 08:53:56.000000000 +0100
+@@ -130,7 +130,7 @@
+ int cpufreq_unregister_driver(struct cpufreq_driver *driver_data);
+ /* deprecated */
+ #define cpufreq_register(x)   cpufreq_register_driver(x)
+-#define cpufreq_unregister(x) cpufreq_unregister_driver(NULL)
++#define cpufreq_unregister() cpufreq_unregister_driver(NULL)
+ 
+ 
+ void cpufreq_notify_transition(struct cpufreq_freqs *freqs, unsigned int state);
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

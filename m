@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279420AbRJ2T7j>; Mon, 29 Oct 2001 14:59:39 -0500
+	id <S279416AbRJ2T53>; Mon, 29 Oct 2001 14:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279421AbRJ2T7a>; Mon, 29 Oct 2001 14:59:30 -0500
-Received: from ibis.worldnet.net ([195.3.3.14]:43275 "EHLO ibis.worldnet.net")
-	by vger.kernel.org with ESMTP id <S279420AbRJ2T7R>;
-	Mon, 29 Oct 2001 14:59:17 -0500
-Message-ID: <3BDDB51C.4095AF84@worldnet.fr>
-Date: Mon, 29 Oct 2001 20:59:24 +0100
-From: Laurent Deniel <deniel@worldnet.fr>
-Organization: Home
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en, fr
+	id <S279421AbRJ2T5T>; Mon, 29 Oct 2001 14:57:19 -0500
+Received: from atlrel2.hp.com ([156.153.255.202]:55785 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S279416AbRJ2T5O>;
+	Mon, 29 Oct 2001 14:57:14 -0500
+Message-ID: <3BDDB4B3.2672CBDB@fc.hp.com>
+Date: Mon, 29 Oct 2001 12:57:39 -0700
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: willy tarreau <wtarreau@yahoo.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet NIC dual homing
-In-Reply-To: <20011029133921.74466.qmail@web20508.mail.yahoo.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: To SCSI driver maintainers: 16-byte CDB support in SCSI interface 
+ drivers
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-willy tarreau wrote:
-> 
-> Hi Laurent,
-> 
-> > Does someone know if there is some work in the area of NIC
-> > dual homing ?
-> 
-> I have implemented this for 2.2 kernel a while ago,
-> and Chad Tindel has completed the port to 2.4. Some other
-> contributors have added features such as XOR distribution. You can
-> take a look at it, kernel 2.4 patches are on :
-> 
->    http://sf.net/projects/bonding/
-> 
-> and 2.2 patches are on :
->
-> http://www-miaif.lip6.fr/willy/linux-patches/bonding/
->
+ac series kernels starting with 2.4.10-ac5 contain a patch that enables
+SCSI midlayer to send SCSI commands larger than 12 bytes to the
+interface
+drivers. Before sending a larger command, midlayer will check the
+command size against Scsi_Host->max_cmd_len. If Scsi_Host->max_cmd_len
+is larger than or equal to the command size, the command will be sent
+to the interface driver else it will be terminated with an error.
+scsi_register() sets Scsi_Host->max_cmd_len to 12 by default for every
+interface. If a driver and the interface can support larger commands,
+the driver should set Scsi_Host->max_cmd_len to the correct value after
+calling scsi_register(). Please make this change to your driver if you
+would like to support larger SCSI commands. Non-ac kernels will not
+be affected by this change since Scsi_Host->max_cmd_len is unused on
+those kernels.
 
-Thanks for the pointers.
+-- 
+Khalid
 
-Currently only the link status is used to monitor a NIC.
-So it would be nice if an ioctl was available to force a NIC switch-over
-(especially in active-backup policy). This could be used by a user-space
-daemon in case for instance no traffic is detected.
-
-I see that the bonding driver is included in 2.2.18, what is its status
-in 2.4.x ?
-
-Regards,
-
-Laurent
+====================================================================
+Khalid Aziz                              Linux Systems Operation R&D
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

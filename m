@@ -1,65 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263579AbSITVpb>; Fri, 20 Sep 2002 17:45:31 -0400
+	id <S263633AbSITVs3>; Fri, 20 Sep 2002 17:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263592AbSITVpb>; Fri, 20 Sep 2002 17:45:31 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:64384 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S263579AbSITVpa>; Fri, 20 Sep 2002 17:45:30 -0400
-Date: Fri, 20 Sep 2002 14:50:29 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020920215029.GB1527@gnuppy.monkey.org>
-References: <20020920120606.GA4961@gnuppy.monkey.org> <Pine.LNX.4.44.0209201658240.5862-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S263712AbSITVs3>; Fri, 20 Sep 2002 17:48:29 -0400
+Received: from packet.digeo.com ([12.110.80.53]:27590 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263633AbSITVs2>;
+	Fri, 20 Sep 2002 17:48:28 -0400
+Message-ID: <3D8B98D4.67A76C1C@digeo.com>
+Date: Fri, 20 Sep 2002 14:53:24 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michael Sinz <msinz@wgate.com>
+CC: mks@sinz.org, marcelo@conectiva.com.br, Robert Love <rml@tech9.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, riel@conectiva.com.br,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
+References: <3D8B87C7.7040106@wgate.com> <3D8B8CAB.103C6CB8@digeo.com> <3D8B934A.1060900@wgate.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209201658240.5862-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Sep 2002 21:53:28.0412 (UTC) FILETIME=[271859C0:01C260F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 06:20:10PM +0200, Ingo Molnar wrote:
-> the user contexts for active but preempted threads are stored in the
-> kernel stack. To support GC safepoints we need fast access to the current
-> state of every not voluntarily preempted thread. This is admittedly easier
-> if threads are abstraced in user-space [in which case the context is
-> stored in user-space], but the question is, what is more important, an
-> occasional pass of garbage collection, or the cost of doing IO?
-
-The GC is generational and incremental, so it must deal with a lot of short
-term objects that need to be collected. GC performance is a sore point in the
-JVM (language runtimes in general) and having slow access to this is potentially
-crippling for high load machines. The HotSpot/JVM is a bit overzealous with
-safepoints which opens this area to optimization, but the problem exists now.
-
-> until then it can be done via sending SIGSTOP/SIGCONT to the process PID
-> from the garbage collection thread, which should stop all threads pretty
-> efficiently in 2.5.35+ kernels. Then all threads that are not voluntarily
-> sleeping can be fixed up via ptrace calls.
-
-It's better to have an explict pthread_suspend_[thread,all]() function
-since this kind of thing is becoming more and more common in thread
-heavy language runtimes. The Posix thread spec was build without regard
-to this and it's definitely become an important issues these days.
-
-> and it can be further improved by tracking preempted user contexts in the
-> scheduler and giving fast access to them via a syscall. (all voluntarily
-> sleeping contexts can properly prepare their suspension state in
-> userspace.) So it's possible to do it efficiently.
+Michael Sinz wrote:
 > 
-> how frequently does the GC thread run?
+> ...
+> > Does it need to be this fancy?  Why not just have:
+> >
+> >         if (core_name_format is unset)
+> >                 use "core"
+> >         else
+> >                 use core_name_format/nodename-uid-pid-comm.core
+> >
+> > which saves all that string format processing, while giving
+> > people everything they could want?
+> 
+> Well, it depends on if you really need the complex form or not.
+> 
+> There are some people who use a format of:
+> 
+>         %N.%P.core
+> 
+> which places the core file in the current directory but adds in the
+> name of the program.  (Something that is very nice when you have
+> a lot of programs that may core "together" when something bad happens)
 
-Don't remember off hand, but it's like to be several times a second which is
-often enough to be a problem especially on large systems with high load.
+They could use
 
-The JVM with incremental GC is being targetted for media oriented tasks
-using the new NIO, 3d library, etc... slowness in safepoints would cripple it
-for these tasks. It's a critical item and not easily address by the current
-1:1 model.
+	echo . > /proc/sys/vm/core_path
 
-bill
+ 
+> The string processing is not that much work anyway (very small)
+> and, given the fact that I am about to write to disk a core dump,
+> it can not be a critical path/fast path issue either :-)
 
+True, but it's all more code and I don't believe that it adds
+much value.  It means that people need to run off and find
+the documentation, then choose a format.  Which will be different
+from other people's chosen formats.  Which will make development
+and testing and installation of downstream scripts harder, etc.
+
+You can give people *all* the options at no cost, and without
+irritating them, and with less code.  So why make it harder for
+everyone by adding this optionality?

@@ -1,41 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTDLIlE (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 04:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTDLIlE (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 04:41:04 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:3371 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263203AbTDLIlD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 04:41:03 -0400
-Date: Sat, 12 Apr 2003 01:52:53 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: oliver@neukum.name
-Cc: oliver@neukum.org, miquels@cistron-office.nl, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-Id: <20030412015253.6471774e.akpm@digeo.com>
-In-Reply-To: <200304121040.07947.oliver@neukum.org>
-References: <20030411172011.GA1821@kroah.com>
-	<20030412000829.GL4539@kroah.com>
-	<b77m71$7bs$1@news.cistron.nl>
-	<200304121040.07947.oliver@neukum.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Apr 2003 08:52:41.0085 (UTC) FILETIME=[E02E8AD0:01C300D0]
+	id S263202AbTDLIlC (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 04:41:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTDLIlC (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 04:41:02 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:21967 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S263202AbTDLIlA convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 04:41:00 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBAB31@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Greg KH'" <greg@kroah.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Miquel van Smoorenburg'" <miquels@cistron-office.nl>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Simple Kernel-User Event Interface (Was: RE: [ANNOUNCE] udev 
+	0.1 release)
+Date: Sat, 12 Apr 2003 01:52:38 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum <oliver@neukum.org> wrote:
->
-> 
-> > The pipe/socket solution is probably better anyway, I was just
-> > wondering why /sbin/hotplug wasn't serialized from the start.
-> 
-> It was. Deadlocks happened and the semaphore was removed.
-> I don't remember details. They might be in the archives.
-> 
 
-register_netdevice() is called under rtnl_lock.  It calls
-net_run_sbin_hotplug() which ends up waiting on ifconfig.  But
-ifconfig needs rtnl_lock.
+> From: Greg KH [mailto:greg@kroah.com]
+> 
+> On Fri, Apr 11, 2003 at 09:16:02PM -0700, Perez-Gonzalez, Inaky wrote:
+> >
+> > Okay, so what about this:
+> >
+> > I started playing with a simple event interface, that would allow:
+> >
+> > - queuing events and recalling-queued events
+> > - not consume (almost) memory when two bazillion events are queued
+> > - be accessible by different processes at the same time on
+> >   different fds
+> 
+> Have you looked at relayfs?  I think it might do much the same thing as
+> this, but through a fs interface, instead of a char device node.
 
+Nope - I didn't even know it existed - this was just, hmmm, it could
+be done like this, plank! There.. It's small and to me it cuts it
+well enough.
+
+The char device node is a quick place where to hook the struct 
+file_operations. I'd say this would go inside sysfs or something. 
+It is not really important.
+ 
+> > Now, each fd keeps a pointer to the queue list and only when the
+> > event has been read by all the open fds, it is then disposed.
+> 
+> I don't think you can just count the number of open fds, like your patch
+> does to get a count of who all read this message (fds can close and
+> others can open, so newer fds might not have read the message before it
+> is removed.)
+
+The intention is [unless I have screwed it up big time] that if there 
+are no readers, the events are queued up. Once there is at least one
+reader, then they are released as soon as they are read by all the
+current readers. This way there is little chance for having a big accu-
+mulation of unread events - once you start whatever event managing
+daemon, you are set.
+
+The idea of allowing multiple readers was so you can have other actors
+listening for stuff - although the main one would always be the event
+daemon (that could even forward the events).
+
+> Looks like a good start, but I'm not moving the hotplug interface over
+> to it :)
+
+Good try - I won't let go :) If you see this as something potentially
+useful, how would you like it to develop so that in the long term 
+it can be used? be it in parallel with /sbin/hotplug or as a 
+potential replacement?
+
+I guess that the first thing I would have to do is somehow look into
+how hotplug is behaving now and hook it to do something similar, right?
+
+See ya
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

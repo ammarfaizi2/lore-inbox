@@ -1,88 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265470AbUAJVot (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:44:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265471AbUAJVot
+	id S265465AbUAJVno (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 16:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUAJVnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:44:49 -0500
-Received: from waste.org ([209.173.204.2]:15507 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265470AbUAJVom (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:44:42 -0500
-Date: Sat, 10 Jan 2004 15:44:37 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.1-tiny1 tree for small systems
-Message-ID: <20040110214437.GL18208@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Sat, 10 Jan 2004 16:43:43 -0500
+Received: from pop.gmx.net ([213.165.64.20]:5852 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265465AbUAJVnl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 16:43:41 -0500
+X-Authenticated: #20450766
+Date: Sat, 10 Jan 2004 21:04:03 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Mike Fedyk <mfedyk@matchmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+In-Reply-To: <1073745028.1146.13.camel@nidelv.trondhjem.org>
+Message-ID: <Pine.LNX.4.44.0401102100180.5835-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=koi8-r
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the latest release of the -tiny kernel tree. The aim of this
-tree is to collect patches that reduce kernel disk and memory
-footprint as well as tools for working on small systems. Target users
-are things like embedded systems, small or legacy desktop folks, and
-handhelds.
+On Sat, 10 Jan 2004, Trond Myklebust wrote:
 
-Latest release includes:
- - update to 2.6.1
- - add latest netdrvr patchkit (Jeff Garzik)
- - various compile fixes for last release
- - various tweaks to netpoll, netconsole, and kgdb-over-ethernet
- - laptop mode (Bart Samwel via -mm)
- - optional block device layer (Eric Biederman)
- - optional simple boot flag (Zwane Mwaikambo)
- - optional ksyms (Zwane Mwaikambo)
- - optional PCI quirk detection (Zwane Mwaikambo)
- - free early bootstrap code (Zwane Mwaikambo)
- - optional direct IO support
- - optional minimal lockless mempool
- - minor cleanups
+> På lau , 10/01/2004 klokka 06:10, skreiv Guennadi Liakhovetski:
+> > Yes. The reason for the problem seems to be the increased default size of
+> > the transfer unit of NFS from 2.4 to 2.6. 8K under 2.4 was still ok, 16K
+> > is too much - only the first 5 fragments pass fine, then data starts to
+> > get lost. If it is a hardware limitation (not all platforms can manage
+> > 16K), it should be probably set back to 8K. If the reason is that some
+> > buffer size was not increased correspondingly, then this should be done.
+>
+> No! People who have problems with the support for large rsize/wsize
+> under UDP due to lost fragments can
+>
+>   a) Reduce r/wsize themselves using mount
+>   b) Use TCP instead
+>
+> The correct solution to this problem is (b). I.e. we convert mount to
+> use TCP as the default if it is available. That is consistent with what
+> all other modern implementations do.
+>
+> Changing a hard maximum on the server in order to fit the lowest common
+> denominator client is simply wrong.
 
-Here's a test boot of my development config (console, ide, ext2, and
-ipv4) with mem=2m, which is actually only 1664k after accounting for
-BIOS memory hole:
+Not change - keep (from 2.4). You see, the problem might be - somebody
+updates the NFS-server from 2.4 to 2.6 and then suddenly some clients fail
+to work with it. Seems a non-obvious fact, that after upgrading the server
+clients' configuration might have to be changed. At the very least this
+must be documented in Kconfig.
 
-Uncompressing Linux... Ok, booting the kernel.
-# mount /proc
-# cat /proc/meminfo
-MemTotal:          916 kB
-MemFree:           296 kB
-Buffers:            28 kB
-Cached:            252 kB
-SwapCached:          0 kB
-Active:            324 kB
-Inactive:           76 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:          916 kB
-LowFree:           296 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               0 kB
-Writeback:           0 kB
-Mapped:            316 kB
-Slab:                0 kB
-Committed_AS:      132 kB
-PageTables:         24 kB
-VmallocTotal:  1032168 kB
-VmallocUsed:         0 kB
-VmallocChunk:  1032168 kB
-#
-
-The patch can be found at:
-
- http://selenic.com/tiny/2.6.1-tiny1.patch.bz2
- http://selenic.com/tiny/2.6.1-tiny1-broken-out.tar.bz2
-
-Webpage for your bookmarking pleasure:
-
- http://selenic.com/tiny-about/
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 
 
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,43 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269248AbTGUFEH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 01:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbTGUFEH
+	id S269216AbTGUFRT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 01:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269259AbTGUFRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 01:04:07 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:31616
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S269248AbTGUFEF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 01:04:05 -0400
-Date: Sat, 19 Jul 2003 19:21:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jim Gifford <maillist@jg555.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-pre5 deadlock
-Message-ID: <20030719172103.GA1971@x30.local>
-References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02>
+	Mon, 21 Jul 2003 01:17:19 -0400
+Received: from mail.gmx.net ([213.165.64.20]:39326 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269216AbTGUFRP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 01:17:15 -0400
+Message-Id: <5.2.1.1.2.20030721064532.01bfc600@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Mon, 21 Jul 2003 07:36:31 +0200
+To: Davide Libenzi <davidel@xmailserver.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O6int for interactivity 
+Cc: Valdis.Kletnieks@vt.edu,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0307201715130.3548@bigblue.dev.mcafeelabs.co
+ m>
+References: <5.2.1.1.2.20030719184847.01ad4ce8@pop.gmx.net>
+ <5.2.1.1.2.20030718221052.01a88eb8@pop.gmx.net>
+ <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
+ <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
+ <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+ <200307170030.25934.kernel@kolivas.org>
+ <200307170030.25934.kernel@kolivas.org>
+ <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+ <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
+ <5.2.1.1.2.20030718174433.01b12878@pop.gmx.net>
+ <Pine.LNX.4.55.0307180951050.5608@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307181004200.5608@bigblue.dev.mcafeelabs.com>
+ <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
+ <5.2.1.1.2.20030718221052.01a88eb8@pop.gmx.net>
+ <5.2.1.1.2.20030719184847.01ad4ce8@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 10:03:03AM -0700, Jim Gifford wrote:
-> As requested.
+At 05:21 PM 7/20/2003 -0700, Davide Libenzi wrote:
+>On Sat, 19 Jul 2003, Mike Galbraith wrote:
+>
+> > >Everything that will make the scheduler to say "ok, I gave enough time to
+> > >interactive tasks, now I'm really going to spin one from the masses" will
+> > >work. Having a clean solution would not be an option here.
+> >
+> > ... just as soon as I get my decidedly unclean work-around functioning at
+> > least as well as it did for plain old irman.   irman2 is _much_ more evil
+> > than irman ever was (wow, good job!).  I thought it'd be a half an hour
+> > tops.  This little bugger shows active starvation, expired starvation,
+> > priority inflation, _and_ interactive starvation (i have to keep inventing
+> > new terms to describe things i see.. jeez this is a good testcase).
+>
+>Yes, the problem is not only the expired tasks starvation. Anything in
+>the active array that reside underneath the lower priority value of the
+>range irman2 tasks oscillate inbetween, will experience a "CPU time eclipse".
+>And you do not even need a smoked glass to look at it :)
 
-please try to reproduce w/o devfs and/or w/o a kernel module that is
-loadable called ipt_psd (netfilter stuff likely, but not part of
-mainline pre6/pre7). probably it'll go away either ways and it seems
-triggered by the process called couriertcpd. Not sure exactly what's
-going on though, since looking into devfs/devfsd doesn't sound
-interesting anymore and I don't see the netfilter code out of mainline.
+Here there's no oscillation that I can see.  It climbs steadily to prio 16 
+and stays there forever, with the hog running down at the bottom.  I did a 
+quick requirement that a non-interactive task must run every HZ ticks at 
+least, with a sliding "select non-interactive" window staying open for 
+HZ/10 ticks, and retrieving an expired task if necessary instead of 
+expiring interactive tasks (or forcing the array switch) thinking it'd be 
+enough.
 
-(probably this email will get some delay, so apologies if it is obsolete
-by the time it reaches the network)
+Wrong answer.  For most things, it would be good enough I think, but with 
+the hog being part of irman2, I have to not only pull from the expired 
+array if no non-interactive task is available, I have to always pull once 
+the deadline is hit.  I'm also going to have to put another check for queue 
+runtime to beat the darn thing.  I ran irman2 with a bonnie -s 300 and a 
+kernel compile...  After a half an hour, the compile was making steady (but 
+too slow because the irman2 periodic cpu hog was getting too much of what 
+gcc was intended to get;) progress, but the poor bonnie was starving at 
+prio 17.  A sleep_avg vs cpu%*100 sanity check will help that, but not cure.
 
-Andrea
+All this to avoid the pain (agony actually) of an array switch.
+
+         -Mike
+
+(someone should wrap me upside the head with a clue-x-4. this darn thing 
+shouldn't be worth more than 10 lines of ugliness.  i'm obviously past 
+that... and headed toward the twilight-zone at warp 9.  wheee;) 
+

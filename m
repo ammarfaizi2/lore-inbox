@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130429AbRAaUlA>; Wed, 31 Jan 2001 15:41:00 -0500
+	id <S131048AbRAaUqd>; Wed, 31 Jan 2001 15:46:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131048AbRAaUku>; Wed, 31 Jan 2001 15:40:50 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:62712 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S130429AbRAaUko>; Wed, 31 Jan 2001 15:40:44 -0500
-Date: Wed, 31 Jan 2001 14:40:41 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <009701c08bc2$573aee10$7253e59b@megatrends.com>
-In-Reply-To: <20010131195434.29410.qmail@web8002.mail.in.yahoo.com>
-Subject: Re: A query regarding kernel programming, very small
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <hxkv1B.A.WeC.JhHe6@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S131680AbRAaUqW>; Wed, 31 Jan 2001 15:46:22 -0500
+Received: from lairdtest1.internap.com ([206.253.215.67]:56839 "EHLO
+	lairdtest1.internap.com") by vger.kernel.org with ESMTP
+	id <S131048AbRAaUqN>; Wed, 31 Jan 2001 15:46:13 -0500
+Date: Wed, 31 Jan 2001 12:45:44 -0800 (PST)
+From: Scott Laird <laird@internap.com>
+To: George <greerga@entropy.muc.muohio.edu>
+cc: Peter Samuelson <peter@cadcamlab.org>,
+        Bernd Eckenfels <inka-user@lina.inka.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Request: increase in PCI bus limit
+In-Reply-To: <Pine.LNX.4.30.0101311535130.24040-100000@entropy.muc.muohio.edu>
+Message-ID: <Pine.LNX.4.31.0101311243340.13278-100000@lairdtest1.internap.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from "Venkatesh Ramamurthy" <venkateshr@softhome.net> on
-Wed, 31 Jan 2001 15:13:38 -0500
 
 
-> driver development is a part of kernel development. Kernel is a bigger
-> entity which contains scheduler, io subsystem, memory subsystem etc....
-> Drivers comes under the IO subsystem.
+On Wed, 31 Jan 2001, George wrote:
+>
+> If someone says 1 bus, give them one bus.
+>
+> Just make the description say:
+>   Add 1 for every PCI
+>   Add 1 for every AGP
+>   Add 1 for every CardBus
+>   Also account for anything else funny in the system.
+>
+> Then panic on boot if they're wrong (sort of like processor type).
 
-I think the confusion stems from the fact that with some operating systems
-(like OS/2), drivers are not considered part of the kernel, but with Linux (and
-possibly some others), drivers are considered part of the kernel.
+Where do cards with PCI-PCI bridges, like multiport PCI ethernet cards,
+fit into this?  I can easily add 3 or 4 extra busses into a box just by
+grabbing a couple extra Intel dual-port Ethernet cards.
 
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+Scott
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

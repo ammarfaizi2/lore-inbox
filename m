@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291522AbSBSRnS>; Tue, 19 Feb 2002 12:43:18 -0500
+	id <S291545AbSBSRsI>; Tue, 19 Feb 2002 12:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291533AbSBSRnI>; Tue, 19 Feb 2002 12:43:08 -0500
-Received: from 162-39.84.64.covalent.net ([64.84.39.162]:30414 "EHLO
-	doom.sfo.covalent.net") by vger.kernel.org with ESMTP
-	id <S291522AbSBSRm6>; Tue, 19 Feb 2002 12:42:58 -0500
-Date: Tue, 19 Feb 2002 09:42:14 -0800
-From: john <john@zlilo.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@zip.com.au>, john <john@zlilo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kupdated using all CPU
-Message-ID: <20020219094214.A140@doom.sfo.covalent.net>
-In-Reply-To: <20020218134041.A2586@doom.sfo.covalent.net> <3C717C72.72A994D3@zip.com.au> <3C717C72.72A994D3@zip.com.au> <20020218141920.D2586@doom.sfo.covalent.net> <3C71848A.3DA9BC42@zip.com.au> <m18z9q3wej.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+	id <S291541AbSBSRrt>; Tue, 19 Feb 2002 12:47:49 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:21516 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S291533AbSBSRrl>; Tue, 19 Feb 2002 12:47:41 -0500
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: gnome-terminal acts funny in recent 2.5 series
+In-Reply-To: <12434E62524D@vcnet.vc.cvut.cz>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 20 Feb 2002 02:47:13 +0900
+In-Reply-To: <12434E62524D@vcnet.vc.cvut.cz>
+Message-ID: <878z9pz7mm.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m18z9q3wej.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Feb 18, 2002 at 09:53:08PM -0700
-X-Linux: http://zlilo.com/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Mon, Feb 18, 2002 at 09:53:08PM -0700] ebiederm@xmission.com wrote:
-+ Andrew Morton <akpm@zip.com.au> writes:
-+ 
-+ > john wrote:
-+ > > 
-+ > > [Mon, Feb 18, 2002 at 02:13:06PM -0800] akpm@zip.com.au wrote:
-+ > > + john wrote:
-+ > > + >
-+ > > + > hi,
-+ > > + > ive searched all over and found many references to this problem, but
-+ > > + > never found an actual solution.  the problem is that during heavy
-+ > > + > disk I/O, kupdated will periodically take up ALL the cpu.
-+ > > +
-+ > > + I've seen a couple of reports of this, nothing to indicate that it's
-+ > > + a common problem?
-+ > > +
-+ > > + In the other reports, it was related to extremely low disk throughput.
-+ > > + What does `hdparm -t /dev/hda' say?
-+ > > 
-+ > > root@doom:~# hdparm -t /dev/hda
-+ > > 
-+ > > /dev/hda:
-+ > >  Timing buffered disk reads:  64 MB in 25.60 seconds =  2.50 MB/sec
-+ > 
-+ > ugh.  OK, I'll see if I cen reproduce this - there's no reason
-+ > why disk suckiness should cause high CPU load.  But you need to
-+ > pay some attention to your IDE settings in kernel config, and
-+ > possibly tuning.
-+ 
-+ 
-+ Another possibility with the same symptoms is that there are simply
-+ very large I/O request starving everything else out.  When some
-+ crucial data needs to be paged back in.  john can you confirm you
-+ looked in top and saw kupdate taking 100% of the cpu?
+"Petr Vandrovec" <VANDROVE@vc.cvut.cz> writes:
 
-yes, i did.  another thing that makes it pretty obvious is the cpu time reported by ps.  kupdated cpu time will stay 0:00 until i run into the condition i described.  then kupdated cpu time will jump as much as 0:45.
+> On 19 Feb 02 at 20:44, OGAWA Hirofumi wrote:
+> > 
+> > libzvt was using file descriptor passing via UNIX domain socket for
+> > pseudo terminal. Then because ->passcred was not initialized in
+> > sock_alloc(), unexpected credential data was passing to libzvt.
+> > 
+> > The following patch fixed this problem, but I'm not sure.
+> > Could you review the patch? (attached file are test program)
+> 
+> I sent simillar patch to Linus and DaveM on Sunday. Unfortunately it
+> did not found its way into either of these two trees (and IPX oops fix too). 
+> In addition to yours I moved these 'sock->XXX = NULL' into sock_alloc_inode,
+> as I see no reason why sock->wait should be initialized in sock_alloc_inode,
+> but all other members in sock_alloc. It caused confusion to me, and
+> from your comment it looks like that you missed it too. Besides that
+> root of sockfs uses sock's inode with sock->ops, sk and file being
+> 0x5a5a5a5a without moving initialization from sock_alloc to sock_alloc_inode.
 
-but i have fixed the issue by using the correct ide driver.  though, someone may want to look into this anyway...dunno..
--j
+I wish your patch apply to the tree. Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

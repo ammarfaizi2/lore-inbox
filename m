@@ -1,331 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbULTCBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbULTCKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbULTCBw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 21:01:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbULTB6L
+	id S261389AbULTCKj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 21:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbULTCKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 20:58:11 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:664 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S261390AbULTByJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 20:54:09 -0500
-Date: Mon, 20 Dec 2004 10:54:07 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH REPOST 2.6.10-rc3 4/4] module sysfs: module parameters reimplemented using attr group
-Message-ID: <20041220015407.GE16197@home-tj.org>
-References: <20041220014728.GA16197@home-tj.org>
+	Sun, 19 Dec 2004 21:10:38 -0500
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:46470 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261389AbULTB43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 20:56:29 -0500
+Subject: Re: [PATCH] Remove RCU abuse in cpu_idle()
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>,
+       Len Brown <len.brown@intel.com>
+In-Reply-To: <Pine.LNX.4.61.0412191819130.18310@montezuma.fsmlabs.com>
+References: <20041205004557.GA2028@us.ibm.com>
+	 <20041205232007.7edc4a78.akpm@osdl.org>
+	 <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com>
+	 <20041206160405.GB1271@us.ibm.com>
+	 <Pine.LNX.4.61.0412060941560.5219@montezuma.fsmlabs.com>
+	 <20041206192243.GC1435@us.ibm.com>
+	 <Pine.LNX.4.61.0412110804500.5214@montezuma.fsmlabs.com>
+	 <Pine.LNX.4.61.0412112123490.7847@montezuma.fsmlabs.com>
+	 <Pine.LNX.4.61.0412112205290.7847@montezuma.fsmlabs.com>
+	 <Pine.LNX.4.61.0412112244000.7847@montezuma.fsmlabs.com>
+	 <29495f1d04121818403f949fdd@mail.gmail.com>
+	 <Pine.LNX.4.61.0412191757450.18310@montezuma.fsmlabs.com>
+	 <1103505344.5093.4.camel@npiggin-nld.site>
+	 <Pine.LNX.4.61.0412191819130.18310@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Date: Mon, 20 Dec 2004 12:56:24 +1100
+Message-Id: <1103507784.5093.9.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041220014728.GA16197@home-tj.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_module_paramters_attr_grp.patch
-        Reimplement parameter attributes using attribute group.
-	This makes more sense, for, while they reside in a separate
-        subdirectory, they belong to the ownig module and their
-        lifetime exactly equals the lifetime of the owning module,
-        and it's simpler.
+On Sun, 2004-12-19 at 18:44 -0700, Zwane Mwaikambo wrote:
+> On Mon, 20 Dec 2004, Nick Piggin wrote:
+> 
+> > This thread can possibly be stalled forever if there is a CPU hog
+> > running, right?
+> 
+> Yep.
+> 
+> > In which case, you will want to use ssleep rather than a busy loop.
+> 
+> Well ssleep essentially does the same thing as the schedule_timeout.
+> 
+
+Yes - so long as you set ->state when using schedule_timeout ;)
+
+> > Another alternative may be to use more complex logic to detect that a
+> > CPU is not in the idle loop at all. In that case, a simple cpu_relax
+> > type spin loop should be OK, because the synchronisation would be
+> > achieved very quickly.
+> 
+> I considered checking whether the cpu is in the idle thread or not but 
+> wouldn't that require locking runqueues? Something like;
+> 
+> pm_idle = new_value;
+> wmb();
+> busy_map = cpu_online_map;
+> for_each_online_cpu(cpu) {
+> 	runqueue_t *rq = cpu_rq(cpu);
+> 	spin_lock_irq(&rq->lock);
+> 	if (rq->curr != rq->idle)
+> 		cpu_clear(cpu, busy_map);
+> 	spin_unlock_irq(&rq->lock);
+> }
+> 
+> cpu_idle_map = busy_map;
+> wmb();
+> 
+> while (!cpus_empty(cpu_idle_map)) {
+> 	cpus_and(cpu_idle_map, cpu_idle_map, cpu_online_map);
+> 	ssleep(1);
+> }
+> 
+> Hmm then again, i think we could get away with doing an unlocked compare 
+> on the rq->curr and rq->idle since we've written back pm_idle and reading 
+> a stale rq->curr which isn't equal to rq->idle means that the remote 
+> processor should also have the new pm_idle. I'm still not convinced that 
+> it deserves this much complexity, this is a rarely carried out operation 
+> and usually at boottime or shutdown.
+> 
+
+Hmm, yeah it is fairly complex, now that you've expanded on my
+handwaving!
+
+I think you are right about not requiring locking, so long as you
+have the appropriate memory barriers in place... but it's probably
+not worth the effort, as you say.
+
+Nick
 
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
-
-
-Index: linux-export/include/linux/module.h
-===================================================================
---- linux-export.orig/include/linux/module.h	2004-11-23 15:08:15.000000000 +0900
-+++ linux-export/include/linux/module.h	2004-11-23 15:08:22.000000000 +0900
-@@ -238,7 +238,7 @@ struct module_sect_attrs
- 	struct module_sect_attr attrs[0];
- };
- 
--struct param_kobject;
-+struct module_param_attrs;
- 
- struct module
- {
-@@ -252,7 +252,7 @@ struct module
- 
- 	/* Sysfs stuff. */
- 	struct module_kobject mkobj;
--	struct param_kobject *params_kobject;
-+	struct module_param_attrs *param_attrs;
- 
- 	/* Exported symbols */
- 	const struct kernel_symbol *syms;
-Index: linux-export/kernel/params.c
-===================================================================
---- linux-export.orig/kernel/params.c	2004-11-23 15:08:11.000000000 +0900
-+++ linux-export/kernel/params.c	2004-11-23 15:08:22.000000000 +0900
-@@ -357,26 +357,23 @@ extern struct kernel_param __start___par
- 
- struct param_attribute
- {
--	struct attribute attr;
-+	struct module_attribute mattr;
- 	struct kernel_param *param;
- };
- 
--struct param_kobject
-+struct module_param_attrs
- {
--	struct kobject kobj;
--
--	unsigned int num_attributes;
--	struct param_attribute attr[0];
-+	struct attribute_group grp;
-+	struct param_attribute attrs[0];
- };
- 
--#define to_param_attr(n) container_of(n, struct param_attribute, attr);
-+#define to_param_attr(n) container_of(n, struct param_attribute, mattr);
- 
--static ssize_t param_attr_show(struct kobject *kobj,
--			       struct attribute *attr,
--			       char *buf)
-+static ssize_t param_attr_show(struct module_attribute *mattr,
-+			       struct module *mod, char *buf)
- {
- 	int count;
--	struct param_attribute *attribute = to_param_attr(attr);
-+	struct param_attribute *attribute = to_param_attr(mattr);
- 
- 	if (!attribute->param->get)
- 		return -EPERM;
-@@ -390,12 +387,12 @@ static ssize_t param_attr_show(struct ko
- }
- 
- /* sysfs always hands a nul-terminated string in buf.  We rely on that. */
--static ssize_t param_attr_store(struct kobject *kobj,
--				struct attribute *attr,
-+static ssize_t param_attr_store(struct module_attribute *mattr,
-+				struct module *owner,
- 				const char *buf, size_t len)
- {
-  	int err;
--	struct param_attribute *attribute = to_param_attr(attr);
-+	struct param_attribute *attribute = to_param_attr(mattr);
- 
- 	if (!attribute->param->set)
- 		return -EPERM;
-@@ -406,27 +403,6 @@ static ssize_t param_attr_store(struct k
- 	return err;
- }
- 
--
--static struct sysfs_ops param_sysfs_ops = {
--	.show = param_attr_show,
--	.store = param_attr_store,
--};
--
--static void param_kobj_release(struct kobject *kobj)
--{
--	kfree(container_of(kobj, struct param_kobject, kobj));
--}
--
--static struct kobj_type param_ktype = {
--	.sysfs_ops =	&param_sysfs_ops,
--	.release =	&param_kobj_release,
--};
--
--static struct kset param_kset = {
--	.subsys =	&module_subsys,
--	.ktype =	&param_ktype,
--};
--
- #ifdef CONFIG_MODULES
- #define __modinit
- #else
-@@ -434,54 +410,6 @@ static struct kset param_kset = {
- #endif
- 
- /*
-- * param_add_attribute - actually adds an parameter to sysfs
-- * @mod: owner of parameter
-- * @pk: param_kobject the attribute shall be assigned to.
-- *      One per module, one per KBUILD_MODNAME.
-- * @kp: kernel_param to be added
-- * @skip: offset where the parameter name start in kp->name.
-- * Needed for built-in modules
-- *
-- * Fill in data into appropriate &pk->attr[], and create sysfs file.
-- */
--static __modinit int param_add_attribute(struct module *mod,
--					 struct param_kobject *pk,
--					 struct kernel_param *kp,
--					 unsigned int skip)
--{
--	struct param_attribute *a;
--	int err;
--
--	a = &pk->attr[pk->num_attributes];
--	a->attr.name = (char *) &kp->name[skip];
--	a->attr.owner = mod;
--	a->attr.mode = kp->perm;
--	a->param = kp;
--	err = sysfs_create_file(&pk->kobj, &a->attr);
--	if (!err)
--		pk->num_attributes++;
--	return err;
--}
--
--/*
-- * param_sysfs_remove - remove sysfs support for one module or KBUILD_MODNAME
-- * @pk: struct param_kobject which is to be removed
-- *
-- * Called when an error in registration occurs or a module is removed
-- * from the system.
-- */
--static __modinit void param_sysfs_remove(struct param_kobject *pk)
--{
--	unsigned int i;
--	for (i = 0; i < pk->num_attributes; i++)
--		sysfs_remove_file(&pk->kobj,&pk->attr[i].attr);
--
--	/* Calls param_kobj_release */
--	kobject_unregister(&pk->kobj);
--}
--
--
--/*
-  * param_sysfs_setup - setup sysfs support for one module or KBUILD_MODNAME
-  * @mk: struct module_kobject (contains parent kobject)
-  * @kparam: array of struct kernel_param, the actual parameter definitions
-@@ -492,15 +420,17 @@ static __modinit void param_sysfs_remove
-  * in sysfs. A pointer to the param_kobject is returned on success,
-  * NULL if there's no parameter to export, or other ERR_PTR(err).
-  */
--static __modinit struct param_kobject *
-+static __modinit struct module_param_attrs *
- param_sysfs_setup(struct module_kobject *mk,
- 		  struct kernel_param *kparam,
- 		  unsigned int num_params,
- 		  unsigned int name_skip)
- {
--	struct param_kobject *pk;
-+	struct module_param_attrs *mp;
- 	unsigned int valid_attrs = 0;
--	unsigned int i;
-+	unsigned int i, size[2];
-+	struct param_attribute *pattr;
-+	struct attribute **gattr;
- 	int err;
- 
- 	for (i=0; i<num_params; i++) {
-@@ -511,42 +441,39 @@ param_sysfs_setup(struct module_kobject 
- 	if (!valid_attrs)
- 		return NULL;
- 
--	pk = kmalloc(sizeof(struct param_kobject)
--		     + sizeof(struct param_attribute) * valid_attrs,
--		     GFP_KERNEL);
--	if (!pk)
-+	size[0] = ALIGN(sizeof(*mp) +
-+			valid_attrs * sizeof(mp->attrs[0]),
-+			sizeof(mp->grp.attrs[0]));
-+	size[1] = (valid_attrs + 1) * sizeof(mp->grp.attrs[0]);
-+
-+	mp = kmalloc(size[0] + size[1], GFP_KERNEL);
-+	if (!mp)
- 		return ERR_PTR(-ENOMEM);
--	memset(pk, 0, sizeof(struct param_kobject)
--	       + sizeof(struct param_attribute) * valid_attrs);
- 
--	err = kobject_set_name(&pk->kobj, "parameters");
--	if (err)
--		goto out;
--
--	pk->kobj.kset = &param_kset;
--	pk->kobj.parent = &mk->kobj;
--	err = kobject_register(&pk->kobj);
--	if (err)
--		goto out;
-+	mp->grp.name = "parameters";
-+	mp->grp.attrs = (void *)mp + size[0];
- 
-+	pattr = &mp->attrs[0];
-+	gattr = &mp->grp.attrs[0];
- 	for (i = 0; i < num_params; i++) {
--		if (kparam[i].perm) {
--			err = param_add_attribute(mk->mod, pk,
--						  &kparam[i], name_skip);
--			if (err)
--				goto out_unreg;
-+		struct kernel_param *kp = &kparam[i];
-+		if (kp->perm) {
-+			pattr->param = kp;
-+			pattr->mattr.show = param_attr_show;
-+			pattr->mattr.store = param_attr_store;
-+			pattr->mattr.attr.name = (char *)&kp->name[name_skip];
-+			pattr->mattr.attr.owner = mk->mod;
-+			pattr->mattr.attr.mode = kp->perm;
-+			*(gattr++) = &(pattr++)->mattr.attr;
- 		}
- 	}
-+	*gattr = NULL;
- 
--	return pk;
--
--out_unreg:
--	param_sysfs_remove(pk);
--	return ERR_PTR(err);
--
--out:
--	kfree(pk);
--	return ERR_PTR(err);
-+	if ((err = sysfs_create_group(&mk->kobj, &mp->grp))) {
-+		kfree(mp);
-+		return ERR_PTR(err);
-+	}
-+	return mp;
- }
- 
- 
-@@ -565,13 +492,13 @@ int module_param_sysfs_setup(struct modu
- 			     struct kernel_param *kparam,
- 			     unsigned int num_params)
- {
--	struct param_kobject *pk;
-+	struct module_param_attrs *mp;
- 
--	pk = param_sysfs_setup(&mod->mkobj, kparam, num_params, 0);
--	if (IS_ERR(pk))
--		return PTR_ERR(pk);
-+	mp = param_sysfs_setup(&mod->mkobj, kparam, num_params, 0);
-+	if (IS_ERR(mp))
-+		return PTR_ERR(mp);
- 
--	mod->params_kobject = pk;
-+	mod->param_attrs = mp;
- 	return 0;
- }
- 
-@@ -584,9 +511,13 @@ int module_param_sysfs_setup(struct modu
-  */
- void module_param_sysfs_remove(struct module *mod)
- {
--	if (mod->params_kobject) {
--		param_sysfs_remove(mod->params_kobject);
--		mod->params_kobject = NULL;
-+	if (mod->param_attrs) {
-+		sysfs_remove_group(&mod->mkobj.kobj,
-+				   &mod->param_attrs->grp);
-+		/* We are positive that no one is using any param
-+		 * attrs at this point.  Deallocate immediately. */
-+		kfree(mod->param_attrs);
-+		mod->param_attrs = NULL;
- 	}
- }
- #endif
-@@ -724,8 +655,6 @@ decl_subsys(module, &module_ktype, NULL)
- static int __init param_sysfs_init(void)
- {
- 	subsystem_register(&module_subsys);
--	kobject_set_name(&param_kset.kobj, "parameters");
--	kset_init(&param_kset);
- 
- 	param_sysfs_builtin();
- 

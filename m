@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263645AbUEPVfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264827AbUEPVjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbUEPVfr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 17:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbUEPVfr
+	id S264827AbUEPVjX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 17:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbUEPVjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 17:35:47 -0400
-Received: from wingding.demon.nl ([82.161.27.36]:57733 "EHLO wingding.demon.nl")
-	by vger.kernel.org with ESMTP id S264825AbUEPVfm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 17:35:42 -0400
-Date: Sun, 16 May 2004 23:36:45 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Dynamic fan clock divider changes (long)
-Message-ID: <20040516213645.GA18906@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <20040516222809.2c3d1ea2.khali@linux-fr.org>
+	Sun, 16 May 2004 17:39:23 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:53439 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264827AbUEPVjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 17:39:21 -0400
+Subject: Re: [patch] kill off PC9800
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+In-Reply-To: <40A7DD0C.7010007@pobox.com>
+References: <1084729840.10938.13.camel@mulgrave>
+	<20040516142123.2fd8611b.akpm@osdl.org>  <40A7DD0C.7010007@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 16 May 2004 16:38:24 -0500
+Message-Id: <1084743514.10765.22.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040516222809.2c3d1ea2.khali@linux-fr.org>
-Organization: M38c
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 16, 2004 at 10:28:09PM +0200, Jean Delvare wrote:
-> Hi all,
+On Sun, 2004-05-16 at 16:28, Jeff Garzik wrote:
+> Although I like deleting things as much as the next guy :) I do have a 
+> question, to which I haven't come up with a good answer myself:
 > 
-[snip]
-
-Another implementation to add to the pool. Note I'm not convinced this
-is the best solution, since I know little about the hardware
-limitations...
-
-Implementation #5
-
-Since the divider can be programmed, it is possible to take two
-measurements (all in the driver): first with the highest divider
-allowed by the chipset to get an indication of the current speed, and
-then a new measurement followed as close as possible to the first one
-with a divider fitting the first measured speed.
-
-Example: set divider to 64 (or highest possible divider); fan speed
-gives 2500 +- 500. Not set divider to 2 or 1 and re-measure.
-
-Advantages:
-  - no 'low limit' has to be set magically
-  - most accurate reading possible on the whole range
-  - invisible to the user
-
-Disadvantages:
-  - no 'low limit' can be set in the hardware; low limit must be
-    processed in software.
-  - Update frequency of the fan speed will be halved.
-
-Maybe-problem:
-  - The 'as close as possible' must be in a small range or otherwise
-    the fan speed may be dropping to fast to fall outside the
-    measurable range. I do not know with which frequency the fan speed
-    can be measured.
-
-Processing the low limit in software will also solve the 'BIOS
-triggering false alarms'.
-
-> ### CONCLUSION
+> Should PC9800 be excised en masse, or just toss the obviously broken or 
+> not-in-any-makefile/Kconfig pieces?
 > 
-> I think I'll stick to #2 for now. The extra code is reasonable, and I
-> don't really see the low accuracy at high speed as a problem. What
-> matters much to me is that the user shouldn't have to worry about
-> selecting dividers himself, and #2 does this.
+> The PC9800 net driver stuff still seems to build, and be sane.
 
-I agree with the stated 'I don't really see the low accuracy at high
-speed as a problem', but this would suggest a simple
-3-or-so-line-patch to solve the problems: just use the highest fan
-divider by default. If a user really knows what he is doing, he can
-change the divider himself.
+I haven't looked at the net stuff but if it's like the SCSI stuff, it's
+only usable in a pc9800.  The vanilla kernel currently has no way to
+select a pc9800 subarchitecture build.
+
+This is a test of interest.  Since the pc9800 can't build the vanilla
+kernel, is anyone maintaining the out of tree pieces to allow it to
+build, and would they take on the job of maintaining it in-tree? if
+no-one's interested in maintaining the pc9800 subarchitecture
+components, it stands to reason that no-one is going to be compiling or
+running the net or scsi drivers, so there's no point keeping them
+hanging around.  Thus, if one piece goes, they all should.
+
+James
 
 
--- 
-Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272858AbTHPMGG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 08:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272867AbTHPMGG
+	id S272872AbTHPMYH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 08:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272874AbTHPMYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 08:06:06 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:56263 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S272858AbTHPMGE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 08:06:04 -0400
-Message-Id: <200308161205.h7GC5vlP005512@post.webmailer.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [BUG] slab debug vs. L1 alignement
-To: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Date: Sat, 16 Aug 2003 14:00:00 +0200
-References: <kUMe.2pd.9@gated-at.bofh.it> <kWuz.41M.5@gated-at.bofh.it> <kYwo.5Xr.1@gated-at.bofh.it> <l5HD.4tl.21@gated-at.bofh.it> <l6kd.53T.1@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sat, 16 Aug 2003 08:24:07 -0400
+Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:39833 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S272872AbTHPMYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 08:24:05 -0400
+Date: Sat, 16 Aug 2003 14:20:40 +0200 (CEST)
+From: Aschwin Marsman <aschwin@marsman.org>
+X-X-Sender: marsman@localhost.localdomain
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22-rc2 bk current: unresolved symbols in scx200_i2c.o
+Message-ID: <Pine.LNX.4.44.0308161417020.1815-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
+Hi,
 
-> Benjamin Herrenschmidt wrote:
-> 
->>Same for ppc32. Anyway, I don't like MUST_HWCACHE_ALIGN because it
->>just disables redzoning, I'd rather allocate more and do both redzoning
->>and cache alignement.
->>  
->>
-> I have a patch that creates helper functions that make that simple. The 
-> patch is stuck right now, because it exposes a bug in the i386 debug 
-> register handling. I'll add it redzoning with MUST_HWCACHE_ALIGN after 
-> that one is in.
+When compiling 2.4.22-rc2 bk current (20030816 9:00 UTC), I get the following:
 
-I have a related problem on s390: Some of my GFP_DMA data must be 8 byte
-aligned, while my cache lines are 256 bytes wide. With slab debugging,
-the whole structure is only 4 byte aligned and I get addressing exceptions.
+depmod: *** Unresolved symbols in /lib/modules/2.4.22-rc2/kernel/drivers/i2c/scx200_i2c.o
+depmod:         scx200_gpio_base_R254e5667
+depmod:         scx200_gpio_configure_R80c65a79
+depmod:         scx200_gpio_shadow_R9272bc53
 
-When I go to MUST_HWCACHE_ALIGN, the data already grows from ~100 Bytes to
-a full cache line, adding redzoning would make it far worse.
+Relevant part of .config:
 
-Is it possible to make kmem_cache_create accept a user specified alignment
-parameter? I suppose there are other cases where you want to force
-a specific alignment that is different from the L1 cache lines.
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_PHILIPSPAR=m
+CONFIG_I2C_ELV=m
+CONFIG_I2C_VELLEMAN=m
+CONFIG_SCx200_I2C=m
+CONFIG_SCx200_I2C_SCL=12
+CONFIG_SCx200_I2C_SDA=13
+CONFIG_SCx200_ACB=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ELEKTOR=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
 
-        Arnd <><
+Have fun & a nice weekend,
+ 
+Aschwin Marsman
+

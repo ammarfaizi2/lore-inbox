@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310899AbSCHOsO>; Fri, 8 Mar 2002 09:48:14 -0500
+	id <S310892AbSCHOso>; Fri, 8 Mar 2002 09:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310894AbSCHOsE>; Fri, 8 Mar 2002 09:48:04 -0500
-Received: from mail.internet-factory.de ([195.122.142.5]:48777 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S310888AbSCHOrq>; Fri, 8 Mar 2002 09:47:46 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: Re: 160gb maxtor with promise ultra 100
-Date: Fri, 08 Mar 2002 15:47:44 +0100
-Organization: Internet Factory AG
-Message-ID: <3C88CF10.A097C2A3@internet-factory.de>
-In-Reply-To: <3C87C6CB.F05C3B96@internet-factory.de> <Pine.LNX.4.21_heb2.09.0203072312010.1837-100000@matan.home>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S310890AbSCHOsg>; Fri, 8 Mar 2002 09:48:36 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:11270 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310884AbSCHOsZ>; Fri, 8 Mar 2002 09:48:25 -0500
+Message-ID: <3C88CEF6.8010603@evision-ventures.com>
+Date: Fri, 08 Mar 2002 15:47:18 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Luigi Genoni <kernel@Expansa.sns.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6 IDE oops with i810 chipset
+In-Reply-To: <Pine.LNX.4.44.0203081514430.28035-100000@Expansa.sns.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 1015598864 31254 195.122.142.158 (8 Mar 2002 14:47:44 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 8 Mar 2002 14:47:44 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-pre2-ac3 i686)
-X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matan proclaimed:
-> I had something similar - with 2.4.17+ide patch and PDC20265. The kernel
-> hanged at exactly the same position. I moved the disk to hdg (master on
-> second channel, instead of first), and it works OK.
+Luigi Genoni wrote:
+> HI,
+> 
+> It is almost impossible to boot 2.5.6 with IDE disk with
+> chipset :
+> 
+> 00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80
+> [Master])
+>         Subsystem: Intel Corporation 82801AA IDE
+>         Flags: bus master, medium devsel, latency 0
+>         I/O ports at 2460 [size=16]
+> 
+> 
+> I get an oops with every configuration I tried.
+> Of course I have no way to save log this oops,
+> and I had no time to write it down. Anyway it is the usual
+> "attemped to kill init" message.
+> 
+> Apart of this there is the old OSS driver with still
+> a virt_to_bus() in dma.c file,
+> and drm/i810.c has the same problem too, also if a trivial
+> (and of course wrong, also if it works temporally) fix
+> is quite fast.
 
-Thanks for the hint, but this is not really an option for me. Both
-drives should be master on their own channel. I would have tried with
-both drives on the secondary channel, unfortunately the cable is too
-short for that configuration. It would barely work for the primary, but
-then I still have the hde: problem.
+Could you please tell me which was the last version (possible up to
+pre status) which worked? And could you possible tell where the
+system actually hangs during the boot process (what is the
+last init message which appears on the screen?).
 
-Holger
+During IDE setup? During mounting? During fsck or whatever.
+I'm asking this becouse I couldn't get patch-2.5.6-pre3 working
+on my athlon system and there are as well apparent instabilities
+on my i440MX based notebook, which are not related to the IDE changes.
+(pre2 with patch number 16 and 17 applied works for me of course on
+both of them quite well...)
+
+Thank you in advance.
+

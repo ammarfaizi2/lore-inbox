@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135528AbRDSDEu>; Wed, 18 Apr 2001 23:04:50 -0400
+	id <S135530AbRDSDBk>; Wed, 18 Apr 2001 23:01:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135529AbRDSDEk>; Wed, 18 Apr 2001 23:04:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10256 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135528AbRDSDE0>;
-	Wed, 18 Apr 2001 23:04:26 -0400
-Date: Thu, 19 Apr 2001 00:02:40 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Daniel Phillips <phillips@nl.linux.org>
-Cc: jaharkes@cs.cmu.edu, adilger@turbolinux.com,
-        ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Ext2 Directory Index - Delete Performance
-In-Reply-To: <20010419012241Z92303-1659+7@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.21.0104190001560.1685-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135529AbRDSDBb>; Wed, 18 Apr 2001 23:01:31 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:11529 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S135528AbRDSDBT>;
+	Wed, 18 Apr 2001 23:01:19 -0400
+Date: Wed, 18 Apr 2001 23:02:17 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.2.0 is available
+Message-ID: <20010418230217.A28522@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Apr 2001, Daniel Phillips wrote:
-> Jan Harkes wrote:
-> > On Thu, Apr 19, 2001 at 02:27:48AM +0200, Daniel Phillips wrote:
-> > > more memory.  If you have enough memory, the inode cache won't thrash,
-> > > and even when it does, it does so gracefully - performance falls off
-> > > nice and slowly.  For example, 250 Meg of inode cache will handle 2
-> > > million inodes with no thrashing at all.
-> > 
-> > What inode cache are you talking about? According to the slabinfo output
-> > on my machine every inode takes up 480 bytes in the inode_cache slab. So
-> > 250MB is only able to hold about half a million inodes in memory.           
->                                                                  
-> Sorry, I was a little loose with terminology there.  I should have
-> said "inode blocks in cache".  The inode cache is related.  When an
-> Ext2 inode is pushed out of the inode cache it gets transfered to a
-> dirty block in memory, where it shrinks to 128 bytes and shares the
-> block with 31 other inodes.  These blocks are in the buffer cache, and
-> this is the cache I'm talking about.
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-Hmmm, considering this, it may be wise to limit the amount of
-inodes in the inode cache to, say, 10% of RAM ... because we
-can cache MORE inodes if we store them in the buffer cache
-instead!
+Release 1.2.0: Wed Apr 18 22:09:57 EDT 2001
+	* Synchronized with 2.4.4-pre4.
+	* First release of kxref.py.
 
-regards,
+That second little item is more important than it sounds -- kxref.py
+is a cross-referencing tool that can unerringly detect orphaned config
+symbols lurking in various obscure crevices of the source tree.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+There are over 700 of these orphans in the 2.4.4pre4 tree!  That's a lot
+of cruft and bulk and a substantial drag on the readability of the code.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+I'll fix this, if the dieties Linus and Alan do not hinder.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+
+Yes, the president should resign.  He has lied to the American people, time
+and time again, and betrayed their trust.  Since he has admitted guilt,
+there is no reason to put the American people through an impeachment.  He
+will serve absolutely no purpose in finishing out his term, the only
+possible solution is for the president to save some dignity and resign.
+	-- 12th Congressional District hopeful Bill Clinton, during Watergate

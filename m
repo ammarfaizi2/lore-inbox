@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264647AbTGCJrE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 05:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbTGCJrE
+	id S265701AbTGCKAB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 06:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265741AbTGCKAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 05:47:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30995 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264647AbTGCJrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 05:47:03 -0400
-Date: Thu, 3 Jul 2003 11:01:26 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Juan Quintela <quintela@mandrakesoft.com>
-Cc: junkio@cox.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (trivial 2.5.74) compilation fix drivers/mtd/mtd_blkdevs.c
-Message-ID: <20030703110126.C15013@flint.arm.linux.org.uk>
-Mail-Followup-To: Juan Quintela <quintela@mandrakesoft.com>, junkio@cox.net,
-	linux-kernel@vger.kernel.org
-References: <7vbrwc3sxo.fsf@assigned-by-dhcp.cox.net> <86llvgkk59.fsf@trasno.mitica>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <86llvgkk59.fsf@trasno.mitica>; from quintela@mandrakesoft.com on Thu, Jul 03, 2003 at 11:57:22AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Thu, 3 Jul 2003 06:00:01 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:57094 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S265701AbTGCKAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 06:00:00 -0400
+Date: Thu, 3 Jul 2003 20:13:51 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+cc: davem@redhat.com, <acme@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+       <netdev@oss.sgi.com>, <mbligh@aracnet.com>
+Subject: Re: [PATCH] NET: fix SEGV/OOPS with /proc/net/{raw,igmp,...} (is
+ Re: [Bug 863] New: cat /proc/buddyinfo + netstat -a kills machine)
+In-Reply-To: <20030703.154429.06241047.yoshfuji@linux-ipv6.org>
+Message-ID: <Mutt.LNX.4.44.0307032013200.14369-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 11:57:22AM +0200, Juan Quintela wrote:
-> >>>>> "junkio" == junkio  <junkio@cox.net> writes:
-> 
-> junkio> C does not let us declar variables in the middle of a block (yet).
-> 
-> It depends what do you call C :)
-> 
-> C99 does.
+On Thu, 3 Jul 2003, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
 
-Unfortunately gcc 2.95.x does not allow it, so we shouldn't be using it
-in the kernel (yet).
+> I'm not so sure if this is ralated to BUG#863, but anyway;
+> 
+> Following patch fixes segv/oops with /proc/net/{raw,igmp,mfilter,
+> raw6,igmp6,mfilter6,anycast,ip6_flowlabel}.
 
+Applied to bk://kernel.bkbits.net/jmorris/net-2.5
+
+- James
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+James Morris
+<jmorris@intercode.com.au>
 

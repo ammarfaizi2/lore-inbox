@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268094AbUH3OCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268159AbUH3OGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268094AbUH3OCj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 10:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUH3OCj
+	id S268159AbUH3OGy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 10:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUH3OGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 10:02:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:37510 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268094AbUH3OCh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 10:02:37 -0400
-Date: Mon, 30 Aug 2004 10:02:32 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Celistica with AMD chip-set
-Message-ID: <Pine.LNX.4.53.0408300955470.21607@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Aug 2004 10:06:54 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:40833 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268159AbUH3OGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 10:06:52 -0400
+Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
+	IDE bus)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Neil Horman <nhorman@redhat.com>,
+       Marc =?ISO-8859-1?Q?Str=E4mke?= <marcstraemke.work@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040830010712.GC12313@logos.cnet>
+References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com>
+	 <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com>
+	 <20040830010712.GC12313@logos.cnet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1093871052.30082.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 30 Aug 2004 14:04:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2004-08-30 at 02:07, Marcelo Tosatti wrote:
+> Indeed this is a typo but has been fixed on 2.4.26:
 
-Hello all,
+Its not a typo - "SunDisk" long ago got forced to change their
+name to "Sandisk" (which is a nice little joke) [1]
 
-The Celistica server with the AMD chip-set has very poor
-PCI performance with Linux (and probably W$ too).
-
-The problem was traced to incorrect bridge configuration
-in the HyperTransport(tm) chips that connect up pairs
-of slots.
-
-I don't know how to make a generic chip-set bug-fix, and
-probably a new BIOS will come out with the correct values
-in the registers. But right now, the following initialization
-code will fix the box.
-
-
-
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//
-//  Some kind of problem, here. If the HyperTransport(tm) bridge
-//  is found, one of the register values needs to be changed to
-//  fix the bus performance. Need to turn back on prefetch.
-//
-
-    while((pdev = pci_find_device(0x1022, 0x7450, pdev)) != NULL)
-        pci_write_config_dword(pdev,  0x4c, 0x2ec1);
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-          "DMA used to run at 180 Mb/s. With the new hardware it's only
-           30 Mb/s. Must be a software problem......." -actual complaint.
-            Note 96.31% of all statistics are fiction.
+Alan
+[1]- sans disk - without disk 
 
 

@@ -1,103 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318696AbSIKKx1>; Wed, 11 Sep 2002 06:53:27 -0400
+	id <S318711AbSIKKyg>; Wed, 11 Sep 2002 06:54:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318708AbSIKKx1>; Wed, 11 Sep 2002 06:53:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43160 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318696AbSIKKx0>;
-	Wed, 11 Sep 2002 06:53:26 -0400
-Date: Wed, 11 Sep 2002 12:58:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Oleg Drokin <green@namesys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-       Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org,
-       andre@linux-ide.org
-Subject: Re: 2.5 Problem Status Report
-Message-ID: <20020911105807.GF1089@suse.de>
-References: <20020911112808.A6341@namesys.com> <Pine.LNX.4.44.0209110937190.5764-100000@localhost.localdomain> <20020911120551.A937@namesys.com> <20020911102507.GA1364@suse.de> <20020911102926.GB1364@suse.de> <20020911144740.A911@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020911144740.A911@namesys.com>
+	id <S318714AbSIKKyg>; Wed, 11 Sep 2002 06:54:36 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:20734 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S318711AbSIKKyf>;
+	Wed, 11 Sep 2002 06:54:35 -0400
+Date: Wed, 11 Sep 2002 12:55:52 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: lkml <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Linux 2.4.20-pre6
+In-Reply-To: <Pine.NEB.4.44.0209110152380.26432-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.GSO.4.21.0209111252340.27524-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11 2002, Oleg Drokin wrote:
-> Hello!
+On Wed, 11 Sep 2002, Adrian Bunk wrote:
+> On Tue, 10 Sep 2002, Marcelo Tosatti wrote:
 > 
-> On Wed, Sep 11, 2002 at 12:29:26PM +0200, Jens Axboe wrote:
+> >...
+> > Geert Uytterhoeven <geert@linux-m68k.org>:
+> >...
+> >   o Wrong fbcon_mac dependency
+> >...
 > 
-> > > ok I see the bug. it's due to the imbalanced nature of ide_map_buffer()
-> > > vs ide_unmap_buffer(). i'll cook up a fix right away.
-> > Does this make it work?
+> It's possible to enable CONFIG_FBCON_MAC on !m68k and after your change
+> the compilation breaks on i386 with the following error:
 > 
-> No. It fails exactly like without the patch.
-
-Hmm, ok I'll try and reproduce it here then.
-
-> > --- include/linux/ide.h~	2002-09-11 12:27:14.000000000 +0200
-> > +++ include/linux/ide.h	2002-09-11 12:27:29.000000000 +0200
-> > @@ -597,9 +597,10 @@
-> >  	return rq->buffer + task_rq_offset(rq);
-> >  }
-> >  
-> > -extern inline void ide_unmap_buffer(char *buffer, unsigned long *flags)
-> > +extern inline void ide_unmap_buffer(struct request *rq, char *buffer, unsigned long *flags)
-> >  {
-> > -	bio_kunmap_irq(buffer, flags);
-> > +	if (rq->bio)
-> > +		bio_kunmap_irq(buffer, flags);
-> >  }
-> >  
-> >  /*
+> <--  snip  -->
 > 
-> Perhaps you forgot to make sure rq->bio is zeroed on unmapping/freeing?
+> ...
+> gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+> -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc
+> -iwithprefix include -DKBUILD_BASENAME=fbcon  -c -o fbcon.o fbcon.c
+> fbcon.c: In function `fbcon_setup':
+> fbcon.c:641: `MACH_IS_MAC' undeclared (first use in this function)
+> fbcon.c:641: (Each undeclared identifier is reported only once
+> fbcon.c:641: for each function it appears in.)
+> make[3]: *** [fbcon.o] Error 1
+> make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/video'
 
-rq->bio must not be zeroed or free'd or anything like that. ok I see
-what happens now. does this patch work for you? just back out the other
-patch first (well you don't have to, but might as well).
+Hmmm... I didn't realize vesafb can use fbcon-mac.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.639   -> 1.640  
-#	 include/linux/bio.h	1.17    -> 1.18   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/11	axboe@burns.home.kernel.dk	1.640
-# clean up with bio_kmap_irq() thing properly. remove the micro optimization
-# of _not_ calling kmap_atomic() if this isn't a highmem page. we could
-# keep that and do the inc_preempt_count() ourselves, but I'm not sure
-# it's worth it and this is cleaner.
-# --------------------------------------------
-#
-diff -Nru a/include/linux/bio.h b/include/linux/bio.h
---- a/include/linux/bio.h	Wed Sep 11 12:57:45 2002
-+++ b/include/linux/bio.h	Wed Sep 11 12:57:45 2002
-@@ -215,17 +215,11 @@
- {
- 	unsigned long addr;
- 
--	local_save_flags(*flags);
--
--	/*
--	 * could be low
--	 */
--	if (!PageHighMem(bio_page(bio)))
--		return bio_data(bio);
--
- 	/*
--	 * it's a highmem page
-+	 * might not be a highmem page, but the preempt/irq count
-+	 * balancing is a lot nicer this way
- 	 */
-+	local_save_flags(*flags);
- 	local_irq_disable();
- 	addr = (unsigned long) kmap_atomic(bio_page(bio), KM_BIO_SRC_IRQ);
- 
+However, it seems to be used if you don't enable any of the fbcon-cfb* modules
+only, since fbcon-cfb* takes precendence.
 
--- 
-Jens Axboe
+Do people really use 6x11 fonts with vesafb?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

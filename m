@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbTD2QPe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 12:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbTD2QPe
+	id S261438AbTD2QTM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 12:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTD2QTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 12:15:34 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:21481 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261334AbTD2QPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 12:15:33 -0400
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F15D@EXA-ATLANTA.se.lsil.com>
-From: "Mukker, Atul" <atulm@lsil.com>
-To: prequejo@dbs.es, linux-kernel@vger.kernel.org
-Cc: "'Martin_List-Petersen@Dell.com'" <Martin_List-Petersen@Dell.com>
-Subject: RE: LSI MegaRAID ATA driver (COMPAQ Proliant DL-320 G2)
-Date: Tue, 29 Apr 2003 12:27:37 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 29 Apr 2003 12:19:12 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:39100 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261438AbTD2QTL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 12:19:11 -0400
+Date: Tue, 29 Apr 2003 09:28:57 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Christian =?ISO-8859-1?Q?Borntr=E4ger?= <linux@borntraeger.net>
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show
+ all net devices
+Message-Id: <20030429092857.4ebffcc9.rddunlap@osdl.org>
+In-Reply-To: <200304291434.18272.linux@borntraeger.net>
+References: <200304291434.18272.linux@borntraeger.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Apr 2003 14:34:18 +0200 Christian Bornträger <linux@borntraeger.net> wrote:
+
+| Summary: /proc/net/devices doesnt show all devices using cat. With dd all are 
+| available.
+| 
+| I tested a kernels prior to 
+| http://linus.bkbits.net:8080/linux-2.5/cset@1.797.156.3
+| and it doesnt seem to have this problem.
+
+
+I haven't tried to make that many net devices.
+Acme, does this look helpful?
+Christian, can you test this patch?
+
+--
+~Randy
+
+
+patch_name:	proc_net_dev_seq.patch
+patch_version:	2003-04-29.09:10:38
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	fix /proc/net/dev to include entire file for output
+product:	Linux
+product_versions: linux-2568-428
+changelog:	seq_start() needs to increment i;
+URL:		_
+requires:	_
+conflicts:	_
+maintainer:	davem@redhat.com
+diffstat:	=
+ net/core/dev.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Naur ./net/core/dev.c%SEQ ./net/core/dev.c
+--- ./net/core/dev.c%SEQ	2003-04-28 15:07:01.000000000 -0700
++++ ./net/core/dev.c	2003-04-29 09:06:18.000000000 -0700
+@@ -1789,7 +1789,7 @@
+ 	struct net_device *dev;
+ 	loff_t i;
  
-> > Well... Now, I need to upgrade and rebuild the kernel (2.4.18 
-> > to 2.4.20)
-> > but, I haven't got the source code of the LSI MegaRAID ATA 
-> controller.
-> > 
-That's right, the source for this software stack is not released under GPL.
-We do release the RPM packages to update driver. This is true for the stock
-kernels only. It is not possible to use the RPM for all (or individually
-compiled) kernels
-
-> 
-> Shouldn't that more or less be the same as the LSI MegaRaid 
-> SCSI driver.
-> Both adapters are based on the same BIOS design.
-> 
-> I'm pretty sure, that it should work on the default MegaRaid 
-> module (SCSI
-> low-level drivers).
-No, these are separate drivers, at least as of now.
-
--Atul Mukker <atulm@lsil.com>
+-	for (i = 0, dev = dev_base; dev && i < pos; dev = dev->next);
++	for (i = 0, dev = dev_base; dev && i < pos; dev = dev->next, i++);
+ 
+ 	return i == pos ? dev : NULL;
+ }

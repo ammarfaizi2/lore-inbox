@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUETTnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265206AbUETTo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265203AbUETTnG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 15:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUETTnF
+	id S265206AbUETTo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 15:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUETTo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 15:43:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28575 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265203AbUETTnB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 15:43:01 -0400
-Date: Thu, 20 May 2004 16:43:59 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug in VM accounting code, probably exploitable
-Message-ID: <20040520194358.GE19922@logos.cnet>
-References: <40A12E83.7030209@aknet.ru>
+	Thu, 20 May 2004 15:44:59 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:40103 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265206AbUETTo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 15:44:57 -0400
+Date: Thu, 20 May 2004 21:44:39 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH][2.6] Fix power/shutdown.c comments
+Message-ID: <20040520194439.GA22904@k3.hellgate.ch>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
 Content-Disposition: inline
-In-Reply-To: <40A12E83.7030209@aknet.ru>
-User-Agent: Mutt/1.5.5.1i
+X-Operating-System: Linux 2.6.6 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 11:50:27PM +0400, Stas Sergeev wrote:
-> 
-> Hello.
-> 
-> As far as I know, if overcommit is
-> disabled, the OOM kill should never
-> happen.
-> It seems to be the bug in the linux
-> kernel though (any version I think,
-> probably also including 2.4.x), which
-> makes it possible to overcommit almost
-> arbitrary and provoke an OOM kill
-> afterwards.
-> Attached is a program that demonstrates
-> the bug. Don't forget to "swapoff -a"
-> before starting it, or touching pages
-> will take eternity. And the amount of
-> RAM must be <1Gb, or the prog will not
-> work:)
-> 
-> On 2.4.25 I get:
-> ---
-> May 11 22:28:18 lin kernel: __alloc_pages: 0-order allocation failed 
-> (gfp=0x1d2/0)
-> May 11 22:28:20 lin syslogd: /var/log/debug: Cannot allocate memory
-> May 11 22:28:18 lin kernel: VM: killing process mozilla-bin
-> May 11 22:28:18 lin kernel: __alloc_pages: 0-order allocation failed 
-> (gfp=0x1f0/0)
-> May 11 22:28:20 lin kernel: __alloc_pages: 0-order allocation failed 
-> (gfp=0x1d2/0)
-> May 11 22:28:21 lin kernel: __alloc_pages: 0-order allocation failed 
-> (gfp=0x1d2/0)
-> May 11 22:28:21 lin kernel: VM: killing process X
-> May 11 22:28:21 lin gnome-name-server[1254]: input condition is: 0x11, 
-> exiting
-> May 11 22:29:00 lin kernel: __alloc_pages: 0-order allocation failed 
-> (gfp=0x1d2/0)
-> May 11 22:29:00 lin kernel: VM: killing process overc_test
-> ---
-> As you can see, the program caused many
-> other processes to be killed, before it
-> died itself.
 
-About v2.4, can you try v2.4.26 with CONFIG_OOM_KILLER=y ? 
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-As for the overcommit, I think it has always been "broken"? (its always 
-possible to overcommit).
+Make the comments in drivers/base/power/shutdown.c somewhat less wrong.
+There's still room for improvement :-/.
+
+Patch against 2.6.6.
+
+Roger
+
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="shutdown-2.6.6.diff"
+
+--- linux-2.6.6/drivers/base/power/shutdown.c	2004-04-04 05:37:36.000000000 +0200
++++ linux-2.6.6-patch/drivers/base/power/shutdown.c	2004-05-20 16:19:29.988995222 +0200
+@@ -34,8 +34,8 @@
+ 
+ 
+ /**
+- * We handle system devices differently - we suspend and shut them 
+- * down first and resume them first. That way, we do anything stupid like
++ * We handle system devices differently - we suspend and shut them
++ * down last and resume them first. That way, we don't do anything stupid like
+  * shutting down the interrupt controller before any devices..
+  *
+  * Note that there are not different stages for power management calls - 
+@@ -45,7 +45,7 @@
+ extern int sysdev_shutdown(void);
+ 
+ /**
+- * device_shutdown - call ->remove() on each device to shutdown. 
++ * device_shutdown - call ->shutdown() on each device to shutdown. 
+  */
+ void device_shutdown(void)
+ {
+
+--sdtB3X0nJg68CQEu--

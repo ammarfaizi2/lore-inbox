@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270025AbRHQJ6D>; Fri, 17 Aug 2001 05:58:03 -0400
+	id <S270035AbRHQKEY>; Fri, 17 Aug 2001 06:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270042AbRHQJ5x>; Fri, 17 Aug 2001 05:57:53 -0400
-Received: from picard.csihq.com ([204.17.222.1]:21423 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S270025AbRHQJ5h>;
-	Fri, 17 Aug 2001 05:57:37 -0400
-Message-ID: <001f01c12702$f5fd98a0$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Recommended change
-Date: Fri, 17 Aug 2001 05:57:01 -0400
+	id <S270036AbRHQKEP>; Fri, 17 Aug 2001 06:04:15 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:46859 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S270035AbRHQKEH>; Fri, 17 Aug 2001 06:04:07 -0400
+Message-ID: <3B7CEBD2.D3ED4D56@idb.hist.no>
+Date: Fri, 17 Aug 2001 12:02:58 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre8 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Chris Schanzle <chris.schanzle@jhuapl.edu>, linux-kernel@vger.kernel.org
+Subject: Re: I/O causes performance problem with 2.4.8-ac3
+In-Reply-To: <3B7C08D4.9070303@jhuapl.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I upgraded to e2fsprog-1.23 and LInux 2.4.8 yesterday and saw this:
+Chris Schanzle wrote:
+> 
+> This probably belongs in the "use-once" thread...
+> 
+> I ran into a significant (lack of) performance situation with 2.4.8-ac3
+> that does not exist with 2.4.8.  Perhaps someone can shed some light on
+> what happened and how to avoid it in the future.
+[...]
+> In other words, system had
+> cached a bunch of buffers.
+> 
+> Performance was excellent until I decided to "dd bs=1024k </dev/cdrom
+>  >somefile" a 600+MB cdrom while a kernel build was going on.  It took
+[...]
+Such a big copy operation is exactly what "use-once" does well.
+2.4.8 has use-once, 2.4.8ac3 don't have use-once. 
 
-Aug 16 08:58:20 yeti kernel: md: fsck.ext3(pid 207) used obsolete MD ioctl,
-upgrade your software to use new ictls.
+One can construct scenarios where use-once performs worse too,
+I believe this is why Alan Cox didn't want it yet.  
 
-Do you suppose we could change the printk line to actually output the ioctl
-that was requested?
+A big copy without use-once will push everything else out of
+cache, and push a lot of programs into swap in order to cache
+a lot of the big copy.  That's bad if the big
+copy is done once and you don't really need the stuff again.
+Then you want the "other" stuff to stay in cache instead.
 
-i.e.:
+Use-once may perform worse if stuff falls out of cache
+and has to be re-read from disk.
 
-/usr/src/linux/drivers/md/md.c
-
-                default:
-                        printk(KERN_WARNING "md: %s(pid %d) used obsolete MD
-ioctl(%d), upgrade your software to use new ictls.\n", current->comm,
-current->pid, cmd);
-
-Might help debugging this stuff a little easier.
-
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
-
+Helge Hafting

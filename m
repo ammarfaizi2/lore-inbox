@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266061AbUAQP6k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 10:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUAQP6k
+	id S266064AbUAQQBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 11:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266066AbUAQQBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 10:58:40 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:36518 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266061AbUAQP6j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 10:58:39 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] fix/improve modular IDE (Re: [PATCH] modular IDE for 2.6.1 ugly but working fix)
-Date: Sat, 17 Jan 2004 17:02:35 +0100
+	Sat, 17 Jan 2004 11:01:24 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:20237 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S266064AbUAQQBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 11:01:23 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Sporadically now dial-up on 2.6.1 and 2.6.1-mm3
+Date: Sat, 17 Jan 2004 19:00:29 +0300
 User-Agent: KMail/1.5.3
-Cc: Witold Krecicki <adasi@kernel.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200401171313.52545.adasi@kernel.pl> <200401171422.06211.bzolnier@elka.pw.edu.pl> <20040117153830.GA3009@mars.ravnborg.org>
-In-Reply-To: <20040117153830.GA3009@mars.ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401171702.35705.bzolnier@elka.pw.edu.pl>
+Message-Id: <200401171900.29894.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This was OK in 2.6.0. After updating to 2.6.1 I can dial into provider, I am 
+authenticated and interfaces set up but apparently no packet ever flows over 
+this connection. Same in 2.6.1-mm3. Sometimes (very rarely) it works but now 
+I have to boot into 2.6.0 to send this.
 
-On Saturday 17 of January 2004 16:38, Sam Ravnborg wrote:
-> > +ide-core-objs += ide.o ide-default.o ide-io.o ide-iops.o ide-lib.o \
-> > +	ide-probe.o ide-taskfile.o
->
-> It would be more consistent to use "ide-core-y" since this is
-> what the following lines are expanded to.
->
-> > +
-> > +ide-core-$(CONFIG_BLK_DEV_CMD640)	+= pci/cmd640.o
->
-> Like this line.
+There was similar problem somewhere around 2.5.70; I do not know specific fix 
+as it went away after updating kernel version.
 
-Yep, thanks!
+Please let me know what information is needed and how to collect it (I have 
+close to zero knowledge about networking in kernel)
+
+TIA
+
+-andrey
 

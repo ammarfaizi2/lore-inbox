@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132552AbRBEDA4>; Sun, 4 Feb 2001 22:00:56 -0500
+	id <S132538AbRBEDGq>; Sun, 4 Feb 2001 22:06:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132588AbRBEDAg>; Sun, 4 Feb 2001 22:00:36 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:10501 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S132552AbRBEDAe>;
-	Sun, 4 Feb 2001 22:00:34 -0500
-Date: Mon, 5 Feb 2001 01:00:28 -0200
-From: Rogerio Brito <rbrito@iname.com>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
-Message-ID: <20010205010028.B14936@iname.com>
-Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFDA@orsmsx31.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFDA@orsmsx31.jf.intel.com>
+	id <S132588AbRBEDG1>; Sun, 4 Feb 2001 22:06:27 -0500
+Received: from d176.focal4.interaccess.com ([207.208.139.176]:20352 "EHLO
+	cactus.bheadley.org") by vger.kernel.org with ESMTP
+	id <S132538AbRBEDGG>; Sun, 4 Feb 2001 22:06:06 -0500
+Message-ID: <3A7E1ADF.669BAAD5@interaccess.com>
+Date: Sun, 04 Feb 2001 21:15:43 -0600
+From: "Bryan W. Headley" <bheadley@interaccess.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2-pre1 won't boot on my SMP P-II
+In-Reply-To: <200102050254.DAA07310@harpo.it.uu.se>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id OAA30886
 
-On Feb 02 2001, Dunlap, Randy wrote:
-> > From: Rogerio Brito [mailto:rbrito@iname.com]
-> > 
-> > 	While I don't have problems with the Duron above, I do have a
-> > 	486 here with 8MB of memory that I intend to use as a router
-> > 	for my local LAN, but 2.4.0 only recognizes 7MB, while 2.2.18
-> > 	recognizes all 8MB.
-> 
-> Fixed in 2.4.1 and its pre-patches.
+Mikael Pettersson wrote:
 
-	Thank you very much, Randy. I'll compile 2.4.1 or anything
-	newer than this and I'll report back my results.
+> Bryan W. Headley writes:
+> > Last kernel that booted was Redhat's build of 2.4.0-pre11. I'm not sure
+> > where the issue is at, so I attach a log of the system booting up.
+> >
+> > It's an ASUS P2B-DS with dual Deschutes PII-450s.
+>
+> > Linux version 2.4.2-pre1 (bheadley@cactus.bheadley.org) (gcc version 2.96 20000731 (Red Hat Linux 7.0)) #1 SMP Sun Feb 4 15:57:05 CST 2001
+>
+> gcc 2.96 -- is this the vanilla RH7.0 gcc or the updated one? The vanilla one
+> is known to miscompile stuff. Use kgcc, 2.95.2, or the updated RH7.0 gcc.
+>
+
+The updated one. On suggestion, I upgraded the BIOS which seems to have fixed the issue.
+
+>
+> > md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+> > md.c: sizeof(mdp_super_t) = 4096
+> > autodetecting RAID arrays
+> > autorun ...
+> > ... autorun DONE.
+> > ACPI: Core Subsystem version [20010125]
+> > LNMI Watchdog detected LOCKUP on CPU0, registers:
+> > CPU:    0
+> > EIP:    0010:[<c02345dd>]
+> > EFLAGS: 00000086
+> > eax: 00000000   ebx: 000f8040   ecx: 00000001   edx: c0272b42
+> > esi: cfd6ff70   edi: cfd6e331   ebp: 00000000   esp: cfd6ff48
+> > ds: 0018   es: 0018   ss: 0018
+> > Process kacpid (pid: 7, stackpage=cfd6f000)
+> > Stack: 00000286 00070000 00c70000 c01c10c1 000f8040 cfd6ff70 cfd6e331 00000000
+> >        c01d47fa c0272b42 0000003c cfd6ffa0 000f8040 00000000 00000000 00000000
+> >        00000000 00000000 cfd6e000 00000000 00000001 cfd6e000 20010125 00000003
+> > Call Trace: [<c01c10c1>] [<c01d47fa>] [<c0105000>] [<c0108626>] [<c01d46d0>]
+> >
+> > Code: 80 3d 20 50 29 c0 00 f3 90 7e f5 e9 93 5c ee ff 80 3d 20 50
+> > console shuts up ...
+>
+> The NMI watchdog detected an apparent lockup (interrupts masked
+> for too long) during boot. This is fatal. Note that the last message
+> before the oops mentioned "ACPI" and the process killed is "kacpid".
+> Hmm, I don't know how well ACPI works on SMP (or at all), but you
+> should try a new kernel built with ACPI disabled.
+>
+> /Mikael
+
+--
+____               .:.                 ____
+Bryan W. Headley - bheadley@interaccess.com
 
 
-	Thank you very much again, Roger...
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€ù^jÇ«y§m…á@A«a¶Úÿÿü0ÃûnÇú+ƒùd

@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265470AbUBFOs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 09:48:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbUBFOs7
+	id S265465AbUBFOol (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 09:44:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265471AbUBFOol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 09:48:59 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:58344 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S265470AbUBFOs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 09:48:57 -0500
-Date: Fri, 6 Feb 2004 09:47:30 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-Message-ID: <20040206144729.GJ1042@phunnypharm.org>
-References: <fa.h1qu7q8.n6mopi@ifi.uio.no> <402240F9.3050607@gadsdon.giointernet.co.uk> <20040205182614.GG13075@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205182614.GG13075@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 6 Feb 2004 09:44:41 -0500
+Received: from mail.gmx.de ([213.165.64.20]:39316 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265465AbUBFOok (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 09:44:40 -0500
+X-Authenticated: #689055
+Message-ID: <4023A822.7050602@gmx.de>
+Date: Fri, 06 Feb 2004 15:43:46 +0100
+From: Torsten Scheck <torsten.scheck@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Large-FAT32-Filesystem Bug
+References: <3FD0555F.5060608@gmx.de> <20031205160746.GA18568@codepoet.org>
+In-Reply-To: <20031205160746.GA18568@codepoet.org>
+X-Enigmail-Version: 0.82.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 10:26:14AM -0800, Greg KH wrote:
-> On Thu, Feb 05, 2004 at 01:11:21PM +0000, Robert Gadsdon wrote:
-> > 2.6.2-mm1 tombstone "Badness in kobject_get....." when booting:
+> Erik Andersen wrote:
+>> On Fri Dec 05, 2003 at 10:52:31AM +0100, Torsten Scheck wrote:
+> [...]
+>>>I found a critical FAT32 bug when I tried to store data onto an
+>>>internal IDE 160 GB and onto an external USB2/FW-250 GB hard
+>>>disk.
+>> 
+>> 
+>> Does this help?
+>> 
+>>  -Erik
 > 
-> Oooh, not nice.  That means a kobject is being used before it has been
-> initialized.  Glad to see that check finally helps out...
+> [... int=>loff_t ino,inum-patch ...]
+> 
+> Hi Erik:
+> 
+> I applied your patch to 2.4.23 and it solved the problem. No more lost 
+> clusters. All data stays where it belongs.
+> 
+> I'll test it for a few days and get back to you later.
+> 
+> Thank you very much.
+> 
+> Torsten
 
-Doesn't sound like a bug in ieee1394. This bus for each is done on the
-ieee1394_bus_type, which is registered way ahead of time. Nothing is in
-that device list that didn't come from device_register(). Has something
-new changed to where I need to prep the device more before passing it to
-device_register()?
 
-> > ieee1394: Host added: ID:BUS[0-00:1023]  GUID[090050c50000046f]
-> > Badness in kobject_get at lib/kobject.c:431
-> > Call Trace:
-> >  [<c0239966>] kobject_get+0x36/0x40
-> >  [<c027cc73>] get_device+0x13/0x20
-> >  [<c027d899>] bus_for_each_dev+0x59/0xc0
-> >  [<d0939355>] nodemgr_node_probe+0x55/0x120 [ieee1394]
-> >  [<d0939200>] nodemgr_probe_ne_cb+0x0/0x90 [ieee1394]
-> >  [<d0939748>] nodemgr_host_thread+0x168/0x190 [ieee1394]
-> >  [<d09395e0>] nodemgr_host_thread+0x0/0x190 [ieee1394]
-> >  [<c010ac15>] kernel_thread_helper+0x5/0x10
-> 
-> Looks like one of the ieee1394 patches causes this.  Ben?
-> 
-> thanks,
-> 
-> greg k-h
+I'm still very content with your patch. As I mainly rsync between an 
+ext3 and a vfat 200+GB filesystem, I'm pretty sure that there was no 
+single error.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Thanks again.
+
+Torsten
+

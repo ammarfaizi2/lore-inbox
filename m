@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131420AbRCWUPm>; Fri, 23 Mar 2001 15:15:42 -0500
+	id <S131408AbRCWUVm>; Fri, 23 Mar 2001 15:21:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131415AbRCWUPc>; Fri, 23 Mar 2001 15:15:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40204 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131414AbRCWUPQ>; Fri, 23 Mar 2001 15:15:16 -0500
-Date: Fri, 23 Mar 2001 12:14:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Version 6.1.8 of the aic7xxx driver availalbe 
-In-Reply-To: <200103230131.f2N1Uos09088@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.31.0103231159300.766-100000@penguin.transmeta.com>
+	id <S131419AbRCWUVb>; Fri, 23 Mar 2001 15:21:31 -0500
+Received: from richard2.pil.net ([207.8.164.9]:8206 "HELO richard2.pil.net")
+	by vger.kernel.org with SMTP id <S131408AbRCWUVP>;
+	Fri, 23 Mar 2001 15:21:15 -0500
+Date: Fri, 23 Mar 2001 15:20:41 -0500 (EST)
+From: Tom Diehl <tdiehl@pil.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <Pine.LNX.4.21.0103231154440.29682-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.30.0103231504520.19312-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Mar 2001, Rik van Riel wrote:
 
-
-On Thu, 22 Mar 2001, Justin T. Gibbs wrote:
+> Well, in that case you'll have to live with the current OOM
+> killer.  Martin wrote down a pretty detailed description of
+> what's wrong with my algorithm, if it really bothers him he
+> should be able to come up with something better.
 >
-> 	aic7xxx_proc.c:
-> 		Use an unsigned long for total number of commands
-> 		sent to a device.  %q and %lld don't seem to work
-> 		under Linux or I'd have used a uint64_t.
+> Personally, I think there is more important VM code to look
+> after, since OOM is a pretty rare occurrance anyway.
 
-It's "%Ld".
+Well actually it is not that rare at least for me. Every 3 or 4 days I run
+into it (It happened again this morning). The machine has 128 Megs of ram
+and 256 Megs of swap. It is my desktop machine and I keep 3 or 4 netscape
+windows running all of the time. Well I try to at least. Every 3 or 4 days
+the OOM Killer kills netscape, it happened this morning. If I could fix it
+I would but alas I do not have the knowledge. The best I can do is test. :(
 
-Think ANSI "long long double" -> "Lf".
+This is NOT a complaint I just bring this up as another data point.
+It used to lock the machine so things are getting better. fwiw, I am
+currently running 2.4.2-ac18. The old ac kernels (do not remember exactly
+which ones but it was single digits) would allow the machine to start
+thrashing. I could usually see that it was running out of memory and if I
+was fast enough could kill Netscape b4 the machine locked. If I was not
+fast enough it would lock hard. Nothing in the logs.
 
-Thus "long long int" -> "Ld".
+HTH,
 
-I know it's at least been discussed for ANSI C9X, although I have no idea
-if it actually caught on.
-
-		Linus
+-- 
+......Tom	ATA100 is another testimony to the fact that pigs can be
+tdiehl@pil.net	made to fly given sufficient thrust (to borrow an RFC)
+		Alan Cox lkml 11 Jan 01
 

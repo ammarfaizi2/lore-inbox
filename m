@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287868AbSAHLmN>; Tue, 8 Jan 2002 06:42:13 -0500
+	id <S287593AbSAHLpd>; Tue, 8 Jan 2002 06:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287946AbSAHLmD>; Tue, 8 Jan 2002 06:42:03 -0500
-Received: from mxzilla4.xs4all.nl ([194.109.6.48]:29191 "EHLO
-	mxzilla4.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S287868AbSAHLlx>; Tue, 8 Jan 2002 06:41:53 -0500
-Date: Tue, 8 Jan 2002 12:41:51 +0100
-From: jtv <jtv@xs4all.nl>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Tim Hollebeek <tim@hollebeek.com>,
-        Bernard Dautrevaux <Dautrevaux@microprocess.com>,
-        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
+	id <S287427AbSAHLpY>; Tue, 8 Jan 2002 06:45:24 -0500
+Received: from mxzilla1.xs4all.nl ([194.109.6.54]:64527 "EHLO
+	mxzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287407AbSAHLpH>; Tue, 8 Jan 2002 06:45:07 -0500
+Date: Tue, 8 Jan 2002 12:44:53 +0100
+From: "'jtv'" <jtv@xs4all.nl>
+To: Bernard Dautrevaux <Dautrevaux@microprocess.com>
+Cc: "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
         linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
         velco@fadata.bg
 Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020108124151.E11855@xs4all.nl>
-In-Reply-To: <17B78BDF120BD411B70100500422FC6309E402@IIS000> <20020107224907.D8157@xs4all.nl> <20020107172832.A1728@cj44686-b.reston1.va.home.com> <20020107231620.H8157@xs4all.nl> <20020108012734.E23665@werewolf.able.es>
+Message-ID: <20020108124453.F11855@xs4all.nl>
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E407@IIS000>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020108012734.E23665@werewolf.able.es>; from jamagallon@able.es on Tue, Jan 08, 2002 at 01:27:34AM +0100
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E407@IIS000>; from Dautrevaux@microprocess.com on Tue, Jan 08, 2002 at 10:44:59AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 01:27:34AM +0100, J.A. Magallon wrote:
-> >
-> >	int a = 3;
-> >	{
-> >		volatile int b = 10;
+On Tue, Jan 08, 2002 at 10:44:59AM +0100, Bernard Dautrevaux wrote:
 > 
->     >>>>>>>>> here b changes
+> NO; the standard here is clear: any access to a volatile object is a side
+> effect (see , and optimization is NOT allowed to eliminate side effects, and
+> must do them respecting sequence points, even if it determines that the code
+> will in fact do nothing 
 
-Yes, thank you, that part was obvious already.  The question pertained
-to the fact that nobody outside compiler-visible code was being handed
-an address for b, and so the compiler could (if it wanted to) prove
-under pretty broad assumptions that nobody could *find* b to make the
-change in the first place.
-
-Now other people assure me that the Standard explicitly rules this out,
-and I'm willing to believe that--although naturally I'd still feel more 
-comfortable if I'd actually seen the relevant text.  Just so long as
-we're not making another wild-guess stab at solving the problem.
+Thank you.  That makes it absolutely clear.
 
 
 Jeroen

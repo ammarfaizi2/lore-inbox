@@ -1,151 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261358AbTCTKGd>; Thu, 20 Mar 2003 05:06:33 -0500
+	id <S261359AbTCTKOC>; Thu, 20 Mar 2003 05:14:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261359AbTCTKGd>; Thu, 20 Mar 2003 05:06:33 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:21470 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S261358AbTCTKGb>; Thu, 20 Mar 2003 05:06:31 -0500
-From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK]unixbench result for kernel 2.5.65
-Date: Thu, 20 Mar 2003 15:40:58 +0530
-Message-ID: <01d501c2eec9$009b4c50$6009720a@wipro.com>
+	id <S261360AbTCTKOC>; Thu, 20 Mar 2003 05:14:02 -0500
+Received: from adsl96162.timewarp.co.uk ([217.149.96.162]:5620 "EHLO
+	mail.emorphia.com") by vger.kernel.org with ESMTP
+	id <S261359AbTCTKOA>; Thu, 20 Mar 2003 05:14:00 -0500
+From: "Chris Newland" <chris.newland@emorphia.com>
+To: "Wolfram Schlich" <wolfram@schlich.org>,
+       "Linux-Kernel mailinglist" <linux-kernel@vger.kernel.org>
+Subject: RE: Hardlocks with 2.4.21-pre5, pdc202xx_new (PDC20269) and shared IRQs
+Date: Thu, 20 Mar 2003 10:23:48 -0000
+Message-ID: <OAEPKDBINGEGKPCJJAJDKEBDJIAA.chris.newland@emorphia.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <20030320072259.ALLYOURBASEAREBELONGTOUS.E6336@bla.fasel.org>
 Importance: Normal
-X-OriginalArrivalTime: 20 Mar 2003 10:10:58.0232 (UTC) FILETIME=[00660B80:01C2EEC9]
+X-Authenticated-Sender: chrisnewland@emorphia.com
+X-Return-Path: chris.newland@emorphia.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is no much difference when compared with the result of
-kernel-2.5.64.
+Hi Wolfram,
 
-------------------------------------------------------------------------
---
-Test Machine details
----------------------
-processor : 0(single processor)
-vendor_id : GenuineIntel
-cpu family : 6
-model  : 8
-model name : Pentium III (Coppermine)
-stepping : 10
-cpu MHz  : 868.275
-cache size : 256 KB
-fdiv_bug : no
-hlt_bug  : no
-f00f_bug : no
-coma_bug : no
-fpu  : yes
-fpu_exception : yes
-cpuid level : 2
-wp  : yes
-flags  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 mmx fxsr sse bogomips : 1716.22
-------------------------------------------------------------------------
---
-					kernel-2.5.65
-------------------------------------------------------------------------
---
-BYTE UNIX Benchmarks (Version 4.1.0)
-System -- Linux sowmya 2.5.65 #7 SMP Tue Mar 18 13:45:54 IST 2003 i686
-i686 i386 GNU/Linux
-Start Benchmark Run: Tue Mar 18 16:32:09 IST 2003
-1 interactive users.
-4:32pm  up  2:39,  1 user,  load average: 0.00, 0.00, 0.00
-lrwxrwxrwx    1 root     root            4 Feb  4 15:21 /bin/sh -> bash
-/bin/sh: symbolic link to bash
-/dev/hda3              9835584   3129792   6206172  34% /home
+I had the same hardlock problem with dual athlons, MSI K7D Master, Promise
+TX2000 (PDC20271) with 2 HDDs on RAID0 on the Promise card and only a CDROM
+on the onboard IDE channel.
 
+It used to lock hard (2.4.18 vanilla kernel) on 'tar' when using a USB mouse
+but I haven't had a single lockup since plugging in a PS2 mouse :)
 
-Dhrystone 2 using register variables    1822419.0 lps(10.2
-secs,10samples)
-Double-Precision Whetstone              482.9 MWIPS  (10.0
-secs,10samples)
-System Call Overhead                    389520.0 lps (10.2
-secs,10samples)
-Pipe Throughput                         320557.6 lps (10.2
-secs,10samples)
-Pipe-based Context Switching            134889.2 lps (10.2
-secs,10samples)
-Process Creation                        6071.0   lps (45.0 secs,
-3samples)
-Execl Throughput                        1219.9   lps (29.6 secs,
-3samples)
-File Read 1024 bufsize 2000 maxblocks   232030.0 KBps(30.0 secs,
-3samples)
-File Write 1024 bufsize 2000 maxblocks  143377.0 KBps(30.0 secs,
-3samples)
-File Copy 1024 bufsize 2000 maxblocks   79669.0  KBps(30.0 secs,
-3samples)
-File Read 256 bufsize 500 maxblocks     101353.0 KBps(30.0 secs,
-3samples)
-File Write 256 bufsize 500 maxblocks    78678.0  KBps(30.0 secs,
-3samples)
-File Copy 256 bufsize 500 maxblocks     39212.0  KBps(30.0 secs,
-3samples)
-File Read 4096 bufsize 8000 maxblocks   341380.0 KBps(30.0 secs,
-3samples)
-File Write 4096 bufsize 8000 maxblocks  176033.0 KBps(30.0 secs,
-3samples)
-File Copy 4096 bufsize 8000 maxblocks   104849.0 KBps(30.0 secs,
-3samples)
-Shell Scripts (1 concurrent)            837.1    lpm (67.0 secs,
-3samples)
-Shell Scripts (8 concurrent)            111.0    lpm (62.2 secs,
-3samples)
-Shell Scripts (16 concurrent)           55.0     lpm (62.2 secs,
-3samples)
-Arithmetic Test (type = short)          217553.9 lps (10.2 secs,
-3samples)
-Arithmetic Test (type = int)            224250.7 lps (10.2 secs,
-3samples)
-Arithmetic Test (type = long)           224284.7 lps (10.2 secs,
-3samples)
-Arithmetic Test (type = float)          227467.4 lps (10.2 secs,
-3samples)
-Arithmetic Test (type = double)         227517.0 lps (10.2 secs,
-3samples)
-Arithoh                                 3990577.6 lps(10.2 secs,
-3samples)
-C Compiler Throughput                   364.1    lpm (63.7 secs,
-3samples)
-Dc: sqrt(2) to 99 decimal places        40652.9  lpm (46.0 secs,
-3samples)
-Recursion Test--Tower of Hanoi          32019.1  lps (29.6 secs,
-3samples)
+PS. Whilst 2.4 kernels run fine for me, I can't get any 2.5 kernel to run
+yet.
 
-                     INDEX VALUES            
-TEST                                      BASELINE     RESULT     INDEX
+I get a VFS kernel panic on bootup (can't mount root device).
 
-Dhrystone 2 using register variables      116700.0    1822419.0   156.2
-Double-Precision Whetstone                55.0        482.9       87.8
-Execl Throughput                          43.0        1219.9      283.7
-File Copy 1024 bufsize 2000 maxblocks     3960.0      79669.0     201.2
-File Copy 256 bufsize 500 maxblocks       1655.0      39212.0     236.9
-File Copy 4096 bufsize 8000 maxblocks     5800.0      104849.0    180.8
-Pipe Throughput                           12440.0     320557.6    257.7
-Process Creation                          126.0       6071.0      481.8
-Shell Scripts (8 concurrent)              6.0         111.0       185.0
-System Call Overhead                      15000.0     389520.0    259.7
- 
-=========
-     FINAL SCORE                                                  213.8
-------------------------------------------------------------------------
---
-Regards
- 
-Sowmya Adiga
-Project Engineer
-Wipro Technologies
-53/1,Hosur Road,Madivala
-Bangalore-560 068,INDIA
-Tel: +91-80-5502001 Extn.5086
+I've installed Rusty's 2.5 modutils and tried compiling the 20271 driver
+both into the kernel and as a module.
+
+I read in Dave Jones' post-halloween notes that the Promise drivers are
+broken:
+
+<quote>
+- The hptraid/promise RAID drivers are currently non functional, and
+  will probably be converted to use device-mapper.
+</quote>
+
+Is this still true?
+
+Best Regards,
+
+Chris Newland
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Wolfram Schlich
+> Sent: 20 March 2003 07:23
+> To: Linux-Kernel mailinglist
+> Subject: Re: Hardlocks with 2.4.21-pre5, pdc202xx_new (PDC20269) and
+> shared IRQs
+>
+>
+> * Alan Cox <alan@lxorguk.ukuu.org.uk> [2003-03-20 01:31]:
+> > On Wed, 2003-03-19 at 22:16, Wolfram Schlich wrote:
+> > > When one of the Promise controllers is sharing the same IRQ
+> with one of
+> > > the NICs (don't matter which, I tried all) and data is copied *to* the
+> > > machine over the network, the system deadlocks. When data is copied
+> > > *from* the system over the network, it works all ok. Unfortunately the
+> > > system BIOS doesn't give me any possibility of setting the IRQ
+> > > channels by hand, so all I can do is put the cards into other slots.
+> > >
+> >
+> > Thats very useful information. There certain have been (and it seems
+> > still are) some cases with shared IRQ that are not quite handled right.
+> > The 2.4.21pre5/pre5-ac work has partly been about fixing it. Deadlocks
+> > suprise me however, since the problems I've seen have been I/O
+> > errors.
+>
+> Well, now I have trashed my array :-)
+> -> http://marc.theaimsgroup.com/?l=linux-raid&m=104811878405765&w=2
+>
+> Btw., it spits out *lots* of messages when IRQ sharing is *disabled*
+> in the kernel config and just dies quietly when it's *enabled*
+> (having it dying before didn't mess up my array... ;)).
+>
+> > However there is another known problem that does cause deadlocks with
+> > the AMD76x, especially if the onboard IDE is used. Shove a PS/2 mouse
+> > in the box, reboot and retest - if you dont already have one
+>
+> ?! I'm using the onboard IDE for two CDROM drives and one smaller
+> hard disk which I use rarely... and I didn't use any of these devices
+> in the cases in which I had the described problems... Anyway, why should I
+> connect a PS/2 mouse to the machine? Is it gonna solve all my
+> problems at once? ;-)
+> --
+> Mit freundlichen Gruessen / Yours sincerely
+> Wolfram Schlich; Friedhofstr. 8, D-88069 Tettnang; +49-(0)178-SCHLICH
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

@@ -1,258 +1,227 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbTEGHGo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 03:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbTEGHGo
+	id S262942AbTEGHKc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 03:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbTEGHKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 03:06:44 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:21923 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262931AbTEGHGj (ORCPT
+	Wed, 7 May 2003 03:10:32 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:46022 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262942AbTEGHK2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 03:06:39 -0400
-Date: Wed, 7 May 2003 09:18:50 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Ben Collins <bcollins@debian.org>
-Cc: Greg KH <greg@kroah.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCHES] USB input layer improvements
-Message-ID: <20030507091850.A16692@ucw.cz>
-References: <20030506002233.GY679@phunnypharm.org> <20030506234515.GA4117@kroah.com> <20030507013444.GN679@phunnypharm.org>
+	Wed, 7 May 2003 03:10:28 -0400
+Date: Wed, 7 May 2003 09:22:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Nicolas Pitre <nico@cam.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk@arm.linux.org.uk>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Marcus Meissner <meissner@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
+Message-ID: <20030507072237.GW905@suse.de>
+References: <20030506183010.GK905@suse.de> <Pine.LNX.4.44.0305061436510.11648-100000@xanadu.home> <20030506184914.GL905@suse.de> <1052254888.7532.58.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030507013444.GN679@phunnypharm.org>; from bcollins@debian.org on Tue, May 06, 2003 at 09:34:44PM -0400
+In-Reply-To: <1052254888.7532.58.camel@imladris.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 09:34:44PM -0400, Ben Collins wrote:
-
-> On Tue, May 06, 2003 at 04:45:15PM -0700, Greg KH wrote:
-> > On Mon, May 05, 2003 at 08:22:33PM -0400, Ben Collins wrote:
-> > > 
-> > > Obviously that doesn't work right. I'm not sure what the correct thing
-> > > to do is, so my patch for this is only RFC status. With this patch my
-> > > mouse and keyboard still work, and the joysticks work correctly. Maybe
-> > > the correct thing is to map the physical values read from the device to
-> > > the logical values.
-> > 
-> > Your patch looks sane at first glance, but Vojtech needs to verify that
-> > this is ok before I can apply it.
+On Tue, May 06 2003, David Woodhouse wrote:
+> On Tue, 2003-05-06 at 19:49, Jens Axboe wrote:
+> > I see, that would indeed be a bigger job :). Just the block layer would
+> > not be hard, especially if you make the restriction that the block
+> > drivers usable would be ones that used a make_request strategy for
+> > handling requests. That would allow you to kill ll_rw_blk.c,
+> > deadline-iosched.c, and elevator.c. That's some 21k of text and 2k of
+> > data on this box.
 > 
-> Well then, here's a 2.5 patch to go along with it. This is just the
-> multi-input part of the patch. I'm going to look at the other range
-> patch in more depth.
-> 
-> This one is a no-brainer really. Vojtech, how about it?
+> That's a little short of what I was intending. Ideally we stick 'struct
+> request', 'struct buffer_head' and 'struct bio' inside #ifdef
+> CONFIG_BLK_DEV, then kill all the dead code which uses them.
 
-Why do we want a new input device registered for each report? This
-doesn't make much sense to me - there are many devices (tablets, etc),
-which send their information using more than a single report.
+struct request can be a goner with my patch, the others not really.
+request is really a block private property, so it's easy to kill off.
+You are going for the really minimal approach, basically ruling out lots
+of filesystems and requiring major surgery all around. While I can see
+that make sense for an embedded kernel, I'm having a hard time
+envisioning this as something mergable :-)
 
-> -- 
-> Debian     - http://www.debian.org/
-> Linux 1394 - http://www.linux1394.org/
-> Subversion - http://subversion.tigris.org/
-> Deqo       - http://www.deqo.com/
+> mtdblock.c cleanup noted with interest -- I'll play with that shortly;
+> thanks. Note that you don't actually need flash hardware, you can load
+> the 'mtdram' device which fakes it with vmalloc-backed storage instead.
+> Not too useful for powerfail-testing but for mounting something like
+> ext2 on mtdblock on mtdram it's fine.
 
-> Index: drivers/usb/input/hid-input.c
-> ===================================================================
-> RCS file: /home/scm/linux-2.5/drivers/usb/input/hid-input.c,v
-> retrieving revision 1.11
-> diff -u -u -r1.11 hid-input.c
-> --- drivers/usb/input/hid-input.c	17 Mar 2003 18:43:39 -0000	1.11
-> +++ drivers/usb/input/hid-input.c	7 May 2003 01:58:52 -0000
-> @@ -60,9 +60,29 @@
->  	__s32 y;
->  }  hid_hat_to_axis[] = {{ 0, 0}, { 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}};
->  
-> -static void hidinput_configure_usage(struct hid_device *device, struct hid_field *field, struct hid_usage *usage)
-> +static struct input_dev *find_input(struct hid_device *hid, struct hid_field *field)
->  {
-> -	struct input_dev *input = &device->input;
-> +	struct list_head *lh;
-> +	struct hid_input *hidinput;
-> +
-> +	list_for_each (lh, &hid->inputs) {
-> +		int i;
-> +
-> +		hidinput = list_entry(lh, struct hid_input, list);
-> +
-> +		for (i = 0; i < hidinput->maxfield; i++)
-> +			if (hidinput->fields[i] == field)
-> +				return &hidinput->input;
-> +	}
-> +
-> +	return NULL;
-> +}
-> +
-> +static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_field *field,
-> +				     struct hid_usage *usage)
-> +{
-> +	struct input_dev *input = &hidinput->input;
-> +	struct hid_device *device = hidinput->input.private;
->  	int max;
->  	int is_abs = 0;
->  	unsigned long *bit;
-> @@ -387,9 +407,12 @@
->  
->  void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
->  {
-> -	struct input_dev *input = &hid->input;
-> +	struct input_dev *input = find_input(hid, field);
->  	int *quirks = &hid->quirks;
->  
-> +	if (!input)
-> +		return;
-> +
->  	input_regs(input, regs);
->  
->  	if (usage->hat_min != usage->hat_max) {
-> @@ -442,7 +465,13 @@
->  
->  void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
->  {
-> -	input_sync(&hid->input);
-> +	struct list_head *lh;
-> +	struct hid_input *hidinput;
-> +
-> +	list_for_each (lh, &hid->inputs) {
-> +		hidinput = list_entry(lh, struct hid_input, list);
-> +		input_sync(&hidinput->input);
-> +        }
->  }
->  
->  static int hidinput_input_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
-> @@ -489,7 +518,7 @@
->  	struct hid_report_enum *report_enum;
->  	struct hid_report *report;
->  	struct list_head *list;
-> -	int i, j, k;
-> +	int i, j;
->  
->  	for (i = 0; i < hid->maxcollection; i++)
->  		if (hid->collection[i].type == HID_COLLECTION_APPLICATION &&
-> @@ -499,37 +528,63 @@
->  	if (i == hid->maxcollection)
->  		return -1;
->  
-> -	hid->input.private = hid;
-> -	hid->input.event = hidinput_input_event;
-> -	hid->input.open = hidinput_open;
-> -	hid->input.close = hidinput_close;
-> -
-> -	hid->input.name = hid->name;
-> -	hid->input.phys = hid->phys;
-> -	hid->input.uniq = hid->uniq;
-> -	hid->input.id.bustype = BUS_USB;
-> -	hid->input.id.vendor = dev->descriptor.idVendor;
-> -	hid->input.id.product = dev->descriptor.idProduct;
-> -	hid->input.id.version = dev->descriptor.bcdDevice;
-> -
-> -	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
-> -		report_enum = hid->report_enum + k;
-> -		list = report_enum->report_list.next;
-> -		while (list != &report_enum->report_list) {
-> -			report = (struct hid_report *) list;
-> -			for (i = 0; i < report->maxfield; i++)
-> -				for (j = 0; j < report->field[i]->maxusage; j++)
-> -					hidinput_configure_usage(hid, report->field[i], report->field[i]->usage + j);
-> -			list = list->next;
-> +	report_enum = hid->report_enum + HID_INPUT_REPORT;
-> +	list = report_enum->report_list.next;
-> +	while (list != &report_enum->report_list) {
-> +		struct hid_input *hidinput;
-> +
-> +		report = (struct hid_report *) list;
-> +
-> +		if (!report->maxfield)
-> +			continue;
-> +
-> +		hidinput = kmalloc(sizeof(*hidinput), GFP_KERNEL);
-> +		if (!hidinput) {
-> +			err("Out of memory during hid input probe");
-> +			return -1;
->  		}
-> -	}
->  
-> -	input_register_device(&hid->input);
-> +		memset(hidinput, 0, sizeof(*hidinput));
-> +
-> +		hidinput->input.private = hid;
-> +		hidinput->input.event = hidinput_input_event;
-> +		hidinput->input.open = hidinput_open;
-> +		hidinput->input.close = hidinput_close;
-> +
-> +		hidinput->input.name = hid->name;
-> +		hidinput->input.phys = hid->phys;
-> +		hidinput->input.uniq = hid->uniq;
-> +		hidinput->input.id.bustype = BUS_USB;
-> +		hidinput->input.id.vendor = dev->descriptor.idVendor;
-> +		hidinput->input.id.product = dev->descriptor.idProduct;
-> +		hidinput->input.id.version = dev->descriptor.bcdDevice;
-> +
-> +		hidinput->fields = report->field;
-> +		hidinput->maxfield = report->maxfield;
-> +
-> +		for (i = 0; i < report->maxfield; i++)
-> +			for (j = 0; j < report->field[i]->maxusage; j++)
-> +				hidinput_configure_usage(hidinput, report->field[i],
-> +							 report->field[i]->usage + j);
-> +
-> +		list_add_tail(&hidinput->list, &hid->inputs);
-> +
-> +		input_register_device(&hidinput->input);
-> +
-> +		list = list->next;
-> +	}
->  
->  	return 0;
->  }
->  
->  void hidinput_disconnect(struct hid_device *hid)
->  {
-> -	input_unregister_device(&hid->input);
-> +	struct list_head *lh, *next;
-> +	struct hid_input *hidinput;
-> +
-> +	list_for_each_safe (lh, next, &hid->inputs) {
-> +		hidinput = list_entry(lh, struct hid_input, list);
-> +		input_unregister_device(&hidinput->input);
-> +		list_del(&hidinput->list);
-> +	}
->  }
-> Index: drivers/usb/input/hid.h
-> ===================================================================
-> RCS file: /home/scm/linux-2.5/drivers/usb/input/hid.h,v
-> retrieving revision 1.11
-> diff -u -u -r1.11 hid.h
-> --- drivers/usb/input/hid.h	17 Mar 2003 18:43:39 -0000	1.11
-> +++ drivers/usb/input/hid.h	7 May 2003 01:58:52 -0000
-> @@ -321,6 +321,13 @@
->  #define HID_CTRL_RUNNING	1
->  #define HID_OUT_RUNNING		2
->  
-> +struct hid_input {
-> +	struct list_head list;
-> +	struct hid_field **fields;
-> +	int maxfield;
-> +	struct input_dev input;
-> +};
-> +
->  struct hid_device {							/* device report descriptor */
->  	 __u8 *rdesc;
->  	unsigned rsize;
-> @@ -360,7 +367,7 @@
->  	unsigned claimed;						/* Claimed by hidinput, hiddev? */	
->  	unsigned quirks;						/* Various quirks the device can pull on us */
->  
-> -	struct input_dev input;						/* The input structure */
-> +	struct list_head inputs;					/* The list of inputs */
->  	void *hiddev;							/* The hiddev structure */
->  	int minor;							/* Hiddev minor number */
->  
+I'm attaching an updated version, I don't think it's safe to use atomic
+kmaps across the do_cached_read/write.
 
+Also, I want bio_endio() to increment the sector position of the bio as
+well. Makes for a nicer api, and the sector var in mtdblock would then
+be killable.
+
+===== drivers/mtd/mtdblock.c 1.43 vs edited =====
+--- 1.43/drivers/mtd/mtdblock.c	Mon Apr 21 01:21:18 2003
++++ edited/drivers/mtd/mtdblock.c	Wed May  7 09:18:30 2003
+@@ -381,105 +381,55 @@
+  * to dequeue requests before we are done.
+  */
+ static struct request_queue mtd_queue;
+-static void handle_mtdblock_request(void)
++static volatile int leaving = 0;
++static DECLARE_MUTEX_LOCKED(thread_sem);
++static DECLARE_WAIT_QUEUE_HEAD(thr_wq);
++
++static int mtdblock_make_request(request_queue_t *q, struct bio *bio)
+ {
+-	struct request *req;
+-	struct mtdblk_dev *mtdblk;
+-	unsigned int res;
++	struct mtdblk_dev **p = bio->bi_bdev->bd_disk->private_data;
++	struct mtdblk_dev *mtdblk = *p;
++	struct bio_vec *bv;
++	sector_t sector;
++	int i, err = 0;
+ 
+-	while ((req = elv_next_request(&mtd_queue)) != NULL) {
+-		struct mtdblk_dev **p = req->rq_disk->private_data;
+-		spin_unlock_irq(mtd_queue.queue_lock);
+-		mtdblk = *p;
+-		res = 0;
+-
+-		if (! (req->flags & REQ_CMD))
+-			goto end_req;
+-
+-		if ((req->sector + req->current_nr_sectors) > (mtdblk->mtd->size >> 9))
+-			goto end_req;
+-
+-		// Handle the request
+-		switch (rq_data_dir(req))
+-		{
+-			int err;
+-
+-			case READ:
+-			down(&mtdblk->cache_sem);
+-			err = do_cached_read (mtdblk, req->sector << 9, 
+-					req->current_nr_sectors << 9,
+-					req->buffer);
+-			up(&mtdblk->cache_sem);
+-			if (!err)
+-				res = 1;
+-			break;
++	down(&mtdblk->cache_sem);
+ 
+-			case WRITE:
+-			// Read only device
+-			if ( !(mtdblk->mtd->flags & MTD_WRITEABLE) ) 
+-				break;
+-
+-			// Do the write
+-			down(&mtdblk->cache_sem);
+-			err = do_cached_write (mtdblk, req->sector << 9,
+-					req->current_nr_sectors << 9, 
+-					req->buffer);
+-			up(&mtdblk->cache_sem);
+-			if (!err)
+-				res = 1;
++	if (bio_data_dir(bio) == WRITE && !(mtdblk->mtd->flags & MTD_WRITEABLE))
++		goto end_io;
++
++	sector = bio->bi_sector;
++
++	bio_for_each_segment(bv, bio, i) {
++		char *dst;
++
++		if (sector + (bv->bv_len >> 9) > (mtdblk->mtd->size >> 9)) {
++			err = -EIO;
+ 			break;
+ 		}
+ 
+-end_req:
+-		spin_lock_irq(mtd_queue.queue_lock);
+-		if (!end_that_request_first(req, res, req->hard_cur_sectors)) {
+-			blkdev_dequeue_request(req);
+-			end_that_request_last(req);
+-		}
++		dst = kmap(bv->bv_page) + bv->bv_offset;
+ 
+-	}
+-}
++		if (bio_data_dir(bio) == READ)
++			err = do_cached_read(mtdblk, sector << 9, bv->bv_len, dst);
++		else
++			err = do_cached_write(mtdblk, sector << 9, bv->bv_len, dst);
+ 
+-static volatile int leaving = 0;
+-static DECLARE_MUTEX_LOCKED(thread_sem);
+-static DECLARE_WAIT_QUEUE_HEAD(thr_wq);
++		kunmap(bv->bv_page);
+ 
+-int mtdblock_thread(void *dummy)
+-{
+-	struct task_struct *tsk = current;
+-	DECLARE_WAITQUEUE(wait, tsk);
++		if (err)
++			break;
+ 
+-	/* we might get involved when memory gets low, so use PF_MEMALLOC */
+-	tsk->flags |= PF_MEMALLOC;
+-	daemonize("mtdblockd");
+-
+-	while (!leaving) {
+-		add_wait_queue(&thr_wq, &wait);
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		spin_lock_irq(mtd_queue.queue_lock);
+-		if (!elv_next_request(&mtd_queue) || blk_queue_plugged(&mtd_queue)) {
+-			spin_unlock_irq(mtd_queue.queue_lock);
+-			schedule();
+-			remove_wait_queue(&thr_wq, &wait); 
+-		} else {
+-			remove_wait_queue(&thr_wq, &wait); 
+-			set_current_state(TASK_RUNNING);
+-			handle_mtdblock_request();
+-			spin_unlock_irq(mtd_queue.queue_lock);
+-		}
++		sector += bv->bv_len >> 9;
++		bio_endio(bio, bv->bv_len, 0);
+ 	}
+ 
+-	up(&thread_sem);
++end_io:
++	up(&mtdblk->cache_sem);
++	bio_endio(bio, bio->bi_size, err);
+ 	return 0;
+ }
+ 
+-static void mtdblock_request(struct request_queue *q)
+-{
+-	/* Don't do anything, except wake the thread if necessary */
+-	wake_up(&thr_wq);
+-}
+-
+-
+ static int mtdblock_ioctl(struct inode * inode, struct file * file,
+ 		      unsigned int cmd, unsigned long arg)
+ {
+@@ -557,8 +507,6 @@
+         }
+ }
+ 
+-static spinlock_t mtddev_lock = SPIN_LOCK_UNLOCKED;
+-
+ int __init init_mtdblock(void)
+ {
+ 	spin_lock_init(&mtdblks_lock);
+@@ -572,8 +520,7 @@
+ 	register_mtd_user(&notifier);
+ 	
+ 	init_waitqueue_head(&thr_wq);
+-	blk_init_queue(&mtd_queue, &mtdblock_request, &mtddev_lock);
+-	kernel_thread (mtdblock_thread, NULL, CLONE_FS|CLONE_FILES|CLONE_SIGHAND);
++	blk_queue_make_request(&mtd_queue, mtdblock_make_request);
+ 	return 0;
+ }
+ 
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Jens Axboe
+

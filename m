@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280744AbRKOGDk>; Thu, 15 Nov 2001 01:03:40 -0500
+	id <S280750AbRKOGPV>; Thu, 15 Nov 2001 01:15:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280751AbRKOGDb>; Thu, 15 Nov 2001 01:03:31 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:12015 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280744AbRKOGDT>;
-	Thu, 15 Nov 2001 01:03:19 -0500
-Date: Wed, 14 Nov 2001 23:01:34 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Andi Kleen <ak@suse.de>,
-        Andreas Gruenbacher <ag@bestbits.at>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [RFC][PATCH] VFS interface for extended attributes
-Message-ID: <20011114230134.A5739@lynx.no>
-Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
-	Alexander Viro <viro@math.psu.edu>, Andi Kleen <ak@suse.de>,
-	Andreas Gruenbacher <ag@bestbits.at>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-xfs@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.21.0111121152410.14344-100000@moses.parsec.at> <Pine.GSO.4.21.0111121207530.21825-100000@weyl.math.psu.edu> <20011113062711.A1912@wotan.suse.de> <20011115160853.N588010@wobbly.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011115160853.N588010@wobbly.melbourne.sgi.com>; from nathans@sgi.com on Thu, Nov 15, 2001 at 04:08:53PM +1100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S280752AbRKOGPK>; Thu, 15 Nov 2001 01:15:10 -0500
+Received: from hog.ctrl-c.liu.se ([130.236.252.129]:48388 "HELO
+	hog.ctrl-c.liu.se") by vger.kernel.org with SMTP id <S280750AbRKOGOz>;
+	Thu, 15 Nov 2001 01:14:55 -0500
+From: Christer Weinigel <wingel@hog.ctrl-c.liu.se>
+To: matlhdam@iinet.net.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 fails to boot on a MediaGX
+In-Reply-To: <01111513115600.00812@blackbox.local>
+In-Reply-To: <E163y2Z-0004OH-00@the-village.bc.nu>
+Message-Id: <20011115061452.8C7B236DDD@hog.ctrl-c.liu.se>
+Date: Thu, 15 Nov 2001 07:14:52 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 15, 2001  16:08 +1100, Nathan Scott wrote:
-> +	if (ops) {
-> +		if (flags & EA_CREATE) {
-> +			if (ops->create)
-> +				error = ops->create(i, name, value, size);
-> +		}
-> +		else if (flags & EA_REPLACE) {
-> +			if (ops->replace)
-> +				error = ops->replace(i, name, value, size);
-> +		}
-> +		else if (flags & EA_REMOVE) {
-> +			if (ops->remove)
-> +				error = ops->remove(i, name);
-> +		}
-> +		else if (ops->set)
-> +			error = ops->set(i, name, value, size);
-> +	}
+In article <01111513115600.00812@blackbox.local> you write:
+>On Wed, 14 Nov 2001 19:17, Alan Cox wrote:
+>> Ok on my box it boots fine. As an experiment can you build a kerne with no
+>> PCI support (Im not saying it'll be useful production wise but it will tell
+>> me if its a PCI issue)
+>
+>And, interestingly enough, it does boot with PCI switched off.
+>
+>Given that it's a somewhat unusual motherboard, I'm pretty willing to just 
+>put an ISA network card in there and write it off as flaky hardware, but it's 
+>odd that it boots under 2.2 with PCI support on.
 
-> +	int (*create) (struct inode *, char *, void *, size_t);
-> +	int (*replace) (struct inode *, char *, void *, size_t);
-> +	int (*set) (struct inode *, char *, void *, size_t);
+I have had some problem with the PCI direct probe on a MediaGX CPU, 
+when the probe looked at the CX5530 companion chip the box would
+reboot.  Could you try to only use the PCI BIOS method instead?
 
-What is the distinction between "set" and "replace" or "set" and "create"?
-Is it analogous to open(,O_CREAT|O_EXCL)?  If so, why are there not just
-flags to distinguish the two, but also separate VFS operations?
+PCI support (CONFIG_PCI) [N/y/?] (NEW) y 
+  PCI access mode (BIOS, Direct, Any) [Any] (NEW) BIOS
+  defined CONFIG_PCI_GOBIOS
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+  /Christer
 
+-- 
+"Just how much can I get away with and still go to heaven?"

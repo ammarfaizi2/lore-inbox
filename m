@@ -1,78 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUJRR3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUJRRaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266749AbUJRR3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 13:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUJRR3Q
+	id S267195AbUJRRaz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 13:30:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUJRRay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 13:29:16 -0400
-Received: from cantor.suse.de ([195.135.220.2]:2720 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266749AbUJRR3N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 13:29:13 -0400
-Date: Mon, 18 Oct 2004 19:21:22 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andrea Arcangeli <andrea@novell.com>, Andi Kleen <ak@suse.de>,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 4level page tables for Linux
-Message-ID: <20041018172122.GD1945@verdi.suse.de>
-References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost> <20041013184153.GO17849@dualathlon.random> <20041013213558.43b3236c.ak@suse.de> <20041013200414.GP17849@dualathlon.random> <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
+	Mon, 18 Oct 2004 13:30:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:11136 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267195AbUJRRaR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 13:30:17 -0400
+Date: Mon, 18 Oct 2004 13:28:41 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Greg KH <greg@kroah.com>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
+       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       David Howells <dhowells@redhat.com>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
+Subject: Re: Fw: signed kernel modules?
+In-Reply-To: <Pine.LNX.4.61.0410181306030.4196@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0410181322590.4298@chaos.analogic.com>
+References: <200410151153.08527.gene.heskett@verizon.net>
+ <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
+ <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
+ <1097860121.13633.358.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
+ <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
+ <4170426E.5070108@nortelnetworks.com> <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com>
+ <Pine.LNX.4.61.0410180845040.3512@chaos.analogic.com> <20041018163346.GB18169@kroah.com>
+ <Pine.LNX.4.61.0410181306030.4196@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 10:02:20AM -0700, Christoph Lameter wrote:
-> On Wed, 13 Oct 2004, Andrea Arcangeli wrote:
-> 
-> > On Wed, Oct 13, 2004 at 09:35:58PM +0200, Andi Kleen wrote:
-> > > page mapping level 4 (?) just guessing here.
-> >
-> > make sense.
-> >
-> > > PML4 is the name AMD and Intel use in their documentation. I don't see
-> > > a particular reason to be different from them.
-> >
-> > just because we never say 'page mapping level 4', we think 'page table
-> > level 4' or 'page directory level 4'.
-> 
-> Would it not be best to give up hardcoding these page mapping levels into
-> the kernel? Linux should support N levels. pml4,pgd,pmd,pte needs to
+On Mon, 18 Oct 2004, Richard B. Johnson wrote:
 
-It already does. Currently it supports 2-3 levels, with my patch
-it supports 2-4 levels.
+> On Mon, 18 Oct 2004, Greg KH wrote:
+>
+>> On Mon, Oct 18, 2004 at 08:53:46AM -0400, Richard B. Johnson wrote:
+>>> +/*
+>>> + *  List of acceptable module-license strings.
+>>> + */
+>>> +static const char *licok[]= {
+>>> +    "GPL",
+>>> +    "GPL v2",
+>>> +    "CPL and additional rights",
+>> 
+>> The CPL is very different from the GPL and the two are not compatible,
+>> so this isn't an acceptable patch.
+>> 
+>> thanks,
+>> 
+>> greg k-h
+>
+> Right and it wasn't that way when the patch was generated and
+> C and G are so far apart it couldn't be a typo so I don't
+> know why it shows up that way.
+>
+>
+> Script started on Mon 18 Oct 2004 01:10:46 PM EDT
+> # grep GPL sent-mail
+>> MODULE_LICENSE("GPL");
+>> If you can reproduce the same problem with some GPL version of
+> iriUIyCrAzt70kZPD/T3qtlHKJ+UwCGrMj1c6GPLs/J0VFvR2NEqY369qAC7
+>>>  *   lawyer, and require that a GPL License exist for every kernel
+>> GPL licensing. It provides help in understanding what symbols are
+>> source or GPL information.
+> a bug report. This whole GPL thing has taken a real stupid
+>> MODULE_LICENSE("GPL");
+> iriUIyCrAzt70kZPD/T3qtlHKJ+UwCGrMj1c6GPLs/J0VFvR2NEqY369qAC7
+> +    "GPL",
+> +    "GPL v2",
+> +    "GPL and additional rights",
+> +    "Dual BSD/GPL",
+> +    "Dual MPL/GPL",
+> -	return (strcmp(license, "GPL") == 0
+> -		|| strcmp(license, "GPL v2") == 0
+> -		|| strcmp(license, "GPL and additional rights") == 0
+> -		|| strcmp(license, "Dual BSD/GPL") == 0
+> -		|| strcmp(license, "Dual MPL/GPL") == 0);
+> +    "GPL",
+> +    "GPL v2",
+> +    "GPL and additional rights",
+> +    "Dual BSD/GPL",
+> +    "Dual MPL/GPL",
+> -	return (strcmp(license, "GPL") == 0
+> -		|| strcmp(license, "GPL v2") == 0
+> -		|| strcmp(license, "GPL and additional rights") == 0
+> -		|| strcmp(license, "Dual BSD/GPL") == 0
+> -		|| strcmp(license, "Dual MPL/GPL") == 0);
+>>> +    "GPL",
+>>> +    "GPL v2",
+>>        ^^^  GPL
+> # bye
+> bash: bye: command not found
+> # exit
+>
+> Script done on Mon 18 Oct 2004 01:11:05 PM EDT
+>
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+>            Note 96.31% of all statistics are fiction.
+>
 
-> disappear and be replaced by
-> 
-> pte_path[N]
-> 
-> We are duplicating code for pgd, pmd, pte and now pml again and again. The
-> code could be much simpler if this would be generalized. Various
+Single-bit error somewhere.
 
-For most people it is already generalized (get_user_pages).
-The only exception is the core VM and the low level architecture code.
-The later will need to deal always with the details.
+G = 0x47
+C = 0x43
 
+>>> +    "GPL v2",
+>>        ^^^  GPL
 
-> architectures would support different levels without some strange
-> feature like f.e. pmd's being "optimized away".
+... from the 'grep' above.
 
-Nobody came up with a nice automatic iterator so far.
+When somebody sent me a correction, it didn't appear here
+as though it needed correction but I sent it again.
 
-If you look at the different functions in mm/* who handle all level 
-they all do slightly different things so it's not that easy to 
-generalize. Also it is not that many, perhaps seven in mm/* plus 
-another in the arch code.
-
-> Certainly the way that pml4 is proposed to be done is less invasive but we
-> are creating something more and more difficult to maintain.
-
-I don't see us switching to more levels any time soon ...
-
-Also I don't think it's that bad as you're claiming it is. It's a clear
-abstraction which has served us well so far.
-
--Andi
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 

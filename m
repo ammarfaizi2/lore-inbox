@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTEIBLY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 21:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTEIBLY
+	id S262174AbTEIB3h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 21:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTEIB3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 21:11:24 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41615 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261916AbTEIBLX (ORCPT
+	Thu, 8 May 2003 21:29:37 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:10248 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S262174AbTEIB3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 21:11:23 -0400
-Date: Thu, 08 May 2003 18:23:42 -0700 (PDT)
-Message-Id: <20030508.182342.52884545.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: wa@almesberger.net, hch@infradead.org, romieu@fr.zoreil.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ATM] [PATCH] unbalanced exit path in Forerunner HE
- he_init_one() 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305090058.h490wNGi006609@locutus.cmf.nrl.navy.mil>
-References: <20030508194700.C13069@almesberger.net>
-	<200305090058.h490wNGi006609@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 8 May 2003 21:29:36 -0400
+Message-ID: <1052444521.3ebb076946267@webmail.jordet.nu>
+Date: Fri,  9 May 2003 03:42:01 +0200
+From: Stian Jordet <liste@jordet.nu>
+To: Greg KH <greg@kroah.com>
+Cc: David van Hoose <davidvh@cox.net>, linux-kernel@vger.kernel.org
+Subject: Re: ACPI conflict with USB
+References: <3EBADF3C.1040609@cox.net> <20030509002240.GA4328@kroah.com>
+In-Reply-To: <20030509002240.GA4328@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 192.168.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Thu, 08 May 2003 20:58:23 -0400
+Sitat Greg KH <greg@kroah.com>:
 
-   this patch should make the he code a bit more palatable.  it drops any
-   of the < 2.3 support left over the good 'ole days and puts all the
-   compatibility code in a single place.
-   
-Applied, thanks.
+> On Thu, May 08, 2003 at 05:50:36PM -0500, David van Hoose wrote:
+> > I'm wondering if there is any work towards correcting the ACPI conflict 
+> > with USB. On my system, I cannot use any USB devices due to a timeout 
+> > anytime I use ACPI with my kernel. Other people have noticed this 
+> > happening on their systems as well, so I am assuming it isn't just on my 
+> > system.
+> 
+> Have you tried the latest 2.5 kernels?  I think this is fixed in 2.5.69
+> for the majority of people.  Also, does booting with "noapic" work for
+> you?
+
+If it is supposed to have been fixed in 2.5.69, that must be the reason usb
+stopped working with acpi on 2.5.69 for me. Worked fine with 2.5.68.
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105216850332081&w=2
+
+Only three days since I reported it, and you say it is fixed? Gee.
+
+David: The consensus on acpi-devel is to report it in bugzilla, and see what
+happens.
+
+Best regards,
+Stian

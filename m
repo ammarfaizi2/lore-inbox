@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262268AbRERHuQ>; Fri, 18 May 2001 03:50:16 -0400
+	id <S262269AbRERHyQ>; Fri, 18 May 2001 03:54:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262269AbRERHuG>; Fri, 18 May 2001 03:50:06 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53514 "EHLO
+	id <S262270AbRERHx5>; Fri, 18 May 2001 03:53:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55306 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262268AbRERHuB>; Fri, 18 May 2001 03:50:01 -0400
-Subject: Re: problem: reading from (rivafb) framebuffer is really slow
-To: leitner@convergence.de (Felix von Leitner)
-Date: Fri, 18 May 2001 08:46:38 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010518032923.A17686@convergence.de> from "Felix von Leitner" at May 18, 2001 03:29:23 AM
+	id <S262269AbRERHxr>; Fri, 18 May 2001 03:53:47 -0400
+Subject: Re: [patch] 2.4.0, 2.2.18: A critical problem with tty_io.c
+To: alborchers@steinerpoint.com
+Date: Fri, 18 May 2001 08:50:53 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        macro@ds2.pg.gda.pl, tytso@mit.edu, pberger@brimson.com (Peter Berger)
+In-Reply-To: <3B048518.705AC5F3@steinerpoint.com> from "Al Borchers" at May 17, 2001 09:12:40 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150ey6-0006nw-00@the-village.bc.nu>
+Message-Id: <E150f2E-0006oP-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When benchmarking DirectFB, I found that a typical software alpha
-> blending rectangle fill is completely dominated (I'm talking 90% of the
-> CPU cycles here) by the time it takes to read pixels from the
-> framebuffer.
+> Alan Cox wrote:
+> > It has to be changed, the race is basically unfixable any other way. I didn't
+> > lightly make that change
+> 
+> I agree.  The patch seems like the correct solution.  What will it take to
+> get the patch in the 2.4.x kernels?  Do we need someone to go through the serial
+> drivers and fix their open/close routines to work with this patch?  Peter
+> and I can take some time to do that--if that would help.
 
-I would expect that. Guess why X11 is designed not to do this.
-
-> The pixels are read linearly in chunks of aligned 32-bit words.  It's a
-> Geforce 2 GTS in 1024x768 with 32-bit color depth using rivafb.  This
-> looks quite crass to me.  Any ideas?  Maybe rivafb does not initialize
-> AGP and the card is in PCI mode or something?
-
-Writes across the PCI bus are posted, and potentially merged. Read posting is
-rather harder to do. This is one reason to keep copies of data or to use
-DMA or textures from AGP space to speed up access to the data you need.
-
-In general pci write = fast, pci read = slow. High performance subsystems
-you write to their pci memory they DMA back to your main memory. 
-
-Alan
+That would be one big help. Having done that I'd like to go over it all with
+Ted first (if he has time) before I push it to Linus
 

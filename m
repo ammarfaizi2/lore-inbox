@@ -1,86 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261311AbSJUKCX>; Mon, 21 Oct 2002 06:02:23 -0400
+	id <S261297AbSJUKBX>; Mon, 21 Oct 2002 06:01:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261302AbSJUKBa>; Mon, 21 Oct 2002 06:01:30 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:64839 "EHLO
+	id <S261298AbSJUKBX>; Mon, 21 Oct 2002 06:01:23 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:64327 "EHLO
 	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S261299AbSJUKB0>; Mon, 21 Oct 2002 06:01:26 -0400
-Date: Mon, 21 Oct 2002 03:15:51 -0700
+	id <S261297AbSJUKBW>; Mon, 21 Oct 2002 06:01:22 -0400
+Date: Mon, 21 Oct 2002 03:15:47 -0700
 From: "Matt D. Robinson" <yakker@aparity.com>
-Message-Id: <200210211015.g9LAFpR21165@nakedeye.aparity.com>
+Message-Id: <200210211015.g9LAFlv21151@nakedeye.aparity.com>
 To: linux-kernel@vger.kernel.org, yakker@aparity.com
-Subject: [PATCH] 2.5.44: lkcd (2/9): dump notifier
+Subject: [PATCH] 2.5.44: lkcd (0/9): general description and diffstat
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dump notification additions, similar to panic lists, but for dump
-specific modules (per design).
+These are the latest LKCD patches for 2.5.44.  We have put in a
+number of changes, additions and deletions requested by the
+following people on the lkml list between our 2.5.38 and 2.5.44
+patches:
 
- sys.c |   36 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 36 insertions(+)
+	Randy Dunlap
+	Andi Kleen
+	Christoph Hellwig
+	Kai Germaschewski
+	Stephen Hemminger
 
-diff -Naur linux-2.5.44.orig/kernel/sys.c linux-2.5.44.lkcd/kernel/sys.c
---- linux-2.5.44.orig/kernel/sys.c	Fri Oct 18 21:01:11 2002
-+++ linux-2.5.44.lkcd/kernel/sys.c	Sat Oct 19 12:39:15 2002
-@@ -19,6 +19,7 @@
- #include <linux/workqueue.h>
- #include <linux/device.h>
- #include <linux/times.h>
-+#include <linux/dump.h>
- #include <linux/security.h>
- #include <linux/dcookies.h>
- 
-@@ -77,6 +78,7 @@
-  */
- 
- static struct notifier_block *reboot_notifier_list;
-+struct notifier_block *dump_notifier_list;
- rwlock_t notifier_lock = RW_LOCK_UNLOCKED;
- 
- /**
-@@ -195,6 +197,37 @@
- 	return notifier_chain_unregister(&reboot_notifier_list, nb);
- }
- 
-+/**
-+ *	register_dump_notifier - Register function to be called at dump time
-+ *	@nb: Info about notifier function to be called
-+ *
-+ *	Registers a function with the list of functions
-+ *	to be called at dump time.
-+ *
-+ *	Currently always returns zero, as notifier_chain_register
-+ *	always returns zero.
-+ */
-+ 
-+int register_dump_notifier(struct notifier_block * nb)
-+{
-+	return notifier_chain_register(&dump_notifier_list, nb);
-+}
-+
-+/**
-+ *	unregister_dump_notifier - Unregister previously registered dump notifier
-+ *	@nb: Hook to be unregistered
-+ *
-+ *	Unregisters a previously registered dump
-+ *	notifier function.
-+ *
-+ *	Returns zero on success, or %-ENOENT on failure.
-+ */
-+ 
-+int unregister_dump_notifier(struct notifier_block * nb)
-+{
-+	return notifier_chain_unregister(&dump_notifier_list, nb);
-+}
-+
- asmlinkage long sys_ni_syscall(void)
- {
- 	return -ENOSYS;
-@@ -1384,3 +1417,6 @@
- EXPORT_SYMBOL(unregister_reboot_notifier);
- EXPORT_SYMBOL(in_group_p);
- EXPORT_SYMBOL(in_egroup_p);
-+EXPORT_SYMBOL(register_dump_notifier);
-+EXPORT_SYMBOL(unregister_dump_notifier);
-+EXPORT_SYMBOL(dump_notifier_list);
+We have tested again on multiple kernels with various types of
+dumping devices.  The diffstat output is now at the top of each
+patch.  These patches have been well tested.  Feel free to give
+them a spin and let us know of any problems.
+
+Thanks,
+
+--Matt
+
+The full diffstat for LKCD in 2.5.44 tree (the majority of the
+changes are the addition of the dump modules and headers):
+
+ Makefile                             |   15 
+ arch/i386/boot/Makefile              |    2 
+ arch/i386/boot/install.sh            |   24 
+ arch/i386/config.in                  |    7 
+ arch/i386/kernel/Makefile            |    2 
+ arch/i386/kernel/irq.c               |    5 
+ arch/i386/kernel/nmi.c               |    9 
+ arch/i386/kernel/smp.c               |   15 
+ arch/i386/kernel/traps.c             |   28 
+ arch/i386/mach-generic/irq_vectors.h |    1 
+ arch/i386/mm/Makefile                |    2 
+ arch/i386/mm/init.c                  |    5 
+ arch/s390/boot/install.sh            |   24 
+ arch/s390x/boot/install.sh           |   24 
+ drivers/Makefile                     |    1 
+ drivers/char/sysrq.c                 |   13 
+ drivers/dump/Makefile                |   30 
+ drivers/dump/dump_base.c             | 1860 +++++++++++++++++++++++++++++++++++
+ drivers/dump/dump_blockdev.c         |  392 +++++++
+ drivers/dump/dump_gzip.c             |  129 ++
+ drivers/dump/dump_i386.c             |  315 +++++
+ drivers/dump/dump_rle.c              |  176 +++
+ include/asm-i386/dump.h              |   94 +
+ include/asm-i386/smp.h               |    1 
+ include/linux/dump.h                 |  438 ++++++++
+ include/linux/page-flags.h           |    5 
+ init/Makefile                        |    5 
+ init/kerntypes.c                     |   24 
+ init/main.c                          |   10 
+ kernel/Makefile                      |    2 
+ kernel/panic.c                       |   16 
+ kernel/sched.c                       |   30 
+ kernel/sys.c                         |   36 
+ lib/Config.in                        |    2 
+ mm/page_alloc.c                      |   22 
+ 35 files changed, 3731 insertions(+), 33 deletions(-)

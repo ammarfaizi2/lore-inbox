@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270461AbTGSEH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 00:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270489AbTGSEH6
+	id S270490AbTGSEX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 00:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270491AbTGSEX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 00:07:58 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:39587 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S270461AbTGSEH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 00:07:57 -0400
-Message-ID: <3F18C90B.305@innocent.com>
-Date: Sat, 19 Jul 2003 00:28:59 -0400
-From: "Constantine 'Gus' Fantanas" <fantanas@innocent.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mec@shout.net, linux-kernel@vger.kernel.org
-Subject: menuconfig crash
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 19 Jul 2003 00:23:29 -0400
+Received: from janus.zeusinc.com ([205.242.242.161]:9834 "EHLO
+	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id S270490AbTGSEX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 00:23:27 -0400
+Subject: Re: [BUG REPORT 2.6.0] cisco airo_cs scheduling while atomic
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Bourne <jbourne@hardrock.org>, breed@users.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030718200013.40e983f6.akpm@osdl.org>
+References: <20030718140414.371cdb55.akpm@osdl.org>
+	 <Pine.LNX.4.44.0307182044420.22990-100000@cafe.hardrock.org>
+	 <20030718200013.40e983f6.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1058589381.3434.11.camel@iso-8590-lx.zeusinc.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Jul 2003 00:36:52 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To Whom it May Concern:
+On Fri, 2003-07-18 at 23:00, Andrew Morton wrote:
+> James Bourne <jbourne@hardrock.org> wrote:
+> >
+> > > I've been waiting months for someone to test this patch.  Can you please do
+> >  > so?
+> > 
+> >  Well, the error is gone, unfortunately I won't have anything for the card to
+> >  talk to until monday (or if I take my laptop for a car ride...).
+> 
+> Well Daniel Ritz has posted a big fix to the driver so I threw mine away. 
+> I'll include it in the next -mm, so please test that.
 
-I experienced a menuconfig crash and I am following the notication 
-instructions of the error message (pasted below).  At the time of the 
-crash, I was in the sound configuration section and was entering the 
-ALSA configuration subsection. The kernel I was trying to configure was 
-a Mandrake 2.4.21 kernel: linux-2.4.21-0.18mdk.
+I've applied Daniel's patch to my 2.6.0-test1-mm1 tree on two of my test
+systems (a PCMCIA and PCI version of the Aironet 350 series) and both
+are working great.  His patches look pretty obviously correct to me and
+are much cleaner than the hacked up patches I've been sending out to
+people to get the card working on recent 2.5.7x kernels.  Just wanted to
+report the success.
 
-Here is the error message:
+Later,
+Tom
 
--------------BEGINNING OF PASTED MATERIAL------------------------------
-
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
-
- Q> scripts/Menuconfig: line 832: MCmenu73: command not found
-
- Please report this to the maintainer <mec@shout.net>.  You may also
- send a problem report to <linux-kernel@vger.kernel.org>.
-
- Please indicate the kernel version you are trying to configure and
- which menu you were trying to enter when this error occurred.
-
- make: *** [menuconfig] Error 1
-
-------------END OF PASTED MATERIAL----------------------------------------
-
-The system I was trying to configure this kernel on was an old 200 MHz 
-Pentium MMX with 64 MB of RAM (so old that it had PCI and USB, but no 
-AGP; the video card was plugged into a PCI slot).
-
-Regards,
-
-Gus Fantanas
 

@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269314AbUIHTDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269310AbUIHTGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269314AbUIHTDO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 15:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUIHTDN
+	id S269310AbUIHTGe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 15:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269312AbUIHTGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 15:03:13 -0400
-Received: from cpc2-sout5-5-0-cust135.sot3.cable.ntl.com ([81.110.110.135]:54541
-	"EHLO teh.ath.cx") by vger.kernel.org with ESMTP id S269314AbUIHTB7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 15:01:59 -0400
-Date: Wed, 8 Sep 2004 20:01:57 +0100
-From: Matt Kavanagh <matthew@teh.ath.cx>
-To: Ram Chandar <rcknl@qz.port5.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Routing Performance inferior?
-Message-ID: <20040908190157.GA2109@teh.ath.cx>
-Reply-To: Matt Kavanagh <matthew@teh.ath.cx>
-References: <200409071000.58455.rchandar-knl@qz.port5.com>
+	Wed, 8 Sep 2004 15:06:33 -0400
+Received: from mail.tmr.com ([216.238.38.203]:16653 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S269310AbUIHTGP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 15:06:15 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Major XFS problems...
+Date: Wed, 08 Sep 2004 15:06:32 -0400
+Organization: TMR Associates, Inc
+Message-ID: <chnkqd$u7n$1@gatekeeper.tmr.com>
+References: <20040908154434.GE390@unthought.net><20040908123524.GZ390@unthought.net> <1094661418.19981.36.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409071000.58455.rchandar-knl@qz.port5.com>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1094669966 30967 192.168.12.100 (8 Sep 2004 18:59:26 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <1094661418.19981.36.camel@hole.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 11:06:17PM +0530, Ram Chandar wrote:
+Greg Banks wrote:
+> On Thu, 2004-09-09 at 01:44, Jakob Oestergaard wrote:
 > 
-> Quoted from a recent mail to freebsd mailing list.
+>>SMP systems on 2.6 have a problem with XFS+NFS.
 > 
-> "FreeBSD (5.x) can route 1Mpps on a 2.8G Xeon while
-> Linux can't do much more than 100kpps"
 > 
-> http://lists.freebsd.org/pipermail/freebsd-net/2004-September/004840.html
+> Knfsd threads in 2.6 are no longer serialised by the BKL, and the
+> change has exposed a number of SMP issues in the dcache.  Try the
+> two patches at
 > 
-> Is this indeed the case?
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=108330112505555&w=2
+> 
+> and
+> 
+> http://linus.bkbits.net:8080/linux-2.5/cset@1.1722.48.23
+> 
+> (the latter is in recent Linus kernels).  If you're still having
+> problems after applying those patches, Nathan and I need to know.
 
-Seems to be pretty much just biased conjecture IMO. I wouldn't
-dismiss the possibility of FreeBSD having (in some situations)
-significantly better routing performance than linux in the same
-situation..but getting me to believe that would require proper,
-objective benchmarks.
+Do I read you right that this is an SMP issue and that the NFS, quota, 
+backup and all that are not relevant? I will pass on the patches you 
+supplied to someone who is having similar problems with no NFS and no 
+quota, a TB of storage which gets beaten without mercy 24x4.5 and which 
+has been having issues as load has gone up.
 
-All from a user's perspective.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

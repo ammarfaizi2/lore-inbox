@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSHNWNY>; Wed, 14 Aug 2002 18:13:24 -0400
+	id <S319305AbSHNWTb>; Wed, 14 Aug 2002 18:19:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315720AbSHNWNY>; Wed, 14 Aug 2002 18:13:24 -0400
-Received: from pat.uio.no ([129.240.130.16]:2738 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S315709AbSHNWNY>;
-	Wed, 14 Aug 2002 18:13:24 -0400
-To: Dax Kelson <dax@gurulabs.com>
-Cc: torvalds@transmeta.com, "Kendrick M. Smith" <kmsmith@umich.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>
-Subject: Re: Will NFSv4 be accepted?
-References: <Pine.LNX.4.44.0208141435210.30333-100000@mooru.gurulabs.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 15 Aug 2002 00:17:10 +0200
-In-Reply-To: <Pine.LNX.4.44.0208141435210.30333-100000@mooru.gurulabs.com>
-Message-ID: <shs8z39dr15.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319315AbSHNWTb>; Wed, 14 Aug 2002 18:19:31 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:17311 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S319284AbSHNWTY>; Wed, 14 Aug 2002 18:19:24 -0400
+Date: Wed, 14 Aug 2002 23:23:10 +0100
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH] Re: Some JBD documenation
+Message-ID: <20020814232310.B704@computer-surgery.co.uk>
+References: <20020322143444.A671@zuse.computer-surgery.co.uk> <3C9B8B36.1AFFDFA6@zip.com.au> <20020325091041.A514@zuse.computer-surgery.co.uk> <3C9EE97E.2F494AF9@zip.com.au> <20020805144845.A18390@computer-surgery.co.uk> <3D4EC3CC.A4827C50@zip.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D4EC3CC.A4827C50@zip.com.au>; from akpm@zip.com.au on Mon, Aug 05, 2002 at 11:28:28AM -0700
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dax Kelson <dax@gurulabs.com> writes:
 
-     > I for one would REALLY like to see NFSv4 (actually, Kerberized
-     > NFSv4 is what I'm after).  I just finished setting up a
-     > Kerberized Solaris NFS environment with home directories
-     > automounted from the clients with strong user authentication.
+--NDin8bjvE/0mNLFQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-     > Frankly, the stock (non-Kerberized) NFS security model blows.
+Hi
 
-Note: The RPCSEC_GSS (and accompanying kerberos) stuff is completely
-independent of NFSv4. It is still in the process of being finalized,
-but when it is, it will apply to NFSv2/v3 as well as v4.
+This patch is the JBD DocBook documentation patch which I
+been promising for too long now ;-).
 
-RPCSEC_GSS is not an argument for NFSv4...
+This one is against 2.4.20-pre2.
 
-Cheers,
-  Trond
+Andrew if you would prefer it diff against something different let
+me know.
+
+TTFN
+--=20
+Roger.
+Master of Peng Shui.  (Ancient oriental art of Penguin Arranging)
+GPG Key FPR: CFF1 F383 F854 4E6A 918D  5CFF A90D E73B 88DE 0B3E
+
+--NDin8bjvE/0mNLFQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9WthNqQ3nO4jeCz4RAm64AKCIDwXkTycBdRIhJnY/09jtu7RVkQCfZqQU
+BJgc9hzECy3VJuwRiaHVpTA=
+=6SG1
+-----END PGP SIGNATURE-----
+
+--NDin8bjvE/0mNLFQ--

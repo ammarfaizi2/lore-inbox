@@ -1,68 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261609AbSJJOfE>; Thu, 10 Oct 2002 10:35:04 -0400
+	id <S261607AbSJJO6h>; Thu, 10 Oct 2002 10:58:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261607AbSJJOfE>; Thu, 10 Oct 2002 10:35:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14609 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261609AbSJJOfD>;
-	Thu, 10 Oct 2002 10:35:03 -0400
-Message-ID: <3DA59159.3070901@pobox.com>
-Date: Thu, 10 Oct 2002 10:40:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261611AbSJJO6h>; Thu, 10 Oct 2002 10:58:37 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20850 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261607AbSJJO6g>; Thu, 10 Oct 2002 10:58:36 -0400
+To: george anzinger <george@mvista.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+References: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com>
+	<3DA4BECB.9C7D6119@mvista.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Oct 2002 09:03:06 -0600
+In-Reply-To: <3DA4BECB.9C7D6119@mvista.com>
+Message-ID: <m14rbunxp1.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A simple request (was Re: boring BK stats)
-References: <20021009.163920.85414652.wlandry@ucsd.edu> <3DA58B60.1010101@pobox.com> <20021010072818.F27122@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
->>The laptop has 200MB RAM, and mozilla and a ton of xterms loaded.  IDE 
->>drives w/ Intel PIIX4 controller.  The Dual Athlon has 512MB RAM, and I 
->>forget what kind of IDE controller -- I think AMD.  IDE drives as well.
->>
->>BitKeeper must scan the entire tree when doing a checkin or checkout, so 
->>that is impossible to optimize at the SCM level without compromising 
->>features...  if your source tree takes up ~190MB on disk, you have 200MB 
->>of RAM total, and you need to sequentially scan the entire thing, there 
->>is nothing that can be done at either the OS or app level... You're just 
->>screwed.  Things are extremely fast on the Dual Athlon because the 
->>entire tree is in RAM.
+george anzinger <george@mvista.com> writes:
+
+> Linus Torvalds wrote:
+> > 
+> > On Wed, 9 Oct 2002, george anzinger wrote:
+> > >
+> > > This patch, in conjunction with the "core" high-res-timers
+> > > patch implements high resolution timers on the i386
+> > > platforms.
+> > 
+> > I really don't get the notion of partial ticks, and quite frankly, this
+> > isn't going into my tree until some major distribution kicks me in the
+> > head and explains to me why the hell we have partial ticks instead of just
+> > making the ticks shorter.
+> > 
+> Well, the notion is to provide timers that have resolution
+> down into the micro seconds.  Since this take a bit more
+> overhead, we just set up an interrupt on an as needed
+> basis.  This is why we define both a high res and a low res
+> clock.  Timers on the low res clock will always use the 1/HZ
+> tick to drive them and thus do not introduce any additional
+> overhead.  If this is all that is needed the configure
+> option can be left off and only these timers will be
+> available.
 > 
+> On the other hand, if a user requires better resolution,
+> s/he just turns on the high-res option and incures the
+> overhead only when it is used and then only at timer expire
+> time.  Note that the only way to access a high-res timer is
+> via the POSIX clocks and timers API.  They are not available
+> to select or any other system call.
 > 
-> In low memory situations you really want to run the tree compressed.  
-> ON a fast machine do a "bk -r admin -Z" and then clone that onto your
-> laptop.  I think that will drop the tree to about 145MB which will
-> help, maybe.  I suspect that you use enough of the rest of your 200MB
-> that it still won't fit.
+> Making ticks shorter causes extra overhead ALL the time,
+> even when it is not needed.  Higher resolution is not free
+> in any case, but it is much closer to free with this patch
+> than by increasing HZ (which, of course, can still be
+> done).  Overhead wise and resolution wise, for timers, we
+> would be better off with a 1/HZ tick and the "on demand"
+> high-res interrupts this patch introduces.
 
-Yeah, I don't think that will help at all, given that X and KDE and all 
-its acoutrements are loaded...  I would rather run uncompressed anyway :)
+???  The issue of ticks is separate from the issue of how often
+timer interrupts fire.  Ticks just becomes the maximum resolution
+you can support/express.
 
+If it makes sense to have two maximum tick resolutions.  The normal
+application maximum tick rate and the special task maximum tick
+rate it is probably worth making this only available as a capability
+or an rlimit.
 
-> For the checkouts, always do a "bk -r get -S" the -S doesn't check out the
-> file again if it is already there.  We could make that the default but
-> it is an interface change.  A fairly minor one though.
-
-I do "bk -r co -Sq", is the above faster than that?
-
-
-> We've got some other fixes in the pipeline for the checkin and integrity
-> check pass.
-> 
-> There is only so much we can do when you are trying to cram 10 pounds of
-> crap in a 5 pound bag :(
-
-indeed :)  That's why I keep repeating that it's not BK's fault, and 
-keep pointing out that my Dual Athlon with plenty of RAM does multiple 
-simultaneous checks/checkins quite rapidly.
-
-	Jeff
-
-
+Eric
 

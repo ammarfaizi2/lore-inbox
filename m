@@ -1,76 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281059AbRKDRtK>; Sun, 4 Nov 2001 12:49:10 -0500
+	id <S281058AbRKDRvu>; Sun, 4 Nov 2001 12:51:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281057AbRKDRst>; Sun, 4 Nov 2001 12:48:49 -0500
-Received: from unthought.net ([212.97.129.24]:48344 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S280970AbRKDRsk>;
-	Sun, 4 Nov 2001 12:48:40 -0500
-Date: Sun, 4 Nov 2001 18:48:39 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Tim Jansen <tim@tjansen.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S281057AbRKDRvk>; Sun, 4 Nov 2001 12:51:40 -0500
+Received: from pyxis.wanadoo.be ([195.74.212.24]:9091 "EHLO pyxis.wanadoo.be")
+	by vger.kernel.org with ESMTP id <S281058AbRKDRv1>;
+	Sun, 4 Nov 2001 12:51:27 -0500
+Message-ID: <3BE580E4.F17AF70C@altern.org>
+Date: Sun, 04 Nov 2001 18:54:44 +0100
+From: SpaceWalker <spacewalker@altern.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
 Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104184839.F14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160Nyq-2ACgt6C@fmrl07.sul.t-online.com> <20011104163354.C14001@unthought.net> <160QM5-1HAz5sC@fmrl00.sul.t-online.com>
-Mime-Version: 1.0
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104163354.C14001@unthought.net> <160QM5-1HAz5sC@fmrl00.sul.t-online.com> <20011104172742Z16629-26013+37@humbolt.nl.linux.org> <20011104184159.E14001@unthought.net>
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <160QM5-1HAz5sC@fmrl00.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 05:45:45PM +0100
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 05:45:45PM +0100, Tim Jansen wrote:
-> On Sunday 04 November 2001 16:33, you wrote:
-> > Maintaining the current /proc files is very simple, and it offers the
-> > system administrator a lot of functionality that isn't reasonable to take
-> > away now.
-> >        * They should stay in a form close to the current one *
+Jakob Østergaard wrote:
 > 
-> I doubt that it is worthwhile to keep them in the current form for any other 
-> reason than compatibility (with existing software and people's habits). 
-
-It's an essential feature for *many* sysadmins.  It's just so *easy* to hack
-up a script to act on the information in some file - or to take a look with
-"cat" to see how you RAID resync is coming along.
-
-> It doesn't make sense to describe things in 200 different formats, you won't 
-> help anybody with that. It also violates the good old principle of keeping 
-> policy out of the kernel. And, for me, layout is clearly policy.
-
-User-readable,  and machine-readable.   I think that covers everything. And
-that's two formats.
-
-Where's the policy ?   The only policy I see is the text-mode GUI in the
-existing proc interface - and that is one place where I actually *like* the
-policy as a user (sysadmin), but hate it as an application programmer.
-
+> On Sun, Nov 04, 2001 at 06:28:47PM +0100, Daniel Phillips wrote:
+> > On November 4, 2001 05:45 pm, Tim Jansen wrote:
+> > > > The dot-proc file is basically a binary encoding of Lisp (or XML), e.g. it
+> > > > is a list of elements, wherein an element can itself be a list (or a
+> > >
+> > > Why would anybody want a binary encoding?
+> >
+> > Because they have a computer?
 > 
-> The reason for proc's popularity is clearly that you can use any tool, from 
-> cat over more/less to the text editor of choice, and read the files.
+> Yes - good reason  :)
+> 
+> The "fuzzy parsing" userland has to do today to get useful information
+> out of many proc files today is not nice at all.  It eats CPU, it's
+> error-prone, and all in all it's just "wrong".
+> 
+> However - having a human-readable /proc that you can use directly with
+> cat, echo,  your scripts,  simple programs using read(), etc.   is absolutely
+> a *very* cool feature that I don't want to let go.  It is just too damn
+> practical.
+> 
+> But building a piece of software that needs to reliably read out status
+> information from a system providing something more and more resembling a GUI in
+> text-files is becoming unnecessarily time-consuming and error-prone.
+> 
+> >
+> > > It needs special parsers and will be almost impossible to access from shell
+> > > scripts.
+> >
+> > No, look, he's proposing to put the binary encoding in hidden .files.  The
+> > good old /proc files will continue to appear and operate as they do now.
+> >
+> 
+> Exactly.
+> 
+> --
+> ................................................................
+> :   jakob@unthought.net   : And I see the elder races,         :
+> :.........................: putrid forms of man                :
+> :   Jakob Østergaard      : See him rise and claim the earth,  :
+> :        OZ9ABN           : his downfall is at hand.           :
+> :.........................:............{Konkhra}...............:
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-That's the reason why I want to keep the old proc files.
-
-> There 
-> should be ways to achieve this without putting things into the kernel.  Is 
-> there is a way to implement a filesystem in user-space? What you could do is 
-> to export the raw data using single-value-files, XML or whatever and then 
-> provide an emulation of the old /proc files and possibly new ones in user 
-> space. This could be as simple as writing a shell-script for each emulated 
-> file.
-
-You're proposing a replacement of /proc ?
-
-My proposal was at least intended to be very simple and non-intrusive.
-
+A good reason could be that a simple ps -aux uses hundreds of system
+calls to get the list of all the processes ...
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+SpaceWalker
+
+spacewalker@altern.org
+ICQ 36157579

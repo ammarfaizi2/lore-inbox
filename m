@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbTC2WqG>; Sat, 29 Mar 2003 17:46:06 -0500
+	id <S261329AbTC2W47>; Sat, 29 Mar 2003 17:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261314AbTC2WqG>; Sat, 29 Mar 2003 17:46:06 -0500
-Received: from 011.065.dsl.concepts.nl ([213.197.11.65]:63496 "EHLO
-	d594e05b.dsl.concepts.nl") by vger.kernel.org with ESMTP
-	id <S261296AbTC2WqF>; Sat, 29 Mar 2003 17:46:05 -0500
-Subject: [patch/2.5.66] update of unified zoran driver
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk, kraxel@bytesex.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048984516.1316.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 30 Mar 2003 01:35:16 +0100
+	id <S261349AbTC2W47>; Sat, 29 Mar 2003 17:56:59 -0500
+Received: from WARSL401PIP7.highway.telekom.at ([195.3.96.94]:584 "HELO
+	email02.aon.at") by vger.kernel.org with SMTP id <S261329AbTC2W46>;
+	Sat, 29 Mar 2003 17:56:58 -0500
+From: Hermann Himmelbauer <dusty@violin.dyndns.org>
+To: nbensa@yahoo.com, Norberto BENSA <nbensa@gmx.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem burning with ATAPI cd-rw
+Date: Sun, 30 Mar 2003 00:07:58 +0100
+User-Agent: KMail/1.5
+References: <200303291907.38188.nbensa@gmx.net>
+In-Reply-To: <200303291907.38188.nbensa@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303300007.58371.dusty@violin.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
+On Saturday 29 March 2003 23:07, Norberto BENSA wrote:
+> Hello all,
+>
+> I'm having a problem burning CDs. I ruined 3 cds (yeah, now I know '-dummy'
+>
+> :-/ and after checking dmesg, I see lots of these messages (or similar)
+>
+> 	ATAPI device hda:
+> 	  Error: Illegal request -- (Sense key=0x05)
+> 	  Invalid field in parameter list -- (asc=0x26, ascq=0x00)
+> 	  The failed "Mode Select 10" packet command was:
+> 	  "55 10 00 00 00 00 00 00 3c 00 00 00 "
+> 	hda: packet command error: status=0x51 { DriveReady SeekComplete Error }
+> 	hda: packet command error: error=0x50
+> 	hda: packet command error: status=0x51 { DriveReady SeekComplete Error }
+> 	hda: packet command error: error=0x50
 
-http://mjpeg.sourceforge.net/driver-zoran/linux-zoran-driver.patch.gz
-contains an update of the zoran driver to the current version in kernel
-2.5.66. Changes (globally) to current kernel driver:
+Well - I don't know much about this, but I have some thoughts:
 
-* support for video4linux2
-* support for new videodev interface
-* support for new i2c interface
-* support for pinnacle/miro dc30/dc30+
-* support for linux media labs lml33r10
-* many bugfixes, additions, new features, bla, etc.
-* this one actually compiles
+When do these errors occur while burning? At the start or somewhere in the 
+middle?
 
-Basically, it's quite uptodate to current kernel standards, as far as I
-know (well, definately better than the zoran driver in the current
-kernel, which doesn't even compile). A group of users has been testing
-and improving it for some time now (on the mjpeg mailinglists), so I'm
-quite happy with its current state. Supported cards:
+I had LOTS of troubles writing CD's, but every time it was due to incompatible 
+Media. So - did you besides changing the glibc also change your CD-Media?
 
-* Iomega Buz
-* Pinnacle/Miro DC10/DC10+
-* Pinnacle/Miro DC30/DC30+
-* Linux Media Labs LML33
-* Linux Media Labs LML33R10
+Moreover I somehow wonder - don't you use the ide-scsi module? Which program 
+are you using for writing your CDs?
 
-Unzipped patch is 720kB, the gzipped patch is 160kB (MD5SUM:
-974db61765547c811d3298a284ed8221). Yeah, I know it's huge, the problem
-(...) is that it contains a huge number of i2c client drivers and three
-different codec modules. For each of these, it contains an update or a
-completely new version (for the previously unsupported cards). All in
-all, this makes the patch quite large. It basically only touches code
-that was previously owned by our old driver too, though, apart from the
-saa7110.c driver (owned by the also-broken zr36120 driver which still
-needs updating to the new i2c stuff). Lastly, it touches some (unused)
-I2C IDs (VPX32XX and ADV717X) and renames these to VPX3220 and ADV7175
-to prevent naming confusion with the VPX3224 (module not finished yet,
-so not in the patch) and ADV7170 (also in patch).
+My error messages looked different - first I got errors from the SCSI 
+sub-system, second it told some "sense key" and "Media error". The errors 
+were somehow more self explaining.
 
-Anyone willing to take this beast? Gerd? Alan?
-
-Thanks,
-
-Ronald
+		Best Regards,
+		Hermann
 
 -- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
+x1@aon.at
+GPG key ID: 299893C7 (on keyservers)
+FP: 0124 2584 8809 EF2A DBF9  4902 64B4 D16B 2998 93C7
 

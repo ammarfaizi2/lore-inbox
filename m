@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289921AbSAKMEk>; Fri, 11 Jan 2002 07:04:40 -0500
+	id <S290157AbSAKXOI>; Fri, 11 Jan 2002 18:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289922AbSAKMEU>; Fri, 11 Jan 2002 07:04:20 -0500
-Received: from over.ny.us.ibm.com ([32.97.182.111]:27350 "EHLO
-	over.ny.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289921AbSAKMEM>; Fri, 11 Jan 2002 07:04:12 -0500
-Date: Wed, 9 Jan 2002 09:40:34 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-Message-ID: <20020109094034.C1149@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20020108193904.A1068@w-mikek2.beaverton.ibm.com> <Pine.LNX.4.33.0201091122060.2276-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201091122060.2276-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Jan 09, 2002 at 11:25:43AM +0100
+	id <S290158AbSAKXN6>; Fri, 11 Jan 2002 18:13:58 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:56886 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S290157AbSAKXNn>;
+	Fri, 11 Jan 2002 18:13:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Dan Kegel <dank@kegel.com>, "Timothy D. Witham" <wookie@osdl.org>
+Subject: Re: Regression testing of 2.4.x before release?
+Date: Fri, 11 Jan 2002 00:50:42 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Luigi Genoni <kernel@Expansa.sns.it>, Mike Galbraith <mikeg@wen-online.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stp@osdl.org
+In-Reply-To: <Pine.LNX.4.33.0111041955290.30596-100000@Expansa.sns.it> <1004978377.1226.22.camel@wookie-laptop.pdx.osdl.net> <3BEF6B1B.1E077ED9@kegel.com>
+In-Reply-To: <3BEF6B1B.1E077ED9@kegel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16PAuX-0002Ob-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 11:25:43AM +0100, Ingo Molnar wrote:
-> 
-> On Tue, 8 Jan 2002, Mike Kravetz wrote:
-> 
-> > --------------------------------------------------------------------
-> > Chat - VolanoMark simulator.  Result is a measure of throughput.
-> >        Higher is better.
-> 
-> very interesting numbers, nice work Mike! I'd suggest the following
-> additional test: please also run tests like VolanoMark with 'nice -n 19'.
-> The O(1) scheduler's task-penalty method works in our favor in this case,
-> since we know the test is CPU-bound we can move all processes to nice
-> level 19.
-> 
-> 	Ingo
+On November 12, 2001 07:24 am, Dan Kegel wrote:
+> At some point it might be nice to also use the STP to help
+> speed gcc 3 development, too.  (I personally am really
+> looking forward to the day when I can use the same compiler
+> for both c++ and kernel.)
 
-I'll do that in the next go around.  Right now, I'm trying to get some
-TPC-H results.
+You already can, at least I can because gcc3 builds recent kernels just fine. 
+IOW, it works for me.  Conservatively, it's good to keep the old compiler 
+around (choose your poison) for those few apps that don't build with gcc, but 
+I feel quite comfortable at the moment having gcc3 as my default.
 
--- 
-Mike
+--
+Daniel
+

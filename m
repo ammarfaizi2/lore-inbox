@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267597AbTACRhO>; Fri, 3 Jan 2003 12:37:14 -0500
+	id <S267598AbTACRiJ>; Fri, 3 Jan 2003 12:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267598AbTACRhO>; Fri, 3 Jan 2003 12:37:14 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:28116 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267597AbTACRhN>;
-	Fri, 3 Jan 2003 12:37:13 -0500
-Date: Fri, 3 Jan 2003 17:43:23 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Richard Baverstock <beaver@gto.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AGPGART for VIA vt8235, kernel 2.4.21-pre2
-Message-ID: <20030103174323.GA10327@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Richard Baverstock <beaver@gto.net>,
-	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-References: <20030102145346.27a21ed9.beaver@gto.net> <20030103171617.B4502@ucw.cz> <20030103122216.39cedd3f.beaver@gto.net>
-Mime-Version: 1.0
+	id <S267599AbTACRiJ>; Fri, 3 Jan 2003 12:38:09 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17927
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267598AbTACRiG>; Fri, 3 Jan 2003 12:38:06 -0500
+Date: Fri, 3 Jan 2003 09:45:41 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Marco Monteiro <masm@acm.org>
+cc: Andrew Walrond <andrew@walrond.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <1041610571.1156.86.camel@fly>
+Message-ID: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030103122216.39cedd3f.beaver@gto.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2003 at 12:22:16PM -0500, Richard Baverstock wrote:
- > > The vt8235 is the southbridge chip and that the AGP bridge is
- > > located in the northbridge, which most likely has a different
- > > number.
- > Sorry about that, thought the AGP was in the southbridge chip. I see
- > however that someone else has submitted a patch with the correct
- > naming conventions (It does seem to change between P4X333 and P4X400
- > however).
+On 3 Jan 2003, Marco Monteiro wrote:
 
-What exactly do you mean by 'it' ? The PCI device id ?
+> On Fri, 2003-01-03 at 12:51, Andrew Walrond wrote:
+> > Yes but....
+> > 
+> > I develop computer games. The last one I did took a team of 35 people 2 
+> > years and cost $X million to develop.
+> > 
+> > Please explain how I could do this as free software, while still feeding 
+> > my people? Am I a bad person charging for my work?
+> 
+> No, not you. Bad is the people you work for: the code you write is not
+> yours.
 
-If they share the same device ID, then Bernhards patch is
-really no better...
+So since I work for myself and own my own companies, thus I own the code
+and I own the decision of what is published, I am the bad person?
 
-#define PCI_DEVICE_ID_VIA_P4X333       0x3168
+Thanks!  Look how much I have given away, gee it is nothing.
+Only 80% or more of all IDE chipsets, I personally wrote.
+I am not allowed to make money to feed my family, pay from the cost of
+membership to standards, pay for the cost of joining working groups for
+new technology, pay for the cost of travel to the fore mentioned.
 
-In fact, P4X333 defines a chipset rather than a chip.
-According to ..
-http://www.viatech.com/en/apollo/p4x333.jsp and
-http://www.viatech.com/en/apollo/p4x400.jsp ,
-the northbridge is a VT8754 in both models, so the
-correct define would seem to be PCI_DEVICE_ID_VIA_8754
+Yet you bitch and whine and hold your hand out for me to do it for free?
 
-Just to confirm, device 3168 is the host bridge in lspci output right?
-And this does all work when you run a DRI application ?
+Well everything has a cost.
 
-		Dave
+You know I still have plans to open source a version of a current product
+after I make some money and recover the 18 months of development, hardware
+cost, travel, trade show, future membership dues.  Why, because it is the
+right thing to do, and it will benefit me in the long run, and the open
+source.  It also will raise the bar for what people expect.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+So I am bad, gee thanks.
+
+Remember that the next time you buy a chipset that is not supported.
+I will look for a check in the mail from you to pay for the support
+services.
+
+> You still don't understand the diference between the 'free' and 'Free
+> for Freedom'.
+
+I understand that "FREE" does not pay the mortgage, pay for food, or pay
+employees, or anything else.  So you think GPL is welfare for the
+underclass, nice.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

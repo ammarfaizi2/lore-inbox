@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbTHUSFf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 14:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbTHUSFf
+	id S262872AbTHUS2M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 14:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTHUS2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 14:05:35 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:31498 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262790AbTHUSFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 14:05:34 -0400
-Date: Thu, 21 Aug 2003 19:05:24 +0100
-From: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@infradead.org>
-To: Linus Torvalds <torvalds@osdl.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH resend #1] Handle SA_NODEFER correctly for i386
-Message-ID: <20030821190524.A2214@phoenix.infradead.org>
+	Thu, 21 Aug 2003 14:28:12 -0400
+Received: from 64.221.211.208.ptr.us.xo.net ([64.221.211.208]:51081 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S262872AbTHUS2M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 14:28:12 -0400
+Subject: Re: Initramfs
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: gkajmowi@tbaytel.net, linux-kernel@vger.kernel.org
+In-Reply-To: <3F44D504.7060909@pobox.com>
+References: <200308210044.17876.gkajmowi@tbaytel.net>
+	 <1061447419.19503.20.camel@camp4.serpentine.com>
+	 <3F44D504.7060909@pobox.com>
+Content-Type: text/plain
+Message-Id: <1061490490.23060.9.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 21 Aug 2003 11:28:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus!
+On Thu, 2003-08-21 at 07:19, Jeff Garzik wrote:
 
-This fixes i386 to only ignore the current signal wir SA_NODEFER set.
-All other architectures (except m68k, funny enough) need the same fix,
-but I'm lazy today.
+> Support replacing "initrd=" with "initramfs=", so that bootloaders can 
+> pass a cpio image into the standard initrd memory space.
 
-Joern
+That would be nice to have, but it would also increase the pressure to
+fix the cpio unpacker.  At least right now, its deficiencies don't cause
+many problems, because initramfs is less than convenient to use.
 
---- linux-2.5.73/arch/i386/kernel/signal.c~sigmask_i386	2003-07-04 18:59:48.000000000 +0200
-+++ linux-2.5.73/arch/i386/kernel/signal.c	2003-07-04 22:39:59.000000000 +0200
-@@ -551,13 +551,12 @@
- 	if (ka->sa.sa_flags & SA_ONESHOT)
- 		ka->sa.sa_handler = SIG_DFL;
- 
--	if (!(ka->sa.sa_flags & SA_NODEFER)) {
--		spin_lock_irq(&current->sighand->siglock);
--		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
-+	spin_lock_irq(&current->sighand->siglock);
-+	sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
-+	if (!(ka->sa.sa_flags & SA_NODEFER))
- 		sigaddset(&current->blocked,sig);
--		recalc_sigpending();
--		spin_unlock_irq(&current->sighand->siglock);
--	}
-+	recalc_sigpending();
-+	spin_unlock_irq(&current->sighand->siglock);
- }
- 
- /*
+	<b
+

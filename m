@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263746AbUC3Qvt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 11:51:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263754AbUC3Qvp
+	id S263751AbUC3RAz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 12:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263756AbUC3RAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 11:51:45 -0500
-Received: from [81.168.75.8] ([81.168.75.8]:42606 "EHLO henning.makholm.net")
-	by vger.kernel.org with ESMTP id S263746AbUC3Qvk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 11:51:40 -0500
-To: debian-devel@lists.debian.org, debian-legal@lists.debian.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-References: <8RnZwD.A.91B.qHYaAB@murphy> <40698AE4.7020006@almg.gov.br>
-X-My-Web-page: http://www.diku.dk/~makholm/
-From: Henning Makholm <henning@makholm.net>
-Date: 30 Mar 2004 17:51:38 +0100
-In-Reply-To: <40698AE4.7020006@almg.gov.br>
-Message-ID: <87y8picm79.fsf@kreon.lan.henning.makholm.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	Tue, 30 Mar 2004 12:00:55 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:16825 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S263751AbUC3RAt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 12:00:49 -0500
+Message-ID: <4069A7DC.4060107@mellanox.co.il>
+Date: Tue, 30 Mar 2004 19:01:16 +0200
+From: Eli Cohen <mlxk@mellanox.co.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: how to avoid low memory situation
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scripsit Humberto Massa <humberto.massa@almg.gov.br>
+Hi,
+Our driver is locking user space memory by calling sys_mlock() while the 
+processes are ordinary processes without root priviliges. However it 
+happens that the system has low memory since there have been many 
+processes that locked memory and another attempt to lock memory brings 
+the system to a state in which it struggles to find some free pages and 
+the system becomes none responsive. Checking just the amount of free 
+pages just before attempting to lock is not so good since there may be a 
+lot of pages used by various caches which could be reduced thus allowing 
+to lock memory. I am seeking a method in which I can forsee if another 
+attempt to lock memory will bring me to such a condition and thus avoid it.
 
-> to modify the fw[], at least *legally* is MHO that any
-> recipient/redistributor of the file _can_ and _must_ consider the file
-> in *that* format as the preferred form for modification (pf4m) *and*,
-> considering it the source code, follow the directions of the GPL in
-> respect to modification and redistribution.
-
-No, law does not work that way. The phrase "preferred form for
-modification" has a clear enough, if somewhat fuzzy, literal meaning,
-and one cannot *implicitly* make it mean something that directly
-contrast to the literal meaning. If nobody *actually* prefers the
-binary blob for modification, then the binary blob is *not* the
-preferred form for modification. That's irrespective of whether the
-copyright holder behaves inconsistently.
-
-> * the /status quo/ obtained by observation of the previous item
-> prevails _until somebody proves_ that the fw[] = {} is *not* the
-> source code;
-
-And Debian's approach to software freedom doesn't work that way
-either. We treat software as non-free and non-distributable unless and
-until we see good and self-consistent evidence that it is actually
-free and distributable. The "burden of proof", to the extent that
-expression applies, is always on the side that claims that the
-software in question is OK for Debian to distribute.
-
--- 
-Henning Makholm                "Nu kommer han. Kan du ikke høre knallerten?"
+thanks for any help
+Eli

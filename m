@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267307AbUHTPup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUHTPxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267307AbUHTPup (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 11:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268224AbUHTPup
+	id S264903AbUHTPxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268224AbUHTPxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 11:50:45 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:15548 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S267307AbUHTPum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 11:50:42 -0400
-Date: Fri, 20 Aug 2004 17:50:41 +0200 (DFT)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@isabelle.frec.bull.fr
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] CPU stuck in wake_up_forked_thread()
-Message-ID: <Pine.A41.4.53.0408201742100.20680@isabelle.frec.bull.fr>
+	Fri, 20 Aug 2004 11:53:14 -0400
+Received: from [66.45.242.210] ([66.45.242.210]:64386 "EHLO host1.zoneserv.com")
+	by vger.kernel.org with ESMTP id S264903AbUHTPwq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 11:52:46 -0400
+Reply-To: <Admin@ZoneServ.com>
+From: "Gil Binder" <Admin@ZoneServ.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Driver missing, 3ware 9000.
+Date: Fri, 20 Aug 2004 18:52:21 +0200
+Message-ID: <003001c486d6$136e5e20$0100a8c0@coolman>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-PopBeforeSMTPSenders: admin@zoneserv.com
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host1.zoneserv.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - ZoneServ.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Kernel developers,
+I just got a new machine with 3ware 9000 (raid controller).
+ 
+And when I make the initrd image it says, a driver is missing - 3x-9xxx
+which is 3ware 9000 device.
+ 
+What should I do? Am I doing something wrong? Or you just don't have any
+support of 3x-9xxx in any of the kernel source additions?
+ 
+ 
+Hope for prompt reply,
+ 
+Regards,
+Gil.
 
-Hi,
-
-It seems (as of 2.6.8-rc3) that there is an issue in
-wake_up_forked_thread():
-
-from kernel/sched.c:
-
-        local_irq_save(flags);
-lock_again:
-        rq = cpu_rq(cpu);
-        double_rq_lock(this_rq, rq);
-
-        BUG_ON(p->state != TASK_RUNNING);
-
-        /*
-         * We did find_idlest_cpu() unlocked, so in theory
-         * the mask could have changed - just dont migrate
-         * in this case:
-         */
-        if (unlikely(!cpu_isset(cpu, p->cpus_allowed))) {
-                cpu = this_cpu;
-                double_rq_unlock(this_rq, rq);
-                goto lock_again;
-        }
-
-
-But what if 'this_cpu' is not set in p->cpus_allowed ?
-Then this CPU might loop here forever.
-
-I someone is interested I have an ugly test program that does trigger
-this.
-
-
-One possible solution could be:
-
-Signed-off-by: Simon Derr <Simon.Derr@bull.net>
-
-Index: kdb_268/kernel/sched.c
-===================================================================
---- kdb_268.orig/kernel/sched.c	2004-08-20 16:44:53.033231213 +0200
-+++ kdb_268/kernel/sched.c	2004-08-20 17:20:35.439454969 +0200
-@@ -1249,7 +1249,11 @@
- 	 * in this case:
- 	 */
- 	if (unlikely(!cpu_isset(cpu, p->cpus_allowed))) {
--		cpu = this_cpu;
-+		if (cpu_isset(this_cpu, p->cpus_allowed))
-+			cpu = this_cpu;
-+		else
-+			cpu = first_cpu(p->cpus_allowed);
-+
- 		double_rq_unlock(this_rq, rq);
- 		goto lock_again;
- 	}

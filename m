@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269793AbRHKCtK>; Fri, 10 Aug 2001 22:49:10 -0400
+	id <S266417AbRHKCrK>; Fri, 10 Aug 2001 22:47:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270698AbRHKCtA>; Fri, 10 Aug 2001 22:49:00 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49668 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269793AbRHKCsr>;
-	Fri, 10 Aug 2001 22:48:47 -0400
-Date: Fri, 10 Aug 2001 23:48:31 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: David Ford <david@blue-labs.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VM nuisance
-In-Reply-To: <3B748AA8.4010105@blue-labs.org>
-Message-ID: <Pine.LNX.4.33L.0108102347050.3530-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S269793AbRHKCrA>; Fri, 10 Aug 2001 22:47:00 -0400
+Received: from razor.hemmet.chalmers.se ([193.11.251.99]:9344 "EHLO
+	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
+	id <S266417AbRHKCqp>; Fri, 10 Aug 2001 22:46:45 -0400
+Message-ID: <3B734B25.30704@kjellander.com>
+Date: Fri, 10 Aug 2001 04:47:01 +0200
+From: Carl-Johan Kjellander <carljohan@kjellander.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 386 boot problems with 2.4.7 and 2.4.7-ac9
+In-Reply-To: <3B706C11.7010100@kjellander.com> <3B7419B5.1C029DF4@osdlab.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Aug 2001, David Ford wrote:
+Randy.Dunlap wrote:
+> Carl-Johan Kjellander wrote:
+> 
+>>Then I tried 2.4.7-ac9, same configuration, but that kernel panics.
+>>
+> 
+> Hi-
+> 
+> There's a patch for this in 2.4.7-ac11.
 
-> Is there anything measurably useful in any -ac or -pre patches after
-> 2.4.7 that helps or fixes the blasted out-of-memory-but-let's-go-fsck
-> -ourselves-for-a-few-hours?
+I just tried 2.4.7-ac11 and it worked beautifully! Thanks Alan.
 
-No.  The problem is that whenever I change something to
-the OOM killer I get flamed.
-
-Both by the people for whom the OOM killer kicks in too
-early and by the people for whom the OOM killer now doesn't
-kick in.
-
-I haven't got the faintest idea how to come up with an OOM
-killer which does the right thing for everybody.
-
-regards,
-
-Rik
---
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+/Carl-Johan Kjellander
+-- 
+begin 644 carljohan_at_kjellander_dot_com.gif
+Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
+Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
+R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
 

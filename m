@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287381AbSAPT5g>; Wed, 16 Jan 2002 14:57:36 -0500
+	id <S287386AbSAPUEG>; Wed, 16 Jan 2002 15:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287334AbSAPT5R>; Wed, 16 Jan 2002 14:57:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35851 "EHLO
+	id <S287371AbSAPUD4>; Wed, 16 Jan 2002 15:03:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53771 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287368AbSAPT5M>; Wed, 16 Jan 2002 14:57:12 -0500
+	id <S287368AbSAPUDt>; Wed, 16 Jan 2002 15:03:49 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Query about initramfs and modules
-Date: 16 Jan 2002 11:56:59 -0800
+Subject: Re: hex addresses in setup.S
+Date: 16 Jan 2002 12:03:16 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a24lub$4o9$1@cesium.transmeta.com>
-In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com> <Pine.GSO.4.21.0201152226100.4339-100000@weyl.math.psu.edu> <20020116194121.GC32184@codepoet.org>
+Message-ID: <a24ma4$4ps$1@cesium.transmeta.com>
+In-Reply-To: <BJEJJDPJOCEPDBLPFDKJCEACCCAA.ceswiedler@mindspring.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,21 +21,25 @@ Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020116194121.GC32184@codepoet.org>
-By author:    Erik Andersen <andersen@codepoet.org>
+Followup to:  <BJEJJDPJOCEPDBLPFDKJCEACCCAA.ceswiedler@mindspring.com>
+By author:    "Chris Swiedler" <ceswiedler@mindspring.com>
 In newsgroup: linux.dev.kernel
-> 
-> Keep in mind that insmod current needs to incorporate a full ELF
-> interpreter in userspace (and the source code needs to know about
-> all the types of relocations and jump for each arch and for 32
-> and 64 bit ELF.  Horrible stuff really.  If we could cleanup the
-> kernel's insmod implementation to require merely a syscall
-> passing a filename to the kernel, it would sure make the
-> initramfs smaller and simpler.  I believe Rusty made a patch to
-> do this sort of thing....
+>
+> Why does setup.S define the default system load address as 0x1000, and the
+> comment on the line explain this to be 0x10000(and gives the decimal
+> translation of 65536, so it's not a typo)? This seems to be true for several
+> addresss (0x9000 = 0x90000, etc). I'm sure there's something simple I'm
+> missing...what is it?
 > 
 
-Yeah!  Let's put all this crap in KERNEL SPACE!  *NOT!*
+In real mode:
+
+linear_address := (segment << 4) + offset
+
+Those addresses are "segment" addresses, with (implied) offset == 0.
+These kinds of addresses are sometimes referred to as "paragraph
+addresses" (paragraph being bigger than words but smaller than pages,
+I guess.)
 
 	-hpa
 -- 

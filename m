@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317005AbSIIKoO>; Mon, 9 Sep 2002 06:44:14 -0400
+	id <S317012AbSIIKu4>; Mon, 9 Sep 2002 06:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSIIKoO>; Mon, 9 Sep 2002 06:44:14 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:36103 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S317005AbSIIKoN>;
-	Mon, 9 Sep 2002 06:44:13 -0400
-Date: Mon, 9 Sep 2002 12:49:44 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
+	id <S317017AbSIIKu4>; Mon, 9 Sep 2002 06:50:56 -0400
+Received: from mail.hometree.net ([212.34.181.120]:51885 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S317012AbSIIKuz>; Mon, 9 Sep 2002 06:50:55 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] Multi-path IO in 2.5/2.6 ?
-Message-ID: <20020909104944.GH27887@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: What happened to www.linux-sna.org ?
+Date: Mon, 9 Sep 2002 10:55:39 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <alhunb$nua$1@forge.intermeta.de>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1031568939 1801 212.34.181.4 (9 Sep 2002 10:55:39 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 9 Sep 2002 10:55:39 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Morning everyone,
+Hi,
 
-I hope people are waking up by now ;-)
+does anyone know what happened to www.linux-sna.org? The site is
+now down for almost a week. Is there a mirror anywhere?
 
-So, what is the take on "multi-path IO" (in particular, storage) in 2.5/2.6?
-
-Right now, we have md multipathing in 2.4 (+ an enhancement to that one by
-Jens Axboe and myself, which however was ignored on l-k ;-), an enhancement to
-LVM1 and various hardware-specific and thus obviously wrong approaches.
-
-I am looking at what to do for 2.5. I have considered porting the small
-changes from 2.4 to md 2.5. The LVM1 changes are probably and out gone, as
-LVM1 doesn't work still.
-
-I noticed that EVMS duplicates the entire md layer internally (great way to
-code, really!), so that might also require changing if I update the md code.
-
-Or can the LVM2 device-mapper be used to do that more cleanly?
-
-I wonder whether anyone has given this some thought already.
+	Regards
+		Henning
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

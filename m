@@ -1,43 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281924AbRKUQwA>; Wed, 21 Nov 2001 11:52:00 -0500
+	id <S281922AbRKUQyK>; Wed, 21 Nov 2001 11:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281904AbRKUQvl>; Wed, 21 Nov 2001 11:51:41 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:20430 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S281917AbRKUQvg>;
-	Wed, 21 Nov 2001 11:51:36 -0500
-Subject: Re: [PATCH] Documentation/Changes
-From: Robert Love <rml@tech9.net>
-To: Dmitri Popov <popov@krista.ru>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0111211210040.5542-100000@popov.krista.ru>
-In-Reply-To: <Pine.LNX.4.31.0111211210040.5542-100000@popov.krista.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 21 Nov 2001 11:50:12 -0500
-Message-Id: <1006361415.1307.3.camel@icbm>
+	id <S281917AbRKUQyC>; Wed, 21 Nov 2001 11:54:02 -0500
+Received: from mta.sara.nl ([145.100.16.144]:45463 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S281904AbRKUQxo>;
+	Wed, 21 Nov 2001 11:53:44 -0500
+Message-Id: <200111211653.RAA26834@zhadum.sara.nl>
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Remco Post <r.post@sara.nl>
+To: Nick LeRoy <nleroy@cs.wisc.edu>, Steffen Persvold <sp@scali.no>,
+        Christopher Friesen <cfriesen@nortelnetworks.com>,
+        root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Swap 
+In-Reply-To: Message from Mike Fedyk <mfedyk@matchmail.com> 
+   of "Tue, 20 Nov 2001 13:44:18 PST." <20011120134418.C4210@mikef-linux.matchmail.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 21 Nov 2001 17:53:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-11-21 at 04:32, Dmitri Popov wrote: 
-> I'd like to note that there is nothing abount quota tools in
-> Documentation/Changes. I tried to use one of Alan Cox kernels some weeks
-> ago, and was very surprised, when quota utilities 2.00 stopped working.
-> And I didn't find any information about correct quota tools in all the
-> source tree! At last I searched for the latest quota-tools in the Internet
-> (ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/utils/)
-> and installed it. Now it works. As I can understand, the current 2.4.*
-> will also need new utilities.
+> On Tue, Nov 20, 2001 at 03:33:28PM -0600, Nick LeRoy wrote:
+> > On Tuesday 20 November 2001 15:18, Mike Fedyk wrote:
+> > > On Tue, Nov 20, 2001 at 10:05:37PM +0100, Steffen Persvold wrote:
+> > > > Christopher Friesen wrote:
+> > > > > "Richard B. Johnson" wrote:
+> > > > > > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
+> > > > > > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
+> > > > > > > > When a page is deleted for one executable (because we can re-read
+> > > > > > > > it from on-disk binary), it is discarded, not paged out.
+> > > > > > >
+> > > > > > > What happens if the on-disk binary has changed since loading the
+> > > > > > > program? -
+> > > > > >
+> > > > > > It can't. That's the reason for `install` and other methods of
+> > > > > > changing execututable files (mv exe-file exe-file.old ; cp newfile
+> > > > > > exe-file). The currently open, and possibly mapped file can be
+> > > > > > re-named, but it can't be overwritten.
+> > > > >
+> > > > > Actually, with NFS (and probably others) it can.  Suppose I change the
+> > > > > file on the server, and it's swapped out on a client that has it
+> > > > > mounted.  When it swaps back in, it can get the new information.
+> > > >
+> > > > This sounds really dangerous... What about shared libraries ??
+> > >
+> > > IIRC (if wrong flame...)
+> > >
+> > > When you delete an open file, the entry is removed from the directory, but
+> > > not unlinked until the file is closed.  This is a standard UNIX semantic.
+> > >
+> > > Now, if you have a set of processes with shared memory, and one closes, and
+> > > another is created to replace, the new process will get the new libraries,
+> > > or even new version of the process.  This could/will bring down the entire
+> > > set of processes.
+> > >
+> > > Apps like samba come to mind...
+> > 
+> > *Any* time that you write to an executing executable, all bets are off.  The 
+> > most likely outcome is a big 'ol crash & burn.  With a local FS, Unix 
+> > prevents you from shooting yourself in the foot, but with NFS, fire away..  
+> > I've done it.  It *does* let you, but...
+> > 
+> > Solution:  Don't do that.  Shut them all down, on all clients, upgrade the 
+> > binaries, then restart the processes on the clients.
+> > 
+> > As far as the scenerio that you've described, I *think* that it would 
+> > actually work.  When the new process is fork()ed, it gets a copy of the file 
+> > descriptors from it's parent, so the file is still open to it.  If it the 
+> > exec()s, the new image no longer has any real ties to it's parent (at least, 
+> > not that are relevant to this).
+> > 
+> 
+> What about processes with shared memory such as samba 2.0?
 
-I believe Alan's tree had 32-bit quota support, which requires a
-different version of quota-tools. If you return to Linus's tree, your
-original version will work. 
 
-For what its worth, Linus has finally merged much of Alan's tree into
-his own, and is pretty much done as of 2.4.15-pre.  32-bit quotas were
-_not_ merged. 
+Cool, isn't it. Thinking of 1000 ways to crash apps. As long as the meaning of 
+the bits and bytes in the shm segment does not change with a newer version of 
+the app, you're safe. Upgrading in single-user modes makes things a lot safer 
+(yes I too usually like to live dangerous....)
 
-	Robert Love
+
+-- 
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
 

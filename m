@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbUKJEPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbUKJEQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbUKJEPE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 23:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUKJEPE
+	id S261849AbUKJEQK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 23:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUKJEQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 23:15:04 -0500
-Received: from sanosuke.troilus.org ([66.92.173.88]:11237 "EHLO
-	sanosuke.troilus.org") by vger.kernel.org with ESMTP
-	id S261872AbUKJEO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 23:14:59 -0500
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: =?iso-8859-1?q?=3D=3Fiso-8859-1=3Fq=3F_Rapha=EBl_Rigo_LKML=3F=3D?= 
-	<lkml@twilight-hall.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, davids@webmaster.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-References: <MDEHLPKNGKAHNMBLJOLKAEKLPKAA.davids@webmaster.com>
-	<1100042579.16729.7.camel@localhost.localdomain>
-	<AF8A1638-32B8-11D9-857E-000393ACC76E@mac.com>
-	<87ekj2fomv.fsf@sanosuke.troilus.org>
-	<053C3394-32C5-11D9-857E-000393ACC76E@mac.com>
-From: Michael Poole <mdpoole@troilus.org>
-Date: 09 Nov 2004 23:14:55 -0500
-In-Reply-To: <053C3394-32C5-11D9-857E-000393ACC76E@mac.com>
-Message-ID: <87actqfigw.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 9 Nov 2004 23:16:10 -0500
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:24482 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261849AbUKJEQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 23:16:02 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
+Date: Tue, 9 Nov 2004 23:15:55 -0500
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>,
+       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Kay Sievers <kay.sievers@vrfy.org>, tokunaga.keiich@jp.fujitsu.com,
+       motoyuki@soft.fujitsu.com, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, rml@novell.com, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net
+References: <20041105001328.3ba97e08.akpm@osdl.org> <d120d5000411091548584bf8c5@mail.gmail.com> <20041110000811.GA8543@kroah.com>
+In-Reply-To: <20041110000811.GA8543@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411092315.55187.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett writes:
+On Tuesday 09 November 2004 07:08 pm, Greg KH wrote:
+> On Tue, Nov 09, 2004 at 06:48:17PM -0500, Dmitry Torokhov wrote:
+> > On Tue, 9 Nov 2004 14:55:02 -0800, Greg KH <greg@kroah.com> wrote:
+> > > On Fri, Nov 05, 2004 at 09:18:48PM -0800, Keshavamurthy Anil S wrote:
+> > > > Also, since you have brought this, I have one another question to you.
+> > > > Now in the new kernel, I see whenever anybody calls sysdev_register(kobj),
+> > > > an "ADD" notification is sent. why is this? I would like to call
+> > > > kobject_hotplug(kobj, ADD) later.
+> > > 
+> > > This happens when kobject_add() is called.  You shouldn't ever need to
+> > > call kobject_hotplug() for an add event yourself.
+> > > 
+> > 
+> > This is not always the case. One might want to postpone ADD event
+> > until all summpelental object attributes are created. This way userspace
+> > is presented with object in consistent state.
+> 
+> No, that's a mess.  Let userspace wait for those attributes to show up
+> if they need to.  That's what the "wait_for_sysfs" program bundled with
+> udev is for.
+>
 
-> > You can fully exercise your rights under the GPL; they are not
-> > restricted.  However, you cannot expect future support from Sveasoft.
-> But if I paid $20 for one year of said support?
+I strongly disagree:
 
-The contract might have a termination clause triggered if you do a
-handstand or file a patent lawsuit against Sveasoft.  By your
-argument, that would make the contract breach the GPL, since you could
-not use the GPLed software while doing those things -- which is
-ridiculous on its face.
+- it makes userspace being aware of implementation details (whe exactly it
+  has to wait for, for how long, etc.) which is bad thing;
+- not all the world is udev - needless replication of the code and bugs;
+- not only making visible but announcing an object in non-working state
+  to userspace simply does not feel right.
 
-> > Only your contract entitles you to that support, and if you do
-> > something to terminate your contract, it is outside the GPL's scope.
-> What _is_ inside the GPL's scope is that no contract may require me
-> to abstain from my GPL rights.  If I use my full GPL rights, then they
-> are telling me that I break the contract and lose my $20 support.
-
-That depends greatly on the wording of the contract.
-
-Interestingly, the only description I can find on Sveasoft's web page
-says this:
-
-    Sveasoft firmware and support is available for a yearly $20 USD
-    subscription fee. A subscription includes unlimited access to
-    firmware upgrades and unlimited access to priority support.
-
-If Sveasoft terminates someone's "unlimited" access before the year
-expires, Sveasoft may be in breach of contract, since there are no
-disclaimers about termination -- but that still does not translate to
-copyright infringement.
-
-> > This is unpleasant for a lot of people.  It is probably suboptimal for
-> > the free software community.  Life can be hard like that.  Any
-> > competent lawyer could have a copyright infringement claim dismissed
-> > if the claim were based on your theory of the GPL.
-> As I said, IANAL, but I do feel strongly about this issue (though I've
-> never paid for their software).  In any case, I think this point will be
-> moot if SveaSoft continues with their announced plan to require an
-> activation key.  That would _definitely_ be against the GPL.
-
-I suspect that an activation key would violate the GPL, but that is a
-different question than the support contract.
-
-Michael Poole
+-- 
+Dmitry

@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316997AbSGXLyf>; Wed, 24 Jul 2002 07:54:35 -0400
+	id <S317012AbSGXLzy>; Wed, 24 Jul 2002 07:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316999AbSGXLyf>; Wed, 24 Jul 2002 07:54:35 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26870 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316997AbSGXLye>; Wed, 24 Jul 2002 07:54:34 -0400
-Subject: Re: Errors in 2.4.19-rc3 CML rules (SiS related)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Scott Bronson <bronson@rinspin.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <34634.68.6.112.98.1027506178.squirrel@www.rinspin.com>
-References: <34634.68.6.112.98.1027506178.squirrel@www.rinspin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 24 Jul 2002 14:11:19 +0100
-Message-Id: <1027516279.6456.2.camel@irongate.swansea.linux.org.uk>
+	id <S317017AbSGXLzy>; Wed, 24 Jul 2002 07:55:54 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:8720 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317012AbSGXLzv>; Wed, 24 Jul 2002 07:55:51 -0400
+Date: Wed, 24 Jul 2002 12:59:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] irqlock patch 2.5.27-H4
+Message-ID: <20020724125903.A5961@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <Pine.LNX.4.44.0207241344160.14551-100000@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207241344160.14551-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Jul 24, 2002 at 01:47:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-24 at 11:22, Scott Bronson wrote:
->   1) CONFIG_DRM_SIS needs to require CONFIG_FB_SIS_315.
->       Currently, you can select CONFIG_DRM_SIS without CONFIG_FB_SIS_315.
->       If you do that, you get undefined symbol errors for sis_malloc and
->          sis_free.
-> 
->   2) CONFIG_FB_SIS must be compiled into the kernel (i.e. NOT a module).
->       Currently, you can compile it as a module.
->       If you do that, you ALSO get undefined symbol errors for
->          sis_malloc and sis_free.
-> 
-> These requirements could be enforced with CML rules.  Before I
-> submit the patch to do this, I'd like to know if that's the proper
-> fix!  Would it be better to just make CONFIG_FB_SIS able to be built
-> as a module instead?
+>  - move the irqs-off check into preempt_schedule() and remove
+>    CONFIG_DEBUG_IRQ_SCHEDULE.
 
-For the rules - go for it. For the modular driver ping the sisfb
-maintainer first and check what is in the pipeline.
-
-Alan
+the config.in entry is still present..
 

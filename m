@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbRFUOFK>; Thu, 21 Jun 2001 10:05:10 -0400
+	id <S264975AbRFUODU>; Thu, 21 Jun 2001 10:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264977AbRFUOFA>; Thu, 21 Jun 2001 10:05:00 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:20154 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S264976AbRFUOEm>; Thu, 21 Jun 2001 10:04:42 -0400
-Date: Fri, 22 Jun 2001 00:21:26 +1000
-From: john slee <indigoid@higherplane.net>
-To: Matthias Urlichs <smurf@noris.de>
-Cc: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>,
-        Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is it useful to support user level drivers
-Message-ID: <20010622002126.K30872@higherplane.net>
-Mime-Version: 1.0
+	id <S264974AbRFUODL>; Thu, 21 Jun 2001 10:03:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26128 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264976AbRFUOCz>; Thu, 21 Jun 2001 10:02:55 -0400
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Thu, 21 Jun 2001 15:01:52 +0100 (BST)
+Cc: P.Flinders@ftel.co.uk (Paul Flinders), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106210957230.6263-100000@duckman.distro.conectiva> from "Rik van Riel" at Jun 21, 2001 09:57:44 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p05100304b757adbbacd1@[10.2.6.42]>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15D51t-0001PG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 21, 2001 at 03:58:33PM +0200, Matthias Urlichs wrote:
-> At 23:50 +1000 2001-06-21, john slee wrote:
-> >i believe libgpio uses the existing usb/iee1394/serial/parallel
-> >interfaces to provide a limited userspace driver capability.
+> > Do they include the source? There's a CD of source that you can buy
+> > for $20 but gcc isn't listed
 > 
-> That only means, however, that the specific kernel drivers explicitly
-> support mid-level usermode access.
+> I'm not sure if they are allowed to do that.  See clause 1 (c):
 > 
-> They still handle the actual hardware state changes without usermode support.
+> http://msdn.microsoft.com/msdn-files/027/001/516/eula_mit.htm
 
-yes, that was the point.  while it might be a stretch of the "mechanism,
-not policy" argument, i like having drivers organized this way.  it
-makes a lot of sense for hotpluggable things like usb.
+Slight oops on their part, but then that license is fairly new. I don't
+think it is aimed at the Linux world though. Microsoft are trying to prevent
+something else - and its all about lock in again.
 
-j.
+If they prohibit people from linking free software with their own libraries
+it allows them to prevent cost effective applications becoming available on
+their platform so they can continue to inflate their prices. In paticular
+I suspect this is aimed much more at things like OpenOffice, MySql on Windows,
+Mozilla and friends.
 
--- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+Of course in two years time no doubt "in the customers interest" it will be
+Microsoft approved developers only , and a while after that nobody else will
+be allowed to make apps for their product.
+
+Alan
+

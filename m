@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVCIQQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVCIQT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVCIQQq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 11:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVCIQQj
+	id S262035AbVCIQT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 11:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVCIQT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 11:16:39 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41490 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261639AbVCIQQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 11:16:27 -0500
-Date: Wed, 9 Mar 2005 16:16:22 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       Wen Xiong <wenxiong@us.ibm.com>
-Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
-Message-ID: <20050309161622.G25398@flint.arm.linux.org.uk>
-Mail-Followup-To: "Kilau, Scott" <Scott_Kilau@digi.com>,
-	linux-kernel@vger.kernel.org, greg@kroah.com,
-	Wen Xiong <wenxiong@us.ibm.com>
-References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9E2@minimail.digi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9E2@minimail.digi.com>; from Scott_Kilau@digi.com on Tue, Mar 08, 2005 at 03:47:45PM -0600
+	Wed, 9 Mar 2005 11:19:26 -0500
+Received: from mail.tmr.com ([216.238.38.203]:49932 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262035AbVCIQSA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 11:18:00 -0500
+Date: Wed, 9 Mar 2005 11:06:15 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       khali@linux-fr.org
+Subject: Re: [PATCH] PCI: One more Asus SMBus quirk
+In-Reply-To: <20050308233743.GB11454@kroah.com>
+Message-ID: <Pine.LNX.3.96.1050309110218.3298A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 03:47:45PM -0600, Kilau, Scott wrote:
-> For example, lets say a customer has a modem connected to a serial port.
+On Tue, 8 Mar 2005, Greg KH wrote:
+
+> On Tue, Mar 08, 2005 at 05:18:16PM -0500, Bill Davidsen wrote:
+> > Greg KH wrote:
+> > >ChangeSet 1.1998.11.27, 2005/02/25 15:48:28-08:00, khali@linux-fr.org
+> > >
+> > >[PATCH] PCI: One more Asus SMBus quirk
+> > >
+> > >One more Asus laptop requiring the SMBus quirk (W1N model).
+> > >
+> > >Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> > >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> > 
+> > Hopefully this and the double-free patch will be included in 2.6.11.n+1? 
 > 
-> If you were to open up the port with an "stty -a" to get the current 
-> settings and signals, you would unintentionally raise RTS and DTR.
+> what double-free patch?
 
-That isn't special to this driver though.  Maybe it should be fixed for
-all serial drivers, since the situation you mention above is not limited
-to just this driver.
+ChangeSet 1.1998.11.26, 2005/02/25 15:48:12-08:00
 
-As you say, you may have a modem connected, which may have been configured
-to automatically dial a predetermined number when DTR is raised.
+See <11099696383203@kroah.com>.
 
-Maybe we need a solution which applies to all drivers?
+Or do you feel the possible results are harmless enough to wait for the
+next release? Your call, obviously.
 
-> This is why we export the various signals/stats/signals to sysfs (used
-> to be proc), so our management tools can get the information about the
-> serial port without being intrusive by opening up the port.
-
-Note that exporting statistics can be a security bug, especially if that
-includes the number of bytes sent/received.  For an explaination of this,
-please lookup the reason why the /proc/tty/driver directory was made
-unreadable to userspace.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

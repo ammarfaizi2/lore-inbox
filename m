@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291520AbSBSRce>; Tue, 19 Feb 2002 12:32:34 -0500
+	id <S291522AbSBSRnS>; Tue, 19 Feb 2002 12:43:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291522AbSBSRcY>; Tue, 19 Feb 2002 12:32:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15891 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291520AbSBSRcT>; Tue, 19 Feb 2002 12:32:19 -0500
-Date: Tue, 19 Feb 2002 09:30:46 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S291533AbSBSRnI>; Tue, 19 Feb 2002 12:43:08 -0500
+Received: from 162-39.84.64.covalent.net ([64.84.39.162]:30414 "EHLO
+	doom.sfo.covalent.net") by vger.kernel.org with ESMTP
+	id <S291522AbSBSRm6>; Tue, 19 Feb 2002 12:42:58 -0500
+Date: Tue, 19 Feb 2002 09:42:14 -0800
+From: john <john@zlilo.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>, Hugh Dickins <hugh@veritas.com>,
-        <dmccr@us.ibm.com>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, Robert Love <rml@tech9.net>,
-        Rik van Riel <riel@conectiva.com.br>, <mingo@redhat.com>,
-        Andrew Morton <akpm@zip.com.au>, <manfred@colorfullife.com>,
-        <wli@holomorphy.com>
-Subject: Re: [RFC] Page table sharing
-In-Reply-To: <m1heoe3xls.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33.0202190929300.26476-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Andrew Morton <akpm@zip.com.au>, john <john@zlilo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kupdated using all CPU
+Message-ID: <20020219094214.A140@doom.sfo.covalent.net>
+In-Reply-To: <20020218134041.A2586@doom.sfo.covalent.net> <3C717C72.72A994D3@zip.com.au> <3C717C72.72A994D3@zip.com.au> <20020218141920.D2586@doom.sfo.covalent.net> <3C71848A.3DA9BC42@zip.com.au> <m18z9q3wej.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m18z9q3wej.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Feb 18, 2002 at 09:53:08PM -0700
+X-Linux: http://zlilo.com/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Mon, Feb 18, 2002 at 09:53:08PM -0700] ebiederm@xmission.com wrote:
++ Andrew Morton <akpm@zip.com.au> writes:
++ 
++ > john wrote:
++ > > 
++ > > [Mon, Feb 18, 2002 at 02:13:06PM -0800] akpm@zip.com.au wrote:
++ > > + john wrote:
++ > > + >
++ > > + > hi,
++ > > + > ive searched all over and found many references to this problem, but
++ > > + > never found an actual solution.  the problem is that during heavy
++ > > + > disk I/O, kupdated will periodically take up ALL the cpu.
++ > > +
++ > > + I've seen a couple of reports of this, nothing to indicate that it's
++ > > + a common problem?
++ > > +
++ > > + In the other reports, it was related to extremely low disk throughput.
++ > > + What does `hdparm -t /dev/hda' say?
++ > > 
++ > > root@doom:~# hdparm -t /dev/hda
++ > > 
++ > > /dev/hda:
++ > >  Timing buffered disk reads:  64 MB in 25.60 seconds =  2.50 MB/sec
++ > 
++ > ugh.  OK, I'll see if I cen reproduce this - there's no reason
++ > why disk suckiness should cause high CPU load.  But you need to
++ > pay some attention to your IDE settings in kernel config, and
++ > possibly tuning.
++ 
++ 
++ Another possibility with the same symptoms is that there are simply
++ very large I/O request starving everything else out.  When some
++ crucial data needs to be paged back in.  john can you confirm you
++ looked in top and saw kupdate taking 100% of the cpu?
 
+yes, i did.  another thing that makes it pretty obvious is the cpu time reported by ps.  kupdated cpu time will stay 0:00 until i run into the condition i described.  then kupdated cpu time will jump as much as 0:45.
 
-On 18 Feb 2002, Eric W. Biederman wrote:
-> > [1] I think that's a big, broad hint.
->
-> Something like:
-> struct mm_share {
->         spinlock_t page_table_lock;
->         struct list_head mm_list;
-> };
->
-> struct mm {
-> 	struct list_head mm_list;
->         struct mm_share *mm_share;
->         .....
-> };
->
-> So we have an overarching structure for all of the shared mm's.
-
-No, but the mm's aren't shared, only the pmd's are.
-
-So one mm can share one pmd with mm2, and another with mm3.
-
-Sure, you could have a list of "all mm's that _could_ share, and that
-might work out well enough. An execve() removes a process from the list,
-so usually the list is quite small.
-
-		Linus
-
+but i have fixed the issue by using the correct ide driver.  though, someone may want to look into this anyway...dunno..
+-j

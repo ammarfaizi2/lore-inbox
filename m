@@ -1,145 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264655AbUFPTYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264635AbUFPTca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264655AbUFPTYE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 15:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264652AbUFPTYE
+	id S264635AbUFPTca (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 15:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264652AbUFPTca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 15:24:04 -0400
-Received: from cmo17.neoplus.adsl.tpnet.pl ([83.31.142.17]:6660 "EHLO
-	satan.blackhosts") by vger.kernel.org with ESMTP id S264655AbUFPTXt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 15:23:49 -0400
-Date: Wed, 16 Jun 2004 21:24:33 +0200
-From: Jakub Bogusz <qboosh@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: CONFIG_FB_3DFX_ACCEL is unusable (in 2.6.7)
-Message-ID: <20040616192433.GA5874@satan.blackhosts>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Wed, 16 Jun 2004 15:32:30 -0400
+Received: from smtpin.eastlink.ca ([24.222.0.18]:5150 "EHLO smtpin.eastlink.ca")
+	by vger.kernel.org with ESMTP id S264635AbUFPTcZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 15:32:25 -0400
+Date: Wed, 16 Jun 2004 16:28:26 -0300
+From: Peter Cordes <peter@cordes.ca>
+Subject: x86-64: double timer interrupts in recent 2.4.x
+To: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org
+Message-id: <20040616192826.GD14043@cordes.ca>
+MIME-version: 1.0
+Content-type: multipart/signed; boundary=cNdxnHkX5QqsyA0e;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suggest marking this option as BROKEN or remove at all for now.
-It looks like some artifact of old hwcursor code which never worked in
-2.6.x.
-It uses some fields (namely par->hwcursor.*) never initialized,
-uninitialized timer, contains obvious bugs (using "&&" for testing
-bitfields) and finally causes oopses crashing system - like this:
 
-kernel: Console: switching consoles 1-1 to colour frame buffer device 100x37
-kernel: Console: switching consoles 2-2 to colour frame buffer device 100x37
-kernel: Console: switching consoles 3-3 to colour frame buffer device 100x37
-kernel: Console: switching consoles 4-4 to colour frame buffer device 100x37
-kernel: Console: switching consoles 5-5 to colour frame buffer device 100x37
-kernel: Console: switching consoles 6-6 to colour frame buffer device 100x37
-kernel: Console: switching consoles 7-7 to colour frame buffer device 100x37
-kernel: Uninitialised timer!
-kernel: This is just a warning.  Your computer is OK
-kernel: function=0x00000000, data=0x0
-kernel: [<c011b09f>] check_timer_failed+0x5f/0x70
-kernel: [<c011b3c2>] del_timer+0x12/0x80
-kernel: [<d88c4555>] tdfxfb_cursor+0x315/0x380 [tdfxfb]
-kernel: [<c01e5c63>] fbcon_cursor+0x273/0x380
-kernel: [<c01e59d3>] fbcon_putcs+0x93/0xb0
-kernel: [<c01bee01>] do_update_region+0xc1/0x180
-kernel: [<c01bf893>] set_cursor+0x63/0x80
-kernel: [<c01bfa6c>] redraw_screen+0xfc/0x1e0
-kernel: [<c01bf132>] update_attr+0xb2/0xd0
-kernel: [<c01c3662>] take_over_console+0x2f2/0x420
-kernel: [<c01e4931>] set_con2fb_map+0x41/0x50
-kernel: [<c01e93bc>] fb_ioctl+0x2cc/0x330
-kernel: [<c012c28d>] filemap_nopage+0x1ed/0x330
-kernel: [<c0139009>] do_no_page+0x189/0x2e0
-kernel: [<c013932e>] handle_mm_fault+0xbe/0x150
-kernel: [<c010fbc9>] do_page_fault+0x2e9/0x4c6
-kernel: [<c014e32f>] cdev_get+0x4f/0xb0
-kernel: [<c014e06c>] chrdev_open+0xec/0x210
-kernel: [<c01451e9>] dentry_open+0xf9/0x210
-kernel: [<c01450ec>] filp_open+0x4c/0x50
-kernel: [<c01568c9>] sys_ioctl+0x109/0x280
-kernel: [<c0103c1b>] syscall_call+0x7/0xb
-kernel:
-kernel: Console: switching consoles 8-8 to colour frame buffer device 100x37
-kernel: Console: switching consoles 9-9 to colour frame buffer device 100x37
-kernel: Console: switching consoles 13-13 to colour frame buffer device 100x37
-kernel: Console: switching consoles 14-14 to colour frame buffer device 100x37
-kernel: Console: switching consoles 15-15 to colour frame buffer device 100x37
-kernel: Console: switching consoles 16-16 to colour frame buffer device 100x37
-kernel: Console: switching consoles 17-17 to colour frame buffer device 100x37
-kernel: Console: switching consoles 18-18 to colour frame buffer device 100x37
-kernel: Console: switching consoles 19-19 to colour frame buffer device 100x37
-kernel: Console: switching consoles 20-20 to colour frame buffer device 100x37
-kernel: Console: switching consoles 21-21 to colour frame buffer device 100x37
-kernel: Unable to handle kernel NULL pointer dereference at virtual address 0000001f
-kernel: printing eip:
-kernel: d88c42dd
-kernel: *pde = 00000000
-kernel: Oops: 0000 [#1]
-kernel: PREEMPT
-kernel: Unable to handle kernel NULL pointer dereference at virtual address 0000002f
-kernel: printing eip:
-kernel: d88c42dd
-kernel: *pde = 00000000
-kernel: Oops: 0000 [#2]
-kernel: PREEMPT
-kernel: Modules linked in: binfmt_misc af_packet via686a i2c_sensor i2c_isa i2c_core tdfxfb cfbimgblt snd_ens1371 snd_rawmidi snd_seq_device snd_pcm snd_page_alloc snd_timer snd_ac97_codec snd ne2k_pci 8390 crc32 parport_pc parport via_agp agpgart evdev 8250 serial_core joydev analog es1371 soundcore gameport ac97_codec pcspkr uhci_hcd usbcore rtc
-kernel: CPU:    0
-kernel: EIP:    0060:[<d88c42dd>]    Not tainted
-kernel: EFLAGS: 00010086   (2.6.7)
-kernel: EIP is at tdfxfb_cursor+0x9d/0x380 [tdfxfb]
-kernel: eax: c01e59d3   ebx: d7fc8e01   ecx: 0000000f   edx: 00000010
-kernel: esi: c028ab10   edi: d265bb90   ebp: 0000000c   esp: d265bb24
-kernel: ds: 007b   es: 007b   ss: 0068
-kernel: Process tput (pid: 5644, threadinfo=d265a000 task=d22bac90)
-kernel: Stack: c01e4c93 00000008 d795866c d265bb90 d7958400 00000010 00000002
-
-kernel: d7fc8e01 c028ab10 c01e59d3 ffffffff ffffffff d7fc8e00 00000002 d7958400
-kernel: 0000000c c01e5d45 0000ffff 00000019 00000001 c0342708 c01e00ff 0000000f
-kernel: Call Trace:
-kernel: [<c01e4c93>] accel_putcs+0x253/0x2d0
-kernel: [<c01e59d3>] fbcon_putcs+0x93/0xb0
-kernel: [<c01e5d45>] fbcon_cursor+0x355/0x380
-kernel: [<c01e00ff>] proc_ide_write_settings+0x14f/0x260
-kernel: [<c01e59d3>] fbcon_putcs+0x93/0xb0
-kernel: [<c01bf81d>] hide_cursor+0x1d/0x30
-kernel: [<c01c2d94>] vt_console_print+0x2c4/0x2d0
-kernel: [<c01bf893>] set_cursor+0x63/0x80
-kernel: [<c01c2ad0>] vt_console_print+0x0/0x2d0
-kernel: [<c0114762>] __call_console_drivers+0x42/0x50
-kernel: [<c0114855>] call_console_drivers+0x75/0x100
-kernel: [<c0114baa>] release_console_sem+0x4a/0xe0
-kernel: [<c0114aac>] printk+0xfc/0x160
-kernel: [<c01043f0>] die+0x80/0x100
-kernel: [<c010fa97>] do_page_fault+0x1b7/0x4c6
-kernel: [<c01ac422>] copy_to_user+0x32/0x50
-kernel: [<c016a7d3>] load_elf_binary+0x513/0xc00
-kernel: [<c010f8e0>] do_page_fault+0x0/0x4c6
-kernel: [<c0103dc5>] error_code+0x2d/0x38
-kernel: [<d88c42dd>] tdfxfb_cursor+0x9d/0x380 [tdfxfb]
-kernel: [<c01e5c63>] fbcon_cursor+0x273/0x380
-kernel: [<c01bf893>] set_cursor+0x63/0x80
-kernel: [<c01c30e1>] con_flush_chars+0x31/0x40
-kernel: [<c01c2f54>] con_write+0x24/0x40
-kernel: [<c01b6186>] opost_block+0xc6/0x170
-kernel: [<c012c247>] filemap_nopage+0x1a7/0x330
-kernel: [<c0139009>] do_no_page+0x189/0x2e0
-kernel: [<c01b834d>] write_chan+0x1ad/0x230
-kernel: [<c0111360>] default_wake_function+0x0/0x10
-kernel: [<c010fbc9>] do_page_fault+0x2e9/0x4c6
-kernel: [<c0111360>] default_wake_function+0x0/0x10
-kernel: [<c013a621>] vma_merge+0x121/0x190
-kernel: [<c01b3291>] tty_write+0x1c1/0x260
-kernel: [<c013ac72>] do_mmap_pgoff+0x512/0x650
-kernel: [<c01b81a0>] write_chan+0x0/0x230
-kernel: [<c0145f8d>] vfs_write+0xcd/0x120
-kernel: [<c0146078>] sys_write+0x38/0x60
-kernel: [<c0103c1b>] syscall_call+0x7/0xb
-kernel:
-kernel: Code: 0f b7 04 51 c1 e0 10 89 44 24 04 0f b7 04 53 c1 e0 08 09 44
-kernel: <6>note: tput[5644] exited with preempt_count 2
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+ Nobody replied to this message on debian-amd64@lists.d.o, or
+discuss@x86-64.org.  Hopefully I've found the right places to send this this
+time around.  Actually, Roland Fehrenbacher saw my message in a list archive
+and mailed me to confirm that he saw the same double-speed clock problem on
+two different machines, so it's not just Tyan S2880 boards.  He suggested I
+mail Andi and lkml, so here goes.  (I haven't tested again with anything mo=
+re
+recent than 2.4.27-pre2, so if this is fixed, sorry.)
+
+-----
+
+ I just noticed that on my Opteron cluster, the nodes that are running 64bit
+kernels have their clocks ticking at double speed.  This happens with
+Linux 2.4.26, and 2.4.27-pre2, compiled with gcc 3.3.3 (Debian 20040401) in=
+ a
+Debian pure64 chroot. Linux 2.4.25, compiled on Debian Woody + bi-arch gcc
+3.3.2 20030908, does _not_ have the problem.  The config options were pretty
+much the same for all kernels, and all the kernels are plain vanilla flavour
+=66rom www.ca.kernel.org.
+
+ If I run ntpdate to set the clock, then 10 seconds later it will be 10
+seconds fast.  Running date(1), the system time advances 20 seconds in 10
+seconds of real time.  (I haven't done anything weird with adjtimex(8).)
+time sleep 10 takes 5 seconds, but bash reports its real time as 10 seconds.
+The timer interrupt counter is increasing at a rate of 200/real second, so
+it seems like the system is getting timer interrupts twice as fast as it
+should.  (With 2.4.25, it is 100/sec, same as HZ).
+
+ Linux says it is using the PIT and TSC timers.  I have HPET enabled in my
+Linux config, but I guess Tyan's S2880 mobo doesn't have one.  This is a
+dual-Opteron 240 machine, BTW.
+
+ i386 Linux on the same machines has no problems with timekeeping.  (But I
+haven't tested versions later than 2.4.25 in legacy mode.)
+
+ I spent some time poking around the timer code that increments xtime, but I
+guess the fact that the timer irqs are coming at double speed indicates that
+the problem lies elsewhere.  Maybe the code that sets up the timer?
+
+$ uname -a
+Linux node6.cs.dal.ca 2.4.26 #2 SMP Fri May 14 14:46:42 ADT 2004 x86_64 x86=
+_64 x86_64 GNU/Linux
+$ cat /proc/interrupts
+           CPU0       CPU1
+  0:    4415908          0    IO-APIC-edge  timer
+  1:          2          0    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  9:          0          0   IO-APIC-level  acpi
+ 14:      17861          1    IO-APIC-edge  ide0
+ 19:          0          0   IO-APIC-level  usb-ohci, usb-ohci
+ 24:     563942          0   IO-APIC-level  eth0
+ 25:     564331          0   IO-APIC-level  eth1
+NMI:      19097      19097
+LOC:    2211090    2211095
+ERR:          0
+MIS:          0
+
+ Only CPU0 is getting the timer interrupt, but at least we know it's not
+that both CPUs are getting the timer interrupt.  (Both CPUs get 100 LOC:
+(local APIC) interrupts/sec, but that happens on the non-buggy 2.4.25, too.)
+
+ Thanks for any help,
+=20
+ I'm not subscribed to the lkml, so please CC me on any followups.
+
+--=20
+#define X(x,y) x##y
+Peter Cordes ;  e-mail: X(peter@cor , des.ca)
+
+"The gods confound the man who first found out how to distinguish the hours!
+ Confound him, too, who in this place set up a sundial, to cut and hack
+ my day so wretchedly into small pieces!" -- Plautus, 200 BC
+
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iQC1AwUBQNCfWgWkmhLkWuRTAQIqOQUAhIeh6XEtih1Ny6wDkCGYNr5AO3GaOOoz
+czuwyDw48d3pRzKN8oicEG8iWgN0RfK+XGd1pR2DKxvluUJAVowHNpT+4fxDH+5i
+RSrhU9DD5+4GtslETb8mXnkUsLDdLA825LxAHxUeBUoKGUiK+PSfdzGpf7JFfVG8
+bFXyT9qxrFKtLhCJdovkBR993R6GwN7J/p4rNwVWutEX68oMHlDzdQ==
+=bRn9
+-----END PGP SIGNATURE-----
+
+--cNdxnHkX5QqsyA0e--

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132218AbRC1BP4>; Tue, 27 Mar 2001 20:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132244AbRC1BPq>; Tue, 27 Mar 2001 20:15:46 -0500
-Received: from mpdr0.milwaukee.wi.ameritech.net ([206.141.239.126]:8837 "EHLO mailhost.mil.ameritech.net") by vger.kernel.org with ESMTP id <S132218AbRC1BPg>; Tue, 27 Mar 2001 20:15:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: james <jdickens@ameritech.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Ideas for the oom problem
-Date: Tue, 27 Mar 2001 19:39:13 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.21.0103272151580.8261-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0103272151580.8261-100000@imladris.rielhome.conectiva>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132318AbRC1Bg4>; Tue, 27 Mar 2001 20:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132327AbRC1Bgr>; Tue, 27 Mar 2001 20:36:47 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:62188 "EHLO math.psu.edu") by vger.kernel.org with ESMTP id <S132318AbRC1Bgi>; Tue, 27 Mar 2001 20:36:38 -0500
+Date: Tue, 27 Mar 2001 20:35:55 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Paul Jakma <paul@jakma.org>
+cc: Dan Hollis <goemon@anime.net>, "H. Peter Anvin" <hpa@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <Pine.LNX.4.33.0103280126170.11627-100000@fogarty.jakma.org>
+Message-ID: <Pine.GSO.4.21.0103272024340.24341-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Message-Id: <01032719391302.32154@friz.themagicbus.com>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 March 2001 18:52, Rik van Riel wrote:
-> On Tue, 27 Mar 2001, james wrote:
-> > Here are my ideas on how too deal with the oom situation,
+
+
+On Wed, 28 Mar 2001, Paul Jakma wrote:
+
+> On Tue, 27 Mar 2001, Dan Hollis wrote:
+> 
+> > On Tue, 27 Mar 2001, H. Peter Anvin wrote:
+> > > c) Make sure chown/chmod/link/symlink/rename/rm etc does the right thing,
+> > > without the need for "tar hacks" or anything equivalently gross.
 > >
-> > I propose a three prong approach too this problem
->
-> Isn't that a bit much for an emergency situation that never
-> even occurs on most systems ?
->
-> Rik
-> --
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
->
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com.br/
+> > write-through filesystem, like overlaying a r/w ext2 on top of an iso9660
+> > fs.
+> 
+> functionality to do this is in devfs and devfsd already.
 
+Guys, before you get all hot and excited about devfsd - had _anyone_
+audit the protocol implementation for races?  Or test it for heavy
+(un)loading drivers, for that matter. We had a long history of autofs
+races and devfsd is not simpler.
 
-Given the amount, trafic on this mailing list and other places that this 
-topic has created. Most of what I propose is not new it was proposed by 
-others on this list.  Prong 1 is pretty much what oom_kill does with some 
-slight canges and an addition of putting nice tasks too sleep, prong 2 is a 
-variation of providing resources too root user, along with some resource 
-accounting information that can be used both in the kernel and userland. If 
-we don't get the right task, the problem continues too progress,. untill the 
-right task is found or the system is brought too it knees.  Prong three 
-provides a way too communicate with userland providing what aix does, and 
-provides some level of being proactive instead of just be reactive where we 
-have unto now been doing the wrong thing according too other readers of this 
-list.  
+Coll toys are cool toys, but I wouldn't bet a dime on devfsd ability to
+deal with adding/removing entries 100% correct in all cases. And /dev
+has slightly larger user base than autofs, so it _is_ a sensitive area.
 
-
-james
+In its current form devfs itself _still_ contains known races. Known
+since last Summer. Adding devfsd into the mix doesn't make the picture
+prettier. Unless some devfs proponent is willing to do such analysis
+all references to devfsd are nothing but wishful thinking.
 

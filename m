@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129507AbQLRVY0>; Mon, 18 Dec 2000 16:24:26 -0500
+	id <S129431AbQLRVZG>; Mon, 18 Dec 2000 16:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130764AbQLRVYS>; Mon, 18 Dec 2000 16:24:18 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:52186 "EHLO
+	id <S129697AbQLRVYs>; Mon, 18 Dec 2000 16:24:48 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:63706 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S129866AbQLRVYA>; Mon, 18 Dec 2000 16:24:00 -0500
-Date: Mon, 18 Dec 2000 20:53:34 +0000
+	id <S129431AbQLRVYd>; Mon, 18 Dec 2000 16:24:33 -0500
+Date: Mon, 18 Dec 2000 20:54:06 +0000
 From: Tim Waugh <twaugh@redhat.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.0test13pre3ac1
-Message-ID: <20001218205334.N1039@redhat.com>
+Message-ID: <20001218205406.O1039@redhat.com>
 In-Reply-To: <E14868l-00064b-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,79 +23,105 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, Dec 18, 2000 at 07:40:03PM +0000, Alan Cox wrote:
 
-> o	Teach kernel-doc about const			(Jani Monoses)
+> o	Add documentation to the PCI api		(Jani Monoses)
 
-Needs this (also cleans up kernel-doc macro handling and fixes some
-regexps):
+Needs this:
 
---- linux-2.4.0test13pre3-ac1/scripts/kernel-doc	Mon Dec 18 20:46:11 2000
-+++ linux-2.4.0-test13-pre3+/scripts/kernel-doc	Mon Dec 18 16:56:36 2000
-@@ -668,23 +668,42 @@
- sub dump_function {
-     my $prototype = shift @_;
+--- linux-2.4.0test13pre3-ac1/drivers/pci/pci.c.pcidoc	Mon Dec 18 20:46:08 2000
++++ linux-2.4.0test13pre3-ac1/drivers/pci/pci.c	Mon Dec 18 20:51:20 2000
+@@ -73,7 +73,7 @@
+  * found with a matching @vendor, @device, @ss_vendor and @ss_device, a pointer to its
+  * device structure is returned.  Otherwise, %NULL is returned.
+  * A new search is initiated by passing %NULL to the @from argument.
+- * Otherwise if @from is not %NULL, searches continue from that point.
++ * Otherwise if @from is not %NULL, searches continue from next device on the global list.
+  */
+ struct pci_dev *
+ pci_find_subsys(unsigned int vendor, unsigned int device,
+@@ -105,7 +105,7 @@
+  * found with a matching @vendor and @device, a pointer to its device structure is
+  * returned.  Otherwise, %NULL is returned.
+  * A new search is initiated by passing %NULL to the @from argument.
+- * Otherwise if @from is not %NULL, searches continue from that point.
++ * Otherwise if @from is not %NULL, searches continue from next device on the global list.
+  */
+ struct pci_dev *
+ pci_find_device(unsigned int vendor, unsigned int device, const struct pci_dev *from)
+@@ -123,7 +123,7 @@
+  * found with a matching @class, a pointer to its device structure is
+  * returned.  Otherwise, %NULL is returned.
+  * A new search is initiated by passing %NULL to the @from argument.
+- * Otherwise if @from is not %NULL, searches continue from that point.
++ * Otherwise if @from is not %NULL, searches continue from next device on the global list.
+  */
+ struct pci_dev *
+ pci_find_class(unsigned int class, const struct pci_dev *from)
+@@ -370,7 +370,7 @@
+  * 
+  * Adds the driver structure to the list of registered drivers
+  * Returns the number of pci devices which were claimed by the driver
+- * during registration
++ * during registration.
+  */
+ int
+ pci_register_driver(struct pci_driver *drv)
+@@ -392,7 +392,7 @@
+  * 
+  * Deletes the driver structure from the list of registered PCI drivers,
+  * gives it a chance to clean up and marks the devices for which it
+- * was responsible as driverless 
++ * was responsible as driverless.
+  */
  
--    $prototype =~ s/^const+ //;
--    $prototype =~ s/^static+ //;
--    $prototype =~ s/^extern+ //;
--    $prototype =~ s/^inline+ //;
--    $prototype =~ s/^__inline__+ //;
--    $prototype =~ s/^#define+ //; #ak added
-+    $prototype =~ s/^static +//;
-+    $prototype =~ s/^extern +//;
-+    $prototype =~ s/^inline +//;
-+    $prototype =~ s/^__inline__ +//;
-+    $prototype =~ s/^#define +//; #ak added
-+
-+    # Yes, this truly is vile.  We are looking for:
-+    # 1. Return type (may be nothing if we're looking at a macro)
-+    # 2. Function name
-+    # 3. Function parameters.
-+    #
-+    # All the while we have to watch out for function pointer parameters
-+    # (which IIRC is what the two sections are for), C types (these
-+    # regexps don't even start to express all the possibilities), and
-+    # so on.
-+    #
-+    # If you mess with these regexps, it's a good idea to check that
-+    # the following functions' documentation still comes out right:
-+    # - parport_register_device (function pointer parameters)
-+    # - atomic_set (macro)
-+    # - pci_match_device (long return type)
- 
-     if ($prototype =~ m/^()([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
- 	$prototype =~ m/^(\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
- 	$prototype =~ m/^(\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
- 	$prototype =~ m/^(\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
- 	$prototype =~ m/^(\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
-+	$prototype =~ m/^(\w+\s+\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
-+	$prototype =~ m/^(\w+\s+\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\(]*)\)/ ||
- 	$prototype =~ m/^()([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
- 	$prototype =~ m/^(\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
- 	$prototype =~ m/^(\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
- 	$prototype =~ m/^(\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
--	$prototype =~ m/^(\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/)  {
-+	$prototype =~ m/^(\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
-+	$prototype =~ m/^(\w+\s+\w+\s+\w+)\s+([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/ ||
-+	$prototype =~ m/^(\w+\s+\w+\s+\w+\s*\*)\s*([a-zA-Z0-9_~:]+)\s*\(([^\{]*)\)/)  {
- 	$return_type = $1;
- 	$function_name = $2;
- 	$args = $3;
-@@ -729,13 +748,13 @@
- 		$param="...";
- 		$parameters{"..."} = "variable arguments";
- 	    }
--	    if ($type eq "")
-+	    elsif ($type eq "" && $param eq "")
- 	    {
- 		$type="";
- 		$param="void";
- 		$parameters{void} = "no arguments";
- 	    }
--            if ($parameters{$param} eq "") {
-+            if ($type ne "" && $parameters{$param} eq "") {
- 	        $parameters{$param} = "-- undescribed --";
- 	        print STDERR "Warning($file:$lineno): Function parameter '$param' not described in '$function_name'\n";
- 	    }
+ void
+@@ -461,7 +461,7 @@
+  * @dev: the device to insert
+  * @bus: where to insert it
+  *
+- * Add a new device to the device lists and notify userspace (/sbin/hotplug)
++ * Add a new device to the device lists and notify userspace (/sbin/hotplug).
+  */
+ void
+ pci_insert_device(struct pci_dev *dev, struct pci_bus *bus)
+@@ -500,7 +500,7 @@
+  * @dev: the device to remove
+  *
+  * Delete the device structure from the device lists and 
+- * notify userspace (/sbin/hotplug)
++ * notify userspace (/sbin/hotplug).
+  */
+ void
+ pci_remove_device(struct pci_dev *dev)
+@@ -532,7 +532,7 @@
+  * @dev: the device to query
+  *
+  * Returns the appropriate pci_driver structure or %NULL if there is no 
+- * registered driver for the device
++ * registered driver for the device.
+  */
+ struct pci_driver *
+ pci_dev_driver(const struct pci_dev *dev)
+@@ -590,7 +590,7 @@
+  * @dev: the PCI device to enable
+  *
+  * Enables bus-mastering on the device and calls pcibios_set_master()
+- * to do the needed arch specific settings
++ * to do the needed arch specific settings.
+  */
+ void
+ pci_set_master(struct pci_dev *dev)
+@@ -940,7 +940,7 @@
+  * vendor,class,memory and IO-space addresses,IRQ lines etc.
+  * Called at initialisation of the PCI subsystem and by CardBus services.
+  * Returns 0 on success and -1 if unknown type of device (not normal, bridge
+- * or CardBus)
++ * or CardBus).
+  */
+ int pci_setup_device(struct pci_dev * dev)
+ {
+
+Tim.
+*/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

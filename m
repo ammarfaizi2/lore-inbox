@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268598AbUHLQEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268599AbUHLQHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268598AbUHLQEK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 12:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268599AbUHLQEK
+	id S268599AbUHLQHs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 12:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268597AbUHLQHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 12:04:10 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:12548 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268598AbUHLQEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 12:04:07 -0400
-Date: Thu, 12 Aug 2004 17:04:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove whitespace from ALI15x3 IDE driver name
-Message-ID: <20040812170400.A2448@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pekka Enberg <penberg@cs.helsinki.fi>,
-	B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
-References: <1092336877.7433.1.camel@localhost>
+	Thu, 12 Aug 2004 12:07:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41197 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268604AbUHLQGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 12:06:37 -0400
+Date: Thu, 12 Aug 2004 18:06:27 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: davem@redhat.com, SteveW@ACM.org, emserrat@geocities.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6: DECNET compile errors with SYSCTL=n
+Message-ID: <20040812160627.GM13377@fs.tum.de>
+References: <20040811224015.GP26174@fs.tum.de> <20040812.094206.42261287.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1092336877.7433.1.camel@localhost>; from penberg@cs.helsinki.fi on Thu, Aug 12, 2004 at 06:54:38PM +0000
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040812.094206.42261287.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 06:54:38PM +0000, Pekka Enberg wrote:
-> This patch removes whitespace from ALI15x3 IDE driver name that appears in the
-> sysfs directory. It is against 2.6.7.
+On Thu, Aug 12, 2004 at 09:42:06AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
+> Hello.
+> 
+> In article <20040811224015.GP26174@fs.tum.de> (at Thu, 12 Aug 2004 00:40:15 +0200), Adrian Bunk <bunk@fs.tum.de> says:
+> 
+> > I'm getting the following compile errors in 2.6.8-rc4-mm1 (but it 
+> > doesn't seem to be specific to -mm) with CONFIG_SYSCTL=n:
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >   LD      .tmp_vmlinux1
+> > net/built-in.o(.text+0x1685e9): In function `dn_route_output_slow':
+> > : undefined reference to `dn_dev_get_default'
+> :
+> 
+> Please try this patch. Thanks.
+>...
 
-You jnow that this breaks every tool that knew of the names so far?  E.g.
-Debian mkinitrd (now has a patch to deal with both the whitespace and
-non-whitespace variants) and probably quite a few installers out there.
+Thanks, I can confirm it fixes the compilation.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261979AbRESTgq>; Sat, 19 May 2001 15:36:46 -0400
+	id <S262097AbRESTkH>; Sat, 19 May 2001 15:40:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261983AbRESTgg>; Sat, 19 May 2001 15:36:36 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:62994 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261979AbRESTgW>; Sat, 19 May 2001 15:36:22 -0400
-Date: Sat, 19 May 2001 12:35:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: James Simmons <jsimmons@transvirtual.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending Device
- Number Registrants]
-In-Reply-To: <20010519211717.A7961@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.21.0105191231020.14472-100000@penguin.transmeta.com>
+	id <S262173AbRESTjt>; Sat, 19 May 2001 15:39:49 -0400
+Received: from mx2.utanet.at ([195.70.253.46]:24202 "EHLO smtp1.utaiop.at")
+	by vger.kernel.org with ESMTP id <S262106AbRESTj1>;
+	Sat, 19 May 2001 15:39:27 -0400
+Message-ID: <3B06E7C4.C19F1870@grips.com>
+Date: Sat, 19 May 2001 23:38:12 +0200
+From: Gerold Jury <gjury@grips.com>
+Organization: Grips
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-xfs i686)
+X-Accept-Language: de-AT, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vitaly Luban <vitaly@luban.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-net@vger.kernel.org
+Subject: Re: [PATCH][RFC] Signal-per-fd for RT signals
+In-Reply-To: <3B05D498.1E91B43C@luban.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 19 May 2001, Pavel Machek wrote:
+Vitaly Luban wrote:
 > 
-> Well, if we did something like modify(int fd, char *how), you could do
+> Hi,
 > 
-> modify(0, "nonblock,9600") 
+<snip/>
+> the form of POLL_... This will bring functionality of RT
+> signals event notification on the level with 'select' or
+> 'poll' one, while more efficient and scalable. If there's
+> an interest in such a feature, I'd be eager to publish a
+> patch.
+> 
+> Thanks,
+>     Vitaly.
+> 
+I have been waiting for this patch since 2.4.0.
 
-What you're really proposing is to make ioctl's be ASCII strings.
+The SIGIO signal is a nightmare when it arrives :
+  The machine is already under high load and has to stop
+  using the most efficient way to handle it.
 
-Which is not necessarily a bad idea, and I think plan9 did something
-similar (or rather, if I remember correctly, plan9 has control streams
-that were ASCII. Or am I confused?).
+The filter changes would be the cream on top of this patch.
+Do not hurry, but please not for long.
 
-> I thought about how to do networking without sockets, and it seems to
-> me like this kind of modify syscall is needed, because network sockets
-> connect to *two* different places (one local address and one
-> remote). Sockets are really nasty :-(.
+best Regards
 
-One of the horrors of ioctl's is indeed that they are not very
-well-defined, and as such cannot be transported over a network without
-knowing more about them. Structuring them some way would already be very
-useful. the _IOC() macros do this partially, of course, but because it is
-a voluntary thing it is not actually followed all that well in general,
-and most ioctl names are just random numbers that don't tell the structure
-of the arguments or return values.
-
-And a "stream of bytes" is in a very real sense the simplest structure,
-and is the unix way (and the plan9 way is to avoid binary streams, and use
-ASCII text instead when possible, whihc probably also makes sense).
-
-However, you can't really use a string. It would really have to be two
-memory regions: incoming and outgoing, with an ASCII representation being
-the _preferred_ method for stuff that isn't obviously structured or
-performance-critical.
-
-Let's not take this too far, though.
-
-		Linus
-
+Gerold

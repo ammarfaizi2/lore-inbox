@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263275AbREaW7s>; Thu, 31 May 2001 18:59:48 -0400
+	id <S263274AbREaW7s>; Thu, 31 May 2001 18:59:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263274AbREaW7j>; Thu, 31 May 2001 18:59:39 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58386 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263272AbREaW7Z>; Thu, 31 May 2001 18:59:25 -0400
-Subject: Re: 2.4.5 VM
-To: vichu@digitalme.com (Trever L. Adams)
-Date: Thu, 31 May 2001 23:57:23 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <3B16CC23.1020202@digitalme.com> from "Trever L. Adams" at May 31, 2001 06:56:35 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263269AbREaW7i>; Thu, 31 May 2001 18:59:38 -0400
+Received: from srvr1.telecom.lt ([212.59.0.10]:19338 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S263274AbREaW71>;
+	Thu, 31 May 2001 18:59:27 -0400
+Message-Id: <200105312259.AAA2196835@mail.takas.lt>
+Date: Fri, 1 Jun 2001 00:56:03 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: Configure.help is complete
+To: esr@thyrsus.com
+cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E155bNb-0008BK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <20010531132454.A8361@thyrsus.com>
+In-Reply-To: <20010531132454.A8361@thyrsus.com>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.2.19 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually I have tried 1x,2x,3x.  In 2.4.0 to 2.4.3 I had some issues but 
-> never a system freeze of any kind.  With 2.4.4 I had more problems, but 
-> I was ok.  2.4.5 I now have these freezes.  Maybe I should go back to 
-> 2x, but I still find this behavior crazy.
-> This still doesn't negate the point of freeing simple caches.
+On Thu, 31 May 2001 19:24:54 +0200 Eric S. Raymond <esr@thyrsus.com> wrote:
 
-The caches are in part shared. Remember page cache memory and read only
-application pages are the same thing - so its not that simple. I found 2.4.5
-pretty bad. 2.4.5-ac seems to be better on the whole but I know its definitely
-not right yet. Marcelo and Rik are working on that more and more.
+> It gives me great pleasure to announce that the Configure.help master
+> file is now complete with respect to 2.4.5.  Every single one of the
 
-Marcelo has a test patch to fix the (documented but annoying) 2x memory
-swap rule stuff. The balancing problem is harder but being worked on.
+Congratulations!
+Could you please change Portugese to Portuguese in one place?
 
-If you can give Rik a summary of your config/what apps run/ps data then it
-may be valuable as he can duplicate your exact setup for testing his
-vm changes and add it to the test sets.
+Regards,
+Nerijus
 
-Alan
 

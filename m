@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264577AbSIQU2p>; Tue, 17 Sep 2002 16:28:45 -0400
+	id <S264581AbSIQU3s>; Tue, 17 Sep 2002 16:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264581AbSIQU2p>; Tue, 17 Sep 2002 16:28:45 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:45329
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264577AbSIQU2o>; Tue, 17 Sep 2002 16:28:44 -0400
-Subject: non-atomic test victim #1
-From: Robert Love <rml@tech9.net>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
+	id <S264596AbSIQU3s>; Tue, 17 Sep 2002 16:29:48 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:28091 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264581AbSIQU3p>; Tue, 17 Sep 2002 16:29:45 -0400
+Subject: Re: Fwd: do_gettimeofday vs. rdtsc in the scheduler
+From: john stultz <johnstul@us.ibm.com>
+To: anton wilson <anton.wilson@camotion.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200209172020.g8HKKPF13227@eng2.beaverton.ibm.com>
+References: <200209172020.g8HKKPF13227@eng2.beaverton.ibm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Sep 2002 16:33:33 -0400
-Message-Id: <1032294813.4592.241.camel@phantasy>
+Date: 17 Sep 2002 13:29:18 -0700
+Message-Id: <1032294559.22815.180.camel@cog>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Current kernel with the non-atomic test I sent, SMP with preemption.
+>  I'm writing a patch for the scheduler that allows normal processes to run 
+>  occasionally even though real-time processes completely dominate the CPU. 
+> In 
+>  order to do this the way I want to for a specific real-time application, I 
+>  need to keep track of the times that the schedule(void) function gets 
+> called. 
+>  This time is then used to calculate the time difference between when a 
+> normal 
+>  process was run last and the current time. I was trying to avoid 
+>  do_gettimeofday because of the overhead, but now I'm wondering if rdtsc on 
+> an 
+>  SMP machine may mess up my readings because the TSC from two different 
+>  processors may be read. Am I right in assuming this? Secondly, any good 
+>  suggestions on how to proceed with my patch? 
 
-I only get two triggers, both during boot.  They are on migration_thread
-and ksoftirqd startup.  The problem lies in set_cpus_allowed():
+Tread with caution. Some NUMA boxes do not have synced TSC, so on those
+systems your code won't work. Additionally, you code would need to take
+other technologies like speedstep into account as well  Alternatively,
+you might want to try using get_cycles, or some other semi-abstracted
+interface, so alternative time sources could be used in the future
+without having to re-write your code. I'm working on somewhat
+abstracting out time sources with my timer-changes patch, so take a peek
+at it and let me know if you have any suggestions. 
 
-    Trace; c0116ac4 <schedule+a4/4b0>
-    Trace; c011731a <wait_for_completion+11a/1d0>
-    Trace; c0116f30 <default_wake_function+0/40>
-    Trace; c0115d02 <try_to_wake_up+312/320>
-    Trace; c0116f30 <default_wake_function+0/40>
-    Trace; c0118f0f <set_cpus_allowed+22f/250>
-    Trace; c0118f7d <migration_thread+4d/590>
-    Trace; c0118f30 <migration_thread+0/590>
-    Trace; c0118f30 <migration_thread+0/590>
-    Trace; c010586d <kernel_thread_helper+5/18>
-
-It is obviously the preempt_disable() which we hold past the wake_up().
-
-The issue is that, without this preempt_disable() there have been
-observed crashes, especially on large n-way machines.  Both Andrew
-Morton and Anton Blanchard have reported the problem and that this fixes
-it.
-
-Question is, why does set_cpus_allowed() need it?  I do not see it... it
-must be an issue with an early preemption and the resulting
-migration_thread?
-
-Ingo, ideas?
-
-	Robert Love
+thanks
+-john
 
 

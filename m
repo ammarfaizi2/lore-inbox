@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUE1ROO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUE1RR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUE1ROO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 13:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUE1ROO
+	id S263741AbUE1RR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 13:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUE1RR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 13:14:14 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:4795 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S261832AbUE1ROG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 13:14:06 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: 'uinput' Oops upon select() or poll() on 2.6.7-rc1
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 28 May 2004 19:13:59 +0200
-Message-ID: <xb7ekp4cw4o.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+	Fri, 28 May 2004 13:17:27 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:30909 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263711AbUE1RRQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 13:17:16 -0400
+Date: Fri, 28 May 2004 10:16:59 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, Dave Jones <davej@redhat.com>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040528171659.GA19715@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Theodore Ts'o <tytso@mit.edu>, Dave Jones <davej@redhat.com>,
+	"La Monte H.P. Yarroll" <piggy@timesys.com>,
+	Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <40B6591C.80901@timesys.com> <20040527214638.GA18349@thunk.org> <20040528132436.GA11497@work.bitmover.com> <20040528150740.GF18449@thunk.org> <20040528151919.GC11265@redhat.com> <20040528171110.GA21435@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040528171110.GA21435@thunk.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> A compromise position might be to store multiple authorships (who
+> committed it into BK, who was the original author, etc.) into the SCM
+> metadata, but I'm not sure we could justify your putting that kind
+> feature into BK, especially when it's likely that the only users of it
+> would be the Linux kernel tree.
 
-When  I tried  to do  a select()  or poll()  on the  char  device that
-'uinput' creates for  interacting with the input system,  I get a SEGV
-in my userspace program.  'dmesg' shows an Oops message.
+We're always open to adding new features but we're not going to code around
+delibrate misuse of the system.  We wouldn't be doing you any favors by 
+doing so.  If you ever migrate off of BK then you'll need the next system
+to have those same workarounds.
 
-For details, please check the bugzilla entry
-
-http://bugzilla.kernel.org/show_bug.cgi?id=2786
-
-
-
+Go educate Linus that he got this one wrong, he's a reasonable guy, he
+listens if enough people scream.
 -- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
-
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

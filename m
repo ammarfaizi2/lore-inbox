@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUIDW1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUIDWbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUIDW1y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 18:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUIDW1y
+	id S264098AbUIDWbY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 18:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUIDWbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 18:27:54 -0400
-Received: from omx2-ext.SGI.COM ([192.48.171.19]:19125 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263893AbUIDW1w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 18:27:52 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: multi-domain PCI and sysfs
-Date: Sat, 4 Sep 2004 15:27:50 -0700
-User-Agent: KMail/1.7
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910409041300139dabe0@mail.gmail.com> <200409041457.46578.jbarnes@engr.sgi.com> <9e47339104090415123750a1eb@mail.gmail.com>
-In-Reply-To: <9e47339104090415123750a1eb@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 4 Sep 2004 18:31:24 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52183 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S264098AbUIDWbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 18:31:23 -0400
+Subject: Re: [PATCH 4/4][diskdump] x86-64 support
+From: Lee Revell <rlrevell@joe-job.com>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <9AC48F3A62CFC4indou.takao@soft.fujitsu.com>
+References: <20040828112324.B8000@infradead.org>
+	 <9AC48F3A62CFC4indou.takao@soft.fujitsu.com>
+Content-Type: text/plain
+Message-Id: <1094337090.6575.474.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 04 Sep 2004 18:31:31 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409041527.50136.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, September 4, 2004 3:12 pm, Jon Smirl wrote:
-> On Sat, 4 Sep 2004 14:57:46 -0700, Jesse Barnes <jbarnes@engr.sgi.com> 
-wrote:
-> > Yep, on all the machines I've used.
-> >
-> > sn2 (ia64):
-> > [root@flatearth ~]# ls -l /sys/devices
-> > total 0
-> > drwxr-xr-x  5 root root 0 Sep  5 08:07 pci0000:01
-> > drwxr-xr-x  3 root root 0 Sep  5 08:07 pci0000:02
-> > drwxr-xr-x  2 root root 0 Sep  5 08:07 platform
-> > drwxr-xr-x  5 root root 0 Sep  5 08:07 system
->
-> sn2 looks wrong. It should be
->
-> > drwxr-xr-x  5 root root 0 Sep  5 08:07 pci0000:01
-> > drwxr-xr-x  3 root root 0 Sep  5 08:07 pci0001:02
-> > drwxr-xr-x  2 root root 0 Sep  5 08:07 platform
-> > drwxr-xr-x  5 root root 0 Sep  5 08:07 system
+On Tue, 2004-08-31 at 05:10, Takao Indoh wrote:
+> >As in the scsi code spin_is_locked checks are bogus and racy.  Only
+> >a spin_trylock would be safe.  hd can't be NULL.
+> 
+> Could you explain to me why spin_is_locked is not safe?
+> 
 
-It only has one domain though, so it's correct.  Both busses are in domain 0.
+Say you have a door with a lock, and someone on the other side.  You 
+look at the lock, see that it's unlocked, then open the door.  You
+cannot guarantee that the door will open because the person on the other
+side could have locked it between the time you looked and turned the
+handle.
 
-Jesse
+The only way to know for sure whether the door is locked is to turn the
+handle and see if it opens.
+
+Lee
+

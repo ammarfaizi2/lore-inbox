@@ -1,71 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267787AbTBRMzX>; Tue, 18 Feb 2003 07:55:23 -0500
+	id <S267812AbTBRM5k>; Tue, 18 Feb 2003 07:57:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267792AbTBRMzX>; Tue, 18 Feb 2003 07:55:23 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:57729 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id <S267787AbTBRMyb>;
-	Tue, 18 Feb 2003 07:54:31 -0500
-Subject: [PATCH] aicasm Makefile
-To: gibbs@scsiguy.com
-Date: Tue, 18 Feb 2003 07:04:31 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S267811AbTBRM5j>; Tue, 18 Feb 2003 07:57:39 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:28714 "EHLO
+	kleikamp.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S267808AbTBRM5e>; Tue, 18 Feb 2003 07:57:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Stephen Hemminger <shemminger@osdl.org>, sfrench@samba.org
+Subject: Re: [PATCH] Fix warnings from CIFS on 2.5.61
+Date: Tue, 18 Feb 2003 07:07:42 -0600
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1045522192.12947.90.camel@dell_ss3.pdx.osdl.net>
+In-Reply-To: <1045522192.12947.90.camel@dell_ss3.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=ELM741507071-19856-0_
-Content-Transfer-Encoding: 7bit
-Message-Id: <20030218130431.EC8594EEF@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy(0000))
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302180707.42859.shaggy@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 17 February 2003 16:49, Stephen Hemminger wrote:
 
---ELM741507071-19856-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+> +	pSMB->MaxCount = cpu_to_le16(min_t(const int,
+> +					   count,
+> +					   (tcon->ses->server->maxBuf -
+> +					    MAX_CIFS_HDR_SIZE) & 0xFFFFFF00));
 
-The Makefile for aicasm has been broken since 2.5.48.  The order in
-which objects are specified on the linker command line *is* significant,
-and if "-ldb" is made part of AICASM_CFLAGS rather than appearing after
-the "-o $(PROG)", I get an undefined symbol error (__db185_open).
-
-The attached patch is against 2.5.54-2.5.62 inclusive.  If anyone is
-wondering, yes, this is a repeat posting on this subject (original was
-1 December 2002).
+The type here should be const unsigned int.  Both count and maxBuf are 
+unsigned.
 
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+David Kleikamp
+IBM Linux Technology Center
 
---ELM741507071-19856-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: attachment; filename=patch62_aicasm
-
---- linux/drivers/scsi/aic7xxx/aicasm/Makefile~	2002-12-24 07:09:29.000000000 -0600
-+++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	2003-01-07 16:47:01.000000000 -0600
-@@ -10,9 +10,10 @@
- GENSRCS=	$(YSRCS:.y=.c) $(LSRCS:.l=.c)
- 
- SRCS=	${CSRCS} ${GENSRCS}
-+LIBS=	-ldb
- CLEANFILES= ${GENSRCS} ${GENHDRS} $(YSRCS:.y=.output)
- # Override default kernel CFLAGS.  This is a userland app.
--AICASM_CFLAGS:= -I/usr/include -I. -ldb
-+AICASM_CFLAGS:= -I/usr/include -I.
- YFLAGS= -d
- 
- NOMAN=	noman
-@@ -30,7 +31,7 @@
- endif
- 
- $(PROG):  ${GENHDRS} $(SRCS)
--	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG)
-+	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG) $(LIBS)
- 
- aicdb.h:
- 	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
-
---ELM741507071-19856-0_--

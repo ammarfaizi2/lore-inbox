@@ -1,38 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129348AbQKWWqN>; Thu, 23 Nov 2000 17:46:13 -0500
+        id <S129401AbQKWWtn>; Thu, 23 Nov 2000 17:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129401AbQKWWqD>; Thu, 23 Nov 2000 17:46:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8224 "EHLO
-        the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S129348AbQKWWps>; Thu, 23 Nov 2000 17:45:48 -0500
-Subject: Re: VMWare will not run on kernel 2.4.0-test11
-To: VANDROVE@vc.cvut.cz (Petr Vandrovec)
-Date: Thu, 23 Nov 2000 22:15:37 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux-KERNEL)
-In-Reply-To: <DB4EB260F6F@vcnet.vc.cvut.cz> from "Petr Vandrovec" at Nov 23, 2000 10:29:50 PM
-X-Mailer: ELM [version 2.5 PL1]
+        id <S130230AbQKWWtd>; Thu, 23 Nov 2000 17:49:33 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:43783 "EHLO
+        boss.staszic.waw.pl") by vger.kernel.org with ESMTP
+        id <S129401AbQKWWtW>; Thu, 23 Nov 2000 17:49:22 -0500
+Date: Thu, 23 Nov 2000 23:19:16 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+To: Patrick van de Lageweg <patrick@bitwizard.nl>
+cc: Rogier Wolff <wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [NEW DRIVER] firestream
+In-Reply-To: <Pine.LNX.4.21.0011221031340.995-100000@panoramix.bitwizard.nl>
+Message-ID: <Pine.LNX.4.21.0011232059560.496-100000@tricky>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13z4eY-0007pa-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   is change to field name temporary, and name will be reverted back
-> to flags, even although contents may differ between 2.2.x and 2.4.x,
-> or is there features to stay? Currently VMware does
-> 
-> "^\(features\|flags\).* tsc"
-> 
-> but question is - should we leave it here, or revert it back?
 
-I believe we should change it back. Until Linus makes a decision then I
-dont think its final by any means.
+Hi!
 
-features breaks stuff, flags seems not to
+Just a few hints on __init/__exit stuff...
+
+On Wed, 22 Nov 2000, Patrick van de Lageweg wrote:
+
+> +struct reginit_item PHY_NTC_INIT[] = {
+
+Can be marked __initdata
+
+> +void undocumented_pci_fix (struct pci_dev *pdev)
+
+Can be marked __init
+
+> +void write_phy (struct fs_dev *dev, int regnum, int val)
+
+Can be marked __init
+
+> +int init_phy (struct fs_dev *dev, struct reginit_item *reginit)
+
+Can be marked __init
+
+> +void *aligned_kmalloc (int size, int flags, int alignment)
+
+Can be marked __init
+
+> +int init_q (struct fs_dev *dev, 
+> +	    struct queue *txq, int queue, int nentries, int is_rq)
+
+Can be marked __init
+
+> +int init_fp (struct fs_dev *dev, 
+> +	     struct freepool *fp, int queue, int bufsize, int nr_buffers)
+
+Can be marked __init
+
+> +void free_queue (struct fs_dev *dev, struct queue *txq)
+
+Can be marked __exit
+
+> +void free_freepool (struct fs_dev *dev, struct freepool *fp)
+
+Can be marked __exit
+
+
+You may also consider processing firestream.[ch] through indent because
+spacing is inconsistent - sometimes tabs, sometimes 8*space (it would
+be nice too have tabs everywhere).
+
+Regards
+--
+Bartlomiej Zolnierkiewicz
+<bkz@linux-ide.org>
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

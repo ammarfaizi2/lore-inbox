@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbUKDRum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbUKDRqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbUKDRum (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUKDRtX
+	id S262301AbUKDRqI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:46:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbUKDRpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:49:23 -0500
-Received: from zamok.crans.org ([138.231.136.6]:27101 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S262327AbUKDRqV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:46:21 -0500
-To: linux-os@analogic.com
-Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system.
-References: <Pine.LNX.4.61.0411041054370.4818@chaos.analogic.com>
-	<MPG.1bf47baa1b621da0989706@news.gmane.org>
-	<Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Thu, 04 Nov 2004 18:46:21 +0100
-In-Reply-To: <Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
-	(linux-os@chaos.analogic.com's message of "Thu, 4 Nov 2004 12:09:47
-	-0500 (EST)")
-Message-ID: <87is8l7biq.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 4 Nov 2004 12:45:25 -0500
+Received: from mail.kroah.org ([69.55.234.183]:26002 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262301AbUKDRnE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:43:04 -0500
+Date: Thu, 4 Nov 2004 09:42:45 -0800
+From: Greg KH <greg@kroah.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Roland Dreier <roland@topspin.com>,
+       Germano <germano.barreiro@cyclades.com>, Scott_Kilau@digi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: patch for sysfs in the cyclades driver
+Message-ID: <20041104174245.GD16389@kroah.com>
+References: <1099487348.1428.16.camel@tsthost> <20041104102505.GA8379@logos.cnet> <52fz3po8k2.fsf@topspin.com> <20041104142925.GB9431@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104142925.GB9431@logos.cnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@chaos.analogic.com> disait dernièrement que :
+On Thu, Nov 04, 2004 at 12:29:25PM -0200, Marcelo Tosatti wrote:
+> On Thu, Nov 04, 2004 at 08:58:21AM -0800, Roland Dreier wrote:
+> >     Marcelo> The problem was class_simple only contains the "dev"
+> >     Marcelo> attribute. You can't add other attributes to it.
+> > 
+> > I believe, based on the comment in class_simple.c:
+> > 
+> >   Any further sysfs files that might be required can be created using this pointer.
+> > 
+> > and the implementation in in drivers/scsi/st.c, that there's no
+> > problem adding attributes to a device in a simple class.  You can just
+> > use class_set_devdata() on your class_device to set whatever context
+> > you need to get back to your internal structures, and then use
+> > class_device_create_file() to add the attributes.
+> > 
+> > I assume this is OK (since there is already one in-kernel driver doing
+> > it), but Greg, can you confirm that it's definitely OK for a driver to
+> > use class_set_devdata() on a class_device from class_simple_device_add()?
+> 
+> Hi Roland,
+> 
+> Oh thanks, I didnt knew the existance of such possibily.
+> 
+> I once asked here on the list:
+> 
+> ---------
+> 
+> Hope this is not a FAQ.
+> 
+> I want to export some read-only attributes (statistics) from cyclades.c char
+> driver to userspace via sysfs.
+> 
+> I can't figure out the right place to do it - I could create a class under
+> /sys/class/cyclades for example, but that doesnt sound right since this
+> is not a "class" of device, but a device itself.
+> 
+> Hooking the statistics into /sys/class/tty/ttyC$/ sounds reasonable, but
+> its not possible it seems because "tty" is a class_simple class, which only implements
+> the "dev" attribute.
+> 
+> ------ Greg answer was:
+> 
+> For a driver only attribute, you want them to show up in the place for
+> the driver (like under /sys/bus/pci/driver/MY_FOO_DRIVER/).  To do that
+> use the DRIVER_ATTR() and the driver_add_file() functions.  For
+> examples, see the other drivers that use these functions.
+> 
+> 
+> But I hope you are right - /sys/class/tty/tty$/ 
+> sounds the correct place for those files - I thought a "class_tty" 
+> class was required for new attributes. 
 
-> On Thu, 4 Nov 2004, Giuseppe Bilotta wrote:
->
+No, Roland is right, just use the class_device pointer you get back from
+the core when a tty device is created.
 
-> Huh? Are we talking about the same thing?
+Right now we aren't saving the pointer anywhere (see
+tty_register_device() for where it is created.)  Just add that to the
+proper tty_device structure, and you should be fine (yeah, it's going to
+be a pain, and you will quickly see why I didn't do that in the first
+place, but it is going to need to be changed eventually...)
 
-yes
+Good luck,
 
-> I'm talking about
-> the NTFS that Windows/NT and later versions puts on its
-> file-systems. I use an USB external disk with my M$ Laptop
-> and I have always been able to transfer data to/from
-> my machines using that drive. Now I can't. The drive it
-> writable under M$, but I can't even delete anything
-> (no permission for root) under Linux.
-
-Taken from kernel help in *config:
-"The only supported operation is overwriting existing files, without changing
-the file length. No file or directory creation, deletion or renaming is
-possible..."
-
-Best,
-
-Mathieu
-
--- 
-<WeirdArms> erikm: bugger alan cox on a chip, I want alan cox in a book ;)
-
-	- Adam Wiggins on #kernelnewbies
-
+greg k-h

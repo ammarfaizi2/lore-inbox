@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbSIWV3A>; Mon, 23 Sep 2002 17:29:00 -0400
+	id <S261376AbSIWVSd>; Mon, 23 Sep 2002 17:18:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261450AbSIWV27>; Mon, 23 Sep 2002 17:28:59 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:36557 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261296AbSIWV2k>;
-	Mon, 23 Sep 2002 17:28:40 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S261410AbSIWVSd>; Mon, 23 Sep 2002 17:18:33 -0400
+Received: from AMarseille-201-1-5-7.abo.wanadoo.fr ([217.128.250.7]:4208 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S261376AbSIWVSb>;
+	Mon, 23 Sep 2002 17:18:31 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20pre7, aic7xxx-6.2.8: Panic: HOST_MSG_LOOP with invalid
+ SCB 0
+Date: Mon, 23 Sep 2002 08:35:31 +0200
+Message-Id: <20020923063531.30270@192.168.4.1>
+In-Reply-To: <Pine.LNX.4.44.0209231350390.973-100000@freak.distro.conectiva>
+References: <Pine.LNX.4.44.0209231350390.973-100000@freak.distro.conectiva>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15759.35002.179075.973994@napali.hpl.hp.com>
-Date: Mon, 23 Sep 2002 14:33:46 -0700
-To: Daniel Phillips <phillips@arcor.de>
-Cc: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, dmo@osdl.org, axboe@suse.de,
-       _deepfire@mail.ru, linux-kernel@vger.kernel.org
-Subject: Re: DAC960 in 2.5.38, with new changes
-In-Reply-To: <E17tanS-0003cl-00@starship>
-References: <15759.26918.381273.951266@napali.hpl.hp.com>
-	<20020923.135708.10698522.davem@redhat.com>
-	<15759.34428.608321.969391@napali.hpl.hp.com>
-	<E17tanS-0003cl-00@starship>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 23 Sep 2002 23:31:13 +0200, Daniel Phillips <phillips@arcor.de> said:
+>> This issue has already been resolved as a chipset issue requiring
+>> I/O mapped register access to work around.  The "old" aic7xxx driver
+>> avoids these issues by issuing a register read after every register
+>> write.  This stops up your PCI bus with wasted cycles even if you have
+>> a perfectly working chipset.
+>>
+>> So, how would you like me to resolve this.  We can do the same thing
+>> as Adaptec's windows drivers and just always use the slower, less
+>> efficient I/O mapped method for accessing registers.  This will "fix"
+>> the problems people have with broken VIA and Intel chipsets.  I can
+>> make this a compile and run-time option, but should we default to
+>> I/O mapped or memory mapped?
+>>
+>> Don't you just love broken PC hardware?
+>
+>Its all fine, then: I thought the problems were caused by some bug in the
+>driver itself.
+>
+>Thanks for explaining me the issue clearly. :)
 
-  Daniel> Why attempt to write 8 bytes on ia32 when only 4 are needed?
+Hi Justin ! What is the actual breakage here ? Is this just PCI write
+posting ? (that is PCI writes staying in bridge write buffer for
+some time until you flush the whole path with a read). In this
+case those intel & VIA chipsets aren't at fault as this is perfectly
+legal per PCI spec and we'll have problem with all other sort of
+machines, especially machines with stacked PCI<->PCI bridges like
+it's the case for most pmacs.
 
-Even on ia32 you'll need 8 bytes if the controller is operated in DAC
-mode (which is what you want for a machine with >4GB of memory), no?
+Or is there a real Intel/VIA bug regarding PCI write buffers ?
 
-	--david
+I doubt it would affect only Adaptec cards then...
+
+Ben.
+
+

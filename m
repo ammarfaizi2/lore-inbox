@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVCWSnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVCWSpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVCWSnF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 13:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVCWSnF
+	id S261681AbVCWSpN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 13:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVCWSpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 13:43:05 -0500
-Received: from smtp.uninet.ee ([194.204.0.4]:50191 "EHLO smtp.uninet.ee")
-	by vger.kernel.org with ESMTP id S261595AbVCWSms (ORCPT
+	Wed, 23 Mar 2005 13:45:13 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:15053 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262018AbVCWSot (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 13:42:48 -0500
-Message-ID: <4241B8C8.2020805@tuleriit.ee>
-Date: Wed, 23 Mar 2005 20:43:20 +0200
-From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
-Reply-To: indrek.kruusa@tuleriit.ee
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050215)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ALSA bugs in list [was Re: 2.6.12-rc1-mm1]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 23 Mar 2005 13:44:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=RUwj51TkwU+Vw7cTsVTrWfRc7gcQLJTTYAKymX0FNqGt3PKD5O8nwFqAiR8St43t3/Eon1h6nTz2KYLaX+7R0onm6uVaEm8S82nUcyChnwzIahMRD7c8KlO9oybAYdklyLbinP7pJFrVBANZDjElMwEbaNLQ6CFA0HYWEFDlUwk=
+Message-ID: <9cde8bff05032310442a4247f2@mail.gmail.com>
+Date: Thu, 24 Mar 2005 03:44:48 +0900
+From: aq <aquynh@gmail.com>
+Reply-To: aq <aquynh@gmail.com>
+To: Paul Jackson <pj@engr.sgi.com>
+Subject: Re: forkbombing Linux distributions
+Cc: mlists@tanael.org, Hikaru1@verizon.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050323100543.04e582e9.pj@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
+	 <9cde8bff050323025663637241@mail.gmail.com>
+	 <1111581459.27969.36.camel@nc>
+	 <9cde8bff05032305044f55acf3@mail.gmail.com>
+	 <1111586058.27969.72.camel@nc>
+	 <9cde8bff05032309056c9643a7@mail.gmail.com>
+	 <20050323100543.04e582e9.pj@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Lee Revell <rlrevell@xxxxxxxxxxx> wrote:
- > >
- > > On Mon, 2005-03-21 at 12:41 -0800, Andrew Morton wrote:
- > > > From: bugme-daemon@xxxxxxxx
- > > > Subject: [Bug 4282] ALSA driver in Linux 2.6.11 causes a kernel 
-panic when
- > > > loading the EMU10K1 driver
- > > >
- > > >
- > > This one is a real mystery. No one can reproduce it.
+On Wed, 23 Mar 2005 10:05:43 -0800, Paul Jackson <pj@engr.sgi.com> wrote:
+> > int main() { while(1) { fork(); fork(); exit(); } }
+> > ...
+> > the above forkbomb will stop quickly
+> 
+> Yep.
+> 
+> Try this forkbomb:
+> 
+>   int main() { while(1) { if (!fork()) continue; if (!fork()) continue; exit(); } }
+> 
 
- > Not quite true. This bug was current till today in Mandrake's kernel,
- > but with 2.6.11-5mdk they managed to get rid of it.
- > The problem is not with loading the driver but when alsactl tries to 
-store/restore
- > mixer settings.
+yep, that is better. but system can still be recovered by killall. 
 
- > I have tried again with 2.6.12-rc1-mm1 and it is still there (for 
-example the
- > Gnome won't start due to this).
- > Below the oops part from messages.
+a little "sleep" will render the system completely useless, like this:
 
-uhh...sorry about that noise. I misread your e-mail.
+int main() { while(1) { if (!fork()) continue; if (!fork()) continue;
+sleep(5); exit(0); } }
 
-
- > >/ From: bugme-daemon@xxxxxxxx/
- > >/ Subject: [Bugme-new] [Bug 4348] New: snd_emu10k1 oops'es with 
-Audigy 2 and/
- > >/ /
- >
- > This one is fixed in ALSA CVS. Here is the patch.
-
-
-I had this problem indeed and of course this patch fixed 2.6.12-rc1-mm1 
-for me.
-
-Thank you and sorry again,
-Indrek
-
+thank you,
+aq

@@ -1,93 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293756AbSCKNtn>; Mon, 11 Mar 2002 08:49:43 -0500
+	id <S293739AbSCKNwN>; Mon, 11 Mar 2002 08:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293753AbSCKNtf>; Mon, 11 Mar 2002 08:49:35 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:56583 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S293737AbSCKNt1>; Mon, 11 Mar 2002 08:49:27 -0500
-Message-Id: <200203111347.g2BDlPq05350@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Alexander Viro <viro@math.psu.edu>
-Subject: [PATCH] KERN_INFO 2.4.19-pre2 fs
-Date: Mon, 11 Mar 2002 15:46:39 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S293757AbSCKNvy>; Mon, 11 Mar 2002 08:51:54 -0500
+Received: from angband.namesys.com ([212.16.7.85]:41856 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S310123AbSCKNvl>; Mon, 11 Mar 2002 08:51:41 -0500
+Date: Mon, 11 Mar 2002 16:51:40 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+Message-ID: <20020311165140.A1839@namesys.com>
+In-Reply-To: <shswuwkujx5.fsf@charged.uio.no> <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020311154852.3981c188.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020311154852.3981c188.skraw@ithnet.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Primary purpose of this patch is to make KERN_WARNING and
-KERN_INFO log levels closer to their original meaning.
-Today they are quite far from what was intended.
-Just look what kernel writes at the WARNING level
-each time you boot your box!
+Hello!
 
-Diff for fs/*.c cache size messages and the like.
+On Mon, Mar 11, 2002 at 03:48:52PM +0100, Stephan von Krawczynski wrote:
+> > Just to be sure - have you tried 2.4.17 at the server?
+> I just checked with 2.4.17 on the server side: the problem stays.
+> I guess it will not make any sense to try your patches (reversing).
 
-diff -u --recursive -x *.orig -x *.rej linux-2.4.19-pre2/fs/buffer.c linux-new/fs/buffer.c
---- linux-2.4.19-pre2/fs/buffer.c	Tue Mar  5 12:42:34 2002
-+++ linux-new/fs/buffer.c	Mon Mar 11 10:47:42 2002
-@@ -2798,7 +2798,7 @@
- 		hash_table = (struct buffer_head **)
- 		    __get_free_pages(GFP_ATOMIC, order);
- 	} while (hash_table == NULL && --order > 0);
--	printk("Buffer-cache hash table entries: %d (order: %d, %ld bytes)\n",
-+	printk(KERN_INFO "Buffer cache hash table entries: %d (order: %d, %ld bytes)\n",
- 	       nr_hash, order, (PAGE_SIZE << order));
- 
- 	if (!hash_table)
-diff -u --recursive -x *.orig -x *.rej linux-2.4.19-pre2/fs/dcache.c linux-new/fs/dcache.c
---- linux-2.4.19-pre2/fs/dcache.c	Mon Feb 25 17:38:08 2002
-+++ linux-new/fs/dcache.c	Mon Mar 11 10:47:42 2002
-@@ -1210,7 +1210,7 @@
- 			__get_free_pages(GFP_ATOMIC, order);
- 	} while (dentry_hashtable == NULL && --order >= 0);
- 
--	printk("Dentry-cache hash table entries: %d (order: %ld, %ld bytes)\n",
-+	printk(KERN_INFO "Dentry cache hash table entries: %d (order: %ld, %ld bytes)\n",
- 			nr_hash, order, (PAGE_SIZE << order));
- 
- 	if (!dentry_hashtable)
-diff -u --recursive -x *.orig -x *.rej linux-2.4.19-pre2/fs/inode.c linux-new/fs/inode.c
---- linux-2.4.19-pre2/fs/inode.c	Fri Dec 21 15:41:55 2001
-+++ linux-new/fs/inode.c	Mon Mar 11 10:47:42 2002
-@@ -1152,7 +1152,7 @@
- 			__get_free_pages(GFP_ATOMIC, order);
- 	} while (inode_hashtable == NULL && --order >= 0);
- 
--	printk("Inode-cache hash table entries: %d (order: %ld, %ld bytes)\n",
-+	printk(KERN_INFO "Inode cache hash table entries: %d (order: %ld, %ld bytes)\n",
- 			nr_hash, order, (PAGE_SIZE << order));
- 
- 	if (!inode_hashtable)
-diff -u --recursive -x *.orig -x *.rej linux-2.4.19-pre2/fs/namespace.c linux-new/fs/namespace.c
---- linux-2.4.19-pre2/fs/namespace.c	Tue Mar  5 12:42:37 2002
-+++ linux-new/fs/namespace.c	Mon Mar 11 10:47:42 2002
-@@ -1056,8 +1056,9 @@
- 	nr_hash = 1UL << hash_bits;
- 	hash_mask = nr_hash-1;
- 
--	printk("Mount-cache hash table entries: %d (order: %ld, %ld bytes)\n",
--			nr_hash, order, (PAGE_SIZE << order));
-+	printk(KERN_INFO "Mount cache hash table entries: %d"
-+		" (order: %ld, %ld bytes)\n",
-+		nr_hash, order, (PAGE_SIZE << order));
- 
- 	/* And initialize the newly allocated array */
- 	d = mount_hashtable;
-diff -u --recursive -x *.orig -x *.rej linux-2.4.19-pre2/fs/super.c linux-new/fs/super.c
---- linux-2.4.19-pre2/fs/super.c	Tue Mar  5 12:42:38 2002
-+++ linux-new/fs/super.c	Mon Mar 11 10:47:42 2002
-@@ -762,7 +762,7 @@
- 
- 	/* Forget any remaining inodes */
- 	if (invalidate_inodes(sb)) {
--		printk("VFS: Busy inodes after unmount. "
-+		printk(KERN_ERR "VFS: Busy inodes after unmount. "
- 			"Self-destruct in 5 seconds.  Have a nice day...\n");
- 	}
- 
+Yes.
+Hm. Can you make non-reiserfs partition (say ext2) and try to reproduce a
+problem on it. This way we can know which direction to dig further.
+
+Trod, do you think that'll work or should some other non-ext2 fs be tried?
+
+Bye,
+    Oleg

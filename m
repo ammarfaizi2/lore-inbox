@@ -1,61 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbTHTMLo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 08:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbTHTMLo
+	id S261901AbTHTMaX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 08:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTHTMaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 08:11:44 -0400
-Received: from werbeagentur-aufwind.com ([217.160.128.76]:31444 "EHLO
-	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
-	id S261944AbTHTMLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 08:11:43 -0400
-Subject: Re: [OT] Connection tracking for IPSec
-From: Christophe Saout <christophe@saout.de>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1061378568.668.9.camel@teapot.felipe-alfaro.com>
-References: <1061378568.668.9.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain
-Message-Id: <1061381498.4210.16.camel@chtephan.cs.pocnet.net>
+	Wed, 20 Aug 2003 08:30:22 -0400
+Received: from main.gmane.org ([80.91.224.249]:61915 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261901AbTHTMaS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 08:30:18 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: how to turn off, or to clear read cache?
+Date: Wed, 20 Aug 2003 14:30:18 +0200
+Message-ID: <yw1xlltocy05.fsf@users.sourceforge.net>
+References: <3F4360F0.209@gamic.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 20 Aug 2003 14:11:38 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:xOnIc4Nj7iY9qVMVb3PRswa7lNI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mi, 2003-08-20 um 13.22 schrieb Felipe Alfaro Solana:
+Sergey Spiridonov <spiridonov@gamic.com> writes:
 
-> When using IPSec, if I open up protocols 50 and 51, all IPSec-protected
-> traffic passes through the firewall, but it's not checked against the
-> connection tracking module. How can I configure iptables so an
-> IPSec-protected packet, after being classified as IP protocol 50 or 51,
-> loop back one more time to pass through the connection tracking module?
+> I need to make some performance tests. I need to switch off or to
+> clear read cache, so that consequent reading of the same file will
+> take the same amount of time.
+>
+> Is there an easy way to do it, without rebuilding the kernel?
 
-You're saying it's not honouring the netfilter rules at all?
+I never found one, so I made this little patch.  It adds a mount
+option to the ext3 filesystem that makes it drop the cache when a file
+is closed.  Diff is against 2.4.21.  It's just a quick hack that
+accomplishes what I needed.  I'm sure there's a better, more generic,
+way.
 
-I'm having a related problem here. I switched my small home
-server/router to the 2.6 kernel and switched from klips(freeswan) to the
-new in-kernel ipsec. Racoon is working fine as keying daemon but the
-netfilter rules don't work anymore.
+Index: include/linux/ext3_fs.h
+===================================================================
+RCS file: /home/cvs/linux-2.4/include/linux/ext3_fs.h,v
+retrieving revision 1.8
+diff -u -r1.8 ext3_fs.h
+--- include/linux/ext3_fs.h	1 Apr 2003 21:09:23 -0000	1.8
++++ include/linux/ext3_fs.h	17 Jun 2003 09:10:56 -0000
+@@ -339,6 +339,7 @@
+   #define EXT3_MOUNT_WRITEBACK_DATA	0x0C00	/* No data ordering */
+ #define EXT3_MOUNT_UPDATE_JOURNAL	0x1000	/* Update the journal format */
+ #define EXT3_MOUNT_NO_UID32		0x2000  /* Disable 32-bit UIDs */
++#define EXT3_MOUNT_NOCACHE		0x4000  /* Free cached blocks on close */
+ 
+ /* Compatibility, for having both ext2_fs.h and ext3_fs.h included at once */
+ #ifndef _LINUX_EXT2_FS_H
+Index: fs/ext3/file.c
+===================================================================
+RCS file: /home/cvs/linux-2.4/fs/ext3/file.c,v
+retrieving revision 1.4
+diff -u -r1.4 file.c
+--- fs/ext3/file.c	28 Aug 2002 21:11:16 -0000	1.4
++++ fs/ext3/file.c	17 Jun 2003 09:10:57 -0000
+@@ -35,6 +35,10 @@
+ {
+ 	if (filp->f_mode & FMODE_WRITE)
+ 		ext3_discard_prealloc (inode);
++	if (inode->i_sb->u.ext3_sb.s_mount_opt & EXT3_MOUNT_NOCACHE){
++		write_inode_now(inode, 1);
++		invalidate_inode_pages(inode);
++	}
+ 	return 0;
+ }
+ 
+Index: fs/ext3/super.c
+===================================================================
+RCS file: /home/cvs/linux-2.4/fs/ext3/super.c,v
+retrieving revision 1.10
+diff -u -r1.10 super.c
+--- fs/ext3/super.c	28 Apr 2003 21:14:51 -0000	1.10
++++ fs/ext3/super.c	17 Jun 2003 09:10:59 -0000
+@@ -654,6 +654,8 @@
+ 			if (want_numeric(value, "commit", &v))
+ 				return 0;
+ 			sbi->s_commit_interval = (HZ * v);
++		} else if (!strcmp (this_char, "nocache")){
++			set_opt (*mount_options, NOCACHE);
+ 		} else {
+ 			printk (KERN_ERR 
+ 				"EXT3-fs: Unrecognized mount option %s\n",
 
-I'm using it to encrypt between a single server in the internet (not a
-network) and my router at home. I want it to masquerade the traffic from
-my internal home network to the other machine, just like if there was no
-encrypted path.
 
-It doesn't work. The traffic from my internal network goes out
-masqueraded but unencrypted and the other machine answers, but
-encrypted, and on the return path my router at home throws the packet
-away because it doesn't know what to do with that packet.
-
-With klips it was possible to apply netfilter rules before and after the
-packets got encrypted, because there was an additional virtual device
-(ipsec0) that catches the traffic before encryption (or after
-decryption).
-
---
-Christophe Saout <christophe@saout.de>
-Please avoid sending me Word or PowerPoint attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
+-- 
+Måns Rullgård
+mru@users.sf.net
 

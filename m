@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261914AbSI3A4L>; Sun, 29 Sep 2002 20:56:11 -0400
+	id <S261890AbSI3A6a>; Sun, 29 Sep 2002 20:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261915AbSI3A4L>; Sun, 29 Sep 2002 20:56:11 -0400
-Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:28946 "HELO
-	light-brigade.mit.edu") by vger.kernel.org with SMTP
-	id <S261914AbSI3Azt>; Sun, 29 Sep 2002 20:55:49 -0400
-Date: Sun, 29 Sep 2002 21:01:13 -0400
-From: Gerald Britton <gbritton@alum.mit.edu>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: Gerald Britton <gbritton@alum.mit.edu>, linux-kernel@vger.kernel.org,
-       cpufreq@www.linux.org.uk
-Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
-Message-ID: <20020929210113.A22311@light-brigade.mit.edu>
-References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020928134739.A11797@light-brigade.mit.edu> <20020929111603.F1250@brodo.de> <20020929121018.A811@brodo.de> <20020929155648.A20308@light-brigade.mit.edu> <20020930013926.A11768@brodo.de>
-Mime-Version: 1.0
+	id <S261919AbSI3A63>; Sun, 29 Sep 2002 20:58:29 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:32725
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S261918AbSI3A6X>; Sun, 29 Sep 2002 20:58:23 -0400
+Message-ID: <3D97A2F0.2030002@redhat.com>
+Date: Sun, 29 Sep 2002 18:03:44 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020812
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: cwhmlist@bellsouth.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.39 oops
+References: <20020930005203.GUNU26495.imf20bis.bellsouth.net@localhost>
+X-Enigmail-Version: 0.65.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020930013926.A11768@brodo.de>; from linux@brodo.de on Mon, Sep 30, 2002 at 01:39:26AM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [rounding] 
-> > There probably isn't a lot that can be done about these unfortunately, but
-> > they won't necessarily converge to a stable value so things may eventually
-> > start to fail.
-> Yes, that's a problem; but as cpufreq doesn't change speed dynamically yet
-> (and thus the number of transitions is somewhat limited) it shouldn't cause
-> too much trouble _yet_. But I'll try to think of a better solution _soon_.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-One thought here might be.. for each variable which needs to be scaled, save
-off the boot value and boot frequency and always scale from that value so that
-we don't accumulate errors.  Fairly simple implementation (i doubt there are
-very many things which will need scaling, so it doesn't bloat much).  simply
-do something like this:
+cwhmlist@bellsouth.net wrote:
+> I am having a 2.5.39 oops on boot up.  Here is what I have been able to gleen from the bootstrap screen:
+> 
+> printing eip:
+> c0218f17
+> *pde = 00000000
+> Oops: 0002
+> 
+> CPU: 1
+> EIP: 0060:[<c0218f17>] Not tainted
+> EFLAGS: 00010282
+> EIP is at attach+0x63/0xb8
+> eax: c13a409c ebx: c03e4650 ecx: 00000000 edx: c03f0b68
+> esi: c13a4084 edi: c03e4650 ebp: 00000000 esp: c13dff84
+> ds: 0068 es: 0068 ss 0068
+> Process swapper (pid: 1, threadinfo=c13de000 task=c13e0080)
+> Stack: 00000000 c13a408c c0219027 c13a4084 c13a4084 c02193ab c13a4084 c13a4084
+>        c128aa4c c03f09c0 c128aa0c 00000001 c0416cb0 c13a4084 c04234e0 00000000
+>        00000000 00000000 c128aa4c 00000000 c0402866 c13de000 c040288c c0105101
+> Call Trace:
+>  [<c0219027>device_attach+0x33/0x3c
+>  [<c02193ab>device_register+0x173/0x260
+>  [<c0105101>init+0x75/0x214
+>  [<c010508c>init+0x0/0x214
+>  [<c01055a1>kernel_thread_helper+ox5/0xc
+> 
+> Code: 89 01 81 3d 54 46 3e c0 ad de 74 0b 0f 0b 4a 00 a0 50
 
-static unsigned int orig_freq;
-statid unsigned long orig_scalable;
-...
-if (type == CPUFREQ_PRECHANGE) {
-	if (!orig_freq) {
-		orig_freq = freqs->old;
-		orig_scalable = scalable;
-	}
-	if (scale_on_pre)
-		scalable = cpufreq_scale(orig_scalable, orig_freq, freqs->new);
-} else if (type == CPUFREQ_POSTCHANGE) {
-	BUG_ON(!orig_freq);
-	if (scale_on_post)
-		scalable = cpufreq_scale(orig_scalable, orig_freq, freqs->new);
-}
+This has to do with isapnp.  I have the same problem with isapnp
+compiled in.  In my case the kernel just detected the sound chip on the
+motherboard.  Not compiling isapnp makes the oops disappear.
 
-It seems to be working ok on my system adding saved boot values for
-loops_per_jiffy in cpufreq.c and cpu_khz, fast_gettimeoffset_quotient, and
-the per cpu loops_per_jiffy values in time.c.
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-				-- Gerald
+iD8DBQE9l6Lw2ijCOnn/RHQRAvFdAJ0ddM+2ozcQiFPLx+5J9J/9+qkIFACfW4Mf
+RWA4yBXOf6znqgq9nUeryOk=
+=OocT
+-----END PGP SIGNATURE-----
 

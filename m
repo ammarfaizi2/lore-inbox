@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282006AbRKZSWD>; Mon, 26 Nov 2001 13:22:03 -0500
+	id <S282005AbRKZSZL>; Mon, 26 Nov 2001 13:25:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281997AbRKZSVF>; Mon, 26 Nov 2001 13:21:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16391 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282004AbRKZSTN>; Mon, 26 Nov 2001 13:19:13 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
-Date: 26 Nov 2001 10:18:44 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tu124$sfi$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0111251946400.9764-100000@penguin.transmeta.com> <Pine.LNX.4.33L.0111260857150.4079-100000@imladris.surriel.com>
+	id <S282011AbRKZSX4>; Mon, 26 Nov 2001 13:23:56 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:21186 "EHLO
+	c0mailgw08.prontomail.com") by vger.kernel.org with ESMTP
+	id <S282008AbRKZSXI>; Mon, 26 Nov 2001 13:23:08 -0500
+Message-ID: <3C02886D.8DB9D1B5@starband.net>
+Date: Mon, 26 Nov 2001 13:22:37 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16 Bug (PPC)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33L.0111260857150.4079-100000@imladris.surriel.com>
-By author:    Rik van Riel <riel@conectiva.com.br>
-In newsgroup: linux.dev.kernel
->
-> On Sun, 25 Nov 2001, Linus Torvalds wrote:
-> 
-> > The _real_ solution is to make fewer fundamental changes between
-> > stable kernels, and that's a real solution that I expect to become
-> > more and more realistic as the kernel stabilizes.
-> 
-> Agreed, this would make a _lot_ of difference in the time it
-> takes to get a new stable kernel really stable.
-> 
+This is the actual SCSI driver I need for the 7200/90.
 
-I would REALLY like to see this policy.  I have been harping on this
-for some time now -- we have been having 2-3 times too long cycles
-between stable kernels, which results in an unacceptable level of
-pressure to "get your features in" instead of the proper answer "you
-missed the boat, wait for the next one."
+cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-D__powerpc__ -fsigned-char -msoft-float -pipe -ffixed-r2
+-Wno-uninitialized -mmultiple -mstring    -c -o 53c7,8xx.o 53c7,8xx.c
+53c7,8xx.c: In function `ncr_pci_init':
+53c7,8xx.c:1436: `is_prep' undeclared (first use in this function)
+53c7,8xx.c:1436: (Each undeclared identifier is reported only once
+53c7,8xx.c:1436: for each function it appears in.)
+53c7,8xx.c:1440: warning: unsigned int format, long unsigned int arg
+(arg 3)
+53c7,8xx.c:1443: structure has no member named `base_address'
+53c7,8xx.c: In function `NCR53c8x0_init_fixup':
+53c7,8xx.c:1796: warning: assignment from incompatible pointer type
+53c7,8xx.c: In function `NCR53c8xx_dsa_fixup':
+53c7,8xx.c:2018: warning: assignment from incompatible pointer type
+53c7,8xx.c:2065: warning: assignment from incompatible pointer type
+53c7,8xx.c: In function `print_queues':
+53c7,8xx.c:5932: warning: initialization makes integer from pointer
+without a cast
+53c7,8xx.c:5932: warning: passing arg 1 of `__fswab32' makes integer
+from pointer without a cast
+make[3]: *** [53c7,8xx.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,113 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVAPE3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVAPEeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbVAPE3l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 23:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVAPE3l
+	id S262423AbVAPEeE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 23:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVAPEeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 23:29:41 -0500
-Received: from mail.joq.us ([67.65.12.105]:385 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262422AbVAPE3h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 23:29:37 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       paul@linuxaudiosystems.com, arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <200501071620.j07GKrIa018718@localhost.localdomain>
-	<1105132348.20278.88.camel@krustophenia.net>
-	<20050107134941.11cecbfc.akpm@osdl.org>
-	<20050107221059.GA17392@infradead.org>
-	<20050107142920.K2357@build.pdx.osdl.net>
-	<87mzvkxxck.fsf@sulphur.joq.us> <20050111212139.GA22817@elte.hu>
-	<87ekgnwaqx.fsf@sulphur.joq.us> <20050115144302.GG10114@elte.hu>
-	<87r7kmuw3i.fsf@sulphur.joq.us> <87r7kmf8kg.fsf@sulphur.joq.us>
-From: "Jack O'Quin" <joq@io.com>
-Date: Sat, 15 Jan 2005 22:30:26 -0600
-In-Reply-To: <87r7kmf8kg.fsf@sulphur.joq.us> (Jack O'Quin's message of "Sat,
- 15 Jan 2005 19:48:15 -0600")
-Message-ID: <87y8euc7x9.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Sat, 15 Jan 2005 23:34:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:50949 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262423AbVAPEeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 23:34:00 -0500
+Date: Sun, 16 Jan 2005 05:33:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: anton@samba.org
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: ppc64 xics.c: what is smp_threads_ready exactly used for?
+Message-ID: <20050116043356.GM4274@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack O'Quin <joq@io.com> writes:
+Hi Anton,
 
-> *** Terminated Sat Jan 15 18:15:13 CST 2005 ***
-> ************* SUMMARY RESULT ****************
-> Total seconds ran . . . . . . :   300
-> Number of clients . . . . . . :    20
-> Ports per client  . . . . . . :     4
-> Frames per buffer . . . . . . :    64
-> *********************************************
-> Timeout Count . . . . . . . . :(    1)
-> XRUN Count  . . . . . . . . . :    47
-> Delay Count (>spare time) . . :     0
-> Delay Count (>1000 usecs) . . :     0
-> Delay Maximum . . . . . . . . : 500544   usecs
-> Cycle Maximum . . . . . . . . :  1086   usecs
-> Average DSP Load. . . . . . . :    36.1 %
-> Average CPU System Load . . . :     8.2 %
-> Average CPU User Load . . . . :    26.3 %
-> Average CPU Nice Load . . . . :     0.0 %
-> Average CPU I/O Wait Load . . :     0.4 %
-> Average CPU IRQ Load  . . . . :     0.7 %
-> Average CPU Soft-IRQ Load . . :     0.0 %
-> Average Interrupt Rate  . . . :  1703.3 /sec
-> Average Context-Switch Rate . : 11600.6 /sec
-> *********************************************
->
-> I think this means the starvation test was not the problem.  So far,
-> I've seen no proof that there is any problem with the 2.6.10
-> scheduler, just some evidence that nice --20 does not work for
-> multi-threaded realtime audio.
->
-> If someone can suggest a way to run certain threads of a process with
-> a different nice value than the others, I can probably hack that into
-> JACK in some crude way.  That should tell us whether my intuition is
-> right about the source of scheduling interference.  
->
-> Otherwise, I'm out of ideas at the moment.  I don't think SCHED_RR
-> will be any different from SCHED_FIFO in this test.  Even if it were,
-> I'm not sure what that would prove.
+during a cleanup, I stumbled upon the following:
 
-Studying the test script, I discovered that it starts a separate
-program running in the background.  So, I hacked the script to run it
-with nice -15 in order not to interfere with the realtime threads.
-The XRUNS didn't get much better, but the maximum delay went way down,
-from 1/2 sec to a much more believable (but still too high) 32.5 msec.
-I ran this with the same patched scheduler.
 
-*** Terminated Sat Jan 15 21:22:00 CST 2005 ***
-************* SUMMARY RESULT ****************
-Total seconds ran . . . . . . :   300
-Number of clients . . . . . . :    20
-Ports per client  . . . . . . :     4
-Frames per buffer . . . . . . :    64
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :    43
-Delay Count (>spare time) . . :     0
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . : 32518   usecs
-Cycle Maximum . . . . . . . . :   820   usecs
-Average DSP Load. . . . . . . :    34.9 %
-Average CPU System Load . . . :     8.5 %
-Average CPU User Load . . . . :    23.8 %
-Average CPU Nice Load . . . . :     0.0 %
-Average CPU I/O Wait Load . . :     0.0 %
-Average CPU IRQ Load  . . . . :     0.7 %
-Average CPU Soft-IRQ Load . . :     0.0 %
-Average Interrupt Rate  . . . :  1688.5 /sec
-Average Context-Switch Rate . : 11704.9 /sec
-*********************************************
+arch/ppc64/kernel/smp.c (in 2.6.11-rc1-mm1) says:
 
-This supports my intuition that lack of per-thread granularity is the
-main problem.  Where I was able to isolate some non-realtime code and
-run it at lower priority, it helped quite a bit.
+        /* XXX fix this, xics currently relies on it - Anton */
+        smp_threads_ready = 1;
+
+
+arch/ppc64/kernel/xics.c is the _only_ place in the whole kernel where 
+smp_threads_ready is actually used, and this is the _only_ place where 
+smp_threads_ready ever changes it's value on ppc64.
+
+I have to admit I'm a bit lost in the sequence of function calls on 
+ppc64. Is it possible to make any assumptions about the ordering of the 
+assignment and the usage of smp_threads_ready?
+
+
+TIA
+Adrian
+
 -- 
-  joq
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

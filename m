@@ -1,61 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbULPL2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbULPLaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262617AbULPL2i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 06:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbULPL2i
+	id S262630AbULPLaa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 06:30:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbULPLa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 06:28:38 -0500
-Received: from mivlgu.ru ([81.18.140.87]:5601 "EHLO master.mivlgu.local")
-	by vger.kernel.org with ESMTP id S262617AbULPL2g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 06:28:36 -0500
-Date: Thu, 16 Dec 2004 14:28:32 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Horms <horms@verge.net.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jason Baron <jbaron@redhat.com>
-Subject: Re: tty/ldisc fix in 2.4
-Message-ID: <20041216112832.GB10876@master.mivlgu.local>
-References: <20041216044227.GC13680@verge.net.au> <20041216081452.GA8113@logos.cnet>
+	Thu, 16 Dec 2004 06:30:29 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:11968 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S262630AbULPLa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 06:30:26 -0500
+Date: Thu, 16 Dec 2004 12:30:01 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+Message-ID: <20041216113001.GJ28286@dualathlon.random>
+References: <20041213002751.GP16322@dualathlon.random> <200412151144.38785.gene.heskett@verizon.net> <20041215182012.GH16322@dualathlon.random> <200412152059.52292.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041216081452.GA8113@logos.cnet>
+In-Reply-To: <200412152059.52292.gene.heskett@verizon.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 15, 2004 at 08:59:52PM -0500, Gene Heskett wrote:
+> Unforch, I was not able to find that in the .config file, so where is
+> that particular option set?
 
---St7VIuEGZ6dlpu13
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Dec 16, 2004 at 06:14:52AM -0200, Marcelo Tosatti wrote:
-> Sergey, I recall you seeing SieFS breakage due to Jason's patch -=20
-> what was your finding on that?
-
-I have found the bug - the call to tty->driver.set_termios in
-change_termios() was removed, therefore serial port speed was not set
-correctly.  I sent patches fixing this to Jason Baron and to LKML:
-
-http://lkml.org/lkml/2004/11/7/105
-http://lkml.org/lkml/2004/11/7/106
-http://lkml.org/lkml/2004/11/7/107
-
-But I did not get any reply.
-
---St7VIuEGZ6dlpu13
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBwXFfW82GfkQfsqIRAl6gAKCOF+jeRvJ2vP24bf4vLlyI3jtqvgCeJN8b
-F+86kPZH84wMOCl1S79QqlI=
-=UCAR
------END PGP SIGNATURE-----
-
---St7VIuEGZ6dlpu13--
+There is no config option indeed, you need to edit
+include/asm-i386/param.h to change HZ.

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280027AbRLQODI>; Mon, 17 Dec 2001 09:03:08 -0500
+	id <S279313AbRLQN4i>; Mon, 17 Dec 2001 08:56:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279981AbRLQOC6>; Mon, 17 Dec 2001 09:02:58 -0500
-Received: from ns.suse.de ([213.95.15.193]:19469 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280027AbRLQOCw>;
-	Mon, 17 Dec 2001 09:02:52 -0500
-Date: Mon, 17 Dec 2001 15:02:51 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1-dj1
-In-Reply-To: <20011217103553.GF4587@suse.de>
-Message-ID: <Pine.LNX.4.33.0112171501500.28670-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279778AbRLQN42>; Mon, 17 Dec 2001 08:56:28 -0500
+Received: from thor.bi.teuto.net ([212.8.197.25]:61702 "HELO thor.bi.teuto.net")
+	by vger.kernel.org with SMTP id <S279313AbRLQN40>;
+	Mon, 17 Dec 2001 08:56:26 -0500
+Date: Mon, 17 Dec 2001 14:55:52 +0100
+From: Jan-Benedict Glaw <jbglaw@microdata-pos.de>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xchg and GCC's optimisation:-(
+Message-ID: <20011217145551.B518@microdata-pos.de>
+In-Reply-To: <20011217134526.A31801@microdata-pos.de> <87wuzmq91m.fsf@fadata.bg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <87wuzmq91m.fsf@fadata.bg>; from velco@fadata.bg on Mon, Dec 17, 2001 at 03:18:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Jens Axboe wrote:
+On Mon, Dec 17, 2001 at 03:18:45PM +0200, Momchil Velikov wrote:
+> >>>>> "Jan-Benedict" == Jan-Benedict Glaw <jbglaw@microdata-pos.de> writes:
+> Jan-Benedict> I've looked at ./include/asm-i386/system.h which does some black
+> Jan-Benedict> magic with it, and I don't really understand that. However, the
+> Jan-Benedict> result is that the xchg gets optimized away, rendering at least
+> 
+> Can you try with this patch ...
+> 
+> --- system.h.orig.0	Mon Dec 17 15:03:38 2001
+> +++ system.h	Mon Dec 17 15:16:58 2001
+> @@ -205,21 +205,15 @@ static inline unsigned long __xchg(unsig
+>  	switch (size) {
+>  		case 1:
+>  			__asm__ __volatile__("xchgb %b0,%1"
+> -				:"=q" (x)
+> -				:"m" (*__xg(ptr)), "0" (x)
+> -				:"memory");
+> +				     :"+q" (x),"=m" (*__xg(ptr)));
+[...]
 
-> On Mon, Dec 17 2001, Dave Jones wrote:
-> > o   bio changes for ide floppy					(Me)
-> >     | handle with care, compiles, but is unfinished.
->
-> This is still badly broken -- I've attached my version I did for
-> somebody friday.
+The patch fixes the problem. Please also send it for inclusion
+in 2.2.x, 2.4.x and 2.5.x, because these kernel version will behave
+exactly the same (system.h looks very similar between all these
+versions...)
 
-Yeah, I got distracted halfway through, and never got around to it.
-I'll drop this into the -dj2, thanks.
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+MfG, JBG
 

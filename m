@@ -1,42 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVDDEZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVDDEdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbVDDEZM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 00:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVDDEZM
+	id S262047AbVDDEdx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 00:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVDDEdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 00:25:12 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:41372 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S262005AbVDDEZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 00:25:07 -0400
-Message-ID: <4250C19F.9070801@myrealbox.com>
-Date: Sun, 03 Apr 2005 21:25:03 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jackson <pj@engr.sgi.com>
-CC: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
-   benchmark result on recent 2.6 kernels]
-References: <200504020100.j3210fg04870@unix-os.sc.intel.com>	<20050402145351.GA11601@elte.hu>	<20050402215332.79ff56cc.pj@engr.sgi.com>	<20050403070415.GA18893@elte.hu> <20050403043420.212290a8.pj@engr.sgi.com>
-In-Reply-To: <20050403043420.212290a8.pj@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Apr 2005 00:33:52 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:9124 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262047AbVDDEdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 00:33:45 -0400
+Date: Sun, 03 Apr 2005 23:33:27 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: How to make linux ping behaves like MS ping?
+In-reply-to: <4250B7E1.2050006@i6x.org>
+To: Beast <beast@i6x.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200504040033.27243.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <424E1451.8070501@i6x.org>
+ <200504012341.40822.gene.heskett@verizon.net> <4250B7E1.2050006@i6x.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Ok - that flies, or at least walks.  It took 53 seconds to
-> compute this cost matrix.
+On Sunday 03 April 2005 23:43, Beast wrote:
+>Hi Gene,
+>Is this posting for me?
 
-Not that I really know what I'm talking about here, but this sounds 
-highly parallelizable.  It seems like you could do N/2 measurements at a 
-time, so this should be O(N) to compute the matrix (ignoring issues of 
-how long it takes to write the data to memory, but that should be 
-insignificant).
+Yes it was.
 
-Even if you can't parallelize it all the way, it ought to at least help.
+>Gene Heskett wrote:
+>> I also don't play Sender Confirmation games, particularly when the
+>> confirmation message is in html only.
+>
+>AFAIK, I never set any confirm receipt or sending html format to the
+> list.
 
---Andy
+The sender confirmation form I got was in html, not from your mailer, 
+but from the ISP's server, which would not deliver the message unless 
+I did some sort of a click thru reply.  As many of these are scams 
+designed to collect valid email addresses, and some will lead to 
+phishing attacks, its something I've never, ever considered doing. 
+SCP is IMO a solution in search of a problem.
+
+In other words, talk to your ISP, and if some sort of SCP is in 
+effect, see if they will shut it off, and then setup your own version 
+of spamassassin or similar filter.
+
+>> You've been removed from the Cc: line in this reply.
+>>
+>> You asked for help, but set the Cc: line as if you weren't
+>> subscribed. Anyone who posts to this list, can IMNSHO, accept the
+>> fscking replies you set in the Cc: line of your message or do
+>> without the reply.
+>
+>I don't understand this. Could you shed some light on this?
+>Tks.
+>
+>> Read it here, or don't read it at all, doesn't bother me.
+
+In other words, this is the only message you saw from me, which does 
+not contain the answer to your original post, as best as I could 
+answer it.  That I've been known to be erronious does occasionally 
+happen though. :)
+
+And, if you don't see this answer, it will be because I didn't do the 
+dance to clear thru your server again.  In that event, you'll 
+conclude I'm an outstanding jerk for not answering.  Yes, I've been 
+that occasionally in my 70 years, usually after something like this 
+pulls my trigger.
+
+However, since your server probably won't let this reply through 
+either, I've taken the liberty (excuse me please, list readers) of 
+adding lkml back into the Cc: line.  Maybe you'll read it there 
+eventually.
+
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUCJSpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUCJSpT
+	id S262757AbUCJSsK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUCJSsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:45:19 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2247 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262730AbUCJSpR convert rfc822-to-8bit
+	Wed, 10 Mar 2004 13:48:10 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:63699 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S262757AbUCJSsH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:45:17 -0500
-Date: Wed, 10 Mar 2004 10:43:36 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Fabian LoneStar =?ISO-8859-1?Q?Fr=E9d=E9rick" ?= 
-	<fabian.frederick@gmx.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.4rc2mm1] nfsroot parser
-Message-Id: <20040310104336.08e613d8.rddunlap@osdl.org>
-In-Reply-To: <16521.1078942992@www11.gmx.net>
-References: <16521.1078942992@www11.gmx.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 10 Mar 2004 13:48:07 -0500
+Message-ID: <404F6375.3080500@blue-labs.org>
+Date: Wed, 10 Mar 2004 13:50:29 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040302
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: "Randy.Dunlap" <rddunlap@osdl.org>,
+       "Godbole, Amarendra (GE Consumer & Industrial)" 
+	<Amarendra.Godbole@ge.com>,
+       linux-kernel@vger.kernel.org
+Subject: [OT] Re: (0 == foo), rather than (foo == 0)
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos>
+In-Reply-To: <Pine.LNX.4.53.0403101324120.18709@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004 19:23:12 +0100 (MET) Fabian LoneStar Frédérick wrote:
+Richard B. Johnson wrote:
 
-| Randy,
-| 
-|        Here's nfs standard parser with some corrections.Is it ok for you ?
+>People who develop kernel code also know what a line-warp is.
+>They put a '\n' "[Enter] key" in their text every so-often,
+>maybe every 70 to 79 characters...
+>  
+>
 
-Yes, thanks.
+*thinks back to that 40
+character screen wrap
+that everyone used to
+hound everyone else
+for*
 
---
-~Randy
+Really, your mail reading software should be capable of wrapping things 
+by itself, we really have progressed from yesteryear.

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317068AbSHYID7>; Sun, 25 Aug 2002 04:03:59 -0400
+	id <S317073AbSHYJLZ>; Sun, 25 Aug 2002 05:11:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSHYID7>; Sun, 25 Aug 2002 04:03:59 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:44422 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S317068AbSHYID6>; Sun, 25 Aug 2002 04:03:58 -0400
-Date: Sat, 24 Aug 2002 21:21:44 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk,
-       mec@shout.net
-Subject: Re: Of hanging menuconfig [cause found]
-Message-ID: <20020824212144.B746@linux-m68k.org>
-References: <20020824151329.GB735@gallifrey>
+	id <S317081AbSHYJLY>; Sun, 25 Aug 2002 05:11:24 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:35207
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
+	id <S317073AbSHYJLY> convert rfc822-to-8bit; Sun, 25 Aug 2002 05:11:24 -0400
+Message-ID: <20020825091537.18068.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+To: conman@kolivas.net
+cc: linux-kernel@vger.kernel.org, dag@newtech.fi
+Subject: Re: Responsiveness performance patches (ck) fixed for 2.4.19 
+In-Reply-To: Message from conman@kolivas.net 
+   of "Sun, 25 Aug 2002 17:21:09 +1000." <1030260069.3d6885651f0cb@kolivas.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020824151329.GB735@gallifrey>; from gilbertd@treblig.org on Sat, Aug 24, 2002 at 04:13:29PM +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Sun, 25 Aug 2002 12:15:37 +0300
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 24, 2002 at 04:13:29PM +0100, Dr. David Alan Gilbert wrote:
-> Hi,
->   make menuconfig   will hang just after the parsing in the
-> activate_menu loop in the case where the file scripts/lxdialog/lxdialog
-> won't execute.  Some error codes in this case are caught; but the case
-> where the file scripts/lxdialog/lxdialog is a binary for the wrong
-> architecture (case 126) is not caught.  This is quite easy to trip if
-> you are swapping between native and cross building - you get a couple of
-> errors when you try and build make menuconfig for the first time about
-> wrong binaries; in my case I just deleted those binaries and did the
-> make again; however this failure is silent - it just hangs.
+> Hi
 > 
-> A make mrproper   is probably the best thing to do when switching - but
-> the error case needs catching, and I'm sure there are other similar
-> cases.
+> I've fixed the patches I created that combine the following:
 
-look at dmesg and add an
-	alias binfmt-xxxx off
-to /etc/modules.conf so similar problems get caught properly - unless 
-you want to actually use an emulator for this architecture of course :)
+OK,
 
-This is one of the cases where I wish kmod would do something more 
-intelligent by default than endless loop. Would it be a good idea 
-to attempt loading of emulator modules only for formats that are 
-previously somehow registered + a few well known like aout,misc,elf?
+case closed; It works.
 
-Looking at exec.c, why isn't the result of request_module() tested?
+And the laptop do feel a lot faster (only 300 MHz Celeron).
 
-Richard
+Thanks and sorry if I caused confusion.
+
+
+
+-- 
+Dag Nygren                               email: dag@newtech.fi
+Oy Espoon NewTech Ab                     phone: +358 9 8024910
+Träsktorpet 3                              fax: +358 9 8024916
+02360 ESBO                              Mobile: +358 400 426312
+FINLAND
 
 

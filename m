@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130807AbQK1ETd>; Mon, 27 Nov 2000 23:19:33 -0500
+        id <S130746AbQK1EYY>; Mon, 27 Nov 2000 23:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130810AbQK1ETX>; Mon, 27 Nov 2000 23:19:23 -0500
-Received: from ip462.boanxx1.adsl.tele.dk ([194.192.130.82]:1936 "EHLO
-        localhost.jbj.dk") by vger.kernel.org with ESMTP id <S130807AbQK1ETG>;
-        Mon, 27 Nov 2000 23:19:06 -0500
-From: "John B. Jacobsen" <jbj_ss@mail.tele.dk>
-Message-Id: <200011280255.eAS2tZ215366@localhost.jbj.dk>
-Subject: Linus daughter
-In-Reply-To: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com>
- from Linus Torvalds at "Nov 27, 2000 06:45:31 pm"
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Tue, 28 Nov 2000 03:55:29 +0100 (CET)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+        id <S130810AbQK1EYN>; Mon, 27 Nov 2000 23:24:13 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14354 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S130746AbQK1EYA>; Mon, 27 Nov 2000 23:24:00 -0500
+Subject: Re: test12-pre2
+To: neilb@cse.unsw.edu.au (Neil Brown)
+Date: Tue, 28 Nov 2000 03:53:45 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <14883.10909.19147.677679@notabene.cse.unsw.edu.au> from "Neil Brown" at Nov 28, 2000 02:46:37 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E140bpy-00041f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Due to the birth of my third daughter last week (yes, I got /.'ed), if you
+> > sent me patches that aren't in pre2, you can pretty much consider them
+> > lost.
+> > 
+> > 		Linus
+> > 
 > 
-> Oh, well. Some people saw the (unannounced, and not for public
-> consumption) pre1, so here's pre2. pre1 was just meant to be an interim
-> patch to sync up with the ISDN patches.
-> 
-> Due to the birth of my third daughter last week (yes, I got /.'ed), if you
-> sent me patches that aren't in pre2, you can pretty much consider them
-> lost.
+> What happens about the stuff that went in to 2.4.0test11-ac{1,2,3,4}?
+> Are you going to "sync-up" with Alan, or should we send bits directly
+> to you?
 
-Congratulations with your new child !!
+When Linus puts out pre3 I will start sending him stuff from my tree which
+proves workable. Stuff that seems suspect and needs more work I'll keep in
+the -ac tree and continue to release it against current Linus code. 
 
-Regards
+It doesnt cause me any problem if you send Linus a copy, I'll just drop it
+from my patches as it appears in his tree.
 
-John
-
-
-> 
-> 		Linus
-> 
-> ---
-> 
->  - pre2:
->     - Peter Anvin: more P4 configuration parsing
->     - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
->       do the right thing.
->     - Keith Owens: make mdule loading use the right struct module size
->     - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
->     - Alan Cox: various random documentation etc
->     - Dario Ballabio: EATA and u14-34f update
->     - Ivan Kokshaysky: unbreak alpha ruffian
->     - Richard Henderson: PCI bridge initialization on alpha
->     - Zach Brown: correct locking in Maestro driver
->     - Geert Uytterhoeven: more m68k updates
->     - Andrey Savochkin: eepro100 update
->     - Dag Brattli: irda update
->     - Johannes Erdfelt: USB update
-> 
->  - pre1: (for ISDN synchronization _ONLY_! Not complete!)
->     - Byron Stanoszek: correct decimal precision for CPU MHz in
->       /proc/cpuinfo
->     - Ollie Lho: SiS pirq routing.
->     - Andries Brouwer: isofs cleanups
->     - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
->     - me: be stricter about what we accept as a PCI bridge setup.
->     - me: always set PCI interrupts to be level-triggered when we enable them.
->     - me: updated PageDirty and swap cache handling
->     - Peter Anvin: update A20 code to work without keyboard controller
->     - Kai Germaschewski: ISDN updates
->     - Russell King: ARM updates
->     - Geert Uytterhoeven: m68k updates
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

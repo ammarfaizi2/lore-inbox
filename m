@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273176AbRJCLlX>; Wed, 3 Oct 2001 07:41:23 -0400
+	id <S273203AbRJCLmF>; Wed, 3 Oct 2001 07:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273203AbRJCLlN>; Wed, 3 Oct 2001 07:41:13 -0400
-Received: from [200.248.92.2] ([200.248.92.2]:18195 "EHLO
-	inter.lojasrenner.com.br") by vger.kernel.org with ESMTP
-	id <S273176AbRJCLlA>; Wed, 3 Oct 2001 07:41:00 -0400
-Message-Id: <200110031143.IAA16823@inter.lojasrenner.com.br>
-Content-Type: text/plain; charset=US-ASCII
-From: Andre Margis <andre@sam.com.br>
-Organization: SAM Informatica Ltda
-To: linux-kernel@vger.kernel.org
-Subject: kswapd kernel 2.4.9
-Date: Wed, 3 Oct 2001 08:39:20 -0300
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S273213AbRJCLly>; Wed, 3 Oct 2001 07:41:54 -0400
+Received: from balabit.bakats.tvnet.hu ([195.38.106.66]:59397 "EHLO
+	kuka.balabit") by vger.kernel.org with ESMTP id <S273203AbRJCLlp>;
+	Wed, 3 Oct 2001 07:41:45 -0400
+Date: Wed, 3 Oct 2001 13:41:43 +0200
+From: Balazs Scheidler <bazsi@balabit.hu>
+To: pierre.lombard@imag.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reproducible bug in 2.2.19 & 2.4.x [lkml]
+Message-ID: <20011003134143.A26432@balabit.hu>
+In-Reply-To: <20010928130138.A19532@balabit.hu> <20011002103112.A13638@balabit.hu> <20011003125319.A32248@sci41.imag.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011003125319.A32248@sci41.imag.fr>; from pierre.lombard@imag.fr on Wed, Oct 03, 2001 at 12:55:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running kernel 2.4.9 under a DELL 8450 with 8xP-III  and 10GB RAM. 
-Yesterday a run a BIG   I/O, and when this process run, my cached goes to 9GB 
-and the kswapd is using 100% of one cpu after that.
+On Wed, Oct 03, 2001 at 12:55:16PM +0200, pierre.lombard@imag.fr wrote:
+> Hi,
+> 
+> I checked glibc syslog() code in misc/syslog.[hc]
+> 
+> A possible explanation:
+> 1. you ignore SIGPIPE
+> 2. syslog communicates with syslogd thru a pipe and mess with sigpipe
+>   handler
+> 3. this breaks things.
+> 
+> Can you test the patch I attached, it seems to work fine here (whereas your
+> snippet crashes quickly) and send feedback if it works ?
 
-my /proc/meminfo
+The problem is that my the problem occurs in a program completely
+independent from my stressthreads program (it is meant only for
+demonstration purposes). This SIGSEGV occurs in our multithreaded proxy
+firewall software called Zorp.
 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1957650432 1946705920 10944512        0 392224768 1218093056
-Swap: 1073733632   684032 1073049600
-MemTotal:     10300376 kB
-MemFree:         10688 kB
-MemShared:           0 kB
-Buffers:        383032 kB
-Cached:        9577652 kB
-SwapCached:        500 kB
-Active:        3328980 kB
-Inact_dirty:   6628180 kB
-Inact_clean:      4088 kB
-Inact_target:        8 kB
-HighTotal:     9568256 kB
-HighFree:         3948 kB
-LowTotal:       732120 kB
-LowFree:          6740 kB
-SwapTotal:     1048568 kB
-SwapFree:      1047900 kB
+We are using a dummy signal handler (not SIG_IGN), and the SIGSEGV still
+occurs.
 
+A last addition is that the problem occurs on non-SMP kernels as well,
+albeit much more rarely.
 
-This is normal?
+My workaround is now not to use syslog() from libc. I implemented my own
+syslog writing routines, and the problem didn't occur (though it's been
+running for two days now, so nothing is for sure yet).
 
+For the time being I'm also trying to reproduce the problem without
+syslog() as I think it is a kernel related problem.
 
+I think it must be related to the fact syslog() is changing signal handler
+routines very often.
 
-Thank's
+thanks for the feedback.
 
-
-
-Andre
+-- 
+Bazsi
+PGP info: KeyID 9AF8D0A9 Fingerprint CD27 CFB0 802C 0944 9CFD 804E C82C 8EB1

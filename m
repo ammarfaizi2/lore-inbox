@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269536AbRHHU73>; Wed, 8 Aug 2001 16:59:29 -0400
+	id <S269541AbRHHVJC>; Wed, 8 Aug 2001 17:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269541AbRHHU7U>; Wed, 8 Aug 2001 16:59:20 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:24849 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S269536AbRHHU7I>; Wed, 8 Aug 2001 16:59:08 -0400
-Date: Wed, 8 Aug 2001 16:59:19 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Determine if card is in 32 or 64 bit PCI slot?
-Message-ID: <20010808165919.R21901@sventech.com>
-In-Reply-To: <20010808161703.Q21901@sventech.com> <E15UaNj-00062K-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E15UaNj-00062K-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Aug 08, 2001 at 09:56:47PM +0100
+	id <S269542AbRHHVIw>; Wed, 8 Aug 2001 17:08:52 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:17939 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S269541AbRHHVIm>; Wed, 8 Aug 2001 17:08:42 -0400
+Date: Wed, 8 Aug 2001 21:08:22 +0000 (GMT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+To: jury gerold <geroldj@grips.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/MSI mobo combo broken?
+In-Reply-To: <3B717220.8050308@grips.com>
+Message-ID: <Pine.LNX.4.10.10108082057430.10284-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 08, 2001, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > I have a 64 bit PCI card which will work in either a 32 bit or 64 bit
-> > PCI slot.
-> > 
-> > I'd like to make the driver autodetect which kind of slot the card is
-> > in and set the dma_mask correctly, but I can't seem to figure out how to
-> > do this.
-> 
-> Are you sure the card actually needs this. Most such cards support dual address
-> cycle, so when placed in a 32bit slot  will still do 64bit DMA
+> If you have PC100 SDRAM try to replace it with PC133.
 
-No I don't know if it's needed. I had no idea that PCI could do that.
+ugh, this is the same (mistaken) approach as turning off CONFIG_MK7:
+cripple performance enough that your system works.  turning off 
+CONFIG_MK7 disables Arjan's nice code in mmx.c which delivers 
+2-4x the copy/zero-page bandwidth...
 
-Is dual address cycle mandated by the PCI specs?
+there *are* stable via/athlon systems, and that indicates that the 
+problem is not inherent to the chipset.  I have a gigabyte ga-7zx,
+duron/600, pc133 system that has always been rock-solid.  and I 
+recently built an Asus a7v-133, tbird/1199, pc133 system that is
+also entirely stable.  both run cas2 pc133, CONFIG_MK7 kernels, etc.
+both have fairly generous power supplies.
 
-JE
+so far, the only plausible theory is that some individual factor(s)
+(MB, bios settings, power quality, dram quality, etc) causes 
+the instability that some people report.
+
+regards, mark hahn.
 

@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUKQDPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbUKQDRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbUKQDPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 22:15:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUKQDPZ
+	id S262180AbUKQDRN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 22:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUKQDPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 22:15:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43192 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262164AbUKQDPL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 22:15:11 -0500
-Date: Tue, 16 Nov 2004 19:14:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: dhowells@redhat.com, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Making compound pages mandatory
-In-Reply-To: <20041116182841.4ff7f2e5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0411161912180.2222@ppc970.osdl.org>
-References: <2315.1100630906@redhat.com> <Pine.LNX.4.58.0411161746110.2222@ppc970.osdl.org>
- <20041116182841.4ff7f2e5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Nov 2004 22:15:35 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:35016 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262188AbUKQDPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 22:15:24 -0500
+Subject: Re: [2.6-BK-URL] NTFS 2.1.22 - Bug and race fixes and improved
+	error handling.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+In-Reply-To: <E1CRsk5-0006JQ-KD@imp.csi.cam.ac.uk>
+References: <E1CRsk5-0006JQ-KD@imp.csi.cam.ac.uk>
+Content-Type: text/plain
+Date: Tue, 16 Nov 2004 17:37:35 -0500
+Message-Id: <1100644656.17573.0.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 16 Nov 2004, Andrew Morton wrote:
+On Wed, 2004-11-10 at 13:42 +0000, Anton Altaparmakov wrote:
+> Hi Linus, Hi Andrew, please do a
 > 
-> So I'd suggest that we make compound pages conditional on a new
-> CONFIG_COMPOUND_PAGE and make that equal to HUGETLB_PAGE || !MMU.
+> 	bk pull bk://linux-ntfs.bkbits.net/ntfs-2.6
+> 
 
-That sounds sane, and seems easily done in init/Kconfig. David?
+New warning with 2.6.10-rc2-mm1:
 
-[ There's too damn many Davids around. DavidH? Mr Howells? Dude? ]
+  CC [M]  fs/ntfs/super.o
+fs/ntfs/super.c: In function `__get_nr_free_mft_records':
+fs/ntfs/super.c:2105: warning: initialization from incompatible pointer type
 
-	Linus
+Lee
+

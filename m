@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291257AbSBLXOZ>; Tue, 12 Feb 2002 18:14:25 -0500
+	id <S291245AbSBLXQ3>; Tue, 12 Feb 2002 18:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291243AbSBLXOQ>; Tue, 12 Feb 2002 18:14:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2821 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291245AbSBLXN4>;
-	Tue, 12 Feb 2002 18:13:56 -0500
-Message-ID: <3C69A181.ECE2D3D1@zip.com.au>
-Date: Tue, 12 Feb 2002 15:13:05 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] ext3 synchronous mount speedup
+	id <S291250AbSBLXOc>; Tue, 12 Feb 2002 18:14:32 -0500
+Received: from bitmover.com ([192.132.92.2]:18111 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S291254AbSBLXOT>;
+	Tue, 12 Feb 2002 18:14:19 -0500
+Date: Tue, 12 Feb 2002 15:14:19 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Larry McVoy <lm@bitmover.com>, Ingo Molnar <mingo@elte.hu>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020212151419.G25559@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+	Ingo Molnar <mingo@elte.hu>, Tom Rini <trini@kernel.crashing.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Alexander Viro <viro@math.psu.edu>,
+	Rob Landley <landley@trommello.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020130092529.O23269@work.bitmover.com> <Pine.LNX.4.33L.0202122058150.12554-100000@imladris.surriel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33L.0202122058150.12554-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Feb 12, 2002 at 08:59:34PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ditto.
+On Tue, Feb 12, 2002 at 08:59:34PM -0200, Rik van Riel wrote:
+> One thing I noticed was that the space usage of all the
+> bk trees I'm using in order to keep the different changes
+> individually pullable is about 1.5 GB now.
 
---- linux-2.4.18-pre8/fs/ext3/inode.c	Tue Feb  5 00:33:05 2002
-+++ linux-akpm/fs/ext3/inode.c	Wed Feb  6 23:40:48 2002
-@@ -581,8 +581,6 @@ static int ext3_alloc_branch(handle_t *h
- 			
- 			parent = nr;
- 		}
--		if (IS_SYNC(inode))
--			handle->h_sync = 1;
- 	}
- 	if (n == num)
- 		return 0;
-
--
+We just need the "bk relink" command and that should be ~100M or so.  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278452AbRJOWBm>; Mon, 15 Oct 2001 18:01:42 -0400
+	id <S278455AbRJOWEC>; Mon, 15 Oct 2001 18:04:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278455AbRJOWBc>; Mon, 15 Oct 2001 18:01:32 -0400
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:31737 "HELO
-	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S278452AbRJOWBX>; Mon, 15 Oct 2001 18:01:23 -0400
-Message-ID: <01A7DAF31F93D511AEE300D0B706ED9208E495@axcs13.cos.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: spin locks and timers in scsi hba driver
-Date: Mon, 15 Oct 2001 16:01:55 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S278457AbRJOWDw>; Mon, 15 Oct 2001 18:03:52 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:16121
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278455AbRJOWDs>; Mon, 15 Oct 2001 18:03:48 -0400
+Date: Mon, 15 Oct 2001 15:04:14 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Dale Amon <amon@vnl.com>
+Subject: Re: Compressed fs's
+Message-ID: <20011015150414.C4482@mikef-linux.matchmail.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Dale Amon <amon@vnl.com>
+In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com> <20010829015050.F27869@vnl.com> <20010828205929.C1878@mindspring.com> <20011015222843.A7971@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011015222843.A7971@vnl.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+On Mon, Oct 15, 2001 at 10:28:43PM +0100, Dale Amon wrote:
+> Does anyone know what happened to the CBD project?
+> 
+> Or if there is a version of the cloop kernel module
+> updated to work with 2.4.x?
+>
 
-I want to make sure that my hba-driver timers do run
-when the uppar scsi-layer calls any of the error handler entry points
-and while I am still doing the error handling. As I know, scsi-layer
-calls spin_lock_irqsave(&io_request_lock, flags) before calling the
-error handlers and they call spin_unlock_irqrestore(&io_request_lock, flags)
-after returning from the error handlers. So, inside the error handlers,
-I call spin_unlock_irq(&io_request_lock); wait for the timers to run,
-and the again call spin_lock_irq(&io_request_lock). 
+I believe there was a thread about this a few weeks back.  At that point
+there wasn't a version against 2.4 yet...
 
-But this does not seem to be working. Even after I call
-spin_unlock_irq(&io_request_lock), I don't see my timer routines getting
-called.
-Can somebody advise me on how to achive this ? I cannot use 
-spin_unlock_irqrestore() as I do not have the saved 'flags' value.
-
-TIA.
--hiren
+Mike

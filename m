@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281048AbRKTQVQ>; Tue, 20 Nov 2001 11:21:16 -0500
+	id <S281017AbRKTQYg>; Tue, 20 Nov 2001 11:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281017AbRKTQVG>; Tue, 20 Nov 2001 11:21:06 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:12675 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S281048AbRKTQU7>; Tue, 20 Nov 2001 11:20:59 -0500
-Date: Tue, 20 Nov 2001 11:20:53 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Wolfgang Rohdewald <wr6@uni.de>
-cc: "J.A. Magallon" <jamagallon@able.es>, James A Sutherland <jas88@cam.ac.uk>,
-        Remco Post <r.post@sara.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Swap
-In-Reply-To: <20011120160131.87644332@localhost.localdomain>
-Message-ID: <Pine.LNX.3.95.1011120111730.7650A-100000@chaos.analogic.com>
+	id <S281159AbRKTQY0>; Tue, 20 Nov 2001 11:24:26 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:60071 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S281017AbRKTQYM>; Tue, 20 Nov 2001 11:24:12 -0500
+Message-Id: <200111201624.fAKGO7E28238@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: "Paul G. Allen" <pgallen@randomlogic.com>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Dual Athlon: Kernel 2.4.14 IDE problems
+Date: Tue, 20 Nov 2001 11:23:55 -0500
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3BFA4F69.D7560BDE@randomlogic.com>
+In-Reply-To: <3BFA4F69.D7560BDE@randomlogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
+We use 20 GB Western Digitals on our dual Athlons.  The chipset does 
+support DMA and it has been quite stable.  Therefore, I would direct blame 
+toward the drive.
 
-> On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
-> > When a page is deleted for one executable (because we can re-read it from
-> > on-disk binary), it is discarded, not paged out.
-> 
-> What happens if the on-disk binary has changed since loading the program?
-> -
+	-- Brian
 
-It can't. That's the reason for `install` and other methods of changing
-execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
-The currently open, and possibly mapped file can be re-named, but it
-can't be overwritten.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+On Tuesday 20 November 2001 07:41 am, Paul G. Allen wrote:
+> I just compiled and installed a vanilla 2.4.14 kernel (nope, I haven't
+> tweaked this one yet :). Just as a reminder, I have a Tyan Thunder K7
+> with 2 1.4GHz Athlons (_NOT_ MP or XP). It has an IBM DTLA-307030
+> Ultra100 IDE drive on the Ultra100 IDE interface.
+>
+> The kernel seems to boot with DMA enabled for this drive which causes
+> frequent system lockups. This is the same problem I had with kernels
+> through 2.4.9 (including the ac series). Disabling DMA (hdparm -d0
+> /dev/hda) solves the problem.
+>
+> Is this a hardware issue with the MP chipset (I have not kept up to date
+> on AMD errata due to other projects), or is this drive one of the known
+> IDE drives that do not properly support DMA? If a chipset issue, should
+> the kernel not detect the problem and disable DMA?
+>
+> PGA

@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312488AbSDCXlu>; Wed, 3 Apr 2002 18:41:50 -0500
+	id <S312494AbSDCXyb>; Wed, 3 Apr 2002 18:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312491AbSDCXlk>; Wed, 3 Apr 2002 18:41:40 -0500
-Received: from tomts11.bellnexxia.net ([209.226.175.55]:64724 "EHLO
-	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S312488AbSDCXld>; Wed, 3 Apr 2002 18:41:33 -0500
-Date: Wed, 3 Apr 2002 18:41:32 -0500 (EST)
-From: Craig <penguin@wombat.ca>
-X-X-Sender: carsnau@wombat
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4: BOOTPC /proc info.
-In-Reply-To: <p73vgb8s6e1.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.42.0204031837450.711-100000@wombat>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312497AbSDCXyV>; Wed, 3 Apr 2002 18:54:21 -0500
+Received: from zero.tech9.net ([209.61.188.187]:2066 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312494AbSDCXyO>;
+	Wed, 3 Apr 2002 18:54:14 -0500
+Subject: [PATCH] simple preemption debug check
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 03 Apr 2002 18:54:18 -0500
+Message-Id: <1017878059.22299.85.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Apr 2002, Andi Kleen wrote:
+Linus,
 
-> Craig <penguin@wombat.ca> writes:
->
-> > Marcelo,
-> >   This patch is against 2.4.19-pre5, please apply.
->
-> This is unbelievable ugly. Can't you just save the packet as a binary
-> buffer, output it as binary in /proc and parse and format it in user space ?
->
+This simple check was first suggested by Andrew Morton.  Pretty basic -
+whines if a task exits with a nonzero preempt_count value.
 
-Sure, we *could* have done that.  We chose not to because some of the user space
-programs were having problems during bootup times.  Instead, we did it in the
-kernel for our specific application as that was the better place where we had
-more control (for *our* application).
+I put an identical check in the 2.4 preempt-kernel patch and - sure
+enough - it was found that XFS essentially disables preemption as it
+destroys data structures containing locks without first unlocking.  The
+SGI folks are working on that.
 
-> Better would be to not use bootpc at all in kernel, but run it in initrd
-> (that is the long term plan anyways, removing dhcp/bootp completely
-> and only supporting them from initrd)
->
+Anyhow, its a quick and clean solution to debugging potential problems. 
+Patch is against 2.5.7, please apply.
 
-Yes, Alan mentions the same thing.
-We didn't realize that was the long term plan.  Is that documented anywhere, or
-was it discussed on this list eons ago and 'decided'? ;)
+	Robert Love
 
---
-Craig.
-+------------------------------------------------------+
-http://www.wombat.ca               Why? Why not.
-http://www.washington.edu/pine/    Pine @ the U of Wash.
-+-------------=*sent via Pine4.42*=--------------------+
-
-
+diff -urN linux-2.5.7/include/linux/spinlock.h linux/include/linux/spinlock.h
+--- linux-2.5.7/include/linux/spinlock.h	Mon Mar 18 15:37:15 2002
++++ linux/include/linux/spinlock.h	Wed Apr  3 18:46:00 2002
+@@ -204,7 +204,7 @@
+ 
+ #else
+ 
+-#define preempt_get_count()	do { } while (0)
++#define preempt_get_count()	(0)
+ #define preempt_disable()	do { } while (0)
+ #define preempt_enable_no_resched()	do {} while(0)
+ #define preempt_enable()	do { } while (0)
+diff -urN linux-2.5.7/kernel/exit.c linux/kernel/exit.c
+--- linux-2.5.7/kernel/exit.c	Mon Mar 18 15:37:10 2002
++++ linux/kernel/exit.c	Wed Apr  3 18:44:24 2002
+@@ -492,6 +492,11 @@
+ 	tsk->flags |= PF_EXITING;
+ 	del_timer_sync(&tsk->real_timer);
+ 
++	if (unlikely(preempt_get_count()))
++		printk(KERN_ERR "error: %s[%d] exited with preempt_count %d\n",
++				current->comm, current->pid,
++				preempt_get_count());
++
+ fake_volatile:
+ #ifdef CONFIG_BSD_PROCESS_ACCT
+ 	acct_process(code);
 

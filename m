@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUJITjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUJITjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267330AbUJITjA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 15:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267327AbUJITjA
+	id S267324AbUJITjP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 15:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUJITjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 15:39:00 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:39951 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267334AbUJITip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 15:38:45 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Ciucioni@netscape.net (Gustavo Solari-Bortolotti),
-       linux-kernel@vger.kernel.org
-Subject: Re: Mouse lock when any keyboard key is pressed at same time mouse moves
-Date: Sat, 9 Oct 2004 22:38:36 +0300
-User-Agent: KMail/1.5.4
-References: <6FCCD038.7E24D4F9.006FAE0F@netscape.net>
-In-Reply-To: <6FCCD038.7E24D4F9.006FAE0F@netscape.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410092238.36086.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sat, 9 Oct 2004 15:39:07 -0400
+Received: from main.gmane.org ([80.91.229.2]:5600 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267324AbUJITiz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 15:38:55 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Date: Sat, 09 Oct 2004 21:38:41 +0200
+Message-ID: <yw1xvfdjadha.fsf@mru.ath.cx>
+References: <41677E4D.1030403@mvista.com> <416822B7.5050206@opersys.com>
+ <1097346628.1428.11.camel@krustophenia.net>
+ <20041009212614.GA25441@tier.local>
+ <1097350227.1428.41.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 197.80-202-92.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:E8b0XazoLhwa+r6p/pPC/M5Xb4w=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 October 2004 06:28, Gustavo Solari-Bortolotti wrote:
-> I am sorry I don't know who to exactly send this message to, so please bare with me.
+Lee Revell <rlrevell@joe-job.com> writes:
 
-Only if you will wrap the long lines ;)
- 
-> I have noticed a mouse problem since the 2.6.5 kernel release
-(when I actually upgraded from 2.4.X) where the mouse locks up
-every time any key is pressed while the mouse is moving.
-An example of using a key press, while moving the mouse
-would be to hold the ctrl key while moving the mouse to
-make a non linear selected on any window environment.
- 
-> Here is how to reproduce:
-> 
-> With any Desktop manager, or virtual console loaded with
-gpm, hold any key while moving the mouse.  The mouse will
-lock up, and not respond.  Only when the numlock key is
-pressed a couple of time (most of the time) the mouse acts
-again.  The first numlock press most of the time will make
-the mouse active, but acting out of wack.  If the first
-numlock press did not bring the mouse back to normal,
-then a second numlock press will bring the mouse back to normal.
+>> > > To the best of my understanding, this still doesn't provide
+>> > > deterministic hard-real-time performance in Linux.
+>> > 
+>> > Using only the VP+IRQ thread patch, I ran my RT app for 11 million
+>> > cycles yesterday, with a maximum delay of 190 usecs.  How would this not
+>> > satisfy a 200 usec hard RT constraint?
+>> 
+>> I think the keyword here is "deterministic", isn't it?
+>
+> Well, depends what you mean by deterministic.  Some RT apps only require
+> an upper bound on response time.  This is a form of determinism.
 
-Failed to reproduce. It probably happens only to specific
-mouse types or on specific mobos.
+Sure, but running for a zillion cycles without breaking some limit
+doesn't guarantee that it never will happen.  Being able to give such
+a guarantee is what determinism is about.
 
-> Once the mouse comes back to normal, the syslog throws these messages:
-> 
-> Oct  7 19:51:22 ciucioni kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-> Oct  7 19:51:22 ciucioni kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-> 
-> Below you will find all the information I was able to get as best as I could as asked for by the guidelines.  If anyone has any questions, feel free to email me at the email above.
-[snip]
-> logitec Mousman ps2 mouse
-
-VIA mobo here.
-
-Mine is A4Tech optical with two wheels, although I didn't bother
-to configure X to recognize the wheels. I don't need them that much.
-
-dmesg says:
-...
-mice: PS/2 mouse device common for all mice
-input: AT Translated Set 2 keyboard on isa0060/serio0
-input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
-...
---
-vda
+-- 
+Måns Rullgård
+mru@mru.ath.cx
 

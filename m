@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271145AbTGPVUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 17:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271147AbTGPVUG
+	id S271113AbTGPV0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 17:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271118AbTGPV0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 17:20:06 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:15364 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S271145AbTGPVUA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:20:00 -0400
-Date: Wed, 16 Jul 2003 23:34:51 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-ID: <20030716213451.GA1964@win.tue.nl>
-References: <20030716184609.GA1913@kroah.com> <20030716130915.035a13ca.akpm@osdl.org> <20030716210253.GD2279@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716141320.5bd2a8b3.akpm@osdl.org>
-User-Agent: Mutt/1.3.25i
+	Wed, 16 Jul 2003 17:26:48 -0400
+Received: from AMarseille-107-1-3-129.w80-11.abo.wanadoo.fr ([80.11.1.129]:33920
+	"EHLO diablo") by vger.kernel.org with ESMTP id S271113AbTGPV0r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 17:26:47 -0400
+Message-ID: <3F15C76C.7080105@free.fr>
+Date: Wed, 16 Jul 2003 23:45:16 +0200
+From: Vince <fuzzy77@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030704 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Duncan Sands <baldrick@wanadoo.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Oops report] (ppp/pppoatm)... explanation found !
+References: <3F157830.8030402@free.fr> <3F15AF87.3000500@free.fr> <3F15BE12.3000704@free.fr> <200307162317.16785.baldrick@wanadoo.fr>
+In-Reply-To: <200307162317.16785.baldrick@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 02:13:20PM -0700, Andrew Morton wrote:
+Well, it won't be necessary : it appears that Chas Williams was already 
+aware of the bug and will probably send a patch for that shortly.  8-)
 
-> The new dev_t encoding is a bit weird because we of course continue to
-> support the old 8:8 encoding.  I think the rule is: "if the top 32-bits are
-> zero, it is 8:8, otherwise 32:32".  We can express this nicely with
-> "%u:%u".
+Best regards,
 
-16-bit only: 8:8, otherwise 32-bit only: 16:16, otherwise 32:32.
+Vincent
 
-Andries
+Duncan Sands wrote:
+>>I really believe this is a kernel bug that should be fixed (and most
+>>probably a pppoatm one : I don't remember ever getting such an error
+>>when launching pppd with my pcmcia V90 modem disconnected), but from [1]
+>>it's not clear to me who is the pppoatm kernel maintainer these days :
+>>anybody knows to whom I should forward this bugreport ?
+> 
+> 
+> Try linux-atm-general@lists.sourceforge.net.
+> 
+> All the best,
+> 
+> Duncan.
+
 

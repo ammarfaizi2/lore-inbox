@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbRDUG1G>; Sat, 21 Apr 2001 02:27:06 -0400
+	id <S132513AbRDUGzF>; Sat, 21 Apr 2001 02:55:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132512AbRDUG04>; Sat, 21 Apr 2001 02:26:56 -0400
-Received: from [205.162.53.13] ([205.162.53.13]:57352 "EHLO
-	primary.cyberlane.net") by vger.kernel.org with ESMTP
-	id <S132511AbRDUG0o>; Sat, 21 Apr 2001 02:26:44 -0400
-Date: Sat, 21 Apr 2001 01:20:21 -0500
-From: Eugene Kuznetsov <divx@euro.ru>
-X-Mailer: The Bat! (v1.47 Halloween Edition) UNREG / CD5BF9353B3B7091
-Reply-To: Eugene Kuznetsov <divx@euro.ru>
-X-Priority: 3 (Normal)
-Message-ID: <921508308.20010421012021@euro.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with i810_audio driver
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132514AbRDUGyz>; Sat, 21 Apr 2001 02:54:55 -0400
+Received: from puffin.external.hp.com ([192.25.206.4]:60175 "EHLO
+	puffin.external.hp.com") by vger.kernel.org with ESMTP
+	id <S132513AbRDUGyp>; Sat, 21 Apr 2001 02:54:45 -0400
+Message-Id: <200104210648.AAA01233@puffin.external.hp.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention? 
+In-Reply-To: Your message of "Fri, 20 Apr 2001 15:47:43 EDT."
+             <20010420154743.A19618@thyrsus.com> 
+Date: Sat, 21 Apr 2001 00:48:19 -0600
+From: Grant Grundler <grundler@puffin.external.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"Eric S. Raymond" wrote:
+> Here's what I have for you guys:
 
-      I am a happy owner of Intel D815EEA2 mother board. This board
-comes with integrated AC-97 audio. When I try to load i810_audio
-driver for it, driver identifies the device as
-"Intel 810 + AC97 Audio, version 0.02, 19:43:23 Apr 20 2001
-i810: Intel ICH2 found at IO 0xef00 and 0xe800, IRQ 6
-ac97_codec: AC97 Audio codec, id: 0x4144:0x5360 (Analog Devices
-AD1885)"
-and later brings the system into one of three possible conditions.
-A) a bit later it says:
-   i810_audio: 11168 bytes in 50 milliseconds
-   i810_audio: setting clocking to 41260 to compensate
-In this case everything is fine ( 16-bit sound is played correctly, I
-don't need much more ... ).
-B) It says:
-   i810_audio: 65528 bytes in 50 milliseconds
-   i810_audio: setting clocking to 7032 to compensate
-In this case the sound does not work at all - sound card does not
-produce anything but silence. With versions of kernel up to 2.4.3 I
-also received a lot of "DMA buffer overrun on send" messages in dmesg
-when playing anything.
-C) Last condition is relatively rare. It says something similar to
-case A, but number of bytes is multiple of 11168 and clocking is lower
-( e.g. 13753 = 41260/3 ). Sound card works, but output quality is
-quite low.
-Which of cases A)..C) takes place, seems to be random ( I haven't
-noticed any pattern ). However, attempts to do rmmod/insmod
-do not have any effect. I have to at least reboot the system a few
-times to bring the sound to working state.
-I tried driver from kernels 2.4.1, 2.4.3 and 2.4.4-pre4. All of them
-behave more or less in the same way.
-In Windows 2000 this motherboard/audio device works without any problems.
-I can provide any additional information if it helps to solve the bug.
-Please cc: me, because I am not subscribed to the list.
+...
+> CONFIG_DMB_TRAP: arch/parisc/kernel/sba_iommu.c
+> CONFIG_FUNC_SIZE: arch/parisc/kernel/sba_iommu.c
+> 
+> Would you please take these out of the CONFIG_ namespace?  Changing the 
+> prefix to CONFIGURE would do nicely.
 
--- 
-Best regards,
- Eugene
-mailto:divx@euro.ru
+As willy noted, both mine. I'll remove or rename them rename them so
+they aren't in the CONFIG_ name space. Probably s/CONFIG_/SBA_/ for
+those two.
+
+I'm going to submit a "wishlist" bug to our debian BTS
+(bugs.parisc-linux.org) for "Data Memory Break Trap" support.
+It's a damn good Hammer! :^)
+(GDB will probably want to use this too)
+
+I once had a working "Data Memory Break Trap" handler to catch other
+parts of the kernel when they corrupted the IO Pdirs. Hooks in sba_ccio.c
+helped mark which pages would trap and define which code was allowed to
+touch the page. My implementation had issues and I never bothered to
+re-implement as suggested by our parisc CPU god, John Marvin.
+
+CONFIG_FUNC_SIZE is just a bad choice of name (asking for trouble).
+One might consider this a bug that hasn't happened yet - thanks Eric!
+
+#define CONFIG_FUNC_SIZE 4096   /* SBA configuration function reg set */
 
 
+> CONFIG_KWDB: arch/parisc/Makefile arch/parisc/config.in arch/parisc/defconfig
+>    arch/parisc/kernel/entry.S arch/parisc/kernel/traps.c arch/parisc/mm/init.
+>   c
+
+This ones actually mine too. It could be replaced with the SGI debugger
+CONFIG option if/when that ever gets supported. The hooks will have to
+be in the same place. I'm pretty sure now the HP KWBD team will never give me
+permission to publish KWDB sources (they've had almost a year now).
+I sorta almost had the damn thing working too...*sigh*.
+Willy should do whatever he thinks is right in this case.
+
+> CONFIG_PCI_LBA: arch/parisc/config.in arch/parisc/defconfig arch/parisc/kerne
+>   l/Makefile
+...
+> Looks like these need Configure.help entries.
+
+That's mine too.
+We've been lazy about documentation since the getting the code working
+has been a higher priority.  I think having them documented will be a
+prerequisite to merging upstream (either to Alan Cox or Linus).
+
+thanks,
+grant
+
+Grant Grundler
+parisc-linux {PCI|IOMMU|SMP} hacker
++1.408.447.7253

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTKRFuM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 00:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTKRFuM
+	id S262094AbTKRFxB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 00:53:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTKRFxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 00:50:12 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:52233 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262063AbTKRFuJ (ORCPT
+	Tue, 18 Nov 2003 00:53:01 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:59038 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262094AbTKRFw6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 00:50:09 -0500
-Date: Tue, 18 Nov 2003 06:50:07 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: John Levon <levon@movementarian.org>
-Cc: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HOWTO build modules in 2.6.0 ...
-Message-ID: <20031118055007.GC1008@mars.ravnborg.org>
-Mail-Followup-To: John Levon <levon@movementarian.org>,
-	Wojciech 'Sas' Cieciwa <cieciwa@alpha.zarz.agh.edu.pl>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58L.0311171939150.25906@alpha.zarz.agh.edu.pl> <20031117203336.GA1714@mars.ravnborg.org> <20031117235927.GA31611@compsoc.man.ac.uk>
+	Tue, 18 Nov 2003 00:52:58 -0500
+Date: Mon, 17 Nov 2003 21:52:52 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Amit Patel <patelamitv@yahoo.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: scsi_report_lun_scan bug?
+Message-ID: <20031117215252.A25366@beaverton.ibm.com>
+References: <20031118024833.7619.qmail@web13006.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031117235927.GA31611@compsoc.man.ac.uk>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031118024833.7619.qmail@web13006.mail.yahoo.com>; from patelamitv@yahoo.com on Mon, Nov 17, 2003 at 06:48:33PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 11:59:27PM +0000, John Levon wrote:
-> On Mon, Nov 17, 2003 at 09:33:36PM +0100, Sam Ravnborg wrote:
+On Mon, Nov 17, 2003 at 06:48:33PM -0800, Amit Patel wrote:
+> Hi,
 > 
-> > Use the following:
-> > make -C /usr/src/linux SUBDIRS=`pwd` O=/users/cieciwa/rpm/BUILD/eagle-1.0.4/linux modules
-> > 
+> I am using 2.6-test9-mm3. I noticed while doing
+> scsi_report_lun_scan(scsi_scan.c:891) the data
+> returned is assigned(scsi_scan.c:993) to signed char
+> array which causes the reported number of luns to be
+> huge while calculating num_luns to scan. Is there any
+> particular reason to be data is signed or just a bug?
 > 
-> This requires a kernel source tree empty of built files though, so it's
-> really not a great solution ...
+> I changed it to unsigned char and it seems to work
+> fine. I have attached a diff of scsi_scan.c. Let me
+> know if I am missing something.
 
-Correct - but why keep kernel trees around full of build files, when
-there is a proper solution to keep them out of the src.
+I don't see why making it signed or unsigned would make any difference.
 
-The problem was generated files. If a generated file were present in
-the kernel source tree, it would not be built again.
-This resulted in a few suprises during development, and I therefore
-added the check for a kernel source tree with no built-files.
-It can be avoided, but that required too much surgery in various
-makefiles and include statements. So that part is 2.7 material.
+What values did you see before and after your patch?
 
-	Sam
+It should really be a u8, since it is a pointer to an array of bytes.
+
+(And all the scsi_cmd[]'s should be u8.)
+
+-- Patrick Mansfield

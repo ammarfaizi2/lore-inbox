@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261223AbSJWLbH>; Wed, 23 Oct 2002 07:31:07 -0400
+	id <S262181AbSJWLjv>; Wed, 23 Oct 2002 07:39:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261407AbSJWLbH>; Wed, 23 Oct 2002 07:31:07 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:45502 "EHLO
+	id <S263321AbSJWLjv>; Wed, 23 Oct 2002 07:39:51 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:47038 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261223AbSJWLbG>; Wed, 23 Oct 2002 07:31:06 -0400
-Subject: Re: [miniPATCH] 2.5.44 fix compilation errors in the AFS fs
+	id <S262181AbSJWLju>; Wed, 23 Oct 2002 07:39:50 -0400
+Subject: Re: [RFC][PATCHSET] PC-9800 architecture (CORE only)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander.Riesen@synopsys.com
-Cc: Jan Marek <linux@hazard.jcu.cz>,
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: Andrey Panin <pazke@orbita1.ru>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021023104213.GB3512@riesen-pc.gr05.synopsys.com>
-References: <20021023095601.GB12175@hazard.jcu.cz>
-	<1035368896.3968.31.camel@irongate.swansea.linux.org.uk> 
-	<20021023104213.GB3512@riesen-pc.gr05.synopsys.com>
+In-Reply-To: <3DB5706A.9D3915F0@cinet.co.jp>
+References: <20021022065028.GA304@pazke.ipt> 
+	<3DB5706A.9D3915F0@cinet.co.jp>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 23 Oct 2002 12:53:45 +0100
-Message-Id: <1035374025.4033.38.camel@irongate.swansea.linux.org.uk>
+Date: 23 Oct 2002 13:02:18 +0100
+Message-Id: <1035374538.4033.40.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 11:42, Alex Riesen wrote:
-> On Wed, Oct 23, 2002 at 11:28:16AM +0100, Alan Cox wrote:
-> > On Wed, 2002-10-23 at 10:56, Jan Marek wrote:
-> > > The first of them fixed union afs_dirent_t and using this union in the
-> > > fs/afs/dir.c.
-> > 
-> > What compiler are you using, this is building fine with the gcc's I
-> > have. Is it 2.95 ?
-> 
-> It doesn't compile with 2.95.4 from debian's 2.95.4-12. It does compile
-> with gcc-3.x, where unnamed struct/union members seem to be introduced.
+On Tue, 2002-10-22 at 16:36, Osamu Tomita wrote:
+> IORESOURCE98_SPARSE flag means odd or even only addressing.
+> We modify check_region(), request_region() and release_region().
+> If length parameter has negative value, addressing is sparse.
+> For example,
+>  request_region(0x100, -5, "xxx"); gets 0x100, 0x102 and 0x104.
 
-Makes sense then. Applied
+Does PC-9800 ever have devices on 0x100/2/4/8 overlapping another device
+on 0x101/103/105 ?
 

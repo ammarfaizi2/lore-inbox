@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316309AbSGLNPP>; Fri, 12 Jul 2002 09:15:15 -0400
+	id <S316322AbSGLNSZ>; Fri, 12 Jul 2002 09:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316322AbSGLNPO>; Fri, 12 Jul 2002 09:15:14 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:33787 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316309AbSGLNPN>; Fri, 12 Jul 2002 09:15:13 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200207112135.OAA03801@csl.Stanford.EDU> 
-References: <200207112135.OAA03801@csl.Stanford.EDU> 
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8 
-Mime-Version: 1.0
+	id <S316364AbSGLNSY>; Fri, 12 Jul 2002 09:18:24 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28164 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316322AbSGLNSY>; Fri, 12 Jul 2002 09:18:24 -0400
+Subject: Re: IDE/ATAPI in 2.5
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Fri, 12 Jul 2002 14:15:35 +0100 (BST)
+Cc: andre@linux-ide.org (Andre Hedrick), andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3D2E6506.7080006@zytor.com> from "H. Peter Anvin" at Jul 11, 2002 10:11:34 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Jul 2002 14:17:29 +0100
-Message-ID: <32493.1026479849@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17T0Gl-0002wk-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'm talking specifically about ATAPI devices here.  As we have already 
+> covered, not all ATA devices are ATAPI, but unless I'm completely off 
+> the wall, ATAPI is SCSI over IDE, and should be able to be driven as 
+> such.  The lack of access to that interface using the established 
+> interface mechanisms just bites.
 
-engler@csl.Stanford.EDU said:
-> /u2/engler/mc/oses/linux/2.5.8/drivers/mtd/chips/cfi_cmdset_0001.c:782:
-> do_write_buffer: ERROR:A_B:700:782:Did not reverse 'spin_lock'
-> [COUNTER=spin_lock:700] [fit=3] [fit_fn=1] [fn_ex=5] [fn_counter=1]
-> [ex=5619] [counter=272] [z = 1.34804760770983] [fn-z =
-> -1.31122013621437] 
-
-That one can't ever actually happen -- it's effectively a default case in a
-switch statement which can't ever be reached because we'd never get that far
-unless one of the real cases is going to be taken. I think I'll replace the
-return statement with panic("The world is broken");
-
-
---
-dwmw2
-
-
+If you load ide-scsi they are run as ATAPI, whats the problem ? Just don't
+do that for very old ide cdroms or for some ide floppies

@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269036AbTGJIBK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 04:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbTGJIBJ
+	id S269077AbTGJIDN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 04:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbTGJIBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 04:01:09 -0400
-Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:52867
-	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S269036AbTGJIBG
+	Thu, 10 Jul 2003 04:01:13 -0400
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:53123
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S269038AbTGJIBG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 10 Jul 2003 04:01:06 -0400
 Subject: Re: 2.5.74-mm3 - module-init-tools: necessary to replace root
@@ -26,7 +26,7 @@ Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
 Date: 10 Jul 2003 01:15:46 -0700
-Message-Id: <1057824947.26963.31.camel@www.piet.net>
+Message-Id: <1057824946.15253.30.camel@www.piet.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

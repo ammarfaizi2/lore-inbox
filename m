@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264123AbTLOVmg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 16:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbTLOVmg
+	id S263980AbTLOVim (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 16:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTLOVim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 16:42:36 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:32503 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264123AbTLOVme
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 16:42:34 -0500
-Message-ID: <3FDE2AC6.30902@mvista.com>
-Date: Mon, 15 Dec 2003 13:42:30 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl> <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com> <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Dec 2003 16:38:42 -0500
+Received: from codeblau.walledcity.de ([212.84.209.34]:12042 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S263980AbTLOVik (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 16:38:40 -0500
+Date: Mon, 15 Dec 2003 22:39:12 +0100
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: request: capabilities that allow users to drop privileges further
+Message-ID: <20031215213912.GA29281@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> On Fri, 12 Dec 2003, George Anzinger wrote:
-> 
-> 
->>Having had cause to try and figure out all this, I vote for the following being 
->>included in the source somewhere...
-> 
-> 
->  Hmm, you could have simply asked... ;-)  Anyway, an inclusion is doable,
-> I guess.
-> 
+I would like to be able to drop capabilities that every normal user has,
+so that network servers can limit the impact of possible future security
+problems further.  For example, I want my non-cgi web server to be able
+to drop the capabilities to
 
-I suspect I did, but most likey the wrong place.  In any case, I would like to 
-think that "read the source, Luke" is the right answer.
+  * fork
+  * execve
+  * ptrace
+  * load kernel modules
+  * mknod
+  * write to the file system
 
-So, while I am in the asking mode, is there a simple way to turn off the PIT 
-interrupt without changing the PIT program?  I would like a way to stop the 
-interrupts AND also stop the NMIs that it generates for the watchdog.  I suspect 
-that this is a bit more complex that it would appear, due to how its wired.
+and I would like to modify my smtpd to not be able to
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+  * fork
+  * execve
+  * ptrace
+  * load kernel modules
+  * mknod
 
+I can kludge around some of these, for example I can disable fork with
+resource limits, and I can limit writing to the file system with chroot
+and proper permissions in the file systems, but I'm not aware of a way
+to disable ptrace for example, or pthread_create.
+
+I know that there are patches to provide an extended "jail" chroot
+support, but being able to drop capabilities like this would be a more
+general solution.
+
+Felix

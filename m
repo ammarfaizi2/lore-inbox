@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbTFBR1e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 13:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbTFBR1e
+	id S264808AbTFBR2a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 13:28:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264811AbTFBR23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 13:27:34 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:53975 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id S264809AbTFBR1c (ORCPT
+	Mon, 2 Jun 2003 13:28:29 -0400
+Received: from [208.177.141.226] ([208.177.141.226]:33260 "HELO ash.lnxi.com")
+	by vger.kernel.org with SMTP id S264808AbTFBR2W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 13:27:32 -0400
-Date: Mon, 2 Jun 2003 19:40:52 +0200 (CEST)
-From: Jody Pearson <J.Pearson@cern.ch>
-X-X-Sender: jpearson@lxplus077.cern.ch
-To: linux-kernel@vger.kernel.org
-Subject: Documentation / code sample wanted.
-Message-ID: <Pine.LNX.4.44.0306021939490.31408-100000@lxplus077.cern.ch>
+	Mon, 2 Jun 2003 13:28:22 -0400
+To: "ganesh_borse" <ganesh_borse@indiatimes.com>
+Cc: <ebiederman@lnxi.com>, <agnew@missl.cs.umd.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Request for help
+References: <200305290413.JAA23492@WS0005.indiatimes.com>
+From: ebiederman@lnxi.com (Eric W. Biederman)
+Date: 02 Jun 2003 11:49:01 -0600
+In-Reply-To: <200305290413.JAA23492@WS0005.indiatimes.com>
+Message-ID: <m3fzmsjroy.fsf@maxwell.lnxi.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+I am CC'ing linux-kernel as that is the general kernel list.  There
+may be something even more focused on IDE issues but I am
+not aware of it.
 
-I am looking for some source code or a document which outlines how to open 
-a TCP connection within kernel space.
+"ganesh_borse" <ganesh_borse@indiatimes.com> writes:
 
-After many google searches, and a search of the archives, I cannot seem to 
-find an example which says "do this".
+> Hi,
+> 
+> 
+> I would like to request for a little help related to IDE controllers.
+> 
+> 
+> I am trying to develop a device drive code for listing the devices connected to
+> a ide controller at the time of kernel booting.
+> 
+> 
+> 
+> Is there any way to get which channels on ide controller has got devices and
+> which devices? 
 
-There are many references to sk_buff and friends, but nothing more 
-practical.
+Yes.  But it is baroque.
 
-I have looked over khttpd, which has been some help, and I looked briefly 
-at the nfs code, but I don't want to use RPC.
+> This I am trying to get even before the normal ide device driver
+> has been setup. Are there ide controller commands to get this info? 
 
-Can anybody point me to a document/code/patch to help me out ?
+Not exactly.  The method is essentially you ping the drives to see
+if they are there.
 
-For more information, I basically want to emulate a userland 
-gethostbyname() in kernel space.
+> Or is this
+> info stored in registers of ide-controllers? 
 
-Thanks
+Nope this information is not stored in registers.
 
-Jody
+> For this do we need to write
+> assembly instructions on linux?
 
---
-Chaos, Panic, Pandemonium...  my work here is done.
+No.
 
+But there is also nothing that allows you to force the module
+order within the kernel.  So there are no guarantees you will
+come before a normal IDE driver.  I assume from the questions
+you intend to have this working in the linux kernel.
+
+Eric
 

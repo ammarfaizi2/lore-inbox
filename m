@@ -1,88 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUF1NRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUF1NWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264946AbUF1NRS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 09:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUF1NRS
+	id S264937AbUF1NWj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 09:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbUF1NWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 09:17:18 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:9138 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S264936AbUF1NRN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 09:17:13 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PATCH: Further aacraid work
-Date: Mon, 28 Jun 2004 09:17:09 -0400
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D56C@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH: Further aacraid work
-Thread-Index: AcRcbN+oEKqpYE4ST0KnVx+eKib9AgApPy0w
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>
-Cc: "Alan Cox" <alan@redhat.com>, "Arjan van de Ven" <arjanv@redhat.com>,
-       "Clay Haapala" <chaapala@cisco.com>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "SCSI Mailing List" <linux-scsi@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
+	Mon, 28 Jun 2004 09:22:39 -0400
+Received: from news.cistron.nl ([62.216.30.38]:29323 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S264937AbUF1NWi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 09:22:38 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: TCP-RST Vulnerability - Doubt
+Date: Mon, 28 Jun 2004 13:22:37 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <cbp62t$a38$1@news.cistron.nl>
+References: <40DC9B00@webster.usu.edu> <20040625150532.1a6d6e60.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1088428957 10344 62.216.29.200 (28 Jun 2004 13:22:37 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wow!
+In article <20040625150532.1a6d6e60.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
+>RFC2385 MD5 hashing support is going in soon, and for the application where
+>the vulnerability actually matters (BGP sessions between backbone routers)
+>MD5 clears that problem right up and they're all using MD5 protection already
+>anyways.
 
-& Thanks!
+MD5 protection on BGP sessions isn't very common yet. MD5 uses CPU,
+and routers don't usually have much of that. Which means that now an
+MD5 CPU attack is possible instead of a TCP RST attack.
 
-Sincerely -- Mark Salyzyn
+The "TTL hack" solution is safer. Make sure sender uses a TTL
+of 255, on the receiver discard all packets with a TTL < 255.
+You can use iptables to implement that on a Linux box.
 
------Original Message-----
-From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
-Sent: Sunday, June 27, 2004 1:33 PM
-To: William Lee Irwin III
-Cc: Alan Cox; Salyzyn, Mark; Arjan van de Ven; Clay Haapala; Christoph
-Hellwig; Linux Kernel; SCSI Mailing List; Andrew Morton
-Subject: Re: PATCH: Further aacraid work
-
-On Fri, 2004-06-18 at 15:32, William Lee Irwin III wrote:
-> On Fri, Jun 18, 2004 at 08:05:18AM -0700, William Lee Irwin III wrote:
-> > Proper changelog this time, and comments, too. Adaptec et al, please
-> > verify this resolves the issues you've been having.
-> > Someone say _something_.
-> 
-> jejb's seeing such improved results that I don't believe we need to
-> wait for Adaptec's ack to merge this.
-> 
-> akpm, please apply.
-
-The patch is already in mainline, but here's my final set of statistics
-on it.  I traced the effectiveness over a full day's operations on a
-scsi build and test machine (I don't get uptime much over a day on these
-machines since they're usually being rebooted to test new patches).
-
-The machine is an 8-way p66 voyager with 256k of memory.
-
-I did notice the mergers start off high (at around 50%) after first boot
-and then decline.  The asymptote of the decline appears to be around 26%
-which is still a respectable merge rate for a non-iommu machine.  I was
-impressed to see that even at the end of the day I was still getting
-multi-page merges (still up to 128 pages).
-
-The instrumentation counts the total number of pages in merged segments
-and the total number of segments through the machine.  The final figures
-for the day were
-
-Total pages merged:	192682
-Total segments:		549497
-
-So the amount of I/O through the system is 2.2-2.9GB or more than ten
-times the machine's actual memory capacity (hopefully this puts me well
-up into the usual operating region for physical page fragmentation).
-
-James
-
+Mike.
 

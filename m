@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSDEBEU>; Thu, 4 Apr 2002 20:04:20 -0500
+	id <S310190AbSDEBBU>; Thu, 4 Apr 2002 20:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310295AbSDEBEA>; Thu, 4 Apr 2002 20:04:00 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:59144 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S310224AbSDEBDt>;
-	Thu, 4 Apr 2002 20:03:49 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200204050103.g3513k3334779@saturn.cs.uml.edu>
-Subject: Re: A modest proposal -- We need a patch penguin
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Thu, 4 Apr 2002 20:03:46 -0500 (EST)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
-        lm@bitmover.com (Larry McVoy)
-In-Reply-To: <E16Vs31-0000DU-00@starship.berlin> from "Daniel Phillips" at Jan 30, 2002 11:32:59 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S310224AbSDEBBL>; Thu, 4 Apr 2002 20:01:11 -0500
+Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:8206 "EHLO
+	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
+	id <S310190AbSDEBAy>; Thu, 4 Apr 2002 20:00:54 -0500
+Message-ID: <010b01c1dc3d$49125ae0$7e0aa8c0@bridge>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: <joeja@mindspring.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16tHTh-00078b-00@the-village.bc.nu>
+Subject: Re: faster boots?
+Date: Thu, 4 Apr 2002 17:00:23 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On January 30, 2002 10:33 am, Linus Torvalds wrote:
-
->> I still dislike some things (those SHOUTING SCCS files) in bk, and let's
->> be honest: I've used CVS, but I've never really used BK. Larry has given
->> me the demos, and I actually decided to re-do the examples, but it takes
->> time and effort to get used to new tools, and I'm a bit worried that
->> I'll find other things to hate than just those loud filenames.
->
-> Oh gosh, I hate those too.  (Yes, this is a "me too".)  Larry, could we 
-> *please* have that metadata in a .file?
-
-Try "man ls":
-
-       -I, --ignore=PATTERN
-              do not list implied entries matching shell PATTERN
+----- Original Message ----- 
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Sent: Thursday, April 04, 2002 4:21 PM
+Subject: Re: faster boots?
 
 
-So then something like this...
+> >     Is there some way of making the linux kernel boot faster?  
+> 
+> #1: Start less crap at boot time. Obvious but thats frequently most of
+>     the issue.
+> 
+> For Red Hat if your hardware set up is constant then rpm -e kudzu will do
+> no harm and avoid the grovelling through the box looking for new toys.
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+rotfl, btw.  oh my aching sides.  I may have to quote
+that.  reminds me of windows 95 hardware detection
 
-alias ls='/bin/ls --ignore=SCCS'
+May I suggest chkconfig --level 2345 kudzu off, a less invasive way
+to achieve this, without burning bridges.  /sbin/kudzu can still be run
+manually then, if the hardware does change and you're lazy (and you
+trust kudzu :)
+
+Jeremy

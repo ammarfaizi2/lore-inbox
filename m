@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285074AbRLFKAf>; Thu, 6 Dec 2001 05:00:35 -0500
+	id <S285088AbRLFKAP>; Thu, 6 Dec 2001 05:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285086AbRLFKA0>; Thu, 6 Dec 2001 05:00:26 -0500
-Received: from flaske.stud.ntnu.no ([129.241.56.72]:16042 "EHLO
-	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S285074AbRLFKAN>; Thu, 6 Dec 2001 05:00:13 -0500
-Date: Thu, 6 Dec 2001 11:00:07 +0100
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <thomas@langaas.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andy Jeffries <lkml@andyjeffries.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: SMTP->Windows connection with 2.4.16
-Message-ID: <20011206110007.A13491@stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011206091418.4d031a5c.lkml@andyjeffries.co.uk> <E16But9-00012x-00@the-village.bc.nu>
+	id <S285086AbRLFKAG>; Thu, 6 Dec 2001 05:00:06 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:19973 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S285074AbRLFJ7w>; Thu, 6 Dec 2001 04:59:52 -0500
+Date: Thu, 6 Dec 2001 12:59:35 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Kurt Garloff <garloff@suse.de>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IDE DMA on AXP & barriers
+Message-ID: <20011206125935.A3930@jurassic.park.msu.ru>
+In-Reply-To: <20011206061315.J13427@garloff.etpnet.phys.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16But9-00012x-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 06, 2001 at 09:32:18AM +0000
+In-Reply-To: <20011206061315.J13427@garloff.etpnet.phys.tue.nl>; from garloff@suse.de on Thu, Dec 06, 2001 at 06:13:15AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-> Quite reasonable. smtp servers stop listening when under high load
+On Thu, Dec 06, 2001 at 06:13:15AM +0100, Kurt Garloff wrote:
+> I would imagine that the following barriers are nacessary:
+> * After setting up the IDE DMA tables (PRD) and having the data there,
+>   we need to have a barrier before telling the controller to do DMA.
 
-That actually depends on what type of MTA you're using.
+Actually, we have more than one - the memory barriers are hidden in outX()
+macros.
 
--- 
-Thomas
+> * After the controller is done with it, we need to make sure the
+>   data is in mem before we use it (i.e. we need some mb() equiv on the
+>   controller)
+
+Sure, otherwise the controller just wouldn't work, and not only on alpha.
+I never had any problems with IDE DMA on lx164 (which has exactly the same
+IDE chip), but it was back in 2.3 or 2.4-test times...
+Maybe something got broken since then - I could check this (if I find
+a spare IDE drive).
+
+Ivan.

@@ -1,68 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUEaGNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUEaGRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUEaGNa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 02:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUEaGNa
+	id S264540AbUEaGRP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 02:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUEaGRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 02:13:30 -0400
-Received: from gizmo11ps.bigpond.com ([144.140.71.21]:9933 "HELO
-	gizmo11ps.bigpond.com") by vger.kernel.org with SMTP
-	id S264531AbUEaGN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 02:13:28 -0400
-Message-ID: <40BACD01.5000106@bigpond.net.au>
-Date: Mon, 31 May 2004 16:13:21 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Kent <raven@themaw.net>
-CC: ndiamond@despammed.com, linux-kernel@vger.kernel.org
-Subject: Re: How to use floating point in a module?
-References: <200405310250.i4V2ork05673@mailout.despammed.com> <Pine.LNX.4.58.0405311340450.4198@wombat.indigo.net.au>
-In-Reply-To: <Pine.LNX.4.58.0405311340450.4198@wombat.indigo.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 May 2004 02:17:15 -0400
+Received: from ozlabs.org ([203.10.76.45]:44492 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264540AbUEaGRM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 02:17:12 -0400
+Date: Mon, 31 May 2004 16:14:42 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Add watchdog timer to iseries_veth driver
+Message-ID: <20040531061442.GA28167@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent wrote:
-> On Sun, 30 May 2004 ndiamond@despammed.com wrote:
-> 
-> 
->>Yes, if we use a real-time Linux and make a daemon cooperate very closely
->>with the driver.
->>
->>
->>>Maybe you could use lookup tables instead of doing floating point
->>>arithmetic.
->>
->>You might be right, if the device can only be controlled to position itself
->>in say 1,000 different ways, then we could have lookup tables for 1,000
->>different intervals of (emulations of) floating-point numbers, that yield
->>1,000 different values of sin.  Another table for cos, another for log10,
->>etc.  But I'd still have to write my own emulations for binary operators
->>such as +, /, etc., since a 1,000*1,000 lookup table would be too big.
-> 
-> 
-> Why not scaled longs (or bigger), scalled to number of significant 
-> digits. The Taylor series for the trig functions might be a painfull.
+Andrew, please apply:
 
-See the "Handbook of Mathematical Functions" by Abromawitz and Stegun, 
-Dover Publications (ISBN 486-61272-2, Library of Congress number 
-65-12253) which has some small but accurate polynomial approximations 
-for many functions.  I have used these successfully with fixed point 
-rational numbers (FDRN) (which are probably the same as your scaled 
-longs) using 64 bit integers and the results were generally accurate to 
-the least significant bit when compared to values calculated using the 
-normal maths library and converted to FDRN representation.
+Currently the iSeries virtual ethernet driver has no Tx watchdog
+timer.  This makes it vulnerable to clagging up if the other end of
+connection is misbehaving - in particular if it is not giving timely
+hypervisor level acks to our data frams.
 
-Of course, the available range of values is smaller than for floats or 
-double and you have to be careful w.r.t. overflow etc.
+This patch adds a watchdog timer which resets the connection to any
+lpar we seem to be having trouble sending to.  With any luck the other
+end might behave better after the reset.  If not, this will at least
+unclag the queue for a while so we can keep talking to the lpars which
+are behaving correctly.
 
-Peter
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+Index: working-2.6/drivers/net/iseries_veth.c
+===================================================================
+--- working-2.6.orig/drivers/net/iseries_veth.c	2004-05-31 14:32:10.257660120 +1000
++++ working-2.6/drivers/net/iseries_veth.c	2004-05-31 15:42:30.639623512 +1000
+@@ -807,6 +807,48 @@
+ 	return -EOPNOTSUPP;
+ }
+ 
++static void veth_tx_timeout(struct net_device *dev)
++{
++	struct veth_port *port = (struct veth_port *)dev->priv;
++	struct net_device_stats *stats = &port->stats;
++	unsigned long flags;
++	int i;
++
++	stats->tx_errors++;
++
++	spin_lock_irqsave(&port->pending_gate, flags);
++
++	printk(KERN_WARNING "%s: Tx timeout!  Resetting lp connections: %08x\n",
++	       dev->name, port->pending_lpmask);
++
++	/* If we've timed out the queue must be stopped, which should
++	 * only ever happen when there is a pending packet. */
++	WARN_ON(! port->pending_lpmask);
++
++	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
++		struct veth_lpar_connection *cnx = veth_cnx[i];
++
++		if (! (port->pending_lpmask & (1<<i)))
++			continue;
++
++		/* If we're pending on it, we must be connected to it,
++		 * so we should certainly have a structure for it. */
++		BUG_ON(! cnx);
++
++		/* Theoretically we could be kicking a connection
++		 * which doesn't deserve it, but in practice if we've
++		 * had a Tx timeout, the pending_lpmask will have
++		 * exactly one bit set - the connection causing the
++		 * problem. */
++		spin_lock(&cnx->lock);
++		cnx->state |= VETH_STATE_RESET;
++		veth_kick_statemachine(cnx);
++		spin_unlock(&cnx->lock);
++	}
++
++	spin_unlock_irqrestore(&port->pending_gate, flags);
++}
++
+ struct net_device * __init veth_probe_one(int vlan)
+ {
+ 	struct net_device *dev;
+@@ -854,6 +896,9 @@
+ 	dev->set_multicast_list = veth_set_multicast_list;
+ 	dev->do_ioctl = veth_ioctl;
+ 
++	dev->watchdog_timeo = 2 * (VETH_ACKTIMEOUT * HZ / 1000000);
++	dev->tx_timeout = veth_tx_timeout;
++
+ 	rc = register_netdev(dev);
+ 	if (rc != 0) {
+ 		veth_printk(KERN_ERR,
+
+
 -- 
-Dr Peter Williams                                pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

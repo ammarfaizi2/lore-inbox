@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263925AbTICQcK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 12:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTICQcK
+	id S264124AbTICQ4C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 12:56:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbTICQ4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 12:32:10 -0400
-Received: from mail.kroah.org ([65.200.24.183]:48518 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263925AbTICQbN (ORCPT
+	Wed, 3 Sep 2003 12:56:02 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:24200 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264124AbTICQ4A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 12:31:13 -0400
-Date: Wed, 3 Sep 2003 09:30:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Needed include in usb/gadget/net2280
-Message-ID: <20030903163019.GD3948@kroah.com>
-References: <3F514CDC.9060203@terra.com.br> <20030902173846.GA17995@kroah.com> <3F55E4E8.1010208@terra.com.br>
+	Wed, 3 Sep 2003 12:56:00 -0400
+Date: Wed, 3 Sep 2003 18:55:48 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Matt Heler <lkml@lpbproductions.com>
+Cc: Danny ter Haar <dth@ncc1701.cistron.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
+Message-ID: <20030903165547.GA612@k3.hellgate.ch>
+Mail-Followup-To: Matt Heler <lkml@lpbproductions.com>,
+	Danny ter Haar <dth@ncc1701.cistron.net>,
+	linux-kernel@vger.kernel.org
+References: <bj447c$el6$1@news.cistron.nl> <200309030924.00296.lkml@lpbproductions.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F55E4E8.1010208@terra.com.br>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200309030924.00296.lkml@lpbproductions.com>
+X-Operating-System: Linux 2.6.0-test4 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 09:56:08AM -0300, Felipe W Damasio wrote:
-> 	Hi Greg,
-> 
-> Greg KH wrote:
-> >On Sat, Aug 30, 2003 at 10:18:20PM -0300, Felipe W Damasio wrote:
-> >
-> >>	Hi Greg,
-> >>
-> >>	Attached is a trivial patch which includes the needed 
-> >>	linux/version.h header file.
-> >>
-> >>	This is based on Randy's checkversion.pl script.
-> >>
-> >>	Please consider applying.
-> >
-> >
-> >Thanks, but I already have this change in my USB tree.  I'll push them
-> >all to Linus later today.
-> 
-> 	I couldn't find this patch on your merge with Linus:
-> 
-> http://linux.bkbits.net:8080/linux-2.5/patch@1.1406.3.1?nav=index.html|ChangeSet@-1d|cset@1.1406.3.1
+On Wed, 03 Sep 2003 09:23:55 -0700, Matt Heler wrote:
+> This is also apparent in the 2.4.22 stable kernel .. I wasn't able to get my 
+> via-rhine to work at all either..  Instead of turning off acpi I just put in 
+> a spare 3com card I had lying around.. Still if this is in both the 2.6 and 
+> now the 2.4 kernel 's .. shouldnt someone fix it ? 
 
-Why that changeset?
+Indeed. And your detailed bug reports (as outlined earlier today by Len
+Brown) are going to help with that.
 
-Why not the changeset associated with this file:
-  http://linux.bkbits.net:8080/linux-2.5/diffs/drivers/usb/gadget/net2280.c@1.15
-  
-> 	Or you're talking about another USB tree merge with Linus? :)
-
-Nope, it was also in the list of patches I sent him yesterday, and is
-already in 2.6.0-test4-bk5.
-
-thanks,
-
-greg k-h
+Roger

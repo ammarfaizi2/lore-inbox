@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbTFTN5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 09:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTFTN5Z
+	id S262283AbTFTN73 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 09:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTFTN73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 09:57:25 -0400
-Received: from windsormachine.com ([206.48.122.28]:16915 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S262256AbTFTN5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 09:57:21 -0400
-Date: Fri, 20 Jun 2003 10:11:08 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Arnaud Ligot <spyroux@freegates.be>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: xircom card bus with 2.4.20 link trouble
-In-Reply-To: <1056101193.6728.14.camel@portable>
-Message-ID: <Pine.LNX.4.33.0306201007470.15589-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Jun 2003 09:59:29 -0400
+Received: from mail.hometree.net ([212.34.181.120]:34186 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S262283AbTFTN7V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 09:59:21 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Problems with IDE on GA-7VAXP motherboard
+Date: Fri, 20 Jun 2003 14:13:21 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <bcv4q1$sgv$2@tangens.hometree.net>
+References: <200306191429.40523.bernd-schubert@web.de> <20030619193118.GA32406@charter.net> <20030620075249.GA7833@charter.net>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1056118401 29215 212.34.181.4 (20 Jun 2003 14:13:21 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 20 Jun 2003 14:13:21 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Jun 2003, Arnaud Ligot wrote:
+misty-@charter.net writes:
 
-> Hello,
->
-> Since I run the 2.4.20 kernel (+bootsplash patch), (I didn't try without
-> this patch but I think it is not the problem), my Xircom Cardbus don't
-> work any more! In fact, I put the card into the pcmcia slot, the pc
-> detect it, load the correct module (xirc2ps_cb), start eth1 but the led
-> link (both side) blinks.
-> I have try with a hub 10, a ethernet card 10 and an ethernet card
-> 10/100. I have so try 2 cables... but same problem.
-> I have try to impose the ethernet type of link mii-tool -A10BaseT-HD and
-> -F10BaseT-HD.
->
-> Thanks
->
-> Arnaud
+>I believe I have nailed the problem to the wall. Your talk about the
+>bios misdetecting the cable got me to thinking - I hadn't actually been
+>able to see what the bios said it was configuring the disks attached to
+>since lilo's menu came up microseconds later.
 
-Mine doesn't work either, I have a RBEM56G-100.
+Put your Boot Sequence on "Floppy --> Anything else" and format a floppy
+with just plain DOS. :-)
 
-Bought this off ebay for quite cheap to replace my REM56G-100.
+Works for me every time. 
 
-It detects it, etc etc, but never actually works.
+	Regards
+		Henning
 
-I put the REM56G-100 back in, insmod'd the driver, and back in business.
 
-I haven't tried a 2.5.x kernel, nor a 2.4.21(it's on my list of things to
-do)
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-I was using the xircom_cb driver though.  The xircom_tulip_cb didn't work
-either.
-
-Mike
-
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

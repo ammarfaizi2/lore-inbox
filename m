@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131016AbQLLLlh>; Tue, 12 Dec 2000 06:41:37 -0500
+	id <S131155AbQLLMCI>; Tue, 12 Dec 2000 07:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131103AbQLLLlQ>; Tue, 12 Dec 2000 06:41:16 -0500
-Received: from d06lmsgate-2.uk.ibm.com ([195.212.29.2]:64389 "EHLO
-	d06lmsgate-2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S131016AbQLLLlL>; Tue, 12 Dec 2000 06:41:11 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: "Jon Hulatt" <jon@atomichamster.org>
-cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Message-ID: <802569B3.003D5852.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Tue, 12 Dec 2000 11:09:16 +0000
-Subject: Re: cpu stepping
+	id <S131375AbQLLMB7>; Tue, 12 Dec 2000 07:01:59 -0500
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:23281 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S131155AbQLLMBt>; Tue, 12 Dec 2000 07:01:49 -0500
+Date: Tue, 12 Dec 2000 12:31:19 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18 release notes
+Message-ID: <20001212123119.C17348@khan.acc.umu.se>
+In-Reply-To: <E145f1E-0000a9-00@the-village.bc.nu> <005501c063eb$e55437a0$0163a8c0@mojo>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <005501c063eb$e55437a0$0163a8c0@mojo>; from paulkf@microgate.com on Mon, Dec 11, 2000 at 09:30:37PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 11, 2000 at 09:30:37PM -0600, Paul Fulghum wrote:
+> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+> >   Linux 2.2.18 Release Notes
+> 
+> patch-2.2.18.tar.gz   size=2.9MBytes
+
+Ehrm?! A tar'ed-up patch?! You didn't mean something like:
+
+3049653 Dec 11 00:45 patch-2.2.18.gz
+
+now did you?! :^)
+
+> from my scanning of the kernel archives, this is the *all time*
+> largest kernel patch (including 2.3/2.4 patches).
+
+Well, this one does contain sync of two platforms (m68k & arm) + the
+USB-backport and several other biggies, so it's not too strange.
 
 
-Stepping is Intel teminology for chip revisions - possibly other
-manufacturers have used the same terminology.  Intel documents the fixes,
-or rather the bugs and work-arounds, for each stepping level in the
-addendum to the particular processor's reference manual. Probably, I
-haven't checked, this info is available in PDF format from the INTEL
-website (http://www.intel.com).
-
-IBM terminology for the equivalent of stepping level  is EC level
-(engineering change level).
-
-To understand the fine detail of the intel stepping levels, in particular
-the work-arounds, you'll need to be familiar with the processor
-architecture to the extent an assembler programmer would be.
-
-
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
-
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
-"Jon Hulatt" <jon@atomichamster.org> on 12/12/2000 10:45:50
-
-Please respond to "Jon Hulatt" <jon@atomichamster.org>
-
-To:   "Linux Kernel" <linux-kernel@vger.kernel.org>
-cc:
-Subject:  cpu stepping
-
-
-
-
-hi,
-
-sorry to ask this here but i'm finding difficulty getting this info
-elsewhere...
-
-I'm not an assembly programmer and i know little about cpu's. it's a hole
-in
-my knowledge i guess. i'm looking for some technical introduction doc to
-explain what diff. aspects of cpu do, what is stepping and all that.
-especially for intel but also for other architectures.
-
-Thanks
-
-Jon
-
- - att1.htm
-
-
-
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268128AbTBMWry>; Thu, 13 Feb 2003 17:47:54 -0500
+	id <S268126AbTBMWqE>; Thu, 13 Feb 2003 17:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268309AbTBMWry>; Thu, 13 Feb 2003 17:47:54 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:28164 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S268128AbTBMWrx>;
-	Thu, 13 Feb 2003 17:47:53 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302132258.h1DMwFtH024363@darkstar.example.net>
-Subject: Re: 2.5.60 cheerleading...
-To: Valdis.Kletnieks@vt.edu
-Date: Thu, 13 Feb 2003 22:58:14 +0000 (GMT)
-Cc: plars@linuxtestproject.org, linux-kernel@vger.kernel.org,
-       edesio@task.com.br, torvalds@transmeta.com
-In-Reply-To: <200302132220.h1DMKtFT011682@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Feb 13, 2003 05:20:55 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S268128AbTBMWqE>; Thu, 13 Feb 2003 17:46:04 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:22672 "EHLO
+	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S268126AbTBMWqD>; Thu, 13 Feb 2003 17:46:03 -0500
+Date: Thu, 13 Feb 2003 22:56:21 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Larry McVoy <lm@bitmover.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@imladris.surriel.com>,
+       Andrea Arcangeli <andrea@e-mind.com>, linux-kernel@vger.kernel.org
+Subject: Re: openbkweb-0.0
+Message-ID: <20030213225621.GA17508@bjl1.jlokier.co.uk>
+References: <20030206021029.GW19678@dualathlon.random> <20030213024751.GA14016@bjl1.jlokier.co.uk> <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com> <20030213161337.GA9654@work.bitmover.com> <20030213211127.GG20159@fs.tum.de> <20030213220522.GA11214@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030213220522.GA11214@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Since Linus hasn't chimed in yet, I'm guessing that's exactly what
-> > happened.  I'm not trying to improve his workflow, but rather the
-> > workflow of anyone who might be interested in getting more involved in
-> > 2.5 testing.
-> 
-> What would help a lot of people (certainly me, at least), would be if
-> somebody kept a well-publicized "already known errata" list along with
-> (possibly unofficial) work-around patches.  Something along the line of:
-> 
-> compile fails in drivers/widget/fooby.c with error:
-> undefined structure member 'blat' in line 1149.
-> To fix:   apply <this patch>
+Larry McVoy wrote:
+> Please show me the case law which says we have to give you our technology,
+> for free, and we do not have the right to say "no way unless you agree to
+> not reverse engineer".
 
-Well, you can do that with my bug database - just open a new bug
-report for each compile failiure, upload a patch to the database, and
-link the patch with the new bug.  You can then collect together all
-the relevant bug reports in to a confirmed bug for each kernel
-version. You don't even have to duplicate bug reports if they occur in
-multiple kernel versions.
+Correct.  You do not have to give your software for free.  (In
+European patent terminology it is not called technology, by the way).
 
-John.
+Correct.  You have the right to say "no way unless you agree not to
+reverse engineer".
+
+> Lots of law says "if you paid for this product, the seller may not impose
+> the following restrictions" with reverse engineering being amongst those.
+> 
+> I do not have any data which says that the same law applies in the case of
+> a no charge copy of the software, do you?
+
+Someone may copy and use your software _without_ agreeing to the license.
+
+Then you can sue them for breach of copyright.
+
+You will win, unless their copying was fair use.
+
+Reverse engineering for interoperability is a form of fair use in many
+countries, including Germany and the UK.
+
+Draw your own conclusion :)
+
+-- Jamie

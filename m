@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbTATQvJ>; Mon, 20 Jan 2003 11:51:09 -0500
+	id <S266552AbTATQ4b>; Mon, 20 Jan 2003 11:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266411AbTATQvJ>; Mon, 20 Jan 2003 11:51:09 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:13768 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266384AbTATQvH>;
-	Mon, 20 Jan 2003 11:51:07 -0500
-Date: Mon, 20 Jan 2003 16:56:38 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: propagating failures down to pci_module_init()
-Message-ID: <20030120165638.GA31809@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030120155435.GA29238@codemonkey.org.uk> <20030120163321.A32585@infradead.org> <20030120165236.GA27972@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030120165236.GA27972@gtf.org>
-User-Agent: Mutt/1.4i
+	id <S266535AbTATQ4b>; Mon, 20 Jan 2003 11:56:31 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:60300 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266552AbTATQ4a>; Mon, 20 Jan 2003 11:56:30 -0500
+Date: Mon, 20 Jan 2003 12:07:52 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: egcs (or compatible) compiler
+Message-ID: <Pine.LNX.3.95.1030120114634.18629A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 11:52:36AM -0500, Jeff Garzik wrote:
- > 
- > Nope.  Look at pci_module_init code.  It propagates pci_register_driver
- > return value.
- > 
- > The _real_ problem is that ->probe return value is not propagated back
- > to pci_register_driver return value.  The reason for this is that you
- > may call ->probe many times, and nobody has written the code to collate
- > the error returns.
- > 
- > Since one can only sanely return an error code when there was _one_
- > device and it failed, you are rather limited in error propagation.
 
-*nod*. I cheated, and used a static global, which seems to get the
-desired effect I was after.
+I tried to find the "latest and greatest" gcc compiler that
+will compile the kernel. I can't find the source anywhere!
+Apparently, gnu doesn't "do" the compiler anymore, it's now
+called egcs and is supposed to be on goof.com according to
+the links from the GCC home page. They only have patches.
+The last source-code I have been able to find for gcc is
+gcc-3.0.1.tar.gz and it won't even compile under egcs-2.9.1.66
+(which I installed about a year ago before it became unavailable
+and dissappeared).
 
-		Dave
+So, what gives? Any hints on how I get the source of the most
+recommended gcc, that will actually compile on a previous version
+of gcc? I'm presently using egcs-2.9.1.66, but newer kernels won't
+compile using it. They fail to link with "__rawmemchr" errors, i.e.,
+caused by code that gets the string-length by doing strchr(s, 0),
+i.e., looks for the null. This envokes some __rammemchr() function
+that doesn't exist.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

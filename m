@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315375AbSFXWCX>; Mon, 24 Jun 2002 18:02:23 -0400
+	id <S315358AbSFXWAf>; Mon, 24 Jun 2002 18:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315372AbSFXWCW>; Mon, 24 Jun 2002 18:02:22 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:52753 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S315370AbSFXWCU>;
-	Mon, 24 Jun 2002 18:02:20 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-rc1 make modules_install: cp warning source file `foo.o' specified more than once 
-In-reply-to: Your message of "24 Jun 2002 12:59:08 MST."
-             <1024948749.2225.132.camel@shire.arnor.net> 
+	id <S315370AbSFXWAe>; Mon, 24 Jun 2002 18:00:34 -0400
+Received: from perplex.selfdestruct.net ([195.197.225.4]:13471 "EHLO
+	perplex.selfdestruct.net") by vger.kernel.org with ESMTP
+	id <S315358AbSFXWA1>; Mon, 24 Jun 2002 18:00:27 -0400
+Date: Tue, 25 Jun 2002 00:56:19 +0300
+From: Toni Viemero <toni.viemero@iki.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Another .text.exit error with 2.4.19-rc1
+Message-ID: <20020624215619.GE27147@perplex.selfdestruct.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 25 Jun 2002 08:01:50 +1000
-Message-ID: <10436.1024956110@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jun 2002 12:59:08 -0700, 
-Torrey Hoffman <thoffman@arnor.net> wrote:
->During make modules_install I got dozens of these warnings,
->here is a short example.
->
->cp: warning: source file `ad1848.o' specified more than once
+Seems like ServeRAID driver is causing problems
 
-That warning does not appear for me, I guess that you are running a
-bleeding edge version of fileutils.  Fix is easy (untested).
+System: Debian GNU/Linux unstable (IBM eServer 232 with ServeRAID 4Lx)
 
---- Rules.make	Tue Jun  4 13:32:52 2002
-+++ Rules.make.new	Tue Jun 25 07:59:38 2002
-@@ -176,7 +176,7 @@
- _modinst__: dummy
- ifneq "$(strip $(ALL_MOBJS))" ""
- 	mkdir -p $(MODLIB)/kernel/$(MOD_DESTDIR)
--	cp $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)
-+	cp $(sort $(ALL_MOBJS)) $(MODLIB)/kernel/$(MOD_DESTDIR)
- endif
- 
- .PHONY: modules_install
+compiling kernel stops, error output:
 
+drivers/scsi/scsidrv.o(.data+0x3874): undefined reference to local symbols
+in discarded section .text.exit'
+
+
+and output of "reference_discarded.pl" by Keith Owens:
+
+aq144:/usr/src/linux# perl ../reference_discarded.pl 
+Finding objects, 392 objects, ignoring 0 module(s)
+Finding conglomerates, ignoring 35 conglomerate(s)
+Scanning objects
+Error: ./drivers/scsi/ips.o .data refers to 000000d4 R_386_32
+.text.exit
+Done
+
+Regards,
+-- 
+Toni Viemerö  |  http://selfdestruct.net
+"The ones who dont do anything are always the ones who try to pull you
+ down."

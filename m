@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267020AbSL3SHL>; Mon, 30 Dec 2002 13:07:11 -0500
+	id <S267027AbSL3SJM>; Mon, 30 Dec 2002 13:09:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267022AbSL3SHL>; Mon, 30 Dec 2002 13:07:11 -0500
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:43988 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267020AbSL3SHL>; Mon, 30 Dec 2002 13:07:11 -0500
-Subject: Re: Current unclaimed 2.5 bugs on bugme.osdl.org
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: kernel-janitor-discuss@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <299610000.1041267777@titus>
-References: <129460000.1041214462@titus>
-	 <1041255152.544.14.camel@zion.wanadoo.fr>  <299610000.1041267777@titus>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041272200.550.7.camel@zion.wanadoo.fr>
+	id <S267028AbSL3SJM>; Mon, 30 Dec 2002 13:09:12 -0500
+Received: from holomorphy.com ([66.224.33.161]:25064 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267027AbSL3SJL>;
+	Mon, 30 Dec 2002 13:09:11 -0500
+Date: Mon, 30 Dec 2002 10:16:07 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Markus Pfeiffer <profmakx@profmakx.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Larry McVoy <lm@work.bitmover.com>,
+       Hannes Reinecke <mail@hannes-reinecke.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Alpha port still maintained in 2.5
+Message-ID: <20021230181607.GN9704@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Markus Pfeiffer <profmakx@profmakx.org>,
+	Sam Ravnborg <sam@ravnborg.org>, Larry McVoy <lm@work.bitmover.com>,
+	Hannes Reinecke <mail@hannes-reinecke.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <3E10611D.10108@hannes-reinecke.de> <20021230152325.GB8766@work.bitmover.com> <20021230165010.GA2054@mars.ravnborg.org> <200212301913.28503.profmakx@profmakx.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 30 Dec 2002 19:16:40 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212301913.28503.profmakx@profmakx.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-30 at 18:02, Martin J. Bligh wrote:
+On Monday 30 December 2002 17:50, Sam Ravnborg wrote:
+>> Hi Larry, nice offer. But I personally would not have time hacking on
+>> Alpha. Others may find it usefull though.
 
-> OK, trouble is I need someone with a bugzilla account to assign these to.
-> I emailed James, if he doesn't want it, would you be willing to maintain
-> that subsection in bugzilla?
+On Mon, Dec 30, 2002 at 07:13:23PM +0100, Markus Pfeiffer wrote:
+> Well, I have an Alpha System here myself and am also "hacking" on it. But one 
+> has also to ask oneself if there is any demand (apart from my personal 
+> demand) for a maintained Linux/Alpha >= 2.5...
+> Anyway, I just installed BitKeeper and start finding my way into the code...
 
-Anything related to radeonfb, atyfb, or endian issues yes. For other fbdev
-issues, I can try playing the "gateway" with the appropriate list/maintainer,
-though I can't promise doing it very regulary.
-
-Ben.
+Hmm, this box says "AlphaStation 200 4/166". Might be interesting to
+get it elevated above the level of "oversized doorstop" when attempting
+to run Linux on it.
 
 
-
+Bill

@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTLBSiw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTLBSiv
+	id S264278AbTLBSrB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:47:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTLBSrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:38:51 -0500
-Received: from mail.gmx.net ([213.165.64.20]:8071 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263281AbTLBSis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:38:48 -0500
-X-Authenticated: #14985714
-Date: Tue, 2 Dec 2003 19:35:22 +0100
-From: "Stefan J. Betz" <stefan_betz@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: include/linux/version.h
+	Tue, 2 Dec 2003 13:47:01 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:5137
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264278AbTLBSq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 13:46:58 -0500
+Date: Tue, 2 Dec 2003 10:46:48 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Greg Stark <gsstark@mit.edu>, Erik Steffl <steffl@bigfoot.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: libata in 2.4.24?
+Message-ID: <20031202184648.GU1566@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Greg Stark <gsstark@mit.edu>, Erik Steffl <steffl@bigfoot.com>,
+	linux-kernel@vger.kernel.org
+References: <3FCB8312.3050703@rackable.com> <87fzg4ckej.fsf@stark.dyndns.tv> <3FCBB15F.7050505@rackable.com> <3FCBB9F1.2080300@bigfoot.com> <87n0abbx2k.fsf@stark.dyndns.tv> <20031202055336.GO1566@mis-mike-wstn.matchmail.com> <20031202055852.GP1566@mis-mike-wstn.matchmail.com> <87zneb9o5q.fsf@stark.dyndns.tv> <20031202174048.GQ1566@mis-mike-wstn.matchmail.com> <20031202180458.GC1990@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Debian GNU/Linux 3.0r1
-X-Programming-Language: Python
-X-Office-Software: OpenOffice 1.1.0
-X-Nickname: [ENC]BladeXP
-X-Kernel-Version: 2.4.22
-X-Desktop: FVWM 2.4.6
-X-Jabber-Id: stefan_betz@jabber.org
-X-Host: encbladexp.homelinux.net
-Message-Id: <S263281AbTLBSis/20031202183848Z+2508@vger.kernel.org>
+In-Reply-To: <20031202180458.GC1990@gtf.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello People,
+On Tue, Dec 02, 2003 at 01:04:58PM -0500, Jeff Garzik wrote:
+> On Tue, Dec 02, 2003 at 09:40:48AM -0800, Mike Fedyk wrote:
+> > There are PATA drives that do TCQ too, but you have to look for that feature
+> > specifically.  IDE TCQ is in 2.6, but is still experemental.  I think Jens
+> > Axboe was the one working on it IIRC.  He would have more details.
+> 
+> Let us distinguish three types of TCQ:
+> 1) PATA drive-side TCQ (now called "legacy TCQ")
+> 2) Controller-side TCQ
+> 3) SATA drive/controller-side TCQ ("first party DMA")
+> 
+> libata will never support #1, which is what 2.6 supports in experimental
+> option.
 
-i have found some wrong thing in include/linux/version.h
-On my System i have Kernel 2.6.0-test10 & 2.6.0-test11, but in
-include/linux/version.h i see:
-#define UTS_RELEASE "2.6.0-test9"
+An experemental option with the ide layer, not libata, right?
 
-correct where:
-#definde UTS_RELEASE "2.6.0-test11" (for Linux Kernel 2.6.0-test11)...
+> 
+> libata will support #2 very soon, and will support #3 when hardware is
+> available.
+> 
 
-Here is a little "patch":
+If you have Controller-side TCQ, then will it work with any IDE PATA/SATA
+drive?
 
-diff -Nru linux-2.6.0-test11/include/linux/version.h linux-2.6.0-test11-fixed/include/linux/version.h
---- linux-2.6.0-test11/include/linux/version.h	Tue Dec  2 19:21:22 2003
-+++ linux-2.6.0-test11-fixed/include/linux/version.h	Tue Dec  2 19:22:06 2003
-@@ -1,3 +1,3 @@
--#define UTS_RELEASE "2.6.0-test9"
-+#define UTS_RELEASE "2.6.0-test11"
- #define LINUX_VERSION_CODE 132608
- #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+> > > Do the new SATA drives and controllers provide a solution to this?
+> > 
+> > It's not SATA specific, and I'm not sure if any ide controller can support
+> > TCQ or if only a specific list are compatible.
+> 
+> The TCQ you are thinking of has been deprecated by the people who make
+> IDE drives ;-)
 
-I know that this is not a very usefull fix, but i think 2.6.0 should be
-BugFree (TM) :-)
-
-Greeting Betz Stefan
-
-I know that my english is not realy good, but any tipp how i can learn
-better english is welcome...
+Ahh, it's good to know that our TCQ support isn't lagging.  We're even
+supporting TCQ standards that were only in place for 1 or 2 years. :)

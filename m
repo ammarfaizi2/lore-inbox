@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266215AbUHRNnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265275AbUHRNuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266215AbUHRNnW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 09:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUHRNnW
+	id S265275AbUHRNuA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 09:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266214AbUHRNuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 09:43:22 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:19384 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S266215AbUHRNnO (ORCPT
+	Wed, 18 Aug 2004 09:50:00 -0400
+Received: from mail.dsvr.co.uk ([212.69.192.8]:21395 "EHLO mail.dsvr.co.uk")
+	by vger.kernel.org with ESMTP id S265275AbUHRNt5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 09:43:14 -0400
-Date: Wed, 18 Aug 2004 15:43:09 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: Eric Lammerts <eric@lammerts.org>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, Patrick McFarland <diablod3@gmail.com>,
-       Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <Pine.LNX.4.58.0408180111570.20812@vivaldi.madbase.net>
-Message-ID: <Pine.LNX.4.44.0408181535130.30116-100000@hubble.stokkie.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+	Wed, 18 Aug 2004 09:49:57 -0400
+Date: Wed, 18 Aug 2004 14:49:59 +0100
+From: Jonathan Sambrook <beardie@dsvr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bind Mount Extensions 0.05
+Message-ID: <20040818134959.GC29311@jsambrook>
+References: <20040818125104.GA12286@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
+Content-Disposition: inline
+In-Reply-To: <20040818125104.GA12286@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Aug 2004, Eric Lammerts wrote:
 
-> 
-> On Wed, 18 Aug 2004, Robert M. Stockmann wrote:
-> > On Tue, 17 Aug 2004, Kyle Moffett wrote:
-> > > Jens Axboe has _repeatedly_ asked you for your dmesg so he can
-> > > determine if it's a bug or not, and you have _repeatedly_ ignored
-> > > his emails.  Either give us enough information to identify and fix
-> > > the issue (if any), or shut up
-> >
-> > So i may turn the question around : Is SuSE's techsupport or development
-> > dep. aware that there are issue's reported about DMA failing to switch on
-> > when dealing with UDMA DVD writers?
-> 
-> -ENODMESG
-> 
+--5/uDoXvLw7AC5HRs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well sorry about that, the machine is not in my possesion anymore. But again,
-i produced enough info to be able to reproduce the error :
+At 14:51 on Wed 18/08/04, herbert@13thfloor.at masquerading as 'Herbert Poe=
+tzl' wrote:
+>=20
+> Greetings!
+>=20
+> The following patch extends the 'noatime', 'nodiratime' and
+> last but not least the 'ro' (read only) mount option to the
+> vfs --bind mounts, allowing them to behave like any other
+> mount, by honoring those mount flags (which are silently
+> ignored by the current implementation in 2.4.x and 2.6.x)
+>=20
 
-machine : compaq proliant 800 2x PIII 500MHz/512kb (Katmai)
-	128 Mb RAM, 2x 9.1Gb U2W SCSI
-	_NEC DVD_RW ND-2510A Dual Layer burner
+What's the likelyhood/timeframe for this getting into mainline kernels?
 
-OS : 	SuSE 9.1 i386  default vanilla installation
+Cheers,
+Jonathan
 
-burning software : cdrtools-2.01a27.tar.bz2 from
-			ftp://ftp.berlios.de/pub/cdrecord/alpha/
-	with this patch : cdrtools-2.01a27-ossdvd.patch.bz2 from
-			ftp://ftp.crashrecovery.org/pub/linux/cdrtools/
+--=20
+                  =20
+ Jonathan Sambrook=20
+Software  Developer=20
+ Designer  Servers
 
-read command : 
+--5/uDoXvLw7AC5HRs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-   # readcd -v dev=ATAPI:0,0,0 f=dvdimage.iso
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-write command : 
+iD8DBQFBI16HSUOTbbpGXDwRAkfWAJ4+0BVpkq6R/5/nOQaJ2FPm7vmIzQCfW2+V
+7hGXd6pqi5TxLiD00JCOGBk=
+=7D8O
+-----END PGP SIGNATURE-----
 
-   # cdrecord -v dev=ATAPI:0,0,0 driveropts=burnfree -dao dvdimage.iso
-
-Robert
--- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+--5/uDoXvLw7AC5HRs--

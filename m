@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265329AbUAFDwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 22:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUAFDwJ
+	id S265331AbUAFDvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 22:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUAFDvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 22:52:09 -0500
-Received: from c-24-15-219-142.client.comcast.net ([24.15.219.142]:32952 "EHLO
-	rekl.yi.org") by vger.kernel.org with ESMTP id S265329AbUAFDwG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 22:52:06 -0500
-Date: Mon, 5 Jan 2004 21:52:04 -0600 (CST)
-From: lk@rekl.yi.org
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: KM266/VT8235, USB2.0 and problems
-In-Reply-To: <20040105172306.GB21531@kroah.com>
-Message-ID: <Pine.LNX.4.58.0401052145520.32347@rekl.yi.org>
-References: <Pine.LNX.4.58.0401042314160.18200@rekl.yi.org>
- <20040105081226.GA14177@kroah.com> <Pine.LNX.4.58.0401051045270.30821@rekl.yi.org>
- <20040105172306.GB21531@kroah.com>
+	Mon, 5 Jan 2004 22:51:16 -0500
+Received: from web40609.mail.yahoo.com ([66.218.78.146]:20117 "HELO
+	web40609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265331AbUAFDvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 22:51:14 -0500
+Message-ID: <20040106035114.63926.qmail@web40609.mail.yahoo.com>
+Date: Tue, 6 Jan 2004 04:51:14 +0100 (CET)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: 2.6.1-rc1 affected?
+To: Jonathan Higdon <jhigdon@linuxfools.org>
+Cc: linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>,
+       Bastiaan Spandaw <lkml@becobaf.com>,
+       Tomas Szepe <szepe@pinerecords.com>, Max Valdez <maxvalde@fis.unam.mx>
+In-Reply-To: <Pine.LNX.4.58.0401052222070.746@loki.linuxfools.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Do the errors go away if you stop using devfs?
-> > 
+ --- Jonathan Higdon <jhigdon@linuxfools.org> a écrit : > 
+> 
+> On Tue, 6 Jan 2004, [iso-8859-1] szonyi calin wrote:
+> 
+> > >
+> > > On my box that program is a very effective 'instant
+> reboot'.
+> > >
+> >
+> > on mine just a segfault :-)
+> > sony@grinch -04:47:32- 0 jobs, ver 2.05b.0 3
+> >  /~/schule $ gcc -o mremap_poc mremap_poc.c
+> > sony@grinch -04:47:35- 0 jobs, ver 2.05b.0 3
+> >  /~/schule $ ./mremap_poc
+> > Segmentation fault
+> >
 
-Ok, I removed devfs support from the kernel, and installed udev on the 
-machine.  I get the same error:
+correction
+if it is compileg withj -g and statically linked and run from
+a gdb session it hard locks the machine. Only a hard reset helps
+if it's run from a shell -> segfaults :-)
+so at least on my system an atacker needs gdb to crash the 
+machine :-)
+ 
 
-SCSI error : <0 0 0 0> return code = 0x70000
-end_request: I/O error, dev sda, sector 7552
-Buffer I/O error on device sda, logical block 944
+> > > The instant I ran it from a xterm my screen went black,
+> the
+> > > music I was
+> > > listening to from a CD stopped and the machine rebooted.
+> > > The running kernel was 2.6.1-rc1-mm1
+> > >
+> >
+> > maybe you were running the program as root ?
+> 
+> I tried it on 2.6.0 as a regular user and got an instant
+> reboot.
+> stracing it showed the faults and the system was unusable
+> after that :)
+> 
+> ~jon
 
+=====
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
 
-
-I migrated my laptop to use udev, also.  The USB stick still works 
-perfectly on it.
-
-Any other suggestions?
-
+_________________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

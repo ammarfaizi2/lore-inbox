@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVBHGU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVBHHzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVBHGU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 01:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVBHGU5
+	id S261476AbVBHHzg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 02:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVBHHzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 01:20:57 -0500
-Received: from mgr2.xmission.com ([198.60.22.202]:14751 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP id S261491AbVBHGU3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 01:20:29 -0500
-Message-ID: <42085A32.6050504@xmission.com>
-Date: Mon, 07 Feb 2005 23:20:34 -0700
-From: maxer1 <maxer1@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050109 Fedora/1.7.5-3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Marvell Yukon 2 PCI Express 88E8050 is not support in the EXPERIMENTAL
- skge driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 8 Feb 2005 02:55:36 -0500
+Received: from h80ad25a2.async.vt.edu ([128.173.37.162]:50949 "EHLO
+	h80ad25a2.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261476AbVBHHz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 02:55:29 -0500
+Message-Id: <200502080755.j187tFI8003915@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01 
+In-Reply-To: Your message of "Fri, 04 Feb 2005 11:03:47 +0100."
+             <20050204100347.GA13186@elte.hu> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050204100347.GA13186@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1107849315_3540P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 166.70.55.125
-X-SA-Exim-Mail-From: maxer1@xmission.com
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on mgr1.xmission.com)
+Date: Tue, 08 Feb 2005 02:55:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The description in kernel 2.6.11-rc3-mm1 make for the skge driver states 
-the following:
+--==_Exmh_1107849315_3540P
+Content-Type: text/plain; charset=us-ascii
 
-"*New SysKonnect GigaEthernet support (EXPERIMENTAL) (SKGE)
+On Fri, 04 Feb 2005 11:03:47 +0100, Ingo Molnar said:
+> 
+> i have released the -V0.7.38-01 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
 
-This driver support the Marvell Yukon or SysKonnect SK-98xx/SK-95xx
-and related Gigabit Ethernet adapters. It is a new smaller driver
-driver with better performance and more complete ethtool support.
+Hey Ingo.. Sorry to keep breaking stuff on you, but.. ;)
 
-It does not support the link failover and network management
-features that "portable" vendor supplied sk98lin driver does.* "
+Summary: Looks like CONFIG_NET_PKTGEN=y gives -V0.7.38-03 indigestion.
 
-What makes my PCI Express mobo with on board 04:00.0 Ethernet 
-controller: Marvell Technology Group Ltd. Gigabit Ethernet Controller 
-(rev 17)
-*not *supported by skge driver is that it is a  NEW generation  driver  
-Marvell Yukon  2.
+I retrofitted 0.7.38-03 onto -rc3-mm1, and at boot it wedged up hard scrolling
+an error message.  Looked like a 'scheduling while atomic' error coming from
+net/pktgen.o.   Sorry for the incomplete traceback, but it locked before
+userspace came up, and I don't have hardware handy for a serial console..
 
-I have SysKonnect's sk98lin driver working for me under a custom built 
-2.6.9 kernel using SysKonnect's driver version 7.09 patched in the kernel.
+I found a CONFIG_NET_PKTGEN=Y in the config, rebuilt with =n, and the resulting
+kernel boots fine (am using it as I type). Vanilla -rc3-mm1 also boots fine
+with the PTKGEN=y setting (as did 2.6.10-mm1-V0.7.34-01, the last -mm I built
+with a -RT patch).  I haven't tried a vanilla -rc3-V0.7.38-03, but I don't see
+anyplace -mm1 hits pktgen.c
 
-The motherboard I'm using is a new Intel D915GEV. The specs on the lan 
-show as:
+If the above isn't enough to track down the issue, feel free to let me know
+what you'd like me to try next.
 
-Gigabit (10/100/1000 Mbits/sec) LAN subsystem using the Marvel* Yukon* 
-88E8050 PCI Express* Gigabit Ethernet Controller.
+--==_Exmh_1107849315_3540P
+Content-Type: application/pgp-signature
 
-Don't try this Stephen's skge driver with this, it isn't supported.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-RaXeT
+iD8DBQFCCHBjcC3lWbTT17ARAvI6AJ4t0F+qARL13HeyOkB8hyzKfL2CRgCg5kXh
+U7kq2rM5m0JM0BjHgMQ/ji4=
+=hJfy
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107849315_3540P--

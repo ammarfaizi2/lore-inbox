@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbUCPNv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 08:51:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUCPNv6
+	id S261691AbUCPNyw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 08:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUCPNyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 08:51:58 -0500
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:45011 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S261696AbUCPNt7
+	Tue, 16 Mar 2004 08:54:52 -0500
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:34259 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S261691AbUCPNto
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 08:49:59 -0500
-Date: Tue, 16 Mar 2004 14:49:40 +0100
+	Tue, 16 Mar 2004 08:49:44 -0500
+Date: Tue, 16 Mar 2004 14:49:18 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (2/10): common i/o layer.
-Message-ID: <20040316134940.GC2785@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (1/10): core s390.
+Message-ID: <20040316134918.GB2785@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,708 +21,949 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Common i/o layer fixes:
- - Improve blacklist argument parsing.
- - Fix device recognition for devices where SenseID fails.
- - Don't try to set a device online that has no driver.
- - Chain a release ccw to the unconditional reserve ccw for forced online.
- - Fix irb accumulation for pure status pending with eswf set.
- - Fix rc handling in qdio_shutdown.
- - Improve retry behavious for busy conditions on qdio.
- - Fix activity check in ccw_device_start/read_dev_chars and read_conf_data.
+s390 core changes:
+ - Merge 31 and 64 bit NR_CPUS config option. Default to 32 cpus.
+ - Remove unused system calls from compat_linux.c.
+ - Add statfs64 and fstatfs64. Reserve system call number for 
+   remap_file_pages.
+ - Merge do_signal32 into do_signal.
+ - Don't remove the per bit and the program mask from the user psw
+   due to a signal.
+ - Fix a problem with gdb and interrupted system calls.
+ - Fix single stepping of interrupted system calls.
+ - Fix compiler warnings in bitops.h.
 
 diffstat:
- Documentation/s390/driver-model.txt |    2 
- drivers/s390/cio/blacklist.c        |   64 +++++++++++++-------
- drivers/s390/cio/css.h              |    1 
- drivers/s390/cio/device.c           |   55 ++++++++++++-----
- drivers/s390/cio/device_fsm.c       |    3 
- drivers/s390/cio/device_ops.c       |   40 +++++++++---
- drivers/s390/cio/device_status.c    |    2 
- drivers/s390/cio/qdio.c             |  112 ++++++++++++++++++++++++++++++------
- drivers/s390/cio/qdio.h             |    7 +-
- include/asm-s390/cio.h              |    1 
- 10 files changed, 216 insertions(+), 71 deletions(-)
+ arch/s390/Kconfig                 |   17 ------
+ arch/s390/kernel/asm-offsets.c    |    4 +
+ arch/s390/kernel/compat_linux.c   |   50 ------------------
+ arch/s390/kernel/compat_linux.h   |    5 +
+ arch/s390/kernel/compat_signal.c  |   92 ++-------------------------------
+ arch/s390/kernel/compat_wrapper.S |   15 +++++
+ arch/s390/kernel/entry.S          |   16 ++++-
+ arch/s390/kernel/entry64.S        |   12 +++-
+ arch/s390/kernel/ptrace.c         |   12 ++--
+ arch/s390/kernel/signal.c         |  104 ++++++++++++++++++++------------------
+ arch/s390/kernel/sys_s390.c       |   47 -----------------
+ arch/s390/kernel/syscalls.S       |    4 +
+ arch/s390/kernel/traps.c          |   22 --------
+ include/asm-s390/bitops.h         |   16 ++---
+ include/asm-s390/lowcore.h        |    4 +
+ include/asm-s390/ptrace.h         |    8 ++
+ include/asm-s390/unistd.h         |    4 +
+ kernel/exit.c                     |    3 -
+ kernel/signal.c                   |    3 -
+ 19 files changed, 147 insertions(+), 291 deletions(-)
 
-diff -urN linux-2.6/Documentation/s390/driver-model.txt linux-2.6-s390/Documentation/s390/driver-model.txt
---- linux-2.6/Documentation/s390/driver-model.txt	Thu Mar 11 03:55:20 2004
-+++ linux-2.6-s390/Documentation/s390/driver-model.txt	Tue Mar 16 14:03:06 2004
-@@ -250,7 +250,7 @@
- -----------
+diff -urN linux-2.6/arch/s390/Kconfig linux-2.6-s390/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	Tue Mar 16 14:02:43 2004
++++ linux-2.6-s390/arch/s390/Kconfig	Tue Mar 16 14:03:06 2004
+@@ -96,23 +96,10 @@
+ 	  Even if you don't know what to do here, say Y.
  
- The netiucv driver creates an attribute 'connection' under
--bus/iucv/drivers/NETIUCV. Piping to this attibute creates a new netiucv
-+bus/iucv/drivers/netiucv. Piping to this attibute creates a new netiucv
- connection to the specified host.
- 
- Netiucv connections show up under devices/iucv/ as "netiucv<ifnum>". The interface
-diff -urN linux-2.6/drivers/s390/cio/blacklist.c linux-2.6-s390/drivers/s390/cio/blacklist.c
---- linux-2.6/drivers/s390/cio/blacklist.c	Thu Mar 11 03:55:24 2004
-+++ linux-2.6-s390/drivers/s390/cio/blacklist.c	Tue Mar 16 14:03:06 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/blacklist.c
-  *   S/390 common I/O routines -- blacklisting of specific devices
-- *   $Revision: 1.29 $
-+ *   $Revision: 1.31 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -72,7 +72,10 @@
- blacklist_busid(char **str, int *id0, int *id1, int *devno)
- {
- 	int val, old_style;
-- 
-+	char *sav;
-+
-+	sav = *str;
-+
- 	/* check for leading '0x' */
- 	old_style = 0;
- 	if ((*str)[0] == '0' && (*str)[1] == 'x') {
-@@ -80,44 +83,54 @@
- 		old_style = 1;
- 	}
- 	if (!isxdigit((*str)[0]))	/* We require at least one hex digit */
--		return -EINVAL;
-+		goto confused;
- 	val = simple_strtoul(*str, str, 16);
- 	if (old_style || (*str)[0] != '.') {
- 		*id0 = *id1 = 0;
- 		if (val < 0 || val > 0xffff)
--			return -EINVAL;
-+			goto confused;
- 		*devno = val;
-+		if ((*str)[0] != ',' && (*str)[0] != '-' &&
-+		    (*str)[0] != '\n' && (*str)[0] != '\0')
-+			goto confused;
- 		return 0;
- 	}
- 	/* New style x.y.z busid */
- 	if (val < 0 || val > 0xff)
--		return -EINVAL;
-+		goto confused;
- 	*id0 = val;
- 	(*str)++;
- 	if (!isxdigit((*str)[0]))	/* We require at least one hex digit */
--		return -EINVAL;
-+		goto confused;
- 	val = simple_strtoul(*str, str, 16);
- 	if (val < 0 || val > 0xff || (*str)++[0] != '.')
--		return -EINVAL;
-+		goto confused;
- 	*id1 = val;
- 	if (!isxdigit((*str)[0]))	/* We require at least one hex digit */
--		return -EINVAL;
-+		goto confused;
- 	val = simple_strtoul(*str, str, 16);
- 	if (val < 0 || val > 0xffff)
--		return -EINVAL;
-+		goto confused;
- 	*devno = val;
-+	if ((*str)[0] != ',' && (*str)[0] != '-' &&
-+	    (*str)[0] != '\n' && (*str)[0] != '\0')
-+		goto confused;
- 	return 0;
-+confused:
-+	strsep(str, ",\n");
-+	printk(KERN_WARNING "Invalid cio_ignore parameter '%s'\n", sav);
-+	return 1;
- }
- 
- static inline int
- blacklist_parse_parameters (char *str, range_action action)
- {
- 	unsigned int from, to, from_id0, to_id0, from_id1, to_id1;
--	char *sav;
- 
--	sav = str;
- 	while (*str != 0 && *str != '\n') {
- 		range_action ra = action;
-+		while(*str == ',')
-+			str++;
- 		if (*str == '!') {
- 			ra = !action;
- 			++str;
-@@ -138,32 +151,37 @@
- 			rc = blacklist_busid(&str, &from_id0,
- 					     &from_id1, &from);
- 			if (rc)
--				goto out_err;
-+				continue;
- 			to = from;
- 			to_id0 = from_id0;
- 			to_id1 = from_id1;
- 			if (*str == '-') {
- 				str++;
--				rc = blacklist_busid(&str, &to_id0, &to_id1,
--						     &to);
-+				rc = blacklist_busid(&str, &to_id0,
-+						     &to_id1, &to);
- 				if (rc)
--					goto out_err;
-+					continue;
-+			}
-+			if (*str == '-') {
-+				printk(KERN_WARNING "invalid cio_ignore "
-+					"parameter '%s'\n",
-+					strsep(&str, ",\n"));
-+				continue;
-+			}
-+			if ((from_id0 != to_id0) || (from_id1 != to_id1)) {
-+				printk(KERN_WARNING "invalid cio_ignore range "
-+					"%x.%x.%04x-%x.%x.%04x\n",
-+					from_id0, from_id1, from,
-+					to_id0, to_id1, to);
-+				continue;
- 			}
--			if ((from_id0 != to_id0) || (from_id1 != to_id1))
--				goto out_err;
- 		}
- 		/* FIXME: ignoring id0 and id1 here. */
- 		pr_debug("blacklist_setup: adding range "
- 			 "from 0.0.%04x to 0.0.%04x\n", from, to);
- 		blacklist_range (ra, from, to);
+ config NR_CPUS
+-	int "Maximum number of CPUs (2-32)"
+-	range 2 32
+-	depends on SMP && ARCH_S390X = 'n'
+-	default "32"
+-	help
+-	  This allows you to specify the maximum number of CPUs which this
+-	  kernel will support.  The maximum supported value is 32 and the
+-	  minimum value which makes sense is 2.
 -
--		if (*str == ',')
--			str++;
- 	}
- 	return 1;
--out_err:
--	printk(KERN_WARNING "blacklist_setup: error parsing \"%s\"\n", sav);
--	return 0;
+-	  This is purely to save memory - each supported CPU adds
+-	  approximately eight kilobytes to the kernel image.
+-	
+-config NR_CPUS
+ 	int "Maximum number of CPUs (2-64)"
+ 	range 2 64
+-	depends on SMP && ARCH_S390X
+-	default "64"
++	depends on SMP
++	default "32"
+ 	help
+ 	  This allows you to specify the maximum number of CPUs which this
+ 	  kernel will support.  The maximum supported value is 64 and the
+diff -urN linux-2.6/arch/s390/kernel/asm-offsets.c linux-2.6-s390/arch/s390/kernel/asm-offsets.c
+--- linux-2.6/arch/s390/kernel/asm-offsets.c	Thu Mar 11 03:55:24 2004
++++ linux-2.6-s390/arch/s390/kernel/asm-offsets.c	Tue Mar 16 14:03:06 2004
+@@ -22,6 +22,10 @@
+ 	DEFINE(__THREAD_ksp, offsetof(struct task_struct, thread.ksp),);
+ 	DEFINE(__THREAD_per, offsetof(struct task_struct, thread.per_info),);
+ 	BLANK();
++	DEFINE(__PER_atmid, offsetof(per_struct, lowcore.words.perc_atmid),);
++	DEFINE(__PER_address, offsetof(per_struct, lowcore.words.address),);
++	DEFINE(__PER_access_id, offsetof(per_struct, lowcore.words.access_id),);
++	BLANK();
+ 	DEFINE(__TI_task, offsetof(struct thread_info, task),);
+ 	DEFINE(__TI_domain, offsetof(struct thread_info, exec_domain),);
+ 	DEFINE(__TI_flags, offsetof(struct thread_info, flags),);
+diff -urN linux-2.6/arch/s390/kernel/compat_linux.c linux-2.6-s390/arch/s390/kernel/compat_linux.c
+--- linux-2.6/arch/s390/kernel/compat_linux.c	Tue Mar 16 14:02:43 2004
++++ linux-2.6-s390/arch/s390/kernel/compat_linux.c	Tue Mar 16 14:03:06 2004
+@@ -828,11 +828,6 @@
+ 	return err;
  }
  
- /* Parsing the commandline for blacklist parameters, e.g. to blacklist
-diff -urN linux-2.6/drivers/s390/cio/css.h linux-2.6-s390/drivers/s390/cio/css.h
---- linux-2.6/drivers/s390/cio/css.h	Thu Mar 11 03:55:57 2004
-+++ linux-2.6-s390/drivers/s390/cio/css.h	Tue Mar 16 14:03:06 2004
-@@ -82,6 +82,7 @@
- 		unsigned int dosense:1;	    /* delayed SENSE required */
- 		unsigned int doverify:1;    /* delayed path verification */
- 		unsigned int donotify:1;    /* call notify function */
-+		unsigned int recog_done:1;  /* dev. recog. complete */
- 	} __attribute__((packed)) flags;
- 	unsigned long intparm;	/* user interruption parameter */
- 	struct qdio_irq *qdio_data;
-diff -urN linux-2.6/drivers/s390/cio/device.c linux-2.6-s390/drivers/s390/cio/device.c
---- linux-2.6/drivers/s390/cio/device.c	Thu Mar 11 03:55:37 2004
-+++ linux-2.6-s390/drivers/s390/cio/device.c	Tue Mar 16 14:03:06 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/device.c
-  *  bus driver for ccw devices
-- *   $Revision: 1.107 $
-+ *   $Revision: 1.110 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -263,10 +263,10 @@
- 
- 	if (!cdev)
- 		return -ENODEV;
--	if (!cdev->online)
-+	if (!cdev->online || !cdev->drv)
- 		return -EINVAL;
- 
--	if (cdev->drv && cdev->drv->set_offline) {
-+	if (cdev->drv->set_offline) {
- 		ret = cdev->drv->set_offline(cdev);
- 		if (ret != 0)
- 			return ret;
-@@ -292,7 +292,7 @@
- 
- 	if (!cdev)
- 		return -ENODEV;
--	if (cdev->online)
-+	if (cdev->online || !cdev->drv)
- 		return -EINVAL;
- 
- 	spin_lock_irq(cdev->ccwlock);
-@@ -307,8 +307,7 @@
- 	}
- 	if (cdev->private->state != DEV_STATE_ONLINE)
- 		return -ENODEV;
--	if (!cdev->drv || !cdev->drv->set_online ||
--	    cdev->drv->set_online(cdev) == 0) {
-+	if (!cdev->drv->set_online || cdev->drv->set_online(cdev) == 0) {
- 		cdev->online = 1;
- 		return 0;
- 	}
-@@ -327,7 +326,7 @@
- online_store (struct device *dev, const char *buf, size_t count)
- {
- 	struct ccw_device *cdev = to_ccwdev(dev);
--	int i, force;
-+	int i, force, ret;
- 	char *tmp;
- 
- 	if (atomic_compare_and_swap(0, 1, &cdev->private->onoff))
-@@ -347,29 +346,46 @@
- 	if (i == 1) {
- 		/* Do device recognition, if needed. */
- 		if (cdev->id.cu_type == 0) {
--			ccw_device_recognition(cdev);
-+			ret = ccw_device_recognition(cdev);
-+			if (ret) {
-+				printk(KERN_WARNING"Couldn't start recognition "
-+				       "for device %s (ret=%d)\n",
-+				       cdev->dev.bus_id, ret);
-+				goto out;
-+			}
- 			wait_event(cdev->private->wait_q,
--				   dev_fsm_final_state(cdev));
-+				   cdev->private->flags.recog_done);
- 		}
--		ccw_device_set_online(cdev);
-+		if (cdev->drv && cdev->drv->set_online) 
-+			ccw_device_set_online(cdev);
- 	} else if (i == 0) {
- 		if (cdev->private->state == DEV_STATE_DISCONNECTED)
- 			ccw_device_remove_disconnected(cdev);
--		else
-+		else if (cdev->drv && cdev->drv->set_offline)
- 			ccw_device_set_offline(cdev);
- 	}
- 	if (force && cdev->private->state == DEV_STATE_BOXED) {
--		int ret;
- 		ret = ccw_device_stlck(cdev);
--		if (ret)
-+		if (ret) {
-+			printk(KERN_WARNING"ccw_device_stlck for device %s "
-+			       "returned %d!\n", cdev->dev.bus_id, ret);
- 			goto out;
-+		}
- 		/* Do device recognition, if needed. */
- 		if (cdev->id.cu_type == 0) {
--			ccw_device_recognition(cdev);
-+			cdev->private->state = DEV_STATE_NOT_OPER;
-+			ret = ccw_device_recognition(cdev);
-+			if (ret) {
-+				printk(KERN_WARNING"Couldn't start recognition "
-+				       "for device %s (ret=%d)\n",
-+				       cdev->dev.bus_id, ret);
-+				goto out;
-+			}
- 			wait_event(cdev->private->wait_q,
--				   dev_fsm_final_state(cdev));
-+				   cdev->private->flags.recog_done);
- 		}
--		ccw_device_set_online(cdev);
-+		if (cdev->drv && cdev->drv->set_online) 
-+			ccw_device_set_online(cdev);
- 	}
- 	out:
- 	if (cdev->drv)
-@@ -530,7 +546,9 @@
- 		       __func__, sch->dev.bus_id);
- 	put_device(&cdev->dev);
- out:
-+	cdev->private->flags.recog_done = 1;
- 	put_device(&sch->dev);
-+	wake_up(&cdev->private->wait_q);
- }
- 
- static void
-@@ -555,10 +573,13 @@
- {
- 	struct subchannel *sch;
- 
--	if (css_init_done == 0)
-+	if (css_init_done == 0) {
-+		cdev->private->flags.recog_done = 1;
- 		return;
-+	}
- 	switch (cdev->private->state) {
- 	case DEV_STATE_NOT_OPER:
-+		cdev->private->flags.recog_done = 1;
- 		/* Remove device found not operational. */
- 		if (!get_device(&cdev->dev))
- 			break;
-diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-s390/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	Thu Mar 11 03:55:27 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_fsm.c	Tue Mar 16 14:03:06 2004
-@@ -148,6 +148,7 @@
- 	struct subchannel *sch;
- 
- 	sch = to_subchannel(cdev->dev.parent);
-+	cdev->private->flags.recog_done = 1;
- 	/*
- 	 * Check if cu type and device type still match. If
- 	 * not, it is certainly another device and we have to
-@@ -217,6 +218,7 @@
- 		__recover_lost_chpids(sch, old_lpm);
- 	if (cdev->private->state == DEV_STATE_DISCONNECTED_SENSE_ID) {
- 		if (state == DEV_STATE_NOT_OPER) {
-+			cdev->private->flags.recog_done = 1;
- 			cdev->private->state = DEV_STATE_DISCONNECTED;
- 			return;
- 		}
-@@ -393,6 +395,7 @@
- 	 * timeout (or if sense pgid during path verification detects the device
- 	 * is locked, as may happen on newer devices).
- 	 */
-+	cdev->private->flags.recog_done = 0;
- 	cdev->private->state = DEV_STATE_SENSE_ID;
- 	ccw_device_sense_id_start(cdev);
- 	return 0;
-diff -urN linux-2.6/drivers/s390/cio/device_ops.c linux-2.6-s390/drivers/s390/cio/device_ops.c
---- linux-2.6/drivers/s390/cio/device_ops.c	Thu Mar 11 03:55:37 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_ops.c	Tue Mar 16 14:03:06 2004
-@@ -79,7 +79,8 @@
- 	if (cdev->private->state == DEV_STATE_NOT_OPER)
- 		return -ENODEV;
- 	if (cdev->private->state != DEV_STATE_ONLINE ||
--	    sch->schib.scsw.actl != 0 ||
-+	    ((sch->schib.scsw.stctl & SCSW_STCTL_PRIM_STATUS) &&
-+	     !(sch->schib.scsw.stctl & SCSW_STCTL_SEC_STATUS)) ||
- 	    cdev->private->flags.doverify)
- 		return -EBUSY;
- 	ret = cio_set_options (sch, flags);
-@@ -347,7 +348,9 @@
- 	cdev->handler = ccw_device_wake_up;
- 	if (cdev->private->state != DEV_STATE_ONLINE)
- 		ret = -ENODEV;
--	else if (sch->schib.scsw.actl != 0 || cdev->private->flags.doverify)
-+	else if (((sch->schib.scsw.stctl & SCSW_STCTL_PRIM_STATUS) &&
-+		  !(sch->schib.scsw.stctl & SCSW_STCTL_SEC_STATUS)) || 
-+		 cdev->private->flags.doverify)
- 		ret = -EBUSY;
- 	else
- 		/* 0x00D9C4C3 == ebcdic "RDC" */
-@@ -414,7 +417,9 @@
- 	cdev->handler = ccw_device_wake_up;
- 	if (cdev->private->state != DEV_STATE_ONLINE)
- 		ret = -ENODEV;
--	else if (sch->schib.scsw.actl != 0 || cdev->private->flags.doverify)
-+	else if (((sch->schib.scsw.stctl & SCSW_STCTL_PRIM_STATUS) &&
-+		  !(sch->schib.scsw.stctl & SCSW_STCTL_SEC_STATUS)) || 
-+		 cdev->private->flags.doverify)
- 		ret = -EBUSY;
- 	else
- 		/* 0x00D9C3C4 == ebcdic "RCD" */
-@@ -441,12 +446,12 @@
- }
- 
- /*
-- * Try to issue an unconditional reserve on a boxed device.
-+ * Try to break the lock on a boxed device.
-  */
- int
- ccw_device_stlck(struct ccw_device *cdev)
- {
--	char buf[32];
-+	void *buf, *buf2;
- 	unsigned long flags;
- 	struct subchannel *sch;
- 	int ret;
-@@ -462,16 +467,30 @@
- 	CIO_TRACE_EVENT(2, "stl lock");
- 	CIO_TRACE_EVENT(2, cdev->dev.bus_id);
- 
-+	buf = kmalloc(32*sizeof(char), GFP_DMA|GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+	buf2 = kmalloc(32*sizeof(char), GFP_DMA|GFP_KERNEL);
-+	if (!buf2) {
-+		kfree(buf);
-+		return -ENOMEM;
-+	}
- 	spin_lock_irqsave(&sch->lock, flags);
- 	ret = cio_enable_subchannel(sch, 3);
- 	if (ret)
- 		goto out_unlock;
--	/* Setup ccw. This cmd code seems not to be in use elsewhere. */
-+	/* 
-+	 * Setup ccw. We chain an unconditional reserve and a release so we
-+	 * only break the lock.
-+	 */
- 	cdev->private->iccws[0].cmd_code = CCW_CMD_STLCK;
- 	cdev->private->iccws[0].cda = (__u32) __pa(buf);
- 	cdev->private->iccws[0].count = 32;
--	cdev->private->iccws[0].flags = CCW_FLAG_SLI;
+-asmlinkage int sys32_sysfs(int option, u32 arg1, u32 arg2)
+-{
+-	return sys_sysfs(option, arg1, arg2);
+-}
 -
-+	cdev->private->iccws[0].flags = CCW_FLAG_CC;
-+	cdev->private->iccws[1].cmd_code = CCW_CMD_RELEASE;
-+	cdev->private->iccws[1].cda = (__u32) __pa(buf2);
-+	cdev->private->iccws[1].count = 32;
-+	cdev->private->iccws[1].flags = 0;
- 	ret = cio_start(sch, cdev->private->iccws, 0);
- 	if (ret) {
- 		cio_disable_subchannel(sch); //FIXME: return code?
-@@ -486,10 +505,13 @@
- 	     (DEV_STAT_CHN_END|DEV_STAT_DEV_END)) ||
- 	    (cdev->private->irb.scsw.cstat != 0))
- 		ret = -EIO;
+ struct ncp_mount_data32 {
+         int version;
+         unsigned int ncp_fd;
+@@ -1718,33 +1713,6 @@
+ 	return do_sys_settimeofday(tv ? &kts : NULL, tz ? &ktz : NULL);
+ }
+ 
+-asmlinkage int sys32_utimes(char __user *filename,
+-			struct compat_timeval __user *tvs)
+-{
+-	char *kfilename;
+-	struct timeval ktvs[2];
+-	mm_segment_t old_fs;
+-	int ret;
 -
- 	/* Clear irb. */
- 	memset(&cdev->private->irb, 0, sizeof(struct irb));
- out_unlock:
-+	if (buf)
-+		kfree(buf);
-+	if (buf2)
-+		kfree(buf2);
- 	spin_unlock_irqrestore(&sch->lock, flags);
+-	kfilename = getname(filename);
+-	ret = PTR_ERR(kfilename);
+-	if (!IS_ERR(kfilename)) {
+-		if (tvs) {
+-			if (get_tv32(&ktvs[0], tvs) ||
+-			    get_tv32(&ktvs[1], 1+tvs))
+-				return -EFAULT;
+-		}
+-
+-		old_fs = get_fs();
+-		set_fs(KERNEL_DS);
+-		ret = sys_utimes(kfilename, &ktvs[0]);
+-		set_fs(old_fs);
+-
+-		putname(kfilename);
+-	}
+-	return ret;
+-}
+-
+ /* These are here just in case some old sparc32 binary calls it. */
+ asmlinkage int sys32_pause(void)
+ {
+@@ -1753,17 +1721,6 @@
+ 	return -ERESTARTNOHAND;
+ }
+ 
+-
+-asmlinkage int sys32_prctl(int option, u32 arg2, u32 arg3, u32 arg4, u32 arg5)
+-{
+-	return sys_prctl(option,
+-			 (unsigned long) arg2,
+-			 (unsigned long) arg3,
+-			 (unsigned long) arg4,
+-			 (unsigned long) arg5);
+-}
+-
+-
+ asmlinkage compat_ssize_t sys32_pread64(unsigned int fd, char *ubuf,
+ 				 compat_size_t count, u32 poshi, u32 poslo)
+ {
+@@ -1897,13 +1854,6 @@
  	return ret;
  }
-diff -urN linux-2.6/drivers/s390/cio/device_status.c linux-2.6-s390/drivers/s390/cio/device_status.c
---- linux-2.6/drivers/s390/cio/device_status.c	Thu Mar 11 03:55:27 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_status.c	Tue Mar 16 14:03:06 2004
-@@ -99,7 +99,7 @@
- static inline int
- ccw_device_accumulate_esw_valid(struct irb *irb)
+ 
+-asmlinkage int sys_setpriority32(u32 which, u32 who, u32 niceval)
+-{
+-	return sys_setpriority((int) which,
+-			       (int) who,
+-			       (int) niceval);
+-}
+-
+ struct __sysctl_args32 {
+ 	u32 name;
+ 	int nlen;
+diff -urN linux-2.6/arch/s390/kernel/compat_linux.h linux-2.6-s390/arch/s390/kernel/compat_linux.h
+--- linux-2.6/arch/s390/kernel/compat_linux.h	Thu Mar 11 03:55:36 2004
++++ linux-2.6-s390/arch/s390/kernel/compat_linux.h	Tue Mar 16 14:03:06 2004
+@@ -144,6 +144,11 @@
+ 			 PSW32_MASK_IO | PSW32_MASK_EXT | PSW32_MASK_MCHECK | \
+ 			 PSW32_MASK_PSTATE)
+ 
++#define PSW32_MASK_MERGE(CURRENT,NEW) \
++        (((CURRENT) & ~(PSW32_MASK_CC|PSW32_MASK_PM)) | \
++         ((NEW) & (PSW32_MASK_CC|PSW32_MASK_PM)))
++
++
+ typedef struct
  {
--	if (irb->scsw.eswf && irb->scsw.stctl == SCSW_STCTL_STATUS_PEND)
-+	if (!irb->scsw.eswf && irb->scsw.stctl == SCSW_STCTL_STATUS_PEND)
- 		return 0;
- 	if (irb->scsw.stctl == 
- 	    		(SCSW_STCTL_INTER_STATUS|SCSW_STCTL_STATUS_PEND) &&
-diff -urN linux-2.6/drivers/s390/cio/qdio.c linux-2.6-s390/drivers/s390/cio/qdio.c
---- linux-2.6/drivers/s390/cio/qdio.c	Thu Mar 11 03:55:34 2004
-+++ linux-2.6-s390/drivers/s390/cio/qdio.c	Tue Mar 16 14:03:06 2004
-@@ -56,7 +56,7 @@
- #include "ioasm.h"
- #include "chsc.h"
+ 	_psw_t32	psw;
+diff -urN linux-2.6/arch/s390/kernel/compat_signal.c linux-2.6-s390/arch/s390/kernel/compat_signal.c
+--- linux-2.6/arch/s390/kernel/compat_signal.c	Thu Mar 11 03:55:44 2004
++++ linux-2.6-s390/arch/s390/kernel/compat_signal.c	Tue Mar 16 14:03:06 2004
+@@ -53,8 +53,6 @@
  
--#define VERSION_QDIO_C "$Revision: 1.74 $"
-+#define VERSION_QDIO_C "$Revision: 1.78 $"
+ asmlinkage int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
  
- /****************** MODULE PARAMETER VARIABLES ********************/
- MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
-@@ -545,6 +545,7 @@
- qdio_kick_outbound_q(struct qdio_q *q)
+-int do_signal32(struct pt_regs *regs, sigset_t *oldset);
+-
+ int copy_siginfo_to_user32(siginfo_t32 *to, siginfo_t *from)
  {
- 	int result;
-+	char dbf_text[15];
+ 	int err;
+@@ -123,7 +121,7 @@
+ 	while (1) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		schedule();
+-		if (do_signal32(regs, &saveset))
++		if (do_signal(regs, &saveset))
+ 			return -EINTR;
+ 	}
+ }
+@@ -158,7 +156,7 @@
+         while (1) {
+                 set_current_state(TASK_INTERRUPTIBLE);
+                 schedule();
+-                if (do_signal32(regs, &saveset))
++                if (do_signal(regs, &saveset))
+                         return -EINTR;
+         }
+ }                                                         
+@@ -294,8 +292,8 @@
+ 	_s390_regs_common32 regs32;
+ 	int err, i;
  
- 	QDIO_DBF_TEXT4(0,trace,"kickoutq");
- 	QDIO_DBF_HEX4(0,trace,&q,sizeof(void*));
-@@ -552,15 +553,75 @@
- 	if (!q->siga_out)
- 		return;
+-	regs32.psw.mask = PSW32_USER_BITS |
+-		((__u32)(regs->psw.mask >> 32) & PSW32_MASK_CC);
++	regs32.psw.mask = PSW32_MASK_MERGE(PSW32_USER_BITS,
++					   (__u32)(regs->psw.mask >> 32));
+ 	regs32.psw.addr = PSW32_ADDR_AMODE31 | (__u32) regs->psw.addr;
+ 	for (i = 0; i < NUM_GPRS; i++)
+ 		regs32.gprs[i] = (__u32) regs->gprs[i];
+@@ -320,8 +318,8 @@
+ 	err = __copy_from_user(&regs32, &sregs->regs, sizeof(regs32));
+ 	if (err)
+ 		return err;
+-	regs->psw.mask = PSW_USER32_BITS |
+-		(__u64)(regs32.psw.mask & PSW32_MASK_CC) << 32;
++	regs->psw.mask = PSW_MASK_MERGE(regs->psw.mask,
++				        (__u64)regs32.psw.mask << 32);
+ 	regs->psw.addr = (__u64)(regs32.psw.addr & PSW32_ADDR_INSN);
+ 	for (i = 0; i < NUM_GPRS; i++)
+ 		regs->gprs[i] = (__u64) regs32.gprs[i];
+@@ -482,7 +480,6 @@
+ 	/* Set up registers for signal handler */
+ 	regs->gprs[15] = (__u64) frame;
+ 	regs->psw.addr = (__u64) ka->sa.sa_handler;
+-	regs->psw.mask = PSW_USER32_BITS;
  
--	result=qdio_siga_output(q);
-+	/* here's the story with cc=2 and busy bit set (thanks, Rick):
-+	 * VM's CP could present us cc=2 and busy bit set on SIGA-write
-+	 * during reconfiguration of their Guest LAN (only in HIPERS mode,
-+	 * QDIO mode is asynchronous -- cc=2 and busy bit there will take
-+	 * the queues down immediately; and not being under VM we have a
-+	 * problem on cc=2 and busy bit set right away).
-+	 *
-+	 * Therefore qdio_siga_output will try for a short time constantly,
-+	 * if such a condition occurs. If it doesn't change, it will
-+	 * increase the busy_siga_counter and save the timestamp, and
-+	 * schedule the queue for later processing (via mark_q, using the
-+	 * queue tasklet). __qdio_outbound_processing will check out the
-+	 * counter. If non-zero, it will call qdio_kick_outbound_q as often
-+	 * as the value of the counter. This will attempt further SIGA
-+	 * instructions. For each successful SIGA, the counter is
-+	 * decreased, for failing SIGAs the counter remains the same, after
-+	 * all.
-+	 * After some time of no movement, qdio_kick_outbound_q will
-+	 * finally fail and reflect corresponding error codes to call
-+	 * the upper layer module and have it take the queues down.
-+	 *
-+	 * Note that this is a change from the original HiperSockets design
-+	 * (saying cc=2 and busy bit means take the queues down), but in
-+	 * these days Guest LAN didn't exist... excessive cc=2 with busy bit
-+	 * conditions will still take the queues down, but the threshold is
-+	 * higher due to the Guest LAN environment.
-+	 */
+ 	regs->gprs[2] = map_signal(sig);
+ 	regs->gprs[3] = (__u64) &frame->sc;
+@@ -539,7 +536,6 @@
+ 	/* Set up registers for signal handler */
+ 	regs->gprs[15] = (__u64) frame;
+ 	regs->psw.addr = (__u64) ka->sa.sa_handler;
+-	regs->psw.mask = PSW_USER32_BITS;
  
--	if (!result)
--		return;
+ 	regs->gprs[2] = map_signal(sig);
+ 	regs->gprs[3] = (__u64) &frame->info;
+@@ -556,36 +552,12 @@
+  * OK, we're invoking a handler
+  */	
  
--	if (q->siga_error)
--		q->error_status_flags|=QDIO_STATUS_MORE_THAN_ONE_SIGA_ERROR;
--	q->error_status_flags |= QDIO_STATUS_LOOK_FOR_ERROR;
--	q->siga_error=result;
-+	result=qdio_siga_output(q);
-+
-+		switch (result) {
-+		case 0:
-+		/* went smooth this time, reset timestamp */
-+			QDIO_DBF_TEXT3(0,trace,"cc2reslv");
-+			sprintf(dbf_text,"%4x%2x%2x",q->irq,q->q_no,
-+				atomic_read(&q->busy_siga_counter));
-+			QDIO_DBF_TEXT3(0,trace,dbf_text);
-+			q->timing.busy_start=0;
-+			break;
-+		case (2|QDIO_SIGA_ERROR_B_BIT_SET):
-+			/* cc=2 and busy bit: */
-+		atomic_inc(&q->busy_siga_counter);
-+
-+			/* if the last siga was successful, save
-+			 * timestamp here */
-+			if (!q->timing.busy_start)
-+				q->timing.busy_start=NOW;
-+
-+			/* if we're in time, don't touch error_status_flags
-+			 * and siga_error */
-+			if (NOW-q->timing.busy_start<QDIO_BUSY_BIT_GIVE_UP) {
-+				qdio_mark_q(q);
-+				break;
-+			}
-+			QDIO_DBF_TEXT2(0,trace,"cc2REPRT");
-+			sprintf(dbf_text,"%4x%2x%2x",q->irq,q->q_no,
-+				atomic_read(&q->busy_siga_counter));
-+			QDIO_DBF_TEXT3(0,trace,dbf_text);
-+			/* else fallthrough and report error */
-+		default:
-+			/* for plain cc=1, 2 or 3: */
-+			if (q->siga_error)
-+				q->error_status_flags|=
-+					QDIO_STATUS_MORE_THAN_ONE_SIGA_ERROR;
-+			q->error_status_flags|=
-+				QDIO_STATUS_LOOK_FOR_ERROR;
-+			q->siga_error=result;
-+		}
+-static void
++void
+ handle_signal32(unsigned long sig, siginfo_t *info, sigset_t *oldset,
+ 	struct pt_regs * regs)
+ {
+ 	struct k_sigaction *ka = &current->sighand->action[sig-1];
+ 
+-	/* Are we from a system call? */
+-	if (regs->trap == __LC_SVC_OLD_PSW) {
+-		/* If so, check system call restarting.. */
+-		switch (regs->gprs[2]) {
+-			case -ERESTART_RESTARTBLOCK:
+-				current_thread_info()->restart_block.fn =
+-					do_no_restart_syscall;
+-				clear_thread_flag(TIF_RESTART_SVC);
+-			case -ERESTARTNOHAND:
+-				regs->gprs[2] = -EINTR;
+-				break;
+-
+-			case -ERESTARTSYS:
+-				if (!(ka->sa.sa_flags & SA_RESTART)) {
+-					regs->gprs[2] = -EINTR;
+-					break;
+-				}
+-			/* fallthrough */
+-			case -ERESTARTNOINTR:
+-				regs->gprs[2] = regs->orig_gpr2;
+-				regs->psw.addr -= regs->ilc;
+-		}
+-	}
+-
+ 	/* Set up the stack frame */
+ 	if (ka->sa.sa_flags & SA_SIGINFO)
+ 		setup_rt_frame32(sig, ka, info, oldset, regs);
+@@ -604,53 +576,3 @@
+ 	}
  }
  
- inline static void
-@@ -599,6 +660,8 @@
- static inline void
- __qdio_outbound_processing(struct qdio_q *q)
- {
-+	int siga_attempts;
+-/*
+- * Note that 'init' is a special process: it doesn't get signals it doesn't
+- * want to handle. Thus you cannot kill init even with a SIGKILL even by
+- * mistake.
+- *
+- * Note that we go through the signals twice: once to check the signals that
+- * the kernel can handle, and then we build all the user-level signal handling
+- * stack-frames in one go after that.
+- */
+-int do_signal32(struct pt_regs *regs, sigset_t *oldset)
+-{
+-	siginfo_t info;
+-	int signr;
+-
+-	/*
+-	 * We want the common case to go fast, which
+-	 * is why we may in certain cases get here from
+-	 * kernel mode. Just return without doing anything
+-	 * if so.
+-	 */
+-	if (!user_mode(regs))
+-		return 1;
+-
+-	if (!oldset)
+-		oldset = &current->blocked;
+-
+-	signr = get_signal_to_deliver(&info, regs, NULL);
+-	if (signr > 0) {
+-		/* Whee!  Actually deliver the signal.  */
+-		handle_signal32(signr, &info, oldset, regs);
+-		return 1;
+-	}
+-
+-	/* Did we come from a system call? */
+-	if ( regs->trap == __LC_SVC_OLD_PSW /* System Call! */ ) {
+-		/* Restart the system call - no handlers present */
+-		if (regs->gprs[2] == -ERESTARTNOHAND ||
+-		    regs->gprs[2] == -ERESTARTSYS ||
+-		    regs->gprs[2] == -ERESTARTNOINTR) {
+-			regs->gprs[2] = regs->orig_gpr2;
+-			regs->psw.addr -= regs->ilc;
+-		}
+-		/* Restart the system call with a new system call number */
+-		if (regs->gprs[2] == -ERESTART_RESTARTBLOCK) {
+-			regs->gprs[2] = __NR_restart_syscall;
+-			set_thread_flag(TIF_RESTART_SVC);
+-		}
+-	}
+-	return 0;
+-}
+diff -urN linux-2.6/arch/s390/kernel/compat_wrapper.S linux-2.6-s390/arch/s390/kernel/compat_wrapper.S
+--- linux-2.6/arch/s390/kernel/compat_wrapper.S	Tue Mar 16 14:02:47 2004
++++ linux-2.6-s390/arch/s390/kernel/compat_wrapper.S	Tue Mar 16 14:03:06 2004
+@@ -1097,6 +1097,7 @@
+ 	lgfr	%r3,%r3			# int
+ 	lgfr	%r4,%r4			# int
+ 	llgtr	%r5,%r5			# struct compat_timespec *
++	llgtr	%r6,%r6			# u32 *
+ 	jg	compat_sys_futex	# branch to system call
+ 
+ 	.globl	sys32_setxattr_wrapper
+@@ -1348,3 +1349,17 @@
+ 	llgfr	%r6,%r6			# unsigned long
+ 	jg	sys_remap_file_pages
+ 
++	.globl compat_sys_statfs64_wrapper
++compat_sys_statfs64_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgfr	%r3,%r3			# compat_size_t
++	llgtr	%r4,%r4			# struct compat_statfs64 *
++	jg	compat_statfs64
 +
- 	QDIO_DBF_TEXT4(0,trace,"qoutproc");
- 	QDIO_DBF_HEX4(0,trace,&q,sizeof(void*));
++	.globl compat_sys_fstatfs64_wrapper
++compat_sys_fstatfs64_wrapper:
++	llgfr	%r2,%r2			# unsigned int fd
++	llgfr	%r3,%r3			# compat_size_t
++	llgtr	%r4,%r4			# struct compat_statfs64 *
++	jg	compat_fstatfs64
++
+diff -urN linux-2.6/arch/s390/kernel/entry.S linux-2.6-s390/arch/s390/kernel/entry.S
+--- linux-2.6/arch/s390/kernel/entry.S	Thu Mar 11 03:55:23 2004
++++ linux-2.6-s390/arch/s390/kernel/entry.S	Tue Mar 16 14:03:06 2004
+@@ -432,6 +432,9 @@
+ pgm_per_std:
+ 	SAVE_ALL __LC_PGM_OLD_PSW,1
+ 	GET_THREAD_INFO
++	mvc	__THREAD_per+__PER_atmid(2,%r9),__LC_PER_ATMID
++	mvc	__THREAD_per+__PER_address(4,%r9),__LC_PER_ADDRESS
++	mvc	__THREAD_per+__PER_access_id(1,%r9),__LC_PER_ACCESS_ID
+ 	la	%r4,0x7f
+ 	l	%r3,__LC_PGM_ILC	 # load program interruption code
+         nr      %r4,%r3                  # clear per-event-bit and ilc
+@@ -445,7 +448,7 @@
+ 	la      %r2,SP_PTREGS(15)	 # address of register-save area
+         l       %r1,BASED(.Lhandle_per)  # load adr. of per handler
+         la      %r14,BASED(sysc_return)  # load adr. of system return
+-        br      %r1			 # branch to handle_per_exception
++        br      %r1			 # branch to do_debugger_trap
  
-@@ -619,6 +682,14 @@
- 	perf_stats.tl_runs++;
- #endif /* QDIO_PERFORMANCE_STATS */
+ #
+ # it was a single stepped SVC that is causing all the trouble
+@@ -455,6 +458,9 @@
+ 	lh	%r7,0x8a	  # get svc number from lowcore
+         stosm   24(%r15),0x03     # reenable interrupts
+         GET_THREAD_INFO           # load pointer to task_struct to R9
++	mvc	__THREAD_per+__PER_atmid(2,%r9),__LC_PER_ATMID
++	mvc	__THREAD_per+__PER_address(4,%r9),__LC_PER_ADDRESS
++	mvc	__THREAD_per+__PER_access_id(1,%r9),__LC_PER_ACCESS_ID
+         sla     %r7,2             # *4 and test for svc 0
+ 	bnz	BASED(pgm_svcstd) # svc number > 0 ?
+ 	# svc 0: system call number in %r1
+@@ -473,18 +479,18 @@
  
-+	/* see comment in qdio_kick_outbound_q */
-+	siga_attempts=atomic_read(&q->busy_siga_counter);
-+	while (siga_attempts) {
-+		atomic_dec(&q->busy_siga_counter);
-+		qdio_kick_outbound_q(q);
-+		siga_attempts--;
+ pgm_svcret:
+ 	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
+-	bo	BASED(pgm_svcper_nosig)
++	bno	BASED(pgm_svcper_nosig)
+ 	la	%r2,SP_PTREGS(%r15) # load pt_regs
+ 	sr	%r3,%r3		  # clear *oldset
+ 	l	%r1,BASED(.Ldo_signal)
+-	basr	%r4,%r1		  # call do_signal
++	basr	%r14,%r1	  # call do_signal
+ 	
+ pgm_svcper_nosig:
+         mvi     SP_TRAP+3(%r15),0x28     # set trap indication to pgm check
+ 	la      %r2,SP_PTREGS(15)        # address of register-save area
+         l       %r1,BASED(.Lhandle_per)  # load adr. of per handler
+         la      %r14,BASED(sysc_return)  # load adr. of system return
+-        br      %r1                      # branch to handle_per_exception
++        br      %r1                      # branch to do_debugger_trap
+ #
+ # call trace before and after sys_call
+ #
+@@ -690,7 +696,7 @@
+ .Ldo_softirq:  .long  do_softirq
+ .Lentry_base:  .long  entry_base
+ .Lext_hash:    .long  ext_int_hash
+-.Lhandle_per:  .long  handle_per_exception
++.Lhandle_per:  .long  do_debugger_trap
+ .Ljump_table:  .long  pgm_check_table
+ .Lschedule:    .long  schedule
+ .Lclone:       .long  sys_clone
+diff -urN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-s390/arch/s390/kernel/entry64.S
+--- linux-2.6/arch/s390/kernel/entry64.S	Thu Mar 11 03:55:23 2004
++++ linux-2.6-s390/arch/s390/kernel/entry64.S	Tue Mar 16 14:03:06 2004
+@@ -471,6 +471,9 @@
+ pgm_per_std:
+ 	SAVE_ALL __LC_PGM_OLD_PSW,1
+ 	GET_THREAD_INFO
++	mvc	__THREAD_per+__PER_atmid(2,%r9),__LC_PER_ATMID
++	mvc	__THREAD_per+__PER_address(8,%r9),__LC_PER_ADDRESS
++	mvc	__THREAD_per+__PER_access_id(1,%r9),__LC_PER_ACCESS_ID
+ 	lghi    %r4,0x7f
+ 	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
+         nr      %r4,%r3			 # clear per-event-bit and ilc
+@@ -483,7 +486,7 @@
+ pgm_per_only:
+         la      %r2,SP_PTREGS(15)	 # address of register-save area
+         larl    %r14,sysc_return	 # load adr. of system return
+-        jg      handle_per_exception
++        jg      do_debugger_trap
+ 
+ #
+ # it was a single stepped SVC that is causing all the trouble
+@@ -493,6 +496,9 @@
+ 	llgh    %r7,__LC_SVC_INT_CODE # get svc number from lowcore
+ 	stosm   48(%r15),0x03     # reenable interrupts
+         GET_THREAD_INFO           # load pointer to task_struct to R9
++	mvc	__THREAD_per+__PER_atmid(2,%r9),__LC_PER_ATMID
++	mvc	__THREAD_per+__PER_address(8,%r9),__LC_PER_ADDRESS
++	mvc	__THREAD_per+__PER_access_id(1,%r9),__LC_PER_ACCESS_ID
+ 	slag	%r7,%r7,2         # *4 and test for svc 0
+ 	jnz	pgm_svcstd
+ 	# svc 0: system call number in %r1
+@@ -516,7 +522,7 @@
+ 
+ pgm_svcret:
+ 	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
+-	jo	pgm_svcper_nosig
++	jno	pgm_svcper_nosig
+         la      %r2,SP_PTREGS(%r15) # load pt_regs
+         sgr     %r3,%r3             # clear *oldset
+ 	brasl	%r14,do_signal
+@@ -526,7 +532,7 @@
+ 	st      %r0,SP_TRAP(%r15)
+         la      %r2,SP_PTREGS(15) # address of register-save area
+         larl    %r14,sysc_return  # load adr. of system return
+-        jg      handle_per_exception
++        jg      do_debugger_trap
+ #
+ # call trace before and after sys_call
+ #
+diff -urN linux-2.6/arch/s390/kernel/ptrace.c linux-2.6-s390/arch/s390/kernel/ptrace.c
+--- linux-2.6/arch/s390/kernel/ptrace.c	Thu Mar 11 03:55:44 2004
++++ linux-2.6-s390/arch/s390/kernel/ptrace.c	Tue Mar 16 14:03:06 2004
+@@ -193,9 +193,9 @@
+ 		 */
+ 		if (addr == (addr_t) &dummy->regs.psw.mask &&
+ #ifdef CONFIG_S390_SUPPORT
+-		    (data & ~PSW_MASK_CC) != PSW_USER32_BITS &&
++		    data != PSW_MASK_MERGE(PSW_USER32_BITS, data) &&
+ #endif
+-		    (data & ~PSW_MASK_CC) != PSW_USER_BITS)
++		    data != PSW_MASK_MERGE(PSW_USER_BITS, data))
+ 			/* Invalid psw mask. */
+ 			return -EINVAL;
+ #ifndef CONFIG_ARCH_S390X
+@@ -331,7 +331,7 @@
+ 		if (addr == (addr_t) &dummy32->regs.psw.mask) {
+ 			/* Fake a 31 bit psw mask. */
+ 			tmp = (__u32)(__KSTK_PTREGS(child)->psw.mask >> 32);
+-			tmp = (tmp & PSW32_MASK_CC) | PSW32_USER_BITS;
++			tmp = PSW32_MASK_MERGE(PSW32_USER_BITS, tmp);
+ 		} else if (addr == (addr_t) &dummy32->regs.psw.addr) {
+ 			/* Fake a 31 bit psw address. */
+ 			tmp = (__u32) __KSTK_PTREGS(child)->psw.addr |
+@@ -402,11 +402,11 @@
+ 		 */
+ 		if (addr == (addr_t) &dummy32->regs.psw.mask) {
+ 			/* Build a 64 bit psw mask from 31 bit mask. */
+-			if ((tmp & ~PSW32_MASK_CC) != PSW32_USER_BITS)
++			if (tmp != PSW32_MASK_MERGE(PSW32_USER_BITS, tmp))
+ 				/* Invalid psw mask. */
+ 				return -EINVAL;
+-			__KSTK_PTREGS(child)->psw.mask = PSW_USER32_BITS |
+-				((tmp & PSW32_MASK_CC) << 32);
++			__KSTK_PTREGS(child)->psw.mask = 
++				PSW_MASK_MERGE(PSW_USER32_BITS, (__u64) tmp << 32);
+ 		} else if (addr == (addr_t) &dummy32->regs.psw.addr) {
+ 			/* Build a 64 bit psw address from 31 bit address. */
+ 			__KSTK_PTREGS(child)->psw.addr = 
+diff -urN linux-2.6/arch/s390/kernel/signal.c linux-2.6-s390/arch/s390/kernel/signal.c
+--- linux-2.6/arch/s390/kernel/signal.c	Thu Mar 11 03:55:37 2004
++++ linux-2.6-s390/arch/s390/kernel/signal.c	Tue Mar 16 14:03:06 2004
+@@ -148,9 +148,14 @@
+ /* Returns non-zero on fault. */
+ static int save_sigregs(struct pt_regs *regs, _sigregs *sregs)
+ {
++	unsigned long old_mask = regs->psw.mask;
+ 	int err;
+   
++	/* Copy a 'clean' PSW mask to the user to avoid leaking
++	   information about whether PER is currently on.  */
++	regs->psw.mask = PSW_MASK_MERGE(PSW_USER_BITS, regs->psw.mask);
+ 	err = __copy_to_user(&sregs->regs, regs, sizeof(_s390_regs_common));
++	regs->psw.mask = old_mask;
+ 	if (err != 0)
+ 		return err;
+ 	/* 
+@@ -165,13 +170,14 @@
+ /* Returns positive number on error */
+ static int restore_sigregs(struct pt_regs *regs, _sigregs *sregs)
+ {
++	unsigned long old_mask = regs->psw.mask;
+ 	int err;
+ 
+ 	/* Alwys make any pending restarted system call return -EINTR */
+ 	current_thread_info()->restart_block.fn = do_no_restart_syscall;
+ 
+ 	err = __copy_from_user(regs, &sregs->regs, sizeof(_s390_regs_common));
+-	regs->psw.mask = PSW_USER_BITS | (regs->psw.mask & PSW_MASK_CC);
++	regs->psw.mask = PSW_MASK_MERGE(old_mask, regs->psw.mask);
+ 	regs->psw.addr |= PSW_ADDR_AMODE;
+ 	if (err)
+ 		return err;
+@@ -319,7 +325,6 @@
+ 	/* Set up registers for signal handler */
+ 	regs->gprs[15] = (unsigned long) frame;
+ 	regs->psw.addr = (unsigned long) ka->sa.sa_handler | PSW_ADDR_AMODE;
+-	regs->psw.mask = PSW_USER_BITS;
+ 
+ 	regs->gprs[2] = map_signal(sig);
+ 	regs->gprs[3] = (unsigned long) &frame->sc;
+@@ -378,7 +383,6 @@
+ 	/* Set up registers for signal handler */
+ 	regs->gprs[15] = (unsigned long) frame;
+ 	regs->psw.addr = (unsigned long) ka->sa.sa_handler | PSW_ADDR_AMODE;
+-	regs->psw.mask = PSW_USER_BITS;
+ 
+ 	regs->gprs[2] = map_signal(sig);
+ 	regs->gprs[3] = (unsigned long) &frame->info;
+@@ -401,30 +405,6 @@
+ {
+ 	struct k_sigaction *ka = &current->sighand->action[sig-1];
+ 
+-	/* Are we from a system call? */
+-	if (regs->trap == __LC_SVC_OLD_PSW) {
+-		/* If so, check system call restarting.. */
+-		switch (regs->gprs[2]) {
+-			case -ERESTART_RESTARTBLOCK:
+-				current_thread_info()->restart_block.fn =
+-					do_no_restart_syscall;
+-				clear_thread_flag(TIF_RESTART_SVC);
+-			case -ERESTARTNOHAND:
+-				regs->gprs[2] = -EINTR;
+-				break;
+-
+-			case -ERESTARTSYS:
+-				if (!(ka->sa.sa_flags & SA_RESTART)) {
+-					regs->gprs[2] = -EINTR;
+-					break;
+-				}
+-			/* fallthrough */
+-			case -ERESTARTNOINTR:
+-				regs->gprs[2] = regs->orig_gpr2;
+-				regs->psw.addr -= regs->ilc;
+-		}
+-	}
+-
+ 	/* Set up the stack frame */
+ 	if (ka->sa.sa_flags & SA_SIGINFO)
+ 		setup_rt_frame(sig, ka, info, oldset, regs);
+@@ -454,6 +434,7 @@
+  */
+ int do_signal(struct pt_regs *regs, sigset_t *oldset)
+ {
++	unsigned long retval = 0, continue_addr = 0, restart_addr = 0;
+ 	siginfo_t info;
+ 	int signr;
+ 
+@@ -468,35 +449,62 @@
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+-#ifdef CONFIG_S390_SUPPORT 
+-	if (test_thread_flag(TIF_31BIT)) {
+-		extern asmlinkage int do_signal32(struct pt_regs *regs,
+-						  sigset_t *oldset); 
+-		return do_signal32(regs, oldset);
+-        }
+-#endif 
+ 
++	/* Are we from a system call? */
++	if (regs->trap == __LC_SVC_OLD_PSW) {
++		continue_addr = regs->psw.addr;
++		restart_addr = continue_addr - regs->ilc;
++		retval = regs->gprs[2];
++
++		/* Prepare for system call restart.  We do this here so that a
++		   debugger will see the already changed PSW. */
++		if (retval == -ERESTARTNOHAND ||
++		    retval == -ERESTARTSYS ||
++		    retval == -ERESTARTNOINTR) {
++			regs->gprs[2] = regs->orig_gpr2;
++			regs->psw.addr = restart_addr;
++		} else if (retval == -ERESTART_RESTARTBLOCK) {
++			regs->gprs[2] = -EINTR;
++		}
 +	}
 +
- 	if (qdio_has_outbound_q_moved(q))
- 		qdio_kick_outbound_handler(q);
- 
-@@ -1368,6 +1439,10 @@
- 			((irq_ptr->is_thinint_irq)?&tiqdio_inbound_processing:
- 			 &qdio_inbound_processing);
- 
-+		/* actually this is not used for inbound queues. yet. */
-+		atomic_set(&q->busy_siga_counter,0);
-+		q->timing.busy_start=0;
++	/* Get signal to deliver.  When running under ptrace, at this point
++	   the debugger may change all our registers ... */
+ 	signr = get_signal_to_deliver(&info, regs, NULL);
 +
- /*		for (j=0;j<QDIO_STATS_NUMBER;j++)
- 			q->timing.last_transfer_times[j]=(qdio_get_micros()/
- 							  QDIO_STATS_NUMBER)*j;
-@@ -1432,6 +1507,9 @@
- 		q->tasklet.func=(void(*)(unsigned long))
- 			&qdio_outbound_processing;
++	/* Depending on the signal settings we may need to revert the
++	   decision to restart the system call. */
++	if (signr > 0 && regs->psw.addr == restart_addr) {
++		if (retval == -ERESTARTNOHAND
++		    || (retval == -ERESTARTSYS
++			 && !(current->sighand->action[signr-1].sa.sa_flags 
++			      & SA_RESTART))) {
++			regs->gprs[2] = -EINTR;
++			regs->psw.addr = continue_addr;
++		}
++	}
++	
+ 	if (signr > 0) {
+ 		/* Whee!  Actually deliver the signal.  */
++#ifdef CONFIG_S390_SUPPORT 
++		if (test_thread_flag(TIF_31BIT)) {
++			extern void handle_signal32(unsigned long sig, 
++						    siginfo_t *info, 
++						    sigset_t *oldset,
++						    struct pt_regs *regs);
++			handle_signal32(signr, &info, oldset, regs);
++			return 1;
++	        }
++#endif 
+ 		handle_signal(signr, &info, oldset, regs);
+ 		return 1;
+ 	}
  
-+		atomic_set(&q->busy_siga_counter,0);
-+		q->timing.busy_start=0;
-+
- 		/* fill in slib */
- 		if (i>0) irq_ptr->output_qs[i-1]->slib->nsliba=
- 				 (unsigned long)(q->slib);
-@@ -2134,7 +2212,7 @@
- 	QDIO_DBF_TEXT0(0,setup,dbf_text);
- 
- 	rc = qdio_shutdown(cdev, how);
--	if (rc == 0)
-+	if ((rc == 0) || (rc == -EINPROGRESS))
- 		rc = qdio_free(cdev);
- 	return rc;
+-	/* Did we come from a system call? */
+-	if ( regs->trap == __LC_SVC_OLD_PSW /* System Call! */ ) {
+-		/* Restart the system call - no handlers present */
+-		if (regs->gprs[2] == -ERESTARTNOHAND ||
+-		    regs->gprs[2] == -ERESTARTSYS ||
+-		    regs->gprs[2] == -ERESTARTNOINTR) {
+-			regs->gprs[2] = regs->orig_gpr2;
+-			regs->psw.addr -= regs->ilc;
+-		}
+-		/* Restart the system call with a new system call number */
+-		if (regs->gprs[2] == -ERESTART_RESTARTBLOCK) {
+-			regs->gprs[2] = __NR_restart_syscall;
+-			set_thread_flag(TIF_RESTART_SVC);
+-		}
++	/* Restart a different system call. */
++	if (retval == -ERESTART_RESTARTBLOCK 
++	    && regs->psw.addr == continue_addr) {
++		regs->gprs[2] = __NR_restart_syscall;
++		set_thread_flag(TIF_RESTART_SVC);
+ 	}
+ 	return 0;
  }
-@@ -2145,6 +2223,7 @@
- 	struct qdio_irq *irq_ptr;
- 	int i;
- 	int result = 0;
-+	int rc;
- 	unsigned long flags;
- 	int timeout;
- 	char dbf_text[15];
-@@ -2191,27 +2270,23 @@
- 			result=-EINPROGRESS;
- 	}
+diff -urN linux-2.6/arch/s390/kernel/sys_s390.c linux-2.6-s390/arch/s390/kernel/sys_s390.c
+--- linux-2.6/arch/s390/kernel/sys_s390.c	Tue Mar 16 14:02:43 2004
++++ linux-2.6-s390/arch/s390/kernel/sys_s390.c	Tue Mar 16 14:03:06 2004
+@@ -245,52 +245,7 @@
+ 	return -EINVAL;
+ }
  
--	if (result)
--		goto out;
+-/*
+- * Old cruft
+- */
+-asmlinkage int sys_uname(struct old_utsname * name)
+-{
+-	int err;
+-	if (!name)
+-		return -EFAULT;
+-	down_read(&uts_sem);
+-	err=copy_to_user(name, &system_utsname, sizeof (*name));
+-	up_read(&uts_sem);
+-	return err?-EFAULT:0;
+-}
 -
- 	/* cleanup subchannel */
- 	spin_lock_irqsave(get_ccwdev_lock(cdev),flags);
- 	if (how&QDIO_FLAG_CLEANUP_USING_CLEAR) {
--		result = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
-+		rc = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
- 		timeout=QDIO_CLEANUP_CLEAR_TIMEOUT;
- 	} else if (how&QDIO_FLAG_CLEANUP_USING_HALT) {
--		result = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
-+		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
- 		timeout=QDIO_CLEANUP_HALT_TIMEOUT;
- 	} else { /* default behaviour */
--		result = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
-+		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
- 		timeout=QDIO_CLEANUP_HALT_TIMEOUT;
+-#ifndef CONFIG_ARCH_S390X
+-asmlinkage int sys_olduname(struct oldold_utsname * name)
+-{
+-	int error;
+-
+-	if (!name)
+-		return -EFAULT;
+-	if (!access_ok(VERIFY_WRITE,name,sizeof(struct oldold_utsname)))
+-		return -EFAULT;
+-  
+-  	down_read(&uts_sem);
+-	
+-	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->sysname+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->nodename+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->release+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->version+__OLD_UTS_LEN);
+-	error |= __copy_to_user(&name->machine,&system_utsname.machine,__OLD_UTS_LEN);
+-	error |= __put_user(0,name->machine+__OLD_UTS_LEN);
+-	
+-	up_read(&uts_sem);
+-	
+-	error = error ? -EFAULT : 0;
+-
+-	return error;
+-}
+-
+-#else /* CONFIG_ARCH_S390X */
+-
++#ifdef CONFIG_ARCH_S390X
+ asmlinkage int s390x_newuname(struct new_utsname * name)
+ {
+ 	int ret = sys_newuname(name);
+diff -urN linux-2.6/arch/s390/kernel/syscalls.S linux-2.6-s390/arch/s390/kernel/syscalls.S
+--- linux-2.6/arch/s390/kernel/syscalls.S	Tue Mar 16 14:02:47 2004
++++ linux-2.6-s390/arch/s390/kernel/syscalls.S	Tue Mar 16 14:03:06 2004
+@@ -54,7 +54,7 @@
+ SYSCALL(sys_times,sys_times,compat_sys_times_wrapper)
+ NI_SYSCALL							/* old prof syscall */
+ SYSCALL(sys_brk,sys_brk,sys32_brk_wrapper)			/* 45 */
+-SYSCALL(sys_setgid16,sys_ni_syscall,sys32_setgid16)		/* old setgid16 syscall*/
++SYSCALL(sys_setgid16,sys_ni_syscall,sys32_setgid16_wrapper)	/* old setgid16 syscall*/
+ SYSCALL(sys_getgid16,sys_ni_syscall,sys32_getgid16)		/* old getgid16 syscall*/
+ SYSCALL(sys_signal,sys_signal,sys32_signal_wrapper)
+ SYSCALL(sys_geteuid16,sys_ni_syscall,sys32_geteuid16)		/* old geteuid16 syscall */
+@@ -274,3 +274,5 @@
+ NI_SYSCALL							/* reserved for vserver */
+ SYSCALL(s390_fadvise64_64,sys_ni_syscall,sys32_fadvise64_64_wrapper)
+ SYSCALL(sys_remap_file_pages,sys_remap_file_pages,sys32_remap_file_pages_wrapper)
++SYSCALL(sys_statfs64,sys_statfs64,compat_sys_statfs64_wrapper)
++SYSCALL(sys_fstatfs64,sys_fstatfs64,compat_sys_fstatfs64_wrapper)
+diff -urN linux-2.6/arch/s390/kernel/traps.c linux-2.6-s390/arch/s390/kernel/traps.c
+--- linux-2.6/arch/s390/kernel/traps.c	Thu Mar 11 03:55:25 2004
++++ linux-2.6-s390/arch/s390/kernel/traps.c	Tue Mar 16 14:03:06 2004
+@@ -308,7 +308,7 @@
+ 	return (void *)((regs->psw.addr-S390_lowcore.pgm_ilc) & PSW_ADDR_INSN);
+ }
+ 
+-static int do_debugger_trap(struct pt_regs *regs)
++int do_debugger_trap(struct pt_regs *regs)
+ {
+ 	if ((regs->psw.mask & PSW_MASK_PSTATE) &&
+ 	    (current->ptrace & PT_PTRACED)) {
+@@ -652,23 +652,3 @@
+ #endif
  	}
--	if (result == -ENODEV) {
-+	if (rc == -ENODEV) {
- 		/* No need to wait for device no longer present. */
- 		qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
--		result = 0; /* No error. */
- 		spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
--	} else if (result == 0) {
-+	} else if (rc == 0) {
- 		qdio_set_state(irq_ptr, QDIO_IRQ_STATE_CLEANUP);
- 		ccw_device_set_timeout(cdev, timeout);
- 		spin_unlock_irqrestore(get_ccwdev_lock(cdev),flags);
-@@ -2223,6 +2298,7 @@
- 		QDIO_PRINT_INFO("ccw_device_{halt,clear} returned %d for "
- 				"device %s\n", result, cdev->dev.bus_id);
- 		spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
-+		result = rc;
- 		goto out;
- 	}
- 	if (irq_ptr->is_thinint_irq) {
-diff -urN linux-2.6/drivers/s390/cio/qdio.h linux-2.6-s390/drivers/s390/cio/qdio.h
---- linux-2.6/drivers/s390/cio/qdio.h	Thu Mar 11 03:55:23 2004
-+++ linux-2.6-s390/drivers/s390/cio/qdio.h	Tue Mar 16 14:03:06 2004
-@@ -1,7 +1,7 @@
- #ifndef _CIO_QDIO_H
- #define _CIO_QDIO_H
+ }
+-
+-
+-void handle_per_exception(struct pt_regs *regs)
+-{
+-	if (regs->psw.mask & PSW_MASK_PSTATE) {
+-		per_struct *per_info=&current->thread.per_info;
+-		per_info->lowcore.words.perc_atmid=S390_lowcore.per_perc_atmid;
+-		per_info->lowcore.words.address=S390_lowcore.per_address;
+-		per_info->lowcore.words.access_id=S390_lowcore.per_access_id;
+-	}
+-	if (do_debugger_trap(regs)) {
+-		/* I've seen this possibly a task structure being reused ? */
+-		printk("Spurious per exception detected\n");
+-		printk("switching off per tracing for this task.\n");
+-		show_regs(regs);
+-		/* Hopefully switching off per tracing will help us survive */
+-		regs->psw.mask &= ~PSW_MASK_PER;
+-	}
+-}
+-
+diff -urN linux-2.6/include/asm-s390/bitops.h linux-2.6-s390/include/asm-s390/bitops.h
+--- linux-2.6/include/asm-s390/bitops.h	Thu Mar 11 03:55:21 2004
++++ linux-2.6-s390/include/asm-s390/bitops.h	Tue Mar 16 14:03:06 2004
+@@ -532,7 +532,7 @@
+  * Find-bit routines..
+  */
+ static inline int
+-find_first_zero_bit(unsigned long * addr, unsigned int size)
++find_first_zero_bit(const unsigned long * addr, unsigned int size)
+ {
+ 	unsigned long cmp, count;
+         unsigned int res;
+@@ -571,7 +571,7 @@
+ }
  
--#define VERSION_CIO_QDIO_H "$Revision: 1.22 $"
-+#define VERSION_CIO_QDIO_H "$Revision: 1.23 $"
+ static inline int
+-find_first_bit(unsigned long * addr, unsigned int size)
++find_first_bit(const unsigned long * addr, unsigned int size)
+ {
+ 	unsigned long cmp, count;
+         unsigned int res;
+@@ -610,7 +610,7 @@
+ }
  
- //#define QDIO_DBF_LIKE_HELL
+ static inline int
+-find_next_zero_bit (unsigned long * addr, int size, int offset)
++find_next_zero_bit (const unsigned long * addr, int size, int offset)
+ {
+         unsigned long * p = ((unsigned long *) addr) + (offset >> 5);
+         unsigned long bitvec, reg;
+@@ -649,7 +649,7 @@
+ }
  
-@@ -33,7 +33,8 @@
+ static inline int
+-find_next_bit (unsigned long * addr, int size, int offset)
++find_next_bit (const unsigned long * addr, int size, int offset)
+ {
+         unsigned long * p = ((unsigned long *) addr) + (offset >> 5);
+         unsigned long bitvec, reg;
+@@ -693,7 +693,7 @@
+  * Find-bit routines..
+  */
+ static inline unsigned long
+-find_first_zero_bit(unsigned long * addr, unsigned long size)
++find_first_zero_bit(const unsigned long * addr, unsigned long size)
+ {
+         unsigned long res, cmp, count;
  
- #define TIQDIO_THININT_ISC 3
- #define TIQDIO_DELAY_TARGET 0
--#define QDIO_BUSY_BIT_PATIENCE 2000 /* in microsecs */
-+#define QDIO_BUSY_BIT_PATIENCE 100 /* in microsecs */
-+#define QDIO_BUSY_BIT_GIVE_UP 10000000 /* 10 seconds */
- #define IQDIO_GLOBAL_LAPS 2 /* GLOBAL_LAPS are not used as we */
- #define IQDIO_GLOBAL_LAPS_INT 1 /* don't global summary */
- #define IQDIO_LOCAL_LAPS 4
-@@ -599,7 +600,9 @@
- 		int last_transfer_index; */
+@@ -735,7 +735,7 @@
+ }
  
- 		__u64 last_transfer_time;
-+		__u64 busy_start;
- 	} timing;
-+	atomic_t busy_siga_counter;
-         unsigned int queue_type;
+ static inline unsigned long
+-find_first_bit(unsigned long * addr, unsigned long size)
++find_first_bit(const unsigned long * addr, unsigned long size)
+ {
+         unsigned long res, cmp, count;
  
- 	/* leave this member at the end. won't be cleared in qdio_fill_qs */
-diff -urN linux-2.6/include/asm-s390/cio.h linux-2.6-s390/include/asm-s390/cio.h
---- linux-2.6/include/asm-s390/cio.h	Thu Mar 11 03:55:44 2004
-+++ linux-2.6-s390/include/asm-s390/cio.h	Tue Mar 16 14:03:06 2004
-@@ -132,6 +132,7 @@
- #define CCW_CMD_SENSE_PGID	0x34
- #define CCW_CMD_SUSPEND_RECONN	0x5B
- #define CCW_CMD_RDC		0x64
-+#define CCW_CMD_RELEASE		0x94
- #define CCW_CMD_SET_PGID	0xAF
- #define CCW_CMD_SENSE_ID	0xE4
- #define CCW_CMD_DCTL		0xF3
+@@ -777,7 +777,7 @@
+ }
+ 
+ static inline unsigned long
+-find_next_zero_bit (unsigned long * addr, unsigned long size, unsigned long offset)
++find_next_zero_bit (const unsigned long * addr, unsigned long size, unsigned long offset)
+ {
+         unsigned long * p = ((unsigned long *) addr) + (offset >> 6);
+         unsigned long bitvec, reg;
+@@ -821,7 +821,7 @@
+ }
+ 
+ static inline unsigned long
+-find_next_bit (unsigned long * addr, unsigned long size, unsigned long offset)
++find_next_bit (const unsigned long * addr, unsigned long size, unsigned long offset)
+ {
+         unsigned long * p = ((unsigned long *) addr) + (offset >> 6);
+         unsigned long bitvec, reg;
+diff -urN linux-2.6/include/asm-s390/lowcore.h linux-2.6-s390/include/asm-s390/lowcore.h
+--- linux-2.6/include/asm-s390/lowcore.h	Thu Mar 11 03:55:27 2004
++++ linux-2.6-s390/include/asm-s390/lowcore.h	Tue Mar 16 14:03:06 2004
+@@ -44,6 +44,10 @@
+ #define __LC_PGM_ILC                    0x08C
+ #define __LC_PGM_INT_CODE               0x08E
+ 
++#define __LC_PER_ATMID			0x096
++#define __LC_PER_ADDRESS		0x098
++#define __LC_PER_ACCESS_ID		0x0A1
++
+ #define __LC_SUBCHANNEL_ID              0x0B8
+ #define __LC_SUBCHANNEL_NR              0x0BA
+ #define __LC_IO_INT_PARM                0x0BC
+diff -urN linux-2.6/include/asm-s390/ptrace.h linux-2.6-s390/include/asm-s390/ptrace.h
+--- linux-2.6/include/asm-s390/ptrace.h	Thu Mar 11 03:55:36 2004
++++ linux-2.6-s390/include/asm-s390/ptrace.h	Tue Mar 16 14:03:06 2004
+@@ -277,6 +277,14 @@
+ 			 PSW_MASK_IO | PSW_MASK_EXT | PSW_MASK_MCHECK | \
+ 			 PSW_MASK_PSTATE)
+ 
++/* This macro merges a NEW PSW mask specified by the user into
++   the currently active PSW mask CURRENT, modifying only those
++   bits in CURRENT that the user may be allowed to change: this
++   is the condition code and the program mask bits.  */
++#define PSW_MASK_MERGE(CURRENT,NEW) \
++	(((CURRENT) & ~(PSW_MASK_CC|PSW_MASK_PM)) | \
++	 ((NEW) & (PSW_MASK_CC|PSW_MASK_PM)))
++
+ /*
+  * The first entries in pt_regs and user_regs_struct
+  * are common for the two structures. The s390_regs structure
+diff -urN linux-2.6/include/asm-s390/unistd.h linux-2.6-s390/include/asm-s390/unistd.h
+--- linux-2.6/include/asm-s390/unistd.h	Tue Mar 16 14:02:48 2004
++++ linux-2.6-s390/include/asm-s390/unistd.h	Tue Mar 16 14:03:06 2004
+@@ -261,8 +261,10 @@
+  */
+ #define __NR_fadvise64_64	264
+ #define __NR_remap_file_pages	265
++#define __NR_statfs64		266
++#define __NR_fstatfs64		267
+ 
+-#define NR_syscalls 266
++#define NR_syscalls 268
+ 
+ /* 
+  * There are some system calls that are not present on 64 bit, some
+diff -urN linux-2.6/kernel/exit.c linux-2.6-s390/kernel/exit.c
+--- linux-2.6/kernel/exit.c	Tue Mar 16 14:02:49 2004
++++ linux-2.6-s390/kernel/exit.c	Tue Mar 16 14:03:06 2004
+@@ -1146,7 +1146,8 @@
+ 	return retval;
+ }
+ 
+-#if !defined(__alpha__) && !defined(__ia64__) && !defined(__arm__)
++#if !defined(__alpha__) && !defined(__ia64__) && \
++    !defined(__arm__) && !defined(__s390__)
+ 
+ /*
+  * sys_waitpid() remains for compatibility. waitpid() should be
+diff -urN linux-2.6/kernel/signal.c linux-2.6-s390/kernel/signal.c
+--- linux-2.6/kernel/signal.c	Tue Mar 16 14:02:49 2004
++++ linux-2.6-s390/kernel/signal.c	Tue Mar 16 14:03:06 2004
+@@ -2491,7 +2491,8 @@
+ #endif /* __sparc__ */
+ #endif
+ 
+-#if !defined(__alpha__) && !defined(__ia64__) && !defined(__arm__)
++#if !defined(__alpha__) && !defined(__ia64__) && \
++    !defined(__arm__) && !defined(__s390__)
+ /*
+  * For backwards compatibility.  Functionality superseded by sigprocmask.
+  */

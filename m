@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269639AbTHSKJY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 06:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269646AbTHSKJY
+	id S269994AbTHSKUU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 06:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270007AbTHSKUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 06:09:24 -0400
-Received: from smtp0.libero.it ([193.70.192.33]:13452 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id S269639AbTHSKJW (ORCPT
+	Tue, 19 Aug 2003 06:20:20 -0400
+Received: from mail.gmx.de ([213.165.64.20]:39045 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269994AbTHSKUP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 06:09:22 -0400
-Subject: Re: 2.6.0-test3-mm3
-From: Flameeyes <daps_mls@libero.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20030819013834.1fa487dc.akpm@osdl.org>
-References: <20030819013834.1fa487dc.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1061287775.5995.7.camel@defiant.flameeyes>
+	Tue, 19 Aug 2003 06:20:15 -0400
+Message-Id: <5.2.1.1.2.20030819113225.019dae48@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Tue, 19 Aug 2003 12:24:17 +0200
+To: Nick Piggin <piggin@cyberone.com.au>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [CFT][PATCH] new scheduler policy
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F4182FD.3040900@cyberone.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 19 Aug 2003 12:09:36 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-19 at 10:38, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm3/
+At 11:53 AM 8/19/2003 +1000, Nick Piggin wrote:
+>Hi everyone,
+>
+>As per the latest trend these days, I've done some tinkering with
+>the cpu scheduler. I have gone in the opposite direction of most
+>of the recent stuff and come out with something that can be nearly
+>as good interactivity wise (for me).
+>
+>I haven't run many tests on it - my mind blanked when I tried to
+>remember the scores of scheduler "exploits" thrown around. So if
+>anyone would like to suggest some, or better still, run some,
+>please do so. And be nice, this isn't my type of scheduler :P
 
-there's a problem with make xconfig:
+Ok, I took it out for a quick spin...
 
-defiant:/usr/src/linux-2.6.0-test3-mm3# make xconfig
-  CC      scripts/empty.o
-  MKELF   scripts/elfconfig.h
-  HOSTCC  scripts/file2alias.o
-  HOSTCC  scripts/modpost.o
-  HOSTLD  scripts/modpost
-make[1]: *** No rule to make target `scripts/kconfig/qconf.c', needed by
-`scripts/kconfig/qconf'.  Stop.
-make: *** [xconfig] Error 2
+Test-starve.c starvation is back (curable via other means), but irman2 is 
+utterly harmless.  Responsiveness under load is very nice until I get to 
+the "very hefty" end of the spectrum (expected).  Throughput is down a bit 
+at make -j30, and there are many cc1's running at very high priority once 
+swap becomes moderately busy.  OTOH, concurrency for the make -jN in 
+general appears to be up a bit.  X is pretty choppy when moving windows 
+around, but that _appears_ to be the newer/tamer backboost bleeding a 
+kdeinit thread a bit too dry.  (I think it'll be easy to correct, will let 
+you know if what I have in mind to test that theory works out).  Ending on 
+a decidedly positive note, I can no longer reproduce priority inversion 
+troubles with xmms's gl thread, nor with blender.
+
+(/me wonders what the reports from wine/game folks will be like)
+
+         -Mike
 
 
-also, the ACPI entries seems vanished in the .config, and the menu is
-not accessible.
-With the old 2.6.0-test3-mm2 no problem at all.
-
--- 
-Flameeyes <dgp85@users.sf.net>
 

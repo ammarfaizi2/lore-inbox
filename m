@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVBJPnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVBJPpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbVBJPnd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 10:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVBJPnd
+	id S262154AbVBJPpW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 10:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVBJPpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 10:43:33 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:5509 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262145AbVBJPn0 (ORCPT
+	Thu, 10 Feb 2005 10:45:22 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:8166 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262148AbVBJPos (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 10:43:26 -0500
-Date: Thu, 10 Feb 2005 16:45:07 +0100
+	Thu, 10 Feb 2005 10:44:48 -0500
+Date: Thu, 10 Feb 2005 16:46:25 +0100
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 1/5] sonypi: replace schedule_timeout() with msleep()
-Message-ID: <20050210154507.GF3493@crusoe.alcove-fr>
+Subject: [PATCH 3/5] sonypi: use MISC_DYNAMIC_MINOR in miscdevice.minor assignment.
+Message-ID: <20050210154624.GH3493@crusoe.alcove-fr>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 ===================================================================
 
-Replace schedule_timeout() with msleep() - from janitors.
+Use MISC_DYNAMIC_MINOR in miscdevice.minor assignment.
 
+Patch-from: Olaf Hering <olh@suse.de>
 Signed-off-by: Stelian Pop <stelian@popies.net>
 
 ===================================================================
 
- sonypi.c |   11 ++++-------
- 1 files changed, 4 insertions(+), 7 deletions(-)
+ sonypi.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
 ===================================================================
 
 Index: drivers/char/sonypi.c
 ===================================================================
---- a/drivers/char/sonypi.c	(revision 26538)
-+++ b/drivers/char/sonypi.c	(revision 26539)
-@@ -1,7 +1,7 @@
- /*
-  * Sony Programmable I/O Control Device driver for VAIO
-  *
-- * Copyright (C) 2001-2004 Stelian Pop <stelian@popies.net>
-+ * Copyright (C) 2001-2005 Stelian Pop <stelian@popies.net>
-  *
-  * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
-  *
-@@ -286,17 +286,14 @@ static void sonypi_camera_on(void)
+--- a/drivers/char/sonypi.c	(revision 26556)
++++ b/drivers/char/sonypi.c	(revision 26557)
+@@ -646,7 +646,7 @@ static struct file_operations sonypi_mis
+ };
  
- 	for (j = 5; j > 0; j--) {
+ struct miscdevice sonypi_misc_device = {
+-	.minor		= -1,
++	.minor		= MISC_DYNAMIC_MINOR,
+ 	.name		= "sonypi",
+ 	.fops		= &sonypi_misc_fops,
+ };
+@@ -755,7 +755,8 @@ static int __devinit sonypi_probe(void)
+ 		goto out_pcienable;
+ 	}
  
--		while (sonypi_call2(0x91, 0x1)) {
--			set_current_state(TASK_UNINTERRUPTIBLE);
--			schedule_timeout(1);
--		}
-+		while (sonypi_call2(0x91, 0x1))
-+			msleep(10);
- 		sonypi_call1(0x93);
- 
- 		for (i = 400; i > 0; i--) {
- 			if (sonypi_camera_ready())
- 				break;
--			set_current_state(TASK_UNINTERRUPTIBLE);
--			schedule_timeout(1);
-+			msleep(10);
- 		}
- 		if (i)
- 			break;
+-	sonypi_misc_device.minor = (minor == -1) ? MISC_DYNAMIC_MINOR : minor;
++	if (minor != -1)
++		sonypi_misc_device.minor = minor;
+ 	if ((ret = misc_register(&sonypi_misc_device))) {
+ 		printk(KERN_ERR "sonypi: misc_register failed\n");
+ 		goto out_miscreg;
 -- 
 Stelian Pop <stelian@popies.net>

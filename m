@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUAXXG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 18:06:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUAXXG3
+	id S262765AbUAXW4R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 17:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUAXW4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 18:06:29 -0500
-Received: from i-195-137-35-214.freedom2surf.net ([195.137.35.214]:756 "EHLO
-	YodaTMS.lan.netvis.co.uk") by vger.kernel.org with ESMTP
-	id S261563AbUAXXG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 18:06:27 -0500
-Message-ID: <4012FA6D.6040101@netvis.co.uk>
-Date: Sat, 24 Jan 2004 23:06:21 +0000
-From: Neil Ferguson <info@netvis.co.uk>
-Reply-To: info@netvis.co.uk
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC]   "smack the penguin"
-References: <401177DB.8010901@nortelnetworks.com>	<20040124095208.GA20489@zombie.inka.de>	<yw1xbrot7j89.fsf@ford.guide>	<20040124103029.GL10487@boetes.org>	<Pine.LNX.4.58.0401242135250.30233@student.dei.uc.pt>	<Pine.LNX.4.58.0401242140230.30233@student.dei.uc.pt> <20040124231901.7a2fdd28@Genbox>
-In-Reply-To: <20040124231901.7a2fdd28@Genbox>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig30BC41C20A40C13C932AC90A"
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 24 Jan 2004 17:56:17 -0500
+Received: from smtp07.auna.com ([62.81.186.17]:61423 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S262765AbUAXW4Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 17:56:16 -0500
+Date: Sat, 24 Jan 2004 23:56:12 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: Linux 2.6.2-rc1
+Message-ID: <20040124225612.GC4072@werewolf.able.es>
+References: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org> (from torvalds@osdl.org on Wed, Jan 21, 2004 at 05:43:53 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig30BC41C20A40C13C932AC90A
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Nuno Alexandre wrote:
+On 01.21, Linus Torvalds wrote:
+> 
+> Ok, this is the next "big merge" with things from Andrew's -mm tree, along
+> with a number of new drivers and arch updates.
+> 
 
->On Sat, 24 Jan 2004 21:41:19 +0000 (WET) 
->Marcos D. Marado Torres wrote:
->  
->
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>
->>1213.6, as a matter of fact ;-)
->>Well, I guess that with this URL you pro's will get really higher
->>hi-scores...
->>    
->>
->
->hi.
->thx for the url.
->
->1214.9 here :)
->http://ikaro.homepage.dk/pingu.jpg
->  
->
+drivers/i2c/chips/w83781d.c is flooding my syslog with:
 
-A student pushing the boundaries, with 1215.8 :-)
+Jan 24 23:50:36 werewolf kernel: Starting device update
+Jan 24 23:51:09 werewolf last message repeated 11 times
+Jan 24 23:52:12 werewolf last message repeated 21 times
+Jan 24 23:53:15 werewolf last message repeated 21 times
+Jan 24 23:54:18 werewolf last message repeated 21 times
 
-http://www.netvis.co.uk/pingu3_swf.png
+so:
 
-Cheers,
+--- linux-2.6.2-rc1/drivers/i2c/chips/w83781d.c.orig	2004-01-24 23:53:02.579206290 +0100
++++ linux-2.6.2-rc1/drivers/i2c/chips/w83781d.c	2004-01-24 23:53:13.862321904 +0100
+@@ -1656,7 +1656,6 @@
+ 	if (time_after
+ 	    (jiffies - data->last_updated, (unsigned long) (HZ + HZ / 2))
+ 	    || time_before(jiffies, data->last_updated) || !data->valid) {
+-		pr_debug("Starting device update\n");
+ 
+ 		for (i = 0; i <= 8; i++) {
+ 			if ((data->type == w83783s || data->type == w83697hf)
 
-Neil
+Correct ?
 
---------------enig30BC41C20A40C13C932AC90A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+TIA
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAEvpzlKeoKvgI9u4RAviLAJ9GrgTMQcDQPOnxsG8oHMCVWh9FigCdF3fu
-oxCxBezL5KYIjkgZiIHpkcs=
-=Fct6
------END PGP SIGNATURE-----
-
---------------enig30BC41C20A40C13C932AC90A--
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.2-rc1-jam2 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

@@ -1,168 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131384AbQLFOBd>; Wed, 6 Dec 2000 09:01:33 -0500
+	id <S131542AbQLFOCd>; Wed, 6 Dec 2000 09:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130560AbQLFOBX>; Wed, 6 Dec 2000 09:01:23 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:42248 "EHLO
-	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-	id <S131384AbQLFOBE>; Wed, 6 Dec 2000 09:01:04 -0500
-Message-ID: <3A2E3F1C.3050608@megapathdsl.net>
-Date: Wed, 06 Dec 2000 05:29:00 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001202
-X-Accept-Language: en
+	id <S131548AbQLFOCX>; Wed, 6 Dec 2000 09:02:23 -0500
+Received: from cannet.com ([206.156.188.2]:35090 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S131542AbQLFOCM>;
+	Wed, 6 Dec 2000 09:02:12 -0500
+Message-ID: <003201c05f88$db6fc4a0$7930000a@hcd.net>
+From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel boot params
+Date: Wed, 6 Dec 2000 08:31:31 -0500
 MIME-Version: 1.0
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre6
-In-Reply-To: <Pine.LNX.4.21.0012061334500.5492-100000@svea.tellus>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed;
+	protocol="application/x-pkcs7-signature";
+	micalg=SHA1;
+	boundary="----=_NextPart_000_002D_01C05F5E.F0DDB4C0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Ringstrom wrote:
+This is a multi-part message in MIME format.
 
-<snip>
+------=_NextPart_000_002D_01C05F5E.F0DDB4C0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-> The way I see it, 2.4.0-test12-pre6 is just a much longer name for 2.4.0.  
-> Keep going like this and we may end up calling you Linus "Santa" Torvalds!  
-> It has a nice ring to it, don't you think?  :-)  Or should that be *-<:-)
+Kernel Hackers,
 
-I appreciate your enthusiasm, but I'd love it if I could use
-both my 3c575 and Belkin BusPort Mobile Cardbus cards
-simultaneously without them thrashing over IRQ11.  This is
-still happening in test12-pre6 and seems to me to indicate
-that all is not well somewhere in IRQ management land.
+    Could someone be so kind to point me to a page where I can find
+a list of parameters I can pass to a kernel on boot.  I am looking for 
+a way to load drivers at boot (like if a RAID controller fails - and I 
+don't have the exact replacement: how can I load a new driver).  I 
+am really just looking for the doc.  Thanks in advance!
 
-Just call me Scrooge.  :-)  On the other hand, maybe
-I wasn't nice this year and am getting coal for
-<insert holiday of preference here>.
+--
+Kind Regards,
+Timothy A. DeWees
 
+------=_NextPart_000_002D_01C05F5E.F0DDB4C0
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
 
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge 
-(AGP disabled) (rev 02)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort+ >SERR- <PERR+
-	Latency: 64 set
-	Region 0: Memory at <unassigned> (32-bit, prefetchable) [size=64M]
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII7jCCAqEw
+ggIKoAMCAQICAwMkHDANBgkqhkiG9w0BAQQFADCBlDELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
+c3Rlcm4gQ2FwZTEUMBIGA1UEBxMLRHVyYmFudmlsbGUxDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
+CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAx
+OTk5LjkuMTYwHhcNMDAwODI1MTQyNDE2WhcNMDEwODI1MTQyNDE2WjBEMR8wHQYDVQQDExZUaGF3
+dGUgRnJlZW1haWwgTWVtYmVyMSEwHwYJKoZIhvcNAQkBFhJ3aHRkcmduQGNhbm5ldC5jb20wgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALJ5dJTLACq2XOImvdzV+9+ljLAiKyoPWnDKTx8wPW+P
+ImV8VRO+DZMG62LqIkwZRwUcwDkPVC1l2NTsiPeTs+V2Wq88MDod6ykAvmGq7b33fuMzrzhGkT1i
+gRzVnvAjfOObtS6rXJBo/O4QHh7M9Mgghqw+G+Iaj/KmW6HZ+CgrAgMBAAGjUDBOMB0GA1UdEQQW
+MBSBEndodGRyZ25AY2FubmV0LmNvbTAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFIir8WCDZlX0
+5FjHRh3AYb0j18OMMA0GCSqGSIb3DQEBBAUAA4GBAK7NQGi7lypyRqBIJqNsb3ttb9uqk/svWipd
+X6rFV3GYgajI0G2APE+2auJaySEzLP/awRURG4PzCP6Lj4gYGwOaOMgCa43H/OyMnlv07G2KcaZk
+9uFMUZf4lnDVFYlG7U/Ugvkoqcyd9Euomjs81SibcmQUqq3RCw6/+zKOXTzvMIIDFDCCAn2gAwIB
+AgIBCzANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2Fw
+ZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
+CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
+Y29tMB4XDTk5MDkxNjE0MDE0MFoXDTAxMDkxNTE0MDE0MFowgZQxCzAJBgNVBAYTAlpBMRUwEwYD
+VQQIEwxXZXN0ZXJuIENhcGUxFDASBgNVBAcTC0R1cmJhbnZpbGxlMQ8wDQYDVQQKEwZUaGF3dGUx
+HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFp
+bCBSU0EgMTk5OS45LjE2MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzaVqX1NAWC3q1xV3p
+IZwjcs0STEv3fs/H+8pyJPRCUqxXleN7YXoXhOf9cjk4lLTq7WWnkgZeveBl9hm7lHl2TD65aHB1
+hBz0EXQAvAUsTwkDFzHM9EHUcsamXeKIRLCLLsRN8fDWhT5s85WUeJF+QOmc0Y0VV47Cc+Uw3kb1
+TwIDAQABozcwNTASBgNVHRMBAf8ECDAGAQH/AgEAMB8GA1UdIwQYMBaAFHJJwnM0xlX0C3ZygX53
+9IfnxrIOMA0GCSqGSIb3DQEBBAUAA4GBAGvGWekx+um27LED2N9ycv6RYEjqxlXde/BnjsZhcOdt
+wqU32J23FyhWBYvdXHVvxpGQxmxmcRPQEHxrkW+G4CE2LcHX6rIJrc8tbcaDUpv7u/6ch538t+l0
+kuRcl678fqzKDW9yemcsa3P1hvmd9QBu9B0Hzp2egmMp75MJflXeMIIDLTCCApagAwIBAgIBADAN
+BgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAG
+A1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
+dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZy
+ZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4X
+DTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
+ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRp
+bmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1Ro
+YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1h
+aWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG2
+6nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDim
+AKOHePb5lIZererAXnbr2RSjXW56fAylS1V/Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkC
+AwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk
+8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JCI4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBH
+H7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AUG95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRznei
+gTGCAgAwggH8AgEBMIGcMIGUMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRQw
+EgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
+ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDE5OTkuOS4xNgIDAyQc
+MAkGBSsOAwIaBQCggbowGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN
+MDAxMjA2MDgzMTMyWjAjBgkqhkiG9w0BCQQxFgQUpmKrEJVbIORdp0GpeljhE0QXWlIwWwYJKoZI
+hvcNAQkPMU4wTDAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYF
+Kw4DAgcwDQYIKoZIhvcNAwICASgwBwYFKw4DAh0wDQYJKoZIhvcNAQEBBQAEgYCSH3+ap8qwLpnq
+9KBZQeK3cg2umwX9c5qn4pFZGS+PqMjQhc4hE0vGSa2kjxkROo4vNHZCdogd32QmuLNSWgSS4Zr+
+t79qFo+kBQuJ6HwMNHts97hOcl4mSCd2dakzBOgt1l+e/UUf7zv7vZu0/K9O6rJtCcICTBRgMFsT
+iVrO5wAAAAAAAA==
 
-00:02.0 VGA compatible controller: Neomagic Corporation NM2160 
-[MagicGraph 128XD] (rev 01) (prog-if 00 [VGA])
-	Subsystem: Dell Computer Corporation: Unknown device 007e
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 16 min, 255 max, 128 set
-	Interrupt: pin A routed to IRQ 0
-	Region 0: Memory at fd000000 (32-bit, prefetchable) [size=16M]
-	Region 1: Memory at fea00000 (32-bit, non-prefetchable) [size=2M]
-	Region 2: Memory at fed00000 (32-bit, non-prefetchable) [size=1M]
-
-00:04.0 CardBus bridge: Texas Instruments PCI1131 (rev 01)
-	Subsystem: Dell Computer Corporation: Unknown device 007e
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 168 set, cache line size 08
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=176
-	Memory window 0: 10400000-107ff000 (prefetchable)
-	Memory window 1: 10800000-10bff000
-	I/O window 0: 00001000-000010ff
-	I/O window 1: 00001400-000014ff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
-	16-bit legacy interface ports at 0001
-
-00:04.1 CardBus bridge: Texas Instruments PCI1131 (rev 01)
-	Subsystem: Dell Computer Corporation: Unknown device 007e
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 168 set, cache line size 08
-	Interrupt: pin B routed to IRQ 11
-	Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=05, subordinate=05, sec-latency=176
-	Memory window 0: 10c00000-10fff000 (prefetchable)
-	Memory window 1: 11000000-113ff000
-	I/O window 0: 00001800-000018ff
-	I/O window 1: 00001c00-00001cff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
-	16-bit legacy interface ports at 0001
-
-00:07.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 0 set
-
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) 
-(prog-if 80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 64 set
-	Region 4: I/O ports at fcf0 [size=16]
-
-(Ignore the follow USB host-controller entry.  It's the built-in,
-not the Cardbus USB host-controller).
-
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) 
-(prog-if 00 [UHCI])
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Interrupt: pin D routed to IRQ 0
-	Region 4: I/O ports at fcc0 [disabled] [size=32]
-
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-
-(Here are the two conflicting cards)
-
-01:00.0 Ethernet controller: 3Com Corporation 3c575 [Megahertz] 10/100 
-LAN CardBus (rev 01)
-	Subsystem: 3Com Corporation: Unknown device 5b57
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 10 min, 5 max, 64 set
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at 1000 [size=128]
-	Region 1: Memory at 10800000 (32-bit, non-prefetchable) [size=128]
-	Region 2: Memory at 10800080 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at 10400000 [size=128K]
-	Capabilities: [50] Power Management version 1
-		Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME-
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-05:00.0 USB Controller: OPTi Inc. 82C861 (rev 10) (prog-if 10 [OHCI])
-	Subsystem: OPTi Inc.: Unknown device c861
-	Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at 11000000 (32-bit, non-prefetchable) [size=4K]
-
-
-Ho ho ho,
-
-	Miles
+------=_NextPart_000_002D_01C05F5E.F0DDB4C0--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

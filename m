@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUDZPDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUDZPFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbUDZPDt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 11:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUDZPDt
+	id S262190AbUDZPFh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 11:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUDZPFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 11:03:49 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:31105 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262756AbUDZPDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 11:03:46 -0400
-Date: Mon, 26 Apr 2004 17:03:43 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: David Johnson <dj@david-web.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Anyone got aic7xxx working with 2.4.26?
-Message-ID: <20040426150343.GC1461@louise.pinerecords.com>
-References: <200404261532.37860.dj@david-web.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404261532.37860.dj@david-web.co.uk>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 26 Apr 2004 11:05:36 -0400
+Received: from web86406.mail.ukl.yahoo.com ([217.12.12.118]:55390 "HELO
+	web86406.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262190AbUDZPFZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 11:05:25 -0400
+Message-ID: <20040426150524.63980.qmail@web86406.mail.ukl.yahoo.com>
+Date: Mon, 26 Apr 2004 16:05:24 +0100 (BST)
+From: =?iso-8859-1?q?Lucas=20Silva?= <mrprofetas@yahoo.co.uk>
+Subject: BIOS vs Kernel
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr-26 2004, Mon, 15:32 +0100
-David Johnson <dj@david-web.co.uk> wrote:
+Before I start working on this I would like to find
+out 
+if it is possible or at least useful.
 
-> I was wondering if anyone had aic7xxx SCSI working with kernel 2.4.26?
-> 
-> It doesn't work on my Alpha (hangs the machine on boot) and I'm trying to find 
-> out whether its an Alpha-specific issue or not, as I can't try the card in 
-> another machine as it's in production.
-> 
-> I've also got the same problem with 2.6.5 (and newer) - but I think this is a 
-> known issue with 2.6?
+Is it feasible?
+To create a BIOS that would help the kernel  (working
+together).
 
-x86: both 2.4.26 and 2.6.6-rc2 work ok for me using aic7xxx.
-The controllers driven are
+What if the BIOS booted the PC in protected mode ,
+ enabling the A20 (taking away all that backwards
+support, so on),
+ And then implement a realible interface.
 
-00:10.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
-00:12.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
+Wouldn't that be faster?
+Would the kernel be able to communicate to it?
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Thanks Profetas
+
+
+	
+	
+		
+____________________________________________________________
+Yahoo! Messenger - Communicate instantly..."Ping" 
+your friends today! Download Messenger Now 
+http://uk.messenger.yahoo.com/download/index.html

@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264056AbRFERkJ>; Tue, 5 Jun 2001 13:40:09 -0400
+	id <S264059AbRFERos>; Tue, 5 Jun 2001 13:44:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264057AbRFERj6>; Tue, 5 Jun 2001 13:39:58 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:35844 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264056AbRFERjr>; Tue, 5 Jun 2001 13:39:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: Missing cache flush.
-Date: Tue, 5 Jun 2001 19:41:57 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <13942.991696607@redhat.com> <Pine.LNX.4.21.0106051105110.1078-100000@godzilla.axis.se> <20010606005703.A23758@metastasis.f00f.org>
-In-Reply-To: <20010606005703.A23758@metastasis.f00f.org>
-MIME-Version: 1.0
-Message-Id: <01060519415705.00553@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S264060AbRFERoi>; Tue, 5 Jun 2001 13:44:38 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:18948 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S264059AbRFERoa>; Tue, 5 Jun 2001 13:44:30 -0400
+Date: Tue, 5 Jun 2001 21:41:07 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+Message-ID: <20010605214107.A566@jurassic.park.msu.ru>
+In-Reply-To: <20010604210835.A2907@jurassic.park.msu.ru> <Pine.GSO.3.96.1010605170310.12987F-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1010605170310.12987F-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Tue, Jun 05, 2001 at 05:11:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 June 2001 14:57, Chris Wedgwood wrote:
-> I don't know about the CRIS (never heard of it, what is it?)
+On Tue, Jun 05, 2001 at 05:11:01PM +0200, Maciej W. Rozycki wrote:
+>  Iterating over memory areas twice is ugly.
 
-I wondered about that too.  From Documentation/cris:
+Hmm, yes. However, your patch isn't pretty, too. You may check
+the same area twice, and won't satisfy requested address > TASK_UNMAPPED_BASE.
+What do you think about following? Everything is scanned only once, and
+returned address matches specified one as close as possible.
 
-What is CRIS ?
--------------- 
-CRIS is an acronym for 'Code Reduced Instruction Set'. It is the CPU 
-architecture in Axis Communication AB's range of embeddedn etwork 
-CPU's, called ETRAX. The latest CPU is called
+Ivan.
 
-ETRAX 100LX, where LX stands for 'Linux' because the chip was designed 
-to be a good host for the Linux operating system. 
-
-Interesting, huh?
-
---
-Daniel
+--- linux/mm/mmap.c.orig	Mon Jun  4 14:19:02 2001
++++ linux/mm/mmap.c	Tue Jun  5 21:05:23 2001
+@@ -398,22 +398,30 @@ free_vma:
+ static inline unsigned long arch_get_unmapped_area(struct file *filp, unsigned long addr, unsigned long len, unsigned long pgoff, unsigned long flags)
+ {
+ 	struct vm_area_struct *vma;
++	unsigned long addr_limit = TASK_SIZE - len;
+ 
+ 	if (len > TASK_SIZE)
+ 		return -ENOMEM;
+ 
+ 	if (addr) {
+ 		addr = PAGE_ALIGN(addr);
+-		vma = find_vma(current->mm, addr);
+-		if (TASK_SIZE - len >= addr &&
+-		    (!vma || addr + len <= vma->vm_start))
+-			return addr;
++		if (addr <= TASK_UNMAPPED_BASE)
++			goto scan_low;
++		addr_limit = addr;
++		for (vma = find_vma(current->mm, addr); ; vma = vma->vm_next) {
++			if (TASK_SIZE - len < addr)
++				break;
++			if (!vma || addr + len <= vma->vm_start)
++				return addr;
++			addr = vma->vm_end;
++		}
+ 	}
+ 	addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
++scan_low:
+ 	for (vma = find_vma(current->mm, addr); ; vma = vma->vm_next) {
+ 		/* At this point:  (!vma || addr < vma->vm_end). */
+-		if (TASK_SIZE - len < addr)
++		if (addr_limit < addr)
+ 			return -ENOMEM;
+ 		if (!vma || addr + len <= vma->vm_start)
+ 			return addr;

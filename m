@@ -1,144 +1,265 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVBFH4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265375AbVBFIBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVBFH4B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 02:56:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272664AbVBFH4B
+	id S265375AbVBFIBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 03:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271861AbVBFIBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 02:56:01 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:9100 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S271863AbVBFHza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 02:55:30 -0500
+	Sun, 6 Feb 2005 03:01:23 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:12664 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S271877AbVBFIAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 03:00:18 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] module-init-tools: generate modules.seriomap
-Date: Sun, 6 Feb 2005 02:55:29 -0500
+To: Greg KH <greg@kroah.com>
+Subject: [PATCH] hotplug: automatically load proper serio drivers
+Date: Sun, 6 Feb 2005 03:00:17 -0500
 User-Agent: KMail/1.7.2
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.de>, Greg KH <greg@kroah.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pawlik <vojtech@suse.de>, Rusty Russell <rusty@rustcorp.com.au>
 MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_S6cBCWMXSviaiNk"
+Message-Id: <200502060300.18274.dtor_core@ameritech.net>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+--Boundary-00=_S6cBCWMXSviaiNk
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200502060255.30088.dtor_core@ameritech.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
+Hi Greg,
 
-I have converted serio bus to use ID matching and changed serio drivers
-to use MODULE_DEVICE_TABLE. Now that Vojtech pulled the changes into his
-tree it would be nice if official module-init-tools generated the module
-map so that hotplug scripts could automatically load proper drivers.
-
-Please consider applying the patch below.
+I have added ID matching, MODULE_DEVICE_TABLE and hotplug to serio
+subsystem; now that Vojtech pulled changes into his tree please consider
+adding these 2 scripts to the hotplug package so drivers for new serio
+ports could be loaded automatically.
 
 Thanks!
 
 -- 
 Dmitry
 
-diff -urN module-init-tools-3.1-pre5/depmod.c module-init-tools/depmod.c
---- module-init-tools-3.1-pre5/depmod.c	2004-06-30 23:24:40.000000000 -0500
-+++ module-init-tools/depmod.c	2005-01-23 01:16:04.000000000 -0500
-@@ -683,6 +683,7 @@
- 	{ "modules.ieee1394map", output_ieee1394_table },
- 	{ "modules.isapnpmap", output_isapnp_table },
- 	{ "modules.inputmap", output_input_table },
-+	{ "modules.seriomap", output_serio_table },
- 	{ "modules.alias", output_aliases },
- 	{ "modules.symbols", output_symbols },
- };
-diff -urN module-init-tools-3.1-pre5/depmod.h module-init-tools/depmod.h
---- module-init-tools-3.1-pre5/depmod.h	2003-12-23 21:10:57.000000000 -0500
-+++ module-init-tools/depmod.h	2005-01-23 01:17:17.000000000 -0500
-@@ -47,6 +47,8 @@
- 	void *pnp_card_table;
- 	unsigned int input_size;
- 	void *input_table;
-+	unsigned int serio_size;
-+	void *serio_table;
- 
- 	/* File contents and length. */
- 	void *data;
-diff -urN module-init-tools-3.1-pre5/moduleops_core.c module-init-tools/moduleops_core.c
---- module-init-tools-3.1-pre5/moduleops_core.c	2004-05-23 22:01:48.000000000 -0500
-+++ module-init-tools/moduleops_core.c	2005-01-23 01:43:21.000000000 -0500
-@@ -196,6 +196,10 @@
- 	module->input_size = PERBIT(INPUT_DEVICE_SIZE);
- 	module->input_table = PERBIT(deref_sym)(module->data,
- 					"__mod_input_device_table");
-+
-+	module->serio_size = PERBIT(SERIO_DEVICE_SIZE);
-+	module->serio_table = PERBIT(deref_sym)(module->data,
-+					"__mod_serio_device_table");
- }
- 
- struct module_ops PERBIT(mod_ops) = {
-diff -urN module-init-tools-3.1-pre5/tables.c module-init-tools/tables.c
---- module-init-tools-3.1-pre5/tables.c	2003-12-24 00:23:38.000000000 -0500
-+++ module-init-tools/tables.c	2005-01-23 01:13:24.000000000 -0500
-@@ -340,3 +340,36 @@
- 		}
- 	}
- }
-+
-+static void output_serio_entry(struct serio_device_id *serio, char *name, FILE *out)
-+{
-+	fprintf(out,
-+		"%-20s 0x%02x 0x%02x  0x%02x 0x%02x\n",
-+		name,
-+		serio->type,
-+		serio->extra,
-+		serio->id,
-+		serio->proto);
-+}
-+
-+
-+void output_serio_table(struct module *modules, FILE *out)
-+{
-+	struct module *i;
-+
-+	fprintf(out, "# serio module       type extra id   proto\n");
-+
-+	for (i = modules; i; i = i->next) {
-+		struct serio_device_id *e;
-+		char shortname[strlen(i->pathname) + 1];
-+
-+		if (!i->serio_table)
-+			continue;
-+
-+		make_shortname(shortname, i->pathname);
-+		for (e = i->serio_table; e->type || e->proto; e = (void *)e + i->serio_size)
-+			output_serio_entry(e, shortname, out);
-+	}
-+}
-+
-+
-diff -urN module-init-tools-3.1-pre5/tables.h module-init-tools/tables.h
---- module-init-tools-3.1-pre5/tables.h	2003-12-24 00:18:54.000000000 -0500
-+++ module-init-tools/tables.h	2005-01-23 01:21:48.000000000 -0500
-@@ -116,6 +116,15 @@
- #define INPUT_DEVICE_SIZE32 (4 + 4 * 2 + 4 + 16 * 4 + 4 + 2 * 4 + 4 + 4 + 4 + 4 * 4 + 4)
- #define INPUT_DEVICE_SIZE64 (8 + 4 * 2 + 8 + 8 * 8 + 8 + 8 + 8 + 8 + 8 + 2 * 8 + 8)
- 
-+struct serio_device_id {
-+	unsigned char type;
-+	unsigned char extra;
-+	unsigned char id;
-+	unsigned char proto;
-+};
-+#define SERIO_DEVICE_SIZE32 (4 * 1)
-+#define SERIO_DEVICE_SIZE64 (4 * 1 + 4)
-+
- /* Functions provided by tables.c */
- struct module;
- void output_usb_table(struct module *modules, FILE *out);
-@@ -124,5 +133,6 @@
- void output_ccw_table(struct module *modules, FILE *out);
- void output_isapnp_table(struct module *modules, FILE *out);
- void output_input_table(struct module *modules, FILE *out);
-+void output_serio_table(struct module *modules, FILE *out);
- 
- #endif /* MODINITTOOLS_TABLES_H */
+--Boundary-00=_S6cBCWMXSviaiNk
+Content-Type: application/x-shellscript;
+  name="serio.agent"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="serio.agent"
+
+#!/bin/sh
+#
+# serio-specific hotplug policy agent.
+#
+# This should handle 2.6.* serio port hotplugging.
+# with a consistent framework for adding device and driver specific
+# treatments.
+#
+# Kernel serio params are:
+#
+#	ACTION=%s [add or remove]
+#	SERIO_TYPE=%02x
+#	SERIO_PROTO=%02x
+#	SERIO_ID=%02X
+#	SERIO_EXTRA=%02x
+#
+# HISTORY:
+#	23-Jan-2005	Initial version by Dmitry Torokhov <dtor@mail.ru>
+
+cd /etc/hotplug
+. ./hotplug.functions
+
+# DEBUG=yes export DEBUG
+
+# generated by modutils
+MAP_CURRENT=$MODULE_DIR/modules.seriomap
+
+# accumulates list of modules we may care about
+DRIVERS=
+
+if [ "$ACTION" = "" ]; then
+    mesg Bad serio agent invocation
+    exit 1
+fi
+
+#
+# Each modules.seriomap format line corresponds to one entry in a
+# MODULE_DEVICE_TABLE(serio,...) declaration in a kernel file.
+#
+# Think of it as a database column with up to three "match specs"
+# to associate kernel modules with particular devices or classes
+# of device.  The match specs provide a reasonably good filtering
+# mechanism, but some driver probe() routines need to provide
+# extra filtering.
+#
+
+serio_convert_vars ()
+{
+    serio_id_type=$((0x$SERIO_TYPE))
+    serio_id_extra=$((0x$SERIO_EXTRA))
+    serio_id_id=$((0x$SERIO_ID))
+    serio_id_proto=$((0x$SERIO_PROTO))
+}
+
+SERIO_ANY=$((0xff))
+
+#
+# stdin is "modules.seriomap" syntax
+# on return, all matching modules were added to $DRIVERS
+#
+serio_map_modules ()
+{
+    local module ignored
+
+    # comment line lists (current) serio_device_id field names
+    read ignored
+
+    # look at each pci_device_id entry
+    # collect one match in $DRIVERS
+    while read module type extra id proto ignored
+    do
+	# comments are lines that start with "#" ...
+	# be careful, they still get parsed by bash!
+	case "$module" in
+	\#*) continue ;;
+	esac
+
+	# convert the fields from hex to dec
+	type=$(($type));
+	extra=$(($extra))
+	id=$(($id));
+	proto=$(($proto))
+
+	: check match for $module
+
+	: type $type $serio_id_type
+	if [ $type -ne $SERIO_ANY -a $type -ne $serio_id_type ]; then
+	    continue
+	fi
+	: extra $extra $serio_id_extra
+	if [ $extra -ne $SERIO_ANY -a $extra -ne $serio_id_extra ]; then
+	    continue
+	fi
+	: id $id $serio_id_id
+	if [ $id -ne $SERIO_ANY -a $id -ne $serio_id_id ]; then
+	    continue
+	fi
+	: protocol $proto $pci_id_proto
+	if [ $proto -ne $SERIO_ANY -a $proto -ne $serio_id_proto ]; then
+	    continue
+	fi
+
+	DRIVERS="$module $DRIVERS"
+	debug_mesg serio.agent $DRIVRES
+	: drivers $DRIVERS
+    done
+}
+
+
+#
+# What to do with this PCI hotplug event?
+#
+case $ACTION in
+
+add)
+    serio_convert_vars
+
+    LABEL="SERIO port 0x$SERIO_TYPE/0x$SERIO_PROTO/0x$SERIO_ID/0x$SERIO_EXTRA"
+
+    if [ -r $MAP_CURRENT ]; then
+    	load_drivers serio $MAP_CURRENT "$LABEL"
+    fi
+
+    if [ "$DRIVERS" = "" ]; then
+	debug_mesg "... no modules for $LABEL"
+	exit 2
+    fi
+    ;;
+
+remove)
+    : nothing so far
+
+    ;;
+
+*)
+    debug_mesg SERIO $ACTION event not supported
+    exit 1
+    ;;
+
+esac
+
+--Boundary-00=_S6cBCWMXSviaiNk
+Content-Type: application/x-shellscript;
+  name="serio.rc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="serio.rc"
+
+#!/bin/sh
+# vim: syntax=sh
+#
+# serio.rc	mostly to recover lost boot-time serio hotplug events
+#
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+cd /etc/hotplug
+. ./hotplug.functions
+
+serio_boot_events ()
+{
+    # make sure serio.agent will run
+    ACTION=add
+    SERIO_TYPE=0
+    SERIO_PROTO=0
+    SERIO_ID=0
+    SERIO_EXTRA=0
+    export ACTION SERIO_TYPE SERIO_PROTO SERIO_ID SERIO_EXTRA
+
+    if [ -d /sys/bus/serio/devices/ ]; then
+	for SERIO_DEVICE in /sys/bus/serio/devices/*; do
+	    SERIO_TYPE=`cat $SERIO_DEVICE/id_type`
+	    SERIO_PROTO=`cat $SERIO_DEVICE/id_proto`
+	    SERIO_ID=`cat $SERIO_DEVICE/id_id`
+	    SERIO_EXTRA=`cat $SERIO_DEVICE/id_extra`
+	    /sbin/hotplug serio
+	done
+    fi
+
+    return 0
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	serio_boot_events
+        ;;
+  stop)
+	# echo $"serio stop -- ignored"
+        ;;
+  status)
+	echo $"SERIO Status for kernel: "  `uname -srm`
+	echo ''
+
+	DEV_COUNT=0
+	if [ -d /sys/bus/serio/devices/ ]; then
+	    DEV_COUNT=`ls /sys/bus/serio/devices/ | wc -l`
+	fi
+	DRV_COUNT=0
+	if [ -d /sys/bus/serio/devices/ ]; then
+	    DRV_COUNT=`ls /sys/bus/serio/drivers/ | wc -l`
+	fi
+	echo $"$DEV_COUNT ports registered; $DRV_COUNT drivers loaded"
+	echo ''
+	;;
+  restart)
+	# always invoke by absolute path, else PATH=$PATH:
+	$0 stop && $0 start
+	;;
+  *)
+        echo $"Usage: $0 {start|stop|status|restart}"
+        exit 1
+esac
+
+--Boundary-00=_S6cBCWMXSviaiNk--

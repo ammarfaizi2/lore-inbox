@@ -1,98 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314707AbSGIMj7>; Tue, 9 Jul 2002 08:39:59 -0400
+	id <S315162AbSGIMop>; Tue, 9 Jul 2002 08:44:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314835AbSGIMj6>; Tue, 9 Jul 2002 08:39:58 -0400
-Received: from basket.ball.reliam.net ([213.91.6.7]:39698 "HELO
-	basket.ball.reliam.net") by vger.kernel.org with SMTP
-	id <S314707AbSGIMj4>; Tue, 9 Jul 2002 08:39:56 -0400
-Date: Tue, 9 Jul 2002 14:43:49 +0200
-From: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Mailer: The Bat! (v1.60q)
-Reply-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Priority: 3 (Normal)
-Message-ID: <01742490.20020709144349@uni.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] 2.4 IDE core for 2.5
-In-Reply-To: <20020709102249.GA20870@suse.de>
-References: <20020709102249.GA20870@suse.de>
+	id <S315120AbSGIMoo>; Tue, 9 Jul 2002 08:44:44 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25813 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S315162AbSGIMol>; Tue, 9 Jul 2002 08:44:41 -0400
+Date: Tue, 9 Jul 2002 14:46:58 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Paul Bristow <paul@paulbristow.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+In-Reply-To: <3D2AD6EE.6020303@evision-ventures.com>
+Message-ID: <Pine.SOL.4.30.0207091445540.15575-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jens,
 
-Tuesday, July 9, 2002, 12:22:49 PM, you wrote:
+On Tue, 9 Jul 2002, Martin Dalecki wrote:
 
-JA> *.kernel.org://pub/linux/kernel/people/axboe/patches/v2.5/2.5.25/
+> U¿ytkownik Paul Bristow napisa³:
+> > OK.  I kept quiet while the IDE re-write went on so that when it was
+> > over I could fix up ide-floppy and start adding some of the requested
+> > features that were only really possible with the taskfile capabilities.
+> > But I have to jump in with the latest statements from Martin...
+> > Martin Dalecki wrote:
+> >
+> >> U¿ytkownik Eduard Bloch napisa³:
+> >>
+> >>
+> >>> Why not another way round? Just make the ide-scsi driver be prefered,
+> >>> and hack ide-scsi a bit to simulate the cdrom and adv.floppy devices
+> >>> that are expected as /dev/hd* by some user's configuration?
+> >>>
+> >>
+> >>
+> >> This is the intention.
+> >>
+> > Since when?  I thought Jens was in the process of getting rid of the
+> > ide-scsi kludge with his moves to support cd/dvd writing directly in
+> > ide-cd?
+>
+> Well code decides. And in reality I have tried the much simpler goal
+> to unify the ide-floppy ide-tape and ide-cd parts which
+> should be common. Like for example a simple SCSI multi media command set
+> preparation library. Admittedly I have failed. Therefore and in
+> fact of the 2.6 release schedule it's simple not practical to
+> persue this road further. It makes much more sense to just
+>
+> 1. Scrap the specific atapi drivers.
+>
+> 2. Try to make ide-scsi independant from SCSI subsystem from users view.
+>
+> 3. Replicate some of the workarounds in the previous ide-xxxx drivers.
 
-After downloading each of the 7 .gz-patches, applying them without any
-complains, I started to compile the new bzImage, but I got an error
-in relation to the FAT support. By switching this support off
-everything'll compile without any further problem though, and I can
-boot from this image even.. :-)
+And how will you support i.e. DSC in ide-tape?
 
-<out of subject>
-Before appending the error messages I want to know if `shm' is named
-`shmem' in 2.5 (it seems so anyway)?
-</out of subject>
-
-Hope it will be fixed ASAP.
-
-FYI:
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-
-Make's complaints:
-====================
-make[1]: Entering directory `/usr/src/linux-2.5.25/scripts'
-make[1]: Leaving directory `/usr/src/linux-2.5.25/scripts'
-  Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
-make[1]: Entering directory `/usr/src/linux-2.5.25/init'
-  Generating /usr/src/linux-2.5.25/include/linux/compile.hdnsdomainname: Host name lookup failure
- (unchanged)
-make[1]: Leaving directory `/usr/src/linux-2.5.25/init'
-make[1]: Entering directory `/usr/src/linux-2.5.25/kernel'
-make[1]: Leaving directory `/usr/src/linux-2.5.25/kernel'
-make[1]: Entering directory `/usr/src/linux-2.5.25/mm'
-make[1]: Leaving directory `/usr/src/linux-2.5.25/mm'
-make[1]: Entering directory `/usr/src/linux-2.5.25/fs'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/devfs'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/devfs'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/devpts'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/devpts'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/driverfs'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/driverfs'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/ext2'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/ext2'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/ext3'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/ext3'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/fat'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/fat'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/isofs'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/isofs'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/jbd'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/jbd'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/nls'
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/nls'
-make[2]: Entering directory `/usr/src/linux-2.5.25/fs/partitions'
-  gcc -Wp,-MD,./.msdos.o.d -D__KERNEL__ -I/usr/src/linux-2.5.25/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=msdos -DEXPORT_SYMTAB  -c -o msdos.o msdos.c
-In file included from msdos.c:32:
-/usr/src/linux-2.5.25/include/linux/ide.h:651: field `taskfile' has incomplete type
-/usr/src/linux-2.5.25/include/linux/ide.h:652: field `hobfile' has incomplete type
-make[2]: *** [msdos.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.25/fs/partitions'
-make[1]: *** [partitions] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.25/fs'
-make: *** [fs] Error 2
-
-
--- 
-cheers,
-  Tobias
-
-http://freebits.org
+> >
+> > The current system may be ugly, but if we have to break it in the name
+> > of progress we have at least to make the new, improved version work as
+> > well (and hopefully better) than the old one.
+> >
+> >>> Other operating systems did switch to constitent (scsi-based) way of
+> >>> accessing all kinds of removable media drivers. Why does Linux have to
+> >>> keep a kludge, written years ago without having a good concept?
+> >>>
+> >>>
+> >>
+> > If we can address all these issues I will be extremely happy to helping
+> > create a sensible removeable media subsystem.
+>
+> That's a deal.
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265105AbUAJLkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 06:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUAJLkJ
+	id S265116AbUAJMPl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 07:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUAJMPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 06:40:09 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:2311 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S265105AbUAJLkE
+	Sat, 10 Jan 2004 07:15:41 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:11195 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265116AbUAJMPk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 06:40:04 -0500
-Date: Sat, 10 Jan 2004 12:41:56 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Ivanovich <ivanovich@menta.net>
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com,
-       "Nicolas Nilles" <nnilles@skycop.net>
-Subject: Re: Kernel 2.6.0 and i2c-viapro posible Bug
-Message-Id: <20040110124156.3b127c86.khali@linux-fr.org>
-In-Reply-To: <200401091955.55007.ivanovich@menta.net>
-References: <200401091955.55007.ivanovich@menta.net>
-Reply-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jan 2004 07:15:40 -0500
+Date: Sat, 10 Jan 2004 10:06:40 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: martin f krafft <madduck@madduck.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stability problems with 2.4.24/Software RAID/ext3
+In-Reply-To: <20040109185348.GA24499@piper.madduck.net>
+Message-ID: <Pine.LNX.4.58L.0401101005470.3641@logos.cnet>
+References: <20040108151225.GA11740@piper.madduck.net>
+ <1073671862.24706.13.camel@tux.rsn.bth.se> <20040109185348.GA24499@piper.madduck.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I thinks that thgere is  probably a bug in I2c-viapro module,
-> > cuz when i load i2c-viapro after loading w82781d, my computer  just
-> > put very slow..., i try loading as modules in the kernel or built
-> > in, in both cases i have the same problem.
-> 
-> I have this very same board CUV4X_E and the same problem too (present
-> in 2.6.0 and before)
-> The workaround i found is to not initialize the chip "modprobe w83781d
-> init=0"
-> 
-> And answering some of your questions, yes, the slowdown is global, not
-> only disk and it doesn't gets better if you unload the modules.
-> 
-> It's fixed in 2.6.1? going to download+compile and see if it works. 
 
-Could be fixed, because limits initialization has been removed from the
-w83781d driver. But since there is still some intialization stuff done,
-the problem may still be there. Please try and report. The "init=0"
-parameter is still there, so your workaround should still work.
 
-If the problem is still present, I'd like you to do more tests. Edit the
-driver (drivers/i2c/chips/w83781d.c), look for the "w83781d_init_client"
-function. You'll find three blocks that are under a "init" conditional.
-I'd like you to disable each of them individually ("if (0) {" should do
-the trick) and see each time if the slowdown still occurs, so as to give
-us a hint on which command causes the slowdown.
+On Fri, 9 Jan 2004, martin f krafft wrote:
 
-Also, at the moment a slowdown occurs and if you have ACPI support
-enabled, could you please check the throttling level (and the frequency,
-if that applies to your CPU)? I suspect that the motherboard is
-hardwired so as to enable throttling on overheat detection. A faulty
-init of the w83781d could trigger such an alarm and enable throttling,
-resulting in the slowdown you notice. Well, that's just a wild guess,
-but still worth verifying IMHO.
+> also sprach Martin Josefsson <gandalf@wlug.westbo.se> [2004.01.09.1911 +0100]:
+> > Try replacing the Promise controllers with something diffrent (doesn't
+> > really matter what).
+>
+> Well, I can't find any other suitable ones, really. I can't seem to
+> find HighPoints, there is 3ware and DawiControl, but I don't know
+> which ones are supported by Linux.
+>
+> Maybe someone can give me a suggestion for a non-promise EIDE 133
+> PCI controller that's natively supported by Linux.
+>
+> > I personally have a pdc20267 in my workstation that I stress quite
+> > heavily sometimes and I've never had any problems with it.
+>
+> that's a different driver. so it might be the driver that's causing
+> the problems. if i replace the controller, i may be able to debug,
+> but unless i get a new controller in place, i can't do anything
+> since this is a productive machine.
 
-Thanks.
-
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+Did you ever try to disable the DMA as suggested?

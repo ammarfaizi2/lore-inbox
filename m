@@ -1,77 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbTBCVsc>; Mon, 3 Feb 2003 16:48:32 -0500
+	id <S266443AbTBCVts>; Mon, 3 Feb 2003 16:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266228AbTBCVsc>; Mon, 3 Feb 2003 16:48:32 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:971 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266069AbTBCVs1>;
-	Mon, 3 Feb 2003 16:48:27 -0500
-Subject: [PATCH] linux-2.5.59_smp-summit_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, James <jamesclv@us.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044309404.19553.66.camel@w-jstultz2.beaverton.ibm.com>
+	id <S266564AbTBCVts>; Mon, 3 Feb 2003 16:49:48 -0500
+Received: from ext-nj2gw-1.online-age.net ([216.35.73.163]:33775 "EHLO
+	ext-nj2gw-1.online-age.net") by vger.kernel.org with ESMTP
+	id <S266443AbTBCVtq>; Mon, 3 Feb 2003 16:49:46 -0500
+From: "Daniel Heater" <daniel.heater@gefanuc.com>
+Date: Mon, 3 Feb 2003 15:57:00 -0600
+To: Dhruv Gami <dhruvgami@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module programming blues
+Message-ID: <20030203215700.GA205@gefhsvrootwitch>
+Mail-Followup-To: heaterd1, Dhruv Gami <dhruvgami@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20030129045633.45161.qmail@web14201.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 03 Feb 2003 13:56:44 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030129045633.45161.qmail@web14201.mail.yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All,
-	This patch fixes the Summit sub-arch so that it boots normally on
-regular SMP systems as well.
+* Dhruv Gami (dhruvgami@yahoo.com) wrote:
+> Hello Everyone,
+> 
+> I am trying to develop a kernel module that will read
+> some user input (being given to a file) and perform
+> certain flag settings based on the information dumped
+> in the file.
 
-Please apply.
-
-thanks
--john
-
-diff -Nru a/include/asm-i386/mach-summit/mach_apic.h b/include/asm-i386/mach-summit/mach_apic.h
---- a/include/asm-i386/mach-summit/mach_apic.h	Mon Feb  3 13:53:50 2003
-+++ b/include/asm-i386/mach-summit/mach_apic.h	Mon Feb  3 13:53:50 2003
-@@ -3,7 +3,7 @@
- 
- extern int x86_summit;
- 
--#define esr_disable (1)
-+#define esr_disable (x86_summit ? 1 : 0)
- #define no_balance_irq (0)
- 
- #define XAPIC_DEST_CPUS_MASK    0x0Fu
-@@ -15,14 +15,14 @@
- #define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
- #define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
- 
--#define INT_DELIVERY_MODE dest_Fixed
-+#define INT_DELIVERY_MODE (x86_summit ? dest_Fixed : dest_LowestPrio)
- #define INT_DEST_MODE 1     /* logical delivery broadcast to all procs */
- 
- #define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
--#define check_apicid_used(bitmap, apicid) (0)
-+#define check_apicid_used(bitmap, apicid) (x86_summit ? 0 : (bitmap & (1 << apicid)))
- 
- /* we don't use the phys_cpu_present_map to indicate apicid presence */
--#define check_apicid_present(bit) (1) 
-+#define check_apicid_present(bit) (x86_summit ? 1 : (phys_cpu_present_map & (1 << bit))) 
- 
- extern u8 bios_cpu_apicid[];
- 
-@@ -106,7 +106,10 @@
- 
- static inline int check_phys_apicid_present(int boot_cpu_physical_apicid)
- {
--	return (1);
-+	if (x86_summit)
-+		return (1);
-+	else
-+		return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
- }
- 
- #endif /* __ASM_MACH_APIC_H */
-
-
+Could this task be handled using module parameters instead?
 

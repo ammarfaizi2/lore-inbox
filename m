@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265581AbSKFElv>; Tue, 5 Nov 2002 23:41:51 -0500
+	id <S265591AbSKFFBi>; Wed, 6 Nov 2002 00:01:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265579AbSKFElu>; Tue, 5 Nov 2002 23:41:50 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:43231 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265578AbSKFElt>;
-	Tue, 5 Nov 2002 23:41:49 -0500
-Date: Tue, 5 Nov 2002 23:48:25 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mike Diehl <mdiehl@dominion.dyndns.org>
-cc: kcorry@austin.rr.com, evms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Evms-devel] EVMS announcement
-In-Reply-To: <20021106022549.C849B55A9@dominion.dyndns.org>
-Message-ID: <Pine.GSO.4.21.0211052332360.6521-100000@steklov.math.psu.edu>
+	id <S265592AbSKFFBi>; Wed, 6 Nov 2002 00:01:38 -0500
+Received: from h00010256f583.ne.client2.attbi.com ([66.30.243.14]:25276 "EHLO
+	portent.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265591AbSKFFBh>; Wed, 6 Nov 2002 00:01:37 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Lev Makhlis <mlev@despammed.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.46: overflow in disk stats
+Date: Wed, 6 Nov 2002 00:09:51 -0500
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>, ricklind@us.ibm.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200211060009.51684.mlev@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I see that the SARD changes have been merged, but MSEC() still has
+the overflow problem.  This takes care of it:
 
-On Tue, 5 Nov 2002, Mike Diehl wrote:
+--------------------------------------------------------------------------------------------------
 
-> Na, I can't ignore the debate.  I can't wait to see how user-land descovery 
-> will be implemented.  There is something intrinsically "nice" about having an 
-> OS automatically discover every aspect of a machine I'm installing on.  I 
-
-Kernel _can't_ do that.  In principle.  Simply because part of the kernel
-that would know how to talk with that PCI card (which just happens to be
-a SCSI adapter) happens to be a module that lives on a filesystem that
-lives on a different server and will be accessible only after we configure
-this NIC.  There is no way in hell to tell what devices sit on the SCSI
-bus behind that card.  Not without userland participation in the process.
-
-So like it or not, userland is involved.  The best thing that can be done
-is exposing the list of block devices (with information about them) that
-kernel knows of + passing events (device added/removed/etc.) to userland.
-
-We have both - one in sysfs and another as calls of /sbin/hotplug.  What's
-more, we are about to get them very early, so a lot of warts become not
-necessary (all drivers' setup happens with early userland already in place,
-so we the things that had to be done manually can use generic mechanisms).
-
-Note that both interfaces are still changing and figuring out what is
-really needed will certainly be easier with non-trivial users of these
-mechanisms.  EVMS definitely will be one of such users...
-
+diff -urN linux-2.5.46.orig/drivers/block/genhd.c 
+linux-2.5.46/drivers/block/genhd.c
+--- linux-2.5.46.orig/drivers/block/genhd.c	Tue Nov  5 15:15:07 2002
++++ linux-2.5.46/drivers/block/genhd.c	Tue Nov  5 16:14:35 2002
+@@ -326,7 +326,13 @@
+ }
+ static inline unsigned MSEC(unsigned x)
+ {
+-	return x * 1000 / HZ;
++#if 1000 % HZ == 0
++	return x * (1000 / HZ);
++#elif HZ % 1000 == 0
++	return x / (HZ / 1000);
++#else
++	return (x / HZ) * 1000 + (x % HZ) * 1000 / HZ;
++#endif
+ }
+ static ssize_t disk_stat_read(struct gendisk * disk,
+ 			      char *page, size_t count, loff_t off)

@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbUBTNFs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 08:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUBTNF0
+	id S261225AbUBTNMm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 08:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUBTMwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 08:05:26 -0500
-Received: from fiberbit.xs4all.nl ([213.84.224.214]:32907 "EHLO
-	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S261244AbUBTNER
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 08:04:17 -0500
-Date: Fri, 20 Feb 2004 14:03:06 +0100
-From: Marco Roeland <marco.roeland@xs4all.nl>
-To: yiding_wang@agilent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Still have build error on 2.6.2 fc/proc/array.c
-Message-ID: <20040220130306.GA11351@localhost>
-References: <0A78D025ACD7C24F84BD52449D8505A15A80D4@wcosmb01.cos.agilent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <0A78D025ACD7C24F84BD52449D8505A15A80D4@wcosmb01.cos.agilent.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 20 Feb 2004 07:52:43 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:41266 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261198AbUBTMsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 07:48:37 -0500
+Date: Fri, 20 Feb 2004 13:48:21 +0100
+Message-Id: <200402201248.i1KCmLcd004299@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 410] Sun-3x ESP SCSI clean up
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday February 17th yiding_wang@agilent.com wrote:
+Sun-3x ESP SCSI: Remove obsolete cruft
 
-> Based on README and requirement of Changes in linux-2.6.2, I have updated needed utilities and other files with the following:
-> binnutils 2.14
-> e2fsprogs-1.34
-> module-init-tools-3.0-pre10
-> procps 3.1.15
-> 
-> Everything is installed OK.
-> 
-> Then compiling new 2.6.2 kernel still fails wi the following.  What is the upgrade file for this problem?
+--- linux-2.6.3/drivers/scsi/sun3x_esp.c	2003-07-29 18:19:12.000000000 +0200
++++ linux-m68k-2.6.3/drivers/scsi/sun3x_esp.c	2004-02-06 13:43:34.000000000 +0100
+@@ -46,12 +46,6 @@
+ static void dma_mmu_release_scsi_sgl (struct NCR_ESP *esp, Scsi_Cmnd *sp);
+ static void dma_advance_sg (Scsi_Cmnd *sp);
+ 
+-static volatile unsigned char cmd_buffer[16];
+-                                /* This is where all commands are put
+-                                 * before they are trasfered to the ESP chip
+-                                 * via PIO.
+-                                 */
+-
+ /* Detecting ESP chips on the machine.  This is the simple and easy
+  * version.
+  */
+@@ -101,14 +95,8 @@
+ 	esp->eregs = (struct ESP_regs *)(SUN3X_ESP_BASE);
+ 	esp->dregs = (void *)SUN3X_ESP_DMA;
+ 
+-#if 0
+-  	esp->esp_command = (volatile unsigned char *)cmd_buffer;
+- 	esp->esp_command_dvma = dvma_map((unsigned long)cmd_buffer,
+- 					 sizeof (cmd_buffer));
+-#else
+ 	esp->esp_command = (volatile unsigned char *)dvma_malloc(DVMA_PAGE_SIZE);
+ 	esp->esp_command_dvma = dvma_vtob((unsigned long)esp->esp_command);
+-#endif
+ 
+ 	esp->irq = 2;
+ 	if (request_irq(esp->irq, esp_intr, SA_INTERRUPT, 
 
-Your kernel sources and all the mentioned tools are now OK, and probably
-were OK already. The only thing that is giving you the error is the
-version of the gcc compiler that you use (2.96).
+Gr{oetje,eeting}s,
 
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CHK     include/linux/compile.h
->   CC      fs/proc/array.o
-> fs/proc/array.c: In function `proc_pid_stat':
-> fs/proc/array.c:398: Unrecognizable insn:
-> (insn/i 727 1015 1009 (parallel[ 
-> ...
+						Geert
 
-It is the *compiler* (gcc-2.96) that has a bug here. As this version of
-gcc has many other bugs developers no longer work around difficulties
-this specific version of gcc has.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-What you can do is upgrade your gcc package to a later version (3.2.x or
-3.3.x or even later from your distribution). As a workaround I've made a
-little patch that you can apply to fs/proc/array.c if you still want to
-keep using gcc 2.96 for a little while. It's archived here:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107567013416122&w=2
--- 
-Marco Roeland
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,85 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131020AbRDCKKN>; Tue, 3 Apr 2001 06:10:13 -0400
+	id <S131544AbRDCKXG>; Tue, 3 Apr 2001 06:23:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131158AbRDCKKD>; Tue, 3 Apr 2001 06:10:03 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:43947 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131020AbRDCKJ5>; Tue, 3 Apr 2001 06:09:57 -0400
-Date: Tue, 3 Apr 2001 12:09:11 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andries.Brouwer@cwi.nl
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, hpa@transmeta.com,
-        linux-kernel@vger.kernel.org, tytso@MIT.EDU
-Subject: Re: Larger dev_t
-Message-ID: <20010403120911.B4561@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <UTC200104022017.WAA89061.aeb@vlet.cwi.nl>
+	id <S131564AbRDCKW4>; Tue, 3 Apr 2001 06:22:56 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:36183 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131595AbRDCKWm>; Tue, 3 Apr 2001 06:22:42 -0400
+Date: Tue, 3 Apr 2001 11:21:51 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Allen Ashley <ashley@alumni.caltech.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.15 kernel bug report
+Message-ID: <20010403112151.L1268@redhat.com>
+In-Reply-To: <200104030853.BAA00238@aa.home.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="GeDkoc8jIzHasOdk"
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <UTC200104022017.WAA89061.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Apr 02, 2001 at 10:17:02PM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104030853.BAA00238@aa.home.org>; from ashley@alumni.caltech.edu on Tue, Apr 03, 2001 at 01:53:26AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 02, 2001 at 10:17:02PM +0200, Andries.Brouwer@cwi.nl wrote:
-> What is dev_t used for? It is a communication channel from
-> filesystem to user space (via the stat() system call)
-> and from user space to filesystem (via the mknod() system call).
- 
-The question is WHAT do we communicate (and don't answer "major
-minor" here, since this is only numbers) and WHY do we need this
-communication.
 
-Devfs aims to associate device names with dynamic, flat device
-numbers. So we have a scalable solution for the kernel -> user
-space communication. What we DON't have, is a similar simple way
-to tell it the other way around.
+--GeDkoc8jIzHasOdk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The reasons, why we need to know where a file is located on are:
-   -  to only include files from one media
-   -  to run certain optimizations like fsck does with disk
-      spindles
-   -  ...
+On Tue, Apr 03, 2001 at 01:53:26AM -0700, Allen Ashley wrote:
 
-So instead of just shifting the problems into the future and
-making the same mistake again, we should better think of
-interfaces, that give us the information we need and let this
-error prone (ever had a typo on mknod?) and never large enough
-static interface die.
+> ---------------------------------------------------------------
+> soval=fcntl(s,F_GETFL,0);
+> ioval=fcntl(0,F_GETFL,0);
+> fcntl(s,F_SETFL,soval|O_NONBLOCK);
+> fcntl(0,F_SETFL,ioval|O_NONBLOCK);
+> cwait=WAITCONNECT;
+> *chin=0;
+> do{
+> /*If the following line is commented out the program does not crash*/
+> 	rval=connect(s, (struct sockaddr *)&dst, sizeof(dst));
 
-Maybe there should be a way to translate a dynamic associated
-device number into a real device name, like the devfs name of it.
-May be a reverse mapping in devfs (/dev/by_dev_no/[0-9]+) would
-work. If these are symlinks, a readlink() would suffice. Very
-simple solution.
+You haven't mentioned dst before this line, or s.  Make a small,
+complete, minimal test program that shows the bug.
 
-For comparing inode1.media == inode2.media (one of the most
-important uses for device numbers) we don't need to change
-anything.
+Tim.
+*/
 
-For getting the device number of the spindle, the block devices
-which support partitions or are remapping a (set of) block
-device(s) could get IOCTLs (where this information belongs into
-and is as reliable as the driver).
+--GeDkoc8jIzHasOdk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-For all these things, we can have a flat and dynamic device
-number namespace.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Device numbers have to be uniqe only during one power on -> run ->
-power off cycle. For the rest applications should store device
-names instead anyway. The applications, that don't are buggy by
-defintion.
+iD8DBQE6yaQ+ONXnILZ4yVIRAkfSAJ9AWYvVwOr9uzZ03p2dR1Kea5EJDQCcDd1U
+9puEz7592eG73SnEbUfJ4W8=
+=CG3I
+-----END PGP SIGNATURE-----
 
-Note: I certainly overlooked sth., so please flame me ;-)
-
-> The current discussion is almost entirely about mknod.]
-
-Yes: Let "mknod /dev/foo [bc] x y" die!
-
-Regards
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+--GeDkoc8jIzHasOdk--

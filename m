@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVCWOV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVCWOVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVCWOV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 09:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVCWOV2
+	id S261612AbVCWOVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 09:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVCWOVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 09:21:28 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:63492 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261609AbVCWOVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 09:21:13 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: swapped memset arguments.
-Date: Wed, 23 Mar 2005 16:20:48 +0200
-User-Agent: KMail/1.5.4
-References: <20050322024457.GA11569@redhat.com>
-In-Reply-To: <20050322024457.GA11569@redhat.com>
-Cc: linux-kernel@vger.kernel.org, vital@ilport.com.ua
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_AtXQCaGDm1IgaIn"
-Message-Id: <200503231620.48845.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 23 Mar 2005 09:21:54 -0500
+Received: from main.gmane.org ([80.91.229.2]:8155 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261612AbVCWOVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 09:21:47 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: forkbombing Linux distributions
+Date: Wed, 23 Mar 2005 15:20:51 +0100
+Message-ID: <yw1xsm2mqw8s.fsf@ford.inprovide.com>
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com> <20050322112628.GA18256@roll>
+ <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+ <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
+ <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
+ <9cde8bff05032305044f55acf3@mail.gmail.com> <1111586058.27969.72.camel@nc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:i+UIeVIRmCc8udGDOpaXB1Zhp/o=
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Natanael Copa <mlists@tanael.org> writes:
 
---Boundary-00=_AtXQCaGDm1IgaIn
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> well, the problem here has that stupid fork bombs like:
+>
+> :() { :|:& };:
+>
+> brings down almost all linux distro's while other *nixes survives.
 
-On Tuesday 22 March 2005 04:44, Dave Jones wrote:
-> You wouldn't believe how many instances of this bug I've
-> seen in the last few days in both userspace and kernelspace.
-> 
-> -		memset(&target_route->rcu, sizeof(struct rcu_head), 0);
-> +		memset(&target_route->rcu, 0, sizeof(struct rcu_head));
+I have seen a SunFire machine with 4GB RAM running Solaris grind to a
+complete halt from a fork bomb.
 
-Hehe.
-
-# grep -r 'memset.*,[ 0x]*)' .
-./sound/oss/cmpci.c:            memset(buf + bptr, c, x);
-./sound/oss/cmpci.c:                    memset(buf1 + bptr, c, x);
-./sound/oss/swarm_cs4297a.c:            memset(((char *) buf) + bptr, c, x);
-./sound/oss/esssolo1.c:         memset(((char *)buf) + bptr, c, x);
-./sound/oss/es1370.c:           memset(((char *)buf) + bptr, c, x);
-./sound/oss/es1371.c:           memset(((char *)buf) + bptr, c, x);
-./sound/oss/maestro.c:          memset(buf + bptr, c, x);
-./sound/oss/cs4281/cs4281m.c:           memset(((char *) buf) + bptr, c, x);
-./sound/oss/maestro3.c:        memset(buf + bptr, c, x);
-./sound/oss/sonicvibes.c:               memset(buf + bptr, c, x);
-./sound/oss/ali5455.c:          memset(dmabuf->rawbuf + swptr, '\0', x);
-./drivers/char/hvcs.c: * 1.3.0 -> 1.3.1 In hvcs_open memset(..,0x00,..) instead of memset(..,0x3F,00).
-./drivers/s390/scsi/zfcp_aux.c: memset(sg_list->sg, sg_list->count * sizeof(struct scatterlist), 0);
-                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-./Documentation/scsi/ChangeLog.1992-1997:       * scsi.c (scan_scsis): memset(SDpnt, 0) and set SCmd.device to SDpnt.
-./include/asm-frv/uaccess.h:#define clear_user(dst,count)                       (memset((dst), 0, (count)), 0)
-
-Patch attached.
---
-vda
-
---Boundary-00=_AtXQCaGDm1IgaIn
-Content-Type: text/x-diff;
-  charset="koi8-r";
-  name="zfcp_aux.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="zfcp_aux.patch"
-
---- linux-2.6.11.src/drivers/s390/scsi/zfcp_aux.c.orig	Thu Feb  3 11:39:40 2005
-+++ linux-2.6.11.src/drivers/s390/scsi/zfcp_aux.c	Wed Mar 23 16:16:45 2005
-@@ -583,7 +583,7 @@ zfcp_sg_list_alloc(struct zfcp_sg_list *
- 		retval = -ENOMEM;
- 		goto out;
- 	}
--	memset(sg_list->sg, sg_list->count * sizeof(struct scatterlist), 0);
-+	memset(sg_list->sg, 0, sg_list->count * sizeof(struct scatterlist));
- 
- 	for (i = 0, sg = sg_list->sg; i < sg_list->count; i++, sg++) {
- 		sg->length = min(size, PAGE_SIZE);
-
---Boundary-00=_AtXQCaGDm1IgaIn--
+-- 
+Måns Rullgård
+mru@inprovide.com
 

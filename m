@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbUCOX5e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 18:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbUCOX5e
+	id S262866AbUCPACU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 19:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbUCPACT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 18:57:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:30173 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262857AbUCOXzU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 18:55:20 -0500
-Subject: Re: [PATCH] therm_adt7467 update
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Colin Leroy <colin@colino.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040313163334.3a3ad9c0@jack.colino.net>
-References: <00e401c40776$2a37eca0$3cc8a8c0@epro.dom>
-	 <1079045140.9745.295.camel@gaston>
-	 <20040313163334.3a3ad9c0@jack.colino.net>
-Content-Type: text/plain
-Message-Id: <1079394567.2302.188.camel@gaston>
+	Mon, 15 Mar 2004 19:02:19 -0500
+Received: from mail.kroah.org ([65.200.24.183]:64942 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262866AbUCPABt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:01:49 -0500
+Subject: Re: [PATCH] Driver Core update for 2.6.4
+In-Reply-To: <10793951493102@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 15 Mar 2004 15:59:09 -0800
+Message-Id: <10793951494179@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 16 Mar 2004 10:49:28 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1608.84.15, 2004/03/15 14:36:49-08:00, akpm@osdl.org
 
-> Ok, that's what I thought. 
-> Would it help if I sent a simpler patch with the modifications to 
-> therm_adt7467.c, Kconfig and Makefile, and specify to `bk mv` the file after
-> applying the patch ?
-> 
-> Just in case, here it is. 
-> Don't forget to rename drivers/macintosh/therm_adt7467.c to 
-> therm_adt746x.c after :-)
+[PATCH] cdev: warning fix
 
-Can you send that directly to Linus/Andrew ? I'm quite busy at
-the moment.
+Against Jon's cdev stuff
 
-Ben.
 
+ drivers/char/tty_io.c |    1 -
+ 1 files changed, 1 deletion(-)
+
+
+diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+--- a/drivers/char/tty_io.c	Mon Mar 15 15:28:13 2004
++++ b/drivers/char/tty_io.c	Mon Mar 15 15:28:13 2004
+@@ -2234,7 +2234,6 @@
+ 	int error;
+         int i;
+ 	dev_t dev;
+-	char *s;
+ 	void **p = NULL;
+ 
+ 	if (driver->flags & TTY_DRIVER_INSTALLED)
 

@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267864AbUI1OYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUI1OfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267864AbUI1OYy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 10:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUI1OYy
+	id S267869AbUI1OfH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 10:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUI1OfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 10:24:54 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:54123 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267864AbUI1OXS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 10:23:18 -0400
-Message-ID: <5d6b657504092807233fe32310@mail.gmail.com>
-Date: Tue, 28 Sep 2004 16:23:18 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Dave Jones <davej@redhat.com>, Brian McGrew <brian@doubledimension.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Probing for System Model Information
-In-Reply-To: <20040928134705.GA11916@redhat.com>
+	Tue, 28 Sep 2004 10:35:07 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:45955 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267749AbUI1Oeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 10:34:37 -0400
+Date: Tue, 28 Sep 2004 09:34:12 -0500
+From: Robin Holt <holt@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Robin Holt <holt@sgi.com>, jlan@engr.sgi.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, csa@oss.sgi.com, akpm@osdl.org,
+       guillaume.thouvenin@bull.net, tim@physik3.uni-rostock.de,
+       corliss@digitalmages.com
+Subject: Re: [PATCH 2.6.9-rc2 2/2] enhanced MM accounting data collection
+Message-ID: <20040928143412.GA5608@lnx-holt.americas.sgi.com>
+References: <4158956F.3030706@engr.sgi.com> <41589927.5080803@engr.sgi.com> <20040928023350.611c84d8.pj@sgi.com> <20040928113858.GA1090@lnx-holt.americas.sgi.com> <20040928062949.2ab2249e.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <E6456D527ABC5B4DBD1119A9FB461E35019377@constellation.doubledimension.com>
-	 <20040928134705.GA11916@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040928062949.2ab2249e.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works for my Inspiron 5150. Thanks, didn't know that.
-
-
-Cheers,
-Buddy
-
-
-On Tue, 28 Sep 2004 14:47:05 +0100, Dave Jones <davej@redhat.com> wrote:
-> On Tue, Sep 28, 2004 at 06:32:31AM -0700, Brian McGrew wrote:
->  > Good morning All!
->  >
->  > We exclusively ship Dell boxes with our hardware.  However, we use several different models, 1400's, 1600's, 2350's, 4600's and so on.  I need to write a small program to probe the system for the model information since I don't seem to find it in the logs anywhere.
->  >
->  > I know the model info is in there somewhere and it's accessible because if I look on the default factory installed version of Windows, it's listed.
->  >
->  > Does anyone know how to do this or can you point me to one that's already done or some samples?
->  
-> You can find this info in the DMI tables assuming Dell filled
-> them in with sensible data (which they usually do).
 > 
-> dmidecode will read these tables from userspace.
+> Is there any non-trivial risk that some other "unfortunate side affect"
+> exists today, that we'd find on benchmarking?
+
+When I last owned csa, I was running benchmarks before each SGI release.
+The tests were a simple matter of grabbing belay or belay2 and running
+setting up an FC disk vault (one was usually attached that had 16 disks
+and use Jack's runit script to launch it.  I would then take the
+output and use Jack's web page to graph and compare it to the previous.
+
+Additionally, every time I got access to a new larger system, I would
+run the tests on there and check for any odd affects of CSA.
+
+Nothing interesting ever popped up from LBS2.1.1 all the way through
+to LBS3.0.
+
 > 
->                 Dave
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> I'm not sure its worth benchmarking again, but I slightly suspect it is,
+> and if benchmarking was done, I'd do it with these calls both inline and
+> out of line, to see what affect that had on runtime.  If no affect on
+> runtime, I'd tend toward the out of line calls - at least saving a
+> little kernel text space.
+
+AIM7 is far to big of a hammer to find this level of micro-optimization.
+You could probably find or write a simple microbenchmark which shows
+the difference that introducing the code causes, but I would doubt it
+would show the inline versus the callout.  Either way, we have probably
+spent more time discussing benchmarking this than it is worth at this
+point of time.
+
+I would expect the do_no_page() path will be the easiest to identify
+the change.  I have a simple test which maps a large region and
+then touches a large number of pages.  The whole loop is surronded by
+reading of the Shub RTC register.  This was done to determine the
+effect of quicklists on page faulting.  That type of microbenchmark
+might be your best bet at finding the problem.
+
+Robin

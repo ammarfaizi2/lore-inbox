@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbTD3UD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 16:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbTD3UD7
+	id S262331AbTD3UKT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 16:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTD3UKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 16:03:59 -0400
-Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:44728 "EHLO
-	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S262403AbTD3UD6 convert rfc822-to-8bit (ORCPT
+	Wed, 30 Apr 2003 16:10:19 -0400
+Received: from codepoet.org ([166.70.99.138]:30952 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S262331AbTD3UKS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 16:03:58 -0400
-From: Gabriel Devenyi <devenyga@mcmaster.ca>
-To: hermes@gibson.dropbear.id.au
-Subject: [PATCH] Linux 2.5.68 - Fix debug statement after return in devices/net/wireless/arlan.c
-Date: Thu, 1 May 2003 16:13:33 -0400
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Wed, 30 Apr 2003 16:10:18 -0400
+Date: Wed, 30 Apr 2003 14:22:39 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: David van Hoose <davidvh@cox.net>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA and 2.4.x
+Message-ID: <20030430202238.GA20412@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	David van Hoose <davidvh@cox.net>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030424212508.GI14661@codepoet.org> <200304251401.36430.m.c.p@wolk-project.de> <200304251410.31701.m.c.p@wolk-project.de> <20030430090242.GA15480@codepoet.org> <3EB02D0F.1080101@cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305011613.34078.devenyga@mcmaster.ca>
+In-Reply-To: <3EB02D0F.1080101@cox.net>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed Apr 30, 2003 at 03:07:43PM -0500, David van Hoose wrote:
+> I'm getting an unresolved in soundcore.o that is preventing me from 
+> having sound.
+> /lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: unresolved symbol 
+> devfs_remove
+> /lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: insmod 
+> /lib/modules/2.4.21-rc1/kernel/sound/soundcore.o failed
+> /lib/modules/2.4.21-rc1/kernel/sound/soundcore.o: insmod snd-card-0 failed
+> 
 
-This patch applies to 2.5.68 and is listed on kbugs.org. The debug statement is never executed becasue it is after a return.
+It compiles for me, but I don't use devfs.  Perhaps there is
+a problem with the compatibility code in include/sound/adriver.h
 
-Please CC me with any discussion.
-- -- 
-Building the Future,
-Gabriel Devenyi
-devenyga@mcmaster.ca
+> Can that be fixed?
 
-- ---FILE---
+I am certain it can.  But since it works for me and since I am
+moving this week (lots of packing to do) it may not be till sometime
+next week before I get the time to work further on it.
 
-- --- linux-2.5.68/drivers/net/wireless/arlan.c	2003-04-19 22:50:06.000000000 -0400
-+++ linux-2.5.68-changed/drivers/net/wireless/arlan.c	2003-05-01 15:07:06.000000000 -0400
-@@ -798,9 +798,9 @@
- 	else
- 	{
- 		netif_stop_queue (dev);
-- -		return -1;
- 		IFDEBUG(ARLAN_DEBUG_TX_CHAIN)
- 			printk(KERN_ERR "TX TAIL & HEAD full, return, tailStart %d headEnd %d\n", tailStarts, headEnds);
-+		return -1;
- 	}
- 	priv->out_bytes += length;
- 	priv->out_bytes10 += length;
+> Also I have problems if I compile USB Audio and USB MIDI from the USB 
+> section AND USB Audio and USB MIDI from the ALSA section. Compilation 
+> fails in that situation. Might want to put the former patch up if this 
+> stuff might take a while to fix.
 
-- ---ENDFILE---
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Ahh.  Well I don't have any usb audio stuff, so I never saw this
+particular conflict.  The old patch is still available under the
+/kernel/alternatives directory on my site if you want to use
+that patch instead,
 
-iD8DBQE+sX/t7I5UBdiZaF4RAqcIAJ9DX4cjmRq7qym+xqOufQ9qctMN4ACeJyIg
-bB90sFAXAQrwY7SxIzosFaM=
-=QDal
------END PGP SIGNATURE-----
+ -Erik
 
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

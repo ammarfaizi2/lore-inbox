@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292785AbSB0VbR>; Wed, 27 Feb 2002 16:31:17 -0500
+	id <S292938AbSB0VdR>; Wed, 27 Feb 2002 16:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292880AbSB0Vat>; Wed, 27 Feb 2002 16:30:49 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:12672 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292969AbSB0Vaa>; Wed, 27 Feb 2002 16:30:30 -0500
+	id <S292934AbSB0Vck>; Wed, 27 Feb 2002 16:32:40 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54026 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S292959AbSB0VcI>; Wed, 27 Feb 2002 16:32:08 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
-To: lse-tech@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF489D60A6.86F20AEB-ON85256B6D.0075A937@raleigh.ibm.com>
-From: "Niels Christiansen" <nchr@us.ibm.com>
-Date: Wed, 27 Feb 2002 15:30:25 -0600
-X-MIMETrack: Serialize by Router on D04NM104/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 02/27/2002 04:30:29 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Date: Wed, 27 Feb 2002 21:31:17 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a5jj75$cuk$1@penguin.transmeta.com>
+In-Reply-To: <3C7D374B.4621F9BA@zip.com.au> <3C7D374B.4621F9BA@zip.com.au> <86760000.1014840118@flay> <3C7D3E5A.490D939D@zip.com.au>
+X-Trace: palladium.transmeta.com 1014845492 13122 127.0.0.1 (27 Feb 2002 21:31:32 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 27 Feb 2002 21:31:32 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> I have a concern about the lockmeter results.  Lockmeter appears
-> to be measuring lock frequency and hold times and contention.  But
-> is it measuring the cost of the cacheline transfers?
+In article <3C7D3E5A.490D939D@zip.com.au>,
+Andrew Morton  <akpm@zip.com.au> wrote:
+>"Martin J. Bligh" wrote:
+>> 
+>> Seeing as people seem to be interested ... there are some big holders
+>> of BKL around too - do_exit shows up badly (50ms in the data Hanna
+>> posted, and I've seen that a lot before).
+>
+>That'll be where exit() takes down the tasks's address spaces.  
+>zap_page_range().  That's a nasty one.
 
-No.
+No, lock_kernel happens after exit_mm, and in fact I suspect it's not
+really needed at all any more except for the current "sem_exit()". I
+think most everything else is threaded already.
 
-> I expect that with delayed allocation and radix-tree pagecache, one
-> of the major remaining bottlenecks will be ownership of the superblock
-> semaphore's cacheline.   Is this measurable?
-When you ask if this is measurable, exactly what do you mean?  The cost
-of cacheline transfers?  Expressed in which unit of measure?  Bottlenecks?
+(Hmm.. Maybe disassociate_ctty() too).
 
-If the data you are after is available, a tool can surely be made
-to capture and present it...
+So minimizing the BLK footprint in do_exit() should be pretty much
+trivial: all the really interesting stuff should be ok already.
 
--nc-
-
+		Linus

@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263175AbRFCSAt>; Sun, 3 Jun 2001 14:00:49 -0400
+	id <S264214AbRFDMQE>; Mon, 4 Jun 2001 08:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263702AbRFCSAk>; Sun, 3 Jun 2001 14:00:40 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:9408 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263175AbRFCRi1>;
-	Sun, 3 Jun 2001 13:38:27 -0400
-Date: Sun, 3 Jun 2001 19:37:53 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106031737.TAA118373.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: symlink_prefix
-Cc: linux-kernel@vger.kernel.org
+	id <S264193AbRFDKy4>; Mon, 4 Jun 2001 06:54:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37018 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264001AbRFDKyq>;
+	Mon, 4 Jun 2001 06:54:46 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15131.26866.794001.525719@pizda.ninka.net>
+Date: Mon, 4 Jun 2001 03:54:42 -0700 (PDT)
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: multicast hash incorrect on big endian archs
+In-Reply-To: <3B1B564E.D83A741A@colorfullife.com>
+In-Reply-To: <3B1A9558.2DBAECE7@colorfullife.com>
+	<15130.61778.471925.245018@pizda.ninka.net>
+	<3B1B3268.2A02D2C@colorfullife.com>
+	<3B1B564E.D83A741A@colorfullife.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We can kludge around anything. The question being, what for?
-> It still leaves ncp with its ioctls ugliness.
 
-I show how to simplify the kernel source without changing the
-interface. That is good, and there are some free benefits.
+Manfred Spraul writes:
+ > That could cause alignment problems.
+ > <<< from starfire.c
+ > {
+ >      long filter_addr;
+ >      u16 mc_filter[32] __attribute__ ((aligned(sizeof(long)))); 
+ > <<<
+ > set_bit requires word alignment, but without the __attibute__ the
+ > compiler would only guarantee 16-bit alignment. IMHO ugly.
 
-You want to design a new interface. Maybe that is good as well,
-but since it is the interface of essentially a unique program
-I do not regard that as very urgent.
+Correction, it requires "long" alignment and that is 64-bits
+on several platforms.
 
-Andries
+Later,
+David S. Miller
+davem@redhat.com

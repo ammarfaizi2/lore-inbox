@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267189AbSLECdO>; Wed, 4 Dec 2002 21:33:14 -0500
+	id <S267190AbSLECem>; Wed, 4 Dec 2002 21:34:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267190AbSLECdN>; Wed, 4 Dec 2002 21:33:13 -0500
-Received: from dp.samba.org ([66.70.73.150]:29909 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267189AbSLECdL>;
-	Wed, 4 Dec 2002 21:33:11 -0500
-Date: Thu, 5 Dec 2002 13:40:39 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: jgarzik@pobox.com, davem@redhat.com, James.Bottomley@SteelEye.com,
-       linux-kernel@vger.kernel.org, miles@gnu.org
-Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021205024039.GB1500@zax.zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	"Adam J. Richter" <adam@yggdrasil.com>, jgarzik@pobox.com,
-	davem@redhat.com, James.Bottomley@SteelEye.com,
-	linux-kernel@vger.kernel.org, miles@gnu.org
-References: <200212050121.RAA03254@adam.yggdrasil.com>
+	id <S267191AbSLECel>; Wed, 4 Dec 2002 21:34:41 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:37508 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267190AbSLECeh>;
+	Wed, 4 Dec 2002 21:34:37 -0500
+Date: Thu, 5 Dec 2002 03:41:57 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH 1/3: FBDEV: VGA State Save/Restore module
+Message-ID: <20021205024157.GA19706@vana>
+References: <96665BC46B2@vcnet.vc.cvut.cz> <1039056748.1032.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212050121.RAA03254@adam.yggdrasil.com>
+In-Reply-To: <1039056748.1032.22.camel@localhost.localdomain>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 05:21:04PM -0800, Adam J. Richter wrote:
-> David Gibson wrote:
-> >On Wed, Dec 04, 2002 at 11:47:14AM -0600, James Bottomley wrote:
-> [...]
-> >> The new DMA API allows a driver to advertise its level of consistent memory 
-> >> compliance to dma_alloc_consistent.  There are essentially two levels:
-> >> 
-> >> - I only work with consistent memory, fail if I cannot get it, or
-> >> - I can work with inconsistent memory, try consistent first but return 
-> >> inconsistent if it's not available.
-> >
-> >Do you have an example of where the second option is useful?
+On Thu, Dec 05, 2002 at 07:53:16AM +0500, Antonino Daplas wrote:
+> On Thu, 2002-12-05 at 03:33, Petr Vandrovec wrote:
+> > On  5 Dec 02 at 6:05, Antonino Daplas wrote:
+> > planes 0 & 1.
 > 
-> 	From a previous discussion, I understand that there are some
-> PCI bus parisc machines without consistent memory.
-
-And there are PPCs without consistent memory, except by disabling
-cache.
-
-> >Off hand
-> >the only places I can think of where you'd use a consistent_alloc()
-> >rather than map_single() and friends is in cases where the hardware's
-> >behaviour means you absolutely positively have to have consistent
-> >memory.
+> Okay, then.  My approach was to be non-vgacon specific.  I'll do it to
+> specifically target vgacon then.
 > 
-> 	That would result in big rarely used branches in device
-> drivers or lots of ifdef's and the equivalent.  With James's approach,
-> porting a driver to support those parisc machines (for example) would
-> involve sprinkling in some calls to macros that would compile to
-> nothing on the other machines.
+> To summarize:
+> plane 0/1 save 8K at offset 0 and 8K at offset 16K;
+
+I'm not sure about this one. AFAIK by default vgacon uses first 32KB
+completely (every second byte...) from both 0/1, and can be configured
+(by enabling VGA_CAN_DO_64KB) to use full 64KB.
+
+> plane 2   save 32K at offset 0 (covers blocks 0-3),
+> plane 3   same for plane 2
 > 
-> 	Compare the code clutter involved in allowing those
-> inconsistent parisc machines to run, say, the ten most popular
-> ethernet controllers and the four most popular scsi controllers.  I
-> think the difference in the resulting source code size would already
-> be in the hundreds of lines.
+> Drivers can set VGA_SAVE_TEXT | VGA_SAVE_FONT0 to save planes 0-2.  If
+> there are no complaints, I'll  proceed doing it this way.
 
-For cases like this, I'm talking about replacing the
-consistent_alloc() with a kmalloc(), then using the cache flush
-macros.  Is there any machine for which this is not sufficient?
-
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+I have no other problems.
+						Petr Vandrovec
+						vandrove@vc.cvut.cz

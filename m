@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264190AbTE0VL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTE0VL2
+	id S264181AbTE0VQN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264196AbTE0VQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:11:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1687 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264181AbTE0VKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:10:34 -0400
-Date: Tue, 27 May 2003 14:22:33 -0700 (PDT)
-Message-Id: <20030527.142233.71088632.davem@redhat.com>
-To: zippel@linux-m68k.org
-Cc: mika.penttila@kolumbus.fi, rmk@arm.linux.org.uk, akpm@digeo.com,
-       hugh@veritas.com, LW@karo-electronics.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
- 2.5.30(at least))
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0305270111370.5042-100000@serv>
-References: <Pine.LNX.4.44.0305261414060.12110-100000@serv>
-	<20030526.153415.41663121.davem@redhat.com>
-	<Pine.LNX.4.44.0305270111370.5042-100000@serv>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 17:16:09 -0400
+Received: from smtp.vzavenue.net ([66.171.59.140]:50202 "EHLO
+	smtp.vzavenue.net") by vger.kernel.org with ESMTP id S264181AbTE0VOR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 17:14:17 -0400
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 27 May 2003 17:27:16 -0400
+MIME-Version: 1.0
+Subject: [STATUS 2.5]  May 27, 2003
+Message-ID: <3ED39FF4.21361.3A1D5537@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roman Zippel <zippel@linux-m68k.org>
-   Date: Tue, 27 May 2003 12:53:12 +0200 (CEST)
+The latest status update is available at: http://www.kernelnewbies.org/status
+Below the most relevant items.  As usual, corrections are welcome.  Enjoy!
 
-   The point I don't like about update_mmu_cache() is that it's called 
-   _after_ set_pte(). Practically it's maybe not a problem right now, but 
-   the cache synchronization should happen before set_pte().
+-- Guillaume
 
-update_mmu_cache() is specifically supposed to always occur before
-anyone could try to use the mapping created.
 
-If this is ever violated, it will be fixed because it is a BUG().
+...
+o in 2.5.63  POSIX timers  (George Anzinger)  
+o in 2.5.65  Desktop Interactivity Improvements  (Linus Torvalds, Ingo Molnar)  
+o in 2.5.69  New interrupt handling API  (Linus Torvalds, Andrew Morton, etc.)  
+o in 2.5.70  USB gadget support  (David Brownell, Stuart Lynne, Greg Kroah-Hartman)  
+ 
+o in -mm  Anticipatory Scheduler  (Nick Piggin, Andrew Morton)  
+o in -mm  64-bit dev_t  (Andries Brouwer, Al Viro)  
+o in -mm  Complete Fair Queueing (CFQ) disk scheduler  (Jens Axboe, Andrea Arcangeli)  
+o in -ac  Switch the IDE I/O layers to taskfile  (Bartlomiej Zolnierkiewicz, Alan Cox)  
+o in -osdl  Build option for Linux Trace Toolkit (LTT)  (Karim Yaghmour)  
+ 
+o before 2.6.0  Support insane number of groups  (Tim Hockin)  
+o before 2.6.0  Worldclass support for IPv6  (Alexey Kuznetsov, Dave Miller, Jun Murai, Yoshifuji Hideaki, USAGI team)  
+o before 2.6.0  Reiserfs v4  (Reiserfs team)  
+o before 2.6.0  Fix device naming issues  (Patrick Mochel, Greg Kroah-Hartman)  
+o before 2.6.0  Change all drivers to new driver model  (All maintainers)  
+o before 2.6.0  Improved AppleTalk stack  (Arnaldo Carvalho de Melo)  
+o before 2.6.0  ext2/ext3 online resize support  (Andreas Dilger)  
+o before 2.6.0  UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)  
+o before 2.6.0  Kexec, syscall to load kernel from kernel  (Eric Biederman)  
 
-So I don't see what you're worried about.
-
-If the above were not true, sparc64 wouldn't be able to compile
-a kernel successfully. :-)
+...

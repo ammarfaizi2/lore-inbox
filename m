@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbULPTba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbULPTeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbULPTba (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 14:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbULPTba
+	id S262006AbULPTeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 14:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbULPTeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 14:31:30 -0500
-Received: from web51502.mail.yahoo.com ([206.190.38.194]:52400 "HELO
-	web51502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262005AbULPTbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 14:31:24 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=damrVjoLVnfZMZ4FNUxIMcb7kzkJaZdlfwvi35l7EQeGtFqk8fbDgNysDCJFO1PCy3Ay4CRgSREaVw5UsZnKBfvJJsVyTCKgXwhmh7lKB4INgzN27EsTOKh9PU54oyXAfjBJKxTGx5bAfMrPbWdiICRmFOiQ2Wph0amJLidu3yk=  ;
-Message-ID: <20041216193123.72464.qmail@web51502.mail.yahoo.com>
-Date: Thu, 16 Dec 2004 11:31:23 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: Issue on netconsole vs. Linux kernel oops
-To: linux-os@analogic.com
-Cc: mpm@selenic.com, pmarques@grupopie.com, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0412161403370.11407@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Dec 2004 14:34:10 -0500
+Received: from mail.tmr.com ([216.238.38.203]:58129 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262006AbULPTeF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 14:34:05 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: WHOOPS - linux-2.6.10-rc3 fails on ata_piix module
+Date: Thu, 16 Dec 2004 14:35:22 -0500
+Organization: TMR Associates, Inc
+Message-ID: <41C1E37A.1030804@tmr.com>
+References: <41BA5EAF.4090908@xmission.com><41BA5EAF.4090908@xmission.com> <41BAABDF.3020709@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1103225074 23375 192.168.12.100 (16 Dec 2004 19:24:34 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: maxer1 <maxer1@xmission.com>, linux-kernel@vger.kernel.org
+To: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <41BAABDF.3020709@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Dec 2004 at 14:06, Dick Johnson wrote:
->
-> Depends upon the vendor of your installation, but 
-> some require loghost to be defined in /etc/hosts as 
-> the same as localhost and /etc/nsswitch.conf 
-> configured to actually look at that.
+Jeff Garzik wrote:
+> maxer1 wrote:
+> 
+>> WARNING: No module ata_piix found for kernel 2.6.10-rc3, continuing 
+>> anyway
+>> 2.6.9 works great here.
+>> What is wrong here?
+> 
+> 
+> Mainly a distinct lack of information in your bug report.  See 
+> REPORTING-BUGS in the kernel source tree for information.
+> 
+> The ata_piix driver certainly didn't go away...
 
-Now, I'm using Fedora Core 2. Would you please tell us
-Is there any limitation of it? 
+Perhaps the config requirements to cause it to build have changed?
 
-Thank you.
-
-
-
-=====
-Best Regards,
-Park Lee
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Find what you need with new enhanced search.
-http://info.mail.yahoo.com/mail_250
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

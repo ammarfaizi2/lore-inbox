@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315182AbSFXTaP>; Mon, 24 Jun 2002 15:30:15 -0400
+	id <S315191AbSFXTeF>; Mon, 24 Jun 2002 15:34:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315191AbSFXTaP>; Mon, 24 Jun 2002 15:30:15 -0400
-Received: from holomorphy.com ([66.224.33.161]:47820 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315182AbSFXTaO>;
-	Mon, 24 Jun 2002 15:30:14 -0400
-Date: Mon, 24 Jun 2002 12:29:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: akpm@zip.com.au, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: RFC: turn scatterlist into a linked list, eliminate bio_vec
-Message-ID: <20020624192934.GJ22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Adam J. Richter" <adam@yggdrasil.com>, akpm@zip.com.au,
-	axboe@suse.de, linux-kernel@vger.kernel.org
-References: <200206232358.QAA03027@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200206232358.QAA03027@adam.yggdrasil.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S315200AbSFXTeE>; Mon, 24 Jun 2002 15:34:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4883 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315191AbSFXTeE>;
+	Mon, 24 Jun 2002 15:34:04 -0400
+Message-ID: <3D17743E.8060905@mandrakesoft.com>
+Date: Mon, 24 Jun 2002 15:34:22 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@cogenit.fr>
+CC: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
+       Jes Sorensen <jes@trained-monkey.org>, davej@suse.de
+Subject: Re: [PATCH] 2.5.24 : drivers/net/tlan.c; drivers/net/rrunner.c
+References: <Pine.LNX.4.44.0206232229570.922-100000@localhost.localdomain> <20020624084325.B22534@fafner.intra.cogenit.fr> <20020624211407.A23939@fafner.intra.cogenit.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 23, 2002 at 04:58:20PM -0700, Adam J. Richter wrote:
-> 	The idea is to turn struct scatterlist from an array into a
-> linked list.  Here are some advantages:
+Francois Romieu wrote:
+> Greetings,
+> 
+> [remaining DMA-mapping conversion in drivers/net]
+> 
+> - tlan plays isa/pci and does as well some interesting things with copy
+>   buffers. The patch is attached but I'll feel safer if somebody with 
+>   the adequate hardware at hand appears.
 
-I'm all for it, though I wonder sometimes if a tree might be better.
+I've got some tlan cards
+
+> - Imho rrunner wouldn't suffer from compat code removal + pci driver init 
+>   style + DMA mapping conversion. I'd like to know what the maintainer
+>   thinks before resurrecting the patch. Jes ?
+
+Just make sure you split it up... one of the reasons why I have stalled 
+applying davej's 2.4.x->2.5.x rrunner patch is that it's pretty darn 
+huge, even though the changes are fairly minor.  (nothing against davej, 
+of course)
+
+	Jeff
 
 
-Cheers,
-Bill

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263206AbRE2Evd>; Tue, 29 May 2001 00:51:33 -0400
+	id <S263208AbRE2E6y>; Tue, 29 May 2001 00:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263205AbRE2EvX>; Tue, 29 May 2001 00:51:23 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:55569 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S263203AbRE2EvP>; Tue, 29 May 2001 00:51:15 -0400
-Date: Tue, 29 May 2001 00:50:59 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@portland.hansa.lan>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: AT keyboard optional on i386?
-In-Reply-To: <Pine.LNX.4.10.10105282027030.3783-100000@transvirtual.com>
-Message-ID: <Pine.LNX.4.33.0105290021420.12495-100000@portland.hansa.lan>
+	id <S263211AbRE2E6o>; Tue, 29 May 2001 00:58:44 -0400
+Received: from www.wen-online.de ([212.223.88.39]:20748 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S263208AbRE2E63>;
+	Tue, 29 May 2001 00:58:29 -0400
+Date: Tue, 29 May 2001 06:57:59 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: "Leeuw van der, Tim" <tim.leeuwvander@nl.unisys.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac2
+In-Reply-To: <Pine.LNX.4.21.0105281636160.1261-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0105290645410.515-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, James!
+On Mon, 28 May 2001, Marcelo Tosatti wrote:
 
-> So as you can see even USB keyboards depend on pc_keyb.c. So their is
-> no way around this.
+> On Mon, 28 May 2001, Mike Galbraith wrote:
+>
+> > On Mon, 28 May 2001, Leeuw van der, Tim wrote:
+> >
+> > > The VM in 2.4.5 might be largely 'fixed' and I know that the VM changes in
+> > > -ac were considered to be but still broken, however for me they worked
+> > > better than what is in 2.4.5.
+> >
+> > The VM changes in 2.4.5 fixed a very serious performance problem.  IMHO,
+> > 2.4.5 is a step in the right direction.  (and I hope more steps are in
+> > the offing;)
+>
+> It did not fixed any interactivity problem.
 
-Perhaps redefining kbd_read_input() will help. It's cruel, I know :-)
+Yes, I know.  I mentioned that interactivity went south here back
+when we stopped waiting.  The performance problem I was refering to
+was the cache collapsing as soon as you hit a load spike.  You and
+Rik killed that longstanding problem.
 
-> You can a few nice tricks with it like plug in two PS/2 keyboards. I
-> have this for my home setup. The only thing is make sure you don't
-> have both keyboards plugged in when you turn your PC on. I found BIOS
-> get confused by two PS/2 keyboards. As you can it is very easy to
-> multiplex many keyboards with the above design. I have had 4 different
-> keyboards hooked up to my system and functioning at the same time. We
-> even got a Sun keyboard to work on a intel box :-)
-
-That's what we like Linux for. It doesn't get confused when everything
-else does :-)
-
-Thanks for your very interesting reply.
-
--- 
-Regards,
-Pavel Roskin
+	-Mike
 

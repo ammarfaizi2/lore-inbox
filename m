@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262608AbTLJRIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbTLJRIP
+	id S263728AbTLJRIV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTLJRIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:08:15 -0500
-Received: from mail.dsa-ac.de ([62.112.80.99]:42251 "EHLO k2.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S262608AbTLJRIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:08:14 -0500
-Date: Wed, 10 Dec 2003 18:08:09 +0100 (CET)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.23: pc_keyb.c] request_irq() without free_irq().
-In-Reply-To: <20031210085255.53747fde.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.33.0312101805550.1130-100000@pcgl.dsa-ac.de>
+	Wed, 10 Dec 2003 12:08:21 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:54668 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263728AbTLJRIR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 12:08:17 -0500
+Date: Wed, 10 Dec 2003 17:06:31 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ross Dickson <ross@datscreative.com.au>
+Cc: linux-kernel@vger.kernel.org, AMartin@nvidia.com, kernel@kolivas.org,
+       Ian Kumlien <pomac@vapor.com>
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+In-Reply-To: <200312101543.39597.ross@datscreative.com.au>
+Message-ID: <Pine.LNX.4.55.0312101653490.31543@jurand.ds.pg.gda.pl>
+References: <200312072312.01013.ross@datscreative.com.au>
+ <Pine.LNX.4.55.0312091610320.20948@jurand.ds.pg.gda.pl>
+ <200312101543.39597.ross@datscreative.com.au>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Dec 2003, Randy.Dunlap wrote:
+On Wed, 10 Dec 2003, Ross Dickson wrote:
 
-> On Wed, 10 Dec 2003 15:32:22 +0100 (CET) Guennadi Liakhovetski <gl@dsa-ac.de> wrote:
->
-> | Hello
-> |
-> | Looks like the the counterpart for kbd_request_irq() is missing. Am I
-> | right?
->
-> Did you find the counterpart for kbd_request_region()?
->
-> In 2.4.x, the pc keyboard driver option is Y/N.  It can't be a module.
-> If it's built into the kernel, it just hangs around until reboot.
-> It doesn't need to release resources when the kernel is shutting down.
+> Relevant dmesg output from Albatron KM18G Pro ( this is different MOBO (same type) but 
+> this time has a barton core 2500 XP cpu).
+> 
+> enabled ExtINT on CPU#0
+> ESR value before enabling vector: 00000000
+> ESR value after enabling vector: 00000000
+> ENABLING IO-APIC IRQs
+> init IO_APIC IRQs
+>  IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 2-23 not connected.
+> ..TIMER: vector=0x31 pin1=2 pin2=-1
+> ..MP-BIOS bug: 8254 timer not connected to IO-APIC pin2
+> ..TIMER: Is timer irq0 connected to IOAPIC Pin0? ...
+> IOAPIC[0]: Set PCI routing entry (2-0 -> 0x31 -> IRQ 0 Mode:0 Active:0)
+> ..TIMER check 8259 ints disabled, imr1:ff, imr2:ff
+> ..TIMER: works OK on apic pin0 irq0
+> Using local APIC timer interrupts.
+> calibrating APIC timer ...
+> ..... CPU clock speed is 1829.0708 MHz.
+> ..... host bus clock speed is 332.0674 MHz.
+> cpu: 0, clocks: 332674, slice: 166337
+> CPU0<T0:332672,T1:166320,D:15,S:166337,C:332674>
 
-Yep, I noticed already, that there's no release method at all:-)) I'm just
-adapting the code to an ARM platform (actually, the patch already exists
-and already works), and, no, we don't really need to unload it, but, just
-thought, wasn't quite clean... But, well, it's probably not going to
-change in 2.4. Not that it was very needed:-)
+ Hmm, while this is different from what is documented in the MP Spec, it
+looks like the 8254 IRQ is connected to INTIN0 indeed.  We can handle such
+a setup if the BIOS reports routing correctly.  Since you invoke
+io_apic_set_pci_routing() I assume you use ACPI for IRQ routing
+information.  Can you please rebuild the kernel with APIC_DEBUG set to 1
+in include/asm-i386/apic.h and send me the bootstrap log?  Can you please
+send me the output of a tool called `mptable' as well, so that I can
+compare the results?
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+  Maciej
 
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

@@ -1,92 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbUKQV7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbUKRAnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbUKQV7s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 16:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbUKQV5s
+	id S262589AbUKRAnE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 19:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbUKRAmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 16:57:48 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:22421 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262615AbUKQVzF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 16:55:05 -0500
-Message-ID: <419BC8B0.7090109@lengard.net>
-Date: Wed, 17 Nov 2004 22:54:56 +0100
-From: pascal lengard <lklm@lengard.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: ide ati ixp driver evolution ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Nov 2004 19:42:20 -0500
+Received: from [218.28.6.155] ([218.28.6.155]:65256 "HELO zzgjj.net")
+	by vger.kernel.org with SMTP id S262626AbUKQXtz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 18:49:55 -0500
+Message-ID: <20041117234951.35671.qmail@zzgjj.net>
+Date: Thu, 18 Nov 2004 07:49:51 +0800 (CST)
+From: faxsky@zzgxrc.net
+Reply-To: faxsky@zzgxrc.net
+To: kehr@mail.seeder.net.tw
+Subject: =?GBK?B?ufrE2tfuwffQ0LXnxNTK1beiL8i6t6K0q9XmyO28/g==?=
+X-mailer: DCMail_v1.10_by_Zhouhui
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="==--==--Zhou_Hui_419be39fc64351.74934580--==--=="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+This is a multi-part message in MIME format.
 
-I'm not subscribed to the list so please CC me on replies/thread this 
-might produce, thanks.
+--==--==--Zhou_Hui_419be39fc64351.74934580--==--==
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 
-I recently bought a new PC with ATI IXP chipset for sound, video, ide.
-sound is working correctly but IDE was really slow (no dma) until I
-recompiled my Fedora core 3 kernel, changing include/linux/pci_ids.h
-to have my chipset recognized as a ati_ixp one.
-
-here is the result of lspci on the computer:
-
-00:00.0 Host bridge: ATI Technologies Inc: Unknown device 7833
-00:01.0 PCI bridge: ATI Technologies Inc: Unknown device 7838
-00:13.0 USB Controller: ATI Technologies Inc: Unknown device 4367 (rev 01)
-00:13.1 USB Controller: ATI Technologies Inc: Unknown device 4368 (rev 01)
-00:13.2 USB Controller: ATI Technologies Inc: Unknown device 4365 (rev 01)
-00:14.0 SMBus: ATI Technologies Inc: Unknown device 4363 (rev 03)
-00:14.1 IDE interface: ATI Technologies Inc: Unknown device 4369 (rev 01)
-00:14.3 ISA bridge: ATI Technologies Inc: Unknown device 436c (rev 01)
-00:14.4 PCI bridge: ATI Technologies Inc: Unknown device 4362 (rev 01)
-00:14.5 Multimedia audio controller: ATI Technologies Inc: Unknown 
-device 4361 (rev 03)
-01:05.0 VGA compatible controller: ATI Technologies Inc Radeon 9100 PRO IGP
-02:06.0 Communication controller: Conexant HSF 56k HSFi Modem (rev 01)
-02:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-
-
-To have the chipset recognized, I just changed the line:
-/* ATI IXP Chipset */
-#define PCI_DEVICE_ID_ATI_IXP_IDE        0x4349
-
-with this one:
-#define PCI_DEVICE_ID_ATI_IXP_IDE       0x4369
+1b6zpKOsxPq6w6OhsO+w78Omt6KyvM/Cw+a1xMjtvP6jrNC70LujoSANCiAgIA0KICDI7bz+w/uz
+xqO60MK6/LXnxNS0q9XmW0ZheG5vd10NCiAgyO28/rTz0KGjujczOUtCDQogINOm08PGvcyoo7pX
+aW45eC9NZS9OVC8yMDAwL1hQDQogIMPit9HPwtTYo7podHRwOi8veXhzb2Z0MzY5Lms5MDAuY29t
+DQogIMPit9HPwtTYo7podHRwOi8veXhzb2Z0MzY1LmNubmIubmV0DQogILXnu7DBqs+1o7owIDUg
+MSA5IDggNiA3IDAgMyAyIDMNCiAgUVHXydGvo7oxIDEgNCAwIDcgNSAzIDAgMw0KICAgDQogIMjt
+vP688r3po7oNCiAgIA0KICC5+rL6vPLM5dbQzsSw5s2ouf2199bGveK198b3KMbVzahNb2RlbSm6
+zcbVzai157uwz9/Ctw0KICC3osvNus2908rVtKvV5sjtvP6ho9fUtq+9q1dPUkQvV1BTL7zHysKx
+vi9DQUS75s28L9C019YNCiAgsOUvRVhDRUyx7bjxtcizo9PDyO28/tbQseC8rbrDtcTOxNfWus3N
+vMasxNrI3dequ7vOqrSrDQogINXmzsS8/qOsyuTI68bVzai0q9Xmu/q6xcLrvLS/ybeiy820q9Xm
+oaO147v3vdPK1bC0xaW8tA0KICC/yb3TytWhouSvwMC0q9Xmu/LK5LP2tb208tOhu/rJz6Gjzai5
+/bXnxNS3osvNus2908rVtKsNCiAg1ebL2bbIv+yjrMTayN3H5c76o6y92sqhyMu5pLrNsOy5q7fR
+08OjrLKiv8nXqru7zqrNvM/xDQogIM7EvP605rW1u/JlTUFJTNeqt6Kho7n6xNrWqsP718nRr7mr
+y76hosLD0NDJ56Gi1bnAwLvhoaINCiAgzu/B98bz0rW1yMq508O68775yM/OqqO6yO28/r/J0tTO
+3sjLyrHX1LavytW3orSr1ebSsr/JDQogIM/IxMPG8LKiwaq1xLXnu7C7+s2ou7C689TZt6LLzbvy
+vdPK1bSr1eajrLjDz+65psTcyse5+g0KICDE2s3iy/nT0M2swOC0q9XmyO28/ra8sru+37G4tcSj
+rNPDuvO40L71scjK27zbyP3LxMen1KoNCiAgtcS0q9Xmu/q7udKqt72x46OsysfSu7/uvvi80bXE
+yNWzo7XnxNSw7LmryO28/qGjDQogICANCiAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLQ0KICAgDQogINDCuvy0q9XmW8i6XbeiyO28/qO6DQoNCiAgw+K30c/C1Nijumh0
+dHA6Ly9mYXhza3kuc2d3LmNuDQogIMPit9HPwtTYo7podHRwOi8vZmF4c2t5Lms5MDAuY29tDQog
+IMPit9HPwtTYo7podHRwOi8vZmF4c2t5LjhxOC5jb20NCiAgDQogICANCiAgIA0KICAg
 
 
-after that, dmesg says kernel recognized the chip and DMA is working,
-hdparm -t changed from 8MB/s to 47MB/s, nice !
-
-messaged during boot (dmesg):
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ATIIXP: IDE controller at PCI slot 0000:00:14.1
-ACPI: PCI interrupt 0000:00:14.1[A] -> GSI 10 (level, low) -> IRQ 10
-ATIIXP: chipset revision 1
-ATIIXP: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-Probing IDE interface ide0...
-hda: ST380011A, ATA DISK drive
-Using cfq io scheduler
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: HL-DT-ST DVDRAM GSA-4082B, ATAPI CD/DVD-ROM drive
-hdd: DVD-ROM BDV316E, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-
-
-I guess this could be taken care of in a future release of the kernel,
-or maybe you need more documentation from Ati on what have changed
-between these 2 releases of the chip ?
-
-I am volunteering to test the patches that might be produced to make
-this hardware function correctly, if needed ...
-
-Regards,
-Pascal Lengard
+--==--==--Zhou_Hui_419be39fc64351.74934580--==--==--

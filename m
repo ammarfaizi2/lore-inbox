@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbUA3SSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 13:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUA3SSJ
+	id S262683AbUA3SgC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 13:36:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUA3SgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 13:18:09 -0500
-Received: from pop.gmx.net ([213.165.64.20]:61334 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263424AbUA3SRz (ORCPT
+	Fri, 30 Jan 2004 13:36:02 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13782 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262683AbUA3SgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 13:17:55 -0500
-X-Authenticated: #4512188
-Message-ID: <401A9FCB.4080804@gmx.de>
-Date: Fri, 30 Jan 2004 19:17:47 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 30 Jan 2004 13:36:00 -0500
+Date: Fri, 30 Jan 2004 13:35:52 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: arnd@arndb.de, <linux-kernel@vger.kernel.org>, <rspchan@starhub.net.sg>
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
+In-Reply-To: <20040130100247.1a0f6eb9.rddunlap@osdl.org>
+Message-ID: <Xine.LNX.4.44.0401301335210.16592-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 015 release
-References: <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de> <20040130172310.GB5265@kroah.com> <401A97E0.4010704@gmx.de> <20040130174935.GC5265@kroah.com>
-In-Reply-To: <20040130174935.GC5265@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
- > On Fri, Jan 30, 2004 at 06:44:00PM +0100, Prakash K. Cheemplavam wrote:
- >
- >>>What does:
- >>>	usbinfo -a -p /sys/class/usb/scanner0
- >>>say?
- >>
- >
- > Oops, sorry, that should have been 'udevinfo' not 'usbinfo'.
- >
- > Not awake yet...
+On Fri, 30 Jan 2004, Randy.Dunlap wrote:
 
-Ok, but it doesn't help, as I guess the scanner0 entry will only appear 
-if I use the scanner module, which I don't want to...so no scanner0 
-entry in my case.
+> Here's what I see on x86 and gcc 3.2 (for Linux 2.6.1).
+> What Linux version of the code are you looking at?
+> 
+> 
+> $0x180,%esp: c01fd5aa <aes_encrypt+4/1750>
+> $0x1b0,%esp: c01fecfa <aes_decrypt+4/17da>
+> $0x230,%esp: c0206acd <test_deflate+b/2f8>
+> $0x10c,%esp: c0205c90 <test_hmac+6/4fc>
+> $0x1fc,%esp: c01e9ed8 <sha1_transform+4/178a>
+> $0x120,%esp: c01eb842 <sha256_transform+6/1ef0>
+> $0x384,%esp: c01ed988 <sha512_transform+4/17e8>
+> $0x10c,%esp: c01f1c90 <twofish_setkey+4/7480>
+> 
 
-But I basicaly managed to get support vie libusb (doing a brute chmod 
-666 on the proc device). Just need to set the rights correctly to the 
-device via a script and let hotplug do the rest. Everything new to me, 
-but makes sense somehow...
+2.6.2-rc2-mm2 with gcc version 3.3.1 20030915 (Red Hat Linux 3.3.1-5)
 
-Prakash
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

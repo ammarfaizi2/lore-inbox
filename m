@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266791AbUFRUCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266764AbUFRUDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266791AbUFRUCV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266764AbUFRT75
+	id S266764AbUFRUDL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266610AbUFRUCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:59:57 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:40372 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S266588AbUFRT41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:56:27 -0400
-Date: Fri, 18 Jun 2004 20:56:03 +0100
-From: Ian Molton <spyro@f2s.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
-       david-b@pacbell.net, jamey.hicks@hp.com, joshua@joshuawise.com
+	Fri, 18 Jun 2004 16:02:32 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:38282 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S266789AbUFRUCM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 16:02:12 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: James Bottomley <James.Bottomley@steeleye.com>
 Subject: Re: DMA API issues
-Message-Id: <20040618205603.07f8fc56.spyro@f2s.com>
-In-Reply-To: <1087587004.2078.137.camel@mulgrave>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.com>
-	<1087587004.2078.137.camel@mulgrave>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Fri, 18 Jun 2004 22:02:06 +0200
+User-Agent: KMail/1.6.2
+Cc: Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       tony@atomide.com, david-b@pacbell.net, joshua@joshuawise.com
+References: <1087582845.1752.107.camel@mulgrave> <40D340FB.3080309@hp.com> <1087587669.1752.147.camel@mulgrave>
+In-Reply-To: <1087587669.1752.147.camel@mulgrave>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406182202.13528.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jun 2004 14:30:01 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Is your problem that you'd like the dma pools it uses to come out of the
-> on chip buffer?
+Am Freitag, 18. Juni 2004 21:41 schrieb James Bottomley:
+> Well, I thought it was something like that.  So the problem could be
+> solved simply by rejigging ohci to export td_alloc and td_free as
+> overrideable methods?
 
-Correct. its the right way to do this.
+Unfortunately no. Usb_buffer_alloc() needs to know about the restriction,
+too.
+
+	Regards
+		Oliver
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA00pDbuJ1a+1Sn8oRAoqjAKDVMBJCgjrysIZlQYdLDFCTEic6JgCfQ6t/
+g4B4/fqQwvFNelxVo4sQO3o=
+=q4nt
+-----END PGP SIGNATURE-----

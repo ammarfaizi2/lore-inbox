@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129283AbRB1VuF>; Wed, 28 Feb 2001 16:50:05 -0500
+	id <S129164AbRB1Vyf>; Wed, 28 Feb 2001 16:54:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129307AbRB1Vtz>; Wed, 28 Feb 2001 16:49:55 -0500
-Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.112]:48656 "HELO
-	email03.aon.at") by vger.kernel.org with SMTP id <S129283AbRB1Vto>;
-	Wed, 28 Feb 2001 16:49:44 -0500
-Date: Wed, 28 Feb 2001 22:48:50 +0100
-From: Eduard Hasenleithner <eduardh@aon.at>
-To: linux-kernel@vger.kernel.org
-Subject: How to set hdparms for ide-scsi devices on devfs?
-Message-ID: <20010228224850.A10608@moserv.hasi>
-Mime-Version: 1.0
+	id <S129291AbRB1Vy0>; Wed, 28 Feb 2001 16:54:26 -0500
+Received: from mercury.ultramaster.com ([208.222.81.163]:39335 "EHLO
+	mercury.ultramaster.com") by vger.kernel.org with ESMTP
+	id <S129164AbRB1VyS>; Wed, 28 Feb 2001 16:54:18 -0500
+Message-ID: <3A9D7382.A020354E@dm.ultramaster.com>
+Date: Wed, 28 Feb 2001 16:54:10 -0500
+From: David Mansfield <lkml@dm.ultramaster.com>
+Organization: Ultramaster Group LLC
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: neelam_saboo@usa.net, linux-kernel@vger.kernel.org
+Subject: Re: paging behavior in Linux
+In-Reply-To: <3A9D6F05.F24D5558@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, if this issue was already discussed in lkml. I didn't find
-a reference to this at www.geocrawler.com
+Manfred Spraul wrote:
+> 
+> >
+> > When I run my program on a readhat linux machine, I dont get results as
+> > expected, work thread seems to be stuck when prefetch thread is waiting on
+> > a page fault
+> >
+> That's a known problem:
+> 
+> The paging io for a process is controlled with a per-process semaphore.
+> The semaphore is held while waiting for the actual io. Thus the paging
+> in multi threaded applications is single threaded.
+> Probably your prefetch thread is waiting for disk io, and the worker
+> thread causes a minor pagefault --> worker thread sleeps until the disk
+> io is completed.
 
-My Problem:
-I want to set the unmaskirq and dma -flag for my ide cd-recorder.
-The Problem is, that devfs creates no ide device, but only
-the /dev/scsi/../{cd,general} devices are created. And hdparm
-don't accepts this devices for setting the ide-parameters.
+This behavior is actually pretty annoying.  There can be cases where a
+process wakes up from a page fault, does some work, goes back to sleep
+on a page fault, thereby keeping it's mmap_sem locked at all times (i.e.
+vmstat, top, ps unusable) on a UP system.  I posted this complaint a
+while ago, it was discussed by Linus and Andrew Morton about how it also
+boiled down to semaphore wakeup unfairness (and bugs?).  The current
+semaphore was determined to be too ugly to even look at.  So it was
+dropped.
 
-My current workaround is to create a /dev/hd? device "by hand"
-at system startup. This is not very beautiful. Furthermore, if
-the device numbers in devfs are deactivated, this won't work
-anymore.
+Is there any way that the mmap_sem could be dropped during the blocking
+on I/O, and reclaimed after the handle_mm_fault?  Probably not, or it'd
+be done.
 
-I can live with my current solution. But i would be very happy
-if someone can present a clean solution.
+It can be a real DOS though, a 'well-written' clobbering program can
+make ps/vmstat useless.  (it's actually /proc/pid/stat that's the
+killer, IIRC).
 
-I posted this message intentionally not on the devfs mailing list
-as i think this problem is related to accessing the same device
-through different /dev entries. Under devfs, the /dev/ide/...
-device node gets allocated after the corresponding ide-xx.o has
-been loaded. But this is not possible with ide-scsi claiming
-the device :(
-
-Thanks in advance
+David
 
 -- 
-Eduard Hasenleithner
-student of
-Salzburg University of Applied Sciences and Technologies
+David Mansfield                                           (718) 963-2020
+david@ultramaster.com
+Ultramaster Group, LLC                               www.ultramaster.com

@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbULNWOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbULNWLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbULNWOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbULNWOL
+	id S261691AbULNWLE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbULNWIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:14:11 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:36024 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261713AbULNWNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:13:44 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       George Anzinger <george@mvista.com>
-In-Reply-To: <20041214211828.GA17216@elte.hu>
-References: <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu>
-	 <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu>
-	 <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu>
-	 <20041214132834.GA32390@elte.hu>
-	 <1103052853.3582.46.camel@localhost.localdomain>
-	 <1103054908.14699.20.camel@krustophenia.net>
-	 <1103057144.3582.51.camel@localhost.localdomain>
-	 <20041214211828.GA17216@elte.hu>
-Content-Type: text/plain
-Date: Tue, 14 Dec 2004 17:13:42 -0500
-Message-Id: <1103062423.14699.48.camel@krustophenia.net>
+	Tue, 14 Dec 2004 17:08:38 -0500
+Received: from gprs214-149.eurotel.cz ([160.218.214.149]:33664 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261691AbULNWDC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:03:02 -0500
+Date: Tue, 14 Dec 2004 23:02:39 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org
+Subject: USB making time drift [was Re: dynamic-hz]
+Message-ID: <20041214220239.GA19221@elf.ucw.cz>
+References: <cone.1102897095.171542.10669.502@pc.kolivas.org> <20041213002751.GP16322@dualathlon.random> <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <20041214023651.GT16322@dualathlon.random> <20041214095939.GC1063@elf.ucw.cz> <20041214152558.GB16322@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041214152558.GB16322@dualathlon.random>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-14 at 22:18 +0100, Ingo Molnar wrote:
-> the two projects are obviously complementary and i have no intention to
-> reinvent the wheel in any way. Best would be to bring hires timers up to
-> upstream-mergable state (independently of the -RT patch) and ask Andrew
-> to include it in -mm, then i'd port -RT to it automatically.
+Hi!
 
-Among other things I think Paul Davis mentioned that George's high res
-timer patch would make it possible for JACK to send MIDI clock.  This
-would be a huge improvement.
+> On Tue, Dec 14, 2004 at 10:59:39AM +0100, Pavel Machek wrote:
+> > Are you using CONFIG_HPET_TIMER by chance? It seems to be missing some
+> > strategic -1, TSC (etc) get it right.
+> 
+> I'm not using hpet because it's an old hardware, this is with timer_tsc.
+> It must be reproducible in any machine out there, especially with
+> machines with usb it should be reproducible even without any userspace
+> testcase doing iopl/cli/sti. Time will go silenty in the future at every
+> usb irq (they often last 3/4msec).
 
-Lee
+How much drift do you see?
 
+I have machine with UHCI here, and am using usb most of the time
+(bluetooth for gprs connection), and did not notice too bad
+drift. ntpdate does some adjustment each time I connect to the
+network, but it 
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

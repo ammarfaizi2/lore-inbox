@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269868AbRHIWnC>; Thu, 9 Aug 2001 18:43:02 -0400
+	id <S270604AbRHIWpc>; Thu, 9 Aug 2001 18:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270604AbRHIWmw>; Thu, 9 Aug 2001 18:42:52 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:32012
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S269868AbRHIWmk>; Thu, 9 Aug 2001 18:42:40 -0400
-Date: Thu, 09 Aug 2001 18:42:34 -0400
-From: Chris Mason <mason@suse.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, lvm-devel@sistina.com
-Subject: Re: [PATCH] LVM snapshot support for reiserfs and others
-Message-ID: <532210000.997396954@tiny>
-In-Reply-To: <Pine.GSO.4.21.0108091822440.25945-100000@weyl.math.psu.edu>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S270605AbRHIWpW>; Thu, 9 Aug 2001 18:45:22 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64010 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270604AbRHIWpJ>; Thu, 9 Aug 2001 18:45:09 -0400
+Subject: Re: Swapping for diskless nodes
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Thu, 9 Aug 2001 23:46:29 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), abali@us.ibm.com (Bulent Abali),
+        dws@dirksteinberg.de (Dirk W. Steinberg),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.33L.0108091756420.1439-100000@duckman.distro.conectiva> from "Rik van Riel" at Aug 09, 2001 05:57:10 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E15UyZR-0008IH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thursday, August 09, 2001 06:24:46 PM -0400 Alexander Viro <viro@math.psu.edu> wrote:
-
-> Chris, how about doing that after fs/super.c stuff (things that went into
-> -ac)?
+> On Thu, 9 Aug 2001, Alan Cox wrote:
 > 
+> > Ultimately its an insoluble problem, neither SunOS, Solaris or
+> > NetBSD are infallible, they just never fail for any normal
+> > situation, and thats good enough for me as a solution
+> 
+> Memory reservations, with reservations on a per-socket
+> basis, can fix the problem.
 
-well, it depends on how soon the fs/super.c stuff goes in ;-)
-I'd prefer to provide you with an updated patch for -ac, and get
-this into the kernel sooner than later.  It's your call though, including
-if you just want to hold off until I've got the -ac patch done.
-
--chris
-
+Only a probabalistic subset of the problem. But yes enough to make it "work"
+except where mathematicians and crazy people are concerned. Do not NFS swap
+on a BGP4 router with no fixed route to the server..

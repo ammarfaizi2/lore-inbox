@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbTH2ROR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 13:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbTH2RNN
+	id S261604AbTH2RRl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 13:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbTH2RMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 13:13:13 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:3536 "EHLO
+	Fri, 29 Aug 2003 13:12:18 -0400
+Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:61375 "EHLO
 	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261528AbTH2RK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 13:10:59 -0400
-Date: Fri, 29 Aug 2003 19:10:30 +0200
+	id S261469AbTH2RKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 13:10:07 -0400
+Date: Fri, 29 Aug 2003 19:09:37 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (6/8): dasd driver.
-Message-ID: <20030829171030.GG1242@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (4/8): module_param.
+Message-ID: <20030829170937.GE1242@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,68 +21,132 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Remove initialization of device.name.
-- Export some functions.
+Use new-style module_param.
 
 diffstat:
- drivers/s390/block/dasd.c       |   13 ++++++++-----
- drivers/s390/block/dasd_ioctl.c |    3 +--
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ drivers/s390/block/xpram.c   |    4 +++-
+ drivers/s390/char/sclp_cpi.c |    5 +++--
+ drivers/s390/net/iucv.c      |    9 +++++----
+ drivers/s390/net/qeth.c      |    5 +++--
+ 4 files changed, 14 insertions(+), 9 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/block/dasd.c linux-2.6-s390/drivers/s390/block/dasd.c
---- linux-2.6/drivers/s390/block/dasd.c	Sat Aug 23 01:55:31 2003
-+++ linux-2.6-s390/drivers/s390/block/dasd.c	Fri Aug 29 18:55:10 2003
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
-  *
-- * $Revision: 1.101 $
-+ * $Revision: 1.107 $
+diff -urN linux-2.6/drivers/s390/block/xpram.c linux-2.6-s390/drivers/s390/block/xpram.c
+--- linux-2.6/drivers/s390/block/xpram.c	Sat Aug 23 01:58:10 2003
++++ linux-2.6-s390/drivers/s390/block/xpram.c	Fri Aug 29 18:55:09 2003
+@@ -26,11 +26,13 @@
   */
+ 
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/version.h>
+ #include <linux/ctype.h>  /* isdigit, isxdigit */
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
++#include <linux/blkdev.h>
+ #include <linux/blkpg.h>
+ #include <linux/hdreg.h>  /* HDIO_GETGEO */
+ #include <linux/sysdev.h>
+@@ -74,7 +76,7 @@
+ static int devs = XPRAM_DEVS;
+ static unsigned long sizes[XPRAM_MAX_DEVS];
+ 
+-MODULE_PARM(devs,"i");
++module_param(devs, int, 0);
+ MODULE_PARM(sizes,"1-" __MODULE_STRING(XPRAM_MAX_DEVS) "i"); 
+ 
+ MODULE_PARM_DESC(devs, "number of devices (\"partitions\"), " \
+diff -urN linux-2.6/drivers/s390/char/sclp_cpi.c linux-2.6-s390/drivers/s390/char/sclp_cpi.c
+--- linux-2.6/drivers/s390/char/sclp_cpi.c	Sat Aug 23 01:56:22 2003
++++ linux-2.6-s390/drivers/s390/char/sclp_cpi.c	Fri Aug 29 18:55:09 2003
+@@ -9,6 +9,7 @@
+ #include <linux/version.h>
+ #include <linux/kmod.h>
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/init.h>
+ #include <linux/timer.h>
+ #include <linux/string.h>
+@@ -58,12 +59,12 @@
+ 	"or zSeries hardware");
+ 
+ static char *system_name = NULL;
+-MODULE_PARM(system_name, "s");
++module_param(system_name, charp, 0);
+ MODULE_PARM_DESC(system_name, "e.g. hostname - max. 8 characters");
+ 
+ static char *sysplex_name = NULL;
+ #ifdef ALLOW_SYSPLEX_NAME
+-MODULE_PARM(sysplex_name, "s");
++module_param(sysplex_name, charp, 0);
+ MODULE_PARM_DESC(sysplex_name, "if applicable - max. 8 characters");
+ #endif
+ 
+diff -urN linux-2.6/drivers/s390/net/iucv.c linux-2.6-s390/drivers/s390/net/iucv.c
+--- linux-2.6/drivers/s390/net/iucv.c	Sat Aug 23 01:51:45 2003
++++ linux-2.6-s390/drivers/s390/net/iucv.c	Fri Aug 29 18:55:09 2003
+@@ -1,5 +1,5 @@
+ /* 
+- * $Id: iucv.c,v 1.11 2003/04/15 16:45:37 aberg Exp $
++ * $Id: iucv.c,v 1.12 2003/07/31 15:11:13 cohuck Exp $
+  *
+  * IUCV network driver
+  *
+@@ -29,11 +29,12 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.11 $
++ * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.12 $
+  *
+  */
+ 
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/config.h>
+ 
+ #include <linux/spinlock.h>
+@@ -283,7 +284,7 @@
+ #ifdef DEBUG
+ static int debuglevel = 0;
+ 
+-MODULE_PARM(debuglevel, "i");
++module_param(debuglevel, int, 0);
+ MODULE_PARM_DESC(debuglevel,
+  "Specifies the debug level (0=off ... 3=all)");
+ 
+@@ -332,7 +333,7 @@
+ static void
+ iucv_banner(void)
+ {
+-	char vbuf[] = "$Revision: 1.11 $";
++	char vbuf[] = "$Revision: 1.12 $";
+ 	char *version = vbuf;
+ 
+ 	if ((version = strchr(version, ':'))) {
+diff -urN linux-2.6/drivers/s390/net/qeth.c linux-2.6-s390/drivers/s390/net/qeth.c
+--- linux-2.6/drivers/s390/net/qeth.c	Sat Aug 23 02:03:19 2003
++++ linux-2.6-s390/drivers/s390/net/qeth.c	Fri Aug 29 18:55:09 2003
+@@ -106,6 +106,7 @@
  
  #include <linux/config.h>
-@@ -411,7 +411,7 @@
- 		target = DASD_STATE_ACCEPT;
- 	if (device->target != target) {
-                 if (device->state == target)
--                        wake_up(&dasd_init_waitq);
-+			wake_up(&dasd_init_waitq);
- 		device->target = target;
- 	}
- 	if (device->state != device->target)
-@@ -1752,9 +1752,6 @@
- 	int devno;
- 	int ret = 0;
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
  
--	snprintf(cdev->dev.name, DEVICE_NAME_SIZE,
--		 "Direct Access Storage Device");
--
- 	devno = _ccw_device_get_device_number(cdev);
- 	if (dasd_autodetect
- 	    && (ret = dasd_add_range(devno, devno, DASD_FEATURE_DEFAULT))) {
-@@ -2083,6 +2080,12 @@
- EXPORT_SYMBOL(dasd_start_IO);
- EXPORT_SYMBOL(dasd_term_IO);
+ #include <linux/string.h>
+ #include <linux/errno.h>
+@@ -160,12 +161,12 @@
  
-+EXPORT_SYMBOL_GPL(dasd_generic_probe);
-+EXPORT_SYMBOL_GPL(dasd_generic_remove);
-+EXPORT_SYMBOL_GPL(dasd_generic_set_online);
-+EXPORT_SYMBOL_GPL(dasd_generic_set_offline);
-+EXPORT_SYMBOL_GPL(dasd_generic_auto_online);
-+
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-  * Emacs will notice this stuff at the end of the file and automatically
-diff -urN linux-2.6/drivers/s390/block/dasd_ioctl.c linux-2.6-s390/drivers/s390/block/dasd_ioctl.c
---- linux-2.6/drivers/s390/block/dasd_ioctl.c	Sat Aug 23 01:56:59 2003
-+++ linux-2.6-s390/drivers/s390/block/dasd_ioctl.c	Fri Aug 29 18:55:10 2003
-@@ -125,8 +125,7 @@
+ /****************** MODULE PARAMETER VARIABLES ********************/
+ static int qeth_sparebufs = 0;
+-MODULE_PARM(qeth_sparebufs, "i");
++module_param(qeth_sparebufs, int, 0);
+ MODULE_PARM_DESC(qeth_sparebufs, "the number of pre-allocated spare buffers "
+ 		 "reserved for low memory situations");
  
- /*
-  * Enable device.
-- * FIXME: how can we get here if the device is not already enabled?
-- * 	-arnd
-+ * used by dasdfmt after BIODASDDISABLE to retrigger blocksize detection
-  */
- static int
- dasd_ioctl_enable(struct block_device *bdev, int no, long args)
+ /****************** MODULE STUFF **********************************/
+-#define VERSION_QETH_C "$Revision: 1.126 $"
++#define VERSION_QETH_C "$Revision: 1.139 $"
+ static const char *version = "qeth S/390 OSA-Express driver ("
+     VERSION_QETH_C "/" VERSION_QETH_H "/" VERSION_QETH_MPC_H
+     QETH_VERSION_IPV6 QETH_VERSION_VLAN ")";

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUIWVMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUIWVsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUIWVMD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 17:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUIWVKC
+	id S267423AbUIWVsW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 17:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUIWVMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 17:10:02 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:65175 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267382AbUIWVIr
+	Thu, 23 Sep 2004 17:12:09 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:37009 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267397AbUIWVJF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 17:08:47 -0400
-Subject: [patch 11/20]  dvb/stv0299.c: replace schedule_timeout() 	with msleep()
+	Thu, 23 Sep 2004 17:09:05 -0400
+Subject: [patch 17/20]  dvb/av7110_v4l: replace 	schedule_timeout() with msleep()
 To: akpm@digeo.com
 Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
        janitor@sternwelten.at, nacc@us.ibm.com
 From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 23:08:48 +0200
-Message-ID: <E1CAapc-0003l6-JH@sputnik>
+Date: Thu, 23 Sep 2004 23:09:06 +0200
+Message-ID: <E1CAapu-00043j-Hl@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -40,45 +40,19 @@ Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/stv0299.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/ttpci/av7110_v4l.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN drivers/media/dvb/frontends/stv0299.c~msleep-drivers_media_dvb_frontends_stv0299 drivers/media/dvb/frontends/stv0299.c
---- linux-2.6.9-rc2-bk7/drivers/media/dvb/frontends/stv0299.c~msleep-drivers_media_dvb_frontends_stv0299	2004-09-21 20:50:18.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/stv0299.c	2004-09-21 20:50:18.000000000 +0200
-@@ -50,6 +50,7 @@
- #include <linux/module.h>
- #include <linux/string.h>
- #include <linux/slab.h>
-+#include <linux/delay.h>
- #include <asm/div64.h>
- 
- #include "dvb_frontend.h"
-@@ -710,7 +711,7 @@ static int stv0299_wait_diseqc_fifo (str
- 			dprintk ("%s: timeout!!\n", __FUNCTION__);
- 			return -ETIMEDOUT;
- 		}
--		dvb_delay(10);
-+		msleep(10);
- 	};
- 
- 	return 0;
-@@ -728,7 +729,7 @@ static int stv0299_wait_diseqc_idle (str
- 			dprintk ("%s: timeout!!\n", __FUNCTION__);
- 			return -ETIMEDOUT;
- 		}
--		dvb_delay(10);
-+		msleep(10);
- 	};
- 
- 	return 0;
-@@ -1338,7 +1339,7 @@ static int uni0299_attach (struct dvb_i2
- 	u8 id;
-  
- 	stv0299_writereg (i2c, 0x02, 0x34); /* standby off */
--	dvb_delay(200);
-+	msleep(200);
- 	id = stv0299_readreg (i2c, 0x00);
- 
- 	dprintk ("%s: id == 0x%02x\n", __FUNCTION__, id);
+diff -puN drivers/media/dvb/ttpci/av7110_v4l.c~msleep-drivers_media_dvb_ttpci_av7110_v4l drivers/media/dvb/ttpci/av7110_v4l.c
+--- linux-2.6.9-rc2-bk7/drivers/media/dvb/ttpci/av7110_v4l.c~msleep-drivers_media_dvb_ttpci_av7110_v4l	2004-09-21 20:50:25.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/ttpci/av7110_v4l.c	2004-09-21 20:50:25.000000000 +0200
+@@ -517,7 +517,7 @@ int av7110_init_analog_module(struct av7
+ 	printk("av7110(%d): DVB-C analog module detected, initializing MSP3400\n",
+ 		av7110->dvb_adapter->num);
+ 	av7110->adac_type = DVB_ADAC_MSP;
+-	dvb_delay(100); // the probing above resets the msp...
++	msleep(100);
+ 	msp_readreg(av7110, MSP_RD_DSP, 0x001e, &version1);
+ 	msp_readreg(av7110, MSP_RD_DSP, 0x001f, &version2);
+ 	printk("av7110(%d): MSP3400 version 0x%04x 0x%04x\n",
 _

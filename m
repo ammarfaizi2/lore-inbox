@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262267AbSJDVqN>; Fri, 4 Oct 2002 17:46:13 -0400
+	id <S261837AbSJDV1m>; Fri, 4 Oct 2002 17:27:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262206AbSJDVqG>; Fri, 4 Oct 2002 17:46:06 -0400
-Received: from [166.90.172.6] ([166.90.172.6]:8224 "EHLO
-	Mail.Linux-Consulting.com") by vger.kernel.org with ESMTP
-	id <S261886AbSJDVqB>; Fri, 4 Oct 2002 17:46:01 -0400
-Date: Fri, 4 Oct 2002 14:51:20 -0700 (PDT)
-From: Alvin Oga <aoga@Maggie.Linux-Consulting.com>
-To: Kanoalani Withington <kanoa@cfht.hawaii.edu>
-cc: Illtud Daniel <illtud.daniel@llgc.org.uk>,
-       Effrem Norwood <enorwood@effrem.com>,
-       Roy Sigurd Karlsbakk <roy@karlsbakk.net>, jbradford@dial.pipex.com,
-       jakob@unthought.net, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: RAID backup - mtx w/ tcl
-In-Reply-To: <3D9DE4E6.7070800@cfht.hawaii.edu>
-Message-ID: <Pine.LNX.3.96.1021004144923.10481C-100000@Maggie.Linux-Consulting.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261864AbSJDV1m>; Fri, 4 Oct 2002 17:27:42 -0400
+Received: from smtpout.mac.com ([204.179.120.97]:22469 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S261837AbSJDV1d>;
+	Fri, 4 Oct 2002 17:27:33 -0400
+Date: Fri, 4 Oct 2002 16:33:30 -0500
+Subject: Re: New BK License Problem?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v546)
+Cc: linux-kernel@vger.kernel.org
+To: Larry McVoy <lm@bitmover.com>
+From: tom_gall@mac.com
+In-Reply-To: <20021004140802.E24148@work.bitmover.com>
+Message-Id: <ECF389B9-D7E0-11D6-A2D4-0003939E069A@mac.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.546)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Friday, October 4, 2002, at 04:08 PM, Larry McVoy wrote:
 
-hi ya kanoalani
+>>         (d)  Notwithstanding any other terms in this License, this
+>>              License is not available to You if  You  and/or  your
+>>              employer  develop,  produce,  sell,  and/or  resell a
+>>              product which contains substantially similar capabil-
+>>              ities  of  the BitKeeper Software, or, in the reason-
+>>              able opinion of BitMover, competes with the BitKeeper
+>>              Software.
+>>
+>> Doesn't this affect maintainers all across the map that work for
+>> distros such as RedHat, SuSE, Connectiva, etc?  Obviously these 
+>> distros
+>> SELL as part of their respective products CVS and similar tools. Or
+>> even non-distro open source shops, you even resell CVS or the like in
+>> some way and you'd be in trouble.
+>
+> Distributions do not *SELL* CVS, they distribute CVS.
 
-are ya willing to release that mtx code ??
-( well more like where can i find it )
+Of course they sell CVS. I give them money, they give me a CD, that CD 
+has CVS on it.
 
-i'd like to add it to the collection
-	http://www.Linux-Backup.net/app.gwif.html
-	
-thanx
-alvin
+If I have a support contract with that distro and CVS breaks they will 
+fix it.
 
-On Fri, 4 Oct 2002, Kanoalani Withington wrote:
+I don't doubt if I went to the various distros with money in hand for 
+extra features for CVS they would put them in.
 
-> 
-...
+>  We choose those
+> words with care for exactly that reason.  All the clause is saying is
+> that if you are a competitor you don't get to use our product for free.
+> That it, in our opinion, a perfectly reasonable position to take.
 
-> I agree it's a total racket. I've spent an appalling amount of money on 
-> this stuff over the years considering how simple it is. Last year I 
-> finally built mtx, the open source tape library driver, and wrote my own 
-> software in tcl scripts for a new archiving system. It really is that 
-> simple, I don't know how they can charge so much for thier software, 
-> especially when some it is junk to begin with.
-> 
-> -Kanoa
-> 
-> >
+Yeah I understand what your intent is and I'm not flaming you. I have a 
+problem with the wording in that claus.  Unfortunately you're not a 
+lawyer so your stated intent means little, it's the language in the 
+license that has meaning.
+
+Regards,
+
+Tom
 

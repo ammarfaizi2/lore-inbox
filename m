@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264375AbRGGAtH>; Fri, 6 Jul 2001 20:49:07 -0400
+	id <S264542AbRGGBJD>; Fri, 6 Jul 2001 21:09:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264381AbRGGAs5>; Fri, 6 Jul 2001 20:48:57 -0400
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:53434 "EHLO
-	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S264375AbRGGAsj>; Fri, 6 Jul 2001 20:48:39 -0400
-Date: Fri, 6 Jul 2001 17:48:38 -0700
-From: "Daniel A. Nobuto" <ramune@bigfoot.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: natsemi.c failure in 2.4.6
-Message-ID: <20010706174838.A477@bigfoot.com>
-In-Reply-To: <3B459958.F25665A8@stud.uni-saarland.de> <20010706044046.A864@bigfoot.com> <3B45F966.351D1C44@colorfullife.com> <3B463C71.B217B275@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B463C71.B217B275@colorfullife.com>; from manfred@colorfullife.com on Sat, Jul 07, 2001 at 12:32:17AM +0200
+	id <S264624AbRGGBIy>; Fri, 6 Jul 2001 21:08:54 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:9488 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S264542AbRGGBIi>;
+	Fri, 6 Jul 2001 21:08:38 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Tom Diehl <tdiehl@pil.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.6-ac1 will not build, 2.4.6 ok
+Date: Fri, 6 Jul 2001 19:00:51 -0600
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0107061825280.13734-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0107061825280.13734-100000@localhost.localdomain>
+MIME-Version: 1.0
+Message-Id: <01070619005100.01166@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 06 July 2001 16:35, Tom Diehl wrote:
+> Hi all,
+> This is my first bug report so please go easy on me if I screw it up.
+> The kernel 2.4.6-ac1
+> The build machine AMD k6-2-350 with 128Megs of memory
+> I get the following errors when I try to build ac1. It builds ok when
+> just building 2.4.6 with the same config file run through make old_config,
+> so I guess this is some kind of problem with ac1.
 
-On Sat, Jul 07, 2001 at 12:32:17AM +0200, Manfred Spraul wrote:
-> Perhaps powermanagement causes your receive problems? You wrote you have
-> a FA312. I've tested my FA311 (without mii-diag) and I didn't have any
-> problems with transmit or receive.
+I posted a patch for this a few hours after 2.4.6-ac1 became available, but
+there have been problems with lkml archive servers in the interim, so here
+is my patch again.  If you look in drivers/parport/parport_pc.c, you'll see that
+the new code is bracketed by:
 
-Found out what was wrong.  It was hardware-related after all.  Sorry for
-the confusion.  Turns out my cat chewed on my cables -- replacing them
-fixed it.
+#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
+	new stuff for 2.4.6-ac1
+#endif
 
-Thanks for the help!
+Steven
 
--- DN
-Daniel
+
+--- linux-2.4.6-ac1/drivers/parport/parport_pc.c.original       Wed Jul  4 15:22:28 2001
++++ linux/drivers/parport/parport_pc.c  Wed Jul  4 15:26:03 2001
+@@ -2828,12 +2828,14 @@
+        detect_and_report_smsc ();
+ #endif
+ 
++#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
+        dev=NULL;
+        while ((dev=pnpbios_find_device("PNP0400",dev)))
+                count+=init_pnp040x(dev);
+        dev=NULL;
+         while ((dev=pnpbios_find_device("PNP0401",dev)))
+                 count+=init_pnp040x(dev);
++#endif
+ 
+        /* Onboard SuperIO chipsets that show themselves on the PCI bus. */
+        count += parport_pc_init_superio (autoirq, autodma);

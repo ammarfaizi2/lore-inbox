@@ -1,80 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbUL2X7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbUL3AFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbUL2X7y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 18:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbUL2X7y
+	id S261450AbUL3AFX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 19:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUL3AFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 18:59:54 -0500
-Received: from chello083144090118.chello.pl ([83.144.90.118]:16645 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261448AbUL2X7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 18:59:45 -0500
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-Subject: [oops] # rmmod snd_nm256
-Date: Thu, 30 Dec 2004 00:59:42 +0100
-User-Agent: KMail/1.7.2
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Dec 2004 19:05:23 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:55173 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261450AbUL3AE7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 19:04:59 -0500
+Date: Thu, 30 Dec 2004 01:03:02 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.10-bk1 1/5] pci-ide: propagation of error code in ide setup
+Message-ID: <20041230000302.GA4267@electric-eye.fr.zoreil.com>
+References: <1104158258.20952.44.camel@localhost.localdomain> <20041228205553.GA18525@electric-eye.fr.zoreil.com> <58cb370e04122813152759d94f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412300059.42982.pluto@pld-linux.org>
+In-Reply-To: <58cb370e04122813152759d94f@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# rmmod snd_nm256
-Oops: 0000 [#1]
-Modules linked in: snd_pcm_oss snd_seq_oss snd_seq_midi_event snd_seq
-snd_seq_device snd_mixer_oss snd_nm256 snd_ac97_codec snd_pcm snd_timer
-snd_page_alloc snd soundcore md5 ipv6 thermal processor fan battery ac
-button 8139too mii pcmcia yenta_socket pcmcia_core intel_agp agpgart
-pcspkr ircomm_tty ircomm irtty_sir sir_dev irda crc_ccitt psmouse i8k
-ext3 mbcache jbd ide_disk piix ide_core
-CPU:    0
-EIP:    0060:[<d0be8add>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.10)
-EIP is at snd_nm256_ac97_ready+0x2d/0x60 [snd_nm256]
-eax: d0baca04   ebx: 00000009   ecx: 00000002   edx: 00000001
-esi: cefe1c40   edi: cefe0800   ebp: cd9cdde0   esp: cd9cddd0
-ds: 007b   es: 007b   ss: 0068
-Process rmmod (pid: 3806, threadinfo=cd9cc000 task=cf7080e0)
-Stack: 00000a04 00000002 00000600 cefe1c40 cd9cde00 d0be8b97 cefe1c40
-00000002
-       9f9f0002 00000002 ce9b6e00 00009f9f cd9cde20 d0c47148 ce9b6e00
-00000002
-       00009f9f ce9b6e00 ce9b6e00 00002fff cd9cde3c d0c4a61d ce9b6e00
-00000002
-Call Trace:
- [<c01040f5>] show_stack+0x75/0x90
- [<c010424b>] show_registers+0x11b/0x180
- [<c01043f4>] die+0xb4/0x130
- [<c0113c3d>] do_page_fault+0x2dd/0x67b
- [<c0103d7b>] error_code+0x2b/0x30
- [<d0be8b97>] snd_nm256_ac97_write+0x27/0x70 [snd_nm256]
- [<d0c47148>] snd_ac97_write+0x48/0x70 [snd_ac97_codec]
- [<d0c4a61d>] snd_ac97_powerdown+0x6d/0x80 [snd_ac97_codec]
- [<d0c481b0>] snd_ac97_dev_free+0x10/0x20 [snd_ac97_codec]
- [<d0bcebcb>] snd_device_free+0x7b/0xb0 [snd]
- [<d0bcee0e>] snd_device_free_all+0x5e/0x70 [snd]
- [<d0bcab60>] snd_card_free+0x120/0x220 [snd]
- [<d0be9603>] snd_nm256_remove+0x13/0x30 [snd_nm256]
- [<c01a74e3>] pci_device_remove+0x33/0x40
- [<c01fef63>] device_release_driver+0x63/0x70
- [<c01fef8d>] driver_detach+0x1d/0x30
- [<c01ff36b>] bus_remove_driver+0x3b/0x80
- [<c01ff8cd>] driver_unregister+0xd/0x20
- [<c01a76e0>] pci_unregister_driver+0x10/0x20
- [<d0be962d>] alsa_card_nm256_exit+0xd/0x11 [snd_nm256]
- [<c012b8ea>] sys_delete_module+0x13a/0x170
- [<c0102c97>] syscall_call+0x7/0xb
-Code: e5 57 56 53 51 bb 09 00 00 00 8b 75 08 8b 46 3c 89 45 f0 66 8b 7e
-40 8d b4 26 00 00 00 00 8b 56 04 8b 45 f0 01 d0 ba 01 00 00 00 <66> 8b
-00 66 85 c7 74 14 68 bc 8d 06 00 e8 11 a4 5b ef 58 89 d8
- Segmentation fault
+Propagation of error code in ide setup
 
+- Change the return value and the prototype of do_ide_setup_pci_device
+  Due to lack of appropriate return status code, the current clients of
+  do_ide_setup_pci_device() can not distinguish a failing invocation
+  from a successfull one. The patch modify do_ide_setup_pci_device() so
+  that it can propagate some of the errors from the lower layers.
 
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+- Make ide_setup_pci_device() aware of the change and propagate the news
+  itself. I only gave a quick sight to create_proc_ide_interfaces() (and
+  ide_remove_proc_entries()) but they do seem sane and it should not matter
+  if it fails or not.
 
-                           #define say(x) lie(x)
+- ide_setup_pci_devices(): mostly the same thing than ide_setup_pci_device().
+  do not look trivially suspect.
+
+Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+
+diff -puN drivers/ide/setup-pci.c~ata-010 drivers/ide/setup-pci.c
+--- linux-2.6.10-bk1/drivers/ide/setup-pci.c~ata-010	2004-12-28 22:20:31.000000000 +0100
++++ linux-2.6.10-bk1-fr/drivers/ide/setup-pci.c	2004-12-29 23:15:36.148566659 +0100
+@@ -643,14 +643,16 @@ EXPORT_SYMBOL_GPL(ide_pci_setup_ports);
+  * we "know" about, this information is in the ide_pci_device_t struct;
+  * for all other chipsets, we just assume both interfaces are enabled.
+  */
+-static ata_index_t do_ide_setup_pci_device (struct pci_dev *dev, ide_pci_device_t *d, u8 noisy)
++static int do_ide_setup_pci_device (struct pci_dev *dev, ide_pci_device_t *d,
++				    ata_index_t *index, u8 noisy)
+ {
+-	int pciirq = 0;
++	static ata_index_t ata_index = { .b = { .low = 0xff, .high = 0xff } };
+ 	int tried_config = 0;
+-	ata_index_t index = { .b = { .low = 0xff, .high = 0xff } };
+-
+-	if (ide_setup_pci_controller(dev, d, noisy, &tried_config) < 0)
+-		return index;
++	int pciirq, ret;
++	
++	ret = ide_setup_pci_controller(dev, d, noisy, &tried_config);
++	if (ret < 0)
++		goto out;
+ 
+ 	/*
+ 	 * Can we trust the reported IRQ?
+@@ -668,7 +670,10 @@ static ata_index_t do_ide_setup_pci_devi
+ 		 * space, place chipset into init-mode, and/or preserve
+ 		 * an interrupt if the card is not native ide support.
+ 		 */
+-		pciirq = (d->init_chipset) ? d->init_chipset(dev, d->name) : 0;
++		ret = d->init_chipset ? d->init_chipset(dev, d->name) : 0;
++		if (ret < 0)
++			goto out;
++		pciirq = ret;
+ 	} else if (tried_config) {
+ 		if (noisy)
+ 			printk(KERN_INFO "%s: will probe irqs later\n", d->name);
+@@ -679,10 +684,10 @@ static ata_index_t do_ide_setup_pci_devi
+ 				d->name, pciirq);
+ 		pciirq = 0;
+ 	} else {
+-		if (d->init_chipset)
+-		{
+-			if(d->init_chipset(dev, d->name) < 0)
+-				return index;
++		if (d->init_chipset) {
++			ret = d->init_chipset(dev, d->name);
++			if (ret < 0)
++				goto out;
+ 		}
+ 		if (noisy)
+ #ifdef __sparc__
+@@ -694,17 +699,22 @@ static ata_index_t do_ide_setup_pci_devi
+ #endif
+ 	}
+ 	
+-	if(pciirq < 0)		/* Error not an IRQ */
+-		return index;
+-
+-	ide_pci_setup_ports(dev, d, pciirq, &index);
+-
+-	return index;
++	/* FIXME: silent failure can happen */
++	
++	*index = ata_index;
++	ide_pci_setup_ports(dev, d, pciirq, index);
++out:
++	return ret;
+ }
+ 
+-void ide_setup_pci_device (struct pci_dev *dev, ide_pci_device_t *d)
++int ide_setup_pci_device (struct pci_dev *dev, ide_pci_device_t *d)
+ {
+-	ata_index_t index_list = do_ide_setup_pci_device(dev, d, 1);
++	ata_index_t index_list;
++	int ret;
++
++	ret = do_ide_setup_pci_device(dev, d, &index_list, 1);
++	if (ret < 0)
++		goto out;
+ 
+ 	if ((index_list.b.low & 0xf0) != 0xf0)
+ 		probe_hwif_init_with_fixup(&ide_hwifs[index_list.b.low], d->fixup);
+@@ -712,25 +722,42 @@ void ide_setup_pci_device (struct pci_de
+ 		probe_hwif_init_with_fixup(&ide_hwifs[index_list.b.high], d->fixup);
+ 
+ 	create_proc_ide_interfaces();
++out:
++	return ret;
+ }
+ 
+ EXPORT_SYMBOL_GPL(ide_setup_pci_device);
+ 
+-void ide_setup_pci_devices (struct pci_dev *dev, struct pci_dev *dev2, ide_pci_device_t *d)
++int ide_setup_pci_devices (struct pci_dev *dev1, struct pci_dev *dev2,
++			   ide_pci_device_t *d)
+ {
+-	ata_index_t index_list  = do_ide_setup_pci_device(dev, d, 1);
+-	ata_index_t index_list2 = do_ide_setup_pci_device(dev2, d, 0);
++	struct pci_dev *pdev[] = { dev1, dev2 };
++	ata_index_t index_list[2];
++	int ret, i;
+ 
+-	if ((index_list.b.low & 0xf0) != 0xf0)
+-		probe_hwif_init(&ide_hwifs[index_list.b.low]);
+-	if ((index_list.b.high & 0xf0) != 0xf0)
+-		probe_hwif_init(&ide_hwifs[index_list.b.high]);
+-	if ((index_list2.b.low & 0xf0) != 0xf0)
+-		probe_hwif_init(&ide_hwifs[index_list2.b.low]);
+-	if ((index_list2.b.high & 0xf0) != 0xf0)
+-		probe_hwif_init(&ide_hwifs[index_list2.b.high]);
++	for (i = 0; i < 2; i++) {
++		ret = do_ide_setup_pci_device(pdev[i], d, index_list + i, !i);
++		/*
++		 * FIXME: Mom, mom, they stole me the helper function to undo
++		 * do_ide_setup_pci_device() on the first device !
++		 */
++		if (ret < 0)
++			goto out;
++	}
++
++	for (i = 0; i < 2; i++) {
++		u8 idx[2] = { index_list[i].b.low, index_list[i].b.high };
++		int j;
++
++		for (j = 0; j < 2; j++) {
++			if ((idx[j] & 0xf0) != 0xf0)
++				probe_hwif_init(ide_hwifs + idx[j]);
++		}
++	}
+ 
+ 	create_proc_ide_interfaces();
++out:
++	return ret;
+ }
+ 
+ EXPORT_SYMBOL_GPL(ide_setup_pci_devices);
+diff -puN include/linux/ide.h~ata-010 include/linux/ide.h
+--- linux-2.6.10-bk1/include/linux/ide.h~ata-010	2004-12-28 23:44:41.000000000 +0100
++++ linux-2.6.10-bk1-fr/include/linux/ide.h	2004-12-29 23:15:33.338024718 +0100
+@@ -1438,8 +1438,8 @@ typedef struct ide_pci_device_s {
+ 	u8			flags;
+ } ide_pci_device_t;
+ 
+-extern void ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
+-extern void ide_setup_pci_devices(struct pci_dev *, struct pci_dev *, ide_pci_device_t *);
++extern int ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
++extern int ide_setup_pci_devices(struct pci_dev *, struct pci_dev *, ide_pci_device_t *);
+ 
+ void ide_map_sg(ide_drive_t *, struct request *);
+ void ide_init_sg_cmd(ide_drive_t *, struct request *);
+
+_

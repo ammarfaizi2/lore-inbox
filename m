@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267512AbUHJQgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUHJQgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267512AbUHJQgG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUHJQf5
+	id S267516AbUHJQgP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUHJQgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:35:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:25237 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267562AbUHJQVv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:21:51 -0400
-Date: Tue, 10 Aug 2004 09:21:16 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Eric Masson <cool_kid@future-ericsoft.com>
+	Tue, 10 Aug 2004 12:36:10 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:17682 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S267511AbUHJQOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:14:12 -0400
+Date: Tue, 10 Aug 2004 11:13:30 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: akpm@osdl.org, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fork and Exec a process within the kernel
-Message-Id: <20040810092116.7dfe118c.pj@sgi.com>
-In-Reply-To: <4118E822.3000303@future-ericsoft.com>
-References: <4117E68A.4090701@future-ericsoft.com>
-	<20040809161003.554a5de1.pj@sgi.com>
-	<4118E822.3000303@future-ericsoft.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: cciss update [7/8] bump read ahead to 1024
+Message-ID: <20040810161330.GG19909@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My user mode program is running.
 
-Good.
+Patch 7 of 8
+This patch changes our read_ahead to 1024. This has been shown to increase
+performance. Please consider this for inclusion. Patch applies to 2.6.8-rc4.
+Please apply in order.
 
-> Any idea how to control which console it shows up on?
-
-No clue.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burpN lx268-rc3-p006/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
+--- lx268-rc3-p006/drivers/block/cciss.c	2004-08-05 14:16:11.567565000 -0500
++++ lx268-rc3/drivers/block/cciss.c	2004-08-06 10:15:31.934926352 -0500
+@@ -115,7 +115,7 @@ static struct board_type products[] = {
+ /*define how many times we will try a command because of bus resets */
+ #define MAX_CMD_RETRIES 3
+ 
+-#define READ_AHEAD 	 256
++#define READ_AHEAD 	 1024
+ #define NR_CMDS		 384 /* #commands that can be outstanding */
+ #define MAX_CTLR 8
+ 

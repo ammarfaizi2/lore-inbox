@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317987AbSGZSk5>; Fri, 26 Jul 2002 14:40:57 -0400
+	id <S317961AbSGZSSI>; Fri, 26 Jul 2002 14:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317989AbSGZSk5>; Fri, 26 Jul 2002 14:40:57 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:4992 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S317987AbSGZSk4>; Fri, 26 Jul 2002 14:40:56 -0400
-Date: Fri, 26 Jul 2002 11:44:03 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: silvio.cesare@hushmail.com
+	id <S317965AbSGZSSI>; Fri, 26 Jul 2002 14:18:08 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:53496 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317961AbSGZSSH>; Fri, 26 Jul 2002 14:18:07 -0400
+Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
+From: Robert Love <rml@tech9.net>
+To: Russell Lewis <spamhole-2001-07-16@deming-os.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 bugs
-Message-ID: <20020726184403.GA1389@opus.bloom.county>
-References: <200207251902.g6PJ2bc01956@mailserver4.hushmail.com>
+In-Reply-To: <3D418DFD.8000007@deming-os.org>
+References: <3D418DFD.8000007@deming-os.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 26 Jul 2002 11:21:20 -0700
+Message-Id: <1027707680.2442.33.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207251902.g6PJ2bc01956@mailserver4.hushmail.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 12:02:37PM -0700, silvio.cesare@hushmail.com wrote:
+On Fri, 2002-07-26 at 10:59, Russell Lewis wrote:
 
-> below are a few bugs leading to reading kernel memory using some of the usb
-> drivers.
-[snip]
-> static int se401_set_size(struct usb_se401 *se401, int width, int height)
-[snip]
-> width / height can be modified (to a negative for instance) - something
-> might break though with this though --> (will check more later).
-
-Well, it's easy enough to check for this tho.  How does the following
-look? Jeroen?
-
-> static long se401_read(struct video_device *dev, char *buf, unsigned long count, int noblock)
-[snip]
->         if (realcount > se401->cwidth*se401->cheight*3)
->                 realcount=se401->cwidth*se401->cheight*3;
+> I have spent some time working on AIX, which pages its kernel memory. 
+>  It pins the interrupt handler functions, and any data that they access, 
+> but does not pin the other code.
 > 
-> [ skip ]
-> 
->         if (copy_to_user(buf, se401->frame[0].data, realcount))
->                 return -EFAULT;
->  
-> sign and overflow problem, leading to unbounded copy_to_user.
+> I'm looking for links as to why (unless I'm mistaken) Linux doesn't do 
+> this, so I can better understand the system.
 
-But since width and height are bouned (by the max the camera supports,
-and w/ the following by the min) isn't this problem impossible to hit,
-without some additional breakage ?
+Better question is, why would we have page-able kernel memory?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+It complicates kernel-space drastically for little gain.  It is not that
+we cannot, or there is a specific technical reason why not - just an
+issue of taste.  And lack of drugs.
 
-Index: se401.c
-===================================================================
-RCS file: /cvsdev/mvl-kernel/linux/drivers/usb/se401.c,v
-retrieving revision 1.2
-diff -u -u -r1.2 se401.c
---- se401.c	2002/06/17 17:30:22	1.2
-+++ se401.c	2002/07/26 17:43:18
-@@ -699,11 +699,11 @@
- 	/* Check for a valid mode */
- 	if (!width || !height)
- 		return 1;
- 	if ((width & 1) || (height & 1))
- 		return 1;
--	if (width>se401->width[se401->sizes-1])
-+	if ((width>se401->width[se401->sizes-1]) || (width<se401->width[0]))
- 		return 1;
--	if (height>se401->height[se401->sizes-1])
-+	if ((height>se401->height[se401->sizes-1]) || (height<se401->width[0]))
- 		return 1;
- 
- 	/* Stop a current stream and start it again at the new size */
+	Robert Love
+

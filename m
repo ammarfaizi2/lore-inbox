@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbTDXM6o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 08:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbTDXM6o
+	id S261866AbTDXNFW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 09:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbTDXNFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 08:58:44 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:32269 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S261405AbTDXM6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 08:58:43 -0400
-Date: Thu, 24 Apr 2003 15:10:21 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: daw@mozart.cs.berkeley.edu (David Wagner)
-Cc: frodoid@frodoid.org, rml@tech9.net, frodo@dereference.de,
-       linux-kernel@vger.kernel.org, wa@almesberger.net
-Subject: Re: kernel ring buffer accessible by users
-Message-Id: <20030424151021.69b34400.skraw@ithnet.com>
-In-Reply-To: <b87b8q$sks$3@abraham.cs.berkeley.edu>
-References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org>
-	<1051031876.707.804.camel@localhost>
-	<20030423125602.B1425@almesberger.net>
-	<20030423160556.GA30306@frodo.midearth.frodoid.org>
-	<b87b8q$sks$3@abraham.cs.berkeley.edu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 24 Apr 2003 09:05:22 -0400
+Received: from almesberger.net ([63.105.73.239]:50952 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261866AbTDXNFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 09:05:20 -0400
+Date: Thu, 24 Apr 2003 10:16:49 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Matthias Schniedermeyer <ms@citd.de>,
+       Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <20030424101649.K3557@almesberger.net>
+References: <1560860000.1051133781@flay> <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay> <20030424001134.GD26806@mail.jlokier.co.uk> <20030423214332.H3557@almesberger.net> <20030424011137.GA27195@mail.jlokier.co.uk> <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net> <29360000.1051159644@[10.10.2.4]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29360000.1051159644@[10.10.2.4]>; from mbligh@aracnet.com on Wed, Apr 23, 2003 at 09:47:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Apr 2003 00:31:22 GMT
-daw@mozart.cs.berkeley.edu (David Wagner) wrote:
+Martin J. Bligh wrote:
+> Not sure what you mean. Load kernel, load xmms. hit play. Sound comes out.
+> Goodness.
 
-> Julien Oster wrote:
-> >Of course one could say "then let's just stop writing out anything in
-> >the kernel buffer that COULD be sensitive", but I think this would
-> >actually castrate the meaning of such a buffer.
-> 
-> Would it?  I can't think of anything that currently should be printed
-> to the ring buffer and is known to be secret.
+Well, replace "load kernel" with "boot system", and we're in violent
+agreement :-)
 
-The simple truth is: you cannot really qualify what a "secret" is or is not. It
-depends on the _reader_(s' interest), not the _writer_ (s' intention). 
+> So we can fix it in userspace, and decided a sensible non-zero default
+> there, but are somehow incapable of doing that *inside* the kernel? Sorry,
+> I don't buy that. 
 
-Regards,
-Stephan
+No, you still have to make a guess, but you don't need to involve
+the kernel. (I think Redmond owns most of the intellectual property
+on "if you don't know where to put it, put it in the kernel, for it
+will be faster and more secure that way", so we shouldn't use this
+paradigm too often :-)
+
+Since choosing this default is something between the distribution
+maker and the user, they can
+
+ - choose to leave it silent ("expert mode")
+ - perhaps use other information they've gathered at install time
+ - reuse old stored settings (e.g. look for an aumixrc)
+ - pop up a dialog
+ - print a warning
+etc.
+
+> The old "document the bugs" arguement.
+
+;-) True, but in this case, you're very likely to run into problems
+if you don't religiously follow Documentation/Changes anyway. And
+there are people I fully expect to read this line by line - namely
+the distribution makers. And they're exactly the ones who need to
+be aware of this issue.
+
+> Bugs should be fixed, not documented.
+
+It's a feature :-)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265278AbTLLQND (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 11:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbTLLQMl
+	id S265271AbTLLQ0E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 11:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbTLLQ0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 11:12:41 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44305 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265259AbTLLQMj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 11:12:39 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-Date: 12 Dec 2003 16:01:15 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <brcoob$a02$1@gatekeeper.tmr.com>
-References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
-X-Trace: gatekeeper.tmr.com 1071244875 10242 192.168.12.62 (12 Dec 2003 16:01:15 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Fri, 12 Dec 2003 11:26:04 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:38917 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id S265271AbTLLQ0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 11:26:02 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [DOCUMENTATION] Revised Unreliable Kernel Locking Guide 
+In-reply-to: Your message of "Fri, 12 Dec 2003 15:44:01 -0000."
+             <20031212154401.GA10584@redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 13 Dec 2003 03:25:52 +1100
+Message-ID: <4939.1071246352@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>,
-Maciej W. Rozycki <macro@ds2.pg.gda.pl> wrote:
+On Fri, 12 Dec 2003 15:44:01 +0000, 
+Dave Jones <davej@redhat.com> wrote:
+> Might be worth mentioning in the Per-CPU data section that code doing
+>operations on CPU registers (MSRs and the like) needs to be protected
+>by an explicit preempt_disable() / preempt_enable() pair if it's doing
+>operations that it expects to run on a specific CPU.
 
-|  The I/O APIC NMI watchdog utilizes the property of being transparent to a
-| single IRQ source of a specially reconfigured 8259A PIC (the master one in
-| the IA32 PC architecture).  There are more prerequisites that have to be
-| met and all indeed are for a 100% compatible PC as specified by the
-| Intel's Multiprocessor Specification.
-| 
-| 1. The INT output of the master 8259A PIC has to be connected to the LINT0
-| (or LINTIN0; the name varies by implementations) inputs of all local APICs
-| in the system.
-| 
-| 2a. The OUT0 output of the 8254 PIT (IOW the timer source) has to be 
-| directly connected to the INTIN2 input of the first I/O APIC.
-| 
-| 2b. Alternatively the INT output of the master 8259A PIC has to be
-| connected to the INTIN0 input of the first I/O APIC.
-| 
-| 3. There must be no glue logic that would change logical properties of the
-| signal between the INT output of the master 8259A PIC and the respective
-| APIC interrupt inputs.
-| 
-| In practice, assuming the MP IRQ routing information provided the BIOS has
-| been correct (which is not always the case), prerequisites #1 and #2 have
-| been met so far, but #3 has proved to be occasionally problematic.
+Also calls to smp_call_function() need to be wrapped in preempt_disable,
+plus any work that is done on the current cpu before/after calling a
+function on the other cpus.  Lack of preempt disable could result in
+the operation being done twice on one cpu and not at all on another.
 
-In practice many system seem to take a good bit of guessing and testing.
-I have an old P-II which only works with acpi=force and nmi_watchdog=2,
-for instance.
-
-It would be nice if there were a program which could poke at the
-hardware and suggest options which might work, as in eliminating the
-ones which can be determined not to work. Absent that trial and error
-rule, unfortunately.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.

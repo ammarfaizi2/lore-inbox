@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbULIT7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbULIUBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbULIT7F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 14:59:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbULIT7F
+	id S261597AbULIUBr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 15:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbULIUBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 14:59:05 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:48106 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261596AbULIT7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 14:59:00 -0500
-Date: Thu, 9 Dec 2004 20:58:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
+	Thu, 9 Dec 2004 15:01:46 -0500
+Received: from mail.timesys.com ([65.117.135.102]:960 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261597AbULIUBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 15:01:40 -0500
+Message-ID: <41B8AE75.2090905@timesys.com>
+Date: Thu, 09 Dec 2004 14:58:45 -0500
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Esben Nielsen <simlo@phys.au.dk>
+CC: Mark_H_Johnson@raytheon.com, Florian Schmidt <mista.tapas@gmx.net>,
+       Amit Shah <amit.shah@codito.com>,
        Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
        Adam Heath <doogie@debian.org>, emann@mrv.com,
        Gunther Persoons <gunther_persoons@spymac.com>,
        "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
+       Ingo Molnar <mingo@elte.hu>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
        Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       john cooper <john.cooper@timesys.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041209195848.GC18840@elte.hu>
-References: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+References: <Pine.OSF.4.05.10412091907430.4626-100000@da410.ifa.au.dk>
+In-Reply-To: <Pine.OSF.4.05.10412091907430.4626-100000@da410.ifa.au.dk>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Dec 2004 19:54:10.0046 (UTC) FILETIME=[D963A1E0:01C4DE28]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Esben Nielsen wrote:
 
-on SMP, latencytest + all IRQ threads (and ksoftirqd) at prio 99 +
-PREEMPT_RT is not comparable to PREEMPT_DESKTOP (with no IRQ threading).
+> Muteces are also an overhead. There must be a lot of locks in the system
+> which can safely be transfered back to raw spinlocks as the locking time
+> is in the same order of the locking time internally in a mutex. There is
+> no perpose of using a mutex instead of a raw spinlock if the region being
+> locked is shorter or about the same as the job of handling the mutex
+> internals and rescheduling (twice)!
 
-The -RT kernel will 'split' hardirq and softirq workloads and migrate
-them to different CPUs - giving them a higher total throughput. Also, on
-PREEMPT_DESKTOP the IRQs will most likely go to one CPU only, and most
-softirq processing will be concentrated on that CPU too. Furthermore, 
-the -RT kernel will agressively distribute highprio RT tasks.
+That will certainly be the case in some scenarios.  It seems
+useful for the mutex user to have a means to advice of the
+anticipated usage (hold time).
 
-latencytest under your priority setup measures an _inverse_ scenario. (a
-CPU hog executing at a lower priority than all IRQ traffic) I'd not be
-surprised at all if it had higher latencies under -RT than under
-PREEMPT_DESKTOP. It's not clear-cut which one 'wins' though: because
-even this inverse scenario will have benefits in the -RT case: due to
-SCHED_OTHER workloads not interfering with this lower-prio RT task as
-much. But i'd expect there to be a constant moving of the 'benchmark
-result' forward and backwards, even if -RT only improves things - this
-is the nature of such an inverse priority setup.
+The other [perhaps additional] means of adaptation would be
+Solaris-style where a failed mutex acquisition attempt would
+spin rather than block the caller if the mutex owner is
+currently running on some other cpu.  The rationale being the
+spin wait time is less overhead compared with two context
+switches.  Though I'd expect this ideal has been batted around
+here before.
 
-so this setup generates two conflicting parameters which are inverse to
-each other, and the 'sum' of these two parameters ends up fluctuating
-wildly. Pretty much like the results you are getting. The two parameters
-are: latency of the prio 30 task, and latency of the highprio tasks. The
-better the -RT kernel gets, the better the prio 30 tasks's priorities
-get relative to SCHED_OTHER tasks - but the worse they also get, due to
-the better handling of higher-prio tasks. Where the sum ends, whether
-it's a "win" or a "loss" depends on the workload, how much highprio
-activity the lowprio threads generate, etc.
+-john
 
-if you really want to put all IRQ traffic on the same priority level
-then a fairer comparison would be to bind all IRQ (via smp_affinity) and
-ksoftirq (via taskset) threads to CPU#0, and to bind latencytest's
-CPU-loop to CPU#1. (and do the same in the PREEMPT_DESKTOP case)
-
-	Ingo
+-- 
+john.cooper@timesys.com

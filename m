@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313493AbSDJSj3>; Wed, 10 Apr 2002 14:39:29 -0400
+	id <S313500AbSDJSlk>; Wed, 10 Apr 2002 14:41:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313500AbSDJSj2>; Wed, 10 Apr 2002 14:39:28 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:52461 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP
-	id <S313493AbSDJSj2>; Wed, 10 Apr 2002 14:39:28 -0400
-Date: Wed, 10 Apr 2002 14:40:42 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: Kernel List <linux-kernel@vger.kernel.org>, rml@tech9.net
-Subject: Re: 2.5.8-pre2: preempt: exits with preempt_count 1
-Mail-Followup-To: Duncan Sands <duncan.sands@math.u-psud.fr>,
-	Kernel List <linux-kernel@vger.kernel.org>, rml@tech9.net
-In-Reply-To: <E16vHbV-0000M5-00@baldrick>
+	id <S313504AbSDJSlj>; Wed, 10 Apr 2002 14:41:39 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:52472 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S313500AbSDJSlj>; Wed, 10 Apr 2002 14:41:39 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 10 Apr 2002 12:40:10 -0600
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID superblock confusion
+Message-ID: <20020410184010.GC3509@turbolinux.com>
+Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200204101533.g3AFXwS09100@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-Message-Id: <20020410183923.RMC1346.out012.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands wrote:
-> My system (x86 K6 UP running 2.5.8-pre2 with preemption) on powering down
-> gave:
-> ...
-> Power down.
-> error: halt[411] exited with preempt_count 1
+On Apr 10, 2002  09:33 -0600, Richard Gooch wrote:
+> Even though I'm using persistent superblockss, which is supposed to
+> allow one to move devices from one controller to another, I can't
+> use my RAID) set in this configuration. Looks like a bug.
 > 
-> This was after about 24 hours of up time.  What can I do to help
-> track down this locking problem?
+> md0: former device scsi/host2/bus0/target1/lun0/part2 is unavailable, removing from array!
+> md: md0, array needs 6 disks, has 5, aborting.
 
-If you fixed the oopsing 2.5.8-pre1 kernel by putting 'lock_kernel()'
-in exit.c, then you have to remove that line.
+Note that this appears to be your real problem.
 
-The correct fix was applied later, and if you leave in the call
-to 'lock_kernel()' you get the exact message you're reporting.
+> Note the following line from the kernel logs above:
+> md: can not import scsi/host6/bus0/target0/lun0/part2, has active inodes!
+> 
+> Well, that's no surprise, as this partition has /usr! And this
+> partition isn't even mentioned in the /etc/raidtab file. But I note
+> that it has the same device number in this (the broken) configuration
+> as /dev/sd/c0b0t1u0p2 has in the working configuration.
 
-If line 505 of kernel/exit.c is lock_kernel() in your tree then delete
-it, and try again.
+That is a red herring, I think.
 
--- 
-Skip
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

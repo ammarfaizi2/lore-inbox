@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132970AbRDJKs0>; Tue, 10 Apr 2001 06:48:26 -0400
+	id <S131459AbRDJKmY>; Tue, 10 Apr 2001 06:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132971AbRDJKsQ>; Tue, 10 Apr 2001 06:48:16 -0400
-Received: from swing.yars.free.net ([193.233.48.88]:31431 "EHLO
-	swing.yars.free.net") by vger.kernel.org with ESMTP
-	id <S132970AbRDJKsD>; Tue, 10 Apr 2001 06:48:03 -0400
-Date: Tue, 10 Apr 2001 14:47:46 +0400
-From: "Alexander V. Lukyanov" <lav@yars.free.net>
-To: linux-kernel@vger.kernel.org
-Cc: sparc-list@redhat.com
-Subject: nfs_fsinfo->bsize size (2.4.2)
-Message-ID: <20010410144746.A23745@swing.yars.free.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, sparc-list@redhat.com
+	id <S132962AbRDJKmO>; Tue, 10 Apr 2001 06:42:14 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:39036 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131459AbRDJKmF>; Tue, 10 Apr 2001 06:42:05 -0400
+Date: Tue, 10 Apr 2001 06:41:28 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Dawson Engler <engler@csl.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] amusing copy_from_user bug
+Message-ID: <20010410064128.C1169@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <200104101011.DAA29579@csl.Stanford.EDU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200104101011.DAA29579@csl.Stanford.EDU>; from engler@csl.Stanford.EDU on Tue, Apr 10, 2001 at 03:11:05AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Apr 10, 2001 at 03:11:05AM -0700, Dawson Engler wrote:
+> As a side question: is it still true that verify_area's must be done before
+> any use of __put_user/__get_user/__copy_from_user/etc?
 
-Some time ago I had an undefined symbol in kernel compilation (__mul64) It
-was sparc architecture, cross compilation on solaris/sparc. I have found
-that 64-bit multiplication is in nfs2xdr.c, nfs_xdr_statfsres function. The
-multiplication is by nfs_fsinfo->bsize.
+I believe so, at least in generic code.
+In architecture specific code (non-i386) it is usually sufficient just to do
+one put_user/get_user/copy_from_user and then do the rest of
+__put_user/__get_user etc. from nearby area (<4K is safe e.g. on sparc) and
+some architectures don't care at all, because verify_area is a noop
+(sparc64).
 
-For some reason nfs_fsinfo->bsize is declared as __u64. I don't see how
-block size can be greater that 2G. What is the reason behind such type
-for block size?
-
-I did the following change and nfs still works fine. I've also rearranged
-structure fields for alignment reasons.
-
---- include/linux/nfs_xdr.h.1	Fri Apr  6 17:57:25 2001
-+++ include/linux/nfs_xdr.h	Fri Apr  6 17:59:14 2001
-@@ -47,8 +47,8 @@
- 	__u32			wtpref;	/* pref. write transfer size */
- 	__u32			wtmult;	/* writes should be multiple of this */
- 	__u32			dtpref;	/* pref. readdir transfer size */
-+	__u32			bsize;	/* block size */
- 	__u64			maxfilesize;
--	__u64			bsize;	/* block size */
- 	__u64			tbytes;	/* total size in bytes */
- 	__u64			fbytes;	/* # of free bytes */
- 	__u64			abytes;	/* # of bytes available to user */
-
--- 
-   Alexander.                      | http://www.yars.free.net/~lav/  
+	Jakub

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268606AbRG3OOW>; Mon, 30 Jul 2001 10:14:22 -0400
+	id <S268614AbRG3OTU>; Mon, 30 Jul 2001 10:19:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268609AbRG3OOL>; Mon, 30 Jul 2001 10:14:11 -0400
-Received: from f56.pav2.hotmail.com ([64.4.37.56]:39697 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S268606AbRG3OOA>;
-	Mon, 30 Jul 2001 10:14:00 -0400
-X-Originating-IP: [210.214.115.166]
-From: "kumar M" <kumarm4@hotmail.com>
+	id <S268724AbRG3OTK>; Mon, 30 Jul 2001 10:19:10 -0400
+Received: from pixie.isr.ist.utl.pt ([193.136.138.97]:16390 "EHLO
+	pixie.isr.ist.utl.pt") by vger.kernel.org with ESMTP
+	id <S268614AbRG3OTD>; Mon, 30 Jul 2001 10:19:03 -0400
 To: linux-kernel@vger.kernel.org
-Cc: kumarm4@hotmail.com
-Subject: GPL issuefor run time kernel function overwrite
-Date: Mon, 30 Jul 2001 14:14:03 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F56FOSPUPeKljq65Rn800008a48@hotmail.com>
-X-OriginalArrivalTime: 30 Jul 2001 14:14:04.0028 (UTC) FILETIME=[E32F63C0:01C11901]
+Subject: Re: Problems with 2.4.7 and VIA IDE
+In-Reply-To: <E15QWqv-0007qf-00@the-village.bc.nu>
+Content-Type: text/plain; charset=US-ASCII
+From: Rodrigo Ventura <yoda@isr.ist.utl.pt>
+Date: 30 Jul 2001 15:18:56 +0100
+In-Reply-To: Alan Cox's message of "Sat, 28 Jul 2001 17:22:09 +0100 (BST)"
+Message-ID: <lxn15mts8f.fsf@pixie.isr.ist.utl.pt>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I have a query regarding the GPL for Linux kernel.
-We were having a heated discussion regarding
-opening up / disclosing  source code for features
-added to  kernel (as per GPL) if we do the following  :
+    >> This is sort of a continuation of my last msg. I tried a rpm
+    >> -Va on one xterm and a tar cf /dev/null / on another, and I got
+    >> another dma error:
+    >> 
+    >> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+    >> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-* We implement a driver which will overwrite any existing
-(global kernel data strcuture) function pointer in linux
-kernel space run-time.
-* No kernel source code is modified in the process.
+    Alan> BadCRC is normally a cable error, but I'm suspicious that
+    Alan> its also one of the things caused by PCI bus problems on the
+    Alan> VIA stuff
 
-regards,
-Kumar
+        Bull's eye! I just replaced the cable, which in fact was sort
+of long, by a shorter one, and it seems OK now.
 
+        Cheers,
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+-- 
 
+*** Rodrigo Martins de Matos Ventura <yoda@isr.ist.utl.pt>
+***  Web page: http://www.isr.ist.utl.pt/~yoda
+***   Teaching Assistant and PhD Student at ISR:
+***    Instituto de Sistemas e Robotica, Polo de Lisboa
+***     Instituto Superior Tecnico, Lisboa, PORTUGAL
+*** PGP fingerprint = 0119 AD13 9EEE 264A 3F10  31D3 89B3 C6C4 60C6 4585

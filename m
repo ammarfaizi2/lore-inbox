@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129886AbRA3UQx>; Tue, 30 Jan 2001 15:16:53 -0500
+	id <S129881AbRA3UPn>; Tue, 30 Jan 2001 15:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131799AbRA3UQn>; Tue, 30 Jan 2001 15:16:43 -0500
-Received: from smtppop3pub.gte.net ([206.46.170.22]:33634 "EHLO
-	smtppop3pub.verizon.net") by vger.kernel.org with ESMTP
-	id <S129886AbRA3UQ3>; Tue, 30 Jan 2001 15:16:29 -0500
-Message-ID: <3A7720C3.FFE5C981@gte.net>
-Date: Tue, 30 Jan 2001 15:14:59 -0500
-From: Stephen Clark <sclark46@gte.net>
-Reply-To: sclark46@gte.net
-Organization: Paradigm 4
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S129886AbRA3UPd>; Tue, 30 Jan 2001 15:15:33 -0500
+Received: from garnet.tc.umn.edu ([160.94.218.249]:42727 "EHLO
+	garnet.tc.umn.edu") by vger.kernel.org with ESMTP
+	id <S129881AbRA3UPX>; Tue, 30 Jan 2001 15:15:23 -0500
+Date: Tue, 30 Jan 2001 14:15:20 -0600 (CST)
+From: Jason Michaelson <micha044@tc.umn.edu>
+To: linux-kernel@vger.kernel.org
+Subject: unresolved symbol in 2.4.1 depmod.
+Message-Id: <Pine.SOL.4.20.0101301409420.20128-100000@garnet.tc.umn.edu>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Tobias Ringstrom <tori@tellus.mine.nu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] No VIA IDE DMA unless configured
-In-Reply-To: <Pine.LNX.4.30.0101232239280.27097-100000@svea.tellus> <20010124102418.B1031@suse.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
+Greetings. I've just procured myself a copy of 2.4.1, and tried to build
+it. At the tail end of a make modules_install, the following error occurs:
 
-from .config on 2.4.1
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
+depmod: *** Unresolved symbols in /lib/modules/2.4.1/kernel/drivers/md/md.o
+depmod:         name_to_kdev_t
 
-Shouldn' t the value be CONFIG_IDEDMA_PCI_AUTO instead of CONFIG_IDEDMA_AUTO
-in the code below?
+My first assumption was that this occurred because I'm running 2.2.15 with
+a collection of patches. Except I've never seen this happen before with
+upgrades.
 
-Steve
+Thanks,
 
-Vojtech Pavlik wrote:
+jdm
 
-> On Tue, Jan 23, 2001 at 10:46:14PM +0100, Tobias Ringstrom wrote:
->
-> > Linus, please consider this patch for 2.4.1.  It makes sure the VIA IDE
-> > driver does not enable DMA automatically, unless the user has requested it
-> > using "make whateverconfig".
-> >
-> > /Tobias
-> >
-> > --- via82cxxx.c.orig  Tue Jan 23 22:26:25 2001
-> > +++ via82cxxx.c       Tue Jan 23 22:27:05 2001
-> > @@ -602,7 +602,9 @@
-> >  #ifdef CONFIG_BLK_DEV_IDEDMA
-> >       if (hwif->dma_base) {
-> >               hwif->dmaproc = &via82cxxx_dmaproc;
-> > +#ifdef CONFIG_IDEDMA_AUTO
-> >               hwif->autodma = 1;
-> > +#endif /* CONFIG_IDEDMA_AUTO */
-> >       }
-> >  #endif /* CONFIG_BLK_DEV_IDEDMA */
-> >  }
-> >
->
-> Linus, if you haven't applied my disable-dma-in-all-cases patch I've
-> sent you earlier, please do apply this one - it's correct and should be
-> there. It conflicts with the older one, obviously.
->
-> --
-> Vojtech Pavlik
-> SuSE Labs
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+--------
+Jason D. Michaelson          | Debian GNU/      o http://www.debian.org
+micha044@tc.umn.edu          |         __
+ares0@geocities.com          |        / /    __  _  _  _  _ __  __
+Jason.Michaelson@veritas.com |       / /__  / / / \// //_// \ \/ /
+(651)604-7263                |      /____/ /_/ /_/\/ /___/  /_/\_\
+http://www.tc.umn.edu/       |
+~micha044                    |   ...because lockups are for convicts...
+
+
+Converting Oxygen into Carbon Dioxide since 1977.
+
+Getting a SCSI chain working is perfectly simple if you remember that
+there must be exactly three terminations: one on one end of the cable, one
+on the other end, and the goat, terminated over the SCSI chain with
+a silver-handled knife whilst burning *black* candles. --- Anthony
+DeBoer
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

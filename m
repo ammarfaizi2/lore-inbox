@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265683AbUBFSsx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbUBFSsx
+	id S264246AbUBFTA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 14:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbUBFTA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:48:53 -0500
-Received: from chiapa.terra.com.br ([200.154.55.224]:61100 "EHLO
-	chiapa.terra.com.br") by vger.kernel.org with ESMTP id S265683AbUBFSsd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:48:33 -0500
-Date: Fri,  6 Feb 2004 15:48:24 -0300
-Message-Id: <HSOEWO$7C844976F840E6CB6B3C3C4530825AF6@terra.com.br>
-Subject: =?iso-8859-1?Q?Re:[PATCH]_PSX_support_in_input/joystick/gamecon.c?=
+	Fri, 6 Feb 2004 14:00:57 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:60087
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S264246AbUBFTAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 14:00:55 -0500
+Message-ID: <4023E4DB.5020801@tmr.com>
+Date: Fri, 06 Feb 2004 14:02:51 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "=?iso-8859-1?Q?iuri.f?=" <iuri.f@terra.com.br>
-To: "=?iso-8859-1?Q?pnelson?=" <pnelson@andrew.cmu.edu>
-Cc: "=?iso-8859-1?Q?linux-kernel?=" <linux-kernel@vger.kernel.org>
-Cc: "=?iso-8859-1?Q?vojtech?=" <vojtech@suse.cz>
-Cc: "=?iso-8859-1?Q?linux-joystick?=" 
-	<linux-joystick@atrey.karlin.mff.cuni.cz>
-X-XaM3-API-Version: 3.2 R28 (B53 pl3)
-X-type: 0
-X-SenderIP: 200.96.80.24
+To: Johannes Stezenbach <js@convergence.de>
+CC: Mike Black <mblack@csi-inc.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Hotswap IDE
+References: <000701c3ebe6$ac5b35d0$c8de11cc@black> <20040205233934.GC10450@convergence.de>
+In-Reply-To: <20040205233934.GC10450@convergence.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks nice, any chance of a 2.4.22+ kernel patch? 
- 
----------- Cabeçalho inicial  ----------- 
- 
-De: owner-linux-joystick@atrey.karlin.mff.cuni.cz 
-Para: linux-kernel@vger.kernel.org, 
-vojtech@suse.cz,linux-joystick@atrey.karlin.mff.cuni.cz 
-Cópia:  
-Data: Fri, 06 Feb 2004 13:06:49 -0500 
-Assunto: [PATCH] PSX support in input/joystick/gamecon.c 
- 
-> Hi, this is my first kernel hack but it's fairly straight froward.  
-I  
-> did a partial-rewrite of the PSX support in gamecon.c to make it 
-far  
-> more usable.  What this patch changes: 
->  
->    * Adds support for more than one controller.  Previously more 
-than 
->      one controller was initialized and the docs said they worked, 
-but 
->      only one was actually read. 
->    * Removes unnecessary detection on initialization.  This allows 
-the 
->      module to be initialized without controllers plugged in (hot 
->      swapping controllers works).  This removes a warning if the 
-user 
->      has an unrecognized controller plugged in, but the only 
->      unrecognized controller I have been able to find information 
-about 
->      online is the PSX mouse, which I've never actually seen. 
->    * Adds a gc_psx_ddr option to have direction presses register 
-as 
->      buttons instead of axes.  Allows the module to be used for 
-Dance 
->      Dance Revolution emulators like Stepmania. 
->    * Adds gc_psx_* to documentation. 
->  
-> I've tested this with a dualshock 2, clone digital controller, and 
-DDR  
-> pads.  The patch applies against both 2.6.1 and 2.6.2. 
->  
-> -Peter Nelson 
->  
+Johannes Stezenbach wrote:
+> Mike Black wrote:
+> 
+>>I use a removable IDE chassis to allow me to mirror my primary drive for offsite storage.
+>>I'd like to hotswap the IDE but can't seem to get the drive to allow DMA access after restarting it.
+>>A reboot is necessary for DMA access.
+>>I'm using idectl from hdparm-5.4 which generates the following hdparm commands:
+>>/sbin/hdparm -U 1 /dev/hda
+>>/sbin/hdparm -R 0x170 0 0 /dev/hda
+> 
+> 
+> I haven't tried myself, but Alan Cox did:
+> 
+> Linux 2.4.22-rc2-ac3
+>  o       Finish off the core IDE hotplug support         (me)
+>          | If your hardware supports it you can now
+>          | hdparm -b0 /dev/hdc  change drive hdparm -b1 /dev/hdc
+> 
+> Maybe that works better than -U/-R ?
 
+I suspect that both might not be a bad thing, set the bus down and 
+unregister, then set the bus up and register. Order may be important!
+
+Let me know if you try this, I have been contemplating using a hotswap 
+drive for data transfer.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

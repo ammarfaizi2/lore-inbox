@@ -1,79 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319202AbSHNEpv>; Wed, 14 Aug 2002 00:45:51 -0400
+	id <S319222AbSHNEu4>; Wed, 14 Aug 2002 00:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319221AbSHNEpu>; Wed, 14 Aug 2002 00:45:50 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13504 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S319202AbSHNEpk>; Wed, 14 Aug 2002 00:45:40 -0400
-Date: Tue, 13 Aug 2002 23:39:52 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Greg Banks <gnb@alphalink.com.au>
-cc: Peter Samuelson <peter@cadcamlab.org>, <linux-kernel@vger.kernel.org>,
-       <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [patch] config language dep_* enhancements
-In-Reply-To: <3D59BFF5.2C3B4B6A@alphalink.com.au>
-Message-ID: <Pine.LNX.4.44.0208132329520.32010-100000@chaos.physics.uiowa.edu>
+	id <S319226AbSHNEu4>; Wed, 14 Aug 2002 00:50:56 -0400
+Received: from mail1-0.chcgil.ameritech.net ([206.141.192.68]:52202 "EHLO
+	mail1-0.chcgil.ameritech.net") by vger.kernel.org with ESMTP
+	id <S319222AbSHNEuz>; Wed, 14 Aug 2002 00:50:55 -0400
+Message-ID: <3D59E298.8060604@ameritech.net>
+Date: Tue, 13 Aug 2002 23:54:48 -0500
+From: watermodem <aquamodem@ameritech.net>
+Reply-To: aquamodem@ameritech.net
+Organization: not at all
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020613
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Symptoms of overload on Southbridge <-> Northbridge
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Aug 2002, Greg Banks wrote:
+This question is not truly a kernel question but it has kernel 
+attributes so I decided to ask it here.
 
-> Peter Samuelson wrote:
-> > 
-> > [Greg Banks]
-> > > Does "complete" mean all the ports have also made the change and
-> > > been merged back?
-> > [...]
-> > Actually I suspect it would be more like the C99 thing: after the new
-> > syntax is added, we start doing [TRIVIAL] patches to clean out the
-> > old, and eventually once that is done we have the option of removing
-> > the old syntax or leaving it in as a known oddity. [...]
+I have some measurement situations (using P-3 and P-4) machines where 
+the Southbridge to Northbridge connection could get saturated and maybe 
+even hit the bandwidth limits.  These machines are usually older 
+uni-processor Dells with one flavor or another of Intel chipset.
 
-Well, I think when the switch does not change any behavior, it's actually
-okay to get it over with in one large but trivial patch. The other 
-approach would be to give the new syntax the new behavior, and do the 
-actual switch piecemeal, checking and fixing dep_* statements as they get 
-converted.
+What sort of hardware symptoms can I expect to see when the bus overloads?
 
-It'd be nice to introduce a warning for statements where the old syntax is
-used, but that seems not possible at least in Configure, since I think 
-statements like
+(I am not that worried if the OS crashes but am worried about possible 
+hardware damage - heat, out of sequence drive commands etc...)
 
-dep_tristate '...' CONFIG_FOO m
+The machines will have 1 gigabit ethernet taking a full sniffer port 
+load from a loaded CISCO 6509 switch and many more 100Mbit ethernets, 
+several sniffing and the rest communicating. (Adaptec 4 port units) I 
+know that is an insane load but we have hundreds of labs many being near 
+idle most of the time.  The mainly near idle labs could use the cheaper 
+equipment. It would be nice if there was a way to sense nearing overload 
+and dynamically "throttle down". Would any of the /proc provided 
+statistics give me the clues I am looking for?
 
-should remain valid.
+Thanks...
 
-> #
-> # Testing mixed overlap, type 1
-> # (mixed overlap, define first, query conditional, same menu)
-> #
-> 
-> mainmenu_option next_comment
-> comment 'xconfig needs this menu'
-> 
->     define_bool CONFIG_QUUX y
-> 
->     bool 'Set this symbol to ON' CONFIG_FOO
-> 
->     if [ "$CONFIG_FOO" = "y" ]; then
-> 	bool 'Here QUUX is a query symbol' CONFIG_QUUX
->     fi
-> 
-> endmenu
 
-Well, it's a bug.
-
-Setting CONFIG_QUUX to "y" when CONFIG_FOO is "n" can be done in
-an else clause to the if statement. If you want to set a default, that's 
-what defconfig is for.
-
-What's nice is that you identified so many problematic cases already, so 
-fixing shouldn't be hard. It may still make sense to add code to 
-"Configure" which recognizes a redefinition and complains or even aborts.
-
---Kai
 

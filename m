@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313079AbSC0TNm>; Wed, 27 Mar 2002 14:13:42 -0500
+	id <S313084AbSC0TTM>; Wed, 27 Mar 2002 14:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313078AbSC0TNc>; Wed, 27 Mar 2002 14:13:32 -0500
-Received: from gw.wmich.edu ([141.218.1.100]:43678 "EHLO gw.wmich.edu")
-	by vger.kernel.org with ESMTP id <S313079AbSC0TNT>;
-	Wed, 27 Mar 2002 14:13:19 -0500
+	id <S313082AbSC0TSy>; Wed, 27 Mar 2002 14:18:54 -0500
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:39416 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S313078AbSC0TSl>; Wed, 27 Mar 2002 14:18:41 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 27 Mar 2002 12:17:19 -0700
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 Subject: Re: [patch] speed up ext3 synchronous mounts
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020327190731.GA12677@merlin.emma.line.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 27 Mar 2002 14:13:10 -0500
-Message-Id: <1017256395.517.1.camel@psuedomode>
+Message-ID: <20020327191718.GY21133@turbolinux.com>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>,
+	Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+In-Reply-To: <3C9E4A18.7DDC68AB@zip.com.au> <20020327190731.GA12677@merlin.emma.line.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-03-27 at 14:07, Matthias Andree wrote:
+On Mar 27, 2002  20:07 +0100, Matthias Andree wrote:
 > On Sun, 24 Mar 2002, Andrew Morton wrote:
-> 
 > > Again, we don't need to sync indirects as we dirty them because
 > > we run a commit if IS_SYNC(inode) prior to returning to the
 > > caller of write(2).
@@ -32,13 +35,13 @@ On Wed, 2002-03-27 at 14:07, Matthias Andree wrote:
 > it), kernel 2.4.19-pre3-ac4 (not really surprising, sync is slow ;-). Is
 > it worth a try?
 
-if you look at the source.  that kernel doesn't need the patch. Seems to
-have already been applied since ac1
+Are you mounting the ext3 filesystem with "data=journal" and have a
+large journal?  This will help a lot.  You can also set up an external
+journal device to speed things up.
 
-
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

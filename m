@@ -1,96 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVBTJSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVBTJWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVBTJSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 04:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVBTJSe
+	id S261732AbVBTJWR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 04:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVBTJWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 04:18:34 -0500
-Received: from [195.32.84.175] ([195.32.84.175]:30923 "EHLO
-	host01.pcaserver.com") by vger.kernel.org with ESMTP
-	id S261709AbVBTJS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 04:18:26 -0500
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Kjartan Maraas <kmaraas@broadpark.no>,
-       Lorenzo Colitti <lorenzo@colitti.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
-References: <20050214211105.GA12808@elf.ucw.cz>
-	<200502151742.55362.s0348365@sms.ed.ac.uk>
-	<1108563926.4986.3.camel@localhost.localdomain>
-	<200502182049.11088.s0348365@sms.ed.ac.uk>
-Reply-To: ML ACPI-devel <acpi-devel@lists.sourceforge.net>
-From: Luca Capello <luca@pca.it>
-Date: Sun, 20 Feb 2005 10:21:04 +0100
-In-Reply-To: <200502182049.11088.s0348365@sms.ed.ac.uk> (Alistair John
- Strachan's message of "Fri, 18 Feb 2005 20:49:11 +0000")
-Message-ID: <87ekfbvb7j.fsf@gismo.pca.it>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sun, 20 Feb 2005 04:22:17 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:34961 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S261732AbVBTJWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 04:22:10 -0500
+Date: Sun, 20 Feb 2005 10:22:09 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad G41 PCMCIA problems
+Message-ID: <20050220092208.GA12738@hardeman.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+Steven Rostedt wrote:
+> I have a IBM Thinkpad G41 with a pentium4M with Hyperthreading.  I can't
+> get the PCMCIA working at all.  I've tried turning off hyperthreading,
+> I've tried with and without preempt, I've even added pci=noacpi. I've
+> added Len's ACPI patches, but nothing works.
 
-Hello!
 
-On Fri 18 Feb 2005 21:49, Alistair John Strachan wrote:
-> I discovered that either the i2c_core.ko or i2c_i801.ko modules cause the=
- hang=20
-> on resume! If you stop the entire i2c subsystem from being loaded by hotp=
-lug=20
-> (note this is the BUS driver, not the sensors driver!), then resume works=
-=20
-> perfectly! Presumably there's a bug in the resuming of this module.
+I see the same problem with an IBM Thinkpad G40, and only when there is 
+1Gb of memory or more in the machine.
 
-Well, on my IBM ThinkPad T42p (ATI FireGL T2 128MB), I can resume with
-both I2C modules loaded, so probably the problem is not specific to
-the I2C subsystem.
+The problem was reported the first time (to my knowledge), here:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0306.3/0956.html
+by a Thinkpad T40 user.
 
-> In other news, USB devices only work after I remove uhci_hcd and ehci_hcd=
- and=20
-> reload them.
+So the problem seems to affect at least three different Thinkpad models.
 
-I just tested two USB devices after S3 resuming without having removed
-the USB modules (uhci-hcb and ehci-hcd):
+The workaround I've seen so far have either been to disable 
+pci_fixup_transparent_bridge (as mentioned in this thread) or to raise 
+the value of pci_mem_start.
 
-=2D Logitech USB Wheel Mouse (046d:c00c, USB 1.x), it works with no
-  problem on console, but not on X (this was caused by the fact that
-  I've two corepointer on my XF86Config-4, in fact after having
-  corrected this error and restarted X, the USB mouse works)
+Re,
+David
 
-=2D Mitsubishi Chemical 2.5" HD Case (05e3:0702, USB 2.0 [1], with a
-  SAMSUNG MP0804H 80GB), it works with no problem :-D
+lspci -vvv with pci_fixup_transparent bridge disabled:
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 81) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+        Latency: 0
+        Bus: primary=00, secondary=02, subordinate=05, sec-latency=64
+        I/O behind bridge: 00003000-00006fff
+        Memory behind bridge: d0200000-dfffffff
+        Prefetchable memory behind bridge: f0000000-f7ffffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
 
-> The s3_bios workaround allows video to kind of work, but I can't use anyt=
-hing=20
-> other than vga=3Dnormal (vesafb results in corruption), and the screen is=
- no=20
-> longer artificially resized to fill the LCD, it's native res and centered=
-=20
-> (which sure is annoying).
-
-Again, IMHO the problem is specific to your machine: I use the
-radeonfb (with acpi_sleep=3Ds3_bios) and the resume is ok (both in
-console and Debian XFree86-4.3.0.dfsg.1-11, radeon driver).
-
-Thx, bye,
-Gismo / Luca
-
-[1] http://www.qbik.ch/usb/devices/showdescr.php?id=3D3039
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCGFaLVAp7Xm10JmkRAmCvAJ96dE6QMZ7wfu93rsPet+4ocBZkngCfaFSy
-ef9c6EATNoT+/ceN3Q8F1bg=
-=WCCz
------END PGP SIGNATURE-----
---=-=-=--

@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269682AbTGJXH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 19:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269683AbTGJXH6
+	id S269685AbTGJXLS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 19:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269687AbTGJXLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 19:07:58 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:16900 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S269682AbTGJXH5 (ORCPT
+	Thu, 10 Jul 2003 19:11:18 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:30131 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269685AbTGJXLR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 19:07:57 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [2-LINER] Fix unknown scancode errors for Dell laptops
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-Date: 10 Jul 2003 19:22:30 -0400
-Message-ID: <m3brw255mx.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+	Thu, 10 Jul 2003 19:11:17 -0400
+Date: Thu, 10 Jul 2003 16:25:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.75
+In-Reply-To: <20030711000546.B20214@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0307101617280.4971-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With stock 2.5, some of the Dell Inspiron laptops give unknown
-scancode printk()s from two of their seven multimedia keys.
 
-The patch below fixes that by assigning otherwise unused values to
-those two scan codes.
+On Fri, 11 Jul 2003, Russell King wrote:
+> 
+> Absolutely no surprise.  In any case, the long development cycle isn't
+> what ARM stuff needs.
 
-I'm running w/ it now w/o problems.  
+Well, nothing really _wants_ a long development cycle. I suspect any 
+particular feature taken on its own always wants the shortest possible 
+development cycle, and that what ends up happening is just that there are 
+a lot of interdepencies and just plain "different" development-cycles.
 
--JimC
+Which is not a bad thing per se, and pretty clearly is unavoidable. So 
+I'm not complaining. It's just a fact of life.
 
- drivers/input/keyboard/atkbd.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I think that the best way to "solve" the problem is to partially ignore 
+it, and I don't think it's a bad thing that we have many different trees, 
+and some of them are less strongly coupled to others - exactly to handle 
+the inevitable case of release cycle lag.
 
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Tue Jul  8 17:39:32 2003
-+++ b/drivers/input/keyboard/atkbd.c	Tue Jul  8 17:39:32 2003
-@@ -55,13 +55,13 @@
- 	252,253,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 	254,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,255,
- 	  0,  0, 92, 90, 85,  0,137,  0,  0,  0,  0, 91, 89,144,115,  0,
--	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,  0,125,
-+	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,117,125,
- 	173,114,  0,113,152,163,151,126,128,166,  0,140,  0,147,  0,127,
- 	159,167,115,160,164,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
- 	157,  0,114,166,168,  0,  0,  0,155,  0, 98,113,  0,163,  0,138,
- 	226,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
- 	133,  0,116,  0,143,  0,174,133,  0,107,  0,105,102,  0,  0,112,
--	110,111,108,112,106,103,  0,119,  0,118,109,  0, 99,104,119
-+	110,111,108,112,106,103,124,119,  0,118,109,  0, 99,104,119
- };
- 
- static unsigned char atkbd_set3_keycode[512] = {
+For example, I absolutely detest the BSD "world" model, which actually 
+makes these problems bigger by tying different projects together into one 
+tree. I think it's much more important to try to have as much freedom as 
+possible, including very much having separate timetables and development 
+environments.
+
+> Hasn't ever, I'm afraid.  I can't think of any stock kernel which has
+> been usable, let alone been compilable for ARM.  Which, IMO, is a pretty
+> sorry statement to make.
+
+You see that as a sorry statement, but I don't think it's a failure. Why 
+_should_ one tree have to try to make everybody happy? We want to try to 
+make it easier to keep the couplings in place by striving for portable 
+infrastructure etc, but we would only be hampered by a philosophy that 
+says "everything has to work in tree X", since that just means that you 
+can't afford to break things.
+
+I'd much rather keep the freedom to break stuff, and have many separate
+trees that break _different_ things, and let them all co-exist in a 
+friendly rivalry.
+
+And my tree is just one tree in that forest.
+
+So it's not a bug - it's a FEATURE!
+
+			Linus
 

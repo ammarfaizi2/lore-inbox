@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbTIVQtS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 12:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbTIVQtS
+	id S263227AbTIVQqM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 12:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbTIVQqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 12:49:18 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:11529 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263229AbTIVQtR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 12:49:17 -0400
-Date: Mon, 22 Sep 2003 17:49:16 +0100
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: unknown symbols loading modules under 2.6.x
-Message-ID: <20030922164916.GA12729@compsoc.man.ac.uk>
-References: <E1A1TE1-00075s-00@speech.braille.uwo.ca> <20030922091800.3b2532ec.rddunlap@osdl.org> <20030922163432.GA3208@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030922163432.GA3208@mars.ravnborg.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1A1TsC-000LiN-Bq*230vQAgi/X.*
+	Mon, 22 Sep 2003 12:46:12 -0400
+Received: from vena.lwn.net ([206.168.112.25]:3007 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S263227AbTIVQqK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 12:46:10 -0400
+Message-ID: <20030922164609.5929.qmail@lwn.net>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: Attributes in /sys/cdev 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Sat, 20 Sep 2003 02:28:44 BST."
+             <20030920012844.GD7665@parcelfarce.linux.theplanet.co.uk> 
+Date: Mon, 22 Sep 2003 10:46:09 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 06:34:32PM +0200, Sam Ravnborg wrote:
+> > I have no idea whether this follows the original plan for /sys/cdev.
+> 
+> They are more of a side effect.
 
-> Also make sure that you use kbuild when compiling your module.
+So...to be sure I have things straight.../sys/cdev isn't really meant to be
+there, and char devices wanting to do things in sysfs should be working
+under /sys/devices or /sys/class or /sys/somethingelse?
 
-Talking of which, how hard would it be to fix make clean and make
-modules_install for this ?
+> 	* driver has embedded struct cdev in its data structures
 
-Current make clean with SUBDIRS set still cleans out the entire kernel
-tree, and modules_install wipes out the entire target modules directory.
+> 	* ->open() can use ->i_cdev to get whatever data structure driver
+> had intended and avoid any lookups of its own
 
-It would be nice to see at least the latter fixed so there's a simple
-way for building modules against 2.6 series (especially since it's
-already way nicer than the contortions for 2.2 and 2.4).
+I noticed there's no "private" member in the cdev structure.  So drivers
+should embed the structure and use container_of to get their real structure
+of interest?
 
-regards
-john
+[Forgive my ignorance here...] If I embed a struct cdev within my own
+device structure, how do I know when I can safely free said device
+structure?  Will there be a release method that gets exposed at the driver
+level, or am I missing something obvious again?
 
--- 
-Khendon's Law:
-If the same point is made twice by the same person, the thread is over.
+Thanks,
+
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

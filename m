@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289467AbSA2ObC>; Tue, 29 Jan 2002 09:31:02 -0500
+	id <S288930AbSA2OeW>; Tue, 29 Jan 2002 09:34:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289385AbSA2Oa5>; Tue, 29 Jan 2002 09:30:57 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:34229 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S289467AbSA2OaY>;
-	Tue, 29 Jan 2002 09:30:24 -0500
-Date: Tue, 29 Jan 2002 09:30:24 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: DervishD <raul@viadomus.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
-Message-ID: <20020129093024.E10404@havoc.gtf.org>
-In-Reply-To: <E16VVMw-0001oa-00@DervishD.viadomus.com>
+	id <S289385AbSA2OeM>; Tue, 29 Jan 2002 09:34:12 -0500
+Received: from out018pub.verizon.net ([206.46.170.96]:44983 "EHLO
+	out018.verizon.net") by vger.kernel.org with ESMTP
+	id <S288930AbSA2OeA>; Tue, 29 Jan 2002 09:34:00 -0500
+Date: Tue, 29 Jan 2002 09:30:59 -0500
+From: Skip Ford <skip.ford@verizon.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com> <200201290137.g0T1bwB24120@karis.localdomain> <a354iv$ai9$1@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16VVMw-0001oa-00@DervishD.viadomus.com>; from raul@viadomus.com on Tue, Jan 29, 2002 at 11:20:02AM +0100
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <a354iv$ai9$1@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 29, 2002 at 03:23:11AM +0000
+Message-Id: <20020129143359.BBSA15035.out018.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 11:20:02AM +0100, DervishD wrote:
->     Hello Eric :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Linus Torvalds wrote:
+[snip]
+> A word of warning: good maintainers are hard to find.  Getting more of
+> them helps, but at some point it can actually be more useful to help the
+> _existing_ ones.  I've got about ten-twenty people I really trust, and
+
+Then why not give the subsystem maintainers patch permissions on your tree.
+Sort of like committers.  The problem people have is that you're dropping
+patches from those ten-twenty people you trust.
+
+Each subsystem maintainer should handle patches to that subsystem, and
+you should remove your own patch permissions for only those subsystems.
+You could get involved with only changes in direction that affect more
+than one subsystem.
+
+> quite frankly, the way people work is hardcoded in our DNA.  Nobody
+> "really trusts" hundreds of people.  The way to make these things scale
+> out more is to increase the network of trust not by trying to push it on
+> me, but by making it more of a _network_, not a star-topology around me. 
 > 
-> >>     This header can be included or not? It works for me, with headers
-> >> from 2.4.17, so, is it just for backwards compatibility?
-> >Policy.  It is for forwards compatibility. The general policy on kernel
-> >headers is that if it breaks you get to keep the pieces.
-> 
->     That is: I can include it if I just want the definition of a few
-> ioctl's, but if in a future version all that is changed or even
-> dissapears is completely my problem.
-> 
->     Given the number of user-space apps that needs ioctl definitions
-> and things like those (that are supposed not to change easily), those
-> definitions should go in user-includable headers... IMHO.
-> 
->     Fortunately, we have some of them in libc headers now.
+> In short: don't try to come up with a "patch penguin".  Instead try to
+> help existing maintainers, or maybe help grow new ones. THAT is the way
+> to scalability.
 
-The policy is, never ever include kernel headers from userspace.
+- -- 
+Skip  ID: 0x7EDDDB0A
+-----BEGIN PGP SIGNATURE-----
 
-Your libc should provide a "sanitized" version of the kernel headers,
-which is completely separate from any kernel sources.
-
-dietlibc does this...  it's completely independent of kernel header changes.
-
-RedHat will be doing this with glibc in the future.
-
-So, any problems should be reported to your libc maintainer :)
-
-	Jeff
-
-
-
+iEYEARECAAYFAjxWsfkACgkQBMKxVH7d2wpAfQCfRMoMirEH2/KRYMowNkZyMCBi
+CEYAoM4akKt8Ifl20cvkA5UG8Kb4p9Tb
+=q5bM
+-----END PGP SIGNATURE-----

@@ -1,79 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265115AbUFHAGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265111AbUFHAOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265115AbUFHAGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 20:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUFHAGx
+	id S265111AbUFHAOg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 20:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUFHAOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 20:06:53 -0400
-Received: from web51810.mail.yahoo.com ([206.190.38.241]:59762 "HELO
-	web51810.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265115AbUFHAGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 20:06:51 -0400
-Message-ID: <20040608000650.81972.qmail@web51810.mail.yahoo.com>
-Date: Mon, 7 Jun 2004 17:06:50 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <1086644098.40c4df826be23@vds.kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jun 2004 20:14:36 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:57845 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265111AbUFHAOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 20:14:33 -0400
+Subject: [PATCH]linux-2.6.7-rc3_cyclone-bad-pit_A0
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Content-Type: text/plain
+Message-Id: <1086653665.2234.192.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 07 Jun 2004 17:14:26 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Just to clarify, setting compute 1 implys interactive
-0?
-
-These numbers are very reproducable nad have done them
-(in a continuous loop) for two hours.
-
-The test is a make of headers for a propritary exec. 
-Making headers is rather simple is all it does it link
-a bunch of h files (traversing dirs) and some
-dependance generation (3 files, yacc and lex).  I have
-moved the source code base to local disk to dicount
-nfs issues (though the difference is neglibible and
-nfs performance on 2.6 is generally faster than 2.4).
-
-I have tried to get a good test case that can be
-submitted. Still trying. 
-
-Any suggestions to try to diagnose this?
-
-Thanks!
-Phy
-> > 
-> Hi.
-> 
-> How repeatable are the numbers normally? Some idea
-> of what it is you're
-> benchmarking may also help in understanding the
-> problem; locking may be an
-> issue with what you're benchmarking and out-of-order
-> scheduling is not as
-> forgiving of poor locking. Extending the RR_INTERVAL
-> and turning off
-> interactivity makes it more in-order and more
-> forgiving of poor locking or
-> yield().
-> 
-> Compute==1 setting inactivates interactivity anyway,
-> but that's not really
-> relevant to your figures since you had set
-> interactive 0 when you set compute
-> 1.
-> 
-> Con
-> 
-
-
-
+All,
+	In testing for SLES9, we ran across a bug caused by userspace apps
+poking the PIT which caused bad values to be read by the kernel. This
+would then trigger the lost tick detection code with insane values and
+would then break the SCSI subsystem. 
 	
-		
-__________________________________
-Do you Yahoo!?
-Friends.  Fun.  Try the all-new Yahoo! Messenger.
-http://messenger.yahoo.com/ 
+	This patch includes the PIT sanity check from the TSC timesource into
+the cyclone timesource code, which catches the bad case described above
+and resolves the issue.
+
+Please apply.
+
+thanks
+-john
+
+diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+--- a/arch/i386/kernel/timers/timer_cyclone.c	Mon Jun  7 17:02:41 2004
++++ b/arch/i386/kernel/timers/timer_cyclone.c	Mon Jun  7 17:02:41 2004
+@@ -17,6 +17,7 @@
+ #include <asm/io.h>
+ #include <asm/pgtable.h>
+ #include <asm/fixmap.h>
++#include "io_ports.h"
+ 
+ extern spinlock_t i8253_lock;
+ 
+@@ -62,6 +63,17 @@
+ 
+ 	count = inb_p(0x40);    /* read the latched count */
+ 	count |= inb(0x40) << 8;
++
++	/*
++	 * VIA686a test code... reset the latch if count > max + 1
++	 * from timer_pit.c - cjb
++	 */
++	if (count > LATCH) {
++		outb_p(0x34, PIT_MODE);
++		outb_p(LATCH & 0xff, PIT_CH0);
++		outb(LATCH >> 8, PIT_CH0);
++		count = LATCH - 1;
++	}
+ 	spin_unlock(&i8253_lock);
+ 
+ 	/* lost tick compensation */
+
+

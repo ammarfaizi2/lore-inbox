@@ -1,146 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263764AbTLEAJS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 19:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbTLEAJS
+	id S263768AbTLEAPN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 19:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbTLEAPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 19:09:18 -0500
-Received: from cantva.canterbury.ac.nz ([132.181.2.27]:14097 "EHLO
-	cantva.canterbury.ac.nz") by vger.kernel.org with ESMTP
-	id S263764AbTLEAJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 19:09:06 -0500
-Date: Fri, 05 Dec 2003 13:09:00 +1300
-From: Oliver Hunt <ojh16@student.canterbury.ac.nz>
-Subject: Re: Linux GPL and binary module exception clause?
-In-reply-to: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
-To: Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-Message-id: <3FCFCC9C.8030901@student.canterbury.ac.nz>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.5b)
- Gecko/20030727 Thunderbird/0.1
-References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
+	Thu, 4 Dec 2003 19:15:12 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:18184 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263768AbTLEAPC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 19:15:02 -0500
+Date: Thu, 4 Dec 2003 16:14:58 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+Message-ID: <20031205001458.GD14401@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20031202135423.GB13388@conectiva.com.br> <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz> <bql9kk$iq1$1@gatekeeper.tmr.com> <20031204012420.GE4420@pegasys.ws> <20031204014743.GF29119@mis-mike-wstn.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031204014743.GF29119@mis-mike-wstn.matchmail.com>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: Reading this message may result in the loss of free will.  Read and obey.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 03, 2003 at 05:47:43PM -0800, Mike Fedyk wrote:
+> On Wed, Dec 03, 2003 at 05:24:20PM -0800, jw schultz wrote:
+> > <OT>
+> > As a datapoint i'm running ext2, reiserfs, JFS and XFS each
+> > for different reasons.
+> > 
+> > 	ext2 -- boot (i'm stodgy) and 2kb blocks for archive CDs
+> > 
+> > 	reiserfs3 -- filesystems not exported nfs (no
+> > 	historical version level that i can confirm whether
+> > 	i have or not will namesys assert is reliable over
+> > 	nfs)
+> > 
+> 
+> Maybe you should just try it?  I've used reiserfs on an NFS/samba server,
+> and it didn't give me trouble.
 
-Paul Adams wrote:
+I did once.  Seemed fine for a while then it hit problems
+(don't recall specifics) with some files.  Very painful
+transitioning active filesystems.  Since then practically
+every new version has claimed to have fixed NFS.  I'll wait
+until the fix doesn't need to be fixed again for a few revs.
 
-> --- In linux-kernel@yahoogroups.com, Linus Torvalds
-> <torvalds@o...> wrote:
 > 
->>- anything that was written with Linux in mind
+> > 	jfs -- most nfs exported filesystems, decent
+> > 	performance and solid but i don't use if for home
+> > 	because in SuSE's 2.4.18 (i know it is ancient but
+> > 	solid for me) jfs doesn't update mtime of
+> > 	directories unless the block allocation changes
+> > 	breaking maildir update detection.
 > 
-> (whether it then
-> 
->>_also_ works on other operating systems or not) is
-> 
-> clearly
-> 
->>partially a derived work.
-> 
-> 
-> I am no more a lawyer than you are, but I have to
-> disagree.  You
-> are not free to define "derivative work" as you
-> please.  You
-> must use accepted legal definitions.  At least in the
-> U.S., you
-> must consider what Congress had to say on this.  They
-> said, "to
-> constitute a violation of section 106(2) [which gives
-> copyright
-> owners rights over derivative works], the infringing
-> work must
-> incorporate a portion of the copyrighted work in some
-> form; for
-> example, a detailed commentary on a work or a
-> programmatic musical
-> composition inspired by a novel would not normally
-> constitute
-> infringements under this clause."
-> http://www4.law.cornell.edu/uscode/17/106.notes.html
-> 
-> A work that is inspired by Linux is no more a
-> derivative work than
-> a programmatic musical composition inspired by a
-> novel.  Having
-> Linux in mind cannot be enough to constitute
-> infringement.
-> 
-> Remember also that U.S. copyright law states:
-> "In no case does copyright protection for an original
-> work of
-> authorship extend to any idea, procedure, process,
-> system, method
-> of operation, concept, principle, or discovery,
-> regardless of
-> the form in which it is described, explained,
-> illustrated, or
-> embodied in such work."
-> http://www4.law.cornell.edu/uscode/17/102.html
-> Thus you cannot claim infringement because a work
-> merely shares
-> ideas or methods of operation with Linux.
-> 
-> The standard used in U.S. courts for determining if
-> software
-> violates a copyright includes a filtering procedure to
-> eliminate
-> unprotected aspects as described above.  A standard
-> filter is that
-> you eliminate an element if "The element's expression
-> was dictated
-> by external factors, such as using an existing file
-> format or
-> interoperating with another program."  Computer
-> Associates v.
-> Altai specifically discusses the need to filter
-> elements related
-> to "compatibility requirements of other programs with
-> which a
-> program is designed to operate in conjunction."
-> http://www.bitlaw.com/source/cases/copyright/altai.html
-> Code needed to interoperate with the Linux kernel thus
-> cannot be
-> considered as a factor in determining if the Linux
-> copyright is
-> infringed.
-> 
-> Unless actual Linux code is incorporated in a binary
-> distribution
-> in some form, I don't see how you can claim
-> infringement of the
-> copyright on Linux code, at least in the U.S.
-> 
-> 
-> 
-> __________________________________
-> Do you Yahoo!?
-> Free Pop-Up Blocker - Get it now
-> http://companion.yahoo.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> This has been fixed in newer versions of JFS though, right?
 
-Yes, but the if you want to write a kernel modules you need to #include
-at least a few of the headers: you are including copyrighted work...
+Dunno,  I assume so.  It is a pretty obvious bug by the time
+i had a server running JFS the kernel i was running was
+already old.
 
-What (i think) linus is saying is that he, as the owner of the 
-copyright, would accept a ported driver as not being derived(as most of 
-the work would have been based on another system, not linux), but that 
-is his choice, he is allowed to relax the terms of use because it is his 
-copyright...
+If you are running JFS it is easy to test.  Just create a
+directory with some files in it and rename or delete one so
+the block count of the directory is unchanged and look at
+the mtime.
 
-I'm not however ever a lawyer...
+> > 	xfs -- home (because of the jfs bug) Earlier tests
+> > 	of xfs gave me horrible performance and i haven't
+> > 	gotten around to testing since then.  If this is
+> > 	fixed without tuning i might drop jfs.  Then again i
+> > 	may drop xfs in the next upgrade if i change distros
+> > 	and xfs isn't in-kernel.
+> 
+> What about ext3?  I tend to prefer ext3 since I know how it works more than
+> the others, and it puts data integrity ahead of performance, which is the
+> way things should be (TM).
 
---Oliver
-The Department Formerly Known as Cosc
-University of Canterbury
-New Zealand
+I see too many reports of lost files and ext3 running in a
+degraded state unnoticed to trust it.  The features list is
+great but there are just too many bugfixes between kernel
+versions in production and HEAD.  When i've XFS, reiserfs
+and JFS to choose from the need for ext3 just isn't there at
+this time.  The added confidence of data journalling on
+systems that don't crash just doesn't outweigh doubts caused
+by reports of silently lost files. (look further down the
+other branch from the message to which this is a reply)
+
+I appreciate the work that has gone into ext3 and have some
+hopes that in time it may get past any real or imagined
+deficiencies.  I suspect that the biggest value of ext3 at
+this time is as a labratory for testing filesystem theory
+and new features.
 
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278742AbRKOAqX>; Wed, 14 Nov 2001 19:46:23 -0500
+	id <S278795AbRKOAud>; Wed, 14 Nov 2001 19:50:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278800AbRKOAqN>; Wed, 14 Nov 2001 19:46:13 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:39428 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S278742AbRKOAqC>;
-	Wed, 14 Nov 2001 19:46:02 -0500
-Message-Id: <5.1.0.14.0.20011115111324.01f0c540@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 15 Nov 2001 11:45:53 +1100
-To: linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: What Athlon chipset is most stable in Linux?
-Cc: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011113.191607.00304518.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0111131910440.9658-100000@anime.net>
- <20011113.183256.15406047.davem@redhat.com>
- <Pine.LNX.4.30.0111131910440.9658-100000@anime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S278800AbRKOAuX>; Wed, 14 Nov 2001 19:50:23 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:14916 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S278795AbRKOAuE>; Wed, 14 Nov 2001 19:50:04 -0500
+Posted-Date: Thu, 15 Nov 2001 00:40:15 GMT
+Date: Thu, 15 Nov 2001 00:40:14 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: CaT <cat@zip.com.au>
+cc: Pascal Schmidt <pleasure.and.pain@web.de>, H Peter Anvin <hpa@zytor.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: fdutils.
+In-Reply-To: <20011114123033.N991@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0111150027200.3058-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:16 PM 13/11/01 -0800, David S. Miller wrote:
->What is your quake3 com_maxfps set to?  By default it is 85, and
->that can hide the bug.  Set it to 130 or something like that.
->
-><snip!>
->
->I'm rather sure the AMD761 problems are motherboard vendor
->independant, because I have 2 systems so far, using totally different
->AMD761 based motherboards, which both hang pretty reliably with AGP.
+Hi Cat.
 
-Last night I decided to test this out on my Asus A7M (AMD761 and VIA 686b), 
-which has a 1.4 Ghz Athlon, Creative SBLive!, 3Com 3c905B, and an Asus 
-V8200 (GeForce3 64Mb DDR). The case has very good airflow, at about 120 
-Cubic Feet per Minute, and most of this passes past the CPU. PSU is a 300W 
-Enhance (brand name) power supply - use a lot of this brand, and they are 
-good quality. Linux kernel is 2.4.14 vanilla, with the Nvidia 1.0-1541 
-binary driver (using kernel AGPgart, and Nvidia module options for speed), 
-XFree86 4.1.0 that is currently in Debian sid. Was running at 1024x768 at 
-24 bit, defaults for Q3A texture settings, sound, etc, with /com_maxfps set 
-to 255. I played the single player setup against the bots (in the medium 
-hardness setting - I didn't lose a round, which kept the 3D going as 
-continuous as possible) from the start to the finish (all 6 tiers and the 
-final Z tier) without a lockup. Note: I do not run the Riva FrameBuffer 
-module, nor do I enable ANY of the APM options (eg: Make CPU Idle calls, 
-Enable console blanking, etc) in the kernel, just the generic APM support 
-itself - mainly so the machine shuts off automatically after shutdown).
+>>> Sure, but having to mount the CDROM means the drive is
+>>> inaccessible during a rescue operation, so no restore from
+>>> CDROM or CDRW backups is possible. ;) Mine runs out of a
+>>> 4 MB ramdisk image.
 
-AGP and bad Power Supplies are always a problem, especially when you try 
-and exploit anything greater than 1x AGP, and the power drain really rises. 
-Heat is always an issue, but with good cooling, most problems vanish.
+>> Maybe that drive is inaccessible, but what about the other
+>> drive? Many systems have both a CD (or DVD) drive and a
+>> CD-RW as well nowadays.
 
-Sure that beanie of yours isn't cutting off the circulation, or that you've 
-been drinking too much V again Dave? *joke*
+> Are you guys trying to target the highest or lowest common
+> denominator here? Because the more of this thread I read
+> the more of the population you guys are excluding.
 
-BTW: As a member of a group called the LGL (or Linux Gamers League) here in 
-Australia, I help out a lot of people who want to get their systems running 
-games, particularly 3D stuff like Q3A, UT, and Tribes2. I've been able to 
-track down most of the crash issues with AMD 76x chipsets to either 1) bad 
-quality components, 2) heat or 3) power supplies. Admittedly AMD 760 
-(vanilla, not sure about MP) chipsets don't like doing more than 1x AGP, 
-but since they are a bit old in the tooth now, this isn't so much of a 
-problem for us gamers. If there was a huge issue with this, I'm sure you'd 
-hear a hell of a lot of the guys and girls (yes, girls play games under 
-Linux too!) in the LGL complaining about it. *grin*
+We're trying to include both.
 
-Take care.
+Let's be honest: If we set things up so people with two CD drives
+can't use the second drive simply because we've specialised in
+people with only one drive, we're no better off than if we set
+them up to require that one has two drives.
 
+As I see it, there are the following options available:
 
-AMC Enterprises P/L    - Stuart Young
-First Floor            - Network and Systems Admin
-3 Chesterville Rd      - sgy@amc.com.au
-Cheltenham Vic 3192    - Ph:  (03) 9584-2700
-http://www.amc.com.au/ - Fax: (03) 9584-2755
+ 1. Insist that those using the rescue CD have two CD drives.
+
+    In my book, that's a non-starter, so 'nuff said).
+
+ 2. Prohibit access to the CD drive for anything other than the
+    rescue CD.
+
+ 3. Copy the contents of the CD into a ramdisk, then run from
+    the ramdisk.
+
+    If the user has enough RAM, maybe, but if not...
+
+ 4. Provide a "Virtual CD Drive" on single CD drive systems
+    (similar to the way drive B: on MS-DOS 2.00 and later is a
+    virtual floppy drive on single floppy systems).
+
+    I'm not sure how this would work in practice, but it could
+    be done, I'm sure.
+
+Have I missed anything?
+
+Best wishes from Riley.
 

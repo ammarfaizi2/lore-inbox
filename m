@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264910AbTARQfS>; Sat, 18 Jan 2003 11:35:18 -0500
+	id <S264940AbTARQt0>; Sat, 18 Jan 2003 11:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264919AbTARQfR>; Sat, 18 Jan 2003 11:35:17 -0500
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:22931 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S264910AbTARQfR>; Sat, 18 Jan 2003 11:35:17 -0500
-Date: Sat, 18 Jan 2003 16:44:17 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cantab.net>
-To: linux-ntfs-dev@lists.sf.net
-cc: linux-kernel@vger.kernel.org
-Subject: [ANN] ntfsprogs (formerly Linux-NTFS) 1.7.0beta released
-Message-ID: <Pine.SOL.3.96.1030118163630.27974A-100000@libra.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264943AbTARQtZ>; Sat, 18 Jan 2003 11:49:25 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5609 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264940AbTARQtP>; Sat, 18 Jan 2003 11:49:15 -0500
+Date: Sat, 18 Jan 2003 17:58:09 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] small cleanup in drivers/scsi/i91uscsi.h
+Message-ID: <20030118165809.GH10647@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is to announce the new release of the ntfsprogs package (formerly
-Linux-NTFS).
+The patch below does the follwojng small updates in 
+drivers/scsi/i91uscsi.h:
+- remove #if for kernel 2.0
+- remove unused #define TRUE/FALSE
 
-This is a massive update featuring an almost complete rewrite of the ntfs
-library (the API should hopefully remain stable from now on) as well as
-several new utilities: ntfslabel, ntfsresize, and ntfsundelete.
+cu
+Adrian
 
-Note this is a beta release and can contain bugs. Please backup your data
-before using any of the utilities in write mode. 
-
-You can download the source code as a tar ball or source rpm or binary
-rpms for intel 386 architecture from our website:
-
-	http://linux-ntfs.sourceforge.net/downloads.html
-
-Or you can get the latest source from our bitkeeper repository by doing a:
-
-	bk clone http://linux-ntfs.bkbits.net/ntfsprogs
-
-You can also browse the source code online here:
-
-	http://linux-ntfs.bkbits.net:8080/ntfsprogs
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+--- linux-2.5.59-full/drivers/scsi/i91uscsi.h.old	2003-01-18 17:53:01.000000000 +0100
++++ linux-2.5.59-full/drivers/scsi/i91uscsi.h	2003-01-18 17:53:55.000000000 +0100
+@@ -70,12 +70,6 @@
+ #ifndef NULL
+ #define NULL     0		/* zero          */
+ #endif
+-#ifndef TRUE
+-#define TRUE     (1)		/* boolean true  */
+-#endif
+-#ifndef FALSE
+-#define FALSE    (0)		/* boolean false */
+-#endif
+ #ifndef FAILURE
+ #define FAILURE  (-1)
+ #endif
+@@ -597,11 +591,9 @@
+ 	TCS HCS_Tcs[MAX_TARGETS];	/* 78 */
+ 	ULONG pSRB_head;	/* SRB save queue header     */
+ 	ULONG pSRB_tail;	/* SRB save queue tail       */
+-#if LINUX_VERSION_CODE >= CVT_LINUX_VERSION(2,1,95)
+ 	spinlock_t HCS_AvailLock;
+ 	spinlock_t HCS_SemaphLock;
+ 	spinlock_t pSRB_lock;	/* SRB queue lock            */
+-#endif
+ } HCS;
+ 
+ /* Bit Definition for HCB_Config */
 

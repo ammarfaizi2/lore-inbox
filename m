@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264436AbTIIUvL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbTIIUvL
+	id S264388AbTIIUpe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTIIUpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:51:11 -0400
-Received: from ida.rowland.org ([192.131.102.52]:5636 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264436AbTIIUvG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:51:06 -0400
-Date: Tue, 9 Sep 2003 16:51:06 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Georgi Chorbadzhiyski <gf@unixsol.org>
-cc: Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] [2.6-test] Bug in usb-storage or scsi?
-In-Reply-To: <3F5E2EB8.909@unixsol.org>
-Message-ID: <Pine.LNX.4.44L0.0309091639580.643-100000@ida.rowland.org>
+	Tue, 9 Sep 2003 16:45:34 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:51842 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S264388AbTIIUpZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 16:45:25 -0400
+Message-ID: <3F5E2691.2070600@terra.com.br>
+Date: Tue, 09 Sep 2003 16:14:25 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: torvalds@osdl.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] UFS build fix
+Content-Type: multipart/mixed;
+ boundary="------------010408010109050503050101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003, Georgi Chorbadzhiyski wrote:
+This is a multi-part message in MIME format.
+--------------010408010109050503050101
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hello,
-> I was able to access my Music Pen mp3 player using usb-storage driver
-> in 2.4 without any problems. After updating to 2.6 this was not possible
-> anymore. It seems that usb-storage driver in 2.6 detect the device but
-> I was unable to access /dev/sda1. "mount -t vfat /dev/sda1 /mnt" returns
-> this error: "mount: /dev/sda1 is not a valid block device"
-> 
-> Under 2.4.21-ck3, sda1 is corectly registered.
-> 
-> Please see the attached files containing dmesg snippets from 2.4 and 2.6
-> kerneles as well as 2.6 config. If you need more information I'll be glad
-> to provide it.
-> 
-> The 2.4 kernel that I tested was 2.4.21-ck3
-> The 2.6 kernel that I tested was 2.6.0-test5-mm1, 2.6.0-test4 and 2.6.0-test1
+	Hi Linus,
 
-More problems with that stupid MODE-SENSE cache page!  There are so many 
-USB storage devices that have problems with that -- I wonder if it's worth 
-the effort to try to continue supporting it?
+	Trivial patch (against 2.6-test5) to fix the build for the UFS file 
+system.
 
-Georgi, the problem is with your mp3 player, not usb-storage or SCSI.  
-It's crashing when given a perfectly legal SCSI command.  Linux 2.4
-doesn't issue the command; that's why it works okay.
+	Please apply.
 
-If you want a temporary fix for 2.6.0, you can do this:  Edit the 
-routine sd_read_cache_type in the file drivers/scsi/sd.c (near line 1100).  
-Get rid of (or #ifdef out) most of the function; just leave the last few 
-lines where it does:
+	Cheers,
 
-		printk(KERN_ERR "%s: assuming drive cache: write through\n",
-		       diskname);
-		sdkp->WCE = 0;
-		sdkp->RCD = 0;
+Felipe
 
-You might want to change the KERN_ERR to KERN_NOTICE.
+--------------010408010109050503050101
+Content-Type: text/plain;
+ name="ufs-build.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ufs-build.patch"
 
-However, you might also want to think twice before doing this if you have 
-any other SCSI disks, because making this change will affect all of them.
+--- linux-2.6.0-test5/fs/ufs/namei.c	Mon Sep  8 16:50:57 2003
++++ linux-2.6.0-test5-fwd/fs/ufs/namei.c	Tue Sep  9 16:11:06 2003
+@@ -113,10 +113,12 @@
+ static int ufs_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct inode * inode;
++	int err;
++
+ 	if (!old_valid_dev(rdev))
+ 		return -EINVAL;
+ 	inode = ufs_new_inode(dir, mode);
+-	int err = PTR_ERR(inode);
++	err = PTR_ERR(inode);
+ 	if (!IS_ERR(inode)) {
+ 		init_special_inode(inode, mode, rdev);
+ 		/* NOTE: that'll go when we get wide dev_t */
 
-Alan Stern
+--------------010408010109050503050101--
 

@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbTDUSNK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTDUSNK
+	id S261829AbTDUSPc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTDUSPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:13:10 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:56513 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S261783AbTDUSNI convert rfc822-to-8bit
+	Mon, 21 Apr 2003 14:15:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6848 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261829AbTDUSPb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:13:08 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
-Date: Mon, 21 Apr 2003 11:24:26 -0700
-Message-ID: <3014AAAC8E0930438FD38EBF6DCEB56401A45755@fmsmsx407.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
-Thread-Index: AcMIKktKGQDKSlmGQsG29jqqeis6sQABZ2ug
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Cc: "Chuck Ebbert" <76306.1226@compuserve.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Apr 2003 18:24:26.0740 (UTC) FILETIME=[3DA9D340:01C30833]
+	Mon, 21 Apr 2003 14:15:31 -0400
+Date: Mon, 21 Apr 2003 19:27:34 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       "David S. Miller" <davem@redhat.com>, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new system call mknod64
+Message-ID: <20030421182734.GN10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030421191013.A9655@infradead.org> <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know there are more people who want to get rid of NR_IRQS e.g. due to
-> very sparse irq distribution. For one of the platforms i'm interested in,
-> we have to make a clear distinction between irqs and vectors so that we
-> can have seperate vector allocations per interrupt handling domain. I
-> believe IA-64 does the same but instead per cpu (our domain/node consists
-> of 4 cpus) NR_IRQS gets in the way due to it being set at 224 when we
-> actually
-
-I heard such requests too, and suggested the same thing, i.e. seperate vector allocations per interrupt handling domain. 
-
-> can service NR_IRQ_VECTORS * NUM_MAXNODES I/O vectors. Can you post your
-> patch?
-
-Yes, we'll post it after cleanups.
-
+On Mon, Apr 21, 2003 at 11:22:51AM -0700, Linus Torvalds wrote:
+ 
+> One way to avoid the bug is to always keep all dev_t numbers in "canonical 
+> format". Which happens automatically if the interface is <major, minor> 
+> rather than a 64-bit blob.
 > 
-> Also what MSI devices are you using?
-> 
+> I personally think that anything that uses "dev_t" in _any_ other way than 
+> <major,minor> is fundamentally broken.
 
-Adaptec 39320 SCSI HBA (it has the 7902 ASIC), which has two MSI-capable functions. You don't need to change the driver (aic79xx) to enable MSI.
-
-Thanks,
-Jun
-
+Do you consider internal use of MKDEV-produced constants broken?

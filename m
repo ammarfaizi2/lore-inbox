@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262607AbRFTEAq>; Wed, 20 Jun 2001 00:00:46 -0400
+	id <S263365AbRFTDzG>; Tue, 19 Jun 2001 23:55:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263608AbRFTEAg>; Wed, 20 Jun 2001 00:00:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:6787 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262607AbRFTEA3>;
-	Wed, 20 Jun 2001 00:00:29 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15152.8152.177595.177731@pizda.ninka.net>
-Date: Tue, 19 Jun 2001 21:00:24 -0700 (PDT)
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
+	id <S262607AbRFTDy4>; Tue, 19 Jun 2001 23:54:56 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31522 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S261268AbRFTDyj>; Tue, 19 Jun 2001 23:54:39 -0400
+Date: Wed, 20 Jun 2001 05:54:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
         kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
 Subject: Re: softirq in pre3 and all linux ports
-In-Reply-To: <20010620055413.A849@athlon.random>
-In-Reply-To: <20010619210312.Z11631@athlon.random>
-	<15152.6527.366544.713462@cargo.ozlabs.ibm.com>
-	<20010620055413.A849@athlon.random>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-ID: <20010620055413.A849@athlon.random>
+In-Reply-To: <20010619210312.Z11631@athlon.random> <15152.6527.366544.713462@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15152.6527.366544.713462@cargo.ozlabs.ibm.com>; from paulus@samba.org on Wed, Jun 20, 2001 at 01:33:19PM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 20, 2001 at 01:33:19PM +1000, Paul Mackerras wrote:
+> Well, I object to the "without thinking" bit. [..]
 
-Andrea Arcangeli writes:
- > I don't have gigabit ethernet so I cannot flood my boxes to death.
- > But I think it's real, and a softirq marking itself runnable again is
- > another case to handle without live lockups or starvation.
+agreed, apologies.
 
-I think (still) that you're just moving the problem around and
-not actually changing anything.
+> BHs disabled is buggy - why would you want to do that?  And if we do
 
-Later,
-David S. Miller
-davem@redhat.com
+tasklet_schedule
+
+> want to allow that, shouldn't we put the check in raise_softirq or the
+> equivalent, to get the minimum latency?
+
+We should release the stack before running the softirq (some place uses
+softirqs to release the stack and avoid overflows).
+
+> Soft irqs should definitely not be much heavier than an irq handler,
+> if they are then we have implemented them wrongly somehow.
+
+ip + tcp are more intensive than just queueing a packet in a blacklog.
+That's why they're not done in irq context in first place.
+
+> ksoftirqd seems like the wrong solution to the problem to me, if we
+> really getting starved by softirqs then we need to look at whether
+> whatever is doing it should be a kernel thread itself rather than
+> doing it in softirqs.  Do you have a concrete example of the
+> starvation/live lockup that you can describe to us?
+
+I don't have gigabit ethernet so I cannot flood my boxes to death.
+But I think it's real, and a softirq marking itself runnable again is
+another case to handle without live lockups or starvation.
+
+Andrea

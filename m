@@ -1,62 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131816AbRA0K6u>; Sat, 27 Jan 2001 05:58:50 -0500
+	id <S131934AbRA0K7k>; Sat, 27 Jan 2001 05:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131934AbRA0K6k>; Sat, 27 Jan 2001 05:58:40 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:56837 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131816AbRA0K6a>; Sat, 27 Jan 2001 05:58:30 -0500
-From: Stefani Seibold <stefani@seibold.net>
-Date: Sat, 27 Jan 2001 11:57:14 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org, Stefani@seibold.net
-To: Thunder from the hill <thunder@ngforever.de>
-In-Reply-To: <01012612051000.01240@deepthought.seibold.net> <3A7211BB.AF85D0BC@ngforever.de>
-In-Reply-To: <3A7211BB.AF85D0BC@ngforever.de>
-Subject: Re: patch for 2.4.0 disable printk
-MIME-Version: 1.0
-Message-Id: <01012711571400.01203@deepthought.seibold.net>
-Content-Transfer-Encoding: 8bit
+	id <S132820AbRA0K7a>; Sat, 27 Jan 2001 05:59:30 -0500
+Received: from saw.sw.com.sg ([203.120.9.98]:9609 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S131934AbRA0K7S>;
+	Sat, 27 Jan 2001 05:59:18 -0500
+Message-ID: <20010127185902.A6358@saw.sw.com.sg>
+Date: Sat, 27 Jan 2001 18:59:02 +0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+        Alan Cox <alan@redhat.com>
+Subject: [patch] eepro100 driver fixes
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You are right... this patch make no sense on a computer system with human 
-interactions. But think on tiny hidden computers, like in a dishwasher or a 
-traffic light. This computer are standalone, if it crash, then it will be 
-rebooted.
-Nobody will attach a terminal to this kind of computer, nobody is interessted 
-on a logfile. Nobody will see a oops, because nobdy is there. 
-The hardware of this computer are espacilly designed and will never be 
-changed. It is not like a pc, where many different hardware will be attached.
-Believe me, i am programming embedded systems since 10 years... i know this 
-buissines.
-It is also a fine thing for rescued disk, where you never have enough space 
-to put all the tools togetehr which are needed.
-And rememberf: It is an option, you should it only use, iof u know what u do, 
-like many other building a kernel.
+Hello,
 
-Greetings,
-Stefani
+Here is a patch with important eepro100 fixes for 2.4 kernel:
+ - Big-endian fixes (double cpu->bus conversion).
+ - "card reports no resources" hardware timing bug workaround.
+   Thanks to Donald Becker.
+   It may also fix a problem with "wait_for_cmd_done timeout" symptom.
 
-> What sense does it make to ripp the kernel off its "tongue"? This means
-> to make it completely silent, a oops() could _not_ be noticed! This
-> means that you don't know when your system has nearly crashed.
-> You'd better leave printk where it is.
->
-> Thunder
-> ---
-> Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
-> god...
-> Stefani Seibold wrote:
-> > this kernel patch allows to disable all printk messages, by overloading
-> > the printk function with a dummy printk macro.
-> >
-> > This patch is usefull for embedded systems, where the hardware never
-> > changes and normaly no textconsole is attachted nor any user will see the
-> > boot messages. Also, it is nice for rescue disks.
-> >
+Best regards
+		Andrey
+
+diff -u linux/drivers/net/eepro100.c linux/drivers/net/eepro100.c
+--- linux/drivers/net/eepro100.c	2000/11/17 08:53:22
++++ linux/drivers/net/eepro100.c	2001/01/27 10:07:13
+@@ -29,7 +29,7 @@
+ 
+ static const char *version =
+ "eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html\n"
+-"eepro100.c: $Revision: 1.35 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others\n";
++"eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others\n";
+ 
+ /* A few user-configurable values that apply to all boards.
+    First set is undocumented and spelled per Intel recommendations. */
+@@ -698,6 +698,7 @@
+ 	   This takes less than 10usec and will easily finish before the next
+ 	   action. */
+ 	outl(PortReset, ioaddr + SCBPort);
++	inl(ioaddr + SCBPort);
+ 	udelay(10);
+ 
+ 	if (eeprom[3] & 0x0100)
+@@ -785,6 +786,7 @@
+ #endif  /* kernel_bloat */
+ 
+ 	outl(PortReset, ioaddr + SCBPort);
++	inl(ioaddr + SCBPort);
+ 	udelay(10);
+ 
+ 	/* Return the chip to its original power state. */
+@@ -801,7 +803,7 @@
+ 	sp->tx_ring = tx_ring_space;
+ 	sp->tx_ring_dma = tx_ring_dma;
+ 	sp->lstats = (struct speedo_stats *)(sp->tx_ring + TX_RING_SIZE);
+-	sp->lstats_dma = cpu_to_le32(TX_RING_ELEM_DMA(sp, TX_RING_SIZE));
++	sp->lstats_dma = TX_RING_ELEM_DMA(sp, TX_RING_SIZE);
+ 	init_timer(&sp->timer); /* used in ioctl() */
+ 
+ 	sp->full_duplex = option >= 0 && (option & 0x10) ? 1 : 0;
+@@ -1002,7 +1004,9 @@
+ 	/* Set the segment registers to '0'. */
+ 	wait_for_cmd_done(ioaddr + SCBCmd);
+ 	outl(0, ioaddr + SCBPointer);
+-	inl(ioaddr + SCBPointer); /* XXX */
++	/* impose a delay to avoid a bug */
++	inl(ioaddr + SCBPointer);
++	udelay(10);
+ 	outb(RxAddrLoad, ioaddr + SCBCmd);
+ 	wait_for_cmd_done(ioaddr + SCBCmd);
+ 	outb(CUCmdBase, ioaddr + SCBCmd);
+@@ -1010,7 +1014,6 @@
+ 	/* Load the statistics block and rx ring addresses. */
+ 	wait_for_cmd_done(ioaddr + SCBCmd);
+ 	outl(sp->lstats_dma, ioaddr + SCBPointer);
+-	inl(ioaddr + SCBPointer); /* XXX */
+ 	outb(CUStatsAddr, ioaddr + SCBCmd);
+ 	sp->lstats->done_marker = 0;
+ 
+@@ -1045,7 +1048,7 @@
+ 
+ 	/* Start the chip's Tx process and unmask interrupts. */
+ 	wait_for_cmd_done(ioaddr + SCBCmd);
+-	outl(cpu_to_le32(TX_RING_ELEM_DMA(sp, sp->dirty_tx % TX_RING_SIZE)),
++	outl(TX_RING_ELEM_DMA(sp, sp->dirty_tx % TX_RING_SIZE),
+ 		 ioaddr + SCBPointer);
+ 	/* We are not ACK-ing FCP and ER in the interrupt handler yet so they should
+ 	   remain masked --Dragan */
+@@ -1274,7 +1277,7 @@
+ 		/* Only the command unit has stopped. */
+ 		printk(KERN_WARNING "%s: Trying to restart the transmitter...\n",
+ 			   dev->name);
+-		outl(cpu_to_le32(TX_RING_ELEM_DMA(sp, dirty_tx % TX_RING_SIZE])),
++		outl(TX_RING_ELEM_DMA(sp, dirty_tx % TX_RING_SIZE]),
+ 			 ioaddr + SCBPointer);
+ 		outw(CUStart, ioaddr + SCBCmd);
+ 		reset_mii(dev);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

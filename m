@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUDWPKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264839AbUDWPMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264835AbUDWPKo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 11:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbUDWPKo
+	id S264839AbUDWPMM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 11:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264837AbUDWPKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 11:10:44 -0400
-Received: from amsfep18-int.chello.nl ([213.46.243.13]:61502 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264835AbUDWPKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 11:10:37 -0400
-Date: Fri, 23 Apr 2004 17:10:35 +0200
-Message-Id: <200404231510.i3NFAZwk022628@callisto.of.borg>
+	Fri, 23 Apr 2004 11:10:55 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:19258 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264838AbUDWPKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 11:10:38 -0400
+Date: Fri, 23 Apr 2004 17:10:36 +0200
+Message-Id: <200404231510.i3NFAak5022634@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Jeff Garzik <jgarzik@pobox.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 152] M68k TLB fixes
+Subject: [PATCH 153] Amiga A2065 Ethernet debug
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k TLB fixes from Roman Zippel:
-  - Check current->active_mm for currently active mm
-  - Set correct context to flush the right ATC entry
-This is especially important for kswapd to correctly flush unmapped entries (it
-caused random segfaults during large compiles)
+Amiga A2065 Ethernet: Add missing variable in debug code
 
---- linux-2.4.25/include/asm-m68k/motorola_pgalloc.h	2003-12-23 11:31:10.000000000 +0100
-+++ linux-m68k-2.4.25/include/asm-m68k/motorola_pgalloc.h	2004-04-06 10:53:50.000000000 +0200
-@@ -231,20 +231,24 @@
+--- linux-2.4.26/drivers/net/a2065.c	13 Jun 2003 21:43:18 -0000	1.3.2.3
++++ linux-m68k-2.4.26/drivers/net/a2065.c	16 Apr 2004 11:37:36 -0000
+@@ -284,6 +284,7 @@
+ 	struct sk_buff *skb = 0;	/* XXX shut up gcc warnings */
  
- static inline void flush_tlb_mm(struct mm_struct *mm)
- {
--	if (mm == current->mm)
-+	if (mm == current->active_mm)
- 		__flush_tlb();
- }
- 
- static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
- {
--	if (vma->vm_mm == current->mm)
-+	if (vma->vm_mm == current->active_mm) {
-+		mm_segment_t old_fs = get_fs();
-+		set_fs(USER_DS);
- 		__flush_tlb_one(addr);
-+		set_fs(old_fs);
-+	}
- }
- 
- static inline void flush_tlb_range(struct mm_struct *mm,
- 				   unsigned long start, unsigned long end)
- {
--	if (mm == current->mm)
-+	if (mm == current->active_mm)
- 		__flush_tlb();
- }
- 
+ #ifdef TEST_HITS
++	int i;
+ 	printk ("[");
+ 	for (i = 0; i < RX_RING_SIZE; i++) {
+ 		if (i == lp->rx_new)
 
 Gr{oetje,eeting}s,
 

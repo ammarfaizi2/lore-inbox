@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316833AbSFFGjk>; Thu, 6 Jun 2002 02:39:40 -0400
+	id <S316838AbSFFG4Q>; Thu, 6 Jun 2002 02:56:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316824AbSFFGjj>; Thu, 6 Jun 2002 02:39:39 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:42404 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316833AbSFFGjj>; Thu, 6 Jun 2002 02:39:39 -0400
-Date: Thu, 6 Jun 2002 08:09:05 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre10-ac2
-In-Reply-To: <20020605151741.GD6438@conectiva.com.br>
-Message-ID: <Pine.LNX.4.44.0206060808360.26634-100000@netfinity.realnet.co.sz>
+	id <S316840AbSFFG4P>; Thu, 6 Jun 2002 02:56:15 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:13843 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id <S316838AbSFFG4O>;
+	Thu, 6 Jun 2002 02:56:14 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15615.1785.296064.827700@koli.tasking.nl>
+Date: Thu, 6 Jun 2002 08:53:45 +0200
+From: Kees Bakker <rnews@altium.nl>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ov511 compilation failure 2.5.18 - struct urb has no next
+In-Reply-To: <20020606063728.GA7200@kroah.com>
+X-Mailer: VM 7.03 under Emacs 20.7.2
+Reply-To: kees.bakker@altium.nl (Kees Bakker)
+Organisation: ALTIUM Software B.V.
+X-Bill: Go away
+X-Attribution: kb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002, Arnaldo Carvalho de Melo wrote:
+>>>>> "Greg" == Greg KH <greg@kroah.com> writes:
 
-> Em Wed, Jun 05, 2002 at 02:04:48PM -0400, Alan Cox escreveu:
-> > The speakup code would benefit from a chunk of kernel janitoring I think.
-> 
-> me downloading... I have to have something to do on the taxy on my way to the
-> office... 8)
+Greg> On Mon, Jun 03, 2002 at 02:41:21PM +0200, Kees Bakker wrote:
+>> Since 2.5.18 I'm getting compilation errors in ov511.c.
+>> ov511.c: In function `ov51x_init_isoc':
+>> ov511.c:3978: structure has no member named `next'
+>> ov511.c:3980: structure has no member named `next'
+>> 
+>> Struct member 'next' has been removed from struct urb.
+>> 
+>> Can I simply remove these lines that setup this 'ring'?
 
-Thats either a damn long drive, or one helluva fast laptop ;)
+Greg> Sure, but odds are the driver will not work :)
 
+Indeed it doesn't work :)
+
+Greg> See the linux-usb-devel archives for instructions on how to convert this
+Greg> kind of driver if you're interested in doing so.
+
+Thanks for the pointer.
 -- 
-http://function.linuxpower.ca
-		
-
+**************************************
+Kees Bakker
+Senior Software Designer
+Altium - Think it, Design it, Build it
+Phone  : +31 33 455 8584
+Fax    : +31 33 455 5503
+E-Mail : Kees.Bakker@altium.nl
+URL    : http://www.altium.com
+**************************************
+Wait a moment... wait a moment... wait a moment...

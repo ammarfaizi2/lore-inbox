@@ -1,57 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVAAAIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVAAAB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbVAAAIE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 19:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVAAAIE
+	id S262164AbVAAAB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 19:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVAAAB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 19:08:04 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:54672 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S262166AbVAAAH5
+	Fri, 31 Dec 2004 19:01:56 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:57261 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S262164AbVAAABw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 19:07:57 -0500
+	Fri, 31 Dec 2004 19:01:52 -0500
 From: Gene Heskett <gene.heskett@verizon.net>
 Reply-To: gene.heskett@verizon.net
 Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: Re: the umount() saga for regular linux desktop users
-Date: Fri, 31 Dec 2004 19:07:55 -0500
+Subject: Re: [KJ] Re: [PATCH] esp: Make driver SMP-correct
+Date: Fri, 31 Dec 2004 19:01:50 -0500
 User-Agent: KMail/1.7
-Cc: Tom Felker <tfelker2@uiuc.edu>, ofeeley@gmail.com,
-       William <wh@designed4u.net>
-References: <200412311741.02864.wh@designed4u.net> <200412311322.14359.gene.heskett@verizon.net> <200412311548.11614.tfelker2@uiuc.edu>
-In-Reply-To: <200412311548.11614.tfelker2@uiuc.edu>
+Cc: Jim Nelson <james4765@cwazy.co.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       kernel-janitors@lists.osdl.org
+References: <20041231014403.3309.58245.96163@localhost.localdomain> <20041231170139.B10216@flint.arm.linux.org.uk> <41D5CFCA.7000300@cwazy.co.uk>
+In-Reply-To: <41D5CFCA.7000300@cwazy.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412311907.55626.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.52.185] at Fri, 31 Dec 2004 18:07:56 -0600
+Message-Id: <200412311901.50638.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.52.185] at Fri, 31 Dec 2004 18:01:51 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 December 2004 16:48, Tom Felker wrote:
->On Friday 31 December 2004 12:22 pm, Gene Heskett wrote:
->> There are some times when the usual 5 second flush schedule should
->> be tossed out the window, and the data written immediately.  A
->> quickly unpluggable usb memory dongle is a prime candidate to bite
->> the user precisely where it hurts.  Floppies also fit this same
->> scenario, I don't know at the times I've written an image with dd,
->> got up out of my chair and went to the machine and slapped the
->> eject button to discover to my horror, that when my hand came away
->> from the button with disk in hand, the frigging access led was now
->> on that wasn't when I tapped the button.
+On Friday 31 December 2004 17:16, Jim Nelson wrote:
+>Russell King wrote:
+>> On Fri, Dec 31, 2004 at 10:00:37AM +0000, Russell King wrote:
+>>>On Fri, Dec 31, 2004 at 01:46:11AM -0800, Andrew Morton wrote:
+>>>>James Nelson <james4765@verizon.net> wrote:
+>>>>>This is an attempt to make the esp serial driver SMP-correct. 
+>>>>> It also removes some cruft left over from the serial_write()
+>>>>> conversion.
+>>>>>
+>>>>>>From a quick scan:
+>>>>
+>>>>- startup() does multiple sleeping allocations and request_irq()
+>>>> under spin_lock_irqsave().  Maybe fixed by this:
+>>>
+>>>However, can you guarantee that two threads won't enter startup()
+>>> at the same time?  (that's what ASYNC_INITIALIZED is protecting
+>>> the function against, and the corresponding shutdown() as well.)
+>>>
+>>>It's probably better to port ESP to the serial_core structure
+>>> where this type of thing is already taken care of.
+>>
+>> For the record, Verizon appear to have adopted silly policies.
+>>
+>>>>From now on, I will be removing the CC: line containing any
+>>> verizon
+>>
+>> email address until further notice, or just plain ignoring mails
+>> containing such addresses.  Why?  To prevent the inevitable bounce
+>> caused by their misconfigured systems.  None of the servers I have
+>> access to on several different ISPs can connect to Verizon's
+>> incoming mail server.
+>>
+>> See:
+>> 
+>> http://www.broadbandreports.com/forum/remark,12116645~mode=flat~da
+>>ys=9999
+>>
+>> particularly the last post by techie68, who claims to be a Verizon
+>> tech support person.
+>>
+>> I encourage James Nelson to find another provider without silly
+>> policies in the mean time.
 >
->For that you should add "sync" as an option when mounting the
-> filesystem, in which case writes won't return until the data has
-> actually been written.  man mount doesn't mention that being
-> implemented for FAT, though - is that accurate, and if so,
-> shouldn't it be?
+>Another mail provider has been found.  Bloody Verizon.
+>
+This strikes me as being some damn petty politics on verizons part.  
+I'm a customer because its the only game in town with affordable 
+broadband, by at least 30 dollars a month.  So I'm stuck with it, or 
+a friggin dialup that is also about 30 a month more expensive.
 
-Don't know about vfat, which is how I mount a floppy, but I just put 
-that in the options list in /etc/fstab & will test it the next time I 
-need to sneakernet something small around here.  Many thanks for what 
-might be a valuable bit of info!
+And it seems that everytime I use the "reply all" button on this list, 
+I'll get at least 2 bounces because somebody elses server has 
+blacklisted verizon for running an open relay 2 years ago, & never 
+got around to lifting the ban when verizon rebuilt the systems last 
+spring.
+
+One should be carefull as that shoe can fit many feet. The CC: line of 
+this message:
+
+Jim Nelson <james4765@cwazy.co.uk>, Russell King 
+<rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>, 
+kernel-janitors@lists.osdl.org
+
+I'm curious as to who I will get a bounce from.
+
+>Documentation/serial/driver mentions a reference implementation -
+> serial_amba.c. Couldn't find it in the 2.6.10 kernel sources - was
+> it removed, and what would be a good refernce implementation in the
+> current sources?
+>
+>Jim
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
 Cheers, Gene

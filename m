@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266377AbSKOPxa>; Fri, 15 Nov 2002 10:53:30 -0500
+	id <S266384AbSKOP4g>; Fri, 15 Nov 2002 10:56:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266369AbSKOPxa>; Fri, 15 Nov 2002 10:53:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40199 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266359AbSKOPx3>;
-	Fri, 15 Nov 2002 10:53:29 -0500
-Message-ID: <3DD51A13.5070405@pobox.com>
-Date: Fri, 15 Nov 2002 11:00:19 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S266386AbSKOP4f>; Fri, 15 Nov 2002 10:56:35 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:39563
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S266384AbSKOP4f>; Fri, 15 Nov 2002 10:56:35 -0500
+Date: Fri, 15 Nov 2002 11:01:05 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Bill Davidsen <davidsen@tmr.com>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Andreas Steinmetz <ast@domdv.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: make distclean and make dep??
+In-Reply-To: <20021115145312.GA1320@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0211151059370.1073-100000@xanadu.home>
 MIME-Version: 1.0
-To: Khoa Huynh <khoa@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-References: <OF17E41902.5E012443-ON85256C72.00253F4E@pok.ibm.com>
-In-Reply-To: <OF17E41902.5E012443-ON85256C72.00253F4E@pok.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Khoa Huynh wrote:
+On Fri, 15 Nov 2002, Sam Ravnborg wrote:
 
-> Also if you have already used this kernel Bugzilla database,
-> you might have noticed that many components are currently
-> owned by Martin or myself.  As Martin pointed out in his
-> announcement, this is not because we are "egomaniacs", but
-> rather because the rightful owners (or those who know enough
-> about these components and want to volunteer to work bugs)
-> have not been registered yet.  Martin and I will try our best
-> to turn over these components to their rightful "owners"
-> as soon as we can.  We are still learning the "ropes" on
-> how to do this effectively, so it will take some time
-> (not too long we hope).  Thanks.
+> On Thu, Nov 14, 2002 at 07:31:24PM -0500, Bill Davidsen wrote:
+> > > No need for that, when make clean deletes enough.
+> > 
+> > Unless you want to make a distribution, or see that a distribution made
+> > from your patched kernel would build.
+> Then let me repeat again:
+> distclean and mrproper is combined today. They do exactly the same.
+
+In this case distclean should return in the target help text then.
 
 
-
-IMO it would probably be better for you two if all bugs without "real" 
-owners had bugs assigned to notaperson@bugzilla.kernel.org, or something 
-like that.  That will not only ease useless emails sent to you and 
-Martin and other admins, but also make it easier for kernel hackers to 
-figure out which bugs are _really_ unassigned and need owners.
-
-	Jeff
-
-
+Nicolas
 

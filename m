@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLNXRN>; Thu, 14 Dec 2000 18:17:13 -0500
+	id <S129257AbQLNXVX>; Thu, 14 Dec 2000 18:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129773AbQLNXRD>; Thu, 14 Dec 2000 18:17:03 -0500
-Received: from host156.207-175-42.redhat.com ([207.175.42.156]:60678 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129260AbQLNXQ6>; Thu, 14 Dec 2000 18:16:58 -0500
-Date: Thu, 14 Dec 2000 17:46:24 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Clayton Weaver <cgweav@eskimo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-Message-ID: <20001214174624.K760@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <Pine.SUN.3.96.1001214042948.15033A-100000@eskimo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SUN.3.96.1001214042948.15033A-100000@eskimo.com>; from cgweav@eskimo.com on Thu, Dec 14, 2000 at 04:42:03AM -0800
+	id <S129773AbQLNXVN>; Thu, 14 Dec 2000 18:21:13 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:20722 "EHLO
+	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S129257AbQLNXVI>; Thu, 14 Dec 2000 18:21:08 -0500
+Date: Thu, 14 Dec 2000 17:50:35 -0500 (EST)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: <ionut@cs.columbia.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
+In-Reply-To: <Pine.LNX.4.30.0012141619330.1107-100000@viper.haque.net>
+Message-ID: <Pine.LNX.4.30.0012141746380.1220-100000@viper.haque.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2000 at 04:42:03AM -0800, Clayton Weaver wrote:
-> There has a been a thread on the teTeX mailing list the last few days
-> about a (RedHat, but probably more general than just their rpms)
-> gcc-2.9.6 w/glibc-2.2.x bug. At -O2, it can miscompile 
-> 
-> unsigned varname; /* "unsigned int varname;" is ok */
-> 
-> (no problem at -O or no optimization at all, and doesn't happen if teTeX
-> is compiled with kgcc).
+I do the following....
 
-That one is fixed already for some time, it was a bug in loop unrolling
-(that patch is still pending review for the mainline CVS though).
+sudo modprobe iptable_nat
 
-	Jakub
+Module                  Size  Used by
+iptable_nat            17440   0 (unused)
+ip_conntrack           19808   1 [iptable_nat]
+ip_tables              12320   3 [iptable_nat]
+
+
+Oops start flying by when I access via NFS.
+
+If you need the actual Oops messages we're gonna have to get someone
+who can setup a serial console.
+
+On Thu, 14 Dec 2000, Mohammad A. Haque wrote:
+
+> Just quick feedback.
+>
+> Test 1:
+> 	Netfilter compiled into kernel. Netfilter configuration options
+> 	as modules. Modules loaded. Using NFS, I got Oops (in fact I've
+> 	never seen an Oops output infinitely before. Maybe it would have
+> 	stopped if I waited.)
+>
+> Test 2:
+> 	Netfilter compiled into kernel. Netfilter configuration options
+> 	as modules. Modules _NOT_ loaded. Can use NFS just fine. Did a
+> 	couple of 100 MB transfers w/o problems.
+>
+>
+> I'll continue narrowing it down.
+
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

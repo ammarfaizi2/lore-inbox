@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291660AbSBNOAM>; Thu, 14 Feb 2002 09:00:12 -0500
+	id <S291661AbSBNOCc>; Thu, 14 Feb 2002 09:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291666AbSBNN75>; Thu, 14 Feb 2002 08:59:57 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:51466 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S291660AbSBNN7t>; Thu, 14 Feb 2002 08:59:49 -0500
-Date: Thu, 14 Feb 2002 14:01:36 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Gerd Knorr <kraxel@bytesex.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <akpm@zip.com.au>, Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>,
-        Benjamin LaHaise <bcrl@redhat.com>, Dave Jones <davej@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-In-Reply-To: <20020214141028.M7940@athlon.random>
-Message-ID: <Pine.LNX.4.21.0202141335430.1033-100000@localhost.localdomain>
+	id <S291664AbSBNOCX>; Thu, 14 Feb 2002 09:02:23 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:51412 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S291661AbSBNOCL>; Thu, 14 Feb 2002 09:02:11 -0500
+Date: Thu, 14 Feb 2002 14:58:32 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] compile fixes
+In-Reply-To: <3C6A2F86.E5C322D4@zip.com.au>
+Message-ID: <Pine.NEB.4.44.0202141452240.9063-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Feb 2002, Andrea Arcangeli wrote:
-> On Thu, Feb 14, 2002 at 12:10:37PM +0100, Gerd Knorr wrote:
-> > 
-> > I've recently changed the code to make it *not* call unmap_kiobuf/vfree
-> > from irq context.  Instead bttv 0.8.x doesn't allow you to close the
-> > device with DMA xfers in flight.  If you try this the release() fops
-> > handler will block until the transfer is done, then unmap_kiobuf from
-> > process context, then return.
-> 
-> perfect, that's the right fix for 2.4 (waiting DMA to complete at
-> ->release looks also much saner). unmap_kiobuf wasn't supposed to be run
-> from irq handlers. Everything dealing with userspace mappings cannot run
-> from irq handlers, tlb flushes, VM, swapping etc...  everything must run
-> from normal kernel context. If you obey this rule, my previous email to
-> this thread will still apply. I wasn't aware of bttv running
-> unmap_kiobuf from irq.
+On Wed, 13 Feb 2002, Andrew Morton wrote:
 
-It's good that Gerd has made his change, but we don't know who else
-might have been doing similar.  unmap_kiobuf does not involve unmapping
-virtual address space: it used to be safe run from irq handlers, now not.
+> This patch should fix all the remaining .text.exit problems
+> which have resulted from recent binutils changes.   For all
+> files which are accessible to an x86 build.
+>...
+> --- linux-2.4.18-pre9/drivers/sound/cs4232.c	Sun Sep 30 12:26:08 2001
+> +++ linux-akpm/drivers/sound/cs4232.c	Tue Feb 12 23:47:28 2002
+> @@ -277,7 +277,7 @@ void __init attach_cs4232(struct address
+>  	}
+>  }
+>
+> -void __exit unload_cs4232(struct address_info *hw_config)
+> +void unload_cs4232(struct address_info *hw_config)
+>  {
+>  	int base = hw_config->io_base, irq = hw_config->irq;
+>  	int dma1 = hw_config->dma, dma2 = hw_config->dma2;
+>...
 
-We don't have to make a change for 2.4.18, but we really should add some
-kind of safety check there in 2.4.soon: either of the "it's a BUG()"
-kind I first suggested (which may embarrass us by firing too often),
-or of the "we can handle that" kind which I last suggested.
+unload_cs4232 is __exit
+the only non-__exit caller of unload_cs4232 is cs4232_isapnp_remove
+the only caller of cs4232_isapnp_remove (cleanup_cs4232) is __exit
 
-I don't disagree with Andrew's and your count-LRU approach,
-but it does have slight drawbacks, as you noted.
+Am I right to assume that the following alternative patch is correct, too?
 
-> As said this should be a matter only for 2.5, now that Gerd recalls
-> unmap_kiobuf from normal kernel context.
+--- drivers/sound/cs4232.c.old	Wed Feb  6 15:23:55 2002
++++ drivers/sound/cs4232.c	Wed Feb  6 17:48:35 2002
+@@ -460,7 +460,7 @@
+ 	return 0;
+ }
 
-That's just a hope: you may be right, we simply don't know.
+-int cs4232_isapnp_remove(struct pci_dev *dev, const struct isapnp_device_id *id)
++int __exit cs4232_isapnp_remove(struct pci_dev *dev, const struct isapnp_device_id *id)
+ {
+ 	struct address_info *cfg = (struct address_info*)pci_get_drvdata(dev);
+ 	if (cfg) unload_cs4232(cfg);
 
-Hugh
+
+cu
+Adrian
+
 

@@ -1,86 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265378AbTAEWYK>; Sun, 5 Jan 2003 17:24:10 -0500
+	id <S265305AbTAEWUc>; Sun, 5 Jan 2003 17:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265385AbTAEWYK>; Sun, 5 Jan 2003 17:24:10 -0500
-Received: from server0027.freedom2surf.net ([194.106.33.36]:5824 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S265378AbTAEWYJ>; Sun, 5 Jan 2003 17:24:09 -0500
-Date: Sun, 5 Jan 2003 22:34:59 +0000
-From: Ian Molton <spyro@f2s.com>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
-Message-Id: <20030105223459.2811226c.spyro@f2s.com>
-In-Reply-To: <ava7qv$g9o$1@forge.intermeta.de>
-References: <20030102013736.GA2708@gnuppy.monkey.org>
-	<E18UYSe-0004v1-00@fencepost.gnu.org>
-	<20030103212631.GD24896@work.bitmover.com>
-	<200301031627.52561.dpaun@rogers.com>
-	<ava7qv$g9o$1@forge.intermeta.de>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S265306AbTAEWUc>; Sun, 5 Jan 2003 17:20:32 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:22161 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S265305AbTAEWUb>; Sun, 5 Jan 2003 17:20:31 -0500
+Subject: Re: Honest does not pay here ...
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, lm@bitmover.com,
+       andrew@indranet.co.nz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, paul@clubi.ie
+In-Reply-To: <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041805731.1052.4.camel@aurora.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 05 Jan 2003 17:28:52 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Jan 2003 21:24:47 +0000 (UTC)
-"Henning P. Schmiedehausen" <hps@intermeta.de> wrote:
+On Sun, 2003-01-05 at 15:29, Andre Hedrick wrote:
+> Now that you have clearly stated you are revoking usage of your work
+> except for GPL-ONLY.
+> 
+> Please list the files and functions you claim, under this decision.
+> If you are the sole copyright holder of a file it is clean and clear.
+> If you are not then you have a problem to settle with the joint owners.
+> I will ignore your claim on shared copyrights until you have a settlement,
+> if all persons holding copyright ownership agree with you then ...
+> 
+> How soon will there be a patch-war for everyone to stake a claim, and
+> screw the pooch ?
+> 
+> Cheers,
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group
 
-> Without Microsoft, there wouldn't be 2,4 GHz 32/64 bit microcomputers
-> with 512 megabytes of main memory, 120 gigabytes of hard disk space
-> and 1600x1200 pixels 32 bit resolution
+I am ardent supporter of the GPL.  I do have some problems with what
+some people are doing (particularly Nvidia, namely because I believe if
+I pay for hardware, I pay for the right to use it and to have the specs
+on how to use it... i.e. they don't release programming info).  However,
+Linus has allowed for binary only modules.
 
-> Face it. Microsoft Software is, what made the breakthrough to really
-> put a powerful machine in every home and allow the 2-5% of the owner
-> base which are Linux users to get really cheap commodity hardware.
+All said and done, while I wish that all modules were GPLed, where Andre
+and others do eventually release their code as GPL after development is
+paid for... I can't fault them.  More power to them for doing
+sustainable development (Because people won't help cover development
+costs without this kind of model) and in 18 months or so (From driver
+creation) more power to us because they give it away under the GPL.
 
-<rant>
+Now, if it is clear they are making derivitive works, this may be a
+problem.  Since I have little idea about if they are, I will leave this
+to those that do.
 
-BULLSHIT. it may have happened that way, but if M$ didnt do it it would
-STILL have happened.
+Thank you for what you do do Andre, thank you to all who do things in a
+decent way, whether that is GPL from the beginning (Those who can) or
+those who delay the GPL until they can afford to do it.
 
-I was using 1600x1200 desktops on my Acorn RISC PC about a year, perhaps
-2 years, before that sort of resolution was available on the majority of
-PCs.
+Trever
+--
+"Life is a comedy for those who think and a tragedy for those who feel."
+-- Unknown
 
-Before that I was using an ARM 2 and 3 based A410 which literally blew
-away all desktops available at the time (286, 386) in terms of
-performance.
-
-Even today, My A410 can play a game of DOOM at nearly 486 speeds, in
-truecolour!
-
-This hardware had a british designed processor (ARM) and no INTEL or
-such chips in sight. Windows never ran on it.
-
-Yet my 15 year old A410/1 remains one of the most useful machines in my
-house today, alongside an AthlonXP1800+ which, 15 years later, *STILL*
-doesnt have a DTP solution thats as easy to use as Ovation Pro or
-Impression Publisher were on the A410.
-
-Only a week ago I used the A410 to draw a PCB layout for an audio
-amplifier, using software which was supplied IN THE MACHINES ROM, along
-with the OS.
-
-I shall use the A410 to print the layout at 1200dpi onto transparent
-film, too.
-
-Not bad for free software on a 15 year old machine
-
-Oh, and the same 15 year old machine can manage a (doublescanned)
-1600x600 screenmode too, using dual ported RAM, at negligible speed
-penalty.
-
-So dont give me this crap that only M$ could provide the sub 500ukp PC
-with bells and whitles.
-
-All M$ have done is force us all to use turbocharged versions of a
-jumped up washinmachine control microprocessor, and repeatedly upgrade
-it to keep up.
-
-No thanks.
-
-</rant>

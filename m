@@ -1,96 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSHTJQ6>; Tue, 20 Aug 2002 05:16:58 -0400
+	id <S316728AbSHTJWb>; Tue, 20 Aug 2002 05:22:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316728AbSHTJQ5>; Tue, 20 Aug 2002 05:16:57 -0400
-Received: from 212.68.254.82.brutele.be ([212.68.254.82]:44302 "EHLO debian")
-	by vger.kernel.org with ESMTP id <S316695AbSHTJQ4>;
-	Tue, 20 Aug 2002 05:16:56 -0400
-Date: Tue, 20 Aug 2002 11:21:01 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: linux-kernel@vger.kernel.org
-Cc: Jan Hudec <bulb@cimice.maxinet.cz>
-Subject: Re: compil error with a LC_ALL="fr_BE@euro" !!! why ?
-Message-ID: <20020820092101.GA19395@debian>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Jan Hudec <bulb@cimice.maxinet.cz>
-References: <20020820081343.GB18679@debian> <20020820090521.GA6981@vagabond>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="0F1p//8PRICkK4MW"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020820090521.GA6981@vagabond>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: GNU/Linux
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+	id <S316750AbSHTJWb>; Tue, 20 Aug 2002 05:22:31 -0400
+Received: from miranda.axis.se ([193.13.178.2]:22408 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S316728AbSHTJWa>;
+	Tue, 20 Aug 2002 05:22:30 -0400
+From: johan.adolfsson@axis.com
+Message-ID: <01a301c2482c$51a00e40$b9b270d5@homeip.net>
+Reply-To: <johan.adolfsson@axis.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Johan Adolfsson" <johan.adolfsson@axis.com>
+Subject: [RFC] Improved add_timer_randomness for __CRIS__ (instead of rdtsc())
+Date: Tue, 20 Aug 2002 11:31:10 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The cris architecture don't have any tsc, but it has a couple of
+timer registers that can be used to get better than jiffie resolution.
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+I set the time to a 40 us resolution counter with a slight
+"jump" since lower 8 bit only counts from 0 to 249,
+the patch does not take wrapping of the register into account either
+to save some cycles, is that a problem or a good thing?
 
-the compiler is gcc-3.2, don't forget this information.
+The num is xor:d with the value from 2 timer registers,
+which in turn contains different fields breifly described below.
 
-here my error, see my attachment
+Does the patch below look sane?
 
-On Tue, Aug 20, 2002 at 11:05:21AM +0200, Jan Hudec wrote:
-> On Tue, Aug 20, 2002 at 10:13:43AM +0200, Stephane Wirtel wrote:
-> > when i compile the kernel with a LC_ALL="fr_BE@euro", i have many errors.
-> > 
-> > and when i use a LC_ALL="en_US", i don't have any problem.
-> 
-> Please include the error messages you get.
-> 
-> -------------------------------------------------------------------------------
-> 						 Jan 'Bulb' Hudec <bulb@ucw.cz>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+/Johan Adolfsson
 
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-Web : www.linux-mons.be	 "Linux Is Not UniX !!!"
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: attachment; filename=compile_error_LC_ALL_FRENCH
-Content-Transfer-Encoding: 8bit
+--- random.c    7 Dec 2001 16:53:17 -0000       1.10
++++ random.c    20 Aug 2002 09:10:04 -0000
+@@ -746,6 +746,15 @@ static void add_timer_randomness(struct
+        __u32 high;
+        rdtsc(time, high);
+        num ^= high;
++#elif defined (__CRIS__)
++       /* R_TIMER0_DATA, 8 bit, 40 us resolution, counting down from 250 */
++       /* R_TIMER_DATA, 4*8 bit, timer1, timer0, 38.4kHz, 7.3728MHz */
++       /* R_PRESCALE_STATUS, upper 16 bit: 320ns resolution,
++          lower 16 bit: 40 ns resolution, ~10 bits used,
++          counting down from 1000 */
++       time = jiffies << 8;
++       time |= (TIMER0_DIV - *R_TIMER0_DATA);
++       num ^= *R_PRESCALE_STATUS ^ *R_TIMER_DATA;
+ #else
+        time = jiffies;
+ #endif
 
-make[1]: Entre dans le répertoire `/root/linux-2.4.20-pre4/kernel'
-make all_targets
-make[2]: Entre dans le répertoire `/root/linux-2.4.20-pre4/kernel'
-gcc-3.2 -D__KERNEL__ -I/root/linux-2.4.20-pre4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon    -nostdinc  -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c -o sched.o sched.c
-Dans le fichier inclus à partir de /root/linux-2.4.20-pre4/include/linux/wait.h:13,
-          à partir de /root/linux-2.4.20-pre4/include/linux/fs.h:12,
-          à partir de /root/linux-2.4.20-pre4/include/linux/capability.h:17,
-          à partir de /root/linux-2.4.20-pre4/include/linux/binfmts.h:5,
-          à partir de /root/linux-2.4.20-pre4/include/linux/sched.h:9,
-          à partir de /root/linux-2.4.20-pre4/include/linux/mm.h:4,
-          à partir de sched.c:23:
-/root/linux-2.4.20-pre4/include/linux/kernel.h:10:20: stdarg.h: Aucun fichier ou répertoire de ce type
-Dans le fichier inclus à partir de /root/linux-2.4.20-pre4/include/linux/wait.h:13,
-          à partir de /root/linux-2.4.20-pre4/include/linux/fs.h:12,
-          à partir de /root/linux-2.4.20-pre4/include/linux/capability.h:17,
-          à partir de /root/linux-2.4.20-pre4/include/linux/binfmts.h:5,
-          à partir de /root/linux-2.4.20-pre4/include/linux/sched.h:9,
-          à partir de /root/linux-2.4.20-pre4/include/linux/mm.h:4,
-          à partir de sched.c:23:
-/root/linux-2.4.20-pre4/include/linux/kernel.h:74: erreur d'analyse syntaxique avant « va_list »
-/root/linux-2.4.20-pre4/include/linux/kernel.h:74: AVERTISSEMENT: déclaration de fonction n'est pas un prototype
-/root/linux-2.4.20-pre4/include/linux/kernel.h:77: erreur d'analyse syntaxique avant « va_list »
-/root/linux-2.4.20-pre4/include/linux/kernel.h:77: AVERTISSEMENT: déclaration de fonction n'est pas un prototype
-/root/linux-2.4.20-pre4/include/linux/kernel.h:81: erreur d'analyse syntaxique avant « va_list »
-/root/linux-2.4.20-pre4/include/linux/kernel.h:81: AVERTISSEMENT: déclaration de fonction n'est pas un prototype
-make[2]: *** [sched.o] Erreur 1
-make[2]: Quitte le répertoire `/root/linux-2.4.20-pre4/kernel'
-make[1]: *** [first_rule] Erreur 2
-make[1]: Quitte le répertoire `/root/linux-2.4.20-pre4/kernel'
-make: *** [_dir_kernel] Erreur 2
-bash-2.05a# 
 
---0F1p//8PRICkK4MW--

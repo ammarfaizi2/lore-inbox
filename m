@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAEXGz>; Fri, 5 Jan 2001 18:06:55 -0500
+	id <S129383AbRAEXXA>; Fri, 5 Jan 2001 18:23:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAEXGf>; Fri, 5 Jan 2001 18:06:35 -0500
-Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:34253 "HELO
-	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S129324AbRAEXGb>; Fri, 5 Jan 2001 18:06:31 -0500
-Message-ID: <FEEBE78C8360D411ACFD00D0B747797101128D68@xsj02.sjs.agilent.com>
-From: yiding_wang@agilent.com
+	id <S129777AbRAEXWv>; Fri, 5 Jan 2001 18:22:51 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:33961 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129383AbRAEXWh>;
+	Fri, 5 Jan 2001 18:22:37 -0500
+Date: Sat, 6 Jan 2001 00:22:32 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200101052322.AAA01515@harpo.it.uu.se>
 To: linux-kernel@vger.kernel.org
-Subject: InfiniBand Project
-Date: Fri, 5 Jan 2001 16:06:24 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: 2.4.0 memory sizing broken on old x86 machines
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone started IB support project for Linux yet?  Particularly I am
-interested in OS support and verbs layer from Linux side.  I am involved in
-an IB product on HCA and TCA side.  Current solution will be emulating scsi
-but eventually all IB component is required.  I noticed that kernel 2.4.0
-only has IB class defined.
+Memory sizing for old machines whose BIOSen don't speak E820
+got broken in 2.4.0-test13-pre4:
 
-Many thanks!
+--- v2.4.0-test12/linux/arch/i386/kernel/setup.c	Mon Dec 11 17:59:43 2000
++++ linux/arch/i386/kernel/setup.c	Thu Dec 21 14:01:19 2000
+@@ -518,7 +518,7 @@
+ 
+ 		e820.nr_map = 0;
+ 		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
+-		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
++		add_memory_region(HIGH_MEMORY, (mem_size << 10) - HIGH_MEMORY, E820_RAM);
+   	}
+ 	printk("BIOS-provided physical RAM map:\n");
+ 	print_memory_map(who);
 
-Eddie
+(This snipped is in setup_memory_region() where legacy (e801 or 88)
+memory size info is converted to e820-style.)
+
+BIOS call 0x88 returns extended (above 1M) memory size not total, so
+the subtraction "- HIGH_MEMORY" is wrong. The effect is that the
+kernel believes the machine to have 1MB less RAM than it actually has
+-- not fun on an old 486 with limited RAM to start with :-(
+
+I think this patch should be backed out pronto.
+
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

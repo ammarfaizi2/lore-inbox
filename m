@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263956AbTLEHu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 02:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTLEHu0
+	id S262327AbTLEIPg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 03:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLEIPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 02:50:26 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:52749 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S263956AbTLEHuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 02:50:18 -0500
-Message-ID: <3FD03CD9.8020103@nishanet.com>
-Date: Fri, 05 Dec 2003 03:07:53 -0500
-From: Bob <recbo@nishanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The x Bit Problem
-References: <16333.14692.61778.304155@pc7.dolda2000.com>	 <3FCD47C4.50500@ninja.dynup.net> <3FCE39B8.20307@namesys.com>	 <16334.15412.686909.927196@laputa.namesys.com> <1070580817.8344.140.camel@arabia.home.lan> <3FD00086.90607@ninja.dynup.net> <3FD01679.3040007@mrs.umn.edu>
-In-Reply-To: <3FD01679.3040007@mrs.umn.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 5 Dec 2003 03:15:35 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:58501 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S262327AbTLEIPe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 03:15:34 -0500
+Date: Fri, 5 Dec 2003 16:14:51 +0800
+From: Hugang <hugang@soulinfo.com>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11-wli-1
+Message-Id: <20031205161451.790ae1ea.hugang@soulinfo.com>
+In-Reply-To: <20031204200120.GL19856@holomorphy.com>
+References: <20031204200120.GL19856@holomorphy.com>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.6claws57 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Miner wrote:
+On Thu, 4 Dec 2003 12:01:20 -0800
+William Lee Irwin III <wli@holomorphy.com> wrote:
 
-> An interesting thing I discovered is that Windows simply ignores the 
-> 'x' bit (I should say the Windows equivalent of the 'x' bit, called 
-> "traverse folder / execute file"), but there is a policy setting that 
-> overrides this attribute.
->
-> I know users get tripped up on this a lot in Unix, like when they 
-> don't understand why the webserver can't read their public_html 
-> directory.  It might be a good option for Linux.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-Windows doesn't just ignore it. When I move
-files from win to linux all the x bits are turned
-on so txt and bz2 and jpg files are marked
-executable. That's annoying and a security
-risk.
+> Successfully tested on a Thinkpad T21. Any feedback regarding
+> performance would be very helpful. Desktop users should notice top(1)
+> is faster, kernel hackers that kernel compiles are faster, and highmem
+> users should see much less per-process lowmem overhead.
 
--Bob
+I got this in ppc.
+fs/built-in.o: In function `proc_task_readdir':
+fs/built-in.o(.text+0x2ff44): undefined reference to `__cmpdi2'
+fs/built-in.o(.text+0x2ff44): relocation truncated to fit: R_PPC_REL24 __cmpdi2
+fs/built-in.o(.text+0x2ff6c): undefined reference to `__cmpdi2'
+fs/built-in.o(.text+0x2ff6c): relocation truncated to fit: R_PPC_REL24 __cmpdi2
+make: *** [.tmp_vmlinux1] Error 1
 
+apply the patch should fix it.
+
+Index: fs/proc/base.c
+===================================================================
+--- fs/proc/base.c	(revision 3)
++++ fs/proc/base.c	(working copy)
+@@ -1673,12 +1673,13 @@
+ 	struct inode *inode = dentry->d_inode;
+ 	int retval = -ENOENT;
+ 	ino_t ino;
++	unsigned long pos = filp->f_pos;  /* avoiding "long long" filp->f_pos */
+ 
+ 	if (!pid_alive(proc_task(inode)))
+ 		goto out;
+ 	retval = 0;
+ 
+-	switch (filp->f_pos) {
++	switch (pos) {
+ 	case 0:
+ 		ino = inode->i_ino;
+ 		if (filldir(dirent, ".", 1, filp->f_pos, ino, DT_DIR) < 0)
+
+
+-- 
+Hu Gang / Steve
+Email         : hugang@soulinfo.com, steve@soulinfo.com
+GPG FinePrint : 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
+MSN#          : huganglinux@hotmail.com [9:00AM - 5:30PM +8:00]
+RLU#          : 204016 [1999] (Register Linux User)

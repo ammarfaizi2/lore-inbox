@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbUJ3NA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbUJ3NIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbUJ3NA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 09:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUJ3NAO
+	id S261151AbUJ3NIs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 09:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUJ3NIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 09:00:14 -0400
-Received: from cantor.suse.de ([195.135.220.2]:63959 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261160AbUJ3NAF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 09:00:05 -0400
-Date: Sat, 30 Oct 2004 14:56:04 +0200
-From: Andi Kleen <ak@suse.de>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: Suresh Siddha <suresh.b.siddha@intel.com>, ak@suse.de, akpm@osdl.org,
+	Sat, 30 Oct 2004 09:08:48 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.71]:60858 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261151AbUJ3NIq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 09:08:46 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Arjan van de Ven <arjan@infradead.org>, adaplas@pol.net
+Subject: Re: [Linux-fbdev-devel] Re: 2.6.10-rc1-mm2: intelfb/AGP unknown symbols
+Date: Sat, 30 Oct 2004 21:08:32 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-fbdev-devel@lists.sourceforge.net, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       Sylvain Meyer <sylvain.meyer@worldonline.fr>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Patch] x86-64: fix sibling map again!
-Message-ID: <20041030125604.GF14735@wotan.suse.de>
-References: <20041029170215.A26372@unix-os.sc.intel.com> <200410291735.32175.jamesclv@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20041029014930.21ed5b9a.akpm@osdl.org> <200410301921.34961.adaplas@hotpop.com> <1099136087.3883.0.camel@laptop.fenrus.org>
+In-Reply-To: <1099136087.3883.0.camel@laptop.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200410291735.32175.jamesclv@us.ibm.com>
+Message-Id: <200410302108.32872.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 05:35:32PM -0700, James Cleverdon wrote:
-> Hey Suresh,
-> 
-> Can you tell me why Intel considers cpuid to be The One True
-> Way(TM) to get sibling info?  Especially on x86-64, which
-> doesn't have the same level of APIC weirdness that i386 does.
-> 
-> (I won't even mention the fact that someone messed up on the
-> MSR the BIOS can use to set bits 7:5 in the cpuid ID value.
-> It should allow the BIOS to set bits 7:3.)
+On Saturday 30 October 2004 19:34, Arjan van de Ven wrote:
+> > What's wrong with exporting the symbols back again?
+>
+> if they are the right api to use; nothing. If they aren't (and what you
+> describe somehow suggests they aren't) it sounds better to make the
+> frontend usable for the intelfb driver instead...
+>
 
-I have no great opinion on either ways, but I suppose
-it is best to do the same thing as i386 and apply Suresh's patch.
+I think the functions are the right API to use for clients within the
+kernel.  The frontend is directed more for userspace clients. 
 
-James, any strong objections? 
+The old interface was to do an inter_module_get/put, but this is to
+be deprecated. And all it does is to provide all the backend functions
+to the requestor.
 
--Andi
+Either  a new interface is provided by agpgart, otherwise, not just intelfb
+and i810fb will be affected, but also DRM (which currently uses
+inter_module_get/put("drm_agp")).
+
+If I remember correctly, the DRI people also have a new patch that removes
+inter_module_get/put and they did it by calling the backend functions directly.
+
+Tony
+
 

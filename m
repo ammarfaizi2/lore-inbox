@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288248AbSAMWs7>; Sun, 13 Jan 2002 17:48:59 -0500
+	id <S288256AbSAMWxJ>; Sun, 13 Jan 2002 17:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288255AbSAMWsk>; Sun, 13 Jan 2002 17:48:40 -0500
-Received: from dsl081-053-223.sfo1.dsl.speakeasy.net ([64.81.53.223]:52609
-	"EHLO starship.berlin") by vger.kernel.org with ESMTP
-	id <S288248AbSAMWsh>; Sun, 13 Jan 2002 17:48:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, rml@tech9.net (Robert Love)
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Sun, 13 Jan 2002 23:50:21 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), landley@trommello.org (Rob Landley),
-        yodaiken@fsmlabs.com, nigel@nrg.org, akpm@zip.com.au (Andrew Morton),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZeX-0003ii-00@the-village.bc.nu>
-In-Reply-To: <E16PZeX-0003ii-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16PtSM-0000RF-00@starship.berlin>
+	id <S288258AbSAMWxA>; Sun, 13 Jan 2002 17:53:00 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:32599 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S288256AbSAMWwt>; Sun, 13 Jan 2002 17:52:49 -0500
+Date: Mon, 14 Jan 2002 00:52:44 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18pre3-ac1
+Message-ID: <20020113225244.GC51648@niksula.cs.hut.fi>
+In-Reply-To: <200201132144.g0DLikH27385@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201132144.g0DLikH27385@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 13, 2002 02:41 am, Alan Cox wrote:
-> [somebody wrote]
-> > For a solution to latency concerns, I'd much prefer to lay a framework
-> > down that provides a proper solution and then work on fine tuning the
-> > kernel to get the desired latency out of it.
+On Sun, Jan 13, 2002 at 04:44:46PM -0500, you [Alan Cox] claimed:
+> People keep bugging me about the -ac tree stuff so this is whats in my
+> current internal diff with the ll patch and the ide changes excluded.
+
+Any big reason why you aren't including those two? I'm pretty sure a lot of
+people will eventual bug Marcelo (and you) about merging ide to 2.4
+proper (or -ac)... :)
+
+> Linux 2.4.18pre3-ac1
 > 
-> As the low latency patch proves, the framework has always been there, the
-> ll patches do the rest
+> o	rmap-11b VM					(Rik van Riel,
+> 							 William Irwin etc)
 
-For that matter, the -preempt patch proves that the framework has always - 
-i.e., since genesis of SMP - been there for a preemptible kernel.
+So I gather you find this better than AA vm, even the -aa version?
 
---
-Daniel
+> o	Fix O_NDELAY close mishandling on the following	(me)
+> 	sound cards: cmpci, cs46xx, es1370, es1371,
+> 	esssolo1, sonicvibes
 
+With 17rc1, es1370 went once or twice to a state where it kept accepting
+data _very_ slowly and seemingly nothing came out of speakers. Actually I'm
+not sure if it actually ate any data, echo > /dev/dsp blocked, but some
+audio apps _seemed_ to make some progress.
+
+rmmod es1370; insmod es1370 succeeded, but didn't help - I had to reboot.
+
+2.4.10ac10 (which is what I ran before 17rc1) never showed this. I wan't
+able to reproduce it on purpose.
+
+I guess this is not the fix for that?
+
+
+-- v --
+
+v@iki.fi

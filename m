@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313087AbSDLHKg>; Fri, 12 Apr 2002 03:10:36 -0400
+	id <S312381AbSDLHHe>; Fri, 12 Apr 2002 03:07:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313313AbSDLHKf>; Fri, 12 Apr 2002 03:10:35 -0400
-Received: from mons.uio.no ([129.240.130.14]:22450 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S313087AbSDLHKe>;
-	Fri, 12 Apr 2002 03:10:34 -0400
-To: Daniel Forrest <forrest@lmcg.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lockd hanging
-In-Reply-To: <200204112333.SAA22343@radium.lmcg.wisc.edu>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 12 Apr 2002 09:10:24 +0200
-Message-ID: <shsk7rd8k9r.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S313087AbSDLHHd>; Fri, 12 Apr 2002 03:07:33 -0400
+Received: from spielberg.vip.uk.com ([194.176.218.9]:40138 "EHLO
+	spielberg.vip.uk.com") by vger.kernel.org with ESMTP
+	id <S312381AbSDLHHc>; Fri, 12 Apr 2002 03:07:32 -0400
+From: "Rowan Ingvar Wilson" <rowan.ingvar.wilson@0800dial.com>
+To: "'Timur Tabi'" <timur-linux@tabi.org>,
+        "'Linux Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: I want to help with 2.5
+Date: Fri, 12 Apr 2002 08:07:33 +0100
+Message-ID: <002501c1e1f0$b8c47d10$c82d3c3e@m3v0u8>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <3CB599A2.3010908@tabi.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Daniel Forrest <forrest@lmcg.wisc.edu> writes:
+I would also like to help with development of the 2.5 kernel, we could
+work on it together?
 
-     > This is my first post to this list, I'll try to be brief.
-     > Kernel version 2.4.18.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Timur Tabi
+Sent: 11 April 2002 15:12
+To: Linux Mailing List
+Subject: I want to help with 2.5
 
-     > Problem: under heavy load (i.e. >32 client machines
-     > locking/unlocking the same NFS mounted file repeatedly) lockd
-     > hangs (sometimes hanging the local file system with it) and the
-     > server must be rebooted.
+Hi,
 
-     > I have discovered a basic flaw in the lockd code and have
-     > patched it to work correctly.  Is there an individual who is
-     > "responsible" for the lockd code whom I can correspond with to
-     > discuss the flaws I have found, the solutions I have devised,
-     > and how to get this patch into general circulation.
+I would like to make a meaningful contribution to the 2.5 kernel, so I'm
 
-There is no single maintainer of the lockd code. Neil Brown and I tend
-to share responsibility for pushing these patches to Linus & Marcelo.
+wondering if anyone out there would like my help.  I would prefer to 
+work on a component where I could do the majority of the work, rather 
+than just help out with something massive.  Is there a particular piece 
+of hardware that needs a device driver that no one is working on?  Is 
+there some kernel enhancement that no one has gotten around too but 
+would be a good addition?  Please post or email your suggestion!
+Thanks!
 
-FYI: You will find a number of people who would be interested in
-discussing this on the NFS mail list NFS@lists.sourceforge.net
-(although a lot of us are subscribed to linux kernel too). Please just
-trot out your patches on either of these lists, and show us what
-you've found 8-)
 
-Cheers,
-  Trond
+--
+Timur Tabi
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

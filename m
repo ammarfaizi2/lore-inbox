@@ -1,824 +1,1940 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbUKXOGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbUKXODr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbUKXOGf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 09:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUKXOGS
+	id S262684AbUKXODr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 09:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUKXOCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 09:06:18 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:45463 "HELO
+	Wed, 24 Nov 2004 09:02:41 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:28055 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262705AbUKXNbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:31:48 -0500
-Subject: Suspend 2 merge: 41/51: Ranges (extents).
+	id S262700AbUKXN3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:29:01 -0500
+Subject: Suspend 2 merge: 21/51: Refrigerator upgrade.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1101299472.5805.362.camel@desktop.cunninghams>
+Message-Id: <1101296026.5805.275.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 00:01:23 +1100
+Date: Wed, 24 Nov 2004 23:58:29 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the heart of our metadata storage.
+Here's the suspend2 version of the process refrigerator. We do things in three steps:
 
-The comments at the top of range.c say it all. Ranges are used to store
-the which pages are in which pageset. The swapwriter uses them to store
-which swap addresses are allocated and what block numbers on the swap
-devices those addresses map to (we can't swapon at resume time to find
-out).
+1. Freeze userspace threads (p->mm != NULL) that don't have
+PF_SYNCTHREAD. This should stop new I/O being submitted.
+2. Let data get synced to disk and run our own sys_sync just in case no
+one else was. PF_SYNCTHREAD is given to processes when they begin a
+sys_sync (or sibling) and removed when they exit the call, so no sync
+operations were hung under step 1. After this we set the DISABLE_SYNCING
+flag to stop further syncs.
+3. Since kernel threads that don't have PF_NOFREEZE.
 
-diff -ruN 831-range-old/kernel/power/range.c 831-range-new/kernel/power/range.c
---- 831-range-old/kernel/power/range.c	1970-01-01 10:00:00.000000000 +1000
-+++ 831-range-new/kernel/power/range.c	2004-11-04 16:27:41.000000000 +1100
-@@ -0,0 +1,784 @@
-+/* Suspend2 routines for manipulating ranges.
+Included in this patch is a new try_to_freeze() macro Andrew M suggested
+a while back. The refrigerator declarations are put in sched.h to save
+extra includes of suspend.h.
+
+Changes to keep swsusp working are included.
+
+Note that you can also thaw just the kernel threads; this allows syncing
+while eating memory.
+
+diff -ruN 582-refrigerator-old/arch/arm/kernel/signal.c 582-refrigerator-new/arch/arm/kernel/signal.c
+--- 582-refrigerator-old/arch/arm/kernel/signal.c	2004-11-24 09:52:51.000000000 +1100
++++ 582-refrigerator-new/arch/arm/kernel/signal.c	2004-11-24 17:56:06.836085952 +1100
+@@ -12,7 +12,6 @@
+ #include <linux/signal.h>
+ #include <linux/ptrace.h>
+ #include <linux/personality.h>
+-#include <linux/suspend.h>
+ 
+ #include <asm/cacheflush.h>
+ #include <asm/ucontext.h>
+@@ -689,10 +688,8 @@
+ 	if (!user_mode(regs))
+ 		return 0;
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(0))
+ 		goto no_signal;
+-	}
+ 
+ 	if (current->ptrace & PT_SINGLESTEP)
+ 		ptrace_cancel_bpt(current);
+diff -ruN 582-refrigerator-old/arch/i386/kernel/io_apic.c 582-refrigerator-new/arch/i386/kernel/io_apic.c
+--- 582-refrigerator-old/arch/i386/kernel/io_apic.c	2004-11-24 18:03:13.053291088 +1100
++++ 582-refrigerator-new/arch/i386/kernel/io_apic.c	2004-11-24 17:56:06.839085496 +1100
+@@ -575,6 +575,7 @@
+ 	for ( ; ; ) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		time_remaining = schedule_timeout(time_remaining);
++		try_to_freeze(PF_FREEZE);
+ 		if (time_after(jiffies,
+ 				prev_balance_time+balanced_irq_interval)) {
+ 			do_irq_balance();
+diff -ruN 582-refrigerator-old/arch/i386/kernel/signal.c 582-refrigerator-new/arch/i386/kernel/signal.c
+--- 582-refrigerator-old/arch/i386/kernel/signal.c	2004-11-24 18:03:13.109282576 +1100
++++ 582-refrigerator-new/arch/i386/kernel/signal.c	2004-11-24 17:56:06.840085344 +1100
+@@ -18,7 +18,6 @@
+ #include <linux/unistd.h>
+ #include <linux/stddef.h>
+ #include <linux/personality.h>
+-#include <linux/suspend.h>
+ #include <linux/ptrace.h>
+ #include <linux/elf.h>
+ #include <asm/processor.h>
+@@ -596,10 +595,8 @@
+ 		return 1;
+ #endif
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(PF_FREEZE) && !signal_pending(current))
+ 		goto no_signal;
+-	}
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+diff -ruN 582-refrigerator-old/arch/mips/kernel/irixsig.c 582-refrigerator-new/arch/mips/kernel/irixsig.c
+--- 582-refrigerator-old/arch/mips/kernel/irixsig.c	2004-11-03 21:54:45.000000000 +1100
++++ 582-refrigerator-new/arch/mips/kernel/irixsig.c	2004-11-24 17:56:06.855083064 +1100
+@@ -13,7 +13,6 @@
+ #include <linux/smp_lock.h>
+ #include <linux/time.h>
+ #include <linux/ptrace.h>
+-#include <linux/suspend.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/uaccess.h>
+@@ -182,10 +181,8 @@
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(0))
+ 		goto no_signal;
+-	}
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+diff -ruN 582-refrigerator-old/arch/mips/kernel/signal32.c 582-refrigerator-new/arch/mips/kernel/signal32.c
+--- 582-refrigerator-old/arch/mips/kernel/signal32.c	2004-11-24 09:52:53.000000000 +1100
++++ 582-refrigerator-new/arch/mips/kernel/signal32.c	2004-11-24 17:56:30.046557424 +1100
+@@ -18,7 +18,6 @@
+ #include <linux/wait.h>
+ #include <linux/ptrace.h>
+ #include <linux/compat.h>
+-#include <linux/suspend.h>
+ #include <linux/bitops.h>
+ 
+ #include <asm/asm.h>
+@@ -700,10 +699,8 @@
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(0))
+ 		goto no_signal;
+-	}
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+diff -ruN 582-refrigerator-old/arch/mips/kernel/signal.c 582-refrigerator-new/arch/mips/kernel/signal.c
+--- 582-refrigerator-old/arch/mips/kernel/signal.c	2004-11-24 09:52:53.000000000 +1100
++++ 582-refrigerator-new/arch/mips/kernel/signal.c	2004-11-24 17:56:06.893077288 +1100
+@@ -18,7 +18,6 @@
+ #include <linux/errno.h>
+ #include <linux/wait.h>
+ #include <linux/ptrace.h>
+-#include <linux/suspend.h>
+ #include <linux/unistd.h>
+ #include <linux/bitops.h>
+ 
+@@ -551,10 +550,8 @@
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(0))
+ 		goto no_signal;
+-	}
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+diff -ruN 582-refrigerator-old/arch/sh/kernel/signal.c 582-refrigerator-new/arch/sh/kernel/signal.c
+--- 582-refrigerator-old/arch/sh/kernel/signal.c	2004-11-24 09:52:54.000000000 +1100
++++ 582-refrigerator-new/arch/sh/kernel/signal.c	2004-11-24 17:56:06.899076376 +1100
+@@ -24,7 +24,6 @@
+ #include <linux/tty.h>
+ #include <linux/personality.h>
+ #include <linux/binfmts.h>
+-#include <linux/suspend.h>
+ 
+ #include <asm/ucontext.h>
+ #include <asm/uaccess.h>
+@@ -579,10 +578,8 @@
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(0))
+ 		goto no_signal;
+-	}
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+diff -ruN 582-refrigerator-old/arch/sh64/kernel/signal.c 582-refrigerator-new/arch/sh64/kernel/signal.c
+--- 582-refrigerator-old/arch/sh64/kernel/signal.c	2004-11-03 21:53:44.000000000 +1100
++++ 582-refrigerator-new/arch/sh64/kernel/signal.c	2004-11-24 17:56:06.914074096 +1100
+@@ -701,10 +701,8 @@
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(0))
+ 		goto no_signal;
+-		}
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+diff -ruN 582-refrigerator-old/arch/x86_64/kernel/signal.c 582-refrigerator-new/arch/x86_64/kernel/signal.c
+--- 582-refrigerator-old/arch/x86_64/kernel/signal.c	2004-11-03 21:54:16.000000000 +1100
++++ 582-refrigerator-new/arch/x86_64/kernel/signal.c	2004-11-24 17:56:06.939070296 +1100
+@@ -24,7 +24,6 @@
+ #include <linux/stddef.h>
+ #include <linux/personality.h>
+ #include <linux/compiler.h>
+-#include <linux/suspend.h>
+ #include <asm/ucontext.h>
+ #include <asm/uaccess.h>
+ #include <asm/i387.h>
+@@ -417,10 +416,8 @@
+ 		return 1;
+ 	} 	
+ 
+-	if (current->flags & PF_FREEZE) {
+-		refrigerator(0);
++	if (try_to_freeze(0))
+ 		goto no_signal;
+-	}
+ 
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+diff -ruN 582-refrigerator-old/drivers/ieee1394/ieee1394_core.c 582-refrigerator-new/drivers/ieee1394/ieee1394_core.c
+--- 582-refrigerator-old/drivers/ieee1394/ieee1394_core.c	2004-11-03 21:52:22.000000000 +1100
++++ 582-refrigerator-new/drivers/ieee1394/ieee1394_core.c	2004-11-24 17:56:06.947069080 +1100
+@@ -32,7 +32,6 @@
+ #include <linux/bitops.h>
+ #include <linux/kdev_t.h>
+ #include <linux/skbuff.h>
+-#include <linux/suspend.h>
+ 
+ #include <asm/byteorder.h>
+ #include <asm/semaphore.h>
+@@ -1030,15 +1029,17 @@
+ 
+ 	daemonize("khpsbpkt");
+ 
+-	while (!down_interruptible(&khpsbpkt_sig)) {
+-		if (khpsbpkt_kill)
++	while (1) {
++		if (down_interruptible(&khpsbpkt_sig)) {
++			if (try_to_freeze(0))
++				continue;
++			printk("khpsbpkt: received unexpected signal?!\n" );
+ 			break;
+-
+-		if (current->flags & PF_FREEZE) {
+-			refrigerator(0);
+-			continue;
+ 		}
+ 
++		if (khpsbpkt_kill)
++			break;
++
+ 		while ((skb = skb_dequeue(&hpsbpkt_queue)) != NULL) {
+ 			packet = (struct hpsb_packet *)skb->data;
+ 
+diff -ruN 582-refrigerator-old/drivers/ieee1394/nodemgr.c 582-refrigerator-new/drivers/ieee1394/nodemgr.c
+--- 582-refrigerator-old/drivers/ieee1394/nodemgr.c	2004-11-24 09:52:58.000000000 +1100
++++ 582-refrigerator-new/drivers/ieee1394/nodemgr.c	2004-11-24 17:57:00.519924768 +1100
+@@ -19,7 +19,6 @@
+ #include <linux/delay.h>
+ #include <linux/pci.h>
+ #include <linux/moduleparam.h>
+-#include <linux/suspend.h>
+ #include <asm/atomic.h>
+ 
+ #include "ieee1394_types.h"
+@@ -1480,10 +1479,8 @@
+ 
+ 		if (down_interruptible(&hi->reset_sem) ||
+ 		    down_interruptible(&nodemgr_serialize)) {
+-			if (current->flags & PF_FREEZE) {
+-				refrigerator(0);
++			if (try_to_freeze(PF_FREEZE))
+ 				continue;
+-			}
+ 			printk("NodeMgr: received unexpected signal?!\n" );
+ 			break;
+ 		}
+@@ -1498,6 +1495,8 @@
+ 		for (i = 0; i < 4 ; i++) {
+ 			set_current_state(TASK_INTERRUPTIBLE);
+ 			if (msleep_interruptible(63)) {
++				if (try_to_freeze(PF_FREEZE))
++					continue;
+ 				up(&nodemgr_serialize);
+ 				goto caught_signal;
+ 			}
+diff -ruN 582-refrigerator-old/drivers/input/serio/serio.c 582-refrigerator-new/drivers/input/serio/serio.c
+--- 582-refrigerator-old/drivers/input/serio/serio.c	2004-11-24 09:52:58.000000000 +1100
++++ 582-refrigerator-new/drivers/input/serio/serio.c	2004-11-24 17:56:06.968065888 +1100
+@@ -34,7 +34,6 @@
+ #include <linux/completion.h>
+ #include <linux/sched.h>
+ #include <linux/smp_lock.h>
+-#include <linux/suspend.h>
+ #include <linux/slab.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+@@ -225,8 +224,7 @@
+ 	do {
+ 		serio_handle_events();
+ 		wait_event_interruptible(serio_wait, !list_empty(&serio_event_list));
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 	} while (!signal_pending(current));
+ 
+ 	printk(KERN_DEBUG "serio: kseriod exiting\n");
+diff -ruN 582-refrigerator-old/drivers/md/md.c 582-refrigerator-new/drivers/md/md.c
+--- 582-refrigerator-old/drivers/md/md.c	2004-11-24 09:52:58.000000000 +1100
++++ 582-refrigerator-new/drivers/md/md.c	2004-11-24 17:56:06.977064520 +1100
+@@ -36,7 +36,6 @@
+ #include <linux/sysctl.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/buffer_head.h> /* for invalidate_bdev */
+-#include <linux/suspend.h>
+ 
+ #include <linux/init.h>
+ 
+@@ -2761,6 +2760,7 @@
+ 	 */
+ 
+ 	daemonize(thread->name, mdname(thread->mddev));
++	current->flags |= PF_NOFREEZE;
+ 
+ 	current->exit_signal = SIGCHLD;
+ 	allow_signal(SIGKILL);
+@@ -2785,8 +2785,6 @@
+ 
+ 		wait_event_interruptible(thread->wqueue,
+ 					 test_bit(THREAD_WAKEUP, &thread->flags));
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
+ 
+ 		clear_bit(THREAD_WAKEUP, &thread->flags);
+ 
+diff -ruN 582-refrigerator-old/drivers/media/video/msp3400.c 582-refrigerator-new/drivers/media/video/msp3400.c
+--- 582-refrigerator-old/drivers/media/video/msp3400.c	2004-11-24 09:52:59.000000000 +1100
++++ 582-refrigerator-new/drivers/media/video/msp3400.c	2004-11-24 17:58:02.541496056 +1100
+@@ -741,6 +741,7 @@
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
++again:
+ 	add_wait_queue(&msp->wq, &wait);
+ 	if (!kthread_should_stop()) {
+ 		if (timeout < 0) {
+@@ -756,9 +757,11 @@
+ #endif
+ 		}
+ 	}
+-	if (current->flags & PF_FREEZE)
+-		refrigerator(PF_FREEZE);
+ 	remove_wait_queue(&msp->wq, &wait);
++
++	if (try_to_freeze(PF_FREEZE))
++		goto again;
++
+ 	return msp->restart;
+ }
+ 
+diff -ruN 582-refrigerator-old/drivers/media/video/tvaudio.c 582-refrigerator-new/drivers/media/video/tvaudio.c
+--- 582-refrigerator-old/drivers/media/video/tvaudio.c	2004-11-24 09:52:59.000000000 +1100
++++ 582-refrigerator-new/drivers/media/video/tvaudio.c	2004-11-24 17:56:06.982063760 +1100
+@@ -285,6 +285,7 @@
+ 			schedule();
+ 		}
+ 		remove_wait_queue(&chip->wq, &wait);
++		try_to_freeze(PF_FREEZE);
+ 		if (chip->done || signal_pending(current))
+ 			break;
+ 		dprintk("%s: thread wakeup\n", i2c_clientname(&chip->c));
+diff -ruN 582-refrigerator-old/drivers/mtd/mtd_blkdevs.c 582-refrigerator-new/drivers/mtd/mtd_blkdevs.c
+--- 582-refrigerator-old/drivers/mtd/mtd_blkdevs.c	2004-11-24 09:52:59.000000000 +1100
++++ 582-refrigerator-new/drivers/mtd/mtd_blkdevs.c	2004-11-24 17:56:06.984063456 +1100
+@@ -113,6 +113,8 @@
+ 			schedule();
+ 			remove_wait_queue(&tr->blkcore_priv->thread_wq, &wait);
+ 
++			try_to_freeze(PF_FREEZE);
++
+ 			spin_lock_irq(rq->queue_lock);
+ 
+ 			continue;
+diff -ruN 582-refrigerator-old/drivers/net/8139too.c 582-refrigerator-new/drivers/net/8139too.c
+--- 582-refrigerator-old/drivers/net/8139too.c	2004-11-24 09:52:59.000000000 +1100
++++ 582-refrigerator-new/drivers/net/8139too.c	2004-11-24 17:56:06.987063000 +1100
+@@ -108,7 +108,6 @@
+ #include <linux/mii.h>
+ #include <linux/completion.h>
+ #include <linux/crc32.h>
+-#include <linux/suspend.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include <asm/irq.h>
+@@ -1624,8 +1623,7 @@
+ 		do {
+ 			timeout = interruptible_sleep_on_timeout (&tp->thr_wait, timeout);
+ 			/* make swsusp happy with our thread */
+-			if (current->flags & PF_FREEZE)
+-				refrigerator(PF_FREEZE);
++			try_to_freeze(PF_FREEZE);
+ 		} while (!signal_pending (current) && (timeout > 0));
+ 
+ 		if (signal_pending (current)) {
+diff -ruN 582-refrigerator-old/drivers/net/irda/sir_kthread.c 582-refrigerator-new/drivers/net/irda/sir_kthread.c
+--- 582-refrigerator-old/drivers/net/irda/sir_kthread.c	2004-11-03 21:55:05.000000000 +1100
++++ 582-refrigerator-new/drivers/net/irda/sir_kthread.c	2004-11-24 17:56:06.988062848 +1100
+@@ -19,7 +19,6 @@
+ #include <linux/smp_lock.h>
+ #include <linux/completion.h>
+ #include <linux/delay.h>
+-#include <linux/suspend.h>
+ 
+ #include <net/irda/irda.h>
+ 
+@@ -113,6 +112,7 @@
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
+ 	daemonize("kIrDAd");
++	current->flags |= PF_NOFREEZE;
+ 
+ 	irda_rq_queue.thread = current;
+ 
+@@ -135,10 +135,6 @@
+ 			__set_task_state(current, TASK_RUNNING);
+ 		remove_wait_queue(&irda_rq_queue.kick, &wait);
+ 
+-		/* make swsusp happy with our thread */
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
+-
+ 		run_irda_queue();
+ 	}
+ 
+diff -ruN 582-refrigerator-old/drivers/net/irda/stir4200.c 582-refrigerator-new/drivers/net/irda/stir4200.c
+--- 582-refrigerator-old/drivers/net/irda/stir4200.c	2004-11-24 09:53:01.000000000 +1100
++++ 582-refrigerator-new/drivers/net/irda/stir4200.c	2004-11-24 17:56:06.990062544 +1100
+@@ -46,7 +46,6 @@
+ #include <linux/time.h>
+ #include <linux/skbuff.h>
+ #include <linux/netdevice.h>
+-#include <linux/suspend.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/usb.h>
+diff -ruN 582-refrigerator-old/drivers/net/wireless/airo.c 582-refrigerator-new/drivers/net/wireless/airo.c
+--- 582-refrigerator-old/drivers/net/wireless/airo.c	2004-11-24 09:53:02.000000000 +1100
++++ 582-refrigerator-new/drivers/net/wireless/airo.c	2004-11-24 17:56:06.998061328 +1100
+@@ -33,7 +33,6 @@
+ #include <linux/string.h>
+ #include <linux/timer.h>
+ #include <linux/interrupt.h>
+-#include <linux/suspend.h>
+ #include <linux/in.h>
+ #include <linux/bitops.h>
+ #include <asm/io.h>
+@@ -2918,8 +2917,7 @@
+ 			flush_signals(current);
+ 
+ 		/* make swsusp happy with our thread */
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 
+ 		if (test_bit(JOB_DIE, &ai->flags))
+ 			break;
+diff -ruN 582-refrigerator-old/drivers/pcmcia/cs.c 582-refrigerator-new/drivers/pcmcia/cs.c
+--- 582-refrigerator-old/drivers/pcmcia/cs.c	2004-11-24 09:53:02.000000000 +1100
++++ 582-refrigerator-new/drivers/pcmcia/cs.c	2004-11-24 17:56:07.020057984 +1100
+@@ -48,7 +48,6 @@
+ #include <linux/pm.h>
+ #include <linux/pci.h>
+ #include <linux/device.h>
+-#include <linux/suspend.h>
+ #include <asm/system.h>
+ #include <asm/irq.h>
+ 
+@@ -718,8 +717,7 @@
+ 		}
+ 
+ 		schedule();
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 
+ 		if (!skt->thread)
+ 			break;
+diff -ruN 582-refrigerator-old/drivers/pcmcia/socket_sysfs.c 582-refrigerator-new/drivers/pcmcia/socket_sysfs.c
+--- 582-refrigerator-old/drivers/pcmcia/socket_sysfs.c	2004-11-03 21:51:32.000000000 +1100
++++ 582-refrigerator-new/drivers/pcmcia/socket_sysfs.c	2004-11-24 17:56:07.035055704 +1100
+@@ -25,7 +25,6 @@
+ #include <linux/pm.h>
+ #include <linux/pci.h>
+ #include <linux/device.h>
+-#include <linux/suspend.h>
+ #include <asm/system.h>
+ #include <asm/irq.h>
+ 
+diff -ruN 582-refrigerator-old/drivers/pnp/pnpbios/core.c 582-refrigerator-new/drivers/pnp/pnpbios/core.c
+--- 582-refrigerator-old/drivers/pnp/pnpbios/core.c	2004-11-24 09:53:03.000000000 +1100
++++ 582-refrigerator-new/drivers/pnp/pnpbios/core.c	2004-11-24 17:58:33.769748640 +1100
+@@ -179,6 +179,10 @@
+ 		 * Poll every 2 seconds
+ 		 */
+ 		msleep_interruptible(2000);
++
++		if(current->flags & PF_FREEZE)
++			refrigerator(PF_FREEZE);
++
+ 		if(signal_pending(current))
+ 			break;
+ 
+diff -ruN 582-refrigerator-old/drivers/scsi/libata-core.c 582-refrigerator-new/drivers/scsi/libata-core.c
+--- 582-refrigerator-old/drivers/scsi/libata-core.c	2004-11-24 18:03:13.232263880 +1100
++++ 582-refrigerator-new/drivers/scsi/libata-core.c	2004-11-24 17:56:07.050053424 +1100
+@@ -35,7 +35,6 @@
+ #include <linux/timer.h>
+ #include <linux/interrupt.h>
+ #include <linux/completion.h>
+-#include <linux/suspend.h>
+ #include <linux/workqueue.h>
+ #include <scsi/scsi.h>
+ #include "scsi.h"
+diff -ruN 582-refrigerator-old/drivers/usb/core/hub.c 582-refrigerator-new/drivers/usb/core/hub.c
+--- 582-refrigerator-old/drivers/usb/core/hub.c	2004-11-24 09:53:05.000000000 +1100
++++ 582-refrigerator-new/drivers/usb/core/hub.c	2004-11-24 17:56:07.053052968 +1100
+@@ -26,7 +26,6 @@
+ #include <linux/ioctl.h>
+ #include <linux/usb.h>
+ #include <linux/usbdevice_fs.h>
+-#include <linux/suspend.h>
+ 
+ #include <asm/semaphore.h>
+ #include <asm/uaccess.h>
+@@ -2713,8 +2712,7 @@
+ 	do {
+ 		hub_events();
+ 		wait_event_interruptible(khubd_wait, !list_empty(&hub_event_list)); 
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 	} while (!signal_pending(current));
+ 
+ 	pr_debug ("%s: khubd exiting\n", usbcore_name);
+diff -ruN 582-refrigerator-old/drivers/w1/w1.c 582-refrigerator-new/drivers/w1/w1.c
+--- 582-refrigerator-old/drivers/w1/w1.c	2004-11-24 09:53:07.000000000 +1100
++++ 582-refrigerator-new/drivers/w1/w1.c	2004-11-24 17:56:07.076049472 +1100
+@@ -32,7 +32,6 @@
+ #include <linux/device.h>
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+-#include <linux/suspend.h>
+ 
+ #include "w1.h"
+ #include "w1_io.h"
+@@ -628,8 +627,7 @@
+ 		timeout = w1_timeout*HZ;
+ 		do {
+ 			timeout = interruptible_sleep_on_timeout(&w1_control_wait, timeout);
+-			if (current->flags & PF_FREEZE)
+-				refrigerator(PF_FREEZE);
++			try_to_freeze(PF_FREEZE);
+ 		} while (!signal_pending(current) && (timeout > 0));
+ 
+ 		if (signal_pending(current))
+@@ -701,8 +699,7 @@
+ 		timeout = w1_timeout*HZ;
+ 		do {
+ 			timeout = interruptible_sleep_on_timeout(&dev->kwait, timeout);
+-			if (current->flags & PF_FREEZE)
+-				refrigerator(PF_FREEZE);
++			try_to_freeze(PF_FREEZE);
+ 		} while (!signal_pending(current) && (timeout > 0));
+ 
+ 		if (signal_pending(current))
+diff -ruN 582-refrigerator-old/fs/afs/kafsasyncd.c 582-refrigerator-new/fs/afs/kafsasyncd.c
+--- 582-refrigerator-old/fs/afs/kafsasyncd.c	2004-11-03 21:55:01.000000000 +1100
++++ 582-refrigerator-new/fs/afs/kafsasyncd.c	2004-11-24 17:56:07.089047496 +1100
+@@ -116,6 +116,8 @@
+ 		remove_wait_queue(&kafsasyncd_sleepq, &myself);
+ 		set_current_state(TASK_RUNNING);
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* discard pending signals */
+ 		afs_discard_my_signals();
+ 
+diff -ruN 582-refrigerator-old/fs/afs/kafstimod.c 582-refrigerator-new/fs/afs/kafstimod.c
+--- 582-refrigerator-old/fs/afs/kafstimod.c	2004-11-03 21:55:05.000000000 +1100
++++ 582-refrigerator-new/fs/afs/kafstimod.c	2004-11-24 17:56:07.092047040 +1100
+@@ -91,6 +91,8 @@
+ 			complete_and_exit(&kafstimod_dead, 0);
+ 		}
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* discard pending signals */
+ 		afs_discard_my_signals();
+ 
+diff -ruN 582-refrigerator-old/fs/buffer.c 582-refrigerator-new/fs/buffer.c
+--- 582-refrigerator-old/fs/buffer.c	2004-11-24 09:53:07.000000000 +1100
++++ 582-refrigerator-new/fs/buffer.c	2004-11-24 17:59:03.766188488 +1100
+@@ -38,6 +38,8 @@
+ #include <linux/bio.h>
+ #include <linux/notifier.h>
+ #include <linux/cpu.h>
++#include <linux/init.h>
++#include <linux/swap.h>
+ #include <linux/bitops.h>
+ 
+ static int fsync_buffers_list(spinlock_t *lock, struct list_head *list);
+@@ -170,6 +172,16 @@
+  */
+ int fsync_super(struct super_block *sb)
+ {
++	int ret;
++
++	/* A safety net. During suspend, we might overwrite
++	 * memory containing filesystem info. We don't then
++	 * want to sync it to disk. */
++	if (unlikely(test_suspend_state(SUSPEND_DISABLE_SYNCING)))
++		return 0;
++	
++	current->flags |= PF_SYNCTHREAD;
++
+ 	sync_inodes_sb(sb, 0);
+ 	DQUOT_SYNC(sb);
+ 	lock_super(sb);
+@@ -181,7 +193,10 @@
+ 	sync_blockdev(sb->s_bdev);
+ 	sync_inodes_sb(sb, 1);
+ 
+-	return sync_blockdev(sb->s_bdev);
++	ret = sync_blockdev(sb->s_bdev);
++
++	current->flags &= ~PF_SYNCTHREAD;
++	return ret;
+ }
+ 
+ /*
+@@ -192,12 +207,22 @@
+ int fsync_bdev(struct block_device *bdev)
+ {
+ 	struct super_block *sb = get_super(bdev);
++	int ret;
++
++	if (unlikely(test_suspend_state(SUSPEND_DISABLE_SYNCING)))
++		return 0;
++
++	current->flags |= PF_SYNCTHREAD;
++
+ 	if (sb) {
+ 		int res = fsync_super(sb);
+ 		drop_super(sb);
++		current->flags &= ~PF_SYNCTHREAD;
+ 		return res;
+ 	}
+-	return sync_blockdev(bdev);
++	ret = sync_blockdev(bdev);
++	current->flags &= ~PF_SYNCTHREAD;
++	return ret;
+ }
+ 
+ /**
+@@ -277,6 +302,14 @@
+  */
+ static void do_sync(unsigned long wait)
+ {
++	/* A safety net. During suspend, we might overwrite
++	 * memory containing filesystem info. We don't then
++	 * want to sync it to disk. */
++	if (unlikely(test_suspend_state(SUSPEND_DISABLE_SYNCING)))
++		return;
++
++	current->flags |= PF_SYNCTHREAD;
++
+ 	wakeup_bdflush(0);
+ 	sync_inodes(0);		/* All mappings, inodes and their blockdevs */
+ 	DQUOT_SYNC(NULL);
+@@ -288,6 +321,8 @@
+ 		printk("Emergency Sync complete\n");
+ 	if (unlikely(laptop_mode))
+ 		laptop_sync_completion();
++
++	current->flags &= ~PF_SYNCTHREAD;
+ }
+ 
+ asmlinkage long sys_sync(void)
+@@ -296,6 +331,8 @@
+ 	return 0;
+ }
+ 
++EXPORT_SYMBOL(sys_sync);
++
+ void emergency_sync(void)
+ {
+ 	pdflush_operation(do_sync, 0);
+@@ -313,6 +350,11 @@
+ 	struct super_block * sb;
+ 	int ret;
+ 
++	if (unlikely(test_suspend_state(SUSPEND_DISABLE_SYNCING)))
++		return 0;
++
++	current->flags |= PF_SYNCTHREAD;
++
+ 	/* sync the inode to buffers */
+ 	write_inode_now(inode, 0);
+ 
+@@ -325,6 +367,8 @@
+ 
+ 	/* .. finally sync the buffers to disk */
+ 	ret = sync_blockdev(sb->s_bdev);
++
++	current->flags &= ~PF_SYNCTHREAD;
+ 	return ret;
+ }
+ 
+@@ -334,6 +378,8 @@
+ 	struct address_space *mapping;
+ 	int ret, err;
+ 
++	current->flags |= PF_SYNCTHREAD;
++
+ 	ret = -EBADF;
+ 	file = fget(fd);
+ 	if (!file)
+@@ -363,6 +409,7 @@
+ out_putf:
+ 	fput(file);
+ out:
++	current->flags &= ~PF_SYNCTHREAD;
+ 	return ret;
+ }
+ 
+@@ -372,6 +419,8 @@
+ 	struct address_space *mapping;
+ 	int ret, err;
+ 
++	current->flags |= PF_SYNCTHREAD;
++
+ 	ret = -EBADF;
+ 	file = fget(fd);
+ 	if (!file)
+@@ -398,6 +447,7 @@
+ out_putf:
+ 	fput(file);
+ out:
++	current->flags &= ~PF_SYNCTHREAD;
+ 	return ret;
+ }
+ 
+@@ -1062,6 +1112,8 @@
+ 	 * async buffer heads in use.
+ 	 */
+ 	free_more_memory();
++	if (suspend_task == current->pid)
++		suspend2_cleanup_finished_io();
+ 	goto try_again;
+ }
+ EXPORT_SYMBOL_GPL(alloc_page_buffers);
+diff -ruN 582-refrigerator-old/fs/jbd/journal.c 582-refrigerator-new/fs/jbd/journal.c
+--- 582-refrigerator-old/fs/jbd/journal.c	2004-11-24 09:53:07.000000000 +1100
++++ 582-refrigerator-new/fs/jbd/journal.c	2004-11-24 17:56:07.115043544 +1100
+@@ -130,6 +130,7 @@
+ 	current_journal = journal;
+ 
+ 	daemonize("kjournald");
++	current->flags |= PF_SYNCTHREAD;
+ 
+ 	/* Set up an interval timer which can be used to trigger a
+            commit wakeup after the commit interval expires */
+diff -ruN 582-refrigerator-old/fs/jffs/intrep.c 582-refrigerator-new/fs/jffs/intrep.c
+--- 582-refrigerator-old/fs/jffs/intrep.c	2004-11-03 21:53:49.000000000 +1100
++++ 582-refrigerator-new/fs/jffs/intrep.c	2004-11-24 17:56:07.127041720 +1100
+@@ -3338,6 +3338,7 @@
+ 	D1(int i = 1);
+ 
+ 	daemonize("jffs_gcd");
++	current->flags |= PF_SYNCTHREAD;
+ 
+ 	c->gc_task = current;
+ 
+@@ -3373,6 +3374,9 @@
+ 			siginfo_t info;
+ 			unsigned long signr = 0;
+ 
++			if (try_to_freeze(PF_FREEZE))
++				continue;
++
+ 			spin_lock_irq(&current->sighand->siglock);
+ 			signr = dequeue_signal(current, &current->blocked, &info);
+ 			spin_unlock_irq(&current->sighand->siglock);
+diff -ruN 582-refrigerator-old/fs/jffs2/background.c 582-refrigerator-new/fs/jffs2/background.c
+--- 582-refrigerator-old/fs/jffs2/background.c	2004-11-03 21:51:10.000000000 +1100
++++ 582-refrigerator-new/fs/jffs2/background.c	2004-11-24 17:56:07.150038224 +1100
+@@ -15,7 +15,6 @@
+ #include <linux/jffs2.h>
+ #include <linux/mtd/mtd.h>
+ #include <linux/completion.h>
+-#include <linux/suspend.h>
+ #include "nodelist.h"
+ 
+ 
+@@ -93,12 +92,8 @@
+ 			schedule();
+ 		}
+ 
+-		if (current->flags & PF_FREEZE) {
+-			refrigerator(0);
+-			/* refrigerator() should recalc sigpending for us
+-			   but doesn't. No matter - allow_signal() will. */
++		if (try_to_freeze(0))
+ 			continue;
+-		}
+ 
+ 		cond_resched();
+ 
+diff -ruN 582-refrigerator-old/fs/jfs/jfs_logmgr.c 582-refrigerator-new/fs/jfs/jfs_logmgr.c
+--- 582-refrigerator-old/fs/jfs/jfs_logmgr.c	2004-11-24 09:53:07.000000000 +1100
++++ 582-refrigerator-new/fs/jfs/jfs_logmgr.c	2004-11-24 17:56:07.168035488 +1100
+@@ -2316,6 +2316,7 @@
+ 	struct lbuf *bp;
+ 
+ 	daemonize("jfsIO");
++	current->flags |= PF_SYNCTHREAD;
+ 
+ 	complete(&jfsIOwait);
+ 
+diff -ruN 582-refrigerator-old/fs/jfs/jfs_txnmgr.c 582-refrigerator-new/fs/jfs/jfs_txnmgr.c
+--- 582-refrigerator-old/fs/jfs/jfs_txnmgr.c	2004-11-24 09:53:07.000000000 +1100
++++ 582-refrigerator-new/fs/jfs/jfs_txnmgr.c	2004-11-24 17:56:07.172034880 +1100
+@@ -47,7 +47,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/smp_lock.h>
+ #include <linux/completion.h>
+-#include <linux/suspend.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include "jfs_incore.h"
+@@ -2727,6 +2726,7 @@
+ 	struct jfs_sb_info *sbi;
+ 
+ 	daemonize("jfsCommit");
++	current->flags |= PF_SYNCTHREAD;
+ 
+ 	complete(&jfsIOwait);
+ 
+diff -ruN 582-refrigerator-old/fs/lockd/clntlock.c 582-refrigerator-new/fs/lockd/clntlock.c
+--- 582-refrigerator-old/fs/lockd/clntlock.c	2004-11-03 21:55:00.000000000 +1100
++++ 582-refrigerator-new/fs/lockd/clntlock.c	2004-11-24 17:56:07.183033208 +1100
+@@ -200,6 +200,7 @@
+ 	struct inode *inode;
+ 
+ 	daemonize("%s-reclaim", host->h_name);
++	current->flags |= PF_SYNCTHREAD;
+ 	allow_signal(SIGKILL);
+ 
+ 	/* This one ensures that our parent doesn't terminate while the
+@@ -222,6 +223,7 @@
+ 
+ 		fl->fl_u.nfs_fl.flags &= ~NFS_LCK_RECLAIM;
+ 		nlmclnt_reclaim(host, fl);
++		try_to_freeze(PF_FREEZE);
+ 		if (signalled())
+ 			break;
+ 		goto restart;
+diff -ruN 582-refrigerator-old/fs/lockd/clntproc.c 582-refrigerator-new/fs/lockd/clntproc.c
+--- 582-refrigerator-old/fs/lockd/clntproc.c	2004-11-03 21:55:04.000000000 +1100
++++ 582-refrigerator-new/fs/lockd/clntproc.c	2004-11-24 17:56:07.185032904 +1100
+@@ -310,6 +310,7 @@
+ 	prepare_to_wait(queue, &wait, TASK_INTERRUPTIBLE);
+ 	if (!signalled ()) {
+ 		schedule_timeout(NLMCLNT_GRACE_WAIT);
++		try_to_freeze(PF_FREEZE);
+ 		if (!signalled ())
+ 			status = 0;
+ 	}
+diff -ruN 582-refrigerator-old/fs/lockd/svc.c 582-refrigerator-new/fs/lockd/svc.c
+--- 582-refrigerator-old/fs/lockd/svc.c	2004-11-03 21:54:14.000000000 +1100
++++ 582-refrigerator-new/fs/lockd/svc.c	2004-11-24 17:56:07.191031992 +1100
+@@ -112,6 +112,7 @@
+ 	up(&lockd_start);
+ 
+ 	daemonize("lockd");
++	current->flags |= PF_SYNCTHREAD;
+ 
+ 	/* Process request with signals blocked, but allow SIGKILL.  */
+ 	allow_signal(SIGKILL);
+@@ -135,6 +136,8 @@
+ 	while ((nlmsvc_users || !signalled()) && nlmsvc_pid == current->pid) {
+ 		long timeout = MAX_SCHEDULE_TIMEOUT;
+ 
++		try_to_freeze(PF_SYNCTHREAD);
++
+ 		if (signalled()) {
+ 			flush_signals(current);
+ 			if (nlmsvc_ops) {
+diff -ruN 582-refrigerator-old/fs/nfsd/nfssvc.c 582-refrigerator-new/fs/nfsd/nfssvc.c
+--- 582-refrigerator-old/fs/nfsd/nfssvc.c	2004-11-24 09:53:08.000000000 +1100
++++ 582-refrigerator-new/fs/nfsd/nfssvc.c	2004-11-24 17:59:23.732153200 +1100
+@@ -180,6 +180,7 @@
+ 	/* Lock module and set up kernel thread */
+ 	lock_kernel();
+ 	daemonize("nfsd");
++	current->flags |= PF_SYNCTHREAD;
+ 
+ 	/* After daemonize() this kernel thread shares current->fs
+ 	 * with the init process. We need to create files with a
+diff -ruN 582-refrigerator-old/fs/reiserfs/journal.c 582-refrigerator-new/fs/reiserfs/journal.c
+--- 582-refrigerator-old/fs/reiserfs/journal.c	2004-11-24 18:03:13.238262968 +1100
++++ 582-refrigerator-new/fs/reiserfs/journal.c	2004-11-24 17:56:07.211028952 +1100
+@@ -50,7 +50,6 @@
+ #include <linux/stat.h>
+ #include <linux/string.h>
+ #include <linux/smp_lock.h>
+-#include <linux/suspend.h>
+ #include <linux/buffer_head.h>
+ #include <linux/workqueue.h>
+ #include <linux/writeback.h>
+diff -ruN 582-refrigerator-old/fs/xfs/linux-2.6/xfs_buf.c 582-refrigerator-new/fs/xfs/linux-2.6/xfs_buf.c
+--- 582-refrigerator-old/fs/xfs/linux-2.6/xfs_buf.c	2004-11-24 18:03:13.239262816 +1100
++++ 582-refrigerator-new/fs/xfs/linux-2.6/xfs_buf.c	2004-11-24 17:56:07.214028496 +1100
+@@ -51,7 +51,6 @@
+ #include <linux/sysctl.h>
+ #include <linux/proc_fs.h>
+ #include <linux/workqueue.h>
+-#include <linux/suspend.h>
+ #include <linux/percpu.h>
+ 
+ #include "xfs_linux.h"
+@@ -1657,7 +1656,7 @@
+ 
+ 	/*  Set up the thread  */
+ 	daemonize("xfsbufd");
+-	current->flags |= PF_MEMALLOC;
++	current->flags |= PF_MEMALLOC | PF_SYNCTHREAD;
+ 
+ 	pagebuf_daemon_task = current;
+ 	pagebuf_daemon_active = 1;
+@@ -1665,9 +1664,7 @@
+ 
+ 	INIT_LIST_HEAD(&tmp);
+ 	do {
+-		/* swsusp */
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		schedule_timeout((xfs_buf_timer_centisecs * HZ) / 100);
+diff -ruN 582-refrigerator-old/fs/xfs/linux-2.6/xfs_super.c 582-refrigerator-new/fs/xfs/linux-2.6/xfs_super.c
+--- 582-refrigerator-old/fs/xfs/linux-2.6/xfs_super.c	2004-11-03 21:55:00.000000000 +1100
++++ 582-refrigerator-new/fs/xfs/linux-2.6/xfs_super.c	2004-11-24 17:56:07.230026064 +1100
+@@ -71,7 +71,6 @@
+ #include <linux/namei.h>
+ #include <linux/init.h>
+ #include <linux/mount.h>
+-#include <linux/suspend.h>
+ #include <linux/writeback.h>
+ 
+ STATIC struct quotactl_ops linvfs_qops;
+@@ -472,6 +471,7 @@
+ 	struct vfs_sync_work	*work, *n;
+ 
+ 	daemonize("xfssyncd");
++	current->flags |= PF_SYNCTHREAD;
+ 
+ 	vfsp->vfs_sync_work.w_vfs = vfsp;
+ 	vfsp->vfs_sync_work.w_syncer = vfs_sync_worker;
+@@ -485,8 +485,7 @@
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		timeleft = schedule_timeout(timeleft);
+ 		/* swsusp */
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 		if (vfsp->vfs_flag & VFS_UMOUNT)
+ 			break;
+ 
+diff -ruN 582-refrigerator-old/include/linux/sched.h 582-refrigerator-new/include/linux/sched.h
+--- 582-refrigerator-old/include/linux/sched.h	2004-11-24 18:03:13.123280448 +1100
++++ 582-refrigerator-new/include/linux/sched.h	2004-11-24 17:59:48.248426160 +1100
+@@ -19,6 +19,7 @@
+ #include <asm/page.h>
+ #include <asm/ptrace.h>
+ #include <asm/mmu.h>
++#include <asm/current.h>
+ 
+ #include <linux/smp.h>
+ #include <linux/sem.h>
+@@ -701,7 +702,7 @@
+ #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
+ #define PF_FLUSHER	0x00002000	/* responsible for disk writeback */
+ 
+-#define PF_FREEZE	0x00004000	/* this task should be frozen for suspend */
++#define PF_FREEZE	0x00004000	/* this task is being frozen for suspend now */
+ #define PF_NOFREEZE	0x00008000	/* this thread should not be frozen */
+ #define PF_FROZEN	0x00010000	/* frozen for system suspend */
+ #define PF_FSTRANS	0x00020000	/* inside a filesystem transaction */
+@@ -710,6 +711,8 @@
+ #define PF_LESS_THROTTLE 0x00100000	/* Throttle me less: I clean memory */
+ #define PF_SYNCWRITE	0x00200000	/* I am doing a sync write */
+ #define PF_BORROWED_MM	0x00400000	/* I am a kthread doing use_mm */
++#define PF_SYNCTHREAD	0x00800000	/* this thread can start activity during the 
++					   early part of freezing processes */
+ 
+ #ifdef CONFIG_SMP
+ extern int set_cpus_allowed(task_t *p, cpumask_t new_mask);
+@@ -720,6 +723,29 @@
+ }
+ #endif
+ 
++/* try_to_freeze
 + *
-+ * (C) 2003-2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * Distributed under GPLv2.
-+ * 
-+ * These encapsulate the manipulation of ranges. I learnt after writing this
-+ * code that ranges are more commonly called extents. They work like this:
-+ *
-+ * A lot of the data that suspend saves involves continguous ranges of memory
-+ * or storage. Let's say that we're storing data on disk in blocks 1-32768 and
-+ * 49152-49848 of a swap partition. Rather than recording 1, 2, 3... in arrays
-+ * pointing to the locations, we simply use:
-+ *
-+ * struct range {
-+ * 	unsigned long min;
-+ * 	unsigned long max;
-+ * 	struct range * next;
-+ * }
-+ *
-+ * We can then store 1-32768 and 49152-49848 in 2 struct ranges, using 24 bytes
-+ * instead of something like 133,860. This is of course inefficient where a range
-+ * covers only one or two values, but the benefits gained by the much larger
-+ * ranges more than outweight these instances.
-+ *
-+ * Whole pages are allocated to store ranges, with unused structs being chained
-+ * together and linked into an unused_ranges list:
-+ *
-+ * struct range * unused_ranges; (just below).
-+ *
-+ * We can fit 341 ranges in a 4096 byte page (rangepage), with 4 bytes left over.
-+ * These four bytes, referred to as the RangePageLink, are used to link the pages
-+ * together. The RangePageLink is a pointer to the next page, or'd with the index
-+ * number of the page.
-+ *
-+ * RangePages are stored in the header of the suspend image. For portability
-+ * between suspend time and resume time, we 'relativise' the contents of each page
-+ * before writing them to disk. That is, each .next and each RangePageLink is
-+ * changed to point not to an absolute location, but to the relative location in
-+ * the list of pages. This makes all the information valid and usable (after it
-+ * has been absolutised again, of course) regardless of where it is reloaded to
-+ * at resume time.
++ * Checks whether we need to enter the refrigerator
++ * and returns 1 if we did so.
 + */
++#ifdef CONFIG_PM
++extern void refrigerator(unsigned long);
 +
-+#include <linux/kernel.h>
-+#include <linux/module.h>
++static inline int try_to_freeze(unsigned long refrigerator_flags)
++{
++	if (unlikely(current->flags & PF_FREEZE)) {
++		refrigerator(refrigerator_flags);
++		return 1;
++	} else
++		return 0;
++}
++#else
++static inline int try_to_freeze(unsigned long refrigerator_flags)
++{
++	return 0;
++}
++#endif
++
+ extern unsigned long long sched_clock(void);
+ 
+ /* sched_exec is called by processes performing an exec */
+@@ -1119,6 +1145,14 @@
+ 
+ #endif
+ 
++#ifdef CONFIG_PM
++extern void refrigerator(unsigned long);
++extern unsigned int suspend_task;
++#else
++#define refrigerator(a)			do { } while(0)
++#define suspend_task (0)
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #endif
+diff -ruN 582-refrigerator-old/kernel/exit.c 582-refrigerator-new/kernel/exit.c
+--- 582-refrigerator-old/kernel/exit.c	2004-11-24 18:03:13.124280296 +1100
++++ 582-refrigerator-new/kernel/exit.c	2004-11-24 17:56:07.236025152 +1100
+@@ -15,6 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/completion.h>
+ #include <linux/personality.h>
 +#include <linux/suspend.h>
-+#include <linux/mm.h>
+ #include <linux/tty.h>
+ #include <linux/namespace.h>
+ #include <linux/key.h>
+@@ -802,6 +803,8 @@
+ 		panic("Attempted to kill init!");
+ 	if (tsk->io_context)
+ 		exit_io_context();
++	if (unlikely(test_suspend_state(SUSPEND_FREEZER_ON)))
++		refrigerator(0);
+ 	tsk->flags |= PF_EXITING;
+ 	del_timer_sync(&tsk->real_timer);
+ 
+diff -ruN 582-refrigerator-old/kernel/fork.c 582-refrigerator-new/kernel/fork.c
+--- 582-refrigerator-old/kernel/fork.c	2004-11-24 18:03:13.126279992 +1100
++++ 582-refrigerator-new/kernel/fork.c	2004-11-24 17:56:07.238024848 +1100
+@@ -39,6 +39,7 @@
+ #include <linux/audit.h>
+ #include <linux/profile.h>
+ #include <linux/rmap.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -1125,6 +1126,10 @@
+ 	int trace = 0;
+ 	long pid = alloc_pidmap();
+ 
 +
-+#include "pageflags.h"
++	if (unlikely(test_suspend_state(SUSPEND_FREEZER_ON)))
++		refrigerator(0);
++
+ 	if (pid < 0)
+ 		return -EAGAIN;
+ 	if (unlikely(current->ptrace)) {
+diff -ruN 582-refrigerator-old/kernel/power/disk.c 582-refrigerator-new/kernel/power/disk.c
+--- 582-refrigerator-old/kernel/power/disk.c	2004-11-24 09:53:12.000000000 +1100
++++ 582-refrigerator-new/kernel/power/disk.c	2004-11-24 17:56:07.253022568 +1100
+@@ -116,7 +116,7 @@
+ 	device_resume();
+ 	platform_finish();
+ 	enable_nonboot_cpus();
+-	thaw_processes();
++	thaw_processes(FREEZER_ALL_THREADS);
+ 	pm_restore_console();
+ }
+ 
+@@ -128,7 +128,7 @@
+ 	pm_prepare_console();
+ 
+ 	sys_sync();
+-	if (freeze_processes()) {
++	if (freeze_processes(1)) {
+ 		error = -EBUSY;
+ 		goto Thaw;
+ 	}
+@@ -152,7 +152,7 @@
+ 	platform_finish();
+  Thaw:
+ 	enable_nonboot_cpus();
+-	thaw_processes();
++	thaw_processes(FREEZER_ALL_THREADS);
+ 	pm_restore_console();
+ 	return error;
+ }
+diff -ruN 582-refrigerator-old/kernel/power/main.c 582-refrigerator-new/kernel/power/main.c
+--- 582-refrigerator-old/kernel/power/main.c	2004-11-24 18:03:13.289255216 +1100
++++ 582-refrigerator-new/kernel/power/main.c	2004-11-24 17:56:07.254022416 +1100
+@@ -55,7 +55,7 @@
+ 
+ 	pm_prepare_console();
+ 
+-	if (freeze_processes()) {
++	if (freeze_processes(1)) {
+ 		error = -EAGAIN;
+ 		goto Thaw;
+ 	}
+@@ -72,7 +72,7 @@
+ 	if (pm_ops->finish)
+ 		pm_ops->finish(state);
+  Thaw:
+-	thaw_processes();
++	thaw_processes(FREEZER_ALL_THREADS);
+ 	pm_restore_console();
+ 	return error;
+ }
+@@ -107,7 +107,7 @@
+ 	device_resume();
+ 	if (pm_ops && pm_ops->finish)
+ 		pm_ops->finish(state);
+-	thaw_processes();
++	thaw_processes(FREEZER_ALL_THREADS);
+ 	pm_restore_console();
+ }
+ 
+diff -ruN 582-refrigerator-old/kernel/power/power.h 582-refrigerator-new/kernel/power/power.h
+--- 582-refrigerator-old/kernel/power/power.h	2004-11-03 21:55:05.000000000 +1100
++++ 582-refrigerator-new/kernel/power/power.h	2004-11-24 17:56:07.264020896 +1100
+@@ -45,8 +45,8 @@
+ 
+ extern struct subsystem power_subsys;
+ 
+-extern int freeze_processes(void);
+-extern void thaw_processes(void);
++extern int freeze_processes(int no_progress);
++extern void thaw_processes(int which_threads);
+ 
+ extern int pm_prepare_console(void);
+ extern void pm_restore_console(void);
+diff -ruN 582-refrigerator-old/kernel/power/process.c 582-refrigerator-new/kernel/power/process.c
+--- 582-refrigerator-old/kernel/power/process.c	2004-11-24 09:53:12.000000000 +1100
++++ 582-refrigerator-new/kernel/power/process.c	2004-11-24 18:03:09.613813968 +1100
+@@ -1,121 +1,521 @@
+ /*
+- * drivers/power/process.c - Functions for starting/stopping processes on 
+- *                           suspend transitions.
++ * kernel/power/process.c
+  *
+- * Originally from swsusp.
++ * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
++ * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
++ * Copyright (C) 2002-2003 Florent Chabaud <fchabaud@free.fr>
++ * Copyright (C) 2002-2004 Nigel Cunningham <ncunningham@linuxmail.org>
++ *
++ * This file is released under the GPLv2.
++ *
++ * Freeze_and_free contains the routines software suspend uses to freeze other
++ * processes during the suspend cycle and to (if necessary) free up memory in
++ * accordance with limitations on the image size.
++ *
++ * Ideally, the image saved to disk would be an atomic copy of the entire 
++ * contents of all RAM and related hardware state. One of the first 
++ * prerequisites for getting our approximation of this is stopping the activity
++ * of other processes. We can't stop all other processes, however, since some 
++ * are needed in doing the I/O to save the image. Freeze_and_free.c contains 
++ * the routines that control suspension and resuming of these processes.
++ * 
++ * Under high I/O load, we need to be careful about the order in which we
++ * freeze processes. If we freeze processes in the wrong order, we could
++ * deadlock others. The freeze_order array this specifies the order in which
++ * critical processes are frozen. All others are suspended after these have
++ * entered the refrigerator.
++ *
++ * Another complicating factor is that freeing memory requires the processes
++ * to not be frozen, but at the end of freeing memory, they need to be frozen
++ * so that we can be sure we actually have eaten enough memory. This is why
++ * freezing and freeing are in the one file. The freezer is not called from
++ * the main logic, but indirectly, via the code for eating memory. The eat
++ * memory logic is iterative, first freezing processes and checking the stats,
++ * then (if necessary) unfreezing them and eating more memory until it looks 
++ * like the criteria are met (at which point processes are frozen & stats
++ * checked again).
+  */
+ 
++#define SUSPEND_FREEZER_C
+ 
+-#undef DEBUG
+-
+-#include <linux/smp_lock.h>
+-#include <linux/interrupt.h>
+-#include <linux/suspend.h>
+ #include <linux/module.h>
++#include <linux/suspend.h>
++#include <asm/tlbflush.h>
+ 
+-/* 
+- * Timeout for stopping processes
 +#include "suspend.h"
 +
-+struct range * unused_ranges = NULL;
-+int nr_unused_ranges = 0;
-+int max_ranges_used = 0;
-+int num_range_pages = 0;
-+static unsigned long ranges_allocated = 0;
-+struct range * first_range_page = NULL, * last_range_page = NULL;
++volatile struct suspend2_core_ops * suspend2_core_ops = NULL;
++unsigned long suspend_action = 0;
++unsigned long suspend_result = 0;
++unsigned long suspend_debug_state = 0;
++unsigned long software_suspend_state = ((1 << SUSPEND_DISABLED) | (1 << SUSPEND_BOOT_TIME) |
++		(1 << SUSPEND_RESUME_NOT_DONE) | (1 << SUSPEND_IGNORE_LOGLEVEL));
++unsigned int suspend_task = 0;
 +
-+/* Add_range_pages
++atomic_t __nosavedata suspend_cpu_counter = { 0 }; 
++
++/* Timeouts when freezing */
++#define FREEZER_TOTAL_TIMEOUT (5 * HZ)
++#define FREEZER_CHECK_TIMEOUT (HZ / 10)
++
++extern void suspend_relinquish_console(void);
++
++/* ------------------------------------------------------------------------ */
++
++/**
++ * refrigerator - idle routine for frozen processes
++ * @flag: unsigned long, non zero if signals to be flushed.
 + *
-+ * Allocates and initialises new pages for storing ranges.
-+ * Returns 1 on failure to get a page.
-+ * Otherwise adds the new pages to the unused_ranges pool and returns 0.
-+ * During resuming, it ensures the page added doesn't collide with memory that
-+ * will be overwritten when copying the original kernel back.
-+ */
-+
-+static int add_range_pages(int number_requested)
++ * A routine for kernel threads which should not do work during suspend
++ * to enter and spin in until the process is finished.
+  */
+-#define TIMEOUT	(6 * HZ)
+ 
++void refrigerator(unsigned long flag)
 +{
-+	int i, j;
-+	struct range * ranges;
-+	void **eaten_memory = NULL, **this;
-+
-+	for (j = 0; j < number_requested; j++) {
-+		if (test_suspend_state(SUSPEND_NOW_RESUMING)) {
-+			struct page * pageaddr;
-+			/* Make sure page doesn't collide when we're resuming */
-+			while ((this = (void **) get_zeroed_page(GFP_ATOMIC))) {
-+				pageaddr = virt_to_page(this);
-+				if (!PageInUse(pageaddr))
-+					break;
-+				*this = eaten_memory;
-+				eaten_memory = this;
-+			}
-+			// Free unwanted memory
-+			while(eaten_memory) {
-+				this = eaten_memory;
-+				eaten_memory = *eaten_memory;
-+				free_page((unsigned long) this);
-+			}
-+		} else
-+			this = (void *) get_grabbed_pages(0);
-+
-+		if (!this)
-+			return 1;
-+
-+		num_range_pages++;
-+		if (!first_range_page)
-+			first_range_page = (struct range *) this;
-+		if (last_range_page)
-+			*RANGEPAGELINK(last_range_page) |= (unsigned long) this;
-+		*RANGEPAGELINK(this) = num_range_pages;
-+		last_range_page = (struct range *) this;
-+		ranges = (struct range *) this;
-+		for (i = 0; i < RANGES_PER_PAGE; i++)
-+			(ranges+i)->next = (ranges+i+1);
-+		(ranges + i - 1)->next = unused_ranges;
-+		unused_ranges = ranges;
-+		nr_unused_ranges += i;
-+	}
-+	return 0;
-+}
-+
-+
-+/* 
-+ * Free ranges.
-+ *
-+ * Frees pages allocated by add_range_pages()
-+ *
-+ * Checks that all ranges allocated have been freed and emits a warning if this
-+ * is not true.
-+ */
-+
-+int free_ranges(void)
-+{
-+	int i;
-+	struct range * this_range_page = first_range_page, 
-+		* next_range_page = NULL;
-+
-+	if (ranges_allocated)
-+		printk(" *** Warning: %ld ranges still allocated when "
-+				"free_ranges() called.\n", ranges_allocated);
-+
-+	for (i = 0; i < num_range_pages; i++) {
-+		next_range_page = (struct range *) 
-+			(((unsigned long)
-+			  (*RANGEPAGELINK(this_range_page))) & PAGE_MASK);
-+		free_pages((unsigned long) this_range_page, 0);
-+		this_range_page = next_range_page;
-+	}
-+
-+	nr_unused_ranges = num_range_pages = ranges_allocated = 0;
-+	unused_ranges = last_range_page = first_range_page = NULL;
-+
-+	return 0;
-+}
-+
-+/* get_range
-+ *
-+ * Returns a free range, having removed it from the unused list and having
-+ * incremented the usage count. May imply allocating a new page and may
-+ * therefore fail, returning NULL instead.
-+ * 
-+ * No locking. This is because we are only called from suspend, which is single
-+ * threaded.
-+ */
-+
-+static struct range * get_range(void)
-+{
-+	struct range * result;
++	unsigned long flags;
++	long save;
 +	
-+	if ((!unused_ranges) && (add_range_pages(1)))
-+		return NULL;
-+
-+	result = unused_ranges;
-+	unused_ranges = unused_ranges->next;
-+	nr_unused_ranges--;
-+	ranges_allocated++;
-+	if (ranges_allocated > max_ranges_used)
-+		max_ranges_used++;
-+	result->minimum = result->maximum = 0;
-+	result->next = NULL;
-+	return result;
-+}
-+
-+/*
-+ * put_range.
-+ *
-+ * Returns a range to the pool of unused pages and decrements the usage count.
-+ *
-+ * Assumes unlinking is done by the caller.
-+ */
-+void put_range(struct range * range)
-+{
-+	if (!range) {
-+		printk("Error! put_range called with NULL range.\n");
++	if (unlikely(current->flags & PF_NOFREEZE)) {
++		current->flags &= ~PF_FREEZE;
++		spin_lock_irqsave(&current->sighand->siglock, flags);
++		recalc_sigpending();
++		spin_unlock_irqrestore(&current->sighand->siglock, flags);
 +		return;
 +	}
-+	range->minimum = range->maximum = 0;
-+	range->next = unused_ranges;
-+	unused_ranges = range;
-+	ranges_allocated--;
-+	nr_unused_ranges++;
-+}
 +
-+/*
-+ * put_range_chain.
-+ *
-+ * Returns a whole chain of ranges to the unused pool.
-+ */
-+void put_range_chain(struct rangechain * chain)
-+{
-+	int count = 0;
-+	struct range * this;
++	/* You need correct to work with real-time processes.
++	   OTOH, this way one process may see (via /proc/) some other
++	   process in stopped state (and thereby discovered we were
++	   suspended. We probably do not care). 
++	 */
++	if ((flag) && (current->flags & PF_FREEZE)) {
 +
-+	if (chain->first) {
-+		this = chain->first;
-+		while (this) {
-+			this->minimum = this->maximum = 0;
-+			this=this->next;
++		suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 0,
++			"\n%s (%d) refrigerated and sigpending recalculated.",
++			current->comm, current->pid);
++		spin_lock_irqsave(&current->sighand->siglock, flags);
++		recalc_sigpending();
++		spin_unlock_irqrestore(&current->sighand->siglock, flags);
++	} else
++		suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 0,
++			"\n%s (%d) refrigerated.",
++			current->comm, current->pid);
++
++	if (test_suspend_state(SUSPEND_FREEZER_ON)) {
++		save = current->state;
++		current->flags |= PF_FROZEN;
++		while (current->flags & PF_FROZEN) {
++			current->state = TASK_STOPPED;
++			schedule();
++			if (flag) {
++				spin_lock_irqsave(
++					&current->sighand->siglock, flags);
++				recalc_sigpending();
++				spin_unlock_irqrestore(
++					&current->sighand->siglock, flags);
++			}
 +		}
-+		chain->last->next = unused_ranges;
-+		unused_ranges = chain->first;
-+		count = chain->allocs - chain->frees;
-+		ranges_allocated -= count;
-+		nr_unused_ranges += count;
++		current->state = save;
++	} else
++		suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 0,
++				"No longer freezing processes. Dropping out.\n");
++	current->flags &= ~PF_FREEZE;
++	spin_lock_irqsave(&current->sighand->siglock, flags);
++	recalc_sigpending();
++	spin_unlock_irqrestore(&current->sighand->siglock, flags);
++}
 +
-+		chain->first = NULL;
-+		chain->last = NULL;
-+		chain->size = 0;
-+		chain->allocs = 0;
-+		chain->frees = 0;
-+		chain->timesusedoptimisation = 0;
-+		chain->lastaccessed = NULL; /* Invalidate optimisation info */
-+		chain->prevtolastaccessed = NULL;
-+		chain->prevtoprev = NULL;
++
++#ifdef CONFIG_SMP
++static void __smp_pause(void * data)
++{
++	atomic_inc(&suspend_cpu_counter);
++	while(test_suspend_state(SUSPEND_FREEZE_SMP)) {
++		cpu_relax();
++		barrier();
++	}
++	local_flush_tlb();
++	atomic_dec(&suspend_cpu_counter);
++}
++
++void smp_pause(void)
++{
++	set_suspend_state(SUSPEND_FREEZE_SMP);
++	smp_call_function(__smp_pause, NULL, 0, 0);
++
++	while (atomic_read(&suspend_cpu_counter) < (num_online_cpus() - 1)) {
++		cpu_relax();
++		barrier();
++	}
++}
+ 
+-static inline int freezeable(struct task_struct * p)
++void smp_continue(void)
+ {
+-	if ((p == current) || 
++	clear_suspend_state(SUSPEND_FREEZE_SMP);
++		
++	while (atomic_read(&suspend_cpu_counter)) {
++		cpu_relax();
++		barrier();
 +	}
 +}
 +
-+/* print_chain.
-+ *
-+ * Displays the contents of a chain.
-+ *
-+ * printmethod:
-+ * 0: integer
-+ * 1: hex
-+ * 2: page number
-+ */
-+void print_chain(int debuglevel, struct rangechain * chain, int printmethod)
-+{
-+	struct range * this = chain->first;
-+	int count = 0, size = 0;
-+	
-+	if ((console_loglevel < debuglevel) || (!this) ||
-+			(!TEST_DEBUG_STATE(SUSPEND_RANGES)))
-+		return;
++extern void __smp_suspend_lowlevel(void * info);
 +
-+	if (!chain->name)
-+		suspend_message(SUSPEND_RANGES, debuglevel, 1, "Chain %p\n", chain);
-+	else
-+		suspend_message(SUSPEND_RANGES, debuglevel, 1, "%s\n", chain->name);
++void smp_suspend(void)
++{
++	set_suspend_state(SUSPEND_FREEZE_SMP);
++	smp_call_function(__smp_suspend_lowlevel, NULL, 0, 0);
++
++	while (atomic_read(&suspend_cpu_counter) < (num_online_cpus() - 1)) {
++		cpu_relax();
++		barrier();
++	}
++}
++#else
++#define smp_pause() do { } while(0)
++#define smp_continue() do { } while(0)
++#define smp_suspend() do { } while(0)
++#endif
++
++/*
++ * to_be_frozen
++ *
++ * Description:	Determine whether a process should be frozen yet.
++ * Parameters:	struct task_struct *	The process to consider.
++ * 		int			Which group of processes to consider.
++ * Returns:	int			0 if don't freeze yet, otherwise do.
++ */
++static int to_be_frozen(struct task_struct * p, int type_being_frozen) {
++
++	if ((p == current) ||
+ 	    (p->flags & PF_NOFREEZE) ||
+ 	    (p->exit_state == EXIT_ZOMBIE) ||
+ 	    (p->exit_state == EXIT_DEAD) ||
+-	    (p->state == TASK_STOPPED) ||
+-	    (p->state == TASK_TRACED))
++	    (p->state == TASK_TRACED) ||
++	    (p->state == TASK_STOPPED))
++		return 0;
++	if ((!(p->mm)) && (type_being_frozen < 3))
++		return 0;
++	if ((p->flags & PF_SYNCTHREAD) && (type_being_frozen == 1))
+ 		return 0;
+ 	return 1;
+ }
+ 
+-/* Refrigerator is place where frozen processes are stored :-). */
+-void refrigerator(unsigned long flag)
++/*
++ * num_to_be_frozen
++ *
++ * Description:	Determine how many processes of our type are still to be
++ * 		frozen. As a side effect, update the progress bar too.
++ * Parameters:	int	Which type we are trying to freeze.
++ * 		int	Whether we are displaying our progress.
++ */
++static int num_to_be_frozen(int type_being_frozen, int no_progress) {
 +	
-+	while (this) {
-+		/*
-+		 * 'This' is printed separately so it is displayed if an oops
-+		 * results.
++	struct task_struct *p, *g;
++	int todo_this_type = 0, total_todo = 0;
++	int total_threads = 0;
++
++	read_lock(&tasklist_lock);
++	do_each_thread(g, p) {
++		if (to_be_frozen(p, type_being_frozen)) {
++			todo_this_type++;
++			total_todo++;
++		} else if (to_be_frozen(p, 3))
++			total_todo++;
++		total_threads++;
++	} while_each_thread(g, p);
++	read_unlock(&tasklist_lock);
++
++	if ((!no_progress) && (suspend2_core_ops)) {
++		suspend2_core_ops->update_status(
++				total_threads - total_todo,
++				total_threads,
++				"%d/%d", 
++				total_threads - total_todo,
++				total_threads);
++	}
++	return todo_this_type;
++}
++
++/*
++ * freeze_threads
++ *
++ * Freeze a set of threads having particular attributes.
++ *
++ * Types:
++ * 1: User threads not syncing.
++ * 2: Remaining user threads.
++ * 3: Kernel threads.
++ */
++extern void show_task(struct task_struct * p);
++
++static int freeze_threads(int type, int no_progress)
+ {
+-	/* Hmm, should we be allowed to suspend when there are realtime
+-	   processes around? */
+-	long save;
+-	save = current->state;
+-	current->state = TASK_UNINTERRUPTIBLE;
+-	pr_debug("%s entered refrigerator\n", current->comm);
+-	printk("=");
+-	current->flags &= ~PF_FREEZE;
++	struct task_struct *p, *g;
++	unsigned long start_time = jiffies;
++	int result = 0, still_to_do;
++
++	suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 1,
++		"\n STARTING TO FREEZE TYPE %d THREADS.\n",
++		type);
+ 
+-	spin_lock_irq(&current->sighand->siglock);
+-	recalc_sigpending(); /* We sent fake signal, clean it up */
+-	spin_unlock_irq(&current->sighand->siglock);
+-
+-	current->flags |= PF_FROZEN;
+-	while (current->flags & PF_FROZEN)
+-		schedule();
+-	pr_debug("%s left refrigerator\n", current->comm);
+-	current->state = save;
+-}
+-
+-/* 0 = success, else # of processes that we failed to stop */
+-int freeze_processes(void)
+-{
+-       int todo;
+-       unsigned long start_time;
+-	struct task_struct *g, *p;
+-	
+-	printk( "Stopping tasks: " );
+-	start_time = jiffies;
+ 	do {
+-		todo = 0;
++		int numsignalled = 0;
++
++		/* 
++		 * Pause the other processors so we can safely
++		 * change threads' flags
 +		 */
-+		switch (printmethod) {
-+			case 0:
-+				suspend_message(SUSPEND_RANGES, debuglevel, 1, "(%p) ",
-+					this);
-+				suspend_message(SUSPEND_RANGES, debuglevel, 1, "%lx-%lx; ",
-+					this->minimum, this->maximum);
-+				break;
-+			case 1:
-+				suspend_message(SUSPEND_RANGES, debuglevel, 1, "(%p)",
-+					this);
-+				suspend_message(SUSPEND_RANGES, debuglevel, 1, "%lu-%lu; ",
-+					this->minimum, this->maximum);
-+				break;
-+			case 2:
-+				suspend_message(SUSPEND_RANGES, debuglevel, 1, "(%p)",
-+					this);
-+				suspend_message(SUSPEND_RANGES, debuglevel, 1, "%p-%p; ",
-+					page_address(mem_map+this->minimum),
-+					page_address(mem_map+this->maximum) +
-+						PAGE_SIZE - 1);
-+				break;
-+		}
-+		size+= this->maximum - this->minimum + 1;
-+		this = this->next;
-+		count++;
-+		if (!(count%4))
-+			suspend_message(SUSPEND_RANGES, debuglevel, 1, "\n");
-+	}
-+	
-+	if ((count%4))
-+		suspend_message(SUSPEND_RANGES, debuglevel, 1, "\n");
++		smp_pause();
 +
-+	suspend_message(SUSPEND_RANGES, debuglevel, 1,"%d entries/%ld allocated. "
-+			"Allocated %d and freed %d. Size %d.",
-+			count, 
-+			ranges_allocated,
-+			chain->allocs,
-+			chain->frees,
-+			size);
-+	if (count != (chain->allocs - chain->frees)) {
-+		chain->debug = 1;
-+		check_shift_keys(1, "Discrepancy in chain.");
-+	}
-+	suspend_message(SUSPEND_RANGES, debuglevel, 1, "\n");
-+}
-+
-+/*
-+ * add_to_range_chain.
-+ *
-+ * Takes a value to be stored and a pointer to a chain and adds the value to 
-+ * the range chain, merging with an existing range or  adding a new entry as
-+ * necessary. Ranges  are stored in increasing order.
-+ *
-+ * Values should be consecutive, and so may need to be transformed first. (eg
-+ * for pages, would want to call with page-mem_map).
-+ *
-+ * Important optimisation:
-+ * We store in the chain info the location of the last range accessed or added
-+ * (and its previous). If the next value is outside this range by one, we start
-+ * from the previous entry instead of the start of the chain. In cases of heavy
-+ * fragmentation, this saves a lot of time searching.
-+ * 
-+ * Returns:
-+ * 0 if successful
-+ * 1 if the value is already included.
-+ * 2 if unable to allocate memory.
-+ * 3 if fall out bottom (shouldn't happen).
-+ */
-+
-+int add_to_range_chain(struct rangechain * chain, unsigned long value)
-+{
-+	struct range * this, * prev = NULL, * prevtoprev = NULL;
-+	int usedoptimisation = 0;
-+	
-+	if (!chain->first) {	/* Empty */
-+		chain->last = chain->first = get_range();
-+		if (!chain->first) {
-+			printk("Error unable to allocate the first range for "
-+					"the chain.\n");
-+			return 2;
-+		}
-+		chain->allocs++;
-+		chain->first->maximum = value;
-+		chain->first->minimum = value;
-+		chain->size++;
-+		return 0;
-+	}
-+	
-+	this = chain->first;
-+
-+	if (chain->lastaccessed && chain->prevtolastaccessed &&
-+		       chain->prevtoprev) {
-+		if ((value + 1) == chain->lastaccessed->minimum) {
-+			prev = chain->prevtoprev;
-+			this = chain->prevtolastaccessed;
-+			usedoptimisation = 1;
-+		} else if (((value - 1) == chain->lastaccessed->maximum)) {
-+			prev = chain->prevtolastaccessed;
-+			this = chain->lastaccessed;
-+			usedoptimisation = 1;
-+		}
-+	}
-+
-+	while (this) {
-+		/* Need new entry prior to this? */
-+		if ((value + 1) < this->minimum) {
-+			struct range * new = get_range();
-+			if (!new)
-+				return 2;
-+			chain->allocs++;
-+			new->minimum = value;
-+			new->maximum = value;
-+			new->next = this;
-+			/* Prior to start of chain? */
-+			if (!prev)
-+				chain->first = new;
-+			else
-+				prev->next = new;
-+			if (!usedoptimisation) {
-+				chain->prevtoprev = prevtoprev;
-+				chain->prevtolastaccessed = prev;
-+				chain->lastaccessed = new;
-+			}
-+			chain->size++;
-+			return 0;
-+		}
-+
-+		if ((this->minimum <= value) && (this->maximum >= value)) {
-+			if (chain->name)
-+				printk("%s:", chain->name);
-+			else
-+				printk("%p:", chain);
-+				printk("Trying to add a value (%ld/0x%lx) already "
-+				"included in chain.\n",
-+				value, value);
-+			print_chain(SUSPEND_ERROR, chain, 0);
-+			check_shift_keys(1, NULL);
++		if (TEST_RESULT_STATE(SUSPEND_ABORTED)) {
++			smp_continue();
 +			return 1;
 +		}
-+		if ((value + 1) == this->minimum) {
-+			this->minimum = value;
-+			if (!usedoptimisation) {
-+				chain->prevtoprev = prevtoprev;
-+				chain->prevtolastaccessed = prev;
-+				chain->lastaccessed = this;
++
++		preempt_disable();
++
++		local_irq_disable();
++
+ 		read_lock(&tasklist_lock);
++
++		/*
++		 * Signal the processes.
++		 *
++		 * We signal them every time through. Otherwise pdflush -
++		 * and maybe other processes - might never enter the
++		 * fridge.
++		 *
++		 * NB: We're inside an SMP pause. Our printks are unsafe.
++		 * They're only here for debugging.
++		 *
++		 */
++		
+ 		do_each_thread(g, p) {
+ 			unsigned long flags;
+-			if (!freezeable(p))
+-				continue;
+-			if ((p->flags & PF_FROZEN) ||
+-			    (p->state == TASK_TRACED) ||
+-			    (p->state == TASK_STOPPED))
++			if (!to_be_frozen(p, type))
+ 				continue;
+-
+-			/* FIXME: smp problem here: we may not access other process' flags
+-			   without locking */
++			
++			numsignalled++;
++			suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 0, 
++				"\n   %s: pid %d",
++				p->comm, p->pid);
+ 			p->flags |= PF_FREEZE;
+ 			spin_lock_irqsave(&p->sighand->siglock, flags);
+ 			signal_wake_up(p, 0);
+ 			spin_unlock_irqrestore(&p->sighand->siglock, flags);
+-			todo++;
+ 		} while_each_thread(g, p);
++
++		if (numsignalled)
++			suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 0,
++				"\n Number of threads signalled this iteration is %d.\n",
++				numsignalled);
++
+ 		read_unlock(&tasklist_lock);
+-		yield();			/* Yield is okay here */
+-		if (time_after(jiffies, start_time + TIMEOUT)) {
+-			printk( "\n" );
+-			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
+-			return todo;
++
++		/* 
++		 * Let the processes run.
++		 */		
++		smp_continue();
++
++		preempt_enable();
++
++		local_irq_enable();
++		
++		/*
++		 * Sleep.
++		 */
++		set_task_state(current, TASK_INTERRUPTIBLE);
++		schedule_timeout(FREEZER_CHECK_TIMEOUT);
++
++		still_to_do = num_to_be_frozen(type, no_progress);
++	} while(still_to_do && (!TEST_RESULT_STATE(SUSPEND_ABORTED)) &&
++		!time_after(jiffies, start_time + FREEZER_TOTAL_TIMEOUT));
++
++	/*
++	 * Did we time out? See if we failed to freeze processes as well.
++	 *
++	 */
++	if ((time_after(jiffies, start_time + FREEZER_TOTAL_TIMEOUT)) && (still_to_do)) {
++		read_lock(&tasklist_lock);
++		do_each_thread(g, p) {
++			if (!to_be_frozen(p, type)) 
++				continue;
++			
++			if (!result) {
++				printk(KERN_ERR name_suspend
++					"Stopping tasks failed.\n");
++				printk(KERN_ERR "Tasks that refused to be refrigerated"
++					" and haven't since exited:\n");
++				result = 1;
 +			}
-+			chain->size++;
-+			return 0;
-+		}
-+		if ((value - 1) == this->maximum) {
-+			if ((this->next) && 
-+					(this->next->minimum == value + 1)) {
-+				struct range * oldnext = this->next;
-+				this->maximum = this->next->maximum;
-+				this->next = this->next->next;
-+				if ((chain->last) == oldnext)
-+					chain->last = this;
-+				put_range(oldnext);
-+				/* Invalidate optimisation info */
-+				chain->lastaccessed = NULL;	
-+				chain->frees++;
-+				if (!usedoptimisation) {
-+					chain->prevtoprev = prevtoprev;
-+					chain->prevtolastaccessed = prev;
-+					chain->lastaccessed = this;
-+				}
-+				chain->size++;
-+				return 0;
-+			} 
-+			this->maximum = value;
-+			if (!usedoptimisation) {
-+				chain->prevtoprev = prevtoprev;
-+				chain->prevtolastaccessed = prev;
-+				chain->lastaccessed = this;
-+			}
-+			chain->size++;
-+			return 0;
-+		}
-+		if (!this->next) {
-+			struct range * new = get_range();
-+			if (!new) {
-+				printk("Error unable to append a new range to "
-+						"the chain.\n");
-+				return 2;
-+			}
-+			chain->allocs++;
-+			new->minimum = value;
-+			new->maximum = value;
-+			new->next = NULL;
-+			this->next = new;
-+			chain->last = new;
-+			if (!usedoptimisation) {
-+				chain->prevtoprev = prev;
-+				chain->prevtolastaccessed = this;
-+				chain->lastaccessed = new;
-+			}
-+			chain->size++;
-+			return 0;
-+		}
-+		prevtoprev = prev;
-+		prev = this;
-+		this = this->next;
-+	}
-+	printk("\nFell out the bottom of add_to_range_chain. This shouldn't "
-+			"happen!\n");
-+	SET_RESULT_STATE(SUSPEND_ABORTED);
-+	return 3;
-+}
-+
-+/* append_range
-+ * Used where we know a range is to be added to the end of the list
-+ * and does not need merging with the current last range.
-+ * (count_data_pages only at the moment)
-+ */
-+
-+int append_range_to_range_chain(struct rangechain * chain, 
-+		unsigned long minimum, unsigned long maximum)
-+{
-+	struct range * newrange = NULL;
-+
-+	newrange = get_range();
-+	if (!newrange) {
-+		printk("Error unable to append a new range to the chain.\n");
-+		return 2;
-+	}
-+
-+	chain->allocs++;
-+	chain->size+= (maximum - minimum + 1);
-+	newrange->minimum = minimum;
-+	newrange->maximum = maximum;
-+	newrange->next = NULL;
-+
-+	if (chain->last) {
-+		chain->last->next = newrange;
-+		chain->last = newrange;
-+	} else 
-+		chain->last = chain->first = newrange;
-+
-+	/* No need to reset optimisation info since added to end */
-+	return 0;
-+}
-+
-+int append_to_range_chain(int chain, unsigned long min, unsigned long max)
-+{
-+	int result = 0;
-+
-+	switch (chain) {
-+		case 0:
-+			return 0;
-+		case 1:
-+			result = append_range_to_range_chain(
-+					&pagedir1.origranges, min, max);
-+			break;
-+		case 2:
-+			result = append_range_to_range_chain(
-+					&pagedir2.origranges, min, max);
-+			if (!result)
-+				result = append_range_to_range_chain(
-+					&pagedir1.destranges, min, max);
-+	}
++			
++			if (p->flags & PF_FREEZE) {
++				printk(" - %s (#%d) signalled but "
++					"didn't enter refrigerator.\n",
++					p->comm, p->pid);
++				show_task(p);
++			} else
++				printk(" - %s (#%d) wasn't "
++					"signalled.\n",
++					p->comm, p->pid);
++		} while_each_thread(g, p);
++		read_unlock(&tasklist_lock);
++	} else
++		suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 1,
++			"\n\nSuccessfully froze processes of type %d.\n",
++			type);
 +	return result;
 +}
 +
-+/* -------------- Routines for relativising and absoluting ranges -------------
-+ *
-+ * Prepare rangesets for save by translating addresses to relative indices.
-+ */
-+void relativise_ranges(void)
-+{
-+	struct range * this_range_page = first_range_page;
-+	int i;
-+	
-+	while (this_range_page) {
-+		struct range * this_range = this_range_page;
-+		for (i = 0; i < RANGES_PER_PAGE; i++) {
-+			if (this_range->next) {
-+				struct range * orig = this_range->next;
-+				this_range->next =
-+					RANGE_RELATIVE(this_range->next);
-+				suspend_message(SUSPEND_RANGES, SUSPEND_VERBOSE, 1,
-+					"Relativised range %d on this page is %p. Absolutised range is %p.\n",
-+					i, this_range->next, orig);
-+			}
-+			this_range++;
-+		}
-+		this_range_page = (struct range *)
-+			((*RANGEPAGELINK(this_range_page)) & PAGE_MASK);
-+	}
-+}
-+
-+/* Convert ->next pointers for ranges back to absolute values.
-+ * The issue is finding out what page the absolute value is now at.
-+ * If we use an array of values, we gain speed, but then we need to
-+ * be able to allocate contiguous pages. Fortunately, this is done
-+ * prior to loading pagesets, so we can just allocate the pages
-+ * needed, set up our array and use it and then discard the data
-+ * before we exit.
-+ */
-+
-+void absolutise_ranges()
-+{
-+	struct range * this_range_page = first_range_page;
-+	int i;
-+	
-+	while (this_range_page) {
-+		struct range * this_range = this_range_page;
-+		for (i = 0; i < RANGES_PER_PAGE; i++) {
-+			if (this_range->next) {
-+				struct range * orig = this_range->next;
-+				this_range->next = 
-+					RANGE_ABSOLUTE(this_range->next);
-+				suspend_message(SUSPEND_RANGES, SUSPEND_VERBOSE, 1,
-+					"Relativised range %d on this page is %p. Absolutised range is %p.\n",
-+					i, orig, this_range->next);
-+			}
-+			this_range++;
-+		}
-+		this_range_page = (struct range *)
-+			((*RANGEPAGELINK(this_range_page)) & PAGE_MASK);
-+	}
-+}
-+
-+void absolutise_chain(struct rangechain * chain)
-+{
-+	if (chain->first)
-+		chain->first = RANGE_ABSOLUTE(chain->first);
-+	if (chain->last)
-+		chain->last = RANGE_ABSOLUTE(chain->last);
-+	if (chain->lastaccessed)
-+		chain->lastaccessed = RANGE_ABSOLUTE(chain->lastaccessed);
-+	if (chain->prevtolastaccessed)
-+		chain->prevtolastaccessed =
-+			RANGE_ABSOLUTE(chain->prevtolastaccessed);
-+	if (chain->prevtoprev)
-+		chain->prevtoprev =
-+			RANGE_ABSOLUTE(chain->prevtoprev);
-+}
-+
-+void relativise_chain(struct rangechain * chain)
-+{
-+	if (chain->first)
-+		chain->first = RANGE_RELATIVE(chain->first);
-+	if (chain->last)
-+		chain->last = RANGE_RELATIVE(chain->last);
-+	if (chain->lastaccessed)
-+		chain->lastaccessed = RANGE_RELATIVE(chain->lastaccessed);
-+	if (chain->prevtolastaccessed)
-+		chain->prevtolastaccessed =
-+			RANGE_RELATIVE(chain->prevtolastaccessed);
-+	if (chain->prevtoprev)
-+		chain->prevtoprev = RANGE_RELATIVE(chain->prevtoprev);
-+}
-+
 +/*
-+ * Each page in the rangepages lists starts with a pointer to the next page
-+ * containing the list. This lets us only use order zero allocations.
-+ */
-+#define POINTERS_PER_PAGE ((PAGE_SIZE / sizeof(void *)) - 1)
-+static unsigned long * range_pagelist = NULL;
-+
-+unsigned long * get_rangepages_list_entry(int index)
-+{
-+	int pagenum, offset, i;
-+	unsigned long * current_list_page = range_pagelist;
-+
-+	BUG_ON(index > num_range_pages);
-+
-+	pagenum = index / POINTERS_PER_PAGE;
-+	offset = index - (pagenum * POINTERS_PER_PAGE);
-+
-+	for (i = 0; i < pagenum; i++)
-+		current_list_page = *((unsigned long **) current_list_page);
-+
-+	return (unsigned long *) current_list_page[offset];
-+}
-+
-+int get_rangepages_list(void)
-+{
-+	struct range * this_range_page = first_range_page;
-+	int i, j, pages_needed, num_in_this_page;
-+	unsigned long * current_list_page = range_pagelist;
-+	unsigned long * prev_list_page = NULL;
-+
-+	pages_needed =
-+		((num_range_pages + POINTERS_PER_PAGE - 1) / POINTERS_PER_PAGE);
-+	
-+	for (i = 0; i < pages_needed; i++) {
-+		int page_start = i * POINTERS_PER_PAGE;
-+		
-+		if (!current_list_page) {
-+			current_list_page =
-+				(unsigned long *) get_grabbed_pages(0);
-+			if (!current_list_page)
-+				current_list_page = (unsigned long *) get_zeroed_page(GFP_ATOMIC);
-+			if (!current_list_page) {
-+				abort_suspend("Unable to allocate memory for a range pages list.");
-+				printk("Number of range pages is %d.\n", num_range_pages);
-+				return -ENOMEM;
-+			}
-+
-+			current_list_page[0] = 0;
-+			if (!prev_list_page)
-+				range_pagelist = current_list_page;
-+			else {
-+				*prev_list_page = (unsigned long) current_list_page;
-+				prev_list_page = current_list_page;
-+			}
-+		}
-+	
-+		num_in_this_page = num_range_pages - page_start;
-+		if (num_in_this_page > POINTERS_PER_PAGE)
-+			num_in_this_page = POINTERS_PER_PAGE;
-+		
-+		for (j = 1; j <= num_in_this_page; j++) {
-+			current_list_page[j] = (unsigned long) this_range_page;
-+
-+			this_range_page = (struct range *) (((unsigned long)
-+				(*RANGEPAGELINK(this_range_page))) & PAGE_MASK);
-+		}
-+		
-+		for (j = (num_in_this_page + 1); j <= POINTERS_PER_PAGE; j++)
-+			current_list_page[j] = 0;
-+
-+		if ((num_range_pages - page_start) > POINTERS_PER_PAGE)
-+			current_list_page = (unsigned long *) current_list_page[0];
-+	}
-+
-+	return 0;
-+}
-+
-+void put_rangepages_list(void)
-+{
-+	unsigned long * last;
-+
-+	while (range_pagelist) {
-+		last = range_pagelist;
-+		range_pagelist = *((unsigned long **) range_pagelist);
-+		free_pages((unsigned long) last, 0);
-+	}
-+}
-+
-+int PageRangePage(char * seeking)
-+{
-+	int i;
-+	
-+	for (i = 1; i <= num_range_pages; i++)
-+		if (get_rangepages_list_entry(i) == 
-+			(unsigned long *) seeking)
-+			return 1;
-+
-+	return 0;
-+}
-+/* relocate_rangepages
++ * freeze_processes - Freeze processes prior to saving an image of memory.
 + * 
-+ * Called at the start of resuming. As well as absolutising pages, we need
-+ * to ensure they won't be overwritten by the kernel we're restoring. 
++ * Return value: 0 = success, else # of processes that we failed to stop.
 + */
-+int relocate_rangepages()
++extern asmlinkage long sys_sync(void);
++
++/* Freeze_processes.
++ * If the flag no_progress is non-zero, progress bars not be updated.
++ * Debugging output is still printed.
++ */
++int freeze_processes(int no_progress)
 +{
-+	void **eaten_memory = NULL;
-+	void **c = eaten_memory, *m = NULL, *f;
-+	int oom = 0, i, numeaten = 0;
-+	unsigned long * prev_page = NULL;
++	int showidlelist, result = 0, num_type[3];
++	struct task_struct *p, *g;
 +
-+	for (i = 1; i <= num_range_pages; i++) {
-+		int this_collides = 0;
-+		unsigned long * this_page = get_rangepages_list_entry(i);
++	showidlelist = 1;
 +
-+		this_collides = PageInUse(virt_to_page(this_page));
++	num_type[0] = num_type[1] = num_type[2] = 0;
 +
-+		if (!this_collides) {
-+			prev_page = this_page;
-+			continue;
-+		}
++	set_suspend_state(SUSPEND_FREEZER_ON);
 +
-+		while ((m = (void *) get_zeroed_page(GFP_ATOMIC))) {
-+			memset(m, 0, PAGE_SIZE);
-+			if (!PageInUse(virt_to_page(m))) {
-+				copy_page(m, (void *) this_page);
-+				free_page((unsigned long) this_page);
-+				if (i == 1)
-+					first_range_page = m;
-+				else
-+					*RANGEPAGELINK(prev_page) =
-+						(i | (unsigned long) m);
-+				prev_page = m;
-+				break;
-+			}
-+			numeaten++;
-+			eaten_memory = m;
-+			*eaten_memory = c;
-+			c = eaten_memory;
-+		}
++	suspend_result = 0;	/* Might be called from pm_disk or suspend -
++				   ensure reset */
 +
-+		if (!m) {
-+			printk("\nRan out of memory trying to relocate "
-+				"rangepages (tried %d pages).\n", numeaten);
-+			oom = 1;
-+			break;
-+		}
++	read_lock(&tasklist_lock);
++	do_each_thread(g, p) {
++		if (p->mm) {
++			if (p->flags & PF_SYNCTHREAD) {
++				suspend_message(SUSPEND_FREEZER, SUSPEND_MEDIUM, 0,
++					"%s (%d) is a syncthread at entrance to "
++					"fridge\n", p->comm, p->pid);
++				num_type[1]++;
++			} else
++				num_type[2]++;
++		} else {
++			if (p->flags & PF_NOFREEZE)
++				suspend_message(SUSPEND_FREEZER, SUSPEND_MEDIUM, 0,
++					"%s (%d) is NO_FREEZE.\n",
++					p->comm, p->pid);
++			else
++				num_type[2]++;
+ 		}
+-	} while(todo);
++	} while_each_thread(g, p);
++	read_unlock(&tasklist_lock);
++	suspend_message(SUSPEND_FREEZER, SUSPEND_MEDIUM, 0, "\n");
++
++	/* First, freeze all userspace,	non syncing threads. */
++	if (freeze_threads(1, no_progress) || (TEST_RESULT_STATE(SUSPEND_ABORTED)))
++		goto aborting;
+ 	
+-	printk( "|\n" );
+-	BUG_ON(in_atomic());
+-	return 0;
++	/* Now freeze processes that were syncing and are still running */
++	if (freeze_threads(2, no_progress) || (TEST_RESULT_STATE(SUSPEND_ABORTED)))
++		goto aborting;
++
++	/* Now do our own sync, just in case one wasn't running already */
++	if ((!no_progress) && (suspend2_core_ops))
++		suspend2_core_ops->prepare_status(1, 1,
++			"Freezing processes: Syncing remaining I/O.");
++
++	sys_sync();
++
++	set_suspend_state(SUSPEND_DISABLE_SYNCING);
++
++	/* Freeze kernel threads */
++	if (freeze_threads(3, no_progress) || (TEST_RESULT_STATE(SUSPEND_ABORTED)))
++		goto aborting;
++
++	if (TEST_ACTION_STATE(SUSPEND_FREEZE_TIMERS)) {
++		printk("Enabling timer freezer. If you get a hang, note " \
++			"the timer attempting to run, press T to disable " \
++			"the timer freezer. After resuming, please look up " \
++			"the address you recorded in System.map and report " \
++			"the routinue to Nigel.\n");
++		set_suspend_state(SUSPEND_TIMER_FREEZER_ON);
 +	}
-+		
-+	c = eaten_memory;
-+	while(c) {
-+		f = c;
-+		c = *c;
-+		if (f)
-+			free_pages((unsigned long) f, 0);
++
++	suspend_task = current->pid;
++out:
++	suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 1,
++				"Left freezer loop.\n");
++
++	clear_suspend_state(SUSPEND_FREEZE_SMP);
++
++	while (atomic_read(&suspend_cpu_counter)) {
++		cpu_relax();
++		barrier();
 +	}
-+	eaten_memory = NULL;
++
++	return result;
++aborting:
++	result = -1;
++	goto out;
+ }
+ 
+-void thaw_processes(void)
++void thaw_processes(int which_threads)
+ {
+-	struct task_struct *g, *p;
++	struct task_struct *p, *g;
++	suspend_message(SUSPEND_FREEZER, SUSPEND_LOW, 1, "Thawing tasks\n");
 +	
-+	if (oom) 
-+		return -ENOMEM;
-+	else
-+		return 0;
-+}
++	suspend_task = 0;
++	if (which_threads != FREEZER_KERNEL_THREADS)
++		clear_suspend_state(SUSPEND_FREEZER_ON);
 +
-+EXPORT_SYMBOL(put_rangepages_list);
-+EXPORT_SYMBOL(get_rangepages_list);
-+EXPORT_SYMBOL(get_rangepages_list_entry);
-+EXPORT_SYMBOL(absolutise_chain);
-+EXPORT_SYMBOL(relativise_chain);
-+EXPORT_SYMBOL(put_range);
-+EXPORT_SYMBOL(put_range_chain);
-+EXPORT_SYMBOL(add_to_range_chain);
-+EXPORT_SYMBOL(PageRangePage);
++	clear_suspend_state(SUSPEND_DISABLE_SYNCING);
++	clear_suspend_state(SUSPEND_TIMER_FREEZER_ON);
++	
++	/* 
++	 * Pause the other processors so we can safely
++	 * change threads' flags
++	 */
++
++	smp_pause();
++
++	preempt_disable();
++	
++	local_irq_disable();
+ 
+-	printk( "Restarting tasks..." );
+ 	read_lock(&tasklist_lock);
++
+ 	do_each_thread(g, p) {
+-		if (!freezeable(p))
+-			continue;
+ 		if (p->flags & PF_FROZEN) {
++			if ((which_threads == FREEZER_KERNEL_THREADS) &&
++				(p->mm))
++				continue;
++			suspend_message(SUSPEND_FREEZER, SUSPEND_VERBOSE, 0,
++					"Waking %5d: %s.\n", p->pid, p->comm);
+ 			p->flags &= ~PF_FROZEN;
+ 			wake_up_process(p);
+-		} else
+-			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
++		}
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
+-	schedule();
+-	printk( " done\n" );
++
++	smp_continue();
++	
++	preempt_enable();
++
++	local_irq_enable();
+ }
+ 
++EXPORT_SYMBOL(suspend_task);
++EXPORT_SYMBOL(suspend_action);
++EXPORT_SYMBOL(software_suspend_state);
++EXPORT_SYMBOL(freeze_processes);
++EXPORT_SYMBOL(thaw_processes);
++#ifdef CONFIG_SMP
++EXPORT_SYMBOL(smp_suspend);
++EXPORT_SYMBOL(smp_continue);
++#endif
+ EXPORT_SYMBOL(refrigerator);
+diff -ruN 582-refrigerator-old/kernel/signal.c 582-refrigerator-new/kernel/signal.c
+--- 582-refrigerator-old/kernel/signal.c	2004-11-24 18:03:13.005298384 +1100
++++ 582-refrigerator-new/kernel/signal.c	2004-11-24 17:56:07.270019984 +1100
+@@ -2178,10 +2178,11 @@
+ 			sigandsets(&current->blocked, &current->blocked, &these);
+ 			recalc_sigpending();
+ 			spin_unlock_irq(&current->sighand->siglock);
+-
+ 			current->state = TASK_INTERRUPTIBLE;
+ 			timeout = schedule_timeout(timeout);
+-
++			if (current->flags & PF_FREEZE) {
++				refrigerator(PF_FREEZE);
++			}
+ 			spin_lock_irq(&current->sighand->siglock);
+ 			sig = dequeue_signal(current, &these, &info);
+ 			current->blocked = current->real_blocked;
+diff -ruN 582-refrigerator-old/mm/pdflush.c 582-refrigerator-new/mm/pdflush.c
+--- 582-refrigerator-old/mm/pdflush.c	2004-11-24 18:03:13.252260840 +1100
++++ 582-refrigerator-new/mm/pdflush.c	2004-11-24 17:56:07.271019832 +1100
+@@ -17,7 +17,6 @@
+ #include <linux/gfp.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+-#include <linux/suspend.h>
+ #include <linux/fs.h>		// Needed by writeback.h
+ #include <linux/writeback.h>	// Prototypes pdflush_operation()
+ #include <linux/kthread.h>
+@@ -90,7 +89,7 @@
+ 
+ static int __pdflush(struct pdflush_work *my_work)
+ {
+-	current->flags |= PF_FLUSHER;
++	current->flags |= (PF_FLUSHER | PF_SYNCTHREAD);
+ 	my_work->fn = NULL;
+ 	my_work->who = current;
+ 	INIT_LIST_HEAD(&my_work->list);
+@@ -106,8 +105,7 @@
+ 		spin_unlock_irq(&pdflush_lock);
+ 
+ 		schedule();
+-		if (current->flags & PF_FREEZE) {
+-			refrigerator(PF_FREEZE);
++		if (try_to_freeze(PF_FREEZE)) {
+ 			spin_lock_irq(&pdflush_lock);
+ 			continue;
+ 		}
+diff -ruN 582-refrigerator-old/mm/vmscan.c 582-refrigerator-new/mm/vmscan.c
+--- 582-refrigerator-old/mm/vmscan.c	2004-11-24 18:03:13.302253240 +1100
++++ 582-refrigerator-new/mm/vmscan.c	2004-11-24 17:56:07.273019528 +1100
+@@ -21,7 +21,6 @@
+ #include <linux/highmem.h>
+ #include <linux/file.h>
+ #include <linux/writeback.h>
+-#include <linux/suspend.h>
+ #include <linux/blkdev.h>
+ #include <linux/buffer_head.h>	/* for try_to_release_page(),
+ 					buffer_heads_over_limit */
+@@ -1170,8 +1169,7 @@
+ 	tsk->flags |= PF_MEMALLOC|PF_KSWAPD;
+ 
+ 	for ( ; ; ) {
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 		prepare_to_wait(&pgdat->kswapd_wait, &wait, TASK_INTERRUPTIBLE);
+ 		schedule();
+ 		finish_wait(&pgdat->kswapd_wait, &wait);
+diff -ruN 582-refrigerator-old/net/bluetooth/rfcomm/core.c 582-refrigerator-new/net/bluetooth/rfcomm/core.c
+--- 582-refrigerator-old/net/bluetooth/rfcomm/core.c	2004-11-03 21:51:10.000000000 +1100
++++ 582-refrigerator-new/net/bluetooth/rfcomm/core.c	2004-11-24 17:56:07.285017704 +1100
+@@ -1726,6 +1726,8 @@
+ 			schedule();
+ 		}
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* Process stuff */
+ 		clear_bit(RFCOMM_SCHED_WAKEUP, &rfcomm_event);
+ 		rfcomm_process_sessions();
+diff -ruN 582-refrigerator-old/net/rxrpc/krxiod.c 582-refrigerator-new/net/rxrpc/krxiod.c
+--- 582-refrigerator-old/net/rxrpc/krxiod.c	2004-11-03 21:51:11.000000000 +1100
++++ 582-refrigerator-new/net/rxrpc/krxiod.c	2004-11-24 17:56:07.289017096 +1100
+@@ -138,6 +138,8 @@
+ 
+ 		_debug("### End Work");
+ 
++		try_to_freeze(PF_FREEZE);
++
+                 /* discard pending signals */
+ 		rxrpc_discard_my_signals();
+ 
+diff -ruN 582-refrigerator-old/net/rxrpc/krxsecd.c 582-refrigerator-new/net/rxrpc/krxsecd.c
+--- 582-refrigerator-old/net/rxrpc/krxsecd.c	2004-11-03 21:52:23.000000000 +1100
++++ 582-refrigerator-new/net/rxrpc/krxsecd.c	2004-11-24 17:56:07.291016792 +1100
+@@ -107,6 +107,8 @@
+ 
+ 		_debug("### End Inbound Calls");
+ 
++		try_to_freeze(PF_FREEZE);
++
+                 /* discard pending signals */
+ 		rxrpc_discard_my_signals();
+ 
+diff -ruN 582-refrigerator-old/net/rxrpc/krxtimod.c 582-refrigerator-new/net/rxrpc/krxtimod.c
+--- 582-refrigerator-old/net/rxrpc/krxtimod.c	2004-11-03 21:51:24.000000000 +1100
++++ 582-refrigerator-new/net/rxrpc/krxtimod.c	2004-11-24 17:56:07.292016640 +1100
+@@ -90,6 +90,8 @@
+ 			complete_and_exit(&krxtimod_dead, 0);
+ 		}
+ 
++		try_to_freeze(PF_FREEZE);
++
+ 		/* discard pending signals */
+ 		rxrpc_discard_my_signals();
+ 
+diff -ruN 582-refrigerator-old/net/sunrpc/sched.c 582-refrigerator-new/net/sunrpc/sched.c
+--- 582-refrigerator-old/net/sunrpc/sched.c	2004-11-03 21:53:47.000000000 +1100
++++ 582-refrigerator-new/net/sunrpc/sched.c	2004-11-24 17:56:07.316012992 +1100
+@@ -18,7 +18,6 @@
+ #include <linux/smp.h>
+ #include <linux/smp_lock.h>
+ #include <linux/spinlock.h>
+-#include <linux/suspend.h>
+ 
+ #include <linux/sunrpc/clnt.h>
+ #include <linux/sunrpc/xprt.h>
+diff -ruN 582-refrigerator-old/net/sunrpc/svcsock.c 582-refrigerator-new/net/sunrpc/svcsock.c
+--- 582-refrigerator-old/net/sunrpc/svcsock.c	2004-11-03 21:51:16.000000000 +1100
++++ 582-refrigerator-new/net/sunrpc/svcsock.c	2004-11-24 17:56:07.324011776 +1100
+@@ -31,7 +31,6 @@
+ #include <linux/slab.h>
+ #include <linux/netdevice.h>
+ #include <linux/skbuff.h>
+-#include <linux/suspend.h>
+ #include <net/sock.h>
+ #include <net/checksum.h>
+ #include <net/ip.h>
+@@ -1187,6 +1186,7 @@
+ 	arg->len = (pages-1)*PAGE_SIZE;
+ 	arg->tail[0].iov_len = 0;
+ 	
++	try_to_freeze(PF_FREEZE);
+ 	if (signalled())
+ 		return -EINTR;
+ 
+@@ -1227,8 +1227,7 @@
+ 
+ 		schedule_timeout(timeout);
+ 
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_FREEZE);
++		try_to_freeze(PF_FREEZE);
+ 
+ 		spin_lock_bh(&serv->sv_lock);
+ 		remove_wait_queue(&rqstp->rq_wait, &wait);
 
 

@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVCHOnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVCHOqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVCHOnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 09:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVCHOnq
+	id S261363AbVCHOqz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 09:46:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVCHOqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 09:43:46 -0500
-Received: from mummy.ncsc.mil ([144.51.88.129]:10426 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261362AbVCHOnn (ORCPT
+	Tue, 8 Mar 2005 09:46:55 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:3522 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261363AbVCHOqs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 09:43:43 -0500
-Subject: [PATCH][SELINUX] Fix selinux_setprocattr
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 08 Mar 2005 09:36:04 -0500
-Message-Id: <1110292564.5428.9.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+	Tue, 8 Mar 2005 09:46:48 -0500
+In-Reply-To: <20050308160747.2ffc842c@zanzibar.2ka.mipt.ru>
+References: <11102278521318@2ka.mipt.ru> <1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com> <20050308123714.07d68b90@zanzibar.2ka.mipt.ru> <ACAE2383-8FCC-11D9-A2CF-000393ACC76E@mac.com> <20050308160747.2ffc842c@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <DB5F652C-8FE0-11D9-A2CF-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
+       cryptoapi@lists.logix.cz, David Miller <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
+       Fruhwirth Clemens <clemens@endorphin.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel 2.6
+Date: Tue, 8 Mar 2005 09:46:30 -0500
+To: johnpol@2ka.mipt.ru
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.6.11-mm2 changes the selinux_setprocattr hook function (which
-handles writes to nodes in the /proc/pid/attr directory) to ignore an
-optional terminating newline at the end of the value, and to handle a
-value beginning with a newline or a null in the same manner as a zero
-length value (clearing the attribute for the process and resetting it
-to using the default policy behavior).  This change is to address the
-divergence from POSIX in the existing API, as POSIX says that write(2)
-with a zero count will return zero with no other effect, as well as to
-simplify use of the API from scripts (although that isn't
-recommended).  Please apply.
+On Mar 08, 2005, at 08:07, Evgeniy Polyakov wrote:
+> On Tue, 8 Mar 2005 07:22:01 -0500 Kyle Moffett <mrmacman_g4@mac.com> 
+> wrote:
+>> I'm not exactly familiar with asynchronous block device, but I'm
+>> guessing that it would need to get its crypto keys from the user
+>> somehow, no?  If so, then the best way of managing them is via
+>> the key/keyring infrastructure.  From the point of view of other
+>> kernel systems, it's basically a set of BLOB<=>task associations
+>> that supports a reasonable inheritance and permissions model.
+>
+> Above setup may be implemeted for the userspace/kernelspace 
+> application,
+> which requires continuous access to the key material from the both 
+> sides,
+> but asynchronous block device (and existing cryptoloop and dm-crypt) 
+> use
+> different model, when controlling userspace application only one time
+> provides required key material(using ioctl) and exits, but key material
+> remains in kernelspace in device's private area.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by:  James Morris <jmorris@redhat.com>
+The above application works perfectly with the design of the keyring
+system.  A process (An init-script or something) creates a "key" either
+with a file or through some complex method that only user-space needs to
+care about, then it calls the keyctl syscall to create an in-kernel key
+with the data BLOB.  The kernel module that registered the key-type (IE:
+symmetric128 or something like that) verifies that the data is valid and
+attaches it to a key data-structure.
 
- security/selinux/hooks.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
+Later, when you want to use the key for acrypto, cryptoloop, dm-crypt, 
+etc,
+you would just pass the key-ID instead of a custom binary format, and 
+the
+acrypto layer would just add a reference to the key in its own structure
+and increment the refcount.
 
-diff -X /home/sds/dontdiff -ru linux-2.6.11-mm2/security/selinux/hooks.c linux-2.6.11-mm2-sel/security/selinux/hooks.c
---- linux-2.6.11-mm2/security/selinux/hooks.c	2005-03-08 08:43:52.867139656 -0500
-+++ linux-2.6.11-mm2-sel/security/selinux/hooks.c	2005-03-08 08:44:02.733639720 -0500
-@@ -4106,6 +4106,7 @@
- 	struct task_security_struct *tsec;
- 	u32 sid = 0;
- 	int error;
-+	char *str = value;
- 
- 	if (current != p) {
- 		/* SELinux only allows a process to change its own
-@@ -4130,8 +4131,11 @@
- 		return error;
- 
- 	/* Obtain a SID for the context, if one was specified. */
--	if (size) {
--		int error;
-+	if (size && str[1] && str[1] != '\n') {
-+		if (str[size-1] == '\n') {
-+			str[size-1] = 0;
-+			size--;
-+		}
- 		error = security_context_to_sid(value, size, &sid);
- 		if (error)
- 			return error;
+Cheers,
+Kyle Moffett
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

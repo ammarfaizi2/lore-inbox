@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBNCJC>; Tue, 13 Feb 2001 21:09:02 -0500
+	id <S129159AbRBNCbj>; Tue, 13 Feb 2001 21:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130321AbRBNCIw>; Tue, 13 Feb 2001 21:08:52 -0500
-Received: from tsukuba.m17n.org ([192.47.44.130]:26522 "EHLO tsukuba.m17n.org")
-	by vger.kernel.org with ESMTP id <S129066AbRBNCIs>;
-	Tue, 13 Feb 2001 21:08:48 -0500
-Date: Wed, 14 Feb 2001 11:08:07 +0900 (JST)
-Message-Id: <200102140208.LAA18226@mule.m17n.org>
-From: NIIBE Yutaka <gniibe@m17n.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rmk@arm.linux.org.uk (Russell King),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (lkml)
-Subject: Re: [PATCH] swapin flush cache bug
-In-Reply-To: <E14Sdb6-0001V5-00@the-village.bc.nu>
-In-Reply-To: <200102131053.TAA11808@mule.m17n.org>
-	<E14Sdb6-0001V5-00@the-village.bc.nu>
+	id <S129185AbRBNCb3>; Tue, 13 Feb 2001 21:31:29 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:14215 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129159AbRBNCbR>; Tue, 13 Feb 2001 21:31:17 -0500
+Date: Tue, 13 Feb 2001 18:30:51 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Carlos Carvalho <carlos@fisica.ufpr.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
+Message-ID: <20010213183051.A17453@twiddle.net>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Carlos Carvalho <carlos@fisica.ufpr.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <14984.24279.786295.783864@hoggar.fisica.ufpr.br> <E14SRCN-0008Gj-00@the-village.bc.nu> <14984.25773.89918.915295@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14984.25773.89918.915295@pizda.ninka.net>; from davem@redhat.com on Mon, Feb 12, 2001 at 02:33:17PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
- > Ok we need to handle that case a bit more intelligently so those flushes dont
- > get into other ports code paths. 
+On Mon, Feb 12, 2001 at 02:33:17PM -0800, David S. Miller wrote:
+> You have to add a few bits to arch/alpha/kernel/traps.c
+> I could be wrong though...
 
-Possibly at fs/buffer.c:end_buffer_io_async?
+Only to make the oops look pretty.  Something like
 
-We need to flush the cache when I/O was READ or READA.  Is there any
-way for end_buffer_io_async to distinguish which I/O (READ or WRITE)
-has been done?
+        die_if_kernel((type == 1 ? "Kernel Bug" : "Instruction fault"),
+                      &regs, type, 0);
 
---------------------------------------
-Problem with write-back cache.
+Don't have a 2.2 tree handy to look at the moment...
 
-(1) Page got swapped out
 
-           Swap out
-   [ Disk ] <---- P [ Page ]
-
-(2) Page got swapped in asynchronously, possibly by read-ahead
-
-           Swap in
-   [ Disk ] ----> P [ Page ]
-	          K
-
-   The I/O from disk goes through kernel virtual address K.
-   We have cache entries indexed by K.
-
-(3) Page fault occurs at user space U
-
-   [ Disk ]       P [ Page ] <----- U
-		  K
-
-   The control goes to do_swap_page, found the page at
-   lookup_swap_cache.
-
-   If K and U indexes differently, we have cache alias issues, 
-   we need to flush the entries indexed by K.
--- 
+r~

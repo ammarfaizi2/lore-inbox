@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132889AbRDEOR0>; Thu, 5 Apr 2001 10:17:26 -0400
+	id <S132900AbRDEO1s>; Thu, 5 Apr 2001 10:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132901AbRDEORS>; Thu, 5 Apr 2001 10:17:18 -0400
-Received: from [212.97.52.90] ([212.97.52.90]:35826 "HELO odino.preciso.net")
-	by vger.kernel.org with SMTP id <S132889AbRDEORM>;
-	Thu, 5 Apr 2001 10:17:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: gianpaolo racca <gianpaolo@preciso.net>
-Reply-To: gianpaolo@preciso.net
-Organization: gianpaolo racca
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.3 on HP netserver LH4
-Date: Thu, 5 Apr 2001 16:13:57 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01040516135706.02185@loki.preciso.mgt>
-Content-Transfer-Encoding: 7BIT
+	id <S132910AbRDEO1i>; Thu, 5 Apr 2001 10:27:38 -0400
+Received: from 63-224-228-227.customers.uswest.net ([63.224.228.227]:48992
+	"HELO galen.magenet.net") by vger.kernel.org with SMTP
+	id <S132900AbRDEO1X>; Thu, 5 Apr 2001 10:27:23 -0400
+Date: Thu, 5 Apr 2001 07:26:28 -0700
+From: Joseph Carter <knghtbrd@debian.org>
+To: Bart Trojanowski <bart@jukie.net>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: asm/unistd.h
+Message-ID: <20010405072628.C22001@debian.org>
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER> <Pine.LNX.4.30.0104050901500.13496-100000@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jousvV0MzM2p6OtC"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.30.0104050901500.13496-100000@localhost>; from bart@jukie.net on Thu, Apr 05, 2001 at 09:06:20AM -0400
+X-Operating-System: Linux galen 2.4.2-ac26
+X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning and excuse for disturbing you
 
-I have to mantain an HP netserver lh4 in Statale University of Milan (Italy).
-Due to some routing issues I would like to switch to kernel 2.4.
-I'm not a kernel hacjer but I have already installed it on two nobrand boxes 
-(one with redhat 6.1 and the other with mandrake 7.2).
-With netserver the problem I think is the allocation of PCI resources. 
-Maybe is the 450NX chipset the cause of the problem.
-After having ercompiled and installed yhe new kernel during the boot I recive 
-some messages like:
-PCI: cannot allocate resource region 0 for 0:1.4
-PCI: cannot allocate resource region 1 for 0:1.4
-PCI: cannot allocate resource region 2 for 0:1.4
-PCI: cannot allocate resource region 0 for 0:1.6
-PCI: cannot allocate resource region 1 for 0:1.6
-PCI: cannot allocate resource region 2 for 0:1.6
-PCI: cannot allocate resource region 0 for 0:1.7
-PCI: cannot allocate resource region 1 for 0:1.7
-PCI: cannot allocate resource region 2 for 0:1.7
+--jousvV0MzM2p6OtC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-device 4 is an ethernet adapter while device 6 and 7 are (according to lspci 
-of kernel 2.2.18) the two scsi channels.
-there are 2 other network adapters on 0:2.x (which I think is the other pci 
-bus) but they are not mentioned during 2.4.3 boot.
+On Thu, Apr 05, 2001 at 09:06:20AM -0400, Bart Trojanowski wrote:
+> So you ask: "why not just use a { ... } to define a macro".  I don't
+> remember the case for this but I know it's there.  It has to do with a
+> complicated if/else structure where a simple {} breaks.
 
-To make things short and quick after these messages the controller give me a 
-message of CACHE FAILED and doesn't recognize its devices, so that the kernel 
-doesn't find the root partition.
+This doesn't follow in my mind.  I can't think of a case where a { ... }
+would fail, but a do { ... } while (0) would succeed.  The former would
+also save a few keystrokes.
 
-What do I miss? Do you have notices of a Netserver lh4 running a 2.4.x kernel?
-Any suggestion is really welcome.
+--=20
+Joseph Carter <knghtbrd@debian.org>                Free software developer
 
-I can post my current kernel config, any output I can obtain from a 2.2.18 
-kernel (which is still running at the moment).
+// Minor lesson: don't fuck about with something you don't fully understand
+        -- the dosdoom source code
 
-Thanks in advance,
 
-         gianpaolo racca
-         gianpaolo@preciso.net
+--jousvV0MzM2p6OtC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
+
+iEUEARECAAYFAjrMgJQACgkQj/fXo9z52rPVEwCeNuBAmuumhQzUDLYP7eOX3rAr
+JHQAlAsHj/boCX4E9QIwk+wRaGGHc2M=
+=L0jM
+-----END PGP SIGNATURE-----
+
+--jousvV0MzM2p6OtC--

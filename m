@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265428AbUFDAI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265534AbUFDALX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265428AbUFDAI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 20:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUFDAHh
+	id S265534AbUFDALX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 20:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265484AbUFDAIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 20:07:37 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:25775 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S265104AbUFDAGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 20:06:11 -0400
-Message-ID: <40BFBCD9.8000607@myrealbox.com>
-Date: Thu, 03 Jun 2004 17:05:45 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andy Lutomirski <luto@myrealbox.com>, mingo@elte.hu, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, arjanv@redhat.com,
-       suresh.b.siddha@intel.com, jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
-References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu> <20040603124448.GA28775@elte.hu> <20040603175422.4378d901.ak@suse.de> <40BFADE5.9040506@myrealbox.com> <20040603230834.GF868@wotan.suse.de> <40BFBA3F.4000304@myrealbox.com>
-In-Reply-To: <40BFBA3F.4000304@myrealbox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jun 2004 20:08:42 -0400
+Received: from holomorphy.com ([207.189.100.168]:3234 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265361AbUFDAHw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 20:07:52 -0400
+Date: Thu, 3 Jun 2004 17:07:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: vojtech@suse.cz
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm1
+Message-ID: <20040604000718.GP21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	vojtech@suse.cz, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040601021539.413a7ad7.akpm@osdl.org> <20040602132654.GY2093@holomorphy.com> <20040603233828.GA27504@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040603233828.GA27504@kroah.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski wrote:
+On Wed, Jun 02, 2004 at 06:26:54AM -0700, William Lee Irwin III wrote:
+>> Fix warnings about various structs declared inside parameter lists and so
+>> on seen while compiling compat_ioctl.c.
 
->>> I don't like Ingo's fix either, though.  At least it should check 
->>> CAP_PTRACE or some such.  A better fix would be for LSM to pass down 
->>> a flag indicating a change of security context.  I'll throw that in 
->>> to my caps/apply_creds cleanup, in case that ever gets applied.
->>
->>
->>
->> Don't think we should require an LSM module for that. That's far 
->> overkill.
-> 
-> 
-> I'm not suggesting a new LSM module.  I'm suggesting modifying the 
-> existing LSM code to handle this cleanly.  We already have a function 
-> (security_bprm_secureexec) that does something like this, and, in fact, 
-> it's probably the right thing to test here.
+On Thu, Jun 03, 2004 at 04:38:28PM -0700, Greg KH wrote:
+> Doesn't apply to my, or a clean -rc2 tree :(
+> Probably needs to be sent to Vojtech and put in his tree.
+> thanks,
+> greg k-h
 
-... or not.
+Vojtech, gregkh referred me to you for this change. Some compilation
+failures are caused by some changes to hiddev.h or some surrounding
+area in -mm; this patch resolves them.
 
-secureexec will return true even if you have whatever cap you want the user 
-to have for this to work.
+Thanks.
 
-What use to you see for having this flag survive setuid?  The only (safe) 
-use I can see is for debugging, in which case just copying the binary and 
-running it non-setuid should be OK.
+-- wli
 
-In this case, then secureexec is a better test than setuid-ness because of 
-LSMs (like SELinux) in which case setuid is not the only way that security 
-can be elevated.
-
---Andy
+Index: linux-2.6.7-rc2/include/linux/hiddev.h
+===================================================================
+--- linux-2.6.7-rc2.orig/include/linux/hiddev.h	2004-06-01 03:11:37.000000000 -0700
++++ linux-2.6.7-rc2/include/linux/hiddev.h	2004-06-02 06:15:34.807765000 -0700
+@@ -213,12 +213,12 @@
+  * In-kernel definitions.
+  */
+ 
+-#ifdef CONFIG_USB_HIDDEV
+ struct hid_device;
+ struct hid_usage;
+ struct hid_field;
+ struct hid_report;
+ 
++#ifdef CONFIG_USB_HIDDEV
+ int hiddev_connect(struct hid_device *);
+ void hiddev_disconnect(struct hid_device *);
+ void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,

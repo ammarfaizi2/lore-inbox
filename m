@@ -1,82 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSELCLk>; Sat, 11 May 2002 22:11:40 -0400
+	id <S316295AbSELCNm>; Sat, 11 May 2002 22:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316295AbSELCLj>; Sat, 11 May 2002 22:11:39 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:58635 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S315279AbSELCLi>;
-	Sat, 11 May 2002 22:11:38 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>
-Subject: [patch] 2.4.19-pre8-ac2 kbuild 2.4 tmp_include_depends
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 May 2002 12:11:24 +1000
-Message-ID: <20819.1021169484@ocs3.intra.ocs.com.au>
+	id <S316297AbSELCNl>; Sat, 11 May 2002 22:13:41 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:50466 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S316295AbSELCNj>; Sat, 11 May 2002 22:13:39 -0400
+Date: Sun, 12 May 2002 04:13:00 +0200 (CEST)
+From: Rui Sousa <rui.sousa@laposte.net>
+X-X-Sender: rsousa@localhost.localdomain
+To: Urban Widmark <urban@teststation.com>
+cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Via-rhine problems (2.4.19-pre8)
+In-Reply-To: <Pine.LNX.4.33.0205111911360.18398-100000@cola.enlightnet.local>
+Message-ID: <Pine.LNX.4.44.0205120405010.1365-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make clean dep works, make dep clean deletes the .tmp file created by
-make dep and complains 'no rule to make .tmp_include_depends'.  Change
-the filenames to avoid make clean and add them to mrproper.
+On Sat, 11 May 2002, Urban Widmark wrote:
 
-diff -urN 2.4.19-pre8-ac2/Makefile 2.4.19-pre8-ac2-test/Makefile
---- 2.4.19-pre8-ac2/Makefile	Sun May 12 11:24:45 2002
-+++ 2.4.19-pre8-ac2-test/Makefile	Sun May 12 12:00:26 2002
-@@ -226,6 +226,7 @@
- # files removed with 'make mrproper'
- MRPROPER_FILES = \
- 	include/linux/autoconf.h include/linux/version.h \
-+	tmp* \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk1200,afsk2666,fsk9600}.h \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{hapn4800,psk4800}.h \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk2400_7,afsk2400_8}.h \
-@@ -353,13 +354,13 @@
- 
- comma	:= ,
- 
--init/version.o: init/version.c include/linux/compile.h .tmp_include_depends
-+init/version.o: init/version.c include/linux/compile.h tmp_include_depends
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o init/version.o init/version.c
- 
--init/main.o: init/main.c .tmp_include_depends
-+init/main.o: init/main.c tmp_include_depends
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
- 
--init/do_mounts.o: init/do_mounts.c .tmp_include_depends
-+init/do_mounts.o: init/do_mounts.c tmp_include_depends
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
- 
- fs lib mm ipc kernel drivers net: dummy
-@@ -386,7 +387,7 @@
- modules: $(patsubst %, _mod_%, $(SUBDIRS))
- 
- .PHONY: $(patsubst %, _mod_%, $(SUBDIRS))
--$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h .tmp_include_depends
-+$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h tmp_include_depends
- 	$(MAKE) -C $(patsubst _mod_%, %, $@) CFLAGS="$(CFLAGS) $(MODFLAGS)" MAKING_MODULES=1 modules
- 
- .PHONY: modules_install
-@@ -491,13 +492,13 @@
- ifdef CONFIG_MODVERSIONS
- 	$(MAKE) update-modverfile
- endif
--	(find $(TOPDIR) \( -name .depend -o -name .hdepend \) -print | xargs $(AWK) -f scripts/include_deps) > .tmp_include_depends
--	sed -ne 's/^\([^ ].*\):.*/  \1 \\/p' .tmp_include_depends > .tmp_include_depends_1
--	(echo ""; echo "all: \\"; cat .tmp_include_depends_1; echo "") >> .tmp_include_depends
--	rm .tmp_include_depends_1
-+	(find $(TOPDIR) \( -name .depend -o -name .hdepend \) -print | xargs $(AWK) -f scripts/include_deps) > tmp_include_depends
-+	sed -ne 's/^\([^ ].*\):.*/  \1 \\/p' tmp_include_depends > tmp_include_depends_1
-+	(echo ""; echo "all: \\"; cat tmp_include_depends_1; echo "") >> tmp_include_depends
-+	rm tmp_include_depends_1
- 
--.tmp_include_depends: include/config/MARKER dummy
--	$(MAKE) -r -f .tmp_include_depends all
-+tmp_include_depends: include/config/MARKER dummy
-+	$(MAKE) -r -f tmp_include_depends all
- 
- ifdef CONFIG_MODVERSIONS
- MODVERFILE := $(TOPDIR)/include/linux/modversions.h
+> On Sat, 11 May 2002, Rui Sousa wrote:
+> 
+> > kernel: eth0: reset did not complete in 10 ms.
+> > kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> > kernel: eth0: Transmit timed out, status 0000, PHY status 782d, 
+> > resetting...
+> > 
+> > Removing the ethernet cable, unloading/loading the module doesn't change a
+> > thing, only a cold reboot fixes the problem (until next time).
+> > 
+> > Is this a known problem? Any fixes?
+> 
+> The effect (the timeout) can be caused by lots of things. Here it sounds
+> like the chip has locked up (more or less) since you need a cold boot to
+> recover.
+
+Yep. The normal soft reset stops working.
+
+> Why? Well ...
+> 
+> "Ivan G" has posted recently on via-rhine problems. For him it is only
+> that the driver stalls but not the need for a full reboot (IIRC).
+> 
+> Simple things you could try is to test some other variants of the driver:
+>  + Donald Becker's original
+>    http://www.scyld.com/network/via-rhine.html
+>  + VIAs modified version
+>    http://www.viaarena.com/?PageID=71#lan
+> 
+> If either works better then the next step would be to find out why (and 
+> copy those bits).
+> 
+> The diff between the VIA version and the other is large. I started looking
+> at merging what they have done to the in-kernel driver.
+> 
+> /Urban
+> 
+
+Jeff sent me is latest version and I'm already trying it out. I loaded it
+with full debug on to see if something interesting happens before the 
+transmit/reset timeout errors. Now I just need to wait a couple of 
+days...
+
+I will keep you two informed on any developments,
+
+Rui
 

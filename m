@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263073AbTEBST7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 14:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTEBST7
+	id S262908AbTEBNqN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 09:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTEBNqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 14:19:59 -0400
-Received: from gw.enyo.de ([212.9.189.178]:53765 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S263073AbTEBST5 (ORCPT
+	Fri, 2 May 2003 09:46:13 -0400
+Received: from llca114.servidoresdns.net ([217.76.128.82]:26376 "EHLO
+	llca114.servidoresdns.net") by vger.kernel.org with ESMTP
+	id S262908AbTEBNqM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 14:19:57 -0400
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-References: <Pine.LNX.4.44.0305021217090.17548-100000@devserv.devel.redhat.com>
-	<Pine.LNX.4.50.0305020948550.1904-100000@blue1.dev.mcafeelabs.com>
-	<87llxp43ii.fsf@deneb.enyo.de>
-	<Pine.LNX.4.50.0305021126200.1904-100000@blue1.dev.mcafeelabs.com>
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>, Linux Kernel
- Mailing List <linux-kernel@vger.kernel.org>
-Date: Fri, 02 May 2003 20:32:19 +0200
-In-Reply-To: <Pine.LNX.4.50.0305021126200.1904-100000@blue1.dev.mcafeelabs.com> (Davide
- Libenzi's message of "Fri, 2 May 2003 11:29:11 -0700 (PDT)")
-Message-ID: <87fznx42to.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
+	Fri, 2 May 2003 09:46:12 -0400
+Date: Fri, 2 May 2003 15:58:31 +0200
+Message-ID: <080701c310b2$f2619390$0b001aac@winxp>
+From: "@Traduire" <info@a-traduire.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi <davidel@xmailserver.org> writes:
+Bonjour, 
 
-> On Fri, 2 May 2003, Florian Weimer wrote:
->
->> Davide Libenzi <davidel@xmailserver.org> writes:
->>
->> > Ingo, do you want protection against shell code injection ? Have the
->> > kernel to assign random stack addresses to processes and they won't be
->> > able to guess the stack pointer to place the jump.
->>
->> If your software is broken enough to have buffer overflow bugs, it's
->> not entirely unlikely that it leaks the stack address as well (IIRC,
->> BIND 8 did).
->
-> Leaking the stack address is not a problem in this case, since the next
-> run will be very->very->very likely different.
+Nous souhaiterions vous faire connaître les services de Traduction du Bureau International @Traduire.com.
 
-Usually, you can't afford a fork() and execve() for each request you
-process. 8-(
+Le Bureau International @Traduire.com répond à tous vos besoins en traduction, en vous offrant des solutions globales d'édition numérique plurilingue : traduction dans toutes les langues, interprétation, PAO et reproduction de documents, sites web plurilingues, réalisation de projets globaux multimédia plurilingues sur CD-ROM, localisation de logiciels.
 
-(In addition, GCC might optimize away those alloca() calls.)
+Pour pouvoir offrir le niveau de qualité exigé par les clients, le Bureau International @Traduire.com dispose d'un réseau de traducteurs hautement qualifiés qui lui permet de former des équipes de travail en fonction de la nature de chaque projet et de mener à bien des projets de grande envergure tout en offrant une qualité maximale.
+ 
+N'hésitez pas à nous demander un devis gratuit.
+Dans l'attente d'une possible collaboration, je vous prie d'agréer l'expression de mes sentiments distingués.
+
+Bureau International @Traduire.com
+Site : www.a-traduire.com

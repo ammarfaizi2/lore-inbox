@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUGQNSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUGQNWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266687AbUGQNSR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 09:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUGQNSR
+	id S266704AbUGQNWF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 09:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUGQNWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 09:18:17 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61133 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266687AbUGQNSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 09:18:13 -0400
-Date: Sat, 17 Jul 2004 15:18:07 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: cramerj@intel.com, john.ronciak@intel.com, ganesh.venkatesan@intel.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [2.6 patch] e1000_main.c: fix inline compile errors
-Message-ID: <20040717131807.GD4759@fs.tum.de>
-References: <20040714210121.GN7308@fs.tum.de> <200407152326.40331.vda@port.imtp.ilyichevsk.odessa.ua> <20040715204935.GI25633@fs.tum.de> <200407160010.49701.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sat, 17 Jul 2004 09:22:04 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:29589 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S266704AbUGQNWB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 09:22:01 -0400
+Subject: Davicom DM9102AF card working only at 10 Mbps
+From: Jean Francois Martinez <jfm512@free.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1090070520.4498.25.camel@agnes>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407160010.49701.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 17 Jul 2004 15:22:00 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 16, 2004 at 12:10:49AM +0300, Denis Vlasenko wrote:
-> On Thursday 15 July 2004 23:49, Adrian Bunk wrote:
-> > On Thu, Jul 15, 2004 at 11:26:40PM +0300, Denis Vlasenko wrote:
-> > > On Thursday 15 July 2004 22:46, Adrian Bunk wrote:
-> > > > On Thu, Jul 15, 2004 at 12:13:59PM +0300, Denis Vlasenko wrote:
-> > > > >...
-> > > > > As you go thru them, consider removing inline keyword for
-> > > > > such large functions.
-> > > > >...
-> > > >
-> > > > I did propose this as an alternative approach in the text that
-> > > > accopagnied the patch.
-> > > >
-> > > > My main reason for not directly proposing to remove the inlines was the
-> > > > fact that all inline functions were either very small or called only
-> > > > once.
-> > >
-> > > I think that large inlines with one callee is overoptimization
-> > > and should not be done.
-> >
-> > Unless I'm mistaken, it's simply equivalent to putting the code of the
-> > function at the place where the only call of the function currently is?
-> >
-> > Or is there an additional problem I miss?
-> 
-> Yes. New gcc do that automagically for statics.
-> It'll never 'autoinline' function with multiple callers.
->...
+I have an ethernet card with a DM9102AF chip.  It only works at 10 Mbps.
 
-But the way e1000_main.c is ordered, gcc can't inline such a function 
-(due to -fno-unit-at-a-time, even gcc 3.4 cannot).
+More precisely by using etheral on another box I see the frames it is
+sending but it seems unable to catch the replies.  If I configure it 
+to transmit at 10 Mbps then it works.
 
-> vda
+It happens both with 2.4 and 2.6 kernels.
 
-cu
-Adrian
+The computer with the Davicom card is linked to the network through 
+a switch.  The particualr cable and switch's port have worked 
+perfectly with other cards.  Same thing for the network config;
 
--- 
+Could be a thing about failing negotiation with the switch 
+(as I saids the switch has worked perfectly with other cards).
+Now the question is if negotiation is a hardware thing and there
+is nothing to be done or a driver thing and then it should be
+fixed
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I have tried to link the card directly to another computer through a
+crossed cable.    It worked but
+I haven't checked at what speed the cards agreed to work.
+
+I have tried the card in several computers: K6 with VIA chipset, PIII
+with VIA chipset, P4 with Intel chipset.  Same results everywhere: card
+doesn't work at 100 Mbps only at 10 Mbps
+
+
 

@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268330AbUI2MP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268329AbUI2MQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268330AbUI2MP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 08:15:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUI2MP0
+	id S268329AbUI2MQI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 08:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268333AbUI2MQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 08:15:26 -0400
-Received: from cantor.suse.de ([195.135.220.2]:28550 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268330AbUI2MPD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 08:15:03 -0400
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Roland McGrath <roland@redhat.com>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: notify_parent (was: Re: Linux 2.6.9-rc2)
-References: <200409142019.i8EKJ8HG002560@magilla.sf.frob.com>
-	<Pine.LNX.4.61.0409192213250.14392@anakin>
-	<jey8j528n2.fsf@sykes.suse.de>
-	<Pine.GSO.4.61.0409291403560.18029@waterleaf.sonytel.be>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: GOOD-NIGHT, everybody..  Now I have to go administer FIRST-AID
- to my pet LEISURE SUIT!!
-Date: Wed, 29 Sep 2004 14:14:07 +0200
-In-Reply-To: <Pine.GSO.4.61.0409291403560.18029@waterleaf.sonytel.be> (Geert
- Uytterhoeven's message of "Wed, 29 Sep 2004 14:04:27 +0200 (MEST)")
-Message-ID: <jebrfpff1s.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Wed, 29 Sep 2004 08:16:08 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:26805 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S268329AbUI2MQA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 08:16:00 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] gdth update
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Date: Wed, 29 Sep 2004 14:15:57 +0200
+Message-ID: <B51CDBDEB98C094BB6E1985861F53AF302DE00@nkse2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] gdth update
+Thread-Index: AcSmGXF41ip0/oAfQQ2KeCQlX8LxaAAAnj7Q
+From: "Leubner, Achim" <Achim_Leubner@adaptec.com>
+To: <arjanv@redhat.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
-
->> > -			/* We're back.  Did the debugger cancel the sig?  */
->> > -			if (!(signr = current->exit_code)) {
->> > -			discard_frame:
->> > -			    /* Make sure that a faulted bus cycle isn't
->> > -			       restarted (only needed on the 680[23]0).  */
->> > -			    if (regs->format == 10 || regs->format == 11)
->> > -				regs->stkadj = frame_extra_sizes[regs->format];
->> 
->> This is important if you want continue after a SEGV.
+> On Tue, 2004-09-28 at 13:12, Linux Kernel Mailing List wrote:
+> >   * IO-mapping with virt_to_bus(), gdth_readb(), gdth_writeb(), ...
+> > - * register_reboot_notifier() to get a notify on shutdown used
+> > + * register_reboot_notifier() to get a notify on shutown used
+> 
+> why this change ?
 >
-> IC. But where should I do that?
+OK, my fault.
+ 
+> > +#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+> > +static irqreturn_t gdth_interrupt(int irq, void *dev_id, struct
+pt_regs *regs);
+> >  #else
+> > -static void gdth_interrupt(int irq,struct pt_regs *regs);
+> > +static void gdth_interrupt(int irq, void *dev_id, struct pt_regs
+*regs);
+> >  #endif
+> 
+> this really is the wrong way to do such irq prototype compatibility in
+> drivers. *really*
+> 
+So please tell me what the right way should be. It works without any
+problem.
 
-Looks like we need a hook in the generic code.
+> > +static struct file_operations gdth_fops = {
+> > +#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+> > +    .ioctl   = gdth_ioctl,
+> > +    .open    = gdth_open,
+> > +    .release = gdth_close,
+> > +#else
+> > +    ioctl:gdth_ioctl,
+> > +    open:gdth_open,
+> > +    release:gdth_close,
+> > +#endif
+> 
+> C99 initializers work in all kernel versions since it's a property of
+> the C compiler not of the kernel. I wonder why you are putting this
+> ifdef here....
+>
+Agree. If the initializers works also fine with compiler versions in
+older distributions with the 2.4.x and 2.2.x kernels, the ifdef is
+really useless. 
+ 
+> the rest of your ifdefs are generally quite fishy too
+unfortionately...
+>
+Could you please explain it exactly? I really want to learn what the
+problems are to correct it in the next version.
 
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

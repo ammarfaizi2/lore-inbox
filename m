@@ -1,39 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130231AbQLHAsf>; Thu, 7 Dec 2000 19:48:35 -0500
+	id <S130456AbQLHAvf>; Thu, 7 Dec 2000 19:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130456AbQLHAsP>; Thu, 7 Dec 2000 19:48:15 -0500
-Received: from k2.llnl.gov ([134.9.1.1]:34982 "EHLO k2.llnl.gov")
-	by vger.kernel.org with ESMTP id <S130205AbQLHAsB>;
-	Thu, 7 Dec 2000 19:48:01 -0500
-From: Reto Baettig <baettig@k2.llnl.gov>
-Message-Id: <200012080017.QAA00379@k2.llnl.gov>
-Subject: io_request_lock question (2.2)
-To: linux-kernel@vger.kernel.org
-Date: Thu, 7 Dec 2000 16:17:30 -0800 (PST)
-Reply-To: Reto Baettig <baettig@scs.ch>
-X-Mailer: ELM [version 2.5 PL2]
+	id <S130886AbQLHAv0>; Thu, 7 Dec 2000 19:51:26 -0500
+Received: from mailgate.ics.forth.gr ([139.91.1.2]:29687 "EHLO
+	ext1.ics.forth.gr") by vger.kernel.org with ESMTP
+	id <S130456AbQLHAvM>; Thu, 7 Dec 2000 19:51:12 -0500
+Posted-Date: Fri, 8 Dec 2000 02:18:27 +0200 (EET)
+Organization: 
+Date: Fri, 8 Dec 2000 02:18:26 +0200 (EET)
+From: Kotsovinos Vangelis <kotsovin@ics.forth.gr>
+To: Karim Yaghmour <karym@opersys.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Microsecond accuracy
+In-Reply-To: <3A2FFEEC.3836165B@opersys.com>
+Message-ID: <Pine.GSO.4.10.10012080218070.9184-100000@sappho.ics.forth.gr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-I'm trying to write a block device driver which does some network stuff to satisfy the requests. The problem is, that the network stuff wants to grab the io_request_lock which does not work because this lock is already locked when I come into the request_fn of my device.
+Ok, I'll check it out...
 
-I looked at the implementation of the nbd which just calls 
+Thank you very much,
 
-	spin_unlock_irq(&io_request_lock);
-	... do network io ...
-	spin_lock_irq(&io_request_lock);
+--) Vangelis
 
-This seems to work but it looks very dangerous to me (and ugly, too). Isn't there a better way to do this?
 
-Thanks very much
+On Thu, 7 Dec 2000, Karim Yaghmour wrote:
 
-Reto 
+> 
+> You might want to try the Linux Trace Toolkit. It'll give you microsecond
+> accuracy on program execution time measurement.
+> 
+> Check it out:
+> http://www.opersys.com/LTT
+> 
+> Karim
+> 
+> Kotsovinos Vangelis wrote:
+> > 
+> > Is there any way to measure (with microsecond accuracy) the time of a
+> > program execution (without using Machine Specific Registers) ?
+> > I've already tried getrusage(), times() and clock() but they all have
+> > 10 millisecond accuracy, even though they claim to have microsecond
+> > acuracy.
+> > The only thing that seems to work is to use one of the tools that measure
+> > performanc through accessing the machine specific registers. They give you
+> > the ability to measure the clock cycles used, but their accuracy is also
+> > very low from what I have seen up to now.
+> > 
+> > Thank you very much in advance
+> > 
+> > --) Vangelis
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
+> 
+> -- 
+> ===================================================
+>                  Karim Yaghmour
+>                karym@opersys.com
+>           Operating System Consultant
+>  (Linux kernel, real-time and distributed systems)
+> ===================================================
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUDSX7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbUDTAEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbUDSX7p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 19:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbUDSX7p
+	id S261351AbUDTAEe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 20:04:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUDTAEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 19:59:45 -0400
-Received: from FW-30-241.go.retevision.es ([62.174.241.30]:49585 "EHLO
-	mayhem.ghetto") by vger.kernel.org with ESMTP id S261296AbUDSX7n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 19:59:43 -0400
-Date: Tue, 20 Apr 2004 01:59:41 +0200
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: CFQ iosched praise: good perfomance and better latency
-Message-ID: <20040419235941.GA1112@larroy.com>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040419005651.GA7860@larroy.com> <40835F4E.5000308@yahoo.com.au> <20040418225752.56d10695.akpm@osdl.org> <40836DE8.5080303@yahoo.com.au> <20040419113243.GA18042@larroy.com> <4083BDBB.2050904@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4083BDBB.2050904@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: piotr@larroy.com (Pedro Larroy)
+	Mon, 19 Apr 2004 20:04:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3558 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261351AbUDTAEc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 20:04:32 -0400
+Date: Mon, 19 Apr 2004 17:04:31 -0700 (PDT)
+From: Judith Lebzelter <judith@osdl.org>
+To: <linux-kernel@vger.kernel.org>
+cc: <plm-devel@lists.sourceforge.net>
+Subject: OSDL-PLM kernel Cross Compiles-sparc, sparc64, alpha
+Message-ID: <Pine.LNX.4.33.0404191458070.15648-100000@osdlab.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 09:53:31PM +1000, Nick Piggin wrote:
-> Pedro Larroy wrote:
-> >On Mon, Apr 19, 2004 at 04:12:56PM +1000, Nick Piggin wrote:
-> 
-> >>Well I think Pedro actually means *seconds*, not ms. The URL
-> >>shows AS peaks at nearly 10 seconds latency, and CFQ over 2s.
-> >
-> >
-> >Yes, I meant seconds, my mistake. I will be testing elevator=noop this
-> >evening.
-> >
-> 
-> That would be interesting.
-> 
-> >
-> >>It really seems like a raid problem though, because latency
-> >>measured at the individual devices is under 250ms for AS.
-> >
-> >
-> >Probably. But I was surprised to find that bonnie gave similar results
-> >with CFQ and with AS when benchmarking the swraid5.
-> 
-> I haven't used bonnie, but I think it is single threaded, isn't
-> it? If that is the case, then the IO scheduler will make little
-> or no difference, so your result is not surprising.
+Hello,
 
-Seems your suspicions were correct, the delay patterns are pretty
-similar with all the schedulers, and the big delays aren't caused by the
-ioscheduler aparently. I've updated the graphs. In 2.6.5-mm3
-at least, all the ioschedulers give alike latencies. I wonder now how did I
-get previous measures around 6000ms. I think I blamed a previous
-misbehaving kernel version on the ioscheduler. My apologies.
+Some interest has been expressed in seeing more extensive
+cross compiler tool chains in OSDL's automated testing environment,
+so building can be checked for some of the platforms that aren't
+commonly tested on (i.e., non-x86 platforms.)
 
-Is there any interest to hack in md code? IIRC the plans are to use dm
-in the near future.
+We've added three new tool chains to the Patch Lifecycle Manager for
+cross compiling on Alpha, Sparc, and Sparc64, adding to the existing
+cross compilers for PPC, and ia64.  These are used in PLM to
+indicate build success/fail on these platforms for individual patches
+through error and warning counts on defconfig.  For example,
+see results (2.6.6-rc1-mm1 and linux-2.6.6-rc1-bk4 respectively) at:
+    http://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=2895
+    http://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=2896
 
-Regards.
--- 
-Pedro Larroy Tovar | Linux & Network consultant |  piotr%member.fsf.org 
+or any of the kernels added since last friday.
 
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     
+
+The cross compilers were built on ia32 using Dan Kegel's 'crosstool-0.27'.
+You can download them to produce specific error messages and play with
+the results at this address:
+
+    http://developer.osdl.org/dev/plm/cross_compile/
+
+They are currently compressed tar files.  Please let me know if you run
+into any issues or have questions.
+
+
+Judith Lebzelter
+
+Test & Performance
+OSDL
+
+
+
+

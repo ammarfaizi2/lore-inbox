@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135917AbRAMAhk>; Fri, 12 Jan 2001 19:37:40 -0500
+	id <S135963AbRAMAma>; Fri, 12 Jan 2001 19:42:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135964AbRAMAhU>; Fri, 12 Jan 2001 19:37:20 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:10768 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135917AbRAMAhS>; Fri, 12 Jan 2001 19:37:18 -0500
-Date: Fri, 12 Jan 2001 16:36:33 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-        Frank de Lange <frank@unternet.org>, dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, mingo@elte.hu
+	id <S135964AbRAMAmV>; Fri, 12 Jan 2001 19:42:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5126 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135963AbRAMAmI>; Fri, 12 Jan 2001 19:42:08 -0500
 Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-In-Reply-To: <E14HDjY-0005Ei-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10101121635590.8097-100000@penguin.transmeta.com>
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 13 Jan 2001 00:43:25 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10101121631250.8097-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 12, 2001 04:35:46 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14HEn2-0005M6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 	interrupt_handler()
+> 	{
+> 		status = readl(dev->status);
+> 		if (status & MY_IRQ_DISABLE)
+> 			return;
 
+Unfortunately on the 8390 the IRQ statud register is on page 0. The code
+on the other CPU might not be on page 0. That means we can't even safely
+check if there is an irq pending or clear it down (bad news on ne2k-pci)
+without getting that lock.
 
-On Fri, 12 Jan 2001, Alan Cox wrote:
+That means we have to be able to just block that one irq source to avoid
+horrible SMP latency problems. 
 
-> > Could you disable both bandaids? I disabled them, no problems so far.
-> > Now back to the disable_irq_nosync().
-> 
-> Ok so it looks like the disable_irq code is buggy. Unfortunately its not
-> just used for these drivers they are just the heaviest users.
-
-It may well not be disable_irq() that is buggy. In fact, there's good
-reason to believe that it's a hardware problem.
-
-		Linus
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

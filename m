@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314032AbSDFG7p>; Sat, 6 Apr 2002 01:59:45 -0500
+	id <S313694AbSDFDm0>; Fri, 5 Apr 2002 22:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314033AbSDFG7f>; Sat, 6 Apr 2002 01:59:35 -0500
-Received: from bitmover.com ([192.132.92.2]:25554 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314032AbSDFG71>;
-	Sat, 6 Apr 2002 01:59:27 -0500
-Date: Fri, 5 Apr 2002 22:59:25 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.8-pre2
-Message-ID: <20020405225925.D6087@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com>
+	id <S313695AbSDFDmH>; Fri, 5 Apr 2002 22:42:07 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:59909 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S313694AbSDFDl4>;
+	Fri, 5 Apr 2002 22:41:56 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cleanup KERNEL_VERSION definition and linux/version.h 
+In-Reply-To: Your message of "Fri, 05 Apr 2002 09:55:27 PST."
+             <20020405175527.GK961@matchmail.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Date: Sat, 06 Apr 2002 13:41:46 +1000
+Message-ID: <14688.1018064506@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 05, 2002 at 05:01:31PM -0800, Linus Torvalds wrote:
-> 
-> More merging with various people, USB+ARM+more network drivers etc.
-> 
-> The actual patch is pretty huge, because the USB changes moves USB files
-> around a lot. The BK diffs (and actual "real changes") are smaller than 
-> the patch would imply (here Larry pipes up with number of deltas ;)
+On Fri, 5 Apr 2002 09:55:27 -0800, 
+Mike Fedyk <mfedyk@matchmail.com> wrote:
+>> >On Thu, Apr 04, 2002 at 11:36:06AM +1000, Keith Owens wrote:
+>> Breaking that chain _might_ cause problems in 2.4 because it does not
+>> have a complete dependency chain to pick up changes to the top level
+>> Makefile, it only works at the moment due to the extra recompiles.  I
+>> am not willing to change this in 2.4 until I have got it stable in 2.5.
+>
+>Hmm.  It looks like kbuild 2.5 might be able to be split up into a few
+>separate parts.  Do you think so too?
 
-Here ya go.  
+There are some bug fixes to existing makefiles and CML1 that can safely
+be fed back to 2.4, I will do them next week.  Apart from that, the
+design philosophies for kbuild 2.4 and 2.5 are completely different,
+there is little from kbuild 2.5 that can safely be extracted and back
+ported to kbuild 2.4.
 
-    takepatch: 991 new revisions, 0 conflicts in 578 files
-    206734 bytes uncompressed to 954854, 4.62X expansion
-    Running resolve to apply new work ...
-    Using lm.bitmover.com:0 as graphical display
-    Verifying consistency of the RESYNC tree...
-    resolve: found 103 renames in pass 1
-    resolve: resolved 103 renames in pass 2
-    resolve: applied 578 files in pass 4
+>Do you know where I could find some good documentation on Makefiles?
+>Especially on dependencies and etc?
 
-I love how much people move around files when the SCM system actually handles
-it properly.  I used to worry that people who were trained to not move files
-by CVS would never figure out that BK handles it; I was wrong and glad of it :)
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+info make.
+

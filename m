@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317056AbSFFSbJ>; Thu, 6 Jun 2002 14:31:09 -0400
+	id <S317101AbSFFSnT>; Thu, 6 Jun 2002 14:43:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317073AbSFFSac>; Thu, 6 Jun 2002 14:30:32 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:47520 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317059AbSFFS3S>;
-	Thu, 6 Jun 2002 14:29:18 -0400
-Date: Sun, 2 Jun 2002 04:49:08 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        linux-kernel@vger.kernel.org,
-        linux-hotplug-devel@lists.sourceforge.net,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: device model documentation 2/3
-Message-ID: <20020602044907.A121@toy.ucw.cz>
-In-Reply-To: <200206051253.g55Crs331876@fachschaft.cup.uni-muenchen.de> <Pine.LNX.4.33.0206051205150.654-100000@geena.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S317096AbSFFSmH>; Thu, 6 Jun 2002 14:42:07 -0400
+Received: from waste.org ([209.173.204.2]:26511 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S317092AbSFFSkZ>;
+	Thu, 6 Jun 2002 14:40:25 -0400
+Date: Thu, 6 Jun 2002 13:40:19 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Jens Axboe <axboe@suse.de>, Xavier Bestel <xavier.bestel@free.fr>,
+        Andreas Dilger <adilger@clusterfs.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] "laptop mode"
+In-Reply-To: <3CFDEE17.FD1306A0@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0206061338120.2614-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 5 Jun 2002, Andrew Morton wrote:
 
-> > > SUSPEND_DISABLE tells the device to stop I/O transactions. When it
-> > > stops transactions, or what it should do with unfinished transactions
-> > > is a policy of the driver. After this call, the driver should not
-> > > accept any other I/O requests.
-> > 
-> > Does this mean that memory allocations in the suspend/resume
-> > implementations must be made with GFP_NOIO respectively
-> > GFP_ATOMIC ?
-> > It would seem so.
-> 
-> Why would you allocate memory on a resume transition? 
-> 
-> As for suspending, this is something that has been discussed a few times 
-> before. No definitive decision has come out of it because it hasn't been 
-> implemented yet. It hasn't been implemented yet because the infrastructure 
-> isn't complete. It's real close, but still not quite there. 
+> Jens Axboe wrote:
+> >
+> > On Wed, Jun 05 2002, Xavier Bestel wrote:
+> > > Le mer 05/06/2002 à 01:43, Andrew Morton a écrit :
+> > >
+> > > > Also, it has been suggested that the feature become more fully-fleshed,
+> > > > to support desktops with one disk spun down, etc.  It's not really
+> > > > rocket science to do that - the `struct backing_dev_info' gives
+> > > > a specific communication channel between the high-level VFS code and
+> > > > the request queue.  But that would require significantly more surgery
+> > > > against the writeback code, so I'm fishing for requirements here.  If
+> > > > the current (simple) patch is sufficient then, well, it is sufficient.
+> > >
+> > > Have per-disk laptop-mode, so that some user-mode proggy (e.g. hotplug)
+> > > could decide what to do.
+> >
+> > And get rid of disk_spun_up(), make it a queue flag instead and signal
+> > the spin up before calling the request_fn instead of shoving it inside
+> > the driver request_fn's.
+>
+> Then writes to the ramdisk would cause a spinup.
+>
+> Yes, it could be per-queue.  That would add complexity to
+> the already-murky fs/fs-writeback.c.  It that justifiable?
 
-swsusp works for me (tm). SO structure should be there ;-)
-
-> Nonetheless, you have to do one of a couple things: use GFP_NOIO or
-> special case the swap device(s) so they don't stop I/O when everything
-> else does. (Of course, you have to eventually stop it)
-
-Special casing swap is not enough -- you can well have memory full of data
-for regular filesystem.
-
-								Pavel
+Yes, see Zip and USB/Firewire drives. Laptops can have multiple spindles.
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

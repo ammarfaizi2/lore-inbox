@@ -1,96 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264438AbTDXVME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 17:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTDXVMD
+	id S264397AbTDXVNW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTDXVNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 17:12:03 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:22203 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264438AbTDXVMA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:12:00 -0400
-Date: Thu, 24 Apr 2003 14:13:25 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.68-mm2
-Message-ID: <1661460000.1051218805@flay>
-In-Reply-To: <20030423233954.D9036@redhat.com>
-References: <20030423012046.0535e4fd.akpm@digeo.com><18400000.1051109459@[10.10.2.4]> <20030423144648.5ce68d11.akpm@digeo.com> <1565150000.1051134452@flay> <20030423233954.D9036@redhat.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Apr 2003 17:13:21 -0400
+Received: from [12.47.58.68] ([12.47.58.68]:41315 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S264397AbTDXVNR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 17:13:17 -0400
+Date: Thu, 24 Apr 2003 14:23:06 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: jt@hpl.hp.com
+Cc: jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       davem@redhat.com, kuznet@ms2.inr.ac.ru
+Subject: Re: [BUG 2.5.X] pipe/fcntl/F_GETFL/F_SETFL obvious kernel bug
+Message-Id: <20030424142306.4510d10f.akpm@digeo.com>
+In-Reply-To: <20030424183313.GA17374@bougret.hpl.hp.com>
+References: <20030424183313.GA17374@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 24 Apr 2003 21:25:19.0037 (UTC) FILETIME=[01602ED0:01C30AA8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The performance improvement was about 25% of systime according to my 
->> measurements - I don't call that insignificant.
+Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
+>
+> 	Hi,
 > 
-> Never, ever use changes in system time as a justification for a patch.  We 
-> all know that Linux's user/system time accounting is patently unreliable.  
+> 	I reported this obvious kernel 2.5.X bug 6 months ago, and as
+> of 2.5.67 it is still not fixed. Do you know who I should send this
+> bug report to ?
 
-Mmmm. I'm not particularly convinced by that ... I do 5 runs for every 
-benchmark and compare the results, and it seems very consistent to me. 
-For kernbench, it's interesting to look at system time - but obviously
-keeping an eye on elapsed time as well, particularly for things like
-scheduler patches.
+fcntl(fd, F_GETFL, intp) does not put the return value into *intp.  The
+flags are in fcntl()'s return value.  Same with 2.4.
 
-> Remember Nyquist?  Talk to me about differences in wall clock and your 
-> comments will be more interesting.
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdio.h>
 
-OK, well then you need to look at something that's not totally dominated
-by gcc anyway. I know everyone hates SDET as it's "closed" but I'll try
-to rerun with aim7 at some point. A real 20% improvement in throughput
-is not to be sniffed at ...
+int main()
+{
+	int trigger_pipe[2];
+	int err;
+	int flags;
+	int newflags;
 
-DISCLAIMER: SPEC(tm) and the benchmark name SDET(tm) are registered
-trademarks of the Standard Performance Evaluation Corporation. This 
-benchmarking was performed for research purposes only, and the run results
-are non-compliant and not-comparable with any published results.
+	pipe(trigger_pipe);
 
-Results are shown as percentages of the first set displayed
+	/* Get flags */
+	flags = fcntl(trigger_pipe[0], F_GETFL, NULL);
+	fprintf(stderr, "Set flags: 0x%x\n", flags);
 
-SDET 1  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.7%
-           2.5.68-objrmap       105.7%         0.4%
+	/* Set flags */
+	flags |= O_NONBLOCK;
+	err = fcntl(trigger_pipe[0], F_SETFL, flags);
+	fprintf(stderr, "Set flags: %d\n", err);
 
-SDET 2  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         2.8%
-           2.5.68-objrmap       108.2%         0.7%
-
-SDET 4  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         1.0%
-           2.5.68-objrmap       112.0%         1.4%
-
-SDET 8  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.6%
-           2.5.68-objrmap       122.8%         1.3%
-
-SDET 16  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.1%
-           2.5.68-objrmap       117.3%         0.8%
-
-SDET 32  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.4%
-           2.5.68-objrmap       118.5%         0.4%
-
-SDET 64  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.2%
-           2.5.68-objrmap       121.2%         0.3%
-
-SDET 128  (see disclaimer)
-                           Throughput    Std. Dev
-                   2.5.68       100.0%         0.1%
-           2.5.68-objrmap       118.6%         0.2%
-
+	/* Check flags */
+	flags = fcntl(trigger_pipe[0], F_GETFL, NULL);
+	fprintf(stderr, "Get flags: 0x%0x\n", flags);
+}
 

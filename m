@@ -1,105 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271610AbRHUIfB>; Tue, 21 Aug 2001 04:35:01 -0400
+	id <S271608AbRHUIkB>; Tue, 21 Aug 2001 04:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271609AbRHUIew>; Tue, 21 Aug 2001 04:34:52 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:16652 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S271608AbRHUIeo>; Tue, 21 Aug 2001 04:34:44 -0400
-Message-Id: <200108210834.f7L8Ysk09023@mail.swissonline.ch>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Christian Widmer <cwidmer@iiic.ethz.ch>
-Reply-To: cwidmer@iiic.ethz.ch
-To: Kristian <kristian@korseby.net>
-Subject: Re: massive filesystem corruption with 2.4.9
-Date: Tue, 21 Aug 2001 10:34:49 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <3B821509.8000006@korseby.net>
-In-Reply-To: <3B821509.8000006@korseby.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S271609AbRHUIjv>; Tue, 21 Aug 2001 04:39:51 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:9191 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271608AbRHUIji> convert rfc822-to-8bit;
+	Tue, 21 Aug 2001 04:39:38 -0400
+Date: Tue, 21 Aug 2001 09:39:49 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: David Wagner <daw@mozart.cs.berkeley.edu>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: /dev/random in 2.4.6
+Message-ID: <605512235.998386789@[169.254.45.213]>
+In-Reply-To: <9lrc6u$6pv$1@abraham.cs.berkeley.edu>
+In-Reply-To: <9lrc6u$6pv$1@abraham.cs.berkeley.edu>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i had similar problems with 2.4.6. unfortunately i didn't save the errors so
-i can't compare the msg's. i just can say that with 2.4.6 it destroyed the
-ext2 on a 40GB and 60GB maxtor disk. since then my nfs server is running 
-2.2.19 with works fine (with minor promblems*).
 
-* after a client mounted an exprots once. i cant unmount that partition on 
-the server after the client unmounted the exports.
+> Alex Bligh - linux-kernel  wrote:
+>> OK; well in which case it doesn't solve the problem.
+>
+> I don't see why not.  Apply this change, and use /dev/urandom.
+> You'll never block, and the outputs should be thoroughly unpredictable.
+> What's missing?
+
+See message to Oliver - para on waiting for sufficient entropy;
+/dev/urandom (before that arrives) is just as theoretically
+vulnerable as before.
+
+> (I don't see why so many people use /dev/random rather than /dev/urandom.
+> I harbor suspicions that this is a misunderstanding about the properties
+> of pseudorandom number generation.)
+
+Things like (from the manpage):
+
+       When read, the /dev/random device will only return  random
+       bytes  within the estimated number of bits of noise in the
+       entropy pool.  /dev/random should  be  suitable  for  uses
+       that  need  very  high quality randomness such as one-time
+       pad or key generation.  When the entropy  pool  is  empty,
+       reads  to /dev/random will block until additional environ­
+       mental noise is gathered.
+
+       When read, /dev/urandom device will return as  many  bytes
+       as are requested.  As a result, if there is not sufficient
+       entropy in the entropy pool, the returned values are theo­
+       retically  vulnerable  to  a  cryptographic  attack on the
+       algorithms used by the driver.  Knowledge  of  how  to  do
+       this is not available in the current non-classified liter­
+       ature, but it  is  theoretically  possible  that  such  an
+       attack  may  exist.  If this is a concern in your applica­
+       tion, use /dev/random instead.
+
+So writers of ssh, ssl etc. all go use /dev/random, which is not
+'theoretically vulnerable to a cryptographic attack'. This means,
+in practice, that they are dysfunctional on some headless systems
+without Robert's patch. Robert's patch may make them slightly
+less 'perfect', but not as imperfect as using /dev/urandom instead.
+Using /dev/urandom has another problem: Do we expect all applications
+now to have a compile option 'Are you using this on a headless
+system in which case you might well want to use /dev/urandom
+instead of /dev/random?'. By putting a config option in the kernel,
+this can be set ONCE and only degrade behaviour to the minimal
+amount possible.
 
 
-
-On Tuesday 21 August 2001 10:00, Kristian wrote:
-> Hello.
->
-> Since linux-2.4.5 always the same errors occur sporadically after the cold
-> boot in the morning. (My computer is powered off during the night.) Every
-> second day I noticed my syslog sais something like the  following:
->
-> Aug 21 09:01:06 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_new_block: Allocating block in system zone - block = 3
-> Aug 21 09:01:06 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_free_blocks: Freeing blocks in system zones - Block = 4, count = 1
-> Aug 21 09:01:06 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_new_block: Allocating block in system zone - block = 37
-> Aug 21 09:01:06 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_new_block: Allocating block in system zone - block = 45
-> Aug 21 09:01:07 adlib kernel: mtrr: base(0x42000000) is not aligned on a
-> size(0x1800000) boundary
-> Aug 21 09:01:09 adlib last message repeated 2 times
-> Aug 21 09:01:26 adlib PAM_unix[1929]: (login) session opened for user root
-> by LOGIN(uid=0)
-> Aug 21 09:01:26 adlib  -- root[1929]: ROOT LOGIN ON tty1
-> Aug 21 09:01:30 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_free_blocks: Freeing blocks in system zones - Block = 41, count = 4
-> Aug 21 09:01:30 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_new_block: Allocating block in system zone - block = 4
-> Aug 21 09:01:30 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_new_block: Allocating block in system zone - block = 7
-> Aug 21 09:01:30 adlib kernel: EXT2-fs error (device ide0(3,5)):
-> ext2_free_blocks: Freeing blocks in system zones - Block = 8, count = 2
->
-> Today it destroyed my super block and all my root-directories were placed
-> in /lost+found. I rescued everything with e2fsck-1.14 from a very old
-> rescue-disk and then again with 1.23, renaming and replacing the
-> directories by hand. A lot of devices and some .h-files were not
-> recoverable.
->
-> These fatal errors are occuring since 2.4.5 (2.4.8 I've not tested.). When
-> I work with 2.4.4 everything is fine !
->
-> I already use the newest version of e2fsck (1.23) and util-linux (2.11f).
-> My RedHat (Rotkäppchen) 6.2 is rather old, but I don't like gcc 2.96 at
-> all.
->
-> I posted this report as the errors occured after a complete crash with
-> 2.4.6 also to the ext2-developers directly but they didn't answered.
->
-> Maybe you could help me here ?
->
-> Kristian
->
-> ·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
->
->                             :: http://www.korseby.net
->                             :: http://www.tomlab.de
->
-> kristian@korseby.net ....::
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-christian widmer
-zurlindenstrasse 294, 8003 zurich, switzerland
-email:  cwidmer@iiic.ethz.ch
-phone: ++41 (0)1 491 03 68
+--
+Alex Bligh

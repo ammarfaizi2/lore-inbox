@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278615AbRJSTVH>; Fri, 19 Oct 2001 15:21:07 -0400
+	id <S278617AbRJSTU5>; Fri, 19 Oct 2001 15:20:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278616AbRJSTU6>; Fri, 19 Oct 2001 15:20:58 -0400
-Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:18181 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S278615AbRJSTUt>;
-	Fri, 19 Oct 2001 15:20:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Alan Chandler <alan@chandlerfamily.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Unresolved symbol hotplug_path in usbcore.o as a module (2.4.12)
-Date: Fri, 19 Oct 2001 20:21:17 +0100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15ufCs-0007pL-00@roo.home>
+	id <S278616AbRJSTUr>; Fri, 19 Oct 2001 15:20:47 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15611
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278615AbRJSTUe>; Fri, 19 Oct 2001 15:20:34 -0400
+Date: Fri, 19 Oct 2001 12:21:01 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Tim Jansen <tim@tjansen.de>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New Driver Model for 2.5
+Message-ID: <20011019122101.G2467@mikef-linux.matchmail.com>
+Mail-Followup-To: Tim Jansen <tim@tjansen.de>,
+	Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110191108590.17647-100000@osdlab.pdx.osdl.net> <15uerh-0NbBEeC@fmrl04.sul.t-online.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15uerh-0NbBEeC@fmrl04.sul.t-online.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Oct 19, 2001 at 09:02:09PM +0200, Tim Jansen wrote:
+> On Friday 19 October 2001 20:26, Patrick Mochel wrote:
+> > There are equivalents in USB. But, neither of them are globally unique
+> > identifiers for the device. That doesn't necessarily mean that one
+> > couldn't be ascertained from the device; ethernet cards do have MAC
+> > addresses. But, I don't think that many will have a ID/serial number.
+> > [...]
+> > Which leads me to the question: what real benefit does this have? Why
+> > would you ever want to do a global search in kernel space for a particular
+> > device? 
+> 
+> For example for harddisks. You usually want them to be mounted in the same 
+> directory. 
 
-I am not subscribed to the list please cc me on any reply
+When is /etc/fstab going to support this?
 
-I have built the the 2.4.12 kernel with CONFIG_HOTPLUG set and the usb stuff 
-all compiled as modules.
+#Or if you have several printers of the same type connected your
+> computer you need a way of identifying them. 
 
-depmod -e  shows that usbcore.o has an unresolved symbol (which of course 
-fails when the module tries to load) of hot_plug path. 
+/dev/ttyS0 and /dev/lp0
 
-Looking through the code I can see that this gets defined in kmod.c - and 
-there is an entry in System.map (I don't know each line means but 
-hotplug_path is there).  I can also see the kmod.h (included by usb.c which 
-eventually gets built into usbcore) defines it as an external reference.
+>Or for ethernet adapters: 
+> because each is connected to a different network, so you need to assign 
+> different IP addresses to them.
+>
 
-What I have been unable to figure out is why depmod doesn't link usbcore.o to 
-it.
-- -- 
+I haven't seen anything assign ethX assign a certain order, except for
+ordered module loading, and then if there are multiple devices with the same
+driver, the order is chosen by bus scanning order, or module option.
 
-  Alan - alan@chandlerfamily.org.uk
-http://www.chandlerfamily.org.uk
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> Actually most USB harddisks, printers and network adapters have unique serial 
+> number (you have to be careful though as some claim to have a serial number, 
+> but it is not unique).
+>
 
-iD8DBQE70H0x1mf3M5ZDr2kRAkXtAKC2t3yxEGhFya9baq3JHo54K+sLVgCgrToe
-/PRFjU0H6h04DS4cCxfSA00=
-=AiTR
------END PGP SIGNATURE-----
+How different do you expect this new driver model to be?
+
+Does anyone know if devfs will, or has any plans to support any of the above
+features?

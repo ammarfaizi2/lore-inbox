@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262520AbREUWgS>; Mon, 21 May 2001 18:36:18 -0400
+	id <S262523AbREUWpj>; Mon, 21 May 2001 18:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262521AbREUWgJ>; Mon, 21 May 2001 18:36:09 -0400
-Received: from [192.187.140.129] ([192.187.140.129]:51329 "EHLO paracel.com")
-	by vger.kernel.org with ESMTP id <S262520AbREUWgC>;
-	Mon, 21 May 2001 18:36:02 -0400
-From: "Christophe Beaumont" <christophe@paracel.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: HUGE contiguous mem space with 2.4
-Date: Mon, 21 May 2001 15:39:32 -0700
-Message-ID: <NFBBINOGHMOOBMPNBAHKMEFLCAAA.christophe@paracel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S262526AbREUWp3>; Mon, 21 May 2001 18:45:29 -0400
+Received: from ABordeaux-102-1-1-162.abo.wanadoo.fr ([193.253.253.162]:9476
+	"EHLO rayanne.dyndns.org") by vger.kernel.org with ESMTP
+	id <S262523AbREUWpU>; Mon, 21 May 2001 18:45:20 -0400
+Message-ID: <XFMail.20010522004456.petchema@concept-micro.com>
+X-Mailer: XFMail 1.4.4 on Linux
 X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECOPDAA.davids@webmaster.com>
+Date: Tue, 22 May 2001 00:44:56 +0200 (CEST)
+Reply-To: petchema@concept-micro.com
+Organization: Concept Micro
+From: Pierre Etchemaite <petchema@concept-micro.com>
+To: David Schwartz <davids@webmaster.com>
+Subject: RE: tmpfs + sendfile bug ?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
 
-I am facing an odd problem here. I have an application here
-that requires a HUGE physically contiguous memory area to 
-be locked (yes, I have hardware DMA'ing in and out of that
-area, over the PCI bus). HUGE being like one Gig (could be
-more if needed...)
-I am trying to use the mem=1024M option at boot time (yes,
-the box has 2 Gigs of RAM) and then ioremap() from within 
-my module. There I have a couple of issues:
- - if I use high_memory as is, I cannot remap any area 
-(high_memory=f800:0000 ???)
- - if I use high_memory thru virt_to_phys, I can then remap...
-up to 64 Megs (maybe a little more, but for sure less than
-128 Megs) (virt_to_phys(high_mem)=3800:0000)
+On 21-May-2001 David Schwartz wrote:
+> 
+>> Any idea ?
+> 
+>       Looks like a bug in the program. If 'sendfile' returns 'EINVAL', that
+means
+> you can't use 'sendfile' to send this particular file, and should default to
+> read/write or mmap/write. If this program doesn't, it doesn't understand
+> Linux's 'sendfile' semantics.
 
-I tried with other values (like mem=250M 512M 1536M) and could
-NOT remap anything close to the whole amount of "reserved" memory
-(best case being with mem=256M I can remap 512M out of 1.75Gigs)
+Agreed, I came up to the same conclusion. Applications shouldn't assume that
+sendfile will always work, and be ready to fall back to the traditional DIY
+way of sending data.
 
-I guess I am missing a point somewhere.... or have totally 
-been "ignoring" some doc somewhere (alessandro could be the man
-for this one thing *-) )
+I just downloaded more recent sources of proftpd (1.2.2rc2), and it looks
+fixed, already... Time to upgrade :)
 
-[system is a dual P3 with 2 gigs of RAM, a 2.4.3 kernel with SMP
-turned on... and the nice option for 4Gigs of RAM... would the
-64Gig option help me??? just wondering there...]
+Regards,
+Pierre.
 
-Any pointer, advise, help, hint... laugh at the stupid thing I 
-have forgotten is more than welcome..
 
-tia
 
-Chris.
+

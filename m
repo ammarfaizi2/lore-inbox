@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVAJWux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVAJWvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbVAJWux (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 17:50:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVAJWrm
+	id S262573AbVAJWvH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 17:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbVAJWu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 17:47:42 -0500
-Received: from gw.unix-scripts.info ([62.212.121.13]:48596 "EHLO
-	gw.unix-scripts.info") by vger.kernel.org with ESMTP
-	id S262555AbVAJWmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 17:42:09 -0500
-Message-ID: <41E304BA.7030404@apartia.fr>
-Date: Mon, 10 Jan 2005 23:42:02 +0100
-From: Laurent CARON <lcaron@apartia.fr>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to burn DVDs
-References: <41E2F823.1070608@apartia.fr> <20050110222926.GA17865@csclub.uwaterloo.ca>
-In-Reply-To: <20050110222926.GA17865@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 10 Jan 2005 17:50:56 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:46276 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S262571AbVAJWtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 17:49:46 -0500
+Subject: Re: [2.6 patch] remove SPF-using wbsd lists from MAINTAINERS
+From: David Woodhouse <dwmw2@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050110190809.A10365@flint.arm.linux.org.uk>
+References: <20050110184307.GB2903@stusta.de>
+	 <20050110190809.A10365@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 10 Jan 2005 22:49:36 +0000
+Message-Id: <1105397376.15749.53.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
+On Mon, 2005-01-10 at 19:08 +0000, Russell King wrote:
+> > IMHO lists rejecting emails based on some non-standard extension 
+> > don't belong into MAINTAINERS.
+> 
+> I assume as you removed Pierre Ossman's email address as well that
+> you apply the same argument to peoples email addresses?
 
->On Mon, Jan 10, 2005 at 10:48:19PM +0100, Laurent CARON wrote:
->  
->
->>I recently upgraded to 2.6.10 and tried (today) to burn a dvd with 
->>growisofs.
->>
->>It seems there is a problem
->>
->>Here is the output
->>
->>
->># growisofs -Z /dev/scd0 -R -J ~/foobar
->>
->>WARNING: /dev/scd0 already carries isofs!
->>About to execute 'mkisofs -R -J /root/sendmail.mc | builtin_dd 
->>of=/dev/scd0 obs=32k seek=0'
->>INFO:ingISO-8859-15 character encoding detected by locale settings.
->>       Assuming ISO-8859-15 encoded filenames on source filesystem,
->>       use -input-charset to override.
->>Total translation table size: 0
->>Total rockridge attributes bytes: 252
->>Total directory bytes: 0
->>Path table size(bytes): 10
->>/dev/scd0: "Current Write Speed" is 4.1x1385KBps.
->>:-[ WRITE@LBA=0h failed with SK=4h/ASC=08h/ACQ=03h]: Input/output error
->>:-( write failed: Input/output error
->>
->>
->>Needless to say it works fine with 2.6.9
->>
->>Am I missing something?
->>    
->>
->
->Is it actually a scsi device?
->
->I haven't tried myself with 2.6.10 yet, but with 2.6.9 and older I have
->just used /dev/hda to access my dvd writer.  Seemed much better than
->ide-scsi at least.  Of course if it is usb or firewire I guess the scsi
->interface is required.
->
->Len Sorensen
->  
->
-It is an internal IDE drive (laptop)
+That would seem an appropriate thing to do. SPF is not compatible with
+SMTP email as we know it today; it would requires the whole world to
+upgrade to make its flawed assumptions come true. We should not list
+email addresses in MAINTAINERS which are afflicted by it.
 
-Same when using /dev/hdc or /dev/scd0
-
-Laurent
+For what it's worth, I recently changed all instances of one of my
+personal email addresses in the kernel, for precisely the same reason --
+it's SPF-afflicted, and hence has no business being present in a form
+which cause people to expect that it's a normal, compatible email
+address.
 
 -- 
-  Why don't you pair `em up in threes? -Yogi Berra
+dwmw2
+
 

@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbSI3TDX>; Mon, 30 Sep 2002 15:03:23 -0400
+	id <S261282AbSI3S4r>; Mon, 30 Sep 2002 14:56:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261305AbSI3TDX>; Mon, 30 Sep 2002 15:03:23 -0400
-Received: from mxall.mxgrp.airmail.net ([209.196.77.98]:31762 "EHLO
-	mx1.airmail.net") by vger.kernel.org with ESMTP id <S261300AbSI3TDU>;
-	Mon, 30 Sep 2002 15:03:20 -0400
-Date: Mon, 30 Sep 2002 14:08:39 -0500
-From: Art Haas <ahaas@neosoft.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] vmalloc.c fix for 2.4.20-pre8-ac2
-Message-ID: <20020930190839.GA1584@debian>
+	id <S261283AbSI3S4r>; Mon, 30 Sep 2002 14:56:47 -0400
+Received: from server0027.freedom2surf.net ([194.106.33.36]:45226 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S261282AbSI3S4q>; Mon, 30 Sep 2002 14:56:46 -0400
+Date: Mon, 30 Sep 2002 20:15:20 +0100
+From: Ian Molton <spyro@f2s.com>
+To: Ian Molton <spyro@f2s.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UFS filesystem
+Message-Id: <20020930201520.5ab47124.spyro@f2s.com>
+In-Reply-To: <20020929231904.161b5a00.spyro@f2s.com>
+References: <20020929231904.161b5a00.spyro@f2s.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.8.3cvs4 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, 29 Sep 2002 23:19:04 +0100
+Ian Molton <spyro@f2s.com> wrote:
 
-I noticed this when building 2.4.20-pre8-ac2 ...
+> Hi.
+> 
+> I'd like to use linux to create a UFS filesystem, but cant find the
+> utilities to go along with the kernel module.
+> 
+> Documentation/filesystems/ufs.txt doesnt have any clues.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-pre8-ac2/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i586
--nostdinc -iwithprefix include -DKBUILD_BASENAME=vmalloc  -c -o
-vmalloc.o vmalloc.c
-vmalloc.c: In function `get_vm_area':
-vmalloc.c:182: warning: passing arg 1 of `kfree' makes pointer from
-integer without a cast
-vmalloc.c:173: warning: `addr' might be used uninitialized in this
-function
-
-I peek at vmalloc.c shows what looks to be a typo. The variable
-'area' is allocated by kmalloc(), and 'addr' is a local variable
-that hasn't been set. Trying to kfree() it would probably be
-a bad thing.
-
-Art Haas
-
---- linux-2.4.20-pre8-ac2/mm/vmalloc.c.ac2	2002-09-30 11:49:32.000000000 -0500
-+++ linux-2.4.20-pre8-ac2/mm/vmalloc.c	2002-09-30 13:59:30.000000000 -0500
-@@ -179,7 +179,7 @@
- 
- 	size += PAGE_SIZE;
- 	if (!size) {
--		kfree (addr);
-+		kfree (area);
- 		return NULL;
- 	}
- 
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+Anyone? I think I need 'newfs' but cant find it anywhere...

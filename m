@@ -1,198 +1,299 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265122AbUENL71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265268AbUENMBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265122AbUENL71 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 07:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265259AbUENL71
+	id S265268AbUENMBj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 08:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUENMB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 07:59:27 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:30339 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S265122AbUENL7U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 07:59:20 -0400
-Date: Fri, 14 May 2004 13:59:10 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: hch@infradead.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (6/6): network driver.
-Message-ID: <20040514115909.GA12049@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 14 May 2004 08:01:27 -0400
+Received: from smtpq1.home.nl ([213.51.128.196]:34703 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S265259AbUENMAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 08:00:38 -0400
+Message-ID: <40A4B482.3040706@keyaccess.nl>
+Date: Fri, 14 May 2004 13:58:58 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [RFT][PATCH] ide-disk.c: more write cache fixes
+References: <200405132116.44201.bzolnier@elka.pw.edu.pl> <40A404A5.8070500@keyaccess.nl> <200405140214.08136.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405140214.08136.bzolnier@elka.pw.edu.pl>
+Content-Type: multipart/mixed;
+ boundary="------------040407010404010700080801"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+This is a multi-part message in MIME format.
+--------------040407010404010700080801
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Btw, what about the s390/ipv6 releated patch suse is carrying around
-> but which apparently never escaped to a public list?
+Bartlomiej Zolnierkiewicz wrote:
 
-I assume that you are referring to the patch at the end of this mail.
-This has been sent to the netdev list sometime ago (well without the
-ndisc.c part about deleting route objects) but it didn't get picked
-up for mainline. I'll have to ask our network guys if they tried
-again to get it accepted. Last thing I heared was that someone
-(David Miller?) was worried about RFC compliance.
+> Please look at write_cache(), it will try to {en,dis}able write cache
+> and then set drive->wcache *only* if disk has ATA-6 cache flush bits.
 
-blue skies,
-  Martin.
----
+Yes, you're quite right.
 
-[PATCH] ipv6: eui64 callback, delete route objects on NETDEV_UNREGISTER.
+Have again attached a 'rollup' patch against vanilla 2.6.6, including 
+this, Andrew's SYSTEM_SHUTDOWN split and the quick "don't switch of 
+spindle if rebooting" hack. Again, just in case anyone finds it useful.
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+(by the way, the SYSTEM_SHUTDOWN split is already in -mm2)
 
-IPv6 changes:
- - Add generate_eui64 callback to struct net_device to create unique
-   ids for shared network cards.
- - Delete route objects related to netdevices on NETDEV_UNREGISTER events.
+Rene.
 
-diffstat:
- drivers/net/net_init.c    |    7 ++++++-
- include/linux/netdevice.h |    5 +++++
- include/net/addrconf.h    |    1 +
- net/8021q/vlan.c          |    4 ++++
- net/ipv6/addrconf.c       |   12 +++++++-----
- net/ipv6/ndisc.c          |    3 +++
- 6 files changed, 26 insertions(+), 6 deletions(-)
+--------------040407010404010700080801
+Content-Type: text/plain;
+ name="linux-2.6.6_rollup2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.6_rollup2.diff"
 
-diff -urN linux-2.6/drivers/net/net_init.c linux-2.6-s390/drivers/net/net_init.c
---- linux-2.6/drivers/net/net_init.c	Mon May 10 04:31:59 2004
-+++ linux-2.6-s390/drivers/net/net_init.c	Thu May 13 21:01:09 2004
-@@ -279,7 +279,8 @@
- 	dev->hard_header_cache	= eth_header_cache;
- 	dev->header_cache_update= eth_header_cache_update;
- 	dev->hard_header_parse	= eth_header_parse;
--
-+	dev->generate_eui64     = NULL;
-+	dev->dev_id             = 0;
- 	dev->type		= ARPHRD_ETHER;
- 	dev->hard_header_len 	= ETH_HLEN;
- 	dev->mtu		= 1500; /* eth_mtu */
-@@ -305,6 +306,8 @@
- 	dev->change_mtu			= fddi_change_mtu;
- 	dev->hard_header		= fddi_header;
- 	dev->rebuild_header		= fddi_rebuild_header;
-+	dev->generate_eui64             = NULL;
-+	dev->dev_id                     = 0;
- 
- 	dev->type				= ARPHRD_FDDI;
- 	dev->hard_header_len	= FDDI_K_SNAP_HLEN+3;	/* Assume 802.2 SNAP hdr len + 3 pad bytes */
-@@ -415,6 +418,8 @@
- 	
- 	dev->hard_header	= tr_header;
- 	dev->rebuild_header	= tr_rebuild_header;
-+	dev->generate_eui64     = NULL;
-+	dev->dev_id             = 0;
- 
- 	dev->type		= ARPHRD_IEEE802_TR;
- 	dev->hard_header_len	= TR_HLEN;
-diff -urN linux-2.6/include/linux/netdevice.h linux-2.6-s390/include/linux/netdevice.h
---- linux-2.6/include/linux/netdevice.h	Mon May 10 04:33:20 2004
-+++ linux-2.6-s390/include/linux/netdevice.h	Thu May 13 21:01:09 2004
-@@ -457,6 +457,7 @@
- 						     unsigned char *haddr);
- 	int			(*neigh_setup)(struct net_device *dev, struct neigh_parms *);
- 	int			(*accept_fastpath)(struct net_device *, struct dst_entry*);
-+	int                     (*generate_eui64)(u8 *eui, struct net_device *dev);
- #ifdef CONFIG_NETPOLL_RX
- 	int			netpoll_rx;
- #endif
-@@ -481,6 +482,10 @@
- 	/* class/net/name entry */
- 	struct class_device	class_dev;
- 	struct net_device_stats* (*last_stats)(struct net_device *);
-+
-+	/* use dev_id in conjunction with shared network cards*/
-+	unsigned short           dev_id;
-+
- 	/* how much padding had been added by alloc_netdev() */
- 	int padded;
- };
-diff -urN linux-2.6/include/net/addrconf.h linux-2.6-s390/include/net/addrconf.h
---- linux-2.6/include/net/addrconf.h	Mon May 10 04:33:12 2004
-+++ linux-2.6-s390/include/net/addrconf.h	Thu May 13 21:01:09 2004
-@@ -70,6 +70,7 @@
- 					       struct in6_addr *saddr,
- 					       int onlink);
- extern int			ipv6_get_lladdr(struct net_device *dev, struct in6_addr *);
-+extern int                      ipv6_generate_eui64(u8 *eui, struct net_device *dev);
- extern int			ipv6_rcv_saddr_equal(const struct sock *sk, 
- 						      const struct sock *sk2);
- extern void			addrconf_join_solict(struct net_device *dev,
-diff -urN linux-2.6/net/8021q/vlan.c linux-2.6-s390/net/8021q/vlan.c
---- linux-2.6/net/8021q/vlan.c	Mon May 10 04:33:13 2004
-+++ linux-2.6-s390/net/8021q/vlan.c	Thu May 13 21:01:09 2004
-@@ -471,6 +471,10 @@
- 	new_dev->flags = real_dev->flags;
- 	new_dev->flags &= ~IFF_UP;
- 
-+	/* ipv6 shared card related stuff */
-+	new_dev->dev_id = real_dev->dev_id;
-+	new_dev->generate_eui64 = real_dev->generate_eui64;
-+
- 	/* need 4 bytes for extra VLAN header info,
- 	 * hope the underlying device can handle it.
- 	 */
-diff -urN linux-2.6/net/ipv6/addrconf.c linux-2.6-s390/net/ipv6/addrconf.c
---- linux-2.6/net/ipv6/addrconf.c	Mon May 10 04:33:20 2004
-+++ linux-2.6-s390/net/ipv6/addrconf.c	Thu May 13 21:01:09 2004
-@@ -1057,7 +1057,7 @@
+diff -urN linux-2.6.6.orig/drivers/ide/ide-disk.c linux-2.6.6/drivers/ide/ide-disk.c
+--- linux-2.6.6.orig/drivers/ide/ide-disk.c	2004-05-10 09:31:44.000000000 +0200
++++ linux-2.6.6/drivers/ide/ide-disk.c	2004-05-14 00:33:44.000000000 +0200
+@@ -740,8 +740,6 @@
+ 		return __ide_do_rw_disk(drive, rq, block);
  }
  
- 
--static int ipv6_generate_eui64(u8 *eui, struct net_device *dev)
-+int ipv6_generate_eui64(u8 *eui, struct net_device *dev)
+-static int do_idedisk_flushcache(ide_drive_t *drive);
+-
+ static u8 idedisk_dump_status (ide_drive_t *drive, const char *msg, u8 stat)
  {
- 	switch (dev->type) {
- 	case ARPHRD_ETHER:
-@@ -1115,7 +1115,7 @@
- 
- 	dev = idev->dev;
- 
--	if (ipv6_generate_eui64(idev->work_eui64, dev)) {
-+	if (dev->generate_eui64(idev->work_eui64, dev)) {
- 		printk(KERN_INFO
- 			"__ipv6_regen_rndid(idev=%p): cannot get EUI64 identifier; use random bytes.\n",
- 			idev);
-@@ -1379,7 +1379,7 @@
- 
- 		if (pinfo->prefix_len == 64) {
- 			memcpy(&addr, &pinfo->prefix, 8);
--			if (ipv6_generate_eui64(addr.s6_addr + 8, dev) &&
-+			if (dev->generate_eui64(addr.s6_addr + 8, dev) &&
- 			    ipv6_inherit_eui64(addr.s6_addr + 8, in6_dev)) {
- 				in6_dev_put(in6_dev);
- 				return;
-@@ -1783,14 +1783,16 @@
- 		return;
- 	}
- 
-+	if (!dev->generate_eui64)
-+		dev->generate_eui64 = ipv6_generate_eui64;
-+
- 	idev = addrconf_add_dev(dev);
- 	if (idev == NULL)
- 		return;
- 
- 	memset(&addr, 0, sizeof(struct in6_addr));
- 	addr.s6_addr32[0] = htonl(0xFE800000);
--
--	if (ipv6_generate_eui64(addr.s6_addr + 8, dev) == 0)
-+	if (dev->generate_eui64(addr.s6_addr + 8, dev) == 0)
- 		addrconf_add_linklocal(idev, &addr);
+ 	ide_hwif_t *hwif = HWIF(drive);
+@@ -1359,11 +1357,18 @@
+ 	return 0;
  }
  
-diff -urN linux-2.6/net/ipv6/ndisc.c linux-2.6-s390/net/ipv6/ndisc.c
---- linux-2.6/net/ipv6/ndisc.c	Mon May 10 04:32:39 2004
-+++ linux-2.6-s390/net/ipv6/ndisc.c	Thu May 13 21:01:09 2004
-@@ -1411,6 +1411,9 @@
- 		neigh_ifdown(&nd_tbl, dev);
- 		fib6_run_gc(0);
- 		break;
-+	case NETDEV_UNREGISTER:
-+		fib6_run_gc(0);
-+		break;
- 	default:
- 		break;
++/* check if CACHE FLUSH (EXT) command is supported (bits defined in ATA-6) */
++#define ide_id_has_flush_cache(id)	((id)->cfs_enable_2 & 0x3000)
++
++/* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
++#define ide_id_has_flush_cache_ext(id)	\
++	(((id)->cfs_enable_2 & 0x2400) == 0x2400)
++
+ static int write_cache (ide_drive_t *drive, int arg)
+ {
+ 	ide_task_t args;
+ 
+-	if (!(drive->id->cfs_enable_2 & 0x3000))
++	if (!ide_id_has_flush_cache(drive->id))
+ 		return 1;
+ 
+ 	memset(&args, 0, sizeof(ide_task_t));
+@@ -1383,7 +1388,7 @@
+ 	ide_task_t args;
+ 
+ 	memset(&args, 0, sizeof(ide_task_t));
+-	if (drive->id->cfs_enable_2 & 0x2400)
++	if (ide_id_has_flush_cache_ext(drive->id))
+ 		args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_FLUSH_CACHE_EXT;
+ 	else
+ 		args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_FLUSH_CACHE;
+@@ -1513,11 +1518,11 @@
+ 	switch (rq->pm->pm_step) {
+ 	case idedisk_pm_flush_cache:	/* Suspend step 1 (flush cache) */
+ 		/* Not supported? Switch to next step now. */
+-		if (!drive->wcache) {
++		if (!drive->wcache || !ide_id_has_flush_cache(drive->id)) {
+ 			idedisk_complete_power_step(drive, rq, 0, 0);
+ 			return ide_stopped;
+ 		}
+-		if (drive->id->cfs_enable_2 & 0x2400)
++		if (ide_id_has_flush_cache_ext(drive->id))
+ 			args->tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE_EXT;
+ 		else
+ 			args->tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE;
+@@ -1678,8 +1683,12 @@
+ #endif	/* CONFIG_IDEDISK_MULTI_MODE */
  	}
+ 	drive->no_io_32bit = id->dword_io ? 1 : 0;
+-	if (drive->id->cfs_enable_2 & 0x3000)
+-		write_cache(drive, (id->cfs_enable_2 & 0x3000));
++
++	/* write cache enabled? */
++	if ((id->csfo & 1) || (id->cfs_enable_1 & (1 << 5)))
++		drive->wcache = 1;
++
++	write_cache(drive, 1);
+ 
+ #ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
+ 	if (drive->using_dma)
+@@ -1687,9 +1696,17 @@
+ #endif
+ }
+ 
++static void ide_cacheflush_p(ide_drive_t *drive)
++{
++	if (!drive->wcache || !ide_id_has_flush_cache(drive->id))
++		return;
++
++	if (do_idedisk_flushcache(drive))
++		printk(KERN_INFO "%s: wcache flush failed!\n", drive->name);
++}
++
+ static int idedisk_cleanup (ide_drive_t *drive)
+ {
+-	static int ide_cacheflush_p(ide_drive_t *drive);
+ 	struct gendisk *g = drive->disk;
+ 	ide_cacheflush_p(drive);
+ 	if (ide_unregister_subdriver(drive))
+@@ -1704,10 +1721,11 @@
+ 
+ static void ide_device_shutdown(struct device *dev)
+ {
+-	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
+-
+-	printk("Shutdown: %s\n", drive->name);
+-	dev->bus->suspend(dev, PM_SUSPEND_STANDBY);
++	if (system_state != SYSTEM_RESTART) {
++		ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
++		printk("Shutdown: %s\n", drive->name);
++		dev->bus->suspend(dev, PM_SUSPEND_STANDBY);
++	}
+ }
+ 
+ /*
+@@ -1740,7 +1758,6 @@
+ 
+ static int idedisk_open(struct inode *inode, struct file *filp)
+ {
+-	u8 cf;
+ 	ide_drive_t *drive = inode->i_bdev->bd_disk->private_data;
+ 	drive->usage++;
+ 	if (drive->removable && drive->usage == 1) {
+@@ -1758,35 +1775,6 @@
+ 		if (drive->doorlocking && ide_raw_taskfile(drive, &args, NULL))
+ 			drive->doorlocking = 0;
+ 	}
+-	drive->wcache = 0;
+-	/* Cache enabled? */
+-	if (drive->id->csfo & 1)
+-		drive->wcache = 1;
+-	/* Cache command set available? */
+-	if (drive->id->cfs_enable_1 & (1 << 5))
+-		drive->wcache = 1;
+-	/* ATA6 cache extended commands */
+-	cf = drive->id->command_set_2 >> 24;
+-	if ((cf & 0xC0) == 0x40 && (cf & 0x30) != 0)
+-		drive->wcache = 1;
+-	return 0;
+-}
+-
+-static int ide_cacheflush_p(ide_drive_t *drive)
+-{
+-	if (!(drive->id->cfs_enable_2 & 0x3000))
+-		return 0;
+-
+-	if(drive->wcache)
+-	{
+-		if (do_idedisk_flushcache(drive))
+-		{
+-			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+-				drive->name);
+-			return -EIO;
+-		}
+-		return 1;
+-	}
+ 	return 0;
+ }
+ 
+@@ -1867,10 +1855,7 @@
+ 	if ((!drive->head || drive->head > 16) && !drive->select.b.lba) {
+ 		printk(KERN_ERR "%s: INVALID GEOMETRY: %d PHYSICAL HEADS?\n",
+ 			drive->name, drive->head);
+-		if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
+-			if (do_idedisk_flushcache(drive))
+-				printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+-					drive->name);
++		ide_cacheflush_p(drive);
+ 		ide_unregister_subdriver(drive);
+ 		DRIVER(drive)->busy--;
+ 		goto failed;
+diff -urN linux-2.6.6.orig/include/linux/kernel.h linux-2.6.6/include/linux/kernel.h
+--- linux-2.6.6.orig/include/linux/kernel.h	2004-05-10 09:31:47.000000000 +0200
++++ linux-2.6.6/include/linux/kernel.h	2004-05-14 00:33:35.000000000 +0200
+@@ -109,14 +109,17 @@
+ extern void bust_spinlocks(int yes);
+ extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
+ extern int panic_on_oops;
+-extern int system_state;		/* See values below */
+ extern int tainted;
+ extern const char *print_tainted(void);
+ 
+ /* Values used for system_state */
+-#define SYSTEM_BOOTING 0
+-#define SYSTEM_RUNNING 1
+-#define SYSTEM_SHUTDOWN 2
++extern enum system_states {
++	SYSTEM_BOOTING,
++	SYSTEM_RUNNING,
++	SYSTEM_HALT,
++	SYSTEM_POWER_OFF,
++	SYSTEM_RESTART,
++} system_state;
+ 
+ #define TAINT_PROPRIETARY_MODULE	(1<<0)
+ #define TAINT_FORCED_MODULE		(1<<1)
+diff -urN linux-2.6.6.orig/init/main.c linux-2.6.6/init/main.c
+--- linux-2.6.6.orig/init/main.c	2004-05-10 09:31:47.000000000 +0200
++++ linux-2.6.6/init/main.c	2004-05-14 00:33:35.000000000 +0200
+@@ -95,7 +95,8 @@
+ extern void tc_init(void);
+ #endif
+ 
+-int system_state;	/* SYSTEM_BOOTING/RUNNING/SHUTDOWN */
++enum system_states system_state;
++EXPORT_SYMBOL(system_state);
+ 
+ /*
+  * Boot command-line arguments
+diff -urN linux-2.6.6.orig/kernel/sys.c linux-2.6.6/kernel/sys.c
+--- linux-2.6.6.orig/kernel/sys.c	2004-05-10 09:31:47.000000000 +0200
++++ linux-2.6.6/kernel/sys.c	2004-05-14 00:33:35.000000000 +0200
+@@ -447,7 +447,7 @@
+ 	switch (cmd) {
+ 	case LINUX_REBOOT_CMD_RESTART:
+ 		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
+-		system_state = SYSTEM_SHUTDOWN;
++		system_state = SYSTEM_RESTART;
+ 		device_shutdown();
+ 		printk(KERN_EMERG "Restarting system.\n");
+ 		machine_restart(NULL);
+@@ -463,7 +463,7 @@
+ 
+ 	case LINUX_REBOOT_CMD_HALT:
+ 		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
+-		system_state = SYSTEM_SHUTDOWN;
++		system_state = SYSTEM_HALT;
+ 		device_shutdown();
+ 		printk(KERN_EMERG "System halted.\n");
+ 		machine_halt();
+@@ -473,7 +473,7 @@
+ 
+ 	case LINUX_REBOOT_CMD_POWER_OFF:
+ 		notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
+-		system_state = SYSTEM_SHUTDOWN;
++		system_state = SYSTEM_POWER_OFF;
+ 		device_shutdown();
+ 		printk(KERN_EMERG "Power down.\n");
+ 		machine_power_off();
+@@ -489,7 +489,7 @@
+ 		buffer[sizeof(buffer) - 1] = '\0';
+ 
+ 		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, buffer);
+-		system_state = SYSTEM_SHUTDOWN;
++		system_state = SYSTEM_RESTART;
+ 		device_shutdown();
+ 		printk(KERN_EMERG "Restarting system with command '%s'.\n", buffer);
+ 		machine_restart(buffer);
+
+--------------040407010404010700080801--

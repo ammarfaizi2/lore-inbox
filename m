@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSIIPBZ>; Mon, 9 Sep 2002 11:01:25 -0400
+	id <S317354AbSIIPCG>; Mon, 9 Sep 2002 11:02:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317354AbSIIPBZ>; Mon, 9 Sep 2002 11:01:25 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:62990 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S317349AbSIIPBX>;
-	Mon, 9 Sep 2002 11:01:23 -0400
-Date: Mon, 9 Sep 2002 17:06:48 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Oktay Akbal <oktay.akbal@s-tec.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: md multipath with disk missing ?
-Message-ID: <20020909150648.GD29@marowsky-bree.de>
-References: <20020909132713.GA29@marowsky-bree.de> <Pine.LNX.4.44.0209091537020.12771-100000@omega.s-tec.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0209091537020.12771-100000@omega.s-tec.de>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S317355AbSIIPCF>; Mon, 9 Sep 2002 11:02:05 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:5138 "EHLO neon-gw.transmeta.com")
+	by vger.kernel.org with ESMTP id <S317354AbSIIPB6>;
+	Mon, 9 Sep 2002 11:01:58 -0400
+Date: Mon, 9 Sep 2002 08:06:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Zwane Mwaikambo <zwane@mwaikambo.name>, Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+In-Reply-To: <Pine.LNX.4.44.0209091204070.15029-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209090759010.1641-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-09T15:46:15,
-   Oktay Akbal <oktay.akbal@s-tec.de> said:
 
-> Example:
+On Mon, 9 Sep 2002, Ingo Molnar wrote:
 > 
-> We have sda - sdb (8 drives) and setup up a raidtab to tell linux that
-> sda and sde are the same sdc - sdd etc.
-> Now for some random error the server restarts and the former sda (path to
-> that drive) is no longer available. So now we have sda,sdb...sdg.
-> We do not use autodetect, but raidstart to activate the raid.
+> On Sun, 8 Sep 2002, Linus Torvalds wrote:
 > 
-> now since the former sda is missing the raidtab does not reflect the
-> actual setup. The raidtab would read, that sda and sdb are the same
-> drive, which is not true in that case.
+> > As far as I can tell, the only time when this might be an advantage is
+> > an SMP machine with multiple devices sharing an extremely busy irq line.
+> > Then the per-isr in-progress bit allows multiple CPU's to actively
+> > handle several of the devices at the same time.
+> > 
+> > Or is there some other case where this is helpful?
 > 
-> (The device-ordering would not be right for a real setup, but take it as
-> an example and assume sda-sde sdb-sdf...)
-> 
-> Would the superblock prevent the wrong use of devices ?
+> it could also improve latency of a faster interrupt source that shares its
+> irq line with a slow (but still frequent) handler. (such as SCSI or ne2k.)  
 
-I hope so. But yes, your setup would break spectularly because the devices
-moved and the raids wouldn't go online. This shouldn't happen with the
-autostart feature, I think.
+Well, it migth also _deprove_ that latency, as taking another interrupt is 
+a lot more expensive than just walking the list of ISR's on the existing 
+irq chain.
 
+Particularly on a P4, taking an interrupt is quite expensive.
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+Remember: you'd be "improving latency" by taking several interrupts 
+instead of taking just one. And usually, if the system is really under so 
+much interrupt load that this would be noticeable, you want to try to 
+_mitigate_ interrupts instead of adding new ones. 
 
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
+I think. I'd like to point out that I just have a gut feel for this, so
+I'm definitely not trying to say that I absolutely hate the idea and that
+it will never happen. But the thing worries me a bit, and I really would 
+prefer to have some quantifiable reasons for or against it.
+
+In other words, I kind of understand your concerns, but I've got concerns 
+of my own. But nobody will argue against numbers..
+
+		Linus
 

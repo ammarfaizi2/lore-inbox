@@ -1,80 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267401AbUIVVao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267986AbUIVVmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267401AbUIVVao (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 17:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUIVVan
+	id S267986AbUIVVmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 17:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267987AbUIVVmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 17:30:43 -0400
-Received: from gprs214-200.eurotel.cz ([160.218.214.200]:20361 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S267401AbUIVVal (ORCPT
+	Wed, 22 Sep 2004 17:42:21 -0400
+Received: from main.gmane.org ([80.91.229.2]:49597 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267986AbUIVVmT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 17:30:41 -0400
-Date: Wed, 22 Sep 2004 23:30:29 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: year 9223372034708485227 problem
-Message-ID: <20040922213028.GE14891@elf.ucw.cz>
+	Wed, 22 Sep 2004 17:42:19 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Stefan Seyfried <seife@suse.de>
+Subject: Re: 2.6.9-rc2-mm2
+Date: Wed, 22 Sep 2004 23:02:43 +0200
+Message-ID: <4151E873.9020308@suse.de>
+References: <20040922131210.6c08b94c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: charybdis-ext.suse.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+In-Reply-To: <20040922131210.6c08b94c.akpm@osdl.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-For testing (read() and write() is returning wrong value on 2.4
-kernels) I played a bit with really big numbers... And I found out we
-have year 9223372034708485227 problem ;-).
+Andrew Morton wrote:
 
-hobit:/tmp # cat 2gbtime.c
+> swsusp-fix-highmem.patch
+>   swsusp: fix highmem
 
-/**************************** 2gbwrite.c **************************/
-#define _SVID_SOURCE /* glibc2 needs this */
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <values.h>
-#include <malloc.h>
-#include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <time.h>
+this one should actually be
 
-int main(int argc, char **argv)
-{
-  long t = 0x7fffffff80123456;
-  stime(&t);
-  printf("It is now: %lx\n", time(NULL));
-}
-/*********************** end of 2gbwrite.c *************************/
-hobit:/tmp # ./2gbtime
-It is now: 7fffffff80123456
-hobit:/tmp # date
-Segmentation fault
-hobit:/tmp # top
-Segmentation fault
-hobit:/tmp # mc
-Segmentation fault
-hobit:/tmp # /sbin//shutdown -r now
-Segmentation fault
-hobit:/tmp # halt
-Segmentation fault
-hobit:/tmp #
+@@ -854,8 +854,10 @@ int swsusp_suspend(void)
+  	local_irq_disable();
+  	save_processor_state();
+  	error = swsusp_arch_suspend();
++	/* Restore control flow magically appears here */
+  	restore_processor_state();
++	restore_highmem();
+  	local_irq_enable();
+  	return error;
 
-I'm not sure if it is kernel problem... but it is sure pretty
-common. I wonder how much damage it will do to my filesystems: touch
-foo seems to store the right year into reiserfs. I wonder if it is
-still there after reboot? No, it is not. That looks like kernel bug :-).
+so that local_irq_enable() is _after_ restore_highmem(). It took Pavel 
+and me quite some time to debug the mysterious crashes on some highmem 
+machines...
 
-Anyway I believe we are going to have some fun in year 2038. Even if
-all systems are 64-bit by then, there will still be some 32-bit fields
-hidden somewhere.
+     Stefan
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

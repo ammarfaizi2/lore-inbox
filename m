@@ -1,80 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVBIVxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVBIV4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbVBIVxV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 16:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVBIVxV
+	id S261945AbVBIV4z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 16:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVBIV4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 16:53:21 -0500
-Received: from lug-owl.de ([195.71.106.12]:39865 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261938AbVBIVxI (ORCPT
+	Wed, 9 Feb 2005 16:56:55 -0500
+Received: from ozlabs.org ([203.10.76.45]:16297 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261945AbVBIV4Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 16:53:08 -0500
-Date: Wed, 9 Feb 2005 22:53:07 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Paulo Marques <pmarques@grupopie.com>, LKML <linux-kernel@vger.kernel.org>,
-       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
-Message-ID: <20050209215307.GN10594@lug-owl.de>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	Paulo Marques <pmarques@grupopie.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
-References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz> <20050209171438.GI10594@lug-owl.de> <20050209173026.GA17797@ucw.cz> <420A518A.9040500@grupopie.com> <20050209191817.GA1534@ucw.cz> <20050209200351.GK10594@lug-owl.de> <20050209201032.GA2159@ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vtBqmokgY1evbO3C"
-Content-Disposition: inline
-In-Reply-To: <20050209201032.GA2159@ucw.cz>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Feb 2005 16:56:25 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16906.34562.379000.336836@cargo.ozlabs.ibm.com>
+Date: Thu, 10 Feb 2005 08:56:18 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: anton@samba.org, ahuja@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 collect and export low-level cpu usage statistics
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+POWER5 machines have a per-hardware-thread register which counts at a
+rate which is proportional to the percentage of cycles on which the
+cpu dispatches an instruction for this thread (if the thread gets all
+the dispatch cycles it counts at the same rate as the timebase
+register).  This register is also context-switched by the hypervisor.
+Thus it gives a fine-grained measure of the actual cpu usage by the
+thread over time.
 
---vtBqmokgY1evbO3C
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch adds code to read this register every timer interrupt and
+on every context switch.  The total over all virtual processors is
+available through the existing /proc/ppc64/lparcfg file, giving a
+way to measure the total cpu usage over the whole partition.
 
-On Wed, 2005-02-09 21:10:32 +0100, Vojtech Pavlik <vojtech@suse.cz>
-wrote in message <20050209201032.GA2159@ucw.cz>:
-> On Wed, Feb 09, 2005 at 09:03:51PM +0100, Jan-Benedict Glaw wrote:
-> > The problematic part is that this needs to be done at a quite low level,
-> > since POS keyboards may send quite a lot more than make/break codes in
-> > "proper" order...
->=20
-> I'll need some specific examples of protocols the keyboard use to judge
-> how to tackle that.
+Andrew, this is relatively non-invasive, but nevertheless you may
+prefer to put it in -mm until 2.6.11 is out.
 
-I'll try to get some showkeys dumps for you tomorrow. This will be sent
-to you privately since it may contain real card data...
+Signed-off-by: Manish Ahuja <ahuja@austin.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---vtBqmokgY1evbO3C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCCoZDHb1edYOZ4bsRAvWNAKCRHlz8MnPzEyAq3NuQF6FOhRVudgCgj7sQ
-CF3R6UqiOwfWLNFZPxoJTeg=
-=Wk8J
------END PGP SIGNATURE-----
-
---vtBqmokgY1evbO3C--
+diff -urN linux-2.5/arch/ppc64/kernel/lparcfg.c test/arch/ppc64/kernel/lparcfg.c
+--- linux-2.5/arch/ppc64/kernel/lparcfg.c	2005-01-06 13:13:08.000000000 +1100
++++ test/arch/ppc64/kernel/lparcfg.c	2005-02-09 22:38:05.508190616 +1100
+@@ -33,8 +33,9 @@
+ #include <asm/cputable.h>
+ #include <asm/rtas.h>
+ #include <asm/system.h>
++#include <asm/time.h>
+ 
+-#define MODULE_VERS "1.5"
++#define MODULE_VERS "1.6"
+ #define MODULE_NAME "lparcfg"
+ 
+ /* #define LPARCFG_DEBUG */
+@@ -214,13 +215,20 @@
+ }
+ 
+ static unsigned long get_purr(void);
+-/* ToDo:  get sum of purr across all processors.  The purr collection code
+- * is coming, but at this time is still problematic, so for now this
+- * function will return 0.
+- */
++
++/* Track sum of all purrs across all processors. This is used to further */
++/* calculate usage values by different applications                       */
++
+ static unsigned long get_purr(void)
+ {
+ 	unsigned long sum_purr = 0;
++	int cpu;
++	struct cpu_usage *cu;
++
++	for_each_cpu(cpu) {
++		cu = &per_cpu(cpu_usage_array, cpu);
++		sum_purr += cu->current_tb;
++	}
+ 	return sum_purr;
+ }
+ 
+diff -urN linux-2.5/arch/ppc64/kernel/process.c test/arch/ppc64/kernel/process.c
+--- linux-2.5/arch/ppc64/kernel/process.c	2005-01-29 09:58:49.000000000 +1100
++++ test/arch/ppc64/kernel/process.c	2005-02-10 08:09:22.428216944 +1100
+@@ -51,6 +51,7 @@
+ #include <asm/cputable.h>
+ #include <asm/sections.h>
+ #include <asm/tlbflush.h>
++#include <asm/time.h>
+ 
+ #ifndef CONFIG_SMP
+ struct task_struct *last_task_used_math = NULL;
+@@ -168,6 +169,8 @@
+ 
+ #endif /* CONFIG_ALTIVEC */
+ 
++DEFINE_PER_CPU(struct cpu_usage, cpu_usage_array);
++
+ struct task_struct *__switch_to(struct task_struct *prev,
+ 				struct task_struct *new)
+ {
+@@ -206,6 +209,21 @@
+ 	new_thread = &new->thread;
+ 	old_thread = &current->thread;
+ 
++/* Collect purr utilization data per process and per processor wise */
++/* purr is nothing but processor time base                          */
++
++#if defined(CONFIG_PPC_PSERIES)
++	if (cur_cpu_spec->firmware_features & FW_FEATURE_SPLPAR) {
++		struct cpu_usage *cu = &__get_cpu_var(cpu_usage_array);
++		long unsigned start_tb, current_tb;
++		start_tb = old_thread->start_tb;
++		cu->current_tb = current_tb = mfspr(SPRN_PURR);
++		old_thread->accum_tb += (current_tb - start_tb);
++		new_thread->start_tb = current_tb;
++	}
++#endif
++
++
+ 	local_irq_save(flags);
+ 	last = _switch(old_thread, new_thread);
+ 
+diff -urN linux-2.5/arch/ppc64/kernel/time.c test/arch/ppc64/kernel/time.c
+--- linux-2.5/arch/ppc64/kernel/time.c	2005-01-22 09:25:41.000000000 +1100
++++ test/arch/ppc64/kernel/time.c	2005-02-10 08:09:34.412257896 +1100
+@@ -334,6 +334,14 @@
+ 	}
+ #endif
+ 
++/* collect purr register values often, for accurate calculations */
++#if defined(CONFIG_PPC_PSERIES)
++	if (cur_cpu_spec->firmware_features & FW_FEATURE_SPLPAR) {
++		struct cpu_usage *cu = &__get_cpu_var(cpu_usage_array);
++		cu->current_tb = mfspr(SPRN_PURR);
++	}
++#endif
++
+ 	irq_exit();
+ 
+ 	return 1;
+diff -urN linux-2.5/include/asm-ppc64/processor.h test/include/asm-ppc64/processor.h
+--- linux-2.5/include/asm-ppc64/processor.h	2005-01-17 08:47:37.000000000 +1100
++++ test/include/asm-ppc64/processor.h	2005-02-09 22:38:05.528187576 +1100
+@@ -562,7 +562,9 @@
+ 	double		fpr[32];	/* Complete floating point set */
+ 	unsigned long	fpscr;		/* Floating point status (plus pad) */
+ 	unsigned long	fpexc_mode;	/* Floating-point exception mode */
+-	unsigned long	pad[3];		/* was saved_msr, saved_softe */
++	unsigned long	start_tb;	/* Start purr when proc switched in */
++	unsigned long	accum_tb;	/* Total accumilated purr for process */
++	unsigned long	pad;		/* was saved_msr, saved_softe */
+ #ifdef CONFIG_ALTIVEC
+ 	/* Complete AltiVec register set */
+ 	vector128	vr[32] __attribute((aligned(16)));
+diff -urN linux-2.5/include/asm-ppc64/time.h test/include/asm-ppc64/time.h
+--- linux-2.5/include/asm-ppc64/time.h	2005-01-06 13:13:10.000000000 +1100
++++ test/include/asm-ppc64/time.h	2005-02-09 22:38:05.529187424 +1100
+@@ -102,5 +102,14 @@
+ unsigned mulhwu_scale_factor(unsigned, unsigned);
+ void div128_by_32( unsigned long dividend_high, unsigned long dividend_low,
+ 		   unsigned divisor, struct div_result *dr );
++
++/* Used to store Processor Utilization register (purr) values */
++
++struct cpu_usage {
++        u64 current_tb;  /* Holds the current purr register values */
++};
++
++DECLARE_PER_CPU(struct cpu_usage, cpu_usage_array);
++
+ #endif /* __KERNEL__ */
+ #endif /* __PPC64_TIME_H */

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288814AbSAVQvx>; Tue, 22 Jan 2002 11:51:53 -0500
+	id <S288782AbSAVQvK>; Tue, 22 Jan 2002 11:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288944AbSAVQvk>; Tue, 22 Jan 2002 11:51:40 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53774 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S288814AbSAVQv2>; Tue, 22 Jan 2002 11:51:28 -0500
-Date: Tue, 22 Jan 2002 11:51:03 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33.0201211626230.17139-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.3.96.1020122114508.27258B-100000@gatekeeper.tmr.com>
+	id <S288814AbSAVQu7>; Tue, 22 Jan 2002 11:50:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29713 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288782AbSAVQus>; Tue, 22 Jan 2002 11:50:48 -0500
+Date: Tue, 22 Jan 2002 08:49:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Andre Hedrick <andre@linuxdiskcert.org>, Jens Axboe <axboe@suse.de>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+In-Reply-To: <20020122082030.A12720@suse.cz>
+Message-ID: <Pine.LNX.4.33.0201220844120.1799-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Mark Hahn wrote:
 
-> you overestimate human uniqueness - we all have near-identical
-> perceptual hardware, and there *is* an absolute limit
-> beyond which no human can perceive.  for our purposes, let's
-> say it's 5ms.
+On Tue, 22 Jan 2002, Vojtech Pavlik wrote:
+>
+> That's pretty much nonsense, beg my pardon. The real correct way would
+> be:
+>
+> issue read of 255 sectors using READ_MULTI, max_mult = 16
+> receive interrupt
+> 	inw() first 4k to buffer A
+> 	inw() second 4k to buffer B
+> don't do anything else until the next interrupt
 
-Let's say that if the original poster didn't see the difference (a) he has
-NO functioning "perceptual hardware," or (b) he hasn't tried it, which I
-invited him to do.
- 
-> > There are some responsemarks which may or may not be useful, feel free to
-> > actually locate and run these and post the results instead of posting
-> 
-> I posted "realfeel" last year, AKPM added some touches to it.
-> it's in his amlat bundle.  
+Definitely.
 
-I was making the point that no quantification is needed, rmap is at the
-"wow that's better!" level overywhere I've tried it.
+There is no way the controller can even _know_ the difference between
 
-Now if someone could get the rmap performance with memory pressure, add
-the -aa improvements to heavy i/o and large memory, and season with a
-touch of J4 scheduler, I think we could have response which would blow
-your fingers off the keyboard.
+ - one large 8kB "rep insw" instruction
+ - two (or more) smaller chunks of "rep insw" adding up to 8kB worth of
+   "inw"
 
-OT: has someone gotten 2.4.17 rmap-11c and J4 playing together? I looked
-at it for about five minutes but had no time last night. 
+as long as there are no other IO instructions to that controller in
+between. The two look _exactly_ the same on the bus - there aren't even
+any bursting issues (you can only burst on MMIO, not PIO accesses).
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Sure, there are some timing issues, but (a) data cache misses are much
+bigger things than just a few instructions, and (b) we allow interrupts
+from other devices anyway, so the timing _really_ isn't even an issue.
+
+So just call "ata_input_data()" several times in a loop for discontinuous
+buffers. I told Andre this before.
+
+			Linus
 

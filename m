@@ -1,94 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbUCXWvV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 17:51:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbUCXWvV
+	id S261682AbUCXWwr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 17:52:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbUCXWwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 17:51:21 -0500
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:9668 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S262514AbUCXWvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 17:51:12 -0500
-Date: Wed, 24 Mar 2004 17:50:12 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: [PATCH] export complete_all
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <406210A4.4030609@sun.com>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary=------------060100040204060507050407
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Wed, 24 Mar 2004 17:52:47 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57259
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261179AbUCXWwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 17:52:34 -0500
+Date: Wed, 24 Mar 2004 23:53:26 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Arjan van de Ven <arjanv@redhat.com>, tiwai@suse.de,
+       Robert Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RCU for low latency (experimental)
+Message-ID: <20040324225326.GH2065@dualathlon.random>
+References: <20040323101755.GC3676@in.ibm.com> <1080038105.5296.8.camel@laptop.fenrus.com> <20040323123105.GI22639@dualathlon.random> <20040323124002.GH3676@in.ibm.com> <20040323125044.GL22639@dualathlon.random> <20040324172657.GA1303@us.ibm.com> <20040324175142.GW2065@dualathlon.random> <20040324213914.GD4539@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040324213914.GD4539@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060100040204060507050407
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Mar 25, 2004 at 03:09:15AM +0530, Dipankar Sarma wrote:
+> On Wed, Mar 24, 2004 at 06:51:42PM +0100, Andrea Arcangeli wrote:
+> > On Wed, Mar 24, 2004 at 09:26:57AM -0800, Paul E. McKenney wrote:
+> > running 1 callback per softirq (and in turn 10 callbacks per hardware
+> > irq) shouldn't be measurable compared to the cost of the hardware
+> > handling, skb memory allocation, iommu mapping etc... 
+> > 
+> > why do you care about this specific irq-flood corner case where the load
+> > is lost in the noise and there's no way to make it scheduler-friendy
+> > either since hardware irqs are involved?
+> 
+> We are looking at two different problems. Scheduling latency and
+> DoS on route cache that results in dst cache overflows. The second
+> one is an irq-flood, but latency is the least of the problems there.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+agreed.
 
-No idea why it hasn't been done already, but complete_all wasn't
-exported while complete was.
+> > > > > In my DoS testing setup, I see that limiting RCU softirqs 
+> > > > > and re-arming tasklets has no effect on user process starvation.
+> > > > 
+> > > > in an irq flood load that stalls userspace anyways it's ok to spread the
+> > > > callback load into the irqs, 10 tasklets and in turn 10 callbacks per
+> > > > irqs or so. That load isn't scheduler friendly anyways.
+> > > 
+> > > The goal is to run reasonably, even under this workload, which, as you
+> > > say is not scheduler friendly.  Scheduler hostile, in fact.  ;-)
+> > 
+> > Indeed it is, and I'm simply expecting not any real difference by
+> > running 10 callbacks per hardware irq, so I find it a non very
+> > interesting workload to choose between a softirq or the kernel thread,
+> > but maybe I'm overlooking something.
+> 
+> The difference here is that during the callbacks in the kernel thread, 
+> I don't disable softirqs unlike ksoftirqd thus giving it more opportunity for
+> preemption.
 
-Please apply,
+preemption where? in irq? softirqd will preempt just fine.
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-mailto: Michael.Waychison@Sun.COM
-http://www.sun.com
+Also not that while we process the callbacks in softirqd, the irqs will
+stop running the callbacks, just like in your scenario. the callbacks
+and the other softirqs will be processed from user context, and it won't
+be different from scheduling krcud first and ksoftirqd later.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> I had already been testing this for the DoS issue, but I tried it
+> with amlat on a 2.4 GHz (UP) P4 xeon with 256MB ram and dbench 32 in a
+> loop. Here are the results (CONFIG_PREEMPT = y) -
+> 
+> 2.6.0 vanilla 		- 711 microseconds
+> 2.6.0 + throttle-rcu 	- 439 microseconds
+> 2.6.0 + rcu-low-lat 	- 413 microseconds
+> 
+> So under dbench workload atleast, throttling RCU works just as
+> good as offloading them to a kernel thread (krcud) as rcu-low-lat
+> does.
 
-iD8DBQFAYhCjdQs4kOxk3/MRAsfQAJ9UuLA3lcBctZl0S961wCFVgE9x6wCfSFlt
-HHJ72qURp63J5cPKoojMDvY=
-=l/qU
------END PGP SIGNATURE-----
+very nice.
 
---------------060100040204060507050407
-Content-Type: text/x-patch;
- name="export_complete_all.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="export_complete_all.patch"
+> I used the following throttle-rcu patch with rcupdate.rcumaxbatch
+> set to 16 and rcupdate.rcuplugticks set to 0. That is essentially
+> equvalent to Andrea's earler suggestion. I have so many knobs in
+> the patch because I had written it earlier for other experiments.
+> Anyway, if throttling works as well as this in terms of latency
+> for other workloads as well and there isn't any OOM situations,
+> it is preferable to creating another per-cpu thread.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1493  -> 1.1494 
-#	      kernel/sched.c	1.255   -> 1.256  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/03/24	michael.waychison@fp-b7-17.sfbay.sun.com	1.1494
-# sched.c:
-#   - Export complete_all for module use.
-# --------------------------------------------
-#
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Wed Mar 24 15:30:26 2004
-+++ b/kernel/sched.c	Wed Mar 24 15:30:26 2004
-@@ -1869,6 +1869,8 @@
- 	spin_unlock_irqrestore(&x->wait.lock, flags);
- }
- 
-+EXPORT_SYMBOL(complete_all);
-+
- void fastcall wait_for_completion(struct completion *x)
- {
- 	might_sleep();
+I don't think this is enough (it is enough for the above workload
+though, maybe for the dcache too, but it's not generic enough), 16
+callbacks per tick too low frequency, it may not keep up, that's why I
+suggested to offload the work to a re-arming tasklet that will finish it
+ASAP (but in a scheduler-friendly way) instead of waiting the next tick.
 
---------------060100040204060507050407--
+But I certainly agree this is a nice solution in practice (at least with
+all the common usages).
+
+thanks!

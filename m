@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268988AbRG3Ptt>; Mon, 30 Jul 2001 11:49:49 -0400
+	id <S268989AbRG3Pu7>; Mon, 30 Jul 2001 11:50:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268983AbRG3Ptj>; Mon, 30 Jul 2001 11:49:39 -0400
-Received: from [64.7.140.42] ([64.7.140.42]:52733 "EHLO inet.connecttech.com")
-	by vger.kernel.org with ESMTP id <S268985AbRG3Pt3>;
-	Mon, 30 Jul 2001 11:49:29 -0400
-Message-ID: <035001c1190f$c6b46700$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "christophe =?ISO-8859-1?Q?barb=E9" ?= <christophe.barbe@lineo.fr>,
-        "James Bottomley" <James.Bottomley@steeleye.com>
-Cc: "christophe =?ISO-8859-1?Q?barb=E9" ?= <christophe.barbe@lineo.fr>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <200107301520.f6UFKtT06867@localhost.localdomain> <20010730173702.C19605@pc8.lineo.fr>
-Subject: Re: serial console and kernel 2.4
-Date: Mon, 30 Jul 2001 11:53:28 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S268983AbRG3Put>; Mon, 30 Jul 2001 11:50:49 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:2318 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S268989AbRG3Puq>; Mon, 30 Jul 2001 11:50:46 -0400
+Message-ID: <3B6583C2.EE0B795C@zip.com.au>
+Date: Tue, 31 Jul 2001 01:56:50 +1000
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Peter J. Braam" <braam@clusterfilesystem.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        Shirish Phatak <shirish@tacitussystems.com>
+Subject: Re: ext3-2.4-0.9.5
+In-Reply-To: <3B657AD9.E15B756D@zip.com.au> <MAEOLIJIABPOFFEFBMOKGEHBCDAA.braam@clusterfs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-From: "christophe barbé" <christophe.barbe@lineo.fr>
-> "it works for me" is better that no answer for me. So Thank you for your
-> answer.
-> Reto give me a solution : because of a flag all incomming char are
-ignored.
-> So now I need to find why this flag is ok for you and not for me.
+"Peter J. Braam" wrote:
+> 
+> Hi Andrew,
+> 
+> Boy, you've had quite a weekend again.
+> 
+> Do you think this includes the fix for Shirish' bug?
 
-The patch breaks the correct operation of the serial driver.
-CREAD is the flag that enables/disables the rx side of the serial
-port. The kernel or whatever service is trying to use the console
-doesn't set CREAD, so rxed (incoming) characters are ignored.
+Alas, no.  That one is due to the mixed-mode journalling.
+The use of `chattr +J' to place a portion of an ordered-mode
+fs into full-data journalling.
 
-You need to find out why the CREAD handling isn't done properly.
-This has come up a number of times on lkml recently; you should
-be able to find an appropriate answer or pointer in the right
-direction by checking the archives.
+I'll take a look at that next.  Could you not put the
+entire fs into journalled data mode until it's fixed?
 
-Patching the driver breaks the driver instead of fixing the problem.
-
-..Stu
-
-
+-

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVCXWbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVCXWcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVCXWbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 17:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVCXWbQ
+	id S261177AbVCXWcO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 17:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVCXWcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 17:31:16 -0500
-Received: from mail.suse.de ([195.135.220.2]:48054 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261181AbVCXWbO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 17:31:14 -0500
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Squashfs without ./..
-References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
-	<Pine.LNX.4.62.0503221656310.2683@dragon.hyggekrogen.localhost>
-	<200503231740.09572.maillist@zuco.org>
-	<Pine.LNX.4.61.0503231829570.1481@yvahk01.tjqt.qr>
-	<20050323174925.GA3272@zero>
-	<Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
-	<20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>
-	<Pine.LNX.4.61.0503242047000.8883@yvahk01.tjqt.qr>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: By MEER biz doo SCHOIN..
-Date: Thu, 24 Mar 2005 23:31:12 +0100
-In-Reply-To: <Pine.LNX.4.61.0503242047000.8883@yvahk01.tjqt.qr> (Jan
- Engelhardt's message of "Thu, 24 Mar 2005 20:47:47 +0100 (MET)")
-Message-ID: <jeu0n0ptfz.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+	Thu, 24 Mar 2005 17:32:13 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:1154 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261177AbVCXWbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 17:31:46 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1-mm2
+Date: Thu, 24 Mar 2005 23:31:46 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       alsa-devel@lists.sourceforge.net
+References: <20050324044114.5aa5b166.akpm@osdl.org> <1111682812.23440.6.camel@mindpipe> <20050324121722.759610f4.akpm@osdl.org>
+In-Reply-To: <20050324121722.759610f4.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503242331.46985.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+Hi,
 
->>> > There's probably a number of apps that skip the first two dirents, instead
->>> > of checking for the dot dirs.
->>> Yep, check `-noleaf' in find(1)
->>Then it is broken in several ways.  
->>First, file systems are not required to implement ".." (only "." is
->>magical, ".." is a courtesy).  
->
-> Heh, what would happen if .. disappeared?
+On Thursday, 24 of March 2005 21:17, Andrew Morton wrote:
+> Lee Revell <rlrevell@joe-job.com> wrote:
+> >
+> > On Thu, 2005-03-24 at 04:41 -0800, Andrew Morton wrote:
+> > >   -mm kernels now aggregate Linus's tree and 34 subsystem trees.  Usually
+> > >   they are pulled 3-4 hours before the release of the -mm kernel.  
+> > > 
+> > 
+> > Andrew,
+> > 
+> > Do you notify the subsystem maintainers ahead of time so that critical
+> > fixes can be pushed to BK?
+> 
+> Occasionally I'll go out and ping people, but almost always the subsystem
+> guys know what the development cycle is, and they appropriately decide
+> which code should go in, and when.
+> 
+> > I am thinking of the recent ALSA example, where the emu10k1 driver was
+> > b0rked in 2.6.12-mm1, but the fix had been in ALSA CVS for a week.
+> > 
+> 
+> We've been discussing how to get ALSA CVS into ALSA bk more promptly.
 
-"." and ".." are handled in the VFS.  No filesystem code ever sees them
-during lookup.
+BTW, on 2.6.12-rc1-mm2 I can't rmmod the snd_intel8x0 module (the process
+goes into the D state immediately), which did not happen before.  This is 100%
+reproducible, on two different AMD64-based boxes, with different sound chips.
 
-Andreas.
+Greets,
+Rafael
+
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

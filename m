@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279572AbRJXTVw>; Wed, 24 Oct 2001 15:21:52 -0400
+	id <S279580AbRJXTZX>; Wed, 24 Oct 2001 15:25:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279573AbRJXTVm>; Wed, 24 Oct 2001 15:21:42 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:5136 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S279572AbRJXTVf>; Wed, 24 Oct 2001 15:21:35 -0400
-Date: Wed, 24 Oct 2001 16:01:55 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Who is the current maintainer of aic7xxx ?
-Message-ID: <Pine.LNX.4.21.0110241600520.1138-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279577AbRJXTZM>; Wed, 24 Oct 2001 15:25:12 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:16602 "EHLO snfc21.pbi.net")
+	by vger.kernel.org with ESMTP id <S279573AbRJXTZC>;
+	Wed, 24 Oct 2001 15:25:02 -0400
+Date: Wed, 24 Oct 2001 12:25:36 -0700 (PDT)
+From: Chris Rankin <rankinc@pacbell.net>
+Subject: [PATCH] MODULE_LICENSE for loop device
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200110241925.f9OJPaOw001568@twopit.underworld>
+MIME-version: 1.0
+X-Mailer: ELM [version 2.5 PL6]
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi, 
+Here's a totally trivial patch (against 2.4.13) to give the loop
+device a MODULE_LICENSE tag.
 
-Who is the current maintainer of aic7xxx ?
+Cheers,
+Chris
 
-I have a problem which is board (or chip) specific, but don't know who
-should I talk with.
-
-There is nothing on MAINTAINERS...
-
+--- drivers/block/loop.c.orig	Wed Oct 24 01:03:59 2001
++++ drivers/block/loop.c	Wed Oct 24 12:23:34 2001
+@@ -951,6 +951,7 @@
+  */
+ MODULE_PARM(max_loop, "i");
+ MODULE_PARM_DESC(max_loop, "Maximum number of loop devices (1-255)");
++MODULE_LICENSE("GPL");
+ 
+ int loop_register_transfer(struct loop_func_table *funcs)
+ {

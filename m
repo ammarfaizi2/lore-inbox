@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293131AbSB1CKT>; Wed, 27 Feb 2002 21:10:19 -0500
+	id <S293138AbSB1CXm>; Wed, 27 Feb 2002 21:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293133AbSB1CI3>; Wed, 27 Feb 2002 21:08:29 -0500
-Received: from c007-h011.c007.snv.cp.net ([209.228.33.217]:49892 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id <S293149AbSB1CG7>;
-	Wed, 27 Feb 2002 21:06:59 -0500
-X-Sent: 28 Feb 2002 02:06:52 GMT
-Message-ID: <3C7D90BC.394C1E2A@bigfoot.com>
-Date: Wed, 27 Feb 2002 18:06:52 -0800
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.21pre2-Ole i686)
-X-Accept-Language: en
+	id <S293145AbSB1CXA>; Wed, 27 Feb 2002 21:23:00 -0500
+Received: from wren.mail.pas.earthlink.net ([207.217.121.64]:59837 "EHLO
+	wren.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S293138AbSB1CWi>; Wed, 27 Feb 2002 21:22:38 -0500
+From: "Karl" <ktatgenhorst@earthlink.net>
+To: "Larry McVoy" <lm@bitmover.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel module ethics.
+Date: Wed, 27 Feb 2002 20:38:57 -0500
+Message-ID: <NDBBJHDEALBBOIDJGBNNKEOGCFAA.ktatgenhorst@earthlink.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: disk transfer speed problem
-In-Reply-To: <3C7D4666.6D35B124@pcnet.ro>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20020227181333.A25723@work.bitmover.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  #dmesg|grep UDMA
-> hda: 14668290 sectors (7510 MB) w/418KiB Cache, CHS=913/255/63, UDMA(66)
-> (this is the boot disk)
-> 
-> hdc: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
-> UDMA(100
-> hdd: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63,
-> UDMA(100)
 
-Please post dmesg, /proc/pci and chipset info from /proc/ide.  Also,
-what is result from 'hdparm -tT /dev/hda'?
 
-rgds,
-tim.
+>Like I said before, unless your code is potentially worth at least a
+>million bucks, it's almost certainly not worth anything financially,
+>so GPL it.  If you think it could be worth $1M, isn't it worth $.015M
+>to figure out your rights?
 --
+---
+>Larry McVoy
+
+
+   Very well said. Thanks for your insight, and thank you Erik for your
+response as well. As I said this was merely a curiosity, but it was very
+informative.
+
+Karl
+

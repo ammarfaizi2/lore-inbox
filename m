@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289853AbSAKDmh>; Thu, 10 Jan 2002 22:42:37 -0500
+	id <S289470AbSAKDmh>; Thu, 10 Jan 2002 22:42:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289851AbSAKDm2>; Thu, 10 Jan 2002 22:42:28 -0500
-Received: from zero.tech9.net ([209.61.188.187]:31501 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S289470AbSAKDmO>;
-	Thu, 10 Jan 2002 22:42:14 -0500
-Subject: Re: eth0: entered promiscuous mode
-From: Robert Love <rml@tech9.net>
-To: Balazs Javor <jb3@freemail.hu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020110205946.GB24838@zhadum.bjavor.d2g.com>
-In-Reply-To: <20020110205946.GB24838@zhadum.bjavor.d2g.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 10 Jan 2002 22:44:46 -0500
-Message-Id: <1010720687.813.5.camel@phantasy>
-Mime-Version: 1.0
+	id <S289853AbSAKDm1>; Thu, 10 Jan 2002 22:42:27 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13321 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289851AbSAKDmX>;
+	Thu, 10 Jan 2002 22:42:23 -0500
+Date: Fri, 11 Jan 2002 01:42:03 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
+        Daniel Tuijnman <daniel@ATComputing.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Memory management problems in 2.4.16
+In-Reply-To: <20020110224036.GA32522@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33L.0201110141090.2985-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-01-10 at 15:59, Balazs Javor wrote:
+On Thu, 10 Jan 2002, Pavel Machek wrote:
 
-> Can somebody please tell me what the above message means?
-> 
-> I very often encounter this in the syslog and sometimes
-> also on the console.
+> 8MB should be enough. I was running 2.4.0-test7 on 8MB machine with no
+> swap, because it had no disk to swap to.
 
-Promiscuous mode means the network card will snag packets even if they
-are not delivered to you.  Typically, only ethernet frames whose MAC
-address matches you or broadcast are processed by the NIC.  Thus, your
-NIC can read any and all packets on your network.
+I've been running a few hours of low memory testing with
+my rmap VM and it's holding up fine. The system is still
+responsive when the amount of pageable RAM is down to
+about 400 kB ;))
 
-Are you sniffing your coworkers or something ? ;)
+cheers,
 
-	Robert Love
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

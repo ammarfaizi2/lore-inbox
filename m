@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbTJPTU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 15:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTJPTU0
+	id S263084AbTJPT1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 15:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbTJPT1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 15:20:26 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:11136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263121AbTJPTUZ
+	Thu, 16 Oct 2003 15:27:20 -0400
+Received: from d216-232-206-119.bchsia.telus.net ([216.232.206.119]:58120 "EHLO
+	cyclops.implode.net") by vger.kernel.org with ESMTP id S263084AbTJPT1S
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 15:20:25 -0400
-Date: Thu, 16 Oct 2003 15:20:21 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: John Bradford <john@grabjohn.com>
-cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org, val@nmt.edu
-Subject: Re: Transparent compression in the FS
-In-Reply-To: <200310161903.h9GJ3r6r002059@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.53.0310161514330.1006@chaos>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl>
- <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random>
- <Pine.LNX.4.53.0310161453240.814@chaos> <200310161903.h9GJ3r6r002059@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Oct 2003 15:27:18 -0400
+Date: Thu, 16 Oct 2003 12:27:17 -0700
+From: John Wong <kernel@implode.net>
+To: linux-kernel@vger.kernel.org
+Subject: via-rhine on 2.4.23-pre6 Too much work at interrupt, status=0x00001000.
+Message-ID: <20031016192717.GA2749@gambit.implode.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Oct 2003, John Bradford wrote:
+The system used to run 2.4.22 and did not have this too much work
+problem.  There were some other hardware changes.  The system used to be
+a Pentium 100 on a Triton 430FX chipset Intel Advanced/EV board.  Now it 
+is a K6 2 - 500 on a Via Apollo MVP3 chipset on FIC VA-503+ board.
+The NIC stayed the same.  The kernel was recompiled and ACPI was
+enabled.
 
-> Quote from "Richard B. Johnson" <root@chaos.analogic.com>:
-> > No! Not true. 'lossy' means that you can't recover the original
-> > data. Some music compression and video compression schemes are
-> > lossy. If you can get back the exact input data, it's not lossy.
->
-> Sorry, I wasn't clear in my description.  What I meant was that you
-> can't have an algorithm that can compress all possible values of N
-> bits in to less than N bits, without expanding some of them.  Of
-> course, you can compress N values in to <N values, compressors do that
-> by definition :-)
->
-> John.
->
+I noticed in 2.4.23-pre2 -> pre3
+	 [netdrvr] sync with 2.5: epic100, fealnx, via-rhine, winbond-840
 
-Ahha. Yes you are provably correct unless you use some additional
-"message-channel" to cheat.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+via-rhine.c:v1.10-LK1.1.19  July-12-2003  Written by Donald Becker
+  http://www.scyld.com/network/via-rhine.html
+eth0: VIA VT86C100A Rhine at 0xe4001000, 00:80:c8:d3:36:a6, IRQ 10.
+eth0: MII PHY found at address 8, status 0x782d advertising 05e1 Link 40a1.
 
 
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+eth0: Too much work at interrupt, status=0x00001000.
+
+John

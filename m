@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbTIEDup (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 23:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbTIEDup
+	id S261360AbTIEDnN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 23:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbTIEDnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 23:50:45 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34821 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261952AbTIEDuo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 23:50:44 -0400
-Date: Thu, 4 Sep 2003 23:41:00 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Nick's scheduler policy v10
-In-Reply-To: <20030904232752.GA4102@matchmail.com>
-Message-ID: <Pine.LNX.3.96.1030904233834.20419B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 23:43:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61827 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261360AbTIEDnM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 23:43:12 -0400
+Date: Thu, 4 Sep 2003 20:44:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm5 dbench stuck in D state
+Message-Id: <20030904204403.645b7a29.akpm@osdl.org>
+In-Reply-To: <20030905023813.GA29171@rushmore>
+References: <20030905023813.GA29171@rushmore>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003, Mike Fedyk wrote:
+rwhron@earthlink.net wrote:
+>
+> Uniprocessor x86 ext2 on IDE system running 2.6.0-test4-mm5
+>  has dbench stuck in uninterruptible sleep.
 
-> On Thu, Sep 04, 2003 at 10:55:40PM +0000, Bill Davidsen wrote:
-> > I'll be switching back and forth for a bit, and I have no working sound,
-> > 2.6.0-test4 just doesn't like the old Soundblaster, which works with
-> > Redhat 2.4.18 whatever from RH 7.3 install. I'm trying to get a clean
-> > oops to report when loading the aha152x module, and I want to generate
-> > it without *any* patches, in case someone ever cares. Other than that I
-> 
-> I was able to generate the oops on one of my systems, and Andrew already
-> included a patch that works for me in test4-mm4.
+Yes, sorry.  More dodgy Australian software I'm afraid.  You'll need to
+revert
 
-Thanks for the pointer! Tomorrow I will get to test test4-mmX vs. plain
-test-+NickV10. There is an aweful lot of scheduler development going on...
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm5/broken-out/elv-insertion-fix.patch
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+That patch is in Linus's tree now, so it should be a nice test of our bug
+reporting processes.  Sigh.
 

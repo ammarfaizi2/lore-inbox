@@ -1,58 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSF2Pe4>; Sat, 29 Jun 2002 11:34:56 -0400
+	id <S313087AbSF2Pkg>; Sat, 29 Jun 2002 11:40:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312973AbSF2Pez>; Sat, 29 Jun 2002 11:34:55 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:32527 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S313060AbSF2Pey>; Sat, 29 Jun 2002 11:34:54 -0400
-Date: Sat, 29 Jun 2002 17:36:18 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Keith Owens <kaos@ocs.com.au>
-cc: Sam Ravnborg <sam@ravnborg.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, <mec@shout.net>,
-       <kbuild-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kconfig: menuconfig and config uses $objtree 
-In-Reply-To: <5050.1025315441@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0206291409430.8911-100000@serv>
+	id <S313113AbSF2Pkf>; Sat, 29 Jun 2002 11:40:35 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:1291 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S313087AbSF2Pka>; Sat, 29 Jun 2002 11:40:30 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix the broken filesystems by cont_prepare_write() change
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 30 Jun 2002 00:42:45 +0900
+Message-ID: <878z4y3xca.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sat, 29 Jun 2002, Keith Owens wrote:
+This fixes broken adfs/affs/hfs/hpfs/qnx4 by cont_prepare_write()
+change.
 
-> What happens when you want to support multiple source trees?
+Please apply.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-First we should answer the question, why kbuild support for multiple
-source trees is such a must have feature? So far I haven't seen a
-satisfying answer, that would justify a big increase in kbuild complexity.
-Only very few people would need such a feature and often there are other
-ways to archive almost the same.
-If such a feature is really badly needed, I think it's better to implement
-it first as a seperate tool, which synchronizes multiple source dirs into
-a single dir. This is not as efficient, as kbuild has to recheck the
-single dir, but most of it should be in the cache, so it shouldn't be that
-bad. On the other hand it should be easy to integrate in whatever kbuild
-system. If there should be a huge demand for a better integration, we can
-still do this later.
-
-> What happens when the config data is not in monolithic files but is
-> supplied in per-driver files (driver.inf)?  Linus wants that feature
-> eventually.  Note that driver.inf will contain more than just config
-> data, it will contain all the data required to build a driver.  With
-> your approach every CML program would have to be changed to understand
-> the format of the driver.inf files, replicating the code over multiple
-> parsers.  With my approach you need one program that extracts the
-> relevant data for config and builds the config tree, then the existing
-> CML programs run unchanged.
-
-The simple answer is to replace all the parsers with a single library,
-which is what I'm currently working on. Maintaining multiple config
-formats is just silly.
-
-bye, Roman
-
+diff -urN fat_big-file-2.5.24/include/linux/adfs_fs_i.h mmu_private-fix-2.5.24/include/linux/adfs_fs_i.h
+--- fat_big-file-2.5.24/include/linux/adfs_fs_i.h	Sun Jun 23 15:32:04 2002
++++ mmu_private-fix-2.5.24/include/linux/adfs_fs_i.h	Sun Jun 23 15:38:29 2002
+@@ -11,7 +11,7 @@
+  * adfs file system inode data in memory
+  */
+ struct adfs_inode_info {
+-	unsigned long	mmu_private;
++	loff_t		mmu_private;
+ 	unsigned long	parent_id;	/* object id of parent		*/
+ 	__u32		loadaddr;	/* RISC OS load address		*/
+ 	__u32		execaddr;	/* RISC OS exec address		*/
+diff -urN fat_big-file-2.5.24/include/linux/affs_fs_i.h mmu_private-fix-2.5.24/include/linux/affs_fs_i.h
+--- fat_big-file-2.5.24/include/linux/affs_fs_i.h	Sun Jun 23 15:32:04 2002
++++ mmu_private-fix-2.5.24/include/linux/affs_fs_i.h	Sun Jun 23 15:38:29 2002
+@@ -35,7 +35,7 @@
+ 	struct affs_ext_key *i_ac;		/* associative cache of extended blocks */
+ 	u32	 i_ext_last;			/* last accessed extended block */
+ 	struct buffer_head *i_ext_bh;		/* bh of last extended block */
+-	unsigned long mmu_private;
++	loff_t	 mmu_private;
+ 	u32	 i_protect;			/* unused attribute bits */
+ 	u32	 i_lastalloc;			/* last allocated block */
+ 	int	 i_pa_cnt;			/* number of preallocated blocks */
+diff -urN fat_big-file-2.5.24/include/linux/hfs_fs_i.h mmu_private-fix-2.5.24/include/linux/hfs_fs_i.h
+--- fat_big-file-2.5.24/include/linux/hfs_fs_i.h	Sun Jun 23 15:32:05 2002
++++ mmu_private-fix-2.5.24/include/linux/hfs_fs_i.h	Sun Jun 23 15:38:30 2002
+@@ -19,7 +19,7 @@
+ struct hfs_inode_info {
+ 	int				magic;     /* A magic number */
+ 
+-	unsigned long			mmu_private;
++	loff_t				mmu_private;
+ 	struct hfs_cat_entry		*entry;
+ 
+ 	/* For a regular or header file */
+diff -urN fat_big-file-2.5.24/include/linux/hpfs_fs_i.h mmu_private-fix-2.5.24/include/linux/hpfs_fs_i.h
+--- fat_big-file-2.5.24/include/linux/hpfs_fs_i.h	Sun Jun 23 15:32:05 2002
++++ mmu_private-fix-2.5.24/include/linux/hpfs_fs_i.h	Sun Jun 23 15:38:30 2002
+@@ -2,7 +2,7 @@
+ #define _HPFS_FS_I
+ 
+ struct hpfs_inode_info {
+-	unsigned long mmu_private;
++	loff_t mmu_private;
+ 	ino_t i_parent_dir;	/* (directories) gives fnode of parent dir */
+ 	unsigned i_dno;		/* (directories) root dnode */
+ 	unsigned i_dpos;	/* (directories) temp for readdir */
+diff -urN fat_big-file-2.5.24/include/linux/qnx4_fs.h mmu_private-fix-2.5.24/include/linux/qnx4_fs.h
+--- fat_big-file-2.5.24/include/linux/qnx4_fs.h	Sun Jun 23 15:32:06 2002
++++ mmu_private-fix-2.5.24/include/linux/qnx4_fs.h	Sun Jun 23 15:38:31 2002
+@@ -106,7 +106,7 @@
+ 
+ struct qnx4_inode_info {
+ 	struct qnx4_inode_entry raw;
+-	unsigned long mmu_private;
++	loff_t mmu_private;
+ 	struct inode vfs_inode;
+ };
+ 

@@ -1,38 +1,175 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbQKKVlI>; Sat, 11 Nov 2000 16:41:08 -0500
+	id <S129239AbQKKVm2>; Sat, 11 Nov 2000 16:42:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129504AbQKKVk6>; Sat, 11 Nov 2000 16:40:58 -0500
-Received: from smtp-abo-5.wanadoo.fr ([193.252.19.58]:26806 "EHLO
-	mahonia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S129092AbQKKVkm>; Sat, 11 Nov 2000 16:40:42 -0500
-Message-ID: <3A0DBD06.3070409@wanadoo.fr>
-Date: Sat, 11 Nov 2000 22:41:26 +0100
-From: "reiser.angus" <reiser.angus@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i586; en-US; m18) Gecko/20001111
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.0-test11-pre2 compilation error:  undefined reference to `bust_spinlocks'
-X-Priority: 1 (highest)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129553AbQKKVmJ>; Sat, 11 Nov 2000 16:42:09 -0500
+Received: from tepid.osl.fast.no ([213.188.9.130]:64265 "EHLO
+	tepid.osl.fast.no") by vger.kernel.org with ESMTP
+	id <S129551AbQKKVmC>; Sat, 11 Nov 2000 16:42:02 -0500
+Date: Sat, 11 Nov 2000 21:43:00 GMT
+Message-Id: <200011112143.VAA32892@tepid.osl.fast.no>
+Subject: [patch] patch-2.4.0-test10-irda23 (was: Re: The IrDA patches)
+X-Mailer: Pygmy (v0.4.4pre)
+Subject: [patch] patch-2.4.0-test10-irda23 (was: Re: The IrDA patches)
+Cc: linux-kernel@vger.kernel.org
+From: Dag Brattli <dagb@fast.no>
+To: torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cannot make a success compilation of 2.4.0-test11pre2 with the same 
-.config than for a successfull 2.4.0-test10 compilation.
-Same problem when apply patch-2.4.0test11pre2-ac1 from alan cox
+Linus,
 
-arch/i386/mm/mm.o: In function `do_page_fault':
-arch/i386/mm/mm.o(.text+0x821): undefined reference to `bust_spinlocks'
-make: *** [vmlinux] Erreur 1
+Here are the new IrDA patches for Linux-2.4.0-test10. Please apply them to
+your latest 2.4 code. If you decide to apply them, then I suggest you start
+with the first one (irda1.diff) and work your way to the last one 
+(irda24.diff) since most of them are not commutative. 
 
-bash-2.04$
+The name of this patch is irda23.diff. 
 
-use egcs 1.1.2
+(Many thanks to Jean Tourrilhes for splitting up the big patch)
 
-I can provide .config  i did not put it for size reasons.
+[FEATURE] : Add a new feature to the IrDA stack
+[CORRECT] : Fix to have the correct/expected behaviour
+[CRITICA] : Fix potential kernel crash
+[OUPS   ] : Error that will be fixed in a later patch
+
+irda23.diff :
+-----------------
+	o [CRITICA] Don't crash on malformed discovery frames
+	o [CORRECT] Don't divide self->N1, because -1/2 = 0
+	o [CORRECT] Correctly transmit Ultra frames sent while doing discovery
+
+diff -urpN old-linux/include/net/irda/timer.h linux/include/net/irda/timer.h
+--- old-linux/include/net/irda/timer.h	Thu Nov  9 13:36:27 2000
++++ linux/include/net/irda/timer.h	Thu Nov  9 18:26:03 2000
+@@ -76,6 +76,7 @@ inline void irlap_start_wd_timer(struct 
+ inline void irlap_start_backoff_timer(struct irlap_cb *self, int timeout);
+ 
+ void irlap_start_mbusy_timer(struct irlap_cb *);
++void irlap_stop_mbusy_timer(struct irlap_cb *);
+ 
+ struct lsap_cb;
+ struct lap_cb;
+diff -urpN old-linux/net/irda/irda_device.c linux/net/irda/irda_device.c
+--- old-linux/net/irda/irda_device.c	Thu Nov  9 17:09:30 2000
++++ linux/net/irda/irda_device.c	Thu Nov  9 18:26:03 2000
+@@ -185,7 +185,7 @@ void irda_device_set_media_busy(struct n
+ 		IRDA_DEBUG( 4, "Media busy!\n");
+ 	} else {
+ 		self->media_busy = FALSE;
+-		del_timer(&self->media_busy_timer);
++		irlap_stop_mbusy_timer(self);
+ 	}
+ }
+ 
+diff -urpN old-linux/net/irda/irlap_event.c linux/net/irda/irlap_event.c
+--- old-linux/net/irda/irlap_event.c	Thu Nov  9 18:16:46 2000
++++ linux/net/irda/irlap_event.c	Thu Nov  9 18:26:03 2000
+@@ -305,6 +305,17 @@ void irlap_next_state(struct irlap_cb *s
+ 	if ((state != LAP_XMIT_P) && (state != LAP_XMIT_S))
+ 		self->bytes_left = self->line_capacity;
+ #endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
++#ifdef CONFIG_IRDA_ULTRA
++	/* Send any pending Ultra frames if any */
++	/* The higher layers may have sent a few Ultra frames while we
++	 * were doing discovery (either query or reply). Those frames
++	 * have been queued, but were never sent. It is now time to
++	 * send them...
++	 * Jean II */
++	if ((state == LAP_NDM) && (!skb_queue_empty(&self->txq_ultra)))
++		/* Force us to listen 500 ms before sending Ultra */
++		irda_device_set_media_busy(self->netdev, TRUE);
++#endif /* CONFIG_IRDA_ULTRA */
+ }
+ 
+ /*
+@@ -1903,20 +1914,25 @@ static int irlap_state_nrm_s(struct irla
+ 		/*
+ 		 *  Wait until retry_count * n matches negotiated threshold/
+ 		 *  disconnect time (note 2 in IrLAP p. 82)
++		 *
++		 * Note : self->wd_timeout = (self->poll_timeout * 2),
++		 *   and self->final_timeout == self->poll_timeout,
++		 *   which explain why we use (self->retry_count * 2) here !!!
++		 * Jean II
+ 		 */
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), retry_count = %d\n", 
+ 			   self->retry_count);
+ 
+-		if ((self->retry_count < (self->N2/2))  && 
+-		    (self->retry_count != self->N1/2)) {
++		if (((self->retry_count * 2) < self->N2)  && 
++		    ((self->retry_count * 2) != self->N1)) {
+ 			
+ 			irlap_start_wd_timer(self, self->wd_timeout);
+-			self->retry_count++;		
+-		} else if (self->retry_count == (self->N1/2)) {
++			self->retry_count++;
++		} else if ((self->retry_count * 2) == self->N1) {
+ 			irlap_status_indication(self, STATUS_NO_ACTIVITY);
+ 			irlap_start_wd_timer(self, self->wd_timeout);
+ 			self->retry_count++;
+-		} else if (self->retry_count >= self->N2/2) {
++		} else if ((self->retry_count * 2) >= self->N2) {
+ 			irlap_apply_default_connection_parameters(self);
+ 			
+ 			/* Always switch state before calling upper layers */
+diff -urpN old-linux/net/irda/irlap_frame.c linux/net/irda/irlap_frame.c
+--- old-linux/net/irda/irlap_frame.c	Thu Nov  9 18:16:46 2000
++++ linux/net/irda/irlap_frame.c	Thu Nov  9 18:26:03 2000
+@@ -503,6 +503,12 @@ static void irlap_recv_discovery_xid_cmd
+ 	 *  Check if last frame 
+ 	 */
+ 	if (info->s == 0xff) {
++		/* Check if things are sane at this point... */
++		if((discovery_info == NULL) || (skb->len < 3)) {
++			ERROR(__FUNCTION__ "(), discovery frame to short!\n");
++			return;
++		}
++
+ 		/*
+ 		 *  We now have some discovery info to deliver!
+ 		 */
+diff -urpN old-linux/net/irda/timer.c linux/net/irda/timer.c
+--- old-linux/net/irda/timer.c	Thu Nov  9 13:48:34 2000
++++ linux/net/irda/timer.c	Thu Nov  9 18:26:03 2000
+@@ -99,6 +99,25 @@ void irlap_start_mbusy_timer(struct irla
+ 			 (void *) self, irlap_media_busy_expired);
+ }
+ 
++void irlap_stop_mbusy_timer(struct irlap_cb *self)
++{
++	/* If timer is activated, kill it! */
++	if(timer_pending(&self->media_busy_timer))
++		del_timer(&self->media_busy_timer);
++
++#ifdef CONFIG_IRDA_ULTRA
++	/* Send any pending Ultra frames if any */
++	if (!skb_queue_empty(&self->txq_ultra))
++		/* Note : we don't send the frame, just post an event.
++		 * Frames will be sent only if we are in NDM mode (see
++		 * irlap_event.c).
++		 * Also, moved this code from irlap_media_busy_expired()
++		 * to here to catch properly all cases...
++		 * Jean II */
++		irlap_do_event(self, SEND_UI_FRAME, NULL, NULL);
++#endif /* CONFIG_IRDA_ULTRA */
++}
++
+ void irlmp_start_watchdog_timer(struct lsap_cb *self, int timeout) 
+ {
+ 	irda_start_timer(&self->watchdog_timer, timeout, (void *) self,
+@@ -217,8 +236,5 @@ void irlap_media_busy_expired(void* data
+ 	ASSERT(self != NULL, return;);
+ 
+ 	irda_device_set_media_busy(self->netdev, FALSE);
+-
+-	/* Send any pending Ultra frames if any */
+-	if (!skb_queue_empty(&self->txq_ultra))
+-		irlap_do_event(self, SEND_UI_FRAME, NULL, NULL);
++	/* Note : will deal with Ultra frames */
+ }
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

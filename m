@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269664AbTHOQOI (ORCPT <rfc822;willy@w.ods.org>);
+	id S269646AbTHOQOI (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 15 Aug 2003 12:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269646AbTHOQNz
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269619AbTHOQOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:13:55 -0400
+	Fri, 15 Aug 2003 12:14:07 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S269664AbTHOQKA (ORCPT
+	by vger.kernel.org with ESMTP id S269676AbTHOQKB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:10:00 -0400
-Subject: [BUG] slab debug vs. L1 alignement
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060956004.581.13.camel@gaston>
+	Fri, 15 Aug 2003 12:10:01 -0400
+Date: Fri, 15 Aug 2003 15:53:31 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andries Brouwer <aebr@win.tue.nl>,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Input issues - key down with no key up
+Message-ID: <20030815135331.GC15872@ucw.cz>
+References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <20030815123641.GA7204@win.tue.nl> <20030815130450.GF15911@mail.jlokier.co.uk> <20030815131040.GA15706@ucw.cz> <20030815133307.GH15911@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 15 Aug 2003 16:00:04 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030815133307.GH15911@mail.jlokier.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, when enabling slab debugging, we lose the property of
-having the objects aligned on a cache line size.
+On Fri, Aug 15, 2003 at 02:33:07PM +0100, Jamie Lokier wrote:
 
-This is, imho, an error, especially if GFP_DMA is passed. Such an
-object _must_ be cache alined (and it's size rounded to a multiple
-of the cache line size).
+> Vojtech Pavlik wrote:
+> > > Several laptops seem to send a key down event 3, 5 or very many times
+> > > in response to a single press.
+> > 
+> > One way this could be handled fairly nicely (although the method is
+> > maybe too clever to be good) would be to leave the autorepeat up to the
+> > sw, ignore any successive presses without a release and watch whether
+> > the keyboard will start autorepeating the key after 250 msec. If it does
+> > not, then force the key to be released even if we got no release
+> > scancode.
+> 
+> Perhaps it's too clever, because some users configure the repeat delay
+> in their BIOS to longer than 250ms.
 
-There is a simple performance reason on cache coherent archs, but
-there's also the fact that it will just _not_ work properly on
-non cache-coherent archs. Actually, I also have to deal with some
-old machines who have a SCSI controller who has a problem accessing
-buffers that aren't aligned on a cache line size boundary.
+The driver programs the delay. The BIOS setting is irrelevant.
 
-This is typically causing me trouble in various parts of SCSI which
-abuses kmalloc(512, GFP_KERNEL | GFP_DMA) for buffers passed to some
-SCSI commands, typically "utility" commands used to read a disk
-capacity, read read/write protect flags, some sense buffers, etc...
+> It is fine if you are able to reliably program the keyboard to use the
+> 250ms delay, though.
 
-While I know SCSI shall use the consistent alloc things, it has not
-been fully fixed yet and kmalloc with GFP_DMA is still valid despite
-not beeing efficient, so we should make sure in this case, the returned
-buffer is really suitable for DMA, that is cache aligned.
+I am.
 
-Ben.
+> Aren't there some keys which report DOWN and UP but which don't repeat?
 
+No.
+
+> The PS/2 keyboard protocol is utterly absurd.
+
+Yep. It's a dozen or more years of hack upon a hack.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

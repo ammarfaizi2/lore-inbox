@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbUKSTer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUKSTiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbUKSTer (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 14:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUKSTeK
+	id S261552AbUKSTiX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 14:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKSTiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 14:34:10 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:15015 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261550AbUKSTdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 14:33:16 -0500
-Date: Fri, 19 Nov 2004 20:33:50 +0100
-From: Stelian Pop <stelian@popies.net>
-To: mdharm-usb@one-eyed-alien.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] usb-storage should enable scsi disk in Kconfig
-Message-ID: <20041119193350.GE2700@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	mdharm-usb@one-eyed-alien.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Nov 2004 14:38:22 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:46922 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261552AbUKSTiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 14:38:14 -0500
+Message-ID: <419E4BA1.8030608@google.com>
+Date: Fri, 19 Nov 2004 11:38:09 -0800
+From: Edward Falk <efalk@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040324
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jim Nelson <james4765@verizon.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE ioctl documentation & a new ioctl
+References: <419D5CE6.8030503@google.com> <419D6CC3.4030308@verizon.net>
+In-Reply-To: <419D6CC3.4030308@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As $subject says, usb-storage storage should automatically enable
-scsi disk support in Kconfig.
 
-Please apply.
+> I'd probably make a subdirectory - i. e. Documentation/ioctl/hdio.txt - 
+> to differentiate it from other documents, and make it easier to get 
+> maintainers to put some stuff in there. ;)   AFAICT, there is next to no 
+> documentation on ioctl's anywhere in the kernel tarball.
 
-Stelian.
-
-Signed-off-by: Stelian Pop <stelian@popies.net>
-
-===== drivers/usb/storage/Kconfig 1.9 vs edited =====
---- 1.9/drivers/usb/storage/Kconfig	2004-06-13 17:24:10 +02:00
-+++ edited/drivers/usb/storage/Kconfig	2004-11-19 16:44:16 +01:00
-@@ -6,6 +6,7 @@
- 	tristate "USB Mass Storage support"
- 	depends on USB
- 	select SCSI
-+	select BLK_DEV_SD
- 	---help---
- 	  Say Y here if you want to connect USB mass storage devices to your
- 	  computer's USB port. This is the driver you need for USB floppy drives,
--- 
-Stelian Pop <stelian@popies.net>
+Good point; the existance of an ioctl subdirectory would encourage 
+others to write documentation as well.

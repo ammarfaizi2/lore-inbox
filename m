@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbTEEHaV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 03:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTEEHaV
+	id S261893AbTEEH3C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 03:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbTEEH3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 03:30:21 -0400
-Received: from are.twiddle.net ([64.81.246.98]:53907 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S262007AbTEEHaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 03:30:21 -0400
-Date: Mon, 5 May 2003 00:42:48 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: David Mosberger-Tang <David.Mosberger@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix vsyscall unwind information
-Message-ID: <20030505074248.GA7812@twiddle.net>
-Mail-Followup-To: David Mosberger-Tang <David.Mosberger@acm.org>,
-	linux-kernel@vger.kernel.org
-References: <20030502004014$08e2@gated-at.bofh.it> <20030503210015$292c@gated-at.bofh.it> <20030504063010$279f@gated-at.bofh.it> <ugade16g78.fsf@panda.mostang.com>
+	Mon, 5 May 2003 03:29:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54690 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261893AbTEEH3C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 03:29:02 -0400
+Date: Mon, 5 May 2003 08:41:31 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@digeo.com>
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] how to fix is_local_disk()?
+Message-ID: <20030505074131.GA10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030504090003.A7285@lst.de> <20030504003021.077e8819.akpm@digeo.com> <20030504010014.67352345.akpm@digeo.com> <20030504191013.A10659@lst.de> <20030504140537.50310417.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ugade16g78.fsf@panda.mostang.com>
+In-Reply-To: <20030504140537.50310417.akpm@digeo.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 04, 2003 at 11:49:31PM -0700, David Mosberger-Tang wrote:
-> Is there a marker or some other way to identify the sigreturn as such?
+On Sun, May 04, 2003 at 02:05:37PM -0700, Andrew Morton wrote:
+ 
+> About half of the s_umount grabbers perform that check.  The others might be
+> buggy.  I'm not sure - it's all rather gunky in there and hard to tell what
+> the rules are.
 
-No.
-
-> If not, could one be added?
-
-Why?  Certainly it isn't needed for x86.
-
-
-r~
+Very simple, actually - if you are holding an active reference, no checks
+are needed.  If you do not (as in this case) - you need to check that
+filesystem is not in the middle of shutdown after getting ->s_umount.

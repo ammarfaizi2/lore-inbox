@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264083AbTKJUla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 15:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbTKJUl3
+	id S262805AbTKJU6g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 15:58:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTKJU6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 15:41:29 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4356 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264083AbTKJUl2
+	Mon, 10 Nov 2003 15:58:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39842 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262805AbTKJU6f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 15:41:28 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0-test9 vs sound
-Date: 10 Nov 2003 20:30:55 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <booshv$6mr$1@gatekeeper.tmr.com>
-References: <200310301008.27871.gene.heskett@verizon.net> <yw1xr80tzs0e.fsf@kth.se> <200310310813.02970.gene.heskett@verizon.net> <yw1x8yn1zfb8.fsf@kth.se>
-X-Trace: gatekeeper.tmr.com 1068496255 6875 192.168.12.62 (10 Nov 2003 20:30:55 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Mon, 10 Nov 2003 15:58:35 -0500
+Message-ID: <3FAFFBEE.2020904@pobox.com>
+Date: Mon, 10 Nov 2003 15:58:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lutz Bichler <Lutz.Bichler@unibw-muenchen.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCNET32 - Driver
+References: <200311101857.25806.Lutz.Bichler@unibw-muenchen.de>
+In-Reply-To: <200311101857.25806.Lutz.Bichler@unibw-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <yw1x8yn1zfb8.fsf@kth.se>,
-=?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se> wrote:
-| Gene Heskett <gene.heskett@verizon.net> writes:
-| 
-| > Some of the tutorials in those links would seem to indicate that 
-| > /etc/modules.conf has been renamed, which I have not, and my modutils 
-| > are still the same as I've been using for a few months with 2.4.  I 
-| > saw an announcement regarding a new modutils tool set last night, do 
-| > I need to install that, and does that then fubar a 2.4.23-pre8 boot?
-| 
-| You need the new module-init-tools.  If you follow the instructions
-| provided with them, things will continue to work with 2.4 kernels.
+Lutz Bichler wrote:
+> Hi,
+> 
+> i needed to add the following code snippet to the pcnet32 - driver in order to 
+> make it work with new Allied Telesync fiber channel cards. 
+> 
+> 600,603d599
+> <     case 0x2628:
+> <         chipname = "PCnet/FAST III 79C976";
+> <         fdx = 1; mii = 1;
+> <         break;
+> 
+>>From the drivers source it is not clear to me who actually maintains the 
+> driver. Who is the maintainer and how can i get this (or something better of 
+> course) merged into the driver? Please CC as i am not subscribed to the list.
 
-The only thing to watch out for is that the "probe" functionality was
-removed from the new package, which requires manual loading of the
-modules and testing of the status. Inconvenient if you need to do it at
-boot time, otherwise write a script. That feature typically was used
-only when the hardware for the initial drivers might be nonfunctional
-and and alternative was needed.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+If you can CC me on "diff -u" patches, I'll make sure they go in.
+
+	Jeff
+
+
+

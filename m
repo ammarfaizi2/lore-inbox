@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290744AbSBTBgS>; Tue, 19 Feb 2002 20:36:18 -0500
+	id <S290755AbSBTBj3>; Tue, 19 Feb 2002 20:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290746AbSBTBf6>; Tue, 19 Feb 2002 20:35:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64779 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290744AbSBTBfw>; Tue, 19 Feb 2002 20:35:52 -0500
-Date: Tue, 19 Feb 2002 17:32:48 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Francois Romieu <romieu@cogenit.fr>, <linux-kernel@vger.kernel.org>,
-        <khc@pm.waw.pl>, <davem@redhat.com>
-Subject: Re: [PATCH] HDLC patch for 2.5.5 (0/3)
-In-Reply-To: <3C703B46.79890E96@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0202191732320.1443-100000@penguin.transmeta.com>
+	id <S290746AbSBTBjS>; Tue, 19 Feb 2002 20:39:18 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23045 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290753AbSBTBjO>; Tue, 19 Feb 2002 20:39:14 -0500
+Subject: Re: Info on Intel Plumas E7500 support
+To: whampton@staffnet.com (Wade Hampton)
+Date: Wed, 20 Feb 2002 01:53:34 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3C72F651.7544845B@staffnet.com> from "Wade Hampton" at Feb 19, 2002 08:05:21 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16dLws-0002C2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> A customer of mine asked if RedHat 6.2 supported
+> the new dual xeon e7500 chip set?  After a search
+> which resulted in very few hits, I was wondering 
+> if any Linux kernel supports this? 
 
-On Sun, 17 Feb 2002, Jeff Garzik wrote:
-> Francois Romieu wrote:
-> > [0/3]:
-> > - SIOCDEVICE -> SIOCWANDEV conversion
-> > - hdlc_proto -> raw_hdlc_proto
-> 
-> patch looks ok to me.
+No idea. In general intel chipsets are fairly standards compliant and
+forward/backward compatible. That should mean the IDE will either just
+work as full UDMA or need a new PCI ident. It might want a new IRQ router
+if you use it with stuff like cardbus or hotplug.
 
-Jeff, are yu willing to merge these things?
+> Also anyone know if support for it will be backported
+> to the 2.2 series?
 
-		Linus
-
+Unlikely

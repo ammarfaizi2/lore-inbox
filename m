@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265881AbRFYE7V>; Mon, 25 Jun 2001 00:59:21 -0400
+	id <S264841AbRFYGGE>; Mon, 25 Jun 2001 02:06:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265882AbRFYE7L>; Mon, 25 Jun 2001 00:59:11 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:62622 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S265881AbRFYE7E>; Mon, 25 Jun 2001 00:59:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Wayne.Brown@altec.com
-Subject: Re: Microsoft and Xenix.
-Date: Sun, 24 Jun 2001 19:21:51 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <86256A76.0011A620.00@smtpnotes.altec.com>
-In-Reply-To: <86256A76.0011A620.00@smtpnotes.altec.com>
-MIME-Version: 1.0
-Message-Id: <0106241921510L.03436@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S265726AbRFYGFy>; Mon, 25 Jun 2001 02:05:54 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:35955
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S264841AbRFYGFk>; Mon, 25 Jun 2001 02:05:40 -0400
+Date: Mon, 25 Jun 2001 08:05:33 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: "Michael H. Warfield" <mhw@wittsend.com>
+Cc: linux-computone@lazuli.wittsend.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] catch potential null derefs in drivers/char/ip2main.c (245ac16)
+Message-ID: <20010625080533.A7356@jaquet.dk>
+In-Reply-To: <20010624230606.G847@jaquet.dk> <20010624191400.A17692@alcove.wittsend.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010624191400.A17692@alcove.wittsend.com>; from mhw@wittsend.com on Sun, Jun 24, 2001 at 07:14:00PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 June 2001 22:51, Wayne.Brown@altec.com wrote:
-> Sorry, but I'm hanging on to my old computer manuals.  The AIX manuals in
-> particular have sentimemtal value for me.
+On Sun, Jun 24, 2001 at 07:14:00PM -0400, Michael H. Warfield wrote:
+> On Sun, Jun 24, 2001 at 11:06:06PM +0200, Rasmus Andersen wrote:
+> > Hi.
+> 
+> > (My last mail to dougm@computone.com bounced. Is there another
+> > maintainer for drivers/char/ip2main.c somewhere?)
+> 
+> 	I'm still here.  :-)  Just look one more line down below
+> Doug's line.  There I am.
 
-Entirely undersandable.
+Ah. My apoligies. I am not accustomed to the luxury of having
+multiple maintainers to bug :) No slight intended.
 
-Would you be willing to xerox any "introduction" or "about" sections?
-
-> OTOH, I have quite a few old computer magazines (from the 80's) like Byte,
-> Infoworld, etc.  I've been intending to get rid of them for some time now,
-> but hated just to throw them away.  They're in storage in a neighboring
-> state right now, but my wife probably will be driving there in the next
-> couple of weeks to pick up a few things.  If you're interested, she could
-> bring back the magazines and I can tell you exactly what I have.  You're
-> welcome to them if you want them.
-
-Sure.  Let me know what you have and I'll tell you what I don't have...
-
-> Wayne
-
-Rob
+Regards,
+  Rasmus

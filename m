@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUFATFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265141AbUFATDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUFATFY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 15:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265146AbUFATFY
+	id S265141AbUFATDV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 15:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUFATDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 15:05:24 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:60679 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S265144AbUFATFL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 15:05:11 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <robin.rosenberg.lists@dewire.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: why swap at all? (what the user feels)
-Date: Tue, 1 Jun 2004 12:04:56 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEHCMFAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 1 Jun 2004 15:03:20 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:20675 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265141AbUFATCw (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 15:02:52 -0400
+Message-Id: <200406011902.i51J2mZ3016721@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: FabF <fabian.frederick@skynet.be>
+Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: why swap at all? 
+In-Reply-To: Your message of "Tue, 01 Jun 2004 20:36:23 +0200."
+             <1086114982.2278.5.camel@localhost.localdomain> 
+From: Valdis.Kletnieks@vt.edu
+References: <E1BUwEH-00030X-00@calista.eckenfels.6bone.ka-ip.net>
+            <1086114982.2278.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_482188856P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200406012101.40302.robin.rosenberg.lists@dewire.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2120
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 01 Jun 2004 11:42:56 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 01 Jun 2004 11:43:01 -0700
+Date: Tue, 01 Jun 2004 15:02:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_482188856P
+Content-Type: text/plain; charset=us-ascii
 
-> On Tuesday 01 June 2004 20.01, David Schwartz wrote:
-> > >  From what I've read previously in this thread, it seems to
-> > > me that the
-> > > only major problem with swapping that not all users want file system
-> > > cache to swap out actual applications (thus making that somewhat aged
-> > > mozilla window abit laggy).
-> > >
-> > > Maybe we could just have a "Allow file system cache to swap out
-> > > applications checkbox somewhere"?
-> > >
-> > > Or, Am I missing something?
+On Tue, 01 Jun 2004 20:36:23 +0200, FabF said:
 
-> > 	In practice, that would make no difference at all. Once
-> > physical memory is
-> > full (and it pretty much will always be so), every memory
-> request (whether
+> I guess we have a design problem right here.We could add per-process
+> swappiness attribute.That swap thread becomes boring coz we're looking
+> globally what's going wrong locally.
 
-> No.
-
-	Huh?
-
-> Many people have machines with plenty of RAM (512MB or more is
-> pretty much
-> standard on new machines), much of which is only used to cache files. The
-> file cache is the reason the memory is full.
-
-	Of course. That's why I said, "once physical memory is full (and it pretty
-much will always be so)". Physical memory is always full, so every memory
-request requires that a page be evicted.
-
-	DS
+Hmm.. do we need to worry about the same DoS issues we need to worry about with
+mlock and friends?  I know I can trust myself to not do stupid things to said
+flags on my laptop (well... not twice anyhow ;).  On the other hand, I have
+systems with clueless users, and the even more dangerous half-clued users.  And
+then I have a bunch of machines in our security lab, where Bad Things happen
+all the time... 
 
 
+--==_Exmh_482188856P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAvNLYcC3lWbTT17ARAlXfAKChoFPxbTQM/yluLmjQCh1yBrKByQCgv79q
+H8l4ELjs3ncfKBfoUNmz+LU=
+=yAow
+-----END PGP SIGNATURE-----
+
+--==_Exmh_482188856P--

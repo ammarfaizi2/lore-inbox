@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267227AbSLKRSa>; Wed, 11 Dec 2002 12:18:30 -0500
+	id <S267231AbSLKRKO>; Wed, 11 Dec 2002 12:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267234AbSLKRSa>; Wed, 11 Dec 2002 12:18:30 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:55786 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S267227AbSLKRS3> convert rfc822-to-8bit;
-	Wed, 11 Dec 2002 12:18:29 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: "Serge Kuznetsov" <serge@wcom.ca>,
-       "Joseph D. Wagner" <wagnerjd@prodigy.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Is this going to be true ?
-Date: Wed, 11 Dec 2002 18:26:06 +0100
-User-Agent: KMail/1.4.1
-References: <001801c2a0a9$02613f40$2e863841@joe> <071a01c2a137$a8646460$9c094d8e@wcom.ca>
-In-Reply-To: <071a01c2a137$a8646460$9c094d8e@wcom.ca>
+	id <S267232AbSLKRKO>; Wed, 11 Dec 2002 12:10:14 -0500
+Received: from ermelo.utad.pt ([193.136.40.6]:63380 "EHLO marao.utad.pt")
+	by vger.kernel.org with ESMTP id <S267231AbSLKRKM>;
+	Wed, 11 Dec 2002 12:10:12 -0500
+Message-ID: <3DF772B5.5000905@alvie.com>
+Date: Wed, 11 Dec 2002 17:15:33 +0000
+From: Alvaro Lopes <alvieboy@alvie.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212111826.06737.roy@karlsbakk.net>
+To: Brendon Higgins <bh_doc@users.sourceforge.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: dvd-drive no longer works (2.4.20)
+References: <200212051151.59330.bh_doc@users.sourceforge.net> <3DEF7EEC.9040906@alvie.com> <200212061154.20386.bh_doc@users.sourceforge.net> <200212111204.59505.bh_doc@users.sourceforge.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 December 2002 18:06, Serge Kuznetsov wrote:
-> What I can say is what Linux kernel development outperforms
-> M$-Windows development in timeline by many parameters.
+Brendon Higgins wrote:
+
+>hdc: status error: status=0x7f { DriveReady DeviceFault SeekComplete 
+>DataRequest CorrectedError Index Error }
+>  
 >
-> That what I know for sure.
->
-> For this moment M$ have only nice and comfy GUI, but I hope it will change
-> very soon.
+This looks weird. It's signalling a device fault *and * corrected error. 
+Jens ?
 
-You've had to have stood with your head in the sand for a few years not to see 
-that Microsoft actually has a good OS as well. Win2k _does_ have nice 
-features and runs fast. The main problem with comparing unices and Windoze, 
-is the question "What is an operating system"? Is the kernel the OS? Are the 
-libraries part of it as well? Is X part it? Windows has a good bunch of APIs 
-that quite a few userspace programmers love. Unices + libs + X don't have the 
-same abstraction as Windows has, resulting in longer, more low-level 
-development.
-
-I don't like Windows, but saying there's nothing except the GUI doesn't make 
-you look smarter.
-
-roy
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
 

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275981AbRI1Itu>; Fri, 28 Sep 2001 04:49:50 -0400
+	id <S275982AbRI1IwB>; Fri, 28 Sep 2001 04:52:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275982AbRI1Itk>; Fri, 28 Sep 2001 04:49:40 -0400
-Received: from dionis.mirotel.net ([194.125.225.7]:62859 "EHLO
-	dionis.mirotel.net") by vger.kernel.org with ESMTP
-	id <S275981AbRI1ItZ>; Fri, 28 Sep 2001 04:49:25 -0400
-Date: Fri, 28 Sep 2001 12:00:33 +0300 (EEST)
-From: Zakhar Kirpichenko <zakhar@mirotel.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: linux-2.4.9-ac15 and -ac16 compile error
-In-Reply-To: <20010928102617.7de2ec3a.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0109281153060.25965-100000@dionis.mirotel.net>
+	id <S275985AbRI1Ivu>; Fri, 28 Sep 2001 04:51:50 -0400
+Received: from hal.grips.com ([62.144.214.40]:45738 "EHLO hal.grips.com")
+	by vger.kernel.org with ESMTP id <S275982AbRI1Ivn>;
+	Fri, 28 Sep 2001 04:51:43 -0400
+Message-Id: <200109280851.f8S8pKL29417@hal.grips.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Gerold Jury <gjury@hal.grips.com>
+To: Robert Cohen <robert.cohen@anu.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and  2.4.9-ac15
+Date: Fri, 28 Sep 2001 10:51:20 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <3BB31F99.941813DD@anu.edu.au>
+In-Reply-To: <3BB31F99.941813DD@anu.edu.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have tried 2.4.9-xfs against 2.4.10-xfs with dbench.
+The machine has 384 MB ram.
 
-	Hello there.
+The throughput is roughly the same for both with dbench 2.
+dbench 32 runs fine on 2.4.9-xfs but does not finish on 2.4.10-xfs.
+dbench 24 will finish on 2.4.10 but it takes a very very long time.
+All dbench processes are stuck in D state after 10 seconds.
 
-	I've got a problem compiling linux-2.4.9-ac15 and -ac16. When I'm
-trying to compile APM support as module, I get this during depmod section
-of 'make modules_install' (and when start 'depmod' manually):
+I am not sure if it is the xfs part, the VM or both.
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.9-z6; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.9-z6/kernel/arch/i386/kernel/apm.o
-depmod: 	__sysrq_unlock_table
-depmod: 	__sysrq_get_key_op
-depmod: 	__sysrq_put_key_op
-depmod: 	__sysrq_lock_table
+Can you give the dbench 32 a try ?
 
-	Also I've got a problem compiling APM into the kernel:
+Regards
+Gerold
 
-ld -m elf_i386 -T /usr/src/linux-2.4.9-ac16/arch/i386/vmlinux.lds -e stext
-
-[bla-bla-bla]
-
-/usr/src/linux-2.4.9-z6/arch/i386/lib/lib.a \
-	--end-group \
-	-o vmlinux
-arch/i386/kernel/kernel.o: In function `apm':
-arch/i386/kernel/kernel.o(.text+0xbf8a): undefined reference to `__sysrq_lock_table'
-arch/i386/kernel/kernel.o(.text+0xbf91): undefined reference to `__sysrq_get_key_op'
-arch/i386/kernel/kernel.o(.text+0xbfa4): undefined reference to `__sysrq_put_key_op'
-arch/i386/kernel/kernel.o(.text+0xbfac): undefined reference to `__sysrq_unlock_table'
-make: *** [vmlinux] Error 1
-
-	It was okay before -ac15.
-
-	gcc version report is: gcc version 2.95.3 20010315 (release).
-
-	Any ideas?
-
--- 
-Zakhar Kirpichenko,
-ZAK-UANIC
-
-
+On Thursday 27 September 2001 14:46, Robert Cohen wrote:
+> Given the recent flurry of changes in the Linux kernel VM subsystems I
+> decided to do a bit of benchmarking.

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288027AbSACAB6>; Wed, 2 Jan 2002 19:01:58 -0500
+	id <S288022AbSACAB5>; Wed, 2 Jan 2002 19:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288037AbSACABC>; Wed, 2 Jan 2002 19:01:02 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:11714 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S287976AbSABX7c>; Wed, 2 Jan 2002 18:59:32 -0500
-From: Joe Buck <jbuck@synopsys.COM>
-Message-Id: <200201022359.PAA05815@atrus.synopsys.com>
-Subject: Re: [PATCH] C undefined behavior fix
-To: dewar@gnat.com
-Date: Wed, 2 Jan 2002 15:59:25 -0800 (PST)
-Cc: paulus@samba.org, velco@fadata.bg, gcc@gcc.gnu.org,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
-        trini@kernel.crashing.org
-In-Reply-To: <20020102235318.26F2FF2EC7@nile.gnat.com> from "dewar@gnat.com" at Jan 02, 2002 06:53:18 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S288065AbSACAA6>; Wed, 2 Jan 2002 19:00:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15120 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288066AbSACAA0>; Wed, 2 Jan 2002 19:00:26 -0500
+Subject: Re: [PATCH][RFC] AMD Elan patch
+To: rob@sysgo.de (Robert Kaiser)
+Date: Thu, 3 Jan 2002 00:10:08 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@zytor.com (H. Peter Anvin),
+        davej@suse.de (Dave Jones), robert@schwebel.de (Robert Schwebel),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        wingel@hog.ctrl-c.liu.se (Christer Weinigel),
+        jason@mugwump.taiga.com (Jason Sodergren),
+        anders@alarsen.net (Anders Larsen), rkaiser@sysgo.de
+In-Reply-To: <Pine.LNX.4.21.0201030048290.8191-100000@dagobert.svc.sysgo.de> from "Robert Kaiser" at Jan 03, 2002 12:56:37 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16LvSS-0006B9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Dewar writes:
+> > differently (and actually have working serial ports I believe). 
+>                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> This part is not true AFAIK. I understand they "ported" that
+> incompatibility from the 4x0 to the 520.
 
-> The concept of "all reasonable compiler implementations" is a very dubious
-> one. There is nothing to stop a valid C compiler from building assertions
-> based on the quoted paragraph from the C standard, e.g. it could derive
-> valid range information from knowing that an offset was constrained to
-> certain limits. So writing bogus C like this is risky, and as compilers
-> get more sophisticated, one is likely to hear screams, but they are not
-> justified in my opinion. There is no excuse for such abuse.
+Groan. Has anyone got a spare daisycutter ..
 
-There is already such a project under development: see
+> > So its an end of life core
+> 
+> Yes, but is that an excuse for Linux to not support it ? I mean,
+> Linux still does support the 386 ...
 
-http://gcc.gnu.org/projects/bp/main.html
-
-This is a modification to gcc that implements pointers as triples.
-While there is a performance penalty for doing this, it can completely
-eliminate the problem of exploitable buffer overflows.  However, programs
-that violate the rules of ISO C by generating out-of-range pointers will
-fail.
-
-
-
+I meant that as in "so it wont be appearing in any new form" not that we
+should not support it.

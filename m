@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312498AbSEXWby>; Fri, 24 May 2002 18:31:54 -0400
+	id <S312590AbSEXWoi>; Fri, 24 May 2002 18:44:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312526AbSEXWby>; Fri, 24 May 2002 18:31:54 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:20834 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312498AbSEXWbx>; Fri, 24 May 2002 18:31:53 -0400
-Date: Sat, 25 May 2002 00:31:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: Re: negative dentries wasting ram
-Message-ID: <20020524223111.GN15703@dualathlon.random>
-In-Reply-To: <20020524194344.GH15703@dualathlon.random> <Pine.GSO.4.21.0205241549520.9792-100000@weyl.math.psu.edu> <20020524203630.GJ15703@dualathlon.random> <20020524221447.GA22944@ravel.coda.cs.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S312560AbSEXWoi>; Fri, 24 May 2002 18:44:38 -0400
+Received: from mgw-x3.nokia.com ([131.228.20.26]:8683 "EHLO mgw-x3.nokia.com")
+	by vger.kernel.org with ESMTP id <S312526AbSEXWog>;
+	Fri, 24 May 2002 18:44:36 -0400
+Message-ID: <3CEEC240.8030905@nokia.com>
+Date: Sat, 25 May 2002 01:44:16 +0300
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
+X-Accept-Language: en
+MIME-Version: 1.0
+Newsgroups: comp.os.linux.networking
+To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+CC: affix-devel@lists.sourceforge.net,
+        Affix support <affix-support@lists.sourceforge.net>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: [new release] Affix-1_00pre1  --- Bluetooth Protocol Stack. + initial
+ Audio Support
+In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com> <3C766511.5050808@nokia.com> <3C7F6C0C.6030204@nokia.com> <3C877AC7.8090008@nokia.com> <3C92111C.1070107@nokia.com> <3CA3A149.1080905@nokia.com> <3CAE2484.8090304@nokia.com> <3CB99689.7090105@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 May 2002 22:44:35.0247 (UTC) FILETIME=[93E9FBF0:01C20374]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 06:14:47PM -0400, Jan Harkes wrote:
-> Most interesting is the following message with a patch from you, because
-> the dcache and icache were pruned 'too agressively' when the new VM was
-> on the verge of being introduced in 2.4.10 :) Considering that what you
-> are proposing now is even more agressive than that, it is almost amusing.
-> 
->     http://marc.theaimsgroup.com/?l=linux-kernel&m=100076684905307&w=2
+Hi All.
+  
+Find new Affix release Affix-1_00 on http://affix.sourceforge.net
 
-that was really too much aggressive, it was getting shrunk even with
-plenty of cache available. at that time we were missing the
-refill_inactive list logic. if you read the patch in such email
-carefully, you'll see the that the shrink_dcache_memory(priority,
-gfp_mask), shrink_icache_memory(priority, gfp_mask) were executed
-_before_ finishing probing the pagecache levels.
+USB support improved... Works with more devices.
 
-before that patch it was so aggressive that the dcache/icache could be
-shrunk before finishing probing the pagecache, so it would be fine for
-the inactive-dentries actually :), but only for them! :)
+Profiles supported:
+- Service Discovery.
+- Serial Port.
+- LAN Access.
+- Dialup Networking.
+- OBEX Object Push.
+- OBEX File Transfer.
+- PAN.
 
-In short what we do is:
 
-	probe and shrink pagecache
+GUI environment A.F.E - Affix Frontend Environment available for use.
+http://affix.sourceforge.net/afe
 
-if we probe some remote shortage of pagecache we do the next step:
+Link can be found on Affix WEB site in *Links* section.
 
-	shrink dcache icache and start some pagetable walking to decrease the mapping pressure
+ 
 
-So if the system swaps like crazy the inode cache must definitely be
-shrunk very hard, if it doesn't it's a vm bug.
+Version 1.0pre1 [24.05.2002]
+- [new] Added Audio support - SCO connections. Initial version.
+- [changes] openobex removed from project. *openobex* has to be downlaod 
+	separately from:
+	http://sourceforge.net/projects/openobex/
+	or if you are Debian user just: 
+	apt-get install libopenobex1
+	apt-get install libopenobex-dev
+- [fix/changes] USB driver modified. It reads EP addresses from the device.
+	It now support some non-standard devices.
+- [fix] some fixes in uart driver.
+- [fix] CC in config.in can be set to properly compile by different compiler.
+	(by cross compiler)
 
-There is no inchoerency with what I said and the previous email, it's
-just that at that time it was way too aggressive, it was shrinking the
-icache/dcache way before finishing probing the pagecache-active list too
-for excessive amounts of clean cache.
 
-Andrea
+br, Dmitry 
+
+-- 
+ Dmitry Kasatkin
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitry.kasatkin@nokia.com
+
+

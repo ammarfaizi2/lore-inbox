@@ -1,45 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312983AbSEPNnB>; Thu, 16 May 2002 09:43:01 -0400
+	id <S312998AbSEPNs3>; Thu, 16 May 2002 09:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312991AbSEPNnB>; Thu, 16 May 2002 09:43:01 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:8387 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S312983AbSEPNnA>;
-	Thu, 16 May 2002 09:43:00 -0400
-Date: Thu, 16 May 2002 23:39:56 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: bart@jukie.net, linux-kernel@vger.kernel.org
-Subject: Re: Q: x86 interrupt arrival after cli
-Message-Id: <20020516233956.542fcf6d.sfr@canb.auug.org.au>
-In-Reply-To: <E178LMh-0004FK-00@the-village.bc.nu>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S313016AbSEPNs2>; Thu, 16 May 2002 09:48:28 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:32266 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S312998AbSEPNs1>; Thu, 16 May 2002 09:48:27 -0400
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: msmith@operamail.com (Malcolm Smith), linux-kernel@vger.kernel.org,
+        chaffee@cs.berkeley.edu
+Subject: Re: [RFC] FAT extension filters
+In-Reply-To: <200205151749.g4FHnkt183716@saturn.cs.uml.edu>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 16 May 2002 22:46:41 +0900
+Message-ID: <871yccgq7y.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 May 2002 14:32:19 +0100 (BST) Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> > Quick question for the x86 gurus:
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-Not a real x86 guru :-)
-
-> > If a hardware interrupt arrives within a spin_lock_irqsave &
-> > spin_unlock_irqrestore will the interrupt handler associated with said
-> > interrupt be called immediately after the spinlock is released? =20
+> Using plain old MS-DOS, or Linux right before the
+> vfat code was merged, create a file with this name:
 > 
-> It will be called as soon as the cpu hardware gets around to it - which 
-> should be just after the irq mask flag is cleared.
+> E5 44 05 44 E5 44 44 44   44 E5 05
+> 
+> On disk it gets stored as this:
+> 
+> 05 44 05 44 E5 44 44 44   44 E5 05
+> ^^
+> 
+> Now remount or reboot so you don't cheat by
+> accident. Do an "ls -l" and note that you
+> see the original filename. The 0xE5 is at
+> the beginning of the name, and the 0x05 in
+> the middle has not been mangled.
 
-If memory serves (and Intel hasn't changed things) you get to
-at least start the execution of the next instruction which means,
-for most instructions, the interrupt will be delivered after the
-instruction after the instruction unmasks the irqs.
+Ah, yes. Indeed.
 
-Actually, this makes no difference at the C level :-)
+I'll submit the following patch to Linus. Thanks.
+
+diff -urN linux-bk/fs/fat/dir.c linux-2.5.14/fs/fat/dir.c
+--- linux-bk/fs/fat/dir.c	Mon May 13 02:28:29 2002
++++ linux-2.5.14/fs/fat/dir.c	Thu May 16 22:39:32 2002
+@@ -271,13 +271,10 @@
+ 				long_slots = 0;
+ 		}
+ 
+-		for (i = 0; i < 8; i++) {
+-			/* see namei.c, msdos_format_name */
+-			if (de->name[i] == 0x05)
+-				work[i] = 0xE5;
+-			else
+-				work[i] = de->name[i];
+-		}
++		/* see namei.c, msdos_format_name */
++		memcpy(work, de->name, sizeof(de->name));
++		if (de->name[0] == 0x05)
++			work[0] = 0xE5;
+ 		for (i = 0, j = 0, last_u = 0; i < 8;) {
+ 			if (!work[i]) break;
+ 			chl = fat_shortname2uni(nls_disk, &work[i], 8 - i,
+@@ -478,13 +475,10 @@
+ 		dotoffset = 1;
+ 	}
+ 
+-	for (i = 0; i < 8; i++) {
+-		/* see namei.c, msdos_format_name */
+-		if (de->name[i] == 0x05)
+-			work[i] = 0xE5;
+-		else
+-			work[i] = de->name[i];
+-	}
++	/* see namei.c, msdos_format_name */
++	memcpy(work, de->name, sizeof(de->name));
++	if (de->name[0] == 0x05)
++		work[0] = 0xE5;
+ 	for (i = 0, j = 0, last = 0, last_u = 0; i < 8;) {
+ 		if (!(c = work[i])) break;
+ 		chl = fat_shortname2uni(nls_disk, &work[i], 8 - i,
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

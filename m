@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264638AbSKIEqm>; Fri, 8 Nov 2002 23:46:42 -0500
+	id <S264643AbSKIFGQ>; Sat, 9 Nov 2002 00:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264641AbSKIEqm>; Fri, 8 Nov 2002 23:46:42 -0500
-Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:57358
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264638AbSKIEql>; Fri, 8 Nov 2002 23:46:41 -0500
-Date: Fri, 8 Nov 2002 23:52:21 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] notsc option needs some attention/TLC
-Message-ID: <Pine.LNX.4.44.0211082349170.10475-100000@montezuma.mastecende.com>
+	id <S264645AbSKIFGP>; Sat, 9 Nov 2002 00:06:15 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:22656 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S264643AbSKIFGP> convert rfc822-to-8bit; Sat, 9 Nov 2002 00:06:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+Date: Sat, 9 Nov 2002 16:12:07 +1100
+User-Agent: KMail/1.4.3
+Cc: Jens Axboe <axboe@suse.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>
+References: <200211091300.32127.conman@kolivas.net> <200211091426.54403.conman@kolivas.net> <3DCC8BCB.F5E39AB7@digeo.com>
+In-Reply-To: <3DCC8BCB.F5E39AB7@digeo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211091612.08718.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-notsc doesn't work on a box with a TSC, when we need need the option the 
-most...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Index: linux-2.5.46-bochs/arch/i386/kernel/cpu/common.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.46/arch/i386/kernel/cpu/common.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 common.c
---- linux-2.5.46-bochs/arch/i386/kernel/cpu/common.c	5 Nov 2002 01:47:31 -0000	1.1.1.1
-+++ linux-2.5.46-bochs/arch/i386/kernel/cpu/common.c	9 Nov 2002 03:10:45 -0000
-@@ -12,6 +12,11 @@
- 
- static int cachesize_override __initdata = -1;
- static int disable_x86_fxsr __initdata = 0;
-+#ifdef CONFIG_X86_TSC
-+static int tsc_disable __initdata = 0;
-+#else
-+#define tsc_disable	1
-+#endif
- 
- struct cpu_dev * cpu_devs[X86_VENDOR_NUM] = {};
- 
-@@ -42,24 +47,14 @@
- }
- __setup("cachesize=", cachesize_setup);
- 
--#ifndef CONFIG_X86_TSC
--static int tsc_disable __initdata = 0;
--
-+#ifdef CONFIG_X86_TSC
- static int __init tsc_setup(char *str)
- {
- 	tsc_disable = 1;
- 	return 1;
- }
--#else
--#define tsc_disable 0
--
--static int __init tsc_setup(char *str)
--{
--	printk("notsc: Kernel compiled with CONFIG_X86_TSC, cannot disable TSC.\n");
--	return 1;
--}
--#endif
- __setup("notsc", tsc_setup);
-+#endif
- 
- int __init get_model_name(struct cpuinfo_x86 *c)
- {
 
--- 
-function.linuxpower.ca
+>hrm.  In that case I'll shut up with the speculating.
+
+Please dont stop speculating. I and many others rely on someone like yourself 
+who is more likely to understand what is going on to comment. I can't expect 
+you to know exactly what goes into every patchset out there. Your input has 
+been invaluable and most of the drive for my benchmarking.
+
+>You're showing a big shift in behaviour between 2.4.19 and 2.4.20-rc1.
+>Maybe it doesn't translate to worsened interactivity.  Needs more
+>testing and anaysis.
+
+Sounds fair enough. My resources are exhausted though. Someone else have any 
+thoughts?
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9zJknF6dfvkL3i1gRAnHLAKCRuTqBfxqX582puVwQ/hBb0T0R1QCePyws
+0N9uKoKVY/M22gses+MkEnE=
+=UvJP
+-----END PGP SIGNATURE-----
 

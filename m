@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274567AbRIVJ2J>; Sat, 22 Sep 2001 05:28:09 -0400
+	id <S274543AbRIVJpY>; Sat, 22 Sep 2001 05:45:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274604AbRIVJ17>; Sat, 22 Sep 2001 05:27:59 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:22021 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S274567AbRIVJ1q>; Sat, 22 Sep 2001 05:27:46 -0400
-Date: Sat, 22 Sep 2001 11:28:09 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: David Findlay <david_j_findlay@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug: Joystick Driver doesn't talk to CMPCI gameports`
-Message-ID: <20010922112809.A2366@suse.cz>
-In-Reply-To: <200109220514.f8M5EevF002295@ADSL-Server.davsoft.com.au>
+	id <S274604AbRIVJpO>; Sat, 22 Sep 2001 05:45:14 -0400
+Received: from cs6625186-50.austin.rr.com ([66.25.186.50]:19584 "EHLO
+	hatchling.taral.net") by vger.kernel.org with ESMTP
+	id <S274543AbRIVJpB>; Sat, 22 Sep 2001 05:45:01 -0400
+Date: Sat, 22 Sep 2001 04:45:27 -0500
+From: Taral <taral@taral.net>
+To: linux-kernel@vger.kernel.org
+Subject: USB lockup on Thinkpad i1300
+Message-ID: <20010922044527.A23908@taral.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200109220514.f8M5EevF002295@ADSL-Server.davsoft.com.au>; from david_j_findlay@yahoo.com.au on Sat, Sep 22, 2001 at 03:13:14PM +1000
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 22, 2001 at 03:13:14PM +1000, David Findlay wrote:
-> I have a C-Media 8738 card built into my motherboard. The sound works fine.
-> 
-> I use these command as from the joystick documentation:
-> 
-> modprobe cmpci joystick=1
-> modprobe joydev
-> modprobe analog
-> 
-> I am using DevFS and kernel 2.4.9. Nothing appears in /dev/input where js0 
-> should actually appear when I insmod the analog joystick. The results of 
-> lsmod after doing those commands:
-> 
-> Workshop:/dev/input# lsmod
-> Module                  Size  Used by
-> analog                  6960   0  (unused)
-> gameport                1808   0  [analog]
-> cmpci                  28416   0
-> 
-> It appears that instead of using the cmpci gameport, it is using the gameport 
-> driver or something. Could someone please help me either get it going if 
-> there's a workaround, or otherwise tell me what code to look at to fix it? 
-> Thanks,
-> 
-> David
-> 
-> P.S. I'm not subscribed so please CC your response to me Thanks,
+My thinkpad happily locks up with both 2.4.9 and 2.4.10-pre14 when I
+load usb-ohci. Tracing with kdb shows that the system locks up right
+after executing this: (usb-ohci.c:2137)
 
-The cmpci driver still doesn't register a gameport, you need the ns558
-module as well.
+        /* HC Reset requires max 10 ms delay */
+        writel (OHCI_HCR,  &ohci->regs->cmdstatus);
+
+Anyone have any idea? The processor apparently never gets to the next
+instruction.
+
+[Cc: me please, I'm not on this list.]
+
+P.S. System chipset is ALi:
+
+00:14.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03) (prog-if 10 [OHCI])
+        Flags: bus master, medium devsel, latency 32, IRQ 10
+        Memory at 82400000 (32-bit, non-prefetchable) [size=4K]
+
+Shares IRQ with cardbus bridge and lcd controller.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose

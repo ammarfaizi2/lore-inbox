@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbTFBM2A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 08:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTFBM2A
+	id S262263AbTFBM0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 08:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTFBM0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 08:28:00 -0400
-Received: from holomorphy.com ([66.224.33.161]:39838 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262270AbTFBM1w (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 08:27:52 -0400
-Date: Mon, 2 Jun 2003 05:40:16 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Gianni Tedesco <gianni@scaramanga.co.uk>,
-       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Linus Torvalds <Torvalds@Transmeta.COM>, Andrew Morton <AKPM@Digeo.COM>
-Subject: Re: const from include/asm-i386/byteorder.h
-Message-ID: <20030602124016.GP8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Nikita Danilov <Nikita@Namesys.COM>,
-	Gianni Tedesco <gianni@scaramanga.co.uk>,
-	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-	Linus Torvalds <Torvalds@Transmeta.COM>,
-	Andrew Morton <AKPM@Digeo.COM>
-References: <16088.47088.814881.791196@laputa.namesys.com> <1054406992.4837.0.camel@sherbert> <20030531185709.GK8978@holomorphy.com> <16091.14923.815819.792026@laputa.namesys.com> <20030602121457.GO8978@holomorphy.com> <16091.17602.257293.364468@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16091.17602.257293.364468@laputa.namesys.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 2 Jun 2003 08:26:25 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:19448 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262263AbTFBM0V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 08:26:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Larry McVoy <lm@bitmover.com>, Willy Tarreau <willy@w.ods.org>
+Subject: Re: Question about style when converting from K&R to ANSI C.
+Date: Mon, 2 Jun 2003 07:39:12 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Larry McVoy <lm@bitmover.com>, Steven Cole <elenstev@mesatop.com>,
+       linux-kernel@vger.kernel.org
+References: <1054446976.19557.23.camel@spc> <20030601134942.GA10750@alpha.home.local> <20030601140602.GA3641@work.bitmover.com>
+In-Reply-To: <20030601140602.GA3641@work.bitmover.com>
+MIME-Version: 1.0
+Message-Id: <03060207391200.24067@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III writes:
->> Someone needs to doublecheck whether this actually works. Last I heard,
+On Sunday 01 June 2003 09:06, Larry McVoy wrote:
+> > > Sometimes it is nice to be able to see function names with a
+> > >
+> > > 	grep '^[a-zA-Z].*(' *.c
+> >
+> > This will return 'int foo(void)', what's the problem ?
+>
+> You get a lot of other false hits, like globals.  I don't feel strongly
+> about this, I'm more wondering why this style was choosen.  The way
+> I showed is pretty common,  it's sort of the "Unix" way (it's how the
+> original Unix guys did it, how BSD did it, and how the GNU guys do it), so
+> it's a somewhat surprising difference.  I've never understood the logic.
+> The more I think about it the less I understand it, doing it that way
+> means you are more likely to have to wrap a function definition which
+> is ugly:
+>
+> static inline int cdrom_write_check_ireason(ide_drive_t *drive, int len,
+> int ireason) {
+> }
 
-On Mon, Jun 02, 2003 at 04:36:18PM +0400, Nikita Danilov wrote:
-> I don't quite understand. __attribute_const is defined as
-> #define __attribute_const __attribute__ ((__const__))
-> so, after preprocessing prototypes of get_current() and
-> current_thread_info() will be the same as before patch, modulo spacing.
+Actually, that would most likely be:
+static inline int cdrom_write_check_ireason(
+			ide_drive_t *drive,
+			int len,
+			int ireason
+)
+{
+...
+}
 
-William Lee Irwin III writes:
->> it did not, but that could have changed since. It vaguely appears some
->> assumption about it working was made recently since __const__ was there.
+At least If I were doing it. Over my 20 years, I've found that many of MY
+type errors are due to returning or expecting the wrong structure/variable
+because I forgot the type of the function.
 
-On Mon, Jun 02, 2003 at 04:36:18PM +0400, Nikita Danilov wrote:
-> I am currently running ./fsstress -p 111 on patched kernel on 2*XEON
-> 2.20GHz with hyper threading.
+I rarely have to look at the parameters (though when I do, I locate them
+via the function name, then scan the parameters...) sometimes just to count
+the number of parameters, or the order, which is easier when the parameters
+are one to a line. Either as in K&R, or the new style.
 
-Sounds good. If you could doublecheck the assembly to make sure it's
-doing the right thing, that would be good, too.
-
-Thanks.
-
--- wli

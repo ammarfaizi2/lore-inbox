@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVCNAaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVCNAf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVCNAaO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 19:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVCNAaO
+	id S261603AbVCNAf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 19:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVCNAf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 19:30:14 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:57779 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261600AbVCNA3z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 19:29:55 -0500
-Date: Mon, 14 Mar 2005 01:29:54 +0100
-From: maximilian attems <janitor@sternwelten.at>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm <akpm@osdl.org>
-Subject: [patch] hfc_sx eliminate bad section references
-Message-ID: <20050314002954.GC13729@sputnik.stro.at>
+	Sun, 13 Mar 2005 19:35:26 -0500
+Received: from nevyn.them.org ([66.93.172.17]:14569 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261603AbVCNAfR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 19:35:17 -0500
+Date: Sun, 13 Mar 2005 19:35:12 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Junfeng Yang <yjf@stanford.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
+Message-ID: <20050314003512.GA16875@nevyn.them.org>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Junfeng Yang <yjf@stanford.edu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU> <1110690267.24123.7.camel@lade.trondhjem.org> <20050313200412.GA21521@nevyn.them.org> <1110746550.23876.8.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1110746550.23876.8.camel@lade.trondhjem.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix hfc_sx section references:
-  convert __initdata to __devinitdata.
+On Sun, Mar 13, 2005 at 03:42:29PM -0500, Trond Myklebust wrote:
+> su den 13.03.2005 Klokka 15:04 (-0500) skreiv Daniel Jacobowitz:
+> 
+> > I can't find any documentation about this, but it seems like the same
+> > problem that has been causing me headaches lately; when I replace glibc
+> > from the server side of an nfsroot, the client has a couple of
+> > variously wrong reads before it sees the new files.  If it breaks NFS
+> > so badly, why is it the default for the Linux NFS server?
+> 
+> No, that's a very different issue: you are violating the NFS cache
+> consistency rules if you are changing a file that is being held open by
+> other machines.
+> The correct way to do the above is to use GNU install with the '-b'
+> option: that will rename the version of glibc that is in use, and then
+> install the new glibc in a different inode.
 
-Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000204d R_386_32
-.init.data
-Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000205c R_386_32
-.init.data
-Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 00002082 R_386_32
-.init.data
-Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000209f R_386_32
-.init.data
-Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 00002114 R_386_32
-.init.data
-Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000211c R_386_32          
-.init.data
-Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000212e R_386_32
-.init.data
+[closed and/or irrelevant lists removed from CC:]
 
-Signed-off-by: maximilian attems <janitor@sternwelten.at>
+No, the copy of glibc in question is not in use at the time.  The next
+attempt to open it on the client will sometimes generate a "stale NFS
+handle" message, or if the open succeeds a read will sometimes return
+EIO.  But it sounds like this is a different problem than the original
+poster was testing for.
 
-diff -pruN -X dontdiff linux-2.6.11-bk8/drivers/isdn/hisax/hfc_sx.c
-linux-2.6.11-bk8-max/drivers/isdn/hisax/hfc_sx.c
---- linux-2.6.11-bk8/drivers/isdn/hisax/hfc_sx.c	2005-03-02 08:37:48.000000000 +0100
-+++ linux-2.6.11-bk8-max/drivers/isdn/hisax/hfc_sx.c	2005-03-14 01:03:42.000000000 +0100
-@@ -1382,14 +1382,14 @@ hfcsx_card_msg(struct IsdnCardState *cs,
- }
- 
- #ifdef __ISAPNP__
--static struct isapnp_device_id hfc_ids[] __initdata = {
-+static struct isapnp_device_id hfc_ids[] __devinitdata = {
- 	{ ISAPNP_VENDOR('T', 'A', 'G'), ISAPNP_FUNCTION(0x2620),
- 	  ISAPNP_VENDOR('T', 'A', 'G'), ISAPNP_FUNCTION(0x2620), 
- 	  (unsigned long) "Teles 16.3c2" },
- 	{ 0, }
- };
- 
--static struct isapnp_device_id *ipid __initdata = &hfc_ids[0];
-+static struct isapnp_device_id *ipid __devinitdata = &hfc_ids[0];
- static struct pnp_card *pnp_c __devinitdata = NULL;
- #endif
- 
+I'm still curious about the answer to my question above :-)
 
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

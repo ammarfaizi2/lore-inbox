@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132483AbRDYVJ2>; Wed, 25 Apr 2001 17:09:28 -0400
+	id <S132589AbRDYVQd>; Wed, 25 Apr 2001 17:16:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132556AbRDYVJR>; Wed, 25 Apr 2001 17:09:17 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:9168 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S132483AbRDYVJJ>; Wed, 25 Apr 2001 17:09:09 -0400
-Message-ID: <3AE73D43.9DEAE608@kegel.com>
-Date: Wed, 25 Apr 2001 14:10:27 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S132558AbRDYVQX>; Wed, 25 Apr 2001 17:16:23 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:36267 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S132556AbRDYVQN>; Wed, 25 Apr 2001 17:16:13 -0400
+Date: Wed, 25 Apr 2001 16:16:10 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200104252116.QAA46520@tomcat.admin.navo.hpc.mil>
+To: tim@tjansen.de, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
 Subject: Re: /proc format (was Device Registry (DevReg) Patch 0.2.0)
-In-Reply-To: <200104252056.PAA44995@tomcat.admin.navo.hpc.mil>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <01042522404901.00954@cookie>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
-> > But one thing XML provides (potentially) is a DTD that defines meanings and formats.
-> > IMHO the kernel needs something like this for /proc (though not in DTD format!).
-> >
-> > Has anyone ever tried to write a formal syntax for all the entries
-> > in /proc?   We have bits and pieces of /proc documentation in
-> > /usr/src/linux/Documentation, but nothing you could feed directly
-> > into a parser generator.  It'd be neat to have a good definition for /proc
-> > in the LSB, and have an LSB conformance test that could look in
-> > /proc and say "Yup, all the entries there conform to the spec and can
-> > be parsed properly."...
+Tim Jansen <tim@tjansen.de>:
+> On Wednesday 25 April 2001 21:37, you wrote:
+> > Personally, I think
+> >> 	proc_printf(fragment, "%d %d",get_portnum(usbdev), usbdev->maxchild);
+> > is shorter (and faster) to parse with
+> > 	fscanf(input,"%d %d",&usbdev,&maxchild);
 > 
-> From one point of view (that of the /proc entries...) each file
-> is by definition in the proper format. That format is specified
-> (in the /proc interface to the driver). Using "proc_printf" is a
-> specification for the output.
+> Right, but what happens if you need to extend the format? For example 
+> somebody adds support for USB 2.0 to the kernel and you need to some new 
+> values. Then you would have the choice between changing the format and 
+> breaking applications or keeping the format and dont provide the additional 
+> information. 
+> With XML (or single-value-per-file) it is easy to tell application to ignore 
+> unknown tags (or files). When you just list values you will be damned sooner 
+> or later, unless you make up additional rules that say how apps should handle 
+> these cases. And then your approach is no longer simple, but possibly even 
+> more complicated
 
-When two different distributions ship different forks of
-the kernel source, which differ in the arguments passed to proc_printf,
-which one is right?  
-There's no way to tell.  That's why saying "the source is the spec" doesn't cut it.
+Not necessarily. If the "extended data" is put following the current data
+(since the data is currently record oriented) just making the output
+format longer will not/should not casue problems in reading the data.
+Just look at FORTRAN for an example of a extensible input :-) More data
+on the record will/should just be ignored. The only coding change might
+be to use a fgets to read a record, followed by a sscanf to get the known
+values.
 
-Also, the source is not a specification a parser generator can use.
+Alternatively, you can always put one value per record:
+	tag:value
+	tag2:value2...
 
-A formal spec for /proc entries maintained by e.g. the LSB is needed;
-it has to be separate from the source code (to avoid forking problems),
-and it should be machine-readable (so we can build parsers from it).
+This is still simpler than XML to read, and to generate.
 
-> That DOES NOT mean that no improvements are possible. If the formats
-> used by the various modules/drivers has some variation in format from
-> access to acess, then the determination of that format must also be
-> included. From what I've seen (via "cat /proc/....") the files all
-> have a fixed format. Sometimes the number of entries varies, but then
-> the count should ALSO be included in the file (in a known place of
-> course). The multi-entry files I've looked at (/proc/net) reach the
-> EOF to end the list. This is not unreasonable.
+The problem with this and XML is the same - If the tag is no longer relevent
+(or changes its name), then the output must either continue to include it, or
+break applications that depend on that tag.
 
-Yeah, there's a general style that seems to work; it just needs to be
-formalized.
- 
-> I'm not sure of the usefullness of the title lines that are printed. If
-> looked at in raw form, yes the titles are nice. But the utilities
-> that are aimed at examining the values should not have to discard them, nor
-> should the drivers have to generate them.
+In all cases, atomic extraction of the structured data will be problematical
+since there may be buffering issues in output. XML is very verbose, and the
+tagged format better; but a series of values goes even farther...
 
-I think they're good; they're a little bit like the XML tags you're proposing.
- 
-> I can live with them anyway, since they are already there.....
-> 
-> The biggest problem I know of is being able to retrieve structure
-> in an atomic manner. Not easy (in any system, not just Linux).
+Try them out - Just go through the /proc/net formats and stick in the
+XML... Just don't count on the regular utilities to decode them. It would
+give some actual results to compair with the current structure.
 
-Something SNMP doesn't deal well with, either.  People seem to cope,
-though.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-- Dan
+Any opinions expressed are solely my own.

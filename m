@@ -1,86 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311875AbSCXJ2s>; Sun, 24 Mar 2002 04:28:48 -0500
+	id <S311890AbSCXKSk>; Sun, 24 Mar 2002 05:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311877AbSCXJ2j>; Sun, 24 Mar 2002 04:28:39 -0500
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:9699 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S311875AbSCXJ23>; Sun, 24 Mar 2002 04:28:29 -0500
-Date: Sun, 24 Mar 2002 01:28:19 -0800
-From: "H . J . Lu" <hjl@lucon.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: tytso@thunk.org, linux-mips@oss.sgi.com,
-        linux kernel <linux-kernel@vger.kernel.org>,
-        GNU C Library <libc-alpha@sources.redhat.com>
-Subject: Re: Does e2fsprogs-1.26 work on mips?
-Message-ID: <20020324012819.A13155@lucon.org>
-In-Reply-To: <20020323140728.A4306@lucon.org> <3C9D1C1D.E30B9B4B@zip.com.au> <20020323221627.A10953@lucon.org> <3C9D7A42.B106C62D@zip.com.au>
-Mime-Version: 1.0
+	id <S311905AbSCXKSb>; Sun, 24 Mar 2002 05:18:31 -0500
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:4618 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S311890AbSCXKSS>;
+	Sun, 24 Mar 2002 05:18:18 -0500
+Message-ID: <3C9DA6F9.1CD32F3D@yahoo.com>
+Date: Sun, 24 Mar 2002 05:14:17 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.18 i586)
+MIME-Version: 1.0
+To: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>
+CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] 2.4.19 do_adjtimex parameter checking
+In-Reply-To: <3C9A08C2.13553.1CBE6CD@localhost>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 23, 2002 at 11:03:30PM -0800, Andrew Morton wrote:
-> "H . J . Lu" wrote:
-> > 
-> > ...
-> > RLIM_INFINITY is not ((unsigned long)(~0UL)). Also you can't assume
-> > the type of rlim.rlim_cur.
-> > 
-> > Here is a patch.
-> > 
+Okay then, the bug still stands, but you want a different fix really.
+The user that reported it to me was infact setting multiple bit
+combos, which you indicate as taboo (but currently allowed). So 
+when multiple bit combos are given, we can either do:
+
+a) return -EINVAL if more than ADJ_OFFSET_SINGLESHOT is set
+b) clear/ignore any bits above and beyond ADJ_OFFSET_SINGLESHOT.
+
+As you are a time guru, please indicate which is preferable and I will
+bounce Rusty an appropriate patch.
+
+Thanks,
+Paul.
+
+Ulrich Windl wrote:
 > 
-> I suspect it's not right.
+> On 21 Mar 2002, at 8:40, Paul Gortmaker wrote to me:
 > 
-> I don't pretend to understand the details, but they're
-> messy.   See Ted's recent words at
+> > Spotted by Tajthy.Tamas @ datentechnik.hu:
+> >
+> > Adjtimex modes may contain other bits set in addition to
+> > ADJ_OFFSET_SINGLESHOT bits, and hence tests for strict (in)equality
+> > are not appropriate - must test for ADJ_OFFSET_SINGLESHOT
+> > bits set in modes.  Three places in the code where this test
+> > is made - oddly enough the 3rd is already correct.
 > 
-> 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0203.2/0846.html
+> Hello,
+> masters of the bits,
 > 
+> basically no: adjtimex() is either adjtime() or ntp_adjtime or
+> ntp_gettime(). While one could think to set multiple bit combinations,
+> it was never intended. At the user level adjtimex() should never have
+> existed. This patch would open a new incompatible use of adjtimex() by
+> blessing what was illegal before IMHO.
+> 
+> ADJ_OFFSET_SINGLESHOT has be be used alone, specifically also to return
+> the correct return value.
+> 
+> Regards,
+> Ulrich
+> 
+> >
+> >
+> > --- linux/kernel/time.c~      Thu Feb 28 09:37:32 2002
+> > +++ linux/kernel/time.c               Thu Mar 21 08:27:49 2002
+> > @@ -216,7 +216,7 @@
+> >
+> >       /* Now we validate the data before disabling interrupts */
+> >
+> > -     if (txc->modes != ADJ_OFFSET_SINGLESHOT && (txc->modes & ADJ_OFFSET))
+> > +     if (((txc->modes & ADJ_OFFSET_SINGLESHOT) != ADJ_OFFSET_SINGLESHOT) && (txc->modes & ADJ_OFFSET))
+> >         /* adjustment Offset limited to +- .512 seconds */
+> >               if (txc->offset <= - MAXPHASE || txc->offset >= MAXPHASE )
+> >                       return -EINVAL;
+> > @@ -275,7 +275,7 @@
+> >           }
+> >
+> >           if (txc->modes & ADJ_OFFSET) {      /* values checked earlier */
+> > -             if (txc->modes == ADJ_OFFSET_SINGLESHOT) {
+> > +             if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT) {
+> >                   /* adjtime() is independent from ntp_adjtime() */
+> >                   time_adjust = txc->offset;
+> >               }
+> >
+> >
 
-I look at the glibc code. It uses a constant RLIM_INFINITY for a given
-arch. The user always passes (~0UL) to glibc on x86. glibc will check
-if the kernel supports the new getrlimit at the run time. If it
-doesn't, glibc will adjust the RLIM_INFINITY for setrlimit. I don't see
-how glibc 2.2.5 compiled under kernel 2.2 will fail under 2.4 due to
-this unless glibc is misconfigureed or miscompiled.
-
-> (Sorry - I should have dug that message out earlier).
-
-The problem is not all arches use (~0UL) for RLIM_INFINITY.
-
-# cd linux/include
-# grep RLIM_INFINITY asm-*/resource.h | grep define
-asm-alpha/resource.h:#define RLIM_INFINITY      0x7ffffffffffffffful
-asm-arm/resource.h:#define RLIM_INFINITY        (~0UL)
-asm-cris/resource.h:#define RLIM_INFINITY       (~0UL)
-asm-i386/resource.h:#define RLIM_INFINITY       (~0UL)
-asm-ia64/resource.h:#define RLIM_INFINITY  (~0UL)
-asm-m68k/resource.h:#define RLIM_INFINITY       (~0UL)
-asm-mips64/resource.h:#define RLIM_INFINITY  (~0UL)
-asm-mips/resource.h:#define RLIM_INFINITY       0x7fffffffUL
-asm-parisc/resource.h:#define RLIM_INFINITY   (~0UL)
-asm-ppc/resource.h:#define RLIM_INFINITY        (~0UL)
-asm-s390/resource.h:#define RLIM_INFINITY   (~0UL)
-asm-s390x/resource.h:#define RLIM_INFINITY   (~0UL)
-asm-sh/resource.h:#define RLIM_INFINITY (~0UL)
-asm-sparc64/resource.h:#define RLIM_INFINITY    (~0UL)
-asm-sparc/resource.h:#define RLIM_INFINITY      0x7fffffff
-
-What should we do about it? I know e2fsprogs-1.26 doesn't work on mips
-nor alpha because of this. I don't think it works on sparc.
-
-BTW, mips has
-
-/*
- * SuS says limits have to be unsigned.
- * Which makes a ton more sense anyway.
- */
-#define RLIM_INFINITY   0x7fffffffUL
-
-It doesn't make any senes.
-
-
-H.J.

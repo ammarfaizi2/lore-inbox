@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277728AbRJWPKw>; Tue, 23 Oct 2001 11:10:52 -0400
+	id <S277731AbRJWPMW>; Tue, 23 Oct 2001 11:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277730AbRJWPKm>; Tue, 23 Oct 2001 11:10:42 -0400
-Received: from geos.coastside.net ([207.213.212.4]:57249 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S277728AbRJWPKb>; Tue, 23 Oct 2001 11:10:31 -0400
-Mime-Version: 1.0
-Message-Id: <p05100303b7fb36bf20f5@[207.213.214.37]>
-In-Reply-To: <E15vwNB-00050h-00@the-village.bc.nu>
-In-Reply-To: <E15vwNB-00050h-00@the-village.bc.nu>
-Date: Tue, 23 Oct 2001 08:10:15 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, mochel@osdl.org (Patrick Mochel)
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [RFC] New Driver Model for 2.5
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@Elf.ucw.cz (Pavel Machek),
-        benh@kernel.crashing.org (Benjamin Herrenschmidt),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S277733AbRJWPMQ>; Tue, 23 Oct 2001 11:12:16 -0400
+Received: from relay-1v.club-internet.fr ([194.158.96.112]:48849 "HELO
+	relay-1v.club-internet.fr") by vger.kernel.org with SMTP
+	id <S277731AbRJWPL4>; Tue, 23 Oct 2001 11:11:56 -0400
+Message-ID: <3BD588F5.7020301@freesurf.fr>
+Date: Tue, 23 Oct 2001 17:12:53 +0200
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011022
+X-Accept-Language: fr, en, fr-fr
+MIME-Version: 1.0
+To: lkm <linux-kernel@vger.kernel.org>
+Subject: Fail to compile 2.4.13-pre6 (with ext3fs) with gcc-3.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 8:53 AM +0100 10/23/01, Alan Cox wrote:
->  > The idea is to allocate all memory in the first pass, disable interrupts,
->>  then save state. Would that work? Or, should some of the state saving take
->>  place with interrupts enabled?
->
->Imagine the state saving done on a USB device. There you need interrupts
->on while retrieving the state from say a USB scanner, and in some cases
->off while killing the USB controller.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.13-pre6/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=athlon     -c -o 8139too.o 8139too.c
+8139too.c: In function `netdev_ethtool_ioctl':
+8139too.c:2432: Unrecognizable insn:
+(insn/i 618 1061 1058 (parallel[
+             (set (reg:SI 6 ebp)
+                 (asm_operands:SI ("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; 
+sbbl $0,%0") ("=&r") 0[
+                         (reg/v:SI 1 edx [165])
+                         (mem:SI (plus:SI (reg/f:SI 6 ebp)
+                                 (const_int -352 [0xfffffea0])) 0)
+                         (mem/s:SI (plus:SI (reg:SI 0 eax [173])
+                                 (const_int 12 [0xc])) 0)
+                     ]
+                     [
+                         (asm_input:SI ("1"))
+                         (asm_input:SI ("g"))
+                         (asm_input:SI ("g"))
+                     ] 
+("/usr/src/linux-2.4.13-pre6/include/asm/uaccess.h") 558))
+             (set (reg/v:SI 1 edx [165])
+                 (asm_operands:SI ("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; 
+sbbl $0,%0") ("=r") 1[
+                         (reg/v:SI 1 edx [165])
+                         (mem:SI (plus:SI (reg/f:SI 6 ebp)
+                                 (const_int -352 [0xfffffea0])) 0)
+                         (mem/s:SI (plus:SI (reg:SI 0 eax [173])
+                                 (const_int 12 [0xc])) 0)
+                     ]
+                     [
+                         (asm_input:SI ("1"))
+                         (asm_input:SI ("g"))
+                         (asm_input:SI ("g"))
+                     ] 
+("/usr/src/linux-2.4.13-pre6/include/asm/uaccess.h") 558))
+             (clobber (reg:QI 19 dirflag))
+             (clobber (reg:QI 18 fpsr))
+             (clobber (reg:QI 17 flags))
+         ] ) -1 (insn_list 604 (insn_list 611 (nil)))
+     (nil))
+8139too.c:2432: Internal compiler error in reload_cse_simplify_operands, 
+at reload1.c:8355
 
-Is this a realistic example? That is, is a kernel-side driver likely 
-to be able to meaningfully extract state information from a scanner? 
-And is it necessary?
+I don't really know if it's a gcc or kernel problem. If I'm in the wrong 
+list, please accept my apologizes.
 
-And for a scanner, if the current operation is a scan generating a GB 
-of data, what happens if the disk subsystem is no longer accepting 
-requests?
-
-As Jeff Garzik pointed out, NIC drivers typically don't need to save 
-any state at all; it's all recreateable from software structures. 
-Perhaps that characteristic can and should be generalized to other 
-devices.
-
-In that case, SUSPEND_SAVE_STATE becomes more like SUSPEND_QUIESCE: 
-stop accepting new requests, and complete current requests.
-
-"Stop accepting new requests" is nontrivial as well, in the general 
-case. New requests that can't be discarded need to be queued 
-somewhere. Whose responsibility is that? Ideally at some point where 
-a queue already exists, possibly in the requester.
 -- 
-/Jonathan Lundell.
+  ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
+Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
+
+"Software is like sex it's better when it's free.", Linus Torvalds
+

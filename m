@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317129AbSFFSt2>; Thu, 6 Jun 2002 14:49:28 -0400
+	id <S317139AbSFFSyG>; Thu, 6 Jun 2002 14:54:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317114AbSFFSsD>; Thu, 6 Jun 2002 14:48:03 -0400
-Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:24555 "EHLO
-	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S317096AbSFFSqa>; Thu, 6 Jun 2002 14:46:30 -0400
-Message-ID: <000701c20d8a$7234b520$66aca8c0@kpfhome>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kbuild-2.5 2.4.19-pre10-ac2 "automatic" make installable?
-Date: Thu, 6 Jun 2002 11:46:19 -0700
-Organization: Laboratory Systems Group, Inc.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S317141AbSFFSyB>; Thu, 6 Jun 2002 14:54:01 -0400
+Received: from ns.suse.de ([213.95.15.193]:53778 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317139AbSFFSxw>;
+	Thu, 6 Jun 2002 14:53:52 -0400
+Date: Thu, 6 Jun 2002 20:53:52 +0200
+From: Dave Jones <davej@suse.de>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] dd, floppy, 2.5.18
+Message-ID: <20020606205352.C16262@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Stuart MacDonald <stuartm@connecttech.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <02aa01c20d86$ae9e8bc0$294b82ce@connecttech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I unpacked a new kernel tree, patched up to 2.4.19-pre10-ac2. I then applied
-the kbuild-2.5 patch for this version (from stingr), and did a make
-oldconfig/make installable/make install. Everything went just fine.
+On Thu, Jun 06, 2002 at 02:19:22PM -0400, Stuart MacDonald wrote:
+ > I'm willing to help with some testing to figure out the problem; I use
+ > this dd method to make diskette images for customers all the time, and
+ > I will need it fixed for 2.6.x.
 
-I rebooted, and decided to make some changes to the config. I went back into
-the source tree, and renamed Makefile to Makefile-2.4 and Makefile-2.5 to
-Makefile (so I don't have to keep specifying -f Makefile-2.5). I then did
-"make menuconfig", and turned on loadable module support and the kernel
-module loader. After the configuration got saved, kbuild automatically
-started a "make installable" pass! Although I was planning on doing this
-anyway, I don't think was expected behavior.
+There's a patch included in 2.5.20-dj3 from Mikael Pettersson,
+which should address the corruption on IO problem.
+You can also fish out the individual patch at..
+http://www.codemonkey.org.uk/patches/merged/2.5.20/dj3/
 
+        Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

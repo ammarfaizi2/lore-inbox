@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVBWULE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVBWUKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVBWULE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 15:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVBWULE
+	id S261547AbVBWUKP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVBWUKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 15:11:04 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60803 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261556AbVBWUKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 15:10:55 -0500
-Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
-From: Lee Revell <rlrevell@joe-job.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>
-References: <1109182061.16201.6.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
-	 <1109187381.3174.5.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 15:10:52 -0500
-Message-Id: <1109189453.3174.23.camel@krustophenia.net>
+	Wed, 23 Feb 2005 15:10:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:24723 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261547AbVBWUJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 15:09:55 -0500
+Date: Wed, 23 Feb 2005 12:09:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: zensonic@zensonic.dk (Thomas S. Iversen)
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Help tracking down problem --- endless loop in
+ __find_get_block_slow
+Message-Id: <20050223120928.133778a4.akpm@osdl.org>
+In-Reply-To: <20050223130251.GA31851@zensonic.dk>
+References: <4219BC1A.1060007@zensonic.dk>
+	<20050222011821.2a917859.akpm@osdl.org>
+	<20050223120013.GA28169@zensonic.dk>
+	<20050223041036.5f5df2ff.akpm@osdl.org>
+	<20050223130251.GA31851@zensonic.dk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-23 at 20:06 +0000, Hugh Dickins wrote:
-> On Wed, 23 Feb 2005, Lee Revell wrote:
-> > On Wed, 2005-02-23 at 19:16 +0000, Hugh Dickins wrote:
-> > > 
-> > > I'm just about to test this patch below: please give it a try: thanks...
+zensonic@zensonic.dk (Thomas S. Iversen) wrote:
+>
+> > OK, so we're looking for the buffer_head for block 101 and the first
+> > buffer_head which is attached to the page represents block 100.  So the
+> > next buffer_head _should_ represent block 101.  Please print it out:
 > 
-> I'm very sorry, there's two things wrong with that version: _must_
-> increment addr before breaking out, and better to check after pte_none
-> too (we can question whether it might be checking too often, but this
-> replicates what Ingo was doing).  Please replace by new patch below,
-> which I'm now running through lmbench.
+> Not quite the same, but simelar:
+> 
+> Feb 23 14:50:24 localhost kernel: __find_get_block_slow() failed. block=102,
+> b_blocknr=128, next=129
+> Feb 23 14:50:24 localhost kernel: b_state=0x00000013, b_size=2048
+> Feb 23 14:50:24 localhost kernel: device blocksize: 2048
+> Feb 23 14:50:24 localhost kernel: ------------[ cut here ]------------
 
-OK, I will report any interesting results with the new patch.
+Something has caused the page at offset 51 (block 102) to have buffer_heads
+for blocks 128 and 129 attached to it.
 
-Lee
+> > Could be UFS.  But what does "transparent block encryption and sector
+> > shuffling" mean?  How is the sector shuffling implemented?
+> 
+> GDBE is a block level encrypter. It encrypts the actual sectors
+> transparently via the GEOM API (corresponds to the devicemapper api in linux).
+> 
+> GBDE assigns a key for each block, thereby introducing keysectors.
+> Furthermore the sectors are remapped so that one can not guess where e.g.
+> metadata is located on the physical disk. It is a rather simple remap:
 
+I'd be suspecting that the sector remapping is the cause of the problem. 
+How is it implemented?

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287991AbSAVFLn>; Tue, 22 Jan 2002 00:11:43 -0500
+	id <S288255AbSAVFND>; Tue, 22 Jan 2002 00:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288255AbSAVFLd>; Tue, 22 Jan 2002 00:11:33 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:22010 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S287991AbSAVFL0>; Tue, 22 Jan 2002 00:11:26 -0500
-Date: Tue, 22 Jan 2002 00:11:25 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch for ymfpci in 2.5.x
-Message-ID: <20020122001125.A19661@devserv.devel.redhat.com>
-In-Reply-To: <20020111121431.A10147@devserv.devel.redhat.com> <Pine.LNX.4.33.0201111034070.3952-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0201111034070.3952-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 11, 2002 at 10:36:30AM -0800
+	id <S288716AbSAVFM4>; Tue, 22 Jan 2002 00:12:56 -0500
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:53230 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288255AbSAVFMp>; Tue, 22 Jan 2002 00:12:45 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: rwhron@earthlink.net
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 22 Jan 2002 06:12:37 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020114165430.421B01ED55@Cantor.suse.de> <20020114182019.E22791@athlon.random>
+In-Reply-To: <20020114182019.E22791@athlon.random>
+Cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020122051248Z288255-13996+9603@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Fri, 11 Jan 2002 10:36:30 -0800 (PST)
-> From: Linus Torvalds <torvalds@transmeta.com>
+On Tuesday, 22. January 2002 01:44, you wrote:
+> 2.4.18pre2a2    aa vm and low-latency included
+> 2.4.18-pre3
+> 2.4.18-pre3ll   low-latency patch
+> 2.4.18-pre3pelb preempt and lockbreak patches
+>
+> It appears 2.4.18pre2aa2 is the best overall, and the
+> low-latency patch does better than preempt in most cases.
 
-> It would have been even saner to give that bit some sane name, and have
-> something like
-> 
-> 	#define YMFPCI_XXXBIT (__constant_cpu_to_le32(0x40000000))
-> 
-> instead of creating a totally nonsensical random number.
+These are _NOT_ new results.
+But you should bench 2.4.18pre2aa2 + preempt + lock-break or
+2.4.18-pre4 + O(1) J4 + 10_vm-22 (aa2) + preempt + lock-break...
 
-I think something like this would be better than one more
-totally nonsesical random #define:
+That's what I'm doing all night long for Robert...
 
---- linux-2.5.2/drivers/sound/ymfpci.c	Fri Jan 11 10:34:43 2002
-+++ linux-2.5.2-p3/drivers/sound/ymfpci.c	Mon Jan 21 21:06:48 2002
-@@ -832,6 +832,13 @@
- 	u32 lpfK = ymfpci_calc_lpfK(rate);
- 	ymfpci_playback_bank_t *bank;
- 	int nbank;
-+
-+	/*
-+	 * The gain is a floating point number. According to the manual,
-+	 * bit 31 indicates a sign bit, bit 30 indicates an integer part,
-+	 * and bits [29:15] indicate a decimal fraction part. Thus,
-+	 * for a gain of 1.0 the constant of 0x40000000 is loaded.
-+	 */
- 	unsigned le_0x40000000 = cpu_to_le32(0x40000000);
- 
- 	format = (stereo ? 0x00010000 : 0) | (w_16 ? 0 : 0x80000000);
+Regards,
+	Dieter 
 
--- Pete
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

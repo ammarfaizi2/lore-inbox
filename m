@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTEITVi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 15:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263416AbTEITVV
+	id S263426AbTEIT3O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 15:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbTEIT3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 15:21:21 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:11764 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S263415AbTEITVU
+	Fri, 9 May 2003 15:29:14 -0400
+Received: from lakemtao03.cox.net ([68.1.17.242]:23995 "EHLO
+	lakemtao03.cox.net") by vger.kernel.org with ESMTP id S263426AbTEIT3N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 15:21:20 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: ioctl32_unregister_conversion & modules
-Date: Fri, 9 May 2003 21:30:33 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <20030509100039$6904@gated-at.bofh.it> <200305091213.h49CDuO4029947@post.webmailer.de> <20030509152436.GA762@elf.ucw.cz>
-In-Reply-To: <20030509152436.GA762@elf.ucw.cz>
+	Fri, 9 May 2003 15:29:13 -0400
+Message-ID: <3EBC0469.4080508@cox.net>
+Date: Fri, 09 May 2003 14:41:29 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andy Pfiffer <andyp@osdl.org>
+CC: walt <wa1ter@hotmail.com>, Torrey Hoffman <thoffman@arnor.net>,
+       Giuliano Pochini <pochini@shiny.it>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA busted in 2.5.69
+References: <fa.j6n4o02.sl813a@ifi.uio.no> <fa.juutvqv.1inovpj@ifi.uio.no>	 <3EBBF00D.8040108@hotmail.com> <1052507530.15922.37.camel@andyp.pdx.osdl.net>
+In-Reply-To: <1052507530.15922.37.camel@andyp.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305092130.33274.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 May 2003 17:24, Pavel Machek wrote:
+Andy Pfiffer wrote:
+> On Fri, 2003-05-09 at 11:14, walt wrote:
+> 
+>>Torrey Hoffman wrote:
+>>
+>>>On Fri, 2003-05-09 at 01:09, Giuliano Pochini wrote:
+>>>
+>>>
+>>>>On 08-May-2003 Torrey Hoffman wrote:
+>>>>
+>>>>
+>>>>>ALSA isn't working for me in 2.5.69.  It appears to be because
+>>>>>/proc/asound/dev is missing the control devices.
+>>>
+>>>...
+>>>
+>>>>If you are not using devfs, you need to create the devices. There is a
+>>>>script in the ALSA-driver package to do that. Otherwise I can't help
+>>>>you because I never tried devfs and linux 2.5.x.
+>>>
+>>>No.  /dev/snd is a symbolic link to /proc/asound/dev,
+>>>and that symbolic link was created by the script you mention.
+>>>(I am not using devfs.)
+> 
+> 
+> I'm not using devfs, and I've had no luck getting ALSA to work on my
+> i810-audio system.  OSS works fine.
+> 
+> Is there a step-by-step writeup available for morons like me that
+> haven't gotten ALSA working?
 
-> Fixing that would require resgister_ioctl32_conversion() to have 3-rd
-> parameter "this module" and some magic inside fs/compat_ioctl.c,
-> right?
+I have ALSA working under 2.4.21-rc1 using Erik's kernel patch, but I 
+cannot get it to work under 2.5.69. I don't know what's wrong. I get 
+Audio from my CD-ROM since it is connected to my sound card, but I get 
+no sound from the Arts sound server in KDE. I get no errors and no warnings.
+I don't understand how it can't work. I'm thinking that the OSS 
+emulation is broken. The ALSA version I have for 2.4 is 0.9.2. 0.9.3a is 
+in 2.5.69, right? Have any bugs been reported to the ALSA people?
 
-The code that is currently using register_ioctl32_conversion() does
-not have to be changed if we use 
+Regards,
+David
 
-extern int 
-__register_ioctl_conversion(int, ioctl_trans_handler_t, struct module*);
-
-static inline int 
-register_ioctl_conversion(int cmd, ioctl_trans_handler_t h)
-{
-	return __register_ioctl_conversion(cmd, h, THIS_MODULE);
-}
-
-/* maybe also: */
-static inline int 
-register_compatible_ioctl(int cmd)
-{
-	return __register_ioctl_conversion(cmd, NULL, NULL);
-}
-
-register_compatible_ioctl() is not strictly needed, but it will avoid
-doing the unnecessary try_module_get() when there is no handler.
-
-	Arnd <><

@@ -1,74 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262609AbTDAPwK>; Tue, 1 Apr 2003 10:52:10 -0500
+	id <S262623AbTDAQA1>; Tue, 1 Apr 2003 11:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262620AbTDAPwK>; Tue, 1 Apr 2003 10:52:10 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:11406 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262609AbTDAPwI>; Tue, 1 Apr 2003 10:52:08 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 1 Apr 2003 08:15:04 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "Philippe Meloche (LMC)" <Philippe.Meloche@ericsson.ca>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Process limits for epoll tests
-In-Reply-To: <3E89B55F.1010207@lmc.ericsson.se>
-Message-ID: <Pine.LNX.4.50.0304010806060.1932-100000@blue1.dev.mcafeelabs.com>
-References: <3E89B55F.1010207@lmc.ericsson.se>
+	id <S262624AbTDAQA1>; Tue, 1 Apr 2003 11:00:27 -0500
+Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:30718
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262623AbTDAQA0>; Tue, 1 Apr 2003 11:00:26 -0500
+Date: Tue, 1 Apr 2003 11:07:21 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Andi Kleen <ak@suse.de>
+cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
+In-Reply-To: <1049197774.31041.15.camel@averell>
+Message-ID: <Pine.LNX.4.50.0304011105540.8773-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com>
+ <Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com>
+ <1049191863.30759.3.camel@averell>  <20030401112800.GA23027@suse.de>
+ <1049197774.31041.15.camel@averell>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, Philippe Meloche (LMC) wrote:
+On Tue, 1 Apr 2003, Andi Kleen wrote:
 
-> Hi,
+> Yes, you're correct. It was SSE1, not SSE2.
+> 
+> The problem Zwane encountered is that early Athlons don't support SSE1,
+> only XP+ do
 
-Hi,
+hmm wouldn't they illegal op? Some tested this on an Athlon 600.
 
+> To use it he would need an a new CONFIG split for Athlon XP and earlier
+> Athlon. iirc it didn't make much difference on the athlon anyways which
+> has quite fast locked operations on exclusive cachelines - sfence seems
+> to be more useful on P4.
 
-> We tried to reproduce the tests you've done with /dev/epoll and we've
-> come to ask us some questions.
+How about this instead then;
 
-I hope you are not using the old /dev/epoll since it is no more supported.
-The kernel 2.5.x has epoll, that is supported :
+Index: linux-2.5.66/arch/i386/Kconfig
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.66/arch/i386/Kconfig,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Kconfig
+--- linux-2.5.66/arch/i386/Kconfig	24 Mar 2003 23:40:26 -0000	1.1.1.1
++++ linux-2.5.66/arch/i386/Kconfig	1 Apr 2003 16:02:46 -0000
+@@ -368,6 +368,11 @@ config X86_PREFETCH
+ 	depends on MPENTIUMIII || MPENTIUM4 || MVIAC3_2
+ 	default y
+ 
++config X86_USE_SFENCE
++	bool
++	depends on MPENTIUM4
++	default y
++
+ config X86_SSE2
+ 	bool
+ 	depends on MK8 || MPENTIUM4
+Index: linux-2.5.66/include/asm-i386/system.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.66/include/asm-i386/system.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 system.h
+--- linux-2.5.66/include/asm-i386/system.h	24 Mar 2003 23:40:20 -0000	1.1.1.1
++++ linux-2.5.66/include/asm-i386/system.h	1 Apr 2003 16:03:50 -0000
+@@ -355,11 +355,15 @@ static inline unsigned long __cmpxchg(vo
+ 
+ #define read_barrier_depends()	do { } while(0)
+ 
++#ifdef CONFIG_X86_USE_SFENCE
++#define wmb()	__asm__ __volatile__ ("sfence;": : :"memory")
++#else
+ #ifdef CONFIG_X86_OOSTORE
+ #define wmb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+ #else
+ #define wmb()	__asm__ __volatile__ ("": : :"memory")
+ #endif
++#endif /* CONFIG_USE_SFENCE */
+ 
+ #ifdef CONFIG_SMP
+ #define smp_mb()	mb()
 
-http://www.xmailserver.org/linux-patches/epoll.txt
-http://www.xmailserver.org/linux-patches/epoll_create.txt
-http://www.xmailserver.org/linux-patches/epoll_ctl.txt
-http://www.xmailserver.org/linux-patches/epoll_wait.txt
-
-
-
-> 1. How did you managed httperf to perform more than 1024 connections
-> when it's using select() ?
-
-Yes, you can't have more than 1024 simultaneous connections with httperf.
-But if the session time is short, you can achieve a pretty high rate with
-1024 maximum connections. Lately I am using the http blaster ( ver very
-simple http loader ) that uses epoll. The latest source code is here :
-
-http://www.xmailserver.org/linux-patches/epoll-lib-0.7.tar.gz
-
-You need this coroutine library to build that package :
-
-http://www.xmailserver.org/libpcl.html
-
-
-
-> 2. Did you get some errors like client-timeout or connections reset when
-> you were doing your tests ?
->
-> 3. How much time did a burst test ( 27000 connections and 2 calls per
-> connection ) last and how many sample did httperf
->     took during those tests.
-
-You definitely have to tweak kernel/net params to run the test ( port
-range, fin timeout, tw recycle, max files, ... ).
-
-
-
-
-- Davide
-
+-- 
+function.linuxpower.ca

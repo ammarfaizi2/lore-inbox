@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUFEMOD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUFEMP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUFEMOD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 08:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUFEMOD
+	id S261206AbUFEMP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 08:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUFEMP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 08:14:03 -0400
-Received: from [196.25.168.8] ([196.25.168.8]:58254 "EHLO lbsd.net")
-	by vger.kernel.org with ESMTP id S261205AbUFEMNm (ORCPT
+	Sat, 5 Jun 2004 08:15:56 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:62174 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261206AbUFEMPh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 08:13:42 -0400
-Date: Sat, 5 Jun 2004 14:13:26 +0200
-From: Nigel Kukard <nkukard@lbsd.net>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: webvenza@libero.it, linux-kernel@vger.kernel.org
-Subject: Re: [HANG] SIS900 + P4 Hyperthread
-Message-ID: <20040605121326.GN14247@lbsd.net>
-References: <40C0E37C.4030905@lbsd.net> <20040604214721.GC22679@picchio.gall.it> <20040605005033.A26051@electric-eye.fr.zoreil.com> <20040605070239.GM14247@lbsd.net> <20040605130526.A31872@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l3ej7W/Jb2pB3qL2"
-Content-Disposition: inline
-In-Reply-To: <20040605130526.A31872@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
-X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
+	Sat, 5 Jun 2004 08:15:37 -0400
+Date: Sat, 5 Jun 2004 14:15:04 +0200 (MEST)
+Message-Id: <200406051215.i55CF4hH004189@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: jgarzik@pobox.com
+Subject: Re: PROBLEM: network driver causes kernel panic
+Cc: dctucker@hotmail.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 04 Jun 2004 16:47:13 -0400, Jeff Garzik wrote:
+>Mikael Pettersson wrote:
+>> This confirms that eth1 is a 21041 driven by the de2104x driver.
+>> 
+>> I've seen something very similar to Casey's problem, on a PowerMac
+>> with a built-in 21041. Booting it with no network cable connected
+>> causes a timer to hit a BUG() in de2104x about a second after
+>> the device is ifup:d.
+>> 
+>> The 2.4 kernel's tulip driver works just fine.
+>> 
+>> I reported this last year, but nothing happened.
+>
+>
+>Well, I'm very interested in debugging it.  There were a flurry of 
+>de2104x patches in the past year, I thought that took care of the issues.
+>
+>Please email details to netdev@oss.sgi.com and jgarzik@pobox.com...
 
---l3ej7W/Jb2pB3qL2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Booting 2.6.7-rc1 with the de2104x driver built-in and eth0
+disconnected from the LAN leads to the following oops about
+a second after INIT tried to ifup eth0:
 
-> Instant hack below. I do not expect it to make a difference but it _could_
-> make one.
+eth0: timeout expired stopping DMA
+kernel BUG in de_set_media at drivers/net/tulip/de2104x.c:919!
+<register dump omitted>
+Call trace:
+de21041_media_timer
+run_timer_softirq
+__do_softirq
+do_softirq
+timer_interrupt
+ret_from_except
+ppc6xx_idle
+cpu_idle
+rest_init
+start_kernel
 
-much appreciated man!
+The PowerPC kernel decides to panic() after a brief delay
+at this point, so I can't capture the oops text except by
+typing it down manually. Besides, I doubt the ppc register
+dump would be useful; we know which BUG() was hit.
 
-will test the second i take the box down next  :), will be before end
-monday.
-
--Nigel
-
-
---l3ej7W/Jb2pB3qL2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAwbjmKoUGSidwLE4RAgVJAJwNjU2rhkFbrOWzB+wXnGtrs0lZIQCeLrGe
-SE2n8i1aHbrcio8MDkrX5Ig=
-=/50h
------END PGP SIGNATURE-----
-
---l3ej7W/Jb2pB3qL2--
+/Mikael

@@ -1,80 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269812AbUIDFiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269817AbUIDFr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269812AbUIDFiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 01:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269785AbUIDFiY
+	id S269817AbUIDFr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 01:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269815AbUIDFr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 01:38:24 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:17286 "EHLO slaphack.com")
-	by vger.kernel.org with ESMTP id S269778AbUIDFiW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 01:38:22 -0400
-Message-ID: <413954B7.7050502@slaphack.com>
-Date: Sat, 04 Sep 2004 00:37:59 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
-X-Accept-Language: en-us, en
+	Sat, 4 Sep 2004 01:47:28 -0400
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:29841 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269817AbUIDFr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 01:47:26 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1 : Weirdness after shutdown - ACPI or Suspend bug?
+Date: Sat, 4 Sep 2004 15:47:45 +1000
+User-Agent: KMail/1.7
+Cc: len.brown@intel.com
+References: <200409012020.42482.cef-lkml@optusnet.com.au> <200409012352.21576.cef-lkml@optusnet.com.au>
+In-Reply-To: <200409012352.21576.cef-lkml@optusnet.com.au>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Spam <spam@tnonline.net>, Dave Kleikamp <shaggy@austin.ibm.com>,
-       Paul Jakma <paul@clubi.ie>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jamie Lokier <jamie@shareable.org>, Linus Torvalds <torvalds@osdl.org>,
-       Adrian Bunk <bunk@fs.tum.de>, Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-References: <200409032145.i83LjdXG002843@localhost.localdomain>
-In-Reply-To: <200409032145.i83LjdXG002843@localhost.localdomain>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409041547.45788.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 1 Sep 2004 23:52, Stuart Young wrote:
+> On Wed, 1 Sep 2004 20:20, Stuart Young wrote:
+> > OK, this one is weirding me out.
+> >
+> > Note that when using 2.6.8.1 all is fine. The following situation only
+> > happens in 2.6.9-rc1 or later.
+> >
+> > If I shutdown my laptop (ie: halt) it goes through the motions and
+> > everything goes off. If the lid switch changes state AFTER powerdown, the
+> > laptop starts up. Removing AC power, or with AC power connected and
+> > removing the battery does not trigger this, just seemingly the lid
+> > switch. This works on lid close, AND lid open.
+>
+> Len, I've tentatively traced this down to the addition of the ACPI
+> wakeup_devices module that went into the kernel via ACPI 20040715.
+>
+> From a quick look at the code, the wakeup devices get set at boot, but on
+> shutdown, they don't get unset. Is this intentional?
+>
+> Any clues, ideas, or suggestions?
+>
+> Notes:
+>  Asus L7300/L7200 series laptop
+>  Latest BIOS from the Asus website
+>  PIII-600 on Intel 82440MX chipset
 
-Horst von Brand wrote:
-[...]
-| Use an editor that knows about encrypted files. Decrypt/edit/encrypt if no
-
-You use emacs.  I use vim.  My brother uses gedit.  My parents use
-abiword.  Perhaps I should patch them all?  If that was so easy, why is
-there cryptoloop/dm-crypt?
-
-| is rare. FS plugins are kernel modules, AFAIU, and are subject to the same
-| problems.
-
-Actually, FS plugins currently cannot be modules.  They are currently
-called "plugins" because they share some concepts with browser plugins,
-and it sounds great in marketing.
-
-| If you can't find concrete uses for specific plugins, they are the
-| proverbial solution searching for a problem.
-
-Fine, let them be.  They are just very well structured code.  If you use
-reiser4 and don't look in the source or the "metas" dir, they are
-completely invisible to you.  I used the betas for months, and "metas"
-never burned me.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQTlUt3gHNmZLgCUhAQJVGhAAki5RLZckm5jiZnw7MXQLqURBvm+cz7wU
-eFPfGyOE0SpFKJLFntWr0zrAgyK5ClgwqB7wsJEldWUfGBPdYpH5lroOQEHVEGBs
-4X+ze/xyUOL6z3S07a85jNibYamDeoCDc5P0Vc6GWrdpsU7FQGXrHykNyglDxFJ1
-MiYEQkB8NYDzQukl+7HPR3qPhQpAl5hx3XtmOcC5w0/88ATMqXg81DoVzPAPlsrL
-IPu4ai7KjXRaY1sKo8SU4orj7iQHmmkiFJJg+QwVU9sO2GMBGpXZRSr3KcUL3ux5
-nr+++ceVXyLADZaJRYp5LoTxL0KPJUKhaa9ABLmN2zQ5hT/v6AlQmKKD3s6ca02a
-A8MQxy69hG50RVSeJm9yjRYQQBvATEXslCQXPXSAlLJGrPZ1FZgQdYyo2wNboD23
-ep+JP2qTPdyTFFl2TOtoeR7fIsjg6DF5Bq0uh0maqC0UXXIo1GRO/OQGsNMfCN88
-pevDg0GvE+bdeL8CEZYfDzu4aaUs+ltzZSPEKlXHCGFORL9iSuYhqdUCRPbcKYOy
-uyhE7fgZoPYsOZLfChmXllEF69Cs5Vm5R0ymIgHqprfAjfqYf4ypbU0fukFDQ5dS
-GGFTfxketTHdhYr7ATAfZg08ZMP819UnvcwISflLlDBwvpL4BDAWOrnDFnbHSugk
-lPAxyPnfECM=
-=h24Y
------END PGP SIGNATURE-----
+Further info. Using 2.6.9-rc1-mm3 does not change this behaviour at all. Seems 
+that 2.6.9-rc1-mm3 contains 20040816, so this is still a running issue.

@@ -1,67 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVBBWWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVBBWVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbVBBWWD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 17:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVBBWRo
+	id S262458AbVBBWVF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 17:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVBBWVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 17:17:44 -0500
-Received: from kokytos.rz.informatik.uni-muenchen.de ([141.84.214.13]:42956
-	"EHLO kokytos.rz.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S262823AbVBBWRB (ORCPT
+	Wed, 2 Feb 2005 17:21:01 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:42682 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262520AbVBBWUB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 17:17:01 -0500
-From: Michael Brade <brade@informatik.uni-muenchen.de>
-Organization: =?iso-8859-1?q?Universit=E4t?= =?iso-8859-1?q?_M=FCnchen?=, Institut =?iso-8859-1?q?f=FCr?= Informatik
-To: "Aleksey Gorelov" <Aleksey_Gorelov@phoenix.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
-Date: Wed, 2 Feb 2005 23:16:50 +0100
-User-Agent: KMail/1.7.92
-References: <5F106036E3D97448B673ED7AA8B2B6B301ACE83D@scl-exch2k.phoenix.com>
-In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B301ACE83D@scl-exch2k.phoenix.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1943868.mKy15aplY5";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 2 Feb 2005 17:20:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=O8xJyVoJ4ubz15kA1Vo6hOYB2AkADpD1eU4mqum/x+DwdZdcs8kZ+SrJj7T3R/R/DBKCMwhcrQwNkCGcvJdfJTT1Ac/SxyXBw/KF5zuBAu9OlZOZPHQc8DI1Gdwtk6kVMSREMKrWsTEBSc2bpJcJq7iOdq5TrkKEyxQ929A9aOU=
+Message-ID: <58cb370e0502021420218a86a5@mail.gmail.com>
+Date: Wed, 2 Feb 2005 23:20:00 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] IDE: remove WAIT_READY dependency on APM
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <20050131234234.GU21437@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200502022316.53905.brade@informatik.uni-muenchen.de>
+References: <20050131234234.GU21437@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1943868.mKy15aplY5
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Wednesday 02 February 2005 21:01, you wrote:
-> >Awesome! Thanks, booting is finally acceptably fast again :-)
-> >Just strange
-> >that it worked for the last 3 years (in fact, 7 years) with
-> >just about every
-> >kernel version that's out there... but I'm happy with the workaround.
->
-> Was it exact same hardware ?
-Yes, absolutely.
-
-cheers,
-=2D-=20
-Michael Brade;                 KDE Developer, Student of Computer Science
-  |-mail: echo brade !#|tr -d "c oh"|s\e\d 's/e/\@/2;s/$/.org/;s/bra/k/2'
-  =B0--web: http://www.kde.org/people/michaelb.html
-
-KDE 3: The Next Generation in Desktop Experience
-
---nextPart1943868.mKy15aplY5
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCAVFVdK2tAWD5bo0RAnmmAKDYJwN+YEKSDlLlXqZChIzMOn1EmQCfeZDc
-Ve7CqiNImI5j8BOMCQHr9OY=
-=M2Ol
------END PGP SIGNATURE-----
-
---nextPart1943868.mKy15aplY5--
+applied, sorry for the delay

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264469AbTDPQ3t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTDPQ3t
+	id S264450AbTDPQda (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTDPQd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:29:49 -0400
-Received: from 217-126-36-165.uc.nombres.ttd.es ([217.126.36.165]:1232 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id S264469AbTDPQ3r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:29:47 -0400
-Date: Wed, 16 Apr 2003 18:39:54 +0200 (CEST)
-From: Pau Aliagas <linuxnow@newtral.org>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>, Eric Mudama <eric_mudama@maxtor.com>
-cc: hps@intermeta.de
-Subject: RE: [2.4.21-pre7-ac1] IDE Warning when booting
-In-Reply-To: <785F348679A4D5119A0C009027DE33C102E0D12A@mcoexc04.mlm.maxtor.com>
-Message-ID: <Pine.LNX.4.44.0304161829510.4806-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Apr 2003 12:33:29 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:41367 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264482AbTDPQdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:33:07 -0400
+Date: Wed, 16 Apr 2003 18:44:40 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: ltp-coverage@lists.sourceforge.net,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Ltp-coverage] 2.5.67-gcov and 2.4.20-gcov
+Message-ID: <20030416164440.GB2305@wohnheim.fh-wedel.de>
+References: <1050502803.8637.1094.camel@plars>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1050502803.8637.1094.camel@plars>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Apr 2003, Mudama, Eric wrote:
-
-> Was thinking...
+On Wed, 16 April 2003 09:20:02 -0500, Paul Larson wrote:
 > 
-> Do you know what attempted multi count was as an argument to SET MULTIPLE
-> MODE?
-
-This are the parametres rc.sysinit sets just before switching to the
-selected run level:
-
-# cat /etc/sysconfig/harddisks | grep -v "^#"
-USE_DMA=0 MULTIPLE_IO=16
-EIDE_32BIT=3
-LOOKAHEAD=1
-EXTRA_PARAMS="-u1"
-
-I twicked them to improve performance, but the behaviour was the same 
-(poor performance and ide=nodma to be able to boot) before these 
-modifications. So, maybe they are wrong, but no the cause of the problem.
-
-> The specification says powers of 2 from 2 to 128 are all valid, however,
-> most drives I have looked at only support <= 16.  This has some sort of
-> historical oem reason for being the max and I haven't worked here long
-> enough to know the 'why'.
-
-Sorry, I do not know either.
-
-> However, the ID block also reports the maximum multiple count in word 47
-> bits 7..0, so if that was non zero, the drive shouldn't abort it.
+> The Linux Kernel GCOV patch has a new home.  It will now be available
+> from the Linux Test Project site at: http://ltp.sourceforge.net.
 > 
-> The engineer sitting next to me (former quantum employee) is reasonably
-> certain that the drive shouldn't be aborting that command.
+> This release updates the gcov-kernel patches and utilities for 2.5.67
+> and 2.4.20 kernels, and includes some minor bugfixes.
 > 
-> It'd be interesting to look at the ID block and the task file for that
-> command that the drive aborted.
+> The Linux Kernel GCOV patch allows utilization of the gcov tool
+> against a running kernel.  This is different from most other profiling
+> methods because it can easily tell you things like: which lines of code
+> are executed, how many times they are executed, and how often different
+> branches are taken.
 
-How can I get this information?
+Excuse me for being lazy. Does this already cover ppc? I submitted a
+patch over some other channels some time ago.
 
-Pau
+Jörn
 
+-- 
+Simplicity is prerequisite for reliability.
+-- Edsger W. Dijkstra

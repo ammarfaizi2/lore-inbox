@@ -1,84 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261499AbSJYRQr>; Fri, 25 Oct 2002 13:16:47 -0400
+	id <S261501AbSJYRTk>; Fri, 25 Oct 2002 13:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261501AbSJYRQq>; Fri, 25 Oct 2002 13:16:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:20192 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261499AbSJYRQp>; Fri, 25 Oct 2002 13:16:45 -0400
-Message-ID: <3DB97C90.2DF810E6@us.ibm.com>
-Date: Fri, 25 Oct 2002 10:17:04 -0700
-From: mingming cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Larson <plars@linuxtestproject.org>
-CC: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
-       manfred@colorfullife.com, lkml <linux-kernel@vger.kernel.org>,
-       dipankar@in.ibm.com, lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [PATCH]updated ipc lock patch
-References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain>
-		<3DB86B05.447E7410@us.ibm.com> <3DB87458.F5C7DABA@digeo.com> 
-		<3DB880E8.747C7EEC@us.ibm.com> <1035555715.3447.150.camel@plars>
+	id <S261502AbSJYRTk>; Fri, 25 Oct 2002 13:19:40 -0400
+Received: from dsl-62-3-75-185.zen.co.uk ([62.3.75.185]:9088 "EHLO
+	giantx.co.uk") by vger.kernel.org with ESMTP id <S261501AbSJYRTj>;
+	Fri, 25 Oct 2002 13:19:39 -0400
+Date: Fri, 25 Oct 2002 18:25:48 +0100
+From: Nyk Tarr <nyk@giantx.co.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug] 2.5.44-ac2 cdrom eject panic
+Message-ID: <20021025172548.GA598@giantx.co.uk>
+References: <20021025103631.GA588@giantx.co.uk> <20021025103938.GN4153@suse.de> <20021025131050.GA593@giantx.co.uk> <20021025144608.GX4153@suse.de> <20021025144844.GY4153@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021025144844.GY4153@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Larson wrote:
+On Fri, Oct 25, 2002 at 04:48:44PM +0200, Jens Axboe wrote:
+> On Fri, Oct 25 2002, Jens Axboe wrote:
+> > On Fri, Oct 25 2002, Nyk Tarr wrote:
+> > > On Fri, Oct 25, 2002 at 12:39:38PM +0200, Jens Axboe wrote:
+> > > > On Fri, Oct 25 2002, Nyk Tarr wrote:
+> > > > > 
+> > > > > Hi,
+> > > > > 
+> > > > > I got this nice error after doing an 'eject /cdrom'
+> > > > 
+> > > > [snip]
+> > > > 
+> > > > 2.5.44 and thus 2.5.44-acX has seriously broken REQ_BLOCK_PC, so it's no
+> > > > wonder that it breaks hard. Alan, I can sync the sgio patches for you if
+> > > > you want.
+> > > > 
+> > > > Nyk, if you could try
+> > > > 
+> > > > *.kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.44/sgio-15.bz2
+> > > > 
+> > > > that would be great, thanks.
+> > > 
+> > > This also seems to hang and die. No panic in the logs this time, but
+> > > some stuff scrolling off the screen on console. Sadly I've nothing to
+> > > use as serial console at the mo' but I'll try some other options...
+> > 
+> > Please try sgio-16 from the above location. Ejecting works fine for me,
+> > it even manages to close the tray when I ask it to.
 > 
-> On Thu, 2002-10-24 at 18:23, mingming cao wrote:
-> > Thanks for your quick feedback.  I did LTP tests on it--it passed(well,
-> > I saw a failure on shmctl(), but the failure was there since 2.5.43
-> > kernel).  I will do more stress tests on it soon.
-> Which shmctl() test is this?  To my knowledge, there are no current
-> known issues with shmctl tests.  There is however one with sem02 in
-> semctl() that last I heard has been partially fixed in the kernel and
-> still needs to be fixed in glibc.  Is that the one you are referring to,
-> or is there really some other shmctl test in LTP that is failing?
+> Irk you are on SCSI, yes you need this incremental patch for that to
+> work. Sorry about that, I've put up 16b which contains this.
 
-Here is the failure I saw on LTP test.  The one failed is 
-/ltp-20020807/testcases/kernel/syscalls/ipc/shmctl/shmctl01
+That'll teach me to use ide-scsi ^_-.
 
-<<<test_start>>>
-tag=shmctl01 stime=1035475025
-cmdline="shmctl01"
-contacts=""
-analysis=exit
-initiation_status="ok"
-<<<test_output>>>
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
-pass #2
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
-pass #2
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
-pass #2
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
-pass #2
-shmctl01    3  FAIL  :  # of attaches is incorrect - 0
-shmctl01    4  PASS  :  new mode and change time are correct
-<<<execution_status>>>
-duration=1 termination_type=exited termination_id=1 corefile=no
-cutime=0 cstime=0
-<<<test_end>>>
+Working now, thanks. -ac3 applies over the top with 4 offset patches and
+seems to work fine (I can't get various bits of 2.5.44 to compile). I'll
+hammer it some more tomorrow.
+
+-- 
+/__
+\_|\/
+   /\

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279013AbRJVW1a>; Mon, 22 Oct 2001 18:27:30 -0400
+	id <S279010AbRJVW1a>; Mon, 22 Oct 2001 18:27:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279008AbRJVW1S>; Mon, 22 Oct 2001 18:27:18 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:12750 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S279009AbRJVW0O>; Mon, 22 Oct 2001 18:26:14 -0400
-Message-ID: <3BD4AAE2.B465AB9F@resilience.com>
-Date: Mon, 22 Oct 2001 16:25:22 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.10-ac9 i686)
-X-Accept-Language: en
+	id <S279013AbRJVW1P>; Mon, 22 Oct 2001 18:27:15 -0400
+Received: from relay-1v.club-internet.fr ([194.158.96.112]:64711 "HELO
+	relay-1v.club-internet.fr") by vger.kernel.org with SMTP
+	id <S279008AbRJVW0C>; Mon, 22 Oct 2001 18:26:02 -0400
+Message-ID: <3BD49D2D.9010007@freesurf.fr>
+Date: Tue, 23 Oct 2001 00:26:53 +0200
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011018
+X-Accept-Language: fr, en, fr-fr
 MIME-Version: 1.0
-To: Craig Dickson <crdic@yahoo.com>
-CC: linux-kernel@vger.kernel.org
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <20011022142302.A17992@crdic.ath.cx> <Pine.LNX.4.33L.0110221928440.22127-100000@duckman.distro.conectiva> <20011022151308.A18638@crdic.ath.cx>
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <86256AED.007A5093.00@smtpnotes.altec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Dickson wrote:
+Wayne.Brown@altec.com wrote:
+
 > 
-> I really would like to see Linus comment on this. As a US resident, as
-> the owner of the Linux trademark, and as the development-branch leader
-> of kernel development, he's taking every "risk" Alan is, and more,
-> because he's here where the FBI could arrest him if it wanted to, while
-> Alan is thousands of miles away. So far, Linus has shown no indication,
-> AFAIK, that he intends to censor his changelogs. Why not? Is he truly
-> heedless of his own safety, or is he just too sensible to freak out
-> over such an implausible scenario?
+> Thank you.  That's a very kind and generous offer.  You might want to consult a
+> French attorney, though, just to make certain there's no way they could make
+> trouble for you under French law.
+
+
+Even if I'm risking troubles, I'm ready to face them. Freedom of speech 
+is important enough to take risks to fight for it. Remember: "Beware of 
+he who would deny you access to information, for in his heart he dreams 
+himself your master"
+
+
 > 
+> I really appreciate the fact that you're willing to help, but I wouldn't want
+> you to risk getting into trouble on our behalf.
 
-Maybe Linus hasn't responded because he's already headed out of the
-country?  Maybe he's hiding in an ambulance headed for the Mexican
-border. ;)
-
--Jeff
-
-P.S. Email me if you don't get joke in the second sentence (or the first
-for that matter).
+I'm ready to take the risks...
 
 -- 
-Jeff Golds
-Sr. Software Engineer
-jgolds@resilience.com
+  ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
+Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
+
+"Software is like sex it's better when it's free.", Linus Torvalds
+

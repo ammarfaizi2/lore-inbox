@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263380AbVBCNIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVBCNVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbVBCNIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 08:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbVBCNIl
+	id S262521AbVBCNVp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 08:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbVBCNVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 08:08:41 -0500
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:4028 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S263708AbVBCNHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 08:07:54 -0500
-Subject: Re: dm-crypt crypt_status reports key?
-From: Christophe Saout <christophe@saout.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Clemens Fruhwirth <clemens@endorphin.org>, dm-crypt@saout.de,
-       Alasdair G Kergon <agk@redhat.com>
-In-Reply-To: <20050203040542.GQ2493@waste.org>
-References: <20050202211916.GJ2493@waste.org>
-	 <1107394381.10497.16.camel@server.cs.pocnet.net>
-	 <20050203015236.GO2493@waste.org>
-	 <1107398069.11826.16.camel@server.cs.pocnet.net>
-	 <20050203040542.GQ2493@waste.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7zvMZ/+XBpAbYpvAxlGK"
-Date: Thu, 03 Feb 2005 14:07:48 +0100
-Message-Id: <1107436068.22902.12.camel@server.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Thu, 3 Feb 2005 08:21:45 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:28611 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262521AbVBCNVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 08:21:33 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Dominik Brodowski <linux@dominikbrodowski.de>, Pavel Machek <pavel@ucw.cz>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
+Date: Thu, 3 Feb 2005 14:20:37 +0100
+User-Agent: KMail/1.7.1
+References: <200502021428.12134.rjw@sisk.pl> <200502031230.20302.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de>
+In-Reply-To: <20050203124006.GA18142@isilmar.linta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502031420.37560.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday, 3 of February 2005 13:40, Dominik Brodowski wrote:
+[-- snip --]
+> > So, would it be acceptable to check in _suspend() if the state is S4
+> > and drop the frequency in that case or do nothing otherwise?
+> 
+> No. The point is that this is _very_ system-specific. Some systems resume
+> always at full speed, some always at low speed; for S4 the behaviour may be
+> completely unpredictable. And in fact I wouldn't want my desktop P4 drop th
+> 12.5 % frequency if I ask it to suspend to disk, too. "Ignoring" the warning
+> seems to be the best thing to me. The good thing is, after all, that cpufreq
+> detected this situation and tries to correct for it.
 
---=-7zvMZ/+XBpAbYpvAxlGK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Well, the warning is not a big problem, as far as I'm concerned.  The problem is
+that the box often reboots when it's woken up on batteries and this certainly
+is related to cpufreq (ie it does not happen if cpufreq is not compiled in).
 
-Am Mittwoch, den 02.02.2005, 20:05 -0800 schrieb Matt Mackall:
+Pavel has suggested that it may happen when the frequency of
+the CPU is too high on resume, so I'm trying to verify if this is the case.  If so,
+which I'm not entirely convinced about yet, I'll be going to provide a fix
+for it, but I wouldn't like to do anything that's not acceptable from the
+start.
 
-> On Thu, Feb 03, 2005 at 03:34:29AM +0100, Christophe Saout wrote:
-> > The keyring API seems very flexible. You can define your own type of
-> > keys and give them names. Well, the name is probably irrelevant here an=
-d
-> > should be chosen randomly but it's less likely to collide with someone
-> > else.
-> =20
-> Dunno here, seems that having one tool that gave the kernel a key named
-> "foo" and then telling dm-crypt to use key "foo" is probably not a bad
-> way to go. Then we don't have stuff like "echo <key> | dmsetup create"
-> and the like and the key-handling smarts can all be put in one
-> separate place.
+I'm currently thinking that the proper approach may be to add a ->suspend()
+routine to struct cpufreq_driver and call the driver-specific ->suspend()
+(if one is defined) from cpufreq_suspend().  Then, it'll be possible to do
+whatever-is-necessary on a per-driver basis.  Just a thought. :-)
 
-Yes. I could also change cryptsetup to not mlockall the whole
-application just because the key is passed down to libdevmapper which
-does not treat parameters with special care.
-
-> Getting from here to there might be interesting though. Perhaps we can
-> teach dm-crypt to understand keys of the form "keyname:<foo>"? in
-> addition to raw keys to keep compatibility. Might even be possible to
-> push this down into crypt_decode_key() (or a smarter variant of same).
->=20
-> Meanwhile, I'd still like to hide the raw key in crypt_status().
-
-Well, I don't. I don't know any tools that actually use the
-DM_DEVICE_TABLE command except cryptsetup. I don't like to make the
-interface inconsistent just because there might be an incompetent root
-sitting in front of the machine.
+Greets,
+Rafael
 
 
---=-7zvMZ/+XBpAbYpvAxlGK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCAiIkZCYBcts5dM0RAvXdAKCn5/F1mM55B79HGE4GyKKgXQ44VACeJsm6
-QlAXWXH3rXKvwyK1K5O13cg=
-=pYTJ
------END PGP SIGNATURE-----
-
---=-7zvMZ/+XBpAbYpvAxlGK--
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

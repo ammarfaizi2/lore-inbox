@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVBKBIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVBKBLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbVBKBIj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 20:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVBKBIh
+	id S261991AbVBKBLW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 20:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVBKBLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 20:08:37 -0500
-Received: from downeast.net ([204.176.212.2]:2792 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261990AbVBKBHt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 20:07:49 -0500
-Message-ID: <420C054B.1070502@downeast.net>
-Date: Thu, 10 Feb 2005 20:07:23 -0500
-From: Patrick McFarland <pmcfarland@downeast.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Thu, 10 Feb 2005 20:11:22 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:29398 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S261991AbVBKBLK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 20:11:10 -0500
+From: Mws <mws@twisted-brains.org>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: DVB at76c651.c driver seems to be dead code
+Date: Fri, 11 Feb 2005 02:11:17 +0100
+User-Agent: KMail/1.7.92
+Cc: Andreas Oberritter <obi@linuxtv.org>, linux-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+References: <20050210235605.GN2958@stusta.de>
+In-Reply-To: <20050210235605.GN2958@stusta.de>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-References: <20050211004033.GA26624@suse.de>
-In-Reply-To: <20050211004033.GA26624@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart4350710.X30OrqjXrh";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200502110211.29055.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> I'd like to announce, yet-another-hotplug based userspace project:
-> linux-ng.  This collection of code replaces the existing linux-hotplug
-> package with very tiny, compiled executable programs, instead of the
-> existing bash scripts.
-> 
-> It currently provides the following:
-> 	- a /sbin/hotplug multiplexer.  Works identical to the existing
-> 	  bash /sbin/hotplug.
-> 	- autoload programs for usb, scsi, and pci modules.  These
-> 	  programs determine what module needs to be loaded when the
-> 	  kernel emits a hotplug event for these types of devices.  This
-> 	  works just like the existing linux-hotplug scripts, with a few
-> 	  exceptions.
-> 
-> But why redo this all in .c code?  What's wrong with shell scripts?
-> Nothing is wrong with shell scripts, unless you don't want to have an
-> interpreter in your initramfs/initrd and you want to provide
-> /sbin/hotplug and autoload module functionality.  Or if you have a huge
-> box that spawns a zillion hotplug events all at once, and you need to be
-> able to handle all of that with the minimum amount of processing time
-> and memory.
+--nextPart4350710.X30OrqjXrh
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Wow, thats pretty awesome. Just the other day I said, "Why is hotplug written 
-in sh? Isn't that horribly inefficient way of handling something that needs to 
-be done quickly using the least amount of resources possible?" It seems you 
-were reading my mind.
+On Friday 11 February 2005 00:56, Adrian Bunk wrote:
+> I didn't find any way how the drivers/media/dvb/frontends/at76c651.c=20
+> driver would do anything inside kernel 2.6.11-rc3-mm2. All it does is to=
+=20
+> EXPORT_SYMBOL a function at76c651_attach that isn't used anywhere.
+>=20
+> Is a patch to remove this driver OK or did I miss anything?
+>=20
+> cu
+> Adrian
+>=20
+=46YI
 
-Please, continue this project and encourage distros to switch to it (when it 
-exceeds hotplug in functionality and stability). Ubuntu currently is trying to 
-reduce boot time, and I bet something like this would factor in (even a few 
-seconds helps).
+The atmel at76c651 frontend driver is used for the=20
+Sagem DBox2 Digital Cable Receiver.=20
 
--- 
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd
-all be running around in darkened rooms, munching magic pills and listening to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+As all other parts of the dbox2 drivers are atm not hosted at kernel cvs bu=
+t at
+cvs.tuxbox.org you won't find any components in mainline kernel tree using =
+this.
+
+thus we are a hobby project - but even well known - there are not so many d=
+eveloper
+available to make every kernel driver and other parts of it "kernel-style-a=
+like".=20
+maybe there is more progress and kernel driver patching into mainline in th=
+e future.
+we are having 2.6.9 running on dbox2 - higher versions are atm broken for s=
+upport of
+the mpc 823 architecture :/
+
+removing this driver is not wanted.
+
+regards
+Marcel Siegert
+mws@tuxbox.org
+
+
+
+
+--nextPart4350710.X30OrqjXrh
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCDAZBPpA+SyJsko8RAupbAKDNjks8xYLBgYeWlEdDJ/xL+TMzxgCfUQkQ
+FB8zrosDC9/8QWlHTnbBCoc=
+=R30y
+-----END PGP SIGNATURE-----
+
+--nextPart4350710.X30OrqjXrh--

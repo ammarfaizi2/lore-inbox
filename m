@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264168AbTE0VGa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTE0VGa
+	id S264186AbTE0VGz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbTE0VGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:06:30 -0400
-Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:26258 "EHLO
-	mars.elipse.com.br") by vger.kernel.org with ESMTP id S264168AbTE0VGD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:06:03 -0400
-Message-ID: <3ED3D6D5.6060305@elipse.com.br>
-Date: Tue, 27 May 2003 18:21:25 -0300
-From: Felipe W Damasio <felipewd@elipse.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Gutko <gutko@poczta.onet.pl>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Realtek 8139c - kernel 2.4.21-rc3
-References: <3ECFF85D.2090009@poczta.onet.pl>
-In-Reply-To: <3ECFF85D.2090009@poczta.onet.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 May 2003 21:21:29.0046 (UTC) FILETIME=[EFEC1760:01C32495]
+	Tue, 27 May 2003 17:06:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:35228 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264186AbTE0VGZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 17:06:25 -0400
+Date: Tue, 27 May 2003 23:19:40 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       manish <manish@storadinc.com>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527211940.GC845@suse.de>
+References: <3ED2DE86.2070406@storadinc.com> <200305272253.06726.m.c.p@wolk-project.de> <20030527210019.GA845@suse.de> <200305272310.44657.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305272310.44657.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Gutko,
+On Tue, May 27 2003, Marc-Christian Petersen wrote:
+> On Tuesday 27 May 2003 23:00, Jens Axboe wrote:
+> 
+> Hi Jens,
+> 
+> > Are you serious? Please tell me you haven't spend two weeks on the
+> > project not realising this?
+> Well, 2 weeks means in hours not more than 5 or 6 just delayed over many days.
+> 
+> And it was further just to go deeper into the code, not a real attempt to 
+> backport it. NM.
 
-Gutko wrote:
-> Just compiled this kernel with 8139too as module. I have adsl (pppoe) 
-> connection. Problem is, connection is lost after about 2-5 minutes after 
-> start.
-> I tested eth card with ftp://ftp.scyld.com/pub/diag/rtl8139-diag.c
-> and found something like this "configured with ABNORMAL settings".Or 
+A bigger analysis of the problem before starting mindless (and useless)
+porting would have brought you a lot farther :)
 
-	Were you forcing full-duplex or 100mbps?
+If you're just looking to port some io schedulers, the explanation I
+left you in the previous mail should be plenty to get you started.
 
-> something like this. So I downloaded driver (v1.01)from www.realtek.com.tw,
-> replaced 8139too module and now all semms to be ok.
-
-	AFAIK, the driver from www.realtek.com.tw *is* 8139too.
-
-> This diag tool says now : "configured with normal settings"
-
-	Yep, it doesn't seem to be a driver problem, but forcing a buggy 
-configuration to the driver.
-
-	What probably happened is that when you downloaded the driver from 
-the Realtek website, the modules.conf part of this "new" driver (or 
-some other script you might be using to load it) isn't forcing any 
-options and letting the driver figure out the best configuration.
-
-	Kind Regards,
-
-Felipe
+-- 
+Jens Axboe
 

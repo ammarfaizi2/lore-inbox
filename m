@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268745AbUIQNaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268742AbUIQNbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268745AbUIQNaI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 09:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268746AbUIQNaH
+	id S268742AbUIQNbd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 09:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268746AbUIQNbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 09:30:07 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:45321 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S268745AbUIQNaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 09:30:02 -0400
-Message-ID: <414AE6DA.3050600@myrealbox.com>
-Date: Fri, 17 Sep 2004 06:30:02 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040916
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.9-rc2-bk] Freeze during boot
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Sep 2004 09:31:33 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:21226 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S268742AbUIQNbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 09:31:06 -0400
+Date: Fri, 17 Sep 2004 15:26:41 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040917132641.GR15426@dualathlon.random>
+References: <20040915151815.GA30138@elte.hu> <20040917103945.GA19861@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040917103945.GA19861@elte.hu>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something committed in the last 24 hours is causing my machine
-to halt partway thru bootup.  It will print appropriate messages
-on the console for USB hotplug events, but networking never
-comes up so I can't ping the machine, and the login process
-never starts so I can't login and I can't tell what processes
-are actually running.
+On Fri, Sep 17, 2004 at 12:39:45PM +0200, Ingo Molnar wrote:
+> task not migrating to another CPU within the BLK critical section?
 
-When I boot yesterday's kernel I get error messages saying
-that the kernel modules (from today) can't be loaded because
-they are in the wrong format.  That's an error I've never seen
-before this morning.  The only thing I can think to do is to
-recompile with all the drivers compiled into the kernel and
-see if I get any error messages (I'm not seeing any errors
-now).
-
-Anyone else seeing anything like this?
+I very much doubt, I'd expect this to work, but it really should be a
+config option if you don't open 2.7. This is the kind of thing that
+cannot happen in a 2.6.* release without a config option to leave off in
+production IMHO since it can have implications well outside the mainline
+kernel (every driver outside the kernel would be affected too).

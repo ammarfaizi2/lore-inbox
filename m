@@ -1,100 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266100AbTABG5C>; Thu, 2 Jan 2003 01:57:02 -0500
+	id <S266160AbTABHAN>; Thu, 2 Jan 2003 02:00:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266125AbTABG5C>; Thu, 2 Jan 2003 01:57:02 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:13918 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266100AbTABG5A>;
-	Thu, 2 Jan 2003 01:57:00 -0500
-From: <Hell.Surfers@cwctv.net>
-To: riel@conectiva.com.br, mark@justirc.net, linux-kernel@vger.kernel.org
-Date: Thu, 2 Jan 2003 07:04:59 +0000
-Subject: RE: Why is Nvidia given GPL'd code to use in cl... system library ;) im interested.
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041491099257"
-Message-ID: <0a6220401070213DTVMAIL4@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1041491099257
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-ah, actually ive been fiddling with ggi... Please do send any ideas... :)
-
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-On 	Wed, 1 Jan 2003 19:34:16 -0200 (BRST) 	Rik van Riel <riel@conectiva.com.br> wrote:
-
---1041491099257
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Wed, 1 Jan 2003 21:32:50 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbTAAV0I>; Wed, 1 Jan 2003 16:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264956AbTAAV0I>; Wed, 1 Jan 2003 16:26:08 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:3756 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S264711AbTAAV0H>; Wed, 1 Jan 2003 16:26:07 -0500
-Received: from localhost ([IPv6:::ffff:127.0.0.1]:64171 "EHLO localhost")
-	by imladris.surriel.com with ESMTP id <S80020AbTAAVeQ>;
-	Wed, 1 Jan 2003 19:34:16 -0200
-Date: Wed, 1 Jan 2003 19:34:16 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Mark Rutherford <mark@justirc.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S266128AbTABHAN>; Thu, 2 Jan 2003 02:00:13 -0500
+Received: from gtwy.nap.wideopenwest.com ([64.233.207.11]:39335 "EHLO
+	pop-3.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
+	id <S266125AbTABHAM>; Thu, 2 Jan 2003 02:00:12 -0500
+Date: Thu, 2 Jan 2003 02:06:44 -0500
+From: Milosz Tanski <mtanski@wideopenwest.com>
+To: Hell.Surfers@cwctv.net.billh@gnuppy.monkey.org, paul@clubi.ie,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org, rms@gnu.org
 Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <3E1313A8.18854119@justirc.net>
-Message-ID: <Pine.LNX.4.50L.0301011931240.2429-100000@imladris.surriel.com>
-References: <Pine.LNX.4.10.10212312340420.421-100000@master.linux-ide.org>
- <3E1313A8.18854119@justirc.net>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20030102020644.7c23fbd7.mtanski@wideopenwest.com>
+In-Reply-To: <20030102065603.GA21598@codepoet.org>
+References: <0a9503844060213DTVMAIL4@smtp.cwctv.net>
+	<20030102065603.GA21598@codepoet.org>
+X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.ViVVo,duXXw(pU"
+X-RAVMilter-Version: 8.4.1(snapshot 20020919) (pop-3.dnv.wideopenwest.com)
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-On Wed, 1 Jan 2003, Mark Rutherford wrote:
+--=.ViVVo,duXXw(pU
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> I would LOVE to see Nvidia open source,
-> We cannot force our ideas on a company, all they will do is turn and walk away.
-> We can show them our way, if they like it, good. if not, we tried.
+Well, i dunno how i got drawed into to (well i do). Your right, but i'm
+just trying to find a usefull solution for me having to download and
+shift though a ~500kb discussion leading noware (drawing my conclusion
+from the past here). I don't think Hell.Surfers is going to accomplish
+anything here, besides angering a whole bunch of people (am i right?).
+Sooner or later, some one is going to come up with the idea of
+--attempting to-- banning him from the mailing list (just like RMS
+before), and thats again accompilished nothing. And damn it, i'd love to
+have opensource (or freesoftware, whatever the politicaly correct thing
+is :) ) nvidia drivers, so i could attempt to fix the Twin view
+flakinies, have the nvidia drivers use the kernel nvidia fb, and have
+dual head console, etc.
 
-Nvidia is a smart company, otherwise they wouldn't be in
-business today.  I'm sure they'll switch to the GPL only
-once it will be in their advantage to do so and no sooner.
+--=.ViVVo,duXXw(pU
+Content-Type: application/pgp-signature
 
-When would it be an advantage for them ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-The moment there is a GPL graphics library (at the right
-system level, of course) that's so good Nvidia won't be
-able to resist using that library could be such a moment.
+iD8DBQE+E+UNNciXfIswNe8RAo/XAKDMvO0hjmtrPrQ/33YZfXZObjhHZwCfdI50
+eLazQ/HtZNMs44tWBvVyU4M=
+=p+s/
+-----END PGP SIGNATURE-----
 
-A new project for Hell.Surfers ? ;)
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041491099257--
-
-
+--=.ViVVo,duXXw(pU--

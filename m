@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262295AbSJODIQ>; Mon, 14 Oct 2002 23:08:16 -0400
+	id <S262331AbSJODHI>; Mon, 14 Oct 2002 23:07:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262297AbSJODIQ>; Mon, 14 Oct 2002 23:08:16 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:56723 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S262295AbSJODIP>; Mon, 14 Oct 2002 23:08:15 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Christoph Hellwig <hch@sgi.com>
-Date: Tue, 15 Oct 2002 13:14:03 +1000
-MIME-Version: 1.0
+	id <S262335AbSJODHI>; Mon, 14 Oct 2002 23:07:08 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:8711 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262331AbSJODHI>;
+	Mon, 14 Oct 2002 23:07:08 -0400
+Date: Mon, 14 Oct 2002 20:13:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@perex.cz>,
+       torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, jdthood@yahoo.co.uk,
+       boissiere@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Layer Rewrite V0.7 - 2.4.42
+Message-ID: <20021015031312.GB10756@kroah.com>
+References: <20021014135452.GB444@neo.rr.com> <Pine.LNX.4.33.0210142101000.7202-100000@pnote.perex-int.cz> <20021014214334.GA315@neo.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15787.34811.125941.874118@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] switch knfsd to vfs_read/vfs_write
-In-Reply-To: message from Christoph Hellwig on Tuesday October 15
-References: <20021015002110.A18265@sgi.com>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20021014214334.GA315@neo.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday October 15, hch@sgi.com wrote:
-> Switch knfsd to vfs_read/vfs_write to work on aio-only filesystems.
-> This also gets stuff like the LSM checks and mandatory lock checking
-> for free.
-> 
+On Mon, Oct 14, 2002 at 09:43:34PM +0000, Adam Belay wrote:
+>  #ifdef CONFIG_PROC_FS
+> -	/*isapnp_proc_init();*/
+> +	isapnp_proc_init();
+>  #endif
 
-Thanks.  I'll pass it on.
 
-NeilBrown
+Please bury the #ifdef in the .h file, it shouldn't be in the .c file.
+
+thanks,
+
+greg k-h

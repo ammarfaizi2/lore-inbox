@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266845AbUIJH54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUIJH5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266845AbUIJH54 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUIJH5z
+	id S266578AbUIJH5F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 03:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUIJH5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:57:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23181 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266845AbUIJH4w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:56:52 -0400
-Date: Fri, 10 Sep 2004 00:54:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
-Message-Id: <20040910005454.23bbf9fb.akpm@osdl.org>
-In-Reply-To: <41415B15.1050402@bigpond.net.au>
-References: <413FA9AE.90304@bigpond.net.au>
-	<20040909010610.28ca50e1.akpm@osdl.org>
-	<4140EE3E.5040602@bigpond.net.au>
-	<20040909171450.6546ee7a.akpm@osdl.org>
-	<4141092B.2090608@bigpond.net.au>
-	<20040909200650.787001fc.akpm@osdl.org>
-	<41413F64.40504@bigpond.net.au>
-	<20040909231858.770ab381.akpm@osdl.org>
-	<414149A0.1050006@bigpond.net.au>
-	<20040909235217.5a170840.akpm@osdl.org>
-	<41415B15.1050402@bigpond.net.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 03:57:05 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:17096 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S266578AbUIJH4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 03:56:09 -0400
+Date: Fri, 10 Sep 2004 16:58:07 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH] missing pci_disable_device()
+In-reply-to: <1094735472.14640.18.camel@localhost.localdomain>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, bjorn.helgaas@hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <41415E8F.3000404@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
+References: <413D0E4E.1000200@jp.fujitsu.com>
+ <1094550581.9150.8.camel@localhost.localdomain>
+ <413E7925.1010801@jp.fujitsu.com>
+ <1094647195.11723.5.camel@localhost.localdomain>
+ <413FF05B.8090505@jp.fujitsu.com> <20040909062009.GD10428@kroah.com>
+ <41403075.1010103@jp.fujitsu.com>
+ <1094735472.14640.18.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams <pwil3058@bigpond.net.au> wrote:
+Alan Cox wrote:
+
+> On Iau, 2004-09-09 at 11:29, Kenji Kaneshige wrote:
+>> > 	dev_warn(&pci_dev->dev, "Device was removed without properly "
+>> > 				"calling pci_disable_device(), please fix.\n");
+>> > 	WARN_ON(1);
+>> > 
+> 
+> "This may need fixing" would be better than "please fix" as it may be
+> a wrong warning
 >
->  Sep 10 17:22:29 mudlark kernel: Unable to handle kernel paging request at virtual address f2d8bef4
->  Sep 10 17:22:29 mudlark kernel:  printing eip:
->  Sep 10 17:22:29 mudlark kernel: c013957f
->  Sep 10 17:22:29 mudlark kernel: *pde = 00507067
->  Sep 10 17:22:29 mudlark kernel: *pte = 32d8b000
->  Sep 10 17:22:29 mudlark kernel: Oops: 0000 [#1]
->  Sep 10 17:22:29 mudlark kernel: PREEMPT DEBUG_PAGEALLOC
->  Sep 10 17:22:29 mudlark kernel: Modules linked in: tulip ohci_hcd
->  Sep 10 17:22:29 mudlark kernel: CPU:    0
->  Sep 10 17:22:29 mudlark kernel: EIP:    0060:[<c013957f>]    Not tainted VLI
->  Sep 10 17:22:30 mudlark kernel: EFLAGS: 00010082   (2.6.9-rc1-bk16) 
->  Sep 10 17:22:30 mudlark kernel: EIP is at cache_free_debugcheck+0x207/0x2a3
->  Sep 10 17:22:30 mudlark kernel: eax: f2d8bef4   ebx: 80052c00   ecx: f2d8bef8   edx: 00000ef8
->  Sep 10 17:22:32 mudlark kernel: esi: f2d3164c   edi: f2d8b000   ebp: c18ff680   esp: f2e95cfc
->  Sep 10 17:22:33 mudlark kernel: ds: 007b   es: 007b   ss: 0068
->  Sep 10 17:22:34 mudlark rc: Starting webmin:  succeeded
->  Sep 10 17:22:34 mudlark kernel: Process mount (pid: 2671, threadinfo=f2e94000 task=f2da1a60)
->  Sep 10 17:22:34 mudlark kernel: Stack: c18ff680 f2d8b000 00000000 00000246 32d8b000 c18ff680 c1903054 f2d8bef8 
->  Sep 10 17:22:34 mudlark kernel:        00000282 c013a185 c18ff680 f2d8bef8 c01b2a6d 00000000 f2d8bef8 f2d8bfe5 
->  Sep 10 17:22:34 mudlark kernel:        f2d8bef8 c01b2a6d f2d8bef8 00000041 00000800 f2fafec0 00000005 0000001f 
->  Sep 10 17:22:34 mudlark kernel: Call Trace:
->  Sep 10 17:22:34 mudlark kernel:  [<c013a185>] kfree+0x59/0x9b
->  Sep 10 17:22:34 mudlark kernel:  [<c01b2a6d>] parse_rock_ridge_inode_internal+0x1c9/0x654
->  Sep 10 17:22:34 mudlark kernel:  [<c01b2a6d>] parse_rock_ridge_inode_internal+0x1c9/0x654
->  Sep 10 17:22:34 mudlark kernel:  [<c01b3090>] parse_rock_ridge_inode+0x27/0x67
 
-Could you see if this patch fixes the above crash?
+Yes.
+I should have considered drivers that intentionally don't disable
+devices. I'll change the message.
 
---- 25/fs/isofs/rock.c~rock-kludge	2004-09-10 00:52:30.394468656 -0700
-+++ 25-akpm/fs/isofs/rock.c	2004-09-10 00:53:14.544756792 -0700
-@@ -62,7 +62,7 @@
- }                                     
  
- #define MAYBE_CONTINUE(LABEL,DEV) \
--  {if (buffer) kfree(buffer); \
-+  {if (buffer) { kfree(buffer); buffer = NULL; } \
-   if (cont_extent){ \
-     int block, offset, offset1; \
-     struct buffer_head * pbh; \
-_
+>> I changed my patch based on your feedback. But I have one
+>> concern about putting "WARN_ON(1);". I'm worrying that people
+>> might be surprised if stack dump is shown on their console,
+>> especially if the broken driver handles many devices.
+> 
+> You could put
+> 
+> #ifdef CONFIG_DEBUG_KERNEL
+> 
+> #endif
+> 
+> around that section, then only users selecting kernel debugging would
+> be bothered by it.
+> 
+
+Thank you for advice.
+
+But I don't know if we should take this approach, because
+'CONFIG_DEBUG_KERNEL' is set by default on RedHat and some
+other distros.
+
+How do you think?
+
+Thanks,
+Kenji Kaneshige
 
 
-I sure hope it does, so I don't have to look at rock.c again.

@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbULMU6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbULMU63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbULMU6n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 15:58:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULMU6m
+	id S261175AbULMU63 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 15:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULMU61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 15:58:42 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:5268 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261326AbULMU5l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 15:57:41 -0500
-Date: Mon, 13 Dec 2004 21:57:39 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Typo in kernel configuration (xconfig)
-In-Reply-To: <Pine.LNX.4.61.0412132059290.3382@dragon.hygekrogen.localhost>
-Message-ID: <Pine.LNX.4.61.0412132156590.30655@yvahk01.tjqt.qr>
-References: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
- <Pine.LNX.4.61.0412130925510.2394@yvahk01.tjqt.qr> <41BDDB02.5020606@gmail.com>
- <Pine.LNX.4.61.0412132059290.3382@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 13 Dec 2004 15:58:27 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46491 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261175AbULMU4E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 15:56:04 -0500
+Subject: Re: dynamic-hz
+From: john stultz <johnstul@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041211142317.GF16322@dualathlon.random>
+References: <20041211142317.GF16322@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1102971389.1281.427.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 13 Dec 2004 12:56:29 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Well, in case anyone actually cares, here's a patch (at the end of the 
->mail) to fix the nit. "x86" does seem to be in the majority compared to 
->"X86" in the Kconfig help texts, I guess we might as well make it 
->consistent..
+On Sat, 2004-12-11 at 06:23, Andrea Arcangeli wrote:
+> This patch is quite intrusive since many HZ visible to userspace have to
+> be converted to USER_HZ, and most important because HZ isn't available
+> at compile time anymore and every variable in function of HZ must be
+> either changed to be in function of USER_HZ or it must be initialized at
+> runtime. The code has debugging code (optional at compile time) so that
+> I can guarantee that there cannot be any regression.
 
-Hopefully nobody gets the idea of changing the CONFIG_X86 in Kconfig to 
-CONFIG_x86 ...
+Interesting patch, I know some folks have been asking about HZ=10k
+recently, so this could help. 
+
+The only bit that worries me a bit is the change from HZ->USER_HZ for
+internal calculations. In my mind, USER_HZ should only be used for
+converting internal system ticks to userspace-visible ticks. Changing
+drivers to think about things in user-ticks confuses things a bit since
+suddenly some kernel code is thinking in user-ticks and others in
+system-ticks. It just muddles things a bit.
+
+thanks
+-john
 
 
 
-
-Jan Engelhardt
--- 
-ENOSPC

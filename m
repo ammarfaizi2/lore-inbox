@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264469AbTIJBws (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 21:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTIJBws
+	id S264489AbTIJB5n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 21:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264626AbTIJB5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 21:52:48 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:19612 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264469AbTIJBwq convert rfc822-to-8bit (ORCPT
+	Tue, 9 Sep 2003 21:57:43 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:52929 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264489AbTIJB5i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 21:52:46 -0400
-Date: Tue, 9 Sep 2003 22:51:48 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-ac2
-Message-Id: <20030909225148.3ce2111c.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <200309092334.h89NYxh18536@devserv.devel.redhat.com>
-References: <200309092334.h89NYxh18536@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 9 Sep 2003 21:57:38 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16222.34064.900764.487152@napali.hpl.hp.com>
+Date: Tue, 9 Sep 2003 18:57:36 -0700
+To: Ian Wienand <ianw@gelato.unsw.edu.au>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+In-Reply-To: <20030910005317.GE23661@cse.unsw.EDU.AU>
+References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
+	<16174.59114.386209.649300@wombat.chubb.wattle.id.au>
+	<16174.60868.750901.704560@napali.hpl.hp.com>
+	<20030813000751.GD25474@cse.unsw.edu.au>
+	<20030910005317.GE23661@cse.unsw.EDU.AU>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003 19:34:59 -0400 (EDT), Alan Cox wrote:
->(No its not course start time quite yet..)
->
->Various little fixups and tidying bits. Some of these probably want to
->get pushed on to Marcelo eventually - the small bits and the CMPCI update
->certainly.
->
->Linux 2.4.22-ac2
->o	Taint on sii6512 module that someone 		(Arjan van de Ven)
->	"accidentally" marked as GPL but is nonfree
->o	Fix incorrect bool v dep_bool in isdn config	(Paolo Ornati)
->o	Correct ricoh mem0 definition			(Komuro)
->o	Add module device tables to ide pci modules	(Johannes Hölzl)
->o	SATA driver core update				(Jeff Garzik)
->o	Add VIA SATA driver				(Jeff Garzik)
->o	Updated CMPCI driver				(ChenLi Tien)
->o	Fix bridge forwarding with checksumming hw	(Stephen Hemminger)
->o	Fix lots of vblank thinkos	(Soreren Sandmann, Anders Carlsson)
->o	Fix docs typo					(Dafydd Harries)
->o	Small HPT raid updates				(Wilfried Weissmann)
->o	Add Intel ESB2 IDE				(Bill Nottingham)
->o	Fix up LBA48 check for PDC20265			(Petr Vandrovec)
->o	Fix typo in amd76x IDE driver			(Stéphane Loeuillet)
->o	Add VIA 8231 IRQ router entries			(Sebastian Reichelt)
->o	Clean up dead compat warning stuff in isdn	(Gerardo Pozzi)
+>>>>> On Wed, 10 Sep 2003 10:53:17 +1000, Ian Wienand <ianw@gelato.unsw.edu.au> said:
 
-Thanks, 
+  Ian> On Wed, Aug 13, 2003 at 10:07:51AM +1000, Ian Wienand wrote:
 
-This important fix in MASQUERADE code not merged in. From 2.4 tree cset@1.1063.31.1 (laforge)
+  >> We're still working on automated testing (i.e. booting on the
+  >> simulator, maybe real hardware).
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106208291130074&w=2
+  Ian> For those who are interested, we now attempt to boot the autobuilt
+  Ian> kernels on the simulator daily.  See
 
---- 1.6/net/ipv4/netfilter/ipt_MASQUERADE.c     Tue Aug 12 02:30:12 2003
-+++ 1.7/net/ipv4/netfilter/ipt_MASQUERADE.c     Sat Aug 30 20:45:05 2003
-@@ -87,6 +87,7 @@
-        key.dst = (*pskb)->nh.iph->daddr;
-        key.src = 0; /* Unknown: that's what we're trying to establish */
-        key.tos = RT_TOS((*pskb)->nh.iph->tos)|RTO_CONN;
-+       key.oif = 0;
- #ifdef CONFIG_IP_ROUTE_FWMARK
-        key.fwmark = (*pskb)->nfmark;
- #endif
+  Ian> http://www.gelato.unsw.edu.au/kerncomp/simboot.php
 
+Very nice! (The test setup & web-page, not the fact that the boot
+failed... ;-).
 
-chau,
- djgera
+As for perfmon under Ski: the latest perfmon should have the necessary
+code, but I don't remember whether it made it into test5 already (and
+I don't have CONFIG_PERFMON enabled in my Ski setup).  If it's not
+there already, it should be there tomorrow, as Linus pulled on the
+ia64 repository a couple of hours ago.
 
-
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+	--david

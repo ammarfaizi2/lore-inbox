@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUIGQQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268290AbUIGQQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268170AbUIGQQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUIGQOg
+	id S268290AbUIGQQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268259AbUIGQOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 12:14:36 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:28178 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S268111AbUIGQNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 12:13:30 -0400
-Date: Tue, 7 Sep 2004 11:12:54 -0500
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org, axboe@suse.de
-Subject: clustering and 2.6
-Message-ID: <20040907161254.GA23325@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 7 Sep 2004 12:14:20 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:43970 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S268170AbUIGQNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 12:13:42 -0400
+Date: Tue, 7 Sep 2004 09:10:27 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@suse.de>
+cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
+       albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
+       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
+       David Mosberger <davidm@hpl.hp.com>, paulus@samba.org,
+       schwidefsky@de.ibm.com, jimix@us.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC] New Time of day proposal (updated 9/2/04)
+In-Reply-To: <20040904130022.GB21912@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58.0409070908290.8484@schroedinger.engr.sgi.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+ <20040903151710.GB12956@wotan.suse.de> <1094242317.14662.556.camel@cog.beaverton.ibm.com>
+ <20040904130022.GB21912@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-I'm having some issues when trying to use some clustering software when
-running any 2.6.x kernel.
-Basically, there are 2 nodes connected to 1 storage storage enclosure.
-When node 1 comes up it reserves the volume(s) in the enclosure. When
-node 2 comes up the read capacity fails as expected because of the 
-SCSI reservation. However, if node 1 fails node 2 breaks the reservation,
-but cannot register the disk. At this time we're assuming it's because the read
-capacity failed and the size of the disk is zero blocks.
+On Sat, 4 Sep 2004, Andi Kleen wrote:
 
-The SCSI mid-layer sets a bogus size on a device when read capacity fails.
-Is this the preferred way to get around this issue? Seems like there
-should be a better way.
+> On Fri, Sep 03, 2004 at 01:11:58PM -0700, john stultz wrote:
+> > The timeofday_hook (should be timeofday_interrupt_hook, my bad) is
+> > called by the semi-periodic-irregular-interval(also known as "timer")
+> > interrupt. Its what does the housekeeping for all the timeofday code so
+> > we don't run into a counter overflow.
+> >
+> > monotonic_clock() is an accessor that returns the amount of time that
+> > has been accumulated since boot in nanoseconds.
+>
+> Ok, but you need different low level drivers for those.  The TSC is not
+> stable enough as a long term time source, but it is best&fastest for
+> the offset calculation between timer interrupts.
 
-Any input is greatly appreciated.
-
-Thanks,
-mikem
+I thought the NTP daemon etc would even that out? ITC (TSC on IA64) is
+used by default on IA64 for all time keeping purposes. The CPU has on chip
+support for timer interrupt generation.

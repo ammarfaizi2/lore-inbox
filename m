@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272191AbSISWXX>; Thu, 19 Sep 2002 18:23:23 -0400
+	id <S273541AbSISW3W>; Thu, 19 Sep 2002 18:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272192AbSISWXX>; Thu, 19 Sep 2002 18:23:23 -0400
-Received: from dsl093-058-082.blt1.dsl.speakeasy.net ([66.93.58.82]:31222 "EHLO
-	beohost.scyld.com") by vger.kernel.org with ESMTP
-	id <S272191AbSISWXW>; Thu, 19 Sep 2002 18:23:22 -0400
-Date: Thu, 19 Sep 2002 18:28:09 -0400 (EDT)
-From: Donald Becker <becker@scyld.com>
-To: Jason Lunz <lunz@falooley.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <netdev@oss.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Gooch <rgooch@ras.ucalgary.ca>,
-       "Patrick R. McManus" <mcmanus@ducksong.com>, <edward_peng@dlink.com.tw>
-Subject: Re: PATCH: sundance #5 (variable per-interface MTU support)
-In-Reply-To: <20020919210348.GC17492@orr.falooley.org>
-Message-ID: <Pine.LNX.4.44.0209191821050.29420-100000@beohost.scyld.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273440AbSISW2R>; Thu, 19 Sep 2002 18:28:17 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:54913 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S273541AbSISWZy>; Thu, 19 Sep 2002 18:25:54 -0400
+Date: Fri, 20 Sep 2002 00:30:58 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Cc: robn@verdi.et.tudelft.nl
+Subject: ext3 fs: no userspace writes == no disk writes ?
+Message-ID: <20020920003058.A4850@verdi.et.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Jason Lunz wrote:
+Hi all,
 
-> This is a straightforward merge of variable mtu from donald's driver.
+I have a question about ext3 write activity.
 
--	np->rx_buf_sz = (dev->mtu <= 1500 ? PKT_BUF_SZ : dev->mtu + 32);
-+	np->rx_buf_sz = (dev->mtu <= 1500 ? PKT_BUF_SZ : dev->mtu + 36);
+I am considering using an ext3 fs on a CompactFlash disk for my
+data-logging application (power can disapear anytime).
+The quantity & frequency of the data logged itself is not a
+problem at all considering flash wear.
 
-Errrmm, not quite right.
+But I'm a bit worried about the kernel/ext3 doing regular writes
+by itself even when there are no userspace writes.  (worries are
+partially caused by memories from long time ago about idle laptop
+doing regular writes on disk).
 
-Try
-	np->rx_buf_sz = (dev->mtu <= 1520 ? PKT_BUF_SZ : dev->mtu + 16);
+Anybody out there who knows how this works ?
 
-The idea is that all ethernet-like drivers always allocate skbuffs of
-the same size, PKT_BUF_SZ (1536=3*512), unless a jumbo MTU forces a
-larger size. 
+Can I use an ext3 fs without having regular "automatic" writes to
+the device it is located on ?  (and thus not destroy my CompactFlash
+devices !)
 
-Specificially, using VLANs (+4 bytes on the frame size) on some interfaces
-should not result in a mix of allocation sizes.  Most VLAN-like
-encapsulation should add fewer than (1536-1518 = 18) 18 extra bytes.
+	greetings,
+	Rob van Nieuwkerk
 
-BTW, always leave a few extra bytes at the end of the data buffer.
-You never know when some chip might decide to dribble an extra word or
-two, or include the CRC because someone frobbed the driver.
 
--- 
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
+PS1: of course nothing from userspace should write frequently to
+    the fs, and if there is regular read-activity the fs should
+    be mounted with "noatime")
 
+PS2: yes, I know that jffs exists

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316593AbSEVRpT>; Wed, 22 May 2002 13:45:19 -0400
+	id <S316614AbSEVRwK>; Wed, 22 May 2002 13:52:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316614AbSEVRpS>; Wed, 22 May 2002 13:45:18 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13317 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316593AbSEVRpL>; Wed, 22 May 2002 13:45:11 -0400
-Subject: Re: nVidia NIC/IDE/something support?
-To: hjames@stevens-tech.edu (Hayden James)
-Date: Wed, 22 May 2002 19:05:01 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SGI.4.30.0205221316500.3534318-100000@attila.stevens-tech.edu> from "Hayden James" at May 22, 2002 01:20:28 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316621AbSEVRwJ>; Wed, 22 May 2002 13:52:09 -0400
+Received: from 178.230.13.217.in-addr.dgcsystems.net ([217.13.230.178]:63439
+	"EHLO yxa.extundo.com") by vger.kernel.org with ESMTP
+	id <S316614AbSEVRwJ>; Wed, 22 May 2002 13:52:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix complete freeze on Dell latitude in nm256_audio.c
+From: Simon Josefsson <jas@extundo.com>
+Date: Wed, 22 May 2002 19:49:14 +0200
+Message-ID: <ilur8k4t6n9.fsf@latte.josefsson.org>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2.50
+ (i686-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17AaTt-0002Qp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> supported by the linux kernel.  The audio seems to be an exact clone of
-> the i810 driver with just same name changes and added pci ids, you can
+Please add this to the 2.4 tree.  Without it, Dell Latitude laptops
+completely freeze when loading the module.  Thanks.
 
-Already in 2.4.19pre
+--- linux/drivers/sound/nm256_audio.c.orig      Sun Sep 30 21:26:08 2001
++++ linux/drivers/sound/nm256_audio.c   Wed May 22 19:46:48 2002
+@@ -896,7 +896,9 @@
 
-> get the gpl patches for it at nvidia's web site.  The rest of the
+     /* Reset the mixer.  'Tis magic!  */
+     nm256_writePort8 (card, 2, 0x6c0, 1);
+-    nm256_writePort8 (card, 2, 0x6cc, 0x87);
++    /* The following line crashes Dell Latitude laptops and doesn't
++     * seem to do any harm on other machines.
++    nm256_writePort8 (card, 2, 0x6cc, 0x87); */
+     nm256_writePort8 (card, 2, 0x6cc, 0x80);
+     nm256_writePort8 (card, 2, 0x6cc, 0x0);
 
-The ones behind a license that conflicts at the moment
 
-> facilities, ide, usb etc should be supported normally by the linux kernel.
-
-The IDE needs 2.5.x at the moment but you'll get dire PIO
-
-> Also you will need to get the separate nVidia video driver for graphics
-> support.
-
-Better yet - help out on the utah-glx nvidia driver that way you might be
-able to debug things.

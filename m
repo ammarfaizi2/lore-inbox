@@ -1,79 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286645AbRLVCFY>; Fri, 21 Dec 2001 21:05:24 -0500
+	id <S286621AbRLVCP0>; Fri, 21 Dec 2001 21:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286644AbRLVCFP>; Fri, 21 Dec 2001 21:05:15 -0500
-Received: from svr3.applink.net ([206.50.88.3]:2322 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S286636AbRLVCFF>;
-	Fri, 21 Dec 2001 21:05:05 -0500
-Message-Id: <200112220204.fBM24rSr022372@svr3.applink.net>
+	id <S286632AbRLVCPP>; Fri, 21 Dec 2001 21:15:15 -0500
+Received: from svr3.applink.net ([206.50.88.3]:8978 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286621AbRLVCPG>;
+	Fri, 21 Dec 2001 21:15:06 -0500
+Message-Id: <200112220214.fBM2EsSr022402@svr3.applink.net>
 Content-Type: text/plain; charset=US-ASCII
 From: Timothy Covell <timothy.covell@ashavan.org>
 Reply-To: timothy.covell@ashavan.org
-To: World Domination Now! <linux-kernel@vger.kernel.org>,
-        Chris Ricker <kaboom@gatech.edu>
-Subject: Re: Configure.help editorial policy
-Date: Fri, 21 Dec 2001 20:01:10 -0600
+To: "Per Jessen" <per@computer.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
+Date: Fri, 21 Dec 2001 20:11:11 -0600
 X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33.0112211313160.30646-100000@verdande.oobleck.net>
-In-Reply-To: <Pine.LNX.4.33.0112211313160.30646-100000@verdande.oobleck.net>
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> (added by     postmaster@bluewin.ch)
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch>
+Cc: timothy.covell@ashavan.org
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 December 2001 14:24, Chris Ricker wrote:
-> On Fri, 21 Dec 2001, Timothy Covell wrote:
-> > On Friday 21 December 2001 13:12, David Weinehall wrote:
-> > [snip]
-> >
-> > > Whatever the choice ends up being, KB is always incorrect, unless you
-> > > intend to specify some strange formula where the number of bytes (B)
-> > > combined with the temperature in Kelvin (K) has anything to do with
-> > > things.
-> > >
-> > >
-> > >
-> > > /David Weinehall
-> >
-> > The way the metric prefixes work is that multiplicative prefixes are
-> > capitalized and divisional prefixes are in lower case.
+On Friday 21 December 2001 13:55, Per Jessen wrote:
+> On Fri, 21 Dec 2001 11:43:40 -0600, Bob Glamm wrote:
+> >On Fri, Dec 21, 2001 at 03:48:22PM +0000, Mike Jagdis wrote:
 >
-> Nonsense.  Some of what you're calling multiplicative prefixes (as if they
-> weren't *all* multiplicative ;-) are capitalized, and others are not.  kilo
-> (10^3) is k, hecto (10^2) is h, and deca (10^1) is da, for example.  See
-> <http://www.bipm.fr/enus/6_Publications/si/si-brochure.html> for the
-> official guidelines (page 23 if you read English, and page 28 if you read
-> French).
-
-Dude, I don't know why you are being so pedantic on this.
-You pointed to the stupid exceptions instead of the norm.
-100% of the negative power prefixes ARE lower case, and all of the
-positive power prefixes ARE UPPERCASE except those three stupid 
-exceptions which you cited.  Here, SI is being stupid.    Uppercase 
-is a GOOD IDEA (TM).  And, NIST should fix this because the
-point of standards is to create logical consistancy so that people
-don't get into these stupid discussions.
-
-
-Finally, I'm an American, so that means if someone tells me to do
-something stupid, I tell them where they can shove it.     
-
-
+> [snip]
 >
-> More relevant to the whole Configure.help discussion, if you want to
-> pedantic, official SI guidelines also state on the same page that:
->
-> "These SI prefixes refer strictly to powers of 10.  They should not be used
-> to indicate powers of 2 (for example, one kilobit represents 1000 bits and
-> not 1024 bits)."
+[snip]
+> looked back. AFAIK (please correct me), the US never went metric. Don't
+> they still use Fahrenheit and all that weird stuff ?
+> Oh, and btw - those non-metric units are not "English units", but "Imperial
+> units", if you want to picky :-)
 
-And I already agreed to this, as have most of the others.
 
->
-> later,
-> chris
->
+As concerns the use of Traditional Units being weird, I would say that the
+motivation made a lot of since.   The units were based on commonly
+available natural units of measure, eg.
+
+one inch = 1 thumb = 1 pouce 
+one foot  = size of a foot = 1 pied 
+
+Also, as is very appropriate to this discussion, the English Units
+made use of powers of two and three. Eg.  
+
+1 inch, 1/2 inch, 1/4 inch, 1/8 inch
+
+3 feet equals a yard.
+
+So, the English units were more attuned to nature.  The only thing
+natural about base ten is that the majority of us have 10 fingers and
+10 toes.
+
+Finally, Farhenheit units are smaller so that they make more convenient
+divisions: Eg.
+
+10-20 is downright frigid
+20-30 degrees is Freezing!
+30-40 is very cold
+40-50 is cold
+50-60 is blustery
+60-70 is brisk
+70-80 is confortable
+80-90 is warm
+90-100 is very hot
+100+ is Texas in summertime, WAY too hot !!!  ;-)
+
+
+Finally, for those in Switzerland:
+
+1. Why is it CH when only 30% speak French
+
+2.  The French think that "octante" for 80 and "nanante" for 90
+is downright goofy.
+
 
 -- 
 timothy.covell@ashavan.org.

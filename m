@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130667AbRAFRQS>; Sat, 6 Jan 2001 12:16:18 -0500
+	id <S130029AbRAFR3I>; Sat, 6 Jan 2001 12:29:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131579AbRAFRQJ>; Sat, 6 Jan 2001 12:16:09 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:14859 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130667AbRAFRP5>;
-	Sat, 6 Jan 2001 12:15:57 -0500
-Message-ID: <3A57521C.BEF2E349@innominate.de>
-Date: Sat, 06 Jan 2001 18:13:00 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
+	id <S130406AbRAFR27>; Sat, 6 Jan 2001 12:28:59 -0500
+Received: from tamqfl1-ar1-128-154.dsl.gtei.net ([4.33.128.154]:48882 "EHLO
+	linus.southpark") by vger.kernel.org with ESMTP id <S130029AbRAFR2r>;
+	Sat, 6 Jan 2001 12:28:47 -0500
+Message-ID: <3A5755D6.5607D908@leoninedev.com>
+Date: Sat, 06 Jan 2001 12:28:54 -0500
+From: Bryan Mayland <bmayland@leoninedev.com>
+Organization: Leonine Development, Inc.
+X-Mailer: Mozilla 4.73 [en] (Windows NT 5.0; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jared Sulem <jsulem@sulem.freeserve.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [non-kernel patch] Re: bug of Nvidia (0.9.5) Drivers in 2.4 Kernel 
- Enviroment
-In-Reply-To: <NEBBKEIJMLEIHACEGKDMAEAECAAA.jsulem@sulem.freeserve.co.uk>
+To: David Wragg <dpw@doc.ic.ac.uk>, linux-kernel@vger.kernel.org
+CC: TRoXX@LiquidXTC.nl
+Subject: Re: Framebuffer as a module
+In-Reply-To: <E14EZMf-0007vp-00@the-village.bc.nu> <y7rk889wk6o.fsf@sytry.doc.ic.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jared Sulem wrote:
-> Driver should work after applying the following patch.  I'm not a kernel
-> hacker so I don't know how good a solution this is (especially suspicious
-> of the work around in os-interface.c) but X works on my machine and it has
-> not crashed (yet) - have not tried any OpenGL though.
-> [...]
->
->  struct vm_operations_struct nv_vm_ops = {
->      open:     nv_vma_open,
->      close:    nv_vma_release,
-> -    unmap:    nv_vma_unmap,
-> +    nv_vma_unmap,
-       ^^^^^^^^^^^^^
-No... 1) Bad idea to mix named field initializers with positional  Here
-you're initializing a nonexistent field  2) The unmap method is gone
-from vm_operations_struct because this is now handled generically.  Just
-remove it.
+> I used to compile-in my framebuffer-device in the kernel
+> then i just appended "video=tdfxfb:1024x768-32@70" in lilo.conf and it
+> worked..
+> now i compiled it as a module, and want modprobe to start it up for me..
+> how can this be done?
+> modprobe tdfxfb 1024x768-32@70
 
->  };
->  #endif
+That's a very good question.  The tdfxfb module has no parameters.  It would be
+ideal if the tdfxfb mainatiner would add some MODULE_PARM lines for all the
+parameters and move the code from tdfxfb_setup that does work into tdfxfb_init.
 
---
-Daniel
+I think a valid work-around for you is to use fbset after you load the module
+to set the resolution.  Does that work?
+Bry
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

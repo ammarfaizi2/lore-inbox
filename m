@@ -1,86 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265985AbUA1RTO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 12:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUA1RTO
+	id S266015AbUA1Rbt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 12:31:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUA1Rbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 12:19:14 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:12775 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S265985AbUA1RSo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 12:18:44 -0500
-Date: Wed, 28 Jan 2004 09:20:04 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-Message-ID: <20040128172004.GB5494@cup.hp.com>
-References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 28 Jan 2004 12:31:49 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:29963 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266015AbUA1Rbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 12:31:47 -0500
+Message-ID: <4017F2C0.4020001@techsource.com>
+Date: Wed, 28 Jan 2004 12:34:56 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OT] Crazy idea:  Design open-source graphics chip
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 10:54:28AM +0900, Hironobu Ishii wrote:
-> Seto posted "[RFC] How drivers notice a HW error?" (readX_check() I/F)
->    http://marc.theaimsgroup.com/?l=linux-kernel&m=106992207709400&w=2
-> 
-> Grant will show his idea near future,
->    http://marc.theaimsgroup.com/?l=linux-kernel&m=107453681120603&w=2
-
-I don't work on error recovery full time and that's really a full time job.
-In a nutshell, I'd like to treat IO errors as exceptions and hide
-most of the support in the regular readX() macros. Arch support
-controls readX/writeX implementations and CONFIG_* options can
-be used to pick which behavior someone wants. I'd expect drivers
-which support error recovery to register a error recovery callback
-and "fake" value to hand back for PIO reads until recovery is complete.
-
-I could be wrong. Exception handling is ugly. But my hope is that
-by putting all the exception handling in one place in the driver,
-the driver will be forced to be methodical in being "deterministic"
-WRT to driver state and can return to a known state by calling one
-routine. This will keep the drivers maintainable by "part-time hackers"
-who don't care about error recovery.
-
-> Conclusion:
->     Performance disadvantage of readX_check() is a very small.
->     I'd like you to understand that such a function will not 
->     cause severe performance disadvantage as you imagine.
-
-This is no surprise. The cost of PIO reads is far greater (100x)
-than the extra cost to check for errors.
-Eg PIO read on 1GHz HP rx2600 is ~1000-1100 CPU cycles and it's in
-the same order of magnitude for all architectures.
-
-> This patch:
->      - is for Fusion MPT driver.
->      - has no error recovery code yet, sorry.
-
-Error recovyer code is the hard part. Find all the locations in the
-code and writing instance specific error recovery code. The HPUX driver
-I first worked on is amazingly similar to MPT. And it had error recovery
-support (for "Host Powerfail") and truly was a PITA to support.
-
->      - currently supports ia64 only. But I believe that
->        some other CPU(such as SPARC, PPC, PA-RISC) can also
->        support this kind of I/F. 
-
-yes - probably a few others as well.
-
->        I know, unfortunately, that i386 can't support this kind
->        of I/F, because it can't recover from machine check state.
-
-I think i386 could. The method to check for errors will be different
-and the types of errors which are detectable are fewer.
-I'm not sure it would be recoverable though. But it should be able
-to shutdown a misbehaving driver instance/device before the box crashed.
-(well, assuming there is no memory corruption).
+This is somewhat off-topic, so we shouldn't discuss it TOO much on-list, 
+but I feel it's relevant to the state of affairs with Linux.
 
 
-thanks,
-grant
+I haven't looked at what's available on opencores.org, but one of the 
+biggest problems we seem to have is with getting high-quality graphics 
+cards that are compatible with Linux in the sense that there are open 
+specs and there's an open-source driver.  Oh, and we'd like to have 
+something decent.
+
+I have personally designed a graphics engine.  Actually, I would say 
+that I did maybe 90% of the Verilog coding on it, and about 20% of the 
+back-end (place, route, etc.) work.  I also did 100% of the X11 software 
+(DDX) and 0% of the kernel driver code.  I wouldn't call it a 
+masterpiece of engineering compared to the latest and greatest high-end 
+3D and CAD graphics chips, but it's a powerful workhorse used in most of 
+the air traffic control graphics cards and medical imaging cards that my 
+employer sells (10 megapixel displays are easy for us).  Were you to 
+read the manual on it, you'd think some of it was a bit unusual (such as 
+the way you issue rendering commands), because it WAS my first ASIC 
+ever.  I did meet all of our performance goals.  And I've come a long 
+way since then.  (Unfortunately, this may sound like a plug, but I have 
+competing desires to be humble about what I did but also not to 
+publically say something that might understate the value of my 
+employer's products.  I also feel a sense of pride in my accomplishment.)
+
+That being said, I would LOVE to be involved in the design of an 
+open-source graphics chip with the Linux market primarily in mind.  This 
+is a major sore point for us, and I, for one, would love to be involved 
+in solving it.  With an open architecture, everyone wins.  We win 
+because we have something stable which we can put in main-line Linux, 
+and chip fabs win, because anyone can sell it, and anyone can write 
+drivers for any platform.
+
+Imagine ATI and nVidia competing on how they can IMPROVE the design over 
+one another but being obligated to release the source code.  I know... 
+wishful thinking.  But I know a variety of ways that chips and boards 
+could be made with respectable geometries (90nm) and high performance. 
+No more being at the mercy of closed-development graphics chip designers 
+who make Linux an after-though if they even think of us at all.
+
+
+Please forgive my off-topic intrusion.
+

@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130230AbQKXX3v>; Fri, 24 Nov 2000 18:29:51 -0500
+        id <S130230AbQKXXjW>; Fri, 24 Nov 2000 18:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130392AbQKXX3m>; Fri, 24 Nov 2000 18:29:42 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:53776 "EHLO
-        havoc.gtf.org") by vger.kernel.org with ESMTP id <S130230AbQKXX3a>;
-        Fri, 24 Nov 2000 18:29:30 -0500
-Message-ID: <3A1EF2D0.991EBFFB@mandrakesoft.com>
-Date: Fri, 24 Nov 2000 17:59:28 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Park <apark@cdf.toronto.edu>
-CC: Linux-KERNEL <linux-kernel@vger.kernel.org>
-Subject: Re: changing BIOS setting
-In-Reply-To: <Pine.LNX.4.21.0011241758500.12040-100000@blue.cdf.utoronto.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        id <S130392AbQKXXjM>; Fri, 24 Nov 2000 18:39:12 -0500
+Received: from mail6.bigmailbox.com ([209.132.220.37]:24081 "EHLO
+        mail6.bigmailbox.com") by vger.kernel.org with ESMTP
+        id <S130230AbQKXXjB>; Fri, 24 Nov 2000 18:39:01 -0500
+Date: Fri, 24 Nov 2000 15:08:34 -0800
+Message-Id: <200011242308.PAA30772@mail6.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [193.250.237.8]
+From: "Kafu Nagai" <nkafu@easynews.com>
+To: vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent ide patches and DMA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Park wrote:
-> Is there a way to change BIOS setting (like boot sequence)
-> from the kernel space?  Any pointers would be appreciated.
 
-Yes.  All the BIOS does is configure your hardware.  Get docs on your
-hardware, and you can do anything that BIOS does.  For example, if your
-parallel port is disabled in BIOS, and you have the datasheet for your
-southbridge, then you can "manually" enable the parallel port by writing
-certain values to certain PCI config registers.
-
-That said, it is generally a bad idea to do this sort of thing.  Unless
-you have a cluster full of machines that all have a BIOS-related
-problem, or similar, you should just reboot and adjust your BIOS...
-
-Of course, if you are really motivated, you could just flash your own
-BIOS.  Check out http://www.acl.lanl.gov/linuxbios/
-
-Regards,
-
-	Jeff
+440BX with PIIX4 on BP6
 
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+>On Thu, Nov 23, 2000 at 01:09:35PM -0800, Kafu Nagai wrote:
+>> With recent ide patches, the ide driver seems to try to use DMA mode even for a drive which dosen't support it. CONFIG_IDEDMA_PCI_AUTO is enabled but even so with the stock kernel this dosen't happen. older patches didn't have this behavior either. Is this change intentional ?
+>> 
+>> hdc: 333630 sectors (171 MB) w/32KiB Cache, CHS=1011/15/22, DMA
+>> Partition check:
+>>  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 >
+>>  hdc:hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>> hdc: dma_intr: error=0x04 { DriveStatusError }
+>> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>> hdc: dma_intr: error=0x04 { DriveStatusError }
+>> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>> hdc: dma_intr: error=0x04 { DriveStatusError }
+>> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>> hdc: dma_intr: error=0x04 { DriveStatusError }
+>> hdc: DMA disabled
+>> ide1: reset: success
+>>  hdc1
+>> 
+>> ~ $ hdparm -i /dev/hdc
+>>  
+>> /dev/hdc:
+>>  
+>>  Model=QUANTUM ELS170A, FwRev=4.20, SerialNo=166304085456
+>>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>5Mbs RotSpdTol>.5% }
+>>  RawCHS=1011/15/22, TrkSize=11264, SectSize=512, ECCbytes=4
+>>  BuffType=3(DualPortCache), BuffSize=32kB, MaxMultSect=8, MultSect=off
+>>  DblWordIO=no, OldPIO=2, DMA=no
+>>  CurCHS=1011/15/22, CurSects=333629, LBA=no                                         
+>
+>Which chipset are you using?
+>
+>-- 
+>Vojtech Pavlik
+>SuSE Labs
+
+
+------------------------------------------------------------
+Free Web space and web based email @EASYNEWS.COM
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

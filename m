@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284140AbRL1ULA>; Fri, 28 Dec 2001 15:11:00 -0500
+	id <S287006AbRL1URk>; Fri, 28 Dec 2001 15:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286995AbRL1UKk>; Fri, 28 Dec 2001 15:10:40 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:19973 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S284140AbRL1UKc>; Fri, 28 Dec 2001 15:10:32 -0500
-Subject: 2.5.1-dj7 -- Compile errors in ieee1394/sbp2.c
-From: Miles Lane <miles@megapathdsl.net>
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011228173428.A25102@suse.de>
-In-Reply-To: <20011228173428.A25102@suse.de>
-Content-Type: text/plain
+	id <S287000AbRL1URc>; Fri, 28 Dec 2001 15:17:32 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:16866 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S284141AbRL1URZ>;
+	Fri, 28 Dec 2001 15:17:25 -0500
+Message-ID: <3C2CCB82.7010309@athlon.maya.org>
+Date: Fri, 28 Dec 2001 20:44:02 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011225
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre1
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99+cvs.2001.12.21.18.01 (Preview Release)
-Date: 28 Dec 2001 12:11:45 -0800
-Message-Id: <1009570306.1816.81.camel@stomata.megapathdsl.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o
-sbp2.o sbp2.c
-sbp2.c: In function `sbp2_module_init':
-sbp2.c:2948: warning: implicit declaration of function
-`scsi_register_module'
-sbp2.c:2948: `MODULE_SCSI_HA' undeclared (first use in this function)
-sbp2.c:2948: (Each undeclared identifier is reported only once
-sbp2.c:2948: for each function it appears in.)
-sbp2.c: In function `sbp2_module_exit':
-sbp2.c:2971: warning: implicit declaration of function
-`scsi_unregister_module'
-sbp2.c:2971: `MODULE_SCSI_HA' undeclared (first use in this function)
-make[2]: *** [sbp2.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/drivers/ieee1394'
+Hello all,
 
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_PCILYNX=m
-CONFIG_IEEE1394_PCILYNX_LOCALRAM=y
-CONFIG_IEEE1394_PCILYNX_PORTS=y
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_SBP2=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_VERBOSEDEBUG=y
 
+Marcelo Tosatti wrote:
+
+
+ > - Update Athlon/VIA PCI quirks			(Calin A.
+ > 		 
+				Culianu)
+
+I tested this patch and unfortunately, I have to say, it is not working
+(if it should prevent the suddenly changing time on VIA-boards).
+I have the same problem with suddenly changing time as without this patch.
+
+Furthermore, there are these entries in messages. They came in while
+printing via parport to printer HP6P.
+
+Dec 28 18:34:09 athlon kernel: DMA write timed out
+Dec 28 18:34:35 athlon kernel: DMA write timed out
+Dec 28 18:35:01 athlon kernel: DMA write timed out
+Dec 28 18:35:52 athlon last message repeated 2 times
+Dec 28 18:36:17 athlon kernel: DMA write timed out
+Dec 28 18:37:09 athlon last message repeated 2 times
+Dec 28 18:37:32 athlon kernel: DMA write timed out
+Dec 28 18:37:59 athlon kernel: DMA write timed out
+Dec 28 18:38:25 athlon kernel: DMA write timed out
+Dec 28 18:38:51 athlon kernel: DMA write timed out
+
+Kernel tells that lp0 uses
+"lp0: ECP mode".
+
+I configured in modules.conf:
+	alias parport_lowlevel  parport_pc
+	options parport_pc      io=0x278 irq=5 dma=3
+which should be correct regarding bios configurations.
+
+Unfortunately I can't say, if these entries came in before or after the
+problem with the changing time.
+
+The entries in messages and the time changing problem appeared during a 
+lot of diskusage (io).
+
+
+
+Regards,
+Andreas Hartmann
 

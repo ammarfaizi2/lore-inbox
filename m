@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276309AbRJKN2X>; Thu, 11 Oct 2001 09:28:23 -0400
+	id <S276337AbRJKNkf>; Thu, 11 Oct 2001 09:40:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276350AbRJKN2N>; Thu, 11 Oct 2001 09:28:13 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64439 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276309AbRJKN2B>;
-	Thu, 11 Oct 2001 09:28:01 -0400
-Date: Thu, 11 Oct 2001 09:28:31 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: =?iso-8859-1?Q?Stefan_Smietanowski?= <stesmi@stesmi.com>
-cc: v.sweeney@dexterus.com, linux-kernel@vger.kernel.org
-Subject: Re: =?iso-8859-1?Q?Re:_[PATCH]_Re:_Lost_Partition?=
-In-Reply-To: <62283.212.247.172.29.1002806753.squirrel@webmail.stesmi.com>
-Message-ID: <Pine.GSO.4.21.0110110927390.22698-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276335AbRJKNkZ>; Thu, 11 Oct 2001 09:40:25 -0400
+Received: from jalon.able.es ([212.97.163.2]:5549 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S276330AbRJKNkO>;
+	Thu, 11 Oct 2001 09:40:14 -0400
+Date: Thu, 11 Oct 2001 15:40:39 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.10-ac11 parport_pc.c bugfix
+Message-ID: <20011011154039.C3904@werewolf.able.es>
+In-Reply-To: <1002766826.7434.38.camel@thanatos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1002766826.7434.38.camel@thanatos>; from jdthood@mail.com on Thu, Oct 11, 2001 at 04:20:23 +0200
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 20011011 Thomas Hood wrote:
+> 	} else {
+>-		if ( dev->irq_resource[0].start == -1 ) {
+>+		if ( dev->irq_resource[0].start == (unsigned long)-1 ) {
+                                                   ^^^^^^^^^      ^
+Uh ?
 
-On Thu, 11 Oct 2001, [iso-8859-1] Stefan Smietanowski wrote:
+Perhaps I miss some black magic in kernel programming, but could not this
+be written much cleaner like
 
-> Hi. Re partition problem.
-> 
-> 
-> > -	unsigned long first_sector, first_size, this_sector, this_size;
-> > +	unsigned long first_sector, this_sector, this_size;
-> 
-> > +	this_size = first_size;
-> 
-> 
-> It seems that's sorta wrong, no?
-> 
-> You just removed "first_size" and then you access it :)
+>+		if ( dev->irq_resource[0].start == ~0U ) {
 
-Look carefully at the arguments list.  first_size had just become explicitly
-passed to extended_partition().
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.10-ac11-beo #2 SMP Thu Oct 11 02:41:04 CEST 2001 i686

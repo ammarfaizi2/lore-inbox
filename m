@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVCPPPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVCPPUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbVCPPPP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 10:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVCPPOr
+	id S262626AbVCPPUE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 10:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVCPPTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 10:14:47 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:6114 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262617AbVCPPNL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 10:13:11 -0500
-In-Reply-To: <20050316025339.318fc246.sfr@canb.auug.org.au>
-References: <20050315143412.0c60690a.sfr@canb.auug.org.au> <0961a209ce72bb9f2a01b163aa6e6fbd@penguinppc.org> <20050316025339.318fc246.sfr@canb.auug.org.au>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <303a387c46a384eb8afa7cce8c7e3225@penguinppc.org>
-Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-From: Hollis Blanchard <hollis@penguinppc.org>
-Subject: Re: [PATCH] PPC64 iSeries: cleanup viopath
-Date: Wed, 16 Mar 2005 09:12:51 -0600
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-X-Mailer: Apple Mail (2.619.2)
+	Wed, 16 Mar 2005 10:19:51 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:16336 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262625AbVCPPQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 10:16:22 -0500
+Subject: Re: Unresolved symbols in
+	/lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
+From: Arjan van de Ven <arjan@infradead.org>
+To: Martin =?iso-8859-2?Q?MOKREJ=A9?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <42384AB9.1080905@ribosome.natur.cuni.cz>
+References: <42384AB9.1080905@ribosome.natur.cuni.cz>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 16 Mar 2005 16:16:10 +0100
+Message-Id: <1110986170.6292.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 15, 2005, at 9:53 AM, Stephen Rothwell wrote:
+On Wed, 2005-03-16 at 16:03 +0100, Martin MOKREJŠ wrote:
+> Hi,
+>   does anyone still use 2.4 series kernel? ;)
+> # make dep; make bzImage; make modules
+> [cut]
+> # make modules_install
+> [cut]
+> cd /lib/modules/2.4.30-pre3-bk2; \
+> mkdir -p pcmcia; \
+> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.30-pre3-bk2; fi
+> depmod: *** Unresolved symbols in /lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
 
-> On Tue, 15 Mar 2005 08:32:27 -0600 Hollis Blanchard 
-> <hollis@penguinppc.org> wrote:
->>
->> On Mar 14, 2005, at 9:34 PM, Stephen Rothwell wrote:
->>>
->>> Since you brought this file to my attention, I figured I might as 
->>> well
->>> do
->>> some simple cleanups.  This patch does:
->>> 	- single bit int bitfields are a bit suspect and Anndrew pointed
->>> 	  out recently that they are probably slower to access than ints
->>
->>> --- linus/arch/ppc64/kernel/viopath.c	2005-03-13 04:07:42.000000000
->>> +1100
->>> +++ linus-cleanup.1/arch/ppc64/kernel/viopath.c	2005-03-15
->>> 14:02:48.000000000 +1100
->>> @@ -56,8 +57,8 @@
->>>   * But this allows for other support in the future.
->>>   */
->>>  static struct viopathStatus {
->>> -	int isOpen:1;		/* Did we open the path?            */
->>> -	int isActive:1;		/* Do we have a mon msg outstanding */
->>> +	int isOpen;		/* Did we open the path?            */
->>> +	int isActive;		/* Do we have a mon msg outstanding */
->>>  	int users[VIO_MAX_SUBTYPES];
->>>  	HvLpInstanceId mSourceInst;
->>>  	HvLpInstanceId mTargetInst;
->>
->> Why not use a byte instead of a full int (reordering the members for
->> alignment)?
->
-> Because "classical" boleans are ints.
->
-> Because I don't know the relative speed of accessing single byte 
-> variables.
+this is not the module shipped by the kernel.org kernel...
 
-I didn't see the original observation that bitfields are slow. If the 
-argument was that loading a bitfield requires a load then mask, then 
-you'll be happy to find that PPC has word, halfword, and byte load 
-instructions. So loading a byte (unsigned, as Brad pointed out) should 
-be just as fast as loading a word.
-
-> It really makes little difference, I was just trying to get rid of the
-> silly signed single bit bitfields ...
-
-I understand. I was half being nitpicky, and half wondering if there 
-was an actual reason I was missing.
-
--Hollis
 

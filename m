@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319341AbSH2UzI>; Thu, 29 Aug 2002 16:55:08 -0400
+	id <S319358AbSH2U61>; Thu, 29 Aug 2002 16:58:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319342AbSH2UzI>; Thu, 29 Aug 2002 16:55:08 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:17323 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319341AbSH2UzH>;
-	Thu, 29 Aug 2002 16:55:07 -0400
-Subject: [TRIVIAL][PATCH] fix __FUNCTION__ pasting in sx.c
-From: Paul Larson <plars@linuxtestproject.org>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S319363AbSH2U61>; Thu, 29 Aug 2002 16:58:27 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:17678 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319358AbSH2U60>; Thu, 29 Aug 2002 16:58:26 -0400
+Message-ID: <3D6E8B7F.8D5D20D8@zip.com.au>
+Date: Thu, 29 Aug 2002 14:00:47 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] low-latency zap_page_range()
+References: <3D6E844C.4E756D10@zip.com.au> <1030653602.939.2677.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 29 Aug 2002 15:49:14 -0500
-Message-Id: <1030654155.7151.1.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial fix for __FUNCTION__ pasting in sx.c against current bk tree.
+Robert Love wrote:
+> 
+> ...
+> unless we
+> wanted to unconditionally drop the locks and let preempt just do the
+> right thing and also reduce SMP lock contention in the SMP case.
 
--Paul Larson
+That's an interesting point.  page_table_lock is one of those locks
+which is occasionally held for ages, and frequently held for a short
+time.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.557   -> 1.558  
-#	   drivers/char/sx.c	1.10    -> 1.11   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/08/29	plars@austin.ibm.com	1.558
-# fix __FUNCTION__ pasting in sx.c
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/sx.c b/drivers/char/sx.c
---- a/drivers/char/sx.c	Thu Aug 29 15:43:20 2002
-+++ b/drivers/char/sx.c	Thu Aug 29 15:43:20 2002
-@@ -405,11 +405,11 @@
- 
+I suspect that yes, voluntarily popping the lock during the long holdtimes
+will allow other CPUs to get on with stuff, and will provide efficiency
+increases.  (It's a pretty lame way of doing that though).
 
-
--#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ "\n")
--#define func_exit()  sx_dprintk (SX_DEBUG_FLOW, "sx: exit  " __FUNCTION__ "\n")
-+#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s\n", __FUNCTION__)
-+#define func_exit()  sx_dprintk (SX_DEBUG_FLOW, "sx: exit  %s\n", __FUNCTION__)
- 
--#define func_enter2() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ \
--                                  "(port %d)\n", port->line)
-+#define func_enter2() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s (port %d)\n", \
-+					__FUNCTION__, port->line)
- 
-
-
-
+But I don't recall seeing nasty page_table_lock spintimes on
+anyone's lockmeter reports, so we can leave it as-is for now.

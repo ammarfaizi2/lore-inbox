@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131297AbRCHJJb>; Thu, 8 Mar 2001 04:09:31 -0500
+	id <S131301AbRCHJWm>; Thu, 8 Mar 2001 04:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131300AbRCHJJW>; Thu, 8 Mar 2001 04:09:22 -0500
-Received: from hmljs.rzs-hm.si ([193.2.208.10]:43275 "EHLO hmljs.rzs-hm.si")
-	by vger.kernel.org with ESMTP id <S131296AbRCHJJL>;
-	Thu, 8 Mar 2001 04:09:11 -0500
-Date: Thu, 08 Mar 2001 10:08:32 +0100 (CET)
-From: Metod Kozelj <metod.kozelj@rzs-hm.si>
-Subject: Re: 2.4.3-pre2 aic7xxx crash on alpha
-In-Reply-To: <200103080445.f284jsO36939@aslan.scsiguy.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org,
-        linux-alpha@vger.kernel.org
-Reply-to: Metod Kozelj <metod.kozelj@rzs-hm.si>
-Message-id: <Pine.HPP.3.96.1010308095215.15847B-100000@hmljhp.rzs-hm.si>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+	id <S131304AbRCHJWd>; Thu, 8 Mar 2001 04:22:33 -0500
+Received: from finch-post-12.mail.demon.net ([194.217.242.41]:32013 "EHLO
+	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S131301AbRCHJWY>; Thu, 8 Mar 2001 04:22:24 -0500
+Message-ID: <3AA74F31.554A7A42@beam.demon.co.uk>
+Date: Thu, 08 Mar 2001 09:21:53 +0000
+From: Terry Barnaby <terry@beam.demon.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22enterprise i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Process memory DMA access from devices, kiobuf ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-On Wed, 7 Mar 2001, Justin T. Gibbs wrote:
+We are doing work with FPGA's and have a Linux driver for a particular
+board that has these
+devices. For performance reasons the driver has the ability to DMA
+directly to process (user)
+memory. We have made use of the kiobuf routines such as
+"map_user_kiobuf()" to map into
+physical memory the user address space.
+I note that the RedHat kernels have a patched kernel containing the
+kiobuf code but the
+standard linux source does not right up to 2.4.2.
+Is there a better recommended way to perform DMA access to user memory
+from a device
+using the Linux kernel ?
 
-> >(scsi1:A:0:0): data overrun detected in Data-out phase.  Tag == 0x36.
-> >(scsi1:A:0:0): Have seen Data Phase.  Length = 0.  NumSGs = 0.
-> 
-> As I mentioned to you the last time you brought up this problem, I
-> don't believe that this is caused by the aic7xxx driver, but the
-> aic7xxx driver may be the first to notice the corruption.
+Cheers
 
-I can second this somehow. I was testing 2.4.2 on SX164 alpha, same
-AHA-2940UW controller. In my case, system freezes solid if I do extensive
-reading from CD-ROM (NEC CD-ROM DRIVE:465). It happens using stock AIC7xxx
-driver (5.3.something) as well as the new (6.1.2 or something).
-I'm back to 2.2.18 using AIC7xxx v5.1.31 and everything is happy.
-This makes me believe that it must be mid-layer SCSI drivers causing
-problems.
+Terry
 
-Peace!
-  Mkx
+--
+  Dr Terry Barnaby                     BEAM Ltd
+  Phone: +44 1454 324512               Northavon Business Center, Dean Rd
+  Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
+  Email: terry@beam.demon.co.uk        Web: www.beam.demon.co.uk
+  BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software Dev
+                         "Tandems are twice the fun !"
 
----- perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
 
 

@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274148AbRISTlp>; Wed, 19 Sep 2001 15:41:45 -0400
+	id <S273179AbRISTlP>; Wed, 19 Sep 2001 15:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274149AbRISTlg>; Wed, 19 Sep 2001 15:41:36 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29715 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274148AbRISTlT>; Wed, 19 Sep 2001 15:41:19 -0400
-Subject: Re: broken VM in 2.4.10-pre9
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Wed, 19 Sep 2001 20:45:55 +0100 (BST)
-Cc: ebiederm@xmission.com (Eric W. Biederman),
-        rfuller@nsisoftware.com (Rob Fuller), linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-In-Reply-To: <20010919093828Z17304-2759+92@humbolt.nl.linux.org> from "Daniel Phillips" at Sep 19, 2001 11:45:44 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274149AbRISTlG>; Wed, 19 Sep 2001 15:41:06 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:53421 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S273179AbRISTkp>; Wed, 19 Sep 2001 15:40:45 -0400
+Date: Wed, 19 Sep 2001 20:42:39 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: pre12 VM doubts and patch
+In-Reply-To: <Pine.LNX.4.21.0109191850370.1133-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0109192026280.1502-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jnIB-0003gh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On September 17, 2001 06:03 pm, Eric W. Biederman wrote:
-> > In linux we have avoided reverse maps (unlike the BSD's) which tends
-> > to make the common case fast at the expense of making it more
-> > difficult to handle times when the VM system is under extreme load and
-> > we are swapping etc.
+On Wed, 19 Sep 2001, Hugh Dickins wrote:
 > 
-> What do you suppose is the cost of the reverse map?  I get the impression you 
-> think it's more expensive than it is.
+> thank you.  A few doubts: in the first case I've appended a patch; for
+> the rest you may prefer to make your own patch, or ask me for patch,
+> or reject my doubts.
 
-We can keep the typical page table cost lower than now (including reverse
-maps) just by doing some common sense small cleanups to get the page struct
-down to 48 bytes on x86
+Please add another:
+
+6. Why has swap_writepage lost its check for stale entries?  If your
+   other changes have somehow made that too rare a case to bother
+   about, please remove the comment above swap_writepage instead.
+
+Hugh
+
+--- 2.4.10-pre12/mm/swap_state.c	Wed Sep 19 14:05:54 2001
++++ linux/mm/swap_state.c	Mon Sep 17 06:30:26 2001
+@@ -23,6 +23,17 @@
+  */
+ static int swap_writepage(struct page *page)
+ {
++	/* One for the page cache, one for this user, one for page->buffers */
++	if (page_count(page) > 2 + !!page->buffers)
++		goto in_use;
++	if (swap_count(page) > 1)
++		goto in_use;
++
++	delete_from_swap_cache_nolock(page);
++	UnlockPage(page);
++	return 0;
++
++in_use:
+ 	rw_swap_page(WRITE, page);
+ 	return 0;
+ }
+

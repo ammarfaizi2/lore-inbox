@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263296AbSJFEPU>; Sun, 6 Oct 2002 00:15:20 -0400
+	id <S263298AbSJFEQP>; Sun, 6 Oct 2002 00:16:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263298AbSJFEPU>; Sun, 6 Oct 2002 00:15:20 -0400
-Received: from adsl-63-200-61-2.dsl.snfc21.pacbell.net ([63.200.61.2]:64704
-	"EHLO irulethe.net") by vger.kernel.org with ESMTP
-	id <S263296AbSJFEPU>; Sun, 6 Oct 2002 00:15:20 -0400
-To: bcollins@debian.org, linux-kernel@vger.kernel.org
-Subject: [PowerPC] Bug in IEEE1394 implementation on PowerBooks [Patch address]
-Message-Id: <20021006042003.4ED2F95E7F@irulethe.net>
-Date: Sat,  5 Oct 2002 21:20:03 -0700 (PDT)
-From: anrp@irulethe.net (Andrew Patrikalakis)
+	id <S263311AbSJFEQO>; Sun, 6 Oct 2002 00:16:14 -0400
+Received: from f26.law8.hotmail.com ([216.33.241.26]:12553 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263298AbSJFEQN>;
+	Sun, 6 Oct 2002 00:16:13 -0400
+X-Originating-IP: [24.44.249.150]
+From: "sean darcy" <seandarcy@hotmail.com>
+To: rml@tech9.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40 - no keyboard
+Date: Sun, 06 Oct 2002 00:21:44 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F26l1GM3h3vLgAusVxO00010172@hotmail.com>
+X-OriginalArrivalTime: 06 Oct 2002 04:21:45.0185 (UTC) FILETIME=[E1400D10:01C26CEF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello again,
+Thanks. Worked like a charm. Of course then i had to fix psaux legacy to 
+make XFree work - and then go back for ps/2 mice.
 
-Since this is my first Linux patch, I'm not sure
-if what it does is OK, or even possible (but it
-works for me).
+Obviously I wasn't paying enough attention to lkml to catch this change, but 
+it certainly seems like a trap for the unwary - and even the somewhat wary. 
+If I could help, I'd be happy to try to fix the config options to make all 
+this clearer.
 
-As this is kind of a specialist thing (FireWire
-on Apple laptops with Linux) I decided to put the
-patch on a web page:
-http://anrp.irulethe.net/powerbook-ieee1394.html
+jay
 
-Anyone with this setup (Apple Pbook + firewire)
-please test this patch.
+>
+> > I've built 2.5.40 on a rh8.0 athlon box.  It boots up OK, but NO 
+>keyboard.
+> >
+>............
+>You need to enable serio first.  Something like this:
+>
+>	CONFIG_SERIO=y
+>	CONFIG_SERIO_I8042=y
+>	CONFIG_KEYBOARD_ATKBD=y
+>
+>should work.
+>
+>	Robert Love
 
-Thanks,
-Andrew Patrikalakis
 
 
------
-Beware of geeks thumbing for a ride.
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+

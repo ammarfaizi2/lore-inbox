@@ -1,118 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVAXRyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVAXRzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVAXRyR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVAXRyR
+	id S261553AbVAXRzP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVAXRyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:54:17 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:7335 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261552AbVAXRxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:53:38 -0500
-Date: Mon, 24 Jan 2005 16:11:13 +0100
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.11-rc2-mm1 [compile fix]
-Message-ID: <20050124151113.GA12312@ens-lyon.fr>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Mon, 24 Jan 2005 12:54:40 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24747 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261559AbVAXRyB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 12:54:01 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: Patch to control VGA bus routing and active VGA device.
+Date: Mon, 24 Jan 2005 09:53:57 -0800
+User-Agent: KMail/1.7.1
+Cc: "H.Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <9e47339105011719436a9e5038@mail.gmail.com> <9e473391050122110463d62b5d@mail.gmail.com> <200501240925.51988.jbarnes@engr.sgi.com>
+In-Reply-To: <200501240925.51988.jbarnes@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
-X-Spam-Report: 
+Message-Id: <200501240953.57943.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
-> 
-> 
-> - Lots of updates and fixes all over the place.
-> 
-> 
-> Changes since 2.6.11-rc1-mm2:
-> 
-> [snip]
-> 
-> +kernel-forkc-make-mm_cachep-static.patch
-> 
->  Little fixes.
-> 
+On Monday, January 24, 2005 9:25 am, Jesse Barnes wrote:
+> On Saturday, January 22, 2005 11:04 am, Jon Smirl wrote:
+> > > Well, not all of them, which is why I asked.  Though obviously this
+> > > patch will need some very platform specific bits at any rate.
+> >
+> > What is a case of where the VGA forwarding bit isn't in the bridge
+> > control? It's part of the PCI spec to have it.
 >
-It breaks compilation with gcc-4.0
+> Hmm... lemme check my specs.  It doesn't look like we support that aspect
+> of the PCI spec in our bridges.
 
-kernel/fork.c:1249: error: static declaration of ‘mm_cachep’ follows non-static declaration
-include/linux/slab.h:117: error: previous declaration of ‘mm_cachep’ was here
-make[1]: *** [kernel/fork.o] Error 1
-make: *** [kernel] Error 2
+Btw, I don't think this is the only chipset that doesn't support the VGA 
+routing bit, so new code shouldn't assume that it's ok to access VGA ports 
+w/o an offset based on the PCI bus the device is on.
 
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-
-
---- linux/include/linux/slab.h	2005-01-24 11:36:33.000000000 +0100
-+++ linux/include/linux/slab.h.new	2005-01-24 12:24:46.000000000 +0100
-@@ -114,7 +114,6 @@ extern int FASTCALL(kmem_ptr_validate(km
- 
- /* System wide caches */
- extern kmem_cache_t	*vm_area_cachep;
--extern kmem_cache_t	*mm_cachep;
- extern kmem_cache_t	*names_cachep;
- extern kmem_cache_t	*files_cachep;
- extern kmem_cache_t	*filp_cachep;
---- linux-clean/kernel/fork.c	2005-01-24 12:44:48.000000000 +0100
-+++ linux/kernel/fork.c	2005-01-24 12:38:27.000000000 +0100
-@@ -81,6 +81,24 @@ int nr_processes(void)
- static kmem_cache_t *task_struct_cachep;
- #endif
- 
-+/* SLAB cache for signal_struct structures (tsk->signal) */
-+kmem_cache_t *signal_cachep;
-+
-+/* SLAB cache for sighand_struct structures (tsk->sighand) */
-+kmem_cache_t *sighand_cachep;
-+
-+/* SLAB cache for files_struct structures (tsk->files) */
-+kmem_cache_t *files_cachep;
-+
-+/* SLAB cache for fs_struct structures (tsk->fs) */
-+kmem_cache_t *fs_cachep;
-+
-+/* SLAB cache for vm_area_struct structures */
-+kmem_cache_t *vm_area_cachep;
-+
-+/* SLAB cache for mm_struct structures (tsk->mm) */
-+static kmem_cache_t *mm_cachep;
-+
- void free_task(struct task_struct *tsk)
- {
- 	free_thread_info(tsk->thread_info);
-@@ -1230,24 +1248,6 @@ long do_fork(unsigned long clone_flags,
- 	return pid;
- }
- 
--/* SLAB cache for signal_struct structures (tsk->signal) */
--kmem_cache_t *signal_cachep;
--
--/* SLAB cache for sighand_struct structures (tsk->sighand) */
--kmem_cache_t *sighand_cachep;
--
--/* SLAB cache for files_struct structures (tsk->files) */
--kmem_cache_t *files_cachep;
--
--/* SLAB cache for fs_struct structures (tsk->fs) */
--kmem_cache_t *fs_cachep;
--
--/* SLAB cache for vm_area_struct structures */
--kmem_cache_t *vm_area_cachep;
--
--/* SLAB cache for mm_struct structures (tsk->mm) */
--static kmem_cache_t *mm_cachep;
--
- void __init proc_caches_init(void)
- {
- 	sighand_cachep = kmem_cache_create("sighand_cache",
-
+Jesse

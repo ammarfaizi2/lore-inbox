@@ -1,97 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272313AbRIONck>; Sat, 15 Sep 2001 09:32:40 -0400
+	id <S270031AbRIOOuR>; Sat, 15 Sep 2001 10:50:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272314AbRIONcV>; Sat, 15 Sep 2001 09:32:21 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:16875 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S272313AbRIONcR>; Sat, 15 Sep 2001 09:32:17 -0400
-Date: Sat, 15 Sep 2001 22:32:16 +0900
-Message-Id: <200109151332.WAA26034@asami.proc.flab.fujitsu.co.jp>
-To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-cc: naruse@flab.fujitsu.co.jp
-Subject: [PATCH] Data is queued but not sent: tcp.c bug.
-Reply-to: kumon@flab.fujitsu.co.jp
-From: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270224AbRIOOuH>; Sat, 15 Sep 2001 10:50:07 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:5022 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S270031AbRIOOt6>; Sat, 15 Sep 2001 10:49:58 -0400
+Message-ID: <3BA36A72.20702@korseby.net>
+Date: Sat, 15 Sep 2001 16:49:22 +0200
+From: Kristian <kristian@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>,
+        David Weinehall <tao@acc.umu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext2fs corruption again
+In-Reply-To: <3BA33818.8030503@korseby.net> <20010915122113.A24561@grobbebol.xs4all.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Roeland Th. Jansen wrote:
+> not that I say IBM's drive is bad, it's just a thought.
 
-We found a severe performance bug in the tcp layer of 2.2 series
-kernel including latest 2.2.19.
- A patch is attached at the tail of this mail.
+They are bad if it's hardware-related. The big one is manufactured in Hungary, 
+the other one in Thaiwan.
 
-Details:
- When data is written to a connected TCP socket and if the written
-size is between x1 and x1.5 of (MTU - 52), or x2 and x2.5, or x3 and
-x3.5,,, the written data is not sent immediately, then ping-pong
-latency with these size becomes several tens ms to several hundreds
-ms.
- tcp_do_sendmsg() try to accumulate several iovec areas into one
-packet and the logic has bug. simple write case is treated as iovec
-with len=1.  If the total data size is more than (MTU-some_room), the
-data is divided and the overflowed data is queued.  And finally, it is
-*NOT* sent out and kept in a queue if the unsent size is less than
-some threshold.
+The error occured again.
 
-For example, MTU of the loopback in 2.2 seriese is 3924.
-Using the following pseudo code:
-	# this pseudo code omits residue data of read/write system calls.
-	# sock1 and sock2 are connected by a TCP stream.
-	Process A:
-	for (;;) {
-	    RECORD START_TIME
-	    write(sock1, buf, dsize);
-	    read(sock1, buf, dsize);
-	    RECORD END_TIME
-	    SHOW TIME_DIFF = END_TIME - START_TIME
-	
-	}
-	Process B:
-	for (;;) {
-	    read(sock2, buf, dsize);
-	    write(sock2, buf, dsize);
-	}
+I post the new errors. Maybe you can see any structure in it.
 
-If dsize <= 3872, TIME_DIFF is less than 170 us.
-If 3872 < dsize < 5808, TIME_DIFF becomes 20 ms up to 1 s.  
+Sep 15 16:16:23 adlib kernel: EXT2-fs error (device ide0(3,5)): 
+ext2_free_blocks: bit already cleared for block (5412-5427)
 
-The loopback device throughput downs to few KB/s, less than 1/1000 of
-the normal.  Of course, this bug also hits normal ether-net devices.
+e2fsck reported the following on that device (hda5):
 
-If the dsize is less than the threshold, the data is sent immediately. 
-This complicated our analysis.
+++ entries are new with this check
+-- entries only appeared earlier
 
-2.4 kernel has been changed the tcp.c logic, so this bug exits only in
-2.2.
+Duplicate/bad bock(s) in inode:  97: 643 +644+
+Duplicate/bad bock(s) in inode:  98: +647+
+Duplicate/bad bock(s) in inode:  99: +648+
+Duplicate/bad bock(s) in inode: 100: 649
+Duplicate/bad bock(s) in inode: 101: 650 651
+Duplicate/bad bock(s) in inode: 102: 652
+Duplicate/bad bock(s) in inode: 103: 653 656 +657+
+Duplicate/bad bock(s) in inode: 104: +658+ 659 660
+Duplicate/bad bock(s) in inode: 105: 661 662 663 664 665 666
+Duplicate/bad bock(s) in inode: 106: 667 -668-
+Duplicate/bad bock(s) in inode: 107: 669 -671-
+-Duplicate/bad bock(s) in inode: 108: 672 673 674-
+-Duplicate/bad bock(s) in inode: 110: 678-
 
-Patch:
-The following patch inhibits the last iovec area to be queued, and it
-fixes the bug, but the structure of tcp.c is complicated and I feel it
-as a collection of hacks, at least for the processing when and how the
-fragmented packet is sent or not.  So, I have no convince this is a
-right fix or not.
+767011: 647 648 649 650 651 652 653 654 671
+832166: 655 656 657 658 659 660 661 662
+832170: 643 644
+832178: 663 664 665 666 667
 
---- linux-2.2.19/net/ipv4/tcp.c.orig	Mon Mar 26 04:37:41 2001
-+++ linux-2.2.19/net/ipv4/tcp.c	Sat Sep 15 12:45:53 2001
-@@ -907,7 +907,7 @@
- 			/* Determine how large of a buffer to allocate.  */
- 			tmp = MAX_HEADER + sk->prot->max_header;
- 			if (copy < min(mss_now, tp->max_window >> 1) &&
--			    !(flags & MSG_OOB)) {
-+			    !(flags & MSG_OOB) && iovlen > 0) {
- 				tmp += min(mss_now, tp->max_window);
- 
- 				/* What is happening here is that we want to
+832178 is /var/log/boot.log
+832170 is /var/log/wtmp
+832166 is /var/log/messages
+767011 is /home/tisi/syslog
 
+Only syslog related files are concerned.
 
---
-Software Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+syslog is configured that it will accept logs from other machines. Maybe there's 
+a possibility that these strange errors were caused by the network-card or 
+-driver ? I own an eepro100. Just a thought...
+
+These errors occured since 2.4.5 that's why I think it's software-related.
+
+I'll try to use 'hdparm -d1 -X33 /dev/hda' and other modes to see if it occurs 
+again. But testing could take some time. It appears ~~ every second day.
+
+Kristian
+
+·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
+                          :: http://www.korseby.net
+                          :: http://www.tomlab.de
+kristian@korseby.net ....::
+

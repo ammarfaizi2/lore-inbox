@@ -1,57 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266046AbUAFAjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266033AbUAFAgv
+	id S266049AbUAFAqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUAFAm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:36:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13482 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265990AbUAFAgR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:36:17 -0500
-Date: Mon, 5 Jan 2004 16:36:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Hinds <dhinds@sonic.net>
-cc: linux-kernel@vger.kernel.org, Amit <mehrotraamit@yahoo.co.in>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-In-Reply-To: <20040105120707.A18107@sonic.net>
-Message-ID: <Pine.LNX.4.58.0401051630190.2170@home.osdl.org>
-References: <20040105120707.A18107@sonic.net>
+	Mon, 5 Jan 2004 19:42:59 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:25795 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266035AbUAFAj4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 19:39:56 -0500
+Message-ID: <3FFA03D9.2040906@cyberone.com.au>
+Date: Tue, 06 Jan 2004 11:39:53 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: colpatch@us.ibm.com
+CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       Andrew Morton <akpm@osdl.org>,
+       Trivial Patch Monkey <trivial@rustcorp.com.au>
+Subject: Re: [TRIVIAL PATCH] Use valid node number when unmapping CPUs
+References: <3FE74801.2010401@us.ibm.com> <3FE78F53.9090302@cyberone.com.au> <3FF9EABF.7050906@us.ibm.com>
+In-Reply-To: <3FF9EABF.7050906@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 5 Jan 2004, David Hinds wrote:
-> 
-> In arch/i386/kernel/setup.c we have:
-> 
-> 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
-> 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
-> 	if (low_mem_size > pci_mem_start)
-> 		pci_mem_start = low_mem_size;
-> 
-> which is meant to round up pci_mem_start to the nearest 1 MB boundary
-> past the top of physical RAM.  However this does not consider highmem.
-> Should this just be using max_pfn rather than max_low_pfn?
+Matthew Dobson wrote:
 
-Yes and no. That doesn't really work either, for any machine with more
-than 4GB of RAM.
+> Nick Piggin wrote:
+>
+>>
+>>
+>> Matthew Dobson wrote:
+>>
+>>> The cpu_2_node array for i386 is initialized to 0 for each CPU, 
+>>> effectively mapping all CPUs to node 0 unless changed.  When we 
+>>> unmap CPUs, however, we stick a -1 in the array, mapping the CPU to 
+>>> an invalid node.  This really isn't helpful.  We should map the CPU 
+>>> to node 0, to make sure that callers of cpu_to_node() and friends 
+>>> aren't returned a bogus node number.  This trivial patch changes the 
+>>> unmapping code to place a 0 in the node mapping for removed CPUs.
+>>>
+>>> Cheers!
+>>
+>>
+>>
+>>
+>> I'd prefer it got initialised to -1 for each cpu, and either set to -1
+>> or not touched during unmap.
+>
+> >
+>
+>>
+>> 0 is more bogus than the alternatives, isn't it? At least for the subset
+>> of CPUs not on node 0. Callers should be fixed.
+>
+>
+> Not really...  These macros are usually used for things like 
+> scheduling, memory placement and other decisions.  Right now the value 
+> doesn't have to be error-checked, because it is assumed to always 
+> return a valid node.  For these types of uses, it's far better to 
+> schedule/allocate something on the wrong node (ie: node 0) than on an 
+> invalid node (ie: node -1).  Having a possible negative value for this 
+> will break things when used as an array index (as it often is), and 
+> will force us to put tests to ensure it is a valid value before using 
+> it, and introduce possible races in the future (ie: imagine testing if 
+> CPU 17's node mapping is non-negative, simultaneously unmapping the 
+> CPU, then using the macro again to make a node decision.  You may get 
+> a negative value back, thus causing you to index way off the end of 
+> your array... BOOM).  If we stick with the convention that we always 
+> have a valid (even if not *correct*) value in these arrays, the worst 
+> we should get is poor performance, not breakage.
 
-We want to find the memory hole (in the low 4GB region), and usually the
-e820 memory map should make that all happen properly. What does that
-report on this laptop?
 
-This is why we put the memory resources in /proc/iomem, and mark them 
-busy: so that the PCI subsystem won't try to allocate PCI memory in the 
-RAM (or ACPI reserved) area. The "pci_mem_start" thing is just a point to 
-_start_ the allocation, the PCI subsystem still should honor the fact that 
-we have memory above it. That's the whole point of doing proper resource 
-allocation, after all.
+OK, then keep the correct node number. No need to change it to node 0.
+Having the value not change at all (1) gives you the correct information
+at all times, and (2) eliminates the remaining race possibilities.
 
-Does this not work, or have you disabled e820 for some reason?
 
-		Linus

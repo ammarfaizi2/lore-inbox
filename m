@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314894AbSDVWt5>; Mon, 22 Apr 2002 18:49:57 -0400
+	id <S314893AbSDVWte>; Mon, 22 Apr 2002 18:49:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314895AbSDVWt5>; Mon, 22 Apr 2002 18:49:57 -0400
-Received: from bitmover.com ([192.132.92.2]:48041 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314894AbSDVWt4>;
-	Mon, 22 Apr 2002 18:49:56 -0400
-Date: Mon, 22 Apr 2002 15:49:55 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Doug Ledford <dledford@redhat.com>, Larry McVoy <lm@bitmover.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020422154955.M18800@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alexander Viro <viro@math.psu.edu>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Doug Ledford <dledford@redhat.com>, Larry McVoy <lm@bitmover.com>,
-	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16zP1W-0001Mm-00@starship> <Pine.GSO.4.21.0204221740570.5686-100000@weyl.math.psu.edu>
+	id <S314894AbSDVWtd>; Mon, 22 Apr 2002 18:49:33 -0400
+Received: from 216-42-72-164.ppp.netsville.net ([216.42.72.164]:1441 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S314893AbSDVWtc>; Mon, 22 Apr 2002 18:49:32 -0400
+Subject: Re: XFS in the main kernel
+From: Chris Mason <mason@suse.com>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020422221952.GB10813@merlin.emma.line.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 22 Apr 2002 18:47:59 -0400
+Message-Id: <1019515679.16727.13.camel@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 22, 2002 at 05:45:41PM -0400, Alexander Viro wrote:
-> Daniel, if you will ever get a legitimate reason to send me mail -
-> try to convince somebody sane to forward it.  I'm serious - taking
-> you out of killfile was a bad mistake and I'm not going to repeat
-> it.
+On Mon, 2002-04-22 at 18:19, Matthias Andree wrote:
 
-In 19 years of being on mailing lists, this is the first and
-only time I've actually implemented a killfile.  Kind of sad,
-but I can't say that I (or anyone else) am/is going to miss
-me rising to Daniel's baiting.
+> Is there a test suite that checks POSIX (or better yet, SUS v3)
+> compliance of a file system? That might prove useful, although I'm well
+> aware it'd probably require some brains (and kernel modules) to check
+> consistency guarantees. But apart from that, things like "truncate to
+> zero length does not change the mtime of a file" (fixed in ReiserFS only
+> some weeks ago) might get caught that way.
 
-> *PLONK*
+ftp://ftp.freestandards.org/pub/lsb/test_suites/
 
-Indeed.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+-chris
+
+

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267739AbRGQAAX>; Mon, 16 Jul 2001 20:00:23 -0400
+	id <S267741AbRGQAIN>; Mon, 16 Jul 2001 20:08:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267740AbRGQAAN>; Mon, 16 Jul 2001 20:00:13 -0400
-Received: from ns.suse.de ([213.95.15.193]:14086 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S267739AbRGQAAF>;
-	Mon, 16 Jul 2001 20:00:05 -0400
-Date: Tue, 17 Jul 2001 02:00:08 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: "Tim R. Young" <try@lyang.net>
-Cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: cpu id?
-In-Reply-To: <20010716163004.A1103@box.lyang.net>
-Message-ID: <Pine.LNX.4.30.0107170158130.11036-100000@Appserv.suse.de>
+	id <S267742AbRGQAID>; Mon, 16 Jul 2001 20:08:03 -0400
+Received: from joat.prv.ri.meganet.net ([209.213.80.2]:48347 "EHLO
+	joat.prv.ri.meganet.net") by vger.kernel.org with ESMTP
+	id <S267741AbRGQAH6>; Mon, 16 Jul 2001 20:07:58 -0400
+Message-ID: <3B538235.538D800E@ueidaq.com>
+Date: Mon, 16 Jul 2001 20:09:25 -0400
+From: Alex Ivchenko <aivchenko@ueidaq.com>
+Organization: UEI, Inc.
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Porting char driving from 2.2 to 2.4 : changes in API to know
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jul 2001, Tim R. Young wrote:
+All,
 
-> Thanks for the tool.
-> Do I need kernel support to read out intel processor serial number?
+I'm porting dataq driver from 2.2 to 2.4 and found a problem with using
+interruptible_sleep_on_timeout() and wake_up_interruptible().
 
-By default, the kernel will disable the serial number.
-You need to pass the boot time parameter 'serialnumber' to
-leave it enabled. You'll also need the cpuid & msr drivers
-compiled (into kernel or as loadable modules)
+Knowing that wait queue was reorganized in 2.4 I declared queue head as:
 
-> And how it is reported by x86info?
+static DECLARE_WAIT_QUEUE_HEAD(wqhead);
 
-If it is enabled, it'll get printed out with x86info -a
+and then in ioctl routine
 
-regards,
+..
+// put request on hold
+interruptible_sleep_on_timeout(&wqhead, jiffies);
+...
 
-Dave.
+and
+
+..
+// release process
+wake_up_interruptible(&wqhead);
+
+interruptible_sleep_on_timeout() works correctly and releases process when timeout
+expires. However wake_up_interruptible() doesn't work.
+
+Questions:
+1. Is "interruptible" functions still recommended for use under 2.4?
+2. What other changes made can potentially affect this mechanism?
+3. Should I use some special options/flags to compile modules under 2.4
+(beyond discussed in lkml FAQ)?
+
 
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Regards,
+Alex
 
+--
+Alex Ivchenko, Ph.D.
+United Electronic Industries, Inc.
+"The High-Performance Alternative (tm)"
+--
+10 Dexter Avenue
+Watertown, Massachusetts 02472
+Tel: (617) 924-1155 x 222 Fax: (617) 924-1441
+http://www.ueidaq.com

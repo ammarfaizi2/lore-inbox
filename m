@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVBSLtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVBSMMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVBSLtN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 06:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVBSLtN
+	id S261552AbVBSMMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 07:12:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVBSMMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 06:49:13 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:27316 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261538AbVBSLtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 06:49:09 -0500
-Subject: Re: Should kirqd work on HT?
-From: Arjan van de Ven <arjan@infradead.org>
-To: ncunningham@cyclades.com
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108810730.4098.44.camel@desktop.cunningham.myip.net.au>
-References: <1108794699.4098.28.camel@desktop.cunningham.myip.net.au>
-	 <4216E248.5070603@pobox.com>
-	 <1108804063.4098.35.camel@desktop.cunningham.myip.net.au>
-	 <1108805793.6304.75.camel@laptopd505.fenrus.org>
-	 <1108810730.4098.44.camel@desktop.cunningham.myip.net.au>
-Content-Type: text/plain
-Date: Sat, 19 Feb 2005 12:49:02 +0100
-Message-Id: <1108813743.6304.88.camel@laptopd505.fenrus.org>
+	Sat, 19 Feb 2005 07:12:16 -0500
+Received: from postin.uv.es ([147.156.1.90]:63625 "EHLO postin.uv.es")
+	by vger.kernel.org with ESMTP id S261552AbVBSMMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 07:12:09 -0500
+Date: Sat, 19 Feb 2005 13:11:57 +0100
+From: uaca@alumni.uv.es
+To: linux-kernel@vger.kernel.org
+Cc: Tomas Szepe <szepe@pinerecords.com>
+Subject: intel8x0: no sound in 2.6.11 rc3 & 4 (fine with 2.6.10)
+Message-ID: <20050219121157.GA14437@pusa.informat.uv.es>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-02-19 at 21:58 +1100, Nigel Cunningham wrote:
-> Hi again.
-> 
-> Didn't realise it was going to take nothing to install, so I've done it.
-> IRQs are running on cpu 1 now. Is there some documentation somewhere?
-> I'm wondering whether I can compile kirqd out.
+Hello
 
-with irqbalance running yes you can compile kirqd out..
+I have read a post in lkml.org that states that the problem experienced in
+rc3 has gone (1). That is not the case for me.
 
+My audio device is
+
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
+        Subsystem: IBM: Unknown device 0554
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 11
+        Region 0: I/O ports at 1c00 [size=256]
+        Region 1: I/O ports at 18c0 [size=64]
+        Region 2: Memory at d0100c00 (32-bit, non-prefetchable) [size=512]
+        Region 3: Memory at d0100800 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+In 2.6.10 and in 2.6.11-rc3 & 4 the clock is set to 48khz.
+
+eg:
+
+intel8x0_measure_ac97_clock: measured 49502 usecs
+intel8x0: clocking to 48000
+
+It uses an Analog Devices AD1981B
+
+I have put a tar file of the /proc/asound directory of 2.6.10 and 2.6.11-rc4 in
+
+	http://pusa.uv.es/~ulisses/asound-intel8x0/
+
+the tar files were done while playing pcm audio, (not being eard in rc4).
+
+I have found that I had to Mute __both__ "Headphone Jack Sense" and
+"Line Jack Sense" in order to ear the audio in rc4.
+
+Please let me know if you need further info or you want a tester
+
+All this is on a IBM Thinkpad R51 - Type 2887 -AVG
+
+(tot toc: IBM, we're buying your laptops too)
+
+Thanks in advance
+
+	Ulisses			
+
+(1) http://lkml.org/lkml/2005/2/18/93											
+-- 
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
+
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

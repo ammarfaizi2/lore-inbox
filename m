@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292971AbSCNPGg>; Thu, 14 Mar 2002 10:06:36 -0500
+	id <S292800AbSCNPTa>; Thu, 14 Mar 2002 10:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311148AbSCNPG0>; Thu, 14 Mar 2002 10:06:26 -0500
-Received: from dialup-7-5.net.ic.ac.uk ([155.198.8.101]:61568 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S292971AbSCNPGK>; Thu, 14 Mar 2002 10:06:10 -0500
-Date: Thu, 14 Mar 2002 15:11:18 +0000
-From: Dave Jones <davej@suse.de>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5.6] support for NCR voyager
-Message-ID: <20020314151118.A11178@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	James Bottomley <James.Bottomley@HansenPartnership.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200203120404.g2C44mV12800@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200203120404.g2C44mV12800@localhost.localdomain>
-User-Agent: Mutt/1.3.22.1i
+	id <S311148AbSCNPTV>; Thu, 14 Mar 2002 10:19:21 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:43242 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S292800AbSCNPTR>;
+	Thu, 14 Mar 2002 10:19:17 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: futex and timeouts
+Date: Thu, 14 Mar 2002 10:19:48 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <E16lMef-00022r-00@wagner.rustcorp.com.au>
+In-Reply-To: <E16lMef-00022r-00@wagner.rustcorp.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020314151846.EDCBF3FE07@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 11:04:48PM -0500, James Bottomley wrote:
- > The major change since the last voyager patch is that the voyager code is 
- > split out into an arch/i386/voyager directory which hooks into the main line 
- > code rather than being mixed with it.
- > 
- > The patch is in two parts this time:  The i386 sub-architecture split is 
- > separated from the addition of the voyager components
+On Wednesday 13 March 2002 11:15 pm, Rusty Russell wrote:
+> In message <20020313182552.945523FE06@smtp.linux.ibm.com> you write:
+> > Ulrich, it seems to me that absolute timeouts are the easiest to do.
+> >
+> > (a) expand by additional parameter (0) means no timeout desired
+> > (b) differentiate the schedule call in futex_down..
+> >
+> > Question is whether the granularity of jiffies (10ms) is sufficiently
+> > small for timeouts.....
+>
+> 1) You must not export jiffies to userspace.
+>
+> 2) They are not a time, they are a counter, and they do wrap.
+>
+> 3) This does not handle the settimeofday case: you need to check in
+>    userspace for that anyway.
+>
+> So, since you need to check if you're trying to sleep for longer than
+> (say) 49 days, AND you need to check if you are after the given
+> abstime in userspace anyway (settimeofday backwards), you might as
+> well convert to relative in userspace.
+>
+> Sorry,
+> Rusty.
 
- Hi James,
-  I just took a quick look at your work on splitting this stuff up, and I
-  think it's definitly heading in the right direction. As to integrating this,
-  I think it's probably best to get Patrick Mochel's other related work
-  included first. See what he's done so far at..
-   http://kernel.org/pub/linux/kernel/people/mochel/patches/patch-linux-v2.5.6-pm1.bz2
-  His patch and yours touch various files for more or less the same reason.
+3) I think one of us is misunderstanding (its probably me)
 
-  Patrick still has some bits to finish off here, but combined the two patchsets
-  will bring some much needed sanity to various parts of arch/i386/ 
+What I was proposing was a relative wall clock time, vs application virtual 
+time. 
 
+interface would be to always specify in futex how long to wait (relative) and 
+not until when to wait (absolute).
+What I propose is not to export jiffies (ofcourse not), but either usecs or 
+msecs and whether one should state what the minimum wait time is.
+Right now we know it can't be less then 10ms (x86) unless we busywait and
+above that the granularity will be in 10ms increments.
+
+So from the previous post of code example, one has to add the conversion from
+timeout to timeout_jiffies.
+Also we need to determine the best API for this. Somebody (Rusty ?) suggest to
+pass a pointer to (struct timeval) vs a single counter. Only disadvantage is 
+an additional copy_from_user, but it gives much bigger timeouts.
+
+I think its a good idea to add it.
 -- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+-- Hubertus Franke  (frankeh@watson.ibm.com)

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281691AbRKZNzd>; Mon, 26 Nov 2001 08:55:33 -0500
+	id <S281690AbRKZNzX>; Mon, 26 Nov 2001 08:55:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281692AbRKZNzX>; Mon, 26 Nov 2001 08:55:23 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:41740 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S281691AbRKZNzJ>;
-	Mon, 26 Nov 2001 08:55:09 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net/802/Makefile 
-In-Reply-To: Your message of "Mon, 26 Nov 2001 14:32:26 BST."
-             <200111261332.fAQDWQF17920@ns.caldera.de> 
-Mime-Version: 1.0
+	id <S281692AbRKZNzO>; Mon, 26 Nov 2001 08:55:14 -0500
+Received: from pat.uio.no ([129.240.130.16]:61332 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S281690AbRKZNzG>;
+	Mon, 26 Nov 2001 08:55:06 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Nov 2001 00:54:51 +1100
-Message-ID: <2695.1006782891@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15362.18626.303009.379772@charged.uio.no>
+Date: Mon, 26 Nov 2001 14:50:58 +0100
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: NFS maillist <nfs@lists.sourceforge.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Fix knfsd readahead cache in 2.4.15
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001 14:32:26 +0100, 
-Christoph Hellwig <hch@ns.caldera.de> wrote:
->In article <20011126142425.B27554@suse.de> you wrote:
->> On Mon, Nov 26, Olaf Hering wrote:
->>> 
->>> the build stops when cl2llc.c has no write permissions.
->>
->> Here is a better version, suggested by Rik:
->
->What about just removing cl2llc.c from the tarball?
+Hi Neil,
 
-I was going to do that but AC said that all of net/802 was being
-rewritten and removing cl2llc.c now would just be noise.  The file will
-be removed in kbuild 2.5.
+  The following patch fixes a bug in the knfsd readahead code. The
+memset() that is referenced in the patch below is clobbering the
+pointer to the next list element (ra->p_next), thus reducing the inode
+readahead cache to 1 entry upon the very first call to
+nfsd_get_raparms().
 
+  BTW: looking at the choice of cache size. Why is this set to number
+of threads * 2? Isn't it better to have a minimum cache size? After
+all, the fact that I have 8 threads running does not at all reflect
+the number of inodes that I might have open on my various clients...
+
+Cheers,
+   Trond
+
+--- linux-2.4.16-pre1/fs/nfsd/vfs.c.orig	Fri Oct  5 21:23:53 2001
++++ linux-2.4.16-pre1/fs/nfsd/vfs.c	Mon Nov 26 14:32:09 2001
+@@ -560,9 +560,13 @@
+ 		return NULL;
+ 	rap = frap;
+ 	ra = *frap;
+-	memset(ra, 0, sizeof(*ra));
+ 	ra->p_dev = dev;
+ 	ra->p_ino = ino;
++	ra->p_reada = 0;
++	ra->p_ramax = 0;
++	ra->p_raend = 0;
++	ra->p_ralen = 0;
++	ra->p_rawin = 0;
+ found:
+ 	if (rap != &raparm_cache) {
+ 		*rap = ra->p_next;

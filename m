@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316847AbSGHMMv>; Mon, 8 Jul 2002 08:12:51 -0400
+	id <S316855AbSGHMR5>; Mon, 8 Jul 2002 08:17:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316851AbSGHMMu>; Mon, 8 Jul 2002 08:12:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61195 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316847AbSGHMMt>;
-	Mon, 8 Jul 2002 08:12:49 -0400
-Date: Mon, 8 Jul 2002 13:15:25 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Matthew Wilcox <willy@debian.org>, Dave Hansen <haveblue@us.ibm.com>,
-       Oliver Neukum <oliver@neukum.name>,
-       Thunder from the hill <thunder@ngforever.de>, Greg KH <greg@kroah.com>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-Message-ID: <20020708131525.Q27706@parcelfarce.linux.theplanet.co.uk>
-References: <20020708033409.P27706@parcelfarce.linux.theplanet.co.uk> <Pine.GSO.4.21.0207072255020.24900-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0207072255020.24900-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Jul 07, 2002 at 10:58:04PM -0400
+	id <S316856AbSGHMR4>; Mon, 8 Jul 2002 08:17:56 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:49639 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S316855AbSGHMRy>; Mon, 8 Jul 2002 08:17:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is 'transname' still alive ?
+Date: Mon, 8 Jul 2002 14:20:29 +0200
+User-Agent: KMail/1.4.2
+References: <20020706184855.GA8343@werewolf.able.es>
+In-Reply-To: <20020706184855.GA8343@werewolf.able.es>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207081419.48301.bernd.schubert@tc.pci.uni-heidelberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 10:58:04PM -0400, Alexander Viro wrote:
-> On Mon, 8 Jul 2002, Matthew Wilcox wrote:
-> > one struct file per open(), yes.  however, fork() shares a struct file,
-> > as does unix domain fd passing.  so we need protection between different
-> > processes.  there's some pretty good reasons to want to use a semaphore
-> > to protect the struct file (see fasync code.. bleugh).
-> 
-> ??? What exactly do you want to protect there?
+Hi,
 
-andrea & i discussed this off-list a few days ago... see fs/fcntl.c
+we also using ClusterNFS but also experience several UNFSD bugs. So we have 
+decided to try to reimplement transname into 2.4.18. Actually reading the 
+'translated'  filename already works, but writing and other functions are 
+still a problem. 
 
-                case F_SETFL:
-                        lock_kernel();
-                        err = setfl(fd, filp, arg);
-                        unlock_kernel();
+So we are working on it, but since we don't have a lot of time, it might take 
+a while until it is ready.
 
-setfl() does:
+Btw, some help from people who are familiar with VFS is highly appreciated.
 
-        if ((arg ^ filp->f_flags) & FASYNC) {
-                if (filp->f_op && filp->f_op->fasync) {
-                        error = filp->f_op->fasync(fd, filp, (arg & FASYNC) != 0);
 
-and:
+Bernd
 
-        if (arg & O_DIRECT) {
-                down(&inode->i_sem);
-                if (!filp->f_iobuf)
-                        error = alloc_kiovec(1, &filp->f_iobuf);
-                up(&inode->i_sem);
+PS: The CVS version from ClusterNFS has some problems with the CREATE-tag 
+fixed (though for all files that have a create-tag but no client specific 
+file, IO-errors appear; the fix for this is already ready since several 
+months,  but I had to experience another bug, that made this fix useless).
 
-and finally:
+Bernd Schubert
+Physikalisch Chemisches Institut
+Abt. Theoretische Chemie
+INF 229, 69120 Heidelberg
+Tel.: 06221/54-5210
+e-mail: bernd (dot) schubert (at) pci (dot) uni (minus) heidelberg (dot) de
 
-        filp->f_flags = (arg & SETFL_MASK) | (filp->f_flags & ~SETFL_MASK);
-
-i pointed out that if alloc_kiovec slept, the BKL provides no protection
-against someone else doing a setfl at the same time, so we can get the
-wrong number of fasync events sent.  Marcus Alanen pointed out that
-fasync can also sleep, so we're at risk anyway.  i don't think that
-abusing i_sem as andrea did is the Right Thing to do...
-
--- 
-Revolutions do not require corporate support.

@@ -1,86 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267214AbUHIU60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUHIU61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267214AbUHIU60 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUHIU4w
+	id S266850AbUHIU61 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUHIU4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:56:52 -0400
-Received: from mail.gmx.de ([213.165.64.20]:53385 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267212AbUHIUt7 (ORCPT
+	Mon, 9 Aug 2004 16:56:35 -0400
+Received: from ozlabs.org ([203.10.76.45]:11418 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267243AbUHIUr5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:49:59 -0400
-X-Authenticated: #494916
-Message-ID: <41181BF7.6060002@gmx.de>
-Date: Tue, 10 Aug 2004 02:51:03 +0200
-From: Peter Schaefer <peter.schaefer@gmx.de>
-Reply-To: peter.schaefer@gmx.de
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [VIA-RHINE] Timeouts on EP-HDA3+ Motherboard
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 16:47:57 -0400
+Date: Tue, 10 Aug 2004 06:44:15 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: dwg@dropbear.id.au, paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc64] Fix SLB castout issue
+Message-ID: <20040809204415.GG24690@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-I'm getting reproducable errors when Samba is transferring
-large files:
+Hi,
 
-eth0: Transmit timed out, status 0000, PHY status 786d, resetting...
+The SLB rewrite removed a fix for a hard to hit bug, but the SFS guys
+managed to hit it straight away. We need to check both r1 and PACAKSAVE
+or else we could cast our kernel segment out when on the irq or softirq
+stack.
 
-This is not the case if such a file is transferred using FTP.
+Anton
 
-And yes, im running with "pci=noacpi,usepirqmask,biosirq noapic"
-(otherwise the problem happens so frequently that eth0 is more
-or less unusable).
-
-I know that the Via-Rhine hardware and/or the driver isn't
-perfect, but b/c i'm having a reproducable testcase here, i
-thought i might be able to assist in fixing this problem (if
-it is fixable at all, of course). In addition, as this
-machine is mainly a Samba fileserver it's getting pretty
-annoying.
-
-I'm using an Epox EP-8HDA3+ Athlon64 Motherboard with
-VIA K8T800 chipset. The board has two on-board ethernet
-devices, the VIA Rhine 100BaseT and an 3Com/Marvell 1000BaseT
-chip. Both are sharing it's interrupts with each other and
-on-board USB devices (however i'm neither using the Marvell
-nor any USB peripherals):
-
-PCI: Sharing IRQ 12 with 0000:00:08.0
-PCI: Sharing IRQ 12 with 0000:00:10.0
-PCI: Sharing IRQ 12 with 0000:00:10.1
-PCI: Sharing IRQ 12 with 0000:00:12.0
-
-0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8385 [K8T800 AGP] Host Bridge (rev 01)
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800 South]
-0000:00:08.0 Ethernet controller: 3Com Corporation 3c940 10/100/1000Base-T [Marvell] (rev 12)
-0000:00:09.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
-0000:00:0e.0 RAID bus controller: Silicon Image, Inc. (formerly CMD Technology Inc) SiI 3114 [SATALink/SATARaid] Serial 
-ATA Controller (rev 02)
-0000:00:0f.0 IDE interface: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller (rev 80)
-0000:00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 South]
-0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE]
-
-*Please CC me, because i'm not subscribed to the list*
-
-Thanks and best regards,
-
-  Peter
+===== slb_low.S 1.1 vs edited =====
+--- 1.1/arch/ppc64/mm/slb_low.S	Mon Aug  2 18:00:41 2004
++++ edited/slb_low.S	Tue Aug 10 05:06:32 2004
+@@ -37,9 +37,6 @@
+ 	 * a free slot first but that took too long. Unfortunately we
+ 	 * dont have any LRU information to help us choose a slot.
+ 	 */
+-	srdi	r9,r1,27
+-	ori	r9,r9,1			/* mangle SP for later compare */
+-
+ 	ld	r10,PACASTABRR(r13)
+ 3:
+ 	addi	r10,r10,1
+@@ -48,18 +45,32 @@
+ 
+ 	blt+	4f
+ 	li	r10,SLB_NUM_BOLTED
+-4:
+-	slbmfee	r11,r10
+-	/* Don't throw out the segment for our kernel stack. Since we
++
++	/*
++	 * Never cast out the segment for our kernel stack. Since we
+ 	 * dont invalidate the ERAT we could have a valid translation
+-	 * for the kernel stack during the first part of exception
+-	 * exit which gets invalidated due to a tlbie from another cpu
+-	 * at a non recoverable point (after setting srr0/1) - Anton
+-	 *
++	 * for the kernel stack during the first part of exception exit
++	 * which gets invalidated due to a tlbie from another cpu at a
++	 * non recoverable point (after setting srr0/1) - Anton
++	 */
++4:	slbmfee	r11,r10
++	srdi	r11,r11,27
++	/*
++	 * Use paca->ksave as the value of the kernel stack pointer,
++	 * because this is valid at all times.
+ 	 * The >> 27 (rather than >> 28) is so that the LSB is the
+ 	 * valid bit - this way we check valid and ESID in one compare.
++	 * In order to completely close the tiny race in the context
++	 * switch (between updating r1 and updating paca->ksave),
++	 * we check against both r1 and paca->ksave.
+ 	 */
+-	srdi	r11,r11,27
++	srdi	r9,r1,27
++	ori	r9,r9,1			/* mangle SP for later compare */
++	cmpd	r11,r9
++	beq-	3b
++	ld	r9,PACAKSAVE(r13)
++	srdi	r9,r9,27
++	ori	r9,r9,1
+ 	cmpd	r11,r9
+ 	beq-	3b
+ 

@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271805AbRIHSz1>; Sat, 8 Sep 2001 14:55:27 -0400
+	id <S271818AbRIHTHh>; Sat, 8 Sep 2001 15:07:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271811AbRIHSzS>; Sat, 8 Sep 2001 14:55:18 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45320 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271805AbRIHSzD>; Sat, 8 Sep 2001 14:55:03 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-Date: 8 Sep 2001 11:55:04 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ndpi8$64u$1@cesium.transmeta.com>
-In-Reply-To: <E15cx6w-00049f-00@the-village.bc.nu> <m1iteth8j8.fsf@frodo.biederman.org>
-MIME-Version: 1.0
+	id <S271820AbRIHTH1>; Sat, 8 Sep 2001 15:07:27 -0400
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:49372 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S271818AbRIHTHK>; Sat, 8 Sep 2001 15:07:10 -0400
+Message-Id: <200109081906.f88J6bY02298@demai05.mw.mediaone.net>
 Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: "Hamid Hashemi Golpayegani" <hamid@morva.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: What is error means ?!
+Date: Sat, 8 Sep 2001 15:06:43 -0400
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <001001c137d8$84f77cc0$0100a8c0@hashemi>
+In-Reply-To: <001001c137d8$84f77cc0$0100a8c0@hashemi>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <m1iteth8j8.fsf@frodo.biederman.org>
-By author:    ebiederm@xmission.com (Eric W. Biederman)
-In newsgroup: linux.dev.kernel
+That would be an oops (actually a couple).  See 
+Documentation/oops-tracing.txt for details on how to run it through 
+ksymoops.  Also see REPORTING-BUGS for additional necessary information 
+(start with kernel and gcc versions).
+
+Offhand, I'd say the kernel freaked out under extreme memory pressure.  If 
+you're using a 2.4.x below .8, try upgrading the kernel first; the early 
+ones had some fun VM issues.
+
+	-- Brian
+
+On Friday 07 September 2001 04:06 pm, Hamid Hashemi Golpayegani wrote:
+> Hi ,
 >
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> 
-> > > So of course I realize this wouldn't happen any time soon, but has any
-> > > discussion taken place regarding enhancing the bootloader (grub? Steal
-> > > FreeBSD's?) to load modular drivers very early, and possibly abstracting
-> > > SMP/UP from the kernel proper? Wouldn't this be a better solution than
-> > > initrd?
-> > 
-> > All the discussion we have has been based on seriously enhancing and
-> > expanding the use of the initrd/ramfs layer. Remember we can begin running
-> > from ramfs without interrupts, pci bus scans or the like. The things it cant
-> > do are - pick a kernel by processor type, pick SMP/non SMP.
-> > 
-> > As it happens both of those are things that are deeply buried in the whole
-> > compile choices and how we generate the code itself - so they do need to
-> > be boot loader driven (or user driven)
-> > 
-> > So the path for ACPI could indeed go
-> > 
-> > load kernel
-> > load initial ramfs
-> > Discover we have ACPI
-> > load acpi core
-> > load acpi irq router
-> > load acpi timers
-> > [init hardware]
-> > load ide disk
-> > load ext3
-> > mount /
-> 
-> Sounds about right.  
-> 
-> If we really need to do weird things like pick a kernel by processor
-> type, or pick SMP/non SMP.  You can even do those from an initramfs
-> with a linux  booting linux kernel patch.
-> 
-
-I discussed something like this before using "Genesis"; the idea
-behind it was to make sure we have enough modules to access the
-filesystem before the kernel starts (by using pre-initialization code
-that can read filesystem using the firmware interface.)  Unfortunately
-life got busy on me, but I still think that it is probably the right
-way to approach this.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> I got this error in my messages sometimes and my network services ( TCP
+> Services ) stop responding but when I ping this machine the pings works
+> cool and the routing also works . But I can't login to the machine .
+> Any idea that what is this message means ?!
+>
+> Sep  7 17:48:00 marmar4 kernel: Unable to handle kernel paging request
+> at virtual address 85bd6bcc Sep  7 17:48:00 marmar4 kernel:
+> current->tss.cr3 = 00101000, %cr3 = 00101000 Sep  7 17:48:00 marmar4
+> kernel: *pde = 00000000 Sep  7 17:48:00 marmar4 kernel: Oops: 0002
+>

@@ -1,29 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264849AbRFTGi3>; Wed, 20 Jun 2001 02:38:29 -0400
+	id <S264852AbRFTHE0>; Wed, 20 Jun 2001 03:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264850AbRFTGiJ>; Wed, 20 Jun 2001 02:38:09 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:45373 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S264849AbRFTGiE>; Wed, 20 Jun 2001 02:38:04 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: fs/namei.c lookup_flags is misleading
-Mime-Version: 1.0
+	id <S264853AbRFTHEQ>; Wed, 20 Jun 2001 03:04:16 -0400
+Received: from apollo.nbase.co.il ([194.90.137.2]:34311 "EHLO
+	apollo.nbase.co.il") by vger.kernel.org with ESMTP
+	id <S264852AbRFTHEH>; Wed, 20 Jun 2001 03:04:07 -0400
+Message-ID: <3B305A87.E4CAD52@nbase.co.il>
+Date: Wed, 20 Jun 2001 10:10:47 +0200
+From: eran@nbase.co.il (Eran Man)
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: vlan@Scry.WANfear.com
+CC: "David S. Miller" <davem@redhat.com>, Dax Kelson <dkelson@gurulabs.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Holger Kiehl <Holger.Kiehl@dwd.de>,
+        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
+        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
+Subject: Re: [VLAN] Re: Should VLANs be devices or something else?
+In-Reply-To: <3B2FCE0C.67715139@candelatech.com>
+			<Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com> <15151.55017.371775.585016@pizda.ninka.net> <3B2FDD62.EFC6AEB1@candelatech.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 20 Jun 2001 16:37:54 +1000
-Message-ID: <31086.993019074@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.6-pre3 and earlier.  fs/namei.c:lookup_flags() checks for O_CREATE,
-it even has a comment saying that O_CREATE|O_EXCL is a special case.
-But the only place lookup_flags() is called has
 
-if (!(flag & O_CREAT)) {
-	if (path_init(pathname, lookup_flags(flag), nd))
+Ben Greear wrote:
+> 
+> "David S. Miller" wrote:
 
-so O_CREATE can never be set.  Not a bug, just misleading.  It does not
-help that path_walk() has a variable called lookup_flags.
+> > Conceptually, svr4 streams are a beautiful and elegant
+> > mechanism. :-)
+> >
+> > Technical implementation level concerns need to be considered
+> > as well as "does it look nice".
+> 
+> I found it to be the easiest way to implement things.  It allowed
+> me to not have to touch any of layer 3, and I did not have to patch
+> any user-space program like ip or ifconfig.
+> 
+> I'm not even sure if the nay-sayers ever had another idea, they
+> just didn't like having lots of interfaces.  Originally, there
+> were claims of inefficiency, but it seems that other than things
+> like 'ip' and ifconfig, there are no serious performance problems
+> I am aware of.
 
+There is the issue with netlink notification of large number of events.
+See the mail thread starting from:
+http://oss.sgi.com/projects/netdev/mail/netdev/msg01879.html

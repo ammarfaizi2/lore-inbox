@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316067AbSENV0l>; Tue, 14 May 2002 17:26:41 -0400
+	id <S316070AbSENV0s>; Tue, 14 May 2002 17:26:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316068AbSENV0k>; Tue, 14 May 2002 17:26:40 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:8343 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316067AbSENV0j>;
-	Tue, 14 May 2002 17:26:39 -0400
-Date: Mon, 13 May 2002 12:37:32 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Diego Calleja <DiegoCG@teleline.es>, Andi Kleen <ak@muc.de>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CONFIG_ISA
-Message-ID: <20020513123731.B34@toy.ucw.cz>
-In-Reply-To: <20020512225724.232357b3.DiegoCG@teleline.es> <Pine.GSO.3.96.1020513141909.26083B-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S316069AbSENV0r>; Tue, 14 May 2002 17:26:47 -0400
+Received: from uucp.cistron.nl ([195.64.68.38]:41734 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S316068AbSENV0r>;
+	Tue, 14 May 2002 17:26:47 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: how to map "/dev/root" to "/proc/partitions" entry in user prog?
+Date: Tue, 14 May 2002 21:26:47 +0000 (UTC)
+Organization: Cistron
+Message-ID: <abrven$gsu$1@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.44.0205141554240.2160-100000@spaz.localdomain>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1021411607 17310 195.64.65.67 (14 May 2002 21:26:47 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <Pine.LNX.4.44.0205141554240.2160-100000@spaz.localdomain>,
+Jeff Meininger  <jeffm@boxybutgood.com> wrote:
+>How can I reliably map /dev/root to the corresponding entry in 
+>/proc/partitions?
 
-> > Sorry for my ignorance, but the typical conectors: mouse, keyboard,
-> > /dev/ttyS0, /dev/ttyS1, /dev/lp0...aren't isa devices? 
-> 
->  The PS/2 mouse and the keyboard (or the 8042, actually) are motherboard
-> devices using the 0x00-0xff range of I/O ports -- ISA is above that.
+The first two lines in /proc/partitions are major/minor of the
+device. Simply stat("/", &st) and use st.st_dev (and the major/minor
+macros in glibc)
 
-outb to 0x80, and watch it go to ISA. Not all ports < 0x80 are mainboard.
+>Please Cc me in your response.
 
+I'm reading and posting this on a mail2news gateway, sorry.
+
+Mike.
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+"Insanity -- a perfectly rational adjustment to an insane world."
+  - R.D. Lang
 

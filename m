@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288611AbSBKL7b>; Mon, 11 Feb 2002 06:59:31 -0500
+	id <S288614AbSBKMGW>; Mon, 11 Feb 2002 07:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288614AbSBKL7V>; Mon, 11 Feb 2002 06:59:21 -0500
-Received: from grisu.bik-gmbh.de ([194.233.237.82]:24337 "EHLO
-	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP
-	id <S288611AbSBKL7I>; Mon, 11 Feb 2002 06:59:08 -0500
-Date: Mon, 11 Feb 2002 12:59:36 +0100
-From: Florian Hars <florian@hars.de>
-To: Heinz Diehl <hd@cavy.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disk-I/O and kupdated@99.9% system (2.4.18-pre9)
-Message-ID: <20020211115936.GA377@bik-gmbh.de>
-In-Reply-To: <20020208164250.GA321@bik-gmbh.de> <20020210115509.GA493@chiara.cavy.de> <20020211115527.GA336@bik-gmbh.de>
+	id <S288736AbSBKMGN>; Mon, 11 Feb 2002 07:06:13 -0500
+Received: from ns.suse.de ([213.95.15.193]:30219 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288614AbSBKMGA>;
+	Mon, 11 Feb 2002 07:06:00 -0500
+Date: Mon, 11 Feb 2002 13:05:57 +0100
+From: Dave Jones <davej@suse.de>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5.3] support for NCR voyager
+Message-ID: <20020211130557.A4285@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	James Bottomley <James.Bottomley@HansenPartnership.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202081825.g18IPSf03107@localhost.localdomain> <20020211090021.GA8012@pazke.ipt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020211115527.GA336@bik-gmbh.de>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020211090021.GA8012@pazke.ipt>; from pazke@orbita1.ru on Mon, Feb 11, 2002 at 12:00:21PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soyy, I just hit the wrong key before pasting in the numbers, so
-here they are:
+On Mon, Feb 11, 2002 at 12:00:21PM +0300, Andrey Panin wrote:
 
-> On a plain ext2-filesystem on a primary partition I get (with -mjc):
-# time tar -xzf linux-2.4.17.tar.gz; time sync
+ > if [ "$CONFIG_VISWS" != "y" ]; then
+ >    bool 'MCA support' CONFIG_MCA
+ >    if [ "$CONFIG_MCA" = "y" ]; then
+ > 	bool '   Support for the NCR Voyager Architecture' CONFIG_VOYAGER
+ > 
+ > How MCA and NCR Voyager support related to SGI Visual Workstations support
+ > (CONFIG_VISWS) ?
 
-real    0m18.818s
-user    0m1.890s
-sys     0m14.740s
+ It is kinda horrible. What I parsed it as is VISWS and Voyager
+ are mutually exclusive, both have MCA available, but Voyager
+ is a 'must have' case.
 
-real    0m21.990s
-user    0m0.000s
-sys     0m11.320s
+ icky.
 
-Yours, Florian Hars.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

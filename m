@@ -1,118 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135179AbQL3LP4>; Sat, 30 Dec 2000 06:15:56 -0500
+	id <S131023AbQL3Lsj>; Sat, 30 Dec 2000 06:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135193AbQL3LPr>; Sat, 30 Dec 2000 06:15:47 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:50816 "HELO kabuki.eyep.net")
-	by vger.kernel.org with SMTP id <S135179AbQL3LP3>;
-	Sat, 30 Dec 2000 06:15:29 -0500
-To: Frank Davis <fdavis112@juno.com>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] test13-pre6 net/atm/lec.c 
-In-Reply-To: Your message of "Sat, 30 Dec 2000 03:33:42 CDT."
-             <20001230.033349.-192941.1.fdavis112@juno.com> 
-In-Reply-To: <20001230.033349.-192941.1.fdavis112@juno.com> 
-Date: Sat, 30 Dec 2000 21:48:09 +1100
-From: Daniel Stone <daniel@kabuki.eyep.net>
-Message-Id: <20001230111540Z135179-439+7280@vger.kernel.org>
+	id <S131658AbQL3Ls2>; Sat, 30 Dec 2000 06:48:28 -0500
+Received: from inje.iskon.hr ([213.191.128.16]:29191 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S131023AbQL3LsO>;
+	Sat, 30 Dec 2000 06:48:14 -0500
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] gemtek radio obvious fix
+Reply-To: zlatko@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko@iskon.hr>
+Date: 30 Dec 2000 12:16:18 +0100
+Message-ID: <87lmsygnwd.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Peisino,Ak(B)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, but if you ever send HTML email (MIME'd, no less), I'll dismember
-you.
+Index: 24012.6/drivers/media/radio/radio-gemtek.c
+--- 24012.6/drivers/media/radio/radio-gemtek.c Thu, 14 Dec 2000 00:08:47 +0100 zcalusic (linux/P/d/1_radio-gemt 1.1.2.2.3.1 644)
++++ 24012.7(w)/drivers/media/radio/radio-gemtek.c Sat, 30 Dec 2000 12:06:56 +0100 zcalusic (linux/P/d/1_radio-gemt 1.1.2.2.3.2 644)
+@@ -265,7 +265,7 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	if (request_region(io, 4, "gemtek")) 
++	if (!request_region(io, 4, "gemtek")) 
+ 	{
+ 		printk(KERN_ERR "gemtek: port 0x%x already in use\n", io);
+ 		return -EBUSY;
 
-> This message is in MIME format.  Since your mail reader does not understand
-> this format, some or all of this message may not be legible.
-> 
-> ----__JNP_000_5510.0696.1d1b
-> Content-Type: text/plain; charset=us-ascii  
-> Content-Transfer-Encoding: 7bit
-> 
-> Hello,
->   The following patch appears to fix 2 of the 3 undefined references:
-> publish_netdev is still unresolved.
-> Regards,
-> Frank
-> --- net/atm/lec.c.old Sat Dec 30 03:08:14 2000
-> +++ net/atm/lec.c     Sat Dec 30 03:17:44 2000
-> @@ -772,10 +772,10 @@
->                  size = sizeof(struct lec_priv);
->  #ifdef CONFIG_TR
->                  if (is_trdev)
-> -                        dev_lec[i] = prepare_trdev(NULL, size);
-> +                        dev_lec[i] = init_trdev(NULL, size);
->                  else
->  #endif
-> -                dev_lec[i] = prepare_etherdev(NULL, size);
-> +                dev_lec[i] = init_etherdev(NULL, size);
->                  if (!dev_lec[i])
->                          return -ENOMEM;
->  
-> ----__JNP_000_5510.0696.1d1b
-> Content-Type: text/html; charset=us-ascii  
-> Content-Transfer-Encoding: quoted-printable
-> 
-> <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-> <HTML><HEAD>
-> <META content=3D"text/html; charset=3Dwindows-1252" http-equiv=3DContent-=
-> Type>
-> <META content=3D"MSHTML 5.00.2314.1000" name=3DGENERATOR></HEAD>
-> <BODY bottomMargin=3D0 leftMargin=3D3 rightMargin=3D3 topMargin=3D0>
-> <DIV>Hello,</DIV>
-> <DIV>&nbsp; The following patch appears to fix 2 of the 3 undefined =
-> references:=20
-> publish_netdev is still unresolved.</DIV>
-> <DIV>
-> <P class=3DMsoPlainText><SPAN=20
-> style=3D"mso-fareast-font-family: 'MS Mincho'">Regards,</SPAN></P>
-> <P class=3DMsoPlainText><SPAN=20
-> style=3D"mso-fareast-font-family: 'MS Mincho'">Frank</SPAN></P>
-> <P class=3DMsoPlainText><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'=
-> ">---=20
-> net/atm/lec.c.old<SPAN style=3D"mso-tab-count: 1"> </SPAN>Sat Dec 30 03:08:=
-> 14=20
-> 2000<BR>+++ net/atm/lec.c<SPAN style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp=
-> ;&nbsp;=20
-> </SPAN>Sat Dec 30 03:17:44 2000<BR>@@ -772,10 +772,10 @@<BR><SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-> </SPAN>size =3D sizeof(struct lec_priv);<BR><SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;</SPAN>#ifdef CONFIG_TR<BR><SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-> </SPAN>if (is_trdev)<BR>-<SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-> nbsp;&nbsp;&nbsp;=20
-> </SPAN>dev_lec[i] =3D prepare_trdev(NULL, size);<BR>+<SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-> nbsp;&nbsp;&nbsp;=20
-> </SPAN>dev_lec[i] =3D init_trdev(NULL, size);<BR><SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-> </SPAN>else<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>#endif<BR>-<=
-> SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-> </SPAN>dev_lec[i] =3D prepare_etherdev(NULL, size);<BR>+<SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-> </SPAN>dev_lec[i] =3D init_etherdev(NULL, size);<BR><SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-> </SPAN>if (!dev_lec[i])<BR><SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-> nbsp;&nbsp;&nbsp;&nbsp;=20
-> </SPAN>return -ENOMEM;<BR><SPAN=20
-> style=3D"mso-spacerun: yes">&nbsp;</SPAN><BR></P></SPAN></DIV></BODY></HTML>
-> 
-> ----__JNP_000_5510.0696.1d1b--
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+-- 
+Zlatko
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

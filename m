@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292666AbSDIOxE>; Tue, 9 Apr 2002 10:53:04 -0400
+	id <S292857AbSDIPCl>; Tue, 9 Apr 2002 11:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292730AbSDIOxD>; Tue, 9 Apr 2002 10:53:03 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:9107 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S292666AbSDIOxD>;
-	Tue, 9 Apr 2002 10:53:03 -0400
-Date: Tue, 09 Apr 2002 07:50:17 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Event logging vs enhancing printk
-Message-ID: <1980174169.1018338616@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.3.96.1020409103009.26415A-100000@gatekeeper.tmr.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S292957AbSDIPCk>; Tue, 9 Apr 2002 11:02:40 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:48903 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S292857AbSDIPCk>;
+	Tue, 9 Apr 2002 11:02:40 -0400
+Date: Tue, 9 Apr 2002 11:02:37 -0400 (EDT)
+From: Rob Radez <rob@osinvestor.com>
+X-X-Sender: <rob@pita.lan>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Corey Minyard <minyard@acm.org>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Further WatchDog Updates
+In-Reply-To: <Pine.LNX.4.44.0204091344420.32054-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.33.0204091057540.17511-100000@pita.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   If you want buffering you can add it on a case-by-case basis, but in
-> general I don't believe you do want a delay, because the output might be
-> lost on a dying system. Prink works like output to stderr, character
-> buffered. I would think a change to anything this fundimental would be a
-> Linus decision, but I think it's correct as is.
 
-OK, now try to read the panic output when two cpus panic at once ;-)
-Been there, sworn vehemently at that ...
+On Tue, 9 Apr 2002, Zwane Mwaikambo wrote:
 
-There's no point in logging messages if you can't read them afterwards.
-I think 99.99% of such cases would not involve printk printing half
-a buffered line, then dying, though I admit it's technically possible.
+> Did you forget return values? Or perhaps just redeclare those...
+> Also i don't quite understand the new status reporting you're doing, mind
+> just explaining it to me a bit? The previous code would tell you wether
+> the watchdog is enabled/disabled so you can tell wether the timeout period
+> has passed.
 
-Of course, we could just do this buffering for the event logging half
-of the subsystem if people really object. Personally, I think it's a
-win to fix printk whilst we're at it, but a half-fix is always an 
-option.
+Oops, yea, I forgot return values.  I'll fix that up.  I got rid of
+sc1200wdt_status because it returns bit 1, which is defined as WDIOF_OVERHEAT
+I suppose it would be possible to return WDIOF_KEEPALIVEPING instead.
+So something like if(ret & 0x01) return WDIOF_KEEPALIVEPING;?
 
-M.
+Regards,
+Rob Radez
 

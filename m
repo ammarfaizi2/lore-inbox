@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbUKAXqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265289AbUKAX7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbUKAXqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S382650AbUKAXlX
+	id S265289AbUKAX7R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S289538AbUKAX7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:41:23 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:29117 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S381686AbUKAXZX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 18:25:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=QtTN9MUUMZWofEfKl5VpTj0QSO861YQNefEbvApzzAs91S60+LMqykQhLprS6L1SAnJ+2we9YeTH17AG6NPD6X2q3IcOpijVYiUhs4ECQVniinqwmTRd6d6k9ogdQtCgIKzMOln3aeQD7mWX9Hx/JzWchKEmeKAHcfFTzdJSECM=
-Message-ID: <aab83da041101152599f25ea@mail.gmail.com>
-Date: Mon, 1 Nov 2004 15:25:22 -0800
-From: Max Xiao <max.xiao@gmail.com>
-Reply-To: Max Xiao <max.xiao@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Net <linux-net@vger.kernel.org>
-Subject: Compressed RTP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 Nov 2004 18:59:15 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:37813 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S291050AbUKAX5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 18:57:10 -0500
+Subject: Re: [PATCH 6/14] FRV: IDE fixes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: dhowells@redhat.com
+Cc: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       uclinux-dev@uclinux.org
+In-Reply-To: <200411011930.iA1JULRt023195@warthog.cambridge.redhat.com>
+References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com>
+	 <200411011930.iA1JULRt023195@warthog.cambridge.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1099349584.16385.71.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 01 Nov 2004 22:53:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Llu, 2004-11-01 at 19:30, dhowells@redhat.com wrote:
+>  		memset(&hwif->hw, 0, sizeof(hwif->hw));
+> +#ifndef IDE_ARCH_OBSOLETE_INIT
+> +		ide_std_init_ports(&hwif->hw, base, (ctl | 2));
+> +		hwif->hw.io_ports[IDE_IRQ_OFFSET] = 0;
+> +#else
+>  		ide_init_hwif_ports(&hwif->hw, base, (ctl | 2), NULL);
+> +#endif
 
-I need to implement Compressed RTP on Linux. Does anyone know any
-related work done so far? If yes, can someone point it out for me
-please?
+Do you really need this, and if so please why ?
 
-Thanks,
-
-Max

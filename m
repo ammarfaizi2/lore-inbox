@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280701AbRKBOPb>; Fri, 2 Nov 2001 09:15:31 -0500
+	id <S280702AbRKBOQM>; Fri, 2 Nov 2001 09:16:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280700AbRKBOPV>; Fri, 2 Nov 2001 09:15:21 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:12036 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S280699AbRKBOPT>; Fri, 2 Nov 2001 09:15:19 -0500
-Date: Fri, 2 Nov 2001 17:14:38 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Tom Vier <tmv5@home.com>, linux-kernel@vger.kernel.org
-Subject: Re: alpha tru64 mmap broken in linus kernels
-Message-ID: <20011102171438.A699@jurassic.park.msu.ru>
-In-Reply-To: <20011101172412.A578@zero> <3BE1CE30.D48D30E7@mandrakesoft.com>
+	id <S280700AbRKBOPx>; Fri, 2 Nov 2001 09:15:53 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:57093 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S280699AbRKBOPi>; Fri, 2 Nov 2001 09:15:38 -0500
+Date: Sat, 3 Nov 2001 01:14:58 +1100
+From: john slee <indigoid@higherplane.net>
+To: Kilobug <kilobug@freesurf.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2 and 2.4 VM systems analysed
+Message-ID: <20011103011458.C2430@higherplane.net>
+In-Reply-To: <3BE1A790.25B7E6F5@illusionary.com> <3BE1DDC8.6070103@freesurf.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BE1CE30.D48D30E7@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Nov 01, 2001 at 05:35:28PM -0500
+In-Reply-To: <3BE1DDC8.6070103@freesurf.fr>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 01, 2001 at 05:35:28PM -0500, Jeff Garzik wrote:
-> If you need the patch to fix alpha, simply take alan's patch and cut
-> away the non-alpha parts.
+On Fri, Nov 02, 2001 at 12:42:00AM +0100, Kilobug wrote:
+> standardized. (and don't use commercial softwares, I don't own Oracle so 
+> I can't run a test needinf Oracle).
 
-No, this won't work. Richard Henderson posted the right fix few days
-ago with subject "alpha 2.4.13: fix taso osf emulation"; my follow-up
-was just an optimization.
+oracle can be downloaded and legally used for personal non-commercial
+purposes i believe
 
-Ivan.
+it doesn't make it "free" in the way this community generally uses the
+term but it does let you test linux with a very popular application.
+
+i hope you're not using a modem, it's a 3-cd download :-(
+
+j.
+
+-- 
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

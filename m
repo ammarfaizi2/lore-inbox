@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283340AbRLRBQv>; Mon, 17 Dec 2001 20:16:51 -0500
+	id <S283288AbRLRBQl>; Mon, 17 Dec 2001 20:16:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283360AbRLRBQl>; Mon, 17 Dec 2001 20:16:41 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:31249 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S283340AbRLRBQZ>; Mon, 17 Dec 2001 20:16:25 -0500
-Subject: Re: Poor performance during disk writes
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: jlm <jsado@mediaone.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1008636811.226.0.camel@PC2>
-In-Reply-To: <1008636811.226.0.camel@PC2>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 Dec 2001 19:09:10 -0600
-Message-Id: <1008637755.2501.9.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S283360AbRLRBQb>; Mon, 17 Dec 2001 20:16:31 -0500
+Received: from urtica.linuxnews.pl ([217.67.192.54]:15114 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S283288AbRLRBQV>; Mon, 17 Dec 2001 20:16:21 -0500
+Date: Tue, 18 Dec 2001 02:16:16 +0100 (CET)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: <jt@hpl.hp.com>
+cc: Martin Diehl <lists@mdiehl.de>, Dag Brattli <dagb@cs.uit.no>,
+        <linux-kernel@vger.kernel.org>, <linux-irda@pasta.cs.uit.no>
+Subject: Re: [BUG()] IrDA in 2.4.16 + preempt
+In-Reply-To: <20011217161056.F3699@bougret.hpl.hp.com>
+Message-ID: <Pine.LNX.4.33.0112180214490.662-100000@urtica.linuxnews.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Dec 2001, Jean Tourrilhes wrote:
 
-> So, the questions: Is there a way for me to stop this, some configure
-> option? Is it a bug/performance issue that needs to be addressed in the
-> kernel? Should I just go back to the 2.2.x kernel series and shutup
-> already?
-> 
-> I'm running 3 hard drives (30G Maxtor, 20G Seagate, and 2.1G Quantum
-> Fireball) on an AMD k6-2 3dnow with a Gigabyte GA-5AX MOBO and the ALI
-> Aladin V chipset.
-> 
-> Thanks for your time and let me know if you need any more info/ output
-> from dmesg or something.
+> 	I'm surprised the fix of Martin didn't work...
 
-Specific kernel version, df, & hdparm output would all be helpful. 
+It did in fact. My apologiese. I have applied it to the wrong kernel tree
+:/
 
-> - Dave Olson
+Thanks Martin.
 
-Regards,
-Reid
+Any chance to have this patch in 2.4.17?
 
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
+http://tfuj.pl/cv.html :: http://tfuj.pl/pgp.asc
 

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262148AbSJQUer>; Thu, 17 Oct 2002 16:34:47 -0400
+	id <S262083AbSJQUZo>; Thu, 17 Oct 2002 16:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262152AbSJQUer>; Thu, 17 Oct 2002 16:34:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39358 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262148AbSJQUeq>;
-	Thu, 17 Oct 2002 16:34:46 -0400
-Date: Thu, 17 Oct 2002 13:33:14 -0700 (PDT)
-Message-Id: <20021017.133314.60542842.davem@redhat.com>
-To: adam@yggdrasil.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.43: "fix old protocol handler pppoe_rcv+0x0/0x124 [pppoe]"
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200210172010.NAA01600@adam.yggdrasil.com>
-References: <200210172010.NAA01600@adam.yggdrasil.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262065AbSJQUYE>; Thu, 17 Oct 2002 16:24:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51206 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262034AbSJQUYB>;
+	Thu, 17 Oct 2002 16:24:01 -0400
+Message-ID: <3DAF1DC8.1090708@pobox.com>
+Date: Thu, 17 Oct 2002 16:30:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <20021017210402.A7741@infradead.org> <20021017201030.GA384@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Adam J. Richter" <adam@yggdrasil.com>
-   Date: Thu, 17 Oct 2002 13:10:56 -0700
-   
-   	I'm puzzling out exactly change this message is requesting,
+Greg KH wrote:
+> Hm, in looking at the SELinux documentation, here's a list of the
+> syscalls they need:
+> 	http://www.nsa.gov/selinux/docs2.html
+> 
+> That's a lot of syscalls :)
 
-Packet receive must be aware of shared skb's (it must make
-a copy if it wants to modify packet contents) and it must
-be fully SMP threaded.
 
-Then ptype->data is changed to some non-NULL value to indicate that it
-is a "new" protocol.
+Any idea if security identifiers change with each syscall?
+
+If not, a lot of the xxx_secure syscalls could go away...
+

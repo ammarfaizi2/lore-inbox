@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129325AbQK1A7Q>; Mon, 27 Nov 2000 19:59:16 -0500
+        id <S129477AbQK1BN6>; Mon, 27 Nov 2000 20:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129477AbQK1A7G>; Mon, 27 Nov 2000 19:59:06 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28218 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S129325AbQK1A7A>; Mon, 27 Nov 2000 19:59:00 -0500
-Date: Tue, 28 Nov 2000 01:28:36 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Michael Meissner <meissner@spectacle-pond.org>,
-        "David S. Miller" <davem@redhat.com>, Werner.Almesberger@epfl.ch,
-        adam@yggdrasil.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001128012836.B25166@athlon.random>
-In-Reply-To: <20001127200618.A19980@athlon.random> <Pine.LNX.3.95.1001127142845.2961A-100000@chaos.analogic.com>
+        id <S129575AbQK1BNt>; Mon, 27 Nov 2000 20:13:49 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:2733 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S129477AbQK1BNm>;
+        Mon, 27 Nov 2000 20:13:42 -0500
+Date: Tue, 28 Nov 2000 01:43:40 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Jörg Schütter 
+        <joerg_schuetter@heraeus-infosystems.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.0-test11: _isofs_bmap: block < 0
+Message-ID: <20001128014340.A9220@veritas.com>
+In-Reply-To: <20001127210912.A1051@mars.linux.priv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1001127142845.2961A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Nov 27, 2000 at 02:34:45PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001127210912.A1051@mars.linux.priv>; from joerg_schuetter@heraeus-infosystems.com on Mon, Nov 27, 2000 at 09:09:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 02:34:45PM -0500, Richard B. Johnson wrote:
-> The following shell-script shows that gcc-2.8.1 produces code with
-> data allocations adjacent. However, they are reversed!
+On Mon, Nov 27, 2000 at 09:09:12PM +0100, Jörg Schütter wrote:
 
-same with 2.95.* :).
+> after upgrading from test9 to test11, skipping test 10, I get 
+> the messages "_isofs_bmap: block < 0", "_isofs_bmap: block < ..."
+> which also means I can't read the cd.
 
-Andrea
+A FAQ. Remove the two lines
+
+-       if (filp->f_pos >= inode->i_size)
+-               return 0;
+
+from fs/isofs/dir.c around line 118.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

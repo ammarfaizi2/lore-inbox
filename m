@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291297AbSAaUzm>; Thu, 31 Jan 2002 15:55:42 -0500
+	id <S291296AbSAaU4e>; Thu, 31 Jan 2002 15:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291294AbSAaUzd>; Thu, 31 Jan 2002 15:55:33 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:35556 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S291290AbSAaUzP>; Thu, 31 Jan 2002 15:55:15 -0500
-Date: Thu, 31 Jan 2002 20:55:07 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Eli Carter <eli.carter@inet.com>
-cc: Richard Gooch <rgooch@atnf.csiro.au>, linux-kernel@vger.kernel.org
-Subject: Re: vfs.txt and i_ino
-In-Reply-To: <3C59A904.1ABC93BF@inet.com>
-Message-ID: <Pine.SOL.3.96.1020131205057.15330A-100000@virgo.cus.cam.ac.uk>
+	id <S291292AbSAaU4X>; Thu, 31 Jan 2002 15:56:23 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:452 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S291294AbSAaU4J>;
+	Thu, 31 Jan 2002 15:56:09 -0500
+Date: Thu, 31 Jan 2002 21:54:51 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@transvirtual.com>, Vojtech Pavlik <vojtech@ucw.cz>
+cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] amiga input api drivers
+In-Reply-To: <Pine.LNX.4.10.10201310712130.20956-100000@www.transvirtual.com>
+Message-ID: <Pine.GSO.4.21.0201312153250.24581-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002, Eli Carter wrote:
-> It appears that struct inode i_ino has a special value of 0.  I don't
-> see a mention of that in vfs.txt, and I haven't found anything obvious
-> in the fs code... Would it be possible to add some documentation of
-> that, along with an explaination of what i_ino==0 is supposed to
-> indicate?  (Bad/invalid inode?)
+On Thu, 31 Jan 2002, James Simmons wrote:
+>   The amiga mouse and amiga joystick have been already ported over to the
+> input api. Now for the keyboard. This patch is the input api amiga
+> keyboard. I wanted people to try it out before I send it off to be
+> included in the DJ tree. Have fun!!!
 
-i_ino = 0 is perfectly valid and is in fact one of the system files in
-NTFS. And accessing inode 0 from user space works fine, too. The only
-thing which is odd is that a simple "ls" (or "ls -l") doesn't show the
-file with i_ino=0, while an explicit ls a-la "ls \$MFT" (or "ls -l \$MFT") 
-does show the file. I believe this to be purely a userspace problem but
-when I looked at the /bin/ls source I got scared and ran away... A short
-investigation into /bin/ls source didn't make anything obvious appear but
-I do think it is /bin/ls at fault and not the kernel...
+> diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c linux/drivers/input/keyboard/amikbd.c
+> --- linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c	Wed Dec 31 16:00:00 1969
+> +++ linux/drivers/input/keyboard/amikbd.c	Thu Jan 31 07:44:05 2002
 
-So I guess my point is that i_ino=0 is not special as far as the kernel is
-concerned.
+> +static char *amikbd_messages[] = {
+> +	KERN_ALERT "amikbd: Ctrl-Amiga-Amiga reset warning!!\n",
+> +	KERN_WARNING "amikbd: keyboard lost sync\n",
+> +	KERN_WARNING "amikbd: keyboard buffer overflow\n",
+> +	KERN_WARNING "amikbd: keyboard controller failure\n",
+> +	KERN_ERR "amikbd: keyboard selftest failure\n",
+> +	KERN_INFO "amikbd: initiate power-up key stream\n",
+> +	KERN_INFO "amikbd: terminate power-up key stream\n",
+> +	KERN_WARNING "amikbd: keyboard interrupt\n"
+> +};
 
-Best regards,
+> +	if (scancode < 0x78) {		/* scancodes < 0x78 are keys */
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+  [...]
+
+> +	}
+> +
+> +	printk(amikbd_messages[scancode]);	/* scancodes >= 0x78 are error codes */
+
+Oops, amikbd_messages[scancode-0x78]?
+
+Gr{oetje,eeting}s,
+
+						Geert (just reading patches)
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

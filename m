@@ -1,101 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTJWO6O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 10:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbTJWO6O
+	id S263626AbTJWPLy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 11:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTJWPLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 10:58:14 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:32991
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263584AbTJWO6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 10:58:11 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Autoregulate vm swappiness 2.6.0-test8
-Date: Fri, 24 Oct 2003 01:03:19 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
-References: <200310232337.50538.kernel@kolivas.org> <8720000.1066920153@[10.10.2.4]>
-In-Reply-To: <8720000.1066920153@[10.10.2.4]>
+	Thu, 23 Oct 2003 11:11:54 -0400
+Received: from [192.58.206.9] ([192.58.206.9]:64137 "EHLO crl-mail.crl.dec.com")
+	by vger.kernel.org with ESMTP id S263626AbTJWPLv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 11:11:51 -0400
+Message-ID: <3F97EF84.2060901@hp.com>
+Date: Thu, 23 Oct 2003 11:11:00 -0400
+From: Jamey Hicks <jamey.hicks@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en-us, en, es
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_32+l/hoK185duMr"
-Message-Id: <200310240103.19336.kernel@kolivas.org>
+To: mochel@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: PATCH: rename legacy bus to platform bus
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------040505080003010305080305"
+X-HPLC-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-4.9,
+	required 5, BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_32+l/hoK185duMr
-Content-Type: text/plain;
-  charset="iso-8859-1"
+This is a multi-part message in MIME format.
+--------------040505080003010305080305
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Friday 24 October 2003 00:42, Martin J. Bligh wrote:
-> > +	 * Autoregulate vm_swappiness to be application pages % -ck.
-> > +	 */
-> > +	si_meminfo(&i);
-> > +	si_swapinfo(&i);
-> > +	pg_size = get_page_cache_size() - i.bufferram ;
-> > +	vm_swappiness = 100 - (((i.freeram + i.bufferram +
-> > +		(pg_size - swapper_space.nrpages)) * 100) /
-> > +		(i.totalram ? i.totalram : 1));
-> > +
-> > +	/*
->
-> It seems that you don't need si_swapinfo here, do you? i.freeram,
-> i.bufferram, and i.totalram all come from meminfo, as far as I can
-> see? Maybe I'm missing a bit ...
 
-Well I did do it a while ago and it seems I got carried away adding and 
-subtracting info indeed. :-) Here's a simpler patch that does the same thing.
+Many of us, especially in the embedded computing world, think that 
+"legacy bus" is a misnomer.  It's not going away.  What do root PCI 
+buses connect to?  At the root of the device tree there is a bus.  This 
+patch changes the name from legacy bus to platform bus.  I'm hoping this 
+change can be made even this late in the development cycle.  It is a 
+pretty small patch but I think that naming is very important.
 
-Con
+-Jamey Hicks
 
 
 
---Boundary-00=_32+l/hoK185duMr
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="patch-test8-am-2"
+
+--------------040505080003010305080305
+Content-Type: text/plain;
+ name="platform-bus.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
-	filename="patch-test8-am-2"
+ filename="platform-bus.patch"
 
---- linux-2.6.0-test8-base/mm/vmscan.c	2003-10-19 20:24:36.000000000 +1000
-+++ linux-2.6.0-test8-am/mm/vmscan.c	2003-10-24 00:46:52.000000000 +1000
-@@ -47,7 +47,7 @@
- /*
-  * From 0 .. 100.  Higher means more swappy.
-  */
--int vm_swappiness = 60;
-+int vm_swappiness = 0;
- static long total_memory;
+--- linux-2.6.0-test8-rmk1/drivers/base/platform.c	2003-09-27 20:50:09.000000000 -0400
++++ kernel26/drivers/base/platform.c	2003-10-23 10:50:03.226877352 -0400
+@@ -14,8 +14,8 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
  
- #ifdef ARCH_HAS_PREFETCH
-@@ -600,6 +600,7 @@ refill_inactive_zone(struct zone *zone, 
- 	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
- 	struct page *page;
- 	struct pagevec pvec;
-+	struct sysinfo i;
- 	int reclaim_mapped = 0;
- 	long mapped_ratio;
- 	long distress;
-@@ -642,6 +643,13 @@ refill_inactive_zone(struct zone *zone, 
- 	mapped_ratio = (ps->nr_mapped * 100) / total_memory;
+-struct device legacy_bus = {
+-	.bus_id		= "legacy",
++struct device platform_bus = {
++	.bus_id		= "platform",
+ };
  
- 	/*
-+	 * Autoregulate vm_swappiness to be application pages% -ck
-+	 */
-+	si_meminfo(&i);
-+	vm_swappiness = 100 - (((i.freeram + get_page_cache_size() -
-+		swapper_space.nrpages) * 100) / (i.totalram ? i.totalram : 1));
-+
-+	/*
- 	 * Now decide how much we really want to unmap some pages.  The mapped
- 	 * ratio is downgraded - just because there's a lot of mapped memory
- 	 * doesn't necessarily mean that page reclaim isn't succeeding.
+ /**
+@@ -29,7 +29,7 @@
+ 		return -EINVAL;
+ 
+ 	if (!pdev->dev.parent)
+-		pdev->dev.parent = &legacy_bus;
++		pdev->dev.parent = &platform_bus;
+ 
+ 	pdev->dev.bus = &platform_bus_type;
+ 	
+@@ -105,12 +105,12 @@
+ 
+ int __init platform_bus_init(void)
+ {
+-	device_register(&legacy_bus);
++	device_register(&platform_bus);
+ 	return bus_register(&platform_bus_type);
+ }
+ 
+-EXPORT_SYMBOL(legacy_bus);
++EXPORT_SYMBOL(platform_bus);
+ EXPORT_SYMBOL(platform_bus_type);
+ EXPORT_SYMBOL(platform_device_register);
+ EXPORT_SYMBOL(platform_device_unregister);
+--- linux-2.6.0-test8-rmk1/drivers/i2c/i2c-core.c	2003-09-27 20:50:10.000000000 -0400
++++ kernel26/drivers/i2c/i2c-core.c	2003-10-23 10:51:52.070330632 -0400
+@@ -136,11 +136,11 @@
+ 
+ 	/* Add the adapter to the driver core.
+ 	 * If the parent pointer is not set up,
+-	 * we add this adapter to the legacy bus.
++	 * we add this adapter to the platform bus.
+ 	 */
+ 	if (adap->dev.parent == NULL)
+-		adap->dev.parent = &legacy_bus;
++		adap->dev.parent = &platform_bus;
+ 	sprintf(adap->dev.bus_id, "i2c-%d", adap->nr);
+ 	adap->dev.driver = &i2c_adapter_driver;
+ 	adap->dev.release = &i2c_adapter_dev_release;
+--- linux-2.6.0-test8-rmk1/drivers/i2c/i2c-dev.c	2003-10-19 23:23:05.000000000 -0400
++++ kernel26/drivers/i2c/i2c-dev.c	2003-10-23 10:52:08.964762288 -0400
+@@ -447,8 +447,8 @@
+ 
+ 	/* register this i2c device with the driver core */
+ 	i2c_dev->adap = adap;
+-	if (adap->dev.parent == &legacy_bus)
++	if (adap->dev.parent == &platform_bus)
+ 		i2c_dev->class_dev.dev = &adap->dev;
+ 	else
+ 		i2c_dev->class_dev.dev = adap->dev.parent;
+--- linux-2.6.0-test8-rmk1/drivers/scsi/hosts.c	2003-09-27 20:50:07.000000000 -0400
++++ kernel26/drivers/scsi/hosts.c	2003-10-23 10:52:20.152061560 -0400
+@@ -111,8 +111,8 @@
+ 	}
+ 
+ 	if (!shost->shost_gendev.parent)
+-		shost->shost_gendev.parent = dev ? dev : &legacy_bus;
++		shost->shost_gendev.parent = dev ? dev : &platform_bus;
+ 
+ 	error = device_add(&shost->shost_gendev);
+ 	if (error)
+--- linux-2.6.0-test8-rmk1/include/linux/device.h	2003-10-19 23:23:11.000000000 -0400
++++ kernel26/include/linux/device.h	2003-10-23 10:56:56.250088280 -0400
+@@ -372,7 +372,7 @@
+ extern void platform_device_unregister(struct platform_device *);
+ 
+ extern struct bus_type platform_bus_type;
+-extern struct device legacy_bus;
++extern struct device platform_bus;
+ 
+ /* drivers/base/power.c */
+ extern void device_shutdown(void);
 
---Boundary-00=_32+l/hoK185duMr--
+--------------040505080003010305080305--
 

@@ -1,72 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVARQzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVARREv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVARQzu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 11:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVARQzu
+	id S261351AbVARREv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 12:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVARREv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 11:55:50 -0500
-Received: from smtp-vbr3.xs4all.nl ([194.109.24.23]:53771 "EHLO
-	smtp-vbr3.xs4all.nl") by vger.kernel.org with ESMTP id S261350AbVARQzm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 11:55:42 -0500
-From: "Udo van den Heuvel" <udovdh@xs4all.nl>
-To: "'Luc Saillard'" <luc@saillard.org>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: VIA Rhine ethernet driver bug
-Date: Tue, 18 Jan 2005 17:55:34 +0100
-Message-ID: <000701c4fd7e$874a5a00$450aa8c0@hierzo>
+	Tue, 18 Jan 2005 12:04:51 -0500
+Received: from mail.joq.us ([67.65.12.105]:60061 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261351AbVARREs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 12:04:48 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050111131400.L10567@build.pdx.osdl.net>
+	<20050111212719.GA23477@elte.hu> <87fz15j325.fsf@sulphur.joq.us>
+	<20050115134922.GA10114@elte.hu> <874qhiwb1q.fsf@sulphur.joq.us>
+	<871xcmuuu4.fsf@sulphur.joq.us> <20050116231307.GC24610@elte.hu>
+	<87vf9xdj18.fsf@sulphur.joq.us> <20050117100633.GA3311@elte.hu>
+	<87llaruy6m.fsf@sulphur.joq.us> <20050118080218.GB615@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Tue, 18 Jan 2005 11:05:24 -0600
+In-Reply-To: <20050118080218.GB615@elte.hu> (Ingo Molnar's message of "Tue,
+ 18 Jan 2005 09:02:18 +0100")
+Message-ID: <87pt02pt0r.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-In-Reply-To: <20050117154540.GA2642@sd291.sivit.org>
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Ingo Molnar <mingo@elte.hu> writes:
 
-> -----Original Message-----
-> From: Luc Saillard [mailto:luc@saillard.org] 
-> Sent: maandag 17 januari 2005 16:46
-> To: Marcelo Tosatti
-> Cc: Udo van den Heuvel; linux-kernel@vger.kernel.org
-> Subject: Re: VIA Rhine ethernet driver bug
-> 
-> 
-> On Mon, Jan 17, 2005 at 10:04:27AM -0200, Marcelo Tosatti wrote:
-> > On Sat, Jan 15, 2005 at 12:43:33PM +0100, Udo van den Heuvel wrote:
-> 
-> > > On my firewall (VIA EPIA CL-6000 with VIA Rhine network 
-> chips running FC3
-> > > and custom kernels) I see messages like:
-> > 
-> > What kernel version are you using? Its important to inform that.
+> * Jack O'Quin <joq@io.com> wrote:
+>
+>> In the absence of any documentation, I'm guessing about storing the
+>> nice value in the priority field of the sched_param struct.  But, I
+>> have not been able to figure out how to make that work.
+>
+> the call you need is:
+>
+>        setpriority(PRIO_PROCESS, tid, -20);
+>
+> where 'tid' is the TID (pid) of the thread in question. There's no way i
+> know of to utilize the pthread_t ID to do this, so you'll have to figure
+> the TID out via gettid() - which needs to happen in the child context -
+> how hard would it be to attach the TID field to some per-thread Jack
+> structure? [while the purpose is still a quick hack.]
 
-Problem is in all kernel versions since 1999 or so.
-I am at 2.6.10-mm2, experimented with older via-rhince.c drivers.
+Adding a tid field is relatively easy.  Fixing the race condition
+between setting it in the new thread and using it in the creating
+thread is harder, but not impossible.  But, even setting it in the new
+thread would create an incompatible interface.  With hundreds of JACK
+client applications, binary compatibility is a serious consideration.
 
+Due to the absurd difficulty of successfully creating a realtime
+thread under the various incompatible Linux kernels and pthread
+libraries, we export jack_create_thread() to applications.  That way,
+they can take advantage of our latest fix for the latest NPTL botch
+(0.60 was particularly bad).
 
-> It's not a critical bug, but if we can resolv the bug ...
+So, the new thread's start_routine is not necessarily ours.  I suppose
+we could provide an internal function to intialize the thread and then
+call the requester's start_routine.  But, this is getting to be a
+significant time sink.
 
-If it drops the link with the net I do think it IS critical.
-Most of the time occurences of this bug do make my pppd choke.
+Eventually, I can probably cobble something together that will
+establish whether your current 2.6.10 SCHED_OTHER works with nice -20.
+Is that all we're trying to accomplish?  I do think it can be made to
+work (on some kernel versions, given appropriate privileges, with
+kernel thread priorities adjusted properly, etc.).
 
-ifconfig eth1 down
-ifconfig eth1 up
-
-helps.
-
-
-How can we nail the cause? Fix the bug partly or completely?
-Suggestions are very welcome.
-
-Thanks,
-Udo
-
-
+But, that does not meet any of my needs.
+-- 
+  joq

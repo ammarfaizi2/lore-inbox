@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264274AbTLBBKl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 20:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTLBBKk
+	id S264264AbTLBBD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 20:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTLBBD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 20:10:40 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:55819 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264274AbTLBBKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 20:10:39 -0500
-Date: Tue, 2 Dec 2003 09:11:50 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: <raven@wombat.indigo.net.au>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: "Peter C. Norton" <spacey-linux-kernel@lenin.nu>,
-       Christoph Hellwig <hch@infradead.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4 future
-In-Reply-To: <1070322894.5260.5.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.33.0312020910190.11316-100000@wombat.indigo.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.6, required 8, AWL,
-	BAYES_20, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+	Mon, 1 Dec 2003 20:03:57 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:3340
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264264AbTLBBD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 20:03:56 -0500
+Date: Mon, 1 Dec 2003 17:03:52 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: pinotj@club-internet.fr
+Cc: manfred@colorfullife.com, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Message-ID: <20031202010352.GM1566@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: pinotj@club-internet.fr, manfred@colorfullife.com,
+	torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <mnet1.1069958559.15912.pinotj@club-internet.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <mnet1.1069958559.15912.pinotj@club-internet.fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Dec 2003, Arjan van de Ven wrote:
+On Thu, Nov 27, 2003 at 07:42:39PM +0100, pinotj@club-internet.fr wrote:
+> first, some news
+> 
+> 2.6.0-test11 makes same oops during second compilation of kernel. The vanilla kernel with PREEMPT always oops the same way. No matter, it's always reproductible.
+> 
+> 2.6.0-test11 + Manfred's patch doesn't hang but I found a slab error in the logs that occured during a compilation. (I didn't find this for -test10, I was lucky ?)
+> 
+> So, there is no more way for my system to run a kernel > -test9 without problem.
 
-> On Mon, 2003-12-01 at 22:36, Peter C. Norton wrote:
-> `
-> > encouraging the distros to get behind autofs4 (hint hint, redhat,
-> > hint).
->
-> I suspect you'll have a really hard time finding ANY distro that still
-> wants to actively develop new products on a 2.4 codebase.
->
-
-Do you feel that 2.6 will be stable enough, soon enough for us to not see
-another RedHat 2.4.x?
-
--- 
-
-   ,-._|\    Ian Kent
-  /      \   Perth, Western Australia
-  *_.--._/   E-mail: raven@themaw.net
-        v    Web: http://themaw.net/
-
+Can you try some of the test9-bkN kernels and see where the problem starts?

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264192AbTDWRxm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 13:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTDWRxm
+	id S264175AbTDWRsf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 13:48:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTDWRsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 13:53:42 -0400
-Received: from mail.gmx.net ([213.165.64.20]:6159 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264192AbTDWRxl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 13:53:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Kirilenko <icedank@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Searching for string problems
-Date: Wed, 23 Apr 2003 21:05:38 +0300
-User-Agent: KMail/1.4.3
-References: <200304231958.43235.icedank@gmx.net> <Pine.LNX.4.53.0304231311460.25222@chaos>
-In-Reply-To: <Pine.LNX.4.53.0304231311460.25222@chaos>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304232105.38722.icedank@gmx.net>
+	Wed, 23 Apr 2003 13:48:35 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:63649 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264175AbTDWRsd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 13:48:33 -0400
+Date: Wed, 23 Apr 2003 11:02:10 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB fixes for 2.4.21-rc1
+Message-ID: <20030423180210.GA11995@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-> If you need to search the whole BIOS for that string, you need to
-> set up an outer loop using an unused register which starts at
-> the offset of the BIOS and increments by one byte everytime
-> you can't find the string. This value gets put into %di, instead
-> of the absolute number specified above.
->
-> Like:
->
-> scan:	movw	%cs, %ax
-> 	movw	%ax, %ds
-> 	movw	%ax, %es
-> 	movw	$where_in_BIOS_to_start, %bx
-> 	cld
-> 1:	movw	$cl_id_str, %si		# Offset of search string
-> 	movw	$cl_id_end, %cx		# Offset of string end + 1
-> 	subw	%si, %cx		# String length
-> 	decw	%cx			# Don't look for the \0
-> 	movw	%bx, %di		# ES:DI = where to look
-> 	repz	cmpsb			# Loop while the same
-> 	jz	found			# Found the string
-> 	incb	%bx			# Next starting offset
-> 	cmpb	$_BIOS_END, %bx		# Check for limit
-> 	jb	1b			# Continue
-> never_found_anywhere:
->
-> found:
+Here are three USB bugfixes for 2.4.21-rc1.  They are two fixes for the
+usb-storage driver, and one fix for the keyspan driver.
 
-I've written something similar to this before - and it wont' work, so I've 
-reimplemented it. The problem is, that I don't know how to set ES properly. I 
-only know, that BIOS data (and code) is located in 0xe000..0xf000 (real 
-address).
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/marcelo-2.4
 
-Best regards,
-Andrew.
+The individual patches will be sent in follow up messages to this email
+to you and the linux-usb-devel mailing list.
+
+thanks,
+
+greg k-h
+
+ drivers/usb/serial/keyspan.c    |   15 +++++++++------
+ drivers/usb/serial/keyspan.h    |   20 +++++++++++++++++++-
+ drivers/usb/storage/transport.c |   10 +++++++++-
+ drivers/usb/storage/usb.h       |    1 +
+ 4 files changed, 38 insertions(+), 8 deletions(-)
+-----
+
+<lucy@innosys.com>:
+  o USB: keyspan driver fixes
+
+Alan Stern <stern@rowland.harvard.edu>:
+  o USB: usb-storage fixes
+  o USB: usb storage async unlink error code fix
+

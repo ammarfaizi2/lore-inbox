@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262151AbREPX7M>; Wed, 16 May 2001 19:59:12 -0400
+	id <S262156AbREQAKm>; Wed, 16 May 2001 20:10:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262160AbREPX7C>; Wed, 16 May 2001 19:59:02 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:42144 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262151AbREPX66>; Wed, 16 May 2001 19:58:58 -0400
-Date: Wed, 16 May 2001 17:58:47 -0600
-Message-Id: <200105162358.f4GNwll13400@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rgooch@ras.ucalgary.ca (Richard Gooch),
-        geert@linux-m68k.org (Geert Uytterhoeven),
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        torvalds@transmeta.com (Linus Torvalds),
-        neilb@cse.unsw.edu.au (Neil Brown),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+	id <S262157AbREQAKX>; Wed, 16 May 2001 20:10:23 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:31176 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262156AbREQAKS>; Wed, 16 May 2001 20:10:18 -0400
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2A7@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'H. Peter Anvin'" <hpa@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Jonathan Lundell <jlundell@pobox.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E150B5B-0004fs-00@the-village.bc.nu>
-In-Reply-To: <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
-	<E150B5B-0004fs-00@the-village.bc.nu>
+Subject: RE: LANANA: To Pending Device Number Registrants
+Date: Wed, 16 May 2001 17:09:06 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > Argh! What I wrote in text is what I meant to say. The code didn't
-> > match. No wonder people seemed to be missing the point. So the line of
-> > code I actually meant was:
-> > 	if (strcmp (buffer + len - 3, "/cd") != 0) {
+hpa wrote:
 > 
-> drivers/kitchen/bluetooth/vegerack/cd
-> 
-> its the cabbage dicer still ..
+> Alan Cox wrote:
+> > 
+> > > Are FireWire (and USB) disks always detected in the same 
+> > > order? Or does it
+> > > behave like ADB, where you never know which 
+> > > mouse/keyboard is which mouse/keyboard?
+> > 
+> > USB disks are required (haha etc) to have serial numbers. 
+> > Firewire similarly has unique disk identifiers.
 
-No, because it violates the standard. Just as we can define a major
-number to have a specific meaning, we can define a name in the devfs
-namespace to have a specific meaning.
+Bulk-only USB storage is required to have serial numbers.
+E.g., Zip drives, probably USB hard drives and CDs.
+Drives that use CBI (control/bulk/interrupt) transport (mostly
+floppies) are not required to have serial numbers.
+(Cost thing, of course.)
 
-Yes, it's broken if someone writes a cabbage dicer driver and uses
-"cd" as the leaf node name for devfs.
+> How about for other device classes?
 
-Yes, it's broken if someone writes a cabbage dicer driver and uses
-the same major as the IDE CD-ROM or SCSI CD-ROM drivers.
+Mice?  no way.  Keyboards?  nope.
+Webcams?  nope.
+Printers?  optional.
+Audio?  no.
+Communication?  not mentioned in the spec.
+Hub?  not mentioned in the spec.
 
-				Regards,
+~Randy
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

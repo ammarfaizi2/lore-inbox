@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276330AbRJZMqX>; Fri, 26 Oct 2001 08:46:23 -0400
+	id <S278468AbRJZN06>; Fri, 26 Oct 2001 09:26:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276803AbRJZMqN>; Fri, 26 Oct 2001 08:46:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5385 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276330AbRJZMqE>; Fri, 26 Oct 2001 08:46:04 -0400
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-To: anuradha@gnu.org (Anuradha Ratnaweera)
-Date: Fri, 26 Oct 2001 13:53:08 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011026084328.A14814@bee.lk> from "Anuradha Ratnaweera" at Oct 26, 2001 08:43:28 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278470AbRJZN0j>; Fri, 26 Oct 2001 09:26:39 -0400
+Received: from [202.54.64.2] ([202.54.64.2]:38918 "EHLO ganesh.ctd.hctech.com")
+	by vger.kernel.org with ESMTP id <S278468AbRJZN0e>;
+	Fri, 26 Oct 2001 09:26:34 -0400
+Message-ID: <EF836A380096D511AD9000B0D021B52723D9DE@narmada.ctd.hcltech.com>
+From: "ASAI THAMBI S.P - CTD, Chennai." <sp_asai@ctd.hcltech.com>
+To: linux-kernel@vger.kernel.org
+Subject: open a file in kernel mode in solaris
+Date: Fri, 26 Oct 2001 18:55:32 +0530
+Importance: high
+X-Priority: 1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15x6U0-0008Hs-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is a popular software that runs on MS platform called "download
-> accelerator".  This opens several threads for a download job (each one
-> downloading a portion of the file), sometimes even using mirror sites.
-> However, it not only grabs whole bandwidth, but makes it hard for other
-> machines to even ping each other the return time being around 5-10 seconds on a
-> 100 Mbps network!  The download process is getting only 64 kbps from the
-> Internet.  Internet access is virtually impossible for the other machines.
+In linux, 
+we can open a file in kernel mode using some functions like set_fs(),
+get_fs()...
+Moreover to call sys-open, we do so thru sys_call_table[__NR_open].
 
-Firewall them off. There are also apache hacks for spotting the 
-download accelerator device and blocking the user for good.
 
-> I monitored network traffic with tcpdump, and noticed that those packets don't
-> have tcp timestamps and tcp sack.  I turned them off on my Linux box using
-> sysctl, and also tried turning on ECN without success.
+In Solaris, 
+how can we do this?
 
-They will tend to come from older windows boxes, the timestamp/sack stuff
-is unrelated
+asai. 
 
-> This is of course a DoS in disguise, and is there a way to stop it?
 
-Turning off byte range support in the web server works suprisingly well for
-it. Another non hacking code approach would be to set up CBQ or other
-bandwidth limiters so that the users of download accelerator get no
-benefit. The advantage of the apache hacks is that you can make them
-actually suffer
+***********************************************************************
+Disclaimer: 
+This document is intended for transmission to the named recipient only.  If
+you are not that person, you should note that legal rights reside in this
+document and you are not authorized to access, read, disclose, copy, use or
+otherwise deal with it and any such actions are prohibited and may be
+unlawful. The views expressed in this document are not necessarily those of
+HCL Technologies Ltd. Notice is hereby given that no representation,
+contract or other binding obligation shall be created by this e-mail, which
+must be interpreted accordingly. Any representations, contractual rights or
+obligations shall be separately communicated in writing and signed in the
+original by a duly authorized officer of the relevant company.
+***********************************************************************
+
+

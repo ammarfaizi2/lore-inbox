@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267254AbSK3Oqy>; Sat, 30 Nov 2002 09:46:54 -0500
+	id <S267257AbSK3Ov1>; Sat, 30 Nov 2002 09:51:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267255AbSK3Oqy>; Sat, 30 Nov 2002 09:46:54 -0500
-Received: from [213.140.2.50] ([213.140.2.50]:42942 "EHLO
-	mailres.fastwebnet.it") by vger.kernel.org with ESMTP
-	id <S267254AbSK3Oqx>; Sat, 30 Nov 2002 09:46:53 -0500
-Message-Id: <5.1.1.5.2.20021130152506.02922d50@popmail.iol.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Sat, 30 Nov 2002 15:47:25 +0100
-To: jsimmons@infradead.org
-From: Alberto Ornaghi <alor@iol.it>
-Subject: [2.5.50] problems with framebuff and vesafb
-Cc: linux-kernel@vger.kernel.org
+	id <S267260AbSK3Ov1>; Sat, 30 Nov 2002 09:51:27 -0500
+Received: from smtp09.iddeo.es ([62.81.186.19]:20407 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id <S267257AbSK3OvZ>;
+	Sat, 30 Nov 2002 09:51:25 -0500
+Date: Sat, 30 Nov 2002 15:58:49 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: hugang <hugang@soulinfo.com>
+Cc: linux-kernel@vger.kernel.org, conman@kolivas.net
+Subject: Re: [PATCHSET] Linux 2.4.20-jam0
+Message-ID: <20021130145849.GE2517@werewolf.able.es>
+References: <20021129233807.GA1610@werewolf.able.es> <20021130143647.1e9a527a.hugang@soulinfo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20021130143647.1e9a527a.hugang@soulinfo.com>; from hugang@soulinfo.com on Sat, Nov 30, 2002 at 07:36:47 +0100
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-If I enable the CONFIG_VIDEO_SELECT option  and the I pass the vga=791 thru 
-LILO, I cannot see any message while the kernel boots and while 
-running.  the kernel is live, the only problem is that the video seems 
-turned off. (I can blindly log in the system and type a reboot)
+On 2002.11.30 hugang wrote:
+>On Sat, 30 Nov 2002 00:38:07 +0100
+>"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+>>  - Orlov inode allocator for 2.4
+>
+>- add andrew morton supper.c patch
+>- change the indent to linux standard.
+>
 
-I suppose this is a regression since my 2.4.20 is working fine with that 
-option and I can use my 1024x768 framebuffer console.
+Thankks, I will update it.
+Just a note for further updates: could you make the patch from /usr/src, 
+instead of /usr/src/linux, so it can be applied with patch -p1 ?
+It is the standard way...
 
-I have an S3 savage twister-K, and since there isn't a native driver for 
-it, I'm using the vesafb driver.
+TIA
 
-do you need more info ?
-
-bye
-
-    --==> ALoR <==---------------------- -  -   -
-
-There are only 10 types of people in this world...
-those who understand binary, and those who don't.
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-jam0 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))

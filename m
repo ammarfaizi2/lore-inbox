@@ -1,110 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269106AbUJQRfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269218AbUJQRiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269106AbUJQRfP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 13:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269221AbUJQRfO
+	id S269218AbUJQRiV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 13:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269221AbUJQRiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 13:35:14 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:63297 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269106AbUJQRdQ (ORCPT
+	Sun, 17 Oct 2004 13:38:21 -0400
+Received: from mail.gmx.de ([213.165.64.20]:44961 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269218AbUJQRiQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 13:33:16 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=M2AMcPktx0sTELGrq0akje7mJziB6Q4Y15rH6oS3zkANzeeONIsL2BrvQzJgLn6DwvPUhaSKApxn/k3T+ALrfRo2y+JGOjfzwznsG6CxIbtD90Ta8awb5nNsCYdToAz4PmVl46qmKEYbwomhkAFbEjLu4j6gRfvNLqQZDKL5bx4
-Message-ID: <5d6b65750410171033d9d83ab@mail.gmail.com>
-Date: Sun, 17 Oct 2004 19:33:15 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Martijn Sipkema <martijn@entmoot.nl>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Cc: Lars Marowsky-Bree <lmb@suse.de>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <000801c4b46f$b62034b0$161b14ac@boromir>
+	Sun, 17 Oct 2004 13:38:16 -0400
+X-Authenticated: #4399952
+Date: Sun, 17 Oct 2004 19:53:58 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
+Message-ID: <20041017195358.4e473893@mango.fruits.de>
+In-Reply-To: <20041017165509.GA26791@elte.hu>
+References: <20041012091501.GA18562@elte.hu>
+	<20041012123318.GA2102@elte.hu>
+	<20041012195424.GA3961@elte.hu>
+	<20041013061518.GA1083@elte.hu>
+	<20041014002433.GA19399@elte.hu>
+	<20041014143131.GA20258@elte.hu>
+	<20041014234202.GA26207@elte.hu>
+	<20041015102633.GA20132@elte.hu>
+	<20041016153344.GA16766@elte.hu>
+	<20041017190330.7a226190@mango.fruits.de>
+	<20041017165509.GA26791@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20041016062512.GA17971@mark.mielke.cc>
-	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
-	 <20041017133537.GL7468@marowsky-bree.de>
-	 <5d6b657504101707175aab0fcb@mail.gmail.com>
-	 <20041017150509.GC10280@mark.mielke.cc>
-	 <5d6b65750410170840c80c314@mail.gmail.com>
-	 <000801c4b46f$b62034b0$161b14ac@boromir>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Oct 2004 18:35:34 +0100, Martijn Sipkema <martijn@entmoot.nl> wrote:
-> From: "Buddy Lucas" <buddy.lucas@gmail.com>
-> > On Sun, 17 Oct 2004 11:05:09 -0400, Mark Mielke <mark@mark.mielke.cc> wrote:
-> > > On Sun, Oct 17, 2004 at 04:17:06PM +0200, Buddy Lucas wrote:
-> > > > On Sun, 17 Oct 2004 15:35:37 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
-> > > > > The SuV spec is actually quite detailed about the options here:
-> > > > >         A descriptor shall be considered ready for reading when a call
-> > > > >         to an input function with O_NONBLOCK clear would not block,
-> > > > >         whether or not the function would transfer data successfully.
-> > > > >         (The function might return data, an end-of-file indication, or
-> > > > >         an error other than one indicating that it is blocked, and in
-> > > > >         each of these cases the descriptor shall be considered ready for
-> > > > >         reading.)
-> > > > But it says nowhere that the select()/recvmsg() operation is atomic, right?
-> > >
-> > > This is a distraction. If the call to select() had been substituted
-> > > with a call to recvmsg(), it would have blocked. Instead, select() is
-> > > returning 'yes, you can read', and then recvmsg() is blocking. The
-> > > select() lied. The information is all sitting in the kernel packet
-> >
-> > No. A million things might happen between select() and recvmsg(), both
-> > in kernel and application. For a consistent behaviour throughout all
-> > possibilities, you *have* to assume that any read on a blocking fd may
-> > block, and that a fd ready for reading at select() time might not be
-> > readable once the app gets to recvmsg() -- for whatever reason.
+On Sun, 17 Oct 2004 18:55:09 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
+
+> ok, does the patch below fix those messages? (gameport.c used its own,
+> private, incompatible prototype for i8253_lock which breaks raw spinlock
+> handling.)
 > 
-> It is perfectly possible to not have a million things happen between
-> select() and recvmsg() and POSIX defines what can happen and what
-> can't; it states that a process calling select() on a socket will not block
-> on a subsequent recvmsg() on that socket.
-> 
-> > And indeed, that implies that select() on blocking fds is generally
-> > not useful if you expect to bypass the blocking through select().
-> > Personally,  I think any application that implements this expectation
-> > is broken. (If only because you might have to do a second read() or
-> > recvmsg() which will either result in a crappy select() loop or a
-> > broken read()/recvmsg() loop).
-> 
-> The way select() is defined in POSIX effectively means that once an
-> application has done a select() on a socket, the data that caused
-> select() to return is committed, i.e. it can no longer be dropped and
-> should be considered received by the application; this has nothing
 
-That is plainly wrong. Data is never received by an application before
-recvmsg() has succeeded.
+it seems to fix it. i don't see any more messages like the reported anymore.
+snd-cs46xx might have some other issues though: Upon rmmod snd-cs46xx i see:
 
-> to do with UDP being unreliable and being unreliable for the sake
-> of it is not what UDP was meant for.
-> 
-> Whether you think an application that is written to use select() as
-> defined in POSIX is broken is not really important. The fact remains
-> that Linux currently implements a select() that is _not_ POSIX
-> compliant and is so solely for performance reasons. I personally think
-> correct behaviour is much more important.
+Oct 17 19:43:04 mango kernel: Sound Fusion CS46xx 0000:00:0f.0: Device was removed without properly calling pci_disable_device(). This may need fixing.
 
-All I'm saying is, that applications that are not correct now, will
-probably not be correct even if we change the way Linux handles this
-situation. The sanest thing really seems to accept the fact that any
-read() on a blocking fd might block, even if the programmer thinks it
-really shouldn't.
+but i should probably report that to alsa-devel instead right?
 
-But then I am one of those who thinks it's sane to check for
-EWOULDBLOCK on a nonblocking socket after blocking in select().
-
-Let's just document this and move on to something more important.
-
-
-Cheers,
-Buddy
-
-> --ms
-> 
->
+flo

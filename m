@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVCROIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVCROI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVCROIK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 09:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVCROIK
+	id S261608AbVCROI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 09:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVCROI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 09:08:10 -0500
-Received: from postman2.arcor-online.net ([151.189.20.157]:15003 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S261607AbVCROIJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 09:08:09 -0500
-Date: Fri, 18 Mar 2005 15:09:41 +0100
-From: Juergen Quade <quade@hsnr.de>
-To: "Josef E. Galea" <josefeg@euroweb.net.mt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel space sockets
-Message-ID: <20050318140941.GA31622@hsnr.de>
-References: <423ADD5B.5060708@euroweb.net.mt>
+	Fri, 18 Mar 2005 09:08:59 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:32169 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261608AbVCROIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 09:08:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=b+mz8cigzARXXrELZ09h0DM2ZysT8h7n5f8cmOBMpiOJrKqQ5Pxt7C6AZefnoyTyhdrvrbQs6sfnOo2m+WSxzEtQxU1ocMedVrN/NvjR7K3Rqv5DkZ7aYHtLiUSI3hce1BCj+PVuT4bSXsblQcqeXOFOWF9UaNzRBGiaOQvceCI=
+Message-ID: <c26b9592050318060863830434@mail.gmail.com>
+Date: Fri, 18 Mar 2005 19:38:45 +0530
+From: Imanpreet Arora <imanpreet@gmail.com>
+Reply-To: Imanpreet Arora <imanpreet@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Question on Scheduler activations
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <423ADD5B.5060708@euroweb.net.mt>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 02:53:31PM +0100, Josef E. Galea wrote:
-> Hi,
-> 
-> I'm trying to implement a UDP server in a kernel module. So far I have 
-> created the struct socket using sock_create_kern(), and used 
-> sock->ops->bind() on it. Now how do I send UDP datagrams? I looked at 
-> some code and found the function sock->ops->sendmsg() but I can't figure 
-> out where to put the destination address. I would appreciate it if 
-> someone could point me to some tutorial or sample code.
+Hello,
 
-Maybe the sample code on this (german) site helps:
+	I came across 
 
-http://ezs.kr.hsnr.de/TreiberBuch/Artikel/index.html
+		http://people.redhat.com/drepper/glibcthreads.html
 
-Look at "Folge" 16.
+	It seems to arouse a bit of confusion. _FIRST_ it says that scheduler
+activations are BAD. Then it delves on the possible implementation of
+Scheduler activations in Linux. Though I know that scheduler
+activations are not part of the present kernel. Could anyone provide
+BOTH the short and long answer to
 
-          Juergen.
+a)	If they were ever implemented?
+b)	Reasons for rejection?
+
+
+TIA
+	
+-- 
+
+Imanpreet Singh Arora

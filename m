@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266861AbUGLOtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265138AbUGLOxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266861AbUGLOtP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 10:49:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265138AbUGLOtP
+	id S265138AbUGLOxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 10:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUGLOxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 10:49:15 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:44242 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266861AbUGLOtH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 10:49:07 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
-Date: Mon, 12 Jul 2004 09:49:03 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net,
-       dm-devel@redhat.com, torvalds@osdl.org, agk@redhat.com
-References: <200407011035.13283.kevcorry@us.ibm.com> <1089197914.986.17.camel@new.localdomain> <20040707041059.17287591.akpm@osdl.org>
-In-Reply-To: <20040707041059.17287591.akpm@osdl.org>
+	Mon, 12 Jul 2004 10:53:25 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:8715 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265138AbUGLOxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 10:53:23 -0400
+Message-ID: <40F2AB82.40508@techsource.com>
+Date: Mon, 12 Jul 2004 11:17:22 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
+       mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0407080917420.1764@ppc970.osdl.org> <40ED7BE7.7010506@techsource.com> <200407090056.51084.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200407090056.51084.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407120949.03928.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 July 2004 6:10 am, Andrew Morton wrote:
-> Jim Houston <jim.houston@comcast.net> wrote:
-> >
-> > Hi Andrew,
-> >
-> > It's not quite right.  If you want to keep a count in the upper bits
-> > you have to mask off that count before checking if the id is beyond the
-> > end of the allocated space.
->
-> OK, I'll fix that up.
->
-> But I don't want to keep a count in the upper bits!  I want rid of that
-> stuff altogether, completely, all of it.  It just keeps on hanging around
-> :(
->
-> We should remove MAX_ID_* from the kernel altogether.
 
-Just following up on the proposed IDR changes. Based on the patches in the 
-latest -mm tree, I'm assuming there is or will be a fix for IDR so it will 
-always return NULL when asked to find an id that's not currently allocated. 
-Is this correct? If so, I can drop the second "dm-use-idr" patch (from July 
-6, 2004) and keep the one that's currently in -mm.
 
-Thanks!
+Denis Vlasenko wrote:
+> On Thursday 08 July 2004 19:52, Timothy Miller wrote:
+> 
+>>Linus Torvalds wrote:
+>>
+>>>I've seen too damn many people mistake NULL and NUL (admit it, you've
+>>>seen it too), and I've seen code like
+>>>
+>>>	char c = NULL;
+>>
+>>THIS is simply a case of the programmer not understanding what NULL
+>>means.  When I use '0' for a pointer, I know EXACTLY what I mean, and I
+>>also know when '0' might be ambiguous, and when I don't know what I'm
+>>allowed to do, then I play it REALLY safe and typecast 0 to exactly the
+>>pointer type I need.
+> 
+> 
+> The question is, whether readers of your code (including compiler)
+> will be able to be sure that there is no error in
+> 
+> 	f(a,b,c,d,e,0,f,g,h);
+> 
+> statement or not. Better typecheck that 0.
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+This I agree with, definately.  It's very important to make your code 
+readable, and if it's not obvious from context, make it obvious.  Cases 
+like the above are one of the reasons I like languages like Verilog 
+where you can pass parameters by specifying the parameter name.
+

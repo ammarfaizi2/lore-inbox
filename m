@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbTLAJmC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 04:42:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTLAJmB
+	id S262738AbTLAJrG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 04:47:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTLAJrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 04:42:01 -0500
-Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:59274 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262427AbTLAJl7
+	Mon, 1 Dec 2003 04:47:06 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:54674 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S262738AbTLAJrD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 04:41:59 -0500
-Message-ID: <3FCB0D6A.3030503@stesmi.com>
-Date: Mon, 01 Dec 2003 10:44:10 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Mon, 1 Dec 2003 04:47:03 -0500
+To: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: hash table sizes
+References: <16323.23221.835676.999857@gargle.gargle.HOWL>
+	<20031125204814.GA19397@sgi.com>
+	<20031125130741.108bf57c.akpm@osdl.org>
+	<20031125211424.GA32636@sgi.com>
+	<20031125132439.3c3254ff.akpm@osdl.org>
+	<yq0d6bcmvfd.fsf@wildopensource.com> <20031128145255.GA26853@sgi.com>
+	<yq08ym0mpig.fsf@wildopensource.com> <20031128193536.GA28519@sgi.com>
+	<20031128211827.GA25644@wohnheim.fh-wedel.de>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 01 Dec 2003 04:46:22 -0500
+In-Reply-To: <20031128211827.GA25644@wohnheim.fh-wedel.de>
+Message-ID: <yq0ptf898gh.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Nathan Scott <nathans@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: XFS for 2.4
-References: <20031201062052.GA2022@frodo> <20031201092446.GK6454@suse.de>
-In-Reply-To: <20031201092446.GK6454@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+>>>>> "Jörn" == Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
 
-> On Mon, Dec 01 2003, Nathan Scott wrote:
-> 
->>Hi Marcelo,
->>
->>Please do a
->>
->>	bk pull http://xfs.org:8090/linux-2.4+coreXFS
->>
->>This will merge the core 2.4 kernel changes required for supporting
->>the XFS filesystem, as listed below.  If this all looks acceptable,
->>then please also pull the filesystem-specific code (fs/xfs/*)
->>
->>	bk pull http://xfs.org:8090/linux-2.4+justXFS
-> 
-> 
-> Where can these be found as a unified diff? It's quite bothersome to
-> have to pull a changeset just to review it (cloning a kernel tree
-> first), not to mention space intensive.
-> 
+Jörn> [pruned CC: list]
+Jörn> On Fri, 28 November 2003 13:35:36 -0600, Jack Steiner wrote:
+>> You proposed above to limit the allocation to the amount of memory
+>> on a node.
 
-There was a mail announcing split-patches for 2.4.23 five hours before
-this mail. The mail was from Keith Owens but here's the link from it:
+Jörn> Jes didn't _limit_ the allocation to the memory on a node, he
+Jörn> _based_ it on it, instead of total memory for all nodes.
+Jörn> Therefore a 1024 node NUMA machine with 2GB per node has no
+Jörn> bigger hash tables, than a single CPU machine with 2GB total
+Jörn> memory, however big that may be.
 
-ftp://oss.sgi.com/projects/xfs/patches/2.4.23 for the 2.4.23 patches.
+Jörn> Unless I didn't understand his patch, that is. :)
 
-// Stefan
+Yep, thats exactly what my patch did. There's a gotcha if node 0 has a
+lot less memory than the remaining nodes, but I also suspect the size
+of those hash tables was already out of whack as memory has gone up.
 
+Thanks,
+Jes

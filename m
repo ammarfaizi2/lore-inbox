@@ -1,64 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263267AbSJCMfl>; Thu, 3 Oct 2002 08:35:41 -0400
+	id <S263283AbSJCMhz>; Thu, 3 Oct 2002 08:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263279AbSJCMfl>; Thu, 3 Oct 2002 08:35:41 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:43189 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S263267AbSJCMfk>;
-	Thu, 3 Oct 2002 08:35:40 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
+	id <S263284AbSJCMhz>; Thu, 3 Oct 2002 08:37:55 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:4316 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263283AbSJCMhx>;
+	Thu, 3 Oct 2002 08:37:53 -0400
+Date: Thu, 3 Oct 2002 14:43:19 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: jbradford@dial.pipex.com
+Cc: Vojtech Pavlik <vojtech@suse.cz>, tori@ringstrom.mine.nu,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40: AT keyboard input problem
+Message-ID: <20021003144319.A38785@ucw.cz>
+References: <20021003133157.A38397@ucw.cz> <200210031242.g93Cg3Uh000144@darkstar.example.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15772.15056.287602.502467@kim.it.uu.se>
-Date: Thu, 3 Oct 2002 14:40:48 +0200
-To: vamsi@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, richardj_moore@uk.ibm.com,
-       grundym@us.ibm.com, vamsi_krishna@in.ibm.com,
-       suparna <bsuparna@in.ibm.com>
-Subject: Re: [rfc] [patch] kernel hooks
-In-Reply-To: <20021003175600.A17884@in.ibm.com>
-References: <20021003175600.A17884@in.ibm.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210031242.g93Cg3Uh000144@darkstar.example.net>; from jbradford@dial.pipex.com on Thu, Oct 03, 2002 at 01:42:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vamsi Krishna S . writes:
- > Hooks are implemented as fast and slim-line insertions to kernel 
- > space code. When not active that have practically no overhead to
- > the kernel. Optimized versions are implemented on ia32, ppc, 
- > ppc64, s390, s390x archs, where they expand to:
- > 	movl $0, %reg
- > 	     ^x
- > 	testl %reg, %reg
- > 	jz out
- > 	call out exits
- > 	out:
- > 
- > Hooks are armed by editing the number at ^x above to a non-zero 
- > value so that the exits will be now be called out. 
-...
- > +static inline void activate_asm_hook(struct hook *hook)
- > +{
- > +	unsigned char *addr = (unsigned char *) (hook->hook_addr);
- > +	addr[2] = 1;
- > +	flush_icache_range(addr + 2, addr + 2);
- > +	return;
- > +}
+On Thu, Oct 03, 2002 at 01:42:02PM +0100, jbradford@dial.pipex.com wrote:
 
-You just triggered Intel's "Unsynchronised Cross-Modifying Code
-Operations Can Cause Unexpected Instruction Execution Results"
-Erratum, which affects _every_ multiprocessor Intel P6 box.
-It's Pentium 3 Erratum E49 if you want to look it up; the other
-Intel P6s have it too, but with different numbers.
+> > 1) The same with i8042_direct on the kernel command line.
+> 
+> OK, here is the dmesg output - I've cut out things not releating to
+> the keyboard.  This shows a boot followed by presses of -
+> 'Henkaku/Zenkaku', '???', 'space', '???', and 'Hiragana/Romaji':
 
-In short, the only safe way to do this sort of thing is to force
-all other processors to wait on a barrier first, then modify the
-code, then release the barrier.
+> i8042.c: 00 <- i8042 (interrupt, kbd, 1) [138631]
+> atkbd.c: Unknown key (set 2, scancode 0x0, on isa0060/serio0) pressed.
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [199889]
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [199972]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [199974]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [200469]
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [200554]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [200555]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [200922]
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [201024]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [201025]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [201415]
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [201516]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [201518]
 
-On a general note, I wish people would pay more attention to Intel's
-and AMD's errata documents. There are a number of things documented
-in Intel's IA32 manual set which simply do not work in the real world
-due to errata. Unsync cross-modifying code is one, the PAT is another.
+Obviously, the keyboard doesn't know how to send these keys in Set 2.
 
-/Mikael
+> > 2) The same with i8042_direct and atkbd_set=3 on the kernel command line.
+> > 
+> > It may make the extra keyboards work and will definitely explain what's
+> > happening in greater detail.
+> 
+> Right, this one is interesting - same keypresses as above, and this
+> time the keys work, (excellent :-) ), Henkaku/Zenkaku is mapped to
+> backtick, (as expected, as I am using a Russian keymap), and the other
+> extra keys are not mapped to anything, (again, as to be expected).
+> 
+> i8042.c: 0e <- i8042 (interrupt, kbd, 1) [37041]
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [37142]
+> i8042.c: 0e <- i8042 (interrupt, kbd, 1) [37143]
+> i8042.c: 85 <- i8042 (interrupt, kbd, 1) [41289]
+> atkbd.c: Unknown key (set 3, scancode 0x85, on isa0060/serio0) pressed.
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [41382]
+> i8042.c: 85 <- i8042 (interrupt, kbd, 1) [41384]
+> atkbd.c: Unknown key (set 3, scancode 0x85, on isa0060/serio0) released.
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [42385]
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [42478]
+> i8042.c: 29 <- i8042 (interrupt, kbd, 1) [42480]
+> i8042.c: 86 <- i8042 (interrupt, kbd, 1) [43519]
+> atkbd.c: Unknown key (set 3, scancode 0x86, on isa0060/serio0) pressed.
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [43596]
+> i8042.c: 86 <- i8042 (interrupt, kbd, 1) [43598]
+> atkbd.c: Unknown key (set 3, scancode 0x86, on isa0060/serio0) released.
+> i8042.c: 87 <- i8042 (interrupt, kbd, 1) [45273]
+> atkbd.c: Unknown key (set 3, scancode 0x87, on isa0060/serio0) pressed.
+> i8042.c: f0 <- i8042 (interrupt, kbd, 1) [45366]
+> i8042.c: 87 <- i8042 (interrupt, kbd, 1) [45367]
+> atkbd.c: Unknown key (set 3, scancode 0x87, on isa0060/serio0) released.
+
+And it is happy in Set 3. Do you by any chance know the names of the
+unknown keys so that I could add them to the Set 3 default scancode map?
+
+> Interestingly, I wasn't able to reproduce the bashing multiple keys
+> error, using i8042_direct or atkbd_set=3.
+
+Yes, it can only happen without i8042_direct.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVDER0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVDERne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVDER0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVDERYd
+	id S261820AbVDERne (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVDERne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:24:33 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:1204 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261845AbVDERLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:11:47 -0400
-Subject: Re: 2.6.12-rc2-mm1
-From: Christophe Saout <christophe@saout.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
-References: <20050405000524.592fc125.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xSOqNKXDtPG/gnNc/3oC"
-Date: Tue, 05 Apr 2005 19:11:40 +0200
-Message-Id: <1112721100.11417.3.camel@leto.cs.pocnet.net>
+	Tue, 5 Apr 2005 13:43:34 -0400
+Received: from cantor.suse.de ([195.135.220.2]:18095 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261820AbVDERQU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:16:20 -0400
+Date: Tue, 5 Apr 2005 19:16:15 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jason Davis <jason@righTThere.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Jason Davis <jason.davis@unisys.com>
+Subject: Re: [PATCH] 2.6.12-rc1-mm4 x86_64 genapic update
+Message-ID: <20050405171615.GA11088@wotan.suse.de>
+References: <20050401173727.GA26638@righTThere.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050401173727.GA26638@righTThere.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 01, 2005 at 12:37:27PM -0500, Jason Davis wrote:
+> Hello,
+> 
+> x86_64 genapic mechanism should be aware of machines that use physical APIC 
+> mode regardless of how many clusters/processors are detected. ACPI 3.0 FADT 
+> makes this determination very simple by providing a feature flag 
+> "force_apic_physical_destination_mode" to state whether the machine 
+> unconditionally uses physical APIC mode. Unisys' next generation x86_64 
+> ES7000 will need to utilize this FADT feature flag in order to boot the 
+> x86_64 kernel in the correct APIC mode. This patch has been tested on both 
+> x86_64 commodity and ES7000 boxes.
 
---=-xSOqNKXDtPG/gnNc/3oC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Patch is ok for me.
 
-Hi Andrew,
-
-> - Nobody said anything about the PM resume and DRI behaviour in
->   2.6.12-rc1-mm4.  So it's all perfect now?
-
-Yes, works for me. DRI (i915) is working again and  USB is now happy
-after a PM resume too.
-
-
---=-xSOqNKXDtPG/gnNc/3oC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCUsbMZCYBcts5dM0RAiilAKCUk3TWa4GbjariyXozxoW7yMmd5QCgkbLT
-EUlPn2RYgUEFOCgIliES24M=
-=68NW
------END PGP SIGNATURE-----
-
---=-xSOqNKXDtPG/gnNc/3oC--
-
+-Andi

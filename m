@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293686AbSB1Wqj>; Thu, 28 Feb 2002 17:46:39 -0500
+	id <S293425AbSB1VxP>; Thu, 28 Feb 2002 16:53:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293349AbSB1WpC>; Thu, 28 Feb 2002 17:45:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60178 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S310193AbSB1Wka>; Thu, 28 Feb 2002 17:40:30 -0500
-Date: Thu, 28 Feb 2002 17:38:31 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Submissions for 2.4.19-pre [sdmany (Richard Gooch)] [Discuss :) ]
-In-Reply-To: <E16fdvk-0008S7-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020228173303.2006G-100000@gatekeeper.tmr.com>
+	id <S310143AbSB1Vvl>; Thu, 28 Feb 2002 16:51:41 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:23433 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S310127AbSB1Vt1>;
+	Thu, 28 Feb 2002 16:49:27 -0500
+Date: Thu, 28 Feb 2002 23:50:59 +0200 (EET)
+From: Teodor Iacob <theo@astral.kappa.ro>
+X-X-Sender: <theo@linux.kappa.ro>
+Reply-To: <Teodor.Iacob@astral.kappa.ro>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Chris Rankin <cj.rankin@ntlworld.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.18 : lots of "state D" processes (more)
+In-Reply-To: <20020228183120.C1705@inspiron.school.suse.de>
+Message-ID: <Pine.LNX.4.31.0202282350070.5438-100000@linux.kappa.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Alan Cox wrote:
+The process who gets "hunged" is:
+  889 ?        D      0:00 /usr/bin/perl
+/usr/share/printconf/util/printconf_mfomatic.pl -d epl5800-633554.foo
 
-> Even if your hack reflected the newer table it would still be an ugly hack
-> for a few special case situations rather than any notion of release quality.
-> Its a very clever devfs hack, but its still an ugly hack
-> 
-> Do it right, and do it in 2.5
+And this doesn't happen with your patch, it does happen with rmap12g,
+hadn't test simple 2.4.19-pre1
 
-Hate to say it but 2.5 is not ready for any kind of production use, and
-some people really need to connect more SCSI devices than are currently
-supported. That's NOT ivory tower, it's real world "do it with Linux"
-problem solving.
+..
 
-If you have a "do it right" solution which is stable, for a stable kernel,
-please let us know. This isn't a theoretical problem.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+On Thu, 28 Feb 2002, Andrea Arcangeli wrote:
+
+> On Thu, Feb 28, 2002 at 12:38:13PM +0200, Teodor Iacob wrote:
+> > Hello,
+> >
+> > I got a few stats "D" process also with 2.4.19-pre1-rmap12g, the processes
+> > were using my usb printer, which actually I never got it to work anyway
+> > because this was the first kernel to try to make it work, and ofc I
+> > couldn't kill the processes, but the reboot went cleanly.
+>
+> Can you reproduce on 2.4.19pre1aa1?
+>
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1.bz2
+>
+> Andrea
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

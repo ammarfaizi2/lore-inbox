@@ -1,85 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbRGIUBq>; Mon, 9 Jul 2001 16:01:46 -0400
+	id <S264869AbRGIUF4>; Mon, 9 Jul 2001 16:05:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264864AbRGIUBg>; Mon, 9 Jul 2001 16:01:36 -0400
-Received: from maus.spack.org ([204.245.198.90]:39943 "EHLO maus.spack.org")
-	by vger.kernel.org with ESMTP id <S261651AbRGIUBS>;
-	Mon, 9 Jul 2001 16:01:18 -0400
-Date: Mon, 9 Jul 2001 13:01:17 -0700 (PDT)
-From: Adam Shand <larry@spack.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: What is the truth about Linux 2.4's RAM limitations?
-Message-ID: <Pine.LNX.4.32.0107091250170.25061-100000@maus.spack.org>
-X-PGP-Key: http://www.spack.org/~larry/gnupgkey.html
+	id <S264872AbRGIUFq>; Mon, 9 Jul 2001 16:05:46 -0400
+Received: from pat.uio.no ([129.240.130.16]:59057 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S264869AbRGIUFh>;
+	Mon, 9 Jul 2001 16:05:37 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <15178.3722.86802.671534@charged.uio.no>
+Date: Mon, 9 Jul 2001 22:05:30 +0200
+To: Craig Soules <soules@happyplace.pdl.cmu.edu>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, jrs@world.std.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: NFS Client patch
+In-Reply-To: <Pine.LNX.3.96L.1010709153516.16113R-100000@happyplace.pdl.cmu.edu>
+In-Reply-To: <15177.65286.592796.329570@charged.uio.no>
+	<Pine.LNX.3.96L.1010709153516.16113R-100000@happyplace.pdl.cmu.edu>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Craig Soules <soules@happyplace.pdl.cmu.edu> writes:
 
-Where I just started work we run large processes for simulations and
-testing of semi-conductors.  Currently we use Solaris because of past
-limitations on the amount of RAM that a single process can address under
-Linux.  Recently we tried to run some tests on a Dell dual Xeon 1.7GHz
-with 4GB of RAM running Redhat 7.1 box (with the stock Redhat SMP kernel).
-Speedwise it kicked the crap out of our Sunblade (Dual 750MHz with 8GB of
-RAM)but we had problems with process dying right around 2.3GB (according
-to top).
+    >> Your patch will automatically lead to duplicate entries in
+    >> readdir() on most if not all servers whenever the attributes on
+    >> the inode have been refreshed (whether or not the cache has
+    >> been invalidated). That's a bug...
 
-So I started to investigate, and quickly discovered that there is no good
-source for finding this sort of information on line.  At least not that I
-could find.  Nearly every piece of information I found conflicted in at
-least some small way with another piece of information I found.
-So I ask here in the hopes of a definitive answer.
+     > If I were to do a create during a readdir() operation which
+     > inserted itself in the directory before the place it left off,
+     > that entry would be left out of the listing.  That is also a
+     > bug, wouldn't you think?
 
- * What is the maximum amount of RAM that a *single* process can address
-   under a 2.4 kernel, with PAE enabled?  Without?
+No: it's POSIX
 
- * And, what (if any) paramaters can effect this (recompiling the app
-   etc)?
+If the client discovers that the cache is invalid, it clears it, and
+refills the cache. We then start off at the next cookie after the last
+read cookie. Test it on an ordinary filesystem and you'll see the
+exact same behaviour. The act of creating or deleting files is *not*
+supposed invalidate the readdir offset.
 
-What I think I know so far is listed below.  I welcome being flamed, told
-that I'm stupid and that I should have looked "here" so long as said
-messages also contain pointers to definitive information :-)
+You are confusing the act of detecting whether or not the cache is
+invalid with that of recovering after a cache invalidation. In the
+former case we do have room for improvement: see for instance
 
-Linux 2.4 does support greater then 4GB of RAM with these caveats ...
+  http://www.fys.uio.no/~trondmy/src/2.4.6/linux-2.4.6-cto.dif
 
- * It does this by supporting Intel's PAE (Physical Address Extension)
-   features which are in all Pentium Pro and newer CPU's.
- * The PAE extensions allow up to a maximum of 64GB of RAM that the OS
-   (not a process) can address.
- * It does this via indirect pointers to the higher memory locations, so
-   there is a CPU and RAM hit for using this.
- * Benchmarks seem to indicated around 3-6% CPU hit just for using the PAE
-   extensions (ie. it applies regardless of whether you are actually
-   accessing memory locations greater then 4GB).
- * If the kernel is compiled to use PAE, Linux will not boot on a computer
-   whose hardware doesn't support PAE.
- * PAE does not increase Linux's ability for *single* processes to see
-   greater then 3GB of RAM (see below).
+which strengthens the attribute checking on open().
 
-So what are the limits without using PAE? Here I'm still having a little
-problem finding definitive answers but ...
-
- * With PAE compiled into the kernel the OS can address a maximum of 4GB
-   of RAM.
- * With 2.4 kernels (with a large memory configuration) a single process
-   can address up to the total amount of RAM in the machine minus 1GB
-   (reserved for the kernel), to a maximum 3GB.
- * By default the kernel reserves 1GB for it's own use, however I think
-   that this is a tunable parameter so if we have 4GB of RAM in a box we
-   can tune it so that most of that should be available to the processes
-   (?).
-
-I have documented the below information on my web site, and will post
-whatever answers I recieve there:
-
-	http://www.spack.org/index.cgi/LinuxRamLimits
-
-Thanks,
-Adam.
-
-
-
-
+Cheers,
+  Trond

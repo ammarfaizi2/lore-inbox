@@ -1,145 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbUDJKtg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 06:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbUDJKtg
+	id S261993AbUDJLQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 07:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUDJLQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 06:49:36 -0400
-Received: from viefep20-int.chello.at ([213.46.255.26]:9298 "EHLO
-	viefep20-int.chello.at") by vger.kernel.org with ESMTP
-	id S261992AbUDJKtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 06:49:32 -0400
-Date: Sat, 10 Apr 2004 12:51:36 +0200
-From: Dub Spencer <dub@lazy.shacknet.nu>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: linuxbugs@nvidia.com
-Subject: 2.6.5 hangs when burning cdrom while watching tv
-Message-ID: <20040410105136.GA2177@lazy.shacknet.nu>
+	Sat, 10 Apr 2004 07:16:28 -0400
+Received: from sun1000.pwr.wroc.pl ([156.17.1.33]:55035 "EHLO
+	sun1000.pwr.wroc.pl") by vger.kernel.org with ESMTP id S261993AbUDJLQW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 07:16:22 -0400
+Date: Sat, 10 Apr 2004 13:16:19 +0200
+From: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.25] [nforce2] kernel BUG at memory.c:290!
+Message-ID: <20040410111619.GA29685@sun1000.pwr.wroc.pl>
+Reply-To: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Useless-Header: Vim powered ;^)
+X-00-Privacy-Policy: S/MIME encrypted e-mail is welcome.
+X-04-Privacy-Policy-My_SSL_Certificate: http://www.europki.pl/cgi-bin/dn-cert.pl?serial=000001D2&certdir=/usr/local/cafe/data/polish_ca/certs/user&type=email
+X-05-Privacy-Policy-CA_SSL_Certificate: http://www.europki.pl/polish_ca/ca_cert/en_index.html
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+this is my new nforce2 board (Gigabyte GA-7N400-L) with vanilla 2.4.25.
 
-hello,
+lspci:
 
-when motv is running (bttv module, overlay mode) and then burning a cd
-at higher speeds, the system stops: ie. shift led on keyboard no longer
-lights.  when burning at lower speeds (10x for cdrw) the system only
-hung, when starting mozilla firebird (aka heavy application).
+00:00.0 Host bridge: nVidia Corporation nForce2 AGP (different version?) (rev c1)
+00:00.1 RAM memory: nVidia Corporation nForce2 Memory Controller 1 (rev c1)
+00:00.2 RAM memory: nVidia Corporation nForce2 Memory Controller 4 (rev c1)
+00:00.3 RAM memory: nVidia Corporation nForce2 Memory Controller 3 (rev c1)
+00:00.4 RAM memory: nVidia Corporation nForce2 Memory Controller 2 (rev c1)
+00:00.5 RAM memory: nVidia Corporation nForce2 Memory Controller 5 (rev c1)
+00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a4)
+00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
+00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller (rev a4)
+00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller (rev a4)
+00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller (rev a4)
+00:06.0 Multimedia audio controller: nVidia Corporation nForce2 AC97 Audio Controler (MCP) (rev a1)
+00:08.0 PCI bridge: nVidia Corporation nForce2 External PCI Bridge (rev a3)
+00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
+00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1)
+01:08.0 SCSI storage controller: Tekram Technology Co.,Ltd. TRM-S1040 (rev 01)
+01:0a.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 02)
+01:0a.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 02)
+01:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+02:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
 
-unfortunately, there is nothing in the logs; kernel configured for
-preemption, nvidia binary module loaded. uname, lspci, lsmod and
-config.gz attached.
+I'm trying to get sound working with quake3. With intel810 OSS or ALSA 1.0.4
+the game starts OK, there is sound in intro movie and menu, but the game is
+freezeing on the 1st frame when map is loaded.
 
-anything I can do, to get an oops?
+The same happens with 2.6.5, both OSS and ALSA.
 
-regards
+So I have tried NVidia's nforce 1.0-0261 drivers - nvaudio:
 
-dub
+modprobe nvaudio
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=uname
+kernel: Nvaudio: in Funcction Nvaudio_init_module
+kernel: PCI: Setting latency timer of device 00:06.0 to 64
+kernel: Nvaudio: NVIDIA nForce2 Audio found at IO 0xd800 and 0xd400, IRQ 5
+kernel: Nvaudio: Audio Controller supports 6 channels.
+kernel: NVaudio: Defaulting to base 2 channel mode.
+kernel: ac97_codec: AC97  codec, id: ALG96 (Unknown)
+kernel: Nvaudio: only 48Khz playback available.
+kernel: Nvaudio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), total channels = 2
 
-Linux lazy 2.6.5 #13 Sun Apr 4 17:08:39 CEST 2004 i686 GNU/Linux
+quake3 immediatelly quits to desktop without showing any graphics.  this is
+100% repeatable.
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=lspci
+dmesg:
 
-0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP] Host Bridge (rev 80)
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
-0000:00:07.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-0000:00:08.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
-0000:00:0b.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
-0000:00:0b.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
-0000:00:10.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-0000:00:10.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-0000:00:10.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-0000:00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-0000:00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 50)
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV11DDR [GeForce2 MX 100 DDR/200 DDR] (rev b2)
+kernel: forget_pte: old mapping existed!
+kernel: kernel BUG at memory.c:290!
+kernel: invalid operand: 0000
+kernel: CPU:    0
+kernel: EIP: 0010:[remap_page_range+455/480]    Tainted: P
+kernel: EFLAGS: 00210286
+kernel: eax: 00000021   ebx: 02640027   ecx: cba78000   edx: cf55df7c
+kernel: esi: c746979c   edi: 001e7000   ebp: 05820000   esp: cba79ebc
+kernel: ds: 0018   es: 0018   ss: 0018
+kernel: Process quake3-1.32 (pid: 7553, stackpage=cba79000)
+kernel: Stack: c0275fa0 001f7000 001f7000 05639000 001e7000 c6af4524 cea94300 525f7000
+kernel:        c6af4524 00010000 cc8aad40 c4c0b240 cba79f14 d08c7b9f 525e7000 b3239000
+kernel:        00010000 00000027 cc8aad68 cc8aad40 00000000 c4c0b240 cba79f48 d08c7cd3
+kernel: Call Trace:    [<d08c7b9f>] [<d08c7cd3>] [do_mmap_pgoff+668/1392] [sys_mmap2+118/176] [tracesys+31/35]
+kernel: Apr 10 15:51:15 localhost kernel: Code: 0f 0b 22 01 d9 5c 27 c0 e9 5e ff ff ff 8d b6 00 00 00 00 8d
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=lsmod
+end of game log:
 
-Module                  Size  Used by
-snd_seq_midi            6240  - 
-snd_seq_oss            31488  - 
-snd_seq_midi_event      6080  - 
-snd_seq                50736  - 
-snd_via82xx            21984  - 
-snd_mpu401_uart         5952  - 
-ehci_hcd               23940  - 
-uhci_hcd               29424  - 
-usbcore                90844  - 
-snd_bt87x              10980  - 
-tuner                  16908  - 
-tvaudio                20268  - 
-bttv                  141708  - 
-video_buf              16388  - 
-i2c_algo_bit            8680  - 
-v4l2_common             4704  - 
-btcx_risc               3656  - 
-videodev                6720  - 
-snd_ens1371            19748  - 
-snd_rawmidi            20000  - 
-snd_seq_device          6248  - 
-snd_pcm_oss            48772  - 
-snd_mixer_oss          16960  - 
-snd_pcm                84900  - 
-snd_page_alloc          8740  - 
-snd_timer              21092  - 
-snd_ac97_codec         61220  - 
-snd                    44036  - 
-soundcore               6752  - 
-8139too                20288  - 
-w83627hf               26276  - 
-eeprom                  6024  - 
-i2c_sensor              2144  - 
-i2c_isa                 1472  - 
-i2c_viapro              5676  - 
-i2c_core               17924  - 
-loop                   12232  - 
-nvidia               2067400  - 
+...loading 'scripts/meat_tags.shader'
+...loading 'scripts/black.shader'
+----- finished R_Init -----
 
---nFreZHaLTZJo0R7j
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="config.gz"
-Content-Transfer-Encoding: base64
+------- sound initialization -------
 
-H4sICBfOd0AAA2NvbmZpZwB9l8t66ygMgPfzNG3SSdPFLDBgm2Nu4ZI4Z8MTnAeYtx+RtLUE
-7mzyRb+EuMmS4M6Oairr+fTPv3/xp2BM3oSsxCvSTdLKoHhRkRVh2KaQqweFkTYxvVGuJbOF
-O+OVlhuOiVnBtLOIDcEt0hZnSzQemd4Ylu7xqjwngCc04eyS13nawMK0jncTNzLmJFe0cO80
-cqBc5LMUxTrne8piz4RkQiu8FeNE1hKZuiE6LZOsGs+CQcsDsklwDQXvzizvVMmNX/k8Ubgy
-gXyEW5SmVCvAhenJBZVmQ4fcfLm5sMTiFqpQ9qp943+gd/BYpPNMdIMn52BGr3jrM0ldcpSB
-O3+nOqDF++AKHCVfYja9+iisu23YBymNT42d35kXoHI91o4zvbdMtwNTbIDhsgMQLHZkJPCt
-m9U0G4n2Y1IIKFDZVULo8LocdIweDYhuTDcWZIk5emnRHTPuFZXK4FxqUD33AMcFv40main9
-HoPTdbyMsXWeU3K2gSNrSR0sY3TtdGmWweDT+XTaTiN569DdurV73m4dckDCB00sQIC4ZPZO
-0QBfLyVCBckTZcY8BUotM/jjHpQdTSpSj4jpBS73WkbRM10zy5/vLCJkb/ITFCqiWPkExWSd
-VE0t+4O4IENKYnEZIR1DwFPFZ27fdULO9CmXONfgVOHSj/g/V1A2SuvukxWWk+sHMVJpvuhV
-sfOBr+v60yzdDNR75FFt91ClPvq/HEaxWfI5PNnUjA5QSkIqOttIZykXzQ51od/2VuJIY3zp
-ZQg+nHWzVWijijgAAS6UfOaAyqM8dajw4dLDOQ07cMTZ73t8/N1DH3A0fdGwN38cd+ZP8qJ3
-6DD2cNr1KqJhYem5smAfI1VcXANkTMqw5JoT5Dp2oCSurMAdxJciOOgs3n7gPR5vPcvHw874
-ePX79NRj6GYUp7NBsAJCOxHZmDsJxiJrjiZBZZSi3sk3e349fiTnNifwNZYw1zaoRxDKJNdY
-n1MjQvqCWg8r/YkXH1lGhx5dtqJMkIrrR4e4JJH4EIs6v7wdWs+LvA+OBRRLX6SwtAxidyW4
-yXv0LhH5vSb8H9peW9s+VPNvPasLhHbkfPj7pYPcBWRZM8DHufh0R1ep5cT4vYEhoc9WHTiq
-NgcO+Qu2CAdNYO0TB5UohCafArhRSJGURWlrxd9S4UOO1fZ0PrFecTsfT4f3eew10IAEZ3AA
-CekKWesTDen8dm5hylBzOss89oP52jKFB06sv6bHJ7NzezUK0UYaoUBWwWuqyHNDQWA3o4Si
-MMpLlpa3g12E5j6jTFmhUasMVdVN1MNvvw8VcQNRs7Nc4/Pby2vJLCSqYPzjHQ4E+gvK4W7e
-V4rgel+P768UPso3rok5DkQoz7yFy3GlcoY+YeaC2uZdGiGjs0lSOCvRgSYlyTUdah/wpwHw
-1EopELtja3fcsfs1oClBbQbOoDhvbAWIN6qi+zidXojvX5DZcYLOYiR6eIEQ2UThIiHX1sSm
-kVp0DdADLDQRJeOxSWAGi9EMxGWVLRQmIUcGjSpKoI/1wXM4qaTw68KSqlurYhrR1y5Z0Pfa
-cNjUvD9HVSPc+PJkzTvNw1Q4gfPAcbV9vHThVQBNC31LPR7k/wFFXJNkKBEAAA==
+end of strace log:
 
---nFreZHaLTZJo0R7j--
+write(2, "\n------- sound initialization --"..., 38) = 38
+setresuid32(-1, 500, -1)                = 0
+open("/dev/dsp", O_RDWR)                = 48
+getuid32()                              = 500
+setresuid32(-1, 500, -1)                = 0
+ioctl(48, SNDCTL_DSP_GETCAPS, 0xbffff524) = 0
+ioctl(48, SNDCTL_DSP_SPEED or SOUND_PCM_READ_RATE, 0x817780c) = 0
+ioctl(48, SNDCTL_DSP_STEREO, 0xbffff51c) = 0
+ioctl(48, SNDCTL_DSP_SPEED or SOUND_PCM_READ_RATE, 0x8844874) = 0
+ioctl(48, SNDCTL_DSP_SETFMT or SOUND_PCM_READ_BITS, 0xbffff518) = 0
+ioctl(48, SNDCTL_DSP_GETOSPACE, 0xbffff530) = 0
+mmap2(NULL, 65536, PROT_READ|PROT_WRITE, MAP_SHARED, 48, 0 <unfinished ...>
++++ killed by SIGSEGV +++
+
+OSS:
+
+game log looks normal.
+end of strace log:
+
+gettimeofday({1081681302, 720978}, {4294967176, 0}) = 0
+--- SIGHUP (Hangup) @ 0 (0) ---
+fstat64(1, {st_mode=S_IFREG|0644, st_size=27115, ...}) = 0
+--- SIGCONT (Continued) @ 0 (0) ---
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x5aa5a000
+write(41, "\212\2\2\0\0\0\0\0+6\1\0", 12) = -1 EPIPE (Broken pipe)
+--- SIGPIPE (Broken pipe) @ 0 (0) ---
++++ killed by SIGPIPE +++
+
+the problem was discused in some detail here:
+http://www.nforcershq.com/forum/viewtopic.php?t=45329
+
+
+
+more problems with this board:
+
+- with any ALSA version on 2.4.25 and 2.6.5 I can't hear anything from my TV
+  card (bt878).
+
+- load of Xwindow or sound modules is freezing my internet connexion with usb
+  adsl modem (sagem f@st 800), I have to restart it. 100% repeatable. I think
+  this is sound related problem (Xwindow start loads bttv modules like tvaudio
+  etc.).
+
+please help, regards, Pawel
+
+PS. please CC me replies.
+-- 
+Pawel Dziekonski <pawel.dziekonski|@|pwr.wroc.pl>, KDM WCSS avatar:0:0:
+Wroclaw Networking & Supercomputing Center, HPC Department
+-> See message headers for privacy policy and S/MIME info.

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281839AbRK1BHV>; Tue, 27 Nov 2001 20:07:21 -0500
+	id <S281840AbRK1BFd>; Tue, 27 Nov 2001 20:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281843AbRK1BHL>; Tue, 27 Nov 2001 20:07:11 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:18181 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S281839AbRK1BHD>;
-	Tue, 27 Nov 2001 20:07:03 -0500
-Date: Tue, 27 Nov 2001 18:03:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Eric Streit <Eric.Streit@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: one missing line in ov511.c
-Message-ID: <20011127180322.A14109@kroah.com>
-In-Reply-To: <20011127084150.A11807@sarah.maison.com>
+	id <S281841AbRK1BFV>; Tue, 27 Nov 2001 20:05:21 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:61949
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281840AbRK1BFO>; Tue, 27 Nov 2001 20:05:14 -0500
+Date: Tue, 27 Nov 2001 17:05:06 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: G?rard Roudier <groudier@free.fr>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2 small patches against 2.4.15-pre6 (sym2 + email change) (fwd)
+Message-ID: <20011127170505.A862@mikef-linux.matchmail.com>
+Mail-Followup-To: G?rard Roudier <groudier@free.fr>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011127191808.S2714-300000@gerard> <20011127233858.B2842@online.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011127084150.A11807@sarah.maison.com>
+In-Reply-To: <20011127233858.B2842@online.fr>
 User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 30 Oct 2001 23:47:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 08:41:50AM +0100, Eric Streit wrote:
-> hi,
+On Tue, Nov 27, 2001 at 11:38:59PM +0100, christophe barb? wrote:
 > 
-> a short mail to report a small bug in "ov511.c".
-> (drivers/usb/ov511.c)
+> On Tue, Nov 27, 2001 at 07:46:13PM +0100, G?rard Roudier wrote:
+> > 
+> > By the way, I missed the postings that made you the maintainer of 2.4
+> > kernel neither saw any comments from Alan about. I am sure that you will
+> > do the best you can and will do a very good work, but I feel a bit
+> > frustrated not to know the reasons of this decision. If you can point me
+> > to the corresponding articles, I will be very interested in.
 > 
-> the line defining the kernel version is missing in the kernel 2.2.20.
+> This link should be fine for you :
 > 
-> I downloaded it 2 days ago.
+> http://advogato.org/article/370.html
 > 
-> ************line  missing**************
-> static char kernel_version[] = UTS_RELEASE;
-> ************end of line missing********
-> 
-> I am at work, so I have only the 2.2.19 kernel, so I cannot say
-> the right line, but it's just under the "MODULE_DESCRIPTION" line.
 
-I don't understand, ov511.c in 2.2.20 compiles just fine for me.  What
-is the error message that you see?
+This doesn't really show *why* he was chosen.  Marcello hasn't gotten much
+press in the past.
 
-thanks,
+Yes, it does look like a big change from the outside.  Even for LKML readers
+;)
 
-greg k-h
+MF

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUJZXOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbUJZXPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbUJZXOi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 19:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUJZXOh
+	id S261534AbUJZXPI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 19:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUJZXPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 19:14:37 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:36072
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261536AbUJZXOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 19:14:30 -0400
-Date: Tue, 26 Oct 2004 16:06:42 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: earny@net4u.de, linux-kernel@vger.kernel.org
-Subject: Re: Neighbour table overflow.
-Message-Id: <20041026160642.605f7fd7.davem@davemloft.net>
-In-Reply-To: <200410270011.28818.dominik.karall@gmx.net>
-References: <200410261939.33541.dominik.karall@gmx.net>
-	<200410262352.20806.earny@net4u.de>
-	<200410270011.28818.dominik.karall@gmx.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Oct 2004 19:15:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15331 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261534AbUJZXPD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 19:15:03 -0400
+Date: Tue, 26 Oct 2004 16:15:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk, hpa@zytor.com
+Subject: Re: [PATCH] faster signal handling on x86
+In-Reply-To: <417EC7BA.3050604@vmware.com>
+Message-ID: <Pine.LNX.4.58.0410261610380.28839@ppc970.osdl.org>
+References: <417EC7BA.3050604@vmware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004 00:11:26 +0200
-Dominik Karall <dominik.karall@gmx.net> wrote:
 
-> On Tuesday 26 October 2004 23:52, Ernst Herzberg wrote:
-> > On Tuesday 26 October 2004 19:39, Dominik Karall wrote:
-> > > can anybody explain why i get thousands of "Neighbour table overflow."
-> > > messages? i didn't get such ones with older kernels (~2.6.6).
-> >
-> > Do you set a default gateway?
-> 
-> yes, default gateway is set to our server.
 
-Do you use a large subnet mask?  For example /16 or /8 or
-something like that?
+On Tue, 26 Oct 2004, Zachary Amsden wrote:
+>
+> I noticed an unneeded write to dr7 in the signal handling path for x86.  
+> We only need to write to dr7 if there is a breakpoint to re-enable, and 
+> MOVDR is a serializing instruction, which is expensive.  Getting rid of 
+> it gets a 33% faster signal delivery path (at least on Xeon - I didn't 
+> test other CPUs, so your gain may vary).
 
-If so, you will need to bump up the neighbour table garbage
-collection thresholds under /proc/sys/net/ipv4/neight/default/
-Specifically gc_thresh1, gc_thresh2, and gc_thresh3
+I'm suprised it is _that_ slow, but sure, no problem, the patch just makes 
+it match all the other paths. 
 
-You probably have a huge number of machines on your subnet.
+I suspect Xeon is alone in being _that_ slow - I bet Netburst flushes the 
+whole trace cache on db7 writes.
+
+		Linus

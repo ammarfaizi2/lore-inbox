@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264363AbTDKOJt (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbTDKOJt (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 10:09:49 -0400
-Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:56947
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264363AbTDKOJt (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 10:09:49 -0400
-Date: Fri, 11 Apr 2003 10:14:30 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][2.4] smp_call_function needs mb()
-In-Reply-To: <Pine.LNX.4.50.0304110945240.540-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0304111013480.540-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304110945240.540-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S264364AbTDKOWA (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTDKOWA (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 10:22:00 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:19463 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264364AbTDKOV6 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 10:21:58 -0400
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain
+	backward compatibility
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andries.Brouwer@cwi.nl
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, pbadari@us.ibm.com
+In-Reply-To: <UTC200304111142.h3BBgDS11628.aeb@smtp.cwi.nl>
+References: <UTC200304111142.h3BBgDS11628.aeb@smtp.cwi.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 11 Apr 2003 09:33:27 -0500
+Message-Id: <1050071610.2078.69.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops i ended up including the 2.5 patch in the same email. This one should 
-be fine to pipe through patch.
+On Fri, 2003-04-11 at 06:42, Andries.Brouwer@cwi.nl wrote:
+>     Here is my problem..
+> 
+>     #insmod ips.o
+>       < found 10 disks>
+>     #insmod qla2300.o
+>       < found 10 disks>
+>     #rmmod ips.o
+>        <removed 10 disks>
+>     #insmod ips.o
+>       <found 10 disks - but new names>
+> 
+> OK, I see what you mean. I agree.
 
-Index: linux-2.4.20/arch/i386/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.4.20/arch/i386/kernel/smp.c,v
-retrieving revision 1.2
-diff -u -p -B -r1.2 smp.c
---- linux-2.4.20/arch/i386/kernel/smp.c	11 Apr 2003 13:44:11 -0000	1.2
-+++ linux-2.4.20/arch/i386/kernel/smp.c	11 Apr 2003 13:44:27 -0000
-@@ -563,7 +563,7 @@ int smp_call_function (void (*func) (voi
- 
- 	spin_lock(&call_lock);
- 	call_data = &data;
--	wmb();
-+	mb();
- 	/* Send a message to all other CPUs and wait for them to respond */
- 	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
- 
+Could you elaborate on the reason you want to keep the minor space
+compact?  I don't regard the insmod/rmmod problem as valid because if
+you do:
 
--- 
-function.linuxpower.ca
+rmmod ips.o
+rmmod qla2300.o
+insmod qla2300.o
+insmod ips.o
+
+All bets are off again. For small kernel dev_t it was essential to keep
+a compact minor space because otherwise we coulde run out of minors. 
+Sparse minors cause no inefficiency in the mid-layer, or in sd.  There
+are problems in sg which could be solved by encoding the device type in
+the minor.
+
+> [I see that dougg wants to solve such things by properly naming,
+> but that is a higher level. Given a large number space an
+> easier solution is to give each module its own part of the
+> number space.]
+
+Please, no.  Dividing up the minor space like this would be a step
+backwards (adding more policy to the kernel).  Someone would also have
+to manage this scheme.
+
+James
+
+

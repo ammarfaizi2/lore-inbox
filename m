@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbUKVKDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbUKVKG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbUKVKDI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbUKVKDI
+	id S262017AbUKVKG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUKVKG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:03:08 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:63127 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262023AbUKVKB1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:01:27 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 22 Nov 2004 10:53:57 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Michael Hunold <hunold@linuxtv.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael Hunold <hunold@convergence.de>
-Subject: Re: Fw: Re: Linux 2.6.10-rc2 [dvb-bt8xx unload oops]
-Message-ID: <20041122095357.GE29305@bytesex>
-References: <20041116014350.54500549.akpm@osdl.org> <20041118130312.GE19568@bytesex> <419CD8BC.1080401@linuxtv.org> <419EA1DD.2000004@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419EA1DD.2000004@eyal.emu.id.au>
-User-Agent: Mutt/1.5.6i
+	Mon, 22 Nov 2004 05:06:56 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:30943 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262017AbUKVKGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 05:06:20 -0500
+From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
+Message-Id: <200411221006.iAMA6Gk23164@inv.it.uc3m.es>
+Subject: Re: kernel analyser to detect sleep under spinlock
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Mon, 22 Nov 2004 11:06:16 +0100 (MET)
+X-Anonymously-To: 
+Reply-To: ptb@inv.it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, does anyone know how to switch to text console when X locks up (as
-> it does for me)?  sysrq works but does not allow me to switch to another
-> console. Since the hard lock does not log the oops, and I cannot see the
-> text from sysrq, I cannot report the details.
+Another minor functional update to the kernel source code analysis tool,
+though actually I reorganised it thoroughly internally in order to run
+off externally defined trigger-action rules instead of a mess of gunky C
+code.
 
-Setting up a serial console works best for that ...
+   ftp://oboe.it.uc3m.es/pub/Programs/c-1.2.3.tgz
 
-> Nov 19 23:37:44 eyal kernel: EIP is at buffer_queue+0x33/0x6f [bttv]
+This tool locates "sleep under spinlock" abuses in the kernel.
 
-That most likely a bug in bttv, I've pinned it down and queued a patch
-to fix that end of last week.  I've also seen mails from Andrew
-forwarding stuff to Linus on a quick scan of my inbox, so the latest
--bk snapshots might already have that fix.
+The latest revision eliminates some false positives, by taking notice of
+the second argument to kmalloc where it can.
 
-  Gerd
+% ./c -nostdinc -iwithprefix include -D__KERNEL__
+ -I/usr/local/src/linux-2.6.3/include -D__KERNEL__ -Wall
+ -Wstrict-prototypes -Wno-trigraphs
+ -I/usr/local/src/linux-2.6.8.1-uml/include/asm-i386/mach-default -O2
+ -DMODULE /usr/local/src/linux-2.6.8.1-uml/drivers/block/nbd.c
+ /usr/local/src/linux-2.6.8.1-uml/drivers/block/nbd.c
+/************** sleep calls ************************************
+ *  function                     line    calls (locks)
+ *
+ * - /usr/local/src/linux-2.6.3/include/linux/slab.h
+ *  kmalloc                      98      __kmalloc (0)
+ *
+ * - /usr/local/src/linux-2.6.3/include/linux/fs.h
+ *  lock_super                   741     down (0)
+ *
+ * - /usr/local/src/linux-2.6.8.1-uml/drivers/block/nbd.c
+ *  nbd_send_req                 245     down (0)
+ *  nbd_ioctl                    548     down (0)
+ *
+ *
+ * *** found 0 instances of sleep under spinlock ***
+ *
+ **************************************************************/
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+
+
+GPL, LGPL, etc.
+
+This is also useful for locating functions which can sleep, though of
+course that can be done in other ways.
+
+
+Peter (ptb (at) inv.it.uc3m.es)
+ 
+ 

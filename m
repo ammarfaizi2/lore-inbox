@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261851AbREZSby>; Sat, 26 May 2001 14:31:54 -0400
+	id <S261978AbREZSjE>; Sat, 26 May 2001 14:39:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261978AbREZSbp>; Sat, 26 May 2001 14:31:45 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:21282 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S261851AbREZSbZ>; Sat, 26 May 2001 14:31:25 -0400
-Date: Sat, 26 May 2001 20:31:04 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
+	id <S261979AbREZSiy>; Sat, 26 May 2001 14:38:54 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43789 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261978AbREZSio>;
+	Sat, 26 May 2001 14:38:44 -0400
+Date: Sat, 26 May 2001 12:51:38 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.4.5
-Message-ID: <20010526203104.E1834@athlon.random>
-In-Reply-To: <20010526171459.Y9634@athlon.random> <Pine.LNX.4.33.0105261409370.9587-100000@toomuch.toronto.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0105261409370.9587-100000@toomuch.toronto.redhat.com>; from bcrl@redhat.com on Sat, May 26, 2001 at 02:11:15PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20010526173051.B9634@athlon.random>
+Message-ID: <Pine.LNX.4.21.0105261250160.30264-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 02:11:15PM -0400, Ben LaHaise wrote:
-> No.  It does not fix the deadlock.  Neither does the patch you posted.
+On Sat, 26 May 2001, Andrea Arcangeli wrote:
 
-can you give a try if you can deadlock 2.4.5aa1 just in case, and post a
-SYSRQ+T + system.map if it still deadlocks?
+> > > -	/* 
+> > > -	 * Set our state for sleeping, then check again for buffer heads.
+> > > -	 * This ensures we won't miss a wake_up from an interrupt.
+> > > -	 */
+> > > -	wait_event(buffer_wait, nr_unused_buffer_heads >= MAX_BUF_PER_PAGE);
+> > > +	current->policy |= SCHED_YIELD;
+> > > +	__set_current_state(TASK_RUNNING);
+> > > +	schedule();
+> > >  	goto try_again;
+> > >  }
 
-> But, if you're going to add a reserve pool for buffer heads and bounce
-> pages, please do it with generic, not yet another special case hack.
+I'm still curious ... is it _really_ needed to busy-spin here?
 
-The reserved pool for buffer heads is there since the first time I used
-linux I think. I won't certainly object to convert  all reserved pool to
-an unified interface, as I'd like if all hashtables would be also sized
-with an unified interface, but that's just a stylistic issue, at least
-for 2.4 that's a very secondary object compared to people who can get
-dealdocks during production.
+I've seen some big problems with processes eating CPU time
+while not getting any work done and am slowly trying to
+eliminate those places in the VM by waiting on things.
 
-Andrea
+Is it really needed to introduce a new busy-wait place in the
+kernel?
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

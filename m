@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130115AbRCER52>; Mon, 5 Mar 2001 12:57:28 -0500
+	id <S130126AbRCESIB>; Mon, 5 Mar 2001 13:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130111AbRCER5K>; Mon, 5 Mar 2001 12:57:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:50955 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130105AbRCER46>;
-	Mon, 5 Mar 2001 12:56:58 -0500
-Date: Mon, 5 Mar 2001 18:56:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: LA Walsh <law@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Annoying CD-rom driver error messages
-Message-ID: <20010305185646.K1992@suse.de>
-In-Reply-To: <E14Zz5I-0007Pa-00@the-village.bc.nu> <3AA3D180.24661D6B@sgi.com> <3AA3D209.33A7F1CD@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3AA3D209.33A7F1CD@sgi.com>; from law@sgi.com on Mon, Mar 05, 2001 at 09:51:05AM -0800
+	id <S130170AbRCESHv>; Mon, 5 Mar 2001 13:07:51 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:43259 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130126AbRCESHj>; Mon, 5 Mar 2001 13:07:39 -0500
+Date: Mon, 5 Mar 2001 15:07:17 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Oswald Buddenhagen <ob6@inf.tu-dresden.de>
+cc: Jeremy Jackson <jerj@coplanar.net>, <linux-kernel@vger.kernel.org>,
+        <linux-kernel-owner@vger.kernel.org>
+Subject: Re: anti-spam regexps
+In-Reply-To: <20010305181252.A1589@ugly.wh8.tu-dresden.de>
+Message-ID: <Pine.LNX.4.33.0103051504150.1409-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 05 2001, LA Walsh wrote:
-> > > this isnt a kernel problem, its a _very_ stupid app
-> > ---
-> >         Must be more than one stupid app...
-> > 
-> > xena:/var/log# rpm -q magicdev
-> > package magicdev is not installed
-> > xena:/var/log# locate magicdev
-> > xena:/var/log#
-> > xena:/var/log# rpm -qa |grep -i magic
-> > ImageMagick-5.2.6-4
-> -------
-> 
-> Maybe the stupid app is 'freeamp'?  It only happens when I run it...:-(
+On Mon, 5 Mar 2001, Oswald Buddenhagen wrote:
 
-Yep, it's a stupid app if it does CDROMSUBCHNL regardless of the
-media type.
+> > Anybody interested in the ~100 anti-spam regexps I'm using
+> > on NL.linux.org at the moment ?
+> >
+> there is a much simpler method:
+> drop any mail, which does not contain the address of the mailing list
+> in To: or Cc:.
+> Bcc: mails (who wants to post with a bcc legitimately?) and bulk
+> mailers (which don't put the receipients into the headers)
 
--- 
-Jens Axboe
+Unfortunately, spam to lists often *does* contain the list
+address in the To: or Cc: header these days ...
+
+... but it does contain all the usual spam disclaimers.
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

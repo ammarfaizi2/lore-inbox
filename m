@@ -1,86 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbTLDDOd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 22:14:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTLDDOd
+	id S261744AbTLDDMy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 22:12:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTLDDMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 22:14:33 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:23231 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261775AbTLDDO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 22:14:26 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Fredrik Tolf <fredrik@dolda2000.com>
-Date: Thu, 4 Dec 2003 14:14:15 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Dec 2003 22:12:54 -0500
+Received: from h80ad25dc.async.vt.edu ([128.173.37.220]:7552 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261744AbTLDDMt (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 22:12:49 -0500
+Message-Id: <200312040310.hB43AcHA005863@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Kallol Biswas <kbiswas@neoscale.com>
+Cc: linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: partially encrypted filesystem 
+In-Reply-To: Your message of "Wed, 03 Dec 2003 13:07:56 PST."
+             <1070485676.4855.16.camel@nucleon> 
+From: Valdis.Kletnieks@vt.edu
+References: <1070485676.4855.16.camel@nucleon>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_372316766P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16334.42631.400677.325907@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 nfsd troubles - stale filehandles
-In-Reply-To: message from Fredrik Tolf on Wednesday December 3
-References: <16325.11418.646482.223946@pc7.dolda2000.com>
-	<16325.14967.248703.483363@notabene.cse.unsw.edu.au>
-	<16326.253.163939.9953@pc7.dolda2000.com>
-	<16333.11722.151279.490037@pc7.dolda2000.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Date: Wed, 03 Dec 2003 22:10:38 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday December 3, fredrik@dolda2000.com wrote:
+--==_Exmh_372316766P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 03 Dec 2003 13:07:56 PST, Kallol Biswas <kbiswas@neoscale.com>  said:
+>       We have a requirement that a filesystem has to support
+> encryption based on some policy. The filesystem also should be able 
+> to store data in non-encrypted form. A search on web shows a few 
+> encrypted filesystems like "Crypto" from Suse Linux, but we need a
+> system  where encryption will be a choice per file. We have a hardware
+> controller to apply encryption algorithm. If a filesystem provides hooks
+> to use a hardware controller to do the encryption work then the cpu can
+> be freed from doing the extra work.
 > 
-> So, I managed to do it now. The strange thing is, I had created an
-> extra share of the home dirs for this test (I had "mount --bind"'ed it
-> on /var/lib/nfs/nfstest), and only set subtree_check back on the test
-> export, in an attempt to keep the normal parts of the system reliable
-> while testing, but just doing that made the real export behave bad as
-> well. It seems to run amok as soon as I have subtree_checking on only
-> one export.
+> Any comment on this?
 
-"mount --bind" certainly has a good chance of confusing nfsd.
-If you --bind mount the root of the filesystem somewhere else and
-export that, then the filehandles generated will be exactly the same
-and nfsd cannot know whether a request is indented for one mountpoint
-or the other.
-When using --bind, it is best to give an 'fsid=' option in
-/etc/exports so that nfsd can use that to differentiate the mount
-points.
+1) Key management will be a royal pain in the posterior, especially if more
+than one key is in use on the filesystem (either at the same time, or at
+different times).
 
-> 
-> nfsd_dispatch: vers 3 proc 1 
-> nfsd: GETATTR(3)  36: 06000001 0000fe00 00000002 00023b44 00023957 00000000 
-> nfsd: fh_verify(36: 06000001 0000fe00 00000002 00023b44 00023957 00000000) 
-> nfsd_acceptable failed at c669a5c0 dc 
+2) Encryption of files is not all it's cracked up to be, security-wise.  In
+particular, it only really guards against an attacker who gets access to the
+data while the key isn't accessible (in other words, it does NOT protect
+against your root user, or against any trojan horse or other attack that reads
+the files while they're accessible in a decrypted form).  You will probably
+drive the user bonkers if they have to enter the key at each open() call,
+unless you're in a high-enough security model that making it that difficult for
+the legitimate user is called for, in which case...
 
-This strongly suggests that nfsd thought that the user making the
-request didn't have 'x' access to the parent of 'dc'. i.e. to /hannes.
+3) Only encrypting some files means an *incredible* amount of data leakage -
+even without the file data, you're leaking the file name (unless the directory
+is also encrypted), and all the inode data.  That's data an attacker can use -
+knowing that an "interesting" file is more than a megabyte in size, has a
+filename that's 17 chars long, and was modified yesterday may be enough to tell
+them something crucial.
 
-> 
-> Some more info: I was root while causing this error, and the dir arch
-> looks like this (from this filesystem's point of view, it is really my
-> home dirs):
-> 
-> rwxr-xr-x  root   root  /
-> rwx--x---+ hannes users /hannes
-> rwxr-xr-x  hannes users /hannes/dc
+4) Remember information leakage to /tmp and the like - it's pointless to use
+crypto on a file that gets vi'ed and puts a copy in a plaintext /tmp for
+recovery once the laptop gets stolen. ;)  Better bets here are using tmpfs for /
+tmp (and encrypted swap on a loopback so if it DOES hit the disk it's not
+useful).
 
-And if you are not exporting with no_root_squash, then the user does
-not have 'x' access to hannes.
+All in all, you're probably better off just using PGP to encrypt individual
+files, or an encrypted loopback.   Note that the following *will* work if you
+don't want to burn a whole partition per user:
 
-So if you haven't exported with 'no_root_squash', then this completely
-makes sense. The nfs client is allowing root access (based on cached
-data that some other local users recently accessed) but the server is
-not allowing root access. 
-Arguably you should be getting "permission denied" rather than
-"stale", but you certainly shouldn't expect it to work.
+mkdir /crypto
+mkdir /crypto/${USER}
+chown ${USER} /crypto/${USER}
 
-If, on the other hand, you have specified no_root_squash, then this is
-still very strange.
+mkdir ~user/.crypto
+dd if=/dev/zero of=~user/.crypto/diskfile bz=1M count=20
+losetup -e AES ~user/.crypt/diskfile
+mkfs /dev/loop/0
 
-What export options are you using?
+After that, 'mount -o loop,ecryption=aes ~user/crypto/diskfile /crypto/${USER}'
+will do it.
 
-NeilBrown
+(I've probably glossed over a bunch of utii-linux version dependencies - the exact details
+are different between the 2.12 and 2.11+loop-aes-patch versions)
 
+Amazingly enough, if you need more space, you can just unmount it, use something
+like 'dd if=/dev/zero >> disfkile' to increase it, losetup it, fsck it, resize2fs it,
+and remount it....
+
+This is done with already-existing standard tools, and fulfills the requirement
+(just put only the crucial files in there).  You can even use symlinks to
+redirect (for instance) ~/.important into the encrypted space.
+
+Writing stuff like a Gnome prompter for use at login is left as an excersize
+for the reader ;)
+
+
+--==_Exmh_372316766P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/zqWucC3lWbTT17ARAk12AKD4A8Vs/VSU4bqJ5pcUFPGBpUx0DACgiUQ5
+bVZXNU1hoqbdAROErG6Zb30=
+=3xi3
+-----END PGP SIGNATURE-----
+
+--==_Exmh_372316766P--

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131316AbRCHJwo>; Thu, 8 Mar 2001 04:52:44 -0500
+	id <S131307AbRCHKLs>; Thu, 8 Mar 2001 05:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbRCHJwe>; Thu, 8 Mar 2001 04:52:34 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:51639 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S131316AbRCHJwP>;
-	Thu, 8 Mar 2001 04:52:15 -0500
-Date: Thu, 8 Mar 2001 10:51:41 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Jens Axboe <axboe@suse.de>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 64-bit capable block device layer
-Message-ID: <20010308105140.B18769@khan.acc.umu.se>
-In-Reply-To: <20010307184749.A4653@suse.de> <Pine.LNX.4.33.0103071504250.1409-100000@duckman.distro.conectiva> <20010307195323.D4653@suse.de>
+	id <S131310AbRCHKLh>; Thu, 8 Mar 2001 05:11:37 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:49149 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131307AbRCHKL3>; Thu, 8 Mar 2001 05:11:29 -0500
+Message-Id: <5.0.2.1.2.20010308095213.00a59040@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 08 Mar 2001 10:11:50 +0000
+To: Rik van Riel <riel@conectiva.com.br>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Questions - Re: [PATCH] documentation for mm.h
+Cc: Andrew Morton <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0103071931400.1409-100000@duckman.distro.con
+ ectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010307195323.D4653@suse.de>; from axboe@suse.de on Wed, Mar 07, 2001 at 07:53:23PM +0100
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07, 2001 at 07:53:23PM +0100, Jens Axboe wrote:
-> On Wed, Mar 07 2001, Rik van Riel wrote:
-> > > > how would you feel about having the block device layer 64-bit
-> > > > capable, so Linux can have block devices of more than 2GB in
-> > > > size ?
-> > >
-> > > I already did this here, or something similar at least. Using
-> > > a sector_t type that is 64-bit, regardless of platform. Is it
-> > > really worth it to differentiate and use 32-bit types for old
-> > > machines?
-> > 
-> > Wonderful !
-> > 
-> > I'm not sure how expensive 64-bit arithmetic would be on
-> > eg. 386, 486 or 68k machines, or how much impact the extra
-> > memory taken would have.
-> > 
-> > OTOH, I'm not sure what problems it could give to make this
-> > a compile-time option...
-> 
-> Plus compile time options are nasty :-). It would probably make
-> bigger sense to completely skip all the merging etc for low end
-> machines. I think they already do this for embedded kernels (ie
-> removing ll_rw_blk.c and elevator.c). That avoids most of the
-> 64-bit arithmetic anyway.
+At 22:33 07/03/2001, Rik van Riel wrote:
+[snip]
+>  typedef struct page {
+>+       struct list_head list;          /* ->mapping has some page lists. */
+>+       struct address_space *mapping;  /* The inode (or ...) we belong to. */
+>+       unsigned long index;            /* Our offset within mapping. */
 
-My 386/486 and m68k-machines with 4/8/16 MB's of memory would be happy
-for any and all options to remove code only needed by larger machines.
-I'm pretty sure none of my 386:en will ever have 2GB of swap, 2GB of
-blockdevices or 2TB filesystems...
+Assuming index is in bytes (it looks like it is): Shouldn't index of type 
+unsigned long long or __u64? Otherwise, AFAICS using the page cache 
+automatically results in an artificial 4Gib limit on file size, which is 
+not very good, even by todays standards.
 
-Of course, for embedded kernels, being able to exclude block-devices
-might be an idea. Or?
+[snip]
+>+ * During disk I/O, PG_locked is used. This bit is set before I/O
+>+ * and reset when I/O completes. page->wait is a wait queue of all
+>+ * tasks waiting for the I/O on this page to complete.
+
+Is this physical I/O only or does it include a driver writing/reading the page?
+
+Thanks,
+
+         Anton
 
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

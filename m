@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264015AbTEONew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 09:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbTEONew
+	id S264010AbTEONem (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 09:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTEONem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 09:34:52 -0400
-Received: from ns.suse.de ([213.95.15.193]:45318 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264015AbTEONeu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 09:34:50 -0400
-Date: Thu, 15 May 2003 15:47:38 +0200
-From: Dave Jones <davej@suse.de>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69-mm5: pccard oops while booting: resolved
-Message-ID: <20030515154738.A9778@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com> <20030514191735.6fe0998c.akpm@digeo.com> <1052998601.726.1.camel@teapot.felipe-alfaro.com> <20030515130019.B30619@flint.arm.linux.org.uk> <1053004615.586.2.camel@teapot.felipe-alfaro.com> <20030515144439.A31491@flint.arm.linux.org.uk>
+	Thu, 15 May 2003 09:34:42 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:14382 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264010AbTEONel
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 09:34:41 -0400
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Arnd Bergmann <arnd@arndb.de>, johannes@erdfelt.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0305141634070.626-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0305141634070.626-100000@ida.rowland.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053006338.2025.13.camel@diemos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030515144439.A31491@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, May 15, 2003 at 02:44:39PM +0100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 15 May 2003 08:45:38 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 02:44:39PM +0100, Russell King wrote:
- > Indeed it does.  This patch should solve the problem.
- > 
- > --- orig/drivers/char/agp/intel-agp.c	Sun Apr 20 16:31:48 2003
- > +++ linux/drivers/char/agp/intel-agp.c	Thu May 15 14:41:45 2003
- > @@ -1635,7 +1635,7 @@
- >  
- >  MODULE_DEVICE_TABLE(pci, agp_intel_pci_table);
- >  
- > -static struct __initdata pci_driver agp_intel_pci_driver = {
- > +static struct pci_driver agp_intel_pci_driver = {
- >  	.name		= "agpgart-intel",
- >  	.id_table	= agp_intel_pci_table,
- >  	.probe		= agp_intel_probe,
+On Wed, 2003-05-14 at 15:52, Alan Stern wrote:
+> Below is a patch that addresses both of the issues raised in this thread.  
+> The delay time is moved out of the interrupt handler, and the
+> wakeup/suspend transitions are de-bounced.  To do this, I needed to add a
+> mildly elaborate state mechanism.  State transitions are polled during the
+> stall-timer callback.
+> 
+> There is no protection against simultaneous access from multiple threads,
+> such as a PCI suspend occurring at the same time as a normal suspend or
+> resume.  The original driver didn't have any either; it's probably not
+> worth worrying too much about.  The patch works okay on my system.  Try it
+> and see how it works on yours.
+> 
+> Johannes, please look over this code and verify that I haven't screwed 
+> anything up.
+> 
+> Alan Stern
 
-Yup. Same stupid bug in all the other AGP drivers too.
-I'll fix them up and push that along in a few hours.
+I tested the patch, and it solves the IRQ latency problems by moving
+the delay outside of the ISR. The debouncing period reduces the
+rate of thrashing back and forth between wake and suspend, but
+the cycle does continue forever:
 
-        Dave
+May 15 08:27:27 diemos kernel: suspend_hc():UHCI_RUNNING_GRACE
+May 15 08:27:27 diemos kernel: suspend_hc():UHCI_RUNNING
+May 15 08:27:28 diemos kernel: suspend_hc():UHCI_SUSPENDING_GRACE
+May 15 08:27:28 diemos kernel: wakeup_hc():UHCI_SUSPENDED
+May 15 08:27:28 diemos kernel: wakeup_hc():UHCI_RESUMING_1
+May 15 08:27:28 diemos kernel: suspend_hc():UHCI_RESUMING_2
+May 15 08:27:29 diemos kernel: suspend_hc():UHCI_RUNNING_GRACE
+May 15 08:27:29 diemos kernel: suspend_hc():UHCI_RUNNING
+May 15 08:27:30 diemos kernel: suspend_hc():UHCI_SUSPENDING_GRACE
+May 15 08:27:30 diemos kernel: wakeup_hc():UHCI_SUSPENDED
+May 15 08:27:30 diemos kernel: wakeup_hc():UHCI_RESUMING_1
+May 15 08:27:30 diemos kernel: suspend_hc():UHCI_RESUMING_2
+May 15 08:27:31 diemos kernel: suspend_hc():UHCI_RUNNING_GRACE
 
+This patch removes my complaint, but I do wonder why this
+unused controller continually generates the USBSTS_RD
+indications. I would hope HP used pull-ups/downs on unused
+input signals of the PIIX3 chipset, but maybe not.
+
+I also can't vouch for the correct operation of this patch
+for fully functional USB implementations.
+
+If you have other tests you want me to do to try and figure
+out a sane way of dealing with such unused controllers,
+just ask.
+
+Thanks,
+Paul
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
+

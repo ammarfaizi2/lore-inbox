@@ -1,119 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267200AbTGLAnE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 20:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267201AbTGLAnE
+	id S267201AbTGLAqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 20:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267204AbTGLAqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 20:43:04 -0400
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:49281 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S267200AbTGLAm7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 20:42:59 -0400
-Date: Sat, 12 Jul 2003 02:57:38 +0200
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.75, 8250 Oops
-Message-ID: <20030712005738.GA15060@finwe.eu.org>
-Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
-	Theodore Ts'o <tytso@mit.edu>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.4i
+	Fri, 11 Jul 2003 20:46:42 -0400
+Received: from SMTP7.andrew.cmu.edu ([128.2.10.87]:12484 "EHLO
+	smtp7.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S267201AbTGLAqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 20:46:40 -0400
+Date: Fri, 11 Jul 2003 21:01:23 -0400 (EDT)
+From: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG][PATCH] x86 cpu identify bug?
+Message-ID: <Pine.LNX.4.55L-032.0307112050190.32591@unix47.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="41988365-442255166-1057971683=:32591"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Hi!
+--41988365-442255166-1057971683=:32591
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-pppd was trying to open /dev/ttyS0  (persist & maxfail 0, etc.), but
-I had not created alias for it....
+Hello all.
 
-Jul 12 01:29:19 finwe pppd[643]: Failed to open /dev/ttyS0: No such device
+I have a Transmeta TM5800 in my laptop which some time ago stopped being
+able to do cpufreq stuff (/sys/devices/system/cpu/ stopped having the
+relevant files in it).  I recently got time to look into the issue and
+believe I have found the relevant issue:
 
-...so I manually loaded 8250 and:
+in arch/i386/kernel/cpu/common.c, identify_cpu contains:
 
- Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
- ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
- Unable to handle kernel NULL pointer dereference at virtual address 00000014
-  printing eip:
- d08c6b21
- *pde = 00000000
- Oops: 0000 [#1]
- CPU:    0
- EIP:    0060:[_end+274047177/1070142888]    Not tainted
- EFLAGS: 00010282
- EIP is at uart_close+0x11/0x200 [core]
- eax: d08c6b10   ebx: cbdfe000   ecx: 00000000   edx: cee66000
- esi: cbbe6600   edi: 00000000   ebp: cbdfe000   esp: cec79e58
- ds: 007b   es: 007b   ss: 0068
- Process pppd (pid: 643, threadinfo=cec78000 task=c139f980)
- Stack: 00000000 c01bb9d5 ffffffff cbbe6600 00000000 cbdfe000 cbbe6600 00000001 
-        00000000 c01bb4c1 cbdfe000 cbbe6600 00000000 d08c9bc0 c010822c d08c9bc0 
-        00000000 00000004 d08c84a6 d08b7b8e 00000001 00000000 00000004 00000000 
- Call Trace:
-  [tty_fasync+133/320] tty_fasync+0x85/0x140
-  [release_dev+1777/1840] release_dev+0x6f1/0x730
-  [__down_failed+8/12] __down_failed+0x8/0xc
-  [_end+274053710/1070142888] .text.lock.core+0xcd/0x1a5 [core]
-  [_end+274049152/1070142888] uart_open+0x58/0x160 [core]
-  [tty_open+300/880] tty_open+0x12c/0x370
-  [chrdev_open+242/544] chrdev_open+0xf2/0x220
-  [dentry_open+336/528] dentry_open+0x150/0x210
-  [filp_open+104/112] filp_open+0x68/0x70
-  [sys_open+91/144] sys_open+0x5b/0x90
-  [syscall_call+7/11] syscall_call+0x7/0xb
- 
- Code: 8b 47 14 89 44 24 10 b8 00 e0 ff ff 21 e0 8b 00 8b 40 14 85 
+        if (this_cpu->c_identify)
+                this_cpu->c_identify(c);
+        else
+                generic_identify(c);
 
- ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+At this point in the code, at least as far as I am able to tell, this_cpu
+is always default_cpu, which lacks an ->c_identify memeber, and as such,
+generic_identify is always called.  That is correct behavior, I think...
+but a side effect of generic_identify is to set this_cpu.  So I believe
+the correct fix is to make the flow of execution look like this:
 
-Linux finwe 2.5.75 #1 Fri Jul 11 01:02:39 CEST 2003 i686 GNU/Linux
+	generic_identify(c);
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 11
-model name	: Intel(R) Celeron(TM) CPU                1300MHz
-stepping	: 1
-cpu MHz		: 1305.846
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 2580.48
+	if (this_cpu->c_identify)
+		this_cpu->c_identify(c);
 
- 
-Gnu C                  3.3.1
-Gnu make               3.80
-util-linux             2.11z
-mount                  2.11z
-e2fsprogs              1.34-WIP
-jfsutils               1.1.1
-xfsprogs               2.4.12
-PPP                    2.4.1
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 3.1.9
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.0
+The attached patch does that and adds some printk's that I seem to recall
+were in the kernel some time ago but are no longer.
 
+Anyway, while this may not be the correct fix, it does fix my longrun
+issues, so I believe it to be correct, at least on uniprocessor systems.
+This bug probably has not bitten anybody except those people with CPUs
+that have CPUID bits beyond the first 64.
 
-config: http://zeus.polsl.gliwice.pl/~jfk/kernel/2.5.75/config1
+Keep up the good work!
+--nwf;
+--41988365-442255166-1057971683=:32591
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=nwf-fix_x86_identify
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.55L-032.0307112101230.32591@unix47.andrew.cmu.edu>
+Content-Description: 
+Content-Disposition: attachment; filename=nwf-fix_x86_identify
 
-jk :)
+LS0tIGxpbnV4LTIuNS43NC1tbTEvYXJjaC9pMzg2L2tlcm5lbC9jcHUvY29t
+bW9uLmMub3JpZyAyMDAzLTA3LTA2IDE3OjU3OjU5LjAwMDAwMDAwMCAtMDQw
+MA0KKysrIGxpbnV4LTIuNS43NC1tbTEvYXJjaC9pMzg2L2tlcm5lbC9jcHUv
+Y29tbW9uLmMgICAgICAyMDAzLTA3LTA2IDE4OjA2OjI0LjAwMDAwMDAwMCAt
+MDQwMA0KQEAgLTI4OCwxMCArMjg4LDIzIEBADQogICAgICAgICAgICAgICAg
+ICAgICAgICBjLT54ODYgPSAzOw0KICAgICAgICB9DQogDQotICAgICAgIGlm
+ICh0aGlzX2NwdS0+Y19pZGVudGlmeSkNCisgICAgICAgZ2VuZXJpY19pZGVu
+dGlmeShjKTsNCisNCisgICAgICAgcHJpbnRrKEtFUk5fREVCVUcgIkNQVTog
+ICAgIEFmdGVyIGdlbmVyaWMgaWRlbnRpZnksIGNhcHM6ICUwOGx4ICUwOGx4
+ICUwOGx4ICUwOGx4XG4iLA0KKyAgICAgICAgICAgICAgYy0+eDg2X2NhcGFi
+aWxpdHlbMF0sDQorICAgICAgICAgICAgICBjLT54ODZfY2FwYWJpbGl0eVsx
+XSwNCisgICAgICAgICAgICAgIGMtPng4Nl9jYXBhYmlsaXR5WzJdLA0KKyAg
+ICAgICAgICAgICAgYy0+eDg2X2NhcGFiaWxpdHlbM10pOw0KKw0KKyAgICAg
+ICBpZiAodGhpc19jcHUtPmNfaWRlbnRpZnkpIHsNCiAgICAgICAgICAgICAg
+ICB0aGlzX2NwdS0+Y19pZGVudGlmeShjKTsNCi0gICAgICAgZWxzZQ0KLSAg
+ICAgICAgICAgICAgIGdlbmVyaWNfaWRlbnRpZnkoYyk7DQorDQorICAgICAg
+ICAgICAgICAgcHJpbnRrKEtFUk5fREVCVUcgIkNQVTogICAgIEFmdGVyIHZl
+bmRvciBpZGVudGlmeSwgY2FwczogJTA4bHggJTA4bHggJTA4bHggJTA4bHhc
+biIsDQorICAgICAgICAgICAgICAgICAgICAgICBjLT54ODZfY2FwYWJpbGl0
+eVswXSwNCisgICAgICAgICAgICAgICAgICAgICAgIGMtPng4Nl9jYXBhYmls
+aXR5WzFdLA0KKyAgICAgICAgICAgICAgICAgICAgICAgYy0+eDg2X2NhcGFi
+aWxpdHlbMl0sDQorICAgICAgICAgICAgICAgICAgICAgICBjLT54ODZfY2Fw
+YWJpbGl0eVszXSk7DQorICAgICAgIH0NCiANCiAgICAgICAgLyoNCiAgICAg
+ICAgICogVmVuZG9yLXNwZWNpZmljIGluaXRpYWxpemF0aW9uLiAgSW4gdGhp
+cyBzZWN0aW9uIHdlDQpAQCAtMzQxLDcgKzM1NCw3IEBADQogDQogICAgICAg
+IC8qIE5vdyB0aGUgZmVhdHVyZSBmbGFncyBiZXR0ZXIgcmVmbGVjdCBhY3R1
+YWwgQ1BVIGZlYXR1cmVzISAqLw0KIA0KLSAgICAgICBwcmludGsoS0VSTl9E
+RUJVRyAiQ1BVOiAgICAgQWZ0ZXIgZ2VuZXJpYywgY2FwczogJTA4bHggJTA4
+bHggJTA4bHggJTA4bHhcbiIsDQorICAgICAgIHByaW50ayhLRVJOX0RFQlVH
+ICJDUFU6ICAgICBBZnRlciBhbGwgaW5pdHMsIGNhcHM6ICUwOGx4ICUwOGx4
+ICUwOGx4ICUwOGx4XG4iLA0KICAgICAgICAgICAgICAgYy0+eDg2X2NhcGFi
+aWxpdHlbMF0sDQogICAgICAgICAgICAgICBjLT54ODZfY2FwYWJpbGl0eVsx
+XSwNCiAgICAgICAgICAgICAgIGMtPng4Nl9jYXBhYmlsaXR5WzJdLA0KDQo=
 
-
--- 
-Jacek Kawa
+--41988365-442255166-1057971683=:32591--

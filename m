@@ -1,88 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270030AbUIDDYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270033AbUIDDYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270030AbUIDDYT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 23:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270033AbUIDDXF
+	id S270033AbUIDDYU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 23:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266271AbUIDDWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 23:23:05 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:45208 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S270030AbUIDDTP (ORCPT
+	Fri, 3 Sep 2004 23:22:54 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:31640 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S270028AbUIDDSm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 23:19:15 -0400
-Message-Id: <200409032145.i83LjdXG002843@localhost.localdomain>
+	Fri, 3 Sep 2004 23:18:42 -0400
+Message-Id: <200409040227.i842R7io003637@localhost.localdomain>
 To: Spam <spam@tnonline.net>
-cc: Dave Kleikamp <shaggy@austin.ibm.com>, Paul Jakma <paul@clubi.ie>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+cc: Helge Hafting <helge.hafting@hist.no>, Oliver Hunt <oliverhunt@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Adrian Bunk <bunk@fs.tum.de>, viro@parcelfarce.linux.theplanet.co.uk,
+       Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4) 
+Subject: Re: The argument for fs assistance in handling archives 
 In-Reply-To: Message from Spam <spam@tnonline.net> 
-   of "Fri, 03 Sep 2004 15:16:19 +0200." <642078516.20040903151619@tnonline.net> 
+   of "Fri, 03 Sep 2004 21:30:38 +0200." <518050016.20040903213038@tnonline.net> 
 X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Fri, 03 Sep 2004 17:45:39 -0400
+Date: Fri, 03 Sep 2004 22:27:07 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Spam <spam@tnonline.net> said:
-> Dave Kleikamp <shaggy@austin.ibm.com> said:
-> >Spam <spam@tnonline.net> said:
+> Horst von Brand <vonbrand@inf.utfsm.cl> said:
+> > Helge Hafting <helge.hafting@hist.no> said:
+> 
+> > [...]
+> 
+> >> The only new thing needed is the ability for something to be both
+> >> file and directory at the same time.
+> 
+> > Then why have files and directories in the first place?
+
+>   Good point, we don't need them :)
+
+Great. Then everything is a firectory (or dile?). And a firectory points at
+other firectories and contains data. I just don't see how you are supposed
+to distinguish the data from further firectories...
+
+>                                     Directories are just a visible
+>   grouping of files to make it easier for the user to manage. But some
+>   things aren't really that intuitive with todays layout - especially
+>   for non-unix users.
+
+No operating system is "intuitive". A person is able to glance over some 7
+items, a filesystem handles tens of thousands of objects. Nothing
+"intuitive" possible in the layout, everybody has to _learn_ how to handle
+this.
+
+>   Just an example where the user needs to edit config file for some
+>   program. Where should he look?
+
+Another example: User looks for the sysadmin. Where does she look? Answers
+to both questions depend on extra data that can't possibly be deduced just
+from the statement.
 
 [...]
 
-> > You're missing the point.  We don't need transparency in all apps.  You
-> > can write an application to be as transparent as you want, but you don't
-> > need every app to to understand every file format.
+>   Using file-as-dir isn't really that much of a change. It isn't those
+>   that will confuse people anyway.
 
->   No, but not every user "can write an application" either, or even
->   have the skills to apply patches. What I was talking about wasn't
->   just tar, which itself isn't the best example anyway, but the idea
->   that users can load plugins that will extend the functionality of
->   their filesystems. That idea seem to be to be _much_ better than
->   trying to teach every user how to write applications or patch
->   existing ones.
+See above.
 
-Why compare "write application or apply patches" to "load plugin"? It
-would be locical to compare running applications with loading plugins (and
-even so, loading plugins is presumably root-only).
+> >>                                       Some tools will need
+> >> a update - usually only because they blindly assume that a directory
+> >> isn't a file too, or that a file can't be a directory too.  Remove the
+> >> mistaken assumption and things will work because the underlying system
+> >> calls (chdir or open) _will_ work.
+> 
+> > But with some weird restrictions: No moving stuff around between files, no
+> > linking, some "files" can't be deleted (how would you handle removing the
+> > principal stream of a file?).
+> 
+>   Well. there are read-only files. And if you remove the main stream
+>   (which is the file, really) then it will all be gone =)
 
-[...]
+While some other process is messing with another stream. Right, all goes
+away when the last reference goes away. But it stays iff some other process
+recreates the data stream. Now what if another process goes ahead and
+creates a new file with the same name in the meanwhile... but this is very
+diferent from "real" directories, if you delete some particular member it
+doesn't go away. Explain that to the poor user that can't be trusted to
+keep the distinction between directories and files straight...
 
-> > There are userland tools that deal with hundreds of file formats. Use
-> > the tool you need, rather than try to have the kernel do everything.
+> >  Some stuff you'd love to do (is, in fact, the
+> > reason for this all) just can't be allowed (i.e., J. Random Luser setting
+> > his own icon for system-wide emacs).
 
->   No, but if I wanted to have an encryption plugin active for some of
->   my files or directories then why should I not be able to? I still
->   want to edit, view and save my encrypted files.
+>   Users do not normally have write permissions to system-wide
+>   applications.
 
-Use an editor that knows about encrypted files. Decrypt/edit/encrypt if no
-other option (I'm sure emacs can be coerced to do that transparently ;-). I
-for one would be _way_ more confortable with my users doing that than them
-loading random modules into the kernel. Besides, if one of my users doesn't
-trust the system encryption programs, and prefers hers, she can be happy.
+Exactly.
 
->   Again, this was just an example of what could be done with plugins.
->   It is not said that every conceivable plugin will be written, nor
->   loaded per default. Even though plugins cannot today be dynamically
->   used, they will be eventually. Reiser4 is still very young.
+>                 Why would it be any different now?
 
-Modules of the kernel were supposed to have all those magic properties too,
-until there were nasty races... and it was _seriously_ considered to take
-them out. They stayed because they are root-only business, and (un)loading
-is rare. FS plugins are kernel modules, AFAIU, and are subject to the same
-problems.
+Because the user wants to be able to associate an
+icon/description/comment/... with system files too. This is supposed to be
+one of the key reasons for the feature...
 
->   Please separate your thoughts for specific plugins from those of the
->   idea to have plugins at all.
+> >  So the tools/scripts/users/sysadmins
+> > will have to be painfully aware that some of the files aren't, and some of
+> > the directories aren't either. Major pain in the neck to use, if you look
+> > closer.  Add extra kernel complexity. For little (if any) gain.
 
-If you can't find concrete uses for specific plugins, they are the
-proverbial solution searching for a problem.
+>   Not sure what you mean "aren't". Things shouldn't be that much
+>   different to administer.
+
+They aren't. Some directories are files, and different rules apply to
+them. Some files have structure, and you have to exercise extra care not to
+loose that. Very different indeed in my book.
+
+>                            Normal permissions should still apply.
+
+Even streams inside a file have permissions? What does it mean if a file is
+"searchable" (new permission needed to handle "x" on directories vs files!)
+but not writeable, and the default stream is writeable? Or do they just
+have the permissions of the container? In that case, the file must be
+readable so the user can have a nice icon for it. Consider /etc/shadow...
+And if somebody tries to change permissions on one of the streams?
+
+>                                                                   Sure
+>   extra complexity comes _if_ you want to use extended features that
+>   are using meta-info. But there is where we need some patches to tar
+>   and other backup tools.
+
+And new options (where people already get confused by current options).
+
+>   One other way would be to enter a specific mode (chroot, a bash
+>   flag --show-metas, etc) that would allow all streams and metas to be
+>   seen as files in directories. Then tar and other tools would back it
+>   all up. Restoring will be a little trickier as we don't know if
+>   stuff was files or folders before. But I am sure that would be
+>   solvable.
+
+"I'm sure it can be solved somehow" isn't enough.
+
+>             Perhaps a tool to convert them back to normal files with
+>   meta-data and streams.
+
+Yikes!
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

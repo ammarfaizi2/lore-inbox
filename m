@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277616AbRJHXiw>; Mon, 8 Oct 2001 19:38:52 -0400
+	id <S277618AbRJHXjw>; Mon, 8 Oct 2001 19:39:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277618AbRJHXic>; Mon, 8 Oct 2001 19:38:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:18959 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277616AbRJHXiW>; Mon, 8 Oct 2001 19:38:22 -0400
-Date: Mon, 8 Oct 2001 20:38:27 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <linux-mm@kvack.org>
-Cc: <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
-Subject: [CFT][PATCH *] faster cache reclaim
-Message-ID: <Pine.LNX.4.33L.0110082032070.26495-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S277620AbRJHXjn>; Mon, 8 Oct 2001 19:39:43 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20996 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277618AbRJHXjh>; Mon, 8 Oct 2001 19:39:37 -0400
+Subject: Re: %u-order allocation failed
+To: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka)
+Date: Tue, 9 Oct 2001 00:44:00 +0100 (BST)
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        riel@conectiva.com.br (Rik van Riel),
+        linux-kernel@alex.org.uk (Alex Bligh - linux-kernel),
+        kszysiu@main.braxis.co.uk (Krzysztof Rusocki), linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1011009010928.13677A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Oct 09, 2001 01:31:59 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qk40-0002Jf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[WANTED: testers]
+> Linus, what do you think: is it OK if fork randomly fails with very small
+> probability or not?
 
-Hi,
+Your code doesnt change that behaviour. Not one iota. Do the mathematics,
+work out the failure probabilities for page pairs. Now remember that the
+vmalloc one has guard pages too.
 
-after looking at some other things for a while, I made a patch to
-get 2.4.10-ac* to correctly eat pages from the cache when it is
-about pages belonging to files which aren't currently in use. This
-should also give some of the benefits of use-once, but without the
-flaw of not putting pressure on the working set when a streaming IO
-load is going on.
+You are trying to solve a non problem with a non solution
 
-It also reduces the distance between inactive_shortage and
-inactive_plenty, so kswapd should spend much less time rolling
-over pages from zones we're not interested in.
-
-This patch is meant to fix the problems where heavy cache
-activity flushes out pages from the working set, while still
-allowing the cache to put some pressure on the working set.
-
-I've only done a few tests with this patch, reports on how
-different workloads are handled are very much welcome:
-
-http://www.surriel.com/patches/2.4/2.4.10-ac9-eatcache
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Alan

@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274583AbRITRzQ>; Thu, 20 Sep 2001 13:55:16 -0400
+	id <S272433AbRITSGG>; Thu, 20 Sep 2001 14:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274585AbRITRzG>; Thu, 20 Sep 2001 13:55:06 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41228 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274583AbRITRyv>; Thu, 20 Sep 2001 13:54:51 -0400
-Subject: Re: [PATCH] fix register_sysrq() in 2.4.9++
-To: rddunlap@osdlab.org (Randy.Dunlap)
-Date: Thu, 20 Sep 2001 18:59:33 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com (Linus),
-        linux-kernel@vger.kernel.org (lkml), sfr@canb.auug.org.au,
-        crutcher+kernel@datastacks.com
-In-Reply-To: <3BAA2BF6.467CEB10@osdlab.org> from "Randy.Dunlap" at Sep 20, 2001 10:48:38 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S270464AbRITSF5>; Thu, 20 Sep 2001 14:05:57 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:17418 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S272433AbRITSFn>; Thu, 20 Sep 2001 14:05:43 -0400
+Date: Thu, 20 Sep 2001 20:05:50 +0200 (CEST)
+From: eduard.epi@t-online.de (Peter Bornemann)
+To: <linux-kernel@vger.kernel.org>
+Subject: noexec-flag does not work in Linux 2.4.10-pre10
+Message-ID: <Pine.LNX.4.33.0109201957530.2448-100000@eduard.t-online.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15k86n-0005lE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, I considered that, and it doesn't matter to me whether it
-> reports 0 or -1, but it's the data pointer that (mostly) requires
-> the #ifdefs, unless the data is always present or a dummy data pointer
-> is used.... ?
+It seems that the noexec in fstab no longer works. Is this
+intentional?
 
-#define it to an inline without some arguments ?
+In fstab I have the following line:
 
-Alan
+/dev/hda1       /dosc   vfat    codepage=850,umask=000,noexec 0 0
+
+A ls -l in /dosc shows:
+
+-rwxrwxrwx    1 root     root     267657216 Jun 28 22:34 win386.swp
+
+The same case with iso9660:
+
+-r-xr-xr-x    1 root     root            0 Jan 24  2000 s3cd1.dat
+
+However umask=111 is still working. I don't know exactly when this
+happened, but it was hot there in earlier 2.4 kernels.
+
+mfg
+
+Peter B
+
+

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268941AbRHFVUA>; Mon, 6 Aug 2001 17:20:00 -0400
+	id <S269019AbRHFViE>; Mon, 6 Aug 2001 17:38:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268952AbRHFVTu>; Mon, 6 Aug 2001 17:19:50 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:62674 "EHLO
-	e33.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268941AbRHFVTi>; Mon, 6 Aug 2001 17:19:38 -0400
-Date: Mon, 06 Aug 2001 14:18:00 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with 10Mbit ethernet connections on Adaptec Starfire card
-Message-ID: <675067451.997107480@mbligh.des.sequent.com>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S269022AbRHFVhy>; Mon, 6 Aug 2001 17:37:54 -0400
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:4566 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S269019AbRHFVhj>; Mon, 6 Aug 2001 17:37:39 -0400
+Date: Mon, 6 Aug 2001 16:37:45 -0500 (CDT)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.7 Source Code Documentation
+In-Reply-To: <3B6B880B.332083A3@randomlogic.com>
+Message-ID: <Pine.LNX.4.33.0108061636080.26135-100000@biglinux.tccw.wku.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I connect an Adaptec Starfire card to a 10Mbit, half duplex ethernet,
-it sees very few (though not 0) packets. Debug logging shows that it's
-correctly recognising the connection as 10Mbit, half duplex. The port
-is unusable like this (despite the odd packet or two).
+here is our mirror
 
-If I connect a 100Mbit back-to-back with another adaptec, or connect
-myself to the same 10Mbit port as before through a 100Mbit switch
-(giving me a 100Mbit local connection) it works fine. A tulip board to
-the same port (direct @ 10Mbit) also works fine.
+http://linux-wolf.tccw.wku.edu/kernel/
 
-Anyone else seen anything like this? Couldn't see anything in the
-archives.
 
-Thanks,
+please give our lug props if you can.  WKU-Linux: linux.wku.edu
 
-Martin.
+Thanks Brent
 
-PS. Linux 2.4.6 kernel. 
+> OK, it's all up and working. If anyone else wants to mirror, let me
+> know the URL and I'll add it to the Random Logic web site at
+> www.randomlogic.com/kernel.html.
+>
+> PGA
+

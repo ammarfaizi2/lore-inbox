@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267361AbTAHBb0>; Tue, 7 Jan 2003 20:31:26 -0500
+	id <S267621AbTAHBmh>; Tue, 7 Jan 2003 20:42:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267625AbTAHBb0>; Tue, 7 Jan 2003 20:31:26 -0500
-Received: from hell.ascs.muni.cz ([147.251.60.186]:32129 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S267361AbTAHBbZ>; Tue, 7 Jan 2003 20:31:25 -0500
-Date: Wed, 8 Jan 2003 02:40:05 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.54: ide-scsi still buggy?
-Message-ID: <20030108014005.GC725@mail.muni.cz>
+	id <S267625AbTAHBmh>; Tue, 7 Jan 2003 20:42:37 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:14250 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267621AbTAHBmg> convert rfc822-to-8bit;
+	Tue, 7 Jan 2003 20:42:36 -0500
+Date: Wed, 8 Jan 2003 02:51:07 +0100
+To: Joshua Kwan <joshk@ludicrus.ath.cx>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: [2.5.54-dj1-bk] Some interesting experiences...
+Message-ID: <20030108015107.GA2170@gagarin>
+References: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
 User-Agent: Mutt/1.4i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *18W5N5-00086H-00*Ssh41eSC.Qw* (0x63.nu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Jan 07, 2003 at 05:21:46PM -0800, Joshua Kwan wrote:
+> 
+> 3. [linux-2.5] PS/2 mouse goes haywire every 30 seconds or so of use.
+> dmesg sayeth:
+> mice: PS/2 mouse device common for all mice
+> input: PS/2 Synaptics TouchPad on isa0060/serio4
+> 
+> but more importantly this is the cause:
+> 
+> psmouse.c: Lost synchronization, throwing 2 bytes away.
+> psmouse.c: Lost synchronization, throwing 2 bytes away.
 
-ide-scsi emulation does not work for drive /dev/hdg, why?
+This happens here too. But not that frequent at all, more like once every
+hour. And has happend on all kernels since at least 2.5.46 [1].
 
-kernel boot parameters:
-kernel /boot/vmlinuz-2.5.54bk3 ro root=/dev/hda1 ide=reverse vga=4 hdg=ide-scsi
+However 5 hours ago I changed the timeout in psmouse.c from 50ms to 100ms.
+And now it haven't misbehaved yet, but that might be just some nightly luck. 
+Is there something that turns off interupts or something and hinders the
+mouse driver from processing the data for such long time? Or is my hardware
+just buggy?
 
-It freezes kernel (sysrq do nothing) after lines:
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: TEAC      Model: CD-W512EB         Rev: 2
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-scsi scan: host 0 channel 0 id 0 lun 0 identifier too long, length 60, max 50. Device might be improperly identified.
-
-while attaching it to /dev/hde works ok. Why?
-
-PDC20265: chipset revision 2
-PDC20265: not 100% native mode: will probe irqs later
-PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide0: BM-DMA at 0x7800-0x7807, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0x7808-0x780f, BIOS settings: hdc:DMA, hdd:pio
-hda: ST380021A, ATA DISK drive
-ide0 at 0x9000-0x9007,0x8802 on irq 10
-hdc: IBM-DTLA-307045, ATA DISK drive
-ide1 at 0x8400-0x8407,0x8002 on irq 10
-VP_IDE: IDE controller at PCI slot 00:04.1
-VP_IDE: chipset revision 16
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:04.1
-    ide2: BM-DMA at 0xd800-0xd807, BIOS settings: hde:DMA, hdf:pio
-    ide3: BM-DMA at 0xd808-0xd80f, BIOS settings: hdg:DMA, hdh:pio
-hde: DVD-ROM DDU1621, ATAPI CD/DVD-ROM drive
-hde: DMA disabled
-ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdg: CD-W512EB, ATAPI CD/DVD-ROM drive
-hdg: DMA disabled
-^^^^^^^^^^^^^^^^^
-
-hdparm reports:
-/dev/hde:
- HDIO_GET_MULTCOUNT failed: Inappropriate ioctl for device
-  IO_support   =  1 (32-bit)
-  unmaskirq    =  1 (on)
-  using_dma    =  1 (on)
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=103688231622278&w=2
 
 -- 
-Luká¹ Hejtmánek
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

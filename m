@@ -1,94 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVBXRTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVBXR0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbVBXRTR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 12:19:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVBXRTR
+	id S262425AbVBXR0b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 12:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVBXR0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 12:19:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:56509 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262420AbVBXRTJ (ORCPT
+	Thu, 24 Feb 2005 12:26:31 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:2953 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S262425AbVBXR02 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 12:19:09 -0500
-Date: Thu, 24 Feb 2005 09:18:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Helge Hafting <helge.hafting@aitel.hist.no>
-Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
-Message-ID: <20050224171856.GB9439@kroah.com>
-References: <20050223014233.6710fd73.akpm@osdl.org> <421C7FC2.1090402@aitel.hist.no> <20050223121207.412c7eeb.akpm@osdl.org> <421D0582.9090100@free.fr> <20050223234720.GA7270@kroah.com> <421E099F.1030104@free.fr>
-Mime-Version: 1.0
+	Thu, 24 Feb 2005 12:26:28 -0500
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aoe: fix abuse of arrays and sparse warnings
+References: <200502240318.23155.adobriyan@mail.ru>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Thu, 24 Feb 2005 12:23:37 -0500
+Message-ID: <87k6oxan3a.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421E099F.1030104@free.fr>
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 06:06:39PM +0100, Laurent Riffard wrote:
-> 
-> 
-> Le 24.02.2005 00:47, Greg KH a ?crit :
-> >On Wed, Feb 23, 2005 at 11:36:50PM +0100, Laurent Riffard wrote:
-> >
-> >>hey, what's this /dev/hds ? digging into /sys/block...
-> >>
-> >>~$ ls -l  /sys/block/hds/device
-> >>lrwxrwxrwx  1 root root 0 f?v 23 22:45 /sys/block/hds/device ->
-> >>../../devices/pci0000:00/0000:00:04.1/ide1/1.1/
-> >>
-> >>/dev/hdq should be /dev/hdd...
-> >>
-> >>~$ ls -l /proc/ide
-> >>total 4
-> >>-r--r--r--  1 root root 0 f?v 23 23:28 drivers
-> >>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hda -> ide0/hda/
-> >>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hdb -> ide0/hdb/
-> >>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hdc -> ide1/hdc/
-> >>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hdd -> ide1/hdd/
-> >>dr-xr-xr-x  4 root root 0 f?v 23 23:28 ide0/
-> >>dr-xr-xr-x  4 root root 0 f?v 23 23:28 ide1/
-> >>-r--r--r--  1 root root 0 f?v 23 23:28 via
-> >>~$ ls -d /sys/block/hd*
-> >>/sys/block/hda/  /sys/block/hdc/  /sys/block/hdq/  /sys/block/hds/
-> >
-> >
-> >What does /proc/devices show?
-> 
-> Character devices:
->   1 mem
->   4 /dev/vc/0
->   4 tty
->   5 /dev/tty
->   5 /dev/console
->   5 /dev/ptmx
->   6 lp
->   7 vcs
->  10 misc
->  13 input
->  14 sound
->  29 fb
-> 116 alsa
-> 128 ptm
-> 136 pts
-> 171 ieee1394
-> 180 usb
-> 
-> Block devices:
->   1 ramdisk
->   2 fd
->   3 ide0
->   7 loop
->  22 ide1
-> 253 pktcdvd
-> 254 device-mapper
-> 
-> Do you see something strange here  ?
+Alexey Dobriyan <adobriyan@mail.ru> writes:
 
-No, ide0 is 3 and ide1 is 22, which is "standard".  Hm, what's that
-pktcdvd and device-mapper doing there?  Do you need those drivers?  Can
-you try it without building them and see if that helps?
+> Signed-off-by: Alexey Dobriyan <adobriyan@mail.ru>
 
-thanks,
+Hi.  Thanks for the patch.  Have you tested it?  If you don't have any
+ATA over Ethernet hardware, you can using the alpha vblade program for
+testing.  (Run it on a system in the broadcast domain of the host
+running your patched aoe driver, and vblade will export any file,
+e.g., /dev/loop0, as block storage.)  It's at
 
-greg k-h
+  http://sf.net/projects/aoetools
+
+I was trying to determine what sparse warnings you see, so I got
+sparse from bk://sparse.bkbits.net/sparse and ran it.  Your patch cuts
+down significantly on the complaints, but there are some that persist.
+Maybe you're using an older version of sparse?
+
+
+  ecashin@kokone linux-2.6.11-rc4-bk9$ make C=1
+    CHK     include/linux/version.h
+  make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+    CHK     include/asm-i386/asm_offsets.h
+    CHK     include/linux/compile.h
+    CHK     usr/initramfs_list
+    CHECK   drivers/block/aoe/aoeblk.c
+    CC [M]  drivers/block/aoe/aoeblk.o
+    CHECK   drivers/block/aoe/aoechr.c
+  drivers/block/aoe/aoechr.c:236:24: warning: symbol 'aoe_fops' was not declared. Should it be static?
+
+This change has been made already, so I'll check whether I've pushed
+the change up.  I have a couple of things I haven't submitted yet.
+
+    CC [M]  drivers/block/aoe/aoechr.o
+    CHECK   drivers/block/aoe/aoecmd.c
+  drivers/block/aoe/aoecmd.c:27:17: warning: incorrect type in assignment (different base types)
+  drivers/block/aoe/aoecmd.c:27:17:    expected unsigned short [unsigned] protocol
+  drivers/block/aoe/aoecmd.c:27:17:    got restricted unsigned short [usertype] [force] <noident>
+    CC [M]  drivers/block/aoe/aoecmd.o
+    CHECK   drivers/block/aoe/aoedev.c
+    CC [M]  drivers/block/aoe/aoedev.o
+    CHECK   drivers/block/aoe/aoemain.c
+    CC [M]  drivers/block/aoe/aoemain.o
+    CHECK   drivers/block/aoe/aoenet.c
+  drivers/block/aoe/aoenet.c:156:10: warning: incorrect type in initializer (different base types)
+  drivers/block/aoe/aoenet.c:156:10:    expected unsigned short [unsigned] type
+  drivers/block/aoe/aoenet.c:156:10:    got restricted unsigned short [usertype] [force] <noident>
+    CC [M]  drivers/block/aoe/aoenet.o
+    LD [M]  drivers/block/aoe/aoe.o
+  Kernel: arch/i386/boot/bzImage is ready
+    Building modules, stage 2.
+    MODPOST
+    CC      drivers/block/aoe/aoe.mod.o
+    LD [M]  drivers/block/aoe/aoe.ko
+  ecashin@kokone linux-2.6.11-rc4-bk9$ 
+  
+The "array abuse" is something that I'm not all that enthusiastic
+about changing, since it's mostly a style issue, and last time I
+changed it the way your patch does, the original author of the patch
+changed it back.  But you've figured out how to make sparse happy, and
+for that I'm grateful!  :)
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+

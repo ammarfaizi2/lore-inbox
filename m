@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129766AbRBVOaK>; Thu, 22 Feb 2001 09:30:10 -0500
+	id <S129761AbRBVOcu>; Thu, 22 Feb 2001 09:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129705AbRBVOaA>; Thu, 22 Feb 2001 09:30:00 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:42717 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129283AbRBVO3q>;
-	Thu, 22 Feb 2001 09:29:46 -0500
-Posted-Date: Thu, 22 Feb 2001 15:26:49 +0100 (MET)
-Date: Thu, 22 Feb 2001 15:26:21 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200102221426.PAA05054@db0bm.ampr.org>
+	id <S129818AbRBVOca>; Thu, 22 Feb 2001 09:32:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12550 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129761AbRBVOc2>;
+	Thu, 22 Feb 2001 09:32:28 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102221353.f1MDrfq30420@flint.arm.linux.org.uk>
+Subject: [Patch] 2.4.2: af_unix.c warnings
 To: linux-kernel@vger.kernel.org
-Subject: HDD good choice ?
+Date: Thu, 22 Feb 2001 13:53:40 +0000 (GMT)
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
-I'm running 2.4.x or 2.2.19 (2.4.x is fine but I experienced a bad Oops using
-my hamradio packet radio system with it ... and nobody seems interested by my
-reports .. sniff).
+Hi,
 
-I would like to change my HDD.
-My motherboard is a Asus P5A with a K6-2 500 (overcloked to 550hz .. in test).
-The chipset is an Ali one.
+In 2.4.2 with CONFIG_SYSCTL=n, I'm seeing the following warnings
+while compiling af_unix.c:
 
-What is a good choice for a new HDD for linux ?
+gcc -D__KERNEL__ -I/usr/src/v2.4/linux-p720t/include -Wall -Wstrict-prototypes -O2  -fno-strict-aliasing -fno-common -pipe -mapcs-32 -march=armv4 -mtune=arm7tdmi -mshort-load-bytes -msoft-float    -c -o af_unix.o af_unix.c
+af_unix.c:1855: warning: return-type defaults to `int'
+af_unix.c:1855: warning: function declaration isn't a prototype
+af_unix.c: In function `unix_sysctl_register':
+af_unix.c:1855: warning: control reaches end of non-void function
+af_unix.c: At top level:
+af_unix.c:1856: warning: return-type defaults to `int'
+af_unix.c:1856: warning: function declaration isn't a prototype
+af_unix.c: In function `unix_sysctl_unregister':
+af_unix.c:1856: warning: control reaches end of non-void function
 
-Seagate, Barracuda ST330630A, 30.6 Go, 7200 t/min
-IBM, DTLA-305020, 20.5 Go, UDMA 100
-Western Digital, CAVIAR WD307AA, 30.7 Go
+The following patch fixes these warnings:
 
-After seeing some messages related to the DMA behaviour of some disks together
-with some chipsets with kernel 2.4, I would like some advices.
+--- orig/net/unix/af_unix.c	Thu Feb 22 11:25:50 2001
++++ linux/net/unix/af_unix.c	Thu Feb 22 13:54:41 2001
+@@ -1852,8 +1852,8 @@
+ extern void unix_sysctl_register(void);
+ extern void unix_sysctl_unregister(void);
+ #else
+-static inline unix_sysctl_register() {};
+-static inline unix_sysctl_unregister() {};
++static inline void unix_sysctl_register(void) {}
++static inline void unix_sysctl_unregister(void) {}
+ #endif
+ 
+ static const char banner[] __initdata = KERN_INFO "NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.\n";
+ 
 
----------------
-Best regards
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-	Jean-Luc

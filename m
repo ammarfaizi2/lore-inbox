@@ -1,88 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275979AbRJBJkI>; Tue, 2 Oct 2001 05:40:08 -0400
+	id <S275982AbRJBJki>; Tue, 2 Oct 2001 05:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275981AbRJBJj6>; Tue, 2 Oct 2001 05:39:58 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:5138 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S275979AbRJBJjj>;
-	Tue, 2 Oct 2001 05:39:39 -0400
-Date: Tue, 2 Oct 2001 11:40:06 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
-Message-ID: <20011002114006.B7117@suse.cz>
-In-Reply-To: <20010927142311.E35@toy.ucw.cz> <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com>
-Mime-Version: 1.0
+	id <S275981AbRJBJk3>; Tue, 2 Oct 2001 05:40:29 -0400
+Received: from pat.uio.no ([129.240.130.16]:62863 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S275982AbRJBJkP>;
+	Tue, 2 Oct 2001 05:40:15 -0400
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: alan@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: NFSv3 and linux-2.4.10-ac3 => oops
+In-Reply-To: <200110012340.QAA02719@sw170.transmeta.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 02 Oct 2001 11:40:34 +0200
+In-Reply-To: "H. Peter Anvin"'s message of "Mon, 1 Oct 2001 16:40:05 -0700"
+Message-ID: <shszo7a4bxp.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com>; from znmeb@aracnet.com on Sun, Sep 30, 2001 at 02:16:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 30, 2001 at 02:16:40PM -0700, M. Edward Borasky wrote:
+>>>>> " " == H Peter Anvin <hpa@transmeta.com> writes:
 
-> While I don't want to get involved in a comparison between the loss of some
-> 7000 human lives in a terrorist attack on buildings with productivity lost
-> due to Code Red and Nimda attacks on the world's businesses, I'd like to
-> make two points:
-> 
-> 1. The losses to businesses from just these two virus attacks are
-> *significant*, and people are angry about the fact. They're looking for
-> someone to blame, someone to propose a solution and tools to prevent future
-> attacks. I personally think stiff fines and long prison sentences for
-> releasing attack software into the world's business network should have been
-> instituted a long time ago. Life without parole seems to me quite reasonable
-> under the circumstances.
+     > Hello everyone, I have a reproducible (and rather quick) oops
+     > on a system running linux-2.4.10-ac3, which seems to be NFS
+     > (v3) related; although ksymoops core dumps when I try to use
+     > it, I have manually decoded the dump to indicate that it
+     > happens in rwsem_down_read_failed called from nfs_file_wite.
+     > Rather than posting too much here, I have put as much
+     > information as I have been able to gather at:
 
-I think the major mistake behind this law is that it doesn't take into
-account that not the whole world is America. Still, virus creators from
-other countries won't be scared by this law, and I don't believe it'll
-stop American virus writer either - they won't believe they'll be ever
-caught.
+     > ftp://ftp.zytor.com/pub/hpa/oops/
 
-> 2. The Linux community should *not* believe that we are less vulnerable than
-> Microsoft! We are less vulnerable *now* only because Linux is not as
-> widespread as Windows. Were Linux, say, half of the market, the
-> vulnerability would be equal. The difference is strictly the number of
-> available hosts for these parasitic codes, not anything inherent in the
-> details of Windows or Linux, or in the organizational mechanisms (corporate
-> giant vs. "brutal meritocracy", closed source vs. open source, etc.).
-> 
+I'm trying to look at this, but it seems a hopeless mess: there are no
+calls to any read/write semaphore routines in the NFS code.
 
-Linux *is* less vulnerable to worm attacks, because of diversity.
+AFAICS the second stack return point corresponds to the call to
+generic_file_write() in nfs_file_write(), so I'd guess that the Oops
+is actually happening somewhere there...
 
-There is just a few different versions of IIS, for example, just a few
-different binaries floating around. And thus it is easy to choose the
-most common one and write a buffer overflow exploit for it.
+Hmm... Looking at the code in generic_file_write(), I see that Alan
+hasn't merged in the kmap() stuff in generic_file_write()from
+Linus. At the same time, the nfs_prepare_write() seems to have been
+synced with Linus, and so the kmap() that used to be there has
+disappeared.
 
-On the other way, there are many many different versions of Apache and
-Linux around, and even for same versions the code is compiled with
-different options by every Linux maker, which gives you at least a
-couple hundreds of different binaries. This won't stop a hacker from
-getting into your computer, but it will slow down worm spreading a lot -
-it either has to know every different binary out there and be able to
-guess which one is running on the system it plans to infect before it
-attacks (because otherwise the server can just crash without being
-infected, which is counterproductive for the virus), or hope to be able
-to attack the most common binary, which will then have a much smaller
-impact on the whole 'net.
+As  your  config  indicates  that  you  *are*  using CONFIG_HIGHMEM4G,
+perhaps one ought to start with a patch that fixes the obvious bug (in
+the hope that it'll at least clean up the next Oops)...
 
-It's much like biology: When you have genetic diversity, your species
-won't become extinct after just one heavy plague - some will survive. If
-you're a monoculture, then you're dead.
+Cheers,
+  Trond
 
-> In fact, I suspect that the open source for Linux gives creators of vicious
-> attack codes a *slight* advantage, since the vulnerabilities are there for
-> anyone to read and exploit before they are found by an alert Linux
-> community. And if Linux is to succeed in the enterprise, we in the community
-> owe it to ourselves to *enhance* that alertness -- indeed, to be more
-> vigilant on security issues -- even if it's at the expense of some of our
-> more favorite activities, like performance tweaking.
-
-Being alert is always good. :) It just becomes tiring after some time.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+--- linux-2.4.10-hpa/fs/nfs/file.c.orig	Sun Sep 23 18:48:01 2001
++++ linux-2.4.10-hpa/fs/nfs/file.c	Tue Oct  2 11:33:43 2001
+@@ -155,7 +155,12 @@
+  */
+ static int nfs_prepare_write(struct file *file, struct page *page, unsigned offset, unsigned to)
+ {
+-	return nfs_flush_incompatible(file, page);
++	int status;
++	kmap(page);
++	status = nfs_flush_incompatible(file, page);
++	if (status)
++		kunmap(page);
++	return status;
+ }
+ 
+ static int nfs_commit_write(struct file *file, struct page *page, unsigned offset, unsigned to)

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbTIAN6n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 09:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbTIAN6m
+	id S262891AbTIAOAo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 10:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTIAOAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 09:58:42 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61970 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262892AbTIAN6l
+	Mon, 1 Sep 2003 10:00:44 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64018 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262891AbTIAOAl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 09:58:41 -0400
-Date: Mon, 1 Sep 2003 09:48:06 -0400 (EDT)
+	Mon, 1 Sep 2003 10:00:41 -0400
+Date: Mon, 1 Sep 2003 09:51:49 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-cc: Nick Piggin <piggin@cyberone.com.au>, Ross Clarke <encrypted@geekz.za.net>,
-       Linux-Admin <linux-admin@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: Crazy load average & unkillable processes
-In-Reply-To: <20030829090129.GE690@schottelius.org>
-Message-ID: <Pine.LNX.3.96.1030901094452.21567I-100000@gatekeeper.tmr.com>
+To: Alan Cox <alan@redhat.com>
+cc: Bas Mevissen <ml@basmevissen.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-ac1
+In-Reply-To: <200308291324.h7TDODP06888@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.3.96.1030901094905.21567Q-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/SIGNED; MICALG=pgp-sha1; PROTOCOL="application/pgp-signature"; BOUNDARY=WkfBGePaEyrk4zXB
-Content-ID: <Pine.LNX.3.96.1030901094452.21567J@gatekeeper.tmr.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Fri, 29 Aug 2003, Alan Cox wrote:
 
---WkfBGePaEyrk4zXB
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> > So it is very hard to find out what the patch really contains (except 
+> > for listing the files of course). Some idea to find out what change sets 
+> > are in?
+> 
+> I dont deal in "changesets" so its not that simple.
+> 
+> > How do you feel about adding things like Alsa and swsuspend-for-2.4? I 
+> 
+> Im not interested
 
-I have never tried running 2.6 without swap, are there tuning values you
-need to avoid performance issues. You have adequate memory, have you
-played with swappiness?
-
-I'll try no swap on a machine when I get back from the weekend.
+I've suggested possible improvement in interactive response with
+low-latency and VM patches, what do you think would be most useful? Or do
+you think stability is the best feature and major new stuff should go to
+2.[67]?
 
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc
 Doing interesting things with little computers since 1979.
 
---WkfBGePaEyrk4zXB--

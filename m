@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263203AbTDCBVo>; Wed, 2 Apr 2003 20:21:44 -0500
+	id <S263206AbTDCBWa>; Wed, 2 Apr 2003 20:22:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263206AbTDCBVo>; Wed, 2 Apr 2003 20:21:44 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:51902 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263203AbTDCBVn>; Wed, 2 Apr 2003 20:21:43 -0500
-Date: Wed, 2 Apr 2003 17:23:07 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: i2c_probe() vs i2c_detect()
-Message-ID: <20030403012307.GA6037@kroah.com>
-Mime-Version: 1.0
+	id <S263207AbTDCBWa>; Wed, 2 Apr 2003 20:22:30 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:27290
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S263206AbTDCBW3>; Wed, 2 Apr 2003 20:22:29 -0500
+Message-ID: <3E8B8F31.5030407@redhat.com>
+Date: Wed, 02 Apr 2003 17:32:33 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: James Simmons <jsimmons@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why moving driver includes ?
+References: <mailman.1049324411.25620.linux-kernel2news@redhat.com> <200304030045.h330jok10685@devserv.devel.redhat.com>
+In-Reply-To: <200304030045.h330jok10685@devserv.devel.redhat.com>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Can anyone tell me why both i2c_probe() and i2c_detect() are in the
-kernel at the same time?  They both almost do the same thing, with the
-exception being i2c_detect() can handle i2c devices on the isa bus.
+Pete Zaitcev wrote:
 
-It kind of looks like the older i2c code and drivers used the
-i2c_probe() call, while the lm_sensors code used i2c_detect().
+> Yeah, but what does it have to do with kernel? You should have
+> gotten Uli to add them to glibc.
 
-If there are no objections, I'll merge the two of them, cutting about 2k
-out of the kernel :)
+Headers like have no place in glibc either.  There should be one or more
+separate packages which distribute kernel headers.
 
-thanks,
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-greg k-h
+iD8DBQE+i4832ijCOnn/RHQRAo+3AJ9VSy96p4dq8DJ+Mtd0oZTCCOswxgCdHl9d
+daw5lnlXKUuciCSTKSt3Jxc=
+=ugh8
+-----END PGP SIGNATURE-----
+

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310838AbSCHMsE>; Fri, 8 Mar 2002 07:48:04 -0500
+	id <S310839AbSCHMvO>; Fri, 8 Mar 2002 07:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310836AbSCHMry>; Fri, 8 Mar 2002 07:47:54 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:38630 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S310838AbSCHMrt>; Fri, 8 Mar 2002 07:47:49 -0500
-Date: Fri, 8 Mar 2002 14:32:55 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Beef Arrowny <tanfhltu@yahoo.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
-        Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Kernel Oops in 2.4.18 (ide.c)
-In-Reply-To: <20020306230616.45503.qmail@web9904.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0203081329140.5383-100000@netfinity.realnet.co.sz>
+	id <S310841AbSCHMvE>; Fri, 8 Mar 2002 07:51:04 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:56324 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310839AbSCHMvB>; Fri, 8 Mar 2002 07:51:01 -0500
+Message-ID: <3C88B35C.20202@evision-ventures.com>
+Date: Fri, 08 Mar 2002 13:49:32 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH][2.5] BUG check in elevator.c:237
+In-Reply-To: <Pine.LNX.4.44.0203081426060.5383-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Beef Arrowny wrote:
+Zwane Mwaikambo wrote:
+> On Fri, 8 Mar 2002, Martin Dalecki wrote:
+> 
+>>>So are you suggesting perhaps that we change the request servicing to 
+>>>polling? I'm a bit confused as to how this would fit in with 
+>>>
+>>At lest we should change the way the transition between intr
+>>controlled mode and polling is done.
+>>
+> 
+> To something like what some other subsystem  drivers do? ie
+> 
+> interrupt triggered
+> ISR hands off work to a BH
+> 
+> Or is that different from what you had in mind?
 
-> Code;  c01d80c6 <ide_output_data+a6/b0>
-> 00000000 <_EIP>:
-> Code;  c01d80c6 <ide_output_data+a6/b0>   <=====
->    0:   f3 66 6f                  repz outsw
-> %ds:(%esi),(%dx)   <=====
-> Code;  c01d80c9 <ide_output_data+a9/b0>
-
-Check out drivers/ide/ide.c:ide_output_data you're dying here...
-
-if (drive->slow) {
-	unsigned short *ptr = (unsigned short *) buffer; <==
-	while (wcount--) {
-		outw_p(*ptr++, IDE_DATA_REG); <== whoopdedoo
-		outw_p(*ptr++, IDE_DATA_REG);
-		}
-	} else
-
-
-http://groups.google.com/groups?hl=en&threadm=linux.kernel.Pine.LNX.4.44.0202070911321.8308-100000%40netfinity.realnet.co.sz&rnum=1&prev=/groups%3Fq%3Ddrivers/ide/ide.c.orig%2Bgroup:mlist.linux.kernel%2Bgroup:mlist.linux.kernel%26hl%3Den%26selm%3Dlinux.kernel.Pine.LNX.4.44.0202070911321.8308-100000%2540netfinity.realnet.co.sz%26rnum%3D1
-
-is my original posting. Jens sent in a patch which stopped the oops from 
-happening in 2.5, i *think* it might have been backported to 2.4, 
-essentially it all boiled down to something b0rking the scatter gather 
-list (referenced via buffer).
-
-Regards,
-	Zwane
-
-
+No this is precisely what I had in mind.
+Network adapter and SCSI drivers are good points where
+to have a look.
 

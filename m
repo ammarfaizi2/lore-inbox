@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268598AbRHFONB>; Mon, 6 Aug 2001 10:13:01 -0400
+	id <S268611AbRHFORm>; Mon, 6 Aug 2001 10:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268599AbRHFOMv>; Mon, 6 Aug 2001 10:12:51 -0400
-Received: from zero.aec.at ([195.3.98.22]:57098 "HELO zero.aec.at")
-	by vger.kernel.org with SMTP id <S268598AbRHFOMb>;
-	Mon, 6 Aug 2001 10:12:31 -0400
-To: root@iligan.com (rtviado)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: load balancing on more than 1 default routes
-In-Reply-To: <3B6A2B9A.6E88D0E8@theOffice.net> <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>
-From: Andi Kleen <ak@muc.de>
-Date: 06 Aug 2001 16:12:40 +0200
-In-Reply-To: root@iligan.com's message of "Fri, 3 Aug 2001 09:56:23 +0000 (UTC)"
-Message-ID: <k2bslte0pz.fsf@zero.aec.at>
-User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
+	id <S268617AbRHFORd>; Mon, 6 Aug 2001 10:17:33 -0400
+Received: from dsl254-089-216.nyc1.dsl.speakeasy.net ([216.254.89.216]:18940
+	"EHLO dragon") by vger.kernel.org with ESMTP id <S268611AbRHFORW>;
+	Mon, 6 Aug 2001 10:17:22 -0400
+Message-ID: <3B6EA6FB.5090505@infiniconsys.com>
+Date: Mon, 06 Aug 2001 10:17:31 -0400
+From: Michael Heinz <mheinz@infiniconsys.com>
+Organization: InfiniCon Systems
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ics i686; en-US; 0.7) Gecko/20010316
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Resources for SCSI, SRP, Infiniband?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>,
-root@iligan.com (rtviado) writes:
-> Hello,
+Hello, all -
 
-> 	I just want to ask if there is a facility in the kernel that load
-> balance to different default routes, since i'm using this routes for
-> uplink purposes only (my downlink is via satellite, it doesn't matter
-> where i send my packets uplink as long as it reaches the internet
-> backbone).
+I'm tasked with developing a new SCSI driver for 2.4; but I'm running 
+into issues that (a) SCSI drivers are different from other Linux device 
+drivers and (b) none of the SCSI driver docs/how-tos seem to have been 
+updated since 2.0.x.
 
-2.2+ support multipath routing with load balancing per route. You can configure
-it by specifying multiple nexthops with iproute2.
+I'm making progress, but could someone direct me to a list of do's and 
+don't's for SCSI drivers in 2.4?
 
--Andi
+Also, anybody else looking at developing IB and or SRP?
+
+Thanks a lot....
+
 

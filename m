@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264760AbSLBDSU>; Sun, 1 Dec 2002 22:18:20 -0500
+	id <S264771AbSLBEEV>; Sun, 1 Dec 2002 23:04:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264766AbSLBDSU>; Sun, 1 Dec 2002 22:18:20 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:38415
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S264760AbSLBDSF>; Sun, 1 Dec 2002 22:18:05 -0500
-Subject: Re: a bug in autofs
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: "Andrey R. Urazov" <coola@ngs.ru>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021201071612.GA936@ktulu>
-References: <20021201071612.GA936@ktulu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1038799532.15370.301.camel@ixodes.goop.org>
+	id <S264785AbSLBEEV>; Sun, 1 Dec 2002 23:04:21 -0500
+Received: from are.twiddle.net ([64.81.246.98]:2452 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S264771AbSLBEEU>;
+	Sun, 1 Dec 2002 23:04:20 -0500
+Date: Sun, 1 Dec 2002 20:11:22 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Bjoern Brauel <bjb@gentoo.org>
+Cc: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel build of 2.5.50 fails on Alpha
+Message-ID: <20021201201122.A31609@twiddle.net>
+Mail-Followup-To: Bjoern Brauel <bjb@gentoo.org>,
+	Folkert van Heusden <folkert@vanheusden.com>,
+	linux-kernel@vger.kernel.org
+References: <000701c2994d$5ccee670$3640a8c0@boemboem> <3DEA3D39.7050806@gentoo.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 01 Dec 2002 19:25:32 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DEA3D39.7050806@gentoo.org>; from bjb@gentoo.org on Sun, Dec 01, 2002 at 05:47:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-30 at 23:16, Andrey R. Urazov wrote:
-> 1) when I run XMMS and its playlist contains entries laying somewhere
->    under /misc/cdrom but there is no cd in the drive or the cd in the
->    drive is not the one whose entries are stored in the playlist, it
->    takes about half a minute for the system to hang. Before it hangs
->    absolutely I get numerous messages "invalid seek on /dev/hdc" on my
->    virtual consoles
+On Sun, Dec 01, 2002 at 05:47:53PM +0100, Bjoern Brauel wrote:
+> Ive been working on implementing some missing bits but what Id like to 
+> know is who is "officially" doing development for alpha on 2.5.
 
-What happens if you try to manually mount the cdrom when there's nothing
-in the drive?
+See 
 
-> 2) under /misc/summer there resides an ntfs volume with thousands of
->    files. And when I run 
-> 
->         find /misc/summer
-> 
->    the system becames unusable after some amount of files is scanned.
->    Usually it just hangs. But one time "find" terminated with the
->    segmentation fault and then after 5 seconds or so the system hung.
+http://ftp.kernel.org/pub/linux/kernel/people/rusty/patches/Module/rth-shared-modules.patch.gz
 
-Can you reproduce this with some other filesystem type (something which
-is less flaky than NTFS)?
+which I hope will make it into the kernel relatively soon.
 
-How many files are on the NTFS filesystem?
 
-> The problem does not existed if the volumes are mounted through "mount".
-> Only automounting causes problems.
-
-Does this comment also apply to the cdrom case?
-
-What mount options are you using to mount these filesystems?  Are they
-the same when you do it manually and using autofs?
-
-What does the "dentry_cache" line say in /proc/slabinfo while you're
-running the find on the NTFS filesystem?
-
-Thanks,
-	J
-
+r~

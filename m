@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265440AbUF2E5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265454AbUF2E71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265440AbUF2E5x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 00:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265446AbUF2E5w
+	id S265454AbUF2E71 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 00:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265455AbUF2E70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 00:57:52 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:49402 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S265440AbUF2E5v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 00:57:51 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: not detectable
-To: linux-kernel@vger.kernel.org
-Subject: accidently unsubscribed?
-Date: Tue, 29 Jun 2004 00:57:50 -0400
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406290057.50390.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.59.165] at Mon, 28 Jun 2004 23:57:50 -0500
+	Tue, 29 Jun 2004 00:59:26 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:5929 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S265454AbUF2E7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 00:59:20 -0400
+X-BrightmailFiltered: true
+Message-Id: <5.1.0.14.2.20040629145623.03cdf008@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 29 Jun 2004 14:59:10 +1000
+To: Ben Greear <greearb@candelatech.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: 2.6.7 tiobench results for 3ware 9500 system
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <40E0E690.2040100@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+At 01:48 PM 29/06/2004, Ben Greear wrote:
+>I am trying to build a box that can handle streaming 2Gbps to disk for
+>sustained periods of time.  I benchmarked a few different file systems
+>and wanted to share the results.
 
-I've not received an great amount of messages to this list since I got 
-back from a weeklong trip (2690 miles total) to Nebraska for a 
-wedding (no not mine).
+for large amounts of data, you should ensure that your application opens 
+the open using O_DIRECT.
 
-I found my mailbox at verizon overflowing when I got back and I'm 
-wondering if I got unsubbed because of bounced emails.
+i have no experience with 3ware controllers, but i have no problem 
+sustaining 400MB/s (4gbit/s) to a Fibre Channel-attached JBOD with an 
+in-house userspace-based application which maintains its own 
+userspace-based filesystem on raw partitions (/dev/sd[b-w]).
+using 15K RPM disks i can sustain 400MB/s using just 6 disk spindles and 
+what amounts to predominantly sequential writes.
 
-If so, can someone fix it?
 
--- 
-Cheers, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
+cheers,
+
+lincoln.
+

@@ -1,169 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135658AbRDSNJp>; Thu, 19 Apr 2001 09:09:45 -0400
+	id <S135659AbRDSNQE>; Thu, 19 Apr 2001 09:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135659AbRDSNJe>; Thu, 19 Apr 2001 09:09:34 -0400
-Received: from gate.terreactive.ch ([212.90.202.121]:9968 "HELO
-	toe.terreactive.ch") by vger.kernel.org with SMTP
-	id <S135658AbRDSNJP>; Thu, 19 Apr 2001 09:09:15 -0400
-Message-ID: <3ADEE2D7.B17C3BF8@tac.ch>
-Date: Thu, 19 Apr 2001 15:06:31 +0200
-From: Roberto Nibali <ratz@tac.ch>
-Organization: terreActive
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en, de-CH, zh-CN
+	id <S135661AbRDSNPy>; Thu, 19 Apr 2001 09:15:54 -0400
+Received: from mailhost.mipsys.com ([62.161.177.33]:43510 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S135659AbRDSNPr>; Thu, 19 Apr 2001 09:15:47 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-pm-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: PCI power management
+Date: Thu, 19 Apr 2001 15:14:53 +0200
+Message-Id: <20010419131453.12448@mailhost.mipsys.com>
+In-Reply-To: <E14qE0V-00078Y-00@the-village.bc.nu>
+In-Reply-To: <E14qE0V-00078Y-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Ion Badulescu <ionut@cs.columbia.edu>
-CC: linux-kernel@vger.kernel.org, Donald Becker <becker@scyld.com>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
-In-Reply-To: <Pine.LNX.4.33.0104181330200.32629-100000@age.cs.columbia.edu>
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>>  - Some devices just can't be brought back to life from D3 state without
+>> a PCI reset (ATI Rage M3 for example) and that require some arch specific
+>> support (when it's possible at all).
+>
+>Putting on a driver author hat what I want is
+>
+>	pci_power_on_generic
+>	pci_power_off_generic
+>	pci_power_on_null
+>	pci_power_off_null
+>
+>At which point most driver writers are having to do no thinking at all about
+>their device. The PCI layer just requires they pick a function and stick it
+>in the struct pci_device. 
 
-> Anyway, Roberto, if you could give the starfire driver in 2.2.19 a try,
-> I'd appreciate it. You mentioned looking at the code, did you actually
-> test it?
+Could you elaborate about the difference between generic and null
+functions ? I'm not sure I understand what you mean...
 
-Ok, I replaced the motherboard and did the remaining tests. Everything 
-looks fine up to 3 quadboards, 2 3c905C and one eepro100. The excerpt:
+Note that in the case of chips like the Rage M3, the driver is the only
+one to know if it will be able to bring back the card from a power off
+state or not. It's the only one to know if it can reconfigure the card
+completely without having a BIOS run before it.
 
- 3c59x.c 18Feb01 Donald Becker and others
-http://www.scyld.com/network/vortex.html
-eth0: 3Com 3c905C Tornado at 0x3000,  00:01:03:1f:50:11, IRQ 11
-  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
-  MII transceiver found at address 24, status 7809.
-  Enabling bus-master transmits and whole-frame receives.
-eth1: 3Com 3c905C Tornado at 0x3080,  00:01:03:1f:50:14, IRQ 11
-  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
-  MII transceiver found at address 24, status 7809.
-  Enabling bus-master transmits and whole-frame receives.
-eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31 Modified by Andrey V. Savochkin
-<saw@saw.sw.com.sg> and others
-eepro100.c: VA Linux custom, Dragan Stancevic <visitor@valinux.com> 2000/11/15
-eth2: Intel PCI EtherExpress Pro100 82557, 00:D0:B7:A7:DD:78, IRQ 11.
-  Board assembly 000000-000, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x04f4518b).
-eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31 Modified by Andrey V. Savochkin
-<saw@saw.sw.com.sg> and others
-eepro100.c: VA Linux custom, Dragan Stancevic <visitor@valinux.com> 2000/11/15
-starfire.c:v1.03 7/26/2000  Written by Donald Becker <becker@scyld.com>
- Updates and info at http://www.scyld.com/network/starfire.html
- (unofficial 2.2.x kernel port, version 1.2.8, March 7, 2001)
-eth3: Adaptec Starfire 6915 at 0x90006000, 00:00:d1:ed:eb:e9, IRQ 10.
-eth3: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth4: Adaptec Starfire 6915 at 0x90087000, 00:00:d1:ed:eb:ea, IRQ 11.
-eth4: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth5: Adaptec Starfire 6915 at 0x90108000, 00:00:d1:ed:eb:eb, IRQ 11.
-eth5: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth6: Adaptec Starfire 6915 at 0x90189000, 00:00:d1:ed:eb:ec, IRQ 11.
-eth6: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth7: Adaptec Starfire 6915 at 0x9020a000, 00:00:d1:ed:e5:01, IRQ 5.
-eth7: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth8 is deferred
-eth8: Adaptec Starfire 6915 at 0x9028b000, 00:00:d1:ed:e5:02, IRQ 11.
-eth8: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth9 is deferred
-eth9: Adaptec Starfire 6915 at 0x9030c000, 00:00:d1:ed:e5:03, IRQ 11.
-eth9: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth10 is deferred
-eth10: Adaptec Starfire 6915 at 0x9038d000, 00:00:d1:ed:e5:04, IRQ 11.
-eth10: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth11 is deferred
-eth11: Adaptec Starfire 6915 at 0x9040e000, 00:00:d1:ed:e8:c5, IRQ 11.
-eth11: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth12 is deferred
-eth12: Adaptec Starfire 6915 at 0x9048f000, 00:00:d1:ed:e8:c6, IRQ 11.
-eth12: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth13 is deferred
-eth13: Adaptec Starfire 6915 at 0x90510000, 00:00:d1:ed:e8:c7, IRQ 11.
-eth13: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth14 is deferred
-eth14: Adaptec Starfire 6915 at 0x90591000, 00:00:d1:ed:e8:c8, IRQ 11.
-eth14: MII PHY found at address 1, status 0x7809 advertising 01e1.
+I would suggest a call that looks like
 
-A 2.2.x UP-APIC patch would maybe improve things here while under
-heavy load. I'm using such boxes as packetfilters. All quadboards
-get IRQ 11 which is rather nasty considering a possible throughput
-of 40Mbit/s per NIC.
+pci_power_off(uint mask);
 
-Would be nice if I could fix the "early initialization ..." problem
-too. I'm still checking the Space.c code:
+where mask is
 
-#define ETH_NOPROBE_ADDR 0xffe0
+  PCI_POWER_MASK_D1 = 0x00000001
+  PCI_POWER_MASK_D2 = 0x00000002
+  PCI_POWER_MASK_D3 = 0x00000004
+  PCI_POWER_MASK_NOCLOCK = 0x00000008
+  PCI_POWER_MASK_NOPOWER = 0x00000010
 
-static struct device eth7_dev = {
-    "eth7", 0,0,0,0,ETH_NOPROBE_ADDR /* I/O base*/, 0,0,0,0, NEXT_DEV,
-ethif_probe };
-static struct device eth6_dev = {
-    "eth6", 0,0,0,0,ETH_NOPROBE_ADDR /* I/O base*/, 0,0,0,0, &eth7_dev,
-ethif_probe };
-static struct device eth5_dev = {
-    "eth5", 0,0,0,0,ETH_NOPROBE_ADDR /* I/O base*/, 0,0,0,0, &eth6_dev,
-ethif_probe };
-static struct device eth4_dev = {
-    "eth4", 0,0,0,0,ETH_NOPROBE_ADDR /* I/O base*/, 0,0,0,0, &eth5_dev,
-ethif_probe };
-static struct device eth3_dev = {
-    "eth3", 0,0,0,0,ETH_NOPROBE_ADDR /* I/O base*/, 0,0,0,0, &eth4_dev,
-ethif_probe };
-static struct device eth2_dev = {
-    "eth2", 0,0,0,0,ETH_NOPROBE_ADDR /* I/O base*/, 0,0,0,0, &eth3_dev,
-ethif_probe };
-static struct device eth1_dev = {
-    "eth1", 0,0,0,0,ETH_NOPROBE_ADDR /* I/O base*/, 0,0,0,0, &eth2_dev,
-ethif_probe };
+The driver sets the mask to whatever state it supports getting the card
+from. We can #define a PCI_POWER_MASK_STD (that would be a D1+D2+D3) for
+"generic" drivers that don't really know anything but to follow the HW
+PCI power management capabilities.
 
-static struct device eth0_dev = {
-    "eth0", 0, 0, 0, 0, ETH0_ADDR, ETH0_IRQ, 0, 0, 0, &eth1_dev, ethif_probe };
+This function would be routed to an arch function, that will in turn
+either call the lower-level PCI code to set D1, D2 or D3 mode (the best
+supported) or will suspend the card's clock or power if it can and the
+driver accept it.
 
-#   undef NEXT_DEV
-#   define NEXT_DEV     (&eth0_dev)
+Typically, on a PowerMac, this function could keep track of which cards
+are in D2 or D3 mode (or which drivers allowed for clock suspend) and
+would stop the PCI clock once they all asked for it. 
 
-Would it make sense to extend this structure? Andrew Morgan made such a
-suggestion
-but why is that eth7 limitation? And why can't I use more then 16 ethernet
-interfaces?
+>This doesnt help you. You need device specific support in each case where
+>bus mastering is occuring and a bus master error could be fatal if missed.
+>For example on i2o I can easily have 4Mbytes of outstanding I/O between the
+>message layer and disk, all of which is bus mastering. Only the driver
+>actually
+>knows when its idle.
 
-eth15: Adaptec Starfire 6915 at 0x90612000, 00:00:d1:ed:e8:c5, IRQ 7.
-eth15: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device  is deferred
-: Adaptec Starfire 6915 at 0x90693000, 00:00:d1:ed:e8:c6, IRQ 11.
-: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device  is deferred
-: Adaptec Starfire 6915 at 0x90714000, 00:00:d1:ed:e8:c7, IRQ 11.
-: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device  is deferred
-: Adaptec Starfire 6915 at 0x90795000, 00:00:d1:ed:e8:c8, IRQ 11.
-: MII PHY found at address 1, status 0x7809 advertising 01e1.
+Right. That's a driver issue. The problem would go away if all drivers
+properly block their IO queues and wait for all IO to complete when
+notified of sleep
 
-Why isn't it possible to put the "probed" counter into the Space.c for all
-network drivers? So people would not need to care about and the driver
-code would yet be more generic (at least a little bit). I refer to the code:
+>X has hooks for this in XFree 4
 
-int __init starfire_probe(struct net_device *dev)
-{
-        static int __initdata probed = 0;
-        if (probed)
-                return -ENODEV;
-        probed++;
-        return pci_module_init(&starfire_driver);
-}
+The last time I looked at it, those were rather APM-specific. But well, I
+guess it's easy to update them. What I'm thinknig about is the kernel
+side, that is a generic, non-APM or non-ACPI specific way of notifying
+userland process that request for it. Some kind of interface allowing
+userland to register PM notifiers and have the kernel PM thread be
+blocked until the userland code "acked" the message.
 
-Any pointers, sources are welcome and in hope for some further wisdom,
-Roberto Nibali, ratz
+Well, maybe there is already something I missed...
 
--- 
-mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`
+Ben.
+
+
+

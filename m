@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319212AbSIKQRT>; Wed, 11 Sep 2002 12:17:19 -0400
+	id <S319222AbSIKQYF>; Wed, 11 Sep 2002 12:24:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319209AbSIKQPs>; Wed, 11 Sep 2002 12:15:48 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:48887
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319212AbSIKQJZ>; Wed, 11 Sep 2002 12:09:25 -0400
-Subject: Re: ignore pci devices?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Martin Mares <mj@ucw.cz>, Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020911153750.GA8649@bytesex.org>
-References: <20020910134708.GA7836@bytesex.org>
-	<20020910163023.GA3862@ucw.cz>
-	<1031683362.1537.104.camel@irongate.swansea.linux.org.uk>
-	<20020910184128.GA5627@ucw.cz>
-	<1031688912.31787.129.camel@irongate.swansea.linux.org.uk>
-	<20020911122048.GA6863@bytesex.org>
-	<1031747880.2726.40.camel@irongate.swansea.linux.org.uk> 
-	<20020911153750.GA8649@bytesex.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 11 Sep 2002 17:17:39 +0100
-Message-Id: <1031761059.2768.68.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319223AbSIKQYF>; Wed, 11 Sep 2002 12:24:05 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:1936 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S319222AbSIKQYE>; Wed, 11 Sep 2002 12:24:04 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 11 Sep 2002 09:33:52 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Xuan Baldauf <xuan--lkml@baldauf.org>
+cc: linux-kernel@vger.kernel.org, Reiserfs List <reiserfs-list@namesys.com>
+Subject: Re: Heuristic readahead for filesystems
+In-Reply-To: <3D7F647B.1E0707FB@baldauf.org>
+Message-ID: <Pine.LNX.4.44.0209110929390.1576-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-11 at 16:37, Gerd Knorr wrote:
-> guess you mean pci_assign_resource()?  Played with that one, now my
-> /proc/iomem file looks *ahem* intresting.  Is this the bug mentioned
-> above?
+On Wed, 11 Sep 2002, Xuan Baldauf wrote:
 
-Well I've not seen it appear that way but I guess it could do - the old
-code on finding a clash when reserving PCI resources (and you'll tickle
-that anyway with pci_module_init and two candidate drivers) freed
-resources it never allocated.
+> Hello,
+>
+> I wonder wether Linux implements a kind of heuristic
+> readahead for filesystems:
+>
+> If an application reads a directory with getdents() and if
+> in the past, it stat()ed a significant part of the directory
+> entries, it is likely that it will stat() every entry of
+> every directory it reads with getdents() in the future. Thus
+> readahead for the stat data could improve the perfomance,
+> especially if the stat data is located closely to each other
+> on disk.
+>
+> If an application did a stat()..open()..read() sequence on a
+> file, it is likely that, after the next stat(), it will open
+> and read the mentioned file. Thus, one could readahead the
+> start of a file on stat() of that file.
+>
+> Combined: If an application walks a directory tree and
+> visits each file, it is likely that it will continue up to
+> the end of that tree.
 
-I'd have expected lots of printks first
+M$ Win XP does exactly something like this and keep applications
+( windows\prefetch ) and boot profiles that it uses to prefetch disk data
+and avoid long page fault latencies. It does kind-of-work but care should
+be taken adopting a similar technique on Linux ( patents ).
+
+
+
+- Davide
+
 

@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVCHU1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVCHU3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVCHU1T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 15:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCHU1T
+	id S261471AbVCHU3t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 15:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVCHU2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 15:27:19 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:10915 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262106AbVCHTgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:36:54 -0500
-Date: Tue, 8 Mar 2005 11:36:31 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/13] remove aggressive idle balancing
-Message-ID: <20050308113630.A13045@unix-os.sc.intel.com>
-References: <1109229935.5177.85.camel@npiggin-nld.site> <1109230031.5177.87.camel@npiggin-nld.site> <20050224084118.GB10023@elte.hu> <421DC4DA.7000102@yahoo.com.au> <20050305214336.A9085@unix-os.sc.intel.com> <422BE7DA.5040304@yahoo.com.au> <20050307000402.A28385@unix-os.sc.intel.com> <422C10A7.80002@yahoo.com.au> <20050307232214.A7715@unix-os.sc.intel.com> <422D5F9B.9070109@yahoo.com.au>
+	Tue, 8 Mar 2005 15:28:45 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:12254 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261471AbVCHUOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 15:14:01 -0500
+Subject: Re: Atheros wi-fi card drivers (?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mateusz Berezecki <mateuszb@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110216394.3072.72.camel@localhost.localdomain>
+References: <422C7722.40301@gmail.com>
+	 <1110216394.3072.72.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 08 Mar 2005 15:13:59 -0500
+Message-Id: <1110312840.4600.4.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <422D5F9B.9070109@yahoo.com.au>; from nickpiggin@yahoo.com.au on Tue, Mar 08, 2005 at 07:17:31PM +1100
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 07:17:31PM +1100, Nick Piggin wrote:
-> Siddha, Suresh B wrote:
-> > That still might not be enough. We probably need to pass push_cpu's
-> > sd to move_tasks call in active_load_balance, instead of current busiest_cpu's
-> > sd. Just like push_cpu, we need to add one more field to the runqueue which 
-> > will specify the domain level of the push_cpu at which we have an imbalance.
-> > 
+On Mon, 2005-03-07 at 17:26 +0000, Alan Cox wrote:
+> On Llu, 2005-03-07 at 15:45, Mateusz Berezecki wrote:
+> > I've been doing some reverse engineering of madwifi HAL (Hardware 
+> > Abstraction Layer) object file recently.
+> > I ended up with an almost complete source code for one chipset so far 
+> > and I was wondering if it is legal
+> > to publish such source code on the internet?
 > 
-> It should be the lowest domain level that spans both this_cpu and
-> push_cpu, and has the SD_BALANCE flag set. We could possibly be a bit
-
-I agree.
-
-> more general here, but so long as nobody is coming up with weird and
-> wonderful sched_domains schemes, push_cpu should give you all the info
-> needed.
+> You should normally avoid doing this. Instead write a description of the
+> chip registers and functions from the source you have produced and get
+> someone else to write a chip driver from that. This avoids the risk of
+> you being held to have "copied" their code - in the EU while you have
+> rights to reverse engineer for interoperability in general if you copy
+> their code that may still be a copyright violation.
 > 
-> > push_cpu might not be the ideal destination in all cases. Take a NUMA domain
-> > above SMT+SMP domains in my above example. Assume P0, P1 is in node-0 and
-> > P2, P3 in node-1. Assume Loads of P0,P1,P2 are same as the above example,with P3
-> > containing one process load. Now any idle thread in P2 or P3 can trigger
-> > active load balance on P0. We should be selecting thread in P2 ideally
-> > (currently this is what we get with idle package check). But with push_cpu,
-> > we might move to the idle thread in P3 and then finally move to P2(it will be a
-> > two step process)
-> > 
+
+Just to clarify, this also applies to the USA.
+
+> There is other code in the kernel where reverse engineering was used. 
 > 
-> Hmm yeah. It is a bit tricky. We don't currently do exceptionally well
-> at this sort of "balancing over multiple domains" very well in the
-> periodic balancer either.
 
-With periodic balancer, moved tasks will not be actively running
-and by the time it gets a cpu slot, it will most probably be on the
-correct cpu (though "most probably" is the key word here ;-)
+Heh, that is putting it mildly.  Linux driver support would be nowhere
+without reverse engineering.
 
-> But at this stage I prefer to not get overly complex, and allow some
-> imperfect task movement, because it should rarely be a problem, and is
-> much better than it was before. The main place where it can go wrong
-> is multi-level NUMA balancing, where moving a task twice (between
-> different nodes) can cause more problems.
+Lee
 
-With active_load_balance, we will be moving the currently running
-process. So obviously if we can move in one single step, that will be nice.
-
-I agree with the complexity part though. And it will become more complex
-with upcoming dual-core requirements.
-
-thanks,
-suresh

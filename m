@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286671AbRLVEti>; Fri, 21 Dec 2001 23:49:38 -0500
+	id <S286676AbRLVEx2>; Fri, 21 Dec 2001 23:53:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286673AbRLVEt2>; Fri, 21 Dec 2001 23:49:28 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:51717 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286671AbRLVEtV>;
-	Fri, 21 Dec 2001 23:49:21 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: David Weinehall <tao@acc.umu.se>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy 
-In-Reply-To: Your message of "Fri, 21 Dec 2001 20:12:59 BST."
-             <20011221201259.N5235@khan.acc.umu.se> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 22 Dec 2001 15:49:07 +1100
-Message-ID: <5643.1008996547@ocs3.intra.ocs.com.au>
+	id <S286675AbRLVExQ>; Fri, 21 Dec 2001 23:53:16 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20998 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S286672AbRLVEwz>;
+	Fri, 21 Dec 2001 23:52:55 -0500
+Date: Sat, 22 Dec 2001 02:44:18 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Sasha Pachev <sasha@mysql.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: disabling kswapd
+In-Reply-To: <200112220117.fBM1HLM00755@mysql.sashanet.com>
+Message-ID: <Pine.LNX.4.33L.0112220212010.15741-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001 20:12:59 +0100, 
-David Weinehall <tao@acc.umu.se> wrote:
->Whatever the choice ends up being, KB is always incorrect, unless you
->intend to specify some strange formula where the number of bytes (B)
->combined with the temperature in Kelvin (K) has anything to do with
->things.
+On Fri, 21 Dec 2001, Sasha Pachev wrote:
 
-The KB unit has been reserved for the temperature of a linux-kernel
-flamewar multiplied by the number of bytes of network traffic wasted on
-that flame-war.
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0108.0/0675.html. I
+> adapted it to my kernel ( 2.4.17-rc2), disabled kswapd, did some
+> testing and noticed much better performance.
 
-:)
+This is very hard to believe.
+
+If kswapd does not run, it just means that _other_ processes
+will run the exact same code, only synchronously (instead of
+having kswapd do the cleanup for them).
+
+kind regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

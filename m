@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBHWjy>; Thu, 8 Feb 2001 17:39:54 -0500
+	id <S129093AbRBHWrO>; Thu, 8 Feb 2001 17:47:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129213AbRBHWjo>; Thu, 8 Feb 2001 17:39:44 -0500
-Received: from fe070.worldonline.dk ([212.54.64.208]:3597 "HELO
-	fe070.worldonline.dk") by vger.kernel.org with SMTP
-	id <S129075AbRBHWjl>; Thu, 8 Feb 2001 17:39:41 -0500
-Date: Thu, 8 Feb 2001 23:37:31 +0100
-From: Torben Mathiasen <torben@kernel.dk>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+	id <S129166AbRBHWrF>; Thu, 8 Feb 2001 17:47:05 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:6384 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129093AbRBHWq4>; Thu, 8 Feb 2001 17:46:56 -0500
+Date: Thu, 8 Feb 2001 20:46:23 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Torben Mathiasen <torben@kernel.dk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.1-ac7
-Message-ID: <20010208233731.A661@fry>
-In-Reply-To: <E14QwU4-0004QE-00@the-village.bc.nu> <Pine.LNX.4.21.0102082005400.2378-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0102082005400.2378-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Feb 08, 2001 at 08:12:39PM -0200
-X-OS: Linux 2.4.1-ac7 
+In-Reply-To: <20010208233731.A661@fry>
+Message-ID: <Pine.LNX.4.21.0102082044250.2378-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 08 2001, Rik van Riel wrote:
-> On Thu, 8 Feb 2001, Alan Cox wrote:
-> 
-> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+On Thu, 8 Feb 2001, Torben Mathiasen wrote:
+> On Thu, Feb 08 2001, Rik van Riel wrote:
+> > On Thu, 8 Feb 2001, Alan Cox wrote:
 > > 
-> > 2.4.1-ac7
-> > o	Rebalance the 2.4.1 VM				(Rik van Riel)
-> > 	| This should make things feel a lot faster especially
-> > 	| on small boxes .. feedback to Rik
+> > > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> > > 
+> > > 2.4.1-ac7
+> > > o	Rebalance the 2.4.1 VM				(Rik van Riel)
+> > > 	| This should make things feel a lot faster especially
+> > > 	| on small boxes .. feedback to Rik
+
+> Just installed ac7 and after some 30 minutes of unpacking
+> kernel-sources and diffing patches, I left my computer unattended
+> for about 1 hour. When I came back the system was unusable (like it 
+> was frozen), and /var/log/messages just displayed messages of the
+> type:
 > 
-> I'd really like feedback from people when it comes to this
-> change. The change /should/ fix most paging performance bugs
-> because it makes kswapd do the right amount of work in order
-> to solve the free memory shortage every time it is run.
- 
-Rik,
+> Feb  8 22:54:40 fry kernel: Out of Memory: Killed process 455 (xmms).
+> ...
+> 
+> The OOM killer killed most of my apps, and finally X. I had to reboot
+> in order to get the system back. I've been running ac1-ac6 since they
+> came out with no problems, so I guess its the VM hack that is buggy.
 
-Just installed ac7 and after some 30 minutes of unpacking
-kernel-sources and diffing patches, I left my computer unattended
-for about 1 hour. When I came back the system was unusable (like it 
-was frozen), and /var/log/messages just displayed messages of the
-type:
+Highly unlikely since the VM rebalancing patch doesn't change
+any of the actual swapout mechanisms.
 
-Feb  8 22:54:40 fry kernel: Out of Memory: Killed process 455 (xmms).
-...
+All it does is change how often the particular algorithms get
+called by kswapd and by user programs.
 
-The OOM killer killed most of my apps, and finally X. I had to reboot
-in order to get the system back. I've been running ac1-ac6 since they
-came out with no problems, so I guess its the VM hack that is buggy.
+As for trigerring the OOM killer, this strongly suggest a
+memory leak since there's a bug in the code which makes it
+very hard to trigger the OOM killer under normal situations
+(I'm working on a fix for that now).
 
-This is on an AMD K7 1200Mhz, 512MB Ram, ATA100. Nothing big was
-running at the time (xchat, xmms, mozilla, gnome, x, a few xterms).
+regards,
 
-I'll do some more testing tomorrow and provide any further information
-you might need.
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-
--- 
-Torben Mathiasen <torben@kernel.dk>
-Linux ThunderLAN maintainer 
-http://opensource.compaq.com
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

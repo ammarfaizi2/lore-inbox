@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVAAJXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVAAJfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262204AbVAAJXD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 04:23:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVAAJXD
+	id S262205AbVAAJfi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 04:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVAAJfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 04:23:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:185 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262204AbVAAJXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 04:23:00 -0500
-Date: Sat, 1 Jan 2005 01:22:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, kernel@kolivas.org,
-       rncbc@rncbc.org, paul@linuxaudiosystems.com
-Subject: Re: Latency results with 2.6.10 - looks good
-Message-Id: <20050101012252.7b4645b7.akpm@osdl.org>
-In-Reply-To: <1104549524.3803.28.camel@krustophenia.net>
-References: <1104348820.5218.42.camel@krustophenia.net>
-	<1104549524.3803.28.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 1 Jan 2005 04:35:38 -0500
+Received: from mail.baltimoredevelopment.com ([141.157.34.4]:57688 "EHLO
+	balt-exfe1-srv.baltimore.city") by vger.kernel.org with ESMTP
+	id S262205AbVAAJff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 04:35:35 -0500
+thread-index: AcTv5T6u1I9NtnA7S3eKM//9A8/kag==
+Thread-Topic: Symantec Mail Security detected an executable file in a message sent from your address.                                        (SYM:10164861213633919006)
+From: <Nav.Remailer@baltimorecity.gov>
+To: <linux-kernel@vger.kernel.org>
+Subject: Symantec Mail Security detected an executable file in a message sent from your address.                                        (SYM:10164861213633919006)
+Date: Sat, 1 Jan 2005 04:35:35 -0500
+Message-ID: <fc7d01c4efe5$3eaed150$16269ca9@baltimore.city>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft CDO for Exchange 2000
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.181
+X-OriginalArrivalTime: 01 Jan 2005 09:35:35.0345 (UTC) FILETIME=[3ECDF210:01C4EFE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
-> Followup: other audio users have confirmed that 2.6.10 is the best
->  release yet latency-wise.  It works most of the time at 64 frames
->  (~1.33ms latency).
-> 
->  Now, the bad news: there are still enough xruns to make it not quite
->  good enough for, say, a recording studio; as we all know with realtime
->  constraints the worst case scenario is important.
+Subject of the message: something for you
+Recipient of the message: Solid Waste
+Attachment on the message: message.htm.com
 
-The kernel which you should be testing is most-recent -mm.  The -mm kernels
-have had a bunch of latency improvements which are queued for 2.6.11.  We
-need to know how that stuff performs - 2.6.10 is largely uninteresting from
-a development POV.
+The City's system does not allow potentially executable files to be sent to its end users  in an active format. Please compress them with zip or rename them to something else.
+
+If you have received this message and feel that you did not initiate it, please disregard as many viruses now spoof/fake addresses and that is likely the case if you're on an antivirus protected machine.
+

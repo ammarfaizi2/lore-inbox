@@ -1,45 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVAEIcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVAEIh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVAEIcO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 03:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVAEIcO
+	id S262294AbVAEIh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 03:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVAEIh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 03:32:14 -0500
-Received: from main.gmane.org ([80.91.229.2]:51108 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262314AbVAEIcJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 03:32:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Wed, 5 Jan 2005 03:37:57 -0500
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:48081 "HELO
+	server5.heliogroup.fr") by vger.kernel.org with SMTP
+	id S262294AbVAEIhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 03:37:45 -0500
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
 To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: starting with 2.7
-Date: Wed, 05 Jan 2005 13:33:14 +0500
-Message-ID: <crg8lv$opr$1@sea.gmane.org>
-References: <20050104031229.GE26856@postel.suug.ch> <200501041850.20446.gene.heskett@verizon.net> <20050105053701.GB24263@alpha.home.local> <200501050204.05708.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
-User-Agent: KNode/0.8.1
+Subject: 2.6.10 TCP troubles
+Date: Wed, 05 Jan 2005 08:13:17 GMT
+Message-ID: <05081I514@server5.heliogroup.fr>
+X-Mailer: Pliant 93
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
+Here is the senario:
+the Linux machine is writting through libsmbclient
+to an OSX machine running Samba
 
-> FWIW Willy, I did build a couple of the rc's there (coming up on
-> 2.6.8), now of course entropy has set in and I couldn't prove it, the
-> space has been reclaimed, whatever.  My point is that the rc's didn't
-> bite me, only the final, and it bit hard.
-
-Your point is correct: I still use 2.6.8-rc3 on dsa.physics.usu.ru, and NFS
-works perfectly in the internal 192.168.0.x network. So testing -rc* gives
-nothing here.
-
-> Again, to TPTB, give us a few days to beat on it in the rc mode, then
-> rename whats working to final.  In the meantime, I'm back to beating
-> on Ingo's stuff for the moment.
-
--- 
-Alexander E. Patrakov
+Switching the Linux machine from 2.6.8 to 2.6.10 made the network speed
+drop drastically: 20 seconds with 2.6.8, 800 seconds with 2.6.10
 

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263254AbRFGVil>; Thu, 7 Jun 2001 17:38:41 -0400
+	id <S263274AbRFGVkB>; Thu, 7 Jun 2001 17:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263266AbRFGVib>; Thu, 7 Jun 2001 17:38:31 -0400
-Received: from ibis.worldnet.net ([195.3.3.14]:11530 "EHLO ibis.worldnet.net")
-	by vger.kernel.org with ESMTP id <S263254AbRFGViQ>;
-	Thu, 7 Jun 2001 17:38:16 -0400
-User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2022
-Date: Thu, 07 Jun 2001 23:37:01 +0200
-Subject: Re: temperature standard - global config option?
-From: Chris Boot <bootc@worldnet.fr>
-To: David Rees <dbr@greenhydrant.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-ID: <B745C09D.F8BF%bootc@worldnet.fr>
-In-Reply-To: <20010607094418.A23719@greenhydrant.com>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	id <S263266AbRFGVjv>; Thu, 7 Jun 2001 17:39:51 -0400
+Received: from Scotty-EUnet.AT.EU.net ([193.83.12.34]:33001 "EHLO
+	www.scotty.co.at") by vger.kernel.org with ESMTP id <S263274AbRFGVjj>;
+	Thu, 7 Jun 2001 17:39:39 -0400
+Date: Thu, 7 Jun 2001 23:39:22 +0200 (CEST)
+From: Friedrich Lobenstock <fl@fl.priv.at>
+X-X-Sender: <fl@www.scotty.co.at>
+To: Steven Walter <srwalter@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ftape and kernel 2.4 problem
+In-Reply-To: <20010607122853.A26252@hapablap.dyn.dhs.org>
+Message-ID: <Pine.LNX.4.33.0106072332100.25948-100000@www.scotty.co.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 7 Jun 2001, Steven Walter wrote:
 
->>> Kelvins good idea in general - it is always positive ;-)
->>> 
->>> 0.01*K fits in 16 bits and gives reasonable range.
->>> 
->>> but may be something like K<<6 could be a option? (to allow use of shifts
->>> instead of muls/divs). It would be much more easier to extract int part.
->>> 
->>> just my 2 eurocents.
->> 
->> Why not make it in Celsius ? Is more easy to read it this way.
-> 
-> It's easier for you as a user to read, but slightly harder to deal with inside
-> the code.  
-> It's really a user-space issue, inside the kernel should be as standardized as
-> possible, and
-> Kelvins make the most sense there.
+> Here's a patch I wrote to allow ftape to compile against 2.4.something.
+> It still works with 2.4.5.  I'm not sure if it works entirely (it seems
+> to), but it compiles and seems to work.  Enjoy!
 
-OK, I think by now we've all agreed the following:
- - The issue is NOT displaying temperatures to the user, but a userspace
-   program reading them from the kernel.  The userspace program itself can
-   do temperature conversions for the user if he/she wants.
- - The most preferable units would be decikelvins, as the value can give a
-   relatively precise as well as wide range of numbers ranging from absolute
-   zero to about 6340 degrees Celsius ((65535 / 10) - 273) which is well
-   within anything that a computer can operate.  It also gives us a good
-   base for all sorts of other temperature sensing devices.
+I really do enjoy it despite compiling gives me a lot of warnings :)
 
-Do we all agree on those now?
+Alan, how could we get the current in kernel ftape driver updated?
+What needs to be done?
+
+
+PS: Please CC me because I'm not on linux-kernel.
 
 -- 
-Chris Boot
-bootc@worldnet.fr
+MfG / Regards
+Friedrich Lobenstock
 
-#define QUESTION ((2b) || (!2b))
 

@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289510AbSAOMUl>; Tue, 15 Jan 2002 07:20:41 -0500
+	id <S289511AbSAOMVL>; Tue, 15 Jan 2002 07:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289511AbSAOMUW>; Tue, 15 Jan 2002 07:20:22 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:63605 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289510AbSAOMUO>; Tue, 15 Jan 2002 07:20:14 -0500
-Date: Tue, 15 Jan 2002 13:20:26 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Joel Becker <jlbec@evilplan.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O_DIRECT with hardware blocksize alignment
-Message-ID: <20020115132026.F22791@athlon.random>
-In-Reply-To: <20020109195606.A16884@parcelfarce.linux.theplanet.co.uk> <20020112133122.I1482@inspiron.school.suse.de> <20020115032126.F1929@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20020115032126.F1929@parcelfarce.linux.theplanet.co.uk>; from jlbec@evilplan.org on Tue, Jan 15, 2002 at 03:21:26AM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289512AbSAOMVC>; Tue, 15 Jan 2002 07:21:02 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:38558 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S289511AbSAOMUv>;
+	Tue, 15 Jan 2002 07:20:51 -0500
+Message-Id: <200201151219.g0FCJUD15091@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: SCSI host numbers?
+Date: Tue, 15 Jan 2002 14:19:25 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu> <200201132041.g0DKfeg30866@lmail.actcom.co.il> <200201140636.g0E6a4b16527@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200201140636.g0E6a4b16527@vindaloo.ras.ucalgary.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 03:21:26AM +0000, Joel Becker wrote:
-> On Sat, Jan 12, 2002 at 01:31:22PM +0100, Andrea Arcangeli wrote:
-> > On Wed, Jan 09, 2002 at 07:56:07PM +0000, Joel Becker wrote:
-> > > min(I/O alignment, s_blocksize) is used as the effective
-> > > blocksize.  eg:
-> > > 
-> > > I/O alignment	s_blocksize	final blocksize
-> > > 8192		4096		4096
-> > > 4096		4096		4096
-> > > 512		4096		512
-> > 
-> > this falls in the same risky category of the vary-I/O patch from Badari
-> > (check the discussion on l-k) for rawio, so to make it safe it also will
-> 
-> 	How so?  All I/O is at the computed blocksize.  In every
-> request, the size of each I/O in the kiovec is the same.  The
+On Monday 14 January 2002 08:36 am, Richard Gooch wrote:
+> So how about in scsi_host_no_init() we call alloc_unique_number() N
+> times until we've allocated the required number of host numbers for
+> manual control. These will never be freed. Then all other host
+> allocations can be done dynamically. We would just need a flag in the
+> host structure to disable deallocation of the number if it's one of
+> the reserved numbers.
 
-in the kiovec yes, but in the same request queue there will be also the
-concurrent requests from the filesystem, and they will have different
-b_size, see Jens's mail about different b_size merged in the same
-request.
+See that dynamic hosts are also added to the list and *never* removed
+from it (even when the host is unregistered). With that behaviour your
+unique number functions would be an overkill because we must never
+free host nubers.
 
-actually we could also forbid merging at the ll_rw_block layer if b_size
-is not equal, maybe that's the simpler solution to that problem after
-all, merging between kiovec I/O and buffered I/O probably doesn't
-matter.
+I suggest these changes:
+    max_scsi_host initialized in scsi_host_no_init.
+    max_scsi_host never decremented.
+That would fix the problem that I reported.
+Than (cosmetic):
+    rename next_scsi_host to count_scsi_hosts (or num_scsi_hosts)
+because it actually just counts the number of registered scsi hosts.
+The current name for that variable is confusing...
 
-> computation is done upon entrance to generic_file_direct_IO, and it is
-> kept that way.  You don't have bh[0]->b_size = 512; bh[1]->b_size =
-> 4096;
-> 	Hmm, maybe you mean things like that rumoured 3-ware issue.  I
-> dunno.  I do know that this code seems to work just fine with ide,
-> aha7xxx, and the qlogic driver.  Certain software really wants to use
-> O_DIRECT, and they align I/O on 512byte boundaries.  So any scheme that
-> fails this when it doesn't have to is a problem.
-> 
-> > aligned I/O, but still large I/O) So I suggest you to check Badari's
-> > stuff and the thread on l-k and to make a new patch incremental with his
-> 
-> 	I've added myself to that thread as well.
-> 
-> Joel
-> 
-> -- 
-> 
-> "Vote early and vote often." 
->         - Al Capone
-> 
-> 			http://www.jlbec.org/
-> 			jlbec@evilplan.org
+-- Itai
 
-
-Andrea

@@ -1,72 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131255AbRCNJcZ>; Wed, 14 Mar 2001 04:32:25 -0500
+	id <S131269AbRCNJmg>; Wed, 14 Mar 2001 04:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131269AbRCNJcO>; Wed, 14 Mar 2001 04:32:14 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:36101 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S131255AbRCNJcB>;
-	Wed, 14 Mar 2001 04:32:01 -0500
-Date: Wed, 14 Mar 2001 10:31:02 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Linux 2.4.2ac20
-To: Nathan Walp <faceprint@faceprint.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3AAF3A56.C4EA2A95@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <3AAE4DB6.8349ACBA@uni-mb.si> <3AAE7406.283D2411@faceprint.com>
+	id <S131293AbRCNJm0>; Wed, 14 Mar 2001 04:42:26 -0500
+Received: from nas21-103.wms.club-internet.fr ([213.44.50.103]:8182 "EHLO
+	microsoft.com") by vger.kernel.org with ESMTP id <S131269AbRCNJmT>;
+	Wed, 14 Mar 2001 04:42:19 -0500
+Message-Id: <200103140938.KAA12099@microsoft.com>
+Subject: Re: ln -l says symlink has size 281474976710666
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: John R Lenton <john@grulic.org.ar>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "Theodore \"Y.\" Ts'o" <tytso@mit.edu>
+In-Reply-To: <200103140558.f2E5w8P06685@webber.adilger.int>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution (0.9/+cvs.2001.03.06.23.22 - Preview Release)
+Date: 14 Mar 2001 10:38:59 +0100
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Walp wrote:
-> 
-> David Balazic wrote:
-> >
-> > Nathan Walp (faceprint@faceprint.com) wrote :
-> >
-> > > Also, sometime between ac7 and ac18 (spring break kept me from testing
-> > > stuff inbetween), i assume during the new aic7xxx driver merge, the
-> > > order of detection got changed, and now the ide-scsi virtual host is
-> > > host0, and my 29160N is host1. Is this on purpose? It messed up a
-> > > bunch of my stuff as far as /dev and such are concerned.
-> >
-> > SCSI adapters are enumerated randomly(*) , relying on certain numbering
-> > will get you into trouble, sooner or later.
-> > There is no commonly accepted solution, AFAIK.
-> > The same thing can happent to disk enumeration ( sdb becomes sdc )
-> > or partition enumeration ( hda6 becomes hda5 ).
-> >
-> > * - theoreticaly no, but practicaly yes ( most of the time )
-> >
-> > --
-> > David Balazic
-> > --------------
-> > "Be excellent to each other." - Bill & Ted
-> > - - - - - - - - - - - - - - - - - - - - - -
-> 
-> SCSI adapters are given host numbers in a random order?  Even with no
-> hardware changes?  Does this make less than sense to anyone else?  Every
-> kernel EVER up till now has had the real scsi cards (in some particular
-> order) then ide-scsi.  Have I just been lucky???
-> 
-> Nathan
+Le 13 Mar 2001 22:58:08 -0700, Andreas Dilger a écrit :
+> Luckily, after the symlink is created it ignores the size, and only uses
+> the i_blocks count to determine if the symlink is stored in the inode
+> itself or in another block (the fast symlink will be NUL terminated).
+> It could well have been corruption from a long time ago, and only with
+> 2.4.x and LFS you have noticed it.
 
-What I mean that too many factors are affecting the enumeration,
-so that you can not rely on it :
+BTW, if I hand-make an ext2 fs with tiny files stored directly in the
+inode, will it work ? Silly question ?
 
--  kernel changes
--  driver changes ( partly overlaps with the previous poit )
--  hardware changes
--  something else ?
+Xav
 
-There is no policy for this enumeration ( AFAIK ) , so there is
-nothing to rely on , except luck :-)
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -

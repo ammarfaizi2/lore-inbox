@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270848AbTGQS6T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 14:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270898AbTGQS6T
+	id S270849AbTGQS5O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 14:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270848AbTGQS5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 14:58:19 -0400
-Received: from dhcp065-024-128-253.columbus.rr.com ([65.24.128.253]:12675 "EHLO
-	doug.hunley.homeip.net") by vger.kernel.org with ESMTP
-	id S270848AbTGQS6N convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 14:58:13 -0400
-From: Douglas J Hunley <doug@hunley.homeip.net>
-Organization: Linux StepByStep
-To: linux-kernel@vger.kernel.org
-Subject: MONOLITHIC sound (was Re: 2.6 sound drivers?)
-Date: Thu, 17 Jul 2003 15:12:56 -0400
-User-Agent: KMail/1.5.2
-References: <20030716225826.GP2412@rdlg.net> <200307171308.54518.nbensa@gmx.net> <3F16EEFC.3000803@hotpop.com>
-In-Reply-To: <3F16EEFC.3000803@hotpop.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Thu, 17 Jul 2003 14:57:14 -0400
+Received: from mail-7.tiscali.it ([195.130.225.153]:4659 "EHLO
+	mail-7.tiscali.it") by vger.kernel.org with ESMTP id S270539AbTGQS5H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 14:57:07 -0400
+Date: Thu, 17 Jul 2003 21:09:25 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, acpi-support@lists.sourceforge.net
+Subject: Re: [ACPI-sppt] Re: [2.5.75] S3 and S4
+Message-ID: <20030717190925.GA6922@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	linux-kernel@vger.kernel.org, acpi-support@lists.sourceforge.net
+References: <20030711193611.GA824@dreamland.darkstar.lan> <20030711200053.GA402@elf.ucw.cz> <20030712164542.GA1157@dreamland.darkstar.lan> <20030712201256.GA446@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307171513.00158.doug@hunley.homeip.net>
+In-Reply-To: <20030712201256.GA446@elf.ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Il Sat, Jul 12, 2003 at 10:12:56PM +0200, Pavel Machek ha scritto: 
+> > > Unable to handle kernel paging request at virtual address 40107114
+> > > >  printing eip:
+> > > > 40107114
+> > > > *pde = 2dbf6067
+> > > > *pte = 00000000
+> > > > Oops: 0004 [#1]
+> > > > CPU:    0
+> > > > EIP:    0073:[<40107114>]    Not tainted
+> > > > EFLAGS: 00010202
+> > > > EIP is at 0x40107114
+> > > > eax: ffffffea   ebx: 00000001   ecx: 080d440c   edx: 00000002
+> > > > esi: 00000002   edi: 080d440c   ebp: bffffae8   esp: bffffab8
+> > > > ds: 007b   es: 007b   ss: 007b
+> > > > Process bash (pid: 484, threadinfo=ed776000 task=ef1e40c0)
+> > > >  <6>note: bash[484] exited with preempt_count 1
+> > > > pdflush left refrigerator
+> > > > e100: eth0 NIC Link is Up 10 Mbps Half duplex
+> > > > 
+> > > > ksymoops says:
+> > > > 
+> > > > Warning (Oops_read): Code line not seen, dumping what data is available
+> > > > 
+> > > > 
+> > > > >>EIP; 40107114 Before first symbol   <=====
+> > > > 
+> > > > >>eax; ffffffea <__kernel_rt_sigreturn+1baa/????>
+> > > 
+> > > That's bad. Error outside of kernel. Not sure what is wrong.
+> > 
+> > Note that  if suspend after booting  with "single" (ie. with  only init,
+> > agetty and bash running) the other warnings go away, but I still see the
+> > above oops.
+> 
+> That's strange. It works here. I'm not sure whats wrong for you.
+> 
+> Also try to find out what you need to run if you want the warnings.
 
-dacin shocked and awed us all by speaking:
-> Ummm read this....
-> http://www.alsa-project.org/~valentyn/other-formats/Alsa-sound-mini-HOWTO.h
->tml http://alsa.opensrc.org/index.php?page=emu10k1
-> http://alsa-project.org/alsa-doc/doc-php/template.php3?company=Creative+Lab
->s&card=Soundblaster+Live&chip=EMU10K1&module=emu10k1
 
-I too am trying the 2.6 kernel per Linus' desires and also have an SBLive! . 
-However, I absolutely *destest* kernel modules. To my knowledge, ALSA has 
-been exclusively module-oriented. I'm going to assume that in 2.6 you can 
-build ALSA into a monolithic kernel. Is this assumtion valid? If so, will the 
-referenced documents above apply to getting my sound working? Or are there 
-other documents/resources that I need to be reading to get non-modular ALSA 
-working? Thanks.
-- -- 
-Douglas J Hunley (doug at hunley.homeip.net) - Linux User #174778
-http://doug.hunley.homeip.net && http://www.linux-sxs.org
+Bad news. I made a lot of  tests and warnings seem random... sometimes I
+can  get  them  even with  init  +  agetty  +  bash. To make  them  100%
+reproduceable I  just have to  run lots of  processes (15 -  20). I fear
+that they are side effects of the Oops.
 
-I stayed up all night playing poker with tarot cards.  I got a full house and 
-four people died.  -- Steven Wright
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/FvU42MO5UukaubkRArQXAJ9OC5GhYssg1MIU1TItcIn1vOeRBgCglQHT
-Th+zSwe/6P8vTLhOcVyyfgY=
-=hhFC
------END PGP SIGNATURE-----
-
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+"La teoria e` quando sappiamo come funzionano le cose ma non funzionano.
+ La pratica e` quando le cose funzionano ma non sappiamo perche`.
+ Abbiamo unito la teoria e la pratica: le cose non funzionano piu` e non
+ sappiamo il perche`." -- A. Einstein

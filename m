@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264487AbTE1DID (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 23:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTE1DIC
+	id S264483AbTE1DHC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 23:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTE1DHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 23:08:02 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:54746 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264487AbTE1DIA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 23:08:00 -0400
-Date: Tue, 27 May 2003 20:20:48 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Roman Zippel <zippel@linux-m68k.org>, John Stoffel <stoffel@lucent.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       DevilKin-LKML <devilkin-lkml@blindguardian.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.70 compile error
-Message-ID: <9880000.1054092047@[10.10.2.4]>
-In-Reply-To: <20030527234051.GA7174@suse.de>
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com> <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com> <200305271729.49047.devilkin-lkml@blindguardian.org> <20030527153619.GJ8978@holomorphy.com> <16083.35048.737099.575241@gargle.gargle.HOWL> <Pine.LNX.4.44.0305272010550.12110-100000@serv> <20030527184016.GA5847@suse.de> <4060000.1054072761@[10.10.2.4]> <20030527234051.GA7174@suse.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 27 May 2003 23:07:02 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:29571
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264483AbTE1DHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 23:07:01 -0400
+Date: Tue, 27 May 2003 23:10:03 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Slack Ware <slack_ware@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Printing IDT on Linux 2.4.20
+In-Reply-To: <20030528030639.38916.qmail@web13607.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.50.0305272306140.15323-100000@montezuma.mastecende.com>
+References: <20030528030639.38916.qmail@web13607.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Please, not more layered config options! That just makes people who
->  > want to enable the x440 or other alternative platform require fair
->  > amounts of psychic power (maybe this can be fixed with a big fat help
->  > message, but so can the current method).
-> 
-> With all due respect, 'screw x440 et al'. The fact remains that a
-> majority of users won't even know what an x440 _is_, let alone
-> need to configure for one.  If someone has actually ended up with
-> one of those, I'd like to think they at least have enough clue to
-> know what it is they've just spent their megabucks on.		
+On Tue, 27 May 2003, Slack Ware wrote:
 
-;-)
- 
->  > If you're going hide the other options away so much, then the default
->  > should be the generic arch, IMHO.
-> 
-> That's precisely what I was saying.  I think we're in agreement,
-> in a roundabout 'same but different' sort of way. I think.
+> Hi everybody!
+> I've a problem with the checkidt utility provided by
+> Phrack Issue #59, I think.
+> The checkidt utility is for 2.4.x kernels, supposedly,
+> but I compiled it under 2.4.20 and it couldn't read
+> /dev/kmem.
+> Anyway, I would like to print the IDT on kernel 2.4.20
+> with checkidt or not.
+> Any suggestions are welcome.
+> Regards,
 
-OK, I think so ... I just think making the generic arch the default is
-sufficient, without hiding things away under another menu where it's
-harder to find ... if people don't understand the question, they should
-just take the default. Frigging with the wording might help a bit ...
-I think there's some way to force a hint to appear automatically like 
-"if you don't know, use XXX".
+*shrug* I don't know why they would want to check /dev/kmem just for the 
+IDT.
 
-M.
+#include <stdio.h>
 
+struct dt {
+        unsigned short limit;
+        unsigned long address __attribute__((packed));
+        unsigned short padding;
+} __attribute__((packed));
+
+int main()
+{
+        struct dt foo;
+
+        __asm__ __volatile__ ("sidt %0":"=m"(foo));
+        printf("limit=%d address=%lx\n", foo.limit, foo.address);
+        return 0;
+}
+
+	Zwane
+-- 
+function.linuxpower.ca

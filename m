@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261944AbSIPOA2>; Mon, 16 Sep 2002 10:00:28 -0400
+	id <S261744AbSIPN6z>; Mon, 16 Sep 2002 09:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261952AbSIPOA2>; Mon, 16 Sep 2002 10:00:28 -0400
-Received: from users.linvision.com ([62.58.92.114]:41882 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S261944AbSIPOA0>; Mon, 16 Sep 2002 10:00:26 -0400
-Date: Mon, 16 Sep 2002 16:05:13 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Message-ID: <20020916160513.A14649@bitwizard.nl>
-References: <E17qRfU-0001qz-00@starship> <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com> <20020915190435.GA19821@nevyn.them.org> <20020915162412.A17345@work.bitmover.com> <20020915234108.GA1348@nevyn.them.org> <20020915165235.B17345@work.bitmover.com> <1032139750.26911.20.camel@irongate.swansea.linux.org.uk> <20020915191318.C22354@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020915191318.C22354@work.bitmover.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+	id <S261806AbSIPN6z>; Mon, 16 Sep 2002 09:58:55 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:33730 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261744AbSIPN6y>; Mon, 16 Sep 2002 09:58:54 -0400
+Date: Mon, 16 Sep 2002 11:03:34 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Killing/balancing processes when overcommited
+In-Reply-To: <3D85886B.3AB1284@aitel.hist.no>
+Message-ID: <Pine.LNX.4.44L.0209161102120.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 15, 2002 at 07:13:18PM -0700, Larry McVoy wrote:
-> the code would have fixed it already?  It's almost never as simple as a
-> naive point of view thinks it is and that's exactly why you don't want
-> people hacking about in that code.  Either understand it and really fix
-> it, own it, maintain it, live with it, or leave it alone.  
+On Mon, 16 Sep 2002, Helge Hafting wrote:
+> Rik van Riel wrote:
+>
+> > 1) memory is exhausted
+> > 2) the network driver can't allocate memory and
+> >    spits out a message
+> > 3) syslogd and/or klogd get killed
+> >
+> > Clearly you want to be a bit smarter about which process to kill.
+>
+> Ill-implemented klogd/syslogd.  Pre-allocating a little memory
+> is one way to go, or drop messages until allocation
+> becomes possible again.  Then log a complaint about
+> messages missing due to a temporary OOM.
 
-Sometimes people who maintain the code move on to other things. 
+No.  This has absolutely nothing to do with it.
 
-So, maintenance is sometimes required by people who do not have
-"maintenance of this code" in their job description. When I'm paying
-their salary, they get to fix other peoples code, even if it's none of
-their business.
+In this case, "allocating memory" simply means that klogd/syslogd
+page faults on something it already allocated, say a piece of the
+executable or a swapped-out buffer.
 
-Now preferably such a fix would be passed through a maintainer who can
-say (with his intimate knowledge of the code): "Oops, you're right
-your patch is indeed an improvement".
+Simple page faults like this can also trigger an OOM-killing.
 
-If that's not possible, we'll have to make do with some testing.
-
-			Roger. 
-
+Rik
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

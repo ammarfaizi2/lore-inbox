@@ -1,206 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbTDQRPI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTDQRPI
+	id S261824AbTDQRUp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 13:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTDQRUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:15:08 -0400
-Received: from adsl-66-120-100-11.dsl.sndg02.pacbell.net ([66.120.100.11]:53766
-	"HELO glacier.arctrix.com") by vger.kernel.org with SMTP
-	id S261764AbTDQRPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:15:01 -0400
-Date: Thu, 17 Apr 2003 10:28:19 -0700
-From: Neil Schemenauer <nas@arctrix.com>
-To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de, akpm@digeo.com, conman@kolivas.net
-Subject: [PATCH][CFT] new IO scheduler for 2.4.20
-Message-ID: <20030417172818.GA8848@glacier.arctrix.com>
+	Thu, 17 Apr 2003 13:20:45 -0400
+Received: from B5390.pppool.de ([213.7.83.144]:10731 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id S261824AbTDQRUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 13:20:44 -0400
+Subject: daemonizing tasks detach controlling tty?
+From: Daniel Egger <degger@fhm.edu>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Jp065wr+/8IOmsoJ98CV"
+Organization: 
+Message-Id: <1050600635.7843.17.camel@sonja>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 17 Apr 2003 19:30:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-Jp065wr+/8IOmsoJ98CV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi all,
+Hija,
 
-Recently I was bitten badly by bad IO scheduler behavior on an important
-Linux server.  An easy way to trigger this problem is to start a
-streaming write process:
+I'm trying to spawn new threads from a function called from alloc_uid
+using daemonize as soon as a new user appears on the system. Somehow=20
+this detaches the original shell from the tty causing an exit not
+only of the child but also it's parent.
 
-    while :
-    do
-            dd if=/dev/zero of=foo bs=1M count=512 conv=notrunc
-    done
+A diagram of the situation would lock like this:
 
-and then try doing a bunch of small reads:
+getty -> (login of root) bash -> (su to another user) bash ->
+[new thread is spawned] (whatever) -> exit -> getty
 
-    time (find kernel-tree -type f | xargs cat > /dev/null)
+Alternativly, when directly logging in a non-root user:
+getty -> (login of foo) motd -> [hang]
 
-With Linux 2.4.20, the reading takes a very long time to finish.  I
-looked at backporting Jen's deadline scheduler to 2.4 but decided it
-would be too much work (especially for someone like me who doesn't know
-much about kernel hacking).  
+How can I daemonize something without disturbing other processes?
+I already tried playing with reparent_to_init and some signal stuff
+as done by other parts of the kernel but to no avail.
 
-I've come up with a fairly simple patch that seems to solve the
-starvation problem.  Perhaps it is simple enough to get merged into the
-stable branch (after a little more polish).  The basic idea is to give
-reads a boost if there are lots of write requests in the queue.  I think
-my solution also prevents reads and writes from being starved
-indefinitely.
+--=20
+Servus,
+       Daniel
 
-Throughput also seems good although I have not done a lot of testing
-yet.  I would greatly appreciate it if people could give it a test.
+--=-Jp065wr+/8IOmsoJ98CV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-  Neil
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="neil-iosched-1.diff"
+iD8DBQA+nuS7chlzsq9KoIYRAlDBAJ45/yxGtg3F9jme/NpxoixUAtsofACgrzNO
+ffODU8MLZabKxFeogG+exbc=
+=zhnI
+-----END PGP SIGNATURE-----
 
-diff -u -ur linux-2.4.20/drivers/block/elevator.c linux-iosched-1d/drivers/block/elevator.c
---- linux-2.4.20/drivers/block/elevator.c	2003-04-14 14:47:22.000000000 -0400
-+++ linux-iosched-1d/drivers/block/elevator.c	2003-04-17 12:15:10.000000000 -0400
-@@ -74,6 +74,86 @@
- 	return 0;
- }
- 
-+int elevator_neil_merge(request_queue_t *q, struct request **req,
-+			 struct list_head * head,
-+			 struct buffer_head *bh, int rw,
-+			 int max_sectors)
-+{
-+	struct list_head *entry = &q->queue_head;
-+	unsigned int count = bh->b_size >> 9, ret = ELEVATOR_NO_MERGE;
-+	unsigned long read_sectors = 0, write_sectors = 0;
-+	unsigned int expire_time = jiffies - 1*HZ;
-+	struct request *__rq;
-+
-+	while ((entry = entry->prev) != head) {
-+		__rq = blkdev_entry_to_request(entry);
-+
-+		/*
-+		 * we can't insert beyond a zero sequence point
-+		 */
-+		if (__rq->elevator_sequence == 0) {
-+			goto append;
-+		}
-+
-+		if (__rq->cmd == READ)
-+			read_sectors += __rq->nr_sectors;
-+		else
-+			write_sectors += __rq->nr_sectors;
-+
-+		if (__rq->rq_dev != bh->b_rdev)
-+			continue;
-+
-+		if (__rq->waiting)
-+			continue;
-+
-+		if (__rq->cmd != rw)
-+			continue;
-+
-+		if (time_before(__rq->start_time, expire_time)) {
-+			break;
-+		}
-+
-+		if (__rq->sector + __rq->nr_sectors == bh->b_rsector) {
-+			if (__rq->nr_sectors + count <= max_sectors)
-+				ret = ELEVATOR_BACK_MERGE;
-+			*req = __rq;
-+			break;
-+		} else if (__rq->sector - count == bh->b_rsector) {
-+			if (__rq->nr_sectors + count <= max_sectors)
-+				ret = ELEVATOR_FRONT_MERGE;
-+			*req = __rq;
-+			break;
-+		}
-+	}
-+
-+	if (!*req && rw == READ) {
-+		long extra_writes = write_sectors - read_sectors;
-+		/*
-+		 * If there are more writes than reads in the queue then put
-+		 * read requests ahead of the extra writes.  This prevents
-+		 * writes from starving reads.
-+		 */
-+		entry = q->queue_head.prev;
-+		while (extra_writes > 0 && entry != head) {
-+			__rq = blkdev_entry_to_request(entry);
-+			if (__rq->cmd == WRITE)
-+				extra_writes -= __rq->nr_sectors;
-+			entry = entry->prev;
-+		}
-+		*req = blkdev_entry_to_request(entry);
-+	}
-+
-+append:
-+
-+	return ret;
-+}
-+
-+void elevator_neil_merge_req(struct request *req, struct request *next)
-+{
-+	if (time_before(next->start_time, req->start_time))
-+		req->start_time = next->start_time;
-+}
-+
- 
- int elevator_linus_merge(request_queue_t *q, struct request **req,
- 			 struct list_head * head,
-diff -u -ur linux-2.4.20/drivers/block/ll_rw_blk.c linux-iosched-1d/drivers/block/ll_rw_blk.c
---- linux-2.4.20/drivers/block/ll_rw_blk.c	2003-04-14 14:47:22.000000000 -0400
-+++ linux-iosched-1d/drivers/block/ll_rw_blk.c	2003-04-17 12:21:59.000000000 -0400
-@@ -480,7 +480,7 @@
- void blk_init_queue(request_queue_t * q, request_fn_proc * rfn)
- {
- 	INIT_LIST_HEAD(&q->queue_head);
--	elevator_init(&q->elevator, ELEVATOR_LINUS);
-+	elevator_init(&q->elevator, ELEVATOR_NEIL);
- 	blk_init_free_list(q);
- 	q->request_fn     	= rfn;
- 	q->back_merge_fn       	= ll_back_merge_fn;
-@@ -922,7 +922,8 @@
- 			rw = READ;	/* drop into READ */
- 		case READ:
- 		case WRITE:
--			latency = elevator_request_latency(elevator, rw);
-+			/* latency = elevator_request_latency(elevator, rw); */
-+			latency = 1;
- 			break;
- 		default:
- 			BUG();
-diff -u -ur linux-2.4.20/include/linux/elevator.h linux-iosched-1d/include/linux/elevator.h
---- linux-2.4.20/include/linux/elevator.h	2003-04-14 14:47:24.000000000 -0400
-+++ linux-iosched-1d/include/linux/elevator.h	2003-04-15 10:17:23.000000000 -0400
-@@ -31,6 +31,9 @@
- void elevator_linus_merge_cleanup(request_queue_t *, struct request *, int);
- void elevator_linus_merge_req(struct request *, struct request *);
- 
-+int elevator_neil_merge(request_queue_t *, struct request **, struct list_head *, struct buffer_head *, int, int);
-+void elevator_neil_merge_req(struct request *, struct request *);
-+
- typedef struct blkelv_ioctl_arg_s {
- 	int queue_ID;
- 	int read_latency;
-@@ -101,3 +104,12 @@
- 	})
- 
- #endif
-+
-+#define ELEVATOR_NEIL							\
-+((elevator_t) {								\
-+	0,				/* read_latency */		\
-+	0,				/* write_latency */		\
-+									\
-+	elevator_neil_merge,		/* elevator_merge_fn */		\
-+	elevator_neil_merge_req,	/* elevator_merge_req_fn */	\
-+	})
-Only in linux-iosched-1d: inst.sh
+--=-Jp065wr+/8IOmsoJ98CV--
 
---C7zPtVaVf+AK4Oqc--

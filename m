@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264957AbRFZOe4>; Tue, 26 Jun 2001 10:34:56 -0400
+	id <S264958AbRFZOsQ>; Tue, 26 Jun 2001 10:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264956AbRFZOeq>; Tue, 26 Jun 2001 10:34:46 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:10003 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265010AbRFZOec>;
-	Tue, 26 Jun 2001 10:34:32 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Tim Waugh <twaugh@redhat.com>
-cc: Simon Huggins <huggie@earth.li>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: parport_pc tries to load parport_serial automatically 
-In-Reply-To: Your message of "Tue, 26 Jun 2001 14:53:55 +0100."
-             <20010626145355.Z7663@redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 27 Jun 2001 00:34:25 +1000
-Message-ID: <11667.993566065@ocs3.ocs-net>
+	id <S264959AbRFZOsH>; Tue, 26 Jun 2001 10:48:07 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:20733 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264958AbRFZOsA>;
+	Tue, 26 Jun 2001 10:48:00 -0400
+Importance: Normal
+Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF29D2C834.F627AA03-ON85256A77.0050F2F6@pok.ibm.com>
+From: "Bulent Abali" <abali@us.ibm.com>
+Date: Tue, 26 Jun 2001 10:47:12 -0400
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 06/26/2001 10:46:30 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jun 2001 14:53:55 +0100, 
-Tim Waugh <twaugh@redhat.com> wrote:
->On Tue, Jun 26, 2001 at 11:37:19PM +1000, Keith Owens wrote:
->
->> "below parport_pc parport-serial" is even cleaner.  One line, modprobe
->> does everything else.
->
->Would this have any different effect than the current situation if
->parport_serial fails to load?
 
-It behaves the same as an inter-module dependency, if parport-serial
-fails then parport_pc will not be loaded.  If I remember correctly,
-this was suggested in the context that people who want both should put
-something in modules.conf, IOW this is what the user asked for.
+
+>> I am running in to a problem, seemingly a deadlock situation, where
+almost
+>> all the processes end up in the TASK_UNINTERRUPTIBLE state.   All the
+>
+>could you try to reproduce with this patch applied on top of
+>2.4.6pre5aa1 or 2.4.6pre5 vanilla?
+
+Andrea,
+I would like try your patch but so far I can trigger the bug only when
+running TUX 2.0-B6 which runs on 2.4.5-ac4.  /bulent
+
+
 

@@ -1,95 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265611AbTFXB3X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 21:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265612AbTFXB3X
+	id S265619AbTFXBim (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 21:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265623AbTFXBil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 21:29:23 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:43664 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S265611AbTFXB3V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 21:29:21 -0400
-Date: Mon, 23 Jun 2003 18:43:28 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Samphan Raruenrom <samphan@thai.com>
-cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Crusoe's performance on linux?
-In-Reply-To: <3EF74DBF.6000703@thai.com>
-Message-ID: <Pine.LNX.4.53.0306231821480.17484@twinlark.arctic.org>
-References: <3EF1E6CD.4040800@thai.com> <20030619200308.A2135@ucw.cz>
- <3EF2144D.5060902@thai.com> <20030619221126.B3287@ucw.cz> <3EF67AD4.4040601@thai.com>
- <20030623102623.A18000@ucw.cz> <3EF74DBF.6000703@thai.com>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Jun 2003 21:38:41 -0400
+Received: from remt28.cluster1.charter.net ([209.225.8.38]:41144 "EHLO
+	remt28.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S265619AbTFXBi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 21:38:27 -0400
+Subject: [PATCH] 2.5.73: drivers/char/ip2main.c
+From: Josh Boyer <jwboyer@charter.net>
+To: torvalds@transmeta.com
+Cc: mhw@wittsend.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056419552.3662.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jun 2003 20:52:32 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jun 2003, Samphan Raruenrom wrote:
+Hello,
 
-> Desktop - Pentium III 1 G Hz 754 MB	->	10.x min.
-> Tablet PC - Crusoe TM5800 1 GHz 731 MB	->	17.x min.
+Here is a patch for the Computone Intelliport mulitiport driver against
+2.5.73.  Fixed the compile error.  Also changed cli() calls to
+spin_lock_irqsave/spin_unlock_irqrestore.  
 
-how much real memory are in these boxes?  the above don't look like any
-real memory sizes i'm aware of (even if i try to guess if your M=10^6
-or M=2^20).
-
-
->  From freshdiagnos benchmack, the TPC has about 2x faster RAM.
-
-you're mistaken if you believe marketing doodoo which says that DDR is
-"twice as fast" as SDR -- only data transfer is clocked at twice the
-bus speed.  there's command bus costs which are identical between SDR
-and DDR -- and its these costs which dominate the bus in non-sequential
-benchmarks such as compilation (as opposed to excessively sequential
-benchmarks which are used for marketing purposes).
-
-expansion memory for the tablet PC is PC133 -- you can verify this
-by reading the part numbers off the SODIMM and doing a lookup on the
-manufacturer's website...
-
-if you don't have any expansion memory in your tablet PC then you've
-got only 256MB of RAM and i really don't think you should be using tmpfs.
+Thx,
+josh
 
 
-> Shouldn't TM5800 with 4-wide VLIW engine and 64 registers,
-> working on a single task, run as fast as a Pentium III?
+--- linux-2.5.73.orig/drivers/char/ip2main.c	2003-06-22
+13:33:36.000000000 -0500
++++ linux-2.5.73/drivers/char/ip2main.c	2003-06-23 20:39:17.000000000
+-0500
+@@ -114,6 +114,7 @@
+ #include <linux/cdk.h>
+ #include <linux/comstats.h>
+ #include <linux/delay.h>
++#include <linux/spinlock.h>
+ 
+ #include <asm/system.h>
+ #include <asm/io.h>
+@@ -707,40 +708,42 @@
+ 				} 
+ 			} 
+ #else /* LINUX_VERSION_CODE > 2.1.99 */
+-			struct pci_dev *pci_dev_i = NULL;
+-			pci_dev_i = pci_find_device(PCI_VENDOR_ID_COMPUTONE,
+-						  PCI_DEVICE_ID_COMPUTONE_IP2EX, pci_dev_i);
+-			if (pci_dev_i != NULL) {
+-				unsigned int addr;
+-				unsigned char pci_irq;
+-
+-				ip2config.type[i] = PCI;
+-				status =
+-				pci_read_config_dword(pci_dev_i, PCI_BASE_ADDRESS_1, &addr);
+-				if ( addr & 1 ) {
+-					ip2config.addr[i]=(USHORT)(addr&0xfffe);
+-				} else {
+-					printk( KERN_ERR "IP2: PCI I/O address error\n");
+-				}
+-				status =
+-				pci_read_config_byte(pci_dev_i, PCI_INTERRUPT_LINE, &pci_irq);
++			{
++				struct pci_dev *pci_dev_i = NULL;
++				pci_dev_i = pci_find_device(PCI_VENDOR_ID_COMPUTONE,
++						PCI_DEVICE_ID_COMPUTONE_IP2EX, pci_dev_i);
++				if (pci_dev_i != NULL) {
++					unsigned int addr;
++					unsigned char pci_irq;
+ 
+-//		If the PCI BIOS assigned it, lets try and use it.  If we
+-//		can't acquire it or it screws up, deal with it then.
++					ip2config.type[i] = PCI;
++					status =
++						pci_read_config_dword(pci_dev_i, PCI_BASE_ADDRESS_1, &addr);
++					if ( addr & 1 ) {
++						ip2config.addr[i]=(USHORT)(addr&0xfffe);
++					} else {
++						printk( KERN_ERR "IP2: PCI I/O address error\n");
++					}
++					status =
++						pci_read_config_byte(pci_dev_i, PCI_INTERRUPT_LINE, &pci_irq);
+ 
+-//				if (!is_valid_irq(pci_irq)) {
+-//					printk( KERN_ERR "IP2: Bad PCI BIOS IRQ(%d)\n",pci_irq);
+-//					pci_irq = 0;
+-//				}
+-				ip2config.irq[i] = pci_irq;
+-			} else {	// ann error
+-				ip2config.addr[i] = 0;
+-				if (status == PCIBIOS_DEVICE_NOT_FOUND) {
+-					printk( KERN_ERR "IP2: PCI board %d not found\n", i );
+-				} else {
+-					pcibios_strerror(status);
++					//	If the PCI BIOS assigned it, lets try and use it.  If we
++					//	can't acquire it or it screws up, deal with it then.
++
++					//	if (!is_valid_irq(pci_irq)) {
++					//		printk( KERN_ERR "IP2: Bad PCI BIOS IRQ(%d)\n",pci_irq);
++					//		pci_irq = 0;
++					//	}
++					ip2config.irq[i] = pci_irq;
++				} else {	// ann error
++					ip2config.addr[i] = 0;
++					if (status == PCIBIOS_DEVICE_NOT_FOUND) {
++						printk( KERN_ERR "IP2: PCI board %d not found\n", i );
++					} else {
++						pcibios_strerror(status);
++					}
+ 				}
+-			} 
++			}
+ #endif	/* ! 2_0_X */
+ #else
+ 			printk( KERN_ERR "IP2: PCI card specified but PCI support not\n");
+@@ -2101,6 +2104,7 @@
+ 	struct async_icount cprev, cnow;	/* kernel counter temps */
+ 	struct serial_icounter_struct *p_cuser;	/* user space */
+ 	int rc = 0;
++	spinlock_t lock = SPIN_LOCK_UNLOCKED;
+ 	unsigned long flags;
+ 
+ 	if ( pCh == NULL ) {
+@@ -2265,9 +2269,9 @@
+ 	 * for masking). Caller should use TIOCGICOUNT to see which one it was
+ 	 */
+ 	case TIOCMIWAIT:
+-		save_flags(flags);cli();
++		spin_lock_irqsave(&lock, flags);
+ 		cprev = pCh->icount;	 /* note the counters on entry */
+-		restore_flags(flags);
++		spin_unlock_irqrestore(&lock, flags);
+ 		i2QueueCommands(PTYPE_BYPASS, pCh, 100, 4, 
+ 						CMD_DCD_REP, CMD_CTS_REP, CMD_DSR_REP, CMD_RI_REP);
+ 		init_waitqueue_entry(&wait, current);
+@@ -2287,9 +2291,9 @@
+ 				rc = -ERESTARTSYS;
+ 				break;
+ 			}
+-			save_flags(flags);cli();
++			spin_lock_irqsave(&lock, flags);
+ 			cnow = pCh->icount; /* atomic copy */
+-			restore_flags(flags);
++			spin_unlock_irqrestore(&lock, flags);
+ 			if (cnow.rng == cprev.rng && cnow.dsr == cprev.dsr &&
+ 				cnow.dcd == cprev.dcd && cnow.cts == cprev.cts) {
+ 				rc =  -EIO; /* no change => rc */
+@@ -2327,9 +2331,9 @@
+ 	case TIOCGICOUNT:
+ 		ip2trace (CHANN, ITRC_IOCTL, 11, 1, rc );
+ 
+-		save_flags(flags);cli();
++		spin_lock_irqsave(&lock, flags);
+ 		cnow = pCh->icount;
+-		restore_flags(flags);
++		spin_unlock_irqrestore(&lock, flags);
+ 		p_cuser = (struct serial_icounter_struct *) arg;
+ 		PUT_USER(rc,cnow.cts, &p_cuser->cts);
+ 		PUT_USER(rc,cnow.dsr, &p_cuser->dsr);
 
-nope.
 
-you're assuming that the VLIW has 4 completely orthogonal processing
-units -- it doesn't.  try measuring code sequences such as:
 
-	add %eax,%ebx
-	add %eax,%ecx
-	add %eax,%edx
-	add %eax,%edi
-	add %eax,%ebx
-	add %eax,%ecx
-	add %eax,%edx
-	add %eax,%edi
-	...
-
-you'll quickly figure out how many ALUs the machine has, plus you can
-figure out their latencies and throughputs (by increasing or decreasing
-the number of independent additions).  if you do this you'll find
-that p3 and tm5800 are essentially just as "wide" as each other for
-ALU operations:  a pair of 32-bit ALUs with single-cycle latency and
-single-cycle throughput.
-
-similar microarchitctural analysis of other aspects of the cores can
-help explain the differences you see.
-
-traditionally VLIW have been used for DSP and other such related tasks
-in which there are a large number of orthogonal units.  in tm5800 you
-can think of the VLIW as a set of up to 4 micro-ops which feed the front
-of up to 4 pipelines in each cycle -- much like the decoded micro-ops
-in the p3 feed one of several pipelines in each cycle.
-
-but i'm really guessing you're causing excessive disk i/o by having a
-small memory system use a huge tmpfs... get rid of the tmpfs and
-see what happens.  and also consider doing i/o benchmarks while
-running something which soaks up idle cycles (i.e. a tight loop
-incrementing a counter) to see how the two architectures differ.
-
--dean

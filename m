@@ -1,247 +1,218 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269961AbRHNBcX>; Mon, 13 Aug 2001 21:32:23 -0400
+	id <S269966AbRHNBeX>; Mon, 13 Aug 2001 21:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269962AbRHNBcP>; Mon, 13 Aug 2001 21:32:15 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:217 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269961AbRHNBcF>;
-	Mon, 13 Aug 2001 21:32:05 -0400
-Date: Mon, 13 Aug 2001 21:32:17 -0400 (EDT)
+	id <S269967AbRHNBeV>; Mon, 13 Aug 2001 21:34:21 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40155 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269966AbRHNBdy>;
+	Mon, 13 Aug 2001 21:33:54 -0400
+Date: Mon, 13 Aug 2001 21:34:07 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (2/11) fs/super.c fixes
-In-Reply-To: <Pine.GSO.4.21.0108132126270.10579-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108132131590.10579-100000@weyl.math.psu.edu>
+Subject: [PATCH] (7/11) fs/super.c fixes
+In-Reply-To: <Pine.GSO.4.21.0108132133340.10579-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108132133540.10579-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Part 2/11
+Part 7/11
 
-First part of get_sb_bdev() rewrite. We move opening the device to the
-beginning of the function. If we already have a superblock from that device
-- well, no problem. That, BTW, fixes a buglet with permissions: suppose
-we mount /dev/foo, chmod it to 0 and say mount /dev/foo again. Old code
-merrily didn't notice that permissions had been revoked and allowed mount.
-Main reason for the change is different, though - we are getting the
-blocking operations from the area we want to protect with sb_lock (see
-the next chunk).
+	* Now we can drop kern_mount() from the places that don't need it.
+I.e. unless the kernel itself needs private vfsmount - no need to bother.
+	* kern_mount() itself is simplified - it calls get_sb_nodev() or
+get_sb_single() instead of doing stuff by hands. As the matter of fact,
+it's quite similar to part of do_add_mount(). It's really "get the
+private vfsmount, but don't bother attaching it" - what kern_mount()
+was always supposed to be.
+	* Refcounting for FS_SINGLE filesystems is not different from the
+rest now. As the matter of fact, the only difference between "single" and
+"nodev" is that the former refuses to have multiple instances and returns
+an existing one if found. All special-casing is gone.
+	* shmfs explicitly stores result of its kern_mount() in variable
+instead of using ->kern_mnt (preparation to the next step).
 
+BTW, now we can call kern_mount() several times on the same fs if we find
+it convenient for some reason.
 
-Cleanup: we move decrementing ->s_active into put_super(). Callers updated.
+In short, lots of crap is gone now. I should've done it that way from the
+very beginning and life would be easier for everyone.
 
-diff -urN S9-pre3-s_umount/fs/super.c S9-pre3-get_sb_bdev/fs/super.c
---- S9-pre3-s_umount/fs/super.c	Mon Aug 13 21:21:26 2001
-+++ S9-pre3-get_sb_bdev/fs/super.c	Mon Aug 13 21:21:26 2001
-@@ -872,6 +872,26 @@
- 			kdevname(dev));
+diff -urN S9-pre3-get_sb_single/drivers/usb/inode.c S9-pre3-kern_mount/drivers/usb/inode.c
+--- S9-pre3-get_sb_single/drivers/usb/inode.c	Sun Jul 29 01:54:47 2001
++++ S9-pre3-kern_mount/drivers/usb/inode.c	Mon Aug 13 21:21:28 2001
+@@ -751,7 +751,6 @@
+ 		usb_deregister(&usbdevfs_driver);
+ 		return ret;
+ 	}
+-	kern_mount(&usbdevice_fs_type);
+ #ifdef CONFIG_PROC_FS		
+ 	/* create mount point for usbdevfs */
+ 	usbdir = proc_mkdir("usb", proc_bus);
+@@ -763,7 +762,6 @@
+ {
+ 	usb_deregister(&usbdevfs_driver);
+ 	unregister_filesystem(&usbdevice_fs_type);
+-	kern_umount(usbdevice_fs_type.kern_mnt);
+ #ifdef CONFIG_PROC_FS	
+         if (usbdir)
+                 remove_proc_entry("usb", proc_bus);
+diff -urN S9-pre3-get_sb_single/fs/pipe.c S9-pre3-kern_mount/fs/pipe.c
+--- S9-pre3-get_sb_single/fs/pipe.c	Fri Feb 16 22:52:04 2001
++++ S9-pre3-kern_mount/fs/pipe.c	Mon Aug 13 21:21:28 2001
+@@ -630,8 +630,7 @@
+ 	return sb;
  }
  
-+static int grab_super(struct super_block *sb)
-+{
-+	sb->s_count++;
-+	atomic_inc(&sb->s_active);
-+	spin_unlock(&sb_lock);
-+	down_write(&sb->s_umount);
-+	if (sb->s_root) {
-+		/* Still relying on mount_sem */
-+		if (atomic_read(&sb->s_active) > 1) {
-+			spin_lock(&sb_lock);
-+			sb->s_count--;
-+			spin_unlock(&sb_lock);
-+			return 1;
-+		}
-+	}
-+	atomic_dec(&sb->s_active);
-+	put_super(sb);
-+	return 0;
-+}
-+
- static struct super_block *get_sb_bdev(struct file_system_type *fs_type,
- 	char *dev_name, int flags, void * data)
+-static DECLARE_FSTYPE(pipe_fs_type, "pipefs", pipefs_read_super,
+-	FS_NOMOUNT|FS_SINGLE);
++static DECLARE_FSTYPE(pipe_fs_type, "pipefs", pipefs_read_super, FS_NOMOUNT);
+ 
+ static int __init init_pipe_fs(void)
  {
-@@ -880,8 +900,11 @@
- 	struct block_device_operations *bdops;
- 	struct super_block * sb;
- 	struct nameidata nd;
-+	struct list_head *p;
- 	kdev_t dev;
- 	int error = 0;
-+	mode_t mode = FMODE_READ; /* we always need it ;-) */
-+
- 	/* What device it is? */
- 	if (!dev_name || !*dev_name)
- 		return ERR_PTR(-EINVAL);
-@@ -902,52 +925,45 @@
- 	/* Done with lookups, semaphore down */
- 	down(&mount_sem);
- 	dev = to_kdev_t(bdev->bd_dev);
--	sb = get_super(dev);
--	if (sb) {
--		if (fs_type == sb->s_type &&
--		    ((flags ^ sb->s_flags) & MS_RDONLY) == 0) {
--/*
-- * We are heavily relying on mount_sem here. We _will_ get rid of that
-- * ugliness RSN (and then atomicity of ->s_active will play), but first
-- * we need to get rid of "reuse" branch of get_empty_super() and that
-- * requires reference counters. Chicken and egg problem, but fortunately
-- * we can use the fact that right now all accesses to ->s_active are
-- * under mount_sem.
-- */
--			if (atomic_read(&sb->s_active)) {
--				spin_lock(&sb_lock);
--				sb->s_count--;
--				spin_unlock(&sb_lock);
--			}
--			atomic_inc(&sb->s_active);
--			/* Next chunk will drop it */
--			up_read(&sb->s_umount);
--			down_write(&sb->s_umount);
--			path_release(&nd);
--			return sb;
--		}
--		drop_super(sb);
--	} else {
--		mode_t mode = FMODE_READ; /* we always need it ;-) */
--		if (!(flags & MS_RDONLY))
--			mode |= FMODE_WRITE;
--		error = blkdev_get(bdev, mode, 0, BDEV_FS);
--		if (error)
--			goto out;
--		check_disk_change(dev);
--		error = -EACCES;
--		if (!(flags & MS_RDONLY) && is_read_only(dev))
-+	if (!(flags & MS_RDONLY))
-+		mode |= FMODE_WRITE;
-+	error = blkdev_get(bdev, mode, 0, BDEV_FS);
-+	if (error)
-+		goto out;
-+	check_disk_change(dev);
-+	error = -EACCES;
-+	if (!(flags & MS_RDONLY) && is_read_only(dev))
-+		goto out1;
-+
-+	error = -EBUSY;
-+restart:
-+	spin_lock(&sb_lock);
-+
-+	list_for_each(p, &super_blocks) {
-+		struct super_block *old = sb_entry(p);
-+		if (old->s_dev != dev)
-+			continue;
-+		if (old->s_type != fs_type ||
-+		    ((flags ^ old->s_flags) & MS_RDONLY)) {
-+			spin_unlock(&sb_lock);
- 			goto out1;
--		error = -EINVAL;
--		sb = read_super(dev, bdev, fs_type, flags, data, 0);
--		if (sb) {
--			get_filesystem(fs_type);
--			path_release(&nd);
--			return sb;
- 		}
--out1:
-+		if (!grab_super(old))
-+			goto restart;
- 		blkdev_put(bdev, BDEV_FS);
-+		path_release(&nd);
-+		return old;
- 	}
-+	spin_unlock(&sb_lock);
-+	error = -EINVAL;
-+	sb = read_super(dev, bdev, fs_type, flags, data, 0);
-+	if (sb) {
-+		get_filesystem(fs_type);
-+		path_release(&nd);
-+		return sb;
-+	}
-+out1:
-+	blkdev_put(bdev, BDEV_FS);
+@@ -650,7 +649,7 @@
+ static void __exit exit_pipe_fs(void)
+ {
+ 	unregister_filesystem(&pipe_fs_type);
+-	kern_umount(pipe_mnt);
++	mntput(pipe_mnt);
+ }
+ 
+ module_init(init_pipe_fs)
+diff -urN S9-pre3-get_sb_single/fs/super.c S9-pre3-kern_mount/fs/super.c
+--- S9-pre3-get_sb_single/fs/super.c	Mon Aug 13 21:21:27 2001
++++ S9-pre3-kern_mount/fs/super.c	Mon Aug 13 21:21:28 2001
+@@ -388,8 +388,6 @@
+ 	spin_lock(&dcache_lock);
+ 	list_add(&mnt->mnt_list, vfsmntlist.prev);
+ 	spin_unlock(&dcache_lock);
+-	if (sb->s_type->fs_flags & FS_SINGLE)
+-		get_filesystem(sb->s_type);
  out:
- 	path_release(&nd);
- 	up(&mount_sem);
-diff -urN S9-pre3-s_count/fs/super.c S9-pre3-put_super/fs/super.c
---- S9-pre3-s_count/fs/super.c	Mon Aug 13 21:21:29 2001
-+++ S9-pre3-put_super/fs/super.c	Mon Aug 13 21:21:29 2001
-@@ -666,6 +666,7 @@
- 
- static void put_super(struct super_block *sb)
- {
-+	atomic_dec(&sb->s_active);
- 	up_write(&sb->s_umount);
- 	__put_super(sb);
+ 	return mnt;
  }
-@@ -832,7 +833,6 @@
- 	s->s_bdev = 0;
- 	s->s_type = NULL;
- 	unlock_super(s);
--	atomic_dec(&s->s_active);
- 	spin_lock(&sb_lock);
- 	list_del(&s->s_list);
- 	list_del(&s->s_instances);
-@@ -885,7 +885,6 @@
- 		}
- 		spin_unlock(&sb_lock);
- 	}
--	atomic_dec(&sb->s_active);
- 	put_super(sb);
+@@ -436,8 +434,6 @@
+ 	list_add(&mnt->mnt_list, vfsmntlist.prev);
+ 	spin_unlock(&dcache_lock);
+ 	up(&nd->dentry->d_inode->i_zombie);
+-	if (mnt->mnt_sb->s_type->fs_flags & FS_SINGLE)
+-		get_filesystem(mnt->mnt_sb->s_type);
+ 	mntget(mnt);
  	return 0;
- }
-@@ -950,13 +949,11 @@
- 		if (old->s_type != fs_type ||
- 		    ((flags ^ old->s_flags) & MS_RDONLY)) {
- 			spin_unlock(&sb_lock);
--			atomic_dec(&s->s_active);
- 			put_super(s);
- 			goto out1;
- 		}
- 		if (!grab_super(old))
- 			goto restart;
--		atomic_dec(&s->s_active);
- 		put_super(s);
- 		blkdev_put(bdev, BDEV_FS);
- 		path_release(&nd);
-@@ -988,7 +985,6 @@
- 	s->s_bdev = 0;
- 	s->s_type = NULL;
- 	unlock_super(s);
--	atomic_dec(&s->s_active);
- 	spin_lock(&sb_lock);
- 	list_del(&s->s_list);
- 	list_del(&s->s_instances);
-@@ -1044,14 +1040,12 @@
- 				s_instances);
- 		if (!grab_super(old))
- 			goto retry;
--		atomic_dec(&s->s_active);
- 		put_super(s);
- 		do_remount_sb(old, flags, data);
- 		return old;
- 	} else {
- 		kdev_t dev = get_unnamed_dev();
- 		if (!dev) {
--			atomic_dec(&s->s_active);
- 			put_super(s);
- 			up(&mount_sem);
- 			return ERR_PTR(-EMFILE);
-@@ -1075,7 +1069,6 @@
- 		s->s_bdev = 0;
- 		s->s_type = NULL;
+ fail:
+@@ -1070,6 +1066,7 @@
+ 		if (!fs_type->read_super(s, data, 0))
+ 			goto out_fail;
  		unlock_super(s);
--		atomic_dec(&s->s_active);
- 		spin_lock(&sb_lock);
- 		list_del(&s->s_list);
- 		list_del(&s->s_instances);
-@@ -1142,6 +1135,7 @@
- 	list_del(&sb->s_list);
- 	list_del(&sb->s_instances);
- 	spin_unlock(&sb_lock);
-+	atomic_inc(&sb->s_active);
- 	put_super(sb);
++		get_filesystem(fs_type);
+ 		return s;
+ 
+ 	out_fail:
+@@ -1184,21 +1181,17 @@
+ {
+ 	struct super_block *sb;
+ 	struct vfsmount *mnt = alloc_vfsmnt();
+-	kdev_t dev;
+ 
+ 	if (!mnt)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	dev = get_unnamed_dev();
+-	if (!dev) {
++	if (type->fs_flags & FS_SINGLE)
++		sb = get_sb_single(type, 0, NULL);
++	else
++		sb = get_sb_nodev(type, 0, NULL);
++	if (IS_ERR(sb)) {
+ 		kmem_cache_free(mnt_cache, mnt);
+-		return ERR_PTR(-EMFILE);
+-	}
+-	sb = read_super(dev, NULL, type, 0, NULL, 0);
+-	if (!sb) {
+-		put_unnamed_dev(dev);
+-		kmem_cache_free(mnt_cache, mnt);
+-		return ERR_PTR(-EINVAL);
++		return (struct vfsmount *)sb;
+ 	}
+ 	mnt->mnt_sb = sb;
+ 	mnt->mnt_root = dget(sb->s_root);
+@@ -1206,6 +1199,7 @@
+ 	mnt->mnt_parent = mnt;
+ 	type->kern_mnt = mnt;
+ 	up_write(&sb->s_umount);
++	up(&mount_sem);
+ 	return mnt;
  }
  
+@@ -1257,8 +1251,6 @@
+ 			spin_unlock(&dcache_lock);
+ 			return -EBUSY;
+ 		}
+-		if (sb->s_type->fs_flags & FS_SINGLE)
+-			put_filesystem(sb->s_type);
+ 		detach_mnt(mnt, &parent_nd);
+ 		list_del(&mnt->mnt_list);
+ 		spin_unlock(&dcache_lock);
+diff -urN S9-pre3-get_sb_single/mm/shmem.c S9-pre3-kern_mount/mm/shmem.c
+--- S9-pre3-get_sb_single/mm/shmem.c	Sat Aug 11 14:59:25 2001
++++ S9-pre3-kern_mount/mm/shmem.c	Mon Aug 13 21:21:28 2001
+@@ -1158,6 +1158,7 @@
+ #else
+ static DECLARE_FSTYPE(tmpfs_fs_type, "tmpfs", shmem_read_super, FS_LITTER|FS_NOMOUNT);
+ #endif
++static struct vfsmount *shm_mnt;
+ 
+ static int __init init_shmem_fs(void)
+ {
+@@ -1181,6 +1182,7 @@
+ 		unregister_filesystem(&tmpfs_fs_type);
+ 		return PTR_ERR(res);
+ 	}
++	shm_mnt = res;
+ 
+ 	/* The internal instance should not do size checking */
+ 	if ((error = shmem_set_size(&res->mnt_sb->u.shmem_sb, ULONG_MAX, ULONG_MAX)))
+@@ -1195,6 +1197,7 @@
+ 	unregister_filesystem(&shmem_fs_type);
+ #endif
+ 	unregister_filesystem(&tmpfs_fs_type);
++	mntput(shm_mnt);
+ }
+ 
+ module_init(init_shmem_fs)
+@@ -1292,7 +1295,7 @@
+ 	this.name = name;
+ 	this.len = strlen(name);
+ 	this.hash = 0; /* will go */
+-	root = tmpfs_fs_type.kern_mnt->mnt_root;
++	root = shm_mnt->mnt_root;
+ 	dentry = d_alloc(root, &this);
+ 	if (!dentry)
+ 		return ERR_PTR(-ENOMEM);
+@@ -1310,7 +1313,7 @@
+ 	d_instantiate(dentry, inode);
+ 	dentry->d_inode->i_size = size;
+ 	shmem_truncate(inode);
+-	file->f_vfsmnt = mntget(tmpfs_fs_type.kern_mnt);
++	file->f_vfsmnt = mntget(shm_mnt);
+ 	file->f_dentry = dentry;
+ 	file->f_op = &shmem_file_operations;
+ 	file->f_mode = FMODE_WRITE | FMODE_READ;
+diff -urN S9-pre3-get_sb_single/net/socket.c S9-pre3-kern_mount/net/socket.c
+--- S9-pre3-get_sb_single/net/socket.c	Sun Jul 29 01:54:49 2001
++++ S9-pre3-kern_mount/net/socket.c	Mon Aug 13 21:21:28 2001
+@@ -303,8 +303,7 @@
+ }
+ 
+ static struct vfsmount *sock_mnt;
+-static DECLARE_FSTYPE(sock_fs_type, "sockfs", sockfs_read_super,
+-	FS_NOMOUNT|FS_SINGLE);
++static DECLARE_FSTYPE(sock_fs_type, "sockfs", sockfs_read_super, FS_NOMOUNT);
+ static int sockfs_delete_dentry(struct dentry *dentry)
+ {
+ 	return 1;
 
 

@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVCDKVy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVCDKYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262604AbVCDKVy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 05:21:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbVCDKVy
+	id S262703AbVCDKYC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 05:24:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbVCDKYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 05:21:54 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23257 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262604AbVCDKVn (ORCPT
+	Fri, 4 Mar 2005 05:24:01 -0500
+Received: from mail.dif.dk ([193.138.115.101]:36269 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262711AbVCDKXo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 05:21:43 -0500
-Date: Fri, 4 Mar 2005 11:21:21 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, hugang@soulinfo.com
-Subject: Re: swsusp: use non-contiguous memory on resume
-Message-ID: <20050304102121.GG1345@elf.ucw.cz>
-References: <20050304095934.GA1731@elf.ucw.cz> <20050304021347.1b3e0122.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304021347.1b3e0122.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 4 Mar 2005 05:23:44 -0500
+Date: Fri, 4 Mar 2005 11:23:38 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][10/10] verify_area cleanup : deprecate
+In-Reply-To: <52is48m39x.fsf@topspin.com>
+Message-ID: <Pine.LNX.4.62.0503041121020.2794@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.62.0503040342510.2801@dragon.hygekrogen.localhost>
+ <52is48m39x.fsf@topspin.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 3 Mar 2005, Roland Dreier wrote:
 
-> > Subject: non-contiguous pagedir for resume
-> > 
-> >  This fixes problem where we could have enough memory but not in
-> >  continuous chunk, and resume would fail.
+>     Jesper> Eventually when this has been deprecated for a while I'll
+>     Jesper> send patches to completely remove the function (thoughts
+>     Jesper> on how long it should be deprecated first are welcome).
 > 
-> It seems to do more that that?  What's all the assembly stuff?
+> I don't have an opinion on how long to wait before removing the
+> function, but this patch should probably add an entry to
+> Documentation/feature-removal.txt.
 > 
-> General point: this changlog entry doesn't describe the problem and it
-> doesn't describe how the patch fixes that problem.  It's a model
-> how-not-to ;)
+Something like this should do I assume. I'll add that to the deprecation 
+patch in the future.
 
-Sorry.
 
-Problem is that pagedir is allocated as order-8 allocation on resume
-in -mmX (and linus). Unfortunately, order-8 allocation sometimes
-fails, and for some people (Rafael, seife :-) it fails way too often.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Solution is to change format of pagedir from table to linklist,
-avoiding high-order alocation. Unfortunately that means changes to
-assembly, too, as assembly walks the pagedir.
+--- linux-2.6.11-orig/Documentation/feature-removal-schedule.txt	2005-03-02 08:38:13.000000000 +0100
++++ linux-2.6.11/Documentation/feature-removal-schedule.txt	2005-03-04 11:19:48.000000000 +0100
+@@ -15,3 +15,9 @@
+ 	against the LSB, and can be replaced by using udev.
+ Who:	Greg Kroah-Hartman <greg@kroah.com>
+ 
++What:	verify_area
++When:	May 2005
++Files:	include/asm-*/uaccess.h
++Why:	Obsolete, replaced by (and simply a wrapper for) access_ok.
++Who:	Jesper Juhl <juhl-lkml@dif.dk>
++
 
-[Is it better now?]
 
-> >  --- linux-mm/kernel/power/swsusp.c	2005-02-28 01:14:08.000000000 +0100
-> >  +++ linux.middle/kernel/power/swsusp.c	2005-02-28 21:29:06.000000000 +0100
-> >  @@ -241,7 +241,7 @@
-> >   	swp_entry_t entry;
-> >   	int error = 0;
-> >   
-> >  -	entry = get_swap_page(NULL, swp_offset(*loc));
-> >  +	entry = get_swap_page();
-> 
-> Something's gone wrong here.  In -mm, get_swap_page() takes two args and in
-> -linus it takes zero args.
 
-Aha, okay, I guess I'll have to wait for resync between submitting
-these. Forget the resume-from-initramfs patch...
-
-(Or maybe Rafael is willing to create -mm version and submit it
-himself?)
-
-								Pavel
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

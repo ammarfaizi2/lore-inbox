@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131546AbQLVCnm>; Thu, 21 Dec 2000 21:43:42 -0500
+	id <S131612AbQLVCrf>; Thu, 21 Dec 2000 21:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131612AbQLVCnc>; Thu, 21 Dec 2000 21:43:32 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:37644 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131546AbQLVCnS>; Thu, 21 Dec 2000 21:43:18 -0500
-Date: Thu, 21 Dec 2000 22:19:20 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Chris Mason <mason@suse.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-In-Reply-To: <86820000.977441131@coffee>
-Message-ID: <Pine.LNX.4.21.0012212133380.2533-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131714AbQLVCrY>; Thu, 21 Dec 2000 21:47:24 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:62850 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131612AbQLVCrL>;
+	Thu, 21 Dec 2000 21:47:11 -0500
+Date: Thu, 21 Dec 2000 18:00:15 -0800
+Message-Id: <200012220200.SAA05057@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: kernel@pineview.net
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <977453684.3a42c2744fbb7@ppro.pineview.net> (message from Mike
+	OConnor on Fri, 22 Dec 2000 13:24:44 +1100 (CST))
+Subject: Re: No more DoS
+In-Reply-To: <977453684.3a42c2744fbb7@ppro.pineview.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: 	Fri, 22 Dec 2000 13:24:44 +1100 (CST)
+   From: Mike OConnor <kernel@pineview.net>
 
-On Thu, 21 Dec 2000, Chris Mason wrote:
+   I would like to point who ever is in charge of the TCP stack for
+   the linux kernel at a site which claims to have a method of
+   eliminate denial of service (DoS) attacks
 
-> Ok guys, I think I've taken Linus' suggestion to have buffer.c use its
-> own writepage a bit too far.  This patch marks pages dirty when the 
-> buffer head is marked dirty, and changes flush_dirty_buffers and 
-> sync_buffers to use writepage instead of ll_rw_block.  The idea is 
-> to allow filesystems to use the buffer lists and provide their own 
-> i/o mechanism.
-> 
-> The result is a serious semantics change for writepage, which now is 
-> expected to do partial page writes when the page isn't up to date and 
-> there are dirty buffers inside.  For all the obvious reasons, this isn't 
-> fit for 2.4.0, and if you all feel it is a 2.5. thing I'll send along 
-> the  shorter  patch Linus originally suggested.  But, I think it would 
-> be  pretty useful for the new filesystems (once I also fix 
-> fsync_inode_buffers and sync_page_buffers).
+   http://grc.com/r&d/nomoredos.htm
 
-It is very powerful.
+   With my limited unstanding of TCP and DoS attacks this would seem
+   to be the answer, instead of a work around.
 
-With this on place, the filesystem is able to do write clustering at its
-writepage() function by checking if the on-disk physically nearby pages
-are dirty.
-  
-> Other changes:  submit_bh now cleans the buffers.  I don't see how 
-> they were getting cleaned before, it must have been try_to_free_buffers 
-> sending the page through sync_page_buffers, meaning they were probably 
-> getting written twice.  Unless someone throws a clue my way, I'll send 
-> this out as a separate diff.
+These people claim that no connection state needs to be saved for the
+beginning of the negotiation, and I claim this is unworkable because
+it ignores TCP timestamps entirely.
 
-Ouch.
+Furthermore, it also cannot work because it makes retransmissions
+of the SYN/ACK very non-workable.  I suppose his TCP stack just hacks
+around this by just waiting for the original client SYN to get
+retransmitted or something like this.  I question whether that can
+even work reliably.
 
-> page_launder doesn't fiddle with the buffermem_pages counter, it is done 
-> in try_to_free_buffers instead.
->
-> Obvious bug, block_write_full_page zeros out the bits past the end of 
-> file every time.  This should not be needed for normal file writes.
-> 
-> Most testing was on ext2, who actually calls mark_buffer_dirty, and 
-> supports blocksizes < intel page size.  More tests are running 
-> overnight.
+I think not holding onto any state for an incoming SYN is nothing but
+a dream in any serious modern TCP implementation.  It can be reduced,
+but not eliminated.  The former is what most modern stacks have done
+to fight these problems.
 
-It seems your code has a problem with bh flush time.
-
-In flush_dirty_buffers(), a buffer may (if being called from kupdate) only
-be written in case its old enough. (bh->b_flushtime)
-
-If the flush happens for an anonymous buffer, you'll end up writing all
-buffers which are sitting on the same page (with block_write_anon_page),
-but these other buffers are not necessarily old enough to be flushed.
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312920AbSDYFSV>; Thu, 25 Apr 2002 01:18:21 -0400
+	id <S312928AbSDYF2f>; Thu, 25 Apr 2002 01:28:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312927AbSDYFSU>; Thu, 25 Apr 2002 01:18:20 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:8577 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S312920AbSDYFST>;
-	Thu, 25 Apr 2002 01:18:19 -0400
-Message-Id: <m170be4-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: [PATCH] miscellaneous 2.5.10 cleanup
-To: linux-kernel@vger.kernel.org
-Date: Thu, 25 Apr 2002 00:18:16 -0500 (CDT)
-CC: torvalds@transmeta.com
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S312931AbSDYF2e>; Thu, 25 Apr 2002 01:28:34 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:65041 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S312928AbSDYF2d>;
+	Thu, 25 Apr 2002 01:28:33 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200204250528.g3P5SHo462311@saturn.cs.uml.edu>
+Subject: Re: [PATCH] gcc 3.1 breaks wchan
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Thu, 25 Apr 2002 01:28:17 -0400 (EDT)
+Cc: anton@samba.org (Anton Blanchard), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204242158140.6714-100000@home.transmeta.com> from "Linus Torvalds" at Apr 24, 2002 09:59:38 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several things still broken in 2.5.10.  Patches appended below
-except as noted in problem summary statements.
+Linus Torvalds writes:
+> On Thu, 25 Apr 2002, Anton Blanchard wrote:
 
-(1) drivers/scsi/aic7xxx/Makefile still contains an "aix7xxx" typo.
-(2) kernel/acct.c still contains BUG_ON() statement that results in
-    an "Oops" when "accton" is run on non-SMP systems.
-(3) fs/exportfs/expfs.c compile error due to "bad parameter list in
-    #define".
-(4) drivers/usb/storage/jumpshot.c and datafab.c: several occurences of
-	memcpy(sg[sg_idx].address + current_sg_offset, ...)
-    need fixing (no "address" member of structure).  No patch supplied.
+>> I noticed on a ppc64 kernel compiled with gcc 3.1 that context_switch
+>> was left out of line. It ended up outside of the
+>> scheduling_functions_start_here/end_here placeholders which breaks
+>> wchan.
+>>
+>> This is one place where we require the code to be inline, so we
+>> should use extern.
+>
+> ABSOLUTELY NOT!
+>
+> "extern inline" does not guarantee inlining. It only guarantees that _if_
+> the code isn't inlined, it also won't be compiled as a static function.
+>
+> Complain to the gcc guys, they've made up some not-backwards-compatible
+> thing called "always_inline" or something, apparently without any way to
+> know whether it is supported or not.
 
---- linux/drivers/scsi/aic7xxx/Makefile.orig	Wed Apr 24 23:45:10 2002
-+++ linux/drivers/scsi/aic7xxx/Makefile	Wed Apr 24 23:47:46 2002
-@@ -33,4 +33,4 @@
- aicasm/aicasm: aicasm/*.[chyl]
- 	$(MAKE) -C aicasm
- 
--aix7xxx_mod.o: aic7xxx_seq.h aic7xxx_reg.h
-+aic7xxx_mod.o: aic7xxx_seq.h aic7xxx_reg.h
---- linux/kernel/acct.c.orig	Mon Apr 22 09:33:45 2002
-+++ linux/kernel/acct.c	Mon Apr 22 10:39:01 2002
-@@ -160,8 +160,6 @@
- {
- 	struct file *old_acct = NULL;
- 
--	BUG_ON(!spin_is_locked(&acct_globals.lock));
--
- 	if (acct_globals.file) {
- 		old_acct = acct_globals.file;
- 		del_timer(&acct_globals.timer);
---- linux/fs/exportfs/expfs.c.orig	Tue Apr 23 08:43:09 2002
-+++ linux/fs/exportfs/expfs.c	Tue Apr 23 12:47:24 2002
-@@ -34,7 +34,7 @@
- 
- #define	CALL(ops,fun) ((ops->fun)?(ops->fun):export_op_default.fun)
- 
--#define dprintk(x, ...) do{}while(0)
-+#define dprintk(x...) do{}while(0)
- 
- struct dentry *
- find_exported_dentry(struct super_block *sb, void *obj, void *parent,
+This is why anything but INLINE or _INLINE (chosen in a Makefile
+or header) is broken. Every compiler wants something different
+these days. So, as needed, we get one of:
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+#define INLINE inline /* sanity! */
+#define INLINE extern inline /* an oxymoron */
+#define INLINE static inline /* another oxymoron */
+#define INLINE __forceinline
+#define INLINE __attribute__((always_inline))
+#define INLINE inline_me_harder
+#define INLINE inline_this_or_I_shove_it_up_your_gnu
+
+BTW, I said this during the "extern inline" to "static inline" conversion.
+
+IMHO "extern inline" and "static inline" are oxymorons and, were it
+not for the silly C99 standard, ought to produce error messsages.
+They make as much sense as "extern static" does. The compiler's
+inability to inline something ought to be an error as well. Oh well.
+
+

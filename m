@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136149AbRAWGdh>; Tue, 23 Jan 2001 01:33:37 -0500
+	id <S132178AbRAWGhi>; Tue, 23 Jan 2001 01:37:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136204AbRAWGd1>; Tue, 23 Jan 2001 01:33:27 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:21764 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S136149AbRAWGdS>; Tue, 23 Jan 2001 01:33:18 -0500
-Date: Tue, 23 Jan 2001 00:33:45 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Trever Adams <vichu@digitalme.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Total loss with 2.4.0 (release)
-In-Reply-To: <20010115215047Z131660-403+523@vger.kernel.org>
-Message-ID: <Pine.LNX.4.32.0101230026490.7610-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135790AbRAWGh2>; Tue, 23 Jan 2001 01:37:28 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:18705 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132178AbRAWGhM>;
+	Tue, 23 Jan 2001 01:37:12 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Werner.Almesberger@epfl.ch (Werner Almesberger),
+        david_luyer@pacific.net.au (David Luyer), alan@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH: "Pass module parameters" to built-in drivers 
+In-Reply-To: Your message of "Mon, 22 Jan 2001 21:55:23 -0000."
+             <200101222155.f0MLtNe01781@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 Jan 2001 17:37:02 +1100
+Message-ID: <22446.980231822@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2001, Trever Adams wrote:
-
->I had a similar experience.  All I can say is windows 98
->and ME seem to have it out for Linux drives running late
->2.3.x and 2.4.0 test and release.  I had windows completely
->fry my Linux drive and I lost everything.  I had some old
->backups and was able to restore at least the majority of
->older stuff.
+On Mon, 22 Jan 2001 21:55:23 +0000 (GMT), 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>Hmm, don't we already have all that __setup() stuff laying around?  Ok,
+>it might not be built into the .o for modules, but it could be.  Could
+>we not do something along the lines of:
 >
->Sorry and good luck.
+>1. User passes parameters on the kernel command line.
+>2. modprobe reads the kernel command line and sorts out those that
+>   correspond to the __setup() stuff in the module being loaded.
+>3. modprobe combines in any extra settings from /etc/modules.conf
+>
+>IIRC, this would satisfy the original posters intentions, presumably
+>without too much hastle?
 
-I don't see how Windows 9x can be at fault in any way shape or
-form, if you can boot between 2.2.x kernel and 9x no problem, but
-lose your disk if you boot Win98 and then 2.3.x/2.4.x and lose
-everything.  Windows does not touch your Linux fs's, so if there
-is a problem, it most likely is a kernel bug of some kind that
-doesn't initialize something properly.
-
-Windows sucks, and I hate it as much (probably more) than the
-next guy.  It's not fair to blame every computer problem on it
-though unless you KNOW that Windows directly caused the problem.
-
-Pick one of the 1000000000 good reasons to say Windows sucks
-instead...
-
-For what it is worth, I have a similar problem where if I boot
-Windows (to show people what "multicrashing" is), if I boot back
-into Linux, my network card no longer works (via-rhine).  Most
-definitely a Linux bug.  In this case, "via-rhine.o" sucks.
-
-;o)
-
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-I'd offer to change your mind for you, but I don't have a fresh diaper.
-  -- Leah to pro-spammer in news.admin.net-abuse.email
+Apart from the fact that it is completely backwards from the original
+intent.  The problem is objects that have MODULE_PARM but no __setup.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273442AbRIWM5T>; Sun, 23 Sep 2001 08:57:19 -0400
+	id <S273448AbRIWNEv>; Sun, 23 Sep 2001 09:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273476AbRIWM5C>; Sun, 23 Sep 2001 08:57:02 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:5886 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S273440AbRIWM4k>;
-	Sun, 23 Sep 2001 08:56:40 -0400
-Date: Sun, 23 Sep 2001 14:56:54 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Seiichi Nakashima <nakasei@fa.mdis.co.jp>
+	id <S273476AbRIWNEm>; Sun, 23 Sep 2001 09:04:42 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29026 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S273448AbRIWNEc>; Sun, 23 Sep 2001 09:04:32 -0400
+To: James McKenzie <kernel@ostrich.dhs.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.0.40-pre1 compile error
-Message-ID: <20010923145654.F26627@khan.acc.umu.se>
-In-Reply-To: <200109230202.AA00028@prism.fa.mdis.co.jp>
-Mime-Version: 1.0
+Subject: Re: alpha 4K mmap offsets and em86
+In-Reply-To: <20010923123042.B32649@hecate.esc.cam.ac.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Sep 2001 06:55:51 -0600
+In-Reply-To: <20010923123042.B32649@hecate.esc.cam.ac.uk>
+Message-ID: <m1adzm83s8.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200109230202.AA00028@prism.fa.mdis.co.jp>; from nakasei@fa.mdis.co.jp on Sun, Sep 23, 2001 at 11:02:39AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 23, 2001 at 11:02:39AM +0900, Seiichi Nakashima wrote:
-> Dear. David Weinehall
+James McKenzie <kernel@ostrich.dhs.org> writes:
+
+> Hi,
 > 
-> I am Seiichi Nakashima.
+> very sorry if this has been discussed before I couldn't
+> find any references in the archive. There is a program
+> on the alpha architecture which can (with a little help
+> from the kernel) execute ia32 linux binaries it's useful
+> if you need to run badly written 32 bit code.
 > 
-> Today, I found a new linux-2.0.40-pre1 kernel patch in kernel.org
-> tao's directory.  I download patch and applied to linux-2.0.39 and
-> compile kernel, but compile error occured at traps.c compile step.
+> The emulator needs to mmap elf binaries in, and 
+> offsets in ia32 elf files are 4k aligned for a 4k
+> pagesize. On 2.2 on an alpha you could do
+> mmap(NULL,3176, ... , fd, 0x1000);
+> but now in 2.4 but in 2.4 it returns EINVAL.
+> 
+> The code in mm/mmap.c and vm_area_struct seem to
+> now count the offset in pages rather than bytes, 
+> which would make fixing this ugly [maybe an element
+> in the structure to store 'slop' ?]
 
-Thanks a lot. I've fixed those two warnings and the error in my tree;
-expect a pre2 shortly.
+Nope.  This change was rather important to simplifying
+the page cache, so having slop is not really what we want.  Having
+slop is actually a coherency nightmare.
 
+You can do:  mmap(/dev/zero, size) read(binary) if you
+really nead that functionality.  Unless you are running
+many instances of a program it really shouldn't matter.
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Also you can't emulate full x86 semantics whatever you do because you 
+don't have 4K granularity.
+
+There are actually processors where it is worse, and you need
+something like 64K alignment despite the fact they have 4K pages.
+That is needed to avoid conflicts in virtually indexed L1 caches.
+
+Eric

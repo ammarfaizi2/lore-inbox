@@ -1,68 +1,335 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRCBT22>; Fri, 2 Mar 2001 14:28:28 -0500
+	id <S129453AbRCBT3t>; Fri, 2 Mar 2001 14:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129443AbRCBT2S>; Fri, 2 Mar 2001 14:28:18 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:55559
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129440AbRCBT2C>; Fri, 2 Mar 2001 14:28:02 -0500
-Date: Fri, 2 Mar 2001 11:25:49 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Chris Mason <mason@suse.com>
-cc: Steve Lord <lord@sgi.com>, Jeremy Hansen <jeremy@xxedgexx.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's 
-In-Reply-To: <383290000.983560664@tiny>
-Message-ID: <Pine.LNX.4.10.10103021125030.3663-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S129458AbRCBT3j>; Fri, 2 Mar 2001 14:29:39 -0500
+Received: from palrel1.hp.com ([156.153.255.242]:14086 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S129444AbRCBT32>;
+	Fri, 2 Mar 2001 14:29:28 -0500
+Date: Fri, 2 Mar 2001 11:32:35 -0800 (PST)
+From: Grant Grundler <grundler@cup.hp.com>
+Message-Id: <200103021932.LAA29704@milano.cup.hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH 2.4.0 parisc PCI support
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
+This patch contains the support parisc-linux needs in PCI generic.
+My patch is not as clean as I'd like - but it should work.
+Please send changes/feedback directly to me.
 
-Okay I now have to create TCQ for ATA becasue I am not going to lose again
-now that I am winning ;-)
+Code in parisc-linux CVS (based on 2.4.0) does boot on my OB800
+(133Mhz Pentium), C3000, and A500 with PCI-PCI bridge support
+working. I'm quite certain PCI-PCI bridge configuration (ie BIOS
+didn't configure the bridge) support was broken.  I'm not able to
+test on alpha though...alpha may want to see #ifdef __hppa__
+around some of the code I've changed.
 
-On Fri, 2 Mar 2001, Chris Mason wrote:
+I think the plan is to update the arch/parisc support in the near
+future so parisc builds actually work from linus' tree.
 
-> 
-> 
-> On Friday, March 02, 2001 12:39:01 PM -0600 Steve Lord <lord@sgi.com> wrote:
-> 
-> [ file_fsync syncs all dirty buffers on the FS ]
-> > 
-> > So it looks like fsync is going to cost more for bigger devices. Given the
-> > O_SYNC changes Stephen Tweedie did, couldnt fsync look more like this:
-> > 
-> >	 down(&inode->i_sem);
-> >         filemap_fdatasync(ip->i_mapping);
-> >         fsync_inode_buffers(ip);
-> >         filemap_fdatawait(ip->i_mapping);
-> >	 up(&inode->i_sem);
-> > 
-> 
-> reiserfs might need to trigger a commit on fsync, so the fs specific fsync
-> op needs to be called.  But, you should not need to call file_fsync in the
-> XFS fsync call (check out ext2's)
-> 
-> For why ide is beating scsi in this benchmark...make sure tagged queueing
-> is on (or increase the queue length?).  For the xlog.c test posted, I would
-> expect scsi to get faster than ide as the size of the write increases.
-> 
-> -chris
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+grant
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Grant Grundler
+parisc-linux {PCI|IOMMU|SMP} hacker
++1.408.447.7253
 
+
+Index: drivers/pci/Makefile
+===================================================================
+RCS file: /home/cvs/parisc/linux/drivers/pci/Makefile,v
+retrieving revision 1.1.1.4
+retrieving revision 1.6
+diff -u -p -r1.1.1.4 -r1.6
+--- Makefile	2001/01/09 16:57:56	1.1.1.4
++++ Makefile	2001/02/02 15:35:25	1.6
+@@ -21,6 +21,7 @@ obj-$(CONFIG_PROC_FS) += proc.o
+ #
+ obj-$(CONFIG_ALPHA) += setup-bus.o setup-irq.o
+ obj-$(CONFIG_ARM) += setup-bus.o setup-irq.o
++obj-$(CONFIG_PARISC64) += setup-bus.o
+ 
+ ifndef CONFIG_X86
+ obj-y += syscall.o
+Index: drivers/pci/pci.c
+===================================================================
+RCS file: /home/cvs/parisc/linux/drivers/pci/pci.c,v
+retrieving revision 1.1.1.6
+diff -u -p -r1.1.1.6 pci.c
+--- pci.c	2001/01/09 16:57:56	1.1.1.6
++++ pci.c	2001/03/02 18:44:59
+@@ -615,6 +615,7 @@ static void pci_read_bases(struct pci_de
+ 	}
+ }
+ 
++
+ void __init pci_read_bridge_bases(struct pci_bus *child)
+ {
+ 	struct pci_dev *dev = child->self;
+@@ -628,7 +629,7 @@ void __init pci_read_bridge_bases(struct
+ 	if (!dev)		/* It's a host bus, nothing to read */
+ 		return;
+ 
+-	for(i=0; i<3; i++)
++	for(i=0; i<4; i++)
+ 		child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
+ 
+ 	res = child->resource[0];
+@@ -644,12 +645,16 @@ void __init pci_read_bridge_bases(struct
+ 		res->end = limit + 0xfff;
+ 		res->name = child->name;
+ 	} else {
++		
+ 		/*
+-		 * Ugh. We don't know enough about this bridge. Just assume
+-		 * that it's entirely transparent.
++		 * Either this is not a PCI-PCI bridge or it's not
++		 * configured yet. Since this code only supports PCI-PCI
++		 * bridge, we better not be called for any other type.
++		 * Don't muck the resources since it will confuse the
++		 * platform specific code which does that.
+ 		 */
+-		printk("Unknown bridge resource %d: assuming transparent\n", 0);
+-		child->resource[0] = child->parent->resource[0];
++		printk("PCI : ignoring %s PCI-PCI bridge (I/O BASE not configured)\n", child->self->slot_name);
++		return;
+ 	}
+ 
+ 	res = child->resource[1];
+@@ -664,8 +669,8 @@ void __init pci_read_bridge_bases(struct
+ 		res->name = child->name;
+ 	} else {
+ 		/* See comment above. Same thing */
+-		printk("Unknown bridge resource %d: assuming transparent\n", 1);
+-		child->resource[1] = child->parent->resource[1];
++		printk("PCI : ignoring %s PCI-PCI bridge (MMIO base not configured)\n", child->self->slot_name);
++		return;
+ 	}
+ 
+ 	res = child->resource[2];
+@@ -690,11 +695,10 @@ void __init pci_read_bridge_bases(struct
+ 		res->end = limit + 0xfffff;
+ 		res->name = child->name;
+ 	} else {
+-		/* See comments above */
+-		printk("Unknown bridge resource %d: assuming transparent\n", 2);
+-		child->resource[2] = child->parent->resource[2];
++		/* Base > limit means the prefetchable mem is disabled.*/
+ 	}
+ }
++
+ 
+ static struct pci_bus * __init pci_alloc_bus(void)
+ {
+Index: drivers/pci/setup-bus.c
+===================================================================
+RCS file: /home/cvs/parisc/linux/drivers/pci/setup-bus.c,v
+retrieving revision 1.1.1.2
+retrieving revision 1.5
+diff -u -p -r1.1.1.2 -r1.5
+--- setup-bus.c	2001/01/09 16:57:56	1.1.1.2
++++ setup-bus.c	2001/02/22 01:11:47	1.5
+@@ -23,7 +23,7 @@
+ #include <linux/slab.h>
+ 
+ 
+-#define DEBUG_CONFIG 1
++#define DEBUG_CONFIG 0
+ #if DEBUG_CONFIG
+ # define DBGC(args)     printk args
+ #else
+@@ -32,6 +32,7 @@
+ 
+ #define ROUND_UP(x, a)		(((x) + (a) - 1) & ~((a) - 1))
+ 
++
+ static int __init
+ pbus_assign_resources_sorted(struct pci_bus *bus,
+ 			     struct pbus_set_ranges_data *ranges)
+@@ -46,7 +47,6 @@ pbus_assign_resources_sorted(struct pci_
+ 	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
+ 		struct pci_dev *dev = pci_dev_b(ln);
+ 		u16 class = dev->class >> 8;
+-		u16 cmd;
+ 
+ 		/* First, disable the device to avoid side
+ 		   effects of possibly overlapping I/O and
+@@ -57,12 +57,23 @@ pbus_assign_resources_sorted(struct pci_
+ 		if (class == PCI_CLASS_DISPLAY_VGA
+ 				|| class == PCI_CLASS_NOT_DEFINED_VGA)
+ 			found_vga = 1;
++#ifndef __hppa__
++/*
++** If I/O or MEM ranges are overlapping, that's a BIOS bug.
++** Fix it in quirks?
++**
++** Disabling *all* devices is bad. Console, root, etc get
++** disabled this way.
++** -ggg
++*/
+ 		else if (class >> 8 != PCI_BASE_CLASS_BRIDGE) {
++			u16 cmd;
+ 			pci_read_config_word(dev, PCI_COMMAND, &cmd);
+ 			cmd &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY
+ 						| PCI_COMMAND_MASTER);
+ 			pci_write_config_word(dev, PCI_COMMAND, cmd);
+ 		}
++#endif
+ 
+ 		/* Reserve some resources for CardBus.
+ 		   Are these values reasonable? */
+@@ -137,8 +148,10 @@ pci_setup_bridge(struct pci_bus *bus)
+ 	pcibios_fixup_pbus_ranges(bus, &ranges);
+ 
+ 	DBGC(("PCI: Bus %d, bridge: %s\n", bus->number, bridge->name));
+-	DBGC(("  IO window: %04lx-%04lx\n", ranges.io_start, ranges.io_end));
+-	DBGC(("  MEM window: %08lx-%08lx\n", ranges.mem_start, ranges.mem_end));
++	DBGC(("  IO window : %04lx-%04lx\n", ranges.io_start, ranges.io_end));
++	DBGC(("  MEM window: %08lx-%08lx\n", ranges.mem_start,ranges.mem_end));
++	DBGC(("  Pref MEM  : %lx-%lx\n", bus->resource[2]->start,
++		bus->resource[2]->end));
+ 
+ 	/* Set up the top and bottom of the PCI I/O segment for this bus. */
+ 	pci_read_config_dword(bridge, PCI_IO_BASE, &l);
+@@ -161,17 +174,57 @@ pci_setup_bridge(struct pci_bus *bus)
+ 	pci_write_config_dword(bridge, PCI_MEMORY_BASE, l);
+ 
+ 	/* Set up PREF base/limit. */
+-	l = (bus->resource[2]->start >> 16) & 0xfff0;
+-	l |= bus->resource[2]->end & 0xfff00000;
++	if (bus->resource[2]->start == bus->resource[2]->end) {
++		/*
++		** 5.3.2 Prefetchable Memory Base and Limit Address Registers
++		**     (From DEC 21154 Data sheet, page 67)
++		** "To turn off the prefetchable memory address range,
++		** write the prefetchable memory base address register
++		** with a value greater than that of the prefetchable
++		** memory limit address register...."
++		**
++		** We can't otherwise disable Prefetchable mem window
++		** since the PCI_COMMAND_MEMORY bit is shared with
++		** non-prefetchable MEM window register.
++		*/
++		l = 0x0000ffff;
++	} else {
++		l = (bus->resource[2]->start >> 16) & 0xfff0;
++		l |= bus->resource[2]->end & 0xfff00000;
++	}
+ 	pci_write_config_dword(bridge, PCI_PREF_MEMORY_BASE, l);
+ 
++#ifdef __hppa__
++/* XXX FIXME
++** PCI_BRIDGE_CONTROL and PCI_COMMAND programming need to be revisited
++** to support FBB.  Make all this crud "configurable" by the arch specific
++** (ie "PCI BIOS") support and the ifdef __hppa__ crap can go away then.
++*/
++	/*
++	** ISA stuff confuses PDC PAT configuration.
++	** VGA will probably crash the system at the moment.
++	** (Fortunately, only _A_ dares install VGA in a parisc box :^)
++	** - ggg
++	*/
++	l = PCI_BRIDGE_CTL_PARITY | PCI_BRIDGE_CTL_SERR;
++#else
+ 	/* Check if we have VGA behind the bridge.
+ 	   Enable ISA in either case. */
+ 	l = (bus->resource[0]->flags & IORESOURCE_BUS_HAS_VGA) ? 0x0c : 0x04;
++#endif
+ 	pci_write_config_word(bridge, PCI_BRIDGE_CONTROL, l);
++
++
++	pci_write_config_dword(bridge, PCI_COMMAND, 0xffff0007
++#ifdef __hppa__
++			/* servers definitely want SERR/PERR enabled. */
++			| PCI_COMMAND_SERR | PCI_COMMAND_PARITY
++#endif
++		);
+ }
+ 
+-static void __init
++
++void __init
+ pbus_assign_resources(struct pci_bus *bus, struct pbus_set_ranges_data *ranges)
+ {
+ 	struct list_head *ln;
+@@ -183,24 +236,16 @@ pbus_assign_resources(struct pci_bus *bu
+ 		ranges->found_vga = 1;
+ 		/* Propogate presence of the VGA to upstream bridges */
+ 		for (b = bus; b->parent; b = b->parent) {
+-#if 0
+-			/* ? Do we actually need to enable PF memory? */
+-			b->resource[2]->start = 0;
+-#endif
+ 			b->resource[0]->flags |= IORESOURCE_BUS_HAS_VGA;
+ 		}
+ 	}
++
+ 	for (ln=bus->children.next; ln != &bus->children; ln=ln->next) {
+ 		struct pci_bus *b = pci_bus_b(ln);
+ 
+-		b->resource[0]->start = ranges->io_start = ranges->io_end;
+-		b->resource[1]->start = ranges->mem_start = ranges->mem_end;
+-
++		ranges->io_start = ranges->io_end;
++		ranges->mem_start = ranges->mem_end;
+ 		pbus_assign_resources(b, ranges);
+-
+-		b->resource[0]->end = ranges->io_end - 1;
+-		b->resource[1]->end = ranges->mem_end - 1;
+-
+ 		pci_setup_bridge(b);
+ 	}
+ }
+Index: drivers/pci/setup-res.c
+===================================================================
+RCS file: /home/cvs/parisc/linux/drivers/pci/setup-res.c,v
+retrieving revision 1.1.1.3
+retrieving revision 1.7
+diff -u -p -r1.1.1.3 -r1.7
+--- setup-res.c	2001/01/09 16:57:56	1.1.1.3
++++ setup-res.c	2001/02/22 01:11:47	1.7
+@@ -14,6 +14,8 @@
+ /*
+  * Nov 2000, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+  *	     Resource sorting
++ * Feb 2001, Grant Grundler <gurndler@puffin.external.hp.com>
++ *           Fix PCI-PCI bridge support and add __hppa__ support
+  */
+ 
+ #include <linux/init.h>
+@@ -25,7 +27,7 @@
+ #include <linux/slab.h>
+ 
+ 
+-#define DEBUG_CONFIG 1
++#define DEBUG_CONFIG 0
+ #if DEBUG_CONFIG
+ # define DBGC(args)     printk args
+ #else
+@@ -115,7 +117,7 @@ pci_assign_resource(struct pci_dev *dev,
+ 		 * window (it will just not perform as well).
+ 		 */
+ 		if (!(res->flags & IORESOURCE_PREFETCH) || pci_assign_bus_resource(bus, dev, res, size, min, 0, i) < 0) {
+-			printk(KERN_ERR "PCI: Failed to allocate resource %d for %s\n", i, dev->name);
++			printk(KERN_ERR "PCI: Failed to allocate resource %d for %s\n", i, dev->slot_name);
+ 			return -EBUSY;
+ 		}
+ 	}
+@@ -138,11 +140,13 @@ pdev_sort_resources(struct pci_dev *dev,
+ 		struct resource_list *list, *tmp;
+ 		unsigned long r_size;
+ 
++#ifndef __hppa__
+ 		/* PCI-PCI bridges may have I/O ports or
+ 		   memory on the primary bus */
+ 		if (dev->class >> 8 == PCI_CLASS_BRIDGE_PCI &&
+ 						i >= PCI_BRIDGE_RESOURCES)
+ 			continue;
++#endif
+ 
+ 		r = &dev->resource[i];
+ 		r_size = r->end - r->start;

@@ -1,85 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267993AbRGZOhu>; Thu, 26 Jul 2001 10:37:50 -0400
+	id <S267995AbRGZOm7>; Thu, 26 Jul 2001 10:42:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268000AbRGZOhk>; Thu, 26 Jul 2001 10:37:40 -0400
-Received: from spring.webconquest.com ([66.33.48.187]:4113 "HELO
-	mail.webconquest.com") by vger.kernel.org with SMTP
-	id <S267993AbRGZOhY>; Thu, 26 Jul 2001 10:37:24 -0400
-Date: Thu, 26 Jul 2001 10:37:21 -0400 (EDT)
-From: <sentry21@cdslash.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Weird ext2fs immortal directory bug
-Message-ID: <Pine.LNX.4.30.0107261028000.18300-100000@spring.webconquest.com>
+	id <S267999AbRGZOmk>; Thu, 26 Jul 2001 10:42:40 -0400
+Received: from sesys.exodata.se ([193.44.92.66]:961 "EHLO sesys.se.transtec.de")
+	by vger.kernel.org with ESMTP id <S267995AbRGZOm3>;
+	Thu, 26 Jul 2001 10:42:29 -0400
+From: Roland Fehrenbacher <rfehrenb@transtec.de>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15200.7444.971399.948422@gargle.gargle.HOWL>
+Date: Thu, 26 Jul 2001 15:37:24 +0200
+Subject: Re: qlogicfc driver
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-A long long time ago, I can still remember... My computer hosed itself
-(power out as I recall), and then when it was coming back up and running
-e2fsck, the power went out again - perhaps not the exact situation, but
-suffice to say, init ended up running e2fsck on my drive, and filling
-/lost+found/ with lots of garbage, most of which I needed.
+    Roland> While the controller itself sees all the 3 drives when booting up,
+    Roland> under Linux I am only able to see the LUN 0 drives.
 
-I managed to easily clean it out, with one exception. And a friend
-recently suggested posting it to this list. Can anyone here
-explain what on earth is going on, and how to get rid of it?
+    Roland> The command echo "scsi add-single-device 0 0 0 1" > /proc/scsi/scsi
+    Roland> makes the LUN 1 device appear, so it seems the problem is with the
+    Roland> SCSI scanning code.
 
-Incidentally, it's been around since a custom-compiled 2.3.x (where x > 40
-I believe), and has been impervious to my fixing ever since.
+In the meantime I found out that I need to identify the RAID controller as a
+sparse LUN device. This works fine as long as there is a host drive mapped to
+LUN 0. If there is no host drive mapped to LUN 0, we run into a bug of the SCSI
+scanning code: The variable *sparse_lun=1 never gets set and any other host
+drives at LUNs > 0 are not detected. This problem has already been discussed
+in a different context previously
+(http://groups.google.com/groups?q=scsi_scan.c&hl=en&safe=off&rnum=2&selm=F888C30C3021D411B9DA00B0D0209BE8FAB0EB%40cvo-exchange.roguewave.com).
 
-Also, I'm not subscribed, so please, any replies CC'ed to
-dan@cdslash.net, I'd appreciate it.
+The following patch fixes the problem, and I can't see any side effects. Please
+review the patch, and if approved, include it in the kernel.
 
-Here's the problem(s) (or at least, the symptoms):
+Cheers,
 
-sentry21@Petra:1:/lost+found$ ls -l
-total 0
-lr----S---    1 52       12337           0 Nov  1  2022 #3147 ->
+Roland
 
-sentry21@Petra:0:/lost+found$ file \#3147/
-#3147/: directory
-
-sentry21@Petra:0:/lost+found$ rm -rf \#3147/
-rm: cannot unlink `#3147': Permission denied
-
-sentry21@Petra:1:/lost+found$ sudo rm -rf \#3147/
-rm: cannot unlink `#3147': Operation not permitted
-
-sentry21@Petra:1:/lost+found$ sudo chown sentry21.sentry21 \#3147/
-chown: changing ownership of `#3147': Operation not permitted
-
-sentry21@Petra:1:/lost+found$ cd \#3147/
-
-sentry21@Petra:0:/lost+found/#3147$ ls
-#3147@
-
-sentry21@Petra:0:/lost+found/#3147$ cd \#3147/
-
-sentry21@Petra:0:/lost+found/#3147/#3147$ ls
-#3147@
-
-sentry21@Petra:0:/lost+found/#3147/#3147$ cd
-\#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/
-
-sentry21@Petra:0:/lost+found/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147$ ls
-#3147@
-
-sentry21@Petra:0:/lost+found/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147$ pwd
-/lost+found/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147
-
-sentry21@Petra:0:/lost+found/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147/#3147$ file \#3147/
-#3147/: directory
-
-
-Weird, ne? I -did- manage to make it -not rwxrwxrwx, suid, sgid, sticky,
-and every other bloody FS flag you can stick on a directory (and lots you
-can't), but it's still impervious to my sk|llz. It's not hurting anything,
-but cron whines about it every day.
-
-Thanks.
-
---Dan
-
+--- scsi_scan.c.orig    Mon Jul 23 09:24:53 2001
++++ scsi_scan.c Thu Jul 26 16:29:14 2001
+@@ -153,6 +153,8 @@
+        {"DELL", "PSEUDO DEVICE .",   "*", BLIST_SPARSELUN}, // Dell PV 530F
+        {"DELL", "PV530F",    "*", BLIST_SPARSELUN}, // Dell PV 530F
+        {"EMC", "SYMMETRIX", "*", BLIST_SPARSELUN},
++       {"CMD", "CRA-7280", "*", BLIST_SPARSELUN},   // CMD RAID Controller
++       {"Zzyzx", "RocketStor 500S", "*", BLIST_SPARSELUN}, // Zzyzx RocketStor Raid
+        {"SONY", "TSL",       "*", BLIST_FORCELUN},  // DDS3 & DDS4 autoloaders
+        {"DELL", "PERCRAID", "*", BLIST_FORCELUN},
+        {"HP", "NetRAID-4M", "*", BLIST_FORCELUN},
+@@ -565,20 +567,26 @@
+        }
+ 
+        /*
+-        * Check the peripheral qualifier field - this tells us whether LUNS
+-        * are supported here or not.
++        * Check for SPARSELUN before checking the peripheral qualifier,
++        * so sparse lun devices are completely scanned.
+         */
+-       if ((scsi_result[0] >> 5) == 3) {
+-               scsi_release_request(SRpnt);
+-               return 0;       /* assume no peripheral if any sort of error */
+-       }
+ 
+        /*
+         * Get any flags for this device.  
+         */
+        bflags = get_device_flags (scsi_result);
+ 
+-
++       if (bflags & BLIST_SPARSELUN) {
++         *sparse_lun = 1;
++       }
++       /*
++        * Check the peripheral qualifier field - this tells us whether LUNS
++        * are supported here or not.
++        */
++       if ((scsi_result[0] >> 5) == 3) {
++               scsi_release_request(SRpnt);
++               return 0;       /* assume no peripheral if any sort of error */
++       }
+         /*   The Toshiba ROM was "gender-changed" here as an inline hack.
+              This is now much more generic.
+              This is a mess: What we really want is to leave the scsi_result

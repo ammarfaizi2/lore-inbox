@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbTABPsw>; Thu, 2 Jan 2003 10:48:52 -0500
+	id <S262296AbTABPp1>; Thu, 2 Jan 2003 10:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbTABPsw>; Thu, 2 Jan 2003 10:48:52 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:45507 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262258AbTABPsv>;
-	Thu, 2 Jan 2003 10:48:51 -0500
-Date: Thu, 2 Jan 2003 16:57:19 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200301021557.QAA06497@harpo.it.uu.se>
-To: rusty@rustcorp.com.au
-Subject: [PATCH] 2.5.54 kill module.h compiler warnings
-Cc: linux-kernel@vger.kernel.org
+	id <S262258AbTABPp1>; Thu, 2 Jan 2003 10:45:27 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:39110 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262296AbTABPpB>;
+	Thu, 2 Jan 2003 10:45:01 -0500
+Date: Thu, 2 Jan 2003 07:50:31 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.54
+In-Reply-To: <20030102103422.GB24116@sasa.home>
+Message-ID: <Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty,
+On Thu, 2 Jan 2003, SZALAY Attila wrote:
 
-Compiling kernel 2.5.54 with CONFIG_MODULES=n results in
-tons and tons of the following warnings:
+| I have a linking problem with 2.5.54 (and 2.5.53 too)
+|
+| drivers/built-in.o: In function `kd_nosound':
+| drivers/built-in.o(.text+0x37923): undefined reference to 	nput_event'
+| drivers/built-in.o(.text+0x3793c): undefined reference to 	nput_event'
+| drivers/built-in.o: In function `kd_mksound':
+| drivers/built-in.o(.text+0x379e7): undefined reference to 	nput_event'
+| drivers/built-in.o: In function `kbd_bh':
+| drivers/built-in.o(.text+0x385a2): undefined reference to 	nput_event'
+| drivers/built-in.o(.text+0x385b0): undefined reference to 	nput_event'
+| drivers/built-in.o(.text+0x385c1): more undefined references to 	nput_event' follow
+| drivers/built-in.o: In function `kbd_connect':
+| drivers/built-in.o(.text+0x389e3): undefined reference to 	nput_open_device'
+| drivers/built-in.o: In function `kbd_disconnect':
+| drivers/built-in.o(.text+0x389ff): undefined reference to 	nput_close_device'
+| drivers/built-in.o: In function `kbd_init':
+| drivers/built-in.o(.init.text+0x2ae1): undefined reference to 	nput_register_handler'
+| make[1]: *** [vmlinux] Error 1
 
-include/linux/module.h:317: warning: statement with no effect
-include/linux/module.h:353: warning: statement with no effect
+Yes, unfortunately this is a well-known problem.
+See kernel.bugzilla.org # 126 and # 164.
 
-patch-2.5.54 changed *MOD_INC_USE_COUNT from macros to
-__deprecated functions, but also dropped the (void) casts
-in front of the try_module_get() calls. Without modules,
-try_module_get() is the constant 1, hence the warnings.
+You need to have CONFIG_INPUT=y, not =m.
+Alternatively you could have CONFIG_VT=n if that
+would work for you (not likely).
 
-The patch below silences the warnings by adding back the
-missing (void) casts. Works for me.
+| CONFIG_INPUT=m
+| CONFIG_VT=y
+| CONFIG_VT_CONSOLE=y
 
-/Mikael
 
---- linux-2.5.54/include/linux/module.h.~1~	2003-01-02 14:27:56.000000000 +0100
-+++ linux-2.5.54/include/linux/module.h	2003-01-02 16:39:49.000000000 +0100
-@@ -314,7 +314,7 @@
- 	/*
- 	 * Yes, we ignore the retval here, that's why it's deprecated.
- 	 */
--	try_module_get(module);
-+	(void)try_module_get(module);
- }
- 
- static inline void __deprecated __MOD_DEC_USE_COUNT(struct module *module)
-@@ -350,7 +350,7 @@
- 	local_inc(&module->ref[get_cpu()].count);
- 	put_cpu();
- #else
--	try_module_get(module);
-+	(void)try_module_get(module);
- #endif
- }
- #define MOD_INC_USE_COUNT \
+HTH.
+-- 
+~Randy
+

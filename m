@@ -1,31 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282187AbRLVT4j>; Sat, 22 Dec 2001 14:56:39 -0500
+	id <S282222AbRLVUXx>; Sat, 22 Dec 2001 15:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282190AbRLVT43>; Sat, 22 Dec 2001 14:56:29 -0500
-Received: from edinburgh.cisco.com ([144.254.112.76]:64134 "EHLO cisco.com")
-	by vger.kernel.org with ESMTP id <S282187AbRLVT4U>;
-	Sat, 22 Dec 2001 14:56:20 -0500
-Date: Sat, 22 Dec 2001 19:54:41 +0000
-From: Derek Fawcus <dfawcus@cisco.com>
-To: Timothy Covell <timothy.covell@ashavan.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in      Configure.help.
-Message-ID: <20011222195441.A5177@edinburgh.cisco.com>
-In-Reply-To: <E16Hh1v-0003FP-00@the-village.bc.nu> <200112221826.fBMIQfSr023992@svr3.applink.net>
+	id <S282271AbRLVUXn>; Sat, 22 Dec 2001 15:23:43 -0500
+Received: from pop.gmx.de ([213.165.64.20]:25452 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S282222AbRLVUXf>;
+	Sat, 22 Dec 2001 15:23:35 -0500
+Date: Sat, 22 Dec 2001 21:22:06 +0100
+From: Andreas Kinzler <akinzler@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: jdike@karaya.com
+Subject: Re: Injecting packets into the kernel
+X-Mailer: Andreas Kinzler's registered AK-Mail 3.11 [ger]
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200112221826.fBMIQfSr023992@svr3.applink.net>; from timothy.covell@ashavan.org on Sat, Dec 22, 2001 at 12:22:54PM -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011222202340Z282222-18284+6230@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 22, 2001 at 12:22:54PM -0600, Timothy Covell wrote:
-> 
-> Alas, the US government was not feeling _that_ brave yet, so they decided
-> on an slightly altered system of Imperial units.   
+>> However, for the kernel they are now LOCAL packets, which are not
+>> masq'ed. To make that work, they need to look "remote" (means:
+>> received by a device). Any ideas?
+> Use a TUN/TAP device (or ethertap on 2.2).
 
-You mean having the wrong number of fluid ounces in a pint was intentional?
+That is exactly what diald does, but the packets written to such a device have
+no effect, they do not seem to make their way through the kernel.
 
-DF

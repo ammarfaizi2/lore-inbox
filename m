@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318849AbSHLWPe>; Mon, 12 Aug 2002 18:15:34 -0400
+	id <S318851AbSHLWWJ>; Mon, 12 Aug 2002 18:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318850AbSHLWPe>; Mon, 12 Aug 2002 18:15:34 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:60567
-	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S318849AbSHLWPe>; Mon, 12 Aug 2002 18:15:34 -0400
-Date: Mon, 12 Aug 2002 15:15:55 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Greg Banks <gnb@alphalink.com.au>,
-       Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [patch] config language dep_* enhancements
-Message-ID: <20020812221555.GF20176@opus.bloom.county>
-References: <20020812214032.GD20176@opus.bloom.county> <Pine.LNX.4.44.0208122352440.28515-100000@serv>
-Mime-Version: 1.0
+	id <S318852AbSHLWWJ>; Mon, 12 Aug 2002 18:22:09 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:29690 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S318851AbSHLWWI>; Mon, 12 Aug 2002 18:22:08 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208122352440.28515-100000@serv>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15704.13792.150136.849896@wombat.chubb.wattle.id.au>
+Date: Tue, 13 Aug 2002 08:25:36 +1000
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Phil Auld <pauld@egenera.com>, viro@math.psu.edu,
+       marcelo@connectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19 revert block_llseek behavior to standard
+In-Reply-To: <266483518@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 12:13:51AM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 12 Aug 2002, Tom Rini wrote:
-> 
-> > > More examples of the cml1 limitations can be found in arch/ppc/config.in -
-> > > a single choice statement needs to be splitted into multiple choice
-> > > statements.
-> >
-> > Er, which are you referring to here?  All of the choice statements are
-> > done for clarity here. :)  Tho I was (and have been) pondering creating
-> > arch/ppc/platforms/Config-[468]xx.in, which would rather nicely move all
-> > of the options related to IBM 4xx processors to one file, Motorola 8xx
-> > to another, and general PPC's nicely.
-> 
-> There is still a bit of overlap. Roughly it's possible to sort the machine
-> types by cpu type, but IMO it's not the best solution. I think it would be
-> better to sort them by general machine type.
+>>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
 
-Er, 'general machine type' ?
+Christoph>   What's the behaviour of other unix
+Christoph> systems when seeking beyond the end of block devices? 
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+The seek succeeds; 
+
+On a disc-like device, attempts to write at that offset return -1 EFBIG;
+the first attempt to read at that offset returns 0; subequent ones
+return -1 and ENXIO.
+
+After the seek, lseek(fd, 0, SEEK_CURRENT) returns the (after end of
+file) current offset.
+
+At least for the ones I've been able to test on (UNIXWare, Solaris).
+
+
+--
+Dr Peter Chubb				    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.

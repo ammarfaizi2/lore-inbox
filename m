@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132222AbRAPRBA>; Tue, 16 Jan 2001 12:01:00 -0500
+	id <S129383AbRAPRFA>; Tue, 16 Jan 2001 12:05:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132023AbRAPRAk>; Tue, 16 Jan 2001 12:00:40 -0500
-Received: from mail2.megatrends.com ([155.229.80.11]:24081 "EHLO
-	mail2.megatrends.com") by vger.kernel.org with ESMTP
-	id <S131652AbRAPRAf>; Tue, 16 Jan 2001 12:00:35 -0500
-Message-ID: <1355693A51C0D211B55A00105ACCFE64E95194@ATL_MS1>
-From: Venkatesh Ramamurthy <Venkateshr@ami.com>
-To: "'Eddie Williams'" <Eddie.Williams@steeleye.com>,
+	id <S129831AbRAPREv>; Tue, 16 Jan 2001 12:04:51 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:45061 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S129383AbRAPREj>;
+	Tue, 16 Jan 2001 12:04:39 -0500
+Date: Tue, 16 Jan 2001 18:04:02 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+To: linux-kernel@vger.kernel.org
+Cc: David Woodhouse <dwmw2@infradead.org>,
         Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: "'arjan@fenrus.demon.nl'" <arjan@fenrus.demon.nl>,
-        linux-kernel@vger.kernel.org,
-        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: RE: Linux not adhering to BIOS Drive boot order? 
-Date: Tue, 16 Jan 2001 11:56:13 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain
+Message-id: <3A647F02.CB628D13@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Woodhouse wrote :
+> Venkateshr@ami.com said:
+> > we need some kind of signature being written in the drive, which the 
+> > kernel will use for determining the boot drive and later re-order 
+> > drives, if required.  
+>      
+> > Is someone handling this already? 
+>     
+> It should be possible to read the BIOS setting for this option and
+> behave accordingly. Please give full details of how to read and interpret
+> the information stored in the CMOS for all versions of AMI BIOS, and I'll
+> take a look at this.
 
-> Why is this a SCSI ML problem?  The problem is that the OS can't figure
-> out 
-> where to mount root from.  Sounds like an OS problem.
-> I think the file system label is the leading candidate to solve this.  One
-> 
-> really does not care if the root disk is called /dev/sda or /dev/fred.
-> All 
-> one cares is that you can boot your system and the right disks are
-> mounted.  
-> What I have seen so far with the fs label this either does solve this
-> today or 
-> it can solve this.  I notice today on some systems the entries in
-> /etc/fstab 
-> already are "deviceless" in that it does not have the disk/partition but 
-> simply the disk label.
-> 
-> Can lilo use a label for the root disk also?  I have not looked into that
-> yet. 
->  If it does not can it?  When I noticed the use of the label in /etc/fstab
-> my 
-> first thought was "alright, someone is solving this problem."  I have not 
-> taken the time - not a burning issue with me right now - to see if this is
-> all 
-> done yet though.
-> 
-> Keep in mind that the example where /dev/sda is where root lies is that
-> "easy" 
-> case.  The hard case is what happens if someone installs on /dev/sdg.  Now
-> 
-> they boot up with a disk array turned off.  Is the mid-layer going to
-> figure 
-> out that what is now /dev/sda suppose to be /dev/sdg?  Or they install to 
-> /dev/sdb and /dev/sda goes bad so they pull it out?
-	[Venkatesh Ramamurthy]   If we can truly go for label based mouting
-and lilo'ing this would solve the problem. Anybody doing this?
+To mount the right partitions , refer to the by the volume label or
+UUID.
+( read the mount and fstab man pages for more info )
+
+This work after the root-fs is already mounted.
+
+Currently ( AFAIK ) the root-fs can be specified only as a major:minor
+pair ( and maybe also as a "/dev/hdxx" string )
+
+Once I wrote a patch that allows specifying the root-fs by
+UUID or volume label. It is available at
+http://linux-patches.rock-projects.com/v2.2-f/uuid.html
+
+It is for 2.2.x kernel , since nobody seems to be interested in it.
 
 
+As for the "device nodes are assigned to disk devices almost randomly"
+problem : I complained about this years ago , but nothing happened.
 
+If someone knows a way to reliably find a certain partition ,
+regardless of the (non)existence and position of other partitions
+and disks in the system , short of scanning the contents of all
+available
+partitions , please tell me.
+
+
+Party on !
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

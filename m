@@ -1,31 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276361AbRJURTt>; Sun, 21 Oct 2001 13:19:49 -0400
+	id <S276369AbRJURZJ>; Sun, 21 Oct 2001 13:25:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276369AbRJURTj>; Sun, 21 Oct 2001 13:19:39 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39953 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276361AbRJURT0>; Sun, 21 Oct 2001 13:19:26 -0400
-Subject: Re: The new X-Kernel !
-To: jsimmons@transvirtual.com (James Simmons)
-Date: Sun, 21 Oct 2001 18:26:10 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux@sneulv.dk (Allan Sandfeld),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10110211009260.13079-100000@transvirtual.com> from "James Simmons" at Oct 21, 2001 10:18:15 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276384AbRJURY7>; Sun, 21 Oct 2001 13:24:59 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:14880 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S276397AbRJURYk>; Sun, 21 Oct 2001 13:24:40 -0400
+Date: Sun, 21 Oct 2001 20:25:02 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10ac10, cdrecord 1.9-6, Mitsumi CR-4804TE: lock up burning too large image
+Message-ID: <20011021202502.D1598@niksula.cs.hut.fi>
+In-Reply-To: <200110211210.f9LCAIl08971@burner.fokus.gmd.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vMMU-0007Ot-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110211210.f9LCAIl08971@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Sun, Oct 21, 2001 at 02:10:18PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> at the problems GPM and X have had before. This problem gets more complex
-> as more pieces of software that play around with mice and keyboards 
-> emerges besides X or even while running in X. 
+On Sun, Oct 21, 2001 at 02:10:18PM +0200, you [Joerg Schilling] claimed:
+> 
+> >Ok. I'll compile the newest from source.
+> 
+> >But do you think the too-large-image lock up might be cured with a newer
+> >cdrecord, or should is the kernel the prime suspect?
+> 
+> It least recent libscg versions include a workaround for an incorrect
+> Linux kernel return for a timed out SCSI command via ATAPI. So if the kernel 
+> does return at all, cdrecord will know why.
 
-What is this non-X thing 8)
+Bummer. I'm not able to reproduce it with
 
-Seriously however most of this can be done well in userspace. The fact that
-X + gpm years ago got it wrong doesn't disprove the theory. 
+progress -c 1M < /dev/zero | cdrecord dev=0,1,0 speed=4 -dummy -
+(essentially same as 'cdrecord dev=0,1,0 speed=4 -dummy - < /dev/zero')
+
+(The line I originally used was "cdrecord dev=0,1,0 speed=4 -" and the input
+was from mkisofs.)
+
+cdrecord-1.9-6
+
+  686.00 MB; elapsed 1172 secs; 0.59 MB/s...
+  cdrecord: Input/output error. write_g1: scsi sendcmd: retryable error
+  CDB:  2A 00 00 05 53 E1 00 00 1F 00
+  status: 0x0 (GOOD STATUS)
+  write track data: error after 715065344 bytes
+  Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
+
+and cdrecord 1.11a08
+
+  686.00 MB; elapsed 1172 secs; 0.59 MB/s...
+  ./cdrecord: Input/output error. write_g1: scsi sendcmd: no error
+  CDB:  2A 00 00 05 53 E1 00 00 1F 00
+  status: 0x2 (CHECK CONDITION)
+  Sense Bytes: 71 00 03 00 00 00 00 0A 00 00 00 00 0C 00 00 00
+  Sense Key: 0x3 Medium Error, deferred error, Segment 0
+  Sense Code: 0x0C Qual 0x00 (write error) Fru 0x0
+  Sense flags: Blk 0 (not valid)
+  cmd finished after 5.706s timeout 40s
+  write track data: error after 715065344 bytes
+  Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
+
+(nothing in dmesg.)
+
+Perhaps it really takes real write to trigger this or the cd media in
+question was somehow flawed. I try again, when I have more time.
+
+
+-- v --
+
+v@iki.fi

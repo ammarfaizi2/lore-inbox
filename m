@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261783AbSJNBAZ>; Sun, 13 Oct 2002 21:00:25 -0400
+	id <S261785AbSJNBDo>; Sun, 13 Oct 2002 21:03:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261785AbSJNBAZ>; Sun, 13 Oct 2002 21:00:25 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:874 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261783AbSJNBAY>;
-	Sun, 13 Oct 2002 21:00:24 -0400
-Message-ID: <3DAA1899.1030909@mvista.com>
-Date: Sun, 13 Oct 2002 20:06:33 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
+	id <S261787AbSJNBDo>; Sun, 13 Oct 2002 21:03:44 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:23467 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261785AbSJNBDn>;
+	Sun, 13 Oct 2002 21:03:43 -0400
+Date: Sun, 13 Oct 2002 21:09:34 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rob Landley <landley@trommello.org>
+cc: Nick LeRoy <nleroy@cs.wisc.edu>, Hans Reiser <reiser@namesys.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
+ 3.0 - (NUMA)) (fwd)
+In-Reply-To: <Pine.GSO.4.21.0210132106460.9247-100000@steklov.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0210132107020.9247-100000@steklov.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] IPMI driver for Linux, version 6
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yet one more update, mostly fixes for stylistic things that Randy Dunlap 
-pointed out, and a bug fix that lets the KCS state machine get out of 
-the "hosed" state on the next message (buggy hardware can sometimes be 
-useful :-).  As usual, on my home page at  http://home.attbi.com/~minyard.
 
--Corey
 
-PS - In case you don't know, IPMI is a standard for system management, 
-it provides ways to detect the managed devices in the system and sensors 
-attached to them.  You can get more information at 
-http://www.intel.com/design/servers/ipmi/spec.htm
+> Logically, the second /var mount should be "mount --move /initrd/var /var", 
+> followed by "umount /initrd" to free up the initrd memory.  Right now it's 
+> doing "mount -n --bind /initrd/var /var", because /etc is a symlink into /var 
+> (has to remain editable, you see), and this way the information about which 
+> partition var actually is can be kept in one place.  (This is an 
+> implementation detail: I could have used volume labels instead.)
+> 
+> The point is, right now I can't free the initial ramdisk because it has an 
+> active mount point under it..
+
+umount -l
+mount --move
 
 

@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263998AbUECVHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264006AbUECVJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263998AbUECVHY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264006AbUECVHT
+	id S264006AbUECVJu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264019AbUECVJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:07:19 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:12293 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264000AbUECVHN (ORCPT
+	Mon, 3 May 2004 17:09:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42150 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264006AbUECVJp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:07:13 -0400
-Date: Mon, 3 May 2004 14:04:59 -0700
-From: Paul Jackson <pj@sgi.com>
-To: John Reiser <jreiser@BitWagon.com>
-Cc: akpm@osdl.org, mike@navi.cx, pageexec@freemail.hu,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       ashok.raj@intel.com
-Subject: Re: arch/ia64/ia32/binfmt_elf32.c: elf32_map() broken ia64 build
- _and_ boot
-Message-Id: <20040503140459.10b9d3eb.pj@sgi.com>
-In-Reply-To: <4096526C.4060503@BitWagon.com>
-References: <20040426185633.7969ca0d.pj@sgi.com>
-	<20040501013304.32a750d3.pj@sgi.com>
-	<4096526C.4060503@BitWagon.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 3 May 2004 17:09:45 -0400
+Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, davidm@hpl.hp.com, bunk@fs.tum.de,
+       eyal@eyal.emu.id.au, linux-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040503140251.274e1239.akpm@osdl.org>
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+	 <408F9BD8.8000203@eyal.emu.id.au> <20040501201342.GL2541@fs.tum.de>
+	 <Pine.LNX.4.58.0405011536300.18014@ppc970.osdl.org>
+	 <20040501161035.67205a1f.akpm@osdl.org>
+	 <Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org>
+	 <20040501175134.243b389c.akpm@osdl.org>
+	 <16534.35355.671554.321611@napali.hpl.hp.com>
+	 <Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org>
+	 <20040503140251.274e1239.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ie0qgokG6BLsKCSu/Zmq"
+Organization: Red Hat UK
+Message-Id: <1083618364.3843.10.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 03 May 2004 23:06:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This indicates a problem with the very first execve() and/or its shared
-> libraries.  It is likely that printk() of the arguments and results
-> to elf_map() and load_elf_interp(), both in fs/binfmt_elf.c,
-> will aid in finding the problem.  This I would do, if I had hardware.
 
-Since I see Andrew dropped the patch for the moment, I'm thinking that
-the ball is back in you guys court.  If you end up with some patch to a
-well-known base (Linus rc or Andrew mm, say) that you'd like me to try
-out, let me know.  You might want to include the printk's of
-args/results that you describe above, right in the patch, so I can
-provide more rapid and useful feedback, should whatever be this
-execve/sharedlib problem still persist.
+--=-Ie0qgokG6BLsKCSu/Zmq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes - I have the hardware - but I must ration my time on this patch.
+On Mon, 2004-05-03 at 23:02, Andrew Morton wrote:
+> Linus Torvalds <torvalds@osdl.org> wrote:
+> >
+> >=20
+> >=20
+> > How about this patch?=20
+>=20
+> Seems sane.  For after 2.6.6 ;)
+>=20
+> > +static inline long open(const char * name, int mode, int flags)
+> > +{
+> > +	return sys_open((const char __user *) name, mode, flags);
+> > +}
+>=20
+> We may as well stick the get_fs()/set_fs() stuff in here as well - all
+> callers need to do it, after all.  After which it would best be uninlined=
+.
 
-Will this work for you?
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+if you're going to modify callers, why not make them use open_filp()
+instead of sys_open etc.
+
+
+--=-Ie0qgokG6BLsKCSu/Zmq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAlrQ8xULwo51rQBIRAuvrAJ9WjogM+HshdRht4Kcz0S493Vgx+QCfZ8Ja
+aRz1IxbpbZm5l3gOLpj3iio=
+=e+79
+-----END PGP SIGNATURE-----
+
+--=-Ie0qgokG6BLsKCSu/Zmq--
+

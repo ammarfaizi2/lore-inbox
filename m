@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbVCCSkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVCCSjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262516AbVCCSkY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 13:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVCCSkP
+	id S262521AbVCCSjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 13:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVCCRpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 13:40:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:37638 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262516AbVCCRIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 12:08:11 -0500
-Date: Thu, 3 Mar 2005 18:08:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303170808.GG4608@stusta.de>
-References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org> <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+	Thu, 3 Mar 2005 12:45:21 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:3048
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261389AbVCCRoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 12:44:09 -0500
+Date: Thu, 3 Mar 2005 09:43:37 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: nickpiggin@yahoo.com.au, paulus@samba.org, akpm@osdl.org, clameter@sgi.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       anton@samba.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+Message-Id: <20050303094337.186d63b2.davem@davemloft.net>
+In-Reply-To: <1109831428.5680.187.camel@gaston>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+	<20050302174507.7991af94.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+	<20050302185508.4cd2f618.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+	<20050302201425.2b994195.akpm@osdl.org>
+	<16934.39386.686708.768378@cargo.ozlabs.ibm.com>
+	<20050302213831.7e6449eb.davem@davemloft.net>
+	<1109829248.5679.178.camel@gaston>
+	<42274727.2070200@yahoo.com.au>
+	<1109831428.5680.187.camel@gaston>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 08:23:39AM -0800, Linus Torvalds wrote:
->...
-> But look at how to solve it. The _logical_ solution is to have a third
-> line of defense: we have the -mm trees (wild and wacky patches), and we
-> have my tree (hopefully not wacky any more), and it would be good to have
-> a third level tree (which I'm just not interested in, because that one
-> doesn't do any development any more) which only takes the "so totally not
-> wild that it's really boring" patches.
+On Thu, 03 Mar 2005 17:30:28 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+
+> On Fri, 2005-03-04 at 04:19 +1100, Nick Piggin wrote:
 > 
-> In fact, if somebody maintained that kind of tree, especially in BK, it 
-> would be trivial for me to just pull from it every once in a while (like 
-> ever _day_ if necessary). But for that to work, then that tree would have 
-> to be about so _obviously_ not wild patches that it's a no-brainer.
+> > You don't want to do that for all architectures, as I said earlier.
+> > eg. i386 can concurrently set the dirty bit with the MMU (which won't
+> > honour the lock).
+> > 
+> > So you then need an atomic lock, atomic pte operations, and atomic
+> > unlock where previously you had only the atomic pte operation. This is
+> > disastrous for performance.
 > 
-> So what's the problem with this approach? It would seem to make everybody
-> happy: it would reduce my load, it would give people the alternate "2.6.x
-> base kernel plus fixes only" parallell track, and it would _not_ have the 
-> testability issue (because I think a lot of people would be happy to test 
-> that tree, and if it was always based on the last 2.6.x release, there 
-> would be no issues.
->... 
->  - some very _technical_ and objective rules on patches. And they should 
->    limit the patches severely, so that people can never blame the sucker 
->    who does the job. For example, I would suggest that "size" be one hard 
->    technical rule. If the patch is more than 100 lines (with context) in
->    size, it's not trivial any more. Really. Two big screenfuls (or four, 
->    for people who still use the ISO-ANSI standard 80x24 vt100)
->...
+> Of course, but I was answering to David about sparc64 which uses
+> software TLB load :)
 
-This only attacks part of the problem.
+Right.
 
-Most regressions that annoy users aren't in some core system, they are 
-in drivers.
+The current situation on sparc64 is that the tlb miss handler is
+~10 cycles.
 
-What if $big_driver_update in 2.6.12 fixed a serious bug for some people 
-but broke the driver for many other people, and both reverting this 
-patch and fixing the driver for the people it's broken for exceeds such 
-size limits?
+Like I said, I can use this thing if it just increases access, without
+modifying the TLB miss handler at all.
 
-> 			Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Hmmm... let me think about this some more.

@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290460AbSAXXan>; Thu, 24 Jan 2002 18:30:43 -0500
+	id <S290260AbSAXXge>; Thu, 24 Jan 2002 18:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290461AbSAXXad>; Thu, 24 Jan 2002 18:30:33 -0500
-Received: from AMontpellier-201-1-1-52.abo.wanadoo.fr ([193.252.31.52]:27910
-	"EHLO awak") by vger.kernel.org with ESMTP id <S290460AbSAXXaO> convert rfc822-to-8bit;
-	Thu, 24 Jan 2002 18:30:14 -0500
-Subject: Re: RFC: booleans and the kernel
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: timothy.covell@ashavan.org
-Cc: Robert Love <rml@tech9.net>, Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200201242308.g0ON8HL06970@home.ashavan.org.>
-In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org>
-	<200201242246.g0OMkML06890@home.ashavan.org.>
-	<1011913193.810.26.camel@phantasy> 
-	<200201242308.g0ON8HL06970@home.ashavan.org.>
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S290463AbSAXXgY>; Thu, 24 Jan 2002 18:36:24 -0500
+Received: from mail.linpro.no ([213.203.57.2]:6160 "HELO linpro.no")
+	by vger.kernel.org with SMTP id <S290260AbSAXXgL> convert rfc822-to-8bit;
+	Thu, 24 Jan 2002 18:36:11 -0500
+To: linux-kernel@vger.kernel.org
+Subject: compile error -rmap12a and 2.4.18-pre7
+From: knobo@linpro.no
+Date: 25 Jan 2002 00:36:08 +0100
+Message-ID: <ujpadv3tj87.fsf@false.linpro.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 25 Jan 2002 00:27:45 +0100
-Message-Id: <1011914865.2636.16.camel@bip>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le sam 26-01-2002 à 00:09, Timothy Covell a écrit :
-> #include <stdio.h>
-> 
-> int main()
-> {
->         char x;
-> 
->         if ( x )
->         {
->                 printf ("\n We got here\n");
->         }
->         else
->         {
->                 // We never get here
->                 printf ("\n We never got here\n");
->         }
->         exit (0);
-> }
-> covell@xxxxxx ~>gcc -Wall foo.c
-> foo.c: In function `main':
-> foo.c:17: warning: implicit declaration of function `exit'
+Hi
 
-I'm lost. What do you want to prove ? (Al Viro would say you just want
-to show you don't know C ;)
-And why do you think you never get there ?
+I applied first rmap12a ant then 2.4.18-pre7
 
-	Xav
+then I removed line 502 (i think) "nr_pages--" from
+linux/mm/vmscan.c. (thanx to mjc)
 
+Then I did  make dep clean bzImage. 
+
+then I got some warnings:
+In file included from /usr/src/linux/include/linux/modversions.h:144,
+                 from /usr/src/linux/include/linux/module.h:21,
+                 from dec_and_lock.c:1:
+/usr/src/linux/include/linux/modules/ksyms.ver:249: warning: `__ver_waitfor_one_page' redefined
+/usr/src/linux/include/linux/modules/buffer.ver:13: warning: this is the location of the previous definition
+
+And finally:
+
+fs/fs.o(__ksymtab+0x38): multiple definition of `__ksymtab_waitfor_one_page'
+kernel/kernel.o(__ksymtab+0x548): first defined here
+fs/fs.o(.kstrtab+0xfb): multiple definition of `__kstrtab_waitfor_one_page'
+kernel/kernel.o(.kstrtab+0x10fa): first defined here
+make: *** [vmlinux] Error 1
+
+
+
+Then I turned off loadable module support, and the kernel compiled ok.
+
+
+-- 
+Knut Olav Bøhmer
+         _   _
+       / /  (_)__  __ ____  __
+      / /__/ / _ \/ // /\ \/ /  ... The choice of a
+     /____/_/_//_/\.,_/ /_/\.\         GNU generation
+
+export PAGER="od -x |less"

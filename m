@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSHAVRX>; Thu, 1 Aug 2002 17:17:23 -0400
+	id <S317189AbSHAV1d>; Thu, 1 Aug 2002 17:27:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317115AbSHAVRX>; Thu, 1 Aug 2002 17:17:23 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50417 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317102AbSHAVRW>; Thu, 1 Aug 2002 17:17:22 -0400
-Subject: Re: [PATCH] solved APM bug with -rc5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Willy TARREAU <willy@w.ods.org>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020801211732.GA429@pcw.home.local>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
-	<20020801121205.GA168@pcw.home.local> <20020801133202.GA200@pcw.home.local>
-	<1028213732.14865.50.camel@irongate.swansea.linux.org.uk>
-	<20020801135623.GA19879@alpha.home.local>
-	<20020801152459.GA19989@alpha.home.local>
-	<1028220826.14865.69.camel@irongate.swansea.linux.org.uk>
-	<20020801203520.GA244@pcw.home.local>
-	<200208012052.g71KqG311998@vindaloo.ras.ucalgary.ca>
-	<200208012054.g71Ks8t12065@vindaloo.ras.ucalgary.ca> 
-	<20020801211732.GA429@pcw.home.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 23:37:36 +0100
-Message-Id: <1028241456.14865.103.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317191AbSHAV1d>; Thu, 1 Aug 2002 17:27:33 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:55564 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317189AbSHAV1c>; Thu, 1 Aug 2002 17:27:32 -0400
+Message-ID: <3D49A75D.801@evision.ag>
+Date: Thu, 01 Aug 2002 23:25:49 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Thunder from the hill <thunder@ngforever.de>,
+       Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
+       Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+References: <Pine.GSO.4.21.0208011700580.12627-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 22:17, Willy TARREAU wrote:
-> On Thu, Aug 01, 2002 at 02:54:08PM -0600, Richard Gooch wrote:
-> > Richard Gooch writes:
-> > > Hm. I bet you didn't try this with CONFIG_PREEMPT=y, right? IIRC, the
-> > > wonderful world of preemption means that you can get rescheduled on
-> > > another CPU without warning, unless you take a lock or explicitely
-> > > disable preemption.
-> > 
-> > Apologies. I forgot that CONFIG_PREEMPT is a 2.5.x feature, and
-> > doesn't exist on 2.4 (thankfully).
+Uz.ytkownik Alexander Viro napisa?:
 > 
-> Never mind, your comment is interesting anyway because it shows that
-> preemption patch for 2.4 needs to adapt to such updates.
+> On Thu, 1 Aug 2002, Thunder from the hill wrote:
+> 
+> 
+>>Hi,
+>>
+>>On Thu, 1 Aug 2002, Alexander Viro wrote:
+>>
+>>>More powerful?
+>>
+>>Well, compared to ASCII: it's unlikely that you meet a j letter or a \033 
+>>in the size string.
+> 
+> 
+> Huh???  That's a new meaning of "powerful"...  If you mean "more compact"
+> I would certainly agree (base-10 instead of base-256), but if _that_ becomes
+> a problem with partition tables...  IIRC, OP proposed 4096 bytes for table.
+> 
+> Again, if somebody really can't check if array of characters is a valid
+> representation of integer or can't implement conversion of known valid
+> one to its value...  What the devil are you doing here?
 
-Pre-emption for 2.4 needs to do a lot of work on raid and even athlon
-compiles to fix the FPU stuff, let alone corner cases
+Ahh. we are at "devil" arguemnt level... So I will ease myself:
+Why the hell don't you rewrite the whole kernel for example in LISP if
+you love string processing that much?
+I know I know GCC people tryed this in C for a compiler...
 

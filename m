@@ -1,106 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265601AbTFNBsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 21:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265602AbTFNBsZ
+	id S265603AbTFNDPU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 23:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265605AbTFNDPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 21:48:25 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29124
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265601AbTFNBsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 21:48:23 -0400
-Date: Sat, 14 Jun 2003 04:02:52 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ross Biro <rossb@google.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.21 released
-Message-ID: <20030614020252.GA1571@dualathlon.random>
-References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613211405.16faa9f6.us15@os.inf.tu-dresden.de> <3EEA24E0.7030801@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Jun 2003 23:15:20 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:40196 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S265603AbTFNDPO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 23:15:14 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Vojtech Pavlik <vojtech@ucw.cz>
+Subject: Re: 2.4.21-rc7 hang on boot after spurious 8259A interrupt: IRQ15.
+Date: Sat, 14 Jun 2003 11:24:09 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200306130958.39707.mflt1@micrologica.com.hk> <20030613214832.A6366@ucw.cz>
+In-Reply-To: <20030613214832.A6366@ucw.cz>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3EEA24E0.7030801@google.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-Id: <200306141124.09882.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 12:24:16PM -0700, Ross Biro wrote:
-> Here's a minor patch against 2.4.21 that should help reduce out of 
-> memory problems on high ram systems with no swap space.  It's only been 
-> minimally tested in 2.4.21, but I've been running something similiar on 
-> 2.4.18 for a bit now.
+On Saturday 14 June 2003 03:48, Vojtech Pavlik wrote:
+> On Fri, Jun 13, 2003 at 11:36:36AM +0800, Michael Frank wrote:
+> > Doing swsusp testing in endless loop. On a P4/2.4G (ACPI=off)
+> > on 192nd boot:
+> >
+> > spurious 8259A interrupt: IRQ15.
+> > Calibrating delay loop...
+>
+> It looks like the IDE code didn't put the controller into sleep
+> properly.
+>
 
-this is the wrong approch IMHO, you shouldn't put those into the LRU
-list in the first place if there's no swap, that is the totally wasteful
-thing in the first place ;)
+Please don't get confused by swsusp being tested ;)
 
-see my vm_lru_anon scalability patch in my tree, that patch improves
-scalability of some workload in a big smp up to hundred percent and it
-does exactly that. 
+The system executes a regular boot from _reset_ at this stage.
+swsusp takes over once the kernel is up and restores the
+suspended kernel
 
-We should join the sysctl check with an && with the swap_avail().
-However since I leave it disabled by default, my tree already works
-perfectly w/ or w/o swap until you go tweak the sysctl. So I hope
-you will tweak it only when there's effectively swap ;).
+IDE info:
 
-The real reason I had to make that change is been primarly for
-scalability reasons, no way at all we can take a spinlock for every
-anonymous page that is allocated (and of course there's no rmap). That
-generates an huge amount of cpu wasted in cacheline bouncing in all
-common workloads. It gets all the system time in the pagecache_lru_lock
-that way.
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SIS5513: IDE controller at PCI slot 00:02.5
+SIS5513: chipset revision 0
+SIS5513: not 100% native mode: will probe irqs later
+SiS651    ATA 133 controller
+    ide0: BM-DMA at 0x4000-0x4007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x4008-0x400f, BIOS settings: hdc:pio, hdd:pio
+hda: IC35L090AVV207-0, ATA DISK drive
+blk: queue c031fd40, I/O limit 4095Mb (mask 0xffffffff)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 160836480 sectors (82348 MB) w/1821KiB Cache, CHS=10011/255/63, UDMA(100)
+Partition check:
+ hda: hda1 hda2 hda3 hda4
 
-The patch I'm talking about is this:
+> >  hang
+> >
+> > Hit Reset and it rebooted OK
+> >
+> > This is the first spurious 8259A interrupt: IRQ15 seen.
+> >
+> > I see spurious 8259A interrupt: IRQ7 quite frequently on
+> > varying hardware on both 2.4 and 2.5.
+> >
+> > By design, the 8259A delivers a vector 7 when the IRQ
+> > line is deasserted before the IRQ is serviced. This
+> > applies to both edge and level trigger modes. A floating
+> > "wire" or crapy chipset can pickup noise, but the driver
+> > should handle it.
+> >
+> > No problems seen with mainboard/cpu/ram in three months.
+> > I dont' think it is HW, but it could be.
+> >
+> > Also, spurious 8259A interrupts are quite recent, could
+> > something be wrong with recent 8259A driver?
+> >
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc8aa1/05_vm_22_vm-anon-lru-1
+Could it be that the kernel does not handle a spurious int at 
+this early stage in the boot process ?
 
-please try it and let me know. feel free to test with an && between the
-sysctl and your swap_avail, I would certainly merge that change.
-
-
-
-> 
->    Ross
-> 
-> 
-
-> diff -urbBd linux-2.4.21/include/linux/swap.h linux-2.4.21-1/include/linux/swap.h
-> --- linux-2.4.21/include/linux/swap.h	Fri Jun 13 07:51:39 2003
-> +++ linux-2.4.21-1/include/linux/swap.h	Fri Jun 13 10:40:24 2003
-> @@ -82,6 +82,7 @@
->  
->  /* Swap 50% full? Release swapcache more aggressively.. */
->  #define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
-> +#define swap_avail() (nr_swap_pages > 0)
->  
->  extern unsigned int nr_free_pages(void);
->  extern unsigned int nr_free_buffer_pages(void);
-> diff -urbBd linux-2.4.21/mm/vmscan.c linux-2.4.21-1/mm/vmscan.c
-> --- linux-2.4.21/mm/vmscan.c	Thu Nov 28 15:53:15 2002
-> +++ linux-2.4.21-1/mm/vmscan.c	Fri Jun 13 11:26:26 2003
-> @@ -474,6 +474,18 @@
->  			spin_unlock(&pagecache_lock);
->  			UnlockPage(page);
->  page_mapped:
-> +                        /* if we don't have swap, it doesn't
-> +                           do much good to swap things out. */
-> +			if (!page->mapping && !swap_avail()) {
-> +				/* Let's make the page active since we
-> +				   cannot swap it out.  It gets it off
-> +				   the inactive list. */
-> +				spin_unlock(&pagemap_lru_lock);
-> +				activate_page(page);
-> +				ClearPageReferenced(page);
-> +				spin_lock(&pagemap_lru_lock);
-> +				continue;
-> +			}
->  			if (--max_mapped >= 0)
->  				continue;
->  
+Regards
+Michael
 
 
+-- 
+Powered by linux-2.5.70-mm3, compiled with gcc-2.95-3
 
-Andrea
+My current linux related activities in rough order of priority:
+- Testing of Swsusp for 2.4
+- Research of NFS i/o errors during transfer 2.4>2.5
+- Learning 2.5 series kernel debugging with kgdb - it's in the -mm tree
+- Studying 2.5 series serial and ide drivers, ACPI, S3
+* Input and feedback is always welcome *
+

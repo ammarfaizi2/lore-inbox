@@ -1,85 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313125AbSDDKJz>; Thu, 4 Apr 2002 05:09:55 -0500
+	id <S313124AbSDDKVH>; Thu, 4 Apr 2002 05:21:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313124AbSDDKJp>; Thu, 4 Apr 2002 05:09:45 -0500
-Received: from [203.115.6.25] ([203.115.6.25]:1540 "EHLO shalmirane.net")
-	by vger.kernel.org with ESMTP id <S313128AbSDDKJd>;
-	Thu, 4 Apr 2002 05:09:33 -0500
-Date: Thu, 4 Apr 2002 16:02:29 -0600 (GMT+6)
-From: "Ishan O. Jayawardena" <ioshadij@hotmail.com>
-To: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: [patch] kjournald locking fix
-Message-ID: <Pine.LNX.4.21.0204041539260.572-200000@shalmirane.net>
+	id <S313128AbSDDKU5>; Thu, 4 Apr 2002 05:20:57 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:527 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S313124AbSDDKUv>;
+	Thu, 4 Apr 2002 05:20:51 -0500
+Message-ID: <3CAC1A49.9040509@evision-ventures.com>
+Date: Thu, 04 Apr 2002 11:18:01 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811840-1230555238-1017957749=:572"
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5 patch] hdreg.h must include types.h
+In-Reply-To: <Pine.NEB.4.44.0204040938300.7845-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Adrian Bunk wrote:
+> Hi,
+> 
+> while compiling 2.5.7-dj3 I got the following compile error:
+> 
+> <--  snip  -->
+> 
+> ...
+> gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.7/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+> -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -DKBUILD_BASENAME=ide_pnp
+> -c -o ide-pnp.o ide-pnp.c
+> In file included from /home/bunk/linux/kernel-2.5/linux-2.5.7/include/linux/ide.h:10,
+>                  from ide-pnp.c:19:
+> /home/bunk/linux/kernel-2.5/linux-2.5.7/include/linux/hdreg.h:71: parse
+> error before `u8'
+> 
+> <--  snip  -->
+> 
+> The problem is that in 2.5.8-pre1 hdreg.h uses u8 but it doesn't include
+> types.h. I didn't tried it but since the code is the same I expect the
+> same problem in 2.5.8-pre1, too.
+> 
+> The fix is simple:
+> 
+> --- include/linux/hdreg.h.old	Thu Apr  4 09:33:48 2002
+> +++ include/linux/hdreg.h	Thu Apr  4 09:34:44 2002
+> @@ -1,6 +1,8 @@
+>  #ifndef _LINUX_HDREG_H
+>  #define _LINUX_HDREG_H
+> 
+> +#include <linux/types.h>
+> +
+>  /*
+>   * This file contains some defines for the AT-hd-controller.
+>   * Various sources.
+> 
+> cu
+> Adrian
+> 
 
----1463811840-1230555238-1017957749=:572
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+The proper fix is to add linux/types.h in ide-pnp.c in front
+of linux/hdreg.h inclusion. Nested includes are *nasty*.
 
-
-Greetings,
-
-	kjournald seems to be missing an unlock_kernel() for a matching
-lock_kernel(). A posting by  Dennis Vadura to l-k mentions (among other
-things) a kernel message that says kjournald exited with preempt_count ==
-1. The attached patch (text/plain) adds the necessary
-unlock_kernel(). [But I haven't been able to reproduce the hang that
-Dennis experiences...]
-	Tested only on UP. Patch is for 2.4.19-pre5 + prempt-kernel, _no_
-lock-break. I hope the positioning of unlock_kernel() is correct... please
-correct me if I'm wrong.
-
-	Please CC me (ioshadij@hotmail.com). I can't subscribe to the list
-with my own ISP because they aren't ECN-friendly, and subscribing via 
-
-PS: Of course, the reparent_to_init() isn't part of the fix, but I've seen
-kjournald become a zombie in an ugly episode with a deadlock in devfs many
-moons ago.
-
----------------------------------------------------------------
---- linux-preempt/fs/jbd/journal.c.1	Wed Apr  3 08:05:08 2002
-+++ linux-preempt/fs/jbd/journal.c	Thu Apr  4 15:09:29 2002
-@@ -203,6 +203,7 @@ int kjournald(void *arg)
- 	current_journal = journal;
- 
- 	lock_kernel();
-+	reparent_to_init();
- 	daemonize();
- 	spin_lock_irq(&current->sigmask_lock);
- 	sigfillset(&current->blocked);
-@@ -267,6 +268,7 @@ int kjournald(void *arg)
- 
- 	journal->j_task = NULL;
- 	wake_up(&journal->j_wait_done_commit);
-+	unlock_kernel();
- 	jbd_debug(1, "Journal thread exiting.\n");
- 	return 0;
- }
-
----1463811840-1230555238-1017957749=:572
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="kjournald.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0204041602290.572@shalmirane.net>
-Content-Description: 
-Content-Disposition: attachment; filename="kjournald.diff"
-
-LS0tIGxpbnV4LXByZWVtcHQvZnMvamJkL2pvdXJuYWwuYy4xCVdlZCBBcHIg
-IDMgMDg6MDU6MDggMjAwMg0KKysrIGxpbnV4LXByZWVtcHQvZnMvamJkL2pv
-dXJuYWwuYwlUaHUgQXByICA0IDE1OjA5OjI5IDIwMDINCkBAIC0yMDMsNiAr
-MjAzLDcgQEAgaW50IGtqb3VybmFsZCh2b2lkICphcmcpDQogCWN1cnJlbnRf
-am91cm5hbCA9IGpvdXJuYWw7DQogDQogCWxvY2tfa2VybmVsKCk7DQorCXJl
-cGFyZW50X3RvX2luaXQoKTsNCiAJZGFlbW9uaXplKCk7DQogCXNwaW5fbG9j
-a19pcnEoJmN1cnJlbnQtPnNpZ21hc2tfbG9jayk7DQogCXNpZ2ZpbGxzZXQo
-JmN1cnJlbnQtPmJsb2NrZWQpOw0KQEAgLTI2Nyw2ICsyNjgsNyBAQCBpbnQg
-a2pvdXJuYWxkKHZvaWQgKmFyZykNCiANCiAJam91cm5hbC0+al90YXNrID0g
-TlVMTDsNCiAJd2FrZV91cCgmam91cm5hbC0+al93YWl0X2RvbmVfY29tbWl0
-KTsNCisJdW5sb2NrX2tlcm5lbCgpOw0KIAlqYmRfZGVidWcoMSwgIkpvdXJu
-YWwgdGhyZWFkIGV4aXRpbmcuXG4iKTsNCiAJcmV0dXJuIDA7DQogfQ0K
----1463811840-1230555238-1017957749=:572--

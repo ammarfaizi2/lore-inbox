@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbUKBW0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUKBW10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbUKBW0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 17:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUKBW0s
+	id S261988AbUKBW10 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 17:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbUKBWX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 17:26:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63901 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262366AbUKBWZo (ORCPT
+	Tue, 2 Nov 2004 17:23:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10642 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262002AbUKBWOb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:25:44 -0500
-Date: Tue, 2 Nov 2004 14:29:44 -0800
+	Tue, 2 Nov 2004 17:14:31 -0500
+Date: Tue, 2 Nov 2004 14:18:30 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: andrea@novell.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       ak@suse.de
-Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
-Message-Id: <20041102142944.0be6f750.akpm@osdl.org>
-In-Reply-To: <4188086F.8010005@us.ibm.com>
-References: <4187FA6D.3070604@us.ibm.com>
-	<20041102220720.GV3571@dualathlon.random>
-	<4188086F.8010005@us.ibm.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: peterc@gelato.unsw.edu.au, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IA64 build broken... cond_syscall()... Fixes?
+Message-Id: <20041102141830.5958d188.akpm@osdl.org>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F02510E27@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F02510E27@scsmsx401.amr.corp.intel.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,15 +25,37 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> wrote:
+"Luck, Tony" <tony.luck@intel.com> wrote:
 >
-> Andrea Arcangeli wrote:
-> > Still I recommend investigating _why_ debug_pagealloc is violating the
-> > API. It might not be necessary to wait for the pageattr universal
-> > feature to make DEBUG_PAGEALLOC work safe.
 > 
-> OK, good to know.  But, for now, can we pull this out of -mm?  Or, at 
-> least that BUG_ON()?  DEBUG_PAGEALLOC is an awfully powerful debugging 
-> tool to just be removed like this.
+> >Andrew> Shouldn't we just bite the bullet and hoist all that
+> >Andrew> cond_syscall stuff out into its own .c file?
+> >
+> >OK.  Patch appended.
+> >
+> >Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
+> >
+> 
+> Acked-by: Tony Luck
+> 
+> No surprise that Peter's fix works for me since I'm building
+> ia64 systems too.
 
-If we make it a WARN_ON, will that cause a complete storm of output?
+yup.  It needed a fixlet for other platforms.  I'll scoot it along to Linus
+today.
+
+--- 25/kernel/sys_ni.c~sys_ni-fix	2004-11-01 23:17:15.324673272 -0800
++++ 25-akpm/kernel/sys_ni.c	2004-11-01 23:17:36.497454520 -0800
+@@ -1,6 +1,9 @@
+-#include <asm/unistd.h>
++
++#include <linux/linkage.h>
+ #include <linux/errno.h>
+ 
++#include <asm/unistd.h>
++
+ /*
+  * Non-implemented system calls get redirected here.
+  */
+_
+

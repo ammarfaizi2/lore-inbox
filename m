@@ -1,76 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286317AbRL0Pxb>; Thu, 27 Dec 2001 10:53:31 -0500
+	id <S286315AbRL0Pxv>; Thu, 27 Dec 2001 10:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286318AbRL0PxW>; Thu, 27 Dec 2001 10:53:22 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:22226 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S286317AbRL0PxI>; Thu, 27 Dec 2001 10:53:08 -0500
-Message-ID: <3C2B43FD.6E2961E0@earthlink.net>
-Date: Thu, 27 Dec 2001 10:53:33 -0500
-From: Jeff <piercejhsd009@earthlink.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: nknight@pocketinet.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Who fixed via82cxxx_audio.c ?
-In-Reply-To: <WHITExvWvqzAoa2JB1n000005b3@white.pocketinet.com> <3C28A640.9C9B8462@loewe-komp.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S286318AbRL0Pxm>; Thu, 27 Dec 2001 10:53:42 -0500
+Received: from c88s124h4.upc.chello.no ([62.179.175.88]:30871 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S286315AbRL0Pxa>; Thu, 27 Dec 2001 10:53:30 -0500
+Subject: Re: Again:syscall from modules
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Amber Palekar <amber_palekar@yahoo.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011225131441.60811.qmail@web20306.mail.yahoo.com>
+In-Reply-To: <20011225131441.60811.qmail@web20306.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 27 Dec 2001 16:54:25 +0100
+Message-Id: <1009468465.15846.0.camel@eggis1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas,
+Yes, the sys_* funcs are declared asmlinkage int sys_*. 
+where the asmlinkage differ from platform to platform. 
+It's used to tell the compiler if a non standared calling 
+convertion is used, typically if params are passed by registers
+instead of stack. The asmlinkage define must be sett according to the
+syscall dispatcher (entry.S on ia32), and may be changed accordingly. 
 
-Does the record work on your via82c686 sound? I have the same chip set
-and I cannot get the record to work. Mixing and playing mp3's wav's etc
-works ok. Mixing line-in/mic to line-out woeks fine.
-Just cannot record.
+In short, if you want to use sys_* you must understand the interaction
+between the sys_* funcs and the dispatcher on *every* platform, and
+the interaction may change without notice.
 
-I posted the probelm here and the only response I got was emails from a
-couple of others with thee same propblem.
+In short short, don't don't don't don't use the sys_* functions.
 
-But, not one concerning fixing the problem. Or, if recording is even
-implemented or not.
+TJ
 
-Using 2.4.16 kernel and via82cxxx_audio ver. 1.9.1
-
-Peter Wächtler wrote:
+On Tue, 2001-12-25 at 14:14, Amber Palekar wrote:
 > 
-> Nicholas Knight schrieb:
-> >
-> > Several months back, I started trying to get the via82cxxx_audio.c
-> > sound driver fixed, it was causing lockup problems whenever something
-> > opened and/or used the mixer. A similar route was taken as I took with
-> > the Athlon optimization problems, trying to get everyone to send as
-> > much information as possible on their cards using this driver. This
-> > never really led anywhere, and the only information gleaned was that
-> > dropping buffers down to extremely low levels helped in some cases, but
-> > not all, and didn't always completely fix it.
-> >
-> > After 2.4.10 was released, I stopped updating my kernel for a variety
-> > of reasons (less time spent in linux, long story.) However a while back
-> > I updated to 2.4.16, and decided to load XMMS just for the hell of it,
-> > not 5 minutes ago. To my delight, the problem is completely solved. I
-> > checked all the changelogs from 2.4.10 to now, and the only mention I
-> > found searching for "97" (ac97 codec is used) and "via82" was in the
-> > 2.4.*17* changelog, saying Jeff was no longer the maintainer.
-> > I'd like to know who managed to find and fix the underlying cause, so I
-> > can both thank them, and find out what the heck this problem that
-> > plagued me for many months was.
+>  Hi,
+>  
+> > Just use sock_sendmsg() and sock_recvmsg() directly.
+> > They are both
+> > exported in netsyms.c.
+>   Is there any specific reason behind not exporting
+> sys_sendto and sys_recvfrom ??
 > 
-> I would check the ChangeLog of the audio driver, since the
-> hardware access to the ac97 mixer is done there.
+> > Cheers,
+> >   Trond
 > 
-> --
-> ciao
-> Peter
+> TIA
+> Amber
+> 
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Send your FREE holiday greetings online!
+> http://greetings.yahoo.com
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 
-Jeff
-piercejhsd009@earthlink.net
+
+
+

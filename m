@@ -1,94 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVA0WeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVA0Wh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVA0WeX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 17:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVA0WeX
+	id S261253AbVA0Wh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 17:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVA0Wh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 17:34:23 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:29435 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261252AbVA0WeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 17:34:10 -0500
-Message-ID: <41F96C7D.9000506@comcast.net>
-Date: Thu, 27 Jan 2005 17:34:37 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
+	Thu, 27 Jan 2005 17:37:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7864 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261253AbVA0Wg5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 17:36:57 -0500
+Date: Thu, 27 Jan 2005 14:36:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jaco Kroon <jaco@kroon.co.za>
+cc: sebekpi@poczta.onet.pl, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: i8042 access timings
+In-Reply-To: <41F96743.9060903@kroon.co.za>
+Message-ID: <Pine.LNX.4.58.0501271426420.2362@ppc970.osdl.org>
+References: <200501260040.46288.sebekpi@poczta.onet.pl> <41F888CB.8090601@kroon.co.za>
+ <Pine.LNX.4.58.0501270948280.2362@ppc970.osdl.org> <41F9545A.4080803@kroon.co.za>
+ <Pine.LNX.4.58.0501271314070.2362@ppc970.osdl.org> <41F96743.9060903@kroon.co.za>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Patch 4/6  randomize the stack pointer
-References: <20050127101117.GA9760@infradead.org>	 <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net>	 <1106848051.5624.110.camel@laptopd505.fenrus.org>	 <41F92D2B.4090302@comcast.net>	 <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org>	 <41F95F79.6080904@comcast.net> <1106862801.5624.145.camel@laptopd505.fenrus.org>
-In-Reply-To: <1106862801.5624.145.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
 
+On Fri, 28 Jan 2005, Jaco Kroon wrote:
+> >>
+> >>ok, how would I try this?  Where can I find an example to code it from? 
+> >>  Sorry, I should probably be grepping ...
+> > If the udelay() didn't work, then this one isn't worth worryign about 
+> > either. Back to the drawing board.
+> Yea.  But for interrests sake, what do you mean with a serializing IO 
+> instruction?
 
-Arjan van de Ven wrote:
->>I feel the need to point something out here.
->>
->>[TEXT][BRK][MMAP---------------][STACK]
->>
->>Here's a normal layout.
->>
->>[TEXT][BRK][MMAP-------][STACK][MMAP--]
->>
->>Is this one any worse?
+If you use "outb_p()" instead of an "outb()", the regular IO instruction
+will be followed by another out to another port on the motherboard: that
+will not only cause a delay, it should also force at least the host bridge 
+to have no outstanding posted writes (the host bridge shouldn't post IO 
+port writes anyway, but hey, it won't hurt to try to make even more sure 
+of that).
+
+> I also tried increasing the total timeout value to about 5 seconds 
+> (versus the default half second), still no success, so the device is 
+> simply not sending back the requested values.
+
+If it was the other way around (that it works with ACPI _on_), I'd assume 
+that ACPI just disables some broken BIOS SMM emulation code. But I just 
+don't see ACPI _enabling_ SMM emulation. That would be just too strange, 
+and against the whole point of the legacy keyboard emulation stuff - you 
+want to do legacy keyboard emulation if the OS is old, not if it's new.
+
+It may be that ACPI ends up enabling some silly power control SMM sequence
+that wakes up on keyboard accesses, and screws up the emulation. That
+sounds pretty strange too, I have to say - even if SMM/ACPI would like to
+trap keyboard command sequences, I'd have expected it to just pass them
+through after looking at them.
+
+One option may be that SMM/ACPI traps the _received_ characters, and 
+incorrectly eats the reply, because it thinks it's some special key 
+sequence (and should cause SMM/ACPI to make the screen brighter or 
+something silly like that).
+
+Does anybody know/remember what the keycode 0xA5 means? 
+
+> I still stand with the theory that it is sending back the value we want 
+> for the first request on the second one (managed to get this one by 
+> explicitly turning i8042_debug on and off in the code):
 > 
+> i8042_init()
+> ACPI: PS/2 Keyboard Controller [KBC0] at I/O 0x60, 0x64, irq 1
+> ACPI: PS/2 Mouse Controller [MSE0] at irq 12
+> i8042_controller_init()
+> i8042_flush()
+> drivers/input/serio/i8042.c: 20 -> i8042 (command) [4]
+> drivers/input/serio/i8042.c: 47 <- i8042 (return) [4]
+> drivers/input/serio/i8042.c: 60 -> i8042 (command) [5]
+> drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [5]
+> i8042_check_aux()
+> drivers/input/serio/i8042.c: Interrupt 12, without any data [9]
+> i8042_flush()
+> drivers/input/serio/i8042.c: d3 -> i8042 (command) [13]
+> drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [13]
+> drivers/input/serio/i8042.c:      -- i8042 (timeout) [875]
+> i8042_check_aux: param_in=0x5a, command=AUX_LOOP, param_out=5a <= -1
+> drivers/input/serio/i8042.c: a9 -> i8042 (command) [879]
+> drivers/input/serio/i8042.c: a5 <- i8042 (return) [879]
+> i8042_check_aux: param_in=??, command=AUX_TEST, param_out=a5 <= 0
 > 
-> yes.
-> 
-> oracle, db2 and similar like to mmap 2Gb or more *in one chunk*.
-> moving the stack in the middle means the biggest chunk they can mmap
-> shrinks. 
-> 
+> I've rebooted a couple of times and that interrupt is in exactly the 
+> same place every time.  And int 12 is indeed the AUX device, could this 
+> be a clue?
 
-Special case?
+Does it change if you change the initial value of "param" (0x5a) to
+something else?
 
-I never said these weren't out there.  But the point is, who runs
-oracle?  Your internal production server, maybe even a cluster, run it
-now.  Your desktops don't.  Your web server exposed to the net
-shouldn't.  Both these are exactly where you *really* want this stuff:
-desktops get exposed to the WWW (and IRC and AIM and God knows what
-else), and web servers get exposed to the HTTP protocol (or ftp or
-whatever).
-
-Interesting, it's theoretically far less likely that an exploit occurs
-on your server than on your desktop; and the special cases such as your
-Oracle example aren't likely to be sharing a machine with your
-promiscuous touching of everyone else on the Internet with a web browser
-and IRC client, correct?
-
-Can I get this put into perspective?  How much more important is "Good"
-randomization versus "not breaking Oracle," which becomes "No
-randomization" (for Oracle anyway, not for everything else on a
-well-designed system)?  How much of an effect does "good" randomization
-have on your web server and desktop machines versus on your internal,
-isolated RDBMS server/cluster?
-
-More pertainantly (believe it or not), do you even care to ponder these
-questions, or is your next response going to be a stock response?
-
-> 
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB+Wx8hDd4aOud5P8RAuriAJ0WYcesi/o5lOZIJ++UG8WbDu3PMACeKaB5
-/YjzHR2n0aRiUrxUrca1gkU=
-=0/hv
------END PGP SIGNATURE-----
+		Linus

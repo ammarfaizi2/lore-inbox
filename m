@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263241AbTJKDrz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 23:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263254AbTJKDrz
+	id S263214AbTJKDt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 23:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263254AbTJKDt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 23:47:55 -0400
-Received: from pat.uio.no ([129.240.130.16]:14469 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263241AbTJKDrx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 23:47:53 -0400
-MIME-Version: 1.0
+	Fri, 10 Oct 2003 23:49:57 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:34064 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263214AbTJKDty
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 23:49:54 -0400
+Date: Fri, 10 Oct 2003 20:49:51 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts
+Message-ID: <20031011034951.GE4716@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <200310100830.03216.kevcorry@us.ibm.com> <20031010182918.GF1084@marowsky-bree.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16263.32096.746760.290534@charged.uio.no>
-Date: Fri, 10 Oct 2003 23:47:44 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Joel.Becker@oracle.com,
-       cfriesen@nortelnetworks.com, jamie@shareable.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: statfs() / statvfs() syscall ballsup...
-In-Reply-To: <20031010195343.6e821192.akpm@osdl.org>
-References: <20031010172001.GA29301@ca-server1.us.oracle.com>
-	<Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org>
-	<16262.62026.603149.157026@charged.uio.no>
-	<20031010195343.6e821192.akpm@osdl.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+In-Reply-To: <20031010182918.GF1084@marowsky-bree.de>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: The contents of this message may cause sleeplessness, irritability, loss of appetite, anxiety, depression, or other psychological disorders.  Consult your doctor if these symptoms persist.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Morton <akpm@osdl.org> writes:
+On Fri, Oct 10, 2003 at 08:29:18PM +0200, Lars Marowsky-Bree wrote:
+> On 2003-10-10T08:30:03,
+>    Kevin Corry <kevcorry@us.ibm.com> said:
+> 
+> > On Friday 10 October 2003 01:19, Stuart Longland wrote:
+> > > 	- Software RAID 0+1 perhaps?
+> 
+> Because RAID 0+1 is a rather bad idea. You want RAID 1+0. Make up the
+> fault matrix and simulate what happens if drives fail.
+> 
+> We can do both though, as Kevin pointed out. So if you want to shot
+> yourself in the foot, in the best Unix tradition, we allow you to ;)
 
-     > POSIX does not define the fadvise() semantics very clearly, so
-     > it is largely up to us to decide what makes sense.  There are a
-     > number of things which we can do quite easily in there - it's
-     > mainly a matter of working out exactly what we want to do.
+I concur with one caviat.  0+1 has the advantage of
+extendability that doesn't exist with 1+0.
 
-Possibly, but there really is no need to get over-creative either. The
-SUS definition of msync(MS_INVALIDATE) reads as follows:
+	1. break mirror downing side A
+	2. break stripe A
+	3. build new stripe A with added disk(s)
+	4. copying stripe B to stripe A
+	5. break stripe B
+	6. build new stripe B with added disk(s)
+	7. build mirror (A->B)
 
-        When MS_INVALIDATE is specified, msync() shall invalidate all
-        cached copies of mapped data that are inconsistent with the
-        permanent storage locations such that subsequent references
-        shall obtain data that was consistent with the permanent
-        storage locations sometime between the call to msync() and the
-        first subsequent memory reference to the data.
+It may even be possible to do this live.  So if gradual
+extendability is more important than surviving multiple
+failures 0+1 has the advantage.  Normally i prefer the
+reliability or to do striping at the logical volume level.
 
-(ref: http://www.opengroup.org/onlinepubs/007904975/functions/msync.html)
 
-i.e. a strict implementation would mean that msync() will in fact act
-as a synchronization point that is fully consistent with Linus'
-proposal for a "this region is stale" function.
+	
+	
 
-Unfortunately Linux appears incapable of implementing such a strict
-definition of msync() as it stands.
 
-Cheers,
-  Trond
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

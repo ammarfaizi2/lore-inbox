@@ -1,111 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbTABPgr>; Thu, 2 Jan 2003 10:36:47 -0500
+	id <S262208AbTABPjM>; Thu, 2 Jan 2003 10:39:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262207AbTABPgr>; Thu, 2 Jan 2003 10:36:47 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:10734 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S262201AbTABPgp>;
-	Thu, 2 Jan 2003 10:36:45 -0500
-Date: Fri, 3 Jan 2003 02:45:01 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Christoph Hellwig <hch@lst.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] apm.c redclares savesegment
-Message-Id: <20030103024501.1957ac1e.sfr@canb.auug.org.au>
-In-Reply-To: <20021230125907.A16745@lst.de>
-References: <20021230125907.A16745@lst.de>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262258AbTABPjM>; Thu, 2 Jan 2003 10:39:12 -0500
+Received: from [66.59.111.190] ([66.59.111.190]:55688 "EHLO
+	sparrow.stearns.org") by vger.kernel.org with ESMTP
+	id <S262208AbTABPjL>; Thu, 2 Jan 2003 10:39:11 -0500
+Date: Thu, 2 Jan 2003 10:47:22 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: William Stearns <wstearns@pobox.com>
+To: =?ISO-8859-1?Q?Fran=E7ois?= Boisson <user@maison.homelinux.net>
+cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re:New version of e2compr for 2.4.16 kernel....
+In-Reply-To: <20030102160322.37ea4e88.user@maison.homelinux.net>
+Message-ID: <Pine.LNX.4.44.0301021046060.4984-100000@sparrow>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris, Linus,
+Good day, Francois,
 
-On Mon, 30 Dec 2002 12:59:07 +0100 Christoph Hellwig <hch@lst.de> wrote:
->
-> .. but it could just use the generic version
+On Thu, 2 Jan 2003, François Boisson wrote:
 
-But asm/elf.h seems a strange place for it to be.  And there was
-another one.
+> > From Denis RICHARD (dri@sxb.bsf.alcatel.fr)
+> > Wed, 19 Dec 2001 14:40:39 +0100 
+> > Hi,
+> 
+> > We have developped a new version of the e2compr package for the 2.4.16
+> kernel.
+> > It is based on the e2compr-0.4.39 patch provided by Peter Moulder
+> > for 2.2.18 kernel (http://cvs.bofh.asn.au/e2compr/).
 
+The patch is here:     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-How about this?
+> I' really interested by this patch. I made a mail to Denis Richard but it
+> seems he cannot answer. Can someone send me this patch (I'm not on the
+> list, Cc me the answer).
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+	Cheers,
+	- Bill
 
-diff -ruN 2.5.54/arch/i386/kernel/apm.c 2.5.54-saveseg/arch/i386/kernel/apm.c
---- 2.5.54/arch/i386/kernel/apm.c	2002-11-18 15:47:40.000000000 +1100
-+++ 2.5.54-saveseg/arch/i386/kernel/apm.c	2003-01-03 02:20:57.000000000 +1100
-@@ -331,12 +331,6 @@
- #define DEFAULT_BOUNCE_INTERVAL		(3 * HZ)
- 
- /*
-- * Save a segment register away
-- */
--#define savesegment(seg, where) \
--		__asm__ __volatile__("movl %%" #seg ",%0" : "=m" (where))
--
--/*
-  * Maximum number of events stored
-  */
- #define APM_MAX_EVENTS		20
-diff -ruN 2.5.54/arch/i386/kernel/process.c 2.5.54-saveseg/arch/i386/kernel/process.c
---- 2.5.54/arch/i386/kernel/process.c	2003-01-02 15:13:45.000000000 +1100
-+++ 2.5.54-saveseg/arch/i386/kernel/process.c	2003-01-03 02:21:40.000000000 +1100
-@@ -274,12 +274,6 @@
- 	release_x86_irqs(dead_task);
- }
- 
--/*
-- * Save a segment.
-- */
--#define savesegment(seg,value) \
--	asm volatile("movl %%" #seg ",%0":"=m" (*(int *)&(value)))
--
- int copy_thread(int nr, unsigned long clone_flags, unsigned long esp,
- 	unsigned long unused,
- 	struct task_struct * p, struct pt_regs * regs)
-diff -ruN 2.5.54/include/asm-i386/elf.h 2.5.54-saveseg/include/asm-i386/elf.h
---- 2.5.54/include/asm-i386/elf.h	2002-12-27 15:15:57.000000000 +1100
-+++ 2.5.54-saveseg/include/asm-i386/elf.h	2003-01-03 02:22:48.000000000 +1100
-@@ -8,6 +8,7 @@
- #include <asm/ptrace.h>
- #include <asm/user.h>
- #include <asm/processor.h>
-+#include <asm/system.h>		/* for savesegment */
- 
- #include <linux/utsname.h>
- 
-@@ -58,11 +59,6 @@
- 
- #define ELF_ET_DYN_BASE         (TASK_SIZE / 3 * 2)
- 
--/* Wow, the "main" arch needs arch dependent functions too.. :) */
--
--#define savesegment(seg,value) \
--	asm volatile("movl %%" #seg ",%0":"=m" (*(int *)&(value)))
--
- /* regs is struct pt_regs, pr_reg is elf_gregset_t (which is
-    now struct_user_regs, they are different) */
- 
-diff -ruN 2.5.54/include/asm-i386/system.h 2.5.54-saveseg/include/asm-i386/system.h
---- 2.5.54/include/asm-i386/system.h	2003-01-02 15:13:49.000000000 +1100
-+++ 2.5.54-saveseg/include/asm-i386/system.h	2003-01-03 02:25:14.000000000 +1100
-@@ -95,6 +95,12 @@
- 		: :"m" (*(unsigned int *)&(value)))
- 
- /*
-+ * Save a segment register away
-+ */
-+#define savesegment(seg, value) \
-+	asm volatile("movl %%" #seg ",%0":"=m" (*(int *)&(value)))
-+
-+/*
-  * Clear and set 'TS' bit respectively
-  */
- #define clts() __asm__ __volatile__ ("clts")
+---------------------------------------------------------------------------
+        "Faced with the prospect of rereading this book, I would rather
+have my brains ripped out by a plastic fork."
+        -- Charles Cooper, ZD net, in review of B@TSOT by Bill Gates.
+(Courtesy of Mads Bondo Dydensborg <madsdyd@challenge.dk>)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
+and ipfwadm2ipchains are at:                        http://www.stearns.org
+--------------------------------------------------------------------------
+

@@ -1,29 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312570AbSDOBaO>; Sun, 14 Apr 2002 21:30:14 -0400
+	id <S312573AbSDOBap>; Sun, 14 Apr 2002 21:30:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312573AbSDOBaN>; Sun, 14 Apr 2002 21:30:13 -0400
-Received: from [212.57.170.37] ([212.57.170.37]:41993 "EHLO zzz.zzz")
-	by vger.kernel.org with ESMTP id <S312570AbSDOBaN>;
-	Sun, 14 Apr 2002 21:30:13 -0400
-Date: Mon, 15 Apr 2002 07:25:56 +0600
-From: Denis Zaitsev <zzz@cd-club.ru>
-To: Dave Jones <davej@suse.de>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: FIXED_486_STRING ?
-Message-ID: <20020415072556.A2839@natasha.zzz.zzz>
-In-Reply-To: <20020413224743.A13355@natasha.zzz.zzz> <32667.1018744038@ocs3.intra.ocs.com.au> <20020414024406.A16692@suse.de> <20020415063825.A2691@natasha.zzz.zzz> <20020415030355.D20383@suse.de>
+	id <S312574AbSDOBan>; Sun, 14 Apr 2002 21:30:43 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:15377 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S312573AbSDOBam>;
+	Sun, 14 Apr 2002 21:30:42 -0400
+Date: Mon, 15 Apr 2002 10:30:13 +0900 (JST)
+Message-Id: <20020415.103013.62679757.taka@valinux.co.jp>
+To: davem@redhat.com
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20020412.143934.33012005.davem@redhat.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 03:03:55AM +0200, Dave Jones wrote:
-> Petko Manolov <lz5mj@yahoo.com> did some work on them circa 2.4.0test.
-> His patch is at http://www.dce.bg/~petkan/linux/string-486.diff
-> Aparently there are still 1-2 problems with these routines which is
-> why he hasn't pushed for inclusion I guess.
-> 
-These patches are included...  But the string-486.h itself is turned
-off by FIXED_486_STRING.  BTW, what are the problems?
+Hello, David
+
+If you don't mind, could you give me some advises about
+the sendpage mechanism.
+
+I'd like to implenent sendpage of UDP stack which NFS uses heavily.
+It may improve the performance of NFS over UDP dramastically.
+
+I wonder if there were "SENDPAGES" interface instead of sendpage 
+between socket layer and inet layer, we could send some pages
+atomically with low overhead.
+And it could make implementing RPC over UDP easier
+to send multiple pages as one UDP pakcet easily.
+
+How do you think about this approach?
+
+davem>    I don't see it as a big problem and would just leave it as it is
+davem>    (for NFS and local) 
+davem> 
+davem> I agree with Andi.  You can basically throw away my whole argument
+davem> about this.  Applications that require synchonization between the
+davem> writer of file contents and reader of file contents must do some
+davem> kind of locking amongst themselves at user level.
+
+OK.
+
+Regards,
+Hirokazu Takahashi
+

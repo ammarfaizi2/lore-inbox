@@ -1,94 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266475AbUBGGL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 01:11:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266487AbUBGGL4
+	id S266486AbUBGGXs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 01:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266487AbUBGGXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 01:11:56 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:52707 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S266475AbUBGGLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 01:11:53 -0500
-Subject: Re: 2.6.2-rc3: irq#19 - nobody cared - with an au88xx
-From: Len Brown <len.brown@intel.com>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0023E89C2@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023E89C2@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076134307.2562.1553.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 07 Feb 2004 01:11:48 -0500
+	Sat, 7 Feb 2004 01:23:48 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:17810 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266486AbUBGGXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 01:23:47 -0500
+Message-ID: <40248559.60900@comcast.net>
+Date: Sat, 07 Feb 2004 00:27:37 -0600
+From: Karl Tatgenhorst <ketatgenhorst@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Charles Cazabon <linux@discworld.dyndns.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FATAL: Kernel too old
+References: <Pine.LNX.4.53.0402061550440.681@chaos> <20040206152943.B26348@discworld.dyndns.org> <Pine.LNX.4.53.0402061718030.917@chaos>
+In-Reply-To: <Pine.LNX.4.53.0402061718030.917@chaos>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you isolate this regression to a specific release?  There have been
-several changes to arch/i386/kernel/irq.c since 2.6.0-test7.  Also, it
-would be interesting to know if it also happens with CONFIG_SMP=n (but
-with the IOAPIC still enabled)  Plus, a sanity check of the rate of
-interrutps reported by /proc/interrupts might yield a clue.
+>
+>
+>
+>Sure. And if you can 'root' that machine, you are really
+>good! It isn't even visible to most of the company internally!
+>
+>
+>Cheers,
+>Dick Johnson
+>
+Not a big contributor here, but the first thing I thought when I saw the 
+message was root kit. Granted you may have to be 'good' to root the box, 
+or to know that it is present in the corp network. However, you did say 
+it is forwarding mail which means it receives mail, thus it has an 
+identifiable and locatable IP address. Also, it was stated that it was a 
+generic RH running 2.4.18 (I think) and no hacking done to it. Is it 
+kept up  to date, current libraries etc... From what you said it sounds 
+like a rarely thought of recipient of internet services (e-mail) or what 
+some like to call "a target of opportunity"
 
-thanks,
--Len
+Karl Tatgenhorst
 
-ps.
-You can avoid the symptom by booting with "noirqdebug" or having the
-interrupt handling always return IRQ_HANDLED.  But then we'd lose the
-means to find out why the driver is receiving interrupts for which it
-can find no cause.
-
-On Fri, 2004-02-06 at 23:42, Daniel Jacobowitz wrote:
-> I've started getting this, every 24 hours or so:
-> 
-> irq 19: nobody cared!
-> Call Trace:
->  [<c010d38a>] __report_bad_irq+0x2a/0x90
->  [<c010d480>] note_interrupt+0x70/0xb0
->  [<c010d7c0>] do_IRQ+0x160/0x1a0
->  [<c0105000>] _stext+0x0/0x60
->  [<c010b8d8>] common_interrupt+0x18/0x20
->  [<c0108990>] default_idle+0x0/0x40
->  [<c0105000>] _stext+0x0/0x60
->  [<c01089bc>] default_idle+0x2c/0x40
->  [<c0108a4b>] cpu_idle+0x3b/0x50
->  [<c04b64a0>] unknown_bootoption+0x0/0x120
->  [<c04b6926>] start_kernel+0x1a6/0x1f0
->  [<c04b64a0>] unknown_bootoption+0x0/0x120
-> 
-> handlers:
-> [<f886b290>] (au_isr+0x0/0xb0 [au8830])
-> Disabling IRQ #19
-> 
-> and then sound doesn't work for a while.
-> 
-> There's a good chance this is my fault.  IRQ 19 is:
-> 
->  19:   18500001          0   IO-APIC-level  au88xx
-> 
-> and the au88xx driver is an out-of-tree driver that was developed on
-> 2.4/early-2.5, and I ported it to 2.6 myself.  It worked flawlessly on
-> 2.6.0-test7; has something changed in how interrupt handlers are
-> required to
-> behave?
-> 
-> [Just ask if you actually want the source to this driver... I don't
-> know
-> enough about the card to actually submit it to Linus's tree and the
-> driver's
-> original authors aparently didn't care to.]
-> 
-> --
-> Daniel Jacobowitz
-> MontaVista Software                         Debian GNU/Linux Developer
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 

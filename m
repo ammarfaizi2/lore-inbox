@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbUCLKNY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 05:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbUCLKNY
+	id S261844AbUCLKR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 05:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUCLKR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 05:13:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22674 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261531AbUCLKM7 (ORCPT
+	Fri, 12 Mar 2004 05:17:27 -0500
+Received: from mx02.qsc.de ([213.148.130.14]:46474 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S261844AbUCLKRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 05:12:59 -0500
-Subject: Re: 2.6.4-mm1: unknown symbols cauased by
-	remove-more-KERNEL_SYSCALLS.patch
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, bunk@fs.tum.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040312014809.4f2b280e.akpm@osdl.org>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-	 <200403121014.40889.arnd@arndb.de> <20040312012942.5fd30052.akpm@osdl.org>
-	 <200403121035.02977.arnd@arndb.de>  <20040312014809.4f2b280e.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OXOIujCleHbFePy0mNTK"
-Organization: Red Hat, Inc.
-Message-Id: <1079086310.4445.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 12 Mar 2004 11:11:50 +0100
+	Fri, 12 Mar 2004 05:17:10 -0500
+Message-ID: <40518CDC.7090805@trash.net>
+Date: Fri, 12 Mar 2004 11:11:40 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ron Peterson <rpeterso@mtholyoke.edu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: network/performance problem
+References: <20040311152728.GA11472@mtholyoke.edu> <20040311151559.72706624.akpm@osdl.org> <20040311233525.GA14065@mtholyoke.edu>
+In-Reply-To: <20040311233525.GA14065@mtholyoke.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ron Peterson wrote:
+> On Thu, Mar 11, 2004 at 03:15:59PM -0800, Andrew Morton wrote:
+>>The profiles tell a story:
+>>
+>>c0217fb0 wait_for_packet                               2   0.0063
+>>c0256660 arpt_do_table                                 2   0.0019
+>>c0265ca0 __generic_copy_to_user                        2   0.0278
+>>c0106bd0 system_call                                   3   0.0536
+>>c0107e8c handle_IRQ_event                              3   0.0326
+>>c014bf10 statm_pgd_range                               3   0.0077
+>>c0120ed4 do_wp_page                                    5   0.0101
+>>c024c0d4 ip_conntrack_expect_related                  47   0.0368
+>>c0105250 default_idle                               2817  70.4250
+>>c024bae0 init_conntrack                             3053   3.7232
+>>00000000 total                                      5962   0.0041
+>>
+>>It appears that netfilter has gone berzerk and is taking your machine out.
+>>
+>>Are you really sure that nothing is sitting there injecting new rules all
+>>the time?
+> 
+> 
+> You mean a script calling 'iptables' to dynamically add rules?  Nothing
+> like that at all.  I dumped the current rules below.
+> 
+> Are you looking at the init_conntrack numbers?  While they seem, in the
+> long run, to be getting larger, they're not increasing monotonically.
+> My ping latencies, and the CPU percentage consumed by ksoftirqd_CPU0
+> just go up and and up (albeit slowly).
+> 
 
---=-OXOIujCleHbFePy0mNTK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The size-128 slab keeps growing over time, I suspect something is
+registering lots of expectations. init_conntrack has to walk the
+entire list for each new connection. Which helpers are you using ?
+Please also post the content of /proc/net/ip_conntrack and your
+config.
 
-On Fri, 2004-03-12 at 10:48, Andrew Morton wrote:
-> Arnd Bergmann <arnd@arndb.de> wrote:
-
-> But then the removal of KERNEL_SYSCALLS becomes hostage to those drivers,
-> and nobody is working on them.   It'll never happen.
-
-CONFIG_BROKEN ??
-
---=-OXOIujCleHbFePy0mNTK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAUYzmxULwo51rQBIRAlJKAJ9FX2HNrEjZ74O89Hqj7MqJfTw94wCdElWr
-V6FTKCRYe7eN/sd+lCKl/0k=
-=flvs
------END PGP SIGNATURE-----
-
---=-OXOIujCleHbFePy0mNTK--
-
+Regards
+Patrick

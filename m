@@ -1,74 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbRF2T12>; Fri, 29 Jun 2001 15:27:28 -0400
+	id <S266169AbRF2Tns>; Fri, 29 Jun 2001 15:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266162AbRF2T1S>; Fri, 29 Jun 2001 15:27:18 -0400
-Received: from mnh-1-20.mv.com ([207.22.10.52]:50952 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S266161AbRF2T1H>;
-	Fri, 29 Jun 2001 15:27:07 -0400
-Message-Id: <200106292040.PAA03583@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org
-cc: mistral@stev.org, linux-mm@kvack.org, rcastro@ime.usp.br, abali@us.ibm.com,
-        riel@conectiva.com.br, phillips@bonn-fries.net, viro@math.psu.edu
-Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state 
-In-Reply-To: Your message of "Mon, 25 Jun 2001 20:33:17 GMT."
-             <Pine.LNX.4.30.0106252031240.25982-100000@cyrix.stev.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Jun 2001 15:40:16 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S266167AbRF2Tnj>; Fri, 29 Jun 2001 15:43:39 -0400
+Received: from cx48762-a.cv1.sdca.home.com ([24.0.158.22]:65085 "EHLO
+	train.sweet-haven.com") by vger.kernel.org with ESMTP
+	id <S266166AbRF2Tnf>; Fri, 29 Jun 2001 15:43:35 -0400
+Date: Fri, 29 Jun 2001 12:41:51 -0700 (PDT)
+From: Lew Wolfgang <wolfgang@train.sweet-haven.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, <lm@bitmover.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+In-Reply-To: <20010629000255.B525@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0106291207140.5284-100000@train.sweet-haven.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To recap the story so far, a number of people have reported seeing processes 
-hang indefinitely in TASK_UNINTERRUPTIBLE in __wait_on_buffer or __lock_page, 
-both on physical boxes and under UML.  It was found to be reproducable under 
-UML, but not on a native kernel as far as I know.
+On Fri, 29 Jun 2001, Pavel Machek wrote:
 
-I've fixed this problem in UML.
+> > The biggest improvement would be that users could remain with a version
+> > that works for them and NOT be forced to pay more money for the same
+> > functionality (watch out for the XP license virus... also known as
+> > a logic bomb).
+>
+> What is XP license virus?
 
-The short story :
+Hi Pavel,
 
-The bug was UML-specific and specific in such a way that I don't think it's 
-possible to find the bug in the native kernel by making analogies from the UML 
-bug.
+I'm not sure it's like a virus, maybe more like a genetic defect.
 
-The long story :
+This is Micro$oft's new licensing scheme that made its first
+appearance with the SR1 edition of Office 2000.  I've been subjected
+to it twice now, with Office 2000 and Office XP.  Windows XP will
+use the same scheme.
 
-First, two pieces of background information
-	- UML's ubd block driver performs asynchronous I/O by using a separate thread 
-to perform the I/O.  The driver's request routine writes the request to the 
-I/O thread over a file descriptor.  The thread performs the request by calling 
-either read() or write() on the host.  When that call returns, it writes the 
-results back to UML, causing a SIGIO.  That goes through the normal IRQ system 
-and ends up in the ubd interrupt handler, which finishes the request, and, if 
-the device request queue isn't empty, starts the next request.
-	- A couple of weeks ago, I made a change to reduce the number of clock ticks 
-that UML loses under load.  The clock is implemented with SIGALRM and 
-SIGVTALRM.  The change involved leaving those signals enabled all the time, 
-and having the handler decide whether it was safe to invoke the timer irq.  If 
-not, it bumped a missing_ticks counter and returned.  The missing ticks are 
-fully accounted for the next time the handler finds that it can call into the 
-irq system.
+It seems to be a multifaceted license manager that does the following
+when installed:
 
-The ubd request routine runs with interrupts off, but now, the alarms could at 
-least fire, even if they didn't do anything but increment a counter.  This 
-occasionally caused the write of the I/O request from the request routine to 
-the I/O thread to return -EINTR.  The return value wasn't checked, so the I/O 
-thread didn't get the request and the request routine had no idea that 
-anything was wrong.  This caused disk I/O to permanently shut down, so pending 
-requests stayed pending, and processes waiting on them waited forever.
+1.  Sniffs around the hardware, building a list of what's installed.
+    This serves as a "fingerprint" for the Pea Sea.
 
-The key piece of this bug was a signal causing a crucial communication between 
-two UML threads to be lost.  I don't see any analogies between this and 
-anything that happens on a physical system, so it looks to me like the problem 
-that people are seeing there is completely different.
+2.  The user enters the CD "key", a unique serial number for the
+    software you purchased.
 
-Thanks to James Stevenson for figuring out how to reproduce the bug under UML, 
-and to Daniel Phillips and Al Viro for help in tracking this problem from the 
-fs and mm systems into the block and driver layers.
+3.  A new encrypted string containing the sftwe key and the hardware
+    fingerprint is now generated.  This new key must be provided to
+    Microsoft where they then generate a third key based on the
+    second.  This new key must be entered to "unlock" the software.
 
-				Jeff
+If this sequence is not followed, Office will run only 50 times, then
+shut itself down.  (I bet it leaves "spoor" somewhere to prevent the
+average user from just reinstalling from the CD.  I heard that
+Windows XP will run only 5 times before shutdown without the final key.
+
+Note that the manager encourages the user to use the automatic method
+for sending the key to Micro$oft.  A form is filled out with name,
+organization, address, phone number and such before a button is
+pressed to send your personal profile off to the Borg.  The return
+address has to be valid or you can't get the final, third key.
+(In all fairness, they will allow telephone key transmittal that
+can be anonymous.  This is what I did from a public phone booth)
+
+So, Micro$oft now has lots of information about you.  If the
+CD key is used again they just refuse to send the final key.
+Further, if your hardware environment changes (adding a new
+frame buffer, scsi controller, etc) the license manager assumes
+you copied the whole disk to another computer and are therefore
+a pirate.  It shuts down the package until a new key can be
+obtained from Micro$oft, presumably after you convince them
+that you aren't really a crook.  "I just added a disk!  Please
+turn my Windows on again!  I promise to be good and send you
+more money in the future.", can be heard across the land.
+
+This whole thing will probably be good for the Open Source
+Movement.  We won't have to "pull" users from the Borg,
+the Borg will start "pushing" them to us.
+
+Interesting times in which we live, what?
+
+Regards,
+Lew Wolfgang
 
 

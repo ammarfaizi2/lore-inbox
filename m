@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285666AbSBKApr>; Sun, 10 Feb 2002 19:45:47 -0500
+	id <S285369AbSBKAqi>; Sun, 10 Feb 2002 19:46:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285828AbSBKApa>; Sun, 10 Feb 2002 19:45:30 -0500
-Received: from web21307.mail.yahoo.com ([216.136.128.232]:61703 "HELO
-	web21307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S285666AbSBKApT>; Sun, 10 Feb 2002 19:45:19 -0500
-Message-ID: <20020211004518.73827.qmail@web21307.mail.yahoo.com>
-Date: Sun, 10 Feb 2002 16:45:18 -0800 (PST)
-From: Marie Burnett <marie_recruiter@yahoo.com>
-Subject: Job Announcement
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285828AbSBKAps>; Sun, 10 Feb 2002 19:45:48 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:18957 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S285747AbSBKAp2>; Sun, 10 Feb 2002 19:45:28 -0500
+Subject: 2.5.4-pre5 -- lvm.c:1310: In function `lvm_do_lock_lvm': structure
+	has no member named `sigpending'
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 10 Feb 2002 16:42:30 -0800
+Message-Id: <1013388150.30864.22.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pass this along to anyone you think might be
-interested.
- . ...or send me your resume if this is of interest to
-you -- thanks!
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+CONFIG_BLK_DEV_LVM=m
 
-Linux Kernel Engineer - Silicon Valley, CA
-EXCELLENT $, Relo and H-1 OK!
-PLEASE SEND YOUR RESUME TO marie_burnett@hotmail.com
-Job Duties and Responsibilities:
-Design & develop leading edge software for a NAS
-device based on embedded Linux. Design and implement
-innovative solutions for clustered storage servers. 
-
-Job Requirements:
-In depth knowledge of Linux operating system
-internals, file systems architecture, and clustering
-and fail-over solutions. Experience in kernel, device
-driver and networking development. Expertise in
-evaluating and integrating both Open Source and
-internally developed Linux components. Proven ability
-to work successfully within a large team and
-communicate effectively. Keep up-to-date on current
-development in Linux OS community.
-
-Experience/Education:
-5+ years experience of software development in
-medium/large software projects.
-3+ years of technical expertise with Linux.
-Bachelor’s degree in Computer Science or Electrical
-Engineering.
-Familiar with development within the open source
-community.
-PLEASE SEND YOUR RESUME TO marie_burnett@hotmail.com
-AND PLEASE FORWARD THIS TO ANYONE WHO YOU THINK MIGHT
-BE INTERESTED
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE 
+-DKBUILD_BASENAME=lvm  -c -o lvm.o lvm.c
+lvm.c: In function `lvm_do_lock_lvm':
+lvm.c:1310: structure has no member named `sigpending'
 
 
-
-__________________________________________________
-Do You Yahoo!?
-Send FREE Valentine eCards with Yahoo! Greetings!
-http://greetings.yahoo.com

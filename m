@@ -1,65 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317552AbSGORp3>; Mon, 15 Jul 2002 13:45:29 -0400
+	id <S317559AbSGORqP>; Mon, 15 Jul 2002 13:46:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317559AbSGORp2>; Mon, 15 Jul 2002 13:45:28 -0400
-Received: from noc.easyspace.net ([62.254.202.67]:10003 "EHLO
-	noc.easyspace.net") by vger.kernel.org with ESMTP
-	id <S317552AbSGORp2>; Mon, 15 Jul 2002 13:45:28 -0400
-Date: Mon, 15 Jul 2002 18:48:05 +0100
-From: Sam Vilain <sam@vilain.net>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: dax@gurulabs.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-In-Reply-To: <20020715160357.GD442@clusterfs.com>
-References: <1026490866.5316.41.camel@thud>
-	<1026679245.15054.9.camel@thud>
-	<E17U1BD-0000m0-00@hofmann>
-	<1026736251.13885.108.camel@irongate.swansea.linux.org.uk>
-	<E17U4YE-0000TL-00@hofmann>
-	<20020715160357.GD442@clusterfs.com>
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S317560AbSGORqO>; Mon, 15 Jul 2002 13:46:14 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:35496 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S317559AbSGORqK>;
+	Mon, 15 Jul 2002 13:46:10 -0400
+Message-ID: <000b01c22c28$05cd9bb0$0201a8c0@witek>
+From: =?iso-8859-2?Q?Witek_Kr=EAcicki?= <adasi@kernel.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG 2.5.11-25] mremap hang
+Date: Mon, 15 Jul 2002 19:49:51 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17U9x9-0001Dc-00@hofmann>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> wrote:
+>From 2.5.11 (at least, never tested earlier kernels) meine liebe RPM-updater
+Poldek is not working. I've sent posts to lkml without any response. This is
+decoded output from sysrq-t. Strace shows that poldek hangs on mremap().
+Blagam zrobcie cos bo to idzie sie powiesic, nie moge nawet normalnie
+pracowac. Dunno where the bug is, it's fully repeatable, anyone with PLD can
+make it :)
 
-> Amusingly, there IS directory hashing available for ext2 and ext3, and
-> it is just as fast as reiserfs hashed directories.  See:
->    http://people.nl.linux.org/~phillips/htree/paper/htree.html
 
-You learn something new every day.  So, with that in mind - what has reiserfs got that ext2 doesn't?
+<cut>
+ksymoops 2.4.4 on i686 2.5.25.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.25/ (default)
+     -m /boot/System.map-2.5.25-1.1 (specified)
 
-  - tail merging, giving much more efficient space usage for lots of small
-    files.
-  - B*Tree allocation offering ``a 1/3rd reduction in internal
-    fragmentation in return for slightly more complicated insertions and
-    deletion algorithms'' (from the htree paper).
-  - online resizing in the main kernel (ext2 needs a patch -
-    http://ext2resize.sourceforge.net/).
-  - Resizing does not require the use of `ext2prepare' run on the
-    filesystem while unmounted to resize over arbitrary boundaries.
-  - directory hashing in the main kernel
+Warning (expand_objects): object
+/lib/modules/2.5.25-1.1/kernel/fs/ext2/ext2.o for module ext2 has changed
+since load
+Warning (expand_objects): object
+/lib/modules/2.5.25-1.1/kernel/drivers/ide/ide-disk.o for module ide-disk
+has changed since load
+Warning (expand_objects): object
+/lib/modules/2.5.25-1.1/kernel/drivers/ide/ide-mod.o for module ide-mod has
+changed since load
+poldek        D C1791E30     0  3452      1          3453   605 (NOTLB)
+Using defaults from ksymoops -t elf32-i386 -a i386
+Call Trace: [<c016ee45>] [<c011051f>] [<c0110034>] [<c013023f>] [<c0130022>]
+   [<c0125ff6>] [<c012606b>] [<c0124c5b>] [<c01088bc>] [<c012b9bc>]
+[<c012bb39>]
+   [<c012c0df>] [<c012c22e>] [<c010872b>]
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-On the flipside, ext2 over reiserfs:
+Proc;  poldek
+>>EIP; c1791e30 <_end+14d9264/20551434>   <=====
+Trace; c016ee45 <rwsem_down_read_failed+115/138>
+Trace; c011051f <.text.lock.fault+7/78>
+Trace; c0110034 <do_page_fault+0/4e4>
+Trace; c013023f <__alloc_pages+47/1a0>
+Trace; c0130022 <_alloc_pages+16/18>
+Trace; c0125ff6 <do_anonymous_page+18a/1c4>
+Trace; c012606b <do_no_page+3b/2dc>
+Trace; c0124c5b <zap_pmd_range+3f/50>
+Trace; c01088bc <error_code+34/40>
+Trace; c012b9bc <move_one_page+2c/17c>
+Trace; c012bb39 <move_page_tables+2d/7c>
+Trace; c012c0df <do_mremap+557/658>
+Trace; c012c22e <sys_mremap+4e/6f>
+Trace; c010872b <syscall_call+7/b>
 
-  - support for attributes without a patch or 2.4.19-pre4+ kernel
-  - support for filesystem quotas without a patch
-  - there is a `dump' command (but it's useless, because it hangs when you
-    run it on mounted filesystems - come on, who REALLY unmounts their
-    filesystems for a nightly dump?  You need a 3 way mirror to do it
-    while guaranteeing filesystem availability...)
 
-I'd be very interested in seeing postmark results without the hierarchical directory structure (which an unpatched postfix doesn't support), with about 5000 mailboxes with and without the htree patch (or with the htree patch but without that directory indexed, if that is possible).
---
-   Sam Vilain, sam@vilain.net     WWW: http://sam.vilain.net/
-    7D74 2A09 B2D3 C30F F78E      GPG: http://sam.vilain.net/sam.asc
-    278A A425 30A9 05B5 2F13
+4 warnings issued.  Results may not be reliable.
 
-  Try to be the best of what you are, even if what you are is no good.
-ASHLEIGH BRILLIANT
+</cut>
+
+Witek Krecicki
+
+
+

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315493AbSECA0B>; Thu, 2 May 2002 20:26:01 -0400
+	id <S315506AbSECA2j>; Thu, 2 May 2002 20:28:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSECA0A>; Thu, 2 May 2002 20:26:00 -0400
-Received: from [194.234.65.222] ([194.234.65.222]:45724 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S315493AbSECA0A>; Thu, 2 May 2002 20:26:00 -0400
-Date: Fri, 3 May 2002 02:25:41 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-X-X-Sender: roy@mustard.heime.net
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE hotplug support?
-In-Reply-To: <3CD18318.7060407@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0205030223520.31927-100000@mustard.heime.net>
+	id <S315509AbSECA2i>; Thu, 2 May 2002 20:28:38 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:43537 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315506AbSECA2h>; Thu, 2 May 2002 20:28:37 -0400
+Message-ID: <3CD1CAFE.3010109@evision-ventures.com>
+Date: Fri, 03 May 2002 01:25:50 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+In-Reply-To: <802.1020382834@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 15 drives == 16 interfaces == 8 channels == 4 controllers
-> with primary and secondary channel.
-> 
-> He will have groups of about 4 drives on each channel wich
-> serialize each other due to excessive IRQ line sharing and
-> master slave issues.
-> 
-> 8 x 130MBy/s >>>> PCI bus throughput... I would rather recommend
-> a classical RAID controller card for this kind of
-> setup.
-> 
-> The request aliasing effects will be almost for sure disasterous
-> to overall system performance.
+Uz.ytkownik Keith Owens napisa?:
 
-hm. all I want is lots of space. I don't need speed here. What is 
-'disasterous' here?
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
+> I know how to do ABI versioning right.  But there is no chance of me
+> starting work on the correct method of ABI versioning until kbuild 2.5
+> is in.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+It's shown in the syscall part of the kernel :-) Just don't provide
+a too big ABI and stick to it is one possible strategy.
+
+And of course I'm sure you recognize that what we could use is ABI *checking*
+and not ABI *versioning* thingee. If one really really want's to do this the
+only true one way, well the solution is.... for example CORBA IDL and stuff
+if you divide the remote part of CORBA out.
+
+And hell I'm not expecting an ORB to appear in the kernel any time soon.
+(However I remember someone once implementid such a beast...)
+
 

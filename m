@@ -1,109 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVATQVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVATQa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbVATQVd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 11:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVATQUr
+	id S262284AbVATQa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 11:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVATQ3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:20:47 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:41382 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262220AbVATQPO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:15:14 -0500
-Date: Thu, 20 Jan 2005 17:14:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: [patch] stricter type-checking rwlock primitives, x86
-Message-ID: <20050120161450.GC13812@elte.hu>
-References: <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com> <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu> <20050120161116.GA13812@elte.hu> <20050120161259.GB13812@elte.hu>
+	Thu, 20 Jan 2005 11:29:25 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17669 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262278AbVATQ2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 11:28:13 -0500
+Date: Thu, 20 Jan 2005 17:28:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>,
+       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Chris Bruner <cryst@golden.net>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Matt Domsch <Matt_Domsch@dell.com>
+Subject: Re: COMMAND_LINE_SIZE increasing in 2.6.11-rc1-bk6
+Message-ID: <20050120162807.GA3174@stusta.de>
+References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050120161259.GB13812@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 20, 2005 at 12:13:22AM +0100, Janos Farkas wrote:
 
-[patch respun with s/trylock_test/can_lock/]
---
+> Hi Andi!
+> 
+> I had difficulties booting recent rc1-bkN kernels on at least two
+> Athlon machines (but somehow, on an *old* Pentium laptop booted with the
+> a very similar system just fine).
+> 
+> The kernel just hung very early, just after displaying "BIOS data check
+> successful" by lilo (22.6.1).  Ctrl-Alt-Del worked to reboot, but
+> nothing else was shown.
+> 
+> It is a similar experience to Chris Bruner's post here:
+> > http://article.gmane.org/gmane.linux.kernel/271352
+> 
+> I also recall someone having similar problem with Opterons too, but
+> can't find just now..
+> 
+> rc1-bk6 didn't boot, and thus I started checking revisions:
+> rc1-bk3 did boot (as well as plain rc1)
+> rc1-bk4 didn't boot
+> rc1-bk7 booted *after* reverting the patch below:
+> 
+> > 4 days ak 1.2329.1.38 [PATCH] x86_64/i386: increase command line size
+> > Enlarge i386/x86-64 kernel command line to 2k
+> > This is useful when the kernel command line is used to pass other
+> > information to initrds or installers.
+> > On i386 it was duplicated for unknown reasons.
+> > Signed-off-by: Andi Kleen
+> > Signed-off-by: Andrew Morton
+> > Signed-off-by: Linus Torvalds
+> 
+> While arguably it's not a completely scientific approach (no plain bk7,
+> and no bk6 reverted was tested), I'm inclined to say this was my
+> problem...
+> 
+> Isn't this define a lilo dependence?
 
-turn x86 rwlock macros into inline functions, to get stricter
-type-checking. Test-built/booted on x86. (patch comes after all
-previous spinlock patches.)
+AOL:
+- lilo 22.6.1
+- CONFIG_EDD=y
+- 2.6.10-mm1 and 2.6.11-rc1 did boot
+- 2.6.11-rc1-mm1 and 2.6.11-rc1-mm2 didn't boot
+- 2.6.11-rc1-mm2 with this ChangeSet reverted boots.
 
-	Ingo
+cu
+Adrian
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+-- 
 
---- linux/include/asm-i386/spinlock.h.orig
-+++ linux/include/asm-i386/spinlock.h
-@@ -198,21 +198,33 @@ typedef struct {
- 
- #define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
- 
--#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
-+static inline void rwlock_init(rwlock_t *rw)
-+{
-+	*rw = RW_LOCK_UNLOCKED;
-+}
- 
--#define rwlock_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
-+static inline int rwlock_is_locked(rwlock_t *rw)
-+{
-+	return rw->lock != RW_LOCK_BIAS;
-+}
- 
- /**
-  * read_can_lock - would read_trylock() succeed?
-  * @lock: the rwlock in question.
-  */
--#define read_can_lock(x) (atomic_read((atomic_t *)&(x)->lock) > 0)
-+static inline int read_can_lock(rwlock_t *rw)
-+{
-+	return atomic_read((atomic_t *)&rw->lock) > 0;
-+}
- 
- /**
-  * write_can_lock - would write_trylock() succeed?
-  * @lock: the rwlock in question.
-  */
--#define write_can_lock(x) ((x)->lock == RW_LOCK_BIAS)
-+static inline int write_can_lock(rwlock_t *rw)
-+{
-+	return atomic_read((atomic_t *)&rw->lock) == RW_LOCK_BIAS;
-+}
- 
- /*
-  * On x86, we implement read-write locks as a 32-bit counter
-@@ -241,8 +253,16 @@ static inline void _raw_write_lock(rwloc
- 	__build_write_lock(rw, "__write_lock_failed");
- }
- 
--#define _raw_read_unlock(rw)		asm volatile("lock ; incl %0" :"=m" ((rw)->lock) : : "memory")
--#define _raw_write_unlock(rw)	asm volatile("lock ; addl $" RW_LOCK_BIAS_STR ",%0":"=m" ((rw)->lock) : : "memory")
-+static inline void _raw_read_unlock(rwlock_t *rw)
-+{
-+	asm volatile("lock ; incl %0" :"=m" (rw->lock) : : "memory");
-+}
-+
-+static inline void _raw_write_unlock(rwlock_t *rw)
-+{
-+	asm volatile("lock ; addl $" RW_LOCK_BIAS_STR
-+				",%0":"=m" (rw->lock) : : "memory");
-+}
- 
- static inline int _raw_read_trylock(rwlock_t *lock)
- {
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

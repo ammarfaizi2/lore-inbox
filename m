@@ -1,61 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265622AbUBBF2w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 00:28:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265627AbUBBF2v
+	id S265624AbUBBFnw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 00:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265627AbUBBFnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 00:28:51 -0500
-Received: from h80ad2616.async.vt.edu ([128.173.38.22]:14783 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265622AbUBBF2u (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 00:28:50 -0500
-Message-Id: <200402020527.i125RvTx008088@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: joshk@triplehelix.org (Joshua Kwan)
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6 input drivers FAQ 
-In-Reply-To: Your message of "Sun, 01 Feb 2004 08:31:37 PST."
-             <20040201163136.GF11391@triplehelix.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040201100644.GA2201@ucw.cz>
-            <20040201163136.GF11391@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-389920603P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 2 Feb 2004 00:43:52 -0500
+Received: from mail6.speakeasy.net ([216.254.0.206]:62443 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S265624AbUBBFnt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 00:43:49 -0500
+Date: Sun, 1 Feb 2004 21:43:42 -0800
+Message-Id: <200402020543.i125hgoa009640@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Feb 2004 00:27:57 -0500
+From: Roland McGrath <roland@redhat.com>
+To: Daniel Jacobowitz <dan@debian.org>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc3 broke ptrace in the vsyscall dso area
+In-Reply-To: Daniel Jacobowitz's message of  Sunday, 1 February 2004 22:55:08 -0500 <20040202035508.GA10286@nevyn.them.org>
+X-Windows: garbage at your fingertips.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-389920603P
-Content-Type: text/plain; charset=us-ascii
+> Any idea what might have disabled this?
 
-On Sun, 01 Feb 2004 08:31:37 PST, Joshua Kwan said:
+...Mosberger!!  When Andrew asked me to sign off on David's rework of that
+code, I did so with the caveat that it be tested on i386 before being
+accepted, and evidently it never was.
 
-> On Sun, Feb 01, 2004 at 11:06:44AM +0100, Vojtech Pavlik wrote:
-> > I'm getting double clicks when I click only once.
-> 
-> I get these spuriously and i'm using only /dev/input/mice in my config
-> flie.
+The #include is the part of this patch that matters, so the #ifdef below
+works.  (Frankly, I have never seen the rationale for conditionalizing this
+code on AT_SYSINFO_EHDR rather than just FIXADDR_USER_START.  But David
+wanted it that way and Andrew approved it.)  The rest of the patch removes
+gratuitous duplication due to some strange aversion to concision in the
+presence of #ifdef, the kind that is all too common, utterly pointless, and
+error prone.
 
-OK.. and here I thought I was getting senile or Mozilla was buggy. Every
-once in a while (a few times a day at most) I'd middle-click a link to open it
-in a new tab, and get 2 tabs.
 
-It may affect left-button as well, I don't often do things where a single
-or double left-click produce different noticably results.
+Thanks,
+Roland
 
---==_Exmh_-389920603P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAHd/dcC3lWbTT17ARAgiyAKC2zlwzEwpXLC18oLCX1/CWvRZuZgCff1Cz
-/tCe7gDpAAAZ71yw1+J6vtA=
-=zles
------END PGP SIGNATURE-----
-
---==_Exmh_-389920603P--
+Index: linux-2.6/include/linux/mm.h
+===================================================================
+RCS file: /home/roland/redhat/bkcvs/linux-2.5/include/linux/mm.h,v
+retrieving revision 1.137
+diff -p -u -r1.137 mm.h
+--- linux-2.6/include/linux/mm.h 20 Jan 2004 05:12:38 -0000 1.137
++++ linux-2.6/include/linux/mm.h 2 Feb 2004 05:20:11 -0000
+@@ -12,6 +12,7 @@
+ #include <linux/mmzone.h>
+ #include <linux/rbtree.h>
+ #include <linux/fs.h>
++#include <linux/elf.h>
+ 
+ #ifndef CONFIG_DISCONTIGMEM          /* Don't use mapnrs, do it properly */
+ extern unsigned long max_mapnr;
+@@ -643,31 +644,24 @@ kernel_map_pages(struct page *page, int 
+ #endif
+ 
+ #ifndef CONFIG_ARCH_GATE_AREA
+-#ifdef AT_SYSINFO_EHDR
+ static inline int in_gate_area(struct task_struct *task, unsigned long addr)
+ {
++#ifdef AT_SYSINFO_EHDR
+ 	if ((addr >= FIXADDR_USER_START) && (addr < FIXADDR_USER_END))
+ 		return 1;
+-	else
+-		return 0;
++#endif
++	return 0;
+ }
+ 
+ extern struct vm_area_struct gate_vma;
+ static inline struct vm_area_struct *get_gate_vma(struct task_struct *tsk)
+ {
++#ifdef AT_SYSINFO_EHDR
+ 	return &gate_vma;
+-}
+ #else
+-static inline int in_gate_area(struct task_struct *task, unsigned long addr)
+-{
+ 	return 0;
+-}
+-
+-static inline struct vm_area_struct *get_gate_vma(struct task_struct *tsk)
+-{
+-	return NULL;
+-}
+ #endif
++}
+ #endif
+ 
+ #endif /* __KERNEL__ */

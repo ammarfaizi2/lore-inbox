@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262416AbSJKIIJ>; Fri, 11 Oct 2002 04:08:09 -0400
+	id <S262418AbSJKIIR>; Fri, 11 Oct 2002 04:08:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262418AbSJKIIJ>; Fri, 11 Oct 2002 04:08:09 -0400
-Received: from mx7.mail.ru ([194.67.57.17]:44044 "EHLO mx7.mail.ru")
-	by vger.kernel.org with ESMTP id <S262416AbSJKIII>;
-	Fri, 11 Oct 2002 04:08:08 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: More on O_STREAMING (goodby read pauses)
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 194.226.0.89 via proxy [194.226.0.63]
-Date: Fri, 11 Oct 2002 12:13:50 +0400
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17zuve-0008v9-00@f17.mail.ru>
+	id <S262422AbSJKIIR>; Fri, 11 Oct 2002 04:08:17 -0400
+Received: from denise.shiny.it ([194.20.232.1]:23213 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S262418AbSJKIIQ>;
+	Fri, 11 Oct 2002 04:08:16 -0400
+Message-ID: <XFMail.20021011101359.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20021010224417.GA2673@matchmail.com>
+Date: Fri, 11 Oct 2002 10:13:59 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Cc: linux-kernel@vger.kernel.org, Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   So i suspect this O_STREAMING will revive the disk->disk
- data copying transfer rate for large files like these bloody
- mpeg4 .avi`s ;)
 
-   Disk transfers depends on the drive being constantly busy
- and this new report from the battlefield brings a new hope.
+On 10-Oct-2002 Mike Fedyk wrote:
+>> [...] I would
+>> like a way to read the db so that the cached part of
+>> the db (the 20% which gets 80% of accesses) is not
+>> expunged.
+>
+> Unless you are pausing the database (causing the files on disk to be in a
+> useful state) and then reading the file you will have trouble.  Anything
+> else will have to syncronize with the database itself, and thus can't use
+> O_STREAMING.
 
-   The only thing left is to adopt the userland tools
- like cp and mc...
+All the cached db pages will be dropped regardless its state. Any
+further access to the db will read the data from disk again. I'm
+talking only about performance, not about db coherency.
 
----
-cheers,
-   Samium Gromoff
-_________________________________
-_____________________________________
+Bye.
 

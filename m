@@ -1,46 +1,50 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154212AbPEaHLH>; Mon, 31 May 1999 03:11:07 -0400
-Received: by vger.rutgers.edu id <S153897AbPEaFJi>; Mon, 31 May 1999 01:09:38 -0400
-Received: from mailhost.uni-koblenz.de ([141.26.64.1]:38176 "EHLO mailhost.uni-koblenz.de") by vger.rutgers.edu with ESMTP id <S154439AbPEaBLr>; Sun, 30 May 1999 21:11:47 -0400
-Date: Mon, 31 May 1999 04:14:37 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "Vilain, Sam" <sam.vilain@nz.unisys.com>
-Cc: "'Jim Mostek'" <mostek@sgi.com>, linux-kernel@vger.rutgers.edu
-Subject: Re: XFS and journalling filesystems
-Message-ID: <19990531041437.C672@uni-koblenz.de>
-References: <76D8782817C5D211A37400104B0C84B029C52F@nz-wlg-exch-1.nz.unisys.com>
-Mime-Version: 1.0
+Received: by vger.rutgers.edu via listexpand id <S154458AbPFAAD2>; Mon, 31 May 1999 20:03:28 -0400
+Received: by vger.rutgers.edu id <S153881AbPEaXHn>; Mon, 31 May 1999 19:07:43 -0400
+Received: from dukat.scot.redhat.com ([195.89.149.246]:2173 "EHLO dukat.scot.redhat.com") by vger.rutgers.edu with ESMTP id <S154019AbPEaWLX>; Mon, 31 May 1999 18:11:23 -0400
+From: "Stephen C. Tweedie" <sct@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <76D8782817C5D211A37400104B0C84B029C52F@nz-wlg-exch-1.nz.unisys.com>; from Vilain, Sam on Sat, May 29, 1999 at 06:48:19AM -0400
-X-Accept-Language: de,en,fr
+Content-Transfer-Encoding: 7bit
+Message-ID: <14163.6255.462769.27934@dukat.scot.redhat.com>
+Date: Tue, 1 Jun 1999 00:17:03 +0100 (BST)
+To: "Jeff Merkey" <jmerkey@timpanogas.com>
+Cc: "Jim Mostek" <mostek@sgi.com>, <andreas@andreas.org>, <mcai7et2@stud.umist.ac.uk>, <linux-kernel@vger.rutgers.edu>, Stephen Tweedie <sct@redhat.com>
+Subject: Re: XFS and journalling filesystems
+In-Reply-To: <012201bea93f$db9d1050$e6976dcf@TRGMERKEYNT2000>
+References: <199905281653.LAA61598@fsgi344.cray.com> <012201bea93f$db9d1050$e6976dcf@TRGMERKEYNT2000>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sat, May 29, 1999 at 06:48:19AM -0400, Vilain, Sam wrote:
+Hi,
 
-> As a dangerous rule of thumb, LOC ~ code size.  More code size = bigger
-> kernel = less (buffercache|user memory).  <flamesuit>This is a fear of Linux
-> kernel developers - Linux ending up as slow as say, Solaris on low end
-> machines (even if it kicks butt on 6144-way SMP).</flamesuit>
+On Fri, 28 May 1999 13:25:33 -0600, "Jeff Merkey"
+<jmerkey@timpanogas.com> said:
 
-Nobody builds 6144-way SMPs, not Sun nor somebody else.  The SMP paradigm
-just doesn't scale that far.
+> getting the NetWare FS (FENRIS) ready for open source next Tuesday,
+> hopefully it may be helpful to all, including you guys -- we are putting ALL
+> of it under the GPL (less the NT specific IFS code which is about 18,000
+> lines oddly enough)).  Sounds like the term "journalling" is like the term
+> "clustering" from an industry perspective, 
 
-> Numbers are often good in arguments like this.  ie, how big is the ext2fs
-> module under Linux/MIPS, compared to the xfs module under Irix?  [Comparing
-> with Linux/i386 should probably be avoided, because i386 code is (generally)
-> more instructions/word, even if you need a few extra million transistors to
-> decode it :)].
+No, it is a true transactional journal with ACID semantics.  It just
+doesn't necessarily include data.  
 
-[ralf@lappi linux-sgi]$ mips-linux-size fs/ext2/ext2.o
-   text	   data	    bss	    dec	    hex	filename
-  60080	    496	   1024	  61600	   f0a0	fs/ext2/ext2.o
-[ralf@lappi linux-sgi]$ 
+> and some FS's aren't really journalled, but reapply this term for
+> marketing positioning.  
 
-The archive /usr/cpu/sysgen/IP22boot/xfs.a of IRIX 6.2 has in total a
-.text size of 274864.  That's 32 bit code btw.
+That is the standard definition of the term in the fs community on
+Unix.  Sounds like you are the one trying to redefine it!
 
-  Ralf
+> A log based file system that logs user writes and allows rollbacks
+> is what most folks assume when the term "journalling" is used.  
+
+No.  You may be thinking of a log-structured filesystem, but that is
+_completely_ different from metadata journaling (which of course
+doesn't mean that marketing depts don't sometimes try to confuse
+them).  An LFS is necessarily journaled, but not all journaled
+filesystems are log structured.
+
+--Stephen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131167AbQL2OOc>; Fri, 29 Dec 2000 09:14:32 -0500
+	id <S131063AbQL2OkC>; Fri, 29 Dec 2000 09:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131151AbQL2OOW>; Fri, 29 Dec 2000 09:14:22 -0500
-Received: from nta-monitor.demon.co.uk ([212.229.78.70]:6406 "EHLO
-	mercury.nta-monitor.com") by vger.kernel.org with ESMTP
-	id <S129838AbQL2OOF>; Fri, 29 Dec 2000 09:14:05 -0500
-Message-Id: <4.3.2.7.2.20001229133326.00b28990@192.168.124.1>
+	id <S130255AbQL2Ojx>; Fri, 29 Dec 2000 09:39:53 -0500
+Received: from host55.osagesoftware.com ([209.142.225.55]:50448 "EHLO
+	netmax.osagesoftware.com") by vger.kernel.org with ESMTP
+	id <S129797AbQL2Oji>; Fri, 29 Dec 2000 09:39:38 -0500
+Message-Id: <4.3.2.7.2.20001229090753.00bc69a0@mail.osagesoftware.com>
 X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 29 Dec 2000 13:43:28 +0000
-To: linux-kernel@vger.kernel.org
-From: Roy Hills <Roy.Hills@nta-monitor.com>
-Subject: UDP ports 800-n used by NFS client in 2.2.17
+Date: Fri, 29 Dec 2000 09:09:01 -0500
+To: "Giacomo A. Catenazzi" <cate@student.ethz.ch>
+From: David Relson <relson@osagesoftware.com>
+Subject: Re: [PATCH] Processor autodetection (when configuring kernel)
+Cc: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
+In-Reply-To: <3A4C941E.EA824F87@student.ethz.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know what causes netstat to show UDP port 800
-as active on a Linux NFS client with 2.2.17 kernel when an NFS filesystem
-is mounted?
+Giacomo,
 
-Using Debian Linux 2.2 with Kernel 2.2.17 with one NFS filesystem mounted, 
-I see
-the following:
+I don't think cpu_info.sh is quite right.  It identified my 500 Mhz Pentium 
+III as CONFIG_M386.  I think CONFIG_M686 is closer, but as I don't know the 
+significance of all the flags (MMX, TSC, etc), I'm not certain.  Since the 
+flags do include fxsr, the correct answer may be CONFIG_M686FXSR.
 
-    rsh@lithium [3]$ netstat -n -a -u
-    Active Internet connections (servers and established)
-    Proto Recv-Q Send-Q Local Address          Foreign Address
-    udp        0      0 0.0.0.0:800            0.0.0.0:*
+Anyhow, here are my results:
 
-If I unmount the NFS Filesystem, the UDP port disappears.
+[relson@osage relson]$ cat /proc/cpuinfo
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 7
+model name	: Pentium III (Katmai)
+stepping	: 3
+cpu MHz	: 501.147
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug	: no
+sep_bug	: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 
+mmx fxsr xmm
+bogomips	: 999.42
 
-It appears that each NFS mounted filesystem uses a separate UDP
-port, and that they count down from port 800.  I.e. the first
-mount uses UDP port 800, the second UDP port 799.
+[relson@osage relson]$ ARCH=i386 ; . cpu_detect.sh
+GenuineIntel:6:7
+CONFIG_M386
 
-"lsof -i" doesn't show this port belonging to any process, and the "-p" 
-option to netstat
-doesn't show any process info either. I assume that this means that it's a 
-kernel thing
-rather than a process level thing.
+Also, here's a patch to make the script echo CONFIG_M686:
 
-A network sniff while mounting and umounting the NFS filesystem
-doesn't show any traffic on UDP port 800 - I just see portmapper, mountd 
-and nfs
-traffic.
+diff -urN cpu_detect.sh.orig cpu_detect.sh
+--- cpu_detect.sh.orig	Fri Dec 29 09:02:27 2000
++++ cpu_detect.sh	Fri Dec 29 09:01:14 2000
+@@ -18,7 +18,7 @@
+    case $cpu_id in
+      GenuineIntel:5:[0123]      )  echo CONFIG_M586TSC   ;;
+      GenuineIntel:5:[48]        )  echo CONFIG_M586MMX   ;;
+-    GenuineIntel:6:[01356]     )  echo CONFIG_M686      ;;
++    GenuineIntel:6:[013567]    )  echo CONFIG_M686      ;;
+      GenuineIntel:6:{8,9,11}    )  echo CONFIG_M686FXSR  ;;
+      AuthenticAMD:5:[0123]      )  echo CONFIG_M586      ;;
+      AuthenticAMD:5:{8,9,10,11} )  echo CONFIG_MK6       ;;
 
-Does anyone know what this is or where I can look in the source for more info?
-I've searched /usr/src/linux/fs/nfs/*.c for 800 and 320 (800 in hex) 
-without success.
+David
 
-Roy Hills
---
-Roy Hills                                    Tel:   +44 1634 721855
-NTA Monitor Ltd                              FAX:   +44 1634 721844
-14 Ashford House, Beaufort Court,
-Medway City Estate,                          Email: Roy.Hills@nta-monitor.com
-Rochester, Kent ME2 4FA, UK                  WWW:   http://www.nta-monitor.com/
+P.S.  I'm running 2.2.18, if it matters.
+--------------------------------------------------------
+David Relson                   Osage Software Systems, Inc.
+relson@osagesoftware.com       Ann Arbor, MI 48103
+www.osagesoftware.com          tel:  734.821.8800
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

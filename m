@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbSAGT6T>; Mon, 7 Jan 2002 14:58:19 -0500
+	id <S286184AbSAGT7T>; Mon, 7 Jan 2002 14:59:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286184AbSAGT6J>; Mon, 7 Jan 2002 14:58:09 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:9483 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286179AbSAGT6A>;
-	Mon, 7 Jan 2002 14:58:00 -0500
-Date: Mon, 7 Jan 2002 17:57:30 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFT] simple deadline I/O scheduler
-In-Reply-To: <Pine.LNX.4.33.0201071429470.5017-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.33L.0201071756580.872-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S286187AbSAGT7A>; Mon, 7 Jan 2002 14:59:00 -0500
+Received: from florence.ie.alphyra.com ([193.120.224.170]:61083 "EHLO
+	florence.ie.alphyra.com") by vger.kernel.org with ESMTP
+	id <S286184AbSAGT6r>; Mon, 7 Jan 2002 14:58:47 -0500
+Date: Mon, 7 Jan 2002 19:58:25 +0000 (GMT)
+From: Paul Jakma <paulj@alphyra.ie>
+X-X-Sender: <paulj@dunlop.dub.ie.alphyra.com>
+To: Dave Jones <davej@suse.de>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Patrick Mochel <mochel@osdl.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+In-Reply-To: <Pine.LNX.4.33.0201072024340.16327-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.33.0201071954050.27372-100000@dunlop.dub.ie.alphyra.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, Mark Hahn wrote:
+On Mon, 7 Jan 2002, Dave Jones wrote:
 
-> > Would it be possible to introduce concept of I/O priority? I.e. I want
-> > updatedb not to load disk if I need it for something else?
->
-> makes sense to me.  actually, VM is another place where priority
-> could be quite useful - for instance, how hard the VM scavenges
-> a proc's pages.  oops, there I go advocating a tunable...
->
-> VM_SWAP_ME_HARDER anyone?
+> For one, driverfs can be made mandatory. Sure we could do the same for
+> devfs, but there are probably an army of people who don't want
+> a mandatory devfs.
 
-This seems to work very badly, making one process swap more
-means it pagefaults more and sucks up more IO bandwidth ;)
+but devfs internally is a driver API for registering stuff. it can be
+made mandatory without requiring the user-side interface, ie /dev dir,
+to be mandatory.
 
-regards,
+(indeed, i dont mount devfs on /dev).
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
+obviously devfs must also be made to pass Al's goodness-o-meter.  :)
 
-http://www.surriel.com/		http://distro.conectiva.com/
+in terms of the kernel interface it'd be daft to have multiple device
+registration interfaces.
+
+--paulj
 

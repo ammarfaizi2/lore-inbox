@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263394AbUKZWIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263401AbUKZWKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbUKZWIw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbUKZWIJ
+	id S263401AbUKZWKH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 17:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263391AbUKZWJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 17:08:09 -0500
-Received: from mail.dif.dk ([193.138.115.101]:30336 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S263615AbUKZTvc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:51:32 -0500
-Message-ID: <41A74AC1.8040208@dif.dk>
-Date: Fri, 26 Nov 2004 16:24:49 +0100
-From: Jesper Juhl <juhl-lkml@dif.dk>
-Organization: DIF
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Any reason why we don't initialize all members of struct Xgt_desc_struct
- in doublefault.c ?
-References: <Pine.LNX.4.61.0411250011160.3447@dragon.hygekrogen.localhost> <41A7483F.9010302@pobox.com>
-In-Reply-To: <41A7483F.9010302@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 26 Nov 2004 17:09:10 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:9379 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263448AbUKZTvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:51:03 -0500
+Subject: Re: Suspend 2 merge: 16/51: Disable cache reaping during suspend.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125181809.GF1417@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101295167.5805.254.camel@desktop.cunninghams>
+	 <20041125181809.GF1417@openzaurus.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101420039.27250.51.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 09:00:39 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Jesper Juhl wrote:
-> 
->> Yes, this is nitpicking, but I just can't leave small corners like 
->> this unpolished ;)
->>
->> in arch/i386/kernel/doublefault.c you will find this (line 20) :
->>
->> struct Xgt_desc_struct gdt_desc = {0, 0};
->>
->> but, struct Xgt_desc_struct has 3 members,
->> struct Xgt_desc_struct {
->>         unsigned short size;
->>         unsigned long address __attribute__((packed));
->>         unsigned short pad;
->> } __attribute__ ((packed));
->>
->> so why only initialize two of them explicitly?
-> 
-> 
-> 'pad' is a dummy variable... nobody cares about its value.
-> 
-Ok, good reason. Thank you for taking the time to reply.
+Hi.
 
---
-Jesper Juhl
+On Fri, 2004-11-26 at 05:18, Pavel Machek wrote:
+> Hi!
+> > I have to admit to being a little unsure as to why this is needed, but
+> > suspend's reliability is helped a lot by disabling cache reaping while
+> > suspending. Perhaps one of the mm guys will be able to enlighten me
+> > here. Might be SMP related.
+> 
+> It would be good to understand it. Rather than slowing common code... why
+> not down(&cache_chain_sem) in suspend2?
+
+Didn't consider it, to be honest.
+
+That said, if/when we start to use cpu hotplug for SMP, we'll deadlock
+in cpuup_callback if we've got the sem.
+
+> >  {
+> >  	struct list_head *walk;
+> >  
+> > -	if (down_trylock(&cache_chain_sem)) {
+> > +	if ((unlikely(test_suspend_state(SUSPEND_RUNNING))) ||
+> > +		(down_trylock(&cache_chain_sem))) 
+> > +	{
+> >  		/* Give up. Setup the next iteration. */
+> >  		schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC + smp_processor_id());
+> >  		return;
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

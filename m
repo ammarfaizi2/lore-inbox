@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVBQOgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVBQOjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVBQOgK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 09:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVBQOgK
+	id S262185AbVBQOjr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 09:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVBQOjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 09:36:10 -0500
-Received: from host46.ipowerweb.com ([66.235.216.140]:23529 "HELO
-	host46.ipowerweb.com") by vger.kernel.org with SMTP id S262178AbVBQOf7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 09:35:59 -0500
-Date: Thu, 17 Feb 2005 06:35:57 -0800
-From: <e-cards@e-cards.com>
-X-Mailer: The Bat! (v2.01)
-Reply-To: <e-cards@e-cards.com>
-X-Priority: 3 (Normal)
-Message-ID: <07754071.20040720063440@e-cards.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: E-cards for You
+	Thu, 17 Feb 2005 09:39:47 -0500
+Received: from fsmlabs.com ([168.103.115.128]:60344 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262193AbVBQOjn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 09:39:43 -0500
+Date: Thu, 17 Feb 2005 07:40:41 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Joshua Kwan <joshk@triplehelix.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, hostap@shmoo.com
+Subject: Re: 2.6.10: irq 12 nobody cared!
+In-Reply-To: <4214450B.6090006@triplehelix.org>
+Message-ID: <Pine.LNX.4.61.0502170713110.26742@montezuma.fsmlabs.com>
+References: <4214450B.6090006@triplehelix.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="----------C40A2445113"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------------C40A2445113
-Content-Type: text/plain; charset=windows-1251
-Content-Transfer-Encoding: 8bit
+On Wed, 16 Feb 2005, Joshua Kwan wrote:
 
-Greetings!
+>            CPU0
+>   0:    1073809          XT-PIC  timer
+>   1:       1291          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   4:          7          XT-PIC  serial
+>   5:       4366          XT-PIC  eth0
+>   7:         12          XT-PIC  parport0
+>   8:          1          XT-PIC  rtc
+>  10:       7698          XT-PIC  uhci_hcd, uhci_hcd, eth1
+>  11:      58320          XT-PIC  ide2, ide3
+>  12:     306731          XT-PIC  wifi0
+>  14:      24446          XT-PIC  ide0
+>  15:         13          XT-PIC  ide1
+> NMI:          0
+> ERR:          0
+> 
+> that IRQ 12 is a wireless device:
+> 
+> 0000:00:09.0 Network controller: Intersil Corporation Prism 2.5 Wavelan
+> chipset (rev 01)
+> 
+> that gets handled by HostAP. The device is operating correctly.
+> 
+> What's to blame here?
 
- has sent you an E-Card -- a virtual postcard from
-TheArtHaven.com. You can pickup your card at the TheArtHaven.com website.
-
--> If your e-mail is hot-link enabled, click here:
-   http://thearthaven.com/cards/cards.php?code=linux-kernel@vger.kernel.org
-
-
-Your E-Card will be available for 15 days from the sending date.
-To keep your E-Card accessible indefinitely, you may want to join
-"My E-Cards" -- an option to do so is provided in your E-Card!
-
-
-
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  ^    Save trees. Learn about wildlife nature and the environment.
- ^^^          Generate an advertising sponsored donation.
-^^^^^  Every E-Card sent helps support wildlife and the environment!
-  %
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-------------C40A2445113--
-
-
+Check that the hostap interrupt handler is 2.6 aware (IRQ_HANDLED etc)

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265261AbTGKTqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 15:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTGKToD
+	id S265828AbTGKTxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 15:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbTGKTww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 15:44:03 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:21515
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S265141AbTGKTmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 15:42:54 -0400
-Date: Fri, 11 Jul 2003 12:57:37 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, xose@wanadoo.es
-Subject: Re: is lvm stuck in 2.4 ?
-Message-ID: <20030711195737.GC976@matchmail.com>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
-	xose@wanadoo.es
-References: <3F0F0746.8060403@wanadoo.es>
+	Fri, 11 Jul 2003 15:52:52 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:2779
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S266093AbTGKTvT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 15:51:19 -0400
+Date: Fri, 11 Jul 2003 16:06:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: -- END AUDIO BLOK --
+Message-ID: <20030711200602.GC30449@gtf.org>
+References: <200307111820.h6BIKssN017422@hraefn.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F0F0746.8060403@wanadoo.es>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200307111820.h6BIKssN017422@hraefn.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 08:51:50PM +0200, Xose Vazquez Perez wrote:
+On Fri, Jul 11, 2003 at 07:20:54PM +0100, Alan Cox wrote:
 > 
-> kernel has version 1.0.5+ (22/07/2002), but latest
-> is 1.0.7(2003/03/03). Is there any problem with 1.0.7 and
-> 2.4 ?
+> This leaves me holding
+> 
+> a97_plugin_wm97xx	-	waiting final device assignment
+> hal2			-	For SGI. Not sure if its needed
+> 				as there is good ALSA support
+> harmony			-	For PARISC. Same comment as hal2
 
-Most likely not.  It probably hasn't been merged yet.
+Did anyone ever fix all the crud in audigy?
 
-As well as the vfs patch needed for the journaled filesystems (forgot the
-name).
+	Jeff
 
-Are there any efforts to get this merged?
+
+

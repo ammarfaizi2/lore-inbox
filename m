@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbTAVQfk>; Wed, 22 Jan 2003 11:35:40 -0500
+	id <S261855AbTAVQsz>; Wed, 22 Jan 2003 11:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbTAVQfk>; Wed, 22 Jan 2003 11:35:40 -0500
-Received: from otter.mbay.net ([206.55.237.2]:44295 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S261701AbTAVQfj>;
-	Wed, 22 Jan 2003 11:35:39 -0500
-Date: Wed, 22 Jan 2003 08:44:24 -0800 (PST)
-From: John Alvord <jalvo@mbay.net>
-To: Richard Stallman <rms@gnu.org>
-cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>, steve@tuxsoft.com,
-       linux-kernel@vger.kernel.org, brand@eeyore.valparaiso.cl
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-In-Reply-To: <E18bHfV-0002QE-00@fencepost.gnu.org>
-Message-ID: <Pine.LNX.4.20.0301220841230.4241-100000@otter.mbay.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261857AbTAVQsz>; Wed, 22 Jan 2003 11:48:55 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:11179 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S261855AbTAVQsy>;
+	Wed, 22 Jan 2003 11:48:54 -0500
+Date: Wed, 22 Jan 2003 11:57:58 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: 3c509.c
+Message-ID: <20030122165757.GA20929@gtf.org>
+References: <UTC200301220111.h0M1BQg03940.aeb@smtp.cwi.nl> <200301221644.h0MGion18794@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301221644.h0MGion18794@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 22, 2003 at 11:44:50AM -0500, James Bottomley wrote:
+> However, looking through the source, the 3c509 driver is broken anyway for MCA 
+> (done by the eisa sysfs patches), so I think I can probably just add the extra 
+> pieces to convert it to the new sysfs MCA API.
 
-
-On Wed, 22 Jan 2003, Richard Stallman wrote:
-
->     > The meaning attached to this symbol is one we disagree with (see
->     > http://www.gnu.org/gnu/why-gnu-linux.html), so we will not accept
->     > it as the symbol of our work.
-> 
->     But you don't attach strings about naming in GPL, so you are SOL respect
->     FSF owned software.
-> 
-> Please see http://www.gnu.org/gnu/gnu-linux-faq.html#deserve.
-> 
->     What is discussed here is the operating system (narrow sense, i.e., kernel
->     only) called Linux, on which you have no claim whatsoever.
-> 
-> We all agree that the proper name for the kernel is "Linux."
-> The disagreement is about the name for the complete system
-> that people use on desktops and servers.
-
-98% of end users and server users get their software from a major
-distributor like RedHat or Suse. It seems to be you would get much bigger
-effect by prosletyzing to those companies. Are you doing that preaching as
-well as in this small section of the electronic world?
-
-john
+Excellent... that's what I was hoping would happen :)
 

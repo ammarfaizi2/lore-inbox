@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318982AbSIIVHj>; Mon, 9 Sep 2002 17:07:39 -0400
+	id <S318963AbSIIVCf>; Mon, 9 Sep 2002 17:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318983AbSIIVHj>; Mon, 9 Sep 2002 17:07:39 -0400
-Received: from ns.suse.de ([213.95.15.193]:63503 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318982AbSIIVH0>;
-	Mon, 9 Sep 2002 17:07:26 -0400
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-References: <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 09 Sep 2002 23:12:10 +0200
-In-Reply-To: Thunder from the hill's message of "9 Sep 2002 23:03:37 +0200"
-Message-ID: <p73wupuq34l.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S318962AbSIIVCf>; Mon, 9 Sep 2002 17:02:35 -0400
+Received: from packet.digeo.com ([12.110.80.53]:6610 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S318963AbSIIVC0>;
+	Mon, 9 Sep 2002 17:02:26 -0400
+Message-ID: <3D7D0D62.A4803A4E@digeo.com>
+Date: Mon, 09 Sep 2002 14:06:42 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.32 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au, pavel@suse.cz,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       akpm@zip.com.au
+Subject: Re: [PATCH] Important per-cpu fix.
+References: <20020909.011539.122194350.davem@redhat.com> <1031605086.29718.43.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Sep 2002 21:06:57.0942 (UTC) FILETIME=[D54D2B60:01C25844]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill <thunder@lightweight.ods.org> writes:
-
-> Hi,
+Alan Cox wrote:
 > 
-> On Mon, 9 Sep 2002, khromy wrote:
-> > What's up with XFS in linux-2.5? I've seen some patches sent to the list
-> > but I havn't seen any replies from linus.. What needs to be done to
-> > finally merge it?
+> On Mon, 2002-09-09 at 09:15, David S. Miller wrote:
+> > Note that Andrew Morton found the problem on one of his older
+> > x86 EGCS's about the same time I found it on sparc64.
 > 
-> It has been stated quite regularly that XFS
-> a) doesn't always work like it should yet
+> egcs gets so many long long things wrong on x86 that its only valid use
+> IMHO for 2.5 is as a syntax checker. Is it really worth an ugly hack for
+> a compiler one major developer has a personal affliction for and a port
+> that has a tiny user base and now has a working compiler.
+> 
+> Maybe if we put less gunk in the kernel they'd fix gcc more often 8)
 
-That's quite bogus. While not being perfect XFS just works fine for lots
-of people in production and performs very well for a lot of tasks.
+Please.  I'm not a reason for hanging onto egcs-1.1.2; and I'll
+downgrade to 2.95.2 when egcs-1.1.2 is retired (as I did a while back).
 
-> b) involves some changes which Linus doesn't like in particular, for 
->    pretty good reasons.
-
-I think that's FUD too. That last patch had 6 lines or so of changes 
-to generic code, everything else was already merged.
-
-I guess it just ended up in Linus' spam filters, like some other things...
-
--Andi
+But as long as we need to support 1.1.2, I use it.  To detect
+breakage, and because it compiles kernels 30% faster.

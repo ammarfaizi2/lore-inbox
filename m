@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSIOF2r>; Sun, 15 Sep 2002 01:28:47 -0400
+	id <S317836AbSIOFYy>; Sun, 15 Sep 2002 01:24:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317852AbSIOF2r>; Sun, 15 Sep 2002 01:28:47 -0400
-Received: from mail.gipiproject.org ([206.112.85.61]:64472 "EHLO mail.cdt.org")
-	by vger.kernel.org with ESMTP id <S317851AbSIOF2p>;
-	Sun, 15 Sep 2002 01:28:45 -0400
-Date: Sun, 15 Sep 2002 01:33:37 -0400 (EDT)
-From: Daniel Berlin <dberlin@dberlin.org>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <E17qRfU-0001qz-00@starship>
-Message-ID: <Pine.LNX.4.44.0209150118220.25197-100000@dberlin.org>
+	id <S317845AbSIOFYx>; Sun, 15 Sep 2002 01:24:53 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:26765 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317836AbSIOFYw>; Sun, 15 Sep 2002 01:24:52 -0400
+Date: Sun, 15 Sep 2002 07:29:30 +0200 (CEST)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.s-tec.de
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible Bug with MD multipath and raid1 on top
+In-Reply-To: <20020914230753.GA3781@marowsky-bree.de>
+Message-ID: <Pine.LNX.4.44.0209150721270.25780-100000@omega.s-tec.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.1; AVE: 6.15.0.1; VDF: 6.15.0.7
+	 at email has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 15 Sep 2002, Lars Marowsky-Bree wrote:
+
+> On 2002-09-14T20:33:07,
+>    Oktay Akbal <oktay.akbal@s-tec.de> said:
+>
+> > I found a very strange effect when using a raid1 on top of multipathing
+> > with Kernel 2.4.18 (Suse-version of it) with a 2-Port qlogic HBA
+> > connecting two arrays.
+>
+> Is this with or without the patch I recently posted to linux-kernel?
 
 
-On Sun, 15 Sep 2002, Daniel Phillips wrote:
+Since it is the latest official Suse-2.4.18 from SLES I assume this patch
+is not included.
 
-> On Tuesday 10 September 2002 21:03, Linus Torvalds wrote:
-> > On 10 Sep 2002, Alan Cox wrote:
-> > > 
-> > > It drops you politely into the kernel debugger, you fix up the values
-> > > and step over it. If you want to debug with zen mind power and printk
-> > > feel free. For the rest of us BUG() is fine on SMP
-> > 
-> > Ok, a show of hands.. 
-> > 
-> > Of the millions (whatever) of Linux machines, how many have a kernel 
-> > debugger attached? Count them.
-> 
-> Eh, mine is getting one attached to it right now. 
+> > continues to work. After plugging out the second cable all drives
+> > are marked as failed (mdstat), but the raid1 (md2) is still reported
+> > as functional with one device (md0) missing.
+>
+> So far this sounds OK.
 
-Me too.
+All disks are dead. The md0 device is missing. The same should be true for
+md1, since there is no difference in setup. Why should the raid1 no report
+both mirrors as dead ?
 
-> It's getting more
-> popular, and it would be more popular yet if it weren't considered some
-> dirty little secret, or somehow unmanly.
+> (Even though the updated md-mp patch will _never_ fail
+> the last path but instead return the error to the layer upwards; this protects
+> against certain scenarios in 2.4 where a device error can't be distinguished
+> from a failed path and we don't want that to lead to an inaccessible device)
 
-Reminds me of "Suns boot fast" (do a google search on it, and read the 
-first thing that comes up).
+How would the failing of all Pathes then be noticed ?
 
-> 
-> Let's try a different show of hands: How many users would be happier if
-> they knew that kernel developers are using modern techniques to improve
-> the quality of the kernel?
-> 
-> Of course, I use the term "modern" here loosely, since kdb and kgdb are
-> really only 80's technology.  Without them, we're stuck in the 60's.
-Moving from the stone to the bronze age, one day at a time.
+> I will try to reproduce this on Monday. As I don't have the hardware, but
+> instead use a loop device (which I can make fail on demand), if I can't
+> reproduce it, it might in fact be the FC driver which gets stuck somehow.
 
+This might well be, since I don't found the qlogic-driver very impressing
+so far. To use md-multipath the multipathing (failover) functionality from
+the driver was disabled.
 
-> 
-> 
+Oktay Akbal
 

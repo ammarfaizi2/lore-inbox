@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286750AbSAIOD2>; Wed, 9 Jan 2002 09:03:28 -0500
+	id <S286712AbSAIOEi>; Wed, 9 Jan 2002 09:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286712AbSAIODI>; Wed, 9 Jan 2002 09:03:08 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:54280 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S286672AbSAIODF>; Wed, 9 Jan 2002 09:03:05 -0500
-Date: Wed, 9 Jan 2002 17:03:03 +0300
-From: Oleg Drokin <green@namesys.com>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: [PATCH] Suppress compilation warnings on big endian platform for reiserfs
-Message-ID: <20020109170303.A1025@namesys.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cNdxnHkX5QqsyA0e"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S286756AbSAIOEa>; Wed, 9 Jan 2002 09:04:30 -0500
+Received: from mustard.heime.net ([194.234.65.222]:41420 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S286692AbSAIOEG>; Wed, 9 Jan 2002 09:04:06 -0500
+Date: Wed, 9 Jan 2002 15:03:56 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Jens Axboe <axboe@suse.de>
+cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] Error reading multiple large files
+In-Reply-To: <20020109145952.D19814@suse.de>
+Message-ID: <Pine.LNX.4.30.0201091502120.7021-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > It seemed like it helped first, but after a while, some 99 processes went
+> > Defunct, and locked. After this, the total 'bi' as reported from vmstat
+> > went down to ~ 900kB per sec
+>
+> Bad news for Andrew's patch, however I really don't think it would have
+> helped you much in the first place. The problem seems to be down to
+> loosing read-ahead when cache ends up eating all of available memory,
+> I've seen this effect myself too. Maybe the vm needs to be more
+> aggressive about tossing out pages when this happens, I'm quite sure
+> that would help tremendously for this workload.
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks for answering. I'm really close to giving up and have already
+started testing on *BSD unices.
 
-Hello!
+It seems reasonable if that (tossing old pages) could be the problem.
 
-    Please apply.
+Thanks, guys
 
-Bye,
-    Oleg
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="big-endian-const.diff"
+Computers are like air conditioners.
+They stop working when you open Windows.
 
---- linux/include/linux/reiserfs_fs.h.orig	Wed Jan  9 12:03:13 2002
-+++ linux/include/linux/reiserfs_fs.h	Wed Jan  9 16:57:37 2002
-@@ -244,9 +244,9 @@
-     __u64 linear;
- } __attribute__ ((__packed__)) offset_v2_esafe_overlay;
- 
--static inline __u16 offset_v2_k_type( struct offset_v2 *v2 )
-+static inline __u16 offset_v2_k_type( const struct offset_v2 *v2 )
- {
--    offset_v2_esafe_overlay tmp = *(offset_v2_esafe_overlay *)v2;
-+    offset_v2_esafe_overlay tmp = *(const constoffset_v2_esafe_overlay *)v2;
-     tmp.linear = le64_to_cpu( tmp.linear );
-     return (tmp.offset_v2.k_type <= TYPE_MAXTYPE)?tmp.offset_v2.k_type:TYPE_ANY;
- }
-@@ -259,9 +259,9 @@
-     tmp->linear = le64_to_cpu(tmp->linear);
- }
-  
--static inline loff_t offset_v2_k_offset( struct offset_v2 *v2 )
-+static inline loff_t offset_v2_k_offset( const struct offset_v2 *v2 )
- {
--    offset_v2_esafe_overlay tmp = *(offset_v2_esafe_overlay *)v2;
-+    offset_v2_esafe_overlay tmp = *(const offset_v2_esafe_overlay *)v2;
-     tmp.linear = le64_to_cpu( tmp.linear );
-     return tmp.offset_v2.k_offset;
- }
-
---cNdxnHkX5QqsyA0e--

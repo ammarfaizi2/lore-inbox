@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317024AbSEWWZI>; Thu, 23 May 2002 18:25:08 -0400
+	id <S317029AbSEWW2t>; Thu, 23 May 2002 18:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317027AbSEWWZH>; Thu, 23 May 2002 18:25:07 -0400
-Received: from pc-62-31-74-121-ed.blueyonder.co.uk ([62.31.74.121]:14981 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S317024AbSEWWZH>; Thu, 23 May 2002 18:25:07 -0400
-Date: Thu, 23 May 2002 23:25:04 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: 2.2 kernel - Ext3 & Raid patches
-Message-ID: <20020523232504.A1664@redhat.com>
-In-Reply-To: <3CEA7866.23557.390B7FFC@localhost> <20020523011144.GA4006@matchmail.com> <20020523094948.A2462@redhat.com> <001701c20269$67d48dc0$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
+	id <S317030AbSEWW2s>; Thu, 23 May 2002 18:28:48 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:27042 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317029AbSEWW2q>;
+	Thu, 23 May 2002 18:28:46 -0400
+Date: Fri, 24 May 2002 00:28:29 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Chris <chris@directcommunications.net>, linux-kernel@vger.kernel.org
+Subject: Re: It hurts when I shoot myself in the foot
+Message-ID: <20020524002829.A27005@ucw.cz>
+In-Reply-To: <200205221615.g4MGFCH30271@directcommunications.net> <acha7p$cge$1@cesium.transmeta.com> <20020523034821.GK458@turbolinux.com> <20020523044933.GB4006@matchmail.com> <20020523054219.GL458@turbolinux.com> <20020523173305.GC4006@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, May 23, 2002 at 10:33:05AM -0700, Mike Fedyk wrote:
+> On Wed, May 22, 2002 at 11:42:19PM -0600, Andreas Dilger wrote:
+> > On May 22, 2002  21:49 -0700, Mike Fedyk wrote:
+> > > On Wed, May 22, 2002 at 09:48:21PM -0600, Andreas Dilger wrote:
+> > > > There was a kernel patch posted about 5 or so months ago which would
+> > > > "handle" this setup (CPUs with the same clock speed, but different
+> > > > multipliers).  Alan Cox said it probably was a bad idea, so it wouldn't
+> > > > go into the kernel, but the patch may still be usable.
+> > > > 
+> > > > This is sometimes called "asymmetric multiprocessing", and the thread
+> > > > is at http://marc.theaimsgroup.com/?l=linux-kernel&m=98519070331478&w=4
+> > > 
+> > > I thought asymmetric multiprocessing would support CPUs with different
+> > > speeds.  ie, 400 & 450mhz.  How would you get different multipliers and same
+> > > Mhz when the CPUs are on the same FSB(ignoring AMD SMP where each processor
+> > > has an exclusive FSB, and this might be possible)?
+> > 
+> > That was what I was trying to say: same FSB speed * different multipliers
+> > = different CPU MHZ, like what the original poster is asking about.
+> > I don't think it is possible to configure a motherboard to have different
+> > FSB speeds for two processors.
+> >
+> 
+> Me neither, but it seems theoretically possible.
 
-On Thu, May 23, 2002 at 08:52:04AM -0600, Herman Oosthuysen wrote:
- 
-> Does this mean that Ext3 is still not recommended for use with RAID1?
+It is not, they are both on the same FSB, at least in Pentium II/III case.
 
-On 2.2, yes.  On 2.4, it should work just fine: the 2.4 raid layer is
-much better behaved, and does not try to perform resync via the buffer
-cache.
-
-Cheers,
- Stephen
+-- 
+Vojtech Pavlik
+SuSE Labs

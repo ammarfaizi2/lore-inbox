@@ -1,82 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAOSzT>; Mon, 15 Jan 2001 13:55:19 -0500
+	id <S129632AbRAOS4J>; Mon, 15 Jan 2001 13:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbRAOSzK>; Mon, 15 Jan 2001 13:55:10 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:59652 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S129431AbRAOSy6>;
-	Mon, 15 Jan 2001 13:54:58 -0500
-Date: Mon, 15 Jan 2001 19:54:47 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Disk geometry changed after running linux
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3A634777.48A41C82@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <3A633EF6.44E5A2C@uni-mb.si> <20010115195131.A17484@win.tue.nl>
+	id <S130614AbRAOSzx>; Mon, 15 Jan 2001 13:55:53 -0500
+Received: from pop.gmx.net ([194.221.183.20]:45045 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129632AbRAOSzg>;
+	Mon, 15 Jan 2001 13:55:36 -0500
+Message-ID: <3A63469D.9010403@gmx.de>
+Date: Mon, 15 Jan 2001 19:51:09 +0100
+From: Ronny Buchmann <rbla@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17 i686; de-AT; 0.7) Gecko/20010105
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: bug (isdn-subsystem?) in 2.4.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi
 
-Guest section DW wrote:
-> 
-> On Mon, Jan 15, 2001 at 07:18:30PM +0100, David Balazic wrote:
-> 
-> > Then I installed linux ( "some" beta version , kernel
-> > is some recent 2.4.0-testXX )
-> >
-> > After the installation the disk ( win2000 ) would not boot.
-> > It reports :
-> > Read error on disk.
-> > Press ctrl+alt+del to reboot.
-> >
-> > If I run linux ( it work OK from the boot floppy ),
-> > it reports the geometry as 3xxxx/??/??.
-> > Thirty thousand and some cylinders , H and S are probably 16/63
-> > ( don't have it at hand ).
-> >
-> > It should be two thousand something and 255/63, I think.
-> >
-> > fdisk -l /dev/hda prints "Partition 1 does not end on cylinder boundary"
-> > messages for the NTFS partitions ( hda1 and hda5 ). The linux ones are
-> > OK.
-> >
-> > The problem is that now the BIOS sets Access mode to LARGE.
-> > I can workaround it by changing access mode in BIOS setup
-> > from AUTO to LBA, but I want to know what made BIOS to default to
-> > LARGE and how to fix it.
-> 
-> Since "disk geometry" has become such a terrible mess,
-> recent BIOSes decide that they don't know what the geometry
-> should be, and guess the geometry from the partition table,
-> if there is one.
-> 
-> So, if you added partitions during the install then it is
-> not impossible that the BIOS changed its mind concerning
-> the geometry.
-> 
-> It would be interesting to see the precise partition table
-> (output of "fdisk -l /dev/hda").
+i have the following problem with kernel 2.4.0 (also with -ac6):
 
-Sorry , can't get it until saturday :-(
+when trying to connect two isdn channels (/dev/ttyI0 and /dev/ttyI1) 
+both initialized with "AT &E123 &L123 &R9600 S19=0 S0=1"
+i get after "ATDT 123" (123 stands for my number)
 
-fdisk reports the disk geometry as 3xxxxx/xx/xx which probably LARGE.
-I don't remember the start/stop cylinders of partitions.
+kernel BUG at slab.c:1095!
+invalid operand: 0000
+CPU: 0
+......
 
-Is there a way to change the geometry from fdisk ?
-I tried expert mode and 'set sectors' and 'set heads',
-but after I exit fdisk with 'w' , it is unchanged.
+(if you need the other numbers or anything else, ask me, i can reproduce 
+it easily)
+
+syslog shows (with isdnctrl verbose 3):
+isdn_net: call from 0987123,7,0 -> 123
+isdn_net: call from 0987123 -> 0 123, ignored
+isdn_tty: call from 0987123, -> RING on ttyI1
+
+than the crash
+
+(987 stands for the area code)
+
+my system:
+redhat 7.0 (kernel compiled with gcc-2.96, egcs-1.1.2 and gcc-2.95.1 
+same result with each of them)
+isdn-card: avm fritzcard pnp
+
+btw, it is working with 2.2.17 and the avm driver on suse 6.4
+
+tia
+ronny
+
+ps: im not on linux-kernel, so please cc to me
 
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

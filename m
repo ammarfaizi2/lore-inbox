@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261191AbSJLNhh>; Sat, 12 Oct 2002 09:37:37 -0400
+	id <S261205AbSJLNoc>; Sat, 12 Oct 2002 09:44:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261205AbSJLNhh>; Sat, 12 Oct 2002 09:37:37 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:30980 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261191AbSJLNhg>; Sat, 12 Oct 2002 09:37:36 -0400
-Date: Sat, 12 Oct 2002 14:43:22 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: Linux v2.5.42
-Message-ID: <20021012144322.A17332@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@redhat.com>, Jens Axboe <axboe@suse.de>
-References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>
+	id <S261206AbSJLNoc>; Sat, 12 Oct 2002 09:44:32 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:64765 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261205AbSJLNob>; Sat, 12 Oct 2002 09:44:31 -0400
+Date: Sat, 12 Oct 2002 09:50:19 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Stig Brautaset <stig@brautaset.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: 2.5.42: unresolved symbols ext2
+Message-ID: <20021012095019.A18204@redhat.com>
+References: <fa.j2ck6sv.162gurn@ifi.uio.no> <20021012104504.GA18928@arwen.brautaset.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Oct 11, 2002 at 09:59:58PM -0700
+In-Reply-To: <20021012104504.GA18928@arwen.brautaset.org>; from stig@brautaset.org on Sat, Oct 12, 2002 at 11:45:04AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 11, 2002 at 09:59:58PM -0700, Linus Torvalds wrote:
-> 
-> Augh.. People have been mailbombing me apparently because a lot of people 
-> finally decided that they really want to sync with me due to the upcoming 
-> feature freeze, so there's a _lot_ of stuff here, all over the map.
+On Sat, Oct 12, 2002 at 11:45:04AM +0100, Stig Brautaset wrote:
+> Oops, that was compiled with the debian make-kpkg tool. Here's the
+> output from vanilla make modules_install:
 
-BTW, there's another infrastructure feature I forgot when you asked
-what should go in before feature freeze.  And IMHO it's very important
-(so why did I forget it..):  IBM's read copy update synchronisation
-primitives.  They've shown significant improvements when used for the
-file tables, dcache and routing cache, it has been around since before
-2.5 forked, SuSE has it in their production kernel for a while, too and 
-akpm has it in his tree for while.
+Whoops, looks like I missed a couple of exports.  Please apply the patch 
+below that adds exports for generic_file_aio_{read,write}.
 
-Even if those existing users don't get in yet I don't want to miss the
-infrastructure in the 2.6 series.
+		-ben
 
+diff -urN v2.5.42/mm/filemap.c v2.5.42-syms/mm/filemap.c
+--- v2.5.42/mm/filemap.c	Sat Oct 12 09:42:35 2002
++++ v2.5.42-syms/mm/filemap.c	Sat Oct 12 09:44:23 2002
+@@ -893,6 +893,8 @@
+ 	return __generic_file_aio_read(iocb, &local_iov, 1, &iocb->ki_pos);
+ }
+ 
++EXPORT_SYMBOL(generic_file_aio_read);
++
+ ssize_t
+ generic_file_read(struct file *filp, char *buf, size_t count, loff_t *ppos)
+ {
+@@ -1652,6 +1654,8 @@
+ 	return generic_file_write(iocb->ki_filp, buf, count, &iocb->ki_pos);
+ }
+ 
++EXPORT_SYMBOL(generic_file_aio_write);
++
+ ssize_t generic_file_write(struct file *file, const char *buf,
+ 			   size_t count, loff_t *ppos)
+ {

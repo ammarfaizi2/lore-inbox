@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267586AbSKQUUW>; Sun, 17 Nov 2002 15:20:22 -0500
+	id <S267591AbSKQU1S>; Sun, 17 Nov 2002 15:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267583AbSKQUUW>; Sun, 17 Nov 2002 15:20:22 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:22360 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267582AbSKQUUU>; Sun, 17 Nov 2002 15:20:20 -0500
-Date: Sun, 17 Nov 2002 15:28:26 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
-Subject: Several Misc SCSI updates...
-Message-ID: <20021117202826.GE3280@redhat.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267593AbSKQU1S>; Sun, 17 Nov 2002 15:27:18 -0500
+Received: from guru.webcon.net ([66.11.168.140]:39829 "EHLO guru.webcon.net")
+	by vger.kernel.org with ESMTP id <S267591AbSKQU1R>;
+	Sun, 17 Nov 2002 15:27:17 -0500
+Date: Sun, 17 Nov 2002 15:33:03 -0500 (EST)
+From: Ian Morgan <imorgan@webcon.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.20-rc1-ac4 p4-clockmod.c cpu_has_ht undeclared
+Message-ID: <Pine.LNX.4.44.0211171530420.12883-100000@light.webcon.net>
+Organization: "Webcon, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These bring the scsi subsys up to the new module loader semantics.  There 
-is more work to be done on inter-module locking here, but we need to solve 
-the whole module->live is 0 during init problem first or else it's a waste 
-of time.
+Seems -ac4 is missing some part of a patch? "cpu_has_ht" doesn't show up
+anywhere else in the entire source tree.
 
-bk://linux-scsi.bkbits.net/scsi-dledford
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-rc1-ac4+fs199+acpi20021101/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2
+-march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=p4_clockmod
+-c -o p4-clockmod.o p4-clockmod.c
+p4-clockmod.c: In function pufreq_p4_setdc':
+p4-clockmod.c:72: pu_has_ht' undeclared (first use in this function)
+p4-clockmod.c:72: (Each undeclared identifier is reported only once
+p4-clockmod.c:72: for each function it appears in.)
+make[1]: *** [p4-clockmod.o] Error 1
 
-ChangeSet@1.866, 2002-11-17 15:02:31-05:00, dledford@flossy.devel.redhat.com
-  Merge bk://linux.bkbits.net/linux-2.5
-  into flossy.devel.redhat.com:/usr/local/home/dledford/bk/linus-2.5
-
-ChangeSet@1.810.1.5, 2002-11-16 21:31:05-05:00, dledford@aladin.rdu.redhat.com
-  Christoph Hellwig posted a patch that conflicted with a lot of my own
-  changes, so this is the merge of his work into my own.
-
-ChangeSet@1.810.1.4, 2002-11-16 21:22:06-05:00, dledford@aladin.rdu.redhat.com
-  aic7xxx_old: fix check_region/request_region usage so that the module
-        may be loaded/unloaded/reloaded
-
-ChangeSet@1.810.1.3, 2002-11-16 20:59:23-05:00, dledford@aladin.rdu.redhat.com
-  Update high level scsi drivers to use struct list_head in templates
-  Update scsi.c for struct list_head in upper layer templates
-  Update scsi.c for new module loader semantics
-
-ChangeSet@1.810.1.2, 2002-11-16 14:51:42-05:00, dledford@aladin.rdu.redhat.com
-  scsi.c:
-  - Comment out GET_USE_COUNT, it's a bogus test anyway
-  - Don't panic on failure to allocate sg table slab slots, fail gracefully
-  - init_scsi() leaks all sorts of crap on failed module load
-
-ChangeSet@1.805.6.1, 2002-11-11 18:02:55-05:00, dledford@aladin.rdu.redhat.com
-  mptscsih.h: compile fix
-
+Regards,
+Ian Morgan
 
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan@webcon.ca          PGP: #2DA40D07           www.webcon.ca
+    *  Customized Linux network solutions for your business  *
+-------------------------------------------------------------------
+

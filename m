@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289231AbSA3PD0>; Wed, 30 Jan 2002 10:03:26 -0500
+	id <S289260AbSA3PE4>; Wed, 30 Jan 2002 10:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289229AbSA3PDR>; Wed, 30 Jan 2002 10:03:17 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:49656 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S289135AbSA3PDB>;
-	Wed, 30 Jan 2002 10:03:01 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2B2B@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Chris Ricker'" <kaboom@gatech.edu>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: RE: ANOTHER modest proposal -- We need a documentation package
-Date: Wed, 30 Jan 2002 07:03:05 -0800
+	id <S289250AbSA3PEq>; Wed, 30 Jan 2002 10:04:46 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45073 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289230AbSA3PE3>; Wed, 30 Jan 2002 10:04:29 -0500
+Subject: Re: [PATCH] KERN_INFO for devfs
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Wed, 30 Jan 2002 15:16:53 +0000 (GMT)
+Cc: tao@acc.umu.se (David Weinehall),
+        brand@jupiter.cs.uni-dortmund.de (Horst von Brand),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200201301232.g0UCWmt10496@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Jan 30, 2002 02:32:47 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VwTl-0007VJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  For example,
-> no one owns linux/Documentation.  As the person nominally in charge of
-> linux/Documentation/Changes, there's no one between me and 
-> you, period, let
-> alone anyone between me and you that you trust....  And I 
-> realize that you
-> don't consider documentation very important, but there are 
-> other segments of
-> the Linux source tree for which this breakdown in hierarchy 
-> is also true....
+> > Yes, but that may change (in theory, at least.) Consistency is a virtue.
+> 
+> I'll do this cleanup if my KERN_INFO patches will be accepted, at least some 
+> of them. So far only Richard Gooch replied...
 
-Here's an idea :
-Take linux/Documentation and split it into a separate package.
-that way Linus doesn't need to care about documentation, it can
-be maintained separately.  Having documentation packages co-released
-with the kernel, but separately maintained would fix this problem,
-would it not?
-
-Dana Lacoste
-Ottawa, Canada
+I ran some of them into 7ac1 but got rejects so I've dumped them out for
+now. They mostly look completely sensible

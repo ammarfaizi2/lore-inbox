@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316788AbSIAMGd>; Sun, 1 Sep 2002 08:06:33 -0400
+	id <S316789AbSIAMMU>; Sun, 1 Sep 2002 08:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316789AbSIAMGd>; Sun, 1 Sep 2002 08:06:33 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:55305 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316788AbSIAMGc>; Sun, 1 Sep 2002 08:06:32 -0400
-Date: Sun, 1 Sep 2002 14:10:53 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warnkill trivia 2/2
-Message-ID: <20020901121053.GA7325@louise.pinerecords.com>
-References: <20020901112856.GL32122@louise.pinerecords.com> <20020901.042539.63049493.davem@redhat.com> <20020901113741.GM32122@louise.pinerecords.com> <20020901.043512.51698754.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020901.043512.51698754.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 7 days, 4:02
+	id <S316853AbSIAMMT>; Sun, 1 Sep 2002 08:12:19 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:22710 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S316789AbSIAMMT>;
+	Sun, 1 Sep 2002 08:12:19 -0400
+Message-ID: <1030882605.3d72052d591fd@kolivas.net>
+Date: Sun,  1 Sep 2002 22:16:45 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VM changes added to performance patches for 2.4.19
+References: <Pine.LNX.3.96.1020901072631.337B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020901072631.337B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Let's keep the sparc atomic_read() how it is so more bugs
-> like this can be found.
+Quoting Bill Davidsen <davidsen@tmr.com>:
+> On Sat, 24 Aug 2002 conman@kolivas.net wrote:
+> > With the patch against 2.4.19:
+> > Scheduler O(1), Preemptible, Low Latency
+> > I have now added two extra alternative patches that include 
+> > either Rik's rmap (thanks Rik) or AA's vm changes (thanks to Nuno Monteiro
+> for
+> > merging this)
+> > For the record, with the (very) brief usage of these two patches I found
+> the
+> > rmap patch a little faster. This is very subjective and completely
+> untested.
+> > Check them out here and tell me what you think(please read the FAQ):
+> > http://kernel.kolivas.net
+> 
+> The ck3-aa patch has worked perfectly for me until I try to shut down. At
+> that point I get to "turning off swap" and the system hangs with the disk
+> light on. Can't get a dump, and it doesn't happen every time, but enough
+> that I am very cautious in what I do at shutdown. Total hang ignoring
+> sysreq.
+> 
+> Athlon 1.4GHz, 1GB RAM, hda:30GB, hdc:40GB, 20x CD-R, multiple NICs, two
+> local networks, one PPP over high speed serial.
 
-I don't know, though... scratching my head here -- Is GCC actually
-able to distinguish between 'const int *a' and 'int const *a'?
+Check on the website and you'll see that there have been two upgrades. The -ck5
+patch now includes the -aa vm changes by default, and the hang on shutdown (due
+to swapoff failing) has been fixed. For the record, the ck5 patch is the last
+one until a new compressed cache patch becomes available for 2.4.19 and I will
+merge that to make a -ck6 patch. The ck5 patch has proven to be very stable and
+I am satisfied that it needs no further changes till the compressed cache patch
+becomes available, so I recommend you upgrade to that.
 
-Because if 'int const *a' means that the pointer is constant but
-not the actual value it points to,
-
-void a(int const *a) { *a = 1; }
-
-shouldn't be generating 'warning: assignment of read-only location'.
-Right?
-
-> Reiserfs is buggy, it means struct  buffer_head const * bh
-
-Okay so that gives us the third reiserfs patch of the day:
-
---- buffer2.c~	2002-09-01 13:52:39.000000000 +0200
-+++ buffer2.c	2002-09-01 13:44:19.000000000 +0200
-@@ -21,7 +21,7 @@
-    hold we did free all buffers in tree balance structure
-    (get_empty_nodes and get_nodes_for_preserving) or in path structure
-    only (get_new_buffer) just before calling this */
--void wait_buffer_until_released (const struct buffer_head * bh)
-+void wait_buffer_until_released (struct buffer_head const *bh)
- {
-   int repeat_counter = 0;
- 
+Regards,
+Con Kolivas.

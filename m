@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131374AbRAHTSd>; Mon, 8 Jan 2001 14:18:33 -0500
+	id <S130892AbRAHTTN>; Mon, 8 Jan 2001 14:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131213AbRAHTSX>; Mon, 8 Jan 2001 14:18:23 -0500
-Received: from barn.holstein.com ([198.134.143.193]:5897 "EHLO holstein.com")
-	by vger.kernel.org with ESMTP id <S131123AbRAHTSN>;
-	Mon, 8 Jan 2001 14:18:13 -0500
-Date: Mon, 8 Jan 2001 19:17:45 GMT
-Message-Id: <200101081917.f08JHjd06656@pcx4168.holstein.com>
-From: "Todd M. Roy" <troy@holstein.com>
-To: andrea@suse.de
-Cc: toddroy@softhome.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20001227205336.A10446@athlon.random> (message from Andrea
-	Arcangeli on Wed, 27 Dec 2000 20:53:36 +0100)
-Subject: Re: lvm 0.8 to 0.9 conversion?
-Reply-To: troy@holstein.com
-In-Reply-To: <3A45192F.8C149F93@softhome.net> <20001227205336.A10446@athlon.random>
-X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 01/08/2001 02:05:01 PM,
-	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 01/08/2001 02:05:02 PM,
-	Serialize complete at 01/08/2001 02:05:02 PM
-X-Priority: 3 (Normal)
+	id <S131213AbRAHTTD>; Mon, 8 Jan 2001 14:19:03 -0500
+Received: from dns1.rz.fh-heilbronn.de ([141.7.1.18]:32888 "EHLO
+	dns1.rz.fh-heilbronn.de") by vger.kernel.org with ESMTP
+	id <S131242AbRAHTS1>; Mon, 8 Jan 2001 14:18:27 -0500
+Date: Mon, 8 Jan 2001 20:18:24 +0100 (CET)
+From: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: xircom_tulip_cb
+Message-ID: <Pine.LNX.4.05.10101082005500.25931-100000@lara.stud.fh-heilbronn.de>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HY HY
 
-I've been on vacation....
+I have a Xircom R2BE-100, RealPort2 CardBus Ethernet 10/100.
 
-Nope, no snapshots.
+With RH6.2, 2.2.17 and pcmcia-cs-3.1.19 everything was fine.
 
-Well, I couldn't get my orginal volume group visible under both
-lvm 0.8 and 0.9.  I don't know why.  So I grabbed a big empty hard disk,
-created a new volume group that was visible under both, dded all the logical
-volumes over to it, updated fstab  and removed the offending vg.  I've yet to
-recreate the original vg, copy stuff back and remove the new drive.
-I should point out that the offending vg was relatively ancient, I think I
-created it when 0.7 was king under some something like 2.2.14.  Now I'm 
-running 2.4.0-ac4 and all works well.
+With RH7, 2.2.18 and pcmcia-cs-3.1.23 the Card did not work. With ifconfig
+-a it was displayed, but it doesn't work.
 
+With 2.4.0-ac2 and Kernel-PCMCIA the same effekt.
 
+Exceuting 'ifconfig eth0 promisc' caused the card to work.
 
->  Date: Wed, 27 Dec 2000 20:53:36 +0100
->  From: Andrea Arcangeli <andrea@suse.de>
->  Cc: linux-kernel@vger.kernel.org
->  Content-Type: text/plain; charset=us-ascii
->  Content-Disposition: inline
->  X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
->  X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
->  
->  On Sat, Dec 23, 2000 at 04:29:19PM -0500, Todd M. Roy wrote:
->  > group is visible, and you just told meit should be, then I can just
->  > copy volumes over under test13-pre3 and destroy and recreate the
->  > first volume group.
->  
->  Is it possible you had a snapshot in the volume group when you started
->  lvm 0.9 the first time? snapshots are not persistent on pre3 so it doesn't make
->  sense to left them before rebooting the kernel, and maybe lvmtools 0.9 doesn't
->  cope correctly with non persistent snapshot created by 0.8 driver (trivial to
->  temporarly workaround, just delete any snapshot volume before using 0.9 lvm :).
->  
->  Andrea
->  
->  
-**********************************************************************
-This footnote confirms that this email message has been swept by 
-MIMEsweeper for the presence of computer viruses.
-**********************************************************************
+BYtE Oli
+
++++LINUX++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++Manchmal stehe ich sogar nachts auf und installiere mir eins....+++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+ 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

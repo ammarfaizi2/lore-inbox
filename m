@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285095AbRLQMIB>; Mon, 17 Dec 2001 07:08:01 -0500
+	id <S285096AbRLQMIb>; Mon, 17 Dec 2001 07:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285108AbRLQMHw>; Mon, 17 Dec 2001 07:07:52 -0500
-Received: from web21205.mail.yahoo.com ([216.136.131.248]:9609 "HELO
-	web21205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S278660AbRLQMHd>; Mon, 17 Dec 2001 07:07:33 -0500
-Message-ID: <20011217120732.18177.qmail@web21205.mail.yahoo.com>
-Date: Mon, 17 Dec 2001 04:07:32 -0800 (PST)
-From: vijayalakshmi krishnamurthy <linaxmi@yahoo.com>
-Subject: Re: prblm with first module prog
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01121712435301.02022@manta>
+	id <S285098AbRLQMIU>; Mon, 17 Dec 2001 07:08:20 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:4113 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S278660AbRLQMH7>; Mon, 17 Dec 2001 07:07:59 -0500
+Date: Mon, 17 Dec 2001 12:06:30 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: Sean Hunter <sean@dev.sportingbet.com>
+cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>, Chris Wright <chris@wirex.com>,
+        Linus Torvalds <torvalds@transmeta.com>, <Andries.Brouwer@cwi.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kill(-1,sig)
+In-Reply-To: <20011217115344.C14112@dev.sportingbet.com>
+Message-ID: <Pine.LNX.4.33.0112171205590.10824-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- Thanx for the reply. it works. but it was only an
-offshoot of the problem. I'm not able to find my
-module in /proc/module.i cat it. how else should  i
-find it? what does the warning say?
-I ran it from home dir in vt , not from xterm. shuld i
-directly run it in /proc ?
- thanx again.
-lakshmi
+On Mon, 17 Dec 2001, Sean Hunter wrote:
 
---- vda <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> On Monday 17 December 2001 08:20, vijayalakshmi
-> krishnamurthy wrote:
-> 
-> > when I redirected my make file o/p from terminal
-> only
-> > lines 4 - 11 were in the
-> >  redirected file. the rest were in the console.
-> can
-> > somebody explain me the reason.
-> >  why do they echo the insmod & rmmod & other
-> things? i
-> > dont getit.
-> 
-> make >file 2>file2
->            ^^^^^^^
-> redirects stderr to file2
-> 
-> make >file 2>&1
->            ^^^^
-> redirects stderr to stdout, i.e. to file
+> > Hmm. Looking at killall5 source I see
+> >
+> > kill(-1, STOP);
+> > for(each proc with p.sid!=my_sid) kill(proc, sig);
+> > kill(-1, CONT);
+> >
+> > I guess STOP will stop killall5 too? Not good indeed.
 
+> Couldn't it just do:
+[..]
+> ... in other words, block signals, do the killing, then unblock?
 
-__________________________________________________
-Do You Yahoo!?
-Check out Yahoo! Shopping and Yahoo! Auctions for all of
-your unique holiday gifts! Buy at http://shopping.yahoo.com
-or bid at http://auctions.yahoo.com
+SIGSTOP and SIGKILL can't be blocked.
+
+Matthew.
+

@@ -1,138 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTLDQCn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 11:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLDQCn
+	id S262131AbTLDQKB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 11:10:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLDQKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 11:02:43 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:20996 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262679AbTLDQCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 11:02:39 -0500
-Subject: [RFC] enhanced psxface.c error handling
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: acpi-devel@lists.sourceforge.net
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-HZIZJ8eznrNoAVGDmQ4T"
-Message-Id: <1070553752.14488.4.camel@glass.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Thu, 04 Dec 2003 17:02:33 +0100
+	Thu, 4 Dec 2003 11:10:01 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:55557 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S262131AbTLDQJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 11:09:58 -0500
+Message-ID: <3FCF5BB8.50500@lougher.demon.co.uk>
+Date: Thu, 04 Dec 2003 16:07:20 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.2.1) Gecko/20030228
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>,
+       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: partially encrypted filesystem
+References: <1070485676.4855.16.camel@nucleon> <20031203214443.GA23693@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312031600460.2055@home.osdl.org> <20031204141725.GC7890@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312040712270.2055@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312040712270.2055@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+>
+> Encryption does have a few extra problems, simply because of the intent.
+> In a compressed filesystem it is ok to say "this information tends to be
+> small and hard to compress, so let's not" (for example, metadata). While
+> in an encrypted filesystem you shouldn't skip the "hard" pieces..
 
---=-HZIZJ8eznrNoAVGDmQ4T
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Squashfs is I think the only Linux filesystem that does compress the 
+metadata.  I did this more as a technical challenge, but the extra 
+compression is sometimes worthwhile, especially with filesystems with 
+lots of small files.  Normally, however, it probably isn't worth the effort.
 
-Hi!
+Phillip
 
-This patch tries to fix the situation where an error could cause
-acpi_psx_execute() to exit without releasing held references to the
-elements of param[].
+> 
+> (Encrypted filesystems also have the key management issues, further
+> complicating the thing, but that complication tends to be at a higher
+> level).
+> 
+> 		Linus
 
-Thanks!
 
---=-HZIZJ8eznrNoAVGDmQ4T
-Content-Disposition: attachment; filename=acpi.patch
-Content-Type: text/x-patch; name=acpi.patch; charset=
-Content-Transfer-Encoding: 7bit
-
-diff -uNr linux-2.6.0-test11.orig/drivers/acpi/parser/psxface.c linux-2.6.0-test11/drivers/acpi/parser/psxface.c
---- linux-2.6.0-test11.orig/drivers/acpi/parser/psxface.c	2003-11-26 21:45:20.000000000 +0100
-+++ linux-2.6.0-test11/drivers/acpi/parser/psxface.c	2003-12-01 09:23:18.591462114 +0100
-@@ -127,7 +127,8 @@
- 
- 	op = acpi_ps_create_scope_op ();
- 	if (!op) {
--		return_ACPI_STATUS (AE_NO_MEMORY);
-+		status = AE_NO_MEMORY;
-+		goto acpi_psx_parse_unref;
- 	}
- 
- 	/*
-@@ -142,14 +143,15 @@
- 	walk_state = acpi_ds_create_walk_state (obj_desc->method.owning_id,
- 			   NULL, NULL, NULL);
- 	if (!walk_state) {
--		return_ACPI_STATUS (AE_NO_MEMORY);
-+		goto acpi_psx_parse_unref;
-+		status = AE_NO_MEMORY;
- 	}
- 
- 	status = acpi_ds_init_aml_walk (walk_state, op, method_node, obj_desc->method.aml_start,
- 			  obj_desc->method.aml_length, NULL, NULL, 1);
- 	if (ACPI_FAILURE (status)) {
- 		acpi_ds_delete_walk_state (walk_state);
--		return_ACPI_STATUS (status);
-+		goto acpi_psx_parse_unref;
- 	}
- 
- 	/* Parse the AML */
-@@ -168,7 +170,8 @@
- 
- 	op = acpi_ps_create_scope_op ();
- 	if (!op) {
--		return_ACPI_STATUS (AE_NO_MEMORY);
-+		status = AE_NO_MEMORY;
-+		goto acpi_psx_parse_unref;
- 	}
- 
- 	/* Init new op with the method name and pointer back to the NS node */
-@@ -180,14 +183,15 @@
- 
- 	walk_state = acpi_ds_create_walk_state (0, NULL, NULL, NULL);
- 	if (!walk_state) {
--		return_ACPI_STATUS (AE_NO_MEMORY);
-+		status = AE_NO_MEMORY;
-+		goto acpi_psx_parse_unref;
- 	}
- 
- 	status = acpi_ds_init_aml_walk (walk_state, op, method_node, obj_desc->method.aml_start,
- 			  obj_desc->method.aml_length, params, return_obj_desc, 3);
- 	if (ACPI_FAILURE (status)) {
- 		acpi_ds_delete_walk_state (walk_state);
--		return_ACPI_STATUS (status);
-+		goto acpi_psx_parse_unref;
- 	}
- 
- 	/*
-@@ -196,16 +200,6 @@
- 	status = acpi_ps_parse_aml (walk_state);
- 	acpi_ps_delete_parse_tree (op);
- 
--	if (params) {
--		/* Take away the extra reference that we gave the parameters above */
--
--		for (i = 0; params[i]; i++) {
--			/* Ignore errors, just do them all */
--
--			(void) acpi_ut_update_object_reference (params[i], REF_DECREMENT);
--		}
--	}
--
- 	/*
- 	 * If the method has returned an object, signal this to the caller with
- 	 * a control exception code
-@@ -218,6 +212,18 @@
- 		status = AE_CTRL_RETURN_VALUE;
- 	}
- 
-+acpi_psx_parse_unref:
-+
-+	if (params) {
-+		/* Take away the extra reference that we gave the parameters above */
-+
-+		for (i = 0; params[i]; i++) {
-+			/* Ignore errors, just do them all */
-+
-+			(void) acpi_ut_update_object_reference (params[i], REF_DECREMENT);
-+		}
-+	}
-+
- 	return_ACPI_STATUS (status);
- }
-
---=-HZIZJ8eznrNoAVGDmQ4T--
 

@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269496AbUICQmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269499AbUICQpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269496AbUICQmv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269416AbUICQmW
+	id S269499AbUICQpG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUICQov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:42:22 -0400
-Received: from pointblue.com.pl ([81.219.144.6]:33285 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S269499AbUICQl7 (ORCPT
+	Fri, 3 Sep 2004 12:44:51 -0400
+Received: from [195.135.223.198] ([195.135.223.198]:12928 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S269499AbUICQnA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:41:59 -0400
-Message-ID: <41389EC9.1020708@pointblue.com.pl>
-Date: Fri, 03 Sep 2004 18:41:45 +0200
-From: =?UTF-8?B?R3J6ZWdvcnogSmHFm2tpZXdpY3o=?= <gj@pointblue.com.pl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>	 <2f4958ff04090301326e7302c1@mail.gmail.com> <41383142.4080201@hist.no>	 <2f4958ff04090302141bc222e5@mail.gmail.com> <ch9f7t$p27$2@news.cistron.nl>	 <41388B59.6060702@pointblue.com.pl> <1094225344.8102.18.camel@localhost.localdomain>
-In-Reply-To: <1094225344.8102.18.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Sep 2004 12:43:00 -0400
+Date: Fri, 3 Sep 2004 17:48:04 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040903154804.GC1396@elf.ucw.cz>
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902161130.GA24932@mail.shareable.org> <1094146912.31495.13.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094146912.31495.13.camel@shaggy.austin.ibm.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi!
 
->On Gwe, 2004-09-03 at 16:18, Grzegorz Jaśkiewicz wrote:
->  
->
->>>It's because disk was spelled with a 'c' (disc).
->>>      
->>>
->>That suppose to be a joke ?
->>    
->>
->
->The international joke symbol (8-)) is only mandatory in en_US locales.
->
->  
->
-Ok, Planty of times I did asked Brits and Americans if there's any 
-difference. Neither did say that either disc or disk is more correct.
-And I am using both all the time, noone has any objections ( I live in 
-UK for 2.5years so far ). So.... me is confused :-0
+> > Thirdly, you must be referring to the Gnome versions of Bash, Make,
+> > GCC, coreutils and Perl which I haven't found.  Perhaps we have a
+> > different idea of what "supports this" means :)
+> 
+> Please don't tell me that we have expectations to run make from within a
+> tar file.  This is getting silly.  tar does a pretty good job of
+> extracting files into real directories, and putting them back into an
+> archive.  I don't see a need to teach the kernel how to deal with
+> compound files when user space can do it very easily.
 
---
-GJ
+Actually its not easy. User has to manually extract it and manually
+delete it when he's done. Not nice.
+								Pavel
+-- 
+When do you have heart between your knees?

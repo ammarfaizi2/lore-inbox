@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266376AbUGOVqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266379AbUGOVt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266376AbUGOVqz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 17:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266378AbUGOVqz
+	id S266379AbUGOVt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 17:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266378AbUGOVt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 17:46:55 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:45787 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S266376AbUGOVqu (ORCPT
+	Thu, 15 Jul 2004 17:49:28 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:42418 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266379AbUGOVtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 17:46:50 -0400
-Date: Thu, 15 Jul 2004 23:46:47 +0200
-From: David Weinehall <tao@debian.org>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: Re: [ltp] Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
-Message-ID: <20040715214646.GK22472@khan.acc.umu.se>
-Mail-Followup-To: Florian Weimer <fw@deneb.enyo.de>,
-	linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com> <1089054013.15671.48.camel@dhcppc4> <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de> <slrncfb55n.dkv.jgoerzen@christoph.complete.org> <87oemhot7l.fsf@deneb.enyo.de> <20040715213711.GJ22472@khan.acc.umu.se> <87acy1osk1.fsf@deneb.enyo.de>
+	Thu, 15 Jul 2004 17:49:06 -0400
+Date: Thu, 15 Jul 2004 14:40:21 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Stephane Eranian <eranian@frankl.hpl.hp.com>
+Subject: [PATCH] fix for buffer limit for long in sysctl.c
+Message-ID: <20040715214021.GC1557@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87acy1osk1.fsf@deneb.enyo.de>
 User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 11:43:10PM +0200, Florian Weimer wrote:
-> * David Weinehall:
-> 
-> >> Oh.  My expriences, starting with 2.6.7 with ACPI, are as following:
-> >> 
-> >>   - Suspend to RAM is triggered, for example by closing the lid.
-> >> 
-> >>   - If it's under X11, the system does not come back.  Display powers
-> >>     up, but it remains black.  There is some HDD activity, so it's
-> >>     probably still running.  Next time I should check if the IP stack
-> >>     is still running.
-> >> 
-> >>   - After terminating the X11 server, other devices on the sharded IRQ
-> >>     11 are dead (most prominently, e1000 and USB).
-> >> 
-> >> This is a T40p.  Behavior with 2.6.8-rc1 is apparently the same.
-> >> 
-> >> Any ideas what to try next?
-> >
-> > Try unloading ehci_hcd before suspend.
-> 
-> It's not loaded anyway, for some reason (the external USB mouse is
-> working nevertheless).
+Andrew,
 
-Yeah, it's using uhci_hcd instead...
+We discovered a bug in the do_proc_doulongvec_minmax() routine.
+The buffer is too short by one byte. A 64-bit number expressed 
+in decimal uses 20 bytes. The size of the buffer was set to 20. 
+The following patch relative to 2.6.7 fixes the problem. For 
+consistency reason, a length of 21 is used for both int and 
+long parsers.
 
-Strange.  suspend works for me (T40 though, not T40p), latest
-BIOS-version, ACPI enabled, APM disabled.
+change-log:
+	fix a bug in do_proc_doulongvec_minmax() where the
+	the string buffer was too short to parse a 64-bit number
+	expressed in decimal. That was causing problems with entries
+	in  /proc/sys using long and allowing large number (such as -1)
 
+signed-off-by: Stephane Eranian <eranian@hpl.hp.com>
 
-Regards: David Weinehall
+===== kernel/sysctl.c 1.65 vs edited =====
+--- 1.65/kernel/sysctl.c        2004-06-16 21:12:21 -07:00
++++ edited/kernel/sysctl.c      2004-07-15 14:38:34 -07:00
+@@ -1442,7 +1442,7 @@
+                              int write, void *data),
+                  void *data)
+ {
+-#define TMPBUFLEN 20
++#define TMPBUFLEN 21
+        int *i, vleft, first=1, neg, val;
+        unsigned long lval;
+        size_t left, len;
+@@ -1682,7 +1682,7 @@
+                                     unsigned long convmul,
+                                     unsigned long convdiv)
+ {
+-#define TMPBUFLEN 20
++#define TMPBUFLEN 21
+        unsigned long *i, *min, *max, val;
+        int vleft, first=1, neg;
+        size_t len, left;
+
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+
+-Stephane

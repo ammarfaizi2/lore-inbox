@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272994AbTHKTBN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272840AbTHKS7i
+	id S273000AbTHKTCT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272991AbTHKTBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:59:38 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:17537 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S272824AbTHKS6T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:58:19 -0400
-Subject: Re: Kconfig -- kill "if you want to read about modules, see" crap?
-From: Steven Cole <elenstev@mesatop.com>
-To: Dave Jones <davej@redhat.com>
-Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       pavel@ucw.cz, James Simmons <jsimmons@infradead.org>
-In-Reply-To: <20030811182451.GA3151@redhat.com>
-References: <200308111400.h7BE01NL000208@81-2-122-30.bradfords.org.uk>
-	 <1060625643.1736.10.camel@spc9.esa.lanl.gov>
-	 <20030811182451.GA3151@redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060628268.1736.16.camel@spc9.esa.lanl.gov>
+	Mon, 11 Aug 2003 15:01:32 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:18902 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S272988AbTHKTAW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:00:22 -0400
+Date: Mon, 11 Aug 2003 20:59:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Johannes Stezenbach <js@convergence.de>, Gerd Knorr <kraxel@bytesex.org>,
+       Flameeyes <dgp85@users.sourceforge.net>, Pavel Machek <pavel@suse.cz>,
+       Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811185947.GA8549@ucw.cz>
+References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 11 Aug 2003 12:57:48 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030811175642.GC2053@convergence.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-11 at 12:24, Dave Jones wrote:
-> On Mon, Aug 11, 2003 at 12:14:04PM -0600, Steven Cole wrote:
+On Mon, Aug 11, 2003 at 07:56:42PM +0200, Johannes Stezenbach wrote:
+> Gerd Knorr wrote:
+> > 
+> > > We can drop /dev/lirc*, and use input events with received codes, but I
+> > > think that lircd is still needed to translate them into userland
+> > > commands...
+> > 
+> > That translation isn't done by lircd, but by the lirc_client library.
+> > This is no reason for keeping lircd as event dispatcher, the input layer
+> > would do equally well (with liblirc_client picking up events from
+> > /dev/input/event<x> instead of lircd).
 > 
->  > Here is a little patch to implement this for
->  > drivers/input/keyboard/Kconfig for a start.  The patch also fixes some
->  > module names which were wrong (cut and paste errors).
+> IMHO there's one problem:
 > 
-> We could go one stage further, and add to Kconfig..
+> If a remote control has e.g. a "1" key this doesn't mean that a user
+> wants a "1" to be written into your editor while editing source code.
+> The "1" key on a remote control simply has a differnt _meaning_ than
+> the "1" key on your keyboard -- depending of course on what the user
+> thinks this key should mean.
+
+That's what BTN_1 is for. ;)
+
+> - users should be able to prevent remote keys from being fed into
+>   the normal keyboard input queue; non lirc aware programs should
+>   not recieve these events
+>   (OTOH, if you use an IR keyboard...)
+
+Yes, the console needs to be configurable in that respect. Its something
+that needs to be fixed.
+
+> - IR events should reach the applications independant of X keyboard
+>   focus (well, maybe; the user should be able to decide)
 > 
-> 	MODULE_NAME=atkbd
-> 
-> for each option, which would also allow us to only show that info
-> of CONFIG_MODULES=y, as well as eliminating the redundancy.
-> 
-> 		Dave
+> With the current input subsystem, the only possiblity is lircd
+> grabbing the remote events with EVIOCGRAB, and passing them
+> on to the applications.
 
-We will need to accommodate this situation:
-
-[steven@spc5 2.5-linux]$ find . -name Makefile | xargs grep IP6_NF_MATCH_AHESP
-./net/ipv6/netfilter/Makefile:obj-$(CONFIG_IP6_NF_MATCH_AHESP) += ip6t_esp.o ip6t_ah.o
-
-Steven
-
-
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

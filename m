@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUKSXpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbUKSXtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUKSXpi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 18:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbUKSXZJ
+	id S261671AbUKSXtx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 18:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUKSXs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 18:25:09 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64408 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261652AbUKSXW6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 18:22:58 -0500
-Message-ID: <419E804E.2050004@us.ibm.com>
-Date: Fri, 19 Nov 2004 17:22:54 -0600
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST
-References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>	 <20041119213232.GB13259@kroah.com>  <419E72EF.4010100@us.ibm.com> <1100904402.3811.52.camel@gaston>
-In-Reply-To: <1100904402.3811.52.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 19 Nov 2004 18:48:29 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:34273 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261671AbUKSXqM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 18:46:12 -0500
+Subject: Re: [PATCH] kdump: Fix for boot problems on SMP
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Akinobu Mita <amgta@yacht.ocn.ne.jp>, hari@in.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       varap@us.ibm.com
+In-Reply-To: <20041119153052.21b387ca.akpm@osdl.org>
+References: <419CACE2.7060408@in.ibm.com>
+	 <200411200256.36218.amgta@yacht.ocn.ne.jp>
+	 <20041119153052.21b387ca.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1100906944.4987.203.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Nov 2004 15:29:04 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> On Fri, 2004-11-19 at 16:25 -0600, Brian King wrote:
-> 
-> 
->>I thought about that when writing up this patch, but decided against it.
->>I figured it was overkill and was going to make the patch more complicated
->>than it needed to be to solve the main problem I have seen, which is
->>userspace code, usually hotplug/coldplug scripts, reading config space
->>when an adapter is running BIST.
-> 
-> 
-> How so ? Why would it be more complicated to do the workaround in
-> drivers/pci/access.c macros instead and not touch all the wrappers ? It
-> would actually make a much smaller patch...
+Hi Andrew,
 
-I guess what I was having difficulty with was how to go from bus/devfn
-to pci_dev in the bus macros (to access the saved_config_space) and do this
-safely at interrupt level. The spinlock protecting the devices list on the
-pci_bus struct is never acquired with irqsave and all the existing
-functions to search for a given pci device are not callable from
-interrupt context.
+I haven't tested it yet on any of my machines (due to the hang). 
+I am about to give it a try. But my understanding (please update 
+me if I am wrong) is,
+
+1) DISCONTIG_MEM support is not working yet - so i can't use any
+of my NUMA boxes.
+
+2) AMD64 is not supported - i can't use my Opteron machine.
+
+3) ppc is not supported - i can't use Power3 and Power4 machines.
+
+So, I can only try it on non-NUMA i386 smp boxes. I have few of
+those to try. I will give an update next week on my testing.
+
+Thanks,
+Badari
 
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+On Fri, 2004-11-19 at 15:30, Andrew Morton wrote:
+> Akinobu Mita <amgta@yacht.ocn.ne.jp> wrote:
+> >
+> > On Thursday 18 November 2004 23:08, Hariprasad Nellitheertha wrote:
+> > 
+> > > There was a buggy (and unnecessary) reserve_bootmem call in the kdump
+> > > call which was causing hangs during early on some SMP machines. The
+> > > attached patch removes that.
+> > 
+> > Thanks! I also had the same problem.
+> 
+> So..  How is the crashdump code working now?  I haven't heard from anyone
+> who is using it and I haven't gotten onto testing it myself.
+> 
+> Do we have any feeling for its success rate on various machines, and on its
+> ease of use?
+> 
+> 
 

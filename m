@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318142AbSHDKOg>; Sun, 4 Aug 2002 06:14:36 -0400
+	id <S318143AbSHDKVI>; Sun, 4 Aug 2002 06:21:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318143AbSHDKOg>; Sun, 4 Aug 2002 06:14:36 -0400
-Received: from pop.gmx.net ([213.165.64.20]:53697 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S318142AbSHDKOg>;
-	Sun, 4 Aug 2002 06:14:36 -0400
-From: Felix Seeger <felix.seeger@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19, usb mouse is gone
-Date: Sun, 4 Aug 2002 12:17:51 +0200
+	id <S318144AbSHDKVI>; Sun, 4 Aug 2002 06:21:08 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:3292 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S318143AbSHDKVH>; Sun, 4 Aug 2002 06:21:07 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Felix Seeger <felix.seeger@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19, usb mouse is gone
+Date: Sun, 4 Aug 2002 20:19:47 +1000
 User-Agent: KMail/1.4.5
+References: <200208041217.51250.felix.seeger@gmx.de>
+In-Reply-To: <200208041217.51250.felix.seeger@gmx.de>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
 Content-Disposition: inline
-Message-Id: <200208041217.51250.felix.seeger@gmx.de>
+Message-Id: <200208042019.47553.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 4 Aug 2002 20:17, Felix Seeger wrote:
+> Hi
+>
+> What happens to the usb mouse in 2.4.19 ?
+You copied .config from the previous version, and didn't check
+if anything had changed.
 
-Hi
+> After my update I had to switch to ps/2 because it doesn't work.
+Of course it doesn't work. You (by inaction) turned it off.
 
-What happens to the usb mouse in 2.4.19 ?
-After my update I had to switch to ps/2 because it doesn't work.
+Try turning on CONFIG_USB_HIDINPUT.
 
+Checking the mailing list archives would have been productive too.
 
-thanks
-have fun
-Felix
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9TP9PS0DOrvdnsewRAmFbAJ9Onh0QWgNeHG4uON+C3Z9k0O7UHQCfYwKL
-fFQrqcL1tRpRYbfL07DNcAY=
-=iZh/
------END PGP SIGNATURE-----
-
+Brad
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

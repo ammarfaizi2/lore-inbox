@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261973AbSLZDgg>; Wed, 25 Dec 2002 22:36:36 -0500
+	id <S262224AbSLZDin>; Wed, 25 Dec 2002 22:38:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262040AbSLZDgg>; Wed, 25 Dec 2002 22:36:36 -0500
-Received: from itaqui.terra.com.br ([200.176.3.19]:21203 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP
-	id <S261973AbSLZDgg>; Wed, 25 Dec 2002 22:36:36 -0500
-Message-ID: <3E0A5E65.5030601@terra.com.br>
-Date: Thu, 26 Dec 2002 01:41:57 +0000
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S262258AbSLZDin>; Wed, 25 Dec 2002 22:38:43 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:25516 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262224AbSLZDim>;
+	Wed, 25 Dec 2002 22:38:42 -0500
+Date: Wed, 25 Dec 2002 19:45:01 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dev_printk macro
+In-Reply-To: <1040852066.1109.18.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L2.0212251943160.26694-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: Josh Brooks <user@mail.econolodgetulsa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU failures ... or something else ?
-References: <20021225175232.O6873-100000@mail.econolodgetulsa.com>
-In-Reply-To: <20021225175232.O6873-100000@mail.econolodgetulsa.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 Dec 2002, Alan Cox wrote:
 
+| On Mon, 2002-12-23 at 00:46, Randy.Dunlap wrote:
+| >
+| > I'm glad to see this patch available, as Greg was.
+| > Now I have some questions about it.
+| >
+| > a.  Is it only for drivers?  If so, why?
+| >     Filesystems and other subsystems that are not drivers could use
+| >     something like this also.
+|
+| Definitely - fs_printk, inode_printk etc may all make sense
+| >
+| > b.  Is it only for drivers that have a device?
+| >     What does a driver use for dev_printk() if it doesn't have a <dev>?
+| >     However, these do cover the large majority of cases, so that's good.
+|
+| This case isnt covered. All devices should eventually have a dev right
+| 8)
 
-Josh Brooks wrote:
-> Hello,
-> 
-> I have a dual p3 866 running 2.4 kernel that is crashing once every few
-> days leaving this on the console:
-> 
-> 
-> Message from syslogd@localhost at Tue Dec 24 11:30:31 2002 ...
-> localhost kernel: CPU 1: Machine Check Exception: 0000000000000004
-> 
-> Message from syslogd@localhost at Tue Dec 24 11:30:32 2002 ...
-> localhost kernel: Bank 4: b200000000040151
-> 
-> Message from syslogd@localhost at Tue Dec 24 11:30:32 2002 ...
-> localhost kernel: Kernel panic: CPU context corrupt
-> 
-> Word on the street is that this indicates hardware failure of some kind
-> (cpu, bus, or memory).  My main question is, is that very surely the
-> culprit, or is it also possible that all of the hardware is perfect and
-> that a bug in the kernel code or some outside influence (remote exploit)
-> is causing this crash ?
+Eventually, but not always.  Anyway, after another day or 2 to
+reflect on it, I'll withdraw the comment I made about checking
+<dev> for NULL in those macros.  They can/should be context-sensitive.
 
-	Instruction fetch error from the level 1 cache...I've seen this before 
-(check the archives). This indicates either a memory or a processor problem.
-
-	Could you please run memtest86?
-
-	Thanks.
-
-Felipe
+-- 
+~Randy
 

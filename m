@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265097AbTBPAIU>; Sat, 15 Feb 2003 19:08:20 -0500
+	id <S265477AbTBPAKV>; Sat, 15 Feb 2003 19:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265423AbTBPAIU>; Sat, 15 Feb 2003 19:08:20 -0500
-Received: from almesberger.net ([63.105.73.239]:786 "EHLO host.almesberger.net")
-	by vger.kernel.org with ESMTP id <S265097AbTBPAIT>;
-	Sat, 15 Feb 2003 19:08:19 -0500
-Date: Sat, 15 Feb 2003 21:18:08 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-Message-ID: <20030215211808.K2092@almesberger.net>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <Pine.LNX.4.50.0302131215140.1869-100000@blue1.dev.mcafeelabs.com> <20030215010837.D2791@almesberger.net> <Pine.LNX.4.50.0302151359020.1891-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0302151359020.1891-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Sat, Feb 15, 2003 at 02:00:05PM -0800
+	id <S265470AbTBPAKV>; Sat, 15 Feb 2003 19:10:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7953 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265477AbTBPAKU>; Sat, 15 Feb 2003 19:10:20 -0500
+Date: Sat, 15 Feb 2003 16:16:07 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roger Luethi <rl@hellgate.ch>
+cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+Subject: Re: [0/4][via-rhine] Improvements
+In-Reply-To: <20030215225204.GA6887@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.44.0302151611310.23496-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> You could do that, even if when you start having many timers things might
-> get messy.
 
-Manage a list of pending timers, schedule a signal for the next
-one (or, if you wish, launch a thread), etc. All that is pretty
-standard stuff that can be hidden in some library function, and
-you can even steal a lot of the code from the kernel :-)
+On Sat, 15 Feb 2003, Roger Luethi wrote:
+> 
+> Thanks for raising that issue. It is my understanding that PIO ops are
+> synchronous (on IA-32). If that is correct, problems should only occur if
+> the driver is built with MMIO support, no?
 
-It would be useful, though, to have something like the
-"overwrite" function I described later in this thread, in case
-there is a single fd that can accumulate more timer expirations
-between reads, than fit into the pipe/queue. (Admittedly a bit
-of a fringe scenario.)
+No, even PIO ops are asynchronous. They are _more_ synchronous than the
+MMIO ones (I think the CPU waits until they hit the bus, and most bridges
+just pass them through), but the CPU does not wait for them to hit the
+device.
 
-- Werner
+So in practice, this _tends_ to mean that a PIO write will usually hit the 
+device within a microsecond or less of being issued by the CPU, and you 
+don't need a IO read to force it out. But considering the wide variety of 
+PCI bridges out there I bet there are some that will post even PIO writes 
+and might hold on to them for some time, especially if other activity like 
+DMA keeps the bus busy.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+In other words: I suspect the code will work. But it's probably _safer_ to 
+do the normal "read to synchronize" unless there are major performance 
+issues (which is clearly not the case in this particular instance, but 
+might be somewhere else).
+
+		Linus
+

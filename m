@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292254AbSB0Ipw>; Wed, 27 Feb 2002 03:45:52 -0500
+	id <S292270AbSB0Iom>; Wed, 27 Feb 2002 03:44:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292275AbSB0Ipm>; Wed, 27 Feb 2002 03:45:42 -0500
-Received: from natwar.webmailer.de ([192.67.198.70]:57393 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S292254AbSB0Ip1>; Wed, 27 Feb 2002 03:45:27 -0500
-Date: Wed, 27 Feb 2002 09:46:53 +0100
-From: Kristian <kristian.peters@korseby.net>
-To: glytchbinary <glytchbinary@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi cd burning broken in 2.4.x kernels
-Message-Id: <20020227094653.28c6a40f.kristian.peters@korseby.net>
-In-Reply-To: <3C7BDB40.6090704@attbi.com>
-In-Reply-To: <3C7BDB40.6090704@attbi.com>
-X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: Debian GNU/Linux 2.4.17
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S292275AbSB0Ioc>; Wed, 27 Feb 2002 03:44:32 -0500
+Received: from gw.sp.op.dlr.de ([129.247.188.16]:11664 "EHLO n13.sp.op.dlr.de")
+	by vger.kernel.org with ESMTP id <S292270AbSB0IoT>;
+	Wed, 27 Feb 2002 03:44:19 -0500
+Message-ID: <3C7C9C41.5080400@dlr.de>
+Date: Wed, 27 Feb 2002 09:43:45 +0100
+From: Martin Wirth <Martin.Wirth@dlr.de>
+Reply-To: Martin.Wirth@dlr.de
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.4) Gecko/20011206 Netscape6/6.2.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: frankeh@watson.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lightweight userspace semphores
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-glytchbinary <glytchbinary@attbi.com> wrote:
->  http://glytch.mine.nu/cdburning.jpg
+Hi Hubertus,
 
-Have you recompiled cdrecord with a 2.4 kernel ? I've noticed some problems with cdrecord compiled for 2.4 but used with 2.2. As far as I know cdrecord includes some header of the kernel.
+I just had a quick look on your semaphore code. As far as I can see you 
+do no re-check of the userspace semaphore counter while going to sleep 
+on your kernel semaphore. But this way you may loose synchronization 
+between the kernel semaphore and the user-space semaphore counter if 
+more than two processes are involved. Or did I miss some tricky form
+of how you avoided this problem?
 
-*Kristian
+Martin Wirth
 
-  :... [snd.science] ...:
- ::
- :: http://www.korseby.net
- :: http://gsmp.sf.net
-  :..........................:

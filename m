@@ -1,83 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVCENqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVCEN7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbVCENqy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 08:46:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVCENqy
+	id S261378AbVCEN7s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 08:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVCEN7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 08:46:54 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:22429 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261275AbVCENqv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 08:46:51 -0500
-Message-ID: <4229B847.5050301@drzeus.cx>
-Date: Sat, 05 Mar 2005 14:46:47 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ian Molton <spyro@f2s.com>, Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [PATCH][MMC] Secure Digital (SD) support
-References: <422701A0.8030408@drzeus.cx> <20050305113730.B26541@flint.arm.linux.org.uk> <4229A4B4.1000208@drzeus.cx> <20050305124420.A342@flint.arm.linux.org.uk>
-In-Reply-To: <20050305124420.A342@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Mar 2005 08:59:48 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24836 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261378AbVCEN7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 08:59:18 -0500
+Date: Sat, 5 Mar 2005 14:59:17 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <greg@kroah.com>
+Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
+Message-ID: <20050305135917.GB6373@stusta.de>
+References: <20050304222146.GA1686@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304222146.GA1686@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Fri, Mar 04, 2005 at 02:21:46PM -0800, Greg KH wrote:
 
->On Sat, Mar 05, 2005 at 01:23:16PM +0100, Pierre Ossman wrote:
->  
->
->>I can make a new patch or you can just undo that line once you've 
->>applied the current one.
->>    
->>
->
->I'd rather not just apply this patch - there's rather a lot there to
->just apply on top of what's already merged.
->
->Is there any chance you can split it up into a smaller set of changes
->so it's more obvious what's going on at each stage please?
->  
->
-Sure. I'll try to divide it into smaller pieces. It will result in some 
-patches that are just there to prepare for the other ones though (i.e. 
-they don't add any functionality by themselves).
+> Anything else anyone can think of?  Any objections to any of these?
+> I based them off of Linus's original list.
 
->We'll also need to run this by Linus first, explaining why you believe
->it's now ok to merge this.  (Added Linus...)
->
->  
->
-First of, I can't really back up the claim that it isn't ok. The SDA has 
-a paragraph about non-disclosure in their "IP Policy" 
-(http://www.sdcard.org/membership/images/ippolicy.pdf) but it also 
-states that exceptions can be granted.
+Are these 100% fixed rules or just guidelines you use?
 
-Against this stands the new information that the SDA is changing its 
-policy and making the specs public. This information comes from some of 
-the guys at HP research and hasn't been confirmed by any public 
-statement from SDA. The SDA have, however, already released the SDIO 
-specs. Presumably as part of this new policy.
+An example that doesn't fit:
 
-It was also pointed out in the previous thread by myself, Alan Cox and 
-Ian Molton that SD specs have been publically available from different 
-companies for quite some time. As such it is difficult for anyone to 
-claim that these are secret and can be regulated by a NDA. The only part 
-that hasn't been found in the wild is the spec for the 'secure' parts of 
-the cards. But that also means that it isn't included in this patch so 
-it shouldn't pose a problem.
+A patch of me to remove an unused function was accepted into 2.6.11 .
+Today, someone mailed that there's an external GPL'ed module that uses 
+this function.
 
-As always, IANAL so I can't give any definite answer. But from my point 
-of view they would have a very weak case if they tried to claim that the 
-information in this patch is a trade secret.
+A patch to re-add this function as it was in 2.6.10 does not fulfill 
+your criteria, but it is a low-risk way to fix a regression compared to 
+2.6.10 .
 
-Rgds
-Pierre
+> thanks,
+> 
+> greg k-h
+> 
+> ------
+> 
+> Rules on what kind of patches are accepted, and what ones are not, into
+> the "linux-release" tree.
+> 
+>  - It can not bigger than 100 lines, with context.
+>  - It must fix only one thing.
+>  - It must fix a real bug that bothers people (not a, "This could be a
+>    problem..." type thing.)
+>  - It must fix a problem that causes a build error (but not for things
+>    marked CONFIG_BROKEN), an oops, a hang, or a real security issue.
+>  - No "theoretical race condition" issues, unless an explanation of how
+>    the race can be exploited.
+>  - It can not contain any "trivial" fixes in it (spelling changes,
+>    whitespace cleanups, etc.)
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

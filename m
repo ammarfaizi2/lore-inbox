@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284371AbRLCIvs>; Mon, 3 Dec 2001 03:51:48 -0500
+	id <S284400AbRLCIvh>; Mon, 3 Dec 2001 03:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284385AbRLCItz>; Mon, 3 Dec 2001 03:49:55 -0500
-Received: from zeus.anet-chi.com ([207.7.4.6]:52947 "EHLO zeus.anet-chi.com")
-	by vger.kernel.org with ESMTP id <S284640AbRLCCNc>;
-	Sun, 2 Dec 2001 21:13:32 -0500
-Message-ID: <007701c17ba1$f177dcc0$a300a8c0@ipv16>
-From: "Jim Fleming" <jfleming@anet.com>
-To: "bert hubert" <ahu@ds9a.nl>, <lartc@mailman.ds9a.nl>,
-        <linux-kernel@vger.kernel.org>, <kuznet@ms2.inr.ac.ru>,
-        <hadi@cyberus.ca>, <netdev@oss.sgi.com>
-In-Reply-To: <20011201013341.A23830@outpost.ds9a.nl> <20011203030002.A20601@outpost.ds9a.nl>
-Subject: Re: [LARTC] CBQ and all other qdiscs now REALLY completely documented (almost!)
-Date: Sun, 2 Dec 2001 20:26:07 -0600
+	id <S284445AbRLCIuY>; Mon, 3 Dec 2001 03:50:24 -0500
+Received: from dsl-213-023-038-056.arcor-ip.net ([213.23.38.56]:22284 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284529AbRLCAwq>;
+	Sun, 2 Dec 2001 19:52:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Larry McVoy <lm@bitmover.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Subject: Re: Coding style - a non-issue
+Date: Mon, 3 Dec 2001 01:55:08 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011130200239.A28131@hq2> <200112012318.fB1NI6sW020423@sleipnir.valparaiso.cl> <20011202122526.A2622@work.bitmover.com>
+In-Reply-To: <20011202122526.A2622@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16AhO2-0000C2-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "bert hubert" <ahu@ds9a.nl>
+On December 2, 2001 09:25 pm, Larry McVoy wrote:
+> On Sat, Dec 01, 2001 at 08:18:06PM -0300, Horst von Brand wrote:
+> > Victor Yodaiken <yodaiken@fsmlabs.com> said:
+> > > Linux is what it is because of design, not accident. And you know
+> > > that better than anyone.
+> > 
+> > I'd say it is better because the mutations themselves (individual patches)
+> > go through a _very_ harsh evaluation before being applied in the 
+"official"
+> > sources. 
 > 
-> The only thing left to document are Policing filters.
-> 
+> Which is exactly Victor's point.  That evaluation is the design.
 
-This may help...
-http://www.dot-biz.com/IPv4/Tutorial/
+Nope, that isn't design, that's reacting.
 
+> If the mutation argument held water then Linus would apply *ALL* patches 
+> and then remove the bad ones.  But he doesn't.  Which just goes to show
+> that on this mutation nonsense, he's just spouting off.
 
-Jim Fleming
-http://www.IPv8.info
-IPv16....One Better !!
+Hogwash ;)  Please see my post above where I point out 'evolution isn't 
+random'.  Your genes have a plan, if only a vague one.  It goes something 
+like this: "we'll allow random variations, but only along certain lines, 
+within limits, and in certain combinations, and we'll try to stick to 
+variations that haven't killed us in the past."
 
+Sounds a lot like how Linus does things, huh?
+
+I'm sure Linus does have quite considerable talent for design, but I haven't 
+seen him execise it much.  Mostly he acts as a kind of goodness daemon, 
+sitting in his little pinhole and letting what he considers 'good' stuff pass 
+into the box.  There's no doubt about it, it's different from the way you 
+like to develop, you and me both.  Equally clearly, it works pretty well.
+
+--
+Daniel

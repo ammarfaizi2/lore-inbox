@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268650AbUI2Q2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268700AbUI2Qau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268650AbUI2Q2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 12:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268657AbUI2Q2I
+	id S268700AbUI2Qau (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 12:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268707AbUI2Qat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 12:28:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9181 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268650AbUI2Q1s (ORCPT
+	Wed, 29 Sep 2004 12:30:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34526 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268700AbUI2Qam (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 12:27:48 -0400
-Date: Wed, 29 Sep 2004 12:27:28 -0400
+	Wed, 29 Sep 2004 12:30:42 -0400
+Date: Wed, 29 Sep 2004 12:30:23 -0400
 From: Alan Cox <alan@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: setuid core dump take 2
-Message-ID: <20040929162728.GA14608@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com
+Subject: PATCH: 3c59x 00:00:00:00:00:00 MAC failure
+Message-ID: <20040929163023.GA17899@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,340 +21,24 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes the /proc problems that were pointed out in the original. I've
-left the values numeric since I think the code actually reads better in
-that form, but thats open for debate.
+The 3com EEPROM has a checksum but unfortunately it seems that a zapped
+EEPROM returning all zero values passes the checksum test fine and we try
+and use it. 
 
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/Documentation/sysctl/kernel.txt linux-2.6.9rc2/Documentation/sysctl/kernel.txt
---- linux.vanilla-2.6.9rc2/Documentation/sysctl/kernel.txt	2004-09-14 14:22:52.000000000 +0100
-+++ linux-2.6.9rc2/Documentation/sysctl/kernel.txt	2004-09-27 19:01:53.729513832 +0100
-@@ -49,6 +49,7 @@
- - shmmax                      [ sysv ipc ]
- - shmmni
- - stop-a                      [ SPARC only ]
-+- suid_dumpable
- - sysrq                       ==> Documentation/sysrq.txt
- - tainted
- - threads-max
-@@ -300,6 +301,25 @@
- 
- ==============================================================
- 
-+suid_dumpable:
-+
-+This value can be used to query and set the core dump mode for setuid
-+or otherwise protected/tainted binaries. The modes are
-+
-+0 - (default) - traditional behaviour. Any process which has changed
-+	privilege levels or is execute only will not be dumped
-+1 - (debug) - all processes dump core when possible. The core dump is
-+	owned by the current user and no security is applied. This is
-+	intended for system debugging situations only.
-+2 - (suidsafe) - any binary which normally not be dumped is dumped
-+	readable by root only. This allows the end user to remove
-+	such a dump but not access it directly. For security reasons
-+	core dumps in this mode will not overwrite one another or 
-+	other files. This mode is appropriate when adminstrators are
-+	attempting to debug problems in a normal environment.
-+
-+==============================================================
-+
- tainted: 
- 
- Non-zero if the kernel has been tainted.  Numeric values, which
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/fs/exec.c linux-2.6.9rc2/fs/exec.c
---- linux.vanilla-2.6.9rc2/fs/exec.c	2004-09-14 14:22:54.000000000 +0100
-+++ linux-2.6.9rc2/fs/exec.c	2004-09-27 18:57:17.531502312 +0100
-@@ -56,6 +56,8 @@
- 
- int core_uses_pid;
- char core_pattern[65] = "core";
-+int suid_dumpable = 0;
-+
- /* The maximal length of core_pattern is also specified in sysctl.c */
- 
- static struct linux_binfmt *formats;
-@@ -843,6 +845,9 @@
- 
- 	if (current->euid == current->uid && current->egid == current->gid)
- 		current->mm->dumpable = 1;
-+	else
-+		current->mm->dumpable = suid_dumpable;
-+		
- 	name = bprm->filename;
- 	for (i=0; (ch = *(name++)) != '\0';) {
- 		if (ch == '/')
-@@ -859,7 +864,7 @@
- 	if (bprm->e_uid != current->euid || bprm->e_gid != current->egid || 
- 	    permission(bprm->file->f_dentry->d_inode,MAY_READ, NULL) ||
- 	    (bprm->interp_flags & BINPRM_FLAGS_ENFORCE_NONDUMP))
--		current->mm->dumpable = 0;
-+		current->mm->dumpable = suid_dumpable;
- 
- 	/* An exec changes our domain. We are no longer part of the thread
- 	   group */
-@@ -1158,7 +1163,6 @@
- 	retval = search_binary_handler(&bprm,regs);
- 	if (retval >= 0) {
- 		free_arg_pages(&bprm);
--
- 		/* execve success */
- 		security_bprm_free(&bprm);
- 		return retval;
-@@ -1374,7 +1378,9 @@
- 	struct inode * inode;
- 	struct file * file;
- 	int retval = 0;
--
-+	int fsuid = current->fsuid;
-+	int flag = 0;
-+	
- 	binfmt = current->binfmt;
- 	if (!binfmt || !binfmt->core_dump)
- 		goto fail;
-@@ -1383,6 +1389,17 @@
- 		up_write(&mm->mmap_sem);
- 		goto fail;
+--- drivers/net/3c59x.c~	2004-09-29 17:23:42.964453264 +0100
++++ drivers/net/3c59x.c	2004-09-29 17:28:40.358242536 +0100
+@@ -1295,6 +1295,13 @@
+ 		for (i = 0; i < 6; i++)
+ 			printk("%c%2.2x", i ? ':' : ' ', dev->dev_addr[i]);
  	}
-+	
-+	/*
-+	 *	We cannot trust fsuid as being the "true" uid of the
-+	 *	process nor do we know its entire history. We only know it
-+	 *	was tainted so we dump it as root in mode 2.
-+	 */
-+	if (mm->dumpable == 2)		/* Setuid core dump mode */
-+	{
-+		flag = O_EXCL;		/* Stop rewrite attacks */
-+		current->fsuid = 0;	/* Dump root private */
++	/* Unfortunately an all zero eeprom passes the checksum and this
++	   gets found in the wild in failure cases. Crypto is hard 8) */
++	if (memcmp(dev->dev_addr, "\0\0\0\0\0", 6) == 0) {
++		retval = -EINVAL;
++		printk(KERN_ERR "*** EEPROM MAC address is invalid.\n");
++		goto free_ring;	/* With every pack */
 +	}
- 	mm->dumpable = 0;
- 	init_completion(&mm->core_done);
- 	current->signal->group_exit = 1;
-@@ -1399,7 +1416,7 @@
-  	lock_kernel();
- 	format_corename(corename, core_pattern, signr);
- 	unlock_kernel();
--	file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW | O_LARGEFILE, 0600);
-+	file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW | O_LARGEFILE | flag, 0600);
- 	if (IS_ERR(file))
- 		goto fail_unlock;
- 	inode = file->f_dentry->d_inode;
-@@ -1423,6 +1440,7 @@
- close_fail:
- 	filp_close(file, NULL);
- fail_unlock:
-+	current->fsuid = fsuid;
- 	complete_all(&mm->core_done);
- fail:
- 	return retval;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/fs/proc/base.c linux-2.6.9rc2/fs/proc/base.c
---- linux.vanilla-2.6.9rc2/fs/proc/base.c	2004-09-14 14:22:54.000000000 +0100
-+++ linux-2.6.9rc2/fs/proc/base.c	2004-09-27 22:13:33.610266224 +0100
-@@ -307,7 +307,7 @@
- 	     (current->gid != task->gid)) && !capable(CAP_SYS_PTRACE))
- 		goto out;
- 	rmb();
--	if (!task->mm->dumpable && !capable(CAP_SYS_PTRACE))
-+	if (task->mm->dumpable != 1 && !capable(CAP_SYS_PTRACE))
- 		goto out;
- 	if (security_ptrace(current, task))
- 		goto out;
-@@ -929,7 +929,9 @@
- 	if (mm)
- 		dumpable = mm->dumpable;
- 	task_unlock(task);
--	return dumpable;
-+	if(dumpable == 1)
-+		return 1;
-+	return 0;
- }
- 
- 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/include/linux/binfmts.h linux-2.6.9rc2/include/linux/binfmts.h
---- linux.vanilla-2.6.9rc2/include/linux/binfmts.h	2004-09-14 14:19:39.000000000 +0100
-+++ linux-2.6.9rc2/include/linux/binfmts.h	2004-09-29 00:54:44.882212920 +0100
-@@ -69,6 +69,8 @@
- extern int search_binary_handler(struct linux_binprm *,struct pt_regs *);
- extern int flush_old_exec(struct linux_binprm * bprm);
- 
-+extern int suid_dumpable;
-+
- /* Stack area protections */
- #define EXSTACK_DEFAULT   0	/* Whatever the arch defaults to */
- #define EXSTACK_DISABLE_X 1	/* Disable executable stacks */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/include/linux/sched.h linux-2.6.9rc2/include/linux/sched.h
---- linux.vanilla-2.6.9rc2/include/linux/sched.h	2004-09-14 14:22:57.000000000 +0100
-+++ linux-2.6.9rc2/include/linux/sched.h	2004-09-27 16:12:04.000000000 +0100
-@@ -230,7 +230,7 @@
- 
- 	unsigned long saved_auxv[42]; /* for /proc/PID/auxv */
- 
--	unsigned dumpable:1;
-+	unsigned dumpable:2;
- 	cpumask_t cpu_vm_mask;
- 
- 	/* Architecture-specific MM context */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/include/linux/sysctl.h linux-2.6.9rc2/include/linux/sysctl.h
---- linux.vanilla-2.6.9rc2/include/linux/sysctl.h	2004-09-14 14:22:57.000000000 +0100
-+++ linux-2.6.9rc2/include/linux/sysctl.h	2004-09-29 00:53:21.220931368 +0100
-@@ -134,6 +134,7 @@
- 	KERN_SPARC_SCONS_PWROFF=64, /* int: serial console power-off halt */
- 	KERN_HZ_TIMER=65,	/* int: hz timer on or off */
- 	KERN_UNKNOWN_NMI_PANIC=66, /* int: unknown nmi panic flag */
-+	KERN_SETUID_DUMPABLE=67, /* int: behaviour of dumps for setuid core */
- };
- 
- 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/kernel/sys.c linux-2.6.9rc2/kernel/sys.c
---- linux.vanilla-2.6.9rc2/kernel/sys.c	2004-09-14 14:22:57.000000000 +0100
-+++ linux-2.6.9rc2/kernel/sys.c	2004-09-27 16:10:24.000000000 +0100
-@@ -589,7 +589,7 @@
- 	}
- 	if (new_egid != old_egid)
- 	{
--		current->mm->dumpable = 0;
-+		current->mm->dumpable = suid_dumpable;
- 		wmb();
- 	}
- 	if (rgid != (gid_t) -1 ||
-@@ -619,7 +619,7 @@
- 	{
- 		if(old_egid != gid)
- 		{
--			current->mm->dumpable=0;
-+			current->mm->dumpable = suid_dumpable;
- 			wmb();
- 		}
- 		current->gid = current->egid = current->sgid = current->fsgid = gid;
-@@ -628,7 +628,7 @@
- 	{
- 		if(old_egid != gid)
- 		{
--			current->mm->dumpable=0;
-+			current->mm->dumpable = suid_dumpable;
- 			wmb();
- 		}
- 		current->egid = current->fsgid = gid;
-@@ -657,7 +657,7 @@
- 
- 	if(dumpclear)
- 	{
--		current->mm->dumpable = 0;
-+		current->mm->dumpable = suid_dumpable;
- 		wmb();
- 	}
- 	current->uid = new_ruid;
-@@ -714,7 +714,7 @@
- 
- 	if (new_euid != old_euid)
- 	{
--		current->mm->dumpable=0;
-+		current->mm->dumpable = suid_dumpable;
- 		wmb();
- 	}
- 	current->fsuid = current->euid = new_euid;
-@@ -762,7 +762,7 @@
- 
- 	if (old_euid != uid)
- 	{
--		current->mm->dumpable = 0;
-+		current->mm->dumpable = suid_dumpable;
- 		wmb();
- 	}
- 	current->fsuid = current->euid = uid;
-@@ -805,7 +805,7 @@
- 	if (euid != (uid_t) -1) {
- 		if (euid != current->euid)
- 		{
--			current->mm->dumpable = 0;
-+			current->mm->dumpable = suid_dumpable;
- 			wmb();
- 		}
- 		current->euid = euid;
-@@ -853,7 +853,7 @@
- 	if (egid != (gid_t) -1) {
- 		if (egid != current->egid)
- 		{
--			current->mm->dumpable = 0;
-+			current->mm->dumpable = suid_dumpable;
- 			wmb();
- 		}
- 		current->egid = egid;
-@@ -898,7 +898,7 @@
- 	{
- 		if (uid != old_fsuid)
- 		{
--			current->mm->dumpable = 0;
-+			current->mm->dumpable = suid_dumpable;
- 			wmb();
- 		}
- 		current->fsuid = uid;
-@@ -926,7 +926,7 @@
- 	{
- 		if (gid != old_fsgid)
- 		{
--			current->mm->dumpable = 0;
-+			current->mm->dumpable = suid_dumpable;
- 			wmb();
- 		}
- 		current->fsgid = gid;
-@@ -1681,7 +1681,7 @@
- 				error = 1;
- 			break;
- 		case PR_SET_DUMPABLE:
--			if (arg2 != 0 && arg2 != 1) {
-+			if (arg2 < 0 || arg2 > 2) {
- 				error = -EINVAL;
- 				break;
- 			}
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/kernel/sysctl.c linux-2.6.9rc2/kernel/sysctl.c
---- linux.vanilla-2.6.9rc2/kernel/sysctl.c	2004-09-14 14:22:57.000000000 +0100
-+++ linux-2.6.9rc2/kernel/sysctl.c	2004-09-27 17:20:55.000000000 +0100
-@@ -58,6 +58,7 @@
- extern int max_threads;
- extern int sysrq_enabled;
- extern int core_uses_pid;
-+extern int suid_dumpable;
- extern char core_pattern[];
- extern int cad_pid;
- extern int pid_max;
-@@ -619,6 +620,14 @@
- 		.proc_handler   = &proc_unknown_nmi_panic,
- 	},
- #endif
-+	{
-+		.ctl_name	= KERN_SETUID_DUMPABLE,
-+		.procname	= "suid_dumpable",
-+		.data		= &suid_dumpable,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
- 	{ .ctl_name = 0 }
- };
- 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/security/commoncap.c linux-2.6.9rc2/security/commoncap.c
---- linux.vanilla-2.6.9rc2/security/commoncap.c	2004-09-14 14:22:57.000000000 +0100
-+++ linux-2.6.9rc2/security/commoncap.c	2004-09-27 18:46:09.000000000 +0100
-@@ -127,7 +127,7 @@
- 
- 	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid ||
- 	    !cap_issubset (new_permitted, current->cap_permitted)) {
--		current->mm->dumpable = 0;
-+		current->mm->dumpable = suid_dumpable;
- 
- 		if (unsafe & ~LSM_UNSAFE_PTRACE_CAP) {
- 			if (!capable(CAP_SETUID)) {
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc2/security/dummy.c linux-2.6.9rc2/security/dummy.c
---- linux.vanilla-2.6.9rc2/security/dummy.c	2004-09-14 14:19:28.000000000 +0100
-+++ linux-2.6.9rc2/security/dummy.c	2004-09-27 18:45:46.000000000 +0100
-@@ -174,7 +174,7 @@
- static void dummy_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
- {
- 	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid) {
--		current->mm->dumpable = 0;
-+		current->mm->dumpable = suid_dumpable;
- 
- 		if ((unsafe & ~LSM_UNSAFE_PTRACE_CAP) && !capable(CAP_SETUID)) {
- 			bprm->e_uid = current->uid;
+ 	EL3WINDOW(2);
+ 	for (i = 0; i < 6; i++)
+ 		outb(dev->dev_addr[i], ioaddr + i);

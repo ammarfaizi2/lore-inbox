@@ -1,75 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318900AbSIJAzY>; Mon, 9 Sep 2002 20:55:24 -0400
+	id <S318972AbSIJBJi>; Mon, 9 Sep 2002 21:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318976AbSIJAzX>; Mon, 9 Sep 2002 20:55:23 -0400
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:29111 "EHLO
-	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318900AbSIJAzX>; Mon, 9 Sep 2002 20:55:23 -0400
-Date: Mon, 9 Sep 2002 17:02:36 -0400
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: ltp directio test causes oops on 2.4.20pre5aa2
-Message-ID: <20020909210236.GA3023@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S319003AbSIJBJi>; Mon, 9 Sep 2002 21:09:38 -0400
+Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:47043 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318972AbSIJBJg>;
+	Mon, 9 Sep 2002 21:09:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Chuck Lever <cel@citi.umich.edu>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Tue, 10 Sep 2002 03:07:00 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>,
+       <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.BSO.4.33.0209091933150.6471-100000@citi.umich.edu>
+In-Reply-To: <Pine.BSO.4.33.0209091933150.6471-100000@citi.umich.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17oZUa-0006wh-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The linux test project diotest1 running on reiserfs gave oops:
+On Tuesday 10 September 2002 01:51, Chuck Lever wrote:
+> On Tue, 10 Sep 2002, Daniel Phillips wrote:
+> > On Tuesday 10 September 2002 00:03, Andrew Morton wrote:
+> > > But there are
+> > > apparently reasons why NFS cannot sleepingly lock pages in this
+> > > particular context.
+> >
+> > If only we knew what those were.  It's hard to keep the word 'bogosity'
+> > from popping into my head.
+> 
+> rpciod must never call a function that sleeps.  if this happens, the whole
+> NFS client stops working until the function wakes up again.  this is not
+> really bogus -- it is similar to restrictions placed on socket callbacks.
 
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
-Unable to handle kernel NULL pointer dereference at virtual address 00000012
-8015d6d3
-*pde = 00000000
-Oops: 0000 2.4.20-pre5aa2 #1 Mon Sep 9 17:31:33 EDT 2002
-CPU:    0
-EIP:    0010:[<8015d6d3>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010256
-eax: 00000002   ebx: 8d019e50   ecx: 00000000   edx: 851c8840
-esi: 00000000   edi: 00000000   ebp: 8d019e08   esp: 8d019d00
-ds: 0018   es: 0018   ss: 0018
-Process diotest1 (pid: 2965, stackpage=8d019000)
-Stack: 8d019e50 00000000 00000000 8358a240 001c8454 8016bc2c 00000000 001c8454
-       b3740740 8015ea94 8d019d68 8d019f04 bff9d800 b3740740 8d019d68 8358a240
-       8358a240 00000000 00000000 8d019d6c 0000003f 0000b474 00000000 00000000
-Call Trace:    [<8016bc2c>] [<8015ea94>] [<8015b513>] [<8015d55a>] [<801388f9>]
-  [<80121000>] [<8012463d>] [<80124796>] [<801604a5>] [<8015d540>] [<80128965>]
-  [<8012a7b0>] [<80126022>] [<8012a8b1>] [<80135796>] [<8010880b>]
-Code: 8a 48 10 0f a5 f7 d3 e6 f6 c1 20 74 04 89 f7 31 f6 83 c6 01
+Ah, a warm body with answers :-)
 
+It *sounds* bogus: why should we be satisfied with a function that doesn't
+do its job reliably (invalidate_inode_pages) in order to avoid coming up
+with a way of keeping the client daemon from blocking?  How about having
+invalidate_inode_pages come back with "sorry boss, I couldn't complete the
+job so I started as much IO as I could and I'm back now, try again later"?
 
->>EIP; 8015d6d3 <reiserfs_get_block+43/e50>   <=====
+> async RPC tasks (ie, the rpciod process) invokes invalidate_inode_pages
+> during normal, everyday processing, so it must not sleep.  that's why it
+> today ignores locked pages.
 
-Trace; 8016bc2c <pathrelse+1c/30>
-Trace; 8015ea94 <reiserfs_update_sd+164/180>
-Trace; 8015b513 <reiserfs_add_entry+403/430>
-Trace; 8015d55a <reiserfs_get_block_direct_io+1a/40>
-Trace; 801388f9 <generic_direct_IO+c9/140>
-Trace; 80121000 <sys_setreuid+1a0/1b0>
-Trace; 8012463d <get_user_pages+fd/190>
-Trace; 80124796 <map_user_kiobuf+c6/110>
-Trace; 801604a5 <reiserfs_direct_io+25/30>
-Trace; 8015d540 <reiserfs_get_block_direct_io+0/40>
-Trace; 80128965 <generic_file_direct_IO+1a5/220>
-Trace; 8012a7b0 <do_generic_file_write+630/6c0>
-Trace; 80126022 <__vma_link+62/b0>
-Trace; 8012a8b1 <generic_file_write+71/b0>
-Trace; 80135796 <sys_write+96/f0>
-Trace; 8010880b <system_call+33/38>
+OK, that's half the job, the other half is to know that something's been
+ignored, and get back to it later.  Either there is a valid reason for 
+getting rid of these pages or there isn't, and if there is a valid reason,
+then getting rid of only some of them must surely leave the door wide
+open to strange misbehaviour.
 
-The subsequent diotest[2-6] also printed oops.
+> thus:
+> 
+> 1.  whatever function purges a file's cached data must not sleep when
+>     invoked from an async RPC task.
 
-diotest1 is unkillable:
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root      2977  0.0  0.0  1336  408 tty1     D    16:39   0:00 diotest1 -b 65536
+[otherwise other tasks using the client will stall needlessly]
+
+>     ...likewise, such a function must not
+>     sleep if the caller holds the file's i_sem.
+> 
+> 2.  access to the file must be serialized somehow with in-flight I/O
+>     (locked pages).  we don't want to start new reads before all dirty
+>     pages have been flushed back to the server.  dirty pages that have
+>     not yet been scheduled must be dealt with correctly.
+
+State machine!
+
+> 3.  mmap'd pages must behave reasonably when a file's cache is purged.
+>     clean pages should be faulted back in.  what to do with dirty mmap'd
+>     pages?
+
+I don't know, sorry.  What?
+
+You've probably been through this before, but could you please explain
+the ground rules behind the cache purging strategy?
 
 -- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
+Daniel

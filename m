@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279749AbRKIJiq>; Fri, 9 Nov 2001 04:38:46 -0500
+	id <S279783AbRKIJqq>; Fri, 9 Nov 2001 04:46:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279782AbRKIJig>; Fri, 9 Nov 2001 04:38:36 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:4034 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S279749AbRKIJi3>; Fri, 9 Nov 2001 04:38:29 -0500
-Date: Fri, 9 Nov 2001 10:38:24 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Michel Valin <michel.valin@ec.gc.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with kernel 2.4.14  drivers/block/loop.c mm/swap.c
-In-Reply-To: <3BEB4299.C41D414D@ec.gc.ca>
-Message-ID: <Pine.NEB.4.40.0111091036280.18756-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279787AbRKIJqh>; Fri, 9 Nov 2001 04:46:37 -0500
+Received: from f05s15.cac.psu.edu ([128.118.141.58]:53732 "EHLO
+	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
+	id <S279785AbRKIJqd>; Fri, 9 Nov 2001 04:46:33 -0500
+Subject: bonding driver - linux kernel
+From: Phil Sorber <aafes@psu.edu>
+To: tadavis@lbl.gov
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        tkeiser@psu.edu
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-WJfM/OW4Coz+VfTrBudt"
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 09 Nov 2001 04:46:31 -0500
+Message-Id: <1005299191.5985.32.camel@praetorian>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Nov 2001, Michel Valin wrote:
 
-> drivers/block/loop.c used by loopback filesystem code uses function
->
-> deactivate_page that was defined in mm/swap.c in kernel 2.4.13
->
-> deactivate_page seems to have been suppressed at kernel level 2.4.14
-> from
-> mm/swap.c
->...
+--=-WJfM/OW4Coz+VfTrBudt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+hello,
 
-This is a known bug.
+i have an HP Procurve 4000M and a linux box with an Intel Pro/100 Dual
+Port Server Adapter (eepro.c). we have the switch set to do cicso
+etherchannel, which the procurve supports. but it seems not to work in
+this mode. we have to back down to trunking mode, giving us 200Mbit
+upstream, but only 100Mbit down stream.
 
-The following patch fixes it:
+I was curious if it had been tested with any HP switches, or any non
+cisco switches for that matter that support cisco etherchannel. i was
+also wondering if this is not the case if anyone has written a patch, or
+is planning to write one to correct this.
 
---- linux-2.4.14-broken/drivers/block/loop.c	Thu Oct 25 13:58:34 2001
-+++ linux-2.4.14/drivers/block/loop.c	Mon Nov  5 17:06:08 2001
-@@ -207,7 +207,6 @@
- 		index++;
- 		pos += size;
- 		UnlockPage(page);
--		deactivate_page(page);
- 		page_cache_release(page);
- 	}
- 	return 0;
-@@ -218,7 +217,6 @@
- 	kunmap(page);
- unlock:
- 	UnlockPage(page);
--	deactivate_page(page);
- 	page_cache_release(page);
- fail:
- 	return -1;
+if not, me and my colleague and i are willing to take a crack at it.
+however we have limited experience at something like this, but are eager
+to get into it.
 
+any help or direction is apreciated. thanx.
 
+--=20
+Phil Sorber
+AIM: PSUdaemon
+IRC: irc.openprojects.net #psulug PSUdaemon
+GnuPG: keyserver - pgp.mit.edu
 
-cu
-Adrian
+--=-WJfM/OW4Coz+VfTrBudt
+Content-Type: application/pgp-signature
 
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Get my GPG key: finger bunk@debian.org | gpg --import
+iD8DBQA766X3Xm6Gwek+iaQRAj+sAJ4iurYbpQYCLeoqK77cQbn8Qu0jSQCghzVg
+IoXN1aAupfPl0aw409RgJS8=
+=TwOc
+-----END PGP SIGNATURE-----
 
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+--=-WJfM/OW4Coz+VfTrBudt--
 

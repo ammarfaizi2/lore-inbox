@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273921AbRI0Vid>; Thu, 27 Sep 2001 17:38:33 -0400
+	id <S273920AbRI0VeX>; Thu, 27 Sep 2001 17:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273930AbRI0ViN>; Thu, 27 Sep 2001 17:38:13 -0400
-Received: from fe100.worldonline.dk ([212.54.64.211]:62222 "HELO
-	fe100.worldonline.dk") by vger.kernel.org with SMTP
-	id <S273927AbRI0ViL>; Thu, 27 Sep 2001 17:38:11 -0400
-Message-ID: <3BB21918.AD6761FC@eisenstein.dk>
-Date: Wed, 26 Sep 2001 20:06:16 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S273923AbRI0VeO>; Thu, 27 Sep 2001 17:34:14 -0400
+Received: from snowball.fnal.gov ([131.225.81.94]:15122 "EHLO
+	snowball.fnal.gov") by vger.kernel.org with ESMTP
+	id <S273920AbRI0VeE>; Thu, 27 Sep 2001 17:34:04 -0400
+Date: Thu, 27 Sep 2001 16:34:31 -0500 (CDT)
+From: Steven Timm <timm@fnal.gov>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: DMA problem (?) w/2.4.6-xfs and ServerWorks OSB4 Chipset
+Message-ID: <Pine.LNX.4.31.0109271622520.28262-100000@snowball.fnal.gov>
 MIME-Version: 1.0
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-CC: Thomas Hood <jdthood@yahoo.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: OOM killer
-In-Reply-To: <3BB20C27.4125F9BA@eisenstein.dk> <1123696067.1001627554@[195.224.237.69]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bligh - linux-kernel wrote:
 
-> shed:~# cat /proc/sys/vm/overcommit_memory
-> 0
-> shed:~# echo 1 >/proc/sys/vm/overcommit_memory
-> shed:~# cat /proc/sys/vm/overcommit_memory
-> 1
-> shed:~# echo 0 >/proc/sys/vm/overcommit_memory
-> shed:~# cat /proc/sys/vm/overcommit_memory
-> 0
+The problem, as described earlier in this thread by Adam McKenna,
+describes errors such as
 
-ahh, I see. Well, you live and learn ;)
+hda: timeout waiting for DMA
+hda: irq timeout: status 0x58 { DriveReady SeekComplete DataRequest}
 
-I think I've got to do my research better before writing mails to lkml.
+I have been seeing these errors on a number of systems, although
+only intermittently, and they have been similar in nature
+on all kernels between 2.2.16 and 2.4.7.
+
+A couple months ago it was reported that someone was testing a
+2.4.7-ac2 patch level and not having any lock-ups with ultraDMA.
+My question--there was a new file "serverworks.c" inserted in the
+2.4.6 ac patches.  Does anyone know if that made it into the kernel
+and supposedly fixed the problem?  (My guess is that it has *not*
+made it in, although there is a drivers/ide/serverworks.c file
+in my 2.4.7-2.9 version of the kernel, it is not the same length
+and there are some diffs).  If it didn't make it in,
+is there any other patch that is known to work to fix this problem
+and make ultradma work properly?  (and if I should be able to RTFM
+and figure this out for myself, someone please give me a pointer.)
 
 
+Some have reported
+that using multi-word DMA (hdparm -X34) works but this is
+not fast enough for us.
 
-Best regards,
-Jesper Juhl
-juhl@eisenstein.dk
+We have seen quite a difference on systems that are otherwise
+the same (Supermicro 370DLE w/serverworks OSB4 LE chipset) by swapping
+different models of hard disk drives.  With some types of drive
+(Seagate) we
+observe massive corruption of the file system but nothing reported
+in /var/log/messages or on the console.  Currently we see hda
+timeouts (but only on about 10 systems over the course of 2 months)
+which hang the machine but after a reboot things are fine (Western
+Digital).
+
+There have been some rumours on other lists that this bug is tied
+to simultaneous access of both IDE busses.  Any truth to that?
+
+If anyone can provide help in tracking the existence of the patch,
+or has successfully got UltraDMA working on one of these systems by
+any means necessary, please let me know.
+
+Thanks
+
+Steve Timm
 
 
+------------------------------------------------------------------
+Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
+Fermilab Computing Division/Operating Systems Support
+Scientific Computing Support Group--Computing Farms Operations
 

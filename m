@@ -1,75 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTFBLm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 07:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTFBLm0
+	id S262237AbTFBLp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 07:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbTFBLp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 07:42:26 -0400
-Received: from zukmail03.zreo.compaq.com ([161.114.128.27]:17160 "EHLO
-	zukmail03.zreo.compaq.com") by vger.kernel.org with ESMTP
-	id S262174AbTFBLmX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 07:42:23 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	Mon, 2 Jun 2003 07:45:57 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:1770 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S262237AbTFBLp4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 07:45:56 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: =?iso-8859-15?q?J=E9r=F4me=20Aug=E9?= <jauge@club-internet.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 can't set IDE DMA on harddrive (HDIO_SET_DMA failed: Operation not permitted)
+Date: Mon, 2 Jun 2003 22:00:37 +1000
+User-Agent: KMail/1.5.1
+References: <20030602114838.GA1730@satellite.workgroup.fr>
+In-Reply-To: <20030602114838.GA1730@satellite.workgroup.fr>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 8BIT
-Subject: /proc/meminfo
-Date: Mon, 2 Jun 2003 13:55:47 +0200
-Message-ID: <224CFA9643B4CE4BA18137CF73DB2F32020E0DA6@broexc01.emea.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: /proc/meminfo
-Thread-Index: AcMo/WrDZB5yqWq1SHu5tPtES5ggxQAAFx5g
-From: "Roets, Chris (Tru64&Linux support)" <chris.roets@hp.com>
-To: "linux-kernel@vger.kernel.org" <'linux-kernel@vger.kernel.org'>
-X-OriginalArrivalTime: 02 Jun 2003 11:55:48.0527 (UTC) FILETIME=[E84663F0:01C328FD]
+Content-Disposition: inline
+Message-Id: <200306022200.37685.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if you look at /proc/meminfo, what values to you need to add to each
-other
-to get to the total memory ?
-ok, used and free (256241664  5042176),
-but then how do you come to used :
+On Mon, 2 Jun 2003 21:48, Jérôme Augé wrote:
+> Hi,
+>
+> I'm now using kernel 2.4.20-13.8 (from RH8) and 2.4.21-ck1 (from Con
+> Kolivas based on 2.4.21-rc6) and I'm unable to set the dma for my
+> harddrive with hdparm:
 
-Active + Inactive_dirty + Inactive_clean + ....
-in the case below, I can't find where 57360 Kb are allocated to.
-I looked ad slabinfo, but cold get to the total niether
-Does anybody have the calculation to get to the total ?
-Thanks,
-Chris
+Feel free to blame me, but I haven't formally released 2.4.21-ck1, and you 
+should really try the vanilla 2.4.21-rc kernel. Then you can post a bug 
+report that the actual IDE developers can look at. Mine is a non-standard 
+kernel tree and bug reports with that branch should just be directed to me.
 
-[root@tanos4 mypdc]# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  261283840 256241664  5042176    81920  9867264 177315840
-Swap: 536862720   434176 536428544
-MemTotal:       255160 kB
-MemFree:          4924 kB
-MemShared:          80 kB
-Buffers:          9636 kB
-Cached:         172736 kB
-SwapCached:        424 kB
-Active:           9196 kB
-Inact_dirty:    132844 kB
-Inact_clean:     40836 kB
-Inact_target:      884 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       255160 kB
-LowFree:          4924 kB
-SwapTotal:      524280 kB
-SwapFree:       523856 kB
-NrSwapPages:    130964 pages
-
-Chris Roets
-HP Customer support
-Tru64 and Linux support
-HP Belgium
-www.hp.be
-
-Chris.Roets@hp.com
-Tel +32 2 729.77.44
-http://www.roets.tk 
+Con

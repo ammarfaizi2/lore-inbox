@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265125AbTGCEzI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 00:55:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbTGCEzI
+	id S265136AbTGCFDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 01:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265182AbTGCFDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 00:55:08 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:53187 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265125AbTGCEzF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 00:55:05 -0400
-Date: Wed, 2 Jul 2003 22:08:35 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Patrick Mansfield <patmans@us.ibm.com>, Larry McVoy <lm@bitmover.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
-       nick@snowman.net, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030703050835.GA4751@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Patrick Mansfield <patmans@us.ibm.com>,
-	Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	CaT <cat@zip.com.au>, nick@snowman.net,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com> <20030628001625.GC18676@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030628001625.GC18676@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Thu, 3 Jul 2003 01:03:08 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:50344 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265135AbTGCFDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 01:03:03 -0400
+Message-ID: <3F03BC55.6050506@nortelnetworks.com>
+Date: Thu, 03 Jul 2003 01:17:09 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org,
+       shemminger@osdl.org, netdev@oss.sgi.com
+Subject: Re: [BUG]:   problem when shutting down ppp connection since 2.5.70
+References: <3EFFA1EA.7090502@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 3ware SATA 8500-4 controller with 4x WD 36GB Raptor SATA drives.
-Wow.  Just "wow".  At least a factor of 2 better than what I've seen 
-before.  I think a boatload of that is the 5ms seek time, gotta love 
-that.  
 
-I'm burning them in, if they work then we'll use those for bkbits.net.
-If you guys need me to run any tests/kernels against this mix let me
-know.
+Well, I've upgraded to the latest 2.5.74 kernel and pppd version 2.4.2b3 
+(still using the rp-pppoe userspace software though).
 
-These are nice drives.  I got 4 drives and the controller from newegg
-for about $950 shipped including tax.
+Per Stephen's suggestion I also tried removing the ip address and 
+bringing down the ppp link before shuttind down the adsl connection.
+
+Makes no difference.
+
+If I start a dsl connection at system init and then as soon as I get a 
+login prompt I shut the connection down, I get the following log:
+
+Jul  3 00:59:26 doug adsl-stop: Killing pppd
+Jul  3 00:59:26 doug pppd[779]: Terminating on signal 15.
+Jul  3 00:59:26 doug adsl-stop: Killing adsl-connect
+Jul  3 00:59:26 doug pppd[779]: Connection terminated.
+Jul  3 00:59:26 doug pppd[779]: Connect time 1.5 minutes.
+Jul  3 00:59:26 doug pppd[779]: Sent 978 bytes, received 588 bytes.
+Jul  3 00:59:29 doug pppoe[781]: Session 511 terminated -- received PADT 
+from peer
+Jul  3 00:59:29 doug pppoe[781]: Sent PADT
+Jul  3 00:59:36 doug kernel: unregister_netdevice: waiting for ppp0 to 
+become free. Usage count = 1
+Jul  3 01:00:16 doug last message repeated 4 times
+
+
+If I start the connection up manually after I'm booted, I get the following:
+
+Jul  3 00:03:06 doug adsl-stop: Killing pppd
+Jul  3 00:03:06 doug pppd[1763]: Terminating on signal 15.
+Jul  3 00:03:06 doug adsl-stop: Killing adsl-connect
+Jul  3 00:03:06 doug pppd[1763]: Connection terminated.
+Jul  3 00:03:06 doug pppd[1763]: Connect time 0.4 minutes.
+Jul  3 00:03:06 doug pppd[1763]: Sent 64 bytes, received 70 bytes.
+Jul  3 00:03:06 doug pppoe[1769]: read (asyncReadFromPPP): Session 6990: 
+Input/output error
+Jul  3 00:03:06 doug pppoe[1769]: Sent PADT
+Jul  3 00:03:06 doug pppd[1763]: Exit.
+
+
+The main difference I see is that in the success case we don't seem to 
+be receiving a PADT message, but rather we get an error in asyncReadFromPPP.
+
+Any ideas where to look?  For those on the netdev list who have just 
+tuned in, this started happening with 2.5.70.
+
+Chris
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316309AbSFJV2K>; Mon, 10 Jun 2002 17:28:10 -0400
+	id <S316342AbSFJVcO>; Mon, 10 Jun 2002 17:32:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSFJV2J>; Mon, 10 Jun 2002 17:28:09 -0400
-Received: from p50887BDF.dip.t-dialin.net ([80.136.123.223]:1688 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316309AbSFJV2H>; Mon, 10 Jun 2002 17:28:07 -0400
-Date: Mon, 10 Jun 2002 15:28:02 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Dan Aloni <da-x@gmx.net>
-cc: Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.21 - list.h cleanup
-In-Reply-To: <20020610152824.GC9581@callisto.yi.org>
-Message-ID: <Pine.LNX.4.44.0206101527090.6159-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316355AbSFJVcN>; Mon, 10 Jun 2002 17:32:13 -0400
+Received: from [62.65.151.174] ([62.65.151.174]:38119 "EHLO zeus")
+	by vger.kernel.org with ESMTP id <S316342AbSFJVcM>;
+	Mon, 10 Jun 2002 17:32:12 -0400
+Date: Mon, 10 Jun 2002 23:33:19 +0200
+From: Mathias Gygax <mg@trash.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: removing old SYN packets
+Message-ID: <20020610213319.GB13059@chiba.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200206102015.g5AKFk1l001840@debian01.kingruedi.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jun 10, 2002 at 10:15:46PM +0200, Rüdiger Sonderfeld wrote:
+> Hi,
 
-On Mon, 10 Jun 2002, Dan Aloni wrote:
->  + replace __inline__ with inline.
->  + use list_t intead of struct list_head (no bytes we harmed, bla.. bla..)
->  + add the new list_move and list_move_tail mutators as inline functions.
+hi there,
 
-Deja vu feeling...
+> I need some information about the TCP implementation. I didn't find any 
+> information in my Linux Kernel book or in any other tutorial about TCP and I 
+> do not really understand the tcp.c
+> 
+> The kernel should remove SYN packets if it doesn't recive the final ACK. But 
+> where is that implemented in the Linux Kernel?
 
-It's already in the Linus tree, why do you resend it?!
-
-Regards,
-Thunder
--- 
-German attitude becoming        |	Thunder from the hill at ngforever
-rightaway popular:		|
-       "Get outa my way,  	|	free inhabitant not directly
-    for I got a mobile phone!"	|	belonging anywhere
-
+i guess it's in /usr/src/linux/net/ipv4/tcp_timer.c

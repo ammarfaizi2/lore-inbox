@@ -1,67 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288420AbSAUVZ7>; Mon, 21 Jan 2002 16:25:59 -0500
+	id <S288473AbSAUVhm>; Mon, 21 Jan 2002 16:37:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288422AbSAUVZt>; Mon, 21 Jan 2002 16:25:49 -0500
-Received: from splat.lanl.gov ([128.165.17.254]:30925 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S288420AbSAUVZe>; Mon, 21 Jan 2002 16:25:34 -0500
-Date: Mon, 21 Jan 2002 14:25:33 -0700
-From: Eric Weigle <ehw@lanl.gov>
-To: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
-Subject: [BUGLET][PATCH] #includes in asm-i386/checksum.h
-Message-ID: <20020121212533.GC6291@lanl.gov>
-Mime-Version: 1.0
+	id <S288484AbSAUVhd>; Mon, 21 Jan 2002 16:37:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14611 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288473AbSAUVhV>; Mon, 21 Jan 2002 16:37:21 -0500
+Subject: Re: Preempt & how long it takes to interrupt (was Re: [2.4.17/18pre] VM and swap - it's really unusable)
+To: landley@trommello.org (Rob Landley)
+Date: Mon, 21 Jan 2002 21:48:54 +0000 (GMT)
+Cc: pavel@suse.cz (Pavel Machek), helgehaf@aitel.hist.no (Helge Hafting),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020120192453.GVRA23469.femail45.sdc1.sfba.home.com@there> from "Rob Landley" at Jan 20, 2002 06:22:47 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
-X-Eric-Unconspiracy: There ought to be a conspiracy
-X-Editor: Vim, http://www.vim.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16SmJC-0000uP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noticed this a while ago, still there in 2.4.17... checksum.h is not
-self-consistent. Code which uses the file but does not know to include some
-other headers first will get compile errors:
+> I'm not entirely certain what Alan's smoking if he's raising the straw man 
+> argument of a two second delay dropping 300 packets and causing connections 
 
-/usr/src/linux-2.4.17include/asm/checksum.h:159: warning: `struct in6_addr' declared inside parameter list
-/usr/src/linux-2.4.17include/asm/checksum.h:159: warning: its scope is only this definition or declaration, which is probably not what you want.
-/usr/src/linux-2.4.17include/asm/checksum.h: In function `csum_and_copy_to_user':
-/usr/src/linux-2.4.17include/asm/checksum.h:188: warning: implicit declaration of function `access_ok'
-/usr/src/linux-2.4.17include/asm/checksum.h:188: `VERIFY_WRITE' undeclared (first use in this function)
-/usr/src/linux-2.4.17include/asm/checksum.h:188: (Each undeclared identifier is reported only once
-/usr/src/linux-2.4.17include/asm/checksum.h:188: for each function it appears in.)
+Go read my original mail about the NE2000 driver. If you are going to accuse
+me of smoking things you could at least read the posts you base it on
 
-This only happens when one uses checksum.h without previously including the
-other given headers, as might be done when people are writing some wack new
-networking code (like me :)
-
-Patch follows.
-
---------------------------------------------------------------------------------
---- checksum.h.original Thu Jul 26 14:41:22 2001
-+++ checksum.h  Mon Jan 21 14:17:50 2002
-@@ -1,6 +1,11 @@
- #ifndef _I386_CHECKSUM_H
- #define _I386_CHECKSUM_H
- 
-+/* Required for 'struct in6_addr' */
-+#include <net/ipv6.h>
-+
-+/* Required for 'VERIFY_WRITE' #define */
-+#include <asm/uaccess.h>
- 
- /*
-  * computes the checksum of a memory block at buff, length len,
---------------------------------------------------------------------------------
-
-
-Thanks,
--Eric
-
--- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------

@@ -1,59 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbTL0QeT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 11:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTL0QeT
+	id S264505AbTL0Qwf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 11:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTL0Qwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 11:34:19 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:7378 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S264500AbTL0QeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 11:34:18 -0500
-Date: Sat, 27 Dec 2003 08:34:07 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-cc: Rik van Riel <riel@surriel.com>, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: Page aging broken in 2.6
-Message-ID: <5530000.1072542846@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.58.0312261951420.14874@home.osdl.org>
-References: <1072423739.15458.62.camel@gaston> <Pine.LNX.4.58.0312260957100.14874@home.osdl.org><1072482941.15458.90.camel@gaston> <Pine.LNX.4.58.0312261626260.14874@home.osdl.org><1072485899.15456.96.camel@gaston> <Pine.LNX.4.58.0312261649070.14874@home.osdl.org><Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com><20031226190045.0f4651f3.akpm@osdl.org> <Pine.LNX.4.58.0312261951420.14874@home.osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 Dec 2003 11:52:35 -0500
+Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:39817
+	"EHLO efix.biz") by vger.kernel.org with ESMTP id S264505AbTL0Qwd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 11:52:33 -0500
+Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
+From: Edward Tandi <ed@efix.biz>
+To: azarah@nosferatu.za.org
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, perex@suse.cz,
+       alsa-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Rob Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
+       Stan Bubrouski <stan@ccs.neu.edu>
+In-Reply-To: <1072535590.12308.250.camel@nosferatu.lan>
+References: <1080000.1072475704@[10.10.2.4]>
+	 <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]>
+	 <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]>
+	 <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]>
+	 <1072500516.12203.2.camel@duergar>  <8240000.1072511437@[10.10.2.4]>
+	 <1072523478.12308.52.camel@nosferatu.lan>
+	 <1072525450.3794.8.camel@wires.home.biz>
+	 <1072527874.12308.100.camel@nosferatu.lan>
+	 <1072530488.2906.1.camel@wires.home.biz>
+	 <1072535590.12308.250.camel@nosferatu.lan>
+Content-Type: text/plain
+Message-Id: <1072544151.8611.18.camel@wires.home.biz>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5-2mdk 
+Date: Sat, 27 Dec 2003 16:55:52 +0000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The current behaviour seems better from a theoretical point of view. 
+On Sat, 2003-12-27 at 14:33, Martin Schlemmer wrote:
+> On Sat, 2003-12-27 at 15:08, Edward Tandi wrote:
+> > On Sat, 2003-12-27 at 12:24, Martin Schlemmer wrote:
+> > > On Sat, 2003-12-27 at 13:44, Edward Tandi wrote:
+> > > > On Sat, 2003-12-27 at 11:11, Martin Schlemmer wrote:
+> > > > > On Sat, 2003-12-27 at 09:50, Martin J. Bligh wrote:
+> > > > > > Something appears to have broken OSS sound emulation between 
+> > > > > > test2 and test3. Best I can tell (despite the appearance of the BK logs), 
+> > > > > > that included ALSA updates 0.9.5 and 0.9.6. Hopefully someone who
+> > > > > > understands the sound architecture better than I can fix this?
+> > > > > > 
+> > > > > 
+> > > > > I wont say I understand it, but a quick look seems the major change is
+> > > > > the addition of the 'whole-frag' and 'no-silence' opts.  You might try
+> > > > > the following to revert what 'no-silence' change at least does:
+> > > > > 
+> > > > > --
+> > > > >  # echo 'xmms 0 0 no-silence' > /proc/asound/card0/pcm0p/oss
+> > > > >  # echo 'xmms 0 0 whole-frag' > /proc/asound/card0/pcm0p/oss
+> > > > > --
+> > > > 
+> > > > Thanks, that fixes it for me. I too have been seeing terrible problems
+> > > > with XMMS since the early 2.6 pre- kernels.
+> > > > 
+> > > > Because it only happens in XMMS I thought it was one of those
+> > > > application bugs brought out by scheduler changes. I now use Zinf BTW
+> > > > -It's better for large music collections (although not as stable or
+> > > > flash).
+> > > > 
+> > > 
+> > > Can you check which one actually fixes it ?
+> > 
+> > Yes, its the 'whole-frag' line.
+> > 
 > 
-> I disagree. It's at least not obvious.
+> Well, I can't say I can see why. In snd_pcm_oss_write1 where the change
+> for whole-frag was, I cannot see a race or such.  The only possible
+> causes I can see, is that:
+> 1) xmms's scheduling gets screwed due to the short writes
+> 2) some drivers may have issues with getting short writes all the time.
 > 
->>							 All
->> we want to know is the reference pattern - whether it is one process
->> referencing the page frequently or 100 processes referencing it
->> infrequently shouldn't matter.
-> 
-> I agree that those two cases should be the same. And in fact, those two
-> cases _will_ be the same by my suggested change ("break out of
-> 'page_referenced()' early")
-> 
-> However, you ignore the third case: a page that is frequently used by 100 
-> processes.
-> 
-> Such a page behaves differently with the 'break early' behaviour, by 
-> pinnong the page more tightly. 
-> 
-> And I think that's the right behaviour. At least that's not "obviously 
-> wrong".
-> 
-> It's not something to do in 2.6.x, but I disagree that it's clear-cut.
+> Only problem with 2), is that Zinf works fine for you, so I guess the
+> only thing to assume is that either Zinf do not use OSS, but ALSA
+> interface, or that 1) is indeed the correct answer.  What version of
+> XMMS do you use btw?
 
-Could we at least stick a big fat comment explaining the current behaviour
-in there? The current behaviour is not at all obvious from reading the code.
-I'll try to write something if you like, but no doubt someone could do a
-better job than I.
+I was originally running 1.2.7 when I first encountered the problem. I
+then built 1.2.8 -but no difference.
 
-M.
+Zinf does indeed use the ALSA interface (as most apps do nowadays).
+
+I would say the symptoms are that the music starts playing OK bit after
+a short period (18-19 seconds), the music changes overall speed (by a
+semi-tone or so). When it does this, the sound also starts to break up.
+This is why I associated the problem with the process scheduling changes
+being made at the time.
+
+It could be a driver issue. FYI, I am using a VIA KT400 chipset. Any one
+know of any low-level timing issues with the KT400?
+
+Ed-T.
+
 

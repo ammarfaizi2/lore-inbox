@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268423AbUHYD2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268435AbUHYDed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268423AbUHYD2g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 23:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268435AbUHYD2g
+	id S268435AbUHYDed (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 23:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268440AbUHYDed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 23:28:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41661 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268423AbUHYD2e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 23:28:34 -0400
-Date: Tue, 24 Aug 2004 20:17:44 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: davem@redhat.com, lcaron@apartia.fr, linux-kernel@vger.kernel.org
-Subject: Re: TG3(Tigoon) & Kernel 2.4.27
-Message-Id: <20040824201744.559319ef.rddunlap@osdl.org>
-In-Reply-To: <412BED65.5060709@triplehelix.org>
-References: <412B5B35.7020701@apartia.fr>
-	<20040824092533.65cb32da.rddunlap@osdl.org>
-	<20040824113407.287f0408.davem@redhat.com>
-	<412BED65.5060709@triplehelix.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Tue, 24 Aug 2004 23:34:33 -0400
+Received: from tomcat2.victrip.com.au ([203.89.235.59]:12041 "HELO
+	southcorp.com.au") by vger.kernel.org with SMTP id S268435AbUHYDeb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 23:34:31 -0400
+Message-ID: <d23001c48a55$e76ce213$7a96c233@southcorp.com.au>
+From: "Pearl A. Holbrook" <holbrookdi@swh.sk>
+To: linux-kernel@vger.kernel.org
+Subject: Try CortiZyte, a revolutionary weightloss product.
+Date: Wed, 25 Aug 2004 11:39:02 +0800
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004 18:37:41 -0700 Joshua Kwan wrote:
+Try CortiZyte!
 
-| David S. Miller wrote:
-| > Oh on the contrary, I've never seen a call to request_firmware()
-| > in any copy of the tg3 driver and that's strange being that I'm
-| > the maintainer. :-)
-| > 
-| > People, if you're going to use patched up kernels, report your
-| > problems to the people you got the kernel from.  Thanks.
-| 
-| As a matter of fact this is most certainly kernel-source-2.4.27 from 
-| Debian. This problem was recently fixed (as discussed in the mini-thread 
-| about how CML1 blows chunks.)
-| 
-| For what it's worth to Google, kernel-tree-2.4.27-4 has just hit 
-| unstable (will reach mirrors by tomorrow) and should have fixed this 
-| problem.
-| 
-| Sorry for the noise caused to LKML.
+With our pharmaceutical grade all-natural weight-loss
+formula, you will:
 
-Please don't drop people from to: / cc:
+- Lose pounds and inches like crazy
+- Jump start your metabolism
+- Boost your energy level
+- Lose your appetite and feel satisfied
+- Reduce cholesterol levels
+- Eliminate cellulite and excess fat pockets
+- Stimulate your body's natural fat-burning ability
 
---
-~Randy
+Most Important: You Will Keep The Weight Off!
+
+Get the facts about all-natural CortiZyte: http://www.diet34.com/
+
+

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291649AbSBHRCu>; Fri, 8 Feb 2002 12:02:50 -0500
+	id <S291653AbSBHRHU>; Fri, 8 Feb 2002 12:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291651AbSBHRCk>; Fri, 8 Feb 2002 12:02:40 -0500
-Received: from ns.suse.de ([213.95.15.193]:38926 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291649AbSBHRC1>;
-	Fri, 8 Feb 2002 12:02:27 -0500
-Date: Fri, 8 Feb 2002 18:02:16 +0100
-From: Dave Jones <davej@suse.de>
-To: Andreas Happe <andreashappe@subdimension.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, green@namesys.com
-Subject: Re: boot problems using 2.5.3-dj3 || -dj4
-Message-ID: <20020208180216.H32413@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Andreas Happe <andreashappe@subdimension.com>,
-	lkml <linux-kernel@vger.kernel.org>, green@namesys.com
-In-Reply-To: <000c01c1b0bf$567ab910$704e2e3e@angband>
+	id <S291654AbSBHRHK>; Fri, 8 Feb 2002 12:07:10 -0500
+Received: from bitmover.com ([192.132.92.2]:34284 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S291653AbSBHRG5>;
+	Fri, 8 Feb 2002 12:06:57 -0500
+Date: Fri, 8 Feb 2002 09:06:34 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Nigel Gamble <nigel@nrg.org>
+Cc: Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
+        Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org,
+        mingo@elte.hu
+Subject: Re: [RFC] New locking primitive for 2.5
+Message-ID: <20020208090634.L22379@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Nigel Gamble <nigel@nrg.org>, Andrew Morton <akpm@zip.com.au>,
+	Robert Love <rml@tech9.net>, Martin Wirth <Martin.Wirth@dlr.de>,
+	linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <3C62D49A.4CBB6295@zip.com.au> <Pine.LNX.4.40.0202080003360.613-100000@cosmic.nrg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000c01c1b0bf$567ab910$704e2e3e@angband>; from andreashappe@gmx.net on Fri, Feb 08, 2002 at 05:40:35PM +0100
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.40.0202080003360.613-100000@cosmic.nrg.org>; from nigel@nrg.org on Fri, Feb 08, 2002 at 12:20:37AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 05:40:35PM +0100, Andreas Happe wrote:
- > From: "Andreas Happe" <andreashappe@gmx.net>
- > 
- > > With dj4 the computer generates a kernel - oops instead of just freezing.
- > 
- > sorry, with dj4 modprobe dies with the error message
- > "PAP-14030: direct2indirect: posted or inserted byte exists in the
- > treeinvalid operand: 0000"
+On Fri, Feb 08, 2002 at 12:20:37AM -0800, Nigel Gamble wrote:
+> On Thu, 7 Feb 2002, Andrew Morton wrote:
+> > I dunno.  The spin-a-bit-then-sleep lock has always struck me as
+> > i_dont_know_what_the_fuck_im_doing_lock().  Martin's approach puts
+> > the decision in the hands of the programmer, rather than saying
+> > "Oh gee I goofed" at runtime.
+> 
+> I completely agree, and I couldn't have put it better!  Kernel
+> programmers really should know exactly why, what, where and for how long
+> they are holding a lock.
 
- Ok, that's one for Oleg & Co to take a look at.
- Can you run the oops dump through ksymoops ?
+Should != do.
 
+And any kernel programmer who says they do in a fine grained multithreaded
+kernel is full of it.  Look at IRIX, look at Solaris, and show me someone
+who says they know for a fact how long they hold each lock and I'll show
+you a liar.
+
+Furthermore, while adaptive spin-then-sleep locks may look stupid, I think
+you may be missing the point.  If you are running an SMP kernel on a UP,
+you want the lock to sleep immediately.  If you are running an SMP kernel
+on an SMP, then you want to spin if the lock is held by some other CPU
+but sleep if it is held by this CPU.  I suspect that that is what was
+really meant by spin-a-bit-then-sleep, it just got lost in translation.
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

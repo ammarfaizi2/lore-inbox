@@ -1,111 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277115AbRJQTx5>; Wed, 17 Oct 2001 15:53:57 -0400
+	id <S277135AbRJQTxr>; Wed, 17 Oct 2001 15:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277119AbRJQTxs>; Wed, 17 Oct 2001 15:53:48 -0400
-Received: from hank-fep7-0.inet.fi ([194.251.242.202]:48863 "EHLO
-	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S277115AbRJQTxi>; Wed, 17 Oct 2001 15:53:38 -0400
-X-Mailer: Windows Eudora Light Version 1.5.2
+	id <S277119AbRJQTxh>; Wed, 17 Oct 2001 15:53:37 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:45081 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S277115AbRJQTx0>; Wed, 17 Oct 2001 15:53:26 -0400
+Subject: Re: looking for a preempt-patch for 2.4.10-ac12
+From: Robert Love <rml@tech9.net>
+To: elko <elko@home.nl>
+Cc: =?ISO-8859-1?Q?Jos=E9?= Luis Domingo =?ISO-8859-1?Q?L=F3pez?= 
+	<jdomingo@internautas.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <01101721471803.00726@ElkOS>
+In-Reply-To: <01101619524411.00955@ElkOS>
+	<20011016204753.B1472@dardhal.mired.net>  <01101721471803.00726@ElkOS>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.12.08.08 (Preview Release)
+Date: 17 Oct 2001 15:53:54 -0400
+Message-Id: <1003348439.1575.3.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-To: linux-kernel@vger.kernel.org
-From: Heikki Tuuri <Heikki.Tuuri@innobase.inet.fi>
-Subject: Bugs in file cache, file system, and VM in 2.2 and 2.4?
-Message-Id: <20011017195410.CNNE1174.fep07.tmt.tele.fi@omnibook>
-Date: Wed, 17 Oct 2001 22:54:11 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2001-10-17 at 15:47, elko wrote:
+> the patch is there, I applied it together with the stats-patch
+> and my system is running like a charm right now, never have seen
+> this kind of response in X.
 
-This is not a detailed bug report because I assume
-these problems are already known. I list some of
-my observations:
+Glad everything is working smooth...
 
-1) I ran on 2.2.14 a simple MySQL/InnoDB test
-perl run-all-tests --small-test --small-tables
---create-options=type=innodb
+> the only thing is, the perl-script at:
+> http://www.tech9.net/rml/linux/top-latencies
+> 
+> shows something this:
+> 
+> ----[ SNIP ]----
+> n   min  avg  max  cause   mask start line/file address end line/file
+>   14 9512 9590 9711  spin_lock 5 2111/tcp_ipv4.c c0226736119/softirq.c
+>   89 9454 9559 9682  spin_lock 9 2111/tcp_ipv4.c c0226736119/softirq.c
+>    2 9540 9551 9563  spin_lock 3 2111/tcp_ipv4.c c0226736119/softirq.c
+> 3895 7708 9532 14296 spin_lock 1 2111/tcp_ipv4.c c0226736119/softirq.c
+>    1 9513 9513 9513  spin_lock 1 2111/tcp_ipv4.c c02267362152/tcp_ipv4.c
+>  363 3594 6166 9512  spin_lock 0 2111/tcp_ipv4.c c02267362152/tcp_ipv4.c
+> ----[ SNIP ]----
+> 
+> that 3895 number for '2111/tcp_ipv4.c c0226736119/softirq.c'
+> keeps adding up, how should I translate that? big network
+> latency, is that what it means? if so, any idea on how
+> can I fix that??
 
-The computer had sofware RAID.
+the n column is the number of times the lock has been held.  the lock is
+probably held numerous times in a given second, so you see large n
+values.
 
-I observed the following:
+note that all those rows you showed could be in one row, but the
+top-latencies tool keeps them separate since they have a different mask.
 
-Sometimes a 300 kB block read from a file
-contained 8 bytes reset to zero at an 8 kB
-boundary. A file cache bug?
+anyhow, the max recorded latency is 9.5ms which is not too bad.  I'm not
+looking at the code, but I would imagine its some TCP work done in a
+BH.  I wouldn't worry too much.
 
-There were also semi-random crashes of threads
-usually in < 20 seconds. I was able to track them
-with printfs, but the gdb stack never revealed any
-bug in MySQL/InnoDB. The same test runs ok on other
-platforms. A bug in VM?
-
-2) A friend of mine runs 2.2.19 with ext2, and RAID
-mirroring. On two separate machines the file system
-has become corrupted so badly that InnoDB log files
-disappeared. With a repair disk program the files were
-recovered, but, for example, a 30 kB file had become
-a 3 kB file. RAID did not help because also the mirror
-image was corrupt. InnoDB preallocates its log files
-by writing them full of zeros, and their size does
-not change. How can file system corruption change a
-file size?
-
-3) Once Linux refused to write to log files, giving
-an error 'system call interrupted (or -cepted?)'.
-When my friend freed some space on the partition,
-it worked again. The log files are preallocated.
-How can the amount of free disk space affect writing
-to within files?
-
-4) My friend ran 2.4.?? (probably .10). InnoDB
-reported database page checksum error. Restarting
-the database did not help. But after rebooting the
-computer the page seemed to be ok again. File cache
-corruption? The disk image was good, but the cached
-image corrupt?
-
-We have tried using raw disk partitions, but there
-is some evidence that corruption occurs also with
-them in 2.2.19. Does 2.2.19 write to the raw disk
-directly, or does it go through the file cache?
-
-fsync in 2.2.19 is slow. In 2.4 it seems to be so
-fast that using raw disk partitions does not speed
-up writing. But fdatasync on the other hand seemed to
-corrupt files in 2.4.
-
-Linux is the only platform from which MySQL/InnoDB
-users have reported corrupt database pages, and I
-myself saw these errors in case 1 (2.2.14) above.
-InnoDB calculates checksums before writing to data
-files, and checks pages when read.
-
-On my development machine, dual Xeon running 2.4.4-SMP
-I have never seen page corruption or random thread
-crashes.
-
-Some of these bugs may be in MySQL/InnoDB, but
-some seem to be in the operating system.
-
-Thus, what is the problem? Do some drivers corrupt
-kernel memory or file cache?
-
-Does 2.4 write to raw disks past the file cache?
-
-Is it possible for a layman to debug the Linux
-kernel somehow?
-
-The quality problems above are an issue to database
-users. I know from Linux desktops and web servers
-that Linux is stable in those uses, but with
-databases it seems to have problems with some
-software/hardware combinations.
-
-Regards,
-
-Heikki Tuuri
-Innobase Oy
-
+	Robert Love
 

@@ -1,59 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271719AbRIYVz5>; Tue, 25 Sep 2001 17:55:57 -0400
+	id <S271486AbRIYV4s>; Tue, 25 Sep 2001 17:56:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271514AbRIYVzs>; Tue, 25 Sep 2001 17:55:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:26004 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271278AbRIYVzk>;
-	Tue, 25 Sep 2001 17:55:40 -0400
-Date: Tue, 25 Sep 2001 14:55:47 -0700 (PDT)
-Message-Id: <20010925.145547.90825509.davem@redhat.com>
-To: bcrl@redhat.com
-Cc: marcelo@conectiva.com.br, andrea@suse.de, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Locking comment on shrink_caches()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010925170055.B19494@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0109251601360.2193-100000@freak.distro.conectiva>
-	<20010925.132905.32720330.davem@redhat.com>
-	<20010925170055.B19494@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S271333AbRIYV4h>; Tue, 25 Sep 2001 17:56:37 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:14320 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S271278AbRIYV4T>;
+	Tue, 25 Sep 2001 17:56:19 -0400
+Date: Tue, 25 Sep 2001 23:56:54 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+Subject: Re: 2.4.10 still slow compared to 2.4.5pre1
+Message-ID: <20010925235654.E8350@athlon.random>
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D549@xfc01.fc.hp.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D549@xfc01.fc.hp.com>; from cary_dickens2@hp.com on Tue, Sep 25, 2001 at 05:22:41PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Benjamin LaHaise <bcrl@redhat.com>
-   Date: Tue, 25 Sep 2001 17:00:55 -0400
-   
-   Last time I looked, those patches made the already ugly vm locking 
-   even worse.  I'd rather try to use some of the rcu techniques for 
-   page cache lookup, and per-page locking for page cache removal 
-   which will lead to *cleaner* code as well as a much more scalable 
-   kernel.
-   
-I'm willing to investigate using RCU.  However, per hashchain locking
-is a much proven technique (inside the networking in particular) which
-is why that was the method employed.  At the time the patch was
-implemented, the RCU stuff was not fully formulated.
+On Tue, Sep 25, 2001 at 05:22:41PM -0400, DICKENS,CARY (HP-Loveland,ex2) wrote:
+> We tried the 00_vmtweaks patch from Andrea and it failed to boot.  There was
+> an issue starting kswapd and the kernel would oops.
 
-Please note that the problem is lock cachelines in dirty exclusive
-state, not a "lock held for long time" issue.
+You did something wrong then, please try it again.
 
-   Keep in mind that just because a lock is on someone's hitlist doesn't 
-   mean that it is for the right reasons.  Look at the io_request_lock 
-   that is held around the bounce buffer copies in the scsi midlayer.  
-   *shudder*
-
-I agree.  But to my understanding, and after having studied the
-pagecache lock usage, it was minimally used and not used in any places
-unnecessarily as per the io_request_lock example you are stating.
-
-In fact, the pagecache_lock is mostly held for extremely short periods
-of time.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
-
+Andrea

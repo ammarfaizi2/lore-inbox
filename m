@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281760AbRKZPTM>; Mon, 26 Nov 2001 10:19:12 -0500
+	id <S281763AbRKZPXC>; Mon, 26 Nov 2001 10:23:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281762AbRKZPTC>; Mon, 26 Nov 2001 10:19:02 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:26383 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S281760AbRKZPSp>; Mon, 26 Nov 2001 10:18:45 -0500
-Date: Mon, 26 Nov 2001 10:18:45 -0500
-Message-Id: <200111261518.fAQFIj201541@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.15-pre9
-X-Newsgroups: linux.kernel
-In-Reply-To: <Pine.LNX.4.33.0111221046170.1479-100000@penguin.transmeta.com>
-In-Reply-To: <20011122134700.A4966@bee.lk>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
-Reply-To: davidsen@tmr.com (bill davidsen)
+	id <S281772AbRKZPWw>; Mon, 26 Nov 2001 10:22:52 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:4742 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S281763AbRKZPWn>; Mon, 26 Nov 2001 10:22:43 -0500
+Date: Mon, 26 Nov 2001 08:22:44 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: war <war@starband.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC Question
+Message-ID: <20011126082244.D1132@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <3C0259B4.86124AE1@starband.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C0259B4.86124AE1@starband.net>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0111221046170.1479-100000@penguin.transmeta.com> 
-  torvalds@transmeta.com claimed this objective:
->
->On Thu, 22 Nov 2001, Anuradha Ratnaweera wrote:
->>
->> On Wed, Nov 21, 2001 at 10:44:30PM -0800, Linus Torvalds wrote:
->> >
->> > I think I'm ready to hand this over to Marcelo.
->>
->> Aren't you going to include Tim Schmielau's patch to handle uptime larger than
->> 497 days?  It is a cool feature we always liked to have.
->
->Quite frankly, right now I'm in "handle only bugs that can crash the
->system mode". Anything that takes 497 days to see is fairly low on my
->priority list. My highest priority, in fact, is to get 2.4.15 out without
->any embarrassment.
+On Mon, Nov 26, 2001 at 10:03:16AM -0500, war wrote:
 
-Back in the 60's when GE was still a mainframe manufacturer they had a
-counter which rolled over at about 35 days. When it started failing
-their competitors had good time with "GECOS fails to fail as expected."
-That *is* an embarrassment.
+> I don't mind trying to compile release kernels on a PPC box, however
+> when I send a bug report to LKML, everyone shoots it down and tells me
+> to use someone else's source tree.
 
-con06:news> uptime
-  9:56am  up 427 days, 19:00,  2 users,  load average: 0.87, 0.88, 0.83
+...just like every other arch, except x86.
+
+> If people do not care about PPC in the kernel, should it be included in
+> the source, or should I just forget about trying to use the 'stock'
+> kernel and use someone else's PPC source tree (which are usually a few
+> versions behind) in order to compile the kernel?
+
+No, you should use the PPC community trees which all of the PPC
+maintainers use and is at worst a day behind kernel.org (But usually
+just a few hours...).
+
+http://penguinppc.org/dev/kernel.shtml
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

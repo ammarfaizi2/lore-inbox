@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbUK3CC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbUK3CHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbUK3CC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 21:02:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUK3CBw
+	id S261824AbUK3CHY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 21:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbUK3CHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 21:01:52 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:58779 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261825AbUK3B7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 20:59:06 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Robert Murray <rob@mur.org.uk>
-Date: Tue, 30 Nov 2004 12:58:43 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16811.54227.681707.243145@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: raid1 oops in 2.6.9 (debian package 2.6.9-1-686-smp)
-In-Reply-To: message from Robert Murray on Sunday November 28
-References: <20041128142840.GA4119@mur.org.uk>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Mon, 29 Nov 2004 21:07:18 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:22232 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261940AbUK3CGF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 21:06:05 -0500
+To: linux-kernel@vger.kernel.org
+cc: Ian.Pratt@cl.cam.ac.uk, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org
+Subject: [1/7] Xen VMM #3: add ptep_establish_new to make va available
+Date: Tue, 30 Nov 2004 02:06:02 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1CYxP0-0005Hy-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday November 28, rob@mur.org.uk wrote:
-> Hi
-> 
-> The complete console log can be found at
-> http://haylott.plus.com/~robbie/md-oops.txt
 
-This looks like a known bug that is fixed in current 2.6.10
-pre-releases. 
-> 
-> hde is a failed drive. In this log, hdg (the other drive in the raid1
-> array) is not present. This oops also occurs when hdg is present. I
-> don't know why it tries to use hde when it has been failed for some
-> time now.
+This patch adds 'ptep_establish_new', in keeping with the
+existing 'ptep_establish', but for use where a mapping is being
+established where there was previously none present. This
+function is useful (rather than just using set_pte) because
+having the virtual address available enables a very important
+optimisation for arch-xen. We introduce
+HAVE_ARCH_PTEP_ESTABLISH_NEW and define a generic implementation
+in asm-generic/pgtable.h, following the pattern of the existing
+ptep_establish.
 
-It tries to use hde because it sees no reason not to.
-When a drive fails, md never writes to it again, so the record of it
-being part of a raid1 array is still there.
-If it is assembled with another drive that "knows" that hde has
-failed, then it won't accept hde into the array.  But the hdg missing,
-hde is the best bet it has, and it tries it anyway.
+Signed-off-by: ian.pratt@cl.cam.ac.uk
 
-NeilBrown
+---
+
+diff -Nurp pristine-linux-2.6.10-rc2/include/asm-generic/pgtable.h tmp-linux-2.6.10-rc2-xen.patch/include/asm-generic/pgtable.h
+--- pristine-linux-2.6.10-rc2/include/asm-generic/pgtable.h	2004-10-18 22:53:46.000000000 +0100
++++ tmp-linux-2.6.10-rc2-xen.patch/include/asm-generic/pgtable.h	2004-11-30 00:41:24.000000000 +0000
+@@ -42,6 +42,16 @@ do {				  					  \
+ } while (0)
+ #endif
+ 
++#ifndef __HAVE_ARCH_PTEP_ESTABLISH_NEW
++/*
++ * Establish a mapping where none previously existed
++ */
++#define ptep_establish_new(__vma, __address, __ptep, __entry)		\
++do {									\
++	set_pte(__ptep, __entry);					\
++} while (0)
++#endif
++
+ #ifndef __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ static inline int ptep_test_and_clear_young(pte_t *ptep)
+ {
+diff -Nurp pristine-linux-2.6.10-rc2/mm/memory.c tmp-linux-2.6.10-rc2-xen.patch/mm/memory.c
+--- pristine-linux-2.6.10-rc2/mm/memory.c	2004-11-30 01:20:25.000000000 +0000
++++ tmp-linux-2.6.10-rc2-xen.patch/mm/memory.c	2004-11-30 00:41:24.000000000 +0000
+@@ -1472,7 +1472,7 @@ do_anonymous_page(struct mm_struct *mm, 
+ 		page_add_anon_rmap(page, vma, addr);
+ 	}
+ 
+-	set_pte(page_table, entry);
++	ptep_establish_new(vma, addr, page_table, entry);
+ 	pte_unmap(page_table);
+ 
+ 	/* No need to invalidate - it was non-present before */
+@@ -1577,7 +1577,7 @@ retry:
+ 		entry = mk_pte(new_page, vma->vm_page_prot);
+ 		if (write_access)
+ 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+-		set_pte(page_table, entry);
++		ptep_establish_new(vma, address, page_table, entry);
+ 		if (anon) {
+ 			lru_cache_add_active(new_page);
+ 			page_add_anon_rmap(new_page, vma, address);

@@ -1,81 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265811AbSKAXTc>; Fri, 1 Nov 2002 18:19:32 -0500
+	id <S265813AbSKAX01>; Fri, 1 Nov 2002 18:26:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265812AbSKAXTc>; Fri, 1 Nov 2002 18:19:32 -0500
-Received: from packet.digeo.com ([12.110.80.53]:28829 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265811AbSKAXTa>;
-	Fri, 1 Nov 2002 18:19:30 -0500
-Message-ID: <3DC30CD6.D92D0F9F@digeo.com>
-Date: Fri, 01 Nov 2002 15:23:02 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Huge TLB pages always physically continious?
-References: <20021101235620.A5263@nightmaster.csn.tu-chemnitz.de>
+	id <S265817AbSKAX01>; Fri, 1 Nov 2002 18:26:27 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:8877 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S265813AbSKAX00>; Fri, 1 Nov 2002 18:26:26 -0500
+Date: Fri, 1 Nov 2002 16:32:50 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: Where's the documentation for Kconfig?
+Message-ID: <20021101233250.GA6410@opus.bloom.county>
+References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211011439420.6949-100000@serv> <20021101193112.B26989@flint.arm.linux.org.uk> <20021101203033.GA5773@opus.bloom.county> <20021101203546.C26989@flint.arm.linux.org.uk> <20021101204225.GA6003@opus.bloom.county> <20021101204643.D26989@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Nov 2002 23:23:02.0290 (UTC) FILETIME=[9F868F20:01C281FD]
+Content-Disposition: inline
+In-Reply-To: <20021101204643.D26989@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
+On Fri, Nov 01, 2002 at 08:46:43PM +0000, Russell King wrote:
+> On Fri, Nov 01, 2002 at 01:42:25PM -0700, Tom Rini wrote:
+> > On Fri, Nov 01, 2002 at 08:35:46PM +0000, Russell King wrote:
+> > > On Fri, Nov 01, 2002 at 01:30:33PM -0700, Tom Rini wrote:
+> > > > On a related question, can we now have 'UL', etc in a hex statement /
+> > > > question?
+> > > 
+> > > No thanks - that'll stop it being used in linker scripts.
+> > 
+> > How, if it's not used for a value which a linker script cares about?
 > 
-> Hi there,
-> 
-> are huge TLB pages always physically continous in memory?
+> Hmm, maybe I'm misunderstanding you.  Where do you want "UL" to appear
+> in relation to a "hex" statement?
 
-Yes.
+I want both of these statements to be legal:
 
-> What does follow_hugetlb_page do exactly? I simply don't
-> understand what the code does.
+config HEXVAL_A
+	hex
+	depends on FOO || BAR
+	default "0x12345678"
 
-It allows get_user_pages() to work correctly across hugepage
-regions.  It walks a chunk of memory which is covered by
-hugepages and installs (at *pages) the list of 4k-pages which
-are covered by the hugepage.  So
+config HEXVAL_B
+	hex
+	depends on BAZ
+	default "0x12345678UL"
 
- |--------------------------------------------------|  <- hugepage
- |--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|  <- 4k pages
-
- get_user_pages(   ^here                   ^to here)
-
- will install the spanned 4k pages into the caller's pages[]
- array.
- 
-> I would like to build up a simplified get_user_pages_sgl() to
-> build a scatter gather list from user space adresses.
-> 
-> If I want to coalesce physically continous pages (if they are
-> also virtually continious) anyway, can I write up a simplified
-> follow_hugetlb_page_sgl() function which handles the huge page
-> really as only one page?
-
-I suggest that you restructure get_user_pages thusly:
-
-1: Write a simplified get_user_page().  Most callers of get_user_pages()
-   only want a single page anyway, and don't need to concoct all those
-   arguments.
-
-2: Split get_user_pages up into a pagetable walker and a callback function.
-   So it walks the pages, calling back to the caller's callback function
-   for each page with
-
-	(*callback)(struct page *page, <other stuff>, void *callerdata);
-
-   You'll need to extend follow_hugetlb_page() to take the callback
-   info and to perform the callbacks for its pages as well.
-
-3: Reimplement the current get_user_pages() using the core engine from 2
-   (ie: write the callback for it)
-
-4: Implement your sg engine using the walker+callback arrangement.  This
-   way, you can do your coalescing on-the-fly, and you only take one
-   pass across the pages list and you do not need to know about hugepages
-   at all.   Sure you'll do a *little* more work than you need to,  but
-   not having that special case is nicer.
-
-5: Fix up the ia64 follow_hugetlb_page too.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264070AbRFESmW>; Tue, 5 Jun 2001 14:42:22 -0400
+	id <S264071AbRFESmw>; Tue, 5 Jun 2001 14:42:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264071AbRFESmC>; Tue, 5 Jun 2001 14:42:02 -0400
-Received: from imr2.ericy.com ([12.34.240.68]:51955 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id <S264070AbRFESmA>;
-	Tue, 5 Jun 2001 14:42:00 -0400
-From: "David Gordon (LMC)" <David.Gordon@ericsson.ca>
-To: linux-kernel@vger.kernel.org
-Message-ID: <3B1D27E2.7080701@lmc.ericsson.se>
-Date: Tue, 05 Jun 2001 14:41:38 -0400
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-Subject: kHTTPd hangs 2.4.5 boot when moduled
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264072AbRFESmn>; Tue, 5 Jun 2001 14:42:43 -0400
+Received: from alcove.wittsend.com ([130.205.0.20]:13522 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S264071AbRFESmb>; Tue, 5 Jun 2001 14:42:31 -0400
+Date: Tue, 5 Jun 2001 14:42:16 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: Re: TRG vger.timpanogas.org hacked
+Message-ID: <20010605144216.A18046@alcove.wittsend.com>
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	jmerkey@timpanogas.org
+In-Reply-To: <20010604183642.A855@vger.timpanogas.org> <E157AuE-0006Wc-00@the-village.bc.nu> <20010605113051.A6209@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <20010605113051.A6209@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Tue, Jun 05, 2001 at 11:30:51AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, Jun 05, 2001 at 11:30:51AM -0700, Jeff V. Merkey wrote:
+> On Tue, Jun 05, 2001 at 08:05:34AM +0100, Alan Cox wrote:
+> > > is curious as to how these folks did this.  They exploited BIND 8.2.3
+> > > to get in and logs indicated that someone was using a "back door" in 
 
-CC at david.gordon@erisson.ca if reply
+> > Bind runs as root.
 
-I found that when kHTTPd is compiled as a module, kernel 2.4.5 will hang 
-at boot. However, when kHTTPd is omitted or compiled into the kernel, 
-the boot is okay.
+> > > We are unable to determine just how they got in exactly, but they 
+> > > kept trying and created an oops in the affected code which allowed 
+> > > the attack to proceed.  
 
-I run an Intel RH7.0 machine.
+> > Are you sure they didnt in fact simply screw up live patching the kernel to
+> > cover their traces
 
-David Gordon
+> Could have.  The kernel is unable to dismount the root volume when booted.
+> I can go through the drive and remove confidential stuffd and just leave 
+> the system intact and post the entire system image to my ftp server. 
+
+	This would be a good thing for those of us involved in investigating
+these sorts of things.  :-/
+
+> I have changed all the passwords on the server, so what's there is no 
+> big deal.  This server was public FTP and web/email, so nothing really 
+> super "confidential" on it.  
+
+> Jeff
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+

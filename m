@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262851AbTKEM2k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 07:28:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTKEM2k
+	id S262859AbTKEMcU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 07:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbTKEMcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 07:28:40 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:25531 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262851AbTKEM2j
+	Wed, 5 Nov 2003 07:32:20 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:38568 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S262859AbTKEMcS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 07:28:39 -0500
-Message-ID: <3FA8ECF0.8020800@cyberone.com.au>
-Date: Wed, 05 Nov 2003 23:28:32 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Wed, 5 Nov 2003 07:32:18 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [Alsa-devel] [2.6.0-test9 ALSA] ALSA-OSS-emulation unable to register
+Date: Wed, 5 Nov 2003 13:32:00 +0100
+User-Agent: KMail/1.5.4
+References: <200311021458.59759.mbuesch@freenet.de> <200311042136.19042.mbuesch@freenet.de> <s5hznfbrsx3.wl@alsa2.suse.de>
+In-Reply-To: <s5hznfbrsx3.wl@alsa2.suse.de>
+Cc: alsa-devel@alsa-project.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: lmbench context switch regression
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200311051332.13174.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm seeing quite a large context switch speed regression as reported
-by lmbench when I patched from test9 to test9-mm2.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The obvious thing I can see from the patch is the PF_DEAD finish_task_switch
-change. I don't have time to investigate further tonight though.
+On Wednesday 05 November 2003 11:50, you wrote:
+> > Now neither ALSA, nor OSS-emu works. :)
+>
+> hmm, you have also TVMIXER.  so the ens1371 will be the third one?
 
-lmbench two 0 sized processes context switch times go from around 1.80us to
-2.60us on my PIII 650 (UP).
+I tried various numbers from 0 to (don't remember). but I did
+also try 3.
+
+> Takashi
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/qO3KoxoigfggmSgRAmZlAJ9Pc0v+A26TMEaBDK3JRBQyg2IZSQCfXQFK
+nWARdLcbg6bSfBHBk3ytZJI=
+=P+AC
+-----END PGP SIGNATURE-----
 

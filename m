@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbTEFVIP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 17:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTEFVHJ
+	id S261300AbTEFVGH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 17:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTEFVGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 17:07:09 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:7044 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S261881AbTEFVGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 17:06:39 -0400
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
-	defined (trivial)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Thomas Horsten <thomas@horsten.com>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200305061510.04619.thomas@horsten.com>
-References: <20030506103823.B27816@infradead.org>
-	 <20030506104956.A29357@infradead.org>
-	 <1052215397.983.25.camel@rth.ninka.net>
-	 <200305061510.04619.thomas@horsten.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052255946.7532.66.camel@imladris.demon.co.uk>
+	Tue, 6 May 2003 17:06:07 -0400
+Received: from starcraft.mweb.co.za ([196.2.45.78]:8635 "EHLO
+	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
+	id S261300AbTEFVGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 17:06:03 -0400
+Date: Tue, 6 May 2003 23:18:22 +0200
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: ambx1@neo.rr.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.5.69][PNP] Remove deprecated __check_region
+Message-Id: <20030506231822.201511c6.bonganilinux@mweb.co.za>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Tue, 06 May 2003 22:19:06 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: thomas@horsten.com, davem@redhat.com, hch@infradead.org, linux-kernel@vger.kernel.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.Oju_65ZQ).(knN"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-06 at 15:10, Thomas Horsten wrote:
-> I see where you're coming from, but not being able to compile existing
-> applications where they are never used but need to include e.g.
-> cdrom.h, is IMHO even worse.
+--=.Oju_65ZQ).(knN
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The correct fix is to provide a userland-only version of cdrom.h which
-doesn't use the private kernel types.h. Or a file containing _only_
-those parts which can be shared between kernel and userland, defined
-using standard types such as uint32_t etc. 
+Hi Adam
 
--- 
-dwmw2
+You are listed as the maintainer of the ISAPNP code in the Maintainers file. 
+Could you verify if this patch is fine and forward it to Linus. The patch 
+has been test for compilation.
+
+Thanx
+
+	-- Bongani
+
+--- linux-2.5/drivers/pnp/resource.c.orig       2003-05-06 22:43:52.000000000 +0200
++++ linux-2.5/drivers/pnp/resource.c    2003-05-06 22:51:41.000000000 +0200
+@@ -295,7 +295,7 @@
+
+        /* check if the resource is already in use, skip if the device is active because it itself may be in use */
+        if(!dev->active) {
+-               if (check_region(*port, length(port,end)))
++               if (!request_region(*port, length(port,end), "pnp"))
+                        return CONFLICT_TYPE_IN_USE;
+        }
+
+@@ -366,7 +366,7 @@
+
+        /* check if the resource is already in use, skip if the device is active because it itself may be in use */
+        if(!dev->active) {
+-               if (__check_region(&iomem_resource, *addr, length(addr,end)))
++               if (!__request_region(&iomem_resource, *addr, length(addr,end), "pnp"))
+                        return CONFLICT_TYPE_IN_USE;
+        }
 
 
+--=.Oju_65ZQ).(knN
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+uCan+pvEqv8+FEMRAo44AJ44rgNryrUXiAPHhtecGGNfJ/W7zQCfULIb
+y7++EPUFhLIlrNVIoXQfbxI=
+=fYPn
+-----END PGP SIGNATURE-----
+
+--=.Oju_65ZQ).(knN--

@@ -1,33 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269351AbRHGTU7>; Tue, 7 Aug 2001 15:20:59 -0400
+	id <S269353AbRHGTV7>; Tue, 7 Aug 2001 15:21:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269353AbRHGTUt>; Tue, 7 Aug 2001 15:20:49 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:16879 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269351AbRHGTUm>;
-	Tue, 7 Aug 2001 15:20:42 -0400
-Date: Tue, 7 Aug 2001 15:20:52 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <200108071909.f77J9Pr07385@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0108071516520.18565-100000@weyl.math.psu.edu>
+	id <S269354AbRHGTVm>; Tue, 7 Aug 2001 15:21:42 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:38787 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S269353AbRHGTVg>;
+	Tue, 7 Aug 2001 15:21:36 -0400
+Date: Tue, 7 Aug 2001 22:23:15 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+cc: "'David Maynor'" <david.maynor@oit.gatech.edu>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: encrypted swap
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C9A8@mail0.myrio.com>
+Message-ID: <Pine.LNX.4.33L2.0108072212590.18776-100000@spiral.extreme.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Now that laptop is stolen at an airport. The thief decides
+> to try to improve his take by grabbing useful information
+> from documents.  The encrypted documents are untouchable,
+> of course.  It _doesn't matter_ that the thief has the
+> hardware, the decryption key is protected by a passphrase
+> which is _nowhere_ on the hard drive.
+>
+> The only place that sensitive, unencrypted data could be
+> on such a machine is in swap.  In fact, it is _likely_ to
+> be in swap.
+>
+> Encrypted swap solves this _particular_ problem nicely,
+> does it not?
 
-On Tue, 7 Aug 2001, Richard Gooch wrote:
+You got it bit.. wrong. Or, non-specific. If you assume that your laptop
+is stolen while its powered, then encrypted swap won't help you (strings
+/proc/kcore & the likes). If its going to be stolen while its offline, you
+can have your shutdown scripts blank the swap partition and the boot
+scripts call mkswap on it.
 
-> Yes, I use libc5. And I don't care about old pwd being slower. And I
+Or, somehow better & safer (or, explain the drawback):
 
-So fix getcwd(3) in libc5. BFD... Or use your ->dentry in devfs_readdir() -
-then you can get the consistency you want for existing inodes and that
-will allow b0rken getcwd() to work.
+spiral:~# dd if=/dev/zero of=/swap bs=1024k count=16
+16+0 records in
+16+0 records out
+spiral:~# losetup -e DES /dev/loop0 /swap
+Password:
+Init (up to 16 hex digits):
+spiral:~# mkswap /dev/loop0
+Setting up swapspace version 1, size = 16773120 bytes
+spiral:~# swapon /dev/loop0
+spiral:~# cat /proc/swaps
+Filename                        Type            Size    Used    Priority
+/dev/loop0                      partition       16376   0       -3
 
-It _is_ b0rken - it relies on unique 32-bit number for inodes. That's
-not guaranteed on NFS and there's nothing we could do about that.
+There, you have the swap encrypted, up and running. Of course, if you need
+more fancy encryption than the default, XOR or DES, get the crypto patch.
+You only need to have a script that does the stuff, that runs when the
+system boots, without shutdown scripts (in case of power/battery failure
+these might not be executed, hence the swap would not be wiped). Of
+course, you'll need to enter the losetup password upon booting, which
+might prove annoying (then again, if kernel would provide swap
+encryption, the only way to make it non-decryptable would be for you to
+enter a password, same drawback actually).
+
+Cheers,
+Dan.
+
 

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbTH3TQI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 15:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbTH3TQH
+	id S262004AbTH3TPL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 15:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbTH3TPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 15:16:07 -0400
-Received: from rr54.neoplus.adsl.tpnet.pl ([80.50.104.54]:16000 "EHLO zosia")
-	by vger.kernel.org with ESMTP id S262028AbTH3TQC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 15:16:02 -0400
-Date: Sat, 30 Aug 2003 21:17:26 +0200 (CEST)
-From: =?iso-8859-2?Q?Staszek_Pa=B6ko?= <staszek@nutki.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.22 (also 2.4.23pre1) and NEC USB lockup problem
-Message-ID: <Pine.LNX.4.44.0308302113280.1139-100000@zosia.nutki.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	Sat, 30 Aug 2003 15:15:11 -0400
+Received: from [64.114.249.67] ([64.114.249.67]:40133 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S262004AbTH3TPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 15:15:08 -0400
+Date: Sat, 30 Aug 2003 13:14:21 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mutt segfault with ext3 & 1k blocks & htree in 2.6
+Message-ID: <20030830131421.M15623@schatzie.adilger.int>
+Mail-Followup-To: Mike Fedyk <mfedyk@matchmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20030829172451.GA27023@matchmail.com> <20030829180957.GC27023@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030829180957.GC27023@matchmail.com>; from mfedyk@matchmail.com on Fri, Aug 29, 2003 at 11:09:57AM -0700
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Aug 29, 2003  11:09 -0700, Mike Fedyk wrote:
+> On Fri, Aug 29, 2003 at 10:24:51AM -0700, Mike Fedyk wrote:
+>  o Find out that a directory is using htree?
 
-Hi,
+"lsattr <dir>" will show it.  Note that it will only ever be set on
+directories that are larger than a single disk block.
 
-I have a Transmeta Crusoe based Fujitsu LOOX T93B laptop (pretty much
-the same as Fujitsu P2120 AFAIR). It is equipped with ALI OHCI USB 1.1
-controller + NEC EHCI USB 1.1+2.0 controller. I wanted to give a try
-to 2.4.22 kernel (i am still using 2.4.21-pre3, which works fine with
-ACPI patches), but the system would lock hard whenever inserting any
-USB device (sole USB system seems to start up with no problems). The
-problem is probably with usb-ohci module which handles the NEC
-controllers USB 1.1 part, where the devices get connected to.
+# lsattr -d d1
+----------I-- d1
 
-IRQ routing is done via ACPI and IRQ distribution has changed from
-2.4.21-pre3 + acpi 20030109 - maybe this matters:
-2.4.21-pre3: usb_ohci: irq 11 ALI, irq 9 (*2) NEC; usb_ehci: irq 9;
-also on irq 9: wlan, audio, acpi
-2.4.22: usb_ohci: irqs 10 ALI, 10+11 NEC; usb_ehci: irq 5 (shared with
-audio)
-Without ACPI USB doesn't get IRQs assigned and does not work at all
-(although the system does not hang). APIC is compiled-in, but is not
-detected (/proc
-interrupts reports XT-PIC).
+>  o Disable htree on my /?  (tune2fs -O ^dir_index), but then how do I get
+>    my directories back to non-htree without running fsck from a rescue CD?
 
-SYSRQ doesn't work after the hang, and also compiling the kernel with all
-debug options didn't produce any more messages. This most probably is some
-kind of deadlock, since the CPU is warming up fast. Idon't know what I
-could do to diagnose it further, i don't know much about USB...
+That's the great thing about htree - you don't need to do anything to turn
+it off.  The on-disk format is exactly the same as without htree, and the
+first time you modify the directory it will clear the per-directory htree
+flag.
 
-Any advice would be welcome.
-
-PS. Please, Cc me directly, i read the list periodically via google.
-
--- 
-Staszek Pa¶ko     | Come, now. God, root, what's the difference ?
-staszek@nutki.com | (c) UserFriendly.org
-
-
-
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

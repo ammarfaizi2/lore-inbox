@@ -1,66 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264060AbTKDKl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 05:41:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbTKDKl0
+	id S264064AbTKDKnm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 05:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTKDKnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 05:41:26 -0500
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:25730
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S264060AbTKDKlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 05:41:24 -0500
-From: John Mock <kd6pag@qsl.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Software Suspend: 2.6.0-test9 vs. 2.4.22 patched with swsusp 2.0rc2
-Message-Id: <E1AGycl-0001d3-00@penngrove.fdns.net>
-Date: Tue, 04 Nov 2003 02:41:23 -0800
+	Tue, 4 Nov 2003 05:43:42 -0500
+Received: from D7098.d.pppool.de ([80.184.112.152]:24748 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S264064AbTKDKnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 05:43:39 -0500
+Subject: Re: Re:No backlight control on PowerBook G4
+From: Daniel Egger <degger@fhm.edu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Dustin Lang <dalang@cs.ubc.ca>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1067896476.692.36.camel@gaston>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
+	 <1067820334.692.38.camel@gaston>  <1067878624.7695.15.camel@sonja>
+	 <1067896476.692.36.camel@gaston>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-imeg7k9NIdxBE4EHqP+B"
+Message-Id: <1067941579.16778.5.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 04 Nov 2003 11:43:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In order to understand what's broken in 2.6.0 vs. what hasn't worked
-earlier, i picked up the current stable kernel and patched it with the
-current software-suspend release candidate.  Some things which i have
-found to be broken in 2.6.0-test9 on a VAIO R505EL seem to work at least
-partially with 2.4.22 patched with the current software-suspend release
-candidate (patch).
 
-To wit:
+--=-imeg7k9NIdxBE4EHqP+B
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-   'uchi-hcd' comes back into an almost plausible state with 2.4.22-sws-rc2
-	and fails as previously documented under 2.6.0-test9.  However, it
-	won't sleep with a mouse or digital camera connected, and without
-	that, after sleeping, it freezes when i try to plug in a USB mouse.
+Am Mon, den 03.11.2003 schrieb Benjamin Herrenschmidt um 22:54:
 
-   Rather than dying when swap space isn't initialized,  2.4.22-sws-rc2
-	just quietly doesn't go to sleep.
+> It works with up to date stuffs. That is my latest 2.6 tree with
+> radeonfb and XFree from CVS. Part of the problem is that the firmware
+> sets up a tiled display. I updated my radeonfb to "clear" the
+> various SURFACE_* translation registers (among other fixes).
 
-   X still has problems under 2.4.22-sws-rc2; however, it does not double-
-	fault or auto-reboot as it does under 2.6.0-test9.  It does not
-	come back properly when hibernate is done from inside a native X 
-	window, but it does if native X (DRI) is running, and hibernate is 
-	done from a console screen rather tahn from X (and i don't use a
-	special hack to get X to run more 256 colors at 1024x786 on a VAIO
-	R505EL).
+I've the most recent X but up to now I've tried your 2.4 branch where
+radeonfb doesn't work, so I was using offb.
 
-   2.4.xx software suspend just feels closer to being production code (but
-	isn't a mainstream kernel).
+> Yup. I need to figure that out. It's possible that it does like a G5,
+> that is boot full speed when you auto-boot and low speed when you boot
+> via OF user interface. There may be need for some thermal control as
+> well.
 
-So, 2.4.22-sws-rc2 doesn't solve my problems either, but looks much closer
-than 2.6.0-test9, alas.
+This would be so cool.
 
-Also the problem with 'serial_cs' releasing a resource twice does not occur
-under 2.4.22-sws-rc2, so that also may be a recent development.
+> The "N" thing is normal. Apple hacked so that only DHCP servers which
+> know about some special Apple extensions can be used when doing that.
 
-'ohci1394/sbp2' worked for me on 2.4.19, but doesn't on 2.4.22-sws-rc2, so
-that might not just be a 2.6.0 issue (although it appears to ve at least
-partially fixed by the new upstream 'ieee1394' sources under 2.6.0).  It
-doesn't get a slab error, it just doesn't seem to do anything.
+I believe for this there are patches floating aroung which teach the ISC
+DHCPd new parameters. There are also config snipplets which let one
+configure using decimal notation of the attributes; will try.
 
-We need to release 2.6.0, so given that software suspend is listed in the
-'config' comments as 'experimental', i think it shouldn't hold things up.
+> The easy work around is to use the syntax:
+> enet:x.x.x.x,file
 
-I just wish this could have gotten more attention earlier.  *sigh*
+Yupp, this is what I'm doing...
 
-				-- JM
+--=20
+Servus,
+       Daniel
 
-P.S.  With Nigel working on this on a regular basis, no doubt it will now.
+--=-imeg7k9NIdxBE4EHqP+B
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/p37Lchlzsq9KoIYRAne9AJ9ZfweXjtNJM+UUokY2K8ocGmudkgCg5DDj
+xlb3iO/UyCYFmsTLQCCL2i0=
+=srQw
+-----END PGP SIGNATURE-----
+
+--=-imeg7k9NIdxBE4EHqP+B--
+

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266949AbSLKBVD>; Tue, 10 Dec 2002 20:21:03 -0500
+	id <S266967AbSLKBYF>; Tue, 10 Dec 2002 20:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266952AbSLKBVD>; Tue, 10 Dec 2002 20:21:03 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44516 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266949AbSLKBVC>; Tue, 10 Dec 2002 20:21:02 -0500
-Date: Wed, 11 Dec 2002 02:28:46 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Pete Clements <clem@clem.digital.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.51 compile fails (fs/readdir.c)
-Message-ID: <20021211012846.GQ17522@fs.tum.de>
-References: <200212110011.TAA11516@clem.digital.net>
-Mime-Version: 1.0
+	id <S266968AbSLKBYF>; Tue, 10 Dec 2002 20:24:05 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:31748 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S266967AbSLKBYE>;
+	Tue, 10 Dec 2002 20:24:04 -0500
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
+Subject: Re: 2.5 bk, input driver and dell i8100 nib+pad
+References: <m3el9xk7uv.fsf@lugabout.jhcloos.org>
+	<m3k7jqj9mi.fsf@lugabout.jhcloos.org>
+	<m3n0omk97i.fsf@lugabout.jhcloos.org>
+	<11033.1036602261@passion.cambridge.redhat.com>
+	<5339.1036653369@passion.cambridge.redhat.com>
+	<12249.1036665016@passion.cambridge.redhat.com>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <12249.1036665016@passion.cambridge.redhat.com>
+Date: 10 Dec 2002 20:31:38 -0500
+Message-ID: <m3isy1mjd1.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212110011.TAA11516@clem.digital.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 07:11:22PM -0500, Pete Clements wrote:
-> FYI:
-> 
-> 
->   gcc -Wp,-MD,fs/.readdir.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=readdir -DKBUILD_MODNAME=readdir   -c -o fs/readdir.o fs/readdir.c
-> fs/readdir.c: In function `filldir64':
-> fs/readdir.c:242: internal error--unrecognizable insn:
-> (insn 187 186 448 (set (reg/v:SI 4 %esi)
->         (asm_operands/v ("1:	movl %%eax,0(%2)
->...
+>>>>> "|" == David Woodhouse <dwmw2@infradead.org> writes:
 
-This is a bug in your compiler.
+|> Weird. Does it come back to life if you suspend to RAM and resume?
+|> Does the 'mouse' get detected as a Synaptics Touchpad by the
+|> changed psmouse.c?
 
-Which version of gcc are you using?
+I've some more data on this.  I'd had been some time until I was able
+to get a 2.5 to boot enough to run X....
 
-cu
-Adrian
+Anyway, at 2.5.50 + a few csets, I had a spot where gpm could see the
+nib iff /dev/mouse was symlinked to /dev/input/mice (c 13 63) but not
+if it was linked to /dev/psaux (c 10 1) as it had been.
 
--- 
+I hoped from that that X would also work, but I've not been able to
+replicate that success even with gpm.  I don't know what magic insmod
+made the difference (I wasn't trying to get it to work at the time,
+just accidently hit the nib while at run level 3 and saw the gpm
+cursor...).
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+As for a susend/resume cycle, this box has never been happy to do that.
+
+-JimC
 

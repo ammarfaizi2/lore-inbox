@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265205AbRF0BSN>; Tue, 26 Jun 2001 21:18:13 -0400
+	id <S265198AbRF0BSN>; Tue, 26 Jun 2001 21:18:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265207AbRF0BRw>; Tue, 26 Jun 2001 21:17:52 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:44161 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S265199AbRF0BRq>; Tue, 26 Jun 2001 21:17:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-        Jocelyn Mayer <jma@netgem.com>
-Subject: Re: Microsoft and Xenix.
-Date: Tue, 26 Jun 2001 12:42:59 -0400
-X-Mailer: KMail [version 1.2]
-Cc: <landley@webofficenow.com>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106260804540.2823-100000@twin.uoregon.edu> <0106261815470G.01008@starship>
-In-Reply-To: <0106261815470G.01008@starship>
-MIME-Version: 1.0
-Message-Id: <01062612425903.00653@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S265202AbRF0BRx>; Tue, 26 Jun 2001 21:17:53 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:10249 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S265205AbRF0BRr>; Tue, 26 Jun 2001 21:17:47 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] User chroot 
+cc: pmenage@ensim.com
+In-Reply-To: Your message of "Tue, 26 Jun 2001 21:08:50 EDT."
+             <3B393222.14273547@haque.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 26 Jun 2001 18:24:07 -0700
+Message-Id: <E15F43r-0003ls-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 June 2001 12:15, Daniel Phillips wrote:
-> On Tuesday 26 June 2001 17:15, Joel Jaeggli wrote:
-> > On Tue, 26 Jun 2001, Jocelyn Mayer wrote:
-> >
-> > you get DR-DOS = Digital Research DOS, then you get Novell DOS, then
-> > you get Caldera OpenDOS, currently opendos is owned by lineo
+>Paul Menage wrote:
+>> This could be regarded as the wrong way to solve such a problem, but
+>> this kind of bug seems to be occurring often enough on BugTraq that it
+>> might be useful if you don't have the resources to do a full security
+>> audit on your program (or if the source to some of your libraries
+>> isn't available).
 >
-> Yes, and the source actually was open for a short time when Caldera had it,
-> then it snapped back shut like a clam.  I wanted to use DrDos for an
-> industrial project because of less paranoid licensing than MS-Dos, but
-> after being rebuffed in no uncertain terms when I offered to fix a bug I
-> ran away shuddering and jumped on the Linux cluetrain.
+>Why do this in the kernel when it's available in userspace?
 >
-> > > I think I remember that DR-DOS was the name that Caldera
-> > > gave to the Digital Research OS, previously known as GEMDOS,
+>http://freshmeat.net/projects/rj/
+>
 
-After Ransom Love fell for Microsoft's "Stop using the GPL so we can fork 
-your stuff and make a proprietary version" campaign...  That pretty much 
-buried the needle on my "cluelessness" meter.  As far as I'm concerned, the 
-only thing Caldera could still do that would suprise me would be to come to 
-their senses.
+But only root can set this up, since you currently have to be root in
+order to chroot(). The (only) advantage of the user chroot() patch would
+be that users would be able to do the same thing without root
+intervention.
 
-Rob
+Paul
 

@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129790AbRAZTIU>; Fri, 26 Jan 2001 14:08:20 -0500
+	id <S129982AbRAZTSJ>; Fri, 26 Jan 2001 14:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129982AbRAZTIK>; Fri, 26 Jan 2001 14:08:10 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:8197 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129790AbRAZTIG>;
-	Fri, 26 Jan 2001 14:08:06 -0500
-Message-ID: <3A71CA8D.A50B70E0@innominate.de>
-Date: Fri, 26 Jan 2001 20:05:49 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: inode->i_dirty_buffers redundant ?
-In-Reply-To: <200101251047.QAA16434@vxindia.veritas.com> <20010125164432.A12984@redhat.com> <3A708722.C21EC12A@innominate.de> <20010126113507.J11607@redhat.com>
+	id <S131127AbRAZTR7>; Fri, 26 Jan 2001 14:17:59 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:27147 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S129982AbRAZTRl>;
+	Fri, 26 Jan 2001 14:17:41 -0500
+Date: Fri, 26 Jan 2001 21:17:30 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010126211730.L25659@mea-ext.zmailer.org>
+In-Reply-To: <Pine.SOL.4.21.0101261528190.16539-100000@red.csi.cam.ac.uk>, <Pine.GNU.4.32.0101260850150.23316-100000@hanuman.oobleck.net> <94sg4o$1o4$1@forge.intermeta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <94sg4o$1o4$1@forge.intermeta.de>; from hps@tanstaafl.de on Fri, Jan 26, 2001 at 06:37:12PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
-> 
-> Hi,
-> 
-> On Thu, Jan 25, 2001 at 09:05:54PM +0100, Daniel Phillips wrote:
-> > "Stephen C. Tweedie" wrote:
-> > > We also maintain the
-> > > per-page buffer lists as caches of the virtual-to-physical mapping to
-> > > avoid redundant bmap()ping.
-> >
-> > Could you clarify that one, please?
-> 
-> The buffer contains a physical label for the block's location on disk.
-> The page cache is indexed purely by logical location, so doing IO
-> to/from the page cache requires us to lookup the physical locations of
-> each block within the page.
-> 
-> Caching the buffer_heads for page cache pages means that once those
-> lookups are done once, further IO on the same page can bypass the
-> lookup and go straight to disk.
+On Fri, Jan 26, 2001 at 06:37:12PM +0000, Henning P. Schmiedehausen wrote:
+... 
+> Cisco: If I buy a _new_ PIIX oder LDIR today, do I get an ECN capable
+> IOS or not? If not, will my CCNA know about this and upgrade my Box
+> before deploying?
 
-OK, this was just a terminology problem - I normally say 'filesystem
-block' or just 'block' where you said 'physical', and if you say
-'physical' to me, I'll hear 'physical memory address' :-/  I was also
-confused by 'bmap', which to me means the bad old way of
-generic_reading, and to you means 'mapping a buffer to a disk
-location'.  Um.  Which I would express as 'mapping a buffer to a block'.
+  That cisco box is called  PIX -- PIIX sounds like some intel thing..
+  Current baseline binary contains ECN, and CCNA may or may not know it.
 
-Leaving that confusing behind, I am now working out an approach to
-mapping an inode's index blocks into the page cache.  Probably, I am
-reinventing the wheel, but here it is.  I plan to create another
-address_space mapping in the inode's ext2-private area, called
-i_index_mapping.  This maps all possible index blocks onto the
-i_index_mapping, IOW, for each possible data block we can directly
-compute the index into the i_index_mapping at which we will search for
-the datablock's parent index block.  Normally we will find the index
-block there (because it was read recently) and not have to search down
-through its parents as we must with the buffer cache approach.  Perhaps
-then the inode->dirty_buffers list can go away.
+  Oh yes, PIX code is not IOS, it is something else -- because it wasn't
+  Cisco product originally, but something what Cisco bought...
 
-Obviously the impact on ext2_get_block is fairly major, but I think the
-end result will be simpler than what we have now.
+  I haven't followed up on what Local Directory product it, probably same
+  PC hardware (+ disk) as PIX, but a bit different software suite.
 
---
-Daniel
+> Everyone I know and their brothers, that use Cisco Equipment, have a
+> support contract with Cisco. Why not push an "mandatory upgrade" along
+> this path once the ECN leaves "experimental" status.
+
+  Bruhaha...  PIX has MailGuard feature, which fucks up SMTP protocol
+  royally in some old versions.  I see that buggy version still running
+  deployed even though fixes were done back in May 1998 ...
+  (http://www.zmailer.org/cisco-pix.html)
+
+  Why do I see it ?  VGER's ZMailer uses extensively that "rare" extended
+  SMTP feature which is where it happens, and my employer runs that same
+  software in couple large ISP SMTP relays..
+
+> 	Regards
+> 		Henning
+
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

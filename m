@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272213AbRIEQI3>; Wed, 5 Sep 2001 12:08:29 -0400
+	id <S272218AbRIEQTK>; Wed, 5 Sep 2001 12:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272219AbRIEQIR>; Wed, 5 Sep 2001 12:08:17 -0400
-Received: from nick.dcs.qmw.ac.uk ([138.37.88.61]:9486 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S272213AbRIEQIG>; Wed, 5 Sep 2001 12:08:06 -0400
-Date: Wed, 5 Sep 2001 17:08:25 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: <oscarcvt@galileo.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kernel panic, a cry for help
-In-Reply-To: <999705603.3b964c0359bdc@webmail.galileo.edu>
-Message-ID: <Pine.LNX.4.33.0109051707390.17377-100000@nick.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272223AbRIEQTB>; Wed, 5 Sep 2001 12:19:01 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:10551 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S272220AbRIEQSx>; Wed, 5 Sep 2001 12:18:53 -0400
+Date: Wed, 5 Sep 2001 12:19:14 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200109051619.f85GJEo07592@devserv.devel.redhat.com>
+To: reality@delusion.de, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: USB device not accepting new address
+In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doesn't sound like a kernel bug. Try a rescue CD, or, failing that it's
-backup retrieval time...
+> I have just come across another USB address problem, which happens
+> sporadically and is not easy to reproduce.
 
-Good luck!
+>   1: [cfefa240] link (00000001) e0 IOC Stalled CRC/Timeo Length=7ff MaxLen=7ff
+>   DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
 
-At 10:00 -0600 oscarcvt@galileo.edu wrote:
+If usb_set_address() ends in timeouts, something is bad with the
+hadrware, most likely. Microcode crash in the device, perhaps.
+Someone, I think it was Oliver, posted a patch that retries
+usb_set_address(). It may help you, look in linux-usb-devel
+archives.
 
->im not sure if this q belongs here but i need all the help i can get.
->
->the www, dns, mail server at my site mysteriously got corrupted (not sure how).
->Now i boot it up and get
->
->Kernel panic: No init found. Try passing init= option to kernel
->
->what can i do? where should i start? i dont want to break anything so please
->help me,
-
+-- Pete

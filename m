@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268112AbUHQFQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268116AbUHQFXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268112AbUHQFQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 01:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268111AbUHQFQq
+	id S268116AbUHQFXT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 01:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268117AbUHQFXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 01:16:46 -0400
-Received: from fujitsu2.fujitsu.com ([192.240.0.2]:61653 "EHLO
-	fujitsu2.fujitsu.com") by vger.kernel.org with ESMTP
-	id S268112AbUHQFQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 01:16:09 -0400
-Date: Mon, 16 Aug 2004 22:15:51 -0700
-From: Yasunori Goto <ygoto@us.fujitsu.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Lhms-devel] Making hotremovable attribute with memory section[0/4]
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, "Martin J. Bligh" <mbligh@aracnet.com>
-In-Reply-To: <1092702436.21359.3.camel@localhost.localdomain>
-References: <1092699350.1822.43.camel@nighthawk> <1092702436.21359.3.camel@localhost.localdomain>
-Message-Id: <20040816214017.77A3.YGOTO@us.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.02
+	Tue, 17 Aug 2004 01:23:19 -0400
+Received: from cantor.suse.de ([195.135.220.2]:31684 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268116AbUHQFXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 01:23:17 -0400
+Date: Tue, 17 Aug 2004 07:23:02 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: /bin/ls: cannot read symbolic link /proc/$$/exe: Permission denied
+Message-ID: <20040817052302.GA11448@suse.de>
+References: <20040816133730.GA6463@suse.de> <20040816223938.GA9133@suse.de> <je4qn28xoq.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <je4qn28xoq.fsf@sykes.suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+ On Tue, Aug 17, Andreas Schwab wrote:
 
-> On Maw, 2004-08-17 at 00:35, Dave Hansen wrote:
-> > In any case, the question of the day is, does anyone have any
-> > suggestions on how to create 2 separate pools for pages: one
-> > representing hot-removable pages, and the other pages that may not be
-> > removed?
+> Olaf Hering <olh@suse.de> writes:
 > 
-> How do you define the split. There are lots of circumstances where user
-> pages can be pinned for a long (near indefinite) period of time and used
-> for DMA.
+> >  On Mon, Aug 16, Olaf Hering wrote:
+> >
+> >> 
+> >> For some reasons ls -l /proc/$$/exe doesnt work all time for me,
+> >> with 2.6.8.1 on ppc64. Sometimes it does, sometimes not. No pattern.
+> >> A few printks show that this check in proc_pid_readlink() triggers
+> >> an -EACCES:
+> >> 
+> >>         current->fsuid != inode->i_uid
+> >> 
+> >> proc_pid_readlink(755) error -13 ntptrace(11408) fsuid 100 i_uid 0 0
+> >> sys_readlink(281) ntptrace(11408) error -13 readlink
+> >
+> > A better one, clear both new fields, just in case.
+> 
+> memset?
 
-Basically, kernel have to wait of completion of I/O.
-
-> Consider
-> - Video capture
-> - AGP Gart
-> - AGP based framebuffer (intel i8/9xx)
-
-I didn't consider deeply about this, because usually
-enterprise server doesn't need Video capture feature or AGP.
-It is usually controlled from other machine.
-
-If it is really necessary, kernel might have to wait 
-I/O completion or driver modification is necessary.
-
-
-> - O_DIRECT I/O
-
-I can use page remmaping method by Iwamoto-san.
-(See: http://people.valinux.co.jp/~iwamoto/mh.html#remap)
-I guess that many case can be saved by this.
-
-> There are also things like cluster interconnects, sendfile and the like
-> involved here.
-
-In sendfile case, kernel will wait too. Sooner or later, it will be
-timeout.
-
-Thank you for your comment.
-Bye.
+perhaps too expensive, no idea.
 
 -- 
-Yasunori Goto <ygoto at us.fujitsu.com>
+USB is for mice, FireWire is for men!
 
-
+sUse lINUX ag, nÜRNBERG

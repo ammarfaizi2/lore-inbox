@@ -1,68 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267923AbRHASly>; Wed, 1 Aug 2001 14:41:54 -0400
+	id <S267916AbRHASky>; Wed, 1 Aug 2001 14:40:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267937AbRHASlp>; Wed, 1 Aug 2001 14:41:45 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:62180 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S267923AbRHASlg>; Wed, 1 Aug 2001 14:41:36 -0400
-Importance: Normal
-Subject: Re: [PATCH] register_inet6addr_notifier
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OFA376540F.BE06ACC0-ONC1256A9B.0062A90E@de.ibm.com>
-From: "Utz Bacher" <utz.bacher@de.ibm.com>
-Date: Wed, 1 Aug 2001 20:41:29 +0200
-X-MIMETrack: Serialize by Router on D12ML009/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 01/08/2001 20:41:35
+	id <S267923AbRHASkp>; Wed, 1 Aug 2001 14:40:45 -0400
+Received: from barney.blueskylabs.com ([64.0.135.181]:23541 "EHLO
+	barney.intra.blueskylabs.com") by vger.kernel.org with ESMTP
+	id <S267916AbRHASkf> convert rfc822-to-8bit; Wed, 1 Aug 2001 14:40:35 -0400
+Subject: Memory Write Ordering Question
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Date: Wed, 1 Aug 2001 11:44:10 -0700
+Message-ID: <32B25F556FCD9D418D73C742C9B2E36D0188CC@barney.intra.blueskylabs.com>
+Thread-Topic: Memory Write Ordering Question
+Thread-Index: AcEaufOUkKiFcU4jRJWBnrt3gc3qLA==
+From: "James W. Lake" <jim@intra.blueskylabs.com>
+To: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Alexey,
+Hello,
 
-> Very interesting. I am very curious, what kind of "offload" is possible
-> with current stack are possible. Even if you know addresses. :-)
+I've run into a problem with memory write ordering on a PCI Device.  
 
-it's the same kind of offload we use in IPv4 -- we set the
-net_device->flags to IFF_NOARP and can then talk IP to the card. That
-means,
-the card does ARP and the tasks of hard_header etc. itself. We register
-ourselves to get informed as soon as an IP address has been added/removed
-and can tell that information to the card. As soon as the card knows about
-the IP addresses of the device in the stack, it can respond to ARP queries
-of other nodes.
+The  card has 2 memory regions, pthis->pConfigMem (PCI Chip
+Configuration), and pthis->pDspMem (A DSP's memory on the PCI Card)
 
-Now hardware header generation and ARP don't cost a lot of performance, but
-this whole story gets in particular interesting, as an S/390 can share a
-single card between partitions on the same physical box (and that's very
-common; obvious by looking at the price tag of the card :-). The card
-peeks into incoming packets and according to the destination address, it
-passes the packets on to the right partition(s).
+The code sequence below doesn't work out as expected.  The
+writel(temp,addr); at the bottom actually occurs in the middle of the
+memcpy_toio() operation.
 
-We have the problem, that we won't be informed about any address changes
-in IPv6 other than somehow polling for them.
-(un)register_inet6addr_notifier would help us here.
+The slew of barrier, mb, wmb, rmb's seem to be completely ignored.  
+If I uncomment the line: junk = readl(pthis->pDspMem);  everything
+behaves as expected.
 
-> What's about the patch... Do you understand that currently
-> it is impossible to call notifiers for adding/deletion of each IPv6
-address
-> in an intelligible context? Not seeing uses of such notifiers,
-> it is difficult to approve such feature because of danger of misuse
-> now and even worse misuse in (near) future, when context will change.
+I'm wondering if anyone has any idea what exactly is causing this.  The
+readl is a so-so work around.  I'd like to figure out how to do it
+correctly.  Does anyone who knows more about Intel CPU's and write
+ordering and PCI have any ideas?
 
-Yes, we are fully aware, that we cannot call the notifier functions
-ourselves
-resp. cannot expect any useful result by doing so. We are only interested
-in
-being always up to date wrt. IP addresses.
+I can very reliably monitor the code's behavior, so it's easy to tell if
+its fixed.  :-)
 
-Regards,
-Utz
+Also,  the LSPAM() lines are simply printk macros.  If I have them
+actually outputting, the code also works correctly.  If they are
+suppressed, the bug still happens.
 
-Linux for S/390 and zSeries
-:wq
+Thanks,
+Jim Lake
 
+// Code Snip it
+
+static int DspDebugSpeed(Board *pthis, void *pbuf, u16 len)
+{
+
+
+    u32 temp;
+    unsigned long addr;
+    u32 junk;
+    LDEBUG("Entry");
+
+    memcpy_toio(pthis->pDspMem,pbuf,len);
+//    junk = readl(pthis->pDspMem);
+    
+    LSPAM("Setting DSP Address to 0x%x",0x5001);
+    
+    mb();
+    barrier();
+    mb();
+    wmb();
+    rmb();
+
+
+    addr = (unsigned long)pthis->pConfigMem + PLX_REG_GPIO;
+    
+    temp = readl(addr);
+    LSPAM("Got Long (0x%x) from addr (0x%lx)",temp,addr);
+   
+    temp &= ~PLX_DSP_ADDR_DISABLE;
+    temp |= PLX_DSP_ADDR_OUTPUT;
+    temp &= ~PLX_DSP_ADDR_HIGH;
+    
+    mb();
+    barrier();
+    mb();
+    wmb();
+    rmb();
+
+    addr = (unsigned long)pthis->pConfigMem + PLX_REG_GPIO;
+    LSPAM("Writing Data (0x%x) to addr (0x%lx)",temp,addr);
+    writel(temp,addr);
+    return(0);
+}

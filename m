@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292968AbSBVTwF>; Fri, 22 Feb 2002 14:52:05 -0500
+	id <S292978AbSBVT4n>; Fri, 22 Feb 2002 14:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292976AbSBVTvt>; Fri, 22 Feb 2002 14:51:49 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:38417 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292970AbSBVTt2>;
-	Fri, 22 Feb 2002 14:49:28 -0500
-Date: Fri, 22 Feb 2002 16:49:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Christoph Hellwig <hch@caldera.de>, <lm@bitmover.com>, <hpa@kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4 bitkeeper repository
-In-Reply-To: <20020222193723.GL719@opus.bloom.county>
-Message-ID: <Pine.LNX.4.33L.0202221648320.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292970AbSBVT4d>; Fri, 22 Feb 2002 14:56:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48392 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292978AbSBVT4U>;
+	Fri, 22 Feb 2002 14:56:20 -0500
+Message-ID: <3C76A262.558BA821@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 14:56:18 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+In-Reply-To: <20020221211606.F1418-100000@gerard>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002, Tom Rini wrote:
+Gérard Roudier wrote:
+> Basically at the moment, if the driver allows upper 'seeming cleaner and
+> smarter' PCI probing things to deal with the HBA attachment order, at
+> least all my machines running Linux will not even reboot.
+> 
+> Being smart is doing what user expects, here.
 
-> If you have a pristine tree, adding incremental diffs is:
-> bk import -tpatch ../patch-2.4.X-preY-preZ . && bk tag v2.4.X-preZ
-> Which is what I do for the PPC's kernel.org-only tree(s).
+Oh come on, how hard is the following?
 
-You forgot about setting the proper BK_USER, BK_HOST and
-'bk comment' commands ;)
+> static int __init foo_init(void)
+> {
+>	int rc = pci_module_init(&sym2_pci_driver);
+>	if (rc) return rc;
+>	do_deferred_work();
+> }
+> module_init(foo_init);
 
-Rik
+You have tons of flexibility you are ignoring here...  For the
+non-hotplug hosts (ie. present at boot), just use pci_driver::probe to
+register hosts on a list, and little other work.  do_deferred_work()
+handles the list in a manner that ensures proper boot and/or host
+ordering.
+
+So for non-hotplug hosts you do a init_module time:
+	register N hosts with PCI API
+	register N hosts with SCSI API
+
+And hotplugged hosts would do the same, with N==1.
+
+What you describe -is- supported with the PCI API.
+
+	Jeff
+
+
+
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

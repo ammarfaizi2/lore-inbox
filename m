@@ -1,53 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTD2GpO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 02:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTD2GpO
+	id S261974AbTD2HMi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 03:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbTD2HMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 02:45:14 -0400
-Received: from static-ctb-210-9-247-213.webone.com.au ([210.9.247.213]:3341
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S261959AbTD2GpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 02:45:13 -0400
-Message-ID: <3EAE220D.4010602@cyberone.com.au>
-Date: Tue, 29 Apr 2003 16:56:13 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: James@superbug.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Bug in linux kernel when playing DVDs.
-References: <3EABB532.5000101@superbug.demon.co.uk> <200304290538.h3T5cLu16097@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200304290538.h3T5cLu16097@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Apr 2003 03:12:38 -0400
+Received: from granite.he.net ([216.218.226.66]:31758 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S261974AbTD2HMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 03:12:36 -0400
+Date: Tue, 29 Apr 2003 00:25:00 -0700
+From: Greg KH <greg@kroah.com>
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: linux-kernel@vger.kernel.org, Chris Wright <chris@wirex.com>,
+       mc@cs.stanford.edu
+Subject: Re: [CHECKER] 3 potential user-pointer errors in drivers/usb/serial that can print out arbitrary kernel data
+Message-ID: <20030429072500.GA4616@kroah.com>
+References: <Pine.GSO.4.44.0304251855390.21961-100000@elaine24.Stanford.EDU> <Pine.GSO.4.44.0304272336001.15277-100000@elaine24.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0304272336001.15277-100000@elaine24.Stanford.EDU>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+On Sun, Apr 27, 2003 at 11:43:56PM -0700, Junfeng Yang wrote:
+> 
+> ---------------------------------------------------------
+> [BUG] buf is tainted. can print out arbitrary kernel data if debug is on
+> /home/junfeng/linux-tainted/drivers/usb/serial/empeg.c:225:empeg_write:
+> ERROR:TAINTED:225:225: passing tainted ptr 'buf' to usb_serial_debug_data
+> [Callstack:
+> /home/junfeng/linux-tainted/drivers/usb/serial/safe_serial.c:327:empeg_write((tainted
+> 2))]
+> 
+> 	int bytes_sent = 0;
+> 	int transfer_size;
+> 
+> 	dbg("%s - port %d", __FUNCTION__, port->number);
+> 
+> 
+> Error --->
+> 	usb_serial_debug_data (__FILE__, __FUNCTION__, count, buf);
+> 
+> 	while (count > 0) {
 
->On 27 April 2003 13:47, James Courtier-Dutton wrote:
->
->>Hello,
->>
->>I have found a bug in the linux kernel when it plays DVDs. I use xine
->>(xine.sf.net) for playing DVDs.
->>At some point during the playing there is an error on the DVD. But
->>currently this error is not handled correctly by the linux kernel.
->>This puts the kernel into an uncertain state, causing the kernel to
->>take 100% CPU and fail all future read requests.
->>
->
-[snip]
+Real problem, I'll fix it.
 
->
->Apart of making max retry # settable by the user, I don't see how
->this can be made better.
->
-Having the kernel not use 100% CPU?
+> ---------------------------------------------------------
+> [BUG] can print out arbitrary kernel data if debug is on
+> /home/junfeng/linux-tainted/drivers/usb/serial/ipaq.c:371:ipaq_write:
+> ERROR:TAINTED:371:371: passing tainted ptr 'buf' to usb_serial_debug_data
+> [Callstack:
+> /home/junfeng/linux-tainted/drivers/usb/serial/safe_serial.c:327:ipaq_write((tainted
+> 2))]
+> 
+> 	int			bytes_sent = 0;
+> 	int			transfer_size;
+> 
+> 	dbg("%s - port %d", __FUNCTION__, port->number);
+> 
+> 
+> Error --->
+> 	usb_serial_debug_data(__FILE__, __FUNCTION__, count, buf);
 
-> Pity. This is common problem on CDs...
->  
->
+Real problem, I'll fix it.
 
+> ---------------------------------------------------------
+> [BUG] can print out arbitrary kernel data if debug is on
+> /home/junfeng/linux-tainted/drivers/usb/serial/keyspan.c:328:keyspan_write:
+> ERROR:TAINTED:328:328: dereferencing tainted ptr 'buf' [Callstack: ]
+> 
+> 
+> 	p_priv = usb_get_serial_port_data(port);
+> 	d_details = p_priv->device_details;
+> 
+> 	dbg("%s - for port %d (%d chars [%x]), flip=%d",
+> 
+> Error --->
+> 	    __FUNCTION__, port->number, count, buf[0], p_priv->out_flip);
+
+Real problem, I'll fix it.
+
+> ---------------------------------------------------------
+> [BUG] at least bad programming practice. call usb_serial_debug_data on
+> tainted pointer data. it is verified by previous call to copy_*_user.
+> 
+> /home/junfeng/linux-tainted/drivers/usb/serial/io_edgeport.c:1381:edge_write:
+> ERROR:TAINTED:1381:1381: passing tainted ptr 'data' to
+> usb_serial_debug_data [Callstack: ]
+> 
+> 		fifo->head  += secondhalf;
+> 		// No need to check for wrap since we can not get to end
+> of fifo in this part
+> 	}
+> 
+> 	if (copySize) {
+> 
+> Error --->
+> 		usb_serial_debug_data (__FILE__, __FUNCTION__, copySize,
+> data);
+
+Again, a real problem, I'll fix it.
+
+Thanks a lot for finding these, I think these problems are also in
+2.4...
+
+
+greg k-h

@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264871AbUEQAdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264879AbUEQAeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264871AbUEQAdu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 20:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUEQAdt
+	id S264879AbUEQAeO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 20:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264878AbUEQAeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 20:33:49 -0400
-Received: from cicero2.cybercity.dk ([212.242.40.53]:26380 "EHLO
-	cicero2.cybercity.dk") by vger.kernel.org with ESMTP
-	id S264871AbUEQAdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 20:33:45 -0400
-Subject: Re: Kernel OOPS
-From: tmp <skrald@amossen.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040516162716.34f3d94a.akpm@osdl.org>
-References: <1084709330.743.8.camel@debian>
-	 <20040516162716.34f3d94a.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1084754022.2509.2.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 17 May 2004 02:33:43 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 16 May 2004 20:34:14 -0400
+Received: from mailout3.samsung.com ([203.254.224.33]:228 "EHLO
+	mailout3.samsung.com") by vger.kernel.org with ESMTP
+	id S264877AbUEQAeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 20:34:08 -0400
+Date: Mon, 17 May 2004 09:35:41 +0900
+From: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: Re: MMUless CPU support?
+In-reply-to: <20040516085858.A15133@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel mailing-list <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Message-id: <40A808DD.7030000@samsung.com>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+References: <409E3752.3050102@snapgear.com>
+ <20040509152414.C17714@flint.arm.linux.org.uk> <409EC97D.7030105@samsung.com>
+ <20040510094435.B27722@flint.arm.linux.org.uk> <409F62D5.6080500@samsung.com>
+ <20040510123124.C27722@flint.arm.linux.org.uk> <409F7341.4090207@samsung.com>
+ <042601c43905$beed50e0$0100a8c0@SHUTTLE>
+ <20040513174521.A10776@flint.arm.linux.org.uk> <40A493CA.7030702@samsung.com>
+ <20040516085858.A15133@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, for your reply!
+Christoph Hellwig wrote:
 
-> It's a bit strange that no registers have a value vaguely like
-> 0x1841b518, but at a guess I'd say that you have a bad ->owner
-> pointer in a /proc inode.
+>On Fri, May 14, 2004 at 06:39:22PM +0900, Hyok S. Choi wrote:
+>  
+>
+>Where does this totally out of context post come from?  Given rmk is
+>Cc'ed it's probably armnommu and you're probably still arguing that
+>you don't want to merge the remaining tiny nommu bitws into arch/arm?
+>  
+>
+I added linux-kernel mailing-list by typing error, please excuse me.
+we were talking about the directory structure or method.
+I sent a mail for an issue and the plan to merge and waiting for comment 
+of rmk and Andrew.
 
-> What modules are you using
+Regards,
+Hyok
 
-$ lsmod
-Module                  Size  Used by
-apm                    15536  1
-md5                     3648  1
-ipv6                  220064  19
-snd_ice1712            41928  0
-snd_ice17xx_ak4xxx      3136  1 snd_ice1712
-snd_pcm_oss            48420  0
-snd_mixer_oss          17216  1 snd_pcm_oss
-snd_pcm                81636  2 snd_ice1712,snd_pcm_oss
-snd_page_alloc          8964  1 snd_pcm
-snd_timer              19844  1 snd_pcm
-snd_ak4xxx_adda         5376  2 snd_ice1712,snd_ice17xx_ak4xxx
-snd_cs8427              8768  1 snd_ice1712
-snd_ac97_codec         60868  1 snd_ice1712
-snd_i2c                 4800  2 snd_ice1712,snd_cs8427
-snd_mpu401_uart         5824  1 snd_ice1712
-snd_rawmidi            18976  1 snd_mpu401_uart
-ide_scsi               13764  0
-scsi_mod               61500  1 ide_scsi
-parport_pc             18528  1
-lp                      7940  0
-parport                20608  2 parport_pc,lp
-nls_cp437               5376  2
-rtc                     9464  0
-unix                   21552  612
-
-
-> , and had any modules been rmmod'ed prior
-> to the crash?
-
-No.
-
-By the way, I can tell, that I recently got the following message
-printed on a shell I opened, just before it crashed (handwritten from
-screen (keyboard was locked)):
-
-Assertion failure in __journal_file_buffer() at
-fs/jbd/transaction.c:1934: "jh->b_transaction == transaction ||
-jh->b_transaction == 0"
-
-
-
+P.S. Russell, as my yesterday mail, it seems that you've got some 
+misunderstanding.
+please calm yourself, please execuse me if my mailer changed your 
+various e-mail addresses, but it was once.
+(maybe, you have about 3 or more e-mails? it made me the confusion.)

@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272758AbRILLSC>; Wed, 12 Sep 2001 07:18:02 -0400
+	id <S272753AbRILLXD>; Wed, 12 Sep 2001 07:23:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272755AbRILLRw>; Wed, 12 Sep 2001 07:17:52 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:16139 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S272749AbRILLRj>;
-	Wed, 12 Sep 2001 07:17:39 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Distributors: /lib/modules/`uname -r`/pcmcia will be removed
-Date: Wed, 12 Sep 2001 21:17:01 +1000
-Message-ID: <1633.1000293421@ocs3.intra.ocs.com.au>
+	id <S272763AbRILLWx>; Wed, 12 Sep 2001 07:22:53 -0400
+Received: from t2.redhat.com ([199.183.24.243]:3322 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S272753AbRILLWq>; Wed, 12 Sep 2001 07:22:46 -0400
+Message-ID: <3B9F4597.B10E428E@redhat.com>
+Date: Wed, 12 Sep 2001 12:23:03 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6.4smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Duron kernel crash (i686 works)
+In-Reply-To: <E15goos-0002le-00@the-village.bc.nu>
+	 <9184118686.20010912095919@port.imtp.ilyichevsk.odessa.ua>
+	 <3B9F3E4B.AB5E1D12@scali.no> <1715812347.20010912140853@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+VDA wrote:
 
-Content-Type: text/plain; charset=us-ascii
+> SP> Well, not necessarily. It might be that data just hasn't "arrived" yet because
+> SP> of the movntq instruction.
 
-Older versions of pcmcia-cs used insmod with hard coded paths, newer
-versions use modprobe with just the module name and let modutils take
-care of find the module.  /lib/modules/`uname -r`/pcmcia was created in
-2.4 kernels as a temporary measure, to give pcmcia users a chance to
-upgrade their packages.  Alas, I found a distribution with a pcmcia
-install script that uses insmod and a hard coded pathname.  That will
-fail in kernel 2.5, /lib/modules/`uname -r`/pcmcia will not exist.  It
-will also fail in kernel 2.4 for anybody testing kbuild 2.5.
+this is wrong; the CPU _internal_ view of the data is always consistent,
+regardless of movntq vs movq.
+It's only the EXTERNAL view that is slightly different. "sfence" takes
+care of syncing that.
 
-There is never a good reason to use insmod or hard code a pathname for
-standard kernel modules in 2.4 onwards.  Use modprobe and let modutils
-do the work.
+ 
+> So why it is oopses then?
+> Also, we don't want this data to arrive late or whatever.
+> fast_copy_page must copy page (make it so that memcpy()==0).
+> If it does not, it is too much "optimized".
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+It does; but if you read it back from memory and is corrupted, your
+chipset corrupted it.
+ 
+> SP> One thing that also puzzels me is that my is the fast_copy_page() routine laid
+> SP> out like this :
 
-iD8DBQE7n0Qri4UHNye0ZOoRAm5cAJ9eY6c/9zJMMaKXpYSsOIFya6FcuQCgsGVC
-WCMppjaEUY/taKdavWOdYtk=
-=0KGB
------END PGP SIGNATURE-----
+[snip]
 
+A better way to do it is to bencmark several routines at
+> startup time and pick the best one. It is done now
+> for RAID xor'ing routine.
+
+I benchmarked several versions, see the testprogram at
+http://www.fenrus.demon.nl/athlon.c
+
+The interleaved one is faster on athlons because it seems to help AMD's
+register aliasing logic
+to operate better....
+
+Anyway, since this code works for like 99% of the machines, and only 1%
+seems to be affected, it really really really looks like a hardware bug.
+This is also more or less proven by the reports that certain
+biosversions "break" working setups by doing things to the via chipset
+that make it break....
+
+Greetings,
+   Arjan van de Ven

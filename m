@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSHXAZI>; Fri, 23 Aug 2002 20:25:08 -0400
+	id <S313181AbSHXAeP>; Fri, 23 Aug 2002 20:34:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSHXAZI>; Fri, 23 Aug 2002 20:25:08 -0400
-Received: from hdfdns02.hd.intel.com ([192.52.58.11]:35058 "EHLO
-	mail2.hd.intel.com") by vger.kernel.org with ESMTP
-	id <S314514AbSHXAZH>; Fri, 23 Aug 2002 20:25:07 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DDD3@orsmsx119.jf.intel.com>
+	id <S314149AbSHXAeP>; Fri, 23 Aug 2002 20:34:15 -0400
+Received: from hdfdns01.hd.intel.com ([192.52.58.10]:60097 "EHLO
+	mail1.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S313181AbSHXAeP>; Fri, 23 Aug 2002 20:34:15 -0400
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DDD4@orsmsx119.jf.intel.com>
 From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'jamesclv@us.ibm.com'" <jamesclv@us.ibm.com>, Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] 2.5.31 Summit NUMA patch with dynamic IRQ balancing
-Date: Fri, 23 Aug 2002 17:29:10 -0700
+To: "'Brueggeman, Steve'" <steve_brueggeman@xiotech.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Anyone know how to get soft-power-down to work on an Intel SC
+	 B2??
+Date: Fri, 23 Aug 2002 17:38:15 -0700
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: James Cleverdon [mailto:jamesclv@us.ibm.com] 
-> > This should be moved to acpi.h
-> 
-> Will be, once I'm sure this is the right way to go.  As 
-> mentioned earlier, I'm 
-> having ACPI problems that seem to imply ACPI isn't building 
-> the full IRQ 
-> table.  In 2.4 we could let MPS do this.  Maybe 2.5 will need 
-> to revert to 
-> that behavior.
+> ACPI: Core Subsystem version [20010615]
+> ACPI: Subsystem enabled
 
-What happens when you use the FULL ACPI support? I suspect that you really
-do want the interpreter, in order to evaluate _PRTs properly.
-
-ISTR that the reason you are thinking that ACPI only is programming some of
-the ioapic entries is because whatever is printing them is looking at the
-mp_irqs array. Which is MPS specific. So ACPI doesn't bother filling it all
-in. :)
-
-Is that a bug? Should ACPI fill it in completely, or maybe not at all? Don't
-know. But it is strictly unnecessary.
+These are the only instances of "ACPI" in the dmesg. I infer from this that
+you need to include the ACPI System driver, which includes poweroff
+functionality.
 
 Regards -- Andy
+
+PS I'm intrigued by the loopback device problem you mentioned....please let
+me know if you ever figure out what caused that..:)

@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265601AbSJXTFv>; Thu, 24 Oct 2002 15:05:51 -0400
+	id <S265603AbSJXTIN>; Thu, 24 Oct 2002 15:08:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265603AbSJXTFv>; Thu, 24 Oct 2002 15:05:51 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34941 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265601AbSJXTFu>; Thu, 24 Oct 2002 15:05:50 -0400
-Date: Thu, 24 Oct 2002 15:11:49 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: erich@uruk.org
-Cc: Matthias Welk <matthias.welk@fokus.gmd.de>,
-       Manfred Spraul <manfred@colorfullife.com>, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-Message-ID: <20021024151149.A7373@devserv.devel.redhat.com>
-References: <200210241948.38490.matthias.welk@fokus.fraunhofer.de> <E184nEw-00071m-00@trillium-hollow.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E184nEw-00071m-00@trillium-hollow.org>; from erich@uruk.org on Thu, Oct 24, 2002 at 12:01:54PM -0700
+	id <S265604AbSJXTIN>; Thu, 24 Oct 2002 15:08:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14481 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S265603AbSJXTIM>; Thu, 24 Oct 2002 15:08:12 -0400
+Date: Thu, 24 Oct 2002 17:14:14 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: chrisl@vmware.com, Andrew Morton <akpm@digeo.com>,
+       <linux-kernel@vger.kernel.org>, <chrisl@gnuchina.org>
+Subject: Re: writepage return value check in vmscan.c
+In-Reply-To: <20021024184005.GT3354@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0210241713100.1648-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 12:01:54PM -0700, erich@uruk.org wrote:
-> The perfect peak performance of your setup, if the cache implements
-> standard write-allocate behavior (the target cache line is read before it
-> is written because the write logic doesn't know you're going to overwrite
-> the whole line in cases like this), should be:
+On Thu, 24 Oct 2002, Andrea Arcangeli wrote:
 
-the point is to avoid the (in this case bad) write allocate...
+> unfortunately I see no way around it and patching the kernel to loop
+> forever on dirty pages that may never be possible to write doesn't look
+> safe. You could check the free space on the fs and bug the user if it
+> has less than 2G free (still it's not 100% reliable, it's a racy check,
+> but you could also add a 100% reliable option that slowdown the startup
+> of the vm but that guarantees no corruption can happen).
+
+We need space allocation.  Not just for this (probably rare) case,
+but also for the more generic optimisation of delayed allocation.
+
+cheers,
+
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

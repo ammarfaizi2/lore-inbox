@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279412AbRJWMzg>; Tue, 23 Oct 2001 08:55:36 -0400
+	id <S279416AbRJWM5G>; Tue, 23 Oct 2001 08:57:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279415AbRJWMz1>; Tue, 23 Oct 2001 08:55:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45572 "EHLO
+	id <S279415AbRJWM44>; Tue, 23 Oct 2001 08:56:56 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48132 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279412AbRJWMzK>; Tue, 23 Oct 2001 08:55:10 -0400
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-To: drevil@warpcore.org
-Date: Tue, 23 Oct 2001 08:57:06 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011022203159.A20411@virtucon.warpcore.org> from "drevil@warpcore.org" at Oct 22, 2001 08:31:59 PM
+	id <S279416AbRJWM4r>; Tue, 23 Oct 2001 08:56:47 -0400
+Subject: Re: [RFC] New Driver Model for 2.5
+To: mochel@osdl.org (Patrick Mochel)
+Date: Tue, 23 Oct 2001 08:53:17 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@Elf.ucw.cz (Pavel Machek),
+        benh@kernel.crashing.org (Benjamin Herrenschmidt),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110221726140.25103-100000@osdlab.pdx.osdl.net> from "Patrick Mochel" at Oct 22, 2001 05:29:04 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15vwQs-00051C-00@the-village.bc.nu>
+Message-Id: <E15vwNB-00050h-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> with his current version of windows. Admittedly, some may not consider this a
-> feature, but I think a lot do. Why should a 'stable' kernel series break
-> existing drivers?
+> The idea is to allocate all memory in the first pass, disable interrupts,
+> then save state. Would that work? Or, should some of the state saving take
+> place with interrupts enabled?
 
-It probably shouldn't but we cant tell where the problem lies in a lump of
-binary code.
+Imagine the state saving done on a USB device. There you need interrupts
+on while retrieving the state from say a USB scanner, and in some cases
+off while killing the USB controller.
 
-> > I really doubt Nvidia will open their driver code. I've heard them explain
-> > some of the reasons they don't and in part they make complete sense.
+> > Ditto on return from suspend where some devices also like to float the irq
+> > high as you take them over (eg USB on my Palmax). From comments Ben made
+> > ages back I believe ppc has similar issues if not worse
 > 
-> Microsoft deals with companies that won't always give them access to the drivers
-> directly, but often they will tell users workarounds, or at least attempt to
-> gather enough knowledge since they are tehnically the OS vendor to give to the
-> driver provider to fix the problem. If you are the OS provider, and a change you
-> make breaks user drivers/programs generally I think it's a polite gesture to at
-> least attempt to find out what's going on and then pass that information on to
-> the people who can properly handle it...
+> Yes, the resume sequence is broken into two stages:
+> 
+> 	device_resume(RESUME_POWER_ON);
+> 
+> 	/* enable interrupts */
+> 
+> 	device_resume(RESUME_RESTORE_STATE);
+> 
+> Do you see a need to break it up further?
 
-If Nvidia would like to pay me as much as Microsoft is paid for driver
-certification then I might be able to find the time
+Nope.

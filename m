@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265931AbUFDSVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUFDS0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265931AbUFDSVc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbUFDSVc
+	id S265909AbUFDS0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUFDS0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:21:32 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:64721 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265909AbUFDSSh (ORCPT
+	Fri, 4 Jun 2004 14:26:12 -0400
+Received: from gprs214-121.eurotel.cz ([160.218.214.121]:45441 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265909AbUFDS0J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:18:37 -0400
-Message-Id: <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl>
-To: Pavel Machek <pavel@suse.cz>
-cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
-       Tuukka Toivonen <tuukkat@ee.oulu.fi>
-Subject: Re: keyboard problem with 2.6.6 
-In-Reply-To: Message from Pavel Machek <pavel@suse.cz> 
-   of "Fri, 04 Jun 2004 15:58:16 +0200." <20040604135816.GD11950@elf.ucw.cz> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Fri, 04 Jun 2004 14:17:14 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 4 Jun 2004 14:26:09 -0400
+Date: Fri, 4 Jun 2004 20:26:00 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Driver Core fixes for 2.6.7-rc1
+Message-ID: <20040604182559.GI700@elf.ucw.cz>
+References: <10857795552653@kroah.com> <10857795552130@kroah.com> <20040604122518.GB11950@elf.ucw.cz> <20040604162643.GB9342@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040604162643.GB9342@kroah.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> said:
+Hi!
 
-[...]
+> > > [PATCH] Report which device failed to suspend
+> > > 
+> > > Based on a patch from Nickolai Zeldovich <kolya@MIT.EDU> but put into the
+> > > proper place by me.
+> > 
+> > Seems good.
+> > 
+> > I'm seeing lots of problems with drivers & swsusp these days. Perhaps
+> > even printing names of devices as they are suspended is good idea?
+> 
+> You mean like the current kernel tree does if you enable
+> CONFIG_DEBUG_DRIVER?  :)
 
-> You get pretty nasty managment problems. How do you do init=/bin/bash
-> if your keyboard is userspace?
-
-You don't tell any kernel about that... it is the bootloader you are
-talking to. And that one may very well have integrated kbd support.
+Well, something little less verbose but enabled by default would do
+the trick.
+								Pavel
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+934a471f20d6580d5aad759bf0d97ddc

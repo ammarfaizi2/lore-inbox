@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316674AbSH0S6K>; Tue, 27 Aug 2002 14:58:10 -0400
+	id <S316788AbSH0TEF>; Tue, 27 Aug 2002 15:04:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316775AbSH0S6K>; Tue, 27 Aug 2002 14:58:10 -0400
-Received: from AMarseille-201-1-5-72.abo.wanadoo.fr ([217.128.250.72]:5232
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316674AbSH0S6J>; Tue, 27 Aug 2002 14:58:09 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: <Richard.Zidlicky@stud.informatik.uni-erlangen.de>, <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: readsw/writesw readsl/writesl
-Date: Tue, 27 Aug 2002 11:29:07 +0200
-Message-Id: <20020827092908.31569@192.168.4.1>
-In-Reply-To: <200208271600.SAA17957@faui02b.informatik.uni-erlangen.de>
-References: <200208271600.SAA17957@faui02b.informatik.uni-erlangen.de>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+	id <S316792AbSH0TEF>; Tue, 27 Aug 2002 15:04:05 -0400
+Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:64186 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316788AbSH0TEE>; Tue, 27 Aug 2002 15:04:04 -0400
+Date: Tue, 27 Aug 2002 13:08:04 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Chris Wedgwood <cw@f00f.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Zheng Jian-Ming <zjm@cis.nctu.edu.tw>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: problems with changing UID/GID
+In-Reply-To: <20020827181207.GA8578@tapu.f00f.org>
+Message-ID: <Pine.LNX.4.44.0208271304250.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> ...... However, if we decide to go the way
->> you describe, the we should probably also provide the raw_{in,out}*
->> ones.
->
->carefull, m68k already has them for other purposes. Original intention
->was that raw_{in,out} should never be used outside architecture specific 
->stuff anyway.
+Hi,
 
-Then we have a problem... Either we chose to keep 2 different interfaces
-for MMIO and "PIO" with the "s" versions on PIO and not on MMIO, the
-raw versions on MMIO but not PIO, etc...
+On Tue, 27 Aug 2002, Chris Wedgwood wrote:
+> On Tue, Aug 27, 2002 at 09:42:27AM -0600, Thunder from the hill wrote:
+> 
+>     I don't think this is cool. I mean, think of how many times we use
+>     it, who will eat the overhead?
+> 
+> We use it almost never... a few times per process at most.  And the
+> overhead will be nonexistent except in cases where the caller has to
+> wait on the lock --- and in those cases it seems totally reasonable they
+> *should* have to wait.
 
-Or we decide to unify this properly.
+And how do you protect a caller from having to wait for the lock? You'd 
+need a lock count here, where you can only change the credentials when the 
+count is zero. But when will that ever be?
 
-In all cases, the current abstraction doesn't allow to re-implement
-{in,out}s{b,w,l}. This is already a problem as if a driver need to
-pump a fifo with some udelay's (like doing a _p version of one of
-the above), it can't or has to do some arch specific crap to deal
-with byteswap, barriers, etc...
+And btw, the count bumping/downing does cost. We need to do that sensibly.
 
-Ben.
-
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

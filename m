@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273255AbRJYM7X>; Thu, 25 Oct 2001 08:59:23 -0400
+	id <S273269AbRJYNED>; Thu, 25 Oct 2001 09:04:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273269AbRJYM7N>; Thu, 25 Oct 2001 08:59:13 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:35791 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S273255AbRJYM7D> convert rfc822-to-8bit; Thu, 25 Oct 2001 08:59:03 -0400
-Subject: Re: dvd and filesystem errors under 2.4.13
-From: christophe barbe <christophe.barbe.ml@online.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jim Hull <imaginos@imaginos.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15wjKP-0004fk-00@the-village.bc.nu>
-In-Reply-To: <E15wjKP-0004fk-00@the-village.bc.nu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 25 Oct 2001 14:59:34 +0200
-Message-Id: <1004014775.7723.3.camel@turing>
+	id <S273305AbRJYNDx>; Thu, 25 Oct 2001 09:03:53 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:12051 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S273269AbRJYNDe>;
+	Thu, 25 Oct 2001 09:03:34 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Mike Castle <dalgoda@ix.netcom.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: modprobe problem with block-major-11 
+In-Reply-To: Your message of "Thu, 25 Oct 2001 00:52:03 MST."
+             <20011025005202.A24125@thune.mrc-home.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 25 Oct 2001 23:03:56 +1000
+Message-ID: <27036.1004015036@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.1
+On Thu, 25 Oct 2001 00:52:03 -0700, 
+Mike Castle <dalgoda@ix.netcom.com> wrote:
+>alias block-major-11 sr_mod          # load sr_mod upon access of scd0
+>pre-install sr_mod modprobe ide-scsi # load ide-scsi before sr_mod
 
-Rev 6.2.1 from its mail.
+* User does 'head /dev/scd0'.
+* The kernel runs modprobe block-major-11.  modprobe is running
+  setuid(0) because the original user was not root.
+* modprobe maps block-major-11 to sr_mod.
+* modprobe sees a pre-install command for sr_mod and uses system() to
+  invoke the command.
+* The system() function issues '/bin/sh -c "command"', sh is linked to
+  bash.
+* Bash detects that it was invoked as 'sh' and is running setuid.  Bash
+  silently turns off the setuid privilege before running the command.
+  WRONG!!
+* The second command (modprobe ide-scsi) needs root authority but bash
+  has removed the authority.  modprobe fails :(
 
-I personnaly use rev 6.2.4 with the 2.4.13.
+The problem is caused by a bash "feature", it was added in bash 2.01.
+I cannot fix it without writing my own replacement for the system()
+function.  Doing setuid(0) in modprobe before calling system() would
+reopen the security exposure that was closed in modutils 2.3.21, that
+is not an option.
 
-The patch for 2.4.12 apply fine.
-	linux-aic7xxx-6.2.4-2.4.12.patch.gz
+Workaround: Replace 
+  pre-install foo modprobe bar
+with
+  before foo bar
+That does all the work internally without using the system() function
+and falling foul of the bash feature.  It is also faster and it lets
+modprobe maintain the chain of modules for unload.
 
-Christophe
-
-PS: This rev (.4) include the pci table export for the hotplug stuff. I
-hope this will be upgraded in the next stable kernel.
-
-le jeu 25-10-2001 at 14:09 Alan Cox a écrit :
-> > Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
-> > ext2_free_blocks: bit already cleared for block 133384
-> > Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
-> > ext2_free_blocks: bit already cleared for block 133385
-> 
-> Thats indicating memory on on disk corruption. It is something you should
-> be concerned about.  What version of aic7xxx is on the kernel that is
-> stable ?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+BTW, users can never run rmmod, only root can do that.
 

@@ -1,73 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313044AbSDJRQv>; Wed, 10 Apr 2002 13:16:51 -0400
+	id <S313346AbSDJRY4>; Wed, 10 Apr 2002 13:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313352AbSDJRQu>; Wed, 10 Apr 2002 13:16:50 -0400
-Received: from dsl-65-185-37-21.telocity.com ([65.185.37.21]:17325 "EHLO
-	onevista.com") by vger.kernel.org with ESMTP id <S313044AbSDJRQp>;
-	Wed, 10 Apr 2002 13:16:45 -0400
-Reply-To: johna@onevista.com
-Message-Id: <200204101716.NAA30717@onevista.com>
-Content-Type: text/plain; charset=US-ASCII
-From: John Adams <johna@onevista.com>
-Organization: One Vista Associates
-To: linux-kernel-owner@vger.kernel.org, Oleg Drokin <green@linuxhacker.ru>,
-        Brent Cook <busterb@mail.utexas.edu>
-Subject: Re: Mouse interrupts: the death knell of a VP6
-Date: Wed, 10 Apr 2002 12:16:39 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020206191108.A11277@suse.de> <20020410083504.Y60587-100000@ozma.union.utexas.edu> <20020410192339.A22777@namesys.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S313355AbSDJRY4>; Wed, 10 Apr 2002 13:24:56 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:14478 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S313346AbSDJRYz>; Wed, 10 Apr 2002 13:24:55 -0400
+Date: Wed, 10 Apr 2002 10:23:12 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: 2.5.8-pre3: kernel BUG at usb.c:849!
+ (preempt_count 1)
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: Kernel List <linux-kernel@vger.kernel.org>, rml@tech9.net,
+        linux-usb-devel@lists.sourceforge.net,
+        Johannes Erdfelt <johannes@erdfelt.com>
+Message-id: <071e01c1e0b4$64f382e0$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: multipart/mixed; boundary="Boundary_(ID_0Jmv8O7EOzICJMIntLc7DA)"
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <E16vHsQ-0000Jy-00@baldrick> <20020410114144.N8314@sventech.com>
+ <06da01c1e0ae$69106ce0$6800000a@brownell.org> <E16vLJx-00028n-00@baldrick>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 April 2002 11:23 am, Oleg Drokin wrote:
-> Hello!
->
-> On Wed, Apr 10, 2002 at 09:02:05AM -0500, Brent Cook wrote:
-> > I have an ABIT VP6 motherboard, using the VIA Apollo chipset and 2
-> > 700Mhz PIII's, but please don't hold that against me. The system is
-> > running 2.4.19-pre6. I believe that I either have a system that has
-> > trouble handling a sudden bursts of interrupts, or have found a fault
-> > in mouse handling.
->
-> Have you tried to change MPS mode to 1.1 from 1.4 (I see addres message
-> timeouts in your log)?
->
-> > I have already tried removing memory, adding memory, changing
-> > processors, video cards. The only thing that has remained constant is
-> > the VP6 motherboard and the hard drive.
->
-> My VP6 died on me recently with some funny symptoms:
-> it hangs in X when I start netscape and move mouse, or if I do
-> bk clone on kernel tree, it dies with
-> kernel BUG at /usr/src/linux-2.4.18/include/asm/smplock.h:62!
-> BUG in various places pretty soon.
-> (this BUG is only appears if 2 CPUs are present in motherboard).
-> So if your troubles began only recently, you might want to try another
-> motherboard just to be sure.
+This is a multi-part message in MIME format.
 
-I have a VP6 with 2 CPUs.  Its has both a PS/2 mouse and a usb mouse.  Its 
-been up for 90 days and handled lots of mouse interrupts.  See below.
-           CPU0       CPU1       
-  0:  392228152  392338774    IO-APIC-edge  timer
-  1:     312494     312380    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  3:          1          3    IO-APIC-edge  serial
- 12:   40362907   40324010    IO-APIC-edge  PS/2 Mouse
- 14:    3386577    3383180    IO-APIC-edge  ide0
- 15:     679030     672810    IO-APIC-edge  ide1
- 17:    1165246    1162993   IO-APIC-level  DC395x_TRM
- 18:   83937970   83935445   IO-APIC-level  ide2, eth0
- 19:     131956     132468   IO-APIC-level  es1371, usb-uhci, usb-uhci
-NMI:          0          0 
-LOC:  784686934  784686951 
-ERR:        191
-MIS:          0
+--Boundary_(ID_0Jmv8O7EOzICJMIntLc7DA)
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
 
-Its running a recent kernel.  Maybe 2.4.18 is broken.  Here's a uname -a
-Linux flash 2.5.0 #16 SMP Wed Jan 9 16:48:16 EST 2002 i686 unknown
+> > And what usb device driver(s) were supposed to have stopped
+> > using "device 3"?  I've only noticed such device refcounting bugs
+> > being caused by the USB device drivers with bad disconnect()
+> > routines, not usbcore or any of the host controller drivers, but of
+> > course that can change.
+> 
+> Ha!
+> 
+> $ cat /proc/bus/usb/drivers
+>          usbfs
+>          hub
+> 
+> There are no other drivers!  I have a USB webcam and a modem
+> ... has a user space driver that works via usbfs.
 
-johna
+... OK, this is sounding familiar.  "usbfs" has some recently noted
+bugs in its disconnect() routine.  That SpeedTouch driver seems to
+be triggering them with regularity, though more often with usb-ohci.
+
+The ksymoops info you sent is compatible with the bug being in
+the usbfs code:  exactly what I'd expect such a BUG() to show.
+
+I hate to send around untested patches, but I think the one I've
+attached is at least in the right direction.  (Attachment, to avoid
+mangling by mailers...)  It's an update of what I sent around late
+last month to address someone's SpeedTouch oopsing with
+usb-ohci (!) on 2.4.19-pre2, redone against 2.5.8-pre3, which
+compiles.  I hope it doesn't create new oopses.
+
+If it works for you, let us know ...
+
+- Dave
+
+
+
+--Boundary_(ID_0Jmv8O7EOzICJMIntLc7DA)
+Content-type: application/octet-stream; name=devio-0410.patch
+Content-transfer-encoding: quoted-printable
+Content-disposition: attachment; filename=devio-0410.patch
+
+--- drivers/usb-dist/core/devio.c	Sat Apr  6 15:12:31 2002=0A=
++++ drivers/usb/core/devio.c	Wed Apr 10 10:11:38 2002=0A=
+@@ -297,7 +297,9 @@=0A=
+ }=0A=
+ =0A=
+ /*=0A=
+- * interface claiming=0A=
++ * interface claims are made only at the request of user level code,=0A=
++ * which can also release them (explicitly or by closing files).=0A=
++ * they're also undone when devices disconnect.=0A=
+  */=0A=
+ =0A=
+ static void *driver_probe(struct usb_device *dev, unsigned int intf,=0A=
+@@ -310,8 +312,20 @@=0A=
+ {=0A=
+ 	struct dev_state *ps =3D (struct dev_state *)context;=0A=
+ =0A=
+-	if (ps)=0A=
+-		ps->ifclaimed =3D 0;=0A=
++	if (!ps)=0A=
++		return;=0A=
++=0A=
++	/* this waits till synchronous requests complete */=0A=
++	down_write (&ps->devsem);=0A=
++=0A=
++	/* prevent new I/O requests */=0A=
++	ps->dev =3D 0;=0A=
++	ps->ifclaimed =3D 0;=0A=
++=0A=
++	/* force async requests to complete */=0A=
++	destroy_all_async (ps);=0A=
++=0A=
++	up_write (&ps->devsem);=0A=
+ }=0A=
+ =0A=
+ struct usb_driver usbdevfs_driver =3D {=0A=
+
+--Boundary_(ID_0Jmv8O7EOzICJMIntLc7DA)--

@@ -1,64 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbTKBMGP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 07:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTKBMGP
+	id S261670AbTKBMIf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 07:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTKBMIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 07:06:15 -0500
-Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:39987 "EHLO
-	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
-	id S261662AbTKBMGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 07:06:13 -0500
-Message-ID: <3FA4F33A.7080207@planet.nl>
-Date: Sun, 02 Nov 2003 13:06:18 +0100
-From: Stef van der Made <svdmade@planet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031025
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Di-30 non working [bug 967]
-References: <3FA41703.1030408@planet.nl> <200311012228.29085.bzolnier@elka.pw.edu.pl> <20031101152453.42346338.akpm@osdl.org> <200311020054.49869.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200311020054.49869.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Nov 2003 07:08:32 -0500
+Received: from madrid10.amenworld.com ([62.193.203.32]:38154 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S261670AbTKBMIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 07:08:25 -0500
+Date: Sun, 2 Nov 2003 13:08:20 +0100
+From: DervishD <raul@pleyades.net>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: Shawn Willden <shawn-lkml@willden.org>, linux-kernel@vger.kernel.org
+Subject: Re: /dev/input/mice doesn't work in test9?
+Message-ID: <20031102120820.GC206@DervishD>
+References: <E1AFUFz-0008jt-00.arvidjaar-mail-ru@f20.mail.ru> <20031101205646.GB9129@DervishD> <200311021312.15902.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200311021312.15902.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Andrey :)
 
-Hi,
+    Thanks for answering :)
 
-I've done some more testing and the drive is now responding to commands 
-:-) so we are getting more close. It however still fails to give the 
-status back and is busy after the first command. I've included a dmesg, 
-updated patch and strace as attachment to the bug report. In the dmesg I 
-see a oops I hope that this will help you find the problem. I also had 
-an oops at the first try but got lost during the cut and paste work :-( 
-sorry for that.
+ * Andrey Borzenkov <arvidjaar@mail.ru> dixit:
+> > whatever. It just seems that 'mousedev' is never autoloaded :?
+> Well, major 13 is for all input devices not for mousedev alone.
 
-Best regards,
+    I know, but I just use it for mousedev O:)
 
-Stef
+> You have input built-in which means there is no reason for kernel
+> to try autoload driver for char-13 as it is already available.
 
-Bartlomiej Zolnierkiewicz wrote:
+    But not char-major-13-32, for example.
 
->On Sunday 02 of November 2003 00:24, Andrew Morton wrote:
->  
->
->>Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
->>    
->>
->>>Noticed by Stuart_Hayes@Dell.com:
->>>
->>>I've noticed that, in the 2.6 (test 9) kernel, the "cmd" field (of type
->>>int) in struct request has been removed, and it looks like all of the
->>>code in ide-tape has just had a find & replace run on it to replace any
->>>instance of rq.cmd or rq->cmd with rq.flags or rq->flags.
->>>      
->>>
->>Nasty.
->>
->>    
->>
->  
->
+> You may add explicit per-minor autoloading to input.c, see 
+> drivers/input/input.c:input_open_file()
 
+    But that code works with the 'input_table', and the
+input_handlers. The handlers are registered by the modules when they
+are already loaded. Do you mean that I should modify input_open_file
+in order to autoload the appropriate module in the case of the
+handler not being present? Currently input_open_file just returns
+ENODEV in that case, but I don't know how to request for autoloading
+O:) In fact, if Vojtech hasn't already done that surely there is a
+very good reason not to do it... I prefer not modify the kernel for
+that. If the only solution is making mousedev and hid built-in
+instead of modules, I can do it.
+
+> >     The rest of devices in my system are properly autoloaded on
+> > demand, but hid and mousedev are not :( Am I doing something wrong?
+> no. Loading on demand simply is not supported.
+
+    OK..
+ 
+> If you are using hotplug, both should be loaded by hotplug. IMHO it is also 
+> the right way to go.
+
+    The problem is that hotplug doesn't work for me in this case. I
+mean, with hotplug in *this particular case*, since the mouse is
+always connected, the modules will be loaded on bootup and unloaded
+on shutdown, not when the mouse device is opened and closed,
+respectively.
+
+    I've tested with hotplug (well, I don't have hotplug utilities
+installed, just a shell script that tells me if someone is calling
+/sbin/hotplug and logs the parameters), and /sbin/hotplug is not
+called when I try to open /dev/mouse (c 13 32).
+ 
+> >     Exactly... Anyway, if I build 'mousedev' into my kernel instead
+> > of making it a module, should I do the same with 'hid' or
+> > char-major-13 *is* autoloaded?
+> char-major-13 is 'input'. Period. It is not mousedev or whatever. For this 
+> reason it must implement its own autoloading if desired. Cf. misc driver.
+
+    My excuses O:) I was refering to char-major-13-32 (or -64, is
+just the same for me).
+
+> Hid will never be autoloaded (without manual configuration) on access to 
+> mousedev because they are independent.
+
+    Yes, I knew that. It is loaded by hotplug or by hand (or even
+with 'above' or 'below' when another module is autoloaded, I
+suppose).
+
+> Building it in kernel is the easiest way to ensure it is always available.
+
+    Yes, I'm going to build in hid, but, should I do the same with
+mousedev (or event, joystick, etc...) or will it work with hid loaded
+when doing 'cat /dev/mouse'?
+
+    Thanks a lot for your help :))
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

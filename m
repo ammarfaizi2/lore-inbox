@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271616AbRHXXKT>; Fri, 24 Aug 2001 19:10:19 -0400
+	id <S272340AbRHXXNI>; Fri, 24 Aug 2001 19:13:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272340AbRHXXKI>; Fri, 24 Aug 2001 19:10:08 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6418 "HELO
+	id <S272341AbRHXXM6>; Fri, 24 Aug 2001 19:12:58 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:19986 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271616AbRHXXKC>; Fri, 24 Aug 2001 19:10:02 -0400
-Date: Fri, 24 Aug 2001 20:10:06 -0300 (BRST)
+	id <S272340AbRHXXMn>; Fri, 24 Aug 2001 19:12:43 -0400
+Date: Fri, 24 Aug 2001 20:12:42 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@duckman.distro.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
 Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
         "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
         <oesi@plan9.de>
 Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010824222226Z16116-32383+1242@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0108242007570.31410-100000@duckman.distro.conectiva>
+In-Reply-To: <20010824221456.U981-100000@gerard>
+Message-ID: <Pine.LNX.4.33L.0108242011110.31410-100000@duckman.distro.conectiva>
 X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, Daniel Phillips wrote:
-> On August 24, 2001 09:02 pm, Rik van Riel wrote:
+On Fri, 24 Aug 2001, Gérard Roudier wrote:
 
-> > I guess in the long run we should have automatic collapse
-> > of the readahead window when we find that readahead window
-> > thrashing is going on,
->
-> Yes, and the most effective way to detect that the readahead
-> window is too high is by keeping a history of recently evicted
-> pages.
+> The larger the read-ahead chunks, the more likely trashing will
+> occur. In my opinion, using more than 128 K IO chunks will not
+> improve performances with modern hard disks connected to a
+> reasonnably fast controller, but will increase memory pressure
+> and probably thrashing.
 
-I think it could be even easier. We simply count for each
-file how many pages we read-ahead and how many pages we
-read.
+Your opinion seems to differ from actual measurements
+made by Roger Larsson and other people.
 
-If the number of pages being read-ahead is really a lot
-higher than the pages being read, we know pages get evicted
-before we read them ==> we shrink the readahead window.
-
-This simpler scheme should also be able to correctly set
-the readahead window for slower data streams to smaller
-than the readahead window size for faster reading data
-streams (which _do_ get to use more of their data before
-it is evicted again).
+But yes, increasing the readahead window also increases
+the chance of readahead window thrashing. Luckily we can
+detect fairly easily if this is happening and use that
+to automatically shrink the readahead window...
 
 regards,
 

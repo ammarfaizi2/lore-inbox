@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVBXVtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbVBXVtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbVBXVtg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:49:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVBXVtg
+	id S262503AbVBXVtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVBXVtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:49:36 -0500
-Received: from mail.tmr.com ([216.238.38.203]:24072 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262507AbVBXVsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:48:53 -0500
-Date: Thu, 24 Feb 2005 16:37:26 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Folkert van Heusden <folkert@vanheusden.com>
-cc: Rog?rio Brito <rbrito@ime.usp.br>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11rc4: irq 5, nobody cared
-In-Reply-To: <20050224164407.GC5138@vanheusden.com>
-Message-ID: <Pine.LNX.3.96.1050224163358.16192A-100000@gatekeeper.tmr.com>
+	Thu, 24 Feb 2005 16:49:08 -0500
+Received: from mail.stdbev.com ([63.161.72.3]:997 "EHLO
+	mail.standardbeverage.com") by vger.kernel.org with ESMTP
+	id S262503AbVBXVsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:48:46 -0500
+Message-ID: <0c34ba38852752faa146731da6825252@stdbev.com>
+Date: Thu, 24 Feb 2005 15:48:49 -0600
+From: "Jason Munro" <jason@stdbev.com>
+Subject: Re: USB 2.0 Mass storage device
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: <matthias.christian@tiscali.de>, <linux-kernel@vger.kernel.org>,
+       <greg@kroah.com>
+Reply-to: <jason@stdbev.com>
+In-Reply-To: <20050224213853.GA8646@mail.muni.cz>
+References: <20050224175918.GA7627@mail.muni.cz>
+            <20050224181347.GA10847@kroah.com>
+            <20050224182300.GA7778@mail.muni.cz>
+            <20050224184928.GA11490@kroah.com>
+            <20050224190548.GA7978@mail.muni.cz>
+            <20050224191243.GD11806@kroah.com>
+            <20050224191809.GB7978@mail.muni.cz>
+            <20050224192207.GB12018@kroah.com>
+            <421E34B1.9050803@tiscali.de>
+            <20050224211512.GC24969@kroah.com>
+            <20050224213853.GA8646@mail.muni.cz>
+X-Mailer: Hastymail 1.3-CVS
+x-priority: 3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Feb 2005, Folkert van Heusden wrote:
+On 3:38:53 pm 02/24/05 Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
+> This is another device (Card reader) supporting USB 2.0.
+>
+> In this case I used only uhci_hcd driver and it reports speed 12.
+>
+> T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=12  MxCh= 0
+> D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+> P:  Vendor=05dc ProdID=b018 Rev= 1.28
+> S:  Manufacturer=Lexar Media
+> S:  Product=Multi-Card Reader
+> S:  SerialNumber=0000246504
+> C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=500mA
+> I:  If#= 0 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50
+> Driver=usb-storage E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+> E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+>
+> In this case I used both ehci_hcd and uhci_hcd drivers (ehci detected
+> device) and it reports speed 480.
+>
+> T:  Bus=01 Lev=01 Prnt=01 Port=04 Cnt=01 Dev#=  2 Spd=480 MxCh= 0
+> D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+> P:  Vendor=05dc ProdID=b018 Rev= 1.28
+> S:  Manufacturer=Lexar Media
+> S:  Product=Multi-Card Reader
+> S:  SerialNumber=0000246504
+> C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=500mA
+> I:  If#= 0 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50
+> Driver=usb-storage E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+> E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+>
+> So for me it looks like it reports speed according to USB driver or
+> negotiated speed.
 
-> > >>My linux laptop says:
-> > >>irq 5: nobody cared!
-> > >(...)
-> > >>Does anyone care? :-)
-> > >Well, I'm getting similar stack traces with my system and those are sure
-> > >scary, but it seems that my e-mails to the list are simply ignored,
-> > >unfortunately.
-> > I posted a similar thing, but the problem is not that you get the 
-> > message. It means your hardware generated an unexpected interrupt. The 
-> > kernel is reporting that fact as it should.
-> > The problem I had (not resolved) is that after the message
-> >   DISABLING IRQ NN
-> > I continued to get interrupts! So the logic to disable the IRQ is not 
-> > working correctly.
-> 
-> In my case, the interrupt should NOT be disabled as my WIFI-interface is
-> behind it (via ndiswrappers).
+Same here with a new Seagate external USB 2.0 drive. If plugged into my
+laptop which does not have USB 2.0 it shows 12 in /dev/bus/usb/devices,
+however on a machine with USB 2.0 support it changes to 480.
 
-Well, that's debatable. The warnings mean that either the WiFi driver
-isn't catching them as it should, or that something else is generating the
-same (shared) IRQ.
-
-But what bothers me is that the kernel is trying to disable the IRQ and
-not doing it. I think that's an issue, since on my hardware that meant the
-system did nothing but write wrror messages to the log.
-
-> 
-> > as you note, because the hardware is generating the condition, no one 
-> > seems to care, even though there clearly is a problem in the disable 
-> > logic. I found a way to fix my hardware thanks to some pointers I got, 
-> > so I'm running, but I haven't heard that the base problem is fixed.
-> 
-> Aight.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+\__  Jason Munro
+ \__ jason@stdbev.com
+  \__ http://hastymail.sourceforge.net/
 

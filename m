@@ -1,93 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263307AbTECM7o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 08:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbTECM7o
+	id S263271AbTECNHc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 09:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTECNHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 08:59:44 -0400
-Received: from smtp.terra.es ([213.4.129.129]:31943 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id S263307AbTECM7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 08:59:41 -0400
-Date: Sat, 3 May 2003 15:20:18 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+	Sat, 3 May 2003 09:07:32 -0400
+Received: from science.horizon.com ([192.35.100.1]:22853 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S263271AbTECNHb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 09:07:31 -0400
+Date: 3 May 2003 13:19:52 -0000
+Message-ID: <20030503131952.5560.qmail@science.horizon.com>
+From: linux@horizon.com
 To: linux-kernel@vger.kernel.org
-Subject: 2.5: ext3 warning messages
-Message-Id: <20030503152018.0d3541bd.diegocg@teleline.es>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After running the last nigh 2.5.67, i switched to 2.5.68-mm2 this morning;
-I got the following messages:
+> Ingo Molnar wrote:
+> On Fri, 2 May 2003, Carl-Daniel Hailfinger wrote:
+>> If my math is correct,
+>> 0x01000000 is 16 MB boundary
+>> 0x01003fff is outside the ASCII-armor.
+> 
+> the ASCII-armor, more precisely, is between addresses 0x00000000 and
+> 0x0100ffff. Ie. 16 MB + 64K. [in the remaining 64K the \0 character is in
+> the second byte of the address.] So the 0x01003fff address is still inside 
+> the ASCII-armor.
 
-May  3 13:11:19 estel kernel: Freeing unused kernel memory: 168k freed
-May  3 13:11:19 estel kernel: Adding 530104k swap on /dev/hda6.  Priority:-1 extents:1
-May  3 13:11:19 estel kernel: EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,5), internal journal
-May  3 13:11:19 estel kernel: EXT3-fs warning (device ide0(3,5)): ext3_unlink: Deleting nonexistent file (228996), 0
-May  3 13:11:21 estel kernel: lp0: using parport0 (polling).
-May  3 13:11:21 estel kernel: lp0: console ready
-May  3 13:11:23 estel kernel: EXT3-fs warning (device ide0(3,5)): ext3_unlink: Deleting nonexistent file (229076), 0
-May  3 13:11:33 estel kernel: Kernel logging (proc) stopped.
-May  3 13:11:33 estel kernel: Kernel log daemon terminating.
+To be precise, the first addressible address is 0x01010101 (16M+64K+256+1).
+Rounding this to a page boundary produces the figure above.
 
-I rebooted and run fsck: 
-(copied at hand, so text format shouldn't be correct)
+Just as a reminder, the standard stack-smashing attack for non-executable
+stacks works by overwriting the current call frame's return address with
 
-fsck 1.33 (21 Apr-2003)
-Pass 1: Checking inodes, blocks and sizes
-Deleted inode 228996 has zero dtime Fix<y>? (i always said yes)
-Inodes that were part of a corrupted orphan linked list found
-Inode 229076 was part of the orphaned inode list
-Pass 2 (no messages)
-Pass 3: Checking directory connectivity
-Unconnected directory inode 133 4075 (/tmp/???)
-Connect to /lost+found <y>?
-Pass 4: checking reference counts
-Inode 97537 ref count is 2, should be 3. Fix<y>?
-Inode 1334075 ref count is 3, should be 2. Fix<y>?
-Pass 5: Checking group summary information
-Free blocks count wrong for group #82 (26444, counted=26443)
-Fix<y>?
-Free blocks count wrong (895230, counted=895229)
-Fix<y>?
-Free inodes count wrong for group #82 (13151, counted=13149)
-Fix<y>?
-Directories count wrong for group #82 (56, counted=57)
-Fix<y>?
-Free inodes count wrong (1590791, counted=1590789)
-Fix<y>?
+[entry address of interesting function, like system()]
+[dummy return address]
+[char *argument]
+[string pointed to by above argument]
 
-File system was modified, reboot etc.
-376187 inodes used (19%)
-15360 non-contiguous inodes (4,1%)
-# of inodes with ind/dind/tind blocks 14308/457/0
-3038672 blocks used (77%)
-0 bad blocks
-0 large files
-334986 regular diles
- 26589 directories
-  2002 character devices files
-  4463 block device files
-     5 fifos
-  3157 links
-  8113 symbolic links (8113 fast symbolic links)
-    20 sockets
-------
-379335 files
+When the current function returns, the CPU will return to the entry
+address of system() with the desired arguments on the stack.
+(This is trickier on architectures which put arguments in registers,
+so you have to find a "pop argument registers; return" sequence in the
+standard library and return to that first.)
+
+The ASCII string is then passed to some "interesting" function which
+has interpreter powers and "executes" it without caring about the
+processor's idea of execute permission.
+
+If this is done by passing an unexpectedly long input to strcpy()
+or gets(), then none of the arguments can have an embedded zero byte,
+except the final string.
+
+The stack address is needed to arrange for the char *argument to point
+to the string.  If the string is an executable path, some uncertainty
+can be resolved by using a path like:
+
+/../../../../../../../../../../../../../../../../../bin/sh
+
+Or, if you know the stack is 2-byte aligned (people aren't usually
+willing to put up with the performance hit for odd stack pointers even
+on architectures like x86 which can handle them), you can use
+
+/./././././././././././././././././././././././././bin/sh
+
+A pointer a little past the start of the string will still
+end up referencing /bin/sh.
 
 
-the filesystem is mounted without special options, no htree
 
-in lost+found i've a #1334075 directory wich contains
-srwxrwxrwx    1 diego    diego           0 2003-05-02 18:08 socket
+An interesting question arises: is the number of useful interpreter
+functions (system, popen, exec*) sufficiently low that they could be
+removed from libc.so entirely and only staticly linked, so processes
+that didn't use them wouldn't even have them in their address space,
+and ones that did would have them at less predictible addresses?
 
->From the logs, it doesn't seem i switched off the system properly :-/
-
-The filesystem now runs well without any warning.
-
-
-Diego Calleja
+Right now, I'm thinking only of functions that end up calling execve();
+are there any other sufficiently powerful interpreters hiding in common
+system libraries?  regexec()?

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVADPRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVADPT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVADPRx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 10:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVADPRx
+	id S261673AbVADPT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 10:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVADPT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 10:17:53 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:27493 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261671AbVADPRv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 10:17:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=jyPiAHLeTpgjDDOvl55Jn8xFr2aqJ6yC/561fZzZvcCnvhuZivKPy/WeMmMyW7iJWXMQu4nD+JF/UvYktM+fjvnus3CE0M2T7cNun8xhTaQrfYYj23u5Z/xyXZi17A3rvWpnALayityblVBxVI5TxKYd1cQEfRG05gHSmjy707M=
-Message-ID: <d120d500050104071740f49126@mail.gmail.com>
-Date: Tue, 4 Jan 2005 10:17:50 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [bk patches] Long delayed input update
-Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, vojtech@ucw.cz
-In-Reply-To: <20050104145011.GB3097@stusta.de>
+	Tue, 4 Jan 2005 10:19:27 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46092 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261673AbVADPTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 10:19:17 -0500
+Date: Tue, 4 Jan 2005 15:19:12 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] AC97 plugin suspend/resume
+Message-ID: <20050104151911.B22890@flint.arm.linux.org.uk>
+Mail-Followup-To: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1104850243.9143.333.camel@cearnarfon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041227142821.GA5309@ucw.cz> <20050103131848.GH26949@ucw.cz>
-	 <Pine.LNX.4.58.0501032148210.2294@ppc970.osdl.org>
-	 <200501040114.26499.dtor_core@ameritech.net>
-	 <20050104145011.GB3097@stusta.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1104850243.9143.333.camel@cearnarfon>; from Liam.Girdwood@wolfsonmicro.com on Tue, Jan 04, 2005 at 02:50:43PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005 15:50:11 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> On Tue, Jan 04, 2005 at 01:14:26AM -0500, Dmitry Torokhov wrote:
-> > When I do "make oldconfig" it silently sets SERIO_LIBPS2 to Y if I have
-> > either atkbd or psmouse built-in and if both of them are modules it gives
-> > option [M/y]. Do you have atkbd or psmouse selected?
-> >...
+On Tue, Jan 04, 2005 at 02:50:43PM +0000, Liam Girdwood wrote:
+> This patch adds suspend and resume support to OSS AC97 plugins.
 > 
-> As far as I can see, you are correct, and unless you are on !X86 or have
-> EMBEDDED enabled SERIO_LIBPS2 is always forced to yes.
+> Changes :-
 > 
-> But although it doesn't seem to be a problem, I'm wondering why
-> SERIO_LIBPS2 is a user-visible option?
+>   o added suspend/resume callbacks to struct ac97_driver
+>   o added suspend/resume handlers to ac97_codec.c
 > 
+> Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
 
-LIBPS2 is a mid-level library for accessing a device behing PS/2 port.
-Like with CRC library there potentially could be some out-of-tree
-moules using it so user has an option of building the library in the
-kernel, or as a module, or omitting it.
+Liam,
 
-For the vast majority of users it is selected automatically without any
-questions.
+Please consider giving credit where credit is due.  Thanks.
 
 -- 
-Dmitry
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

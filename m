@@ -1,40 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271174AbRHOM2y>; Wed, 15 Aug 2001 08:28:54 -0400
+	id <S271167AbRHOMfo>; Wed, 15 Aug 2001 08:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271167AbRHOM2p>; Wed, 15 Aug 2001 08:28:45 -0400
-Received: from wb2-a.mail.utexas.edu ([128.83.126.136]:2576 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S271174AbRHOM2g>;
-	Wed, 15 Aug 2001 08:28:36 -0400
-Message-ID: <3B7A6B01.72FBD2F8@mail.utexas.edu>
-Date: Wed, 15 Aug 2001 07:28:49 -0500
-From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-Organization: (I do not speak for) The University of Texas at Austin (nor they for 
- me).
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.5-22smp i686)
-X-Accept-Language: en,fr,de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Via chipset
-In-Reply-To: <E15WzAC-00034X-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+	id <S271176AbRHOMfe>; Wed, 15 Aug 2001 08:35:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33920 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271167AbRHOMfO>;
+	Wed, 15 Aug 2001 08:35:14 -0400
+Date: Wed, 15 Aug 2001 05:35:24 -0700 (PDT)
+Message-Id: <20010815.053524.48804759.davem@redhat.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [patch] zero-bounce highmem I/O
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010815140740.A4352@suse.de>
+In-Reply-To: <20010815131335.H545@suse.de>
+	<20010815.044757.112624116.davem@redhat.com>
+	<20010815140740.A4352@suse.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+   From: Jens Axboe <axboe@suse.de>
+   Date: Wed, 15 Aug 2001 14:07:40 +0200
 
-> We know it happens on some boards that apparently cant keep up. We dont know
-> why, there is no time estimate for a cure. That unfortunately is about it
+   Ok so you just want to turn scatterlist into what I call sg_list in 2.5
+   time, fine with me too. Depends on whether we want to keep the
+   pci_map_sg and struct scatterlist interface intact, or just break it and
+   tell driver authors they must fix their stuff regardless of whether they
+   want to support highmem. As I write this sentence, it's clear to me
+   which way is the superior :-)
+   
+pci_map_sg is pci_map_sg, if the internal representation of
+scatterlist is changed such that address/alt_address no longer exist,
+it will work on pages only.  Right?  The compatibility mode in
+2.4.x is the "if (address != NULL) virt_to_bus(address);" stuff.
 
-FWIW (qualitative data point), my EPoX system with the VIA chipset seems to run a
-few *hours* without an oops when I boot a PIII kernel and run it with X, but a few
-*days* on the same kernel when I don't start X.
+Understand that the pci64_{map,unmap}_sg is created for a seperate
+purpose, independant of whether scatterlist has the backwards
+compatability stuff or not.  (There have been threads here about this,
+I can describe it quickly for you in quiet if you want to know).
 
-Sometimes it barfs early even without X, but there seems to be a significant
-difference in the expected uptime between using X and not using X.
+Two more things to consider:
 
-Bobby Bryant
-Austin, Texas
+1) There is nobody who cannot be search&replace converted from
+   	sg->address = ptr
+   into
+	sg->page = virt_to_page(ptr)
+	sg->offset = ((unsigned long)ptr & ~PAGE_MASK);
 
+   The only truly problematic area is the alt_address thing.
+   It is would be a nice thing to rip this eyesore out of the scsi
+   layer anyways.
 
+2) I want to put scatterlist in to replace skb_frag_struct in skbuff.h
+   and then have a zerocopy network driver do something like:
+
+   	header_dma = pci_map_single(pdev, skb->data, skb->len, PCI_DMA_TODEVICE);
+	data_nents = pci_map_sg(pdev, skb_shinfo(skb)->frag_list,
+				skb_shinfo(skb)->nr_frags,
+				PCI_DMA_TODEVICE);
+
+See? :-)
+
+   Yep. Want me to add in the x86 parts of your patch?
+
+Please let me finish up my prototype with sparc64 building and
+working, then I'll send you what I have ok?
+
+Later,
+David S. Miller
+davem@redhat.com

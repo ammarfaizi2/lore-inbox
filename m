@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287881AbSAUSxC>; Mon, 21 Jan 2002 13:53:02 -0500
+	id <S287816AbSAUSvw>; Mon, 21 Jan 2002 13:51:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287866AbSAUSwy>; Mon, 21 Jan 2002 13:52:54 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:31437 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S287881AbSAUSws>; Mon, 21 Jan 2002 13:52:48 -0500
-Message-ID: <3C4C6500.990E0173@nortelnetworks.com>
-Date: Mon, 21 Jan 2002 13:59:12 -0500
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S287866AbSAUSvd>; Mon, 21 Jan 2002 13:51:33 -0500
+Received: from PHNX1-UBR2-4-hfc-0251-d1dae065.rdc1.az.coxatwork.com ([209.218.224.101]:18655
+	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S287816AbSAUSvX>; Mon, 21 Jan 2002 13:51:23 -0500
+Message-ID: <040501c1a2ad$534f9190$6caaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: "Borsenkow Andrej" <Andrej.Borsenkow@mow.siemens.ru>,
+        "linux-kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1011521234.2526.7.camel@localhost.localdomain>
+Subject: Re: Query removable drives (CD-ROMs, flopies etc) for media presence
+Date: Mon, 21 Jan 2002 11:56:25 -0700
+Organization: LSG, Inc.
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com> <E16ShcU-0001ip-00@starship.berlin> <20020121095051.B14139@hq.fsmlabs.com> <3C4C50C9.8C7D5B6F@nortelnetworks.com> <20020121105237.A15414@hq.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yodaiken@fsmlabs.com wrote:
-> 
-> On Mon, Jan 21, 2002 at 12:32:57PM -0500, Chris Friesen wrote:
-> > yodaiken@fsmlabs.com wrote:
-> >
-> > > So your claim is that:
-> > >         Preemption improves latency when there are both kernel cpu bound
-> > >         tasks and tasks that are I/O bound with very low cache hit
-> > >         rates?
-> > >
-> > > Is that it?
-> > >
-> > > Can you give me an example of a CPU bound task that runs
-> > > mostly in kernel? Doesn't that seem like a kernel bug?
-> >
-> > cat /dev/urandom > /dev/null
-> 
-> Don't see any of Daniel's postulated long latencies there.  (Sorry, but
-> I'm having a hard time figuring out what is meant as a serious comment
-> here).
+I have working media change (and presense) detection for the ide-floppy
+driver, that handles nearly every situation. It will be even better (and
+handle all situations) when Andre's new IDE driver gets merged into 2.4.x
+and I can use taskfile I/O to implement some more drive features.
 
-No, that one wasn't serious.  And while it is CPU bound and mostly in the
-kernel, you're right that there are no long latencies to cause issues...
+The code is ready to be reviewed, I've asked Paul Bristow to do so but so
+far haven't gotten any response.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+----- Original Message -----
+From: "Borsenkow Andrej" <Andrej.Borsenkow@mow.siemens.ru>
+To: "linux-kernel list" <linux-kernel@vger.kernel.org>
+Sent: Sunday, January 20, 2002 3:07 AM
+Subject: Query removable drives (CD-ROMs, flopies etc) for media presence
+
+
+> Is there reliable way to query drives for media presence? I have tried
+> query_disk_change but it returns 1 if called without media inserted (it
+> correctly works if media is present when it is called). I need it for
+> CD-ROMs (IDE or SCSI) and possibly for other drives with removable media
+> like floppy, Zip, Jaz.
+>
+> So far I tried with two IDE CD-ROMs and floppy and all show the same -
+> query_disk_change always 1 when no media is present.
+>
+> The reason is I'd like to avoid media access when it is known no media
+> is present. The kernel is 2.4.17.
+>
+> TIA
+>
+> -andrej
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
+

@@ -1,47 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280126AbRKIVFo>; Fri, 9 Nov 2001 16:05:44 -0500
+	id <S280120AbRKIVOf>; Fri, 9 Nov 2001 16:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280120AbRKIVFe>; Fri, 9 Nov 2001 16:05:34 -0500
-Received: from a245d15hel.dial.kolumbus.fi ([212.54.8.245]:64627 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S280126AbRKIVFR>; Fri, 9 Nov 2001 16:05:17 -0500
-Message-ID: <3BEC44ED.B33682B5@kolumbus.fi>
-Date: Fri, 09 Nov 2001 23:04:45 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Cyrus <cyjamten@ihug.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: AMD761Agpgart+Radeon64DDR+kernel+2.4.14...no go...
-In-Reply-To: <E161ybE-00016l-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+	id <S280133AbRKIVO1>; Fri, 9 Nov 2001 16:14:27 -0500
+Received: from bio3d.Colorado.EDU ([128.138.212.7]:21608 "EHLO
+	bio3d.Colorado.EDU") by vger.kernel.org with ESMTP
+	id <S280120AbRKIVOR>; Fri, 9 Nov 2001 16:14:17 -0500
+Subject: X-Windows locks up under concurrent OpenGL (Mesa) and I/O on Athlon
+From: Rick Gaudette <Richard.Gaudette@Colorado.EDU>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 09 Nov 2001 14:11:18 -0700
+Message-Id: <1005340278.6168.21.camel@wanderer>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > I have similar configuration. Solution is to use latest -ac kernels and 
-> > CVS version on XFree86...
-> >
-> > A7M266, RADEON DDR VE
-> 
-> Everything needed should already be in Linus tree and current XFree86
+Hi,
 
-XFree86 4.1.0 doesn't work. Neither did rawhide 4.1.0 ~two months ago.
-Result was usually blank screen without signal and deadlock. Some versions
-did work when agpgart and DRI was disabled. Only CVS version worked with
-agpgart and DRI. Latest radeon DRI kernel module has been working for few
-months.
+I am submitting this to the kernel mailing list on the hunch that
+intense system usage appears to be causing a deadlock that goes away
+when AGP usage is disabled.
 
-Haven't been testing RedHat's versions of XFree86 since switching to CVS
-version.
+Problem:
+X-Windows locks up under concurrent OpenGL (Mesa) and I/O on Athlon
+based motherboards with VIA and AMD chipsets and AGP enabled.  This
+problem does NOT occur on Pentium III and Pentium IV based systems with
+Intel chipsets.  Nor, if AGP is disabled.
+
+Using either OpenGL sample applications (morph3d, teapot), a solar
+system simulation app called ssystem, or our own application IMOD along
+with concurrent I/O causes all of our Athlon based systems to hang
+within a couple of hours.  We can usually ssh into the hung machine from
+another machine and kill the application to bring back X.  Top shows
+that the app is either using all of CPU cycles or splitting it evenly
+with X.
+
+We have tried many hardware combinations that include both VIA and AMD
+chipsets, NVIdia and Matrox video cards, below is a list of
+motherboards, video cards and RedHat version for which we have observed
+and can reproduce this behavior:
+
+CPUs:
+  Athlon 1.0 -1.4 GHz
+  Athlon MP 1800+
+
+Motherboards:
+  IWILL KK-266
+  ABIT KT-7/KT-7a/KT-7A-Raid
+  ABIT KG-7-RAID
+  Tyan Tiger MP (S2460)
+
+Video cards:
+  NVidia Geforce2 MX, Ultra
+  NVidia Geforce3 and Geforce3 Titanium 500
+  Nvidia drivers: 1.0-1512 and 1.0-1541
+  Matrox G400 with 1.3 drivers and XFree86 4.0.3 drivers
+
+OS Versions:
+  Red Hat 7.1
+  Red Hat 7.1 with kernel upgrades from redhat.com
+  Red Hat Roswell
+  Red Hat Roswell with ALL upgrades from Red Hat Network
+  Red Hat 7.2
+  SUSE 7.1
+
+Xfree86 versions 4.0.3 and 4.1.0
+
+Typical system config:
+  40 GB IDE (ATA-100) hard disk
+  Generic CD-ROM
+  Generic network card (100BT)
+  1-1.5 GB RAM
+  400 watt or greater power supply
 
 
- - Jussi Laako
+Reproduction Procedure:
+Run an OpenGL app such ssystem
+http://linux.tucows.com/home/preview/9981.html or our IMOD
+ftp://bio3d.colorado.edu/pub/graphicstest/obj7.mod.gz .  
 
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+To run ssystem:
+  tar -xzvf solartest.tar.gz
+  cd solartest/ssystem
+  ./ssystem
+  resize thewindow greater than 800x800
+
+To run IMOD:
+  gunzip obj7.mod.gz
+  imodv obj7.mod
+  You should get a 512x512 window with a model displayed in it.
+  Type 5 then 6 on the numeric keypad to start the model spinning.
+
+
+A simple way to do persistent concurrent I/O:
+  Create a file called bigfile larger than the RAM size of the computer
+  under tcsh 
+    while (1)
+    \cp bigfile bigfile1
+    end
+
+
+X will appear to hang within 3 hours on all of our machines. Sometimes
+the display will hang until the next mouse or keyboard event.  This  is
+a bad sign and is usually a precursor to a full hang-up.
+
+Any help with this problem would be greatly appreciated.
+
+To contact us:
+
+Rick Gaudette
+rickg@bio3d.colorado.edu
+
+

@@ -1,50 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUDZHFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbUDZIOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbUDZHFo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 03:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUDZHFo
+	id S261296AbUDZIOi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 04:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUDZIOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 03:05:44 -0400
-Received: from zaphod.lin-gen.com ([195.64.80.164]:62646 "EHLO zaphod.dth.net")
-	by vger.kernel.org with ESMTP id S262956AbUDZHFn (ORCPT
+	Mon, 26 Apr 2004 04:14:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19341 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261296AbUDZIOh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 03:05:43 -0400
-Date: Mon, 26 Apr 2004 09:05:42 +0200
-From: Danny ter Haar <dth@dth.net>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No luck getting 2.6.x kernel to work with ACPI on compaq laptop
-Message-ID: <20040426070542.GA20973@dth.net>
-References: <c65252$9cs$1@news.cistron.nl> <20040426062512.GA11567@bitwizard.nl>
+	Mon, 26 Apr 2004 04:14:37 -0400
+Date: Mon, 26 Apr 2004 09:14:49 +0100
+From: thornber@redhat.com
+To: Dave Olien <dmo@osdl.org>
+Cc: thornber@redhat.com, linux-lvm@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] trivial patch to dm-exception-store.c
+Message-ID: <20040426081449.GK8379@nimzo>
+References: <20040423221637.GA29746@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040426062512.GA11567@bitwizard.nl>
-X-Message-Flag: WARNING!! You are using MS (f)outlook: Please consider upgrading to software with less bugs.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040423221637.GA29746@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Rogier Wolff (R.E.Wolff@BitWizard.nl):
-> > After this the machine is dead in the water.
-> > No magic sysrq or anything.
-> 
-> It sounds as if some driver is using IRQ10, and that another device
-> is also on that IRQ. This will create an interrupt storm the moment
-> you switch the triggering from edge to level....
-> So: Which devices use IRQ10 when the computer works?
+On Fri, Apr 23, 2004 at 03:16:37PM -0700, Dave Olien wrote:
+> Here's another trivial patch to dm-exception-store.c  It just makes
+> some function declarations static.
 
-Len Brown from Intel sent me :
+Also merged thanks.
 
-"try booting with "nolapic" (or disable LOCAL_APIC in the kernel build)"
-
-That indeed solved my problem, i can now use poweroff etc.
-I will add a bugreport to http://bugzilla.kernel.org/show_bug.cgi?id=1682
-l8er this week ;-)
-
-Danny
-
--- 
-"If Microsoft had been the innovative company that it calls itself, it 
-would have taken the opportunity to take a radical leap beyond the Mac, 
-instead of producing a feeble, me-too implementation." - Douglas Adams -
+- Joe

@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261510AbSJ2Alz>; Mon, 28 Oct 2002 19:41:55 -0500
+	id <S261208AbSJ2ArN>; Mon, 28 Oct 2002 19:47:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261521AbSJ2Alz>; Mon, 28 Oct 2002 19:41:55 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:43175 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261510AbSJ2Alw>;
-	Mon, 28 Oct 2002 19:41:52 -0500
-Date: Tue, 29 Oct 2002 00:48:05 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: bert hubert <ahu@ds9a.nl>, Davide Libenzi <davidel@xmailserver.org>,
-       Hanna Linder <hannal@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021029004805.GA18727@bjl1.asuk.net>
-References: <20021028220809.GB27798@outpost.ds9a.nl> <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com> <20021028234434.GB18415@bjl1.asuk.net> <20021029000339.GA31212@outpost.ds9a.nl>
+	id <S261398AbSJ2ArN>; Mon, 28 Oct 2002 19:47:13 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:41128 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261208AbSJ2ArL>;
+	Mon, 28 Oct 2002 19:47:11 -0500
+Date: Tue, 29 Oct 2002 01:53:32 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021029005332.GA32426@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	lse-tech@lists.sourceforge.net
+References: <20021029004034.GA32118@outpost.ds9a.nl> <Pine.LNX.4.44.0210281652270.966-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021029000339.GA31212@outpost.ds9a.nl>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0210281652270.966-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> > :( I was hoping sys_epoll would be scalable without increasing the
-> > number of system calls per event.
+On Mon, Oct 28, 2002 at 04:57:12PM -0800, Davide Libenzi wrote:
+
+> > If that code dares to read immediatly from the fd without having an explicit
+> > POLLIN event, which also means that epoll can only be used in this fashion
+> > with nonblocking sockets.
 > 
-> I see only one call per event? sys_epoll_wait. Perhaps sys_epoll_ctl to
-> register a new interest.
+> The epoll interface has to be used with non-blocking fds. The EAGAIN
 
-As David pointed out, you need a second call before the sys_epoll_wait
-if you're waiting for fds that epoll doesn't support (such as a tty).
+Ok, so that is two things that need to be in the manpage and probably in
+bold:
 
--- Jamie
+	1) epoll only works on pipes and sockets
+              (not on tty, not on files)
+
+        2) epoll must be used on non-blocking sockets only
+              (and describe the race that happens otherwise)
+
+If you send me the source of your manpages I'll work it in if you want.
+
+I still vote for checking at insert time however unless that is too
+expensive. Yes, we want people to read the manpages and heed them, but we
+also not want to create interfaces that are needlessly errorprone.
+
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

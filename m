@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287386AbSALUBD>; Sat, 12 Jan 2002 15:01:03 -0500
+	id <S287396AbSALUGd>; Sat, 12 Jan 2002 15:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287388AbSALUAy>; Sat, 12 Jan 2002 15:00:54 -0500
-Received: from zero.tech9.net ([209.61.188.187]:47120 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S287386AbSALUAp>;
-	Sat, 12 Jan 2002 15:00:45 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16PURC-000321-00@the-village.bc.nu>
-In-Reply-To: <E16PURC-000321-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 12 Jan 2002 15:03:29 -0500
-Message-Id: <1010865810.2152.41.camel@phantasy>
+	id <S287388AbSALUGX>; Sat, 12 Jan 2002 15:06:23 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:35346 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287408AbSALUGL>;
+	Sat, 12 Jan 2002 15:06:11 -0500
+Date: Sat, 12 Jan 2002 21:05:38 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIO Usage Error or Conflicting Designs
+Message-ID: <20020112210538.F19814@suse.de>
+In-Reply-To: <200201121828.g0CISaM342258@saturn.cs.uml.edu> <Pine.LNX.4.10.10201121040040.13034-200000@master.linux-ide.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10201121040040.13034-200000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-01-12 at 15:07, Alan Cox wrote:
-
-> > We don't preempt while IRQ are disabled.
+On Sat, Jan 12 2002, Andre Hedrick wrote:
 > 
-> I must have missed that in the code. I can see you check __cli() status but
-> I didn't see anywhere you check disable_irq(). Even if you did it doesnt
-> help when I mask the irq on the chip rather than using disable_irq() calls.
+> Jens,
+> 
+> Below is a single sector read using ACB.
+> If I do not use the code inside "#ifdef USEBIO" and run UP/SMP but no
+> highmem, it runs and works like a charm.  It is also 100% unchanged code
+> from what is in 2.4 patches.  The attached oops is generate under
+> SMP without highmem and running the USEBIO code.
+> 
+> CONFIG_NOHIGHMEM=y
 
-Well, if IRQs are disabled we won't have the timer... would not the
-system panic anyhow if schedule() was called while in an interrupt
-handler?
+Is this with the highmem debug stuff enabled? That's the only way I can
+see this BUG triggering, otherwise q->bounce_pfn _cannot_ be smaller
+than the max_pfn.
 
-	Robert Love
+-- 
+Jens Axboe
 

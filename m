@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271842AbRH0SsQ>; Mon, 27 Aug 2001 14:48:16 -0400
+	id <S271840AbRH0Sxg>; Mon, 27 Aug 2001 14:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271841AbRH0SsG>; Mon, 27 Aug 2001 14:48:06 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:17924 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271840AbRH0SsA>; Mon, 27 Aug 2001 14:48:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: David Lang <david.lang@digitalinsight.com>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Date: Mon, 27 Aug 2001 20:54:48 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108270953090.8450-100000@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.33.0108270953090.8450-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010827184809Z16070-32383+1677@humbolt.nl.linux.org>
+	id <S271841AbRH0Sx1>; Mon, 27 Aug 2001 14:53:27 -0400
+Received: from cr934547-a.flfrd1.on.wave.home.com ([24.112.247.163]:9404 "EHLO
+	mokona.furryterror.org") by vger.kernel.org with ESMTP
+	id <S271840AbRH0SxM>; Mon, 27 Aug 2001 14:53:12 -0400
+From: uixjjji1@umail.furryterror.org (Zygo Blaxell)
+Subject: Linux 2.4.9 (and 2.4.8-ac{11,12}) IDE brokenness (and workaround for non-PDC20268R chipsets)
+Date: 27 Aug 2001 14:50:31 -0400
+Organization: Furry Cats and Hungry Terrors
+Message-ID: <9me4pn$iko$1@shippou.furryterror.org>
+NNTP-Posting-Host: 10.250.7.77
+X-Header-Mangling: Original "From:" was <zblaxell@shippou.furryterror.org>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 27, 2001 06:55 pm, David Lang wrote:
-> with you moving things to the inactive queue both when they are used and
-> when they spillover from the readahead queue I think you end up putting to
-> much preasure on the inactive queue.
+On some machines running 2.4.9 and 2.4.8-ac1[12], I get an unending stream of these:
 
-Note: the whole point is to avoid having the readahead queue spill over, by 
-throttling readahead.  So the readahead queue should only need to be culled 
-due to a rise in page activations, enlarging the active list, and requiring 
-the system to rebalance itself.  I don't think you can really talk about 
-pressure being exerted on the inactive queue by the readahead queue.  The 
-size of the inactive queue doesn't really matter as long as it isn't too 
-short to provide a good test of short-term page activity.  (If it gets very 
-long then it will automatically shorten itself because the probability of a 
-given page on the queue being referenced and rescued goes up.)
+	Aug 27 14:46:39 kasumi kernel: hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+	Aug 27 14:46:39 kasumi kernel: hdh: drive not ready for command
+	Aug 27 14:46:45 kasumi kernel: hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+	Aug 27 14:46:45 kasumi kernel: hdf: drive not ready for command
+	Aug 27 14:46:45 kasumi kernel: hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+	Aug 27 14:46:45 kasumi kernel: hdh: drive not ready for command
 
-> given that the readahead queue will fill almost all memory when things
-> start spilling off of it you are needing to free memory, so if you just
-> put it on the inactive queue you then have to free an equivalent amount of
-> space from the inactive queue to actually make any progress on freeing
-> space.
+This only seems to happen to some drives or drive/controller combinations.
+For disks on PIIX controllers, sometimes the DMA doesn't get turned on at
+startup.  A simple 'hdparm -d1 /dev/hdc' can fix this.
 
-Sure, there is an argument for stripping buffers immediately from culled 
-readahead pages and moving them straight to the inactive_clean list instead 
-of the inactive_dirty list.  In effect, culled readahead pages would then 
-rank below aged-to-zero and used-once pages.  It's too subtle a difference 
-for me to see any clear advantage one way or the other.  Doing it your way 
-would save one queue-move in the lifetime of every culled readahead page.
+Unfortunately, this is what happens on a Promise Fasttrak 100 TX2 (PCI device
+ID 0x6268):
 
---
-Daniel
+	root@kasumi:~# hdparm -d1 /dev/hde
+
+	/dev/hde:
+	 setting using_dma to 1 (on)
+	 HDIO_SET_DMA failed: Operation not permitted
+	 using_dma    =  0 (off)
+
+	root@kasumi:~# cat /proc/ide/pdc202xx
+
+					PDC202XX Chipset.
+	------------------------------- General Status ---------------------------------
+	Burst Mode                           : enabled
+	Host Mode                            : Tri-Stated
+	Bus Clocking                         : 100 External
+	IO pad select                        : 10 mA
+	Status Polling Period                : 15
+	Interrupt Check Status Polling Delay : 15
+	--------------- Primary Channel ---------------- Secondary Channel -------------
+			enabled                          enabled
+	66 Clocking     enabled                          enabled
+		   Mode MASTER                      Mode MASTER
+			Error                            Error
+	--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+	DMA enabled:    no               no              no                no
+	DMA Mode:       PIO---           PIO---          PIO---            PIO---
+	PIO Mode:       PIO ?            PIO ?           PIO ?            PIO ?
+
+
+The drives function perfectly (as far as I can tell, anyway) when I
+use a hacked version of 2.4.6 which simply uses the PDC20268 driver
+(PCI id 0x4d68) on my PDC20268R card (PCI id 0x6268).
+
+-- 
+Zygo Blaxell (Laptop) <zblaxell@feedme.hungrycats.org>
+GPG = D13D 6651 F446 9787 600B AD1E CCF3 6F93 2823 44AD

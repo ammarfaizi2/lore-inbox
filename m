@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbRBSBkq>; Sun, 18 Feb 2001 20:40:46 -0500
+	id <S129766AbRBSBnq>; Sun, 18 Feb 2001 20:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129766AbRBSBkf>; Sun, 18 Feb 2001 20:40:35 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55822 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129460AbRBSBk3>; Sun, 18 Feb 2001 20:40:29 -0500
-Subject: Re: [PROBLEM] 2.4.1 can't mount ext2 CD-ROM
-To: axboe@suse.de (Jens Axboe)
-Date: Mon, 19 Feb 2001 01:40:16 +0000 (GMT)
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, zzed@cyberdude.com,
-        alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20010218201639.A6593@suse.de> from "Jens Axboe" at Feb 18, 2001 08:16:39 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130073AbRBSBng>; Sun, 18 Feb 2001 20:43:36 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:58888 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S129766AbRBSBnQ>; Sun, 18 Feb 2001 20:43:16 -0500
+Date: Mon, 19 Feb 2001 01:43:14 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: sendfile() breakage was Re: SO_SNDTIMEO: 2.4 kernel bugs
+In-Reply-To: <Pine.LNX.4.30.0102190025270.19003-100000@ferret.lmh.ox.ac.uk>
+Message-ID: <Pine.LNX.4.30.0102190138240.19003-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14UfJK-00026X-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So put 0 and sure anyone can submit I/O on the size that they want.
-> Now the driver has to support padding reads, or gathering data to do
-> a complete block write. This is silly. Sr should support 512b transfers
-> just fine, but only because I added the necessary _hacks_ to support
-> it. sd doesn't right now for instance.
 
-It is silly to be in the block layer, it is silly to be in each file system.
-Perhaps it belongs in the block queueing/handling code or the caches
+On Mon, 19 Feb 2001, Chris Evans wrote:
 
-But it has to go somewhere, and 2.4 right now is unusable on two of my boxes
-with M/O drives.
+> > BTW, if you have enough fast network, you probably can observe
+> > that sendfile() is even not interrupted by signals. 8) But this
+> > is possible to fix at least. BTW the same fix will repair SO_*TIMEO
+> > partially, i.e. it will timeout after n*timeo, where n is an arbitrary
+> > number not exceeding size/sndbuf.
+>
+> Hi Alexey,
+>
+> You are right - our sendfile() implementation is broken. I have fixed it
+> (patch at end of mail).
+
+Actually the whole mess stems from our broken internal ->write() and
+->read() APIs.
+
+The _single_ return value is trying to convery _two_ pieces of information
+- always a bad move. They are:
+1) Success/failure (and error code if it's a failure)
+2) Amount of bytes read or written
+
+This bogon does not allow for the following information to be returned
+(assume I asked for 8192 bytes to be written):
+"4096 bytes were written, and the operation was aborted due to EINTR"
+
+Cheers
+Chris
 

@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbUEVOlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUEVOme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbUEVOlE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 10:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUEVOlE
+	id S261425AbUEVOme (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 10:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUEVOme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 10:41:04 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:7557 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261422AbUEVOk7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 10:40:59 -0400
-Message-ID: <40AF66FA.7090305@tmr.com>
-Date: Sat, 22 May 2004 10:43:06 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Sat, 22 May 2004 10:42:34 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:14606 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id S261425AbUEVOmZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 10:42:25 -0400
+Date: Sat, 22 May 2004 16:41:54 +0200 (CEST)
+From: venom@sns.it
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: rpc@cafe4111.org,
+       =?ISO-8859-1?Q?Mart=EDn?= Chikilian <slack@efn.uncor.edu>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Linus is not the Linux father - Said MSFT Alexis de Tocqueville
+ Institution
+In-Reply-To: <1085217729.1628.0.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.60.0405221639380.16318@Expansa.sns.it>
+References: <200405171941.i4HJfmc08269@pincoya.inf.utfsm.cl> 
+ <40AA0061.8090500@efn.uncor.edu>  <200405191710.29066.rpc@cafe4111.org>
+ <1085217729.1628.0.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6-mm] Make i386 boot not so chatty
-References: <Pine.LNX.4.58.0405210032160.2864@montezuma.fsmlabs.com> <20040520234006.291c3dfa.akpm@osdl.org>
-In-Reply-To: <20040520234006.291c3dfa.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
-> 
->>This patch silences the default i386 boot by putting a lot of development
->> related printks under KERN_DEBUG loglevel, allowing the normal chatty mode
->> to be turned on by using the 'debug' kernel parameter.
-> 
-> 
-> I think I like it chatty.  Turning this stuff off by default makes kernel
-> developers' lives that little bit harder.
-> 
-> Is the `quiet' option not suitable?
 
-That may be too much of a good thing, but perhaps we can go to quiet=N 
-or bootmsglvl=N or some such to let people tune the output. I personally 
-like having the verbose output, but my systems tend to be stable enough 
-that I don't see it often other than benchmarking, etc.
+non-US companies... US companies...
+Is the country so relevant?
+Simply there are a very few non US company that have reasons to
+be against Linux. Most of them simply are non concerned by it, some of 
+them are using it...
 
-While throwing out ideas, bootmsgmask=#dddd would let people control 
-various parts of the output individually. That may be overkill, but it 
-is flexible overkill. And the default could be what we have now, with 
-the option of even more babble for debugging. Developers might find that 
-highly useful if they had a way to let users selectively enable more 
-info at boot time.
+In US there are more company for whom Linux could be something to worry 
+about... But is not something related to the country...
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Luigi
+
+
+On Sat, 22 May 2004, Felipe Alfaro Solana wrote:
+
+> On Wed, 2004-05-19 at 23:10, Rob Couto wrote:
+>
+>> i just wanna know, where are all the non-US companies that dislike linux? are
+>> they all here in america? would that be a surprise?
+>
+> Who are those non-US companies that dislike Linux? I don't know of
+> any...
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

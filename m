@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQL2BmD>; Thu, 28 Dec 2000 20:42:03 -0500
+	id <S129464AbQL2Byb>; Thu, 28 Dec 2000 20:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbQL2Blx>; Thu, 28 Dec 2000 20:41:53 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:46088 "EHLO
+	id <S129523AbQL2ByV>; Thu, 28 Dec 2000 20:54:21 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:8201 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129226AbQL2Bll>; Thu, 28 Dec 2000 20:41:41 -0500
-Date: Thu, 28 Dec 2000 17:10:45 -0800 (PST)
+	id <S129464AbQL2ByH>; Thu, 28 Dec 2000 20:54:07 -0500
+Date: Thu, 28 Dec 2000 17:23:29 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Stefan Traby <stefan@hello-penguin.com>
+cc: Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: test13-pre5
-In-Reply-To: <Pine.LNX.4.21.0012282012480.12680-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10012281701190.1231-100000@penguin.transmeta.com>
+In-Reply-To: <20001229014918.A10171@stefan.sime.com>
+Message-ID: <Pine.LNX.4.10.10012281712180.1231-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,59 +21,54 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 28 Dec 2000, Marcelo Tosatti wrote:
+On Fri, 29 Dec 2000, Stefan Traby wrote:
+> On Thu, Dec 28, 2000 at 03:37:51PM -0800, Linus Torvalds wrote:
 > 
-> We also want to move the page to the per-address-space clean list in
-> ClearPageDirty I suppose.
+> > Too bad. Maybe somebody should tell gcc maintainers about programmers that
+> > know more than the compiler again.
+> 
+> I know that {p,}gcc-2.95.2{,.1} are not officially supported.
 
-I would actually advice against this.
+Hmm, I use gcc-2.95.2 myself on some machines, and while I'm not 100%
+comfortable with it, it does count as "supported" even if it has known
+problems with "long long". pgcc isn't.
 
- - it's ok to have too many pages on the dirty list (think o fthe dirty
-   list as a "these pages _can_ be dirty")
+> Did you know that it's impossible to compile nfsv4 because of
+> register allocation problems with long long since (long long) month ?
 
- - whenever we do a ClearPageDirty() we're likely to remove the page from
-   the lists altogether, so it's not worth it doing extra work.
+lockd v4 (for NFS v3), I assume. 
 
-The exception, of course, is the actual "filemap_fdatasync()" function,
-but that one would probably look something like
+No, I wasn't aware of this particular bug. 
 
-	spin_lock(&page_cache_lock);
-	while (!list_empty(&mapping->dirty_pages)) {
-		struct page *page = list_entry(mapping->dirty_pages.next, struct page, list);
+> The following does not hurt, it's just a fix for a broken
+> compiler:
 
-		list_del(&page->list);
-		list_add(&page->list, &mapping->clean_pages);
+Ugh, that's ugly.
 
-		if (!PageDirty(page))
-			continue;
-		page_get(page);
-		spin_unlock(&page_cache_lock);
+Can you test if it is sufficient to just simplify the math a bit, instead
+of uglyfing that function more? The nlm4_encode_lock() function already
+tests for NLM4_OFFSET_MAX explicitly for both start and end, so it should
+be ok to just re-code the function to not do the extra "loff_t_to_s64()"
+stuff, and simplify it enough that the compile rwill be happy to compile
+the simpler function. Something along the lines of
 
-		lock_page(page);
-		if (PageDirty(page)) {
-			ClearPageDirty(page);
-			page->mapping->writepage(page);
-		}
-		UnlockPage(page);
-		page_cache_put(page);
-		spin_lock(&page_cache_lock);
-	}
-	spin_unlock(&page_cache_lock);
+	if (.. NLM4_OFFSET_MAX tests ..)
+		..
 
-and again note how we can move it to the clean list early and we don't
-have to keep the PageDirty bit 100% in sync with which list is it on. If
-somebody marks it dirty later on (and the dirty bit is still set), that
-somebody won't move it back to the dirty list (because it noticved that
-the dirty bit is already set), but that's ok: as long as we do the
-"ClearPageDirty(page);" call before startign the actual writeout(), we're
-fine.
+	*p++ = htonl(fl->fl_pid);
 
-So the "mapping->dirty_pages" list is maybe not so much a _dirty_ list, as
-a "scheduled for writeout" list. Marking the page clean doesn't remove it
-from that list - it can happily stay on the list and then when the
-writeout is started we'd just skip it.
+	start = fl->fl_start;
+	len = fl->fl_end - start;
+	if (fl->fl_end == OFFSET_MAX)
+		len = 0;
 
-	Ok?
+	p = xdr_encode_hyper(p, start);
+	p = xdr_encode_hyper(p, len);
+
+	return p;
+
+Where it tries to minimize the liveness of the 64-bit values, and tries to
+avoid extra complications.
 
 		Linus
 

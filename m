@@ -1,77 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbTB0JLH>; Thu, 27 Feb 2003 04:11:07 -0500
+	id <S262394AbTB0JY0>; Thu, 27 Feb 2003 04:24:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbTB0JLH>; Thu, 27 Feb 2003 04:11:07 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:10508 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S262780AbTB0JLG>; Thu, 27 Feb 2003 04:11:06 -0500
-Date: Thu, 27 Feb 2003 01:21:21 -0800
-From: jw schultz <jw@pegasys.ws>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About /etc/mtab and /proc/mounts
-Message-ID: <20030227092121.GG15254@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DB2CA.32539D41@daimi.au.dk> <buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DCB89.9086582F@daimi.au.dk> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	id <S262420AbTB0JY0>; Thu, 27 Feb 2003 04:24:26 -0500
+Received: from unthought.net ([212.97.129.24]:31872 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S262394AbTB0JYZ>;
+	Thu, 27 Feb 2003 04:24:25 -0500
+Date: Thu, 27 Feb 2003 10:34:42 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 7/8] dm: __LOW macro fix no. 2
+Message-ID: <20030227093442.GC4239@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+	Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20030226170537.GA8289@fib011235813.fsnet.co.uk> <20030226171249.GG8369@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030226171249.GG8369@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 27, 2003 at 05:42:30PM +0900, Miles Bader wrote:
-> Kasper Dupont <kasperd@daimi.au.dk> writes:
-> > > Yes.  On some systems, /var and /tmp are the _only_ read-write filesystems.
-> > 
-> > OK, but then on such a system with my approach it would be possible to
-> > make /mtab.d a symlink pointing to somewhere under /var.
+On Wed, Feb 26, 2003 at 05:12:49PM +0000, Joe Thornber wrote:
+> Another fix for the __LOW macro.
 > 
-> ... you could do the same with /etc/mtab.
+> When dm_table and dm_target structures are initialized, the "limits" fields 
+> (struct io_restrictions) are initialized to zero (e.g. in dm_table_add_target()
+> in dm-table.c). However, zero is not a useable value in these fields. The
+> request queue will never let an I/O through, regardless of how small it might
+> be, if max_sectors is set to zero (see generic_make_request in ll_rw_blk.c).
+> This change to the __LOW() macro sets these fields correctly when they are
+> first initialized.  [Kevin Corry]
 > 
-> In fact since /etc is almost guaranteed to be on the same filesystem as
-> /, it seems like "/mtab.d" offers zero advantages over just /etc/mtab --
-> the case where /etc/mtab is the most annoying is when /etc is R/O, but
-> this almost always means that / will be R/O, making /mtab.d useless too.
+> --- diff/drivers/md/dm-table.c	2003-02-26 16:10:02.000000000 +0000
+> +++ source/drivers/md/dm-table.c	2003-02-26 16:10:19.000000000 +0000
+> @@ -79,7 +79,7 @@
+>  }
+>  
+>  #define __HIGH(l, r) if (*(l) < (r)) *(l) = (r)
+> -#define __LOW(l, r) if (*(l) > (r)) *(l) = (r)
+> +#define __LOW(l, r) if (*(l) == 0 || *(l) > (r)) *(l) = (r)
 
-If you netboot /etc as its own filesystem make sense.  Why
-duplicate the rest of root just for /etc.  /etc, /var and
-/tmp are the only filesystems that have much reason to be
-unique to a system; all others are easily sharable and most
-others read-only.
+As someone else suggested, it would be good style to just use the
+existing min() and max() macros.
 
-> 
-> > But AFAIK fsck uses mtab.
-> 
-> It uses /etc/fstab.
-> 
-> > If mtab does not exist mount will attempt to create a new one with
-> > only the root listed.
-> 
-> Unless you use the `-n' flag, which an init-script should do if it
-> knows there's something wierd required to get /var mounted or something.
+Special-casing like the above is a recipe for disaster - having a
+macro named "__LOW" which actually translates to  "min() unless left
+argument is zero in which case we do a max() instead" is going to get
+someone in trouble one day.
 
-<voice of annoyance>
-/etc/mtab is a hack.  I suspect it was done so that fsck, df
-and umount wouldn't have to read /dev/kmem.  We now have
-much better ways to get data out of the kernel.
+I'd say use "min()" and if there are places in the code where you want
+min() unless that will be zero, then make that condition *explicit* at
+those places in the code.
 
-The idea of storing the list of mounted filesystems on a
-mounted filesystem is a bad idea from the get-go.  The only
-advantage it ever really had was the possibility to manually
-play mountpoint monte with mv.  Duplicating the in-kernel
-data externally begs for inconsistencies that only get worse
-with pivot root.
+If you want a magic "usually_min_but_sometimes_max()" macro, then make
+it's *name* reflect it's voodoo propeties.
 
-Let the data reside in the kernel and have a procfs or sysfs
-entity for it.  A symlink from /etc/mtab can keep the old
-tools happy.
+Just my 0.02 Euro
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

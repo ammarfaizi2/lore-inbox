@@ -1,60 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbTKKUWP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 15:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbTKKUWP
+	id S263784AbTKKUcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 15:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbTKKUcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 15:22:15 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:36834 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S263740AbTKKUWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 15:22:09 -0500
-Date: Tue, 11 Nov 2003 15:22:09 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Message-ID: <20031111202209.GB23283@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Qvw7.5Qf.9@gated-at.bofh.it> <QH4e.eV.3@gated-at.bofh.it> <3FB0EE0E.6090103@softhome.net> <20031111150256.GA13283@bitwizard.nl>
-Mime-Version: 1.0
+	Tue, 11 Nov 2003 15:32:43 -0500
+Received: from smtp2.fre.skanova.net ([195.67.227.95]:5874 "EHLO
+	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S263784AbTKKUci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 15:32:38 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Peter Berg Larsen <pebl@math.ku.dk>
+Subject: [PATCH] Fix synaptics driver for PowerPro C 3:16
+From: Peter Osterlund <petero2@telia.com>
+Date: 11 Nov 2003 21:32:18 +0100
+Message-ID: <m2llqmy7cd.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031111150256.GA13283@bitwizard.nl>
-User-Agent: Mutt/1.5.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11, 2003 at 04:02:56PM +0100, Rogier Wolff wrote:
-> Fine. For compatibilty we'll leave "sendfile" in place. But if somehow
-> someone builds a filesystem which cannot use the pagecache, then
-> "sendfile" will fail. Or if somehow we manage to get the socket hooked
-...
-> (*) Suppose I manage to stop and restart an application. The "restart"
-> program might need to "sit between" the original application and its
-> filedescriptors. So now, what used to be a socket suddenly becomes a
-> pipe. It'd be nice if things would continue to work. Everything is a
-> file remember?
+Hi!
 
-man sendfile(2)
+A user reported that the synaptics touchpad driver didn't work on his
+PowerPro C 3:16 laptop. Some debugging revealed that the patch below
+is necessary to make the driver compatible with his touchpad.
 
-NOTES
-    ...
-    Applications may wish to fall back to read/write in the case
-    where sendfile() fails with EINVAL or ENOSYS.
+For some reason bit 3 in byte 1 and 4 in the synaptics packets are set
+to 1, which fails because the driver follows the documentation which
+says that the bit is 0.
 
-So we get something in a userspace library (libc?) that does
-copyfile(whatever, whereever) and uses a few kernel primitives like
-open/close/sendfile and the appropriate fallback code to a read/write
-loop whenever the sendfile doesn't work.
+Hardware properties: (reported by synclient -h)
+     Model Id     = 009d48b1
+     Capabilities = 00904713
+     Identity     = 00084715
 
-It works now, and it will work better when sendfile becomes more
-versatile, and the sky is the limit once the underlying filesystem can
-provide it's own optimized implementation for instance when both fd's
-refer to objects within the same (remote) filesystem.
+With this patch, the touchpad works as expected. As far as I can see,
+this patch can not break anything for other touchpads, so it should be
+safe. Does anyone see a problem with this patch?
 
-Similarily, we might at some point be able to optimize sendfile between
-two sockets by pushing the connection off to a router somewhere in the
-network completely bypassing the local NIC.
+--- linux/drivers/input/mouse/synaptics.c.old	2003-11-11 20:41:15.000000000 +0100
++++ linux/drivers/input/mouse/synaptics.c	2003-11-11 20:41:29.000000000 +0100
+@@ -581,7 +581,7 @@
+ 
+ 	switch (psmouse->pktcnt) {
+ 	case 1:
+-		if (newabs ? ((data & 0xC8) != 0x80) : ((data & 0xC0) != 0xC0)) {
++		if (newabs ? ((data & 0xC0) != 0x80) : ((data & 0xC0) != 0xC0)) {
+ 			printk(KERN_WARNING "Synaptics driver lost sync at 1st byte\n");
+ 			goto bad_sync;
+ 		}
+@@ -593,7 +593,7 @@
+ 		}
+ 		break;
+ 	case 4:
+-		if (newabs ? ((data & 0xC8) != 0xC0) : ((data & 0xC0) != 0x80)) {
++		if (newabs ? ((data & 0xC0) != 0xC0) : ((data & 0xC0) != 0x80)) {
+ 			printk(KERN_WARNING "Synaptics driver lost sync at 4th byte\n");
+ 			goto bad_sync;
+ 		}
 
-Jan
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

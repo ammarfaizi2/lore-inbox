@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266527AbUHOHvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUHOHyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266527AbUHOHvk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 03:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUHOHvk
+	id S266531AbUHOHyS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 03:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266535AbUHOHyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 03:51:40 -0400
-Received: from mypants.xalien.org ([64.81.58.123]:26372 "EHLO
-	mypants.xalien.org") by vger.kernel.org with ESMTP id S266527AbUHOHvi
+	Sun, 15 Aug 2004 03:54:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32220 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266531AbUHOHyR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 03:51:38 -0400
-From: Dragan Stancevic <visitor@xalien.org>
-To: linux-kernel@vger.kernel.org, visitor@xalien.org
-Subject: Terrible Memory leak on 2.6
-Date: Sun, 15 Aug 2004 00:51:34 -0700
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Sun, 15 Aug 2004 03:54:17 -0400
+Date: Sun, 15 Aug 2004 08:54:16 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Sebastian =?iso-8859-1?Q?K=FCgler?= <sebas@vizZzion.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Compile fixes for various fb drivers
+Message-ID: <20040815075416.GC12308@parcelfarce.linux.theplanet.co.uk>
+References: <200408150149.14663.sebas@vizZzion.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408150051.34157.visitor@xalien.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200408150149.14663.sebas@vizZzion.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi-
+On Sun, Aug 15, 2004 at 01:49:13AM +0200, Sebastian Kügler wrote:
+> Hi,
+> 
+> fb_copy_cmap has changed in 2.6.8.1, but the change is not reflected in all 
+> drivers, this updates the respective framebuffer drivers.
+> 
+> The patch is against vanilla 2.6.8.1.
+> 
+> Signed-off-by: Sebastian Kügler <sebas@vizZzion.org>
 
-has anyone else by any chance seen a memory leak during ripping of CDs
-or writing CDs. On my system SuSE 9.1 "2.6.5-7.104-default" I can only,
-rip or burn one CD. The system runs out of memory and hangs about
-half way through the second cd.
+NAK.
 
-I tried just creating the image but not writing and than doesn't seem to
-cause the problem. Only when the CD burner is used I see this problem.
+First of all, that compile fix isn't - try to compile these drivers and see
+if any got fixed by that.
 
-The burner is an Emprex DVDRW 1008IM, used on an Athlon XP 2500+
-system with 1GB of ram and 1GB of swap. The system seems to lock up
-when all the ram is exhausted, the swap is about 90% free.
+While we are at it, if they would compile, you would have broken them.
+Question: what do you think the argument in question was controlling
+and why would "drop it silently" be a correct fix?
 
-I haven't debugged the problem much I just wanted to ask around before
-I start digging in.
-
-Thanks.
-
--- 
-Peace can only come as a natural consequence
-of universal enlightenment. -Dr. Nikola Tesla
+And finally, the reason why these drivers would fail to compile for quite
+a while has a lot in common with the reason why they call fb_copy_cmap()
+in the first place - they are trying to provide a method that doesn't exist
+anymore and calls in question are from the instances of that method.  Fixing
+that is going to remove these calls anyway.

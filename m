@@ -1,120 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbTJHL0F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 07:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTJHL0F
+	id S261351AbTJHLTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 07:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbTJHLTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 07:26:05 -0400
-Received: from sphere.barak.net.il ([212.150.48.98]:52668 "EHLO
-	sphere.barak.net.il") by vger.kernel.org with ESMTP id S261354AbTJHL0A convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 07:26:00 -0400
-From: "Amir Hermelin" <amir@montilio.com>
-To: "'Randy.Dunlap'" <rddunlap@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Format of an 'oops' call trace (in show_trace)
-Date: Wed, 8 Oct 2003 13:25:44 +0200
-Organization: Montilio
-Message-ID: <018e01c38d8e$efd4a9b0$0401a8c0@CARTMAN>
+	Wed, 8 Oct 2003 07:19:06 -0400
+Received: from mail.gmx.de ([213.165.64.20]:48786 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261351AbTJHLTB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 07:19:01 -0400
+Date: Wed, 8 Oct 2003 13:19:00 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: devel@XFree86.Org, xfree86@XFree86.Org, dri-devel@lists.sourceforge.net,
+       dri-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Subject: drm 'lockup' with i845G onboard graphics....
 X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <20031007122631.4f028e62.rddunlap@osdl.org>
-Importance: Normal
+X-Authenticated: #8973862
+Message-ID: <20112.1065611940@www60.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, 
-I forgot that part :)  It's RH 2.4.20-8
+When I switch from an X session to the (text mode) VGA console, the kernel
+logs these messages and X gets killed:
 
-Thanks,
-Amir.
+[drm:i830_wait_ring] *ERROR* space: 131048 wanted 131064
+[drm:i830_wait_ring] *ERROR* lockup
 
------Original Message-----
-From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
-Sent: Tuesday, October 07, 2003 9:27 PM
-To: Amir Hermelin
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Format of an 'oops' call trace (in show_trace)
+The mode I'm running in is 1600 x 1200 x 16bpp, and the Intel 845G Extreme
+Graphics core is allocated 8MB of graphics memory.
 
+Please CC me for more information.
 
-On Tue, 7 Oct 2003 17:56:38 +0200 "Amir Hermelin" <amir@montilio.com> wrote:
+OS is RedHat Linux 9 with XFree86-4.3.0-2.
 
-| Hi,
-| Can someone please point me to a description of what I see in the Call 
-| of the oops dump?  I tried looking into show_trace and lookup_symbol 
-| functions, but I couldn't understand some things.  For example, in 
-| this following
-| trace:
-| Oct  7 17:13:54 joji kernel: [<e01bae00>] reqrdata [mymod] 0x0
-(0xd5543fb4))
-| 
-| Oct  7 17:13:54 joji kernel: [<e01a5220>] mymod [mymod] 0x0 
-| (0xd5543fe0))
-| I don't understand the relevance to reqrdata (since it's not a function,
-but
-| a data structure, and isn't the parameter to the mymod function).
-| And could
-| someone please explain what the 0x0 in the lines mean? From the code I
-| understood it to be the offset of the symbol within the module, but that
-| can't be right if both symbols translate to the same offset - so I must've
-| understood it wrong.
+---
 
-Hi,
+# lspci -vxxx
+(vga controller)
+00:02.0 VGA compatible controller: Intel Corp. 82845G/GL [Brookdale-G]
+Chipset Integrated Graphics Device (rev 01) (prog-if 00 [VGA])        Subsystem:
+Compaq Computer Corporation: Unknown device 00b8
+        Flags: bus master, fast devsel, latency 0, IRQ 16
+        Memory at f0000000 (32-bit, prefetchable) [size=128M]
+        Memory at fc400000 (32-bit, non-prefetchable) [size=512K]
+        Capabilities: [d0] Power Management version 1
+00: 86 80 62 25 07 00 90 00 01 00 00 03 00 00 00 00
+10: 08 00 00 f0 00 00 40 fc 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e b8 00
+30: 00 00 00 00 d0 00 00 00 00 00 00 00 0a 01 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 01 00 21 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 2a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-What kernel version is this?
-Any patches applied to it?
+(memory controller)
+00:00.0 Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge
+(rev 01)
+        Flags: bus master, fast devsel, latency 0
+        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [e4] #09 [0105]
+00: 86 80 60 25 06 01 90 20 01 00 00 06 00 00 00 00
+10: 08 00 00 f8 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 e4 00 00 00 00 00 00 00 00 00 00 00
+40: 3c 03 00 00 41 20 10 20 04 01 00 00 1b 08 10 00
+50: 00 00 44 00 00 00 00 01 1a 16 12 00 35 2c 3f 30
+60: 08 08 08 08 00 00 00 00 00 00 00 00 00 00 00 00
+70: 02 00 00 00 00 00 00 00 05 84 41 2b 71 c1 00 20
+80: 5d 00 af 00 ad 00 00 00 01 00 00 00 00 00 00 00
+90: 10 11 11 11 11 33 33 00 45 04 00 00 00 0a b8 00
+a0: 02 00 20 00 17 02 00 1f 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 30 00 00 00 00 00 00 00 20 10 00 00
+c0: 44 40 30 11 00 00 0c 0a 00 00 00 00 00 00 00 00
+d0: 02 28 04 0e 0b 0d 00 10 00 00 11 b3 00 00 01 00
+e0: 00 00 00 00 09 00 05 01 00 00 00 00 00 00 00 00
+f0: 38 0e 00 00 74 f8 00 00 40 0f 00 00 04 00 00 00
+(snip)
 
-~Randy
+-- 
+Daniel J Blueman
 
-| Oct  7 17:13:54 joji kernel:  printing eip:
-| Oct  7 17:13:54 joji kernel: e01b090b
-| Oct  7 17:13:54 joji kernel: *pde = 00000000
-| Oct  7 17:13:54 joji kernel: Oops: 0002
-| Oct  7 17:13:54 joji kernel: nfsd nfs lockd sunrpc bcm5700 parport_pc 
-| lp parport autofs sg sr_mod ide-scsi scsi_mod ide-cd cdrom key mymod 
-| bdev mousedev hid input usb-uhci ehci-hcd usbcore ext3
-| Oct  7 17:13:54 joji kernel: CPU:    0
-| Oct  7 17:13:54 joji kernel: EIP:    0060:[<e01b090b>]    Not tainted
-| Oct  7 17:13:54 joji kernel: EFLAGS: 00010282
-| Oct  7 17:13:54 joji kernel:
-| Oct  7 17:13:54 joji kernel: EIP is at rtp_recv [mymod] 0x5b
-| (2.4.20-8custom)
-| Oct  7 17:13:54 joji kernel: eax: 00000000   ebx: d5542000   ecx: 00000001
-| edx: c0374c88
-| Oct  7 17:13:54 joji kernel: esi: e01bae00   edi: d76aa400   ebp: d5543fcc
-| esp: d5543f98
-| Oct  7 17:13:54 joji kernel: ds: 0068   es: 0068   ss: 0068
-| Oct  7 17:13:54 joji kernel: Process mymod (pid: 6978, stackpage=d5543000)
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
 
-| Oct  7 17:13:54 joji kernel: Stack: e01bae00 d76aa400 d5542000 00000000
-| d76aa400 ffffffff e01a5308 e01bae00 
-| Oct  7 17:13:54 joji kernel:        d76aa400 d5543fcc d5542000 d5542000
-| dbd15900 00000000 d54f3fd0 d5533fd0 
-| Oct  7 17:13:54 joji kernel:        d5542000 00000000 e01a5220 00000000
-| 00000000 00000000 c010742d d76aa400 
-| Oct  7 17:13:54 joji kernel: Call Trace:   [<e01bae00>] reqrdata [mymod]
-0x0
-| (0xd5543f98))
-| Oct  7 17:13:54 joji kernel: [<e01a5308>] mymod [mymod] 0xe8 (0xd5543fb0))
+Jetzt kostenlos anmelden unter http://www.gmx.net
 
-| Oct  7 17:13:54 joji kernel: [<e01bae00>] reqrdata [mymod] 0x0
-(0xd5543fb4))
-| 
-| Oct  7 17:13:54 joji kernel: [<e01a5220>] mymod [mymod] 0x0 
-| (0xd5543fe0))
-| Oct  7 17:13:54 joji kernel: [<c010742d>] kernel_thread_helper [kernel]
-0x5
-| (0xd5543ff0)) 
-| Oct  7 17:13:54 joji kernel: 
-| Oct  7 17:13:54 joji kernel: 
-| Oct  7 17:13:54 joji kernel: Code: ff 40 1c 8b 56 10 8b 52 1c 89 97 98 01
-00
-| 00 01 50 24 89 7c 
-
++++ GMX - die erste Adresse für Mail, Message, More! +++
 

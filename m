@@ -1,45 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265174AbRF0AvH>; Tue, 26 Jun 2001 20:51:07 -0400
+	id <S265178AbRF0AwR>; Tue, 26 Jun 2001 20:52:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265180AbRF0Au5>; Tue, 26 Jun 2001 20:50:57 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:65293 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S265174AbRF0Aus>;
-	Tue, 26 Jun 2001 20:50:48 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] User chroot
-Date: 27 Jun 2001 00:48:14 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9hbage$djn$1@abraham.cs.berkeley.edu>
-In-Reply-To: <20010627014534.B2654@ondska> <9hb6rq$49j$1@cesium.transmeta.com>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 993602894 13943 128.32.45.153 (27 Jun 2001 00:48:14 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 27 Jun 2001 00:48:14 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S265179AbRF0AwI>; Tue, 26 Jun 2001 20:52:08 -0400
+Received: from tsukuba.m17n.org ([192.47.44.130]:48572 "EHLO tsukuba.m17n.org")
+	by vger.kernel.org with ESMTP id <S265178AbRF0Av6>;
+	Tue, 26 Jun 2001 20:51:58 -0400
+Date: Wed, 27 Jun 2001 09:51:46 +0900 (JST)
+Message-Id: <200106270051.f5R0pkl19282@mule.m17n.org>
+From: NIIBE Yutaka <gniibe@m17n.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swapin flush cache bug
+In-Reply-To: <Pine.LNX.4.21.0102140510240.30964-100000@freak.distro.conectiva>
+In-Reply-To: <200102140208.LAA18226@mule.m17n.org>
+	<Pine.LNX.4.21.0102140510240.30964-100000@freak.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
->By author:    Jorgen Cederlof <jc@lysator.liu.se>
->> If we only allow user chroots for processes that have never been
->> chrooted before, and if the suid/sgid bits won't have any effect under
->> the new root, it should be perfectly safe to allow any user to chroot.
->
->Safe, perhaps, but also completely useless: there is no way the user
->can set up a functional environment inside the chroot.
+Hello Marcelo, 
 
-Why is it useless?  It sounds useful to me, on first glance.  If I want
-to run a user-level network daemon I don't trust (for instance, fingerd),
-isolating it in a chroot area sounds pretty nice: If there is a buffer
-overrun in the daemon, you can get some protection [*] against the rest
-of your system being trashed.  Am I missing something obvious?
+This is follow-up to the mail in February.  You may perhaps forget the
+context, it's the bug of MM about cache flushing for swapped-in-pages.
+I see this bug on SuperH port (SH-4).
 
-[*] Yes, I know chroot is not sufficient on its own to completely
-    protect against this, but it is a useful part of the puzzle, and
-    there are other things we can do to deal with the remaining holes.
+I think that we have this issue on the machine whose flush_dcache_page()
+is defined.  In current code, the cache aren't flushed for 
+the asynchronously-swapped-in pages which is cached in swap cache.
+This is the problem.
+
+Marcelo Tosatti writes:
+ > Yet another thing (1) on end_buffer_io_async() to handle a case which is
+ > only true for a specific user of it. Since the other special case handling
+ > is for swap IO too, I think a separate IO end operation for swap would be
+ > interesting.
+ > 
+ > (1) The current one is SetPageDecrAfter handling.
+
+How about this?  I've updated MM bugzilla already.
+
+2001-06-26  NIIBE Yutaka  <gniibe@m17n.org>
+
+	* include/linux/mm.h (PG_flush_after, PageFlushAfter,
+	SetPageFlushAfter, PageTestandClearFlushAfter): New bit.
+	* mm/page_io.c (rw_swap_page_base): Set flush-after bit.
+	* fs/buffer.c (end_buffer_io_async): Implement flush-ing
+	with PG_flush_after.
+
+	* mm/memory.c (do_swap_page): Remove flush-ing the page.
+
+diff -ruNp --exclude=CVS --exclude=.cvsignore v2.4.6-pre5/fs/buffer.c kernel/fs/buffer.c
+--- v2.4.6-pre5/fs/buffer.c	Mon Jun 25 18:48:07 2001
++++ kernel/fs/buffer.c	Tue Jun 26 15:11:17 2001
+@@ -831,6 +831,9 @@ static void end_buffer_io_async(struct b
+ 	if (PageTestandClearDecrAfter(page))
+ 		atomic_dec(&nr_async_pages);
+ 
++	if (PageTestandClearFlushAfter(page))
++		flush_dcache_page(page);
++
+ 	UnlockPage(page);
+ 
+ 	return;
+diff -ruNp --exclude=CVS --exclude=.cvsignore v2.4.6-pre5/include/linux/mm.h kernel/include/linux/mm.h
+--- v2.4.6-pre5/include/linux/mm.h	Mon Jun 25 18:48:09 2001
++++ kernel/include/linux/mm.h	Tue Jun 26 14:58:56 2001
+@@ -282,6 +282,7 @@ typedef struct page {
+ #define PG_inactive_clean	11
+ #define PG_highmem		12
+ #define PG_checked		13	/* kill me in 2.5.<early>. */
++#define PG_flush_after		14
+ 				/* bits 21-29 unused */
+ #define PG_arch_1		30
+ #define PG_reserved		31
+@@ -364,6 +365,10 @@ static inline void set_page_dirty(struct
+ 
+ #define SetPageReserved(page)		set_bit(PG_reserved, &(page)->flags)
+ #define ClearPageReserved(page)		clear_bit(PG_reserved, &(page)->flags)
++
++#define PageFlushAfter(page)	test_bit(PG_flush_after, &(page)->flags)
++#define SetPageFlushAfter(page)	set_bit(PG_flush_after, &(page)->flags)
++#define PageTestandClearFlushAfter(page)	test_and_clear_bit(PG_flush_after, &(page)->flags)
+ 
+ /*
+  * Error return values for the *_nopage functions
+diff -ruNp --exclude=CVS --exclude=.cvsignore v2.4.6-pre5/mm/memory.c kernel/mm/memory.c
+--- v2.4.6-pre5/mm/memory.c	Mon Jun 25 18:48:10 2001
++++ kernel/mm/memory.c	Tue Jun 26 14:48:15 2001
+@@ -1109,8 +1109,6 @@ static int do_swap_page(struct mm_struct
+ 			return -1;
+ 		}
+ 		wait_on_page(page);
+-		flush_page_to_ram(page);
+-		flush_icache_page(vma, page);
+ 	}
+ 
+ 	/*
+diff -ruNp --exclude=CVS --exclude=.cvsignore v2.4.6-pre5/mm/page_io.c kernel/mm/page_io.c
+--- v2.4.6-pre5/mm/page_io.c	Mon Apr 30 16:15:32 2001
++++ kernel/mm/page_io.c	Tue Jun 26 15:01:00 2001
+@@ -50,6 +50,7 @@ static int rw_swap_page_base(int rw, swp
+ 
+ 	if (rw == READ) {
+ 		ClearPageUptodate(page);
++		SetPageFlushAfter(page);
+ 		kstat.pswpin++;
+ 	} else
+ 		kstat.pswpout++;
+-- 

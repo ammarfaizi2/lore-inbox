@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263105AbSJ1H6T>; Mon, 28 Oct 2002 02:58:19 -0500
+	id <S263143AbSJ1IBI>; Mon, 28 Oct 2002 03:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263106AbSJ1H6T>; Mon, 28 Oct 2002 02:58:19 -0500
-Received: from dp.samba.org ([66.70.73.150]:51921 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263105AbSJ1H6R>;
-	Mon, 28 Oct 2002 02:58:17 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
+	id <S263152AbSJ1IBI>; Mon, 28 Oct 2002 03:01:08 -0500
+Received: from [151.17.201.167] ([151.17.201.167]:13574 "EHLO mail.teamfab.it")
+	by vger.kernel.org with ESMTP id <S263143AbSJ1IBG>;
+	Mon, 28 Oct 2002 03:01:06 -0500
+Message-ID: <3DBCEF86.90DE507C@teamfab.it>
+Date: Mon, 28 Oct 2002 09:04:22 +0100
+From: Luca Montecchiani <luca.montecchiani@teamfab.it>
+Organization: TeamSystem Spa
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.2.22-svil i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, mingo@redhat.com, mochel@osdl.org
-Subject: [PATCH] Hotplug CPUs for i386 2.5.44 
-Date: Mon, 28 Oct 2002 19:04:15 +1100
-Message-Id: <20021028080437.DE7112C0E3@lists.samba.org>
+CC: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] Decision PCCOM4/PCCOM8 serial support for 2.4.19
+Content-Type: multipart/mixed;
+ boundary="------------6BDC936ED2A380BF1CE17C3D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doesn't apply to -mm5 because someone did wierd things with the CPU
-placement in driverfs, which clashes with this patch which moves it to
-kernel/cpu.c...
+This is a multi-part message in MIME format.
+--------------6BDC936ED2A380BF1CE17C3D
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Usage:
-1) Apply patch, and boot resulting kernel.
-2) echo 0 > /devices/root/sys/cpu0/online
-3) echo 1 > /devices/root/sys/cpu0/online
+This patch add support for the Decision PCCOM 4 and 8 ports pci cards.
+The patch was made and tested on a 2.4.19 kernel with the standard
+serial driver.
 
-The CPU actually spins with interrupts off, doing cpu_relax() and
-polling a variable.  It's basically useful for testing the unplug
-infrastructure and benchmarking.
+thanks,
+luca
+--------------6BDC936ED2A380BF1CE17C3D
+Content-Type: application/x-patch;
+ name="serial_decision.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="serial_decision.patch"
 
-http://www.kernel.org/pub/linux/kernel/people/rusty/patches/hotcpu-x86-28-10-2002.2.5.44.diff.gz
+ZGlmZiAtdXIgbGludXgvZHJpdmVycy9jaGFyL3NlcmlhbC5jLm9yaWcgbGludXgvZHJpdmVy
+cy9jaGFyL3NlcmlhbC5jCi0tLSBsaW51eC9kcml2ZXJzL2NoYXIvc2VyaWFsLmMub3JpZwlN
+b24gQXVnIDE5IDEyOjAzOjEyIDIwMDIKKysrIGxpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwu
+YwlGcmkgT2N0IDI1IDE2OjU1OjU1IDIwMDIKQEAgLTQzNDgsOSArNDM0OCwxMCBAQAogI2lm
+ZGVmIENPTkZJR19EREI1MDc0CiAJcGJuX25lY19uaWxlNCwKICNlbmRpZgotI2lmIDAKKwor
+CXBibl9kY2lfcGNjb200LAogCXBibl9kY2lfcGNjb204LAotI2VuZGlmCisKIAlwYm5feGly
+Y29tX2NvbWJvLAogCiAJcGJuX3NpaWcxMHhfMCwKQEAgLTQ0NDQsOSArNDQ0NSwxMCBAQAog
+CXsgU1BDSV9GTF9CQVNFMCwgMSwgNTIwODMzLAkJCSAgIC8qIHBibl9uZWNfbmlsZTQgKi8K
+IAkJNjQsIDMsIE5VTEwsIDB4MzAwIH0sCiAjZW5kaWYKLSNpZiAwCS8qIFBDSV9ERVZJQ0Vf
+SURfRENJX1BDQ09NOCA/ICovCQkgICAvKiBwYm5fZGNpX3BjY29tOCAqLwotCXsgU1BDSV9G
+TF9CQVNFMywgOCwgMTE1MjAwLCA4IH0sCi0jZW5kaWYKKworCXtTUENJX0ZMX0JBU0UzLCA0
+LCAxMTUyMDAsIDh9LAkJCSAgIC8qIHBibl9kY2lfcGNjb200ICovCisJe1NQQ0lfRkxfQkFT
+RTMsIDgsIDExNTIwMCwgOH0sCQkJICAgLyogcGJuX2RjaV9wY2NvbTggKi8KKwogCXsgU1BD
+SV9GTF9CQVNFMCwgMSwgMTE1MjAwLAkJCSAgLyogcGJuX3hpcmNvbV9jb21ibyAqLwogCQkw
+LCAwLCBwY2lfeGlyY29tX2ZuIH0sCiAKQEAgLTQ5MDcsMTEgKzQ5MDksMTIgQEAKIAkJcGJu
+X25lY19uaWxlNCB9LAogI2VuZGlmCiAKLSNpZiAwCS8qIFBDSV9ERVZJQ0VfSURfRENJX1BD
+Q09NOCA/ICovCisJewlQQ0lfVkVORE9SX0lEX0RDSSwgUENJX0RFVklDRV9JRF9EQ0lfUEND
+T000LAorCQlQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLAorCQlwYm5fZGNpX3BjY29t
+NCB9LAogCXsJUENJX1ZFTkRPUl9JRF9EQ0ksIFBDSV9ERVZJQ0VfSURfRENJX1BDQ09NOCwK
+IAkJUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwKIAkJcGJuX2RjaV9wY2NvbTggfSwK
+LSNlbmRpZgogCiAgICAgICAgeyBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lE
+LCBQQ0lfQU5ZX0lELAogCSBQQ0lfQ0xBU1NfQ09NTVVOSUNBVElPTl9TRVJJQUwgPDwgOCwg
+MHhmZmZmMDAsIH0sCg==
+--------------6BDC936ED2A380BF1CE17C3D--
 
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

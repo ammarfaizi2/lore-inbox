@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271865AbRIMQrJ>; Thu, 13 Sep 2001 12:47:09 -0400
+	id <S271848AbRIMQrJ>; Thu, 13 Sep 2001 12:47:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271836AbRIMQrB>; Thu, 13 Sep 2001 12:47:01 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:16389 "HELO
+	id <S271865AbRIMQrA>; Thu, 13 Sep 2001 12:47:00 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:15621 "HELO
 	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S271834AbRIMQqu>; Thu, 13 Sep 2001 12:46:50 -0400
-Date: Thu, 13 Sep 2001 18:38:02 +0200
+	id <S271836AbRIMQqt>; Thu, 13 Sep 2001 12:46:49 -0400
+Date: Thu, 13 Sep 2001 18:27:43 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
 To: torvalds@transmeta.com
-Subject: [x86-64 patch 6/11] ISDN strcpy removed
-Message-ID: <20010913183802.A2602@suse.cz>
+Subject: [x86-64 patch 1/11] AIC7xxx endian include fix
+Message-ID: <20010913182743.A2527@suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,42 +20,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-The ISDN code contains an extra definition of strcpy which isn't needed
-and collides with the kernel library one. This patch removes it.
+This is a bunch of patches to make most of the drivers in Linux kernel
+compile on the AMD SledgeHammer (x86-64) platform. Most of them are not
+x86-64 specific and are general fixes that are needed anyway.
 
-diff -urN linux-x86_64/drivers/isdn/sc/debug.c linux/drivers/isdn/sc/debug.c
---- linux-x86_64/drivers/isdn/sc/debug.c	Thu Apr 19 22:01:36 2001
-+++ linux/drivers/isdn/sc/debug.c	Thu Sep 13 10:52:56 2001
-@@ -26,8 +26,7 @@
-  *     +1 (416) 297-6433 Facsimile
+All the patches are generated against x86-64 2.4.9 tree, but were tested
+that they apply with some minor offsets to 2.4.10-pre8 as well.
+
+This first patch is a fix for the AIC-7xxx driver to fix the #include it
+uses for endianity stuff.
+
+diff -urN linux-x86_64/drivers/scsi/aic7xxx/aicasm/aicasm_insformat.h linux/drivers/scsi/aic7xxx/aicasm/aicasm_insformat.h
+--- linux-x86_64/drivers/scsi/aic7xxx/aicasm/aicasm_insformat.h	Fri Jul  6 01:29:20 2001
++++ linux/drivers/scsi/aic7xxx/aicasm/aicasm_insformat.h	Thu Sep 13 10:56:25 2001
+@@ -35,7 +35,7 @@
   */
- #include <linux/kernel.h>
--
--inline char *strcpy(char *, const char *);
-+#include <linux/string.h>
  
- int dbg_level = 0;
- static char dbg_funcname[255];
-@@ -45,19 +44,6 @@
- 	strcpy(dbg_funcname, func);
- 	if(dbg_level)
- 		printk("--> Entering function %s\n", dbg_funcname);
--}
--
--inline char *strcpy(char *dest, const char *src)
--{
--	char *i = dest;
--	char *j = (char *) src;
--
--	while(*j) {
--		*i = *j;
--		i++; j++;
--	}
--	*(++i) = 0;
--	return dest;
- }
- 
- inline void pullphone(char *dn, char *str)
+ #if linux
+-#include <endian.h>
++#include <asm/byteorder.h>
+ #else
+ #include <machine/endian.h>
+ #endif
 
 -- 
 Vojtech Pavlik

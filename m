@@ -1,78 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUI0WpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267408AbUI0Wpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267404AbUI0WpO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 18:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267408AbUI0WpO
+	id S267408AbUI0Wpo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 18:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUI0Wpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 18:45:14 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:27812 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S267404AbUI0WpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 18:45:06 -0400
-Date: Tue, 28 Sep 2004 00:43:45 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Stefan Seyfried <seife@suse.de>,
-       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: mlock(1)
-Message-ID: <20040927224345.GB2412@dualathlon.random>
-References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net> <1096071873.3591.54.camel@desktop.cunninghams> <20040925011800.GB3309@dualathlon.random> <4157B04B.2000306@suse.de> <20040927141652.GF28865@dualathlon.random> <1096323761.3606.3.camel@desktop.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096323761.3606.3.camel@desktop.cunninghams>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Mon, 27 Sep 2004 18:45:43 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:25790 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267408AbUI0Wpa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 18:45:30 -0400
+Message-ID: <415897B0.3060008@engr.sgi.com>
+Date: Mon, 27 Sep 2004 15:44:00 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: lse-tech <lse-tech@lists.sourceforge.net>, CSA-ML <csa@oss.sgi.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Arthur Corliss <corliss@digitalmages.com>
+Subject: Re: [PATCH 2.6.9-rc2 1/2] enhanced I/O accounting data collection
+References: <4158956F.3030706@engr.sgi.com>
+In-Reply-To: <4158956F.3030706@engr.sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------020609000803060702000401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 08:22:41AM +1000, Nigel Cunningham wrote:
-> > because I never use suspend/resume on my desktop, I never shutdown my
-> > desktop. I don't see why should I spend time typing a password when
-> > there's no need to. Every single guy out there will complain at linux
-> > hanging during boot asking for password before reaching kdm.
-> > 
-> > I figured out how to make the swap encryption completely transparent to
-> > userspace, and even to swap suspend, so I think it's much better than
-> > having userspace asking the user for a password, or userspace choosing a
-> > random password.
-> 
-> The public/private key idea makes good sense to me.
+This is a multi-part message in MIME format.
+--------------020609000803060702000401
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-yes for suspend/resume it should work. it will have the only advantage
-of not having to ask the password during suspend or during boot, it will
-only ask the "resueme" password during resume and the first time you
-create the public key for resume to write it in the harddisk encrypted
-with such passphrase as . as usual it'll be as Wolfgang suggested.
+1/2: acct_io
 
-But why did you quote the above? for cryptoswap it cannot work, for
-cryptoswap there's no reason to ever ask the user to anything and it
-must read and write all the time anyways, it's not like suspend
-write-only and resume read-only, a problem where public/private
-encryption can fit.
+Enhanced I/O accounting data collection.
 
-> > yes, but the bootloader passes the paramters via /proc/cmdline, and it's
-> > not nice to show the password in cleartext there.
-> 
-> If this password is only needed when resuming, that's not an issue
-> because the command line given when resuming will be lost when the
-> original kernel data is copied back.
+Signed-off-by: Jay Lan <jlan@sgi.com>
 
-my point is that you would not be allowed to give anyone ssh access to
-your machine (assuming you trust local security). If he gets ssh access,
-then he could as well stole the laptop and read the encrypted data.
 
-But if calling set_fs(KERNEL_DS); sys_read(0) sounds troublesome, you
-could also erase the password from the cmdline, and you would still
-pass the passphrase via bootloader. I'd recommend not to make it visible
-to userspace.
+--------------020609000803060702000401
+Content-Type: text/plain;
+ name="acct_io"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="acct_io"
 
-> There's already compression support. It's simpler to reverse, of course,
-> but it doesn't help?
+Index: linux/drivers/block/ll_rw_blk.c
+===================================================================
+--- linux.orig/drivers/block/ll_rw_blk.c	2004-09-12 22:31:31.000000000 -0700
++++ linux/drivers/block/ll_rw_blk.c	2004-09-27 12:37:04.374234677 -0700
+@@ -1741,6 +1741,7 @@
+ {
+ 	DEFINE_WAIT(wait);
+ 	struct request *rq;
++	unsigned long start_wait = jiffies;
+ 
+ 	generic_unplug_device(q);
+ 	do {
+@@ -1769,6 +1770,7 @@
+ 		finish_wait(&rl->wait[rw], &wait);
+ 	} while (!rq);
+ 
++	current->bwtime += (unsigned long) jiffies - start_wait;
+ 	return rq;
+ }
+ 
+Index: linux/fs/read_write.c
+===================================================================
+--- linux.orig/fs/read_write.c	2004-09-12 22:32:55.000000000 -0700
++++ linux/fs/read_write.c	2004-09-27 12:37:04.381070659 -0700
+@@ -216,8 +216,11 @@
+ 				ret = file->f_op->read(file, buf, count, pos);
+ 			else
+ 				ret = do_sync_read(file, buf, count, pos);
+-			if (ret > 0)
++			if (ret > 0) {
+ 				dnotify_parent(file->f_dentry, DN_ACCESS);
++				current->rchar += ret;
++			}
++			current->syscr++;
+ 		}
+ 	}
+ 
+@@ -260,8 +263,11 @@
+ 				ret = file->f_op->write(file, buf, count, pos);
+ 			else
+ 				ret = do_sync_write(file, buf, count, pos);
+-			if (ret > 0)
++			if (ret > 0) {
+ 				dnotify_parent(file->f_dentry, DN_MODIFY);
++				current->wchar += ret;
++			}
++			current->syscw++;
+ 		}
+ 	}
+ 
+@@ -540,6 +546,10 @@
+ 		fput_light(file, fput_needed);
+ 	}
+ 
++	if (ret > 0) {
++		current->rchar += ret;
++	}
++	current->syscr++;
+ 	return ret;
+ }
+ 
+@@ -558,6 +568,10 @@
+ 		fput_light(file, fput_needed);
+ 	}
+ 
++	if (ret > 0) {
++		current->wchar += ret;
++	}
++	current->syscw++;
+ 	return ret;
+ }
+ 
+@@ -636,6 +650,13 @@
+ 
+ 	retval = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
+ 
++	if (retval > 0) {
++		current->rchar += retval;
++		current->wchar += retval;
++	}
++	current->syscr++;
++	current->syscw++;
++
+ 	if (*ppos > max)
+ 		retval = -EOVERFLOW;
+ 
+Index: linux/include/linux/sched.h
+===================================================================
+--- linux.orig/include/linux/sched.h	2004-09-27 11:57:40.220967100 -0700
++++ linux/include/linux/sched.h	2004-09-27 12:52:51.305237393 -0700
+@@ -591,6 +591,9 @@
+ 	struct rw_semaphore pagg_sem;
+ #endif
+ 
++/* i/o counters(bytes read/written, #syscalls, waittime */
++	unsigned long rchar, wchar, syscr, syscw, bwtime;
++
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
 
-that should be trivial to reverse, no?
+--------------020609000803060702000401--
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265462AbUHAHns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUHAHr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265462AbUHAHns (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 03:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265410AbUHAHni
+	id S265489AbUHAHr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 03:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265410AbUHAHr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 03:43:38 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:37279 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265544AbUHAHmt
+	Sun, 1 Aug 2004 03:47:57 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:62112 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265490AbUHAHoQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 03:42:49 -0400
-Date: Sun, 1 Aug 2004 13:22:19 +0530
+	Sun, 1 Aug 2004 03:44:16 -0400
+Date: Sun, 1 Aug 2004 13:23:47 +0530
 From: Suparna Bhattacharya <suparna@in.ibm.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/5] filemap_fdatawrite range interface
-Message-ID: <20040801075219.GD7327@in.ibm.com>
+Subject: Re: [PATCH 5/5] Concurrent O_SYNC write support
+Message-ID: <20040801075347.GE7327@in.ibm.com>
 Reply-To: suparna@in.ibm.com
 References: <20040801074518.GA7310@in.ibm.com>
 Mime-Version: 1.0
@@ -36,7 +36,7 @@ On Sun, Aug 01, 2004 at 01:15:18PM +0530, Suparna Bhattacharya wrote:
 > they can be the merged upstream. Please apply.
 > 
 
-[4] fdatawrite-range.patch
+[5] O_SYNC-speedup.patch
 
 Regards
 Suparna
@@ -46,75 +46,241 @@ Suparna Bhattacharya (suparna@in.ibm.com)
 Linux Technology Center
 IBM Software Lab, India
 
---------------------------------------------------------
+--------------------------------------------------------------
 
-Range based equivalent of filemap_fdatawrite for O_SYNC writers (to go
-with writepages range support added to mpage_writepages).
-If both <start> and <end> are zero, then it defaults to writing
-back all of the mapping's dirty pages.
+
+From: Andrew Morton <akpm@osdl.org>
+
+In databases it is common to have multiple threads or processes performing
+O_SYNC writes against different parts of the same file.
+
+Our performance at this is poor, because each writer blocks access to the
+file by waiting on I/O completion while holding i_sem: everything is
+serialised.
+
+The patch improves things by moving the writing and waiting outside i_sem.
+So other threads can get in and submit their I/O and permit the disk
+scheduler to optimise the IO patterns better.
+
+Also, the O_SYNC writer only writes and waits on the pages which he wrote,
+rather than writing and waiting on all dirty pages in the file.
+
+The reason we haven't been able to do this before is that the required walk
+of the address_space page lists is easily livelockable without the i_sem
+serialisation.  But in this patch we perform the waiting via a radix-tree
+walk of the affected pages.  This cannot be livelocked.
+
+The sync of the inode's metadata is still performed inside i_sem.  This is
+because it is list-based and is hence still livelockable.  However it is
+usually the case that databases are overwriting existing file blocks and
+there will be no dirty buffers attached to the address_space anyway.
+
+The code is careful to ensure that the IO for the pages and the IO for the
+metadata are nonblockingly scheduled at the same time.  This is am improvemtn
+over the current code, which will issue two separate write-and-wait cycles:
+one for metadata, one for pages.
+
+Note from Suparna:
+Reworked to use the tagged radix-tree based writeback infrastructure.
 
 Signed-off-by: Suparna Bhattacharya <suparna@in.ibm.com>
 
- linux-2.6.8-rc2-suparna/mm/filemap.c |   23 +++++++++++++++++++++--
- 1 files changed, 21 insertions(+), 2 deletions(-)
+ linux-2.6.8-rc2-suparna/include/linux/buffer_head.h |    6 -
+ linux-2.6.8-rc2-suparna/include/linux/fs.h          |    5 +
+ linux-2.6.8-rc2-suparna/include/linux/writeback.h   |    2 
+ linux-2.6.8-rc2-suparna/mm/filemap.c                |   93 +++++++++++++++-----
+ 4 files changed, 81 insertions(+), 25 deletions(-)
 
-diff -puN mm/filemap.c~fdatawrite-range mm/filemap.c
---- linux-2.6.8-rc2/mm/filemap.c~fdatawrite-range	2004-08-01 12:34:34.000000000 +0530
-+++ linux-2.6.8-rc2-suparna/mm/filemap.c	2004-08-01 12:34:34.000000000 +0530
-@@ -142,20 +142,26 @@ static inline int sync_page(struct page 
- }
+diff -puN include/linux/buffer_head.h~O_SYNC-speedup include/linux/buffer_head.h
+--- linux-2.6.8-rc2/include/linux/buffer_head.h~O_SYNC-speedup	2004-08-01 12:34:44.000000000 +0530
++++ linux-2.6.8-rc2-suparna/include/linux/buffer_head.h	2004-08-01 12:34:45.000000000 +0530
+@@ -202,12 +202,6 @@ int nobh_prepare_write(struct page*, uns
+ int nobh_commit_write(struct file *, struct page *, unsigned, unsigned);
+ int nobh_truncate_page(struct address_space *, loff_t);
  
- /**
-- * filemap_fdatawrite - start writeback against all of a mapping's dirty pages
-+ * filemap_fdatawrite_range - start writeback against all of a mapping's
-+ * dirty pages that lie within the byte offsets <start, end>
-  * @mapping: address space structure to write
-+ * @start: offset in bytes where the range starts
-+ * @end : offset in bytes where the range ends
-  *
-  * If sync_mode is WB_SYNC_ALL then this is a "data integrity" operation, as
-  * opposed to a regular memory * cleansing writeback.  The difference between
-  * these two operations is that if a dirty page/buffer is encountered, it must
-  * be waited upon, and not just skipped over.
+-#define OSYNC_METADATA	(1<<0)
+-#define OSYNC_DATA	(1<<1)
+-#define OSYNC_INODE	(1<<2)
+-int generic_osync_inode(struct inode *, struct address_space *, int);
+-
+-
+ /*
+  * inline definitions
   */
--static int __filemap_fdatawrite(struct address_space *mapping, int sync_mode)
-+static int __filemap_fdatawrite_range(struct address_space *mapping,
-+	loff_t start, loff_t end, int sync_mode)
- {
- 	int ret;
- 	struct writeback_control wbc = {
- 		.sync_mode = sync_mode,
- 		.nr_to_write = mapping->nrpages * 2,
-+		.start = start,
-+		.end = end,
- 	};
+diff -puN include/linux/fs.h~O_SYNC-speedup include/linux/fs.h
+--- linux-2.6.8-rc2/include/linux/fs.h~O_SYNC-speedup	2004-08-01 12:34:44.000000000 +0530
++++ linux-2.6.8-rc2-suparna/include/linux/fs.h	2004-08-01 12:34:45.000000000 +0530
+@@ -823,6 +823,11 @@ extern int vfs_rename(struct inode *, st
+ #define DT_SOCK		12
+ #define DT_WHT		14
  
- 	if (mapping->backing_dev_info->memory_backed)
-@@ -165,12 +171,25 @@ static int __filemap_fdatawrite(struct a
++#define OSYNC_METADATA	(1<<0)
++#define OSYNC_DATA	(1<<1)
++#define OSYNC_INODE	(1<<2)
++int generic_osync_inode(struct inode *, struct address_space *, int);
++
+ /*
+  * This is the "filldir" function type, used by readdir() to let
+  * the kernel specify what kind of dirent layout it wants to have.
+diff -puN include/linux/writeback.h~O_SYNC-speedup include/linux/writeback.h
+--- linux-2.6.8-rc2/include/linux/writeback.h~O_SYNC-speedup	2004-08-01 12:34:45.000000000 +0530
++++ linux-2.6.8-rc2-suparna/include/linux/writeback.h	2004-08-01 12:34:45.000000000 +0530
+@@ -103,6 +103,8 @@ void page_writeback_init(void);
+ void balance_dirty_pages_ratelimited(struct address_space *mapping);
+ int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0);
+ int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
++int sync_page_range(struct inode *inode, struct address_space *mapping,
++			loff_t pos, size_t count);
+ 
+ /* pdflush.c */
+ extern int nr_pdflush_threads;	/* Global so it can be exported to sysctl
+diff -puN mm/filemap.c~O_SYNC-speedup mm/filemap.c
+--- linux-2.6.8-rc2/mm/filemap.c~O_SYNC-speedup	2004-08-01 12:34:45.000000000 +0530
++++ linux-2.6.8-rc2-suparna/mm/filemap.c	2004-08-01 12:34:45.000000000 +0530
+@@ -247,6 +247,34 @@ static int wait_on_page_writeback_range(
  	return ret;
  }
  
-+static inline int __filemap_fdatawrite(struct address_space *mapping,
-+	int sync_mode)
-+{
-+	return __filemap_fdatawrite_range(mapping, 0, 0, sync_mode);
-+}
 +
- int filemap_fdatawrite(struct address_space *mapping)
++/*
++ * Write and wait upon all the pages in the passed range.  This is a "data
++ * integrity" operation.  It waits upon in-flight writeout before starting and
++ * waiting upon new writeout.  If there was an IO error, return it.
++ *
++ * We need to re-take i_sem during the generic_osync_inode list walk because
++ * it is otherwise livelockable.
++ */
++int sync_page_range(struct inode *inode, struct address_space *mapping,
++			loff_t pos, size_t count)
++{
++	pgoff_t start = pos >> PAGE_CACHE_SHIFT;
++	pgoff_t end = (pos + count - 1) >> PAGE_CACHE_SHIFT;
++	int ret;
++
++	if (mapping->backing_dev_info->memory_backed || !count)
++		return 0;
++	ret = filemap_fdatawrite_range(mapping, pos, pos + count - 1);
++	if (ret == 0) {
++		down(&inode->i_sem);
++		ret = generic_osync_inode(inode, mapping, OSYNC_METADATA);
++		up(&inode->i_sem);
++	}
++	if (ret == 0)
++		ret = wait_on_page_writeback_range(mapping, start, end);
++	return ret;
++}
+ /**
+  * filemap_fdatawait - walk the list of under-writeback pages of the given
+  *     address space and wait for all of them.
+@@ -2026,11 +2054,13 @@ generic_file_aio_write_nolock(struct kio
+ 	/*
+ 	 * For now, when the user asks for O_SYNC, we'll actually give O_DSYNC
+ 	 */
+-	if (status >= 0) {
+-		if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
+-			status = generic_osync_inode(inode, mapping,
+-					OSYNC_METADATA|OSYNC_DATA);
+-	}
++	if (likely(status >= 0)) {
++		if (unlikely((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
++			if (!a_ops->writepage || !is_sync_kiocb(iocb))
++				status = generic_osync_inode(inode, mapping,
++						OSYNC_METADATA|OSYNC_DATA);
++		}
++  	}
+ 	
+ 	/*
+ 	 * If we get here for O_DIRECT writes then we must have fallen through
+@@ -2070,36 +2100,52 @@ ssize_t generic_file_aio_write(struct ki
+ 			       size_t count, loff_t pos)
  {
- 	return __filemap_fdatawrite(mapping, WB_SYNC_ALL);
- }
- EXPORT_SYMBOL(filemap_fdatawrite);
+ 	struct file *file = iocb->ki_filp;
+-	struct inode *inode = file->f_mapping->host;
+-	ssize_t err;
+-	struct iovec local_iov = { .iov_base = (void __user *)buf, .iov_len = count };
++	struct address_space *mapping = file->f_mapping;
++	struct inode *inode = mapping->host;
++	ssize_t ret;
++	struct iovec local_iov = { .iov_base = (void __user *)buf,
++					.iov_len = count };
  
-+int filemap_fdatawrite_range(struct address_space *mapping,
-+	loff_t start, loff_t end)
-+{
-+	return __filemap_fdatawrite_range(mapping, start, end, WB_SYNC_ALL);
+ 	BUG_ON(iocb->ki_pos != pos);
+ 
+ 	down(&inode->i_sem);
+-	err = generic_file_aio_write_nolock(iocb, &local_iov, 1, 
++	ret = generic_file_aio_write_nolock(iocb, &local_iov, 1,
+ 						&iocb->ki_pos);
+ 	up(&inode->i_sem);
+ 
+-	return err;
+-}
++	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
++		ssize_t err;
+ 
++		err = sync_page_range(inode, mapping, pos, ret);
++		if (err < 0)
++			ret = err;
++	}
++	return ret;
 +}
-+EXPORT_SYMBOL(filemap_fdatawrite_range);
+ EXPORT_SYMBOL(generic_file_aio_write);
+ 
+ ssize_t generic_file_write(struct file *file, const char __user *buf,
+ 			   size_t count, loff_t *ppos)
+ {
+-	struct inode	*inode = file->f_mapping->host;
+-	ssize_t		err;
+-	struct iovec local_iov = { .iov_base = (void __user *)buf, .iov_len = count };
++	struct address_space *mapping = file->f_mapping;
++	struct inode *inode = mapping->host;
++	ssize_t	ret;
++	struct iovec local_iov = { .iov_base = (void __user *)buf,
++					.iov_len = count };
+ 
+ 	down(&inode->i_sem);
+-	err = generic_file_write_nolock(file, &local_iov, 1, ppos);
++	ret = generic_file_write_nolock(file, &local_iov, 1, ppos);
+ 	up(&inode->i_sem);
+ 
+-	return err;
+-}
++	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
++		ssize_t err;
+ 
++		err = sync_page_range(inode, mapping, *ppos - ret, ret);
++		if (err < 0)
++			ret = err;
++	}
++	return ret;
++}
+ EXPORT_SYMBOL(generic_file_write);
+ 
+ ssize_t generic_file_readv(struct file *filp, const struct iovec *iov,
+@@ -2118,14 +2164,23 @@ ssize_t generic_file_readv(struct file *
+ EXPORT_SYMBOL(generic_file_readv);
+ 
+ ssize_t generic_file_writev(struct file *file, const struct iovec *iov,
+-			unsigned long nr_segs, loff_t * ppos) 
++			unsigned long nr_segs, loff_t *ppos)
+ {
+-	struct inode *inode = file->f_mapping->host;
++	struct address_space *mapping = file->f_mapping;
++	struct inode *inode = mapping->host;
+ 	ssize_t ret;
+ 
+ 	down(&inode->i_sem);
+ 	ret = generic_file_write_nolock(file, iov, nr_segs, ppos);
+ 	up(&inode->i_sem);
 +
- /*
-  * This is a mostly non-blocking flush.  Not suitable for data-integrity
-  * purposes - I/O may not be started against all dirty pages.
++	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
++		int err;
++
++		err = sync_page_range(inode, mapping, *ppos - ret, ret);
++		if (err < 0)
++			ret = err;
++	}
+ 	return ret;
+ }
+ 
 
 _

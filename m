@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbTIQGrM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 02:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbTIQGrM
+	id S262691AbTIQGzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 02:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbTIQGzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 02:47:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29318 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262683AbTIQGrL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 02:47:11 -0400
-Date: Tue, 16 Sep 2003 23:47:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] must fix list
-Message-Id: <20030916234746.0612ec90.akpm@osdl.org>
-In-Reply-To: <3F67EDAF.40608@cyberone.com.au>
-References: <3F67EDAF.40608@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 17 Sep 2003 02:55:39 -0400
+Received: from users.linvision.com ([62.58.92.114]:52871 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id S262691AbTIQGze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 02:55:34 -0400
+Date: Wed, 17 Sep 2003 08:55:23 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: linux-kernel@vger.kernel.org
+Subject: HFS plus filenames. 
+Message-ID: <20030917085523.B19276@bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
->  I don't know what happened to this, but I thought it was quite good.
->  Maybe I missed something?
 
-It just didn't seem very relevant: people weren't keeping me up to date and
-a lot of the patches which were going in weren't related to anything on the
-lists.
+Hi,
 
->  Anyway I have removed AS from the list because it is done. I removed CFQ
->  as well because when the schedulers become runtime selectable (sometime
->  I hope), merging it becomes a non issue, even during the stable series I
->  think.
-> 
->  I updated the kernel/sched.c section a bit.
-> 
->  I moved 64-bit dev_t from should fix to must fix.
-> 
->  It looks like quite a bit can be struck off, but I'll leave it up to those
->  who actually did the work.
+We used the new hfsplus driver lately. However it showed lots 
+of files which had a "/" in the filename. Yes in the fileNAME. 
 
-Thanks.  Just for you, I'll do an update.
+ls would find a file called "a/b" and then stat it, but no directory
+"a" would then be found....
 
->  Maybe these should go in Documentation/must-fix/ to make patching and
->  syncing easier?
+I tried modifying the unicode->ascii strcpy function, which I saw
+being called in the "readdir" code. That somehow didn't work,
+although I think it should have. (Not that it would have /worked/, but
+it should at least have shown "a_b" instead of "a/b") But it didn't. 
+I didn't have the time to figure it out, but one of these days
+we should mangle those names in a predictable way to make filesystems
+like this usable under Linux... Right?
 
-maybe...
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

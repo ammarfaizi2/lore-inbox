@@ -1,32 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265040AbUFGUgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265045AbUFGUhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265040AbUFGUgK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 16:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbUFGUgK
+	id S265045AbUFGUhb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 16:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFGUha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 16:36:10 -0400
-Received: from lakermmtao02.cox.net ([68.230.240.37]:6836 "EHLO
-	lakermmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S265040AbUFGUgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 16:36:09 -0400
-Subject: Re: linux-abi dead?
-From: Steve Bergman <steve@rueb.com>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040607092425.GN20632@lug-owl.de>
-References: <1086588439.8572.10.camel@ip68-12-228-23.ok.ok.cox.net>
-	 <20040607092425.GN20632@lug-owl.de>
-Content-Type: text/plain
-Message-Id: <1086640522.6761.17.camel@ip68-12-228-23.ok.ok.cox.net>
+	Mon, 7 Jun 2004 16:37:30 -0400
+Received: from mail.kroah.org ([65.200.24.183]:19624 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265039AbUFGUhX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 16:37:23 -0400
+Date: Mon, 7 Jun 2004 13:20:36 -0700
+From: Greg KH <greg@kroah.com>
+To: kai.engert@gmx.de
+Cc: linux-kernel@vger.kernel.org, webcam@smcc.demon.nl
+Subject: Re: small patch: enable pwc usb camera driver
+Message-ID: <20040607202036.GA6185@kroah.com>
+References: <40C466FB.1040309@kuix.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 07 Jun 2004 15:35:23 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40C466FB.1040309@kuix.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that there is a patch, released just today (and just for me, I
-guess?) at:
+On Mon, Jun 07, 2004 at 03:00:43PM +0200, Kai Engert wrote:
+> The attached patch enables the pwc driver included with kernel 2.6.7-rc2
+> 
+> It also removes the warnings during compilation.
+> However, note that I blindly duplicated the release approach used by 
+> other usb camera drivers, replacing the current no-op.
+> 
+> The driver works for me with a Logitech QuickCam Notebook Pro and 
+> GnomeMeeting.
 
-http://sourceforge.net/tracker/index.php?func=detail&aid=968070&group_id=13130&atid=313130
+Nice, thanks, I've applied this.  It's amazing how long it took for this
+to be fixed... :(
 
+Again, thanks a lot for doing this.
+
+greg k-h

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132751AbRBEESb>; Sun, 4 Feb 2001 23:18:31 -0500
+	id <S132767AbRBEETL>; Sun, 4 Feb 2001 23:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132767AbRBEESL>; Sun, 4 Feb 2001 23:18:11 -0500
-Received: from cr949225-b.rchrd1.on.wave.home.com ([24.112.58.97]:26640 "HELO
-	enfusion-group.com") by vger.kernel.org with SMTP
-	id <S132751AbRBEESC>; Sun, 4 Feb 2001 23:18:02 -0500
-Date: Sun, 4 Feb 2001 23:17:53 -0500
-From: Adrian Chung <adrian@enfusion-group.com>
-To: Carlos Carvalho <carlos@fisica.ufpr.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dual Promise Ultra66 PCI Cards
-Message-ID: <20010204231753.A3350@toad>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <14974.10199.89722.67460@hoggar.fisica.ufpr.br>; from carlos@fisica.ufpr.br on Mon, Feb 05, 2001 at 02:11:03AM -0200
-Organization: enfusion-group
+	id <S132749AbRBEETB>; Sun, 4 Feb 2001 23:19:01 -0500
+Received: from www.llamacom.com ([209.152.94.130]:61957 "HELO www.llamacom.com")
+	by vger.kernel.org with SMTP id <S132767AbRBEESp>;
+	Sun, 4 Feb 2001 23:18:45 -0500
+Date: Sun, 4 Feb 2001 22:18:42 -0600 (CST)
+From: Eric Molitor <emolitor@molitor.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Wavelan IEEE driver 
+In-Reply-To: <200101302222.OAA04184@nova.botz.org>
+Message-ID: <Pine.LNX.4.10.10102042217210.27031-100000@www.llamacom.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 05, 2001 at 02:11:03AM -0200, Carlos Carvalho wrote:
-> Adrian Chung (adrian@enfusion-group.com) wrote on 4 February 2001 15:53:
->  >I've been attempting to get two Promise Ultra66 controllers working
->  >with an Asus P2B-F motherboard.  I've got one controller successfully
->  >working, but as soon as I stick the second controller in the computer,
->  >the system refuses to boot.
->  >
->  >With 2.2.18 and the linux-ide patches (Uniform E-IDE 6.30), the
->  >computer refuses to boot if there are no bootable drives on the
->  >motherboard's IDE controllers.
+
+I dropped a patch to 2.4.1 with the updated wavelan driver at the
+following locations. It should work with the new firmware. (Its the 1.06
+wavelan driver)
+
+http://www.molitor.org/wavelan/
+http://omega.uta.edu/~emm7993/wavelan/
+
+- Eric Molitor
+  Please CC me on the reply as I'm not on the kernel mailing list...
+
+On Wed, 31 Jan 2001, Tobias Ringstrom wrote:
+
+> On Tue, 30 Jan 2001, Jurgen Botz wrote:
+> > and appears to work.  I did observe a problem with iwconfig dumping
+> > core, but it seems to do its job before it dies, so this may be non-
+> > critical.
 > 
-> The same happens with a P2B-DS. It has nothing to do with the kernel,
-> the bios doesn't try to boot (from floppy in my case).
+> Make sure you compile wireless-tools using the right headers.  You must
+> manually insert -I/path/to/running-linux-version/include in the Makefile.
+> 
+> This is due to a bad (non-existing) ioctl backward and forward
+> compatibility, and is being worked on.  Basically, you cannot use the
+> tools compiled with one version of the wireless extension headers on a
+> kernel with another version of the wireless extensions.  The symptom is at
+> best a SEGV, but you may also get strange values.
+> 
+> /Tobias
+> 
+> 
+> 
+> 
 
-The BIOS doesn't try to boot, but if I switch my bootable linux drive
-from the Ultra66 to the motherboard's controller, it boots just fine.
-Up until it detects ide devices and tries to scan the hard drives.
 
-Then linux just hangs...
-
---
-Adrian Chung - adrian@enfusion-group.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

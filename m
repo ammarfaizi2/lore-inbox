@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAEUnP>; Fri, 5 Jan 2001 15:43:15 -0500
+	id <S129561AbRAEUuH>; Fri, 5 Jan 2001 15:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129561AbRAEUnE>; Fri, 5 Jan 2001 15:43:04 -0500
-Received: from acct2.voicenet.com ([207.103.26.205]:4510 "HELO voicenet.com")
-	by vger.kernel.org with SMTP id <S129324AbRAEUmx>;
-	Fri, 5 Jan 2001 15:42:53 -0500
-Message-ID: <3A5631CB.C0E3E4C1@voicenet.com>
-Date: Fri, 05 Jan 2001 15:42:52 -0500
-From: safemode <safemode@voicenet.com>
-Organization: none
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
-X-Accept-Language: en
+	id <S129775AbRAEUt6>; Fri, 5 Jan 2001 15:49:58 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1800 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129561AbRAEUtn>; Fri, 5 Jan 2001 15:49:43 -0500
+Subject: Re: Module section warning
+To: jamagallon@able.es (J . A . Magallon)
+Date: Fri, 5 Jan 2001 20:51:46 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <20010105210616.A872@werewolf.able.es> from "J . A . Magallon" at Jan 05, 2001 09:06:16 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: linux-kernel@vger.kernel.org,
-        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Re: ACPI in Via Apollo (vt82C686) broken badly in 2.4.x ?
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE572@orsmsx35.jf.intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14Edq0-0008PC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" wrote:
+> o  binutils               2.9.1.0.25              # ld -v
+> o  modutils               2.4.0                   # insmod -V
+> 
+> and 2.4 uses gas instead of as86 for real mode.
+> 
+> Are not that versions enough to delete the
+> __asm__(".section .modinfo\n\t.previous");
+> in module.h ?
 
-> > From: safemode [mailto:safemode@voicenet.com]
->
-> > Well, it seems the only way to look at sensor readings with
-> > lmsensors is
-> > to activate acpi in linux for my motherboard.
->
-> Can you please send me the output from dmesg, as well as /proc/interrupts? I
-> don't think anyone's tried lmsensors and acpi. It may be that they will need
-> some work to coexist..
->
-> > According to
-> > the docs, my
-> > motherboard is supposed to be supported and is detected when linux
-> > boots, the problem comes when i try to move the mouse (in console and
-> > X).  It totally flips out, i get irregular mouse movement across the
-> > screen and button clicks when i just barely touched it.  It
-> > is directly
-> > related to enabling acpi so i was wondering if anyone else
-> > has had this
-> > problem and if there was/is a fix for it or if it's a bug right now.
-> > If there is specific debugging info that i can get to help, tell me
-> > where... dmesg just shows successful messages.
->
-> Never seen that before.. does /proc/interrupts indicate mouse driver and
-> acpi are sharing one?
->
-> Regards -- Andy (ACPI maintainer)
-
-The problem wasn't actually with lmsensors together with ACPI yet...  Just
-enabling ACPI with this board causes the mouse to go insane.   i will however
-recompile the stock 2.4.0 kernel that recently came out to test it again.  I'll
-give you output from dmesg and /proc/interrupts before lmsensors is loaded and
-after (after a new recompile of the drivers too).   I can tell you know though,
-the acpi bus? is running on int 5 according to the bios.  ... Should have the
-output ready within the hour.
+Firstly they are guidelines for x86. Secondly certain configs need the updates
+so its pretty invasive to force it yet - 2.5.0 yes
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267286AbUBSOmF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 09:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267217AbUBSOlK
+	id S267296AbUBSOmE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 09:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267286AbUBSOlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 09:41:10 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:59337 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S267286AbUBSOjR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 09:39:17 -0500
-Message-ID: <007b01c3f6f6$2492e420$0e25fe96@pysiak>
-From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <1077132367.30936.16.camel@telecentrolivre> <005501c3f65b$027191c0$0e25fe96@pysiak> <200402190141.15211.madx@tlen.pl> <40341438.7050706@cyberone.com.au>
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3 (website)
-Date: Thu, 19 Feb 2004 15:39:12 +0100
+	Thu, 19 Feb 2004 09:41:16 -0500
+Received: from web12609.mail.yahoo.com ([216.136.173.179]:2895 "HELO
+	web12609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267288AbUBSOki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 09:40:38 -0500
+Message-ID: <20040219144032.5171.qmail@web12609.mail.yahoo.com>
+Date: Thu, 19 Feb 2004 06:40:32 -0800 (PST)
+From: Joilnen Leite <pidhash@yahoo.com>
+Subject: tmp_dentry dereference ?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Spam-Rating: 0 1.6.2 0/1000/N
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think this should be a 2.7 thing. Let's stick with funny
-> sounding animal names in 2.6 for backward compatibility.
-That sounds reasonable, also this means we'd be better
-prepared for 2.7 :-)
+here i think that d_alloc can return NULL, so
+tmp_dentry not use without checked.
 
-Anyway, there was an update:
-http://soltysiak.com/kernel-codenames.php
 
-New characters + info + links to valuable resources :-)
+fs/cifs/file.c:1251
 
-Regards,
-Maciej
+} else {
+      tmp_dentry = d_alloc(file->f_dentry, qstring);
+      *ptmp_inode = new_inode(file->f_dentry->d_sb);
+      tmp_dentry->d_op = &cifs_dentry_ops;
+      cFYI(0, (" instantiate dentry 0x%p with inode
+0x%p ",
+                tmp_dentry, *ptmp_inode));
+      d_instantiate(tmp_dentry, *ptmp_inode);
+      d_rehash(tmp_dentry);
+}
 
+pub 1024D/5139533E Joilnen Batista Leite 
+F565 BD0B 1A39 390D 827E 03E5 0CD4 0F20 5139 533E
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail SpamGuard - Read only the mail you want.
+http://antispam.yahoo.com/tools

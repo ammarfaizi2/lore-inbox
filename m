@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283049AbRK1OKU>; Wed, 28 Nov 2001 09:10:20 -0500
+	id <S283052AbRK1ONc>; Wed, 28 Nov 2001 09:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283058AbRK1OKP>; Wed, 28 Nov 2001 09:10:15 -0500
-Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:9974 "EHLO
-	blimpo.internal.net") by vger.kernel.org with ESMTP
-	id <S283049AbRK1OJg>; Wed, 28 Nov 2001 09:09:36 -0500
-Date: Wed, 28 Nov 2001 09:09:28 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Samuel Maftoul <maftoul@esrf.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ieee1394
-Message-ID: <20011128090928.I23907@visi.net>
-In-Reply-To: <20011128103256.A28083@pcmaftoul.esrf.fr>
+	id <S283066AbRK1OMs>; Wed, 28 Nov 2001 09:12:48 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:60686 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S283062AbRK1OLA>;
+	Wed, 28 Nov 2001 09:11:00 -0500
+Subject: Re: task_struct.mm == NULL
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <p734rnfrsnb.fsf@amdsim2.suse.de>
+In-Reply-To: <Pine.GSO.4.31.0111281300070.8642-100000@eduserv.rug.ac.be.suse.lists.linux.
+	kernel>  <p734rnfrsnb.fsf@amdsim2.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 28 Nov 2001 09:10:30 -0500
+Message-Id: <1006956633.4222.2.camel@zaphod>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011128103256.A28083@pcmaftoul.esrf.fr>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 28, 2001 at 10:32:56AM +0100, Samuel Maftoul wrote:
-> Hello everyone,
->         Still me with my ieee1394 problems :)
+On Wed, 2001-11-28 at 07:23, Andi Kleen wrote:
+> Frank Cornelis <Frank.Cornelis@rug.ac.be> writes:
 > 
-> Workaround: My goal is to make ieee1394 HardDisk  work in a production 
-> environment:
-> 	User come on a machine, plug his disk, store his (experience 
-> 	results) datas on it, unplugs it and go away with it in his home
-> 	institute where he processes his datas.
+> > Hey,
+> > 
+> > I found in some code checks for task_struct.mm being NULL.
+> > When can task_struct.mm of a process be NULL except right before the
+> > process-kill?
+> 
+> For kernel threads that run in lazy-mm mode. It allows a much cheaper context
+> switch into kernel threads.
 
-I don't see any mention of the kernel version you are using, nor about
-the specific ohci chipset, or the hardware (ppc, i386?).
+oh. so not all kernel threades have mm == null.  I used to think that
+kernel threads ran in the kernel's address space, therefore there was no
+point in having an mm struct as that just defines a virtual process
+address space.  What's this lazy_mm mode?
 
-Give me some details. I don't see this issue right now, but I'm using
-linux1394 CVS.
+thanks,
 
+shaya
 
-Ben
-
--- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'

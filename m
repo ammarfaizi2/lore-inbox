@@ -1,92 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267932AbUH0V5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUH0Vsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267932AbUH0V5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 17:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267610AbUH0Vy5
+	id S267957AbUH0Vsm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 17:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268860AbUH0Vpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 17:54:57 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:17150 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264213AbUH0VxS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 17:53:18 -0400
-From: trini@kernel.crashing.org
-Message-Id: <200408272153.OAA28845@av.mvista.com>
-Subject: [patch 2/3] 
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, jdubois@mc.com
-Date: Fri, 27 Aug 2004 14:53:08 -0700
+	Fri, 27 Aug 2004 17:45:41 -0400
+Received: from holomorphy.com ([207.189.100.168]:36769 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268788AbUH0VnH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 17:43:07 -0400
+Date: Fri, 27 Aug 2004 14:42:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm1
+Message-ID: <20040827214249.GW2793@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040826014745.225d7a2c.akpm@osdl.org> <20040827043132.GJ2793@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040827043132.GJ2793@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 26, 2004 at 01:47:45AM -0700, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/
+[...]
 
-Use getopt_long() or getopt(), depending on the host
+On Thu, Aug 26, 2004 at 09:31:32PM -0700, William Lee Irwin III wrote:
+> Hmm. Something odd is going on; initcall_debug doesn't seem to function
+> as expected. It reports strings with "queue" as a substring instead of
+> the expected function names. There may be a bootstrap ordering issue
+> (though apparently benign, just initcall_debug) with kallsyms bits.
 
-From: Jean-Christophe Dubois <jdubois@mc.com>.
+I suspect endianness; sparc64 is affected, but not x86-64. Now checking
+kallsyms lookup -related results on ppc64...
 
-We do not always have GNU getopt_long(), so when we don't, just use
-getopt() and the short options.  We do this based on __GNU_LIBRARY__
-being set, or not.  Originally from Jean-Christophe Dubois <jdubois@mc.com>.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
----
-
- Makefile                                            |    0 
- linux-2.6-solaris-trini/scripts/genksyms/genksyms.c |   15 +++++++++++++++
- 2 files changed, 15 insertions(+)
-
-diff -puN scripts/genksyms/genksyms.c~getopt scripts/genksyms/genksyms.c
---- linux-2.6-solaris/scripts/genksyms/genksyms.c~getopt	2004-08-27 14:47:06.411222247 -0700
-+++ linux-2.6-solaris-trini/scripts/genksyms/genksyms.c	2004-08-27 14:47:06.417220855 -0700
-@@ -27,7 +27,9 @@
- #include <unistd.h>
- #include <assert.h>
- #include <stdarg.h>
-+#ifdef __GNU_LIBRARY__
- #include <getopt.h>
-+#endif /* __GNU_LIBRARY__ */
- 
- #include "genksyms.h"
- 
-@@ -502,12 +504,21 @@ void genksyms_usage(void)
- 	fputs("Usage:\n"
- 	      "genksyms [-dDwqhV] > /path/to/.tmp_obj.ver\n"
- 	      "\n"
-+#ifdef __GNU_LIBRARY__
- 	      "  -d, --debug           Increment the debug level (repeatable)\n"
- 	      "  -D, --dump            Dump expanded symbol defs (for debugging only)\n"
- 	      "  -w, --warnings        Enable warnings\n"
- 	      "  -q, --quiet           Disable warnings (default)\n"
- 	      "  -h, --help            Print this message\n"
- 	      "  -V, --version         Print the release version\n"
-+#else  /* __GNU_LIBRARY__ */
-+             "  -d                    Increment the debug level (repeatable)\n"
-+             "  -D                    Dump expanded symbol defs (for debugging only)\n"
-+             "  -w                    Enable warnings\n"
-+             "  -q                    Disable warnings (default)\n"
-+             "  -h                    Print this message\n"
-+             "  -V                    Print the release version\n"
-+#endif /* __GNU_LIBRARY__ */
- 	      , stderr);
- }
- 
-@@ -516,6 +527,7 @@ main(int argc, char **argv)
- {
-   int o;
- 
-+#ifdef __GNU_LIBRARY__
-   struct option long_opts[] = {
-     {"debug", 0, 0, 'd'},
-     {"warnings", 0, 0, 'w'},
-@@ -528,6 +540,9 @@ main(int argc, char **argv)
- 
-   while ((o = getopt_long(argc, argv, "dwqVDk:p:",
- 			  &long_opts[0], NULL)) != EOF)
-+#else  /* __GNU_LIBRARY__ */
-+  while ((o = getopt(argc, argv, "dwqVDk:p:")) != EOF)
-+#endif /* __GNU_LIBRARY__ */
-     switch (o)
-       {
-       case 'd':
-diff -L shell_commands -puN /dev/null /dev/null
-diff -puN Makefile~getopt Makefile
-_
+-- wli

@@ -1,91 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263800AbUAYJFn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 04:05:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUAYJFn
+	id S263823AbUAYJV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 04:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbUAYJV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 04:05:43 -0500
-Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:12162 "EHLO
-	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
-	id S263800AbUAYJFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 04:05:40 -0500
-Message-ID: <40138599.1030406@jpl.nasa.gov>
-Date: Sun, 25 Jan 2004 01:00:09 -0800
-From: Bryan Whitehead <driver@jpl.nasa.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122
+	Sun, 25 Jan 2004 04:21:59 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:50166 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263823AbUAYJV5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 04:21:57 -0500
+Message-ID: <40138A92.8000908@mvista.com>
+Date: Sun, 25 Jan 2004 01:21:22 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.2-rc1-mm3] drivers/usb/storage/dpcm.c
-References: <20040125050342.45C3E13A354@mrhankey.megahappy.net> <20040125084141.GA14215@one-eyed-alien.net>
-In-Reply-To: <20040125084141.GA14215@one-eyed-alien.net>
+To: eric.piel@tremplin-utc.net
+CC: Andrew Morton <akpm@osdl.org>, minyard@acm.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Incorrect value for SIGRTMAX
+References: <1074979873.4012e421714b1@mailetu.utc.fr> <20040124143037.5116ccc9.akpm@osdl.org> <1074983859.4012f3b32e87a@mailetu.utc.fr>
+In-Reply-To: <1074983859.4012f3b32e87a@mailetu.utc.fr>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm wrote:
-> One message a day to report a particular bug is really enough.... :)
-> 
-> That said, I think it would be better to add the ifdef's instead of more
-> substantial code changes.
+If we are going to open this, I would like to eliminate the "MIGS_SIGEV" stuff. 
+  If you can wait till Monday...
 
-No problemo, I was just getting my feet wet on small compiler warning 
-fixes and the SubmitingPatches doc said ifdefs were from the devil. ;)
+Another issue is that this is the only place in the kernel where SIGRTMAX is 
+used (or it was a few months ago).  If memory serves, it also seems that it is 
+the wrong value in at least some archs.
 
-I'll sent a patch later sunday...
+George
 
+
+eric.piel@tremplin-utc.net wrote:
+> Quoting Andrew Morton <akpm@osdl.org>:
 > 
-> Matt
 > 
-> On Sat, Jan 24, 2004 at 09:03:42PM -0800, Bryan Whitehead wrote:
 > 
->>In function dpcm_transport the compiler complains about ret not being used:
->>drivers/usb/storage/dpcm.c: In function `dpcm_transport':
->>drivers/usb/storage/dpcm.c:46: warning: unused variable `ret'
+>>b) it's casting the result of (foo > N) to unsigned which is nonsensical.
 >>
->>ret is not used if CONFIG_USB_STORAGE_SDDR09 is not set. Instead of adding
->>more ifdef's to the code this patch puts ret to use for the other 2 cases in
->>the switch statement (case 0 and default).
+>>Your patch doesn't address b).
 >>
->>--- drivers/usb/storage/dpcm.c.orig     2004-01-24 20:51:40.631038904 -0800
->>+++ drivers/usb/storage/dpcm.c  2004-01-24 20:50:05.155553384 -0800
->>@@ -56,7 +56,8 @@ int dpcm_transport(Scsi_Cmnd *srb, struc
->>     /*
->>      * LUN 0 corresponds to the CompactFlash card reader.
->>      */
->>-    return usb_stor_CB_transport(srb, us);
->>+    ret = usb_stor_CB_transport(srb, us);
->>+    break;
->>  
->> #ifdef CONFIG_USB_STORAGE_SDDR09
->>   case 1:
->>@@ -72,11 +73,12 @@ int dpcm_transport(Scsi_Cmnd *srb, struc
->>     ret = sddr09_transport(srb, us);
->>     srb->device->lun = 1; us->srb->device->lun = 1;
->>  
->>-    return ret;
->>+    break;
->> #endif
->>  
->>   default:
->>     US_DEBUGP("dpcm_transport: Invalid LUN %d\n", srb->device->lun);
->>-    return USB_STOR_TRANSPORT_ERROR;
->>+    ret = USB_STOR_TRANSPORT_ERROR;
->>   }
->>+  return ret;
->> }
+>>I don't thik there's a case in which sigev_signo can be negative anyway. 
+>>But if there is, the cast should be done like the below, yes?
+> 
+> God! I hadn't catch this one :-) Actually, the cast is needed because
+> sigev_signo is an int, this catches the (all fobidden) negative values.
+> 
+> Your patch is the right one :-)
+> Eric
+>  
+> 
+>> kernel/posix-timers.c |    3 +--
+>> 1 files changed, 1 insertion(+), 2 deletions(-)
 >>
->>--
->>Bryan Whitehead
->>driver@megahappy.net
+>>diff -puN kernel/posix-timers.c~SIGRTMAX-fix kernel/posix-timers.c
+>>--- 25/kernel/posix-timers.c~SIGRTMAX-fix	2004-01-24 14:27:13.000000000
+>>-0800
+>>+++ 25-akpm/kernel/posix-timers.c	2004-01-24 14:28:21.000000000 -0800
+>>@@ -344,8 +344,7 @@ static inline struct task_struct * good_
+>> 		return NULL;
+>> 
+>> 	if ((event->sigev_notify & ~SIGEV_NONE & MIPS_SIGEV) &&
+>>-			event->sigev_signo &&
+>>-			((unsigned) (event->sigev_signo > SIGRTMAX)))
+>>+	    (((unsigned)event->sigev_signo > SIGRTMAX) || !event->sigev_signo))
+>> 		return NULL;
+>> 
+>> 	return rtn;
 >>
 > 
 > 
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-Bryan Whitehead
-Email:driver@megahappy.net
-WorkE:driver@jpl.nasa.gov
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbTJaBAP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 20:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTJaBAP
+	id S262709AbTJaAw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 19:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTJaAw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 20:00:15 -0500
-Received: from mail.kroah.org ([65.200.24.183]:34205 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262802AbTJaBAK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 20:00:10 -0500
-Date: Thu, 30 Oct 2003 16:58:54 -0800
-From: Greg KH <greg@kroah.com>
-To: David Dodge <dododge@smart.net>
-Cc: "Guo, Min" <min.guo@intel.com>, Steven Dake <sdake@mvista.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, Mark Bellon <mbellon@mvista.com>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net, cgl_discussion@osdl.org,
-       "Ling, Xiaofeng" <xiaofeng.ling@intel.com>
-Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Message-ID: <20031031005854.GC4906@kroah.com>
-References: <200310310045.TAA04280@smarty.smart.net>
+	Thu, 30 Oct 2003 19:52:58 -0500
+Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:7297
+	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
+	id S262709AbTJaAw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 19:52:57 -0500
+Date: Thu, 30 Oct 2003 19:52:49 -0500
+From: Ben Slusky <sluskyb@paranoiacs.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jari Ruusu <jariruusu@users.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove useless highmem bounce from loop/cryptoloop
+Message-ID: <20031031005246.GE12147@fukurou.paranoiacs.org>
+Mail-Followup-To: Ben Slusky <sluskyb@paranoiacs.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Jari Ruusu <jariruusu@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20031030134137.GD12147@fukurou.paranoiacs.org> <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200310310045.TAA04280@smarty.smart.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031030133000.6a04febf.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 30, 2003 at 07:45:08PM -0500, David Dodge wrote:
-> Greg KH writes:
-> > On Wed, Oct 29, 2003 at 01:12:26PM +0800, Guo, Min wrote:
-> > > 2.For non-hotplug device
-> [...]
-> > >  uDEV:
-> > >          not deal with it
-> > 
-> > See Robert Love's very simple script to populate stuff from sysfs.  It
-> > can run from initscript just like SDE.  But in the end, udev will end up
-> > in initramfs and we will not need to do this.
-> 
-> So the intent is to have compiled-in drivers for already-attached
-> devices (framebuffer, system disks, loop, whatever) generate calls to
-> /sbin/hotplug within initramfs?
-> 
-> Mainly I'm asking because I did try putting a hotplug script into an
-> initramfs a few weeks ago (using -test7), and it didn't appear to be
-> invoked for e.g. the VESA framebuffer. So I want to make sure this is a
-> "future" capability and not something that should have worked :-)
+On Thu, 30 Oct 2003 13:30:00 -0800, Andrew Morton wrote:
+> Ben, I confess that I'd forgotten about #1198.  I'll take a look at your
+> memory allocation fix - it seems to be unfortunately large, but we may need
+> to go that way.
 
-This is something that should have worked for you today, /sbin/hotplug
-does get called during early boot, before init is started up.
+The current memory allocation procedure really is inadequate. It worked
+ok up thru 2.4 because the loop device was used almost exclusively
+as a nifty hack to make an initrd or to double-check the ISO you just
+created. Throw strong crypto into the mix and it becomes reasonable to
+have your laptop mount all its filesystems and swap off of loop devices.
 
-thanks,
+> One question is: why do we go down a different code path for blockdevs
+> nowadays anyway?  The handoff to the loop thread seems to work OK for
+> file-backed loop, and providing a bmap() for blockdevs is easy enough?
 
-greg k-h
+The code path for file-backed loop handles one page at a time, as that's
+the limit of the FS interface. Block-backed loop devices can throw
+huge bios at their backing device with one make_request. If we could
+get both working on the same code path, would that be worth hobbling
+block-backed loop?
+
+-- 
+Ben Slusky                      | If you're not part of the
+sluskyb@paranoiacs.org          | solution, there's good money
+sluskyb@stwing.org              | to be made in prolonging the
+PGP keyID ADA44B3B              | problem.      www.despair.com

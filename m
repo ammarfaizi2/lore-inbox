@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129119AbRBORqh>; Thu, 15 Feb 2001 12:46:37 -0500
+	id <S129781AbRBORsr>; Thu, 15 Feb 2001 12:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129159AbRBORq2>; Thu, 15 Feb 2001 12:46:28 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:8456 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S129119AbRBORqX>; Thu, 15 Feb 2001 12:46:23 -0500
-Date: Thu, 15 Feb 2001 12:46:19 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@fonzie.nine.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.1ac12 mkdep -I support - take 2
-In-Reply-To: <Pine.LNX.4.33.0102151122360.15924-100000@fonzie.nine.com>
-Message-ID: <Pine.LNX.4.33.0102151228010.812-100000@fonzie.nine.com>
+	id <S129782AbRBORs2>; Thu, 15 Feb 2001 12:48:28 -0500
+Received: from river.it.gvsu.edu ([148.61.1.16]:10954 "EHLO river.it.gvsu.edu")
+	by vger.kernel.org with ESMTP id <S129781AbRBORs0>;
+	Thu, 15 Feb 2001 12:48:26 -0500
+Message-ID: <3A8C1664.7040800@lycosmail.com>
+Date: Thu, 15 Feb 2001 12:48:20 -0500
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-ac6 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: axboe@suse.de
+Subject: Loopback status
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Feb 2001, Pavel Roskin wrote:
+What's the current status of the loop-# patch? Haven't seen anything 
+since loop-4, which doesn't apply clean to 2.4.1-ac14 (one hunk is 
+rejected in loop.c, many others apply with fuzz).
 
-> Hello, Keith!
->
-> You patch has been applied to 2.4.1ac13, but it doesn't help:
+I am waiting in anticipation of the folding of this patch into the 
+mainline kernel.
 
-It's fixed in ac14. I ran twice
-
-make depend && make clean && make bzImage && make modules
-
-and it worked both times. Thanks!
-
-Regards,
-Pavel Roskin
+IIRC, Jens said he was working on a loop-5, but that was a week or two ago.
 

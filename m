@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129285AbRBGAAF>; Tue, 6 Feb 2001 19:00:05 -0500
+	id <S129630AbRBGB0e>; Tue, 6 Feb 2001 20:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129686AbRBFX7t>; Tue, 6 Feb 2001 18:59:49 -0500
-Received: from jalon.able.es ([212.97.163.2]:15017 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129285AbRBFX72>;
-	Tue, 6 Feb 2001 18:59:28 -0500
-Date: Wed, 7 Feb 2001 00:59:20 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Juraj Bednar <juraj@bednar.sk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smp_num_cpus redefined? (compiling 2.2.18 for non-SMP?)
-Message-ID: <20010207005920.C949@werewolf.able.es>
-In-Reply-To: <20010207005203.A19812@rak.isternet.sk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010207005203.A19812@rak.isternet.sk>; from juraj@bednar.sk on Wed, Feb 07, 2001 at 00:52:04 +0100
-X-Mailer: Balsa 1.1.0
+	id <S129662AbRBGB0X>; Tue, 6 Feb 2001 20:26:23 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9992 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129630AbRBGB0R>; Tue, 6 Feb 2001 20:26:17 -0500
+Date: Tue, 6 Feb 2001 17:26:02 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>, Jens Axboe <axboe@suse.de>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.30.0102070205430.14696-100000@elte.hu>
+Message-ID: <Pine.LNX.4.10.10102061724080.2193-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 02.07 Juraj Bednar wrote:
-> Hello,
+
+On Wed, 7 Feb 2001, Ingo Molnar wrote:
 > 
-> 
->   the same for vanilla 2.4.1 and 2.4.1ac3. Everything works ok until I turn
-> off SMP
-> support (which is required to make it possible to turn off the machine using
-> APM, since
-> ACPI is completely broken in 2.4.1 for me).
-> 
+> most likely some coding error on your side. buffer-size mismatches should
+> show up as filesystem corruption or random DMA scribble, not in-driver
+> oopses.
 
-You do not need to do that. Enable both SMP and APM (just APM support, no
-ACPI nor any other apm option). And add to your lilo.conf file a line:
-append="apm=power-off".
+I'm not sure. If I was a driver writer (and I'm happy those days are
+mostly behind me ;), I would not be totally dis-inclined to check for
+various limits and things.
 
-At boot you will see a log message like:
+There can be hardware out there that simply has trouble with non-native
+alignment, ie be unhappy about getting a 1kB request that is aligned in
+memory at a 512-byte boundary. So there are real reasons why drivers might
+need updating. Don't dismiss the concerns out-of-hand.
 
-apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
-apm: disabled - APM is not SMP safe (power off active).
-
-So kernel diables APM but lets the power-off feature active.
-
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-ac4 #1 SMP Tue Feb 6 22:06:38 CET 2001 i686
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

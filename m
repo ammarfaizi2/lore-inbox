@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262410AbSJTGSU>; Sun, 20 Oct 2002 02:18:20 -0400
+	id <S262414AbSJTGVZ>; Sun, 20 Oct 2002 02:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbSJTGSU>; Sun, 20 Oct 2002 02:18:20 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:24508 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262410AbSJTGSU>; Sun, 20 Oct 2002 02:18:20 -0400
-Date: Sat, 19 Oct 2002 23:18:16 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-Message-ID: <2458064740.1035069495@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.3.96.1021019151523.29078E-200000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1021019151523.29078E-200000@gatekeeper.tmr.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S262415AbSJTGVZ>; Sun, 20 Oct 2002 02:21:25 -0400
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:10891 "EHLO
+	pc.kolivas.net") by vger.kernel.org with ESMTP id <S262414AbSJTGVY>;
+	Sun, 20 Oct 2002 02:21:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: Pathological case identified from contest
+Date: Sun, 20 Oct 2002 16:27:08 +1000
+User-Agent: KMail/1.4.3
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1034820820.3dae1cd4bc0e3@kolivas.net> <200210201259.34935.conman@kolivas.net> <3DB21D88.2E845F02@digeo.com>
+In-Reply-To: <3DB21D88.2E845F02@digeo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210201627.26445.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> For reference, one of the tests was TPC-H.  My code reduced the number of
->> allocated pte_chains from 5 million to 50 thousand.
-> 
-> Don't tease, what did that do for performance? I see that someone has
-> already posted a possible problem, and the code would pass for complex for
-> most people, so is the gain worth the pain?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-In many cases, this will stop the box from falling over flat on it's 
-face due to ZONE_NORMAL exhaustion (from pte-chains), or even total
-RAM exhaustion (from PTEs). Thus the performance gain is infinite ;-)
+On Sun, 20 Oct 2002 01:05 pm, Andrew Morton wrote:
+> Con Kolivas wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > On Thu, 17 Oct 2002 05:35 pm, you wrote:
+> > > Con Kolivas wrote:
+> > > > ...
+> > > > Well this has become more common with 2.5.43-mm2. I had to abort the
+> > > > process_load run 3 times when benchmarking it. Going back to other
+> > > > kernels and trying them it didnt happen so I dont think its my
+> > > > hardware failing or something like that.
+> > >
+> > > No, it's a bug in either the pipe code or the CPU scheduler I'd say.
+> > >
+> > > You could try backing out to the 2.5.40 pipe implementation; not sure
+> > > if that would tell us much though.
+> >
+> > I massaged the patch a little for it to apply and  it _is_ the offending
+> > code. Backing out the pipe changes fixed the problem. I was unable to
+> > reproduce the holdup I was seeing with process_load even at higher data
+> > sizes. Now what?
+>
+> Try Manfred's pipe fix I guess?
+>
 
-M.
+Well *that* makes sense. Tried it and it fixed it thank you.
 
+Cheers,
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9skzBF6dfvkL3i1gRAtbyAKCg6bIWNnEbZeFnRT2mcS7TkkBtsQCfatyT
+m4Q37qYkOZ389DlcvluL9vA=
+=PXfw
+-----END PGP SIGNATURE-----

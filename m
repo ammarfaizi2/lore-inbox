@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263006AbUCLWin (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 17:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbUCLWin
+	id S263009AbUCLWr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 17:47:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbUCLWr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 17:38:43 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:64658 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S263006AbUCLWiP (ORCPT
+	Fri, 12 Mar 2004 17:47:28 -0500
+Received: from gprs40-129.eurotel.cz ([160.218.40.129]:23170 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263009AbUCLWr1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 17:38:15 -0500
-Date: Fri, 12 Mar 2004 14:38:11 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Tim Hockin <thockin@Sun.COM>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: calling flush_scheduled_work()
-Message-ID: <20040312223811.GA15636@hockin.org>
-References: <20040312205814.GY1333@sun.com> <1079128848.3166.44.camel@lade.trondhjem.org>
+	Fri, 12 Mar 2004 17:47:27 -0500
+Date: Fri, 12 Mar 2004 23:46:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>, torvalds@transmeta.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Dealing with swsusp vs. pmdisk
+Message-ID: <20040312224645.GA326@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1079128848.3166.44.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 05:00:48PM -0500, Trond Myklebust wrote:
-> It would be dead easy to change RPC+NFS to use their own, workqueue. In
-> fact I've already considered that several times in the places where the
-> NFSv4 state stuff gets hairy. ... but it might be nice not to have to
-> set up all these (mostly) idle threads for exclusive use by NFS just in
-> order to catch a corner case.
-> 
-> Could we therefore perhaps consider setting up one or more global
-> workqueues that would be alternatives to keventd?
+Hi!
 
-That just divides up the problem, but doesn't solve it.  The simplest would
-be to print a badness and somehow get out of the flush.  Then anyone who is
-triggering the corner case (us, in this case) can just solve it ourselves.
-It's not pretty.
+I don't really like having two implementations of same code in
+kernel. There are two ways to deal with it:
 
-In short, it's dubious that ANYONE call flush_scheduled_work() on a
-workqueue that they don't own.
+* remove pmdisk from kernel
+  + its easy
 
-Tim
+* remove swsusp from kernel, rename pmdisk to swsusp, fix all bugs
+  that were fixed in swsusp but not in pmdisk 
+  + people seem to like pmdisk code more
+  - will need some testing in -mm series
+
+Which one do you prefer? I can do both...
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286557AbSAMR2O>; Sun, 13 Jan 2002 12:28:14 -0500
+	id <S286411AbSAMRhe>; Sun, 13 Jan 2002 12:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286462AbSAMR2F>; Sun, 13 Jan 2002 12:28:05 -0500
-Received: from ns.suse.de ([213.95.15.193]:60168 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S286411AbSAMR14>;
-	Sun, 13 Jan 2002 12:27:56 -0500
-To: 520047054719-0001@t-online.de (Oliver Neukum)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ugly warnings with likely/unlikely
-In-Reply-To: <16PjOb-0oLbCCC@fwd11.sul.t-online.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 13 Jan 2002 18:27:54 +0100
-In-Reply-To: 520047054719-0001@t-online.de's message of "13 Jan 2002 13:25:57 +0100"
-Message-ID: <p73r8ou2mat.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S286462AbSAMRhY>; Sun, 13 Jan 2002 12:37:24 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:2948 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S286411AbSAMRhR>;
+	Sun, 13 Jan 2002 12:37:17 -0500
+Date: Sun, 13 Jan 2002 20:34:39 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Anton Blanchard <anton@samba.org>
+Subject: [patch] O(1) scheduler, -H7
+Message-ID: <Pine.LNX.4.33.0201131933500.6560-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-520047054719-0001@t-online.de (Oliver Neukum) writes:
 
-> Hi,
-> 
-> if (likely(stru->pointer))
-> 
-> results in an ugly warning about using pointer as int.
-> Is there something that could be done against that ?
+the -H7 patch is available:
 
-Just use 
+    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre11-H7.patch
+    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-H7.patch
 
-if (!stru->pointer) { 
-	...
-}
+there is an important SMP fix in this release, found by Anton Blanchard:
+double-spin_unlock()ing triggered oopses on high-end SMP boxes.
 
-instead. gcc and a lot of other compilers predict all pointer tests
-against NULL as unlikely, unless you override that.
+stability status: all reported problems were fixed by -H6, the only
+problem remaining was Anton's SMP crashes, which should be fixed in this
+-H7 patch.
 
--Andi (who is a bit worried about the unlikelies multiplicating like rabbits)
- 
+Changes between -H6 and -H7:
+
+- Anton Blanchard: fix double spin_unlock in sched.c. This fixes
+  a high-end SMP oops he saw.
+
+- William Lee Irwin III: fix mwave's ->nice code.
+
+- cleanup: mmu_context.h renamed to sched.h, as suggested by
+  Richard Henderson.
+
+- added a irqs_enabled() macro to the x86 tree, to simplify irq.c.
+
+Bug reports, comments, suggestions welcome.
+
+	Ingo
+

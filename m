@@ -1,87 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVDCNs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVDCOAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVDCNs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 09:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVDCNs5
+	id S261739AbVDCOAB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 10:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVDCOAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 09:48:57 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:26039 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261738AbVDCNsx (ORCPT
+	Sun, 3 Apr 2005 10:00:01 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:43004 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261739AbVDCN76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 09:48:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=JE9VWnDD/UuvUN2WHbm1hMbjhbAz3LXssU5+hUecXkt/vZhUqxwVYxqc7f+KIu2geYtqLVcr+y9sjG9CwwCyFGnas7lEJkRXXVjBuYBAcRKaJypIcD893Z/nNz+OGNpnJ6oWzDJsqrOR9krjXR6i7LxGyPs3NJIjwlwzYrNmsgs=
-Message-ID: <424FF442.1060006@gmail.com>
-Date: Sun, 03 Apr 2005 15:48:50 +0200
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050324)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Alexander Nyberg <alexn@dsv.su.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-bk does not boot x86_64
-References: <424FE590.5060507@gmail.com> <1112533321.2369.1.camel@localhost.localdomain>
-In-Reply-To: <1112533321.2369.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15
+	Sun, 3 Apr 2005 09:59:58 -0400
+Date: Sun, 3 Apr 2005 22:59:45 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.12-rc1-mm4] mips: remove obsolete VR41xx RTC function
+ from vr41xx.h
+Message-Id: <20050403225945.60c1e751.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Alexander this sort this out.
-No system boots w/o problems :-)
+This patch had removed obsolete VR41xx RTC function from vr41xx.h .
+I forgot to put this change in "update VR41xx RTC support".
 
-Alexander Nyberg wrote:
+Yoichi
 
->>I tried the recent 2.6.12-rc1-bk5 snapshot from kernel.org.
->>When I want to boot my x86_64 system only a green line appears on screen.
->>The config is the same as in 2.6.12-rc1-bk4 which works flawlessly on my
->>system.
->>
->>I only saw the message that CPU0 and CPU1 where initialized. And then
->>there was
->>Brinnging up CPUs and it stopped.
->>
->>Its an Intel Pentium4 640 with (EMT64,HT,EIST,CIE enabled).
->>The graphic card is an Nvidia 6600GT PCIe device.
->>    
->>
->
->I had the same nasty surprise this morning, this will probably help:
->
->
->Well, this is a brown paper bag for someone.  The new protocol
->registration locking uses a rwlock to limit access to the protocol list.
->Unfortunately, the initialisation:
->
->static rwlock_t proto_list_lock;
->
->Only works to initialise the lock as unlocked on platforms whose unlock
->signal is all zeros.  On other platforms, they think it's already locked
->and hang forever.
->
->Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
->
->
->===== net/core/sock.c 1.67 vs edited =====
->--- 1.67/net/core/sock.c	2005-03-26 17:04:35 -06:00
->+++ edited/net/core/sock.c	2005-04-02 13:37:20 -06:00
->@@ -1352,7 +1352,7 @@
-> 
-> EXPORT_SYMBOL(sk_common_release);
-> 
->-static rwlock_t proto_list_lock;
->+static DEFINE_RWLOCK(proto_list_lock);
-> static LIST_HEAD(proto_list);
-> 
-> int proto_register(struct proto *prot, int alloc_slab)
->
->
->-
->
->
->
->  
->
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+
+diff -urN -X dontdiff rc1-mm4-orig/include/asm-mips/vr41xx/vr41xx.h rc1-mm4/include/asm-mips/vr41xx/vr41xx.h
+--- rc1-mm4-orig/include/asm-mips/vr41xx/vr41xx.h	Fri Apr  1 21:21:37 2005
++++ rc1-mm4/include/asm-mips/vr41xx/vr41xx.h	Sat Apr  2 19:26:58 2005
+@@ -198,22 +198,6 @@
+ extern void vr41xx_disable_bcuint(void);
+ 
+ /*
+- * Power Management Unit
+- */
+-
+-/*
+- * RTC
+- */
+-extern void vr41xx_set_rtclong1_cycle(uint32_t cycles);
+-extern uint32_t vr41xx_read_rtclong1_counter(void);
+-
+-extern void vr41xx_set_rtclong2_cycle(uint32_t cycles);
+-extern uint32_t vr41xx_read_rtclong2_counter(void);
+-
+-extern void vr41xx_set_tclock_cycle(uint32_t cycles);
+-extern uint32_t vr41xx_read_tclock_counter(void);
+-
+-/*
+  * General-Purpose I/O Unit
+  */
+ enum {
+
 

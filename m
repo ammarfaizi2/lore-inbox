@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274798AbRIUTrj>; Fri, 21 Sep 2001 15:47:39 -0400
+	id <S274799AbRIUTu3>; Fri, 21 Sep 2001 15:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274799AbRIUTr3>; Fri, 21 Sep 2001 15:47:29 -0400
-Received: from c007-h015.c007.snv.cp.net ([209.228.33.222]:28899 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274798AbRIUTrS>;
-	Fri, 21 Sep 2001 15:47:18 -0400
-X-Sent: 21 Sep 2001 19:47:36 GMT
-Message-ID: <3BAB9790.8DB400C@distributopia.com>
-Date: Fri, 21 Sep 2001 14:40:00 -0500
-From: "Christopher K. St. John" <cks@distributopia.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: /dev/yapoll : Re: [PATCH] /dev/epoll update ...
-In-Reply-To: <XFMail.20010921114539.davidel@xmailserver.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S274800AbRIUTuT>; Fri, 21 Sep 2001 15:50:19 -0400
+Received: from blount.mail.mindspring.net ([207.69.200.226]:9278 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274799AbRIUTuG>; Fri, 21 Sep 2001 15:50:06 -0400
+Subject: Re: Feedback on preemptible kernel patch xfs
+From: Robert Love <rml@tech9.net>
+To: Gerold Jury <geroldj@grips.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200109211229.f8LCT9J19687@hal.grips.com>
+In-Reply-To: <1000581501.32705.46.camel@phantasy>
+	<3BA94B2E.99FABD43@grips.com> <1000947409.4348.58.camel@phantasy> 
+	<200109211229.f8LCT9J19687@hal.grips.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Evolution-Format: text/plain
+X-Mailer: Evolution/0.13.99+cvs.2001.09.20.15.42 (Preview Release)
+Date: 21 Sep 2001 15:50:29 -0400
+Message-Id: <1001101835.7296.63.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
+On Fri, 2001-09-21 at 08:29, Gerold Jury wrote:
+> On Thursday 20 September 2001 02:56, Robert Love wrote:
+> > I am surprised, you should see a difference, especially with the
+> > latencytest.  Silly question, but you both applied the patch and enabled
+> > the config statement, right?
+> >
+> Really, i have checked twice.
+> The patch could, by the way, write a line to the syslog when enabled.
+
+OK, I believe you :)
+
+Yes, but I find all the `NET4.0 loaded!' as crap as it is.  If
+CONFIG_PREEMPT is defined, rest assured the code is correct.
+
+> All the filesystem operations happend on the xfs partitions.
+> I noticed more equally distributed read/write operations with smaller slices 
+> during big copy jobs on xfs.
+> This effect may well come from the preemption patch. I used a spare partition
+> for the test, so the filesystem was in the same state with both kernels 
+> during the tests.
+> Xfs usually delays the write operations and does them in bigger blocks.
+> The behavior of XFS has changed with the kernel versions towards this 
+> direction anyway but is clearly different with the preemption patch.
 > 
-> Instead of requesting /dev/epoll changes to make it
-> something that is not born for, i think that the /dev/poll
-> patch can be improved in a significant way.
->
+> I will redo the latency tests with the standard Xfree86 nvidia driver.
+> It may give a different picture.
+> The graphics test and the /proc test have shown the highest latency's.
+> Both involve the xserver (proc for the xterm).
+> The other tests have been around 5-6 msec in both cases.
+> 
+> And i will do the dbench test of course.
 
- I think there's agreement that Davide doesn't want
-to change his /dev/epoll code.
-
- So, as an experiment, I'm modifying /dev/epoll to
-more closely match the interface described in:
-
-  http://citeseer.nj.nec.com/banga99measuring.html
-
- The paper describes in detail an event based
-notification mechanism for determining which fd's are
-ready for processing. Linux-/dev/poll is, and 
-/dev/epoll appears to be, a variant of the mechanism
-described in the paper.
-
- To save further pointless argument, I'm calling the
-experiment "/dev/yapoll". 
-
- Specifically, I've added code to return the initial
-state of the fd's as they are added to the interest
-list. It seems to work ok so far, but I'll be doing
-some benchmarking this weekend. I will post a patch
-if no problems turn up.
-
- Davide seems to think it would be better to start
-with the Linux-/dev/poll patch, but I disagree
-(/dev/epoll itself appears to be based on the
-Linux-/dev/poll code) I guess I'll soon find out if
-he was right.
-
+Very good. Please let me know.
 
 -- 
-Christopher St. John cks@distributopia.com
-DistribuTopia http://www.distributopia.com
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

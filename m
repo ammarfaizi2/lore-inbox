@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269099AbUIQWvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269073AbUIQWxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269099AbUIQWvj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 18:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269082AbUIQWut
+	id S269073AbUIQWxE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 18:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269082AbUIQWxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 18:50:49 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:55957 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263003AbUIQWum
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 18:50:42 -0400
-Date: Fri, 17 Sep 2004 15:51:05 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v4l: bttv update
-Message-ID: <20040917225105.GA11971@us.ibm.com>
-References: <20040916091505.GA11528@bytesex>
+	Fri, 17 Sep 2004 18:53:03 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:9174
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269073AbUIQWwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 18:52:55 -0400
+Date: Fri, 17 Sep 2004 15:49:42 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Bob Gill <gillb4@telusplanet.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc2-bk] Network-related panic on boot
+Message-Id: <20040917154942.39034b0c.davem@davemloft.net>
+In-Reply-To: <1095459971.8786.14.camel@localhost.localdomain>
+References: <1095459971.8786.14.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040916091505.GA11528@bytesex>
-X-Operating-System: Linux 2.6.8.1 (i686)
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 11:15:05AM +0200, Gerd Knorr wrote:
->   Hi,
-> 
-> This update for the bttv driver fixes kernel crashes when capturing
-> planar yuv images.  It also added sanity checks for the bt878 risc
-> code buffer sizes, adds support for a new tv card and has some minor
-> code cleanups.
 
-<snip>
+Already fixed.  Patch below:
 
-> diff -up linux-2.6.9-rc2/drivers/media/video/bttv-driver.c linux/drivers/media/video/bttv-driver.c
-> --- linux-2.6.9-rc2/drivers/media/video/bttv-driver.c	2004-09-14 10:37:08.000000000 +0200
-> +++ linux/drivers/media/video/bttv-driver.c	2004-09-16 10:06:33.000000000 +0200
-> @@ -1,4 +1,6 @@
->  /*
-> +    $Id: bttv-driver.c,v 1.14 2004/09/15 16:15:24 kraxel Exp $
-> +
->      bttv - Bt848 frame grabber driver
->      
->      Copyright (C) 1996,97,98 Ralph  Metzler <rjkm@thp.uni-koeln.de>
-> @@ -743,8 +745,7 @@ static void set_pll(struct bttv *btv)
->          for (i=0; i<10; i++) {
->  		/*  Let other people run while the PLL stabilizes */
->  		vprintk(".");
-> -		set_current_state(TASK_INTERRUPTIBLE);
-> -		schedule_timeout(HZ/50);
-> +		msleep(10);
-
-My original patch used
-
-msleep(20);
-
-Is there a reason the conversion was changed?
-
--Nish
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/09/17 11:11:23-07:00 david@gibson.dropbear.id.au 
+#   [IPV4]: Initialize newly allocated hash tables in fib_semantics.c
+#   
+#   When fib_create_info() allocates new hash tables, it neglects to
+#   initialize them.  This leads to an oops during boot on at least
+#   machine I use.  This patch addresses the problem.
+#   
+#   Signed-off-by: David Gibson <dwg@au1.ibm.com>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+# net/ipv4/fib_semantics.c
+#   2004/09/17 11:11:04-07:00 david@gibson.dropbear.id.au +5 -1
+#   [IPV4]: Initialize newly allocated hash tables in fib_semantics.c
+#   
+#   When fib_create_info() allocates new hash tables, it neglects to
+#   initialize them.  This leads to an oops during boot on at least
+#   machine I use.  This patch addresses the problem.
+#   
+#   Signed-off-by: David Gibson <dwg@au1.ibm.com>
+#   Signed-off-by: David S. Miller <davem@davemloft.net>
+# 
+diff -Nru a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+--- a/net/ipv4/fib_semantics.c	2004-09-17 15:33:41 -07:00
++++ b/net/ipv4/fib_semantics.c	2004-09-17 15:33:41 -07:00
+@@ -604,8 +604,12 @@
+ 		if (!new_info_hash || !new_laddrhash) {
+ 			fib_hash_free(new_info_hash, bytes);
+ 			fib_hash_free(new_laddrhash, bytes);
+-		} else
++		} else {
++			memset(new_info_hash, 0, bytes);
++			memset(new_laddrhash, 0, bytes);
++
+ 			fib_hash_move(new_info_hash, new_laddrhash, new_size);
++		}
+ 
+ 		if (!fib_hash_size)
+ 			goto failure;

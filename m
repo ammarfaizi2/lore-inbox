@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129086AbQKBRjn>; Thu, 2 Nov 2000 12:39:43 -0500
+	id <S129049AbQKBRtG>; Thu, 2 Nov 2000 12:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129113AbQKBRjX>; Thu, 2 Nov 2000 12:39:23 -0500
-Received: from bastion.power-x.co.uk ([62.232.19.201]:3332 "EHLO
-	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
-	id <S129086AbQKBRjO>; Thu, 2 Nov 2000 12:39:14 -0500
-Date: Thu, 2 Nov 2000 17:39:03 +0000 (GMT)
-From: "Dr. David Gilbert" <dg@px.uk.com>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-cc: kernel@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Dual XEON - >>SLOW<< on SMP
-In-Reply-To: <Pine.LNX.4.21.0011021408040.2508-100000@saturn.homenet>
-Message-ID: <Pine.LNX.4.21.0011021738010.24579-100000@springhead.px.uk.com>
+	id <S129050AbQKBRs4>; Thu, 2 Nov 2000 12:48:56 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:53512 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129049AbQKBRsu>; Thu, 2 Nov 2000 12:48:50 -0500
+Message-ID: <3A01A8FD.C4293478@holly-springs.nc.us>
+Date: Thu, 02 Nov 2000 12:48:45 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: Re: working nfs v3 for linux?
+In-Reply-To: <linux.kernel.3A008510.FAE271A1@holly-springs.nc.us> <slrn9015t8.u5t.wnoise@barter.ugcs.caltech.edu> <3A00A84E.F3A1C585@holly-springs.nc.us> <8tqasp$d1k$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2000, Tigran Aivazian wrote:
+Okay, how about the nfsv3 kernel patch for 2.2.17? Does anyone know how
+well (reliably) it works in client and server mode?
 
-> yes, that someone was me :) It did indeed help to my 4way 6G RAM Xeon --
-> the performance improved 40x!. Also, using David's mtrr.patch helped with
-> the problem of eepro100 interfaces sometimes not coming up properly (and
-> generally, it is nice to see all your 6G appear in /proc/mtrr).
-> 
-> So, here is David's mtrr patch. Although in his case ("only" 4G) it
-> shouldn't be needed.... it is for 36bit MTRRs I assume.
+Thanks!
 
-Thanks! That patch did the trick - our machine is now running lovely.
-
-Thanks again,
-
-Dave
-
--- 
-/------------------------------------------------------------------\
-| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
-| -------- G7FHJ --------|---------------------------------------- |
-| Home: dave@treblig.org            http://www.treblig.org         |
-\------------------------------------------------------------------/
-
+-M
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

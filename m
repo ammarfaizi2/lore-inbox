@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318452AbSGSHdx>; Fri, 19 Jul 2002 03:33:53 -0400
+	id <S318439AbSGSHdC>; Fri, 19 Jul 2002 03:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318457AbSGSHdx>; Fri, 19 Jul 2002 03:33:53 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:25360 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318452AbSGSHdw>; Fri, 19 Jul 2002 03:33:52 -0400
-Message-ID: <3D37C03C.6000301@evision.ag>
-Date: Fri, 19 Jul 2002 09:31:08 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: Remain Calm: Designated initializer patches for 2.5
-References: <20020719014425.BAECB417E@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S318458AbSGSHdC>; Fri, 19 Jul 2002 03:33:02 -0400
+Received: from Qui-Gon.aplushosting.com ([216.65.98.179]:9 "HELO
+	qui-gon.asdf456.com") by vger.kernel.org with SMTP
+	id <S318439AbSGSHdC>; Fri, 19 Jul 2002 03:33:02 -0400
+Subject: Coffee Break...
+From: Robert Cole <robert@support4linux.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 19 Jul 2002 00:35:32 -0700
+Message-Id: <1027064133.24165.7.camel@ws2.support4linux.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <E17VBcZ-0004oO-00@starship> you write:
-> 
->>On Thursday 18 July 2002 05:22, Rusty Russell wrote:
->>
->>>GCC has understood both since forever, but the kernel took a wrong
->>>bet, and we're better off setting a good example for 2.6 before we
->>>start getting about 10,000 warnings.
->>
->>Next time, remember to bet on the ugliest looking one ;-)
-> 
-> 
-> I agreed, until I recently did a big grep to find these things.  I now
-> concur with the C9X committee.  ".foo = " is clearly distinguished
-> from bitfield declarations and labels, which "foo: " isn't.
+Here's a coffee break for all you coders out there. I use to run a BBS
+system back before the web and this was sent to all on my BBS system by
+Tim Saari. Don't know if he wrote it or not though... :)
 
-Of hand I think about the following *technical* points:
+(Sung to the tune of "Let it be")
 
-1. It resembles the usage case similar to other initalizations.
+When I find my code in tones of trouble,
+Friends and colleges come to me,
+Speaking words of wisdom: "Write in C".
+As the deadline fast approaches,
+Somewhere, someone whispers: "Write in C".
+Write in C, Write in C, Write in C, oh, White in C.
+Logo's dead on buried, "Write in C".
+I use to write a lot in fortran,
+For science it crashed constantly.
+Try using it for graphics, "Write in C".
+If you've spent nearly 30 hours
+soon you'll be glad to "Write in C"
+Write in C, Write in C, Write in C, Write in C, yeah, Write in C.
+Only wimps use BASIC. "Write in C".
+Write in C, Write in C, Write in C,oh, Write in C.
+Pascal won't quite cut it, "Write in C".
+Write in C, Write in C, Write in C, Write in C, yeah, Write in C.
+Don't even mention Cobol, "Write in C".
 
-2. It makes for less reduce/reduce conflicts in the LR-grammar
-parser generator.
+The date on the message is 1/21/92 5:42pm on my BBS system that was
+called The Programmers Dungeon running on Wildcat BBS software running 3
+lines. :)
 
-Its better and more outtought then the GNU "extension".
+Oh the days... :) I miss em :) Hardly any spam in those days... :)
+
+Robert Cole
 
 
 

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbTLNXLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 18:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTLNXLJ
+	id S262762AbTLNXQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 18:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTLNXQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 18:11:09 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.31]:17386 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262761AbTLNXLG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 18:11:06 -0500
-Date: Mon, 15 Dec 2003 00:10:37 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Peter Berg Larsen <pebl@math.ku.dk>,
-       Santiago Garcia Mantinan <manty@manty.net>,
-       Michal Jaegermann <michal@harddata.com>, linux-kernel@vger.kernel.org
-Subject: Re: Synaptics PS/2 driver and 2.6.0-test11
-Message-ID: <20031214231037.GS13201@mail.muni.cz>
-References: <Pine.LNX.4.40.0312081021080.10795-100000@shannon.math.ku.dk> <200312081316.47899.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200312081316.47899.dtor_core@ameritech.net>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.4i
+	Sun, 14 Dec 2003 18:16:29 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:18305
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262762AbTLNXQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 18:16:28 -0500
+Date: Sun, 14 Dec 2003 18:15:36 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Peter Breitenlohner <peb@mppmu.mpg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.23 dual Xeon detection problem + patch (fwd)
+In-Reply-To: <Pine.LNX.4.58.0312141309280.1027@pcl321.mppmu.mpg.de>
+Message-ID: <Pine.LNX.4.58.0312141814550.23752@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0312141309280.1027@pcl321.mppmu.mpg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 08, 2003 at 01:16:46PM -0500, Dmitry Torokhov wrote:
-> You are right, Synaptics does check entire packet and reports it, 
-> unfortunately many (most) distributions kill almost all GPM messages
-> because it's too noisy.
-> 
-> Anyway, I wonder if the patch below will help sync problem. If it does
-> then we can kill the warning message later.
-> 
-> The patch should apply to -test11 although will complain about offset
-> as I have some extra stuff in my tree.
+On Sun, 14 Dec 2003, Peter Breitenlohner wrote:
 
-I did apply.
+> Hi,
+>
+> originally I sent this to the maintainer (Ingo Molnar), but since I didn't
+> get any response for about two weeks I am now sending this to the
+> developer's list (with the patch -- originally as attachement -- now
+> inlined).
+> -------------------- start of patch ------------------
+> --- linux-2.4.23/include/asm-i386/smpboot.h.orig	2003-08-25 13:44:43.000000000 +0200
+> +++ linux-2.4.23/include/asm-i386/smpboot.h	2003-12-02 16:49:46.000000000 +0100
+> @@ -73,11 +73,9 @@
+>   */
+>  static inline int cpu_present_to_apicid(int mps_cpu)
+>  {
+> -	if (clustered_apic_mode == CLUSTERED_APIC_XAPIC)
+> -		return raw_phys_apicid[mps_cpu];
+>  	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
+>  		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
+> -	return mps_cpu;
+> +	return raw_phys_apicid[mps_cpu];
+>  }
 
+What was NR_CPUS in your kernel config?
 
-Dec 14 23:44:21 debian kernel: Synaptics driver lost sync at 4th byte
-Dec 14 23:44:21 debian kernel: Synaptics driver lost sync at 1st byte
-Dec 14 23:44:21 debian kernel: psmouse: bad data from KBC - timeout
-Dec 14 23:44:21 debian kernel: Synaptics driver resynced.
-Dec 14 23:46:22 debian kernel: Synaptics driver lost sync at 4th byte
-Dec 14 23:46:22 debian kernel: Synaptics driver lost sync at 1st byte
-Dec 14 23:46:22 debian kernel: psmouse: bad data from KBC - timeout
-Dec 14 23:46:22 debian kernel: Synaptics driver resynced.
-
-However I did notice that it does hurt while xmms is playing (via alsa on i810
-card). If I turn off xmms then it is a lot better. It is hard to reproduce those
-messages without xmms. (mpg123 does it as well as xmms).
-
--- 
-Luká¹ Hejtmánek

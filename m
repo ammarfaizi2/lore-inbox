@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267495AbSLLVlq>; Thu, 12 Dec 2002 16:41:46 -0500
+	id <S267524AbSLLVoj>; Thu, 12 Dec 2002 16:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267502AbSLLVlq>; Thu, 12 Dec 2002 16:41:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8970 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267495AbSLLVlp>; Thu, 12 Dec 2002 16:41:45 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: NFS mounted rootfs possible via PCMCIA NIC ?
-Date: 12 Dec 2002 13:49:22 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <atb092$6do$1@cesium.transmeta.com>
-References: <200212112253.57325.andreas.schaufler@gmx.de> <1039648320.18467.49.camel@irongate.swansea.linux.org.uk> <200212121829.46465.andreas.schaufler@gmx.de>
+	id <S267525AbSLLVoi>; Thu, 12 Dec 2002 16:44:38 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:14806 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S267524AbSLLVoh> convert rfc822-to-8bit; Thu, 12 Dec 2002 16:44:37 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Matt Young <wz6b@arrl.net>
+Reply-To: wz6b@arrl.net
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: More progress on loading 2.5.50
+Date: Thu, 12 Dec 2002 13:51:50 -0800
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212121351.50151.wz6b@arrl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200212121829.46465.andreas.schaufler@gmx.de>
-By author:    Andreas Schaufler <andreas.schaufler@gmx.de>
-In newsgroup: linux.dev.kernel
->
-> ...
-> > PCMCIA relies in part on user space. You can do this, it involves
-> > building a large initrd with a dhcp client on it that sets up pcmcia,
-> > then nfs mounts stuff, then pivot_root()'s into it. Its not exactly
-> > trivial
-> 
-> Thanks for your reply. I get the basic idea from what you say. But what do you 
-> mean by pivot_root()'ing into it ?!?
-> 
+PSAUX is not some fantastic French technology, it must be enabled.
 
-pivot_root() is a system call which flips the root directory around.
-See Documentation/initrd.txt.
+My 3COM/USB adapter seems to be enabled correctly but the LCD lights do not 
+blink. Still testing.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+95% there, although I did hack into do_mounts and force fed the proper root 
+device.
+
+The patch for make that fixes make modules works fine, thank you.
+
+
+Question:  Can I turn REISERFS on and off for testing (does in nun on top of 
+EXT2)
+
+Yast is a dog.

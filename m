@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129797AbRBYVrv>; Sun, 25 Feb 2001 16:47:51 -0500
+	id <S129809AbRBYV6M>; Sun, 25 Feb 2001 16:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129806AbRBYVrb>; Sun, 25 Feb 2001 16:47:31 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:58179 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S129797AbRBYVra>;
-	Sun, 25 Feb 2001 16:47:30 -0500
-Message-ID: <20010225224729.A16353@win.tue.nl>
-Date: Sun, 25 Feb 2001 22:47:29 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: aj@dungeon.inka.de (Andreas Jellinghaus), linux-kernel@vger.kernel.org
-Subject: Re: partition table: chs question
-In-Reply-To: <20010225163534.A12566@dungeon.inka.de>
+	id <S129816AbRBYV6C>; Sun, 25 Feb 2001 16:58:02 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:2829 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129809AbRBYV5z>;
+	Sun, 25 Feb 2001 16:57:55 -0500
+Date: Sun, 25 Feb 2001 22:57:50 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+Message-ID: <20010225225750.B19635@almesberger.net>
+In-Reply-To: <3A99569F.98C64B29@storm.ca> <Pine.GSO.4.21.0102251406200.26808-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010225163534.A12566@dungeon.inka.de>; from Andreas Jellinghaus on Sun, Feb 25, 2001 at 04:35:34PM +0100
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0102251406200.26808-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Feb 25, 2001 at 02:13:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25, 2001 at 04:35:34PM +0100, Andreas Jellinghaus wrote:
+Alexander Viro wrote:
+> No kludges actually needed. "Simplified boot sequence" _is_ simplified -
+> we overmount the "final" root over ramfs. Initially empty. So you have
+> the normal environment when you load ramdisk, etc.
 
-> for partitions not in the first 8gb of a harddisk, what
-> should the c/h/s start and end value be ?
-> 
-> most fdisks seem to set start and end to 255/63/1023.
-> but partition magic creates partitions with start set to
-> 0/1/1023 and end set to 255/63/1023, and detects a problem
-> if start is set to 255/63/1023.
-> 
-> so, how should a partition table look like ?
+So is this the Holy Grail, err, union mount we've discussed about one year
+ago ? I.e.
 
-Since these values will never be used you can imagine that they
-are not of great interest. Do whatever you like.
+stat foo	# output A
+mount /dev/whatever /
+stat foo	# output B
+
+with A != B ?
+
+If yes, is there also a way to destroy/empty ramfs after this ?
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

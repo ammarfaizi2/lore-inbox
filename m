@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269457AbRHCQRK>; Fri, 3 Aug 2001 12:17:10 -0400
+	id <S269462AbRHCQSA>; Fri, 3 Aug 2001 12:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269456AbRHCQQu>; Fri, 3 Aug 2001 12:16:50 -0400
-Received: from gusi.leathercollection.ph ([202.163.192.10]:35299 "HELO
-	gusi.leathercollection.ph") by vger.kernel.org with SMTP
-	id <S269455AbRHCQQl>; Fri, 3 Aug 2001 12:16:41 -0400
-Date: Sat, 4 Aug 2001 00:16:23 +0800 (PHT)
-From: Federico Sevilla III <jijo@leathercollection.ph>
-X-X-Sender: <jijo@gusi.leathercollection.local>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Xircom CardBus RBE-100 "No MII transceiver found"
-Message-ID: <Pine.LNX.4.33.0108040006540.4008-100000@gusi.leathercollection.local>
+	id <S269456AbRHCQRo>; Fri, 3 Aug 2001 12:17:44 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:30983 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S269455AbRHCQRH>; Fri, 3 Aug 2001 12:17:07 -0400
+From: Nikita Danilov <NikitaDanilov@Yahoo.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15210.52816.115745.389614@beta.namesys.com>
+Date: Fri, 3 Aug 2001 20:16:16 +0400
+To: jlnance@intrex.net
+Cc: Nikita Danilov <NikitaDanilov@Yahoo.COM>, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-dev] Re: [PATCH]: reiserfs: D-clear-i_blocks.patch
+In-Reply-To: <20010803085306.A1248@bessie.localdomain>
+In-Reply-To: <15209.30134.699801.417492@beta.namesys.com>
+	<200108021726.f72HQrMh027270@webber.adilger.int>
+	<15209.40051.124575.787738@beta.namesys.com>
+	<20010803085306.A1248@bessie.localdomain>
+X-Mailer: VM 6.89 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+jlnance@intrex.net writes:
+ > On Thu, Aug 02, 2001 at 10:31:15PM +0400, Nikita Danilov wrote:
+ > > Andreas Dilger writes:
+ > >  > PS - could someone on the reiserfs team (or Linus) run the reiserfs code
+ > >  >      through "indent" (or auto format in emacs) per
+ > >  >      Documentation/CodingStyle?  It is really a gross mess, to such a
+ > >  >      point that you can hardly see what
+ > > 
+ > > Oh, yes.
+ > > 
+ > >  >      is going on.  It's not just that it is a different indent style, it
+ > >  >      has no coherent indentation or comment formatting at all.  Maybe
+ > >  >      for 2.5?
+ > > 
+ > > I hope so. We already have 200k of cleanup patches in 2.4.7-ac3.
+ > 
+ > >From past experience, if you want to run the code through indent, I would
+ > recomend that you submit patches for that which contain no other changes.
+ > If you mix indent changes with code changes, it gets very difficult to
+ > see what was actually changed if bugs crop up.
 
-I'm using 2.4.8-pre3, with pcmcia-cs 3.1.27 (no pcmcia modules from the
-pcmcia package, all from the kernel). I have support for CardBus built in.
-I've tried compiling support for my Xircom CardBus RBE-100 into the kernel
-and as a module. It just won't work. On both occasions dmesg shows
-something like this:
+Thank you. Do you have an experience in or opinion on asking Linus to
+perform such conversion himself, because this will probably save some
+trouble?
 
-cs: cb_alloc(bus 5): vendor 0x115d, device 0x0003
-PCI: Failed to allocate resource 0(1000-fff) for 05:00.0
-  got res[11000000:110007ff] for resource 1 of PCI device 115d:0003
-  got res[11000800:11000fff] for resource 2 of PCI device 115d:0003
-  got res[10c00000:10c03fff] for resource 1 of PCI device 115d:0003
-PCI: Enabling device 05:00.00 (0000 -> 0003)
-tulip_attach(05:00.0)
-PCI: Setting latency timer of device 05:00.0 to 64
-xircom_tulip_cb.c:v0.91 4/14/99 becker@scyld.com (modified by danilo@cs.uni-magdeburg.de for XIRCOM CBE, fixed by Doug Ledford)
-xircom(05:00.0): ***WARNING***: No MII transceiver found!
-eth0: Xircom Cardbus Adapter (DEC 21143 compatible mode) rev 3 at 0x1000, 00:00:00:00:00:00, IRQ 9.
+ > 
+ > Thanks,
+ > 
+ > Jim
 
-I've got an Acer Extensa 503T, which has an O2Micro controller.
+[lkml: please CC me, I am not subscribed.]
 
-The link does not go up at all, the lights on the switch I'm connected to
-and on the NIC itself remain turned off. I would love to test going on
-PROMISC mode as I hear that may fix things, but I can't get the link up.
-Forcing eth0 up by doing an "ifconfig eth0 up" then "dhclient eth0" won't
-work.
-
-$ cardctl status
-Socket 0:
-  no card
-Socket 1:
-  3.3V CardBus card
-  function 0: [ready]
-
-$ cardctl ident 1
-  product info: "Xircom", "CardBus Ethernet II 10/100", "CBEII-10/100", "1.03"
-  manfid: 0x0105, 0x0103
-  function: 6 (network)
-
-I hope someone can either tell me straight out that this is not a support
-Xircom card (I'm under the impression that somehow it is, although I
-really can't get it to work), or can help me fix things.
-
-I apologize if this is rather newbieish for this list.
-
-Thanks in advance!
-
- --> Jijo
-
---
-Federico Sevilla III  :: jijo@leathercollection.ph
-Network Administrator :: The Leather Collection, Inc.
-GnuPG Key: <http://www.leathercollection.ph/jijo.gpg>
-
+Nikita.

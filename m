@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129548AbRBWP0a>; Fri, 23 Feb 2001 10:26:30 -0500
+	id <S129847AbRBWP3A>; Fri, 23 Feb 2001 10:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbRBWP0V>; Fri, 23 Feb 2001 10:26:21 -0500
-Received: from [212.115.175.146] ([212.115.175.146]:59642 "EHLO
-	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S129548AbRBWP0E>; Fri, 23 Feb 2001 10:26:04 -0500
-Message-ID: <27525795B28BD311B28D00500481B7601F0F02@ftrs1.intranet.ftr.nl>
-From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: ahu@ds9a.nl, Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: random PID generation
-Date: Fri, 23 Feb 2001 16:34:41 +0100
+	id <S129624AbRBWP2v>; Fri, 23 Feb 2001 10:28:51 -0500
+Received: from [212.140.58.138] ([212.140.58.138]:52229 "EHLO
+	mail.helpmagic.com") by vger.kernel.org with ESMTP
+	id <S129847AbRBWP2q>; Fri, 23 Feb 2001 10:28:46 -0500
+From: "Jon Evans" <evansj@helpmagic.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: usb / hub / usb-storage problem with 2.4.2
+Date: Fri, 23 Feb 2001 15:24:44 -0000
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
+X-MIMETrack: Itemize by SMTP Server on helpmagic-notes/Helpmagic/UK(Release 5.0 (Intl)|30
+ March 1999) at 02/23/2001 03:24:34 PM,
+	Serialize by Router on helpmagic-notes/Helpmagic/UK(Release 5.0 (Intl)|30
+ March 1999) at 02/23/2001 03:24:41 PM,
+	Serialize complete at 02/23/2001 03:24:41 PM
+Message-ID: <NEBBJPFEMKMMDGBIMIADGEOKCAAA.evansj@helpmagic.com>
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> My code runs trough the whole task_list to see if a chosen pid is already
+Hi,
 
->> in use or not. 
-> But it doesn't check for a recently used PID. Lets say your system is 
-> exhausting 1000 PIDs/second, and that there is a window of 20ms between
-you 
-> determining which PID to send to, and the recipient process receiving it. 
+My Iomega Jaz USB drive has stopped working.  I'm not sure when, I know it
+has worked since 2.4.0 but I haven't used it for a couple of weeks.
 
-Ah, I get your point. Good point :o)
+The problem is:
 
-I was thinking: I could split the PIDs up in 2...16383 and 16384-32767 and
-then
-switch between them when a process ends? nah, that doesn't help it.
-hmmm.
-I think random increments (instead of last_pid+1) would be the best thing to
-do then?
+Feb 23 15:13:47 evansj kernel: hub.c: USB new device connect on bus1/2,
+assigned device number 5
+Feb 23 15:13:47 evansj kernel: usb.c: USB device not accepting new address=5
+(error=-32)
+Feb 23 15:13:48 evansj kernel: hub.c: USB new device connect on bus1/2,
+assigned device number 6
+Feb 23 15:13:48 evansj kernel: usb.c: USB device not accepting new address=6
+(error=-32)
 
+These mesages appear whenever the device is plugged in.
+
+My USB mouse, in the other USB port, continues to work fine.
+
+Jon.
+
+Apologies if Outlook screws up the line wrapping...
 

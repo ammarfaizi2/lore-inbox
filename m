@@ -1,80 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUH1QrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267475AbUH1QrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUH1QrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUH1QjT
+	id S267475AbUH1QrK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267503AbUH1QqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:39:19 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:37637 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267363AbUH1Qhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:37:45 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch][3/3] mm/ BUG -> BUG_ON conversions
-Date: Sat, 28 Aug 2004 19:32:05 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20040828151137.GA12772@fs.tum.de> <20040828151837.GD12772@fs.tum.de>
-In-Reply-To: <20040828151837.GD12772@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 12:46:06 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:18185 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267476AbUH1QpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:45:25 -0400
+Date: Sat, 28 Aug 2004 18:49:31 +0200
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Helge Hafting <helge.hafting@hist.no>, Matt Mackall <mpm@selenic.com>,
+       Nicholas Miell <nmiell@gmail.com>, Wichert Akkerman <wichert@wiggy.net>,
+       Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Spam <spam@tnonline.net>, torvalds@osdl.org, reiser@namesys.com,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040828164931.GA24868@hh.idb.hist.no>
+References: <helge.hafting@hist.no> <412D9FFA.6030307@hist.no> <200408261817.i7QIH35O002702@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408281932.05964.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408261817.i7QIH35O002702@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 August 2004 18:18, Adrian Bunk wrote:
-> The patch below does BUG -> BUG_ON conversions in mm/ .
+On Thu, Aug 26, 2004 at 02:17:03PM -0400, Horst von Brand wrote:
+> Helge Hafting <helge.hafting@hist.no> said:
+> > Matt Mackall wrote:
+> 
+> [...]
+> 
+> > >Find some silly person with an iBook and open a shell on OS X. Use cp
+> > >to copy a file with a resource fork. Oh look, the Finder has no idea
+> > >what the new file is, even though it looks exactly identical in the
+> > >shell. Isn't that _wonderful_? 
+> 
+> > It is what I'd expect.
+> 
+> Great. That means that all the tools of the trade stop working. Sounds like
+> show-killer feature to me.
 >
-> diffstat output:
->  mm/bootmem.c    |    6 ++----
->  mm/filemap.c    |    6 ++----
->  mm/highmem.c    |   15 +++++----------
->  mm/memory.c     |   12 ++++--------
->  mm/mempool.c    |    5 +++--
->  mm/mmap.c       |   12 ++++--------
->  mm/mprotect.c   |    3 +--
->  mm/msync.c      |    3 +--
->  mm/page_alloc.c |    3 +--
->  mm/pdflush.c    |    3 +--
->  mm/shmem.c      |    3 +--
->  mm/slab.c       |   30 ++++++++++--------------------
->  mm/swap.c       |   12 ++++--------
->  mm/swap_state.c |    6 ++----
->  mm/swapfile.c   |    6 ++----
->  mm/vmalloc.c    |    3 +--
->  mm/vmscan.c     |   18 ++++++------------
->  17 files changed, 50 insertions(+), 96 deletions(-)
->
->
-> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
->
-> --- linux-2.6.9-rc1-mm1-full-3.4/mm/bootmem.c.old	2004-08-28
-> 16:25:18.000000000 +0200 +++
-> linux-2.6.9-rc1-mm1-full-3.4/mm/bootmem.c	2004-08-28 16:26:48.000000000
-> +0200 @@ -125,8 +125,7 @@
->  	sidx = start - (bdata->node_boot_start/PAGE_SIZE);
->
->  	for (i = sidx; i < eidx; i++) {
-> -		if (unlikely(!test_and_clear_bit(i, bdata->node_bootmem_map)))
-> -			BUG();
-> +		BUG_ON(!test_and_clear_bit(i, bdata->node_bootmem_map));
->  	}
->  }
->
-> @@ -246,8 +245,7 @@
->  	 * Reserve the area now:
->  	 */
->  	for (i = start; i < start+areasize; i++)
-> -		if (unlikely(test_and_set_bit(i, bdata->node_bootmem_map)))
-> -			BUG();
-> +		BUG_ON(test_and_set_bit(i, bdata->node_bootmem_map));
+All wrong.  Feel free to dislike the concept all you want, but don't provide 
+false arguments.  I am sure you can think up some _good_ ones, if
+you feel so strongly about this.
 
-BUG_ON is like assert(). It may be #defined to nothing.
-Do not place expression with side effects into it.
---
-vda
+_No_ tool "stop working" with such a fs.  Of course the new
+feature (file-as-directory) may not be supported - which is a problem
+only for files that use the new feature.  Stick a lot of ordinary
+files and directories in such a fs, and the tools works as before
+with no breakage.  People obviously won't deploy new features before
+they are useable - the fs have to come first.  Then the tools,
+and widespread use only after that.  This is similiar to other extensions 
+like ACLs which many tools don't understand.  They're still useable though.
+
+Of course file-as-directory can have pilot uses like the often
+mentioned thumbnails - because it doesn't matter if those aren't
+backed up or get lost at random during the experimental phase.
+
+ 
+> >                         Now, use cp -R to copy  the file
+> > _with its directory_,
+> 
+> Either it is a file or a directory. Make up your mind. 
+
+Wrong again.  The file-as-directory concept means that
+a filename refers to something that is a file, or a directory,
+or both.  That's the point of it.  Being both isn't
+possible with current filesystems (except reiser4) of course, 
+but file-as-directory is a proposed _extension_.  
+
+> If you have no clear
+> distinction, you'll only get messed up. Badly.
+>
+The distinction is clear enough - three options instead of two.
+ 
+> Excuse me, I must grab my sickness bag here.
+
+Oh, very impressive.  Please take a look at what we're talking
+about before attacking.   
+
+Helge Hafting
+
+
 

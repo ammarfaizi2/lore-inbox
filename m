@@ -1,43 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbREQL7L>; Thu, 17 May 2001 07:59:11 -0400
+	id <S261404AbREQL6K>; Thu, 17 May 2001 07:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261407AbREQL6V>; Thu, 17 May 2001 07:58:21 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:32411 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S261406AbREQL6L>; Thu, 17 May 2001 07:58:11 -0400
-Date: Thu, 17 May 2001 13:58:08 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: virii <virii@gcecisp.com>, linux-kernel@vger.kernel.org
-Subject: Re: cmpci sound chip lockup
-Message-ID: <20010517135808.G754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3B02FE4D.2F7A8E8F@gcecisp.com> <Pine.LNX.4.33.0105162000420.5251-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S261407AbREQL6A>; Thu, 17 May 2001 07:58:00 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:52188 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261406AbREQL5o>;
+	Thu, 17 May 2001 07:57:44 -0400
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: pavel@suse.cz (Pavel Machek)
+Date: Thu, 17 May 2001 12:32:55 +0100 (BST)
+Cc: hpa@transmeta.com (H. Peter Anvin), torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20010515173720.B81@toy.ucw.cz> from "Pavel Machek" at May 15, 2001 05:37:23 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0105162000420.5251-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, May 16, 2001 at 08:02:06PM -0300
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150M1X-0005EO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16, 2001 at 08:02:06PM -0300, Rik van Riel wrote:
-> I'm seeing a similar thing on 2.4.4-pre[23], but in a far less
-> serious way. Using xmms the music stops after anything between
-> a few seconds and a minute, I suspect a race condition somewhere.
-> 
-> Using mpg123 everything works fine...
+> Linus, Is that wise? I could understand moratorium during 2.5, but during 2.4?!
+> And worse, what about drivers that want to be merged into 2.2?
 
-Your xmms uses esd[1]?
+2.2 will be using the same forked registry as 2.4-ac. I dont anticipate much
+being added to it that will need a major however
 
-Friends of mine report problems with esd and 2.4.x. Tested on
-SB-Live! and es1371.
-
-Regards
-
-Ingo Oeser
-
-[1] E Sound Deamon - A sound mixing framework
--- 
-To the systems programmer,
-users and applications serve only to provide a test load.

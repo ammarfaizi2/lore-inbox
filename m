@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318208AbSHIJKA>; Fri, 9 Aug 2002 05:10:00 -0400
+	id <S318207AbSHIJIl>; Fri, 9 Aug 2002 05:08:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318209AbSHIJKA>; Fri, 9 Aug 2002 05:10:00 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:17659 "EHLO
+	id <S318193AbSHIJIl>; Fri, 9 Aug 2002 05:08:41 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:16635 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318208AbSHIJJ7>; Fri, 9 Aug 2002 05:09:59 -0400
-Subject: Re: device driver / char module interrupt vector -> user space code
+	id <S318207AbSHIJIk>; Fri, 9 Aug 2002 05:08:40 -0400
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: SA <bullet.train@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200208090949.48484.bullet.train@ntlworld.com>
-References: <200208090949.48484.bullet.train@ntlworld.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <3D5381F7.1BCE0118@aitel.hist.no>
+References: <200208090704.g7974Td55043@saturn.cs.uml.edu> 
+	<3D5381F7.1BCE0118@aitel.hist.no>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 09 Aug 2002 11:34:00 +0100
-Message-Id: <1028889240.30103.189.camel@irongate.swansea.linux.org.uk>
+Date: 09 Aug 2002 11:32:33 +0100
+Message-Id: <1028889153.28883.186.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-09 at 09:49, SA wrote:
-> I am writing a char module for a PCI stage controller and want to add the 
-> following functionality; 
-> 
-> The device will generate an interrupt (or software trigger) and I want this to 
-> run a bit of user code with relatively latency.  (<1ms).  I am unclear how to
-> do this while still separating the user from the kernel code and maintaining
-> security - would this usually be handled by issuing a signal to the user space
-> process? if so how and what latency can I expect? 
+On Fri, 2002-08-09 at 09:48, Helge Hafting wrote:
+> Use 32-bit PID's, but with an additional rule for wraparound.
+> Simply wrap the PID when 
+> (nextPID > 2*number_of_processes && nextPID > 30000)
+> The latter one just to avoid wrapping at 10 when there are 
+> 5 processes.  
 
-You could deliver a signal, or if appropriate you can have a system call
-that blocks until the IRQ. To get good reliable latency, mlockall() the 
-process you need to be real time, and set it to a real time scheduling
-priority.
-
+Its much simpler to put max_pid into /proc/sys/kernel. That way we can
+boot with 32000 process ids, which will ensure ancient stuff which has
+16bit pid_t (old old libc) and also any old kernel interfaces which
+expose it - does ipc ? 
 

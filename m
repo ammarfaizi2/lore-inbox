@@ -1,80 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291616AbSBAJIE>; Fri, 1 Feb 2002 04:08:04 -0500
+	id <S291620AbSBAJKE>; Fri, 1 Feb 2002 04:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291618AbSBAJHy>; Fri, 1 Feb 2002 04:07:54 -0500
-Received: from p3EE02CD7.dip.t-dialin.net ([62.224.44.215]:60678 "EHLO
-	srv.sistina.com") by vger.kernel.org with ESMTP id <S291616AbSBAJHl>;
-	Fri, 1 Feb 2002 04:07:41 -0500
-Date: Fri, 1 Feb 2002 10:03:03 +0100
-From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
-Message-ID: <20020201100303.A14415@sistina.com>
-Reply-To: mauelshagen@sistina.com
-In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk> <20020131010119.GB858@ufies.org> <20020131134533.A10295@sistina.com> <20020131134225.B32321@havoc.gtf.org>
+	id <S291621AbSBAJJq>; Fri, 1 Feb 2002 04:09:46 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:28548 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291620AbSBAJJc>;
+	Fri, 1 Feb 2002 04:09:32 -0500
+Date: Fri, 01 Feb 2002 01:07:44 -0800 (PST)
+Message-Id: <20020201.010744.35469747.davem@redhat.com>
+To: mingo@elte.hu
+Cc: velco@fadata.bg, anton@samba.org, torvalds@transmeta.com, andrea@suse.de,
+        riel@conectiva.com.br, stoffel@casc.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0202011125030.5026-100000@localhost.localdomain>
+In-Reply-To: <87u1t1ws20.fsf@fadata.bg>
+	<Pine.LNX.4.33.0202011125030.5026-100000@localhost.localdomain>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020131134225.B32321@havoc.gtf.org>; from garzik@havoc.gtf.org on Thu, Jan 31, 2002 at 01:42:25PM -0500
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 01:42:25PM -0500, Jeff Garzik wrote:
-> On Thu, Jan 31, 2002 at 01:45:33PM +0100, Heinz J . Mauelshagen wrote:
-> > LVM2 and the device-mapper are GPL/LGPL.
-> 
-> Could you clarify the meaning of "GPL/LGPL"?  Are certain parts GPL and
-> other parts LGPL?  If so, which parts?
+   From: Ingo Molnar <mingo@elte.hu>
+   Date: Fri, 1 Feb 2002 11:29:53 +0100 (CET)
+   
+   using read-write locks does not solve the scalability problem: the problem
+   is the bouncing of the spinlock cacheline from CPU to CPU.
 
-The LVM2 sofware no longer uses a particular driver which is just
-usable for its own purpose.
-It rather accesses a different, so-called 'device-mapper' driver, which
-implements a generic volume management service for the Linux kernel by
-supporting arbitray mappings of address ranges to underlying block devices.
-Because this is a generic service rather than an application within the kernel,
-it is open to be used by multiple LVM implementations (for eg. EVMS could be
-ported to use it :-)
-
-The device-mapper driver is under the GPL and our Beta1 release dated Wednesday,
-which included the LVM2 tools as well, supports 2.4 kernels. We are aiming to
-get it integrated into the stock kernel and are implementing the necessary
-changes (bio interface) for 2.5 now.
-We released a device-mapper library (implements a generic API for the
-device-mapper) which is under the LGPL with it.
-
-The LVM2 tools have a library with routines to for eg. access the
-device-mapper library, deal with LVM metadata (VGDA), support different
-metadata formats and offer configuration file support which is under the
-LGPL as well.
-The tools themselves (vgcreate, lvcreate, ...) are under the GPL.
-
-IOW:
-
-GPL				LGPL
------------------------------   ------------------------------
-LVM2 tools			LVM2 library
-device-mapper driver		device-mapper library
-
-> 
-> 	jeff
-> 
-> 
-
--- 
-
-Regards,
-Heinz    -- The LVM Guy --
-
-*** Software bugs are stupid.
-    Nevertheless it needs not so stupid people to solve them ***
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+I so much wish more people understood this :(

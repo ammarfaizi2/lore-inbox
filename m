@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271614AbRIBMz6>; Sun, 2 Sep 2001 08:55:58 -0400
+	id <S271617AbRIBNLu>; Sun, 2 Sep 2001 09:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271617AbRIBMzs>; Sun, 2 Sep 2001 08:55:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49671 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271614AbRIBMzi>; Sun, 2 Sep 2001 08:55:38 -0400
-Subject: Re: [PATCH] 2.4.9-ac5: drivers/sound/trident.c
-To: fdavis@si.rr.com
-Date: Sun, 2 Sep 2001 13:59:38 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <3B91A7A0.4020904@si.rr.com> from "Frank Davis" at Sep 01, 2001 11:29:36 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271618AbRIBNLl>; Sun, 2 Sep 2001 09:11:41 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:18438 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271617AbRIBNLZ>;
+	Sun, 2 Sep 2001 09:11:25 -0400
+Date: Sun, 2 Sep 2001 10:11:21 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Rik`s ac12-pmap2 vs ac12-vanilla perfcomp
+In-Reply-To: <200109021710.f82HAbD00606@vegae.deep.net>
+Message-ID: <Pine.LNX.4.33L.0109021009310.24097-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15dWqg-00083L-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   
-> -	save_flags(flags);
-> -	cli();
-> +	spin_lock_irqsave(&card->lock, flags);
->  	portDat = cyber_inidx(CYBER_PORT_AUDIO, CYBER_IDX_AUDIO_ENABLE);
->  	/* enable, if it was disabled */
->  	if( (portDat & CYBER_BMSK_AUENZ) != CYBER_BMSK_AUENZ_ENABLE ) {
-> @@ -729,7 +730,7 @@
->  		cyber_outidx( CYBER_PORT_AUDIO, 0xb3, 0x06 );
->  		cyber_outidx( CYBER_PORT_AUDIO, 0xbf, 0x00 );
->  	}
-> -	restore_flags(flags);
-> +	spin_unlock_irqrestore(&card->lock, flags);
+On Sun, 2 Sep 2001, Samium Gromoff wrote:
 
-This one is wrong. What is probably not obvious on first reading is that
-the cyber_out* code actually configures the chipset so needs to be locked
-against other chipset configurations (current cli/sti based therefore)
+>    No flames please - i know these were low VM loads, i did this just
+> to know how big is test rmaps maitenance overhead. It shows us that
+> even on low VM load there is a huge win in using rmap. And the win
+> increases with the VM load.
 
-> +			spin_lock_irqsave(&card->lock, flags);
->  			dmabuf->swptr = dmabuf->hwptr = 0;
->  			dmabuf->count = dmabuf->total_bytes = 0;
-> +			spin_unlock_irqrestore(&card->lock, flags);
->  		}
->  		if (file->f_mode & FMODE_READ) {
->  			stop_adc(state);
->  			synchronize_irq();
->  			dmabuf->ready = 0;
-> +			spin_lock_irqsave(&card->lock, flags);
->  			dmabuf->swptr = dmabuf->hwptr = 0;
->  			dmabuf->count = dmabuf->total_bytes = 0;
-> +			spin_unlock_irqrestore(&card->lock, flags);
->  		}
+Interesting, I'm just at a proof-of-concept implementation right
+now, which is not yet stable or ready.  ;)
 
-Possibly needed yes. We have however stopped the adc before we read it
-and we hold the semaphore so I think its ok on this card
+I guess page replacement _is_ important...
+
+cheers,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

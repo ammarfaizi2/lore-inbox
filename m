@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSEUUAN>; Tue, 21 May 2002 16:00:13 -0400
+	id <S316579AbSEUUEJ>; Tue, 21 May 2002 16:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316579AbSEUUAM>; Tue, 21 May 2002 16:00:12 -0400
-Received: from quattro-eth.sventech.com ([205.252.89.20]:33039 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S316578AbSEUUAL>; Tue, 21 May 2002 16:00:11 -0400
-Date: Tue, 21 May 2002 16:00:12 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Cc: greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] RE: What to do with all of the USB UHCI drivers in the kernel ?
-Message-ID: <20020521160012.D2645@sventech.com>
-In-Reply-To: <5.1.0.14.2.20020521122422.06b21188@mail1.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316581AbSEUUEI>; Tue, 21 May 2002 16:04:08 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:60169 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316579AbSEUUEH>; Tue, 21 May 2002 16:04:07 -0400
+Message-ID: <3CEA995A.50007@evision-ventures.com>
+Date: Tue, 21 May 2002 21:00:42 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org,
+        Jens Axboe <axboe@suse.de>
+Subject: Re: 2.5.17: ide & ext2 unresolved symbols in modules
+In-Reply-To: <Pine.GSO.4.43.0205212200500.19324-100000@romulus.cs.ut.ee> <3CEA9C42.B2871594@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002, Maksim (Max) Krasnyanskiy <maxk@qualcomm.com> wrote:
-> I'm gonna speak for Bluetooth USB devices.
-> I do have bunch of things like Kodak digi camera, Sony DV camcorder, CF 
-> reader, etc. But they don't
-> seem to care much about which HCD is used and work equally well with both 
-> usb-uhci and uhci drivers.
+Uz.ytkownik Andrew Morton napisa?:
+> Meelis Roos wrote:
 > 
-> I used to be a uhci driver fan :). But starting somewhere from 2.4.16 or so 
-> Bluetooth devices work much better
-> with usb-uhci driver (not all devices but most of them). Even thought 
-> Bluetooth is pretty slow (about 700kbps)
-> performance difference is sometimes pretty significant 20-30% (ie usb-uhci 
-> driver is faster).
+>>depmod: *** Unresolved symbols in /lib/modules/2.5.17/kernel/drivers/ide/ide-disk.o
+>>depmod:         udma_tcq_enable
 > 
-> So basically I vote for usb-uhci. However some things will have to be 
-> fixed. We (Bluetooth folks) have couple
-> of devices that refuse to work with usb-uhci (I didn't test the latest 
-> usb-uhci though).
+> 
+> Not sure.
 
-Please test the latest version of the drivers. Both uhci and usb-uhci
-have had various bug fixes. I'm sure the performance problems you've had
-with uhci have been fixed for a little while now.
+Fixed in IDE 65. It was indeed missing. (Modulo the fact that udma_tcq_enable
+and udma_enable should be merged.)
 
-Also, feedback about the -hcd variants would useful too since one of
-those will be the only ones left for 2.5.
 
-JE
+> 
+> 
+>>depmod: *** Unresolved symbols in /lib/modules/2.5.17/kernel/drivers/ide/ide-mod.o
+>>depmod:         blk_get_request
+> 
+> 
+> Needs exporting.  I'll let Jens do that...
+> 
+> 
+>>depmod: *** Unresolved symbols in /lib/modules/2.5.17/kernel/fs/ext2/ext2.o
+>>depmod:         write_mapping_buffers
+> 
+> 
+> Needs to be exported.  I'll fix that.
+> 
+> Thanks.
+> 
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
+
+-- 
+- phone: +49 214 8656 283
+- job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
+- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort: ru_RU.KOI8-R
 

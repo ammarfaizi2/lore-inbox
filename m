@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263903AbTLJTf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 14:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbTLJTf0
+	id S263598AbTLJTd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 14:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTLJTd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 14:35:26 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:12271 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263903AbTLJTfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 14:35:14 -0500
-Message-ID: <3FD77766.4060305@pacbell.net>
-Date: Wed, 10 Dec 2003 11:43:34 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Duncan Sands <baldrick@free.fr>
-CC: linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-References: <Pine.LNX.4.44L0.0312081754480.2034-100000@ida.rowland.org> <200312101749.17173.baldrick@free.fr> <3FD7591A.8020100@pacbell.net> <200312101854.44636.baldrick@free.fr>
-In-Reply-To: <200312101854.44636.baldrick@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Dec 2003 14:33:28 -0500
+Received: from main.gmane.org ([80.91.224.249]:31108 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263598AbTLJTd1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 14:33:27 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+Date: Wed, 10 Dec 2003 20:33:24 +0100
+Message-ID: <yw1xd6aw4ge3.fsf@kth.se>
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com>
+ <3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com>
+ <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
+ <20031209075619.GA1698@kroah.com> <1070960433.869.77.camel@nomade>
+ <20031209090815.GA2681@kroah.com>
+ <buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp> <yw1xd6ayib3f.fsf@kth.se>
+ <20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:jCiVQuqvbykAeOUyfw5hoFnIFTc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands wrote:
-> On Wednesday 10 December 2003 18:34, David Brownell wrote:
-> 
->>>Unfortunately, usb_physical_reset_device calls usb_set_configuration
->>>which takes dev->serialize.
->>
->>Not since late August it doesn't ...
-> 
-> 
-> In current 2.5 bitkeeper it does.
+Witukind <witukind@nsbm.kicks-ass.org> writes:
 
-usb_physical_reset_device() does not call usb_set_configuration()
-except in the known-broken (for other reasons too!) "firmware changed"
-path.  Known-broken, but not yet removed since nobody has reported
-running into that or the other deadlock; the real fix is force
-re-enumeration of the device.
+> On Tue, 09 Dec 2003 10:39:32 +0100 mru@kth.se (Måns Rullgård) wrote:
+>
+>> > Is there a specific case for which people want this feature?
+>> > Offhand it seems like a slightly odd thing to ask for...
+>> 
+>> I believe the original motivation for module autoloading was to save
+>> memory by unloading modules when their devices were unused.  Loading
+>> them automatically on demand made for less trouble for users, who
+>> didn't have to run modprobe manually to use the sound card, or
+>> whatever.  This could still be a good thing in embedded systems.
+>> 
+>
+> I don't see why it wouldn't be a good thing for regular systems
+> also. Saving memory is usually a good idea.
 
-The main path uses usb_control_msg(), because usb_reset_device()
-currently guarantees it preserves (restore) altsettings as well
-as driver bindings.  It couldn't even use usb_reset_configuration(),
-since that gives altsettings their initial values (zero).
+The biggest modules are about 100k.  Saving 100k of 1 GB doesn't
+really seem worth any effort.
 
-- Dave
-
-
-
-> Duncan.
-> 
-> int usb_set_configuration(struct usb_device *dev, int configuration)
-> {
->         int i, ret;
->         struct usb_host_config *cp = NULL;
-> 
->         /* dev->serialize guards all config changes */
->         down(&dev->serialize);
-> 
-
+-- 
+Måns Rullgård
+mru@kth.se
 

@@ -1,356 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUG1LX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUG1LU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266839AbUG1LX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 07:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266874AbUG1LX3
+	id S266820AbUG1LU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 07:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266839AbUG1LU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 07:23:29 -0400
-Received: from cantor.suse.de ([195.135.220.2]:64187 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266839AbUG1LXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 07:23:04 -0400
-Date: Wed, 28 Jul 2004 13:22:22 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: [PATCH] fix zlib debug in ppc boot header
-Message-ID: <20040728112222.GA7670@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Wed, 28 Jul 2004 07:20:27 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:1486 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S266820AbUG1LUX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 07:20:23 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: 2.6.8-rc2 crashes
+Date: Wed, 28 Jul 2004 07:20:21 -0400
+User-Agent: KMail/1.6.82
+References: <200407271233.04205.gene.heskett@verizon.net> <200407271315.22075.gene.heskett@verizon.net> <20040727192615.GG12308@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040727192615.GG12308@parcelfarce.linux.theplanet.co.uk>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+Message-Id: <200407280720.21518.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.76.84] at Wed, 28 Jul 2004 06:20:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings;
 
-The ppc bootloader code will not compile with zlib debug enabled.
-printf was not defined. Tested with vmlinux.coff
-This patch was sent out earlier. Appearently it is not possible
-to use the generic zlib copy in linux/lib
+I just had another crash/lockup, running 2.6.8-rc2-bk3
+At the instant, I was looking thru the menu's of the new
+kde3.3-beta2, in the window decoration, themes etc menu,
+where it got 14% loaded in a 60 megabyte file and it went
+away.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+>From the log (the whole Oops section this time):
+Jul 28 06:48:50 coyote kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Jul 28 06:48:50 coyote kernel:  printing eip:
+Jul 28 06:48:50 coyote kernel: c0164136
+Jul 28 06:48:50 coyote kernel: *pde = 3ce74067
+Jul 28 06:48:50 coyote kernel: Oops: 0002 [#1]
+Jul 28 06:48:50 coyote kernel: PREEMPT
+Jul 28 06:48:50 coyote kernel: Modules linked in: eeprom snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss snd_mixer_oss snd_bt87x snd_intel8
+x0 snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd forcedeth sg
+Jul 28 06:48:50 coyote kernel: CPU:    0
+Jul 28 06:48:50 coyote kernel: EIP:    0060:[<c0164136>]    Not tainted
+Jul 28 06:48:50 coyote kernel: EFLAGS: 00010216   (2.6.8-rc2-bk3-nf2)
+Jul 28 06:48:50 coyote kernel: EIP is at prune_dcache+0x36/0x1c0
+Jul 28 06:48:50 coyote kernel: eax: c0364638   ebx: 00000080   ecx: e85fe134   edx: 00000000
+Jul 28 06:48:50 coyote kernel: esi: 00000000   edi: c198b000   ebp: 00000080   esp: c198bef8
+Jul 28 06:48:50 coyote kernel: ds: 007b   es: 007b   ss: 0068
+Jul 28 06:48:50 coyote kernel: Process kswapd0 (pid: 66, threadinfo=c198b000 task=c1978050)
+Jul 28 06:48:50 coyote kernel: Stack: c198bef8 c198bef8 00000080 00000000 c198b000 f7ffea60 c01646df 00000080
+Jul 28 06:48:50 coyote kernel:        c013a9ab 00000080 000000d0 0001f03f 021edf00 00000000 00000118 00000000
+Jul 28 06:48:51 coyote kernel:        c0363624 00000001 00000007 c0363500 c013bd51 00000020 000000d0 00000000
+Jul 28 06:48:51 coyote kernel: Call Trace:
+Jul 28 06:48:51 coyote kernel:  [<c01646df>] shrink_dcache_memory+0x1f/0x50
+Jul 28 06:48:51 coyote kernel:  [<c013a9ab>] shrink_slab+0x14b/0x190
+Jul 28 06:48:51 coyote kernel:  [<c013bd51>] balance_pgdat+0x1b1/0x200
+Jul 28 06:48:51 coyote kernel:  [<c013be67>] kswapd+0xc7/0xe0
+Jul 28 06:48:51 coyote kernel:  [<c0114570>] autoremove_wake_function+0x0/0x60
+Jul 28 06:48:52 coyote kernel:  [<c0103f9e>] ret_from_fork+0x6/0x14
+Jul 28 06:48:52 coyote kernel:  [<c0114570>] autoremove_wake_function+0x0/0x60
+Jul 28 06:48:52 coyote kernel:  [<c013bda0>] kswapd+0x0/0xe0
+Jul 28 06:48:52 coyote kernel:  [<c0102251>] kernel_thread_helper+0x5/0x14
+Jul 28 06:48:52 coyote kernel: Code: 89 02 89 49 04 89 09 a1 3c 46 36 c0 0f 18 00 90 ff 0d 44 46
+Jul 28 06:48:52 coyote kernel:  <6>note: kswapd0[66] exited with preempt_count 1
+Jul 28 06:48:52 coyote kernel:
+Jul 28 06:48:52 coyote kernel:  [<c030d2fc>] schedule+0x47c/0x490
+Jul 28 06:48:52 coyote kernel:  [<c018797e>] ext3_ordered_writepage+0x10e/0x1c0
+Jul 28 06:48:52 coyote kernel:  [<c0139d78>] __pagevec_release+0x28/0x40
+Jul 28 06:48:52 coyote kernel:  [<c016ece1>] mpage_writepages+0x1b1/0x350
+Jul 28 06:48:52 coyote kernel:  [<c0187870>] ext3_ordered_writepage+0x0/0x1c0
+Jul 28 06:48:52 coyote kernel:  [<c0135714>] do_writepages+0x44/0x50
+Jul 28 06:48:52 coyote kernel:  [<c016d3b1>] __sync_single_inode+0x71/0x210
+Jul 28 06:48:52 coyote kernel:  [<c01860f3>] ext3_put_inode+0x13/0x30
+Jul 28 06:48:52 coyote kernel:  [<c016d77e>] sync_sb_inodes+0x16e/0x290
+Jul 28 06:48:52 coyote kernel:  [<c016da0e>] sync_inodes_sb+0x7e/0xa0
+Jul 28 06:48:52 coyote kernel:  [<c016db3b>] sync_inodes+0x2b/0xa0
+Jul 28 06:48:52 coyote kernel:  [<c014e034>] do_sync+0x44/0x80
+Jul 28 06:48:52 coyote kernel:  [<c014e07f>] sys_sync+0xf/0x20
+Jul 28 06:48:52 coyote kernel:  [<c011653f>] panic+0xff/0x110
+Jul 28 06:48:52 coyote kernel:  [<c0118d5f>] do_exit+0x3ff/0x420
+Jul 28 06:48:52 coyote kernel:  [<c01114f0>] do_page_fault+0x0/0x519
+Jul 28 06:48:52 coyote kernel:  [<c0104968>] die+0xf8/0x100
+Jul 28 06:48:52 coyote kernel:  [<c01116cb>] do_page_fault+0x1db/0x519
+Jul 28 06:48:52 coyote kernel:  [<c0105dd2>] do_IRQ+0x102/0x1a0
+Jul 28 06:48:52 coyote kernel:  [<c030d10e>] schedule+0x28e/0x490
+Jul 28 06:48:52 coyote kernel:  [<c01114f0>] do_page_fault+0x0/0x519
+Jul 28 06:48:52 coyote kernel:  [<c0104271>] error_code+0x2d/0x38
+Jul 28 06:48:52 coyote kernel:  [<c0164596>] select_parent+0x56/0xb0
+Jul 28 06:48:52 coyote kernel:  [<c0164600>] shrink_dcache_parent+0x10/0x30
+Jul 28 06:48:52 coyote kernel:  [<c017b177>] proc_pid_flush+0x17/0x30
+Jul 28 06:48:52 coyote kernel:  [<c011765d>] release_task+0x13d/0x1e0
+Jul 28 06:48:52 coyote kernel:  [<c01190fb>] wait_task_zombie+0x15b/0x1c0
+Jul 28 06:48:52 coyote kernel:  [<c0119513>] sys_wait4+0x213/0x260
+Jul 28 06:48:52 coyote kernel:  [<c01132e0>] default_wake_function+0x0/0x20
+Jul 28 06:48:52 coyote kernel:  [<c01132e0>] default_wake_function+0x0/0x20
+Jul 28 11:00:39 coyote syslogd 1.4.1: restart.
+--------------
+Note restart time, but my script worked, the system 
+time is now properly set later in the bootup.  Nice.
 
-diff -purN linux-2.6.8-rc2-bk6.orig/arch/ppc/boot/common/misc-common.c linux-2.6.8-rc2-bk6/arch/ppc/boot/common/misc-common.c
---- linux-2.6.8-rc2-bk6.orig/arch/ppc/boot/common/misc-common.c	2004-06-16 05:19:23.000000000 +0000
-+++ linux-2.6.8-rc2-bk6/arch/ppc/boot/common/misc-common.c	2004-07-28 07:10:40.163537401 +0000
-@@ -67,6 +67,17 @@ extern unsigned char serial_getc(unsigne
- extern void serial_putc(unsigned long com_port, unsigned char c);
- #endif
- 
-+int
-+printf(char const *fmt, ...)
-+{
-+	va_list ap;
-+
-+	va_start(ap, fmt);
-+	_vprintk(putc, fmt, ap);
-+	va_end(ap);
-+	return 0;
-+}
-+
- void pause(void)
- {
- 	puts("pause\n");
-diff -purN linux-2.6.8-rc2-bk6.orig/arch/ppc/boot/lib/zlib.c linux-2.6.8-rc2-bk6/arch/ppc/boot/lib/zlib.c
---- linux-2.6.8-rc2-bk6.orig/arch/ppc/boot/lib/zlib.c	2004-06-16 05:19:03.000000000 +0000
-+++ linux-2.6.8-rc2-bk6/arch/ppc/boot/lib/zlib.c	2004-07-28 07:47:52.879321378 +0000
-@@ -1,3 +1,7 @@
-+#if 0
-+#define DEBUG_ZLIB 1
-+#define verbose 1
-+#endif
- /*
-  * This file is derived from various .h and .c files from the zlib-0.95
-  * distribution by Jean-loup Gailly and Mark Adler, with some additions
-@@ -85,16 +89,16 @@ extern char *z_errmsg[]; /* indexed by 1
- 
- /* Diagnostic functions */
- #ifdef DEBUG_ZLIB
--#  include <stdio.h>
-+#  include <nonstdio.h>
- #  ifndef verbose
- #    define verbose 0
- #  endif
--#  define Assert(cond,msg) {if(!(cond)) z_error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
-+#  define Assert(cond,msg) {if(!(cond)) printf(msg);}
-+#  define Trace(x) printf x
-+#  define Tracev(x) {if (verbose) printf x ;}
-+#  define Tracevv(x) {if (verbose>1) printf x ;}
-+#  define Tracec(c,x) {if (verbose && (c)) printf x ;}
-+#  define Tracecv(c,x) {if (verbose>1 && (c)) printf x ;}
- #else
- #  define Assert(cond,msg)
- #  define Trace(x)
-@@ -311,7 +315,7 @@ int inflateReset(
-   z->msg = Z_NULL;
-   z->state->mode = z->state->nowrap ? BLOCKS : METHOD;
-   inflate_blocks_reset(z->state->blocks, z, &c);
--  Trace((stderr, "inflate: reset\n"));
-+  Trace(("inflate: reset\n"));
-   return Z_OK;
- }
- 
-@@ -328,7 +332,7 @@ int inflateEnd(
-     inflate_blocks_free(z->state->blocks, z, &c);
-   ZFREE(z, z->state, sizeof(struct internal_state));
-   z->state = Z_NULL;
--  Trace((stderr, "inflate: end\n"));
-+  Trace(("inflate: end\n"));
-   return Z_OK;
- }
- 
-@@ -372,7 +376,7 @@ int inflateInit2(
-     inflateEnd(z);
-     return Z_MEM_ERROR;
-   }
--  Trace((stderr, "inflate: allocated\n"));
-+  Trace(("inflate: allocated\n"));
- 
-   /* reset state */
-   inflateReset(z);
-@@ -437,7 +441,7 @@ int inflate(
-         z->state->sub.marker = 5;       /* can't try inflateSync */
-         break;
-       }
--      Trace((stderr, "inflate: zlib header ok\n"));
-+      Trace(("inflate: zlib header ok\n"));
-       z->state->mode = BLOCKS;
-     case BLOCKS:
-       r = inflate_blocks(z->state->blocks, z, r);
-@@ -482,7 +486,7 @@ int inflate(
-         z->state->sub.marker = 5;       /* can't try inflateSync */
-         break;
-       }
--      Trace((stderr, "inflate: zlib check ok\n"));
-+      Trace(("inflate: zlib check ok\n"));
-       z->state->mode = DONE;
-     case DONE:
-       return Z_STREAM_END;
-@@ -766,7 +770,7 @@ local void inflate_blocks_reset(
-   s->read = s->write = s->window;
-   if (s->checkfn != Z_NULL)
-     s->check = (*s->checkfn)(0L, Z_NULL, 0);
--  Trace((stderr, "inflate:   blocks reset\n"));
-+  Trace(("inflate:   blocks reset\n"));
- }
- 
- 
-@@ -789,7 +793,7 @@ local inflate_blocks_statef *inflate_blo
-   s->end = s->window + w;
-   s->checkfn = c;
-   s->mode = TYPE;
--  Trace((stderr, "inflate:   blocks allocated\n"));
-+  Trace(("inflate:   blocks allocated\n"));
-   inflate_blocks_reset(s, z, &s->check);
-   return s;
- }
-@@ -822,7 +826,7 @@ local int inflate_blocks(
-       switch (t >> 1)
-       {
-         case 0:                         /* stored */
--          Trace((stderr, "inflate:     stored block%s\n",
-+          Trace(("inflate:     stored block%s\n",
-                  s->last ? " (last)" : ""));
-           DUMPBITS(3)
-           t = k & 7;                    /* go to byte boundary */
-@@ -830,7 +834,7 @@ local int inflate_blocks(
-           s->mode = LENS;               /* get length of stored block */
-           break;
-         case 1:                         /* fixed */
--          Trace((stderr, "inflate:     fixed codes block%s\n",
-+          Trace(("inflate:     fixed codes block%s\n",
-                  s->last ? " (last)" : ""));
-           {
-             uInt bl, bd;
-@@ -850,7 +854,7 @@ local int inflate_blocks(
-           s->mode = CODES;
-           break;
-         case 2:                         /* dynamic */
--          Trace((stderr, "inflate:     dynamic codes block%s\n",
-+          Trace(("inflate:     dynamic codes block%s\n",
-                  s->last ? " (last)" : ""));
-           DUMPBITS(3)
-           s->mode = TABLE;
-@@ -874,7 +878,7 @@ local int inflate_blocks(
-       }
-       s->sub.left = (uInt)b & 0xffff;
-       b = k = 0;                      /* dump bits */
--      Tracev((stderr, "inflate:       stored length %u\n", s->sub.left));
-+      Tracev(("inflate:       stored length %u\n", s->sub.left));
-       s->mode = s->sub.left ? STORED : TYPE;
-       break;
-     case STORED:
-@@ -889,7 +893,7 @@ local int inflate_blocks(
-       q += t;  m -= t;
-       if ((s->sub.left -= t) != 0)
-         break;
--      Tracev((stderr, "inflate:       stored end, %lu total out\n",
-+      Tracev(("inflate:       stored end, %lu total out\n",
-               z->total_out + (q >= s->read ? q - s->read :
-               (s->end - s->read) + (q - s->window))));
-       s->mode = s->last ? DRY : TYPE;
-@@ -917,7 +921,7 @@ local int inflate_blocks(
-       s->sub.trees.nblens = t;
-       DUMPBITS(14)
-       s->sub.trees.index = 0;
--      Tracev((stderr, "inflate:       table sizes ok\n"));
-+      Tracev(("inflate:       table sizes ok\n"));
-       s->mode = BTREE;
-     case BTREE:
-       while (s->sub.trees.index < 4 + (s->sub.trees.table >> 10))
-@@ -939,7 +943,7 @@ local int inflate_blocks(
-         LEAVE
-       }
-       s->sub.trees.index = 0;
--      Tracev((stderr, "inflate:       bits tree ok\n"));
-+      Tracev(("inflate:       bits tree ok\n"));
-       s->mode = DTREE;
-     case DTREE:
-       while (t = s->sub.trees.table,
-@@ -1002,7 +1006,7 @@ local int inflate_blocks(
-           r = t;
-           LEAVE
-         }
--        Tracev((stderr, "inflate:       trees ok\n"));
-+        Tracev(("inflate:       trees ok\n"));
-         if ((c = inflate_codes_new(bl, bd, tl, td, z)) == Z_NULL)
-         {
-           inflate_trees_free(td, z);
-@@ -1025,7 +1029,7 @@ local int inflate_blocks(
-       inflate_trees_free(s->sub.decode.td, z);
-       inflate_trees_free(s->sub.decode.tl, z);
-       LOAD
--      Tracev((stderr, "inflate:       codes end, %lu total out\n",
-+      Tracev(("inflate:       codes end, %lu total out\n",
-               z->total_out + (q >= s->read ? q - s->read :
-               (s->end - s->read) + (q - s->window))));
-       if (!s->last)
-@@ -1068,7 +1072,7 @@ local int inflate_blocks_free(
-   inflate_blocks_reset(s, z, c);
-   ZFREE(z, s->window, s->end - s->window);
-   ZFREE(z, s, sizeof(struct inflate_blocks_state));
--  Trace((stderr, "inflate:   blocks freed\n"));
-+  Trace(("inflate:   blocks freed\n"));
-   return Z_OK;
- }
- 
-@@ -1230,7 +1234,7 @@ local uInt cpdext[] = { /* Extra bits fo
- #define N_MAX 288       /* maximum number of codes in any set */
- 
- #ifdef DEBUG_ZLIB
--  uInt inflate_hufts;
-+  local uInt inflate_hufts;
- #endif
- 
- local int huft_build(
-@@ -1687,7 +1691,7 @@ local inflate_codes_statef *inflate_code
-     c->dbits = (Byte)bd;
-     c->ltree = tl;
-     c->dtree = td;
--    Tracev((stderr, "inflate:       codes new\n"));
-+    Tracev(("inflate:       codes new\n"));
-   }
-   return c;
- }
-@@ -1743,7 +1747,7 @@ local int inflate_codes(
-       if (e == 0)               /* literal */
-       {
-         c->sub.lit = t->base;
--        Tracevv((stderr, t->base >= 0x20 && t->base < 0x7f ?
-+        Tracevv((t->base >= 0x20 && t->base < 0x7f ?
-                  "inflate:         literal '%c'\n" :
-                  "inflate:         literal 0x%02x\n", t->base));
-         c->mode = LIT;
-@@ -1764,7 +1768,7 @@ local int inflate_codes(
-       }
-       if (e & 32)               /* end of block */
-       {
--        Tracevv((stderr, "inflate:         end of block\n"));
-+        Tracevv(("inflate:         end of block\n"));
-         c->mode = WASH;
-         break;
-       }
-@@ -1779,7 +1783,7 @@ local int inflate_codes(
-       DUMPBITS(j)
-       c->sub.code.need = c->dbits;
-       c->sub.code.tree = c->dtree;
--      Tracevv((stderr, "inflate:         length %u\n", c->len));
-+      Tracevv(("inflate:         length %u\n", c->len));
-       c->mode = DIST;
-     case DIST:          /* i: get distance next */
-       j = c->sub.code.need;
-@@ -1809,7 +1813,7 @@ local int inflate_codes(
-       NEEDBITS(j)
-       c->sub.copy.dist += (uInt)b & inflate_mask[j];
-       DUMPBITS(j)
--      Tracevv((stderr, "inflate:         distance %u\n", c->sub.copy.dist));
-+      Tracevv(("inflate:         distance %u\n", c->sub.copy.dist));
-       c->mode = COPY;
-     case COPY:          /* o: copying bytes in window, waiting for space */
- #ifndef __TURBOC__ /* Turbo C bug for following expression */
-@@ -1860,7 +1864,7 @@ local void inflate_codes_free(
- )
- {
-   ZFREE(z, c, sizeof(struct inflate_codes_state));
--  Tracev((stderr, "inflate:       codes free\n"));
-+  Tracev(("inflate:       codes free\n"));
- }
- 
- /*+++++*/
-@@ -1995,7 +1999,7 @@ local int inflate_fast(
-     if ((e = (t = tl + ((uInt)b & ml))->exop) == 0)
-     {
-       DUMPBITS(t->bits)
--      Tracevv((stderr, t->base >= 0x20 && t->base < 0x7f ?
-+      Tracevv((t->base >= 0x20 && t->base < 0x7f ?
-                 "inflate:         * literal '%c'\n" :
-                 "inflate:         * literal 0x%02x\n", t->base));
-       *q++ = (Byte)t->base;
-@@ -2010,7 +2014,7 @@ local int inflate_fast(
-         e &= 15;
-         c = t->base + ((uInt)b & inflate_mask[e]);
-         DUMPBITS(e)
--        Tracevv((stderr, "inflate:         * length %u\n", c));
-+        Tracevv(("inflate:         * length %u\n", c));
- 
-         /* decode distance base of block to copy */
-         GRABBITS(15);           /* max bits for distance code */
-@@ -2024,7 +2028,7 @@ local int inflate_fast(
-             GRABBITS(e)         /* get extra bits (up to 13) */
-             d = t->base + ((uInt)b & inflate_mask[e]);
-             DUMPBITS(e)
--            Tracevv((stderr, "inflate:         * distance %u\n", d));
-+            Tracevv(("inflate:         * distance %u\n", d));
- 
-             /* do the copy */
-             m -= c;
-@@ -2069,7 +2073,7 @@ local int inflate_fast(
-         if ((e = (t = t->next + ((uInt)b & inflate_mask[e]))->exop) == 0)
-         {
-           DUMPBITS(t->bits)
--          Tracevv((stderr, t->base >= 0x20 && t->base < 0x7f ?
-+          Tracevv((t->base >= 0x20 && t->base < 0x7f ?
-                     "inflate:         * literal '%c'\n" :
-                     "inflate:         * literal 0x%02x\n", t->base));
-           *q++ = (Byte)t->base;
-@@ -2079,7 +2083,7 @@ local int inflate_fast(
-       }
-       else if (e & 32)
-       {
--        Tracevv((stderr, "inflate:         * end of block\n"));
-+        Tracevv(("inflate:         * end of block\n"));
-         UNGRAB
-         UPDATE
-         return Z_STREAM_END;
+Ok, so which direction do I go, bk2, or bk4, for the next test?
+
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.23% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

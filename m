@@ -1,34 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVCWGoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVCWGtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVCWGoE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 01:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVCWGoD
+	id S262827AbVCWGtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 01:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVCWGtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 01:44:03 -0500
-Received: from spark.hss.co.in ([203.200.71.140]:20954 "EHLO spark.hss.co.in")
-	by vger.kernel.org with ESMTP id S261190AbVCWGoA (ORCPT
+	Wed, 23 Mar 2005 01:49:16 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:27559 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262827AbVCWGtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 01:44:00 -0500
-Message-ID: <001f01c52f74$2fe3d7a0$6a88cb0a@hss.hns.com>
-From: "shafa.hidee" <shafa.hidee@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: specifying license
-Date: Wed, 23 Mar 2005 12:16:46 +0530
+	Wed, 23 Mar 2005 01:49:13 -0500
+Date: Wed, 23 Mar 2005 07:48:31 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: segmentation fault while loading modules
+In-Reply-To: <Pine.LNX.4.60.0503231042480.21050@lantana.cs.iitm.ernet.in>
+Message-ID: <Pine.LNX.4.61.0503230744430.21578@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.60.0503231042480.21050@lantana.cs.iitm.ernet.in>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
-      How to specify LICENSE tag in a driver module so that module is marked
-as tainted while loading.
+> int
+> ksignal(int pid,int signum)
+> {
+> struct task_struct x;
+> struct task_struct *p;
+> /* run through the task list of linux until we find our pid */
+> //for (p = &init_task ; (p = next_task(p)) != &init_task ; ){
+> for (p = &x ; (p = next_task(p)) != &x ; ){
+...
 
-Regards
-Shafa.hidee
+next_task(p) is defined (not in the sense of a macro, though) as 
+  p->tasks.next
+and your x is not initiailzed, so what do you expect next_task(x)
+to do, if p->tasks... does not contain a valid value?
 
+You want this:
+for(p = &init_task; (p = next_task(p)) != &init_task; ) {
+    ...
+}
+
+
+Jan Engelhardt
+-- 

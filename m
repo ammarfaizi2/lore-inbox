@@ -1,150 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUIAQbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUIAQeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267516AbUIAQbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 12:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIAQaZ
+	id S267578AbUIAQeM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 12:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUIAQbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 12:30:25 -0400
-Received: from holomorphy.com ([207.189.100.168]:41414 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267747AbUIAQ2A (ORCPT
+	Wed, 1 Sep 2004 12:31:18 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:8676 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S267653AbUIAQ1e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 12:28:00 -0400
-Date: Wed, 1 Sep 2004 09:27:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: mita akinobu <amgta@yacht.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aeb@cwi.nl>,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Message-ID: <20040901162754.GC5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-	Andries Brouwer <aeb@cwi.nl>,
-	Alessandro Rubini <rubini@ipvvis.unipv.it>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040831192559.GN5492@holomorphy.com> <20040831194552.GQ5492@holomorphy.com> <200409020109.32605.amgta@yacht.ocn.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409020109.32605.amgta@yacht.ocn.ne.jp>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 1 Sep 2004 12:27:34 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Peter Astrand <peter@cendio.se>
+Date: Wed, 1 Sep 2004 18:27:13 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: ncpfs problems
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <255B8A94A7B@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
-> If you're passing profile=0 on boot, it exits very early.
-> (when readprofile saw the symbol whose address is same with next line's
-> symbol address)
-> and,
-> On ia64, the following System.map was generated:
-> [...]
-> a000000100000000 A _stext
-> a000000100000000 A _text		(*)
-> a000000100000000 T ia64_ivt
-> a000000100000000 t vhpt_miss
-> Since the symbol "_text" (*) has absolute symbol type, it could not pass the
-> is_text() check, and readprofile exits immediately.
+On  1 Sep 04 at 15:59, Peter Astrand wrote:
+> > > * Some files are impossible to remove, for example the files in 
+> > > ~/.kde/socket-dhcp-253-234: An unlink returns EBUSY:
+> > > 
+> > > unlink("kdeinit_maggie_2")              = -1 EBUSY (Device or resource busy)
+> > > 
+> > > Do you have any ideas what can cause this? Do you consider ncpfs stable
+> > > enough to be used for the home directory? 
+> > 
+> > File is open... You cannot remove opened files from Netware filesystem.
+> > I cannot think about any other reason why you should get EBUSY.
+> 
+> It might have something to do with open files, but in that case, the
+> behaviour is not consistent. I've just did a quick test with "cat
+> > foo.txt", and was able to delete the file while it was still open:
+> 
+> # ls -l /proc/21642/fd
+> ...
+> l-wx------  1 adam 1000 64 Sep  1 15:39 1 -> /home/adam/foo.txt (deleted)
+> ...
 
-That is bizarre and very irritating, as at first glance it appears to
-require strcmp() on every entry until _stext is set.
+ncp_unlink closes file on server if there is no read or write
+operation in progress - see ncp_make_open, ncp_inode_close and
+ncp_make_closed: ncp_make_open opens file on server, ncp_inode_close
+marks file as being "closable" and ncp_make_closed closes file unless
+someone is in ncp_make_open - ncp_inode_close region.
 
+Cannot be kdeinit_maggie_2 opened by someone else?
 
-On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
-> BTW, if profile=>1 is passed, The range between start and end in
-> state_transition() is overlapped every call. Is it intentional?
-> # readprofile -b (after applied below patch)
-> [...]
-> __wake_up_common:
->           c011f1d8              47		(*)
-> __wake_up:
->           c011f1d8              47		(*)
->           c011f1dc               2
+BTW, ncpfs is "single threaded" because protocol itself is single
+threaded - you can have only one outstanding request. Even with TCP
+transport which could allow more than one outstanding request, leaving
+synchronization on TCP level, if you send data to server while
+it processes another request some server versions return back 9999,
+server busy, instead of leaving received data in the queue until
+previous request is satisfied :-(
 
-Overlapping the symbols was intentional, yes. The way profiling works
-is that the shift passed by profile= represents a power-of-two-sized
-divisor that the virtual addresses are divided by. These bins don't
-respect symbol boundaries and in fact multiple functions may share them.
-I choose to account a bin to all symbols whose virtual address range
-overlaps it.
+Actually with 2.6.x fs/ncpfs/sock.c changing code to not call
+ncp_abort_connection() when something goes wrong should not be that
+hard. Only problem is that ncp_request_reply structure is allocated
+on caller stack, and so you must kill receiver (ncpdgram_rcv_proc/
+ncptcp_rcv_proc) before you release this structure.
 
+But main question is whether it is really needed... It works this way
+since day #1 (old kernels actually used SIGKILL|SIGSTOP, making
+debugging of processes using ncpfs filesystem almost impossible, yet
+nobody complained).
+                                                Petr Vandrovec
+                                                
 
-> --- readprofile.c.orig	2004-09-02 00:04:55.904405440 +0900
-> +++ readprofile.c	2004-09-02 00:37:37.277231448 +0900
-> @@ -25,6 +25,7 @@ struct profile_state {
->  	int fd, shift;
->  	uint32_t *buf;
->  	size_t bufsz;
-> +	ssize_t bufcnt;
->  	struct sym syms[2], *last, *this;
->  	unsigned long long stext, vaddr;
->  	unsigned long total;
-> @@ -60,6 +61,32 @@ static long profile_off(unsigned long lo
->  	return (((vaddr - state->stext) >> state->shift) + 1)*sizeof(uint32_t);
->  }
->  
-> +int optBin;
-
-No global variables and no studlycaps...
-
-
-On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
-> +static void display_hits(struct profile_state *state)
-> +{
-> +	char *name = state->last->name;
-> +	unsigned long hits = state->last->hits;
-> +
-> +	if (!hits)
-> +		return;
-> +	if (!optBin)
-> +		printf("%*lu %s\n", digits(), hits, name);
-> +	else {
-> +		unsigned long long vaddr = state->last->vaddr;
-> +		int shift = state->shift;
-> +		unsigned int off;
-> +		
-> +		printf("%s:\n", name);
-> +		for (off = 0; off < state->bufcnt/sizeof(uint32_t); ++off)
-> +			if (state->buf[off]) {
-> +				printf("\t%*llx", digits(),
-> +					((vaddr >> shift) + off) << shift);
-> +				printf("\t%*lu\n", digits(), state->buf[off]);
-> +			}
-> +	}
-> +}
-
-Okay, now that you have a use for ->bufcnt in struct state, it may make
-sense to keep it around.
-
-
-On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
->  static int state_transition(struct profile_state *state)
->  {
->  	int ret = 0;
-> @@ -101,16 +128,14 @@ static int state_transition(struct profi
->  			exit(EXIT_FAILURE);
->  		}
->  	}
-> -	if (read(state->fd, state->buf, end - start) == end - start) {
-> -		for (off = 0; off < (end - start)/sizeof(uint32_t); ++off)
-> +	if ((state->bufcnt = read(state->fd, state->buf, end - start)) > 0) {
-> +		for (off = 0; off < state->bufcnt/sizeof(uint32_t); ++off)
->  			state->last->hits += state->buf[off];
->  	} else {
->  		ret = 1;
->  		strcpy(state->last->name, "*unknown*");
->  	}
-> -	if (state->last->hits)
-> -		printf("%*lu %s\n", digits(), state->last->hits,
-> -							state->last->name);
-> +	display_hits(state);
->  	state->total += state->last->hits;
->  out:
->  	return ret;
-
-It may make more sense to pass a display callback instead, particularly
-if potential future usage in a library wants to render to streams that
-are not stdout or cares to render to things that aren't streams. This
-looks like it's against an older version... this seems to qualify as
-enough interest to at least use source control.
-
-
--- wli

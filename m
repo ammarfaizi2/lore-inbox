@@ -1,89 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268337AbTBYV2H>; Tue, 25 Feb 2003 16:28:07 -0500
+	id <S268281AbTBYV0h>; Tue, 25 Feb 2003 16:26:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268368AbTBYV2H>; Tue, 25 Feb 2003 16:28:07 -0500
-Received: from ms-smtp-01.tampabay.rr.com ([65.32.1.43]:8066 "EHLO
-	ms-smtp-01.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S268337AbTBYV07>; Tue, 25 Feb 2003 16:26:59 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: "Chris Wedgwood" <cw@f00f.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Larry McVoy" <lm@bitmover.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Minutes from Feb 21 LSE Call
-Date: Tue, 25 Feb 2003 16:38:38 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJGEPLEPAA.scott@coyotegulch.com>
+	id <S268286AbTBYV0h>; Tue, 25 Feb 2003 16:26:37 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:36580 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S268281AbTBYV0d> convert rfc822-to-8bit; Tue, 25 Feb 2003 16:26:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Duncan Sands <baldrick@wanadoo.fr>, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] USB speedtouch: better proc info
+Date: Tue, 25 Feb 2003 21:54:44 +0100
+User-Agent: KMail/1.4.3
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       chas williams <chas@locutus.cmf.nrl.navy.mil>
+References: <200302241058.52073.baldrick@wanadoo.fr> <200302241143.20632.oliver@neukum.name> <200302250922.35971.baldrick@wanadoo.fr>
+In-Reply-To: <200302250922.35971.baldrick@wanadoo.fr>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20030225211933.GA21870@f00f.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302252154.44628.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-SRL>HT is not the same thing as SMP; while the chip may appear to be
-SRL>two processors, it is actually equivalent 1.1 to 1.3 processors,
-SRL>depending on the application.
+
+> Hi Oliver, thanks for your comments.  While I agree with you in
+> principle, I disagree in practice.  The driver exports the following
+> information in /proc/net/atm/speedtch:
 >
-CW> You can't have non-integer numbers of processors.  HT is a hack
-CW> that makes what appears to be two processors using common
-CW> silicon.
+> (1) name and location of the USB device
+> (2) MAC address (serial number)
+> (3) AAL5 transmission statistics
+> (4) Line status
+> (5) Modem status
+>
+> (1) is needed in order to work out which modem corresponds to
+> which ATM device.  This should be dealt with using sysfs, however
+> the ATM layer has not yet been ported to sysfs.  Until it is, this
+> seems like the best way to export this information.
 
-I'm aware of that. ;) I'm well aware of the architecture needed to support
-HT.
+For the time being I agree.
 
-> The fact it's slower than a really dual CPU box is irrelevant in some
-> sense, you still need SMP smart to deal with it; it's only important
-> when you want to know why performance increases aren't apparent or you
-> loose performance in some cases... (ie. other virtual CPU thrashing
-> the cache).
+> (2) and (3) are redundant - they are published by the ATM layer
+> in other proc files.  I thought about removing them, but decided
+> against it because (a) it can be convenient having everything in
+> one proc file, and (b) it is backwards compatible with the 2.4
+> out-of-kernel driver.  They could go.
 
-Performance differences *are* quite relevant when it comes to thread
-scheduling; the two virtual CPUS are not necessarily equivalent in
-performnace.
+As long as you have a proc file at all, you may as well print them, IMHO.
 
-> As Alan pointed out, since the 'Walmart' class hardware is 'whatever
-> is cheapest' then perhaps HT/SMT/whatever won't be common place for
-> super-low end boxes in two years --- but I would be surprised if it
-> didn't gain considerable market share elsewhere.
+> You suggested (in a private mail) using netif_carrier_on/off to
+> export (4).  The ATM layer already has a method for reporting this,
+> and I use it: set the ATM_PHY_SIG_FOUND/LOST bits in
+> atm_dev->signal.  The problem is that the ATM layer doesn't do
+> anything with this info (like export it to user space).  So I think
+> it is fair enough to export it in the proc file while waiting for the
+> ATM layer to be fixed.
 
-I suspect HT/SMT be common for people who have multimedia systems, for video
-editing and high-end gaming.
+Yes, but I think that you should notify the network layer too.
+I see no reason any network driver shouldn't report this directly.
+There's nothing specific to ATM in losing signal.
+It's purely physical thing low level drivers should deal with.
 
-I doubt we'll see SMT toasters, though.
+> As for (5), this could be exported using sysfs.  Since it is a
+> USB matter, I guess I could do this now.  So this could also go.
 
-> UP != HT
+Yes.
 
-An HT system is still a single, phsyical processor; HT is not equivalent to
-a multicore chip, either. Much depends on memory and connection models; a
-dual-core chip may be faster or slower than two similar physical SMP
-processors. depending on the architecture.
-
-I was speaking in terms of Intel's push to add HT to all of their P4s.
-Systems with a single CPU will likely have HT; that still doesn't make them
-as powerful as a true dual processor (or dual core CPU) system.
-
-> HT is SMP with magic requirements.  For multiple physical CPUs the
-> requirements become even more complex; you want to try to group tasks
-> to physical CPUs, not logical ones lest you thrash the cache.
-
-Eaxctly. This is why HT is not the same thing as two physical CPUs. The OS
-must be aware of this the effectively schedule jobs. So I think we generally
-agree.
-
-> If HT does become more common and similar things abound, I'm not sure
-> if it even makes sense to have a UP kernel for certain platforms
-> and/or CPUs --- since a mere BIOS change will affect what is
-> 'virtually' apparent to the OS.
-
-A good point.
-
-..Scott
+	Regards
+		Oliver
 

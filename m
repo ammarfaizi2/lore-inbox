@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311558AbSCXFPM>; Sun, 24 Mar 2002 00:15:12 -0500
+	id <S311570AbSCXFRM>; Sun, 24 Mar 2002 00:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311564AbSCXFPB>; Sun, 24 Mar 2002 00:15:01 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:42258 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S311558AbSCXFO6>;
-	Sun, 24 Mar 2002 00:14:58 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.15 is available 
-Date: Sun, 24 Mar 2002 16:14:24 +1100
-Message-ID: <24219.1016946864@ocs3.intra.ocs.com.au>
+	id <S311565AbSCXFRD>; Sun, 24 Mar 2002 00:17:03 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32772
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311564AbSCXFQ5>; Sun, 24 Mar 2002 00:16:57 -0500
+Date: Sat, 23 Mar 2002 21:16:35 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Douglas Gilbert <dougg@torque.net>
+cc: Pete Zaitcev <zaitcev@redhat.com>, linux-scsi@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch to split kmalloc in sd.c in 2.4.18+
+In-Reply-To: <3C9D5219.1403288B@torque.net>
+Message-ID: <Pine.LNX.4.10.10203232101420.2377-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 23 Mar 2002, Douglas Gilbert wrote:
 
-Content-Type: text/plain; charset=us-ascii
+> Your patch worked ok for me. I have a couple of real
+> disks and 120 simulated ones with scsi_debug. My last disk
+> was /dev/sddq and I was able to fdisk, mke2fs, mount
+> and copy files to it ok.
+> 
+> 
+> I had a look at ide-disk.c (lk 2.4.19-pre4) and it
+> looks remarkably clean compared to sd.c . It seems
+> to warrant further study.
+> 
+> Doug Gilbert
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+WOW, that is the first compliment I have ever heard about my work from
+another storage expert.  Doug if I could have a minute to make a
+suggestion about the ./drivers/scsi/, would you concider making sg.c into
+the core transport layer for the subsystem?  This would be similar to what
+I am doing in ./drivers/ide with ide-taskfile.c.  Where as mine intial
+migration will cover all "ATA" commands, but there are ZERO real state
+machine engines for ATAPI.  I have considered and still looking at the
+scope of pkt-taskfile.c as a generic transport layer for all atapi but
+mating all the various standards into one is ugly.  I would prefer to
+provide an ASPI layer between ATA/SCSI and work with you to create real
+personality extentions.
 
-modutils-2.4.15.tar.gz          Source tarball, includes RPM spec file
-modutils-2.4.15-1.src.rpm       As above, in SRPM format
-modutils-2.4.15-1.i386.rpm      Compiled with gcc 2.96 20000731,
-                                glibc 2.2.2.
-patch-modutils-2.4.15.gz        Patch from modutils 2.4.13 to 2.4.15.
+sd.c direct		sane			ide-disk.c
+sr.c optical/rom	more sg'ish		ide-cd.c/ide-floppy.c
+st.c stream		noise makes from hell.	ide-tape.c
 
-Changelog extract
+My goal is to force the personalities in ata/atapi to deal with their own
+errors and destroy the mainloop error thread/jungle.  Also export to the
+personality cores their own request and completion mappings.
 
-	* Expand small snprintf buffers to PATH_MAX.  Debian #138350.
-	* Add alias ppp-compress-18 ppp_mppe.  Frank Cusack.
-	* Add x86-64 support.  Andreas Jaeger, Andi Kleen.
-	* Clean up and document modinfo printing of parameters.  Miloslav Trmac.
-	* Update config.{guess,sub} to 2002-03-04.
+I think similar things could be done in SCSI vi SG, then close up some of
+the goofiness we both have (me more so) on HBA or OBHA (onboard).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+Comments?
 
-iD8DBQE8nWCvi4UHNye0ZOoRAnnZAKDw1Syiw1VzCtwGQvhWQv3y+hgvfACfU573
-Rltj2HYXvLHUtKvr1qGHick=
-=sH6A
------END PGP SIGNATURE-----
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+PS: I already popped the balloon head so no need to get out the voodoo dolls.
 

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292855AbSCOQMb>; Fri, 15 Mar 2002 11:12:31 -0500
+	id <S292857AbSCOQSC>; Fri, 15 Mar 2002 11:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292852AbSCOQMV>; Fri, 15 Mar 2002 11:12:21 -0500
-Received: from kim.it.uu.se ([130.238.12.178]:46833 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S292857AbSCOQMI>;
-	Fri, 15 Mar 2002 11:12:08 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
+	id <S292858AbSCOQRv>; Fri, 15 Mar 2002 11:17:51 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:55006 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S292857AbSCOQRc>; Fri, 15 Mar 2002 11:17:32 -0500
+Date: Fri, 15 Mar 2002 17:17:13 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Larry McVoy <lm@work.bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
+        Ben Greear <greearb@candelatech.com>, Larry McVoy <lm@bitmover.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 and BitKeeper
+Message-ID: <20020315161712.GC3662@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Larry McVoy <lm@work.bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Ben Greear <greearb@candelatech.com>, Larry McVoy <lm@bitmover.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C90E994.2030702@candelatech.com> <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com> <3C90E994.2030702@candelatech.com> <2865.1016190641@redhat.com> <20020315080408.D11940@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15506.7486.729120.64389@kim.it.uu.se>
-Date: Fri, 15 Mar 2002 17:11:42 +0100
-To: Robert Love <rml@tech9.net>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18 Preempt Freezeups
-In-Reply-To: <1016202310.908.1.camel@phantasy>
-In-Reply-To: <3C9153A7.292C320@ianduggan.net>
-	<1016157250.4599.62.camel@phantasy>
-	<3C91B2A1.48C74B82@ianduggan.net>
-	<1016202310.908.1.camel@phantasy>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20020315080408.D11940@work.bitmover.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love writes:
- > Chances are the binary win4lin module just needs to be recompiled
- > against a preemptive kernel.
- > 
- > Of course, it could need some specific preempt-safe work but more than
- > likely it just needs to be recompiled.  Binary modules most be
- > specifically preempt-kernel aware, like they need be SMP-kernel aware.
+On Fri, Mar 15, 2002 at 08:04:08AM -0800, Larry McVoy wrote:
 
-"more than likely": that's perhaps true for your average NIC/soundcard/
-whatever driver, but things that poke the processor itself (like my
-performance-monitoring counters driver) really do depend on not being
-preempted. In my view, CONFIG_SMP is a minor triviality compared to
-CONFIG_PREEMPT ...
+> > Type 'make config'. Make is clever enough to get the Makefile from SCCS for 
+> > you. Add the missing dependencies to the Makefile so that make will fetch 
+> > stuff like scripts/Configure before trying to run it, etc. 
+> 
+> Has anyone done this and made it work?  It would save a lot of disk space
+> and performance if someone were to so.
 
-/Mikael
+IIRC, make *config should be doable, but make dep should require quite
+a bit of work (scripts/mkdep.c).
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

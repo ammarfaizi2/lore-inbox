@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293722AbSDNNJM>; Sun, 14 Apr 2002 09:09:12 -0400
+	id <S312269AbSDNNLf>; Sun, 14 Apr 2002 09:11:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312269AbSDNNJM>; Sun, 14 Apr 2002 09:09:12 -0400
-Received: from pc-62-31-74-83-ed.blueyonder.co.uk ([62.31.74.83]:12416 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S293722AbSDNNJL>; Sun, 14 Apr 2002 09:09:11 -0400
-Date: Sun, 14 Apr 2002 14:08:37 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch: aliasing bug in blockdev-in-pagecache?
-Message-ID: <20020414140837.A2119@redhat.com>
-In-Reply-To: <20020413235948.E4937@redhat.com> <Pine.GSO.4.21.0204140857190.394-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S312277AbSDNNLe>; Sun, 14 Apr 2002 09:11:34 -0400
+Received: from h00403399c977.ne.client2.attbi.com ([24.218.54.41]:48026 "EHLO
+	fred.cambridge.ma.us") by vger.kernel.org with ESMTP
+	id <S312269AbSDNNLd>; Sun, 14 Apr 2002 09:11:33 -0400
+From: pjd@fred001.dynip.com
+Message-Id: <200204141311.g3EDBUP22922@fred.cambridge.ma.us>
+Subject: Re: module programming smp-safety howto?
+To: emmanuel_michon@realmagic.fr (Emmanuel Michon)
+Date: Sun, 14 Apr 2002 09:11:30 -0400 (EDT)
+Cc: aia21@cus.cam.ac.uk (Anton Altaparmakov),
+        emmanuel_michon@realmagic.fr (Emmanuel Michon),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <7whemjbj48.fsf@avalon.france.sdesigns.com> from "Emmanuel Michon" at Apr 10, 2002 06:42:31 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, Apr 14, 2002 at 08:59:15AM -0400, Alexander Viro wrote:
- 
-> On Sat, 13 Apr 2002, Stephen C. Tweedie wrote:
+Emmanuel Michon wrote:
 > 
-> > To solve this, we really do need to have block_read_full_page() test
-> > the uptodate state under protection of the buffer_head lock.  We
-> > already go through 3 stages in block_read_full_page(): gather the
-> > buffers needing IO, then lock them, then submit the IO.  To be safe,
-> > we need a final test for buffer_uptodate() *after* we have locked the
-> > required buffers.
+> Anton Altaparmakov <aia21@cus.cam.ac.uk> writes:
 > 
-> Ouch.
+> > Also, are we going to see the driver published under GPL (I sure hope
+> > so!) or is it going to be binary only as per usual Sigma Designs policy?
 > 
-> I suspect that correct fix is to do that test in submit_bh() itself
-> (and remove it from ll_rw_block()).  IMO it's cleaner than messing
-> with all callers out there...  Linus?
+> The core library (supporting the PCI chip and all devices attached
+> thru its i2c) is binary only.
 
-Actually, if we move the test to submit_bh(), we _do_ need to mess
-with all callers.  
+If it's anything like the code that Sigma has for its 8400/8401, I
+would keep it private out of sheer embarrassment, myself.
 
-submit_bh() is currently an unconditional demand to perform a given IO
-regardless of buffer state, so lots of callers (ext3 journal writes,
-soft raid mirror writes etc) call it with private buffer_heads which
-just don't have any persistent dirty / uptodate state.  Changing
-submit_bh() still means we need to audit all callers to make sure that
-they set up those state flags correctly even for private bh'es.
+It sounds like you're doing from-the-ground-up new development, instead
+of trying to port the user-space library for the 8400, which is a 
+good thing, as the 8400 code we licensed under NDA at my last position
+was a steaming pile of dung.  It also sounds like you're making a real
+driver, instead of a shim driver that mmaps all the hardware for a
+user-space library - another good design decision.
 
-Cheers,
- Stephen
+ Peter Desnoyers 

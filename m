@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262771AbTEAXQA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 19:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTEAXP7
+	id S262780AbTEAXRn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 19:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbTEAXRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 19:15:59 -0400
-Received: from [217.144.230.27] ([217.144.230.27]:56283 "HELO
-	lexx.infeline.org") by vger.kernel.org with SMTP id S262771AbTEAXP6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 19:15:58 -0400
-Date: Fri, 2 May 2003 01:32:03 +0200 (CEST)
-From: Ketil Froyn <kernel@ketil.froyn.name>
-X-X-Sender: ketil@ketil.hb.local
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: =?ISO-8859-1?Q?P=E5l?= Halvorsen <paalh@ifi.uio.no>,
-       Mark Mielke <mark@mark.mielke.cc>, bert hubert <ahu@ds9a.nl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: sendfile
-In-Reply-To: <3EB1A029.7080708@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.40L0.0305020124050.1874-100000@ketil.hb.local>
+	Thu, 1 May 2003 19:17:43 -0400
+Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:47423
+	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S262780AbTEAXRm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 19:17:42 -0400
+Message-ID: <3EB1ADEC.6080007@rogers.com>
+Date: Thu, 01 May 2003 19:29:48 -0400
+From: Jeff Muizelaar <muizelaar@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/4] NE2000 driver updates
+References: <3EB15127.2060409@rogers.com> <1051817031.21546.23.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1051817031.21546.23.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Thu, 1 May 2003 19:30:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 May 2003, Chris Friesen wrote:
+Alan Cox wrote:
 
-> Pål Halvorsen wrote:
 >
-> > OK, but I understand that my streaming scenario is not the target
-> > application for sendfile.
+>The ne2000 ordering with the other ISA stuff in space.c is really
+>sensitive for older systems. If you get ne2k too early it breaks some
+>other cards if it autoprobes, if you get it too late it lets other
+>stuff crash the box.
 >
-> What stops you from using sendfile (with TCP) to each destination
-> separately, with the client only reading from the pipe as needed
-> (presumably with a number of frames worth of buffer on the client
-> side)?
+>So you might want to keep to Space.c for non pnp stuff if non modular
+>  
+>
+Yeah, patches 1 and 2 do just this.
 
-I don't think TCP is suitable for streaming multimedia stuff to clients.
-For instance, if a packet does not arrive on the client, it's better to
-handle this in the client and skip a frame or show one of worse quality
-than to have the video stop while waiting for the server to resend.
+Are we stuck with Space.c forever? Anyone have any plans for replacing 
+it with something more driver-model friendly?
 
-Ketil
-
+-Jeff
 

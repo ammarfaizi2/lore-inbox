@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTJGMvq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 08:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTJGMvq
+	id S262306AbTJGNAl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 09:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbTJGNAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 08:51:46 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:29225 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262327AbTJGMvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 08:51:45 -0400
-Date: Tue, 7 Oct 2003 08:51:23 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Jaroslav Kysela <perex@suse.cz>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, <andrea@suse.com>,
-       <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] memory counting fix
-In-Reply-To: <Pine.LNX.4.44.0310070844030.1494-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.44.0310070850340.31052-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Oct 2003 09:00:41 -0400
+Received: from fluent2.pyramid.net ([206.100.220.213]:33155 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP id S262306AbTJGNAj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 09:00:39 -0400
+X-Not-Legal-Opinion: IANAL I am not a lawyer
+X-For-Entertainment-Purposes-Only: True
+X-message-flag: Please update my contact to send plain-text mail only.
+Message-Id: <5.2.1.1.0.20031007054856.019687a8@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Tue, 07 Oct 2003 05:58:31 -0700
+To: linux-kernel@vger.kernel.org
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Profiling disk usage on selected branches of a file system
+In-Reply-To: <20031007130551.36899cd9.MalteSch@gmx.de>
+References: <200310070631.30972.MalteSch@gmx.de>
+ <200310061529.56959.domen@coderock.org>
+ <200310070144.47822.domen@coderock.org>
+ <Pine.LNX.4.53.0310062016340.19396@montezuma.fsmlabs.com>
+ <200310070631.30972.MalteSch@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Marcelo Tosatti wrote:
+I have a number of servers that are disk-bound, and I'm trying to convince 
+the boss to split out the single disk drive to separate disk drives to 
+increase I/O throughput.  I've been using VMSTAT to show just how 
+disk-bound we are, but I can't get any traction toward using multiple 
+drives until I can show a clear, positive, and immediate benefit.
 
-> I dont see why reserved pages shouldnt be counted in the processes RSS.
+Searching the archives, I didn't see discussion of methods of monitoring 
+separate parts of a file system, other than building separate partitions 
+and using /proc/partitions to measure what happens there.  This isn't an 
+option.  (There is some political inertia here, as well as a heavy dose of 
+NIH.)
 
-Then you'll need to change about a dozen pieces of code
-all over the place ;)
+Any help welcome.
 
-> What I'm missing here, Jaroslav?
+My hypothesis:  we need three separate drives, one for OS/code/swap/logs, 
+one for /home (Web pages, scripts, and user data), and one devoted to 
+MySQL/PostgreSQL.  The "right" way to do the job would be to have the 
+databases on a completely separate computer, but that's out because of 
+proprietary-software issues.
 
-The rest of the kernel doesn't count reserved pages as
-part of the rss.  This patch seems to simply bring this
-piece of code into line with the rest.
+You can see the Catch-22.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Put together a single server to try the concept?  "Please, you must be 
+joking,   Our servers are working just fine!"
+
+grumble grumble NIH grumble grumble
+
+Satch
 

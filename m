@@ -1,145 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263518AbTJLTsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 15:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263521AbTJLTsw
+	id S263515AbTJLTr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 15:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbTJLTr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 15:48:52 -0400
-Received: from holomorphy.com ([66.224.33.161]:11651 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263518AbTJLTsi (ORCPT
+	Sun, 12 Oct 2003 15:47:59 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:20728 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263515AbTJLTr5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 15:48:38 -0400
-Date: Sun, 12 Oct 2003 12:51:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] invalidate_mmap_range() misses remap_file_pages()-affected targets
-Message-ID: <20031012195146.GB16158@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20031012084842.GB765@holomorphy.com> <20031012103436.GC765@holomorphy.com> <20031012045644.0dce8f6b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031012045644.0dce8f6b.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 12 Oct 2003 15:47:57 -0400
+Date: Sun, 12 Oct 2003 21:47:48 +0200 (MEST)
+Message-Id: <200310121947.h9CJlmtK015045@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: benh@kernel.crashing.org
+Subject: Re: non-modular 2.6 ppc kernels miscompiled by gcc-3.3.1?
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+       sam@ravnborg.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> It would seem that mincore() shares a similar issue on account of its
->>  algorithm
+On Sun, 12 Oct 2003 15:19:22 +0200, Benjamin Herrenschmidt wrote:
+>On Sun, 2003-10-12 at 15:10, Mikael Pettersson wrote:
+>> When I compile a non-modular 2.6 kernel for ppc with gcc-3.3.1,
+>> it oopses in __copy_tofrom_user() [copy_mount_options()] in
+>> user-space's first mount /proc call. User-space limps along
+>> for a while, oopsing in every mount call, and then hangs.
+>> 
+>> This occurs with 2.6.0-test5, test6, and the test7-based
+>> linuxppc-2.5 tree (rsync:ed today).
+>> 
+>> Enabling CONFIG_MODULES=y but still keeping everything built-in
+>> prevents the oopses.
+>
+>Smells like some section alignement issues. Can you check
+>how the __ex_table  section is aligned and where __start___ex_table
+>points to ? (using objdump)
 
-On Sun, Oct 12, 2003 at 04:56:44AM -0700, Andrew Morton wrote:
-> Yes, I think it makes sense to fix mincore().  I don't fully understand the
-> reasoning behind the three cases though:
+You're right, it turned out to be an alignment issue. Here's what
+my System.map looks like with gcc-3.3.1 and CONFIG_MODULES=n:
 
-Probably because the second case is broken.
+c017ba4d ? __start___kcrctab
+c017ba4d ? __start___kcrctab_gpl
+c017ba4d ? __start___ksymtab
+c017ba4d ? __start___ksymtab_gpl
+c017ba4d ? __stop___kcrctab
+c017ba4d ? __stop___kcrctab_gpl
+c017ba4d ? __stop___ksymtab
+c017ba4d ? __stop___ksymtab_gpl
+c017ba4d A __start___ex_table
+c017cf08 A __start___bug_table
+c017cf08 A __stop___ex_table
+c01801c8 A __stop___bug_table
 
+Notice __start___ex_table[]'s address: it's not 4-byte aligned.
+With gcc-3.2.3 it got an 8-byte aligned address in my 2.6 kernel.
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
-> +	if (pte_file(*pte))
-> +		present = mincore_linear_page(vma, pte_to_pgoff(*pte));
-> +	else if (!(vma->vm_flags | (VM_READ|VM_WRITE|VM_MAYREAD|VM_MAYWRITE)))
-> +		present = pte_present(*pte);
-> +	else
-> +		present = mincore_linear_page(vma, pgoff);
+vmlinux.lds.S doesn't explicitly align __start___ex_table, so I
+simply put ". = ALIGN(4);" before it and Voila! now it works.
 
-On Sun, Oct 12, 2003 at 04:56:44AM -0700, Andrew Morton wrote:
-> Could you explain the logic behind each of these?  Perhaps with permanent
-> comments?
+/Mikael
 
-I think the PROT_NONE handling is bogus; since we have the pte, we can
-just override the pgoff-based lookup if the pte is present and ignore
-vm_flags, and the behavior isn't unique to PROT_NONE anyway. The prior
-post flubs the case of pte_present(*pte) with unaligned pgoff and rw
-or ro vma protection.
-
-Mike Galbraith also spotted a typical locking booboo in mincore_page(),
-fixed here.
-
-
--- wli
-
-
-diff -prauN rfp-2.6.0-test7-bk3-1/mm/mincore.c rfp-2.6.0-test7-bk3-2/mm/mincore.c
---- rfp-2.6.0-test7-bk3-1/mm/mincore.c	2003-10-08 12:24:51.000000000 -0700
-+++ rfp-2.6.0-test7-bk3-2/mm/mincore.c	2003-10-12 12:36:52.000000000 -0700
-@@ -22,7 +22,7 @@
-  * and is up to date; i.e. that no page-in operation would be required
-  * at this time if an application were to map and access this page.
-  */
--static unsigned char mincore_page(struct vm_area_struct * vma,
-+static unsigned char mincore_linear_page(struct vm_area_struct *vma,
- 	unsigned long pgoff)
- {
- 	unsigned char present = 0;
-@@ -38,6 +38,67 @@ static unsigned char mincore_page(struct
- 	return present;
- }
+--- linuxppc-2.5/arch/ppc/kernel/vmlinux.lds.S.~1~	2003-09-28 12:19:36.000000000 +0200
++++ linuxppc-2.5/arch/ppc/kernel/vmlinux.lds.S	2003-10-12 21:16:24.121283928 +0200
+@@ -47,6 +47,7 @@
  
-+static unsigned char mincore_nonlinear_page(struct vm_area_struct *vma,
-+						unsigned long pgoff)
-+{
-+	unsigned char present = 0;
-+	unsigned long vaddr;
-+	pgd_t *pgd;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+
-+	spin_lock(&vma->vm_mm->page_table_lock);
-+	vaddr = PAGE_SIZE*(pgoff - vma->vm_pgoff) + vma->vm_start;
-+	pgd = pgd_offset(vma->vm_mm, vaddr);
-+	if (pgd_none(*pgd))
-+		goto out;
-+	else if (pgd_bad(*pgd)) {
-+		pgd_ERROR(*pgd);
-+		pgd_clear(pgd);
-+		goto out;
-+	}
-+	pmd = pmd_offset(pgd, vaddr);
-+	if (pmd_none(*pmd))
-+		goto out;
-+	else if (pmd_ERROR(*pmd)) {
-+		pmd_ERROR(*pmd);
-+		pmd_clear(pmd);
-+		goto out;
-+	}
-+
-+	pte = pte_offset_map(pmd, vaddr);
-+
-+	/* PTE_FILE ptes have the same file, but pgoff can differ */
-+	if (pte_file(*pte))
-+		present = mincore_linear_page(vma, pte_to_pgoff(*pte));
-+
-+	/* pte presence overrides the calculated offset */
-+	else if (pte_present(*pte))
-+		present = 1;
-+
-+	/* matching offsets are the faulted in if the pte isn't set */
-+	else
-+		present = mincore_linear_page(vma, pgoff);
-+	pte_unmap(pte);
-+out:
-+	spin_unlock(&vma->vm_mm->page_table_lock);
-+	return present;
-+}
-+
-+static inline unsigned char mincore_page(struct vm_area_struct *vma,
-+						unsigned long pgoff)
-+{
-+	unsigned char ret;
-+	struct address_space *as = vma->vm_file->f_dentry->d_inode->i_mapping;
-+	down(&as->i_shared_sem);
-+	if (vma->vm_flags & VM_NONLINEAR)
-+		ret = mincore_nonlinear_page(vma, pgoff);
-+	else
-+		ret = mincore_linear_page(vma, pgoff);
-+	up(&as->i_shared_sem);
-+	return ret;
-+}
-+
- static long mincore_vma(struct vm_area_struct * vma,
- 	unsigned long start, unsigned long end, unsigned char __user * vec)
- {
+   .fixup   : { *(.fixup) }
+ 
++  . = ALIGN(4);
+   __start___ex_table = .;
+   __ex_table : { *(__ex_table) }
+   __stop___ex_table = .;

@@ -1,34 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313038AbSC0PgB>; Wed, 27 Mar 2002 10:36:01 -0500
+	id <S313045AbSC0Pmc>; Wed, 27 Mar 2002 10:42:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313037AbSC0Pfv>; Wed, 27 Mar 2002 10:35:51 -0500
-Received: from durham-24-086.biz.dsl.gtei.net ([4.3.24.86]:52102 "EHLO
-	amanda.mallet-assembly.org") by vger.kernel.org with ESMTP
-	id <S313036AbSC0Pfi>; Wed, 27 Mar 2002 10:35:38 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
-In-Reply-To: <Pine.LNX.4.33.0203271419230.28110-100000@sphinx.mythic-beasts.com>
-From: Michael Alan Dorman <mdorman@debian.org>
-Date: 27 Mar 2002 10:35:37 -0500
-Message-ID: <87r8m6f2gm.fsf@amanda.mallet-assembly.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313043AbSC0PmN>; Wed, 27 Mar 2002 10:42:13 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:39309 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313040AbSC0PmF>; Wed, 27 Mar 2002 10:42:05 -0500
+Message-Id: <5.1.0.14.2.20020327154219.05069c30@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 27 Mar 2002 15:46:44 +0000
+To: Andre Hedrick <andre@linux-ide.org>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] linux-2.5.7.fix2.patch
+Cc: linux-kernel@vger.kernel.org,
+        Martin Dalecki <dalecki@evision-ventures.com>
+In-Reply-To: <Pine.LNX.4.10.10203231441530.1053-200000@master.linux-ide.
+ org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Kirkwood <matthew@hairy.beasts.org> writes:
-> Postgres doesn't pre-allocate datafiles.  
+Hi Andre,
 
-I haven't recieved your original message, so I don't know what version
-of PostgreSQL you're using, but I believe it is pertinent given that
-versions >= 7.2 (and perhaps >= 7.1) *do* pre-allocate WAL logs, which
-is where most of the action is.
+I tried this patch on my laptop to see if it would make my atapi cdrom data 
+underrun problems go away.
 
-It might be that in this situation you might benefit from any
-reduction in FS overhead even if it means a reduction in features
-because WAL is going to dramatically change the way disk access
-happens.
+Unfortunately booting 2.5.7 + your patch causes hda: lost interrupt 
+messages to appear. It still manages to progress through the boot scripts 
+ok for a while, albeit very, very slowly, but eventually after several lost 
+interrupt messages the kernel crashes.
 
-Mike.
+Vanilla 2.5.7 boots fine but the cdrom doesn't work due to the data/buffer 
+underruns...
+
+I am quite happy to help debug this, let me know what info you would like 
+to see... Can I enable debugging somewhere to get more interesting messages 
+or should I try anything?
+
+Cheers,
+
+Anton
+
+At 22:53 23/03/02, Andre Hedrick wrote:
+
+>Martin et al.
+>
+>This is the next step in stablizing the transport layer.
+>I have not booted but it will compile, and it is nearly identical to what
+>I generated for 2.4 to be released soon.
+>
+>The comments are harsh on the interface but it functionally correct.
+>If you get an device error in PIO, bad things can happen to the data.
+>This is no different in the stock 2.4.0->2.4.18->19x.
+>
+>Of of all the transport data handlers.
+>
+>CLEAN and SAFE:
+>         DMA read/write is safe and has always been.
+>         Single sector PIO WRITING is clean and safe.
+>
+>DIRTY but operational (error events in the hardware will cause data problems)
+>         Single sector PIO READING can corrupt a single sector if there
+>                 is a device error.
+>         Multi-Read/Write will corrupt and misreport data only on an error.
+>
+>What is still lacking in block is the much needed in proccess bio walker.
+>Once I can finish coding this fix into BLOCK, then I can complete the
+>transport layer and slap it on a bus analyzer and force articial errors on
+>the buss to see if the driver behaves correctly.  If this passes, we are
+>good to run like the wind.
+>
+>Regards,
+>
+>Andre Hedrick
+>LAD Storage Consulting Group
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

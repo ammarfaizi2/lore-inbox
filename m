@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285630AbRLWJPD>; Sun, 23 Dec 2001 04:15:03 -0500
+	id <S286841AbRLWJRx>; Sun, 23 Dec 2001 04:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286840AbRLWJOy>; Sun, 23 Dec 2001 04:14:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23300 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285630AbRLWJOp>; Sun, 23 Dec 2001 04:14:45 -0500
-Message-ID: <3C25A06D.7030408@zytor.com>
-Date: Sun, 23 Dec 2001 01:14:21 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S286843AbRLWJRn>; Sun, 23 Dec 2001 04:17:43 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32087 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S286841AbRLWJRb>; Sun, 23 Dec 2001 04:17:31 -0500
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: dcinege@psychosis.com, otto.wyss@bluewin.ch,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Booting a modular kernel through a multiple streams file
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D81C@orsmsx111.jf.intel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Dec 2001 02:15:52 -0700
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D81C@orsmsx111.jf.intel.com>
+Message-ID: <m1r8pmqotz.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tar vs cpio (was: Booting a modular kernel through a multiple streams file)
-In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have looked through the various forms of tar and cpio, and I'm getting 
-the feeling that both are ugly as hell for the purpose of initializing 
-initramfs.  The block-based setup of tar (and of the new Austin group 
-"pax" format -- really just a new rev of tar) is awful, but some of the 
-tape-oriented aspects of cpio isn't much better.  What concerns me about 
-cpio in particular:
+"Grover, Andrew" <andrew.grover@intel.com> writes:
 
-a) Several different formats; <cpio.h> only documents one of them; I 
-have only found info on that one so some of these things may not apply.
+> > From: ebiederm@xmission.com [mailto:ebiederm@xmission.com]
+> > > Basically what Grub does is loads the kernel modules from disk
+> > > into memory, and 'tells' the kernel the memory location to load
+> > > them from, very similar to how an initrd file is loaded. The problem
+> > > is Linux, is not MBS compilant and doesn't know to look for and load
+> > > the modules. 
+> > 
+> > So tell me how you make an MBS compliant alpha kernel again?
+> 
+> 1) Someone writes a MBS spec chapter for Alpha
 
-b) No obvious ways to handle hard links, that doesn't require you 
-keeping a table of the inode numbers already seen (at least for which 
-c_nlink > 1) and hard link to them on the decompression side.  Since we 
-have an assymetric setup, it seems like its done at the wrong end.
+Nope it isn't that simple.  Multiboot doesn't extend gracefully at all,
+not to multiple architectures, not to new parameters, not to multiple
+vendors.   If you do extend it you get a real mess.
 
-c) The use of TRAILER!!! as an end-of-archive marker (first, it's a 
-valid name, and second, there shouldn't be a need for an end-of-archive 
-marker in this application as long as each individual file is 
-self-terminating thus returning the dearchiver to its ground state.  If 
-we stick with cpio, I would like these entries to have no effect.
+Which is why it is not good to adopt.  
 
-d) c_rdev, c_uid, c_gid, c_dev, and c_ino are too small, at least in the 
-<cpio.h> format.
+> 2) Someone implements it.
+> 
+> Any volunteers? (Eric? ;-))
 
-e) The use of octal ASCII numbers is somewhat ugly.
+I've looked and I'm not going there.  Multiboot is just plain nasty,
+and quite poorly specified as well.
 
-f) No ctime, no atime.
+I'll do something better but not that.  In fact I have already started...
 
-It seems to me that this application doesn't really have a particular 
-need for backward compatibility, nor for the I/O blocking stuff of 
-tar/cpio.  I would certainly be willing to write a set of portable 
-utilities to create an archive in a custom format, if that would be more 
-desirable.  We'd still use gzip for compression, of course, and have the 
-buffer composed as a combination of ".rfs" and ".rfs.gz" files, 
-separated by zero-padding.
+> It's all about scratching an itch, right? Things don't become cross-platform
+> by themselves. Linux started out 386-only, after all.
 
-What I'm talking about would probably still look a lot like the cpio 
-header, but probably would use bigendian binary (bigendian because it 
-allows the use of the widely portable htons() and htonl() macros), have 
-explicit support for hard links, and not require a trailer block.
+GRUB allows some very neat things and it allows for it with the
+multiboot stuff.  And everyone seems to assume that because what you
+can do with GRUB is good, multiboot must be good as well.  But have
+you ever wondered why no other bootloader implementor was interested?
 
-	-hpa
-
+Eric

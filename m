@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVAIEzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVAIFPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbVAIEzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 23:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVAIEzA
+	id S262253AbVAIFPH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 00:15:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVAIFPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 23:55:00 -0500
-Received: from fsmlabs.com ([168.103.115.128]:62595 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262022AbVAIEy7 (ORCPT
+	Sun, 9 Jan 2005 00:15:07 -0500
+Received: from mx.freeshell.org ([192.94.73.21]:48589 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S262253AbVAIFPD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 23:54:59 -0500
-Date: Sat, 8 Jan 2005 21:55:12 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Boottime allocated GDTs and doublefault handler
-In-Reply-To: <Pine.LNX.4.61.0412200806060.17024@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.61.0501082150370.13601@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0412191730330.18272@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0412191824280.4112@ppc970.osdl.org>
- <Pine.LNX.4.61.0412192307490.18310@montezuma.fsmlabs.com>
- <Pine.LNX.4.61.0412200806060.17024@montezuma.fsmlabs.com>
+	Sun, 9 Jan 2005 00:15:03 -0500
+Date: Sun, 9 Jan 2005 05:14:55 +0000 (UTC)
+From: Roey Katz <roey@sdf.lonestar.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+In-Reply-To: <d120d50005010707204463492@mail.gmail.com>
+Message-ID: <Pine.NEB.4.61.0501090513180.18441@sdf.lonestar.org>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> 
+ <200501052316.48443.dtor_core@ameritech.net>  <Pine.NEB.4.61.0501070405170.2840@sdf.lonestar.org>
+  <200501070045.24639.dtor_core@ameritech.net>  <Pine.NEB.4.61.0501071336010.23626@sdf.lonestar.org>
+ <d120d50005010707204463492@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004, Zwane Mwaikambo wrote:
+Dmitry,
 
-> On Mon, 20 Dec 2004, Zwane Mwaikambo wrote:
-> 
-> > Ok =), i've added the page table walker and some basic code to fish out 
-> > 'current' and dump a few words of its stack. Sorry about the noise in the 
-> > patch but the nested if()s were beginning to go too far.
+maybe I'm misunderstanding you;  how should the file look like once I 
+modify it with your changes (what does "reversing the fragment" mean 
+here)?
 
-Ok was this patch that offensive? ;) I've been trying to work in the task 
-killing code, but it looks like there might be trickery required to switch 
-back to the interrupted task.
+On Fri, 7 Jan 2005, Dmitry Torokhov wrote:
+
+> Ok, so the timeouts are here even with good version. Hmm...
+>
+> Ok, one thing is that in -bk3 I moved i8042 initialization earlier,
+> could you try reversing the fragment below (it is cut and paste so
+> patch won't work, you'll have to move that line manually). And touch
+> i8042.c to force rebuild.
+>
+> If this does not work try disabling psmouse - does it help with the keyboard?
+>

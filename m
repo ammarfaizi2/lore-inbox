@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263883AbTLEF0z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 00:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbTLEF0z
+	id S263851AbTLEFYT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 00:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbTLEFYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 00:26:55 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:40770 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S263883AbTLEF0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 00:26:54 -0500
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: <Valdis.Kletnieks@vt.edu>, "'Peter Chubb'" <peter@chubb.wattle.id.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause? 
-Date: Thu, 4 Dec 2003 21:26:44 -0800
-Organization: Cisco Systems
-Message-ID: <00dc01c3baf0$6152a770$d43147ab@amer.cisco.com>
+	Fri, 5 Dec 2003 00:24:19 -0500
+Received: from mhub-b1.mrs.umn.edu ([146.57.2.31]:1506 "EHLO
+	mhub-b1.mrs.umn.edu") by vger.kernel.org with ESMTP id S263851AbTLEFYT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 00:24:19 -0500
+Message-Id: <3FD01679.3040007@mrs.umn.edu>
+Date: Thu, 04 Dec 2003 23:24:09 -0600
+From: Grant Miner <mine0057@mrs.umn.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: reiserfs-list@namesys.com
+CC: linux-kernel@vger.kernel.org
+Subject: The x Bit Problem
+References: <16333.14692.61778.304155@pc7.dolda2000.com>	 <3FCD47C4.50500@ninja.dynup.net> <3FCE39B8.20307@namesys.com>	 <16334.15412.686909.927196@laputa.namesys.com> <1070580817.8344.140.camel@arabia.home.lan> <3FD00086.90607@ninja.dynup.net>
+In-Reply-To: <3FD00086.90607@ninja.dynup.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <200312050513.hB55D1ps030713@turing-police.cc.vt.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here's the part where people's eyes glaze over:
-> 
-> % cd /usr/src/linux-2.6.0-test10-mm1
-> % find include -name '*.h' | xargs egrep 'static.*inline' | wc -l
->    6288
-> 
-> That's 6,288 chances for you to #include GPL code and end up
-> with executable derived from it in *your* .o file, not the kernel's.
+An interesting thing I discovered is that Windows simply ignores the 'x' 
+bit (I should say the Windows equivalent of the 'x' bit, called 
+"traverse folder / execute file"), but there is a policy setting that 
+overrides this attribute.
 
-What's so fundamentally different about inline functions, or, IOW, a
-finer format of macros?
-
-It doesn't matter if the API is inline or not. What matters is if using
-this API makes your program a derivative work. From this perspective,
-it's just an interface, no matter how it's implemented.
-
-Let's be frank: how many people really try to read the header file when
-they use these APIs? They don't care if they are inlined or not. To them
-they are just _APIs_.
-
-
-
+I know users get tripped up on this a lot in Unix, like when they don't 
+understand why the webserver can't read their public_html directory.  It 
+might be a good option for Linux.
 

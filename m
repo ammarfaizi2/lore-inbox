@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318410AbSGYLNI>; Thu, 25 Jul 2002 07:13:08 -0400
+	id <S318411AbSGYLSF>; Thu, 25 Jul 2002 07:18:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318411AbSGYLNI>; Thu, 25 Jul 2002 07:13:08 -0400
-Received: from mailf.telia.com ([194.22.194.25]:51437 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S318410AbSGYLNH>;
-	Thu, 25 Jul 2002 07:13:07 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Safety of IRQ during i/o
-Date: Thu, 25 Jul 2002 13:15:30 +0200
-User-Agent: KMail/1.4.5
-References: <Pine.SOL.4.30.0207250041400.15959-100000@mion.elka.pw.edu.pl> <1027592784.9489.11.camel@irongate.swansea.linux.org.uk> <3D3FC625.1020202@evision.ag>
-In-Reply-To: <3D3FC625.1020202@evision.ag>
+	id <S318412AbSGYLSF>; Thu, 25 Jul 2002 07:18:05 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:44207 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318411AbSGYLSE>; Thu, 25 Jul 2002 07:18:04 -0400
+Message-ID: <3D3FDF14.C677245F@wanadoo.fr>
+Date: Thu, 25 Jul 2002 13:20:52 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i586)
+X-Accept-Language: fr-FR, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200207251315.30566.roger.larsson@skelleftea.mail.telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.28 does not compile
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 July 2002 11.34, Marcin Dalecki wrote:
-> Alan Cox wrote:
-> > For old ISA/VLB controllers its safer left as is, and nobody running a
-> > machine like that can realistically expect good performance without hand
-> > tuning stuff anyway
-> 
-> Sounds fairly well and is easy to implement...just adding
-> 
-> if (ch->pci_dev != NULL && ch->umask)
-> 
-> at the corresponding plase in ata_irq_request will do the trick.
-> 
+Hi,
 
-Yea, but I lake to be able to see that it is enabled with hdparm
-(and to be able to disable it as well...)
+Here are the messages :
 
-/RogerL
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
+/usr/src/linux/debian/tmp-image -r 2.5.28; fi
+depmod: *** Unresolved symbols in
+/usr/src/linux/debian/tmp-image/lib/modules/2.5.28/kernel/drivers/input/gameport/gameport.o
+depmod: 	cli
+depmod: 	restore_flags
+depmod: 	save_flags
+depmod: *** Unresolved symbols in
+/usr/src/linux/debian/tmp-image/lib/modules/2.5.28/kernel/drivers/input/joystick/analog.o
+depmod: 	cli
+depmod: 	restore_flags
+depmod: 	save_flags
+make[2]: *** [_modinst_post] Erreur 1
+make[2]: Leaving directory `/usr/src/kernel-source-2.5.28'
+make[1]: *** [real_stamp_image] Erreur 2
+make[1]: Leaving directory `/usr/src/kernel-source-2.5.28'
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
 
+-----
+
+Regards
+	Jean-Luc
+
+(I'm not on the list)

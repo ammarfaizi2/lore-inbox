@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267206AbUBMWVX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 17:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUBMWVX
+	id S267257AbUBMWdS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 17:33:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267258AbUBMWdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 17:21:23 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:47599 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267206AbUBMWVV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 17:21:21 -0500
-Date: Fri, 13 Feb 2004 14:18:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-cc: Sean Neakums <sneakums@zork.net>, Nagy Tibor <nagyt@otpbank.hu>,
-       xela@slit.de, mochel@osdl.org, bmoyle@mvista.com, orc@pell.chi.il.us,
-       linux-kernel@vger.kernel.org
-Subject: Re: HIGHMEM
-Message-ID: <46620000.1076710734@flay>
-In-Reply-To: <20040213160909.A6102@lists.us.dell.com>
-References: <402CC114.8080100@dell633.otpefo.com> <6uvfmbktrj.fsf@zork.zork.net> <64200000.1076688313@[10.10.2.4]> <20040213160909.A6102@lists.us.dell.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Fri, 13 Feb 2004 17:33:18 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5248 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S267257AbUBMWdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 17:33:15 -0500
+Date: Fri, 13 Feb 2004 22:43:09 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200402132243.i1DMh9LW000210@81-2-122-30.bradfords.org.uk>
+To: <yiding_wang@agilent.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <0A78D025ACD7C24F84BD52449D8505A15A80CF@wcosmb01.cos.agilent.com>
+References: <0A78D025ACD7C24F84BD52449D8505A15A80CF@wcosmb01.cos.agilent.com>
+Subject: Re: what is the best 2.6.2 kernel code?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Feb 13, 2004 at 08:05:14AM -0800, Martin J. Bligh wrote:
->> >> We have two Dell Poweredge servers, an older one (PowerEdge 6300) and a
->> >> newer one (PowerEdge 6400). Both servers have 4GB RAM, but the Linux
->> >> kernel uses about 500MB less memory in the newer machine.
->> > 
->> > I may be talking through my hat, but I think that in this case you
->> > need to select the option for support of 64G highmem.  If I recall,
->> > "4G highmem" refers not to the total amount to the memory, but to the
->> > highest physical address that can be accessed.
->> 
->> That's exactly correct. Whether the gain of 500MB of RAM is worth the
->> overhead of PAE is another question ... but that's how to do it ;-)
+> Building new kernel from the source failed on fs/proc/array.o.
+> Patching with patch file will have numerous warning message which says
+> "Reversed patch detected! Assume -R [n]".  From messages, it looks
+> like the patch file is outdated.  However, without patch, kernel
+> failed on building.  Running patch with force option also failed on
+> file patching.
 > 
-> If the chipset and BIOS can't remap the physical RAM out of the
-> address space needed by the PCI devices and into PAE space, then PAE
-> doesn't buy you anything.  You need chipset support for RAM remapping,
-> which doesn't exist on the servers mentioned.
+> What is the best working 2.6.2 kernel and patch I can get from source tree?
 
-Ah, didn't realise you had a hardware problem as well ;-)
+Please fix your mailer not to post long lines.
 
-M.
+The patch-2.6.2.bz2 file is intended to be applied to the 2.6.1 tree,
+to update it to 2.6.2.  It doesn't contain post 2.6.2 updates, which
+is what your mail implied.
 
+John.

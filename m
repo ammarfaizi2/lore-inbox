@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271399AbRHZSHw>; Sun, 26 Aug 2001 14:07:52 -0400
+	id <S271401AbRHZSNd>; Sun, 26 Aug 2001 14:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271401AbRHZSHm>; Sun, 26 Aug 2001 14:07:42 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:14856 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S271399AbRHZSHY>; Sun, 26 Aug 2001 14:07:24 -0400
-From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Message-Id: <200108260633.IAA01072@kufel.dom>
-Subject: Re: userspace implementation of tcp/ip
-To: kufel!intrex.net!jlnance@green.mif.pg.gda.pl
-Date: Sun, 26 Aug 2001 08:33:42 +0200 (CEST)
-Cc: kufel!desanasystems.com!fmarti@green.mif.pg.gda.pl (Marti Felix),
-        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
-In-Reply-To: <20010825234850.A23528@bessie.localdomain> from "jlnance@intrex.net" at sie 25, 2001 11:48:50 
-X-Mailer: ELM [version 2.5 PL3]
+	id <S271413AbRHZSNZ>; Sun, 26 Aug 2001 14:13:25 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:45708 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S271401AbRHZSNL>; Sun, 26 Aug 2001 14:13:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: VCool - cool your Athlon/Duron during idle
+Date: Sun, 26 Aug 2001 20:09:34 +0200
+X-Mailer: KMail [version 1.3]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010826181315Z271401-760+6195@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, Aug 25, 2001 at 11:47:20AM -0700, Marti, Felix wrote:
-> > Hi there,
-> > 
-> > I remember that somebody ported the linux tcp/ip stack to userspace a long
-> > time ago. Does anybody have a link to that project?
-> 
-> There is a package called KA9Q which I believe does what you are talking about.
-> I have not heard anything about it for years, but if you do a google search
-> you might find something.
+Hello Alan,
 
-AFAIR ka9q is older than Linux...
-We used to use it in 1990.
+Have you read something about this Athlon/Duron cooling problem?
+Can this code included into your (and/or the official) tree?
+Maybe it is needed for the AMD 750/760/760MP/760MPX, too?
 
-Andrzej
+http://www.naggelgames.de/vcool/VCool_de.html
+
+Regards,
+	Dieter
+

@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268690AbTGIXiu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 19:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268749AbTGIXfh
+	id S268720AbTGIXnb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 19:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbTGIXku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 19:35:37 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:61829 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268745AbTGIXfM (ORCPT
+	Wed, 9 Jul 2003 19:40:50 -0400
+Received: from rtichy.netro.cz ([213.235.180.210]:27898 "HELO 192.168.1.21")
+	by vger.kernel.org with SMTP id S268719AbTGIXk1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 19:35:12 -0400
-Subject: Re: [PATCH libaio] add timeout to io_queue_run and remove
-	io_queue_wait
-From: Daniel McNeil <daniel@osdl.org>
-To: John Myers <jgmyers@netscape.com>
-Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F0C97C0.2060408@netscape.com>
-References: <1057712224.11509.35.camel@dell_ss5.pdx.osdl.net> 
-	<3F0C97C0.2060408@netscape.com>
-Content-Type: text/plain
+	Wed, 9 Jul 2003 19:40:27 -0400
+Message-ID: <039701c34675$81a8b0e0$401a71c3@izidor>
+From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
+To: "Samuel Flory" <sflory@rackable.com>
+Cc: <linux-kernel@vger.kernel.org>, <mru@users.sourceforge.net>
+References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com> <027901c3461e$e023c670$401a71c3@izidor> <yw1xadbnx017.fsf@users.sourceforge.net> <02ff01c34642$5512d7f0$401a71c3@izidor> <3F0C5D55.4030304@rackable.com>
+Subject: Re: Promise SATA 150 TX2 plus
+Date: Thu, 10 Jul 2003 01:54:59 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Jul 2003 16:49:41 -0700
-Message-Id: <1057794581.10851.66.camel@dell_ss5.pdx.osdl.net>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-09 at 15:31, John Myers wrote:
-> Daniel McNeil wrote:
-> 
-> >Thoughts?
-> >  
+Hi,
+> Milan Roubal wrote:
+>
+> >So other question - is there SATA controler that
+> >is working in linux multiple controlers (4 cards)
+> >and is for better bus than standart PCI? Like PCI-X or
+> >PCI 66 MHz like promise is?
 > >
-> I don't think io_queue_run() is particularly worthwhile.  Applications 
-> are much better off coding that loop themselves, so they can control 
-> such things as how many events they ask for in a call to io_getevents() 
-> and how they handle process shutdown.  Besides, io_queue_run()'s 
-> handling of EINTR isn't particularly good.
-> 
-> io_queue_run() is basically for legacy apps.  Your patch changes its 
-> signature, which breaks its only use.
-> 
+> >
+>
+>   Most current SATA cards aren't faster than 64/66.  Heck many are
+> 32/66, or 64/33.  The problem is most everyone other than 3ware's linux
+> drivers suck.  I can't find a non raid SATA controller than works for me
+> under linux.
+>
 
-If any application is using io_queue_run()/io_queue_wait(), it is
-wasting a bunch of cpu time because io_queue_wait() is never waiting.
-So, yes, this would break any existing application which is using
-the currently broken io_queue_wait().  Is there any "legacy" app using
-this?  How long have the interfaces been around?
+Heh, bad news for me.
 
-If io_queue_run()/io_queue_wait() isn't worthwhile, then it should be
-removed.  If having a callback interface is worthwhile, I vote for
-fixing it.  So the choices are:
+>   3ware cards tend to max out a 64/33 solt around 6 drives for
+> sequential IO.  (This will change in their next gen cards)  You get much
+> better performance with two 8 port cards running 6 drives each than a
+> single 12 port card.  Personally I recommend either 3ware raid10, or
+> linux software raid 5 if you're a performance junky.
+>
+>   Adaptec does have a new 4 port card sata raid card.  It seems to work
+> well, and the driver on their cdrom includes around 30 precompiled
+> binaries for various RH, MDK, and Suse kernels.  Source for the updated
+> aacraid driver is included.   An interesting side note their cdrom seem
+> to run linux.  (Yes they seem to provide source/patches for the various
+> gpl programs it uses.)
+>
+> -- 
+> Once you have their hardware. Never give it back.
+> (The First Rule of Hardware Acquisition)
+> Sam Flory  <sflory@rackable.com>
+>
 
-1. patch kernel to get io_queue_wait() to actually wait. (see my earlier
-   patch).
-
-2. Change the libaio callback interfaces so that it blocks without
-   patching the kernel.  (This patch does that).
-
-3. remove io_queue_run()/io_queue_wait() if they are not worthwhile.
-
-I agree that the io_getevents() is sufficient, but it doesn't hurt
-having the callback interface (if it actually worked correctly).
-
-Daniel
+All this cards are RAID controllers, I want only SATA controlers and I am
+using software raid 5.
+I was using Promise TX2 controllers for PATA drives and it was working
+great, so I tried
+the SATA card from Promise too and it looks only troubles and troubles...
+    Milan Roubal
 

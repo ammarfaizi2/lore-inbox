@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUH1RBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266217AbUH1RLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267460AbUH1RBU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 13:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266217AbUH1RBU
+	id S266217AbUH1RLY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 13:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUH1RLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 13:01:20 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:26121 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267464AbUH1RBD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 13:01:03 -0400
-Date: Sat, 28 Aug 2004 19:05:15 +0200
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Rik van Riel <riel@redhat.com>, Spam <spam@tnonline.net>,
-       Jamie Lokier <jamie@shareable.org>, Hans Reiser <reiser@namesys.com>,
-       David Masover <ninja@slaphack.com>, Diego Calleja <diegocg@teleline.es>,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       reiserfs-list@namesys.com,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040828170515.GB24868@hh.idb.hist.no>
-References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org>
+	Sat, 28 Aug 2004 13:11:24 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:45220 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266217AbUH1RLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 13:11:22 -0400
+Subject: Re: reverse engineering pwcx
+From: Lee Revell <rlrevell@joe-job.com>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       clemtaylor@comcast.net, qg@biodome.org, rogers@isi.edu
+In-Reply-To: <1093712176.431.6806.camel@cube>
+References: <1093709838.434.6797.camel@cube>
+	 <1093710358.8611.22.camel@krustophenia.net>
+	 <1093712176.431.6806.camel@cube>
+Content-Type: text/plain
+Message-Id: <1093713088.8611.30.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040722i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 13:11:28 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 07:05:35PM -0700, Linus Torvalds wrote:
+On Sat, 2004-08-28 at 12:56, Albert Cahalan wrote:
+> On Sat, 2004-08-28 at 12:25, Lee Revell wrote:
+> > On Sat, 2004-08-28 at 12:17, Albert Cahalan wrote:
+> >> [somebody]
 > 
-> 
-> On Fri, 27 Aug 2004, Rik van Riel wrote:
+> > > > The LavaRnd guys examined the pixels on the actual
+> > > > CCD chip.  It's 160x120.  The 'decompression' is
+> > > > just interpolation.
+> > > 
+> > > Don't put much faith in the 160x120 number. Suppose
+> > > that the chip is in a Bayer pattern, with 160x120
+> > > of those. Well, how many pixels is that? Who knows.
+> > > You'd sort of have 160x120, but with double the
+> > > green data. Since green carries most of the luminance
+> > > information, producing a larger image is reasonable.
 > > 
-> > Thing is, there is no way to distinguish between what are
-> > virtual files and what are actual streams hidden inside a
-> > file.  You don't know what should and shouldn't be backed
-> > up...
+> > Right, as someone else pointed out, this is wrong.
+> > 
+> > How do you account for the Slashdot poster's assertion that it's
+> > physically impossible to cram 640 x 480 worth of data down a USB 1.1
+> > pipe?
 > 
-> I think that lack of distinguishing poiwer is more serious for 
-> directories. The more I think I think about it, the more I wonder whether 
-> Solaris did things right - having a special operation to "cross the 
-> boundary".
+> 640x480 uncompressed 24-bit RGB? It doesn't matter.
 > 
-> I suspect Solaris did it that way because it's a hell of a lot easier to 
-> do it like that, but regardless, it would solve the issue of real 
-> directories having both real children _and_ the "extra streams".
+> The suggestion of a 4x4 JPEG-like transform seems
+> pretty reasonable. I'd like to see that whitepaper.
+> 
 
-There are many ways of doing this. Several extra streams to a directory
-that aren't ordinary files in the directory?
+This still can't be called 'True 640 x 480' by any reasonable standard. 
+Philips' marketing claims exactly this.
 
-It seems to me that we can get a lot of nice functionality in a simpler way:
-Instead of thinking about a number of streams attached to something
-that is either an ordinary file or directory, just say that the only
-change will be that a directory may have a _single_ file stream in
-addition to being a plain directory.
+So far I have not seen any evididence to refute QuantumG's original
+assertion that the reason everyone in the know is being so tight-lipped 
+is that releasing source code would prove Philips and/or Logitech guilty
+of false advertising.
 
-The conceptual change is smaller.  Still you achieve multiple
-streams, the "main" stream in such a dir+file is the single stream
-attached to the directory.  All the "extra streams" are files inside the 
-(normal) directory.
+Lee
 
-* This way, the extra streams aren't "special" in any way and
-  should work fine with existing tools. 
-* Serving such a filesystem to clients that use multiple streams
-  will allow any number of streams per file for them
-* Moving the directory+file thing will move both the directory and
-  the special stream, and all the extra streams follow because they're
-  �part of the directory as usual�.
-
-If the VFS is to be extended in order to support file-as-directory (or
-vice versa) then hopefully it can be done in a simple way.
-
-Helge Hafting
- 

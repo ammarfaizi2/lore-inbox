@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbTJXSGB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 14:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTJXSGA
+	id S262440AbTJXSLE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 14:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbTJXSLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 14:06:00 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:42964 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262434AbTJXSF7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 14:05:59 -0400
-Subject: Re: Re: 2.6.0-test8 mad clock rate drifts and sleeping function ...
-From: john stultz <johnstul@us.ibm.com>
-To: Roland Lezuo <roland.lezuo@chello.at>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200310241306.57433.roland.lezuo@chello.at>
-References: <200310231044.46668.roland.lezuo@chello.at>
-	 <1066938672.1119.85.camel@cog.beaverton.ibm.com>
-	 <200310241306.57433.roland.lezuo@chello.at>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067018643.1118.199.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Oct 2003 11:04:04 -0700
+	Fri, 24 Oct 2003 14:11:03 -0400
+Received: from mail-08.iinet.net.au ([203.59.3.40]:6280 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262440AbTJXSLA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 14:11:00 -0400
+Message-ID: <3F996B10.4080307@cyberone.com.au>
+Date: Sat, 25 Oct 2003 04:10:24 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Nick's scheduler v17
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-24 at 04:06, Roland Lezuo wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> > So you're seeing time run twice as fast overall? Are you running with
-> > NTP?  Do you have any sort of hardware power management on the system?
-> > Do you have any more details about the system?
-> 
-> I used to run NTP but I thought I didn't do that when I epxerienced that clock 
-> drift. The Box (after a restart) is up for 1 day and 13 hours now, there is 
-> no clock drift any more...
-> ...the xmms problem disappeared by recompileing the xmms-alsa plugin (which is 
-> strange for me), but it is gone...
-> 
-> 
-> the only thing left:
-> 
-> Debug: sleeping function called from invalid context at 
-> include/asm/uaccess.h:473
-> in_atomic():0, irqs_disabled():1
-> Call Trace:
->  [<c0120150>] __might_sleep+0xa0/0xd0
->  [<c010d40a>] save_v86_state+0x6a/0x200
->  [<c010ca67>] do_IRQ+0x117/0x160
->  [<c010a49e>] work_notifysig_v86+0x6/0x14
->  [<c010a44b>] syscall_call+0x7/0xb
-> 
-> ... there are more of this called from different source files...
+Hi,
+http://www.kerneltrap.org/~npiggin/v17/
 
-Dunno about that one, but please let me know if you later find you can
-reproduce the time drift issue. 
+Still working on SMP and NUMA. Some (maybe) interesting things I put in are
+- Sequential CPU balancing so you don't get a big storm of balances 
+every 1/4s.
+- Balancing is trying to err more on the side of caution, I have to start
+  analysing it more thoroughly though.
+- Attacked the NUMA balancing code. There should now be less buslocked ops /
+  cache pingpongs in some fastpaths. Volanomark likes it, more realistic 
+loads
+  won't improve so much http://www.kerneltrap.org/~npiggin/v17/volano.png
+  This improvement is NUMA only.
 
-thanks
--john
+I haven't had time to reproduce Cliff's serious reaim performance 
+dropoffs so
+they're probably still there. I couldn't reproduce Martin's kernbench 
+dropoff,
+but the 16-way I'm using only has 512K cache which might not show it up.
 
 

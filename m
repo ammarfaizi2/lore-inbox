@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129882AbQKGWWN>; Tue, 7 Nov 2000 17:22:13 -0500
+	id <S129189AbQKGW2Y>; Tue, 7 Nov 2000 17:28:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129884AbQKGWWE>; Tue, 7 Nov 2000 17:22:04 -0500
-Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:62724 "EHLO
-	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
-	id <S129524AbQKGWVm>; Tue, 7 Nov 2000 17:21:42 -0500
-Date: Tue, 7 Nov 2000 14:20:44 -0800 (PST)
-From: Dan Browning <danb@cyclonehq.dnsalias.net>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [HARDLOCK] 2.2.17 locks up hard on Ultra66/PDC20262 in DMA mode
- when using ide + raid-A0 + eepro100 patches
-In-Reply-To: <Pine.LNX.4.10.10011061938520.18160-200000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.21.0011071405390.11597-100000@cyclonehq.dnsalias.net>
+	id <S129524AbQKGW2N>; Tue, 7 Nov 2000 17:28:13 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:31886 "EHLO iq.rulez.org")
+	by vger.kernel.org with ESMTP id <S129189AbQKGW2C>;
+	Tue, 7 Nov 2000 17:28:02 -0500
+Date: Tue, 7 Nov 2000 23:28:14 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Stange NFS messages - 2.2.18pre19
+Message-ID: <Pine.LNX.4.10.10011072326340.21756-100000@iq.rulez.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UPDATE:
+Hi!
 
-Thanks to Andre's 2.2.18pre19 patch, we're making progress!  This time I
-had 4 hrs 10 min uptime before it locked up.
+I'm getting this under moderate NFS load:
+Nov  6 17:39:56 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  6 17:40:08 iq kernel: svc: unknown program 100227 (me 100003)
+Nov  6 19:06:11 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  6 19:38:48 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  6 19:54:51 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  6 20:08:53 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  6 20:53:23 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  7 09:03:28 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  7 09:15:18 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  7 11:12:51 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  7 18:01:17 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  7 19:34:59 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  7 19:40:59 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
+Nov  7 21:43:48 iq kernel: svc: server socket destroy delayed (sk_inuse:
+1)
 
-And this time, it only said 
+What do these means? Is this a kernel bug?
 
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=15347359,
-sector=15347328
+--  SaPE
 
-once, instead of repeating that error 4 times.  
-
-What should I try now?  Maybe I'll give 2.4.0-test10 another shot, but
-last time I tried it, it corrupted my raid5 array.
-
-What next...
-
-On Mon, 6 Nov 2000, Andre Hedrick wrote:
-> 
-> Fsn shake this at it...
-> 
-> 
-> Andre Hedrick
-> CTO Timpanogas Research Group
-> EVP Linux Development, TRG
-> Linux ATA Development
-> 
+Peter, Sasi <sape@sch.hu>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

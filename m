@@ -1,18 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbTAEFAG>; Sun, 5 Jan 2003 00:00:06 -0500
+	id <S262937AbTAEFEY>; Sun, 5 Jan 2003 00:04:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbTAEFAG>; Sun, 5 Jan 2003 00:00:06 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:18095 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262821AbTAEFAE>; Sun, 5 Jan 2003 00:00:04 -0500
-Date: Sat, 04 Jan 2003 21:08:33 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jeff Garzik <garzik@pobox.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix starfire compiler warning on PAE
-Message-ID: <99960000.1041743313@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S263039AbTAEFEY>; Sun, 5 Jan 2003 00:04:24 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:32726 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S262937AbTAEFEW>; Sun, 5 Jan 2003 00:04:22 -0500
+Date: Sun, 05 Jan 2003 18:12:10 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: rms@gnu.org
+cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: Gauntlet Set NOW!
+Message-ID: <635470000.1041743530@localhost.localdomain>
+In-Reply-To: <E18UxyD-00048W-00@fencepost.gnu.org>
+References: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org>
+ <15900000.1041638213@localhost.localdomain>
+ <E18UxyD-00048W-00@fencepost.gnu.org>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -20,29 +24,94 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN -X /home/fletch/.diff.exclude 
-12-boot_error/drivers/net/starfire.c 
-19-fix_starfire_warning/drivers/net/starfire.c
---- 12-boot_error/drivers/net/starfire.c	Fri Dec 13 23:17:59 2002
-+++ 19-fix_starfire_warning/drivers/net/starfire.c	Thu Jan  2 22:18:18 2003
-@@ -1847,15 +1847,15 @@ static int netdev_close(struct net_devic
+By the way, I'm principally a developer of communications standards and 
+hardware, not so much software.
 
- #ifdef __i386__
- 	if (debug > 2) {
--		printk("\n"KERN_DEBUG"  Tx ring at %8.8x:\n",
--			   np->tx_ring_dma);
-+		printk("\n"KERN_DEBUG"  Tx ring at %9.9Lx:\n",
-+			   (u64) np->tx_ring_dma);
- 		for (i = 0; i < 8 /* TX_RING_SIZE is huge! */; i++)
- 			printk(KERN_DEBUG " #%d desc. %8.8x %8.8x -> %8.8x.\n",
- 			       i, le32_to_cpu(np->tx_ring[i].status),
- 			       le32_to_cpu(np->tx_ring[i].first_addr),
- 			       le32_to_cpu(np->tx_done_q[i].status));
--		printk(KERN_DEBUG "  Rx ring at %8.8x -> %p:\n",
--		       np->rx_ring_dma, np->rx_done_q);
-+		printk(KERN_DEBUG "  Rx ring at %9.9Lx -> %p:\n",
-+		       (u64) np->rx_ring_dma, np->rx_done_q);
- 		if (np->rx_done_q)
- 			for (i = 0; i < 8 /* RX_RING_SIZE */; i++) {
- 				printk(KERN_DEBUG " #%d desc. %8.8x -> %8.8x\n",
+--On Saturday, January 04, 2003 18:44:49 -0500 Richard Stallman 
+<rms@gnu.org> wrote:
 
+>     But sometimes we can't make things free, either because it comes to
+> close      to core IP which we are legally bound to protect, or because
+> it's a derived      work of something we bought and don't ourselves have
+> the right to      redistribute.
+>
+> At this level of generality, I can only say that if the program is to
+> be published as non-free software, it will not be available to people
+> to use in freedom.  Its effect will be to tempt people to give up
+> their freedom.  If I had a choice to develop that program or no
+> program, I would develop no program.
+
+Here is where we differ.  I do these things because, even though they do 
+not promote software freedom, they can and, I hope, do promote other kinds 
+of freedom in other ways.  I also always look to the maximally free way to 
+do the software parts.  Sometimes it is not possible to acheive the other 
+goals we have and keep the software entirely free.  I think, however, that 
+the freedom given by very inexpensive and unconstrained (that is, free as 
+in speech) telecommunications is somewhat more important than the absolute 
+freedom of the specific software we use to acheive that.  In several cases, 
+we have chosen proprietary solutions where they make the monetary cost to 
+the end user dramatically lower, because one of our target problems is the 
+lack of economic freedom in many parts of the world.  For those with an 
+arbitrary hardware budget, there are or soon will be interoperable free 
+software alternatives.  We make sure of that.  We make sure we use open 
+standards with no closed extensions, so as to make sure this continues.
+
+> I would rather look for constructive alternatives than just criticize.
+> In such a situation, I would look for a way to make the program free.
+
+I'm often focused on the case where the total hardware + software cost is 
+the key factor between user of any communications and user of no 
+communications.  I use free or partly free software wherever I can, because 
+I am not hostile to that goal, but that is not my overriding concern.
+
+I am also concerned that some of the zealots in the free software, not 
+necessarily including yourself Richard, do not set precedents in the courts 
+that, while possibly reinforcing the particular technicality of the GPL, 
+undermine the freeness of kinds of speech other than software, such as 
+scientific communication, cultural artefacts and political discussion.  In 
+the long run that would be worse for freedom in general.
+
+> This scenario is too general to get started on that.  (I explained in
+> another message how the term "intellectual property" tends to obscure
+> important distinctions; this is an example.)  In any specific case
+> there is likely to be some way.
+
+Here I'm using that term in the sense of 'copyrighted (and possibly 
+patented) compilable information and its documentation', covering both 
+software and hardware designs.  If I were to use it to cover anything else 
+I'd be more specific, as is common usage where I come from.  I do 
+understand the ambiguity and hidden conflations behind the term; I have 
+been involved in both trademark and patenting (of hardware; software 
+patents are evil, no question) work, and I'm cited as an inventor on one 
+patent, so I have some firsthand experience.
+
+> If there is no easy way to make the same program free, there may be a
+> harder way.  People who value freedom strongly sometimes choose the
+> hard path to freedom rather than the easy path that extends
+> non-freedom.  That is how we extend freedom.
+
+I'm principally concerned with other sorts of freedom, while attempting to 
+forward the cause of software freedom to the extent I can, and attempting 
+never to advance the cause of any sort of non-freedom.  It isn't easy at 
+all, believe me.
+
+> As an ultimate fallback, there is surely some other job you could do
+> instead.
+
+I could go back to being a musician or a scientist.  There are freedom 
+issues there, too, believe me.  And I'd still be debating free software, 
+because in those fields it's important too.  It would certainly be easier 
+to tread the path of free software purity in those fields, but I suspect it 
+would make less long-term impact for me to do so.
+
+> I have no opinion yet about what Andre said, because I cannot form a
+> clear picture of what he plans to do; I don't know whether it would
+> violate the GPL, or whether the issue would involve the FSF.  We do
+> not enforce the GPL for Linux in any case; that is the responsibility
+> of the copyright holders of Linux.
+
+I'm glad to hear that.  I'm also glad that the zealot who started the 
+thread that has us talking about this does not appear to be one of those 
+copyright holders; I suspect most of them have more sense.
+
+Andrew

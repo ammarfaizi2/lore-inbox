@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265147AbUFRNEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUFRNQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265147AbUFRNEa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 09:04:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUFRNEa
+	id S265053AbUFRNQH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 09:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265138AbUFRNQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 09:04:30 -0400
-Received: from cantor.suse.de ([195.135.220.2]:17902 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265147AbUFRNEP (ORCPT
+	Fri, 18 Jun 2004 09:16:07 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:12977 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265053AbUFRNQE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 09:04:15 -0400
-Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the
-	mapping
-From: Chris Mason <mason@suse.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
-References: <1087523668.8002.103.camel@watt.suse.com>
-	 <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Message-Id: <1087563810.8002.116.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 09:03:31 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 09:16:04 -0400
+Date: Fri, 18 Jun 2004 15:16:01 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Finn Thain <ft01@webmastery.com.au>, Andreas Schwab <schwab@suse.de>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: make checkstack on m68k
+In-Reply-To: <20040618130242.GD18258@wohnheim.fh-wedel.de>
+Message-ID: <Pine.GSO.4.58.0406181513470.11779@waterleaf.sonytel.be>
+References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
+ <je3c4uqum0.fsf@sykes.suse.de> <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au>
+ <20040617182658.GB29029@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406172115050.1495@waterleaf.sonytel.be>
+ <Pine.GSO.4.58.0406172130130.1495@waterleaf.sonytel.be>
+ <20040618130242.GD18258@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-17 at 22:10, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Thu, Jun 17, 2004 at 09:54:28PM -0400, Chris Mason wrote:
-> > __bd_forget will change the mapping for filesystem inodes without 
-> > waiting to make sure no users of the block device address space are 
-> > using that mapping.
-> 
-> Filesystem block device inodes have no business even looking at their
-> ->i_mapping.  Where do you need to do that?
+On Fri, 18 Jun 2004, [iso-8859-1] Jörn Engel wrote:
+> On Thu, 17 June 2004 21:36:11 +0200, Geert Uytterhoeven wrote:
+> > *bummer*
+> >
+> > why doesn't checkstack.pl complain if I forget to specify `m68k'?!?
+>
+> It tries to guess the architecture on it's own.  Guessing is not
+> working for m68k, aparently.
+>
+> What does "uname -m" tell you?
 
-sync_sb_inodes, the filesystem block device inode ends up on some dirty
-list, and under memory pressure balance_dirty_pages_ratelimited will
-trigger writeback on it.  
+That I'm cross-compiling on an ia32 box ;-)
 
-There's nothing to write back of course, the real block device address
-space has no dirty pages at all.  But, writeback is looking through the
-mapping and __bd_forget can't drop it until writeback has finished
-checking it.
+> [ Yes, this breaks for cross compilation.  If anyone really cares,
+> please send patches. ]
 
-I've verified this really is happening ;-) The patch I sent is nasty but
-I'm sure this is a real bug.
+Not needed, it was my own fault, running it by hand...
 
--chris
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272536AbTGaPm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272529AbTGaPld
+	id S270142AbTGaP0r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272538AbTGaPZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:41:33 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:38528 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272536AbTGaPlE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:41:04 -0400
-Date: Thu, 31 Jul 2003 16:40:44 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Con Kolivas <kernel@kolivas.org>, Nick Piggin <piggin@cyberone.com.au>,
-       Andrew Morton <akpm@osdl.org>, Johoho <johoho@hojo-net.de>,
-       wodecki@gmx.de, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+	Thu, 31 Jul 2003 11:25:10 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:49300 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S272532AbTGaPYX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 11:24:23 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Jamie Lokier <jamie@shareable.org>, Con Kolivas <kernel@kolivas.org>
 Subject: Re: [PATCH] O10int for interactivity
-Message-ID: <20030731154044.GB6658@mail.jlokier.co.uk>
-References: <200307280112.16043.kernel@kolivas.org> <200307311743.17370.kernel@kolivas.org> <20030731145937.GD6410@mail.jlokier.co.uk> <200307311724.12738.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Thu, 31 Jul 2003 17:24:12 +0200
+User-Agent: KMail/1.5.1
+Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       Johoho <johoho@hojo-net.de>, wodecki@gmx.de, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+References: <200307280112.16043.kernel@kolivas.org> <200307311743.17370.kernel@kolivas.org> <20030731145937.GD6410@mail.jlokier.co.uk>
+In-Reply-To: <20030731145937.GD6410@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200307311724.12738.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200307311724.12738.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> > Although this would not always be optimal, for many cases the point of
-> > AS is that the process is continuing to run, not sleeping, and will
-> > issue another request shortly.
+
+> > This part interests me. It would seem that either 
+> > 1. The AS scheduler should not bother waiting at all if the process is not 
+> > going to wake up in that time
 > 
-> How do you tell which task dirtied the page?
+> How about something as simple as: if process sleeps, and AS scheduler
+> is waiting since last request from that process, AS scheduler stops
+> waiting immediately?
+> 
+> In other words, a hook in the process scheduler when a process goes to
+> sleep, to tell the AS scheduler to stop waiting.
+> 
+> Although this would not always be optimal, for many cases the point of
+> AS is that the process is continuing to run, not sleeping, and will
+> issue another request shortly.
 
-No idea :)
+How do you tell which task dirtied the page?
+Wouldn't giving a bonus to tasks doing file io achieve the same purpose?
+Also, isn't quickly waking up tasks more important?
 
-It may be easier to tell which task is _waiting_ on the page when an
-I/O completes, as that is the task you are hoping will issue another
-I/O to a similar place on the disk soon.
+	Regards
+		Oliver
 
-> Wouldn't giving a bonus to tasks doing file io achieve the same purpose?
-> Also, isn't quickly waking up tasks more important?
-
-I am not sure, these as just off the cuff ideas :)
-
-That's a policy decision.  Waking up such tasks _may_ be important, on
-the other hand if their dynamic priority is so low that they are
-sleeping because of that, it means they have used more than their fair
-share of CPU recently already, then they should be woken but not run immediately.
-
-If you can figure out in advance that they wouldn't be run immediately
-(e.g. due to a dynamic priority test from the task scheduler), that
-would tell AS not to bother waiting.
-
--- Jamie

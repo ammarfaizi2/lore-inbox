@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129172AbRA3HJI>; Tue, 30 Jan 2001 02:09:08 -0500
+	id <S129101AbRA3HTq>; Tue, 30 Jan 2001 02:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129175AbRA3HI7>; Tue, 30 Jan 2001 02:08:59 -0500
-Received: from [207.43.108.5] ([207.43.108.5]:5124 "EHLO rosswinds.net")
-	by vger.kernel.org with ESMTP id <S129172AbRA3HIv>;
-	Tue, 30 Jan 2001 02:08:51 -0500
-Date: Tue, 30 Jan 2001 02:21:20 -0500 (EST)
-From: "Michael B. Trausch" <fd0man@crosswinds.net>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: linux-kernel@vger.kernel.org, "Steven N. Hirsch" <shirsch@adelphia.net>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: hotmail can't deal with ECN
-In-Reply-To: <3A7575FF.378197A8@ngforever.de>
-Message-ID: <Pine.LNX.4.21.0101300219100.1322-100000@fd0man.accesstoledo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129143AbRA3HTf>; Tue, 30 Jan 2001 02:19:35 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:59409 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129101AbRA3HTW>; Tue, 30 Jan 2001 02:19:22 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: *massive* slowdowns on 2.4.1-pre1[1|2]
+Date: 29 Jan 2001 23:17:58 -0800
+Organization: Transmeta Corporation
+Message-ID: <955pr6$afk$1@penguin.transmeta.com>
+In-Reply-To: <3A761FEC.1C564FAE@the-rileys.net> <Pine.LNX.4.10.10101292102030.28124-100000@coffee.psychology.mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, Thunder from the hill wrote:
+In article <Pine.LNX.4.10.10101292102030.28124-100000@coffee.psychology.mcmaster.ca>,
+Mark Hahn  <hahn@coffee.psychology.mcmaster.ca> wrote:
+>> Kernel 2.4.1-pre11 and pre12 are both massively slower than 2.4.0 on the
+>> same machine, compiled with the same options.  The machine is a Athlon
+>> 900 on a KT133 chipset.  The slowdown is noticealbe in all areas...
 >
-> > Don't they understand that Linux is actually a system that is growing to
-> > be very popular?
+>this is known: Linus decreed that, since two people reported 
+>disk corruption on VIA, any machine with a VIA southbridge
+>must boot in stupid 1992 mode (PIO).  (yes, it might be possible
+>to boot with ide=autodma or something, but who would guess?)
 >
-> That's why they ignore and don't support it.
-> 
+>Linus: I hope you don't consider this a releasable state!
+>VIA now owns 40% of the chipset market...
 
-Are you saying that they *don't* want it to become popular?  C'mon,
-support for the OS would be *wonderful* from a commercial
-standard.  Someone calls in and says "this isn't working..." and they can
-say (if it happens to be a bug of some sort), "Well, yes, this was fixed a
-few hours ago and here's where you can get the patch."  :-)
+So find somebody who can figure out why the corruption happens, and I'll
+be really happy with a patch that fixes it. In the meantime,
+"releaseable" very much means that we did _everything_ possible to make
+sure that people don't screw their disks over.
 
-Or even supply precompiled and easy-to-install kernels for those that are
-braindead and can't be bothered to learn to do it themselves.  They'd
-still be getting *lots* of money to do a basically easier job of
-supporting something, seeing as the Linux developers are mostly *NOT*
-braindead (any of you devs out there let me know if I'm wrong, lol).
+You have to realize that stability takes precedence over EVERYTHING. 
 
-	- Mike
-
-===========================================================================
-Michael B. Trausch                                    fd0man@crosswinds.net
-Avid Linux User since April, '96!                           AIM:  ML100Smkr
-
-              Contactable via IRC (DALNet) or AIM as ML100Smkr
-===========================================================================
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272295AbRIVV5C>; Sat, 22 Sep 2001 17:57:02 -0400
+	id <S272407AbRIVWKx>; Sat, 22 Sep 2001 18:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272304AbRIVV4v>; Sat, 22 Sep 2001 17:56:51 -0400
-Received: from [24.254.60.34] ([24.254.60.34]:10954 "EHLO
-	femail40.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272295AbRIVV4g>; Sat, 22 Sep 2001 17:56:36 -0400
-Message-ID: <3BAD0A43.731832F4@didntduck.org>
-Date: Sat, 22 Sep 2001 18:01:39 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: en
+	id <S272413AbRIVWKn>; Sat, 22 Sep 2001 18:10:43 -0400
+Received: from fep01-svc.mail.telepac.pt ([194.65.5.200]:23967 "EHLO
+	fep01-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id <S272407AbRIVWKf>; Sat, 22 Sep 2001 18:10:35 -0400
+Message-ID: <3BAD0B7A.2000306@yahoo.com>
+Date: Sat, 22 Sep 2001 23:06:50 +0100
+From: Paulo da Silva <psdasilva@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Dave Airlie <airlied@linux.ie>
-CC: linux-kernel@vger.kernel.org, linux-vax@mithra.physics.montana.edu
-Subject: Re: Global Offset Table question..
-In-Reply-To: <Pine.LNX.4.32.0109222139550.22558-100000@skynet>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9 performance issue
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
-> 
-> I've been trying to get dynamic loading on the Linux/VAX project going,
-> and I've having trouble with the Global Offset Table and how it magically
-> gets in to the ebx register on x86.. where is this done?
-> 
-> I think I've looked at the kernel, gcc, binutils, ld.so 1.9, glibc 2.2.3
-> and can't see exactly where this happens...
-> 
-> Anyone care to enlighten my poor brain...
-> 
-> Thanks,
->         Dave.
-> 
+Hi,
 
-I assume you are talking about position independant code?  On the x86,
-the only instructions that can use IP-relative addressing are branch
-instructions.  This asm fragment shows how it's done:
+I used to listen mp3 files, using mpg123 -b 2048 -z (nice -15, for ex. -
+sometimes I forget this!), without any interruption, even with
+an relatively overloaded system! This was one
+of my arguments when advertising Linux performance.
 
-	call 1f
-1:	popl %ebx
-	addl $(GOT - 1b), %ebx
+Now I'm getting, from times to times, some interruptions,
+without any relevant workload.
+I have noticed that when this happens, the kswapd task is allways
+on the top of "top" program, CPU sorted.
 
-If the Vax has better support for IP-relative addressing, this may be
-easier.  On recent x86 procesors, the above code will screw up the
-call/return cache (branch prediction) and cause performance penalties.
+I'm not sure at what kernel this began to happen, since I am
+changing the recent kernels (2.4.x) at the same rate they are
+released. Currently I'm using 2.4.9.
 
---
-					Brian Gerst
+If you need any further information, please email me, because
+I'm not sure what info is pertinent for an eventual analisys.
+I'm also able to perform any test you may find useful even
+to change and recompile the sources.
+
+Best regards,
+Paulo da Silva
+
+

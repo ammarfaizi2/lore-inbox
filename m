@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129906AbRAYV5W>; Thu, 25 Jan 2001 16:57:22 -0500
+	id <S129703AbRAYWBQ>; Thu, 25 Jan 2001 17:01:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130119AbRAYV5M>; Thu, 25 Jan 2001 16:57:12 -0500
-Received: from styx.suse.cz ([195.70.145.226]:16121 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129906AbRAYV5G>;
-	Thu, 25 Jan 2001 16:57:06 -0500
-Date: Thu, 25 Jan 2001 22:56:57 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
+	id <S130282AbRAYWBF>; Thu, 25 Jan 2001 17:01:05 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:18442
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129703AbRAYWAv>; Thu, 25 Jan 2001 17:00:51 -0500
+Date: Thu, 25 Jan 2001 14:00:15 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
 To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-Cc: Andre Hedrick <andre@linux-ide.org>, Mike Galbraith <mikeg@wen-online.de>,
+cc: Vojtech Pavlik <vojtech@suse.cz>, Mike Galbraith <mikeg@wen-online.de>,
         linux-kernel@vger.kernel.org
 Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
-Message-ID: <20010125225657.A615@suse.cz>
-In-Reply-To: <Pine.LNX.4.10.10101211247580.3779-100000@master.linux-ide.org> <Pine.LNX.4.21.0101251348540.23727-100000@ns-01.hislinuxbox.com>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.21.0101251348540.23727-100000@ns-01.hislinuxbox.com>
+Message-ID: <Pine.LNX.4.10.10101251358230.18634-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0101251348540.23727-100000@ns-01.hislinuxbox.com>; from pgpkeys@hislinuxbox.com on Thu, Jan 25, 2001 at 01:54:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 01:54:36PM -0800, David D.W. Downey wrote:
+
+Where the flip are you form this power starved portion of the world?
+Also the subject is AMD and VIA chipsets not AMD CPU's running on VIA
+chipsets.
+
+What chipset or host is causing you the problem?
+
+VIA pr Promise?
+
+On Thu, 25 Jan 2001, David D.W. Downey wrote:
+
 > 
 > 
 > OK, I see you guys releasing patches for the AMD + VIA problem, but this
@@ -50,12 +57,19 @@ On Thu, Jan 25, 2001 at 01:54:36PM -0800, David D.W. Downey wrote:
 > stop these blasted kernel deaths! (Yeah I'm pissed, but at the situation
 > not at the kernel or anyone involved with the VIA stuff. Please don't take
 > it that way.)
+> 
+> David Downey
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-Sure, I'll need a more precise description, though.
+Andre Hedrick
+Linux ATA Development
 
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

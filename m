@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264575AbUBIEL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 23:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbUBIEL5
+	id S264855AbUBIEjx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 23:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbUBIEjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 23:11:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26241 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264575AbUBIEL4 (ORCPT
+	Sun, 8 Feb 2004 23:39:53 -0500
+Received: from leary.csoft.net ([63.111.22.80]:52376 "HELO mail63.csoft.net")
+	by vger.kernel.org with SMTP id S264855AbUBIEjv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 23:11:56 -0500
-Date: Sun, 8 Feb 2004 20:09:21 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: M G Berberich <berberic@fmi.uni-passau.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2 wacom not working from /etc/modules
-Message-Id: <20040208200921.24708dd4.rddunlap@osdl.org>
-In-Reply-To: <20040207190039.GA1331@avaloon.intern>
-References: <20040207190039.GA1331@avaloon.intern>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 8 Feb 2004 23:39:51 -0500
+Message-ID: <40270F16.4070000@mattcaron.net>
+Date: Sun, 08 Feb 2004 23:39:50 -0500
+From: Matthew Caron <matt@mattcaron.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2 PROBLEMs: mkinitrd fails during make install (2.6.1) + first
+ network connect fails after boot (2.6.1)
+References: <40268B01.10608@mattcaron.net> <20040208190812.07703fce.rddunlap@osdl.org>
+In-Reply-To: <20040208190812.07703fce.rddunlap@osdl.org>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004 20:00:39 +0100 M G Berberich <berberic@fmi.uni-passau.de> wrote:
+Randy.Dunlap wrote:
+> On Sun, 08 Feb 2004 14:16:17 -0500 Matthew Caron <matt@mattcaron.net> wrote:
+> 
+> | PROBLEM 1:
+> | 
+> | 1. Summary:
+> | 	mkinitrd fails during make install (2.6.1)
+> | 
+> | 2. Description:
+> | 	mkinitrd fails with error:
+> | 
+> | No module 3w-xxxx found for kernel 2.6.1
+> | mkinitrd failed
+> | make[1]: *** [install] Error 1
+> | make: *** [install] Error 2
+> | 
+> | config command was: 'make xconfig'
+> | build command was: 'make clean modules_install install'
+> 
+> What version of mkinitrd?  Please send output from 'mkinitrd --version'.
+> Latest version seems to be 3.5.18.
 
-| Hello,
-| 
-| I have the strange problem that the wacom driver in 2.6.2 does not
-| work if loaded from /etc/modules. If loaded "by hand" after the system
-| is up it works fine. 
-| 
-| /proc/bus/input/devices is exactly the same in both cases:
-| 
-|   [...]
-| 
-|   I: Bus=0003 Vendor=056a Product=0042 Version=0126
-|   N: Name="Wacom Intuos2 6x8"
-|   P: Phys=usb-0000:00:0c.0-1/input0
-|   H: Handlers=mouse1 event3
-|   B: EV=1b
-|   B: KEY=1cdf 0 1f0000 0 0 0 0 0 0 0 0
-|   B: ABS=f000163
-|   B: MSC=1
-| 
-| but if loaded from /etc/modules neither mouse1 nor event3 gives any
-| sign of the wacom beeing alive. syslog entries are the same, but in
-| different order:
-| 
-| input: PC Speaker
-| input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
-| input: AT Translated Set 2 keyboard on isa0060/serio0
-| input: Wacom Intuos2 6x8 on usb-0000:00:0c.0-1
-| drivers/usb/core/usb.c: registered new driver wacom
-| drivers/usb/input/wacom.c: v1.30:USB Wacom Graphire and Wacom Intuos tablet driver
-| 
-| input: PC Speaker
-| input: ImPS/2 Logitech Wheel Mouse on isa0060/serio1
-| input: AT Translated Set 2 keyboard on isa0060/serio0
-| drivers/usb/core/usb.c: registered new driver wacom
-| drivers/usb/input/wacom.c: v1.30:USB Wacom Graphire and Wacom Intuos tablet driver
-| input: Wacom Intuos2 6x8 on usb-0000:00:0c.0-1
-| 
-| System is a dual PIII, with stock 2.6.2-kernel
-| 
-| BTW: I'm not subscribed to the list.
+mkinitrd: version 3.5.14
 
-Just to clarify, are you referring to /etc/modules.conf or
-/etc/modprobe.conf ?  /etc/modules.conf is no longer used by the
-current module-init-tools, it must be converted to /etc/modprobe.conf .
+Bear in mind, this works on another machine running the same version of 
+mkinitrd.
 
---
-~Randy
+> [snipped]
+> 
+> 
+> 
+> Wow, I almost missed prob. 2.  Probably better as separate postings.
+
+I thought about that, but decided to post them together, since each bug 
+references the other - each bug only occurs on that machine, not another 
+one with similar configuration.
+
+> | PROBLEM 2:
+> | 
+> | 1. Summary:
+> | 	first network connect fails after boot
+> | 
+> | 2. Description:
+> | 	The first connection to any host on any port fails after boot/reboot. 
+> | Subsequent connects work fine. Typical errors are:
+> | 
+> | ssh: connect to host foobar port 22: Resource temporarily unavailable
+> | 
+> | Firebird reports "Document Contains No Data"
+
+<snipped>
+
+-- 
+Freedom to learn, freedom to share,
+freedom to change, freedom to improve.
+Free Software: it's about Freedom.
+--------------------------------------------------------------------
+PGP Key: http://www.mattcaron.net/pgp_key.txt
+  ~~ Matt Caron ~~
+

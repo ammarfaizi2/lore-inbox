@@ -1,170 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVAQKdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVAQKjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbVAQKdh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 05:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbVAQKdh
+	id S262764AbVAQKjz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 05:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbVAQKjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 05:33:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24326 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262763AbVAQKdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 05:33:22 -0500
-Date: Mon, 17 Jan 2005 11:33:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Philip.Blundell@pobox.com, tim@cyberelk.net,
-       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] non-PC parport config change
-Message-ID: <20050117103317.GM4274@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 17 Jan 2005 05:39:55 -0500
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:58948 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S262764AbVAQKjt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 05:39:49 -0500
+Date: Mon, 17 Jan 2005 11:39:28 +0100 (CET)
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: linux-kernel@vger.kernel.org
+cc: linux-atm-general@lists.sourceforge.net,
+       Bartlomiej Solarz <solarz@wsisiz.edu.pl>
+Subject: Kernel 2.6.10 Oops fore200e
+Message-ID: <Pine.LNX.4.61L.0501171130330.8248@lt.wsisiz.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (portraits.wsisiz.edu.pl [0.0.0.0]); Mon, 17 Jan 2005 11:39:42 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a config option PARPORT_NOT_PC (and removes the 
-PARPORT_OTHER option) and lets all non-PC parallel ports options depend 
-on it.
+Hello
 
-Advantages:
-- the config structure is IMHO a bit more logical
-- the mega #if in parport.h is gone now
+Lately we have problem with our router. For me it's look like driver 
+fore200e problems. We know that's not a hardware problem.
+Below is fragment from logs file. Unfortunately I don't know 
+how to use ksymoops with 2.6.X kernels :/
+System is Fedora Core 2, 2 x Pentium 3.00GHz, 1 GB RAM, 0,5 GB swap
 
-Additionally, it removes the unneeded PARPORT_NEED_GENERIC_OPS #define.
+[root@cosmos root]# atmarp -V
+0.78
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
+Jan  9 16:36:23 cosmos kernel: scheduling while atomic: swapper/0x00000200/0
 
-diffstat output:
- drivers/parport/Kconfig |   28 +++++++++++++---------------
- drivers/usb/Kconfig     |    1 +
- include/linux/parport.h |   12 +++++-------
- 3 files changed, 19 insertions(+), 22 deletions(-)
+ksymoops 2.4.11 on i686 2.6.10.  Options used
+      -V (default)
+      -k /proc/ksyms (default)
+      -l /proc/modules (default)
+      -o /lib/modules/2.6.10/ (default)
+      -m /lib/modules/2.6.10/System.map (specified)
 
-This patch was already sent on:
-- 9 Dec 2004
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Jan  9 16:36:23 cosmos kernel:  [<c02dffd8>] schedule+0x4d8/0x4e0
+Jan  9 16:36:23 cosmos kernel:  [<c01173f4>] update_process_times+0x44/0x50
+Jan  9 16:36:23 cosmos kernel:  [<e0855816>] fore200e_send+0x156/0x680 [fore_200e]
+Jan  9 16:36:23 cosmos kernel:  [<c02dec0a>] clip_start_xmit+0x19a/0x220
+Jan  9 16:36:23 cosmos kernel:  [<c024da05>] qdisc_restart+0x65/0x160
+Jan  9 16:36:23 cosmos kernel:  [<c0241e7f>] dev_queue_xmit+0x18f/0x220
+Jan  9 16:36:23 cosmos kernel:  [<c025eded>] ip_finish_output2+0xcd/0x1a0
+Jan  9 16:36:23 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
+Jan  9 16:36:23 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
+Jan  9 16:36:23 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
+Jan  9 16:36:23 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
+Jan  9 16:36:23 cosmos kernel:  [<c025c7eb>] ip_finish_output+0x4b/0x50
+Jan  9 16:36:23 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
+Jan  9 16:36:23 cosmos kernel:  [<c025b262>] ip_forward_finish+0x22/0x50
+Jan  9 16:36:23 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
+Jan  9 16:36:23 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
+Jan  9 16:36:23 cosmos kernel:  [<c025b146>] ip_forward+0x176/0x270
+Jan  9 16:36:23 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
+Jan  9 16:36:24 cosmos kernel:  [<c025a109>] ip_rcv_finish+0x1e9/0x260
+Jan  9 16:36:24 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
+Jan  9 16:36:24 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
+Jan  9 16:36:24 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
+Jan  9 16:36:24 cosmos kernel:  [<c0259c9f>] ip_rcv+0x16f/0x220
+Jan  9 16:36:24 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
+Jan  9 16:36:24 cosmos kernel:  [<c02423c7>] netif_receive_skb+0x1b7/0x220
+Jan  9 16:36:24 cosmos kernel:  [<c02424af>] process_backlog+0x7f/0x100
+Jan  9 16:36:24 cosmos kernel:  [<c02425a4>] net_rx_action+0x74/0x100
+Jan  9 16:36:24 cosmos kernel:  [<c01138ab>] __do_softirq+0x7b/0x90
+Jan  9 16:36:24 cosmos kernel:  [<c01138e7>] do_softirq+0x27/0x30
+Jan  9 16:36:24 cosmos kernel:  [<c0103d5e>] do_IRQ+0x1e/0x30
+Jan  9 16:36:24 cosmos kernel:  [<c0102442>] common_interrupt+0x1a/0x20
+Jan  9 16:36:24 cosmos kernel:  [<c0100463>] default_idle+0x23/0x30
+Jan  9 16:36:24 cosmos kernel:  [<c01004e4>] cpu_idle+0x34/0x40
+Jan  9 16:36:24 cosmos kernel:  [<c036496b>] start_kernel+0x13b/0x160
+Jan  9 16:36:24 cosmos kernel:  [<c0364530>] unknown_bootoption+0x0/0x1e0
+Jan  9 16:36:24 cosmos kernel:  [<c02dffd8>] schedule+0x4d8/0x4e0
+Jan  9 16:36:24 cosmos kernel:  [<c010bdc2>] activate_task+0x62/0x80
+Jan  9 16:36:24 cosmos kernel:  [<e0855816>] fore200e_send+0x156/0x680 [fore_200e]
+Jan  9 16:36:25 cosmos kernel:  [<c02dec0a>] clip_start_xmit+0x19a/0x220
+Jan  9 16:36:25 cosmos kernel:  [<c024da05>] qdisc_restart+0x65/0x160
+Jan  9 16:36:25 cosmos kernel:  [<c0241e7f>] dev_queue_xmit+0x18f/0x220
+Jan  9 16:36:25 cosmos kernel:  [<c025eded>] ip_finish_output2+0xcd/0x1a0
+Jan  9 16:36:25 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
+Jan  9 16:36:25 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
+Jan  9 16:36:25 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
+Jan  9 16:36:25 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
+Jan  9 16:36:25 cosmos kernel:  [<c025c7eb>] ip_finish_output+0x4b/0x50
+Jan  9 16:36:25 cosmos kernel:  [<c025ed20>] ip_finish_output2+0x0/0x1a0
+Jan  9 16:36:25 cosmos kernel:  [<c025b262>] ip_forward_finish+0x22/0x50
+Jan  9 16:36:25 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
+Jan  9 16:36:25 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
+Jan  9 16:36:25 cosmos kernel:  [<c025b146>] ip_forward+0x176/0x270
+Jan  9 16:36:25 cosmos kernel:  [<c025b240>] ip_forward_finish+0x0/0x50
+Jan  9 16:36:25 cosmos kernel:  [<c025a109>] ip_rcv_finish+0x1e9/0x260
+Jan  9 16:36:25 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
+Jan  9 16:36:25 cosmos kernel:  [<c024cae9>] nf_hook_slow+0xf9/0x160
+Jan  9 16:36:25 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
+Jan  9 16:36:26 cosmos kernel:  [<c0259c9f>] ip_rcv+0x16f/0x220
+Jan  9 16:36:26 cosmos kernel:  [<c0259f20>] ip_rcv_finish+0x0/0x260
+Jan  9 16:36:26 cosmos kernel:  [<c02423c7>] netif_receive_skb+0x1b7/0x220
+Jan  9 16:36:26 cosmos kernel:  [<c02424af>] process_backlog+0x7f/0x100
+Jan  9 16:36:26 cosmos kernel:  [<c02425a4>] net_rx_action+0x74/0x100
+Jan  9 16:36:26 cosmos kernel:  [<c01138ab>] __do_softirq+0x7b/0x90
+Jan  9 16:36:26 cosmos kernel:  [<c01138e7>] do_softirq+0x27/0x30
+Jan  9 16:36:26 cosmos kernel:  [<c0103d5e>] do_IRQ+0x1e/0x30
+Jan  9 16:36:26 cosmos kernel:  [<c0102442>] common_interrupt+0x1a/0x20
+Jan  9 16:36:26 cosmos kernel:  [<c0100463>] default_idle+0x23/0x30
+Jan  9 16:36:26 cosmos kernel:  [<c01004e4>] cpu_idle+0x34/0x40
+Jan  9 16:36:26 cosmos kernel:  [<c036496b>] start_kernel+0x13b/0x160
+Jan  9 16:36:26 cosmos kernel:  [<c0364530>] unknown_bootoption+0x0/0x1e0
 
---- linux-2.6.10-rc2-mm4-full/include/linux/parport.h.old	2004-12-09 04:50:26.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/linux/parport.h	2004-12-09 12:59:06.000000000 +0100
-@@ -105,8 +105,6 @@
- #include <asm/ptrace.h>
- #include <asm/semaphore.h>
- 
--#define PARPORT_NEED_GENERIC_OPS
--
- /* Define this later. */
- struct parport;
- struct pardevice;
-@@ -520,9 +518,8 @@
- extern int parport_device_proc_unregister(struct pardevice *device);
- 
- /* If PC hardware is the only type supported, we can optimise a bit.  */
--#if (defined(CONFIG_PARPORT_PC) || defined(CONFIG_PARPORT_PC_MODULE)) && !(defined(CONFIG_PARPORT_ARC) || defined(CONFIG_PARPORT_ARC_MODULE)) && !(defined(CONFIG_PARPORT_AMIGA) || defined(CONFIG_PARPORT_AMIGA_MODULE)) && !(defined(CONFIG_PARPORT_MFC3) || defined(CONFIG_PARPORT_MFC3_MODULE)) && !(defined(CONFIG_PARPORT_ATARI) || defined(CONFIG_PARPORT_ATARI_MODULE)) && !(defined(CONFIG_USB_USS720) || defined(CONFIG_USB_USS720_MODULE)) && !(defined(CONFIG_PARPORT_SUNBPP) || defined(CONFIG_PARPORT_SUNBPP_MODULE)) && !defined(CONFIG_PARPORT_OTHER)
-+#if !defined(CONFIG_PARPORT_NOT_PC)
- 
--#undef PARPORT_NEED_GENERIC_OPS
- #include <linux/parport_pc.h>
- #define parport_write_data(p,x)            parport_pc_write_data(p,x)
- #define parport_read_data(p)               parport_pc_read_data(p)
-@@ -534,9 +531,9 @@
- #define parport_disable_irq(p)             parport_pc_disable_irq(p)
- #define parport_data_forward(p)            parport_pc_data_forward(p)
- #define parport_data_reverse(p)            parport_pc_data_reverse(p)
--#endif
- 
--#ifdef PARPORT_NEED_GENERIC_OPS
-+#else  /*  !CONFIG_PARPORT_NOT_PC  */
-+
- /* Generic operations vector through the dispatch table. */
- #define parport_write_data(p,x)            (p)->ops->write_data(p,x)
- #define parport_read_data(p)               (p)->ops->read_data(p)
-@@ -548,7 +545,8 @@
- #define parport_disable_irq(p)             (p)->ops->disable_irq(p)
- #define parport_data_forward(p)            (p)->ops->data_forward(p)
- #define parport_data_reverse(p)            (p)->ops->data_reverse(p)
--#endif
-+
-+#endif /*  !CONFIG_PARPORT_NOT_PC  */
- 
- #endif /* __KERNEL__ */
- #endif /* _PARPORT_H_ */
---- linux-2.6.10-rc2-mm4-full/drivers/parport/Kconfig.old	2004-12-09 04:45:30.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/parport/Kconfig	2004-12-09 04:49:21.000000000 +0100
-@@ -88,13 +88,21 @@
- 	  Say Y here if you need PCMCIA support for your PC-style parallel
- 	  ports. If unsure, say N.
- 
-+config PARPORT_NOT_PC
-+	bool "Support non-PC-style parallel ports"
-+	depends on PARPORT
-+	help
-+	  Say Y here if you want to use non-PC-style parallel ports.
-+
-+	  This causes a performance loss, so most people say N.
-+
- config PARPORT_ARC
- 	tristate "Archimedes hardware"
--	depends on ARM && PARPORT
-+	depends on ARM && PARPORT_NOT_PC
- 
- config PARPORT_AMIGA
- 	tristate "Amiga builtin port"
--	depends on AMIGA && PARPORT
-+	depends on AMIGA && PARPORT_NOT_PC
- 	help
- 	  Say Y here if you need support for the parallel port hardware on
- 	  Amiga machines. This code is also available as a module (say M),
-@@ -102,7 +110,7 @@
- 
- config PARPORT_MFC3
- 	tristate "Multiface III parallel port"
--	depends on ZORRO && PARPORT
-+	depends on ZORRO && PARPORT_NOT_PC
- 	help
- 	  Say Y here if you need parallel port support for the MFC3 card.
- 	  This code is also available as a module (say M), called
-@@ -110,7 +118,7 @@
- 
- config PARPORT_ATARI
- 	tristate "Atari hardware"
--	depends on ATARI && PARPORT
-+	depends on ATARI && PARPORT_NOT_PC
- 	help
- 	  Say Y here if you need support for the parallel port hardware on
- 	  Atari machines. This code is also available as a module (say M),
-@@ -123,22 +131,12 @@
- 
- config PARPORT_SUNBPP
- 	tristate "Sparc hardware (EXPERIMENTAL)"
--	depends on SBUS && EXPERIMENTAL && PARPORT
-+	depends on SBUS && EXPERIMENTAL && PARPORT_NOT_PC
- 	help
- 	  This driver provides support for the bidirectional parallel port
- 	  found on many Sun machines. Note that many of the newer Ultras
- 	  actually have pc style hardware instead.
- 
--# If exactly one hardware type is selected then parport will optimise away
--# support for loading any others.  Defeat this if the user is keen.
--config PARPORT_OTHER
--	bool "Support foreign hardware"
--	depends on PARPORT
--	help
--	  Say Y here if you want to be able to load driver modules to support
--	  other non-standard types of parallel ports. This causes a
--	  performance loss, so most people say N.
--
- config PARPORT_1284
- 	bool "IEEE 1284 transfer modes"
- 	depends on PARPORT
---- linux-2.6.10-rc2-mm4-full/drivers/usb/Kconfig.old	2004-12-09 04:49:57.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/usb/Kconfig	2004-12-09 04:50:17.000000000 +0100
-@@ -62,6 +62,7 @@
- config USB_USS720
- 	tristate "USS720 parport driver"
- 	depends on USB && PARPORT
-+	select PARPORT_NOT_PC
- 	---help---
- 	  This driver is for USB parallel port adapters that use the Lucent
- 	  Technologies USS-720 chip. These cables are plugged into your USB
+1 error issued.  Results may not be reliable.
+
+
+Aby idea
+
+-- 
+£T

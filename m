@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291754AbSBHTZe>; Fri, 8 Feb 2002 14:25:34 -0500
+	id <S291756AbSBHT0E>; Fri, 8 Feb 2002 14:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291756AbSBHTZY>; Fri, 8 Feb 2002 14:25:24 -0500
-Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:33801 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S291754AbSBHTZL>;
-	Fri, 8 Feb 2002 14:25:11 -0500
-Date: Fri, 8 Feb 2002 13:26:27 -0600 (CST)
-From: Brent Cook <busterb@mail.utexas.edu>
-X-X-Sender: busterb@ozma.union.utexas.edu
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fix for duplicate /proc entries
-In-Reply-To: <Pine.LNX.4.33.0202081203020.29252-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <20020208125434.P8228-100000@ozma.union.utexas.edu>
+	id <S291759AbSBHTZu>; Fri, 8 Feb 2002 14:25:50 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:34732 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S291756AbSBHTZg>;
+	Fri, 8 Feb 2002 14:25:36 -0500
+Date: Fri, 8 Feb 2002 22:23:27 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+        Martin Wirth <Martin.Wirth@dlr.de>, Robert Love <rml@tech9.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        haveblue <haveblue@us.ibm.com>
+Subject: Re: [RFC] New locking primitive for 2.5
+In-Reply-To: <Pine.GSO.4.21.0202081416410.28514-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0202082221500.17064-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Mark Hahn wrote:
 
-> > I can't argue that this fixes anything, it just gives proc a more
-> > safety-scissors-like interface. The consequences of not having this check
->
-> exactly why people oppose it: the kernel must be as sharp as possible.
-> it should oops with a useful backtrace when a duplicate proc entry is attempted.
->
+On Fri, 8 Feb 2002, Alexander Viro wrote:
 
-I'm on your side, really ;)
+> Had anyone actually seen lseek() vs. lseek() contention prior to the
+> switch to ->i_sem-based variant? [...]
 
-Currently, the kernel does not oops, produce a backtrace or anything for
-this case. It doesn't really even fail in the normal sense, it just allows
-something inconsistent to filesystems in general to happen without
-indicating an error. What I have concluded from this is that proc is no
-general filesystem, so there is no reason to treat it as such.
+yes, i've seen this for years. (if you accept dbench overhead.)
 
-I can't argue that two birds in a bush are worth more than a bird in the
-hand, the same as I can't argue that a check for an error is worth more
-than the absence of that error.
+and regarding the reintroduction of BKL, *please* do not just use a global
+locks around such pieces of code, lock bouncing sucks on SMP, even if
+there is no overhead.
 
-I was really more interested in what its like to submit a kernel patch
-than anything else (hmmph! tourists!) Thanks, it has been enlightening.
-
- - Brent
-
+	Ingo
 

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131103AbRAQL3c>; Wed, 17 Jan 2001 06:29:32 -0500
+	id <S132787AbRAQL3m>; Wed, 17 Jan 2001 06:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133112AbRAQL3N>; Wed, 17 Jan 2001 06:29:13 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:57313 "EHLO
+	id <S133112AbRAQL3c>; Wed, 17 Jan 2001 06:29:32 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:54753 "EHLO
 	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S131103AbRAQL25>; Wed, 17 Jan 2001 06:28:57 -0500
-Date: Wed, 17 Jan 2001 12:25:39 +0100 (MET)
+	id <S132787AbRAQL3U>; Wed, 17 Jan 2001 06:29:20 -0500
+Date: Wed, 17 Jan 2001 12:22:25 +0100 (MET)
 From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Martin Mares <mj@suse.cz>
-cc: Adam Lackorzynski <al10@inf.tu-dresden.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
-In-Reply-To: <20010117095221.A553@albireo.ucw.cz>
-Message-ID: <Pine.GSO.3.96.1010117122300.22695B-100000@delta.ds2.pg.gda.pl>
+To: Dominik Kubla <dominik.kubla@uni-mainz.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: APIC errors
+In-Reply-To: <20010117091432.B29123@uni-mainz.de>
+Message-ID: <Pine.GSO.3.96.1010117120527.22695A-100000@delta.ds2.pg.gda.pl>
 Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Martin Mares wrote:
+On Wed, 17 Jan 2001, Dominik Kubla wrote:
 
-> I don't have the ServerWorks chipset documentation at hand, but I think your
-> patch is wrong -- it doesn't make any sense to scan a bus _range_. The registers
-> 0x44 and 0x45 are probably ID's of two primary buses and the code should scan
-> both of them, but not the space between them.
+> Just switched to 2.4.0-ac9 (+crypto patches) on our Dual-Pentium MMX
+> webserver yesterday.  Works fine so far, except i keep seeing those
+> APIC erros (about 14 in 12 hrs) indicating receive, send and CS errors.
+> 
+> Should i be concerned?
 
- Does anyone beside the manufacturer have these docs at all?  Last time I
-contacted them, they required an NDA, even though they weren't actually
-Linux-hostile. 
+ At this volume I would treat this as a warning but not a critical issue. 
+Inter-APIC messages get retransmitted in case of an error, but the
+checksum circuit is not sophisticated -- a double-bit error might pass
+unnoticed leading to a system unstability under certain conditions.  At
+such a low volume of errors double-bit ones are not likely to happen. 
+
+ It's the first report of APIC errors on a P5 system I have seen, so it's
+probably not a result of a bad motherboard design.  I'd recommend to check
+if the system doesn't get overheated.  You may also be unlucky to have a
+faulty board. 
+
+  Maciej
 
 -- 
 +  Maciej W. Rozycki, Technical University of Gdansk, Poland   +

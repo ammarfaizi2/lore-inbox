@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbTLKIUh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 03:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264395AbTLKIUh
+	id S264507AbTLKI0r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 03:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTLKIZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 03:20:37 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:44049 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S264382AbTLKIUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 03:20:35 -0500
-Message-ID: <3FD828BE.7020906@google.com>
-Date: Thu, 11 Dec 2003 00:20:14 -0800
-From: Paul Menage <menage@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Thu, 11 Dec 2003 03:25:38 -0500
+Received: from marasystems.com ([213.150.153.194]:60307 "EHLO
+	filer.marasystems.com") by vger.kernel.org with ESMTP
+	id S264463AbTLKIZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 03:25:34 -0500
+Date: Thu, 11 Dec 2003 09:25:17 +0100 (CET)
+From: Henrik Nordstrom <hno@marasystems.com>
+X-X-Sender: henrik@filer.marasystems.com
+To: Harald Welte <laforge@netfilter.org>
+cc: "David S. Miller" <davem@redhat.com>, Stephen Lee <mukansai@emailplus.org>,
+       <scott.feldman@intel.com>, <netfilter-devel@lists.netfilter.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Extremely slow network with e1000 & ip_conntrack
+In-Reply-To: <20031211072608.GF22826@sunbeam.de.gnumonks.org>
+Message-ID: <Pine.LNX.4.44.0312110921540.23401-100000@filer.marasystems.com>
 MIME-Version: 1.0
-To: "Yu, Luming" <luming.yu@intel.com>
-CC: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] ACPI global lock macros
-References: <3ACA40606221794F80A5670F0AF15F8401720C21@PDSMSX403.ccr.corp.intel.com>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720C21@PDSMSX403.ccr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yu, Luming wrote:
-> 
-> 
-> Above code have a bug! Considering below code:
-> 
-> u8	acquired = FALSE;
-> 
-> ACPI_ACQUIRE_GLOBAL_LOC(acpi_gbl_common_fACS.global_lock, acquired);
-> if(acquired) {
-> ....
-> }
-> 
-> Gcc will complain " ERROR: '%cl' not allowed with sbbl ". And I think any other compiler will
-> complain that  too !
+On Thu, 11 Dec 2003, Harald Welte wrote:
 
-Oops - the version I posted differed in one character from the version 
-that I'd compiled - I'd just used "sbb" in the working version and let 
-the compiler figure out which version to use.
+> yes, this is certainly a problem - but not with conntrack, only with
+> nat.  So maybe we should add a safeguard, preventing
+> iptables_nat/ipchains/ipfwadm from being loaded when TSO on any
+> interface is enabled?  Or at least print a warining in syslog?
 
-> 
-> How about  below changes to your proposal code.
-> 
-> <             "sbbl   %0,%0" \
-> <             :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx","ax"); \
-> ---
-> 
->>            "sbbl   %%eax,%%eax" \
->>            :"=a"(Acq):"r"(GLptr),"i"(~1L):"dx"); \
+TSO can be enabled while NAT is running so you better do this in the 
+packet flow or if there is a suitable notifier hook that can be used.
 
-Yes, that would work too, but I don't like forcing the asm to use 
-particular registers when there's no good reason to do so.
+Most firewalls etc load the ruleset before activating the 
+interfaces, i..e before even loading the nic drivers, so there is no 
+interfaces to look at when iptables_nat is loaded.
 
-> 
-> 
-> PS. I'm very curious about how could you find this bug.  
-
-It was mainly down to the differences between the i386 and x86_64 
-versions, and trying to understand the reasons for those differences, 
-and indeed how the entire set of macros worked at all.
-
-Paul
+Regards
+Henrik
 

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268737AbUJECQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268735AbUJEC1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268737AbUJECQy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 22:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268735AbUJECQy
+	id S268735AbUJEC1R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 22:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268739AbUJEC1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 22:16:54 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:56789 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268737AbUJECQm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 22:16:42 -0400
-Message-Id: <200410050216.i952Gb620657@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: bug in sched.c:activate_task()
-Date: Mon, 4 Oct 2004 19:16:39 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcSqgVi7369qDcKhR8ydScjIqZZVEA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 4 Oct 2004 22:27:17 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48077 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268735AbUJEC1Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 22:27:16 -0400
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] I/O space write barrier
+Date: Mon, 4 Oct 2004 19:26:56 -0700
+User-Agent: KMail/1.7
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1096922369.2666.177.camel@cube> <1096936344.2674.198.camel@cube> <1096939347.24537.2.camel@gaston>
+In-Reply-To: <1096939347.24537.2.camel@gaston>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410041926.57205.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update p->timestamp to "now" in activate_task() doesn't look right
-to me at all.  p->timestamp records last time it was running on a
-cpu.  activate_task shouldn't update that variable when it queues
-a task on the runqueue.
+On Monday, October 04, 2004 6:22 pm, Benjamin Herrenschmidt wrote:
+> On Tue, 2004-10-05 at 10:32, Albert Cahalan wrote:
+> > Ideally, it would be eieio, and the eieio in each
+> > of the IO operations would be removed. Finding and
+> > fixing all the drivers that break looks impossible
+> > though; most driver developers will be on x86 boxes.
+>
+> I don't agree. IO operations shouldn't be relaxed by
+> default. That's really asking too much of driver writers
 
-This bug (and combined with others) triggers improper load balancing.
+I agree, it's hard to get right, especially when you've got a large base of 
+drivers with hard to find assumptions about ordering.
 
-Patch against linux-2.6.9-rc3.  Didn't diff it against 2.6.9-rc3-mm2
-because mm tree has so many change in sched.c.
+What about mmiowb()?  Should it be eieio?  I don't want to post another patch 
+if I don't have to...
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
-
---- linux-2.6.9-rc3/kernel/sched.c.orig	2004-10-04 19:11:21.000000000 -0700
-+++ linux-2.6.9-rc3/kernel/sched.c	2004-10-04 19:11:35.000000000 -0700
-@@ -888,7 +888,6 @@ static void activate_task(task_t *p, run
- 			p->activated = 1;
- 		}
- 	}
--	p->timestamp = now;
-
- 	__activate_task(p, rq);
- }
-
-
+Thanks,
+Jesse

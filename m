@@ -1,45 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264514AbTH2KIw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 06:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTH2KIw
+	id S264490AbTH2KER (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 06:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTH2KER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 06:08:52 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:47785 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264514AbTH2KIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 06:08:50 -0400
-Subject: Re: 2.6.0-test4: Unable to handle kernel NULL pointer dereference
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, davidsen@tmr.com,
-       cswingle@iarc.uaf.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030828194039.7fabf13b.akpm@osdl.org>
-References: <20030828131019.69a9f3b9.akpm@osdl.org>
-	 <Pine.LNX.3.96.1030828220150.466A-100000@gatekeeper.tmr.com>
-	 <32865.4.4.25.4.1062124435.squirrel@www.osdl.org>
-	 <20030828194039.7fabf13b.akpm@osdl.org>
-Content-Type: text/plain
+	Fri, 29 Aug 2003 06:04:17 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:55826 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S264490AbTH2KEH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 06:04:07 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Date: Fri, 29 Aug 2003 14:04:12 +0400
+User-Agent: KMail/1.5
+References: <20030829053510.GA12663@mail.jlokier.co.uk>
+In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1062151614.26753.11.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 29 Aug 2003 11:06:55 +0100
+Content-Disposition: inline
+Message-Id: <200308291404.12201.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-08-29 at 03:40, Andrew Morton wrote:
-> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> >
-> > Is this the same issue as
-> >    http://marc.theaimsgroup.com/?l=linux-kernel&m=106080170017645&w=2
-> >  in which AMD said, "Let us get back to you, ok?" on Aug. 13?
-> 
-> yes.
+Hi Jamie,
 
-The extra if also seems to ruin PIV performance, but I still agree with
-Andrew - you can test code easily with known oopses. Things like the
-known local root holes in 2.6test aren't a problem but random oopses 
-mean you can't tell a new bug from the old one.
+On Friday 29 August 2003 09:35, Jamie Lokier wrote:
+> Dear All,
+>
+> I'd appreciate if folks would run the program below on various
+> machines, especially those whose caches aren't automatically coherent
+> at the hardware level.
+rathamahata@test rathamahata $ gcc -march=athlon-xp -mcpu=athlon-xp -fomit-frame-pointer -O2 -o test test.c
+rathamahata@test rathamahata $ time ./test
+Test separation: 4096 bytes: FAIL - too slow
+Test separation: 8192 bytes: FAIL - too slow
+Test separation: 16384 bytes: FAIL - too slow
+Test separation: 32768 bytes: pass
+Test separation: 65536 bytes: pass
+Test separation: 131072 bytes: pass
+Test separation: 262144 bytes: pass
+Test separation: 524288 bytes: pass
+Test separation: 1048576 bytes: pass
+Test separation: 2097152 bytes: pass
+Test separation: 4194304 bytes: pass
+Test separation: 8388608 bytes: pass
+Test separation: 16777216 bytes: pass
+VM page alias coherency test: minimum fast spacing: 32768 (8 pages)
 
+real	0m0.097s
+user	0m0.091s
+sys	0m0.006s
+rathamahata@test rathamahata $ cat /proc/cpuinfo 
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 8
+model name	: AMD Athlon(tm) MP 2200+
+stepping	: 0
+cpu MHz		: 1800.967
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
+bogomips	: 3538.94
+
+processor	: 1
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 8
+model name	: AMD Athlon(tm) Processor
+stepping	: 0
+cpu MHz		: 1800.967
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
+bogomips	: 3596.28
+
+
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

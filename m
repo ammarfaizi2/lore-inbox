@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271241AbRHOPt1>; Wed, 15 Aug 2001 11:49:27 -0400
+	id <S271234AbRHOPqH>; Wed, 15 Aug 2001 11:46:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271233AbRHOPtK>; Wed, 15 Aug 2001 11:49:10 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:3340 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S271242AbRHOPss>; Wed, 15 Aug 2001 11:48:48 -0400
-Message-ID: <3B7A9A33.5A649036@t-online.de>
-Date: Wed, 15 Aug 2001 17:50:11 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
+	id <S271233AbRHOPp5>; Wed, 15 Aug 2001 11:45:57 -0400
+Received: from mrelay.cc.umr.edu ([131.151.1.89]:32526 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id <S271236AbRHOPpv>;
+	Wed, 15 Aug 2001 11:45:51 -0400
+Message-ID: <F349BC4F5799D411ACE100D0B706B3BB7690AE@umr-mail03.cc.umr.edu>
+From: "Neulinger, Nathan" <nneul@umr.edu>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Problems with 3ware error event notification in kernel
+Date: Wed, 15 Aug 2001 10:46:01 -0500
 MIME-Version: 1.0
-To: Kurt Garloff <garloff@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make psaux reconnect adjustable
-In-Reply-To: <20010814170306.Q1085@gum01m.etpnet.phys.tue.nl> <Pine.LNX.4.33.0108140954390.1679-100000@penguin.transmeta.com> <20010814232947.A16332@gum01m.etpnet.phys.tue.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff wrote:
-> 
-> On Tue, Aug 14, 2001 at 09:58:55AM -0700, Linus Torvalds wrote:
-> >  - do we actually need the config switch AT ALL, whether at bootup or not?
-> >    What exactly breaks if we just always pass the AA 00 values through?
-> >    Apparently nothing ever breaks, which makes me suspect that people are
-> >    just being unnecessarily defensive.
-> >
-> > In short, I'd prefer a patch that just unconditionally removes the code,
-> > unless somebody KNOWS that it could break something. That failing, a
-> > simple kernel command line option sounds better than more files in /proc.
+I've got a situation with the 3ware driver and 3dm monitor where it appears
+to stop receiving notification of status changes from the kernel.
 
-Linus, no more boot options (and no more files in /proc), please.
+I've seen this with 2.2.19+variouspatches and 2.4.7-ac3. (On some other
+machines, it appears to work fine.)
 
-Don't push policy on users when there is a perfect, simple and _user-friendly_ solution.
+Basically, all of the real-time monitoring and instantaneous status request,
+as well as configuration change, etc. stuff all works fine, but after a
+while, the 3dm monitor no longer gets messages talking about drive failure
+(pulling a drive on hot-swap tray) or when the rebuilds start/stop. Even
+restarting the 3dm monitor doesn't seem to help this.
 
-> 
-> OK, here come two patches. The first one removes the special PSAUX reconnect
-> handling completely. So userspace should handle it. (Which is possible; just
-> not implemented in gpm/X11 at this time AFAIK.)
-> 
-> Second patch reintroduces the special handling again, but does
-> * react on AA 00 instead of just AA, thus much less likely breaking other
->   drivers (such as synps2). All PS/2 mouses I could access (about 5
->   different models) produced AA 00, so this seems OK.
-> * is disabled by default, and needs to be enabled by the psaux-reconnect
->   boot parameter, like in 2.2.19.
+Strace doesn't seem to work on the 3dm executable since it's threaded... (Is
+there a way to get that to work?)
 
-Your patch for "AA 00" is preferable over current state "AA" (<=2.4.8)
+Anyone have any ideas on this or have you seen this? The important thing is,
+if I reboot the server it's on, I'll generally be able to get a few alert
+messages, but after some time period (I think it's time based and not
+#-of-alerts based) it no longer receives new alert messages.
 
-ioctl is preferable over sysctl. Aware drivers do "ioctl("/dev/psaux", PS2_TRANSPARENT)".
+3ware tech support doesn't have any idea on what could be wrong and didn't
+have any suggestions of what to try other than harping about what version of
+sendmail I'm running, etc. (Turning off the mail support didn't have any
+effect on the alert processing.)
 
-run-time configuration is preferable over a boot parameter (see above about user-friendliness).
+----
 
-Not breaking current behaviour ("reconnecting 3-byte protocol mice works perfectly") is preferable.
+On a side note - is anyone aware of any effort to reverse engineer the
+status probing code so that we could monitor the raid arrays using something
+other than 3wares 3dm tool? I presume it's just a matter of knowing the
+right ioctl's and parms to issue, but there is no info on this, and 3ware
+has no plans (according to tech support) to release any documentation or
+source for the monitoring code/protocols. Being able to strace the 3dmd
+would likely make this alot easier, but haven't been able to get strace to
+work against it.
+
+-- Nathan
+
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+Computing Services                       Fax: (573) 341-4216

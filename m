@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbTHWQ5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 12:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbTHWQ5X
+	id S262847AbTHWQ52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 12:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTHWQ52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 12:57:23 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:10169 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263485AbTHWOck (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 10:32:40 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-Reply-To: habanero@us.ibm.com
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
-Date: Sat, 23 Aug 2003 09:32:24 -0500
-User-Agent: KMail/1.5
-Cc: Bill Davidsen <davidsen@tmr.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Erich Focht <efocht@hpce.nec.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Andi Kleen <ak@muc.de>,
-       torvalds@osdl.org, mingo@elte.hu
-References: <Pine.LNX.3.96.1030813163849.12417I-100000@gatekeeper.tmr.com> <200308221912.38184.habanero@us.ibm.com> <3F46B561.7060706@cyberone.com.au>
-In-Reply-To: <3F46B561.7060706@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 23 Aug 2003 12:57:28 -0400
+Received: from AMarseille-201-1-3-186.w193-253.abo.wanadoo.fr ([193.253.250.186]:31015
+	"EHLO gaston") by vger.kernel.org with ESMTP id S262847AbTHWOkM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 10:40:12 -0400
+Subject: PCI PM & compatibility
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308230932.24832.habanero@us.ibm.com>
+Message-Id: <1061649597.780.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sat, 23 Aug 2003 16:39:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >AMD is 1 because there's no need to balance within a node, so I want the
-> >inter-node balance frequency to be as often as it was with just O(1). 
-> > This interval would not work well with other NUMA boxes, so that's the
-> > main reason to have arch specific intervals.
->
-> OK, I misread the patch. IIRC AMD has 1 CPU per node? If so, why doesn't
-> this simply prevent balancing within a node?
+Hi !
 
-Yes, one cpu/node.  Oh, it does prevent it, but with the current intervals, we 
-end up not really balancing as often (since we need a inter-node balance), 
-and when we call load_balance in schedule when idle, we don't balance at all 
-since it's only a node local balance.
+What about this patch to stay compatible with existing drivers
+implementing everything in save_state ?
 
-> >  And, as a general guideline, boxes with
-> >different local-remote latency ratios will probably benefit from different
-> >inter-node balance intervals.  I don't know what these ratios are, but I'd
-> >like the kernel to have the ability to change for one arch and not affect
-> >another.
->
-> I fully appreciate there are huge differences... I am curious if
-> you can see much improvements in practice.
+Ideally, we should kill save_state and fix all drivers, oh well...
 
-I think AMD would be the first good test.  Maybe Andi has some results on 
-numasched vs O(1), which would be a good indication.
+(This version of the patch has correct space/tabs)
+
+Ben.
+
+--- a/drivers/pci/pci-driver.c	Sat Aug 23 16:39:14 2003
++++ b/drivers/pci/pci-driver.c	Sat Aug 23 16:39:14 2003
+@@ -163,6 +163,9 @@
+ 	struct pci_dev * pci_dev = to_pci_dev(dev);
+ 	struct pci_driver * drv = pci_dev->driver;
+ 
++	/* Compatibility with drivers using obsolete save_state */
++	if (drv && drv->save_state)
++		return drv->save_state(pci_dev,state);
+ 	if (drv && drv->suspend)
+ 		return drv->suspend(pci_dev,state);
+ 	return 0;
+

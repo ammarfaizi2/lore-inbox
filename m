@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbTESQRz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 12:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTESQRz
+	id S261326AbTESQNy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 12:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTESQNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 12:17:55 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:16778
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S261564AbTESQRy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 12:17:54 -0400
-Date: Mon, 19 May 2003 12:30:52 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Christoph Hellwig <hch@infradead.org>, Corey Minyard <cminyard@mvista.com>,
-       linux.nics@intel.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add boot command line parsing for the e100 driver
-Message-ID: <20030519163052.GB17048@gtf.org>
-References: <3EC901BB.8040100@mvista.com> <20030519171714.A22487@infradead.org>
+	Mon, 19 May 2003 12:13:54 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:34455 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261326AbTESQNx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 12:13:53 -0400
+Date: Mon, 19 May 2003 09:26:48 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, "David S. Miller" <davem@redhat.com>,
+       Jes Sorensen <jes@wildopensource.com>, torvalds@transmeta.com,
+       cngam@sgi.com, jeremy@sgi.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ia64@linuxia64.org,
+       wildos@sgi.com
+Subject: Re: [Linux-ia64] Re: [patch] support 64 bit pci_alloc_consistent
+Message-ID: <20030519162648.GC21356@cup.hp.com>
+References: <16071.1892.811622.257847@trained-monkey.org> <1053250142.1300.8.camel@laptop.fenrus.com> <20030518.023533.98888328.davem@redhat.com> <20030518094341.A1709@devserv.devel.redhat.com> <20030518172203.GA13855@cup.hp.com> <1053280195.10810.61.camel@mulgrave> <20030518201718.GB13855@cup.hp.com> <1053293187.10811.70.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030519171714.A22487@infradead.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1053293187.10811.70.camel@mulgrave>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2003 at 05:17:14PM +0100, Christoph Hellwig wrote:
-> On Mon, May 19, 2003 at 11:09:31AM -0500, Corey Minyard wrote:
-> > Annoyed by the fact that I could set configuration parameters for a
-> > compiled-in e100 driver, I've added boot-line parameter parsing.  The
-> > patch is attached.  It would be very helpful if this could be applied. 
-> > This is relative to 2.5.68, but should be pretty portable.
-> 
-> Don't do this. 2.5 has the module_parame stuff that works for both
-> static and modular drivers.  Just convert e100 to it.
+On Sun, May 18, 2003 at 04:26:22PM -0500, James Bottomley wrote:
+> A full bit u64 mask should never fail...
 
-...which totally screws people trying to keep 2.4 and 2.5
-sources as close as possible.
+OK. "never fail" in the sense that the driver has advertised a mask
+which equals or exceeds the platform capabilities. 
 
-If all modules do not require new module_param changes, then logically,
-e100 does not either.  And e100 has a better argument than most against
-such changes.
+Bottom line is the driver has to check the platform DMA support
+likes the proposed mask and adjust it's behavior accordingly.
+Existing API and Arjen's proposal both require that.
 
-	Jeff
+> Also, knowing the effective mask (and it would have to be set properly
+> on return) would be extremely useful for drivers that have weird width
+> modes (like aic with 64 vs 39 vs 32 bit addressing in the
+> descriptors)
 
+aic driver could try all three in order of preference?
+"extremely useful" seems like a stretch to me.
 
+> ...it would allow me to eliminate the memory size checks in
+> those drivers.
 
+I expect DMA support to determine how many bits are needed to
+address all of physical RAM and accept/reject the 64/39/32-bit DMA
+mask as appropriate. I haven't studied x86 DMA support recently.
+There might be valid reasons it doesn't work that way.
+
+grant

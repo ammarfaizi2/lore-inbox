@@ -1,24 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262523AbSJGDAi>; Sun, 6 Oct 2002 23:00:38 -0400
+	id <S262524AbSJGDCG>; Sun, 6 Oct 2002 23:02:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262524AbSJGDAi>; Sun, 6 Oct 2002 23:00:38 -0400
-Received: from bitmover.com ([192.132.92.2]:9110 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262523AbSJGDAi>;
-	Sun, 6 Oct 2002 23:00:38 -0400
-Date: Sun, 6 Oct 2002 20:06:14 -0700
-From: Larry McVoy <lm@bitmover.com>
-Message-Id: <200210070306.g9736E304064@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: bkbits.net down
-X-MailScanner: Found to be clean
+	id <S262530AbSJGDCG>; Sun, 6 Oct 2002 23:02:06 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:4056 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262524AbSJGDCF>; Sun, 6 Oct 2002 23:02:05 -0400
+Date: Mon, 7 Oct 2002 00:07:29 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Ben Collins <bcollins@debian.org>, Nicolas Pitre <nico@cam.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <Pine.LNX.4.44L.0210062334430.22735-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44L.0210070006140.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We rebooted to unwedge some VM problems (we really need to upgrade to
-Rik's rmap stuff, it's better that 2.4.5, that's for sure).  Unfortunately,
-it's been so long since we rebooted that the drives are being checked and
-there are several million inodes so it's taking a while.  Maybe another 
-half hour.
+On Sun, 6 Oct 2002, Rik van Riel wrote:
+> On Sun, 6 Oct 2002, Larry McVoy wrote:
+>
+> > > 	ftp://nl.linux.org/pub/linux/bk2patch/
+> >
+> > Make sure you do a
+> > 	bk -r admin -Znone
+> > on that tree.  We support gzipped repos, SCCS/CSSC don't.
+>
+> Thanks for the advise, I'm running this command right now.
 
---lm
+If you worried why your rsync session just died ... I killed it
+after finishing uncompressing the repositories.  From now on
+you'll get an uncompressed repository that SCCS/CSSC can handle.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

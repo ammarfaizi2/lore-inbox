@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289331AbSA3Pu0>; Wed, 30 Jan 2002 10:50:26 -0500
+	id <S289326AbSA3Ps4>; Wed, 30 Jan 2002 10:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289327AbSA3PuQ>; Wed, 30 Jan 2002 10:50:16 -0500
-Received: from bitmover.com ([192.132.92.2]:10149 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S289331AbSA3PuD>;
-	Wed, 30 Jan 2002 10:50:03 -0500
-Date: Wed, 30 Jan 2002 07:49:56 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-        Rik van Riel <riel@conectiva.com.br>
+	id <S289327AbSA3Psq>; Wed, 30 Jan 2002 10:48:46 -0500
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:17156 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S289326AbSA3Psh>; Wed, 30 Jan 2002 10:48:37 -0500
+Date: Wed, 30 Jan 2002 16:48:14 +0100 (CET)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Rob Landley <landley@trommello.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130074956.C18381@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
-	Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-	Rik van Riel <riel@conectiva.com.br>
-In-Reply-To: <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com> <E16VrlR-0006vL-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16VrlR-0006vL-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 30, 2002 at 10:14:49AM +0000
+In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0201301635370.13037-100000@rudy.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 10:14:49AM +0000, Alan Cox wrote:
-> Larry - can bitkeeper easily be persuaded to take "messages" back all the way 
-> to the true originator of a change. Ie if a diff gets to Linus he can reject
-> a given piece of change and without passing messages back down the chain
-> ensure they get the reply as to why it was rejected, and even if
-> nobody filled anything in that it was looked at and rejected by xyz at
-> time/date ?
+On Tue, 29 Jan 2002, Ingo Molnar wrote:
+[..]
+> 1) cleanliness
+> 
+> code cleanliness is a well-know issue, see Documentation/CodingStyle.  If
+> a patch has such problems then maintainers are very likely to help - Linus
+> probably wont and shouldnt.
 
-It's certainly possible and there are changes we could make to make it more
-useful.  Right now, there is no record of a change if it goes and then gets
-rejected right back out; it's as if you patched and then you did a reverse
-patch.
+I think place in each directory .indent.pro file with proper coding style
+configuration and reduce Documentation/CodingStyle to how to use indent
+tool can will solve many currunt problems with proper patches form and
+will probaly take smaller amout disk space (or aprox the same) than
+current Documentation/CodingStyle. Even if current indent can't handle
+correctly current kernel coding style IMHO it will be better inves few
+minutes on some changes to current indent behavior for bring this tool
+abilities for reindent source code in way described in
+Documentation/CodingStyle .. (?)
 
-The good news is that each change (patch) has an identifier, they look like
-
-    awc@bitmover.bitmover.com|ChangeSet|20011230212716|39200
-
-and if we kept a record of those that were rejected, it would be trivial for
-a developer to track whether his change was in/not seen/rejected.
+kloczek
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+

@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262889AbTCSCFK>; Tue, 18 Mar 2003 21:05:10 -0500
+	id <S262911AbTCSCLd>; Tue, 18 Mar 2003 21:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262892AbTCSCFK>; Tue, 18 Mar 2003 21:05:10 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:34579 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S262889AbTCSCFJ>; Tue, 18 Mar 2003 21:05:09 -0500
-Date: Tue, 18 Mar 2003 19:15:25 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Terry Barnaby <terry@beam.ltd.uk>
-cc: mmadore@aslab.com, linux-kernel@vger.kernel.org
-Subject: Re: Reproducible SCSI Error with Adaptec 7902
-Message-ID: <3733590000.1048040125@aslan.scsiguy.com>
-In-Reply-To: <3E76EBD6.7070908@beam.ltd.uk>
-References: <3E71B629.60204@beam.ltd.uk> <1999490000.1047653585@aslan.scsiguy.com> <3E71F9CB.706@beam.ltd.uk>
- <525730000.1047663245@aslan.btc.adaptec.com> <3E76EBD6.7070908@beam.ltd.uk>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S262913AbTCSCLd>; Tue, 18 Mar 2003 21:11:33 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:30196 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S262911AbTCSCLc>; Tue, 18 Mar 2003 21:11:32 -0500
+Date: Tue, 18 Mar 2003 18:21:36 -0800
+From: Chris Wright <chris@wirex.com>
+To: Tom Vier <tmv@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: alpha fails Re: 2.4.20 ptrace patch
+Message-ID: <20030318182136.A25346@figure1.int.wirex.com>
+Mail-Followup-To: Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.51.0303171141010.27605@skuld.mtroyal.ab.ca> <20030319014419.GA391@zero>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030319014419.GA391@zero>; from tmv@comcast.net on Tue, Mar 18, 2003 at 08:44:19PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. Would it be possible for you to look at the error message to see
-> what it is related to.
+* Tom Vier (tmv@comcast.net) wrote:
+> anyone have a quick fix?
+> 
+> kernel/kernel.o(.text+0x3488): In function `kernel_thread':
+> : undefined reference to `arch_kernel_thread'
+> kernel/kernel.o(.text+0x3490): In function `kernel_thread':
+> : undefined reference to `arch_kernel_thread'
+> make: *** [vmlinux] Error 1
 
-The drive has unexpectedly dropped off the bus during a connection.
-Without a SCSI bus trace it is impossible to know why the drive might
-have done this or if perhaps a glitch on the BSY line is causing the
-controller to detect a spurious busfree.
+Does this work (untested):
 
-> 2. Would it be possible to determine what may have locked up the drive
-> with the previous SCSI driver. I could feed this back to Seagate.
+--- arch/alpha/kernel/entry.S.kmod	Tue Mar 18 18:17:46 2003
++++ arch/alpha/kernel/entry.S	Tue Mar 18 18:18:50 2003
+@@ -234,8 +234,8 @@
+  * arch_kernel_thread(fn, arg, clone_flags)
+  */
+ .align 3
+-.globl	kernel_thread
+-.ent	kernel_thread
++.globl	arch_kernel_thread
++.ent	arch_kernel_thread
+ arch_kernel_thread:
+ 	ldgp	$29,0($27)	/* we can be called from a module */
+ 	.frame $30, 4*8, $26
+@@ -265,7 +265,7 @@
+ 	mov	$0,$16
+ 	mov	$31,$26
+ 	jsr	$31,sys_exit
+-.end	kernel_thread
++.end	arch_kernel_thread
+ 
+ /*
+  * __kernel_execve(path, argv, envp, regs)
 
-I have my hands too full trying to replicate problems seen with the
-latest driver and debug their cause to go back and try and figure
-out what an old driver version might have done to upset a drive.
-
---
-Justin
-
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

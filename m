@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264872AbUD2V1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264975AbUD2Vdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264872AbUD2V1k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUD2V1f
+	id S264975AbUD2Vdq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUD2Vdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:27:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24813 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264872AbUD2VZu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:25:50 -0400
-Date: Thu, 29 Apr 2004 14:28:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: jmoyer@redhat.com, carson@taltos.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, andrea@suse.de, davem@redhat.com
-Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
-Message-Id: <20040429142807.1fa4c5ea.akpm@osdl.org>
-In-Reply-To: <20040429210951.GB20453@logos.cnet>
-References: <382320000.1082759593@taltos.ny.ficc.gs.com>
-	<16527.4259.174536.629347@segfault.boston.redhat.com>
-	<20040429210951.GB20453@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 29 Apr 2004 17:33:46 -0400
+Received: from wirefire.bureaudepost.com ([66.38.187.209]:64140 "EHLO
+	oasis.linuxant.com") by vger.kernel.org with ESMTP id S264975AbUD2Vct
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 17:32:49 -0400
+Date: Thu, 29 Apr 2004 17:32:46 -0400
+From: Marc Boucher <marc@linuxant.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Rik van Riel <riel@redhat.com>, Marc Boucher <marc@linuxant.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-ID: <20040429213246.GA15988@valve.mbsi.ca>
+References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <40911C01.80609@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40916495.1060805@techsource.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+Giuliano Colla wrote:
+> Can you honestly tell apart the two cases, if you don't make a it a case of
+> "religion war"?
+
+On Thu, Apr 29, 2004 at 11:15:13AM -0400, Timothy Miller answered:
 >
-> > Andrea fixed this in his tree by deferring the page free to process context
-> > instead of BUG()ing on PageLRU(page).
+> Firmware downloaded into a piece of hardware can't corrupt the kernel in the
+> host.
 > 
-> Yeap, his fix looks OK.
+> (Unless it's a bus master which writes to random memory, which might be
+> possible, but there is hardware you can buy to watch PCI transactions.)
 
-It does.
+and unless it's a card with binary-only, proprietary BIOS code called at
+runtime by the kernel, for example by the vesafb.c video driver,
+which despite this has a MODULE_LICENSE("GPL").
 
-It would be nice to change
+Could someone explain why such execution of evil proprietary binary-only
+code on the host CPU should not also "taint" the kernel? ;-)
 
-	if (in_interrupt())
-
-to
-
-	if (in_interrupt() || ((count++ % 10000) == 0))
-
-just to exercise that code path a bit more.
-
+Marc

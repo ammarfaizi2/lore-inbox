@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUDSVjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbUDSVks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbUDSVjb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 17:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUDSVjb
+	id S261920AbUDSVks (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 17:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUDSVks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 17:39:31 -0400
-Received: from hera.kernel.org ([63.209.29.2]:56271 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261904AbUDSVj3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 17:39:29 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: initramfs howto?
-Date: Mon, 19 Apr 2004 21:39:10 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c61gtu$olc$1@terminus.zytor.com>
-References: <1081451826.238.23.camel@clubneon.priv.hereintown.net> <buo4qrt4pga.fsf@mcspd15.ucom.lsi.nec.co.jp> <1081531299.19918.13.camel@serpentine.pathscale.com> <200404192048.29666.chris@ukpost.com>
+	Mon, 19 Apr 2004 17:40:48 -0400
+Received: from sitemail2.everyone.net ([216.200.145.36]:50306 "EHLO
+	omta10.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S261920AbUDSVkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 17:40:45 -0400
+X-Eon-Sig: AQHOS7NAhEdaRlGuJQIAAAAC,572eca97cbaafa9d8cd161ddda0e0432
+Date: Mon, 19 Apr 2004 17:40:41 -0400
+From: "Kevin O'Connor" <kevin@koconnor.net>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inline_hunter 0.2 and it's results
+Message-ID: <20040419214041.GA3749@ohio.localdomain>
+References: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1082410750 25262 63.209.29.3 (19 Apr 2004 21:39:10 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 19 Apr 2004 21:39:10 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200404192048.29666.chris@ukpost.com>
-By author:    Chris Lingard <chris@ukpost.com>
-In newsgroup: linux.dev.kernel
-> 
-> linuxrc already exists for initrd systems, and is coded in anyway.
-> 
+On Fri, Apr 16, 2004 at 10:30:40PM +0300, Denis Vlasenko wrote:
+> Size  Uses Wasted Name and definition
+> ===== ==== ====== ================================================
+>    56  461  16560 copy_from_user	include/asm/uaccess.h
+>   122  119  12036 skb_dequeue	include/linux/skbuff.h
+>   164   78  11088 skb_queue_purge	include/linux/skbuff.h
+>    97  141  10780 netif_wake_queue	include/linux/netdevice.h
+>    43  468  10741 copy_to_user	include/asm/uaccess.h
+>    43  461  10580 copy_from_user	include/asm/uaccess.h
 
-NO NO NO NO NO NO NO NO NO NO NO ...
+Hi Denis,
 
-Calling it /linuxrc instead of /sbin/init was a bad idea to begin with
-.. let's not make it worse by making it magic...
+Why are there two copy_from_user lines?
 
-	-hpa
+Thanks,
+-Kevin
 
+-- 
+ ---------------------------------------------------------------------
+ | Kevin O'Connor                  "BTW, IMHO we need a FAQ for      |
+ | kevin@koconnor.net               'IMHO', 'FAQ', 'BTW', etc. !"    |
+ ---------------------------------------------------------------------

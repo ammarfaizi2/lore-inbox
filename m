@@ -1,164 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313832AbSDJVOI>; Wed, 10 Apr 2002 17:14:08 -0400
+	id <S313841AbSDJVON>; Wed, 10 Apr 2002 17:14:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313841AbSDJVOH>; Wed, 10 Apr 2002 17:14:07 -0400
-Received: from www.microgate.com ([216.30.46.105]:10512 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S313832AbSDJVOG>; Wed, 10 Apr 2002 17:14:06 -0400
-Subject: [PATCH] 2.5.8-pre3 n_hdlc.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3.99 
-Date: 10 Apr 2002 16:11:59 -0500
-Message-Id: <1018473120.1021.16.camel@diemos.microgate.com>
-Mime-Version: 1.0
+	id <S313843AbSDJVOM>; Wed, 10 Apr 2002 17:14:12 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:46759 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S313841AbSDJVOL>;
+	Wed, 10 Apr 2002 17:14:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: "Bill Abt" <babt@us.ibm.com>
+Subject: Re: [PATCH] Futex Generalization Patch
+Date: Wed, 10 Apr 2002 16:14:36 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
+        pwaechtler@loewe-Komp.de, Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <OF6ED1E5D5.39630DC3-ON85256B97.006D2F99@raleigh.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020410211348.AB5E93FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch against 2.5.8-pre3
+On Wednesday 10 April 2002 03:59 pm, Bill Abt wrote:
+> On 04/10/2002 at 02:47:50 PM AST, Hubertus Franke <frankeh@watson.ibm.com>
+>
+> wrote:
+> > The current interface is
+> >
+> > (A)
+> > async wait:
+> >    sys_futex (uaddr, FUTEX_AWAIT, value, (struct timespec*) sig);
+> > upon signal handling
+> >    sys_futex(uaddrs[], FUTEX_WAIT, size, NULL);
+> >    to retrieve the uaddrs that got woken up...
+>
+> This is actually the preferred way.  I must've misinterpeted what you said
+> earlier.  I believe this is actually a more generic way of handling.  A
+> thread package can specify the signal to used much in the way the current
+> LinuxThreads pre-allocates and uses certain real-time signals...
+>
+> > I am mainly concerned that SIGIO can be overloaded in a thread package ?
+> > How would you know whether a SIGIO came from the futex or from other file
+> >
+> > handle.
+>
+> By keep with the original interface, we don't have to contend with this
+> problem.  The thread package can use the signal that most suits its'
+> implementation...
+>
+> Make sense?
+>
 
-Remove localy defined wait queues and use wait queues
-in tty structure of same function. This matches the
-n_tty.c behavior.
+I wasn't precise... 
+There are ++ and -- for the file descriptors approach
+++)
+(a) it automatically cleans up the notify queue associated with the FD.
+     [ notify queue could still be global, if we want that ]
+     when the process disappears, no callback required in do_exit()
+--) There is more overhead in the wakeup and the wait because I need to 
+     move from the fd to the filestruct which is always some lookup and
+     I have to verify that the file descriptor is actually a valid /dev/futex
+     file (yikes).    
 
-Handle pty hangup when blocked on read.
+Another problem I see is that we only have one additional 
+argument (void *utime) to piggyback the fd and the signal on. 
 
-These 2 changes fix use of n_hdlc with PPPoATM and
-are mirror changes included in 2.4.19-pre
+What could be done is the following.
+Make utime a (void *utime) argument
+In FUTEX_WAIT   interpret it as a pointer <struct timespec>
+In FUTEX_AWAIT  inteprest it as { short fd, short sig };
+There should be no limitation by casting it to shorts ?
 
---- linux-2.5.8-pre3/drivers/char/n_hdlc.c	Wed Apr 10 15:35:26 2002
-+++ linux-2.5.8-pre3-mg/drivers/char/n_hdlc.c	Wed Apr 10 15:43:28 2002
-@@ -9,7 +9,7 @@
-  *	Al Longyear <longyear@netcom.com>, Paul Mackerras <Paul.Mackerras@cs.anu.edu.au>
-  *
-  * Original release 01/11/99
-- * $Id: n_hdlc.c,v 3.2 2000/11/06 22:34:38 paul Exp $
-+ * $Id: n_hdlc.c,v 4.1 2002/04/10 19:30:58 paulkf Exp $
-  *
-  * This code is released under the GNU General Public License (GPL)
-  *
-@@ -78,7 +78,7 @@
-  */
- 
- #define HDLC_MAGIC 0x239e
--#define HDLC_VERSION "3.2"
-+#define HDLC_VERSION "$Revision: 4.1 $"
- 
- #include <linux/version.h>
- #include <linux/config.h>
-@@ -159,11 +159,6 @@
- 	struct tty_struct *tty;		/* ptr to TTY structure	*/
- 	struct tty_struct *backup_tty;	/* TTY to use if tty gets closed */
- 	
--	/* Queues for select() functionality */
--	wait_queue_head_t read_wait;
--	wait_queue_head_t write_wait;
--	wait_queue_head_t poll_wait;
--
- 	int		tbusy;		/* reentrancy flag for tx wakeup code */
- 	int		woke_up;
- 	N_HDLC_BUF	*tbuf;		/* currently transmitting tx buffer */
-@@ -234,9 +229,8 @@
- 		printk("%s(%d)n_hdlc_release() called\n",__FILE__,__LINE__);
- 		
- 	/* Ensure that the n_hdlcd process is not hanging on select()/poll() */
--	wake_up_interruptible (&n_hdlc->read_wait);
--	wake_up_interruptible (&n_hdlc->poll_wait);
--	wake_up_interruptible (&n_hdlc->write_wait);
-+	wake_up_interruptible (&tty->read_wait);
-+	wake_up_interruptible (&tty->write_wait);
- 
- 	if (tty != NULL && tty->disc_data == n_hdlc)
- 		tty->disc_data = NULL;	/* Break the tty->n_hdlc link */
-@@ -431,8 +425,7 @@
- 			n_hdlc->tbuf = NULL;
- 			
- 			/* wait up sleeping writers */
--			wake_up_interruptible(&n_hdlc->write_wait);
--			wake_up_interruptible(&n_hdlc->poll_wait);
-+			wake_up_interruptible(&tty->write_wait);
- 	
- 			/* get next pending transmit buffer */
- 			tbuf = n_hdlc_buf_get(&n_hdlc->tx_buf_list);
-@@ -574,8 +567,7 @@
- 	n_hdlc_buf_put(&n_hdlc->rx_buf_list,buf);
- 	
- 	/* wake up any blocked reads and perform async signalling */
--	wake_up_interruptible (&n_hdlc->read_wait);
--	wake_up_interruptible (&n_hdlc->poll_wait);
-+	wake_up_interruptible (&tty->read_wait);
- 	if (n_hdlc->tty->fasync != NULL)
- 		kill_fasync (&n_hdlc->tty->fasync, SIGIO, POLL_IN);
- 
-@@ -620,6 +612,9 @@
- 	}
- 
- 	for (;;) {
-+		if (test_bit(TTY_OTHER_CLOSED, &tty->flags))
-+			return -EIO;
-+
- 		n_hdlc = tty2n_hdlc (tty);
- 		if (!n_hdlc || n_hdlc->magic != HDLC_MAGIC ||
- 			 tty != n_hdlc->tty)
-@@ -633,7 +628,7 @@
- 		if (file->f_flags & O_NONBLOCK)
- 			return -EAGAIN;
- 			
--		interruptible_sleep_on (&n_hdlc->read_wait);
-+		interruptible_sleep_on (&tty->read_wait);
- 		if (signal_pending(current))
- 			return -EINTR;
- 	}
-@@ -702,7 +697,7 @@
- 		count = maxframe;
- 	}
- 	
--	add_wait_queue(&n_hdlc->write_wait, &wait);
-+	add_wait_queue(&tty->write_wait, &wait);
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	
- 	/* Allocate transmit buffer */
-@@ -725,7 +720,7 @@
- 	}
- 
- 	set_current_state(TASK_RUNNING);
--	remove_wait_queue(&n_hdlc->write_wait, &wait);
-+	remove_wait_queue(&tty->write_wait, &wait);
- 
- 	if (!error) {		
- 		/* Retrieve the user's buffer */
-@@ -835,12 +830,14 @@
- 	if (n_hdlc && n_hdlc->magic == HDLC_MAGIC && tty == n_hdlc->tty) {
- 		/* queue current process into any wait queue that */
- 		/* may awaken in the future (read and write) */
--		poll_wait(filp, &n_hdlc->poll_wait, wait);
-+
-+		poll_wait(filp, &tty->read_wait, wait);
-+		poll_wait(filp, &tty->write_wait, wait);
- 
- 		/* set bits for operations that wont block */
- 		if(n_hdlc->rx_buf_list.head)
- 			mask |= POLLIN | POLLRDNORM;	/* readable */
--		if(tty->flags & (1 << TTY_OTHER_CLOSED))
-+		if (test_bit(TTY_OTHER_CLOSED, &tty->flags))
- 			mask |= POLLHUP;
- 		if(tty_hung_up_p(filp))
- 			mask |= POLLHUP;
-@@ -894,11 +891,7 @@
- 	
- 	/* Initialize the control block */
- 	n_hdlc->magic  = HDLC_MAGIC;
--
- 	n_hdlc->flags  = 0;
--	init_waitqueue_head(&n_hdlc->read_wait);
--	init_waitqueue_head(&n_hdlc->poll_wait);
--	init_waitqueue_head(&n_hdlc->write_wait);
- 	
- 	return n_hdlc;
- 	
+Comments, anyone....
 
+I suggest, we leave it as is right now until more comments come.
 
+> Regards,
+>       Bill Abt
+>       Senior Software Engineer
+>       Next Generation POSIX Threading for Linux
+>       IBM Cambridge, MA, USA 02142
+>       Ext: +(00)1 617-693-1591
+>       T/L: 693-1591 (M/W/F)
+>       T/L: 253-9938 (T/Th/Eves.)
+>       Cell: +(00)1 617-803-7514
+>       babt@us.ibm.com or abt@us.ibm.com
+>       http://oss.software.ibm.com/developerworks/opensource/pthreads
+
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

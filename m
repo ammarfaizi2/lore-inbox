@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbUELXWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUELX1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbUELXWb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 19:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbUELXWb
+	id S263188AbUELX1J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 19:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbUELX1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 19:22:31 -0400
-Received: from smtp4.aruba.it ([62.149.128.203]:51724 "HELO smtp4.aruba.it")
-	by vger.kernel.org with SMTP id S263089AbUELXWT (ORCPT
+	Wed, 12 May 2004 19:27:09 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:36280 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S263188AbUELX1G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 19:22:19 -0400
-From: Martino di Filippo <webmaster@matrix87.com>
-To: linux-kernel@vger.kernel.org
-Subject: sil_sata bug 2.6.5
-Date: Thu, 13 May 2004 01:20:54 +0200
-User-Agent: KMail/1.6.1
+	Wed, 12 May 2004 19:27:06 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405130120.54077.webmaster@matrix87.com>
-X-Spam-Rating: smtp4.aruba.it 1.6.2 0/1000/N
+Message-ID: <16546.45767.833654.478258@napali.hpl.hp.com>
+Date: Wed, 12 May 2004 16:27:03 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: davidm@hpl.hp.com, rddunlap@osdl.org, ebiederm@xmission.com,
+       drepper@redhat.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+In-Reply-To: <20040512161603.44c50cec.akpm@osdl.org>
+References: <20040511212625.28ac33ef.rddunlap@osdl.org>
+	<40A1AF53.3010407@redhat.com>
+	<m13c66qicb.fsf@ebiederm.dsl.xmission.com>
+	<40A243C8.401@redhat.com>
+	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
+	<40A2517C.4040903@redhat.com>
+	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
+	<20040512143233.0ee0405a.rddunlap@osdl.org>
+	<16546.41076.572371.307153@napali.hpl.hp.com>
+	<20040512152815.76280eac.akpm@osdl.org>
+	<16546.42537.765495.231960@napali.hpl.hp.com>
+	<20040512161603.44c50cec.akpm@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have some troubles with the silicon image sata support
-Kernel 2.6.5, Silicon Image Sil3112 onboard sata raid, Asus A7N8X-E Deluxe
-I get some error messages like this
+>>>>> On Wed, 12 May 2004 16:16:03 -0700, Andrew Morton <akpm@osdl.org> said:
 
+  Andrew> But it needs work for the kexec requirement.
 
-ata2: DMA timeout, stat 0x1
-ATA: abnormal status 0xD8 on port 0xF98750C7
-scsi1: ERROR on channel 0, id 0, lun 0, CDB: 0x2a 00 00 00 16 7f 00 00 10 00
-Current sdb: sense = 70  3
-ASC= c ASCQ= 2
-Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 0x00 
-0x0c 0x02
-end_request: I/O error, dev sdb, sector 5759
-ATA: abnormal status 0xD8 on port 0xF98750C7
-ATA: abnormal status 0xD8 on port 0xF98750C7
-ATA: abnormal status 0xD8 on port 0xF98750C7
+Sorry, I wasn't suggesting that kexec should be done that way _now_.
 
+I don't think it's nearly as simple as just adding an entry point in
+the DSO.  For example, how would strace be affected by the new entry
+points?  The syscall entry path probably would have to be almost
+duplicated to do a syscall-number-free entry.  What about syscall
+restarting?  Would VDSO entry points work with statically linked
+binaries? etc.
 
-After that, if i try to access in any way the device that caused the error 
-(/dev/sdb in the example) the application that tries that freezes and i have 
-to hard reboot.
+Perhaps Uli has answers to all of these, but no matter how you do it,
+it'd be a pretty dramatic shift in how applications interact with the
+kernel.
 
-I found a similar problem in the archive: 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0404.3/0119.html
-Justin thought it could be related to bad sectors, but i checked and i'm sure 
-the disk is ok. Oh, the disk is a Maxtor 120gb SATA.
-
-Any hint?
--- 
-matrix87
-webmaster@matrix87.com
-http://www.matrix87.com
-
-
+	--david

@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262918AbVCDRMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbVCDRMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbVCDRMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 12:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbVCDRMR
+	id S262962AbVCDRMn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 12:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbVCDRMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 12:12:17 -0500
-Received: from relay2.hrnoc.net ([216.120.237.254]:11012 "EHLO
-	relay2.hrnoc.net") by vger.kernel.org with ESMTP id S262918AbVCDRIe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 12:08:34 -0500
-X-Qmail-Scanner-Mail-From: mike@waychison.com via smtp-1.hrnoc.net
-X-Qmail-Scanner: 1.20st (Clear:RC:1(216.120.255.86):. Processed in 0.024822 secs)
-Message-ID: <38620.66.11.176.22.1109956113.squirrel@webmail1.hrnoc.net>
-In-Reply-To: <20050304110750.GD3992@stusta.de>
-References: <422817C3.2010307@waychison.com>
-    <58cb370e0503040240314120ea@mail.gmail.com>
-    <20050304110750.GD3992@stusta.de>
-Date: Fri, 4 Mar 2005 12:08:33 -0500 (EST)
-Subject: Re: [2.6 patch] unexport complete_all
-From: mike@waychison.com
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>,
-       "Mike Waychison" <mike@waychison.com>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-User-Agent: SquirrelMail/1.4.4-rc1
+	Fri, 4 Mar 2005 12:12:43 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:41437 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262962AbVCDRJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 12:09:48 -0500
+Date: Fri, 4 Mar 2005 17:09:09 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Christoph Lameter <clameter@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+In-Reply-To: <Pine.LNX.4.58.0503040842200.17556@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0503041704510.4954@goblin.wat.veritas.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com> 
+    <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com> 
+    <20050302174507.7991af94.akpm@osdl.org> 
+    <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com> 
+    <20050302185508.4cd2f618.akpm@osdl.org> 
+    <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com> 
+    <20050302201425.2b994195.akpm@osdl.org> 
+    <Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com> 
+    <20050302205612.451d220b.akpm@osdl.org> 
+    <Pine.LNX.4.58.0503022206001.4389@schroedinger.engr.sgi.com> 
+    <20050302222008.4910eb7b.akpm@osdl.org> 
+    <Pine.LNX.4.58.0503030852490.8941@schroedinger.engr.sgi.com> 
+    <20050303132011.7c80033d.akpm@osdl.org> 
+    <Pine.LNX.4.58.0503040842200.17556@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-HR-Scan-Signature: 4b54e2806c38bf68f13c98cfb1f4b6b4
-X-HR-SA-Score: ()
-X-HR-Status: HR_AVScanned-(mike@waychison.com/216.120.225.37)
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Mar 04, 2005 at 11:40:08AM +0100, Bartlomiej Zolnierkiewicz wrote:
->> On Fri, 04 Mar 2005 03:09:39 -0500, Mike Waychison <mike@waychison.com>
->> wrote:
->> > > I didn't find any possible modular usage in the kernel.
->> > >
->> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
->> > >
->> > > --- linux-2.6.11-rc5-mm1-full/kernel/sched.c.old      2005-03-04
->> 01:04:28.000000000 +0100
->> > > +++ linux-2.6.11-rc5-mm1-full/kernel/sched.c  2005-03-04
->> 01:04:34.000000000 +0100
->> > > @@ -3053,7 +3053,6 @@
->> > >                        0, 0, NULL);
->> > >       spin_unlock_irqrestore(&x->wait.lock, flags);
->> > >  }
->> > > -EXPORT_SYMBOL(complete_all);
->> > >
->> > >  void fastcall __sched wait_for_completion(struct completion *x)
->> > >  {
->> > > -
->> >
->> > This is a valid piece of API that is exported for future use.
->>
->> Let me guess: autofsng?
->>...
->
-> I grepped through autofsng-0.4 but didn't find any usage.
+Another!  Sorry, you're way ahead of me...
 
-Did you just blindly grep the userspace tarball?
+On Fri, 4 Mar 2005, Christoph Lameter wrote:
+> On Thu, 3 Mar 2005, Andrew Morton wrote:
+> 
+> > A fix would be to restore the get_page() if CONFIG_DEBUG_PAGEALLOC.  Not
+> > particularly glorious..
+> 
+> Here is the unglorious solution. It also requies that
+> CONFIG_ATOMIC_TABLE_OPS not be used together with CONFIG_DEBUG_PAGEALLOC
+> (handled in the following patch):
 
-There is no kernel code in there.  It's all in linux-2.6.*-autofsng-*.patch.
+Nacked for the same reason as just given to earlier version.  Ugly too.
 
-Mike Waychison
-
+Hugh

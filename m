@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266540AbTCDXLh>; Tue, 4 Mar 2003 18:11:37 -0500
+	id <S262201AbTCDXYT>; Tue, 4 Mar 2003 18:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266622AbTCDXLh>; Tue, 4 Mar 2003 18:11:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:57256 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266540AbTCDXLg>;
-	Tue, 4 Mar 2003 18:11:36 -0500
-Date: Tue, 4 Mar 2003 15:18:04 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Mark Wong <markw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.63-mm2
-Message-Id: <20030304151804.259a6473.akpm@digeo.com>
-In-Reply-To: <1046819184.12936.100.camel@ibm-b>
-References: <20030302180959.3c9c437a.akpm@digeo.com>
-	<1046815078.12931.79.camel@ibm-b>
-	<20030304140918.4092f09b.akpm@digeo.com>
-	<1046819184.12936.100.camel@ibm-b>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Mar 2003 23:21:58.0975 (UTC) FILETIME=[DA98B4F0:01C2E2A4]
+	id <S264748AbTCDXYT>; Tue, 4 Mar 2003 18:24:19 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:45822 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id <S262201AbTCDXYR> convert rfc822-to-8bit;
+	Tue, 4 Mar 2003 18:24:17 -0500
+content-class: urn:content-classes:message
+Subject: Re: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
+Date: Tue, 4 Mar 2003 15:33:56 -0800
+Message-ID: <E88224AA79D2744187E7854CA8D9131DA8B7DE@fmsmsx407.fm.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+Thread-Index: AcLipoZHL+iRGtFHQOK6VLClIRUugw==
+From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <kai.bankett@ontika.net>, <mingo@redhat.com>, <akpm@diago.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+X-OriginalArrivalTime: 04 Mar 2003 23:33:56.0713 (UTC) FILETIME=[8666D590:01C2E2A6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Wong <markw@osdl.org> wrote:
->
-> Reverting to Linus's 2.5.63 tree produces the same problem for me.  I
-> had thought I tried it before, but it turns out I was running 2.5.62. 
-> 2.5.62's aic7xxx_old is good for me.
+Hi Andrew, Kai,
 
-There are no significant differences in that driver between .62 and .63.  So
-I am assuming that 2.5.62 works, 2.5.63 doesn't, and that you have not
-actually tried 2.5.62's aic7xxx_old in a 2.5.63 tree?
+  The bouncing is seen because of the round robin IRQ distribution in
+some 
+particular cases. In some cases, (such as single heavy interrupt source
+in 
+a 2way SMP system) binding heavy interrupt sources to different cpus is
+not 
+going to remove the complete imbalance. In that case we fall back to
+Ingo's 
+round robin approach. We have studied the previous round robin interrupt
 
-If so, don't bother - it won't make any difference.  Looks like someone broke
-something in scsi core which colaterally damaged aic7xxx_old.  I suggest you
-feed it into bugme for now.
+distribution implemented in the kernel, and we found that, at very high 
+interrupt rate, the performance of the system increased with the
+increasing 
+period of the round robin distribution. Please see the original LKML
+posting 
+for more details. 
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0212.2/1122.html 
+
+So when if there is significant imbalance left after binding the IRQs to
+cpus, 
+there are two options now,
+
+  1. Do not move around. Let the significant imbalance stick on a
+particular 
+     cpu.
+
+  2. Or move the heavy imbalance around all the cpus in the round robin 
+     fashion at high rate.
+
+Also we can have either of the option configurable in the kernel.
+
+Both the solutions will eliminate the bouncing behavior. The current 
+implementation is based on the option 2, with the only difference of 
+lower rate of distribution (5 sec).  The optimal option is workload 
+dependant. With static and heavy interrupt load, the option 2 looks 
+better, while with random interrupt load the option 1 is good enough.
+
+Thanks & Regards,
+Nitin
 
 

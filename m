@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262408AbSJKIEs>; Fri, 11 Oct 2002 04:04:48 -0400
+	id <S262422AbSJKIRb>; Fri, 11 Oct 2002 04:17:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSJKIEr>; Fri, 11 Oct 2002 04:04:47 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:33931 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S262408AbSJKIEr>;
-	Fri, 11 Oct 2002 04:04:47 -0400
-Date: Fri, 11 Oct 2002 01:10:33 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Message-ID: <20021011081033.GA29765@tapu.f00f.org>
-References: <20021010224739.GB2673@matchmail.com> <Pine.LNX.4.44.0210102214060.16542-100000@innerfire.net>
+	id <S262428AbSJKIRb>; Fri, 11 Oct 2002 04:17:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51215 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262422AbSJKIRa>; Fri, 11 Oct 2002 04:17:30 -0400
+Date: Fri, 11 Oct 2002 09:23:14 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH][2.5] serial8250_init premature release
+Message-ID: <20021011092314.A3062@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0210110034170.13310-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210102214060.16542-100000@innerfire.net>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210110034170.13310-100000@montezuma.mastecende.com>; from zwane@linuxpower.ca on Fri, Oct 11, 2002 at 12:35:41AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 10:14:37PM -0400, Gerhard Mack wrote:
+On Fri, Oct 11, 2002 at 12:35:41AM -0400, Zwane Mwaikambo wrote:
+> --- linux-2.5.41-mm/drivers/serial/8250.c.orig	2002-10-11 00:33:09.000000000 -0400
+> +++ linux-2.5.41-mm/drivers/serial/8250.c	2002-10-11 00:33:11.000000000 -0400
+> @@ -2051,7 +2051,7 @@
+>  }
+>  #endif
+>  
+> -int __init serial8250_init(void)
+> +int serial8250_init(void)
+>  {
+>  	int ret, i;
+>  	static int didit = 0;
+> 
 
-> Correct however it seems to be what shoves everything out of the
-> cache every night.
+This doesn't apply to my tree.  serial8250_init should not be called at
+any other time than initialisation.
 
-Because it reads all your metadata ... O_STREAMING won't help here.
-
-
-  --cw
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

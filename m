@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317772AbSHUDSm>; Tue, 20 Aug 2002 23:18:42 -0400
+	id <S317778AbSHUDVy>; Tue, 20 Aug 2002 23:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317778AbSHUDSm>; Tue, 20 Aug 2002 23:18:42 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:62212 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S317772AbSHUDSl>; Tue, 20 Aug 2002 23:18:41 -0400
-Date: Wed, 21 Aug 2002 11:21:04 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Erik Andersen <andersen@codepoet.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S317782AbSHUDVy>; Tue, 20 Aug 2002 23:21:54 -0400
+Received: from codepoet.org ([166.70.99.138]:22726 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S317778AbSHUDVx>;
+	Tue, 20 Aug 2002 23:21:53 -0400
+Date: Tue, 20 Aug 2002 21:26:02 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Chua <jchua@fedex.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.20-pre4 + LVM = hosed /proc/partitions
-In-Reply-To: <20020821030430.GA11994@codepoet.org>
-Message-ID: <Pine.LNX.4.44.0208211118270.6828-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/21/2002
- 11:22:29 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/21/2002
- 11:22:46 AM,
-	Serialize complete at 08/21/2002 11:22:46 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020821032601.GA12306@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Chua <jchua@fedex.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20020821030430.GA11994@codepoet.org> <Pine.LNX.4.44.0208211118270.6828-100000@boston.corp.fedex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208211118270.6828-100000@boston.corp.fedex.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed Aug 21, 2002 at 11:21:04AM +0800, Jeff Chua wrote:
+> 
+> On Tue, 20 Aug 2002, Erik Andersen wrote:
+> 
+> > On Tue Aug 20, 2002 at 08:27:32PM -0600, Erik wrote:
+> > > Try compiling CONFIG_BLK_DEV_LVM into 2.4.20-pre4 and then run
+> > > 'cat /proc/partitions' for some amusement. I really like the way
+> >
+> > It also seems to occur for md and ataraid.
+> 
+> You should consider switching to LVM2. LVM2 doesn't have such problem, and
+> it seems more stable too.
 
-On Tue, 20 Aug 2002, Erik Andersen wrote:
+I'm not actually using it.  Just compiled it in and saw wierd
+stuff happening...
 
-> On Tue Aug 20, 2002 at 08:27:32PM -0600, Erik wrote:
-> > Try compiling CONFIG_BLK_DEV_LVM into 2.4.20-pre4 and then run
-> > 'cat /proc/partitions' for some amusement. I really like the way
->
-> It also seems to occur for md and ataraid.
+ -Erik
 
-You should consider switching to LVM2. LVM2 doesn't have such problem, and
-it seems more stable too.
-
-Jeff
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266989AbRGYPgr>; Wed, 25 Jul 2001 11:36:47 -0400
+	id <S267014AbRGYPl5>; Wed, 25 Jul 2001 11:41:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266997AbRGYPgi>; Wed, 25 Jul 2001 11:36:38 -0400
-Received: from [24.229.53.66] ([24.229.53.66]:46854 "HELO
-	bbserver1.backbonesecurity.com") by vger.kernel.org with SMTP
-	id <S266989AbRGYPg1> convert rfc822-to-8bit; Wed, 25 Jul 2001 11:36:27 -0400
-Subject: device struct
+	id <S267003AbRGYPlr>; Wed, 25 Jul 2001 11:41:47 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:62735 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S266999AbRGYPl3>; Wed, 25 Jul 2001 11:41:29 -0400
+Date: Wed, 25 Jul 2001 17:41:24 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Edouard Soriano <e_soriano@dapsys.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Forum for Databases and DB2
+In-Reply-To: <20010725.6201100@dap21.dapsys.ch>
+Message-ID: <Pine.LNX.4.30.0107251732490.10690-100000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Wed, 25 Jul 2001 11:44:59 -0400
-content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-Message-ID: <94FD5825A793194CBF039E6673E9AFE0C017@bbserver1.backbonesecurity.com>
-Thread-Topic: Athlon/MSI mobo combo broken?
-Thread-Index: AcEVHst262Ws5pN2RvOR70tAxsqSRAAAJvRA
-From: "David CM Weber" <dweber@backbonesecurity.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I'm looking at some old (circa v2.2.5 of the kernel) sample code,
-referring to the networking system. It refers to a structure named
-"device".  Was this replaced with something else?  
+On Wed, 25 Jul 2001, Edouard Soriano wrote:
 
-On a similar note, is there a "good" way of finding this data myself?
-I've been using ctags, and this is of limited use. (Sometimes good,
-sometimes bad).
+> I am configuring DB2 7.1 on a Linux system RedHat 7.1
+> and I am having a real pain about.
+> 
+> I applied recommendations described in
+> www.liuxdoc.org/HOWTO/DB2-HOWTO/jdkinstall.html
+> 
+> but when starting the Control Center (db2cc) Java 
+> bumps.
 
-Thanks for bearing with me,
+The Control Center is not a vital part, you can live just fine without it.
+Unless you have a strong urge to click on things ... :)
 
 
-Dave Weber
-Backbone Security, Inc.
+> Is there another linux forum covering DB2 on Linux I
+> can address to share experiences ?
+
+Search on www.google.com, if you haven't already.
+
+IBM has a few newsgroups, related to db2 as well as other IBM stuff. If
+you don't have local news access, they should be available at
+news.software.ibm.com.
+
+/Urban
+

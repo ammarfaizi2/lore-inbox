@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285007AbRLKMhS>; Tue, 11 Dec 2001 07:37:18 -0500
+	id <S285015AbRLKMhS>; Tue, 11 Dec 2001 07:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285016AbRLKMhK>; Tue, 11 Dec 2001 07:37:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15633 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285007AbRLKMgw>; Tue, 11 Dec 2001 07:36:52 -0500
-Subject: Re: Exporting GPLONLY symbols (Please CC to my email address)
-To: "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu
-Date: Tue, 11 Dec 2001 12:46:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20011210224156.E14022@po.cwru.edu> from "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu at Dec 10, 2001 10:41:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S285014AbRLKMhL>; Tue, 11 Dec 2001 07:37:11 -0500
+Received: from mail012.syd.optusnet.com.au ([203.2.75.172]:55247 "EHLO
+	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S285015AbRLKMg4>; Tue, 11 Dec 2001 07:36:56 -0500
+Date: Tue, 11 Dec 2001 23:36:18 +1100
+From: Andrew Clausen <clausen@gnu.org>
+To: Christoph Hellwig <hch@caldera.de>, Kevin Corry <corryk@us.ibm.com>,
+        evms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: gendisk list access (was: [Evms-devel] Unresolved symbols)
+Message-ID: <20011211233618.B982@gnu.org>
+In-Reply-To: <OFCE7B6713.9A6E1AF1-ON85256B02.004FB1C4@raleigh.ibm.com> <20011112173217.A3404@caldera.de> <01120514525902.13647@boiler> <20011205225346.A7313@caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DmIZ-0005JQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011205225346.A7313@caldera.de>; from hch@caldera.de on Wed, Dec 05, 2001 at 10:53:46PM +0100
+X-Accept-Language: en,pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> eventually be exported as GPLONLY will also no longer work.  Do you guys
-> really want to restrict everyone to using modules licensed under the
-> GPL?  I've read and understand the GPL all too well, and came to the
-> conclusion that it's a horrible license to begin with, given the simple
-> fact that Stallman's communist views are in it, forcing everything
+On Wed, Dec 05, 2001 at 10:53:46PM +0100, Christoph Hellwig wrote:
+>  - each block queue gets a pointer to be used for partitioning, this will
+>    be opaque to the drivers.
 
-		_---________---__________
-               |                         }
-              /    DO NOT FEED THE TROLL \
-              \____                    __/
-                   -------------------`
-                           |#:|
-                           |#:|
-                           |#:|
-                        \\\|#:|/ /
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Yuck!
+
+Why do you want a reference to partitions?
+
+IMHO: the whole major/minor thing is butt ugly for partitions.
+
+Of course, I have no intention of implementing this, but I think:
+
+* there should be an IDE major, and a SCSI major, etc.
+(or perhaps just a hard disk major?  it's rather ugly exposing
+the difference, but at times useful)
+
+* so, if the IDE major was 2, then major2/minor0 is the first hard
+disk, major2/minor1 the second, etc...
+
+* partition tables get the same interface as LVM.  (partition tables
+are really like VGs, that only permit one PV)
+
+Actually, it's really already implemented (!).  Just use LVM2.
+It would be trivial for me to get parted to tell LVM2 to recognize
+partition tables.  (and also trivial, but slightly more painful,
+to port the existing ptables in the kernel)
+
+Also, this is 100% compatible with corry's desire to "let EVMS
+handle it".
+
+Andrew
+
+PS sorry for the delay.  My server died a few hours before I left for
+Brazil...

@@ -1,139 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261415AbSJIH4w>; Wed, 9 Oct 2002 03:56:52 -0400
+	id <S261287AbSJIIEp>; Wed, 9 Oct 2002 04:04:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261450AbSJIH4w>; Wed, 9 Oct 2002 03:56:52 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46979 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261415AbSJIH4v>;
-	Wed, 9 Oct 2002 03:56:51 -0400
-Date: Wed, 9 Oct 2002 10:12:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.40-mm2
-In-Reply-To: <3DA30B28.8070504@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210091009020.6815-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261456AbSJIIEp>; Wed, 9 Oct 2002 04:04:45 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:18348 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261287AbSJIIEo>;
+	Wed, 9 Oct 2002 04:04:44 -0400
+Date: Wed, 9 Oct 2002 18:10:03 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Dike <jdike@karaya.com>
+Subject: [PATCH] make do_signal static on i386
+Message-Id: <20021009181003.022da660.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-On Tue, 8 Oct 2002, Dave Hansen wrote:
+This patch makes do_signal static in arch/i386/kernel/signal.c which
+means its declaration can be removed from asm-i386/signal.h which may
+help Jeff out with UML.
 
-> Hehe.  That'll teach me to be optimistic.  This is unprocessed, but the
-> EIP in tvec_bases should tell the whole story.  Something _nasty_ is
-> going on.
+I am not sure whether we need the FASTCALL() or whether the change
+in the comment in asm-um/signal.h makes sense.  (Does UML work on
+x86_64, yet?)
 
-could you try BK-curr with/without my latest patch? Linus and Vojtech
-found and fixed a bug in the keyboard code that caused timer tasklet
-oopses.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-if it still keeps crashing then please add a printk like this:
-
-	if (!fn)
-		printk("Bad: NULL timer fn of timer %p (data %p).\n", 
-				timer, data);
-	else
-		fn(data)
-
-it's the fn's NULL-ness that causes the crashes, right?
-
-	Ingo
-
---- linux/kernel/timer.c.orig	2002-10-08 12:39:46.000000000 +0200
-+++ linux/kernel/timer.c	2002-10-08 12:49:50.000000000 +0200
-@@ -266,29 +266,31 @@
- int del_timer_sync(timer_t *timer)
- {
- 	tvec_base_t *base = tvec_bases;
--	int i, ret;
-+	int i, ret = 0;
+diff -ruN 2.5.41-1.715/arch/i386/kernel/signal.c 2.5.41-1.715-si.1/arch/i386/kernel/signal.c
+--- 2.5.41-1.715/arch/i386/kernel/signal.c	2002-10-02 11:23:54.000000000 +1000
++++ 2.5.41-1.715-si.1/arch/i386/kernel/signal.c	2002-10-09 17:52:15.000000000 +1000
+@@ -27,6 +27,8 @@
  
--	ret = del_timer(timer);
-+del_again:
-+	ret += del_timer(timer);
+ #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
  
--	for (i = 0; i < NR_CPUS; i++) {
-+	for (i = 0; i < NR_CPUS; i++, base++) {
- 		if (!cpu_online(i))
- 			continue;
- 		if (base->running_timer == timer) {
- 			while (base->running_timer == timer) {
- 				cpu_relax();
--				preempt_disable();
--				preempt_enable();
-+				preempt_check_resched();
- 			}
- 			break;
- 		}
--		base++;
- 	}
-+	if (timer_pending(timer))
-+		goto del_again;
++static int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
 +
- 	return ret;
- }
- #endif
- 
- 
--static void cascade(tvec_base_t *base, tvec_t *tv)
-+static int cascade(tvec_base_t *base, tvec_t *tv)
- {
- 	/* cascade all the timers from tv up one level */
- 	struct list_head *head, *curr, *next;
-@@ -310,7 +312,8 @@
- 		curr = next;
- 	}
- 	INIT_LIST_HEAD(head);
--	tv->index = (tv->index + 1) & TVN_MASK;
-+
-+	return tv->index = (tv->index + 1) & TVN_MASK;
- }
- 
- /***
-@@ -322,26 +325,18 @@
+ /*
+  * Atomically swap in the new signal mask, and wait for a signal.
   */
- static inline void __run_timers(tvec_base_t *base)
+@@ -545,7 +547,7 @@
+  * want to handle. Thus you cannot kill init even with a SIGKILL even by
+  * mistake.
+  */
+-int do_signal(struct pt_regs *regs, sigset_t *oldset)
++static int do_signal(struct pt_regs *regs, sigset_t *oldset)
  {
--	unsigned long flags;
--
--	spin_lock_irqsave(&base->lock, flags);
-+	spin_lock_irq(&base->lock);
- 	while ((long)(jiffies - base->timer_jiffies) >= 0) {
- 		struct list_head *head, *curr;
+ 	siginfo_t info;
+ 	int signr;
+diff -ruN 2.5.41-1.715/include/asm-i386/signal.h 2.5.41-1.715-si.1/include/asm-i386/signal.h
+--- 2.5.41-1.715/include/asm-i386/signal.h	2002-01-31 07:12:46.000000000 +1100
++++ 2.5.41-1.715-si.1/include/asm-i386/signal.h	2002-10-09 17:54:28.000000000 +1000
+@@ -2,7 +2,6 @@
+ #define _ASMi386_SIGNAL_H
  
- 		/*
- 		 * Cascade timers:
- 		 */
--		if (!base->tv1.index) {
--			cascade(base, &base->tv2);
--			if (base->tv2.index == 1) {
--				cascade(base, &base->tv3);
--				if (base->tv3.index == 1) {
--					cascade(base, &base->tv4);
--					if (base->tv4.index == 1)
--						cascade(base, &base->tv5);
--				}
--			}
--		}
-+		if (!base->tv1.index &&
-+			(cascade(base, &base->tv2) == 1) &&
-+				(cascade(base, &base->tv3) == 1) &&
-+					cascade(base, &base->tv4) == 1)
-+			cascade(base, &base->tv5);
- repeat:
- 		head = base->tv1.vec + base->tv1.index;
- 		curr = head->next;
-@@ -370,7 +365,7 @@
- #if CONFIG_SMP
- 	base->running_timer = NULL;
- #endif
--	spin_unlock_irqrestore(&base->lock, flags);
-+	spin_unlock_irq(&base->lock);
+ #include <linux/types.h>
+-#include <linux/linkage.h>
+ 
+ /* Avoid too many header ordering problems.  */
+ struct siginfo;
+@@ -217,9 +216,6 @@
+ 	return word;
  }
  
- /******************************************************************/
-
+-struct pt_regs;
+-extern int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
+-
+ #endif /* __KERNEL__ */
+ 
+ #endif
+diff -ruN 2.5.41-1.715/include/asm-um/signal.h 2.5.41-1.715-si.1/include/asm-um/signal.h
+--- 2.5.41-1.715/include/asm-um/signal.h	2002-09-16 13:40:57.000000000 +1000
++++ 2.5.41-1.715-si.1/include/asm-um/signal.h	2002-10-09 17:56:20.000000000 +1000
+@@ -6,7 +6,7 @@
+ #ifndef __UM_SIGNAL_H
+ #define __UM_SIGNAL_H
+ 
+-/* Need to kill the do_signal() declaration in the i386 signal.h */
++/* Need to kill the do_signal() declaration in the x86_64 signal.h */
+ 
+ #define do_signal do_signal_renamed
+ #include "asm/arch/signal.h"

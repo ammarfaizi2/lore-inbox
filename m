@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318147AbSGWSDH>; Tue, 23 Jul 2002 14:03:07 -0400
+	id <S318156AbSGWSMR>; Tue, 23 Jul 2002 14:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318156AbSGWSDH>; Tue, 23 Jul 2002 14:03:07 -0400
-Received: from ns.suse.de ([213.95.15.193]:41230 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318147AbSGWSDA>;
-	Tue, 23 Jul 2002 14:03:00 -0400
-Date: Tue, 23 Jul 2002 20:06:04 +0200
-From: Andi Kleen <ak@suse.de>
-To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-Cc: "'Andi Kleen'" <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with msync system call
-Message-ID: <20020723200604.A10501@wotan.suse.de>
-References: <EE83E551E08D1D43AD52D50B9F511092E114A4@ntserver2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <EE83E551E08D1D43AD52D50B9F511092E114A4@ntserver2>
-User-Agent: Mutt/1.3.22.1i
+	id <S318162AbSGWSMR>; Tue, 23 Jul 2002 14:12:17 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:54726 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S318156AbSGWSMQ>; Tue, 23 Jul 2002 14:12:16 -0400
+Date: Tue, 23 Jul 2002 20:15:48 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Daniel McNeil <daniel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc2aa1 i_size atomic access
+In-Reply-To: <20020723174712.GB1117@dualathlon.random>
+Message-ID: <Pine.GSO.3.96.1020723201042.3586B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 08:45:07PM +0200, Gregory Giguashvili wrote:
-> >Do a F_SETFL lock/unlock on the file  That should act as a 
-> >full NFS write barrier and flush all buffers. Best is if you synchronize 
-> >between the various writers with the full lock.
-> 
-> Do you mean F_SETLK? If so, this didn't help (the source is attached).
+On Tue, 23 Jul 2002, Andrea Arcangeli wrote:
 
-F_SETLK sorry.
+> diff -urNp race/include/asm-i386/system.h race-fix/include/asm-i386/system.h
+> --- race/include/asm-i386/system.h	Tue Jul 23 18:46:44 2002
+> +++ race-fix/include/asm-i386/system.h	Tue Jul 23 18:47:10 2002
+> @@ -143,6 +143,8 @@ struct __xchg_dummy { unsigned long a[10
+>  #define __xg(x) ((struct __xchg_dummy *)(x))
+>  
+>  
+> +#ifdef CONFIG_X86_CMPXCHG
+> +#define __ARCH_HAS_GET_SET_64BIT 1
+>  /*
+>   * The semantics of XCHGCMP8B are a bit strange, this is why
+>   * there is a loop and the loading of %%eax and %%edx has to
+> @@ -167,7 +169,7 @@ static inline void __set_64bit (unsigned
+>  		"lock cmpxchg8b (%0)\n\t"
+>  		"jnz 1b"
+>  		: /* no outputs */
+> -		:	"D"(ptr),
+> +		:	"r"(ptr),
+>  			"b"(low),
+>  			"c"(high)
+>  		:	"ax","dx","memory");
 
-You need to do it on both reader and writer. On the writer it acts
-like a fsync(), on the reader it should clear the cache.
+ The condition is invalid, "cmpxchg" != "cmpxchg8b" and CONFIG_X86_CMPXCHG
+is (correctly) set for the i486 which doesn't support the latter.  You
+probably need a separate option, e.g. CONFIG_X86_CMPXCHG8B, and verify the
+presence of the instruction with the feature flags if the option is set
+(check_config() seems the right place).
 
-I think the problem in your case is that you have the pages mmaped.
-NFS uses invalidate_inode_pages() to throw away the cache, but that
-doesn't work when the pages are mapped. It may work to munmap/mmap
-around the locking.
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-In theory with rmap (=2.5) the kernel could do that unmap/remap for you,
-but it will be probably non trivial to implement.
-
--Andi

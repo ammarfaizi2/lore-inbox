@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbUJ1QCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbUJ1QSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbUJ1QCS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 12:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbUJ1P7S
+	id S261742AbUJ1QSV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 12:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1QSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:59:18 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:25818 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261742AbUJ1Puh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:50:37 -0400
-Date: Thu, 28 Oct 2004 08:49:34 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: NUMA node swapping V3
-In-Reply-To: <1275120000.1098978003@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.58.0410280845520.25586@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0410280820500.25586@schroedinger.engr.sgi.com>
- <1275120000.1098978003@[10.10.2.4]>
+	Thu, 28 Oct 2004 12:18:20 -0400
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:3849 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S261722AbUJ1QQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 12:16:03 -0400
+Message-ID: <41811C3B.2020700@kolumbus.fi>
+Date: Thu, 28 Oct 2004 19:20:11 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Lameter <clameter@sgi.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: NUMA node swapping V3
+References: <Pine.LNX.4.58.0410280820500.25586@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0410280820500.25586@schroedinger.engr.sgi.com>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 28.10.2004 19:17:21,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 28.10.2004 19:18:06,
+	Serialize complete at 28.10.2004 19:18:06
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004, Martin J. Bligh wrote:
 
-> I thought even the SGI people were saying this wouldn't actually help you,
-> due to some workload issues?
+> 	if (pg == orig) {
+> 		z->pageset[cpu].numa_hit++;
+>+		/*
+>+		 * If zone allocation has left less than
+>+		 * (sysctl_node_swap / 10) %  of the zone free invoke kswapd.
+>+		 * (the page limit is obtained through (pages*limit)/1024 to
+>+		 * make the calculation more efficient)
+>+		 */
+>+		if (z->free_pages < (z->present_pages * sysctl_node_swap) << 10)
+>+			wakeup_kswapd(z);
+> 	} else {
+> 		p->numa_miss++;
+> 		zonelist->zones[0]->pageset[cpu].numa_foreign++;
+>Index: linux-2.6.9/kernel/sysctl.c
+>===================================================================
+>  
+>
 
-Our tests show that this does indeed address the issue. There may still be
-some off node allocation while kswapd is starting up which causes some
-objections but avoiding these would mean significant modifications to
-__alloc_pages. This is a fix until a better solution can be found which I
-would estimate to be 3-6 months down the road given the difficulties
-getting vm changes into the kernel.
+I think you mean >> 10 though.
+
+--Mika
+
+

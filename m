@@ -1,124 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbUJ1JC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUJ1JI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262841AbUJ1JC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 05:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbUJ1JC3
+	id S262837AbUJ1JI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 05:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbUJ1JI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 05:02:29 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:23562 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S262842AbUJ1JBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 05:01:13 -0400
-Date: Thu, 28 Oct 2004 11:07:07 +0200
-To: Timothy Miller <miller@techsource.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Message-ID: <20041028090707.GA13523@hh.idb.hist.no>
-References: <4176E08B.2050706@techsource.com> <9e4733910410201808c0796c8@mail.gmail.com> <Pine.GSO.4.61.0410222209410.11567@waterleaf.sonytel.be> <417984A9.2070305@techsource.com> <20041024104520.GB12665@hh.idb.hist.no> <417D2027.5000306@techsource.com>
+	Thu, 28 Oct 2004 05:08:56 -0400
+Received: from colino.net ([213.41.131.56]:17905 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262837AbUJ1JIy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 05:08:54 -0400
+Date: Thu, 28 Oct 2004 11:07:31 +0200
+From: Colin Leroy <colin@colino.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sf.net
+Subject: Re: [linux-usb-devel] 2.6.10-rc1 OHCI usb error messages
+Message-ID: <20041028110731.74ac5eb5.colin@colino.net>
+In-Reply-To: <200410271559.37540.david-b@pacbell.net>
+References: <20041026172843.6ac07c1a.colin@colino.net>
+	<200410260905.14869.david-b@pacbell.net>
+	<20041027110756.3217ed68.colin@colino.net>
+	<200410271559.37540.david-b@pacbell.net>
+X-Mailer: Sylpheed-Claws 0.9.12cvs132.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <417D2027.5000306@techsource.com>
-User-Agent: Mutt/1.5.6+20040722i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 11:47:51AM -0400, Timothy Miller wrote:
+On 27 Oct 2004 at 15h10, David Brownell wrote:
+
+Hi, 
+
+> You're not reporting that it fails to activate when there's an
+> active device connected; and you obviously enabled CONFIG_PM,
+> which Kconfig says means that
 > 
-> >I can't see how it is "vital", or even makes a difference at all.
-> >Other than upping the price a bit.  The pc doesn't need VGA compatibility
-> >to boot - because you supply a video bios.  The mainboard bios
-> >uses the video bios. (There have been pc's with ibm-incompatible
-> >displays before)
-> >Linux d(and other open os'es) doesn�'t need VGA at all, because 
-> >you supply docs.  You probably won't even have to write the driver
-> >yourself.
-> >Windows doesn't need VGA - if you supply a windows driver.  That
-> >shouldn�'t be hard to do.  
+> 	... parts of your computer are shut off or put into a
+> 	power conserving "sleep" mode if they are not being used.
 > 
+> So:  since it's not being actively used then, why shouldn't the
+> root hub (or any other device) be suspended?  During boot, or at
+> any other time.  So long as it works when you plug in a USB device,
+> it looks to me like everything is behaving quite reasonably.
+
+That's right. Just that it didn't do so previously, so i didn't think 
+of that.
+
+> > At least, it's not on 2.6.9. Also, 
+> > lsusb -v fails with long timeouts due to that on 2.6.10-rc1, 
+> > not on 2.6.9.
 > 
-> We have a number of cards which do not support VGA, and a few years ago, 
-> I experimented with the idea of writing a VGA BIOS which emulated the 
-> VGA text screen in software.
-> 
-> What I discovered was that absolutely everything, including the DOS 
-> shell, expects there to be REAL VGA (or CGA or whatever) hardware there, 
+> I've never observed "lsusb" ever timing out when accessing a
+> suspended USB device; the URB submissions fail right away.
 
-Remember who you're talking to. :-)
-VGA, (or at least CGA) may indeed be necessary to run dos.
-(Well, dos 2.11 ran fine on the incomptaible DEC rainbow...)
-So if you need dos compatibility - sure.  
+Strange. Something else maybe...
 
-But this is the linux kernel list - you asked what the
-open source community want.  We _really_ don't care about dos.
-And I believe this is true for many others too - dos _is_ dead.
-Even the microsoft fans use windows exclusively.
-So don't worry about dos - it is such a niche os today.
+> So if something's timing out, it's for some other reason.
+> (Such as bugs in "lsusb"; the "usbutils" package is overdue
+> for a new release, it's changed a lot since the 0.11 tarball
+> that's widely available.)
 
-> so hooking int 10 just did not do the job... it practically never got 
-> called.  What I ended up doing was hooking the timer interrupt and 
-> comparing the text screen against a shadow copy.  That worked very well 
-> for most DOS applications... except for those which tried to do anything 
-> in protected mode.  The instant an OS switched to protected mode, the 
-> interrupt handler got blown away and the display froze.
+Yes, btw, I once sent a patch about lsusb endianness problems, and didn't
+hear anything back about it. I ended up sending the patch to the gentoo
+guys so that at least my distro is fixed:
 
-Sure - but who's running dos these days?  Is there any market share
-in _dos_?  And there is freedos, for which the source code is
-available and free.  So if you really need dos for something,
-(such as flashing mainboard bioses?) then add the necessary support
-to freedos. 
- 
-> Then we though we'd put a proper driver into the OS, but the problem is 
-> that in Windows and Solaris, the console driver doesn't kick in until 
-> WAY late in the boot process, so you end up with a useless console for 
-> THE MAJORITY of the boot process.
-> 
-> For Windows, there is a requirement for 640x480x4 and some 320x480x?? 
-> mode to be supported by the hardware using the standard VGA IO space 
-> registers.  That is, IF you want a console.  Yes, you can boot without 
-> VGA, but your screen is blank until the driver kicks in, so if there's a 
-> PROBLEM, you're hosed.
-
-Sure - that could be a problem.  This depends on how much you want to
-sell to windows users.  We linux users, and other open source users,
-don't worry that much about windows console deficiencies.  
-Particularly considering how the common windows user doesn't use his
-console anyway - ms hides everything behind a pretty "Please wait,
-windows is starting" screen. And they reinstall if something goes wrong :-/
-
-You are sure that an "early boot" console driver for windows is impossible?
-Ms provides no clue about replacing this thing?  Rendering text onto vga
-must be done somewhere, possibly in a library that could be replaced.
-
-> 
-> VGA is so "expected" that pretty much everything just assumes it's there 
-> and bangs on the hardware directly.
-
-So it is a question of what you want to support, and how numerous
-these VGA users are.  Perhaps you won't have to implement _all_
-of VGA though - that might save space in your FPGA.  Full VGA have some
-rarely used oddball modes and features - and backwards compatibility
-cruft.  Who needs the EGA modes or ability to load textmode
-fonts for example - when all the user need is to see some
-boot messages before the real driver takes over.
-
-If you go for VGA, then I hope the VGA bits will be
-somewhat optional or possible to disable, so the VGA bits
-doesn�'t get in the way when trying to use several cards
-simultaneously.  You may make cards that cooperate nicely with
-each other - but there may be other card(s) in the machine
-too that also mess with VGA registers at strange times.
-
-If VGA is implemented entirely in the FPGA then perhaps there
-will be alternate FPGA firmwares for different purposes. (Surely
-cheaper than making different boards).  One variant could
-be VGA-less, the space may then be used for other purposes. An 
-extra 3D-unit of some sort perhaps. :-)
-
-Helge Hafting
-
+http://bugs.gentoo.org/show_bug.cgi?id=43565
+-- 
+Colin

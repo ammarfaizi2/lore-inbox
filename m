@@ -1,111 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279321AbRKFN7e>; Tue, 6 Nov 2001 08:59:34 -0500
+	id <S279326AbRKFOAy>; Tue, 6 Nov 2001 09:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279326AbRKFN7Z>; Tue, 6 Nov 2001 08:59:25 -0500
-Received: from [194.51.220.145] ([194.51.220.145]:62171 "EHLO emeraude")
-	by vger.kernel.org with ESMTP id <S279321AbRKFN7M>;
-	Tue, 6 Nov 2001 08:59:12 -0500
-Date: Tue, 6 Nov 2001 14:58:22 +0100
-From: Stephane Jourdois <stephane@tuxfinder.org>
-To: Georg Nikodym <georgn@somanetworks.com>
-Cc: LKLM <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMM BIOS on Dell i8100
-Message-ID: <20011106145822.A8159@emeraude.kwisatz.net>
-Reply-To: stephane@tuxfinder.org
-In-Reply-To: <20011105100346.A1511@emeraude.kwisatz.net> <20011105130954.A24310@joshua.mesa.nl> <20011105180124.B17203@emeraude.kwisatz.net> <1004986822.1553.3.camel@keller>
+	id <S279378AbRKFOAt>; Tue, 6 Nov 2001 09:00:49 -0500
+Received: from unthought.net ([212.97.129.24]:3036 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S279326AbRKFOAi>;
+	Tue, 6 Nov 2001 09:00:38 -0500
+Date: Tue, 6 Nov 2001 15:00:37 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011106150037.C3058@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Kai Henningsen <kaih@khms.westfalen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0111041453230.21449-100000@weyl.math.psu.edu> <viro@math.psu.edu> <20011104205030.P14001@unthought.net> <Pine.GSO.4.21.0111041453230.21449-100000@weyl.math.psu.edu> <20011104210936.T14001@unthought.net> <8CKC8L1Hw-B@khms.westfalen.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1004986822.1553.3.camel@keller>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.14-pre8
-X-Send-From: emeraude
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <8CKC8L1Hw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Tue, Nov 06, 2001 at 09:23:00AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 06, 2001 at 09:23:00AM +0200, Kai Henningsen wrote:
+> jakob@unthought.net (Jakob ¥stergaard)  wrote on 04.11.01 in <20011104210936.T14001@unthought.net>:
+> 
+...
+> >
+> > Shell programming is great for small programs. You don't need type
+> > information in the language when you can fit it all in your head.
+> >
+> > Now, go write 100K lines of shell, something that does something that is not
+> > just shoveling lines from one app into a grep and into another app.  Let's
+> > say, a database.  Go implement the next Oracle replacement in bash, and tell
+> > me you don't care about types in your language.
+> 
+> And now look at how large typical /proc-using code parts are. Do they  
+> match better with your first or your second paragraph?
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If you write in C, you need type information.  No matter if it's 5 lines or 50K.
 
-On Mon, Nov 05, 2001 at 02:00:22PM -0500, Georg Nikodym wrote:
-> On Mon, 2001-11-05 at 12:01, Stephane Jourdois wrote:
-> > Hope this helps, and if anybody knows how to implement keysyms, I'm
-> > interested... as long as I don't have to patch XFree86 !
->=20
-> No need.  Here's what I do with xmodmap:
->=20
-> !
-> ! Dell 8000
-> ! I have sawfish map these to
-> ! xmms -u, -s, -r and -f respectively
-> !
-> keycode 129 =3D XF86AudioPlay
-> keycode 130 =3D XF86AudioStop
-> keycode 131 =3D XF86AudioPrev
-> keycode 132 =3D XF86AudioNext
+How many of your shell languages use arbitrary precision arithmetic *always* ?
+If they only do "sometimes" (for some operations) you'll be up shit creek without
+a paddle once some value you thought was 32 bits turns out to be 64, and your
+scripts, lacking type informaiton, handle this error "gracefully" (accounting
+scripts for example where you don't check the output every day, but discover at
+the end of the quarter that you're fucked because you only have the lower 32
+bits of the user's network usage).
 
-And that works indeed !
+My argument with the 100K of shell was more to emphasize that type information
+is necessary in complex systems.
 
-Try :
-	[ `ps -C xmms | wc -l` =3D 7 ] && xmms --pause || xmms --play
-instead of xmms -u. Then you really have Play/Pause...
+Even if you just have 5 lines of Perl, you have a kernel too - it is a complex
+system already.
 
+> 
+> The first?
+> 
+> I thought so.
 
+Well, working for a company that makes a living of reading in /proc (and being
+fairly good at it), it would be more like the second   ;)
 
-For those who use enlightenment... here are the keybindings for it
-(in your .enlightenment/keybindings.cfg, that you copyied from
-/usr/share/enlightenment/config/) :
+But I have also coded for HP-UX, Solaris, NT and others.   I have seen how
+others attack the problems of getting information out of systems, and I can see
+that /proc as it is today is *not* a good answer to that problem.
 
-  __NEXT_ACTION
-    __MODIFIER_KEY __NONE
-    __KEY XF86AudioPlay
-    __EVENT __KEY_PRESS
-    __ACTION __A_EXEC /home/kwisatz/bin/xmms_play
-  __NEXT_ACTION
-    __MODIFIER_KEY __NONE
-    __KEY XF86AudioStop
-    __EVENT __KEY_PRESS
-    __ACTION __A_EXEC xmms --stop
-  __NEXT_ACTION
-    __MODIFIER_KEY __NONE
-    __KEY XF86AudioPrev
-    __EVENT __KEY_PRESS
-    __ACTION __A_EXEC xmms --rew
-  __NEXT_ACTION
-    __MODIFIER_KEY __NONE
-    __KEY XF86AudioNext
-    __EVENT __KEY_PRESS
-    __ACTION __A_EXEC xmms --fwd
+There are worse systems out there than Linux, but there are better ones as
+well.   I see no reason why Linux shouldn't excel in this area too.
 
-/home/kwisatz/bin/xmms_play is a onle-liner (Cf. above)
-
-
-PS : I know this is OT, but as the only mean of those i8k buttons
-is multimedia, I think it's great to learn how to bind them :-)
-
-Stephane
-
---=20
- ///  Stephane Jourdois        	/"\  ASCII RIBBON CAMPAIGN \\\
-(((    Ing=E9nieur d=E9veloppement 	\ /    AGAINST HTML MAIL    )))
- \\\   6, av. de la Belle Image	 X                         ///
-  \\\  94440 Marolles en Brie  	/ \    +33 6 8643 3085    ///
-
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjvn7H4ACgkQk2dpMN4A2NPwfgCfePUqDG0nLnDiIvYjQGDNTWKm
-vegAn2UgMg3duk8DJTl2cuSRd/d+lMAz
-=0vhs
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

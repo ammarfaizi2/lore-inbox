@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269468AbUI3T7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269467AbUI3UCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269468AbUI3T7l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 15:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3T7k
+	id S269467AbUI3UCa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3UAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 15:59:40 -0400
-Received: from p508B778C.dip.t-dialin.net ([80.139.119.140]:41746 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S269468AbUI3T7P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 15:59:15 -0400
-Date: Thu, 30 Sep 2004 21:59:03 +0200
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Thomas Petazzoni <thomas.petazzoni@enix.org>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-       mentre@tcl.ite.mee.com
-Subject: Re: How to handle a specific DMA configuration ?
-Message-ID: <20040930195903.GB4368@linux-mips.org>
-References: <20040928100831.GI27756@enix.org>
+	Thu, 30 Sep 2004 16:00:01 -0400
+Received: from mail.kroah.org ([69.55.234.183]:33465 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269469AbUI3T72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 15:59:28 -0400
+Date: Thu, 30 Sep 2004 12:59:05 -0700
+From: Greg KH <greg@kroah.com>
+To: Andi Kleen <ak@suse.de>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix improper use of pci_module_init() in drivers/char/agp/amd64-agp.c
+Message-ID: <20040930195905.GA18162@kroah.com>
+References: <20040930184248.GA17546@kroah.com> <20040930192008.GA28315@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040928100831.GI27756@enix.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040930192008.GA28315@wotan.suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 12:08:31PM +0200, Thomas Petazzoni wrote:
-
-> My physical memory mapping is a bit special : I have 384 MB of
-> memory. The first 256MB are directly connected to the RM9000, while
-> the last 128MB are connected to the Marvell controller. _Only_ the
-> last 128MB are usable for DMA (especially for network traffic). For
-> the moment, Linux only takes care of the first 256MB, but I can change
-> it to take care of the complete physical memory space (384 MB).
+On Thu, Sep 30, 2004 at 09:20:09PM +0200, Andi Kleen wrote:
+> On Thu, Sep 30, 2004 at 11:42:48AM -0700, Greg KH wrote:
+> > Hi,
+> > 
+> > In going through the tree and auditing the usage of pci_module_init(), I
+> > noticed that the amd64-agp driver was assuming that the return value of
+> > this function could be greater than 0 (which is what could happen in 2.2
+> > and 2.4 kernels.)  As this is no longer true, I think the following
+> > patch is correct.
+> > 
+> > I can add this to my bk-pci tree if you wish, otherwise feel free to
+> > send it upwards.
 > 
-> My problem is the allocation of skbuff. They are allocated using
-> alloc_skb() in net/core/skbuff.c, and uses the "normal" kmalloc()
-> allocator. kmalloc() will allocate memory somewhere in the physical
-> memory space : even if a I allow Linux to allocate memory between
-> 256MB and 384MB, I cannot be sure that it will use memory in this
-> space to allocate skbuff. If skbuff are not allocated in this space,
-> then I can't use DMA to transfer the buffers.
+> There needs to be some replacement for it, you cannot just delete 
+> the code.
+
+But that code has not ever run, since early 2.5 days.  Don't tell me
+people are used to it :)
+
+> The idea is to run it as fallback when no devices are found. 
 > 
-> As I understand the ZONE_DMA thing, it allows to tell Linux that a
-> physical memory region located between 0 and some value (16 MB on PCs
-> for old ISA cards compatibility) is the only area usable for DMA. How
-> could I declare my 256MB-384MB physical memory reagion to be the only
-> area usable for DMA ? How can I tell the skbuff functions to allocate
-> _only_ DMA-able memory ?
+> How about this patch?
 
-ZONE_DMA has a system specific meaning.  On a PCI system ISA could always
-be exist through a PCI-to-ISA bridge, so you can't just go and give it
-a system specific meaning.  It's also needed for PCI devices with a
-less than 32-bit DMA limit; those exist in a rich variety.
+That does not work the way you are asking it to work.  pci_module_init()
+is just a replacement for pci_register_driver these days.  It will
+return either "0" if the driver is successfully registered, or a
+negative value if something bad happened.  It will not return the number
+of devices that this driver bound to.
 
-> Moreover, can I make assumptions on the
-> alignement of final data at the bottom of the network stack (my DMA
-> controller doesn't like the 2 byte-aligned things).
+So, if no devices are in the system, it will return 0, and again, the
+code you are wanting to run, will not.
 
-Well, if you put packets on an aligned address you'll later take a bunch
-of missalignment exceptions which are going to severly impact networking
-performance ...
+So, how about using the new pci_dev_present() call instead?  That should
+be what you want, right?
 
-> At the moment, I see only three solutions. The two first aren't not
-> very satisfying, the third might be a solution, but not perfect
-> neither (and not sure it would work).
+thanks,
 
-Change the configuration of the board to put the MV memory at the bottom.
-Leave ZONE_DMA what it used to be, < 16MB.  Set the ZONE_NORMAL limit to
-128MB.  Anything above that is non-dmable will go into ZONE_HIGHMEM.
-See also CONFIG_LIMITED_DMA in 2.6.  It works, it has little compatibility
-problems but it's a solution for platform that simply doesn't reflect the
-Linux hw architecture very much ...
-
-  Ralf
+greg k-h

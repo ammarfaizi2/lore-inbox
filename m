@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282829AbRLTJVY>; Thu, 20 Dec 2001 04:21:24 -0500
+	id <S282815AbRLTJeY>; Thu, 20 Dec 2001 04:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282823AbRLTJVO>; Thu, 20 Dec 2001 04:21:14 -0500
-Received: from jalon.able.es ([212.97.163.2]:54223 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S282815AbRLTJVC>;
-	Thu, 20 Dec 2001 04:21:02 -0500
-Date: Thu, 20 Dec 2001 10:22:38 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc 3.0.2/kernel details (-O issue)
-Message-ID: <20011220102238.A5957@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.10.10112192037490.3265-100000@luxik.cdi.cz> <1008792213.806.36.camel@phantasy> <20011220001006.GA18071@arthur.ubicom.tudelft.nl> <9vrmhd$mf9$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <9vrmhd$mf9$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Dec 20, 2001 at 04:39:25 +0100
-X-Mailer: Balsa 1.3.0
+	id <S282823AbRLTJeO>; Thu, 20 Dec 2001 04:34:14 -0500
+Received: from olinz-dsl-1316.utaonline.at ([212.152.239.38]:41455 "EHLO
+	falke.mail") by vger.kernel.org with ESMTP id <S282815AbRLTJeH>;
+	Thu, 20 Dec 2001 04:34:07 -0500
+Message-ID: <3C21AE53.F0CF0F20@falke.mail>
+Date: Thu, 20 Dec 2001 10:24:35 +0100
+From: Thomas Winischhofer <tw@webit.com>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+MIME-Version: 1.0
+To: xpert@XFree86.Org, linux-kernel@vger.kernel.org
+Subject: Re: SiS 630 - framebuffer fixed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-MDRemoteIP: 10.0.0.13
+X-Return-Path: tw@webit.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 20011220 H. Peter Anvin wrote:
->Followup to:  <20011220001006.GA18071@arthur.ubicom.tudelft.nl>
->By author:    Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
->In newsgroup: linux.dev.kernel
->> 
->> It doesn't change syntax, but anything lower than -O1 simply doesn't
->> inline functions with an "inline" attribute. The result is that the
->> inline functions in header files won't get inlined and the compiler
->> will complain about missing functions at link time (or module insert
->> time).
->> 
->> I'm actually surprised that 2.2 can be compiled with -O, AFAIK
->> linux-2.2 also has a lot of inline functions in headers. I know from
->> experience that -Os works for 2.4 kernels on ARM, I haven't tested it
->> with 2.2 or x86.
->> 
->
->-O is -O1.  If you turn on the optimizer at all you get inlining.
->
+Hi again.
 
-Problem is killing inlined functions. Current kernel relies in the
-real version of the funtion staying there even all its uses have been
-inlined. GCC's before 3 do not do what they are supposed to and do not
-kill the real function. GCC3 kills it in certain cases and build
-crashes. So kernel builds ok with old gcc's because they do not do
-what they are supposed. Hence all the 'extern inline' mesh...
-(plz, correct me if I'm wrong).
+After a few feedbacks on the framebuffer driver, I will do the
+following:
 
-By
+1) For testing reasons, I will include my BIOS in the driver code. 
+
+The reason for this is that I saw that the machines in question partly
+have old video BIOSes (mine has a 2.xx.x while I saw one guy with
+1.06.x; that old BIOS isn't even detected as a VESA BIOS).
+
+By this measure, I will be able to estimate whether or not the whole
+matter is actually BIOS related or not. If it is, you all may get
+lucky...!
+
+I am aware that this is no permanent solution for copyright reasons, but
+for testing it will do.
+
+2) Further, I will include code to write the video BIOS of a machine to
+disk. All people testing this are being asked to send that file to me
+then. 
+
+Unfortunately, I have to work today, so don't count on a new version
+today.
+
+Thomas
+
+PS: To all people testing the driver (or the X driver): Please send me
+the logs! Some of you actually forgot to do that....
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.17-rc2-beo #2 SMP Wed Dec 19 22:24:29 CET 2001 i686
+Thomas Winischhofer
+Vienna/Austria                  Check it out:
+mailto:tw@webit.com              http://www.webit.com/tw
+

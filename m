@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbUAIEQt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 23:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbUAIEQt
+	id S263834AbUAIEPt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 23:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbUAIEPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 23:16:49 -0500
-Received: from dp.samba.org ([66.70.73.150]:11488 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263898AbUAIEQs (ORCPT
+	Thu, 8 Jan 2004 23:15:49 -0500
+Received: from dp.samba.org ([66.70.73.150]:1759 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263834AbUAIEPt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 23:16:48 -0500
-Date: Fri, 9 Jan 2004 15:15:36 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       ericy@cais.com
-Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity checking
-Message-ID: <20040109041536.GB25504@krispykreme>
-References: <Pine.LNX.4.56.0401090236390.11276@jju_lnx.backbone.dif.dk> <20040108192021.6c2aea60.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040108192021.6c2aea60.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 8 Jan 2004 23:15:49 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] dynamic allocation of huge continuous pages 
+In-reply-to: Your message of "Thu, 08 Jan 2004 20:37:34 +0900."
+             <20040108.203734.122074391.taka@valinux.co.jp> 
+Date: Fri, 09 Jan 2004 14:56:18 +1100
+Message-Id: <20040109041546.5F2B82C071@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20040108.203734.122074391.taka@valinux.co.jp> you write:
+> +		list_for_each(p, &area->free_list) {
+> +			page = list_entry(p, struct page, list);
 
-> I've always had little confidence in the elf loader.  The problem is
-> complex, the code quality is not high and the consequences of an error are
-> severe.
+Just FYI, "list_for_each_entry(page, &area->free_list, list)" is
+shorter and neater.
 
-One thing I noticed is that we only obey execute permission on load
-sections. On ppc32 the PLT is in the bss area and must be executable:
-
-[27] .sbss             PROGBITS        100ba10c 0aa10c 000a14 00  WA 0   0  8
-[28] .plt              PROGBITS        100bab20 0aab20 000834 00 WAX 0   0  4  
-[29] .bss              NOBITS          100bb358 0ab354 003f90 00  WA 0   0  8
-
-When I did per page execute for ppc64 we fell apart because the current
-elf loader just creates a single region of non executable memory
-regardless of what the binary asks for.
-
-Anton
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

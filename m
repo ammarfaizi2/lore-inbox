@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263842AbTIIAa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 20:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTIIAa2
+	id S263848AbTIIAnb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 20:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263840AbTIIAna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 20:30:28 -0400
-Received: from [204.253.162.40] ([204.253.162.40]:150 "EHLO
+	Mon, 8 Sep 2003 20:43:30 -0400
+Received: from [204.253.162.40] ([204.253.162.40]:6038 "EHLO
 	skull.piratehaven.org") by vger.kernel.org with ESMTP
-	id S263842AbTIIA3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 20:29:49 -0400
-Date: Mon, 8 Sep 2003 17:29:38 -0700
+	id S263848AbTIIAmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 20:42:32 -0400
+Date: Mon, 8 Sep 2003 17:42:20 -0700
 From: Dale Harris <rodmur@maybe.org>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: USBNET in Linux 2.6.0-test5
-Message-ID: <20030909002938.GU16695@maybe.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test5 fs/ufs/namei.c
+Message-ID: <20030909004220.GV16695@maybe.org>
 Mail-Followup-To: Dale Harris <rodmur@maybe.org>,
-	Greg KH <greg@kroah.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030908233407.GT16695@maybe.org> <20030908235101.GA3477@kroah.com>
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="/e2eDi0V/xtL+Mc8"
+Content-Type: multipart/mixed; boundary="Ns7jmDPpOpCD+GE/"
 Content-Disposition: inline
-In-Reply-To: <20030908235101.GA3477@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---/e2eDi0V/xtL+Mc8
+--Ns7jmDPpOpCD+GE/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Sep 08, 2003 at 04:51:01PM -0700, Greg KH elucidated:
-> 
-> What is your .config?
-> 
 
-attached.
+This is a little problem that gcc-2.95.4 on debian chokes on.
 
 
-Dale
+-- 
+Dale Harris   
+rodmur@maybe.org
+/.-)
 
---/e2eDi0V/xtL+Mc8
+--Ns7jmDPpOpCD+GE/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="namei.patch"
+
+diff -ru linux-2.6.0-test5/fs/ufs/namei.c linux-2.6.0-test5.new/fs/ufs/namei.c
+--- linux-2.6.0-test5/fs/ufs/namei.c	2003-09-08 15:50:57.000000000 -0400
++++ linux-2.6.0-test5.new/fs/ufs/namei.c	2003-09-08 19:18:33.000000000 -0400
+@@ -113,10 +113,12 @@
+ static int ufs_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct inode * inode;
++	int err;
++
+ 	if (!old_valid_dev(rdev))
+ 		return -EINVAL;
+ 	inode = ufs_new_inode(dir, mode);
+-	int err = PTR_ERR(inode);
++	err = PTR_ERR(inode);
+ 	if (!IS_ERR(inode)) {
+ 		init_special_inode(inode, mode, rdev);
+ 		/* NOTE: that'll go when we get wide dev_t */
+
+--Ns7jmDPpOpCD+GE/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename=config
 
@@ -683,7 +700,6 @@ CONFIG_USB_HPUSBSCSI=m
 CONFIG_USB_CATC=m
 CONFIG_USB_KAWETH=m
 CONFIG_USB_PEGASUS=m
-CONFIG_USB_USBNET=m
 CONFIG_USB_SERIAL=y
 CONFIG_USB_SERIAL_GENERIC=y
 CONFIG_USB_SERIAL_BELKIN=m
@@ -733,4 +749,4 @@ CONFIG_ZLIB_INFLATE=y
 CONFIG_ZLIB_DEFLATE=m
 CONFIG_X86_BIOS_REBOOT=y
 
---/e2eDi0V/xtL+Mc8--
+--Ns7jmDPpOpCD+GE/--

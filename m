@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265399AbUEZJ66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265398AbUEZKCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265399AbUEZJ66 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 05:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265400AbUEZJ66
+	id S265398AbUEZKCY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 06:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265402AbUEZKCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 05:58:58 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:45671 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265399AbUEZJ65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 05:58:57 -0400
-Message-ID: <40B46A57.4050209@yahoo.com.au>
-Date: Wed, 26 May 2004 19:58:47 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Wed, 26 May 2004 06:02:24 -0400
+Received: from imag.imag.fr ([129.88.30.1]:35026 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S265398AbUEZKCW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 06:02:22 -0400
+Message-ID: <40B46B29.5000007@imag.fr>
+Date: Wed, 26 May 2004 12:02:17 +0200
+From: Raphael Jacquot <raphael.jacquot@imag.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: orders@nodivisions.com
-CC: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 Subject: Re: why swap at all?
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <40B4667B.5040303@nodivisions.com>
-In-Reply-To: <40B4667B.5040303@nodivisions.com>
+References: <40B43B5F.8070208@nodivisions.com>
+In-Reply-To: <40B43B5F.8070208@nodivisions.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Anthony DiSante wrote:
-> Nick Piggin wrote:
-> 
->> The VM doesn't always get it right, and to make matters worse, desktop
->> users don't appreciate their long running jobs finishing earlier, but
->> *hate* having to wait a few seconds for a window to appear if it hasn't
->> been used for 24 hours.
-> 
-> 
-> Come on, that is quite an exaggeration.  It can happen in a span of 
-> minutes -- after rsyncing a dir to a backup dir, for example, which 
-> fills ram rather quickly with cache I'll never use again.  Or after 
-> configuring and compiling a package, which does the same thing.
-> 
+> Or, to make it more appealing, say I initially had 512MB ram and now I 
+> have 1GB.  Wouldn't I much rather not use swap at all anymore, in this 
+> case, on my desktop?
 
-rsync is something known to break the VM's use-once heuristics.
-I'm looking at that.
+I do that on embedded systems. no swap. when there's no more, the 
+oomkiller kicks in and removes a few extraneous processes...
 
-> As you said, the VM doesn't, in fact, always get it right.  If 512MB 
-> worked before when it was half swap, 512MB of pure ram will work too, 
-> only faster.  I don't see how adding more swap at that point could 
-> increase performance unless you are keeping your ram full of non-cached 
-> pages, and that's never the case for me -- my ram is almost always half 
-> cached pages.
-> 
+> -Anthony
+> http://nodivisions.com/
 
-It can.

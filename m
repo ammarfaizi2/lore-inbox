@@ -1,41 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUJNNCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUJNNJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUJNNCH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 09:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJNNCH
+	id S264503AbUJNNJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 09:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUJNNJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 09:02:07 -0400
-Received: from ihemail2.lucent.com ([192.11.222.163]:11976 "EHLO
-	ihemail2.lucent.com") by vger.kernel.org with ESMTP id S264530AbUJNNB7
+	Thu, 14 Oct 2004 09:09:28 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264503AbUJNNJX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 09:01:59 -0400
+	Thu, 14 Oct 2004 09:09:23 -0400
+Date: Thu, 14 Oct 2004 09:08:27 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: David Howells <dhowells@redhat.com>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: signed kernel modules? 
+In-Reply-To: <17271.1097756056@redhat.com>
+Message-ID: <Pine.LNX.4.53.0410140824490.363@chaos.analogic.com>
+References: <Pine.LNX.4.61.0410141357380.877@scrub.home> 
+ <Pine.LNX.4.61.0410132346080.7182@scrub.home> <1092403984.29463.11.camel@bach>
+ <1092369784.25194.225.camel@bach> <20040812092029.GA30255@devserv.devel.redhat.com>
+ <20040811211719.GD21894@kroah.com> <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
+ <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
+ <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
+ <30797.1092308768@redhat.com> <20040812111853.GB25950@devserv.devel.redhat.com>
+ <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
+ <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
+ <10345.1097507482@redhat.com> <1097507755.318.332.camel@hades.cambridge.redhat.com>
+ <1097534090.16153.7.camel@localhost.localdomain>
+ <1097570159.5788.1089.camel@baythorne.infradead.org> <27277.1097702318@redhat.com>
+ <16349.1097752! 349@redhat.com>  <17271.1097756056@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16750.30914.666243.108593@gargle.gargle.HOWL>
-Date: Thu, 14 Oct 2004 09:01:54 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Ganesan R <rganesan@myrealbox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.x wrongly recognizes USB 2.0 DVD writer
-In-Reply-To: <ckln33$c3e$1@sea.gmane.org>
-References: <ckln33$c3e$1@sea.gmane.org>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 14 Oct 2004, David Howells wrote:
 
-Ganesan> I have a NEC ND-2500A DVD writer in a ByteCC USB 2.0 external
-Ganesan> enclosure.  It's recognized perfectly in 2.4.27 (Debian
-Ganesan> kernel-image-2.4.27-1-686 package)
+>
+> > I'm trying to understand the reason to stuff this into kernel. Why can't
+> > this check be done before loading the module into the kernel? If you don't
+> > trust insmod, how can you trust the build system?
+>
+>  (1) insmod isn't the only way to load a module.
+>
+>  (2) This helps limit what an intruder can do; particularly if you combine it
+>      with other measures.
+>
+>  (3) Who says the kernel RPM is built on the same machine as the one you
+>      really want to deploy this on for the added protection?
+>
+> David
 
-I've got a ByteCC external enclosure too, and I can't get it to work
-reliably under Linux or Windows under Firewire.  I'd return it and get
-something better.
+I think I smell something.  We had a perfectly-good way of loading
+modules. About 99 percent of the code was in user-space. Now, 99 percent
+of the code is in the kernel. Why? I think this is to "prove" that
+kernel modules are "kernel" things that require kernel licensing.
 
-Also, the 2.6 ieee1394 sbp2 driver isn't the best at detecting these
-things.  And if it does, it doesn't always work well with drives in
-there as well.  I've been having tons of problems and I basically gave
-up.  
+So, some misguided persons that think they are lawyers and/or are
+being led by misguided persons that are lawyers??? And, for this
+we get lawyer-bloat in the kernel.
 
-John
+The new build system sucks. The new kernel module loading scheme
+sucks, pure and simple. In fact, Linux is degenerating into
+a trash bin of "me-too" hacks.
+
+I am now back to Linux-2.4.26 after trying to run a new standard
+distribution of "Red Hat Fedora" on a completely separate
+hard-disk. I had to rebuild everything for the third time
+(reinstall all software) and I'm thoroughly pissed. The
+Linux-2.6.whatever that comes with that garbage trashes my
+SCSI disks if I mount them, making them unusable and
+requiring a complete reinstall of everything.
+
+So, keep it up. In a few years Linux will be remembered
+as a joke. Somebody may fork off something near Linux-2.4.x
+and make a professional operating system out of it, but
+right now it's taken a rapid down-turn into the toilet.
+
+I strongly suggest that you stop corrupting the kernel
+and kernel modules and go back to the tried and true
+Linux-2.4.n methods. Sure there are some bugs (races)
+that may need to be fixed in the older module loading
+scheme, but its been workable for many years.
+
+The new kernel build environment is also corrupt. On
+this system, it takes 45 seconds to perform:
+
+make clean
+make bzImage
+
+With the new build system, same disk, same kernel
+configuration, it takes 14 minutes. And, you can't
+even see what the compiler doesn't like.
+
+The build system generates separate command-files,
+hidden from `ls` by having them start with ".", for
+every source-file and link action, plus it even
+makes hidden subdirectories. The modules build
+even generates its own 'C' source-file for some
+junk that the new `insmod` needs. It's crap, pure
+and simple. Damn crap. All of it.
+
+This is the best example of technological degeneration
+I've seen in my 40+ years of professional involvement
+in engineering. Somebody may write a book and the
+only fame that will remain will be visual impact
+of a smoking hole that was once a viable operating
+system borne on the ideas of thousands world-wide.
+
+I qoute; "Have you no shame?"
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

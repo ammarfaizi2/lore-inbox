@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbUBWQIg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 11:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUBWQIf
+	id S261945AbUBWQLD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 11:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUBWQLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 11:08:35 -0500
-Received: from eri.interia.pl ([217.74.65.138]:9995 "EHLO eri.interia.pl")
-	by vger.kernel.org with ESMTP id S261940AbUBWQFs (ORCPT
+	Mon, 23 Feb 2004 11:11:02 -0500
+Received: from mail.tmr.com ([216.238.38.203]:20352 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S261945AbUBWQJ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 11:05:48 -0500
-Date: Mon, 23 Feb 2004 17:05:15 +0100
-From: Jakub Panachida <void@poczta.fm>
-To: linux-kernel@vger.kernel.org
-Subject: gcc-3.3.3 syntax changed
-Message-Id: <20040223170515.7e878ff0.void@poczta.fm>
-Organization: Battlefield
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 23 Feb 2004 11:09:27 -0500
+Message-ID: <403A25B0.5090104@tmr.com>
+Date: Mon, 23 Feb 2004 11:09:20 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ACPI and ISA IRQ 9, Linux 2.4
+References: <m3isi3n9wa.fsf@defiant.pm.waw.pl>
+In-Reply-To: <m3isi3n9wa.fsf@defiant.pm.waw.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary:
-Incompability of linux-2.6.3 header files with gcc-3.3.3
+Krzysztof Halasa wrote:
+> Hi,
+> 
+> I think this is a known problem, but I don't know how to fix it:
+> 
+> I have a dual Pentium-2 machine (non-SCSI Asus P2B-D), latest BIOS with
+> ACPI etc. It has an ISA card (serial port) using IRQ 9 (I can't change
+> the IRQ). It works fine without ACPI, Linux 2.4 lists IRQ 9 as
+> APIC edge-triggered.
+> 
+> With acpi=force (due to BIOS date) IRQ 9 is used by ACPI. /proc/interrupts
+> lists it as APIC level-triggered, and the ISA card no longer generates
+> interrupts.
+> 
+> IRQ 9 is set to "ISA" in BIOS setup. acpi_irq_isa=9 doesn't help.
+> 
+> Is is possible to fix it? Or is it just impossible to use ISA IRQ 9
+> with ACPI?
+> 
+> More details available on request, of course.
 
-Full Description:
-gcc-3.3.3 doesn't allow syntax used in files asm/byteorder.h and
-linux/byteorder/swab.h, which is included by the previous one.
+I have a similar problem, and my aha1520 can't be moved off irq9 without 
+cutting traces on the system board. How bad is it without ACPI at all? I 
+tried that for a while, and several other things didn't work, and it 
+looks as if the aha1520 driver won't share irq anyway, and something 
+else (I forget) wants that irq as well.
 
-Keywords:
-gcc-3.3.3
-
-Environment:
-Linux xenon.pl 2.6.3-2 #1 Sun Feb 22 16:10:08 CET 2004 i686 unknown unknown
-GNU/Linux
-
-Gnu C                  3.3.3
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.0-pre10
-e2fsprogs              1.34
-Linux C Library        2.3.3
-Dynamic linker (ldd)   2.3.3
-Procps                 3.1.15
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.0
-Modules Loaded
-
-Kernel version:
-Linux version 2.6.3-2 (void@xenon.pl) (gcc version 3.3.3) #1 Sun Feb 22
-16:10:08 CET 2004
-
-Sample code:
-#include <asm/byteorder.h>
-
-Error Message:
-/usr/include/asm/byteorder.h:14: error: syntax error before "__u32"
-/usr/include/asm/byteorder.h:28: error: syntax error before "__u64"
-In file included from /usr/include/linux/byteorder/little_endian.h:11,
-                 from /usr/include/asm/byteorder.h:57,
-                 from k26.c:1:
-/usr/include/linux/byteorder/swab.h:133: error: syntax error before "__u16"
-/usr/include/linux/byteorder/swab.h:146: error: syntax error before "__u32"
-/usr/include/linux/byteorder/swab.h:160: error: syntax error before "__u64"
+I boot into 2.4 to do backups, fortunately the only thing on the SCSI.
 
 
 -- 
-Jakub Panachida
-
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

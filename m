@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284171AbRLFT5U>; Thu, 6 Dec 2001 14:57:20 -0500
+	id <S284174AbRLFT5a>; Thu, 6 Dec 2001 14:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283924AbRLFT5H>; Thu, 6 Dec 2001 14:57:07 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6925 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S282670AbRLFT4x>; Thu, 6 Dec 2001 14:56:53 -0500
-Date: Thu, 6 Dec 2001 17:56:22 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Pablo Borges <pablo.borges@uol.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.16 & Heavy I/O
-In-Reply-To: <Pine.LNX.4.33.0112062031491.1053-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.33L.0112061737480.2283-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284168AbRLFT5V>; Thu, 6 Dec 2001 14:57:21 -0500
+Received: from pD9530ACB.dip.t-dialin.net ([217.83.10.203]:30812 "HELO
+	pc1.geisel.info") by vger.kernel.org with SMTP id <S282670AbRLFT5N>;
+	Thu, 6 Dec 2001 14:57:13 -0500
+Date: Thu, 6 Dec 2001 20:57:02 +0100
+From: devnull@geisel.info
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-pre5 "make bzImage" fails
+Message-ID: <20011206195702.GA12755@geisel.info>
+In-Reply-To: <20011206195025.GA9599@geisel.info> <3C0FCCAC.CE6905D5@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C0FCCAC.CE6905D5@mandrakesoft.com>
+User-Agent: Mutt/1.3.23.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Mike Galbraith wrote:
-> On Thu, 6 Dec 2001, Rik van Riel wrote:
-> > On Thu, 6 Dec 2001, Roy Sigurd Karlsbakk wrote:
-> >
-> > > Is it really neccecary? Free memory's a waste! The cache will be
-> > > discarded the moment an application needs the memory.
-> >
-> > That's not the case with use-once ...
->
-> A little more verbosity please?
+On Thu, Dec 06, 2001 at 02:53:16PM -0500, Jeff Garzik wrote:
+> did you upgrade your binutils recently?
 
-Once a page is used twice, it's not a candidate for eviction
-until (most of) the use-once pages are gone.
+Yes, I upgraded to binutils-2.11.92.0.7-3mdk from Mandrake cooker today.
 
-This means that if you have these 40 MB of used-twice-but-never-again
-buffer cache memory, this memory will never be evicted until other
-pages get promoted from use-once to active.
 
-Now say you have 200 MB of RAM, 40 MB of which are the above
-buffer cache pages. Now you start a program which needs 170
-MB of RAM.
-
-This 170 MB program touches each page once before starting
-at the front again, which means all its pages are used once
-before getting evicted ... and they never get promoted to
-active pages so the 40 MB of no longer used buffer cache
-never gets evicted.
-
-Use-once has this property in principle and the warnings have
-gone out since around 2.4.8-pre4, but it's in 2.4 now so you're
-stuck with it.
-
-cheers,
-
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Where I was born and how I have lived is unimportant. It is what I have
+done with where I have been that should be of interest.
+-Georgia O'Keefe
+9D84 35D7 07D8 6C3A 5D64  8F6E EAB5 159D E521 5E2D

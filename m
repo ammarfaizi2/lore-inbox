@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133111AbRBEQTd>; Mon, 5 Feb 2001 11:19:33 -0500
+	id <S130775AbRBEQSx>; Mon, 5 Feb 2001 11:18:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135255AbRBEQTY>; Mon, 5 Feb 2001 11:19:24 -0500
-Received: from agnus.shiny.it ([194.20.232.6]:63498 "EHLO agnus.shiny.it")
-	by vger.kernel.org with ESMTP id <S135253AbRBEQTO>;
-	Mon, 5 Feb 2001 11:19:14 -0500
-Message-ID: <XFMail.010205171914.pochini@shiny.it>
-X-Mailer: XFMail 1.3 [p0] on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S135241AbRBEQSn>; Mon, 5 Feb 2001 11:18:43 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:56292 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S135224AbRBEQSa>; Mon, 5 Feb 2001 11:18:30 -0500
+Date: Mon, 5 Feb 2001 17:13:28 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Francois Romieu <romieu@cogenit.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.1-ac1: W89c840 -- printout inconsistency?
+In-Reply-To: <20010205155114.A13338@se1.cogenit.fr>
+Message-ID: <Pine.GSO.3.96.1010205170740.18067Q-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Date: Mon, 05 Feb 2001 17:19:14 +0100 (CET)
-From: Giuliano Pochini <pochini@shiny.it>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1 & zombies
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 5 Feb 2001, Francois Romieu wrote:
 
-Last week we put 2.4.1 in our web server. (2.2 really couldn't
-do the job - continue stalls, load average up to 800, etc.).
-2.4 performs really nicely. Now the load avg rarely goes
-over 4 and the machine is always responsive.
-I noticed that zombies tend to exist for much more time than
-with 2.2.x. e.g. in this moment, with medium load (700 httpd's),
-there are around 70 zombie cgi's. There aren't processes stuck
-in Z, they simply take more time to die. Strange.
+> Wouldn't this ("work around broken '486 PCI boards") fit better in
+> drivers/pci/quirks.c, somewhere around pci_fixup_device ?
 
-Bye.
-    Giuliano Pochini ->)|(<- Shiny Corporation {AS6665} ->)|(<-
+ I thinks it's already in the right place.  The workaround is
+driver-specific.  Only generic or bridge-specific code goes into
+drivers/pci/quirks.c. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265263AbTLRSkc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 13:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbTLRSkc
+	id S265250AbTLRSg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 13:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbTLRSg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 13:40:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16812 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265263AbTLRSkb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 13:40:31 -0500
-Subject: Re: Linux 2.6.0 durability test using OSDL-DBT-3
-From: Jenny Zhang <jenny@osdl.org>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FE1EE33.6090002@backtobasicsmgmt.com>
-References: <1071770839.12786.5.camel@ibm-a.pdx.osdl.net>
-	 <3FE1EE33.6090002@backtobasicsmgmt.com>
-Content-Type: text/plain
-Organization: osdl
-Message-Id: <1071773008.12786.16.camel@ibm-a.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 18 Dec 2003 10:43:28 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Dec 2003 13:36:56 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:6272
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S265250AbTLRSgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 13:36:55 -0500
+Date: Thu, 18 Dec 2003 13:36:07 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Lennert Buytenhek <buytenh@gnu.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: 2.6.0 keyboard not working
+In-Reply-To: <20031218182117.GA31558@gnu.org>
+Message-ID: <Pine.LNX.4.58.0312181334150.1710@montezuma.fsmlabs.com>
+References: <20031218060053.GA645@gnu.org> <Pine.LNX.4.58.0312180230150.1710@montezuma.fsmlabs.com>
+ <20031218145434.GA20303@gnu.org> <20031218150431.GA20543@gnu.org>
+ <Pine.LNX.4.58.0312181129260.1710@montezuma.fsmlabs.com> <20031218182117.GA31558@gnu.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel we tested is 2.6.0-test7.
+On Thu, 18 Dec 2003, Lennert Buytenhek wrote:
 
-Sorry for the confusion
-Jenny
-On Thu, 2003-12-18 at 10:13, Kevin P. Fleming wrote:
-> Jenny Zhang wrote:
-> 
-> > To test Linux 2.6.0 durability, we stressed the OS under OSDL-DBT-3
-> > workload for 14 days.
-> 
-> It was released yesterday, how did you manage that?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> On Thu, Dec 18, 2003 at 11:30:27AM -0500, Zwane Mwaikambo wrote:
+>
+> > Thanks Lennert, could you try without CONFIG_HIGHMEM64G, perhaps just
+> > CONFIG_HIGHMEM4G, how much memory in the system? dmesg also would be nice.
+>
+> Hi Zwane, I just finished checking, and without highmem and with HIGHMEM4G
+> it works just fine, only with 64G I get the 'Unknown key pressed' flood which
+> I described.  I had 64G on because I copied my .config from Arjan's 2.6 RPMs,
+> none of which worked on this machine because of those keyboard troubles.  The
+> box has 1G of RAM.
 
+Thanks for testing that, Dan Creswell <dan@dcrdev.demon.co.uk> mentioned a
+similar problem with an e7505 Tyan board he has too.
+
+> Thanks!  Anything else I can try?
+
+I'd love to see dmesg and /proc/iomem for CONFIG_HIGHMEM4G and
+CONFIG_HIGHMEM64G.

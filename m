@@ -1,81 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282511AbRLBTbv>; Sun, 2 Dec 2001 14:31:51 -0500
+	id <S282644AbRLBTeL>; Sun, 2 Dec 2001 14:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282600AbRLBTbn>; Sun, 2 Dec 2001 14:31:43 -0500
-Received: from ubermail.mweb.co.za ([196.2.53.169]:32010 "EHLO
-	ubermail.mweb.co.za") by vger.kernel.org with ESMTP
-	id <S282511AbRLBTba>; Sun, 2 Dec 2001 14:31:30 -0500
-Message-ID: <3C0A83B6.5060209@mweb.co.za>
-Date: Sun, 02 Dec 2001 21:40:38 +0200
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-Reply-To: bonganilinux@mweb.co.za
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S282625AbRLBTdv>; Sun, 2 Dec 2001 14:33:51 -0500
+Received: from m1000.netcologne.de ([194.8.194.104]:60245 "EHLO
+	m1000.netcologne.de") by vger.kernel.org with ESMTP
+	id <S282600AbRLBTdp>; Sun, 2 Dec 2001 14:33:45 -0500
+Message-ID: <000b01c17b68$2ff846e0$30d8fea9@ecce>
+From: "[MOc]cda*mirabilos" <mirabilos@netcologne.de>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0112021206040.28065-100000@waste.org> <3C0A70DE.65F54283@mandrakesoft.com>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Date: Sun, 2 Dec 2001 19:33:15 -0000
 MIME-Version: 1.0
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre5 not easy to boot with devfs
-In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr> <9u9qas$1eo$1@penguin.transmeta.com> <200112010701.fB171N824084@vindaloo.ras.ucalgary.ca> <3C0898AD.FED8EF4A@wanadoo.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using Mandrake 8.1 (I think it loads devfs on startup)
-I have compiled  2.4.17-pre1 and i get the same oops.
+> But I'm all for removing old stuff.  There is no reason to keep
+> something that flat out doesn't work and hasn't for a long long
+time...
+> if somebody wants to pick it up they can grab linux-2.2 or linux-2.0
+> from any FTP mirror.
 
-Pierre Rousselet wrote:
+By the way, what happened to xiafs?
+Back to 2.0.33 it even didn't work (complaints after newfs).
 
-> Richard Gooch wrote:
-> 
->>Linus Torvalds writes:
->>
->>>In article <3C085FF3.813BAA57@wanadoo.fr>,
->>>Pierre Rousselet  <pierre.rousselet@wanadoo.fr> wrote:
->>>
->>>>As far as I can see,
->>>>
->>>>when CONFIG_DEBUG_KERNEL is set
->>>> and
->>>>when devfsd is started at boot time
->>>>I get an Oops when remounting, rw the root fs :
->>>>
->>>>Unable to handle kernel request at va 5a5a5a5e
->>>>
->>>POISON_BYTE is 0x5a. Something in devfs is using a pointer from a data
->>>structure that was already free'd, and was thus corrupted by poisoning.
->>>
->>>(the above is almost certainly just a pointer dereference off 0x5a5a5a5a
->>>with an offset of 4 for some entry at the beginning of a structure,
->>>which is why you get the final "5e" in the page fault address).
->>>
->>>
->>>>It boots OK with devfsd when CONFIG_DEBUG_KERNEL is not set.
->>>>It boots OK without devfsd when CONFIG_DEBUG_KERNEL is set (then devfsd
->>>>can be started after login).
->>>>
->>>Well, not poisoning the free'd memory makes it "work" only in the sense
->>>that usually the free'd memory hasn't been re-allocated yet, so you
->>>don't see the bug even if it is still there.
->>>
->>>Richard Gooch probably wants a full stack trace, with symbols. Which
->>>should show it fairly clearly. At least EIP and the first few "stack
->>>trace" entries..
->>>
->>Indeed I do. Please Cc: me on devfs related stuff. And please apply
->>devfs-patch-v200, which fixes a stupid typo. I'd also be interested in
->>knowing the behaviour with 2.4.17-pre1.
-
-
-<snip very long config file>
-.......
-</snip>
-
-I am using Mandrake 8.1 (I think it loads devfs on startup)
-I have compiled  2.4.17-pre1 and i get the same oops.
-2.4.16-pre1 does not seem to have a problem. I will try
-2.4.17-pre2 and see how it goes.
--Bongani
+Just an interest...
+Thorsten
 
 

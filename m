@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263437AbTC2QRM>; Sat, 29 Mar 2003 11:17:12 -0500
+	id <S263439AbTC2RAx>; Sat, 29 Mar 2003 12:00:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263438AbTC2QRM>; Sat, 29 Mar 2003 11:17:12 -0500
-Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.114.72.97]:64521
-	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
-	id <S263437AbTC2QRL>; Sat, 29 Mar 2003 11:17:11 -0500
-Subject: linux kernel IDE development process question
-From: Jeremy Jackson <jerj@coplanar.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048955308.1467.20.camel@contact.skynet.coplanar.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 29 Mar 2003 11:28:28 -0500
-Content-Transfer-Encoding: 7bit
+	id <S263447AbTC2RAx>; Sat, 29 Mar 2003 12:00:53 -0500
+Received: from mmp11.dna044.com ([217.78.194.33]:30080 "EHLO
+	mgmtmmp11.dnafinland.fi") by vger.kernel.org with ESMTP
+	id <S263439AbTC2RAw>; Sat, 29 Mar 2003 12:00:52 -0500
+Date: Sat, 29 Mar 2003 19:12:25 +0200
+From: Thomas Backlund <tmb@iki.fi>
+Subject: Re: 3c59x gives HWaddr FF:FF:...
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <0d0001c2f616$6a678dc0$9b1810ac@xpgf4>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <20030328145159.GA4265@werewolf.able.es>
+ <20030328124832.44243f83.akpm@digeo.com>
+ <20030328230510.GA5124@werewolf.able.es>
+ <20030328151624.67a3c8c5.akpm@digeo.com>
+ <20030329004630.GA2480@werewolf.able.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello IDE people,
+----- Original Message -----
+From: "J.A. Magallon" <jamagallon@able.es>
+|
+| So, 3 options:
+| - the 905C goes to trashcan
+| - the driver fails to initialize something (I dont trust this...)
+| - winblows messed the card eeprom...any way to tidy it up again ?
+|
+| Thanks everybody...
+|
+| --
+| J.A. Magallon <jamagallon@able.es>      \                 Software is
+like sex:
+| werewolf.able.es                         \           It's better when
+it's free
+| Mandrake Linux release 9.1 (Bamboo) for i586
+| Linux 2.4.21-pre6-jam1 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))
 
-I'd like to get input from everyone involved in drivers/ide/ on the
-current development process.
+Since you have MDK 9.1, could you try the 3rdparty/3c90x module from
+mdk kernel-source and see if it works...
+It is 3Com's own driver... that is supposed to work with that card...
 
-I would like to know what code is kept in sync between 2.4/2.5
-(2.2/2.0?).  This way I can start by understanding what is already being
-done. This is related to the recent "hdparm and removable IDE?" thread
-on LKML.
+If it won't work, maybe it's the card that is broken... messed up...
+If it works, the bug is in the 3c59x module...
 
-I would like to start by declaring ide_hwifs[] static, and removing the
-extern ide_hwifs from ide.h.  all references to ide_hwifs[] will be
-converted to macros and/or access method functions, that return a
-pointer to a particular ide_hwifs_t.  for_each_hwif() and replacements
-for whatever else is in use will be provided as well, initially just
-doing the same thing that is done now, ie iterating through ide_hwifs[].
+Thomas
 
-There's more to my plan, that's just to get the discussion going.  I
-will only address what can be easily merged into all currently supported
-kernel trees, I just need to know what they are.
-
-by creating a new file ide-kernel.[ch], and moving the ide_hwifs[] and
-accessor functions to it, each kernel tree can implement it differently
-without complicating backports for the common stuff.  Initially the
-changes will *not* alter any behaviour, just jockeying stuff into place
-to make that painless when the time comes.  (think about it: if the
-access methods return pointers, who's going to notice when ide_hwifs[]
-is replaced with a linked list?)
-
-My motivation: I'd *really* like to be able to sell entry level PC
-servers with hotswap raid1.  I'm not in a hurry, baby steps are ok, I
-just want to get the ball rolling.  It's all negotiable.  I'm no expert
-here.
-
-Regards,
-
-Jeremy
--- 
-Jeremy Jackson <jerj@coplanar.net>
 

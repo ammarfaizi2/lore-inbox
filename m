@@ -1,115 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264143AbTEGW7X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 18:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTEGW7X
+	id S264288AbTEGXDq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 19:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTEGXD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 18:59:23 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:32526 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264143AbTEGW7U
+	Wed, 7 May 2003 19:03:29 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:64900 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264288AbTEGXCB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 18:59:20 -0400
-Date: Thu, 8 May 2003 01:01:46 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: [ATM] [PATCH] unbalanced exit path in Forerunner HE he_init_one()
-Message-ID: <20030508010146.A20715@electric-eye.fr.zoreil.com>
-References: <200305071813.h47IDpc9010906@hera.kernel.org>
+	Wed, 7 May 2003 19:02:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1052349387730@kroah.com>
+Subject: Re: [PATCH] TTY changes for 2.5.69
+In-Reply-To: <10523493861009@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 7 May 2003 16:16:27 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305071813.h47IDpc9010906@hera.kernel.org>; from linux-kernel@vger.kernel.org on Wed, May 07, 2003 at 08:47:45AM +0000
-X-Organisation: Hungry patch-scripts (c) users
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1099, 2003/05/07 14:59:42-07:00, hannal@us.ibm.com
 
-- pci_enable_device() isn't balanced on error path;
-- result of atm_dev_register() is lost if he_dev allocation fails.
-
-
- drivers/atm/he.c |   40 +++++++++++++++++++++++++++++-----------
- 1 files changed, 29 insertions(+), 11 deletions(-)
+[PATCH] rio  tty_driver add .owner field remove MOD_INC/DEC_USE_COUNT
 
 
-diff -puN drivers/atm/he.c~drivers-atm-he-chas drivers/atm/he.c
---- linux-2.5.69-1.1042.92.10-to-1.1097/drivers/atm/he.c~drivers-atm-he-chas	Thu May  8 00:59:44 2003
-+++ linux-2.5.69-1.1042.92.10-to-1.1097-fr/drivers/atm/he.c	Thu May  8 00:59:44 2003
-@@ -354,29 +354,36 @@ he_init_one(struct pci_dev *pci_dev, con
- {
- 	struct atm_dev *atm_dev;
- 	struct he_dev *he_dev;
-+	int ret = -EIO;
- 
- 	printk(KERN_INFO "he: %s\n", version);
- 
- #if LINUX_VERSION_CODE > KERNEL_VERSION(2,3,43)
--	if (pci_enable_device(pci_dev)) return -EIO;
-+	if (pci_enable_device(pci_dev))
-+		goto out;
- #endif
- 	if (pci_set_dma_mask(pci_dev, HE_DMA_MASK) != 0)
- 	{
- 		printk(KERN_WARNING "he: no suitable dma available\n");
--		return -EIO;
-+		goto out_disable;
- 	}
- 
- 	atm_dev = atm_dev_register(DEV_LABEL, &he_ops, -1, 0);
--	if (!atm_dev) return -ENODEV;
-+	if (!atm_dev) {
-+		ret = -ENODEV;
-+		goto out_disable;
-+	}
- #if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,3)
- 	pci_set_drvdata(pci_dev, atm_dev);
- #else
- 	pci_dev->driver_data = atm_dev;
- #endif
- 
--	he_dev = (struct he_dev *) kmalloc(sizeof(struct he_dev),
--							GFP_KERNEL);
--	if (!he_dev) return -ENOMEM;
-+	he_dev = (struct he_dev *) kmalloc(sizeof(*he_dev), GFP_KERNEL);
-+	if (!he_dev) {
-+		ret = -ENOMEM;
-+		goto out_deregister;
-+	}
- 	memset(he_dev, 0, sizeof(struct he_dev));
- 
- 	he_dev->pci_dev = pci_dev;
-@@ -385,16 +392,27 @@ he_init_one(struct pci_dev *pci_dev, con
- 	HE_DEV(atm_dev) = he_dev;
- 	he_dev->number = atm_dev->number;	/* was devs */
- 	if (he_start(atm_dev)) {
--		atm_dev_deregister(atm_dev);
--		he_stop(he_dev);
--		kfree(he_dev);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto out_stop;
- 	}
- 	he_dev->next = NULL;
- 	if (he_devs) he_dev->next = he_devs;
- 	he_devs = he_dev;
- 
--	return 0;
-+	ret = 0;
-+out:
-+	return ret;
-+
-+out_stop:
-+	he_stop(he_dev);
-+	kfree(he_dev);
-+out_deregister:
-+	atm_dev_deregister(atm_dev);
-+out_disable:
-+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,3,43)
-+	pci_disable_device(pci_dev);
-+#endif
-+	goto out;
+ drivers/char/rio/rio_linux.c |   26 +-------------------------
+ drivers/char/rio/rio_linux.h |    3 ---
+ drivers/char/rio/riotty.c    |    5 -----
+ 3 files changed, 1 insertion(+), 33 deletions(-)
+
+
+diff -Nru a/drivers/char/rio/rio_linux.c b/drivers/char/rio/rio_linux.c
+--- a/drivers/char/rio/rio_linux.c	Wed May  7 16:01:14 2003
++++ b/drivers/char/rio/rio_linux.c	Wed May  7 16:01:14 2003
+@@ -389,29 +389,6 @@
+   udelay (usecs);
  }
  
- static void __devexit
+-
+-void rio_inc_mod_count (void)
+-{
+-#ifdef MODULE
+-  func_enter ();
+-  rio_dprintk (RIO_DEBUG_MOD_COUNT, "rio_inc_mod_count\n");
+-  MOD_INC_USE_COUNT; 
+-  func_exit ();
+-#endif
+-}
+-
+-
+-void rio_dec_mod_count (void)
+-{
+-#ifdef MODULE
+-  func_enter ();
+-  rio_dprintk (RIO_DEBUG_MOD_COUNT, "rio_dec_mod_count\n");
+-  MOD_DEC_USE_COUNT; 
+-  func_exit ();
+-#endif
+-}
+-
+-
+ static int rio_set_real_termios (void *ptr)
+ {
+   int rv, modem;
+@@ -660,7 +637,6 @@
+   
+   PortP = (struct Port *)ptr;
+   PortP->gs.tty = NULL;
+-  rio_dec_mod_count (); 
+ 
+   func_exit ();
+ }
+@@ -686,7 +662,6 @@
+   }                
+ 
+   PortP->gs.tty = NULL;
+-  rio_dec_mod_count ();
+   func_exit ();
+ }
+ 
+@@ -908,6 +883,7 @@
+ 
+   memset(&rio_driver, 0, sizeof(rio_driver));
+   rio_driver.magic = TTY_DRIVER_MAGIC;
++  rio_driver.owner = THIS_MODULE;
+   rio_driver.driver_name = "specialix_rio";
+   rio_driver.name = "ttySR";
+   rio_driver.major = RIO_NORMAL_MAJOR0;
+diff -Nru a/drivers/char/rio/rio_linux.h b/drivers/char/rio/rio_linux.h
+--- a/drivers/char/rio/rio_linux.h	Wed May  7 16:01:14 2003
++++ b/drivers/char/rio/rio_linux.h	Wed May  7 16:01:14 2003
+@@ -87,9 +87,6 @@
+ #endif
+ 
+ 
+-void rio_dec_mod_count (void);
+-void rio_inc_mod_count (void);
+-
+ /* Allow us to debug "in the field" without requiring clients to
+    recompile.... */
+ #if 1
+diff -Nru a/drivers/char/rio/riotty.c b/drivers/char/rio/riotty.c
+--- a/drivers/char/rio/riotty.c	Wed May  7 16:01:14 2003
++++ b/drivers/char/rio/riotty.c	Wed May  7 16:01:14 2003
+@@ -139,7 +139,6 @@
+ 
+ 
+ extern struct rio_info *p;
+-extern void rio_inc_mod_count (void);
+ 
+ 
+ int
+@@ -205,8 +204,6 @@
+ 	tty->driver_data = PortP;
+ 
+ 	PortP->gs.tty = tty;
+-	if (!PortP->gs.count)
+-		rio_inc_mod_count ();
+ 	PortP->gs.count++;
+ 
+ 	rio_dprintk (RIO_DEBUG_TTY, "%d bytes in tx buffer\n",
+@@ -215,8 +212,6 @@
+ 	retval = gs_init_port (&PortP->gs);
+ 	if (retval) {
+ 		PortP->gs.count--;
+-		if (PortP->gs.count)
+-			rio_dec_mod_count ();
+ 		return -ENXIO;
+ 	}
+ 	/*
+

@@ -1,138 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290689AbSAYO1C>; Fri, 25 Jan 2002 09:27:02 -0500
+	id <S290694AbSAYOaC>; Fri, 25 Jan 2002 09:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290693AbSAYO0z>; Fri, 25 Jan 2002 09:26:55 -0500
-Received: from gumby.it.wmich.edu ([141.218.23.21]:5605 "EHLO
-	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
-	id <S290689AbSAYO0i>; Fri, 25 Jan 2002 09:26:38 -0500
-Subject: Re: acpi-rouble/amd disconnect patch
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        preining@logic.at, ttonino@users.sourceforge.net,
-        moffe@amagerkollegiet.dk, timothy.covell@ashavan.org,
-        Dieter.Nuetzel@hamburg.de, nitrax@giron.wox.org, mpet@bigfoot.de,
-        lkml@sigkill.net, pavel@suse.cz, vandrove@vc.cvut.cz, hpj@urpla.net,
-        whitney@math.berkeley.edu
-In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de>
-In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 25 Jan 2002 09:25:33 -0500
-Message-Id: <1011968738.22709.29.camel@psuedomode>
-Mime-Version: 1.0
+	id <S290680AbSAYO3w>; Fri, 25 Jan 2002 09:29:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:55561 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290695AbSAYO3g> convert rfc822-to-8bit;
+	Fri, 25 Jan 2002 09:29:36 -0500
+To: Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: proc_file_read bug?
+In-Reply-To: <1011965794.1338.6.camel@thanatos>
+X-Yow: America!!  I saw it all!!  Vomiting!  Waving!  JERRY FALWELLING into
+ your void tube of UHF oblivion!!  SAFEWAY of the mind --
+From: Andreas Schwab <schwab@suse.de>
+Date: Fri, 25 Jan 2002 15:29:35 +0100
+In-Reply-To: <1011965794.1338.6.camel@thanatos> (Thomas Hood's message of
+ "25 Jan 2002 08:36:32 -0500")
+Message-ID: <jer8oesdv4.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It sounds like you'll have to make the patch work just for Athlon XP's
-...  unless of course you're not expecting it to be included in the
-kernel ever.   
+Thomas Hood <jdthood@mail.com> writes:
 
+|> I don't understand this part of proc_file_read() in 
+|> fs/proc/generic.c:
+|> 
+|>                 /* This is a hack to allow mangling of file pos independent
+|>                  * of actual bytes read.  Simply place the data at page,
+|>                  * return the bytes, and set `start' to the desired offset
+|>                  * as an unsigned int. - Paul.Russell@rustcorp.com.au
+|>                  */
+|>                 n -= copy_to_user(buf, start < page ? page : start, n);
+|>                 if (n == 0) {
+|>                         if (retval == 0)
+|>                                 retval = -EFAULT;
+|>                         break;
+|>                 }
+|> 
+|>                 *ppos += start < page ? (long)start : n; /* Move down the file */
+|>                 nbytes -= n;
+|>                 buf += n;
+|>                 retval += n;
+|> 
+|> When start >= page, we copy n bytes beginning at start and
+|> increase *ppos by n.  Makes sense.  But what happens when
+|> start < page?  We will copy n bytes starting at page, then
+|> increase *ppos by start!!  What sense does that make?  If
+|> there's cleverness happening here, someone please document it.
 
-On Fri, 2002-01-25 at 08:23, Daniel Nofftz wrote:
-> hi!
-> i spend the morning (on my work *grin*) reading some papers (amd reviion
-> guide), rereading many of the mails on this topic and reading some reports
-> in the german c't magazin.
-> so...
-> let me "review" what problems we had:
-> * sound skips
-> * video skips / slowdown
-> * ultra-dma disk transfer slowdown
-> * system instability (one time : deadlock)
-> * generel performance loss on some computers
-> ...
-> 
-> first: i found the answer why my patch works with acpi and not with apm:
-> apm only issues a halt signal loop. this does not trigger the disconnect
-> on STPGNT function which will cause significant power saving !!! ... the
-> c1 state also only provides halt (as far as i understand it). the c2 state
-> provides the stop-grant signal our searched STPGNT) -> ACPI C2 states
-> trigger the disconnect function in the northbridge, which will cause
-> power-saving ....
-> 
-> ok ....
-> 
-> now to the problems:
-> there are two known athlon bugs which cause trouble with the disconnect
-> function (errata 11 and errata 14 on the "AMD Athlon Processor Model 4
-> Revision Guide"). this bugs are present in ALL Athlon and Duron Revisions!
-> It looks like this bugs are not present in the Athlon XP and the new
-> Duron. (could be an answer to the question, why i don't have problems with
-> the disconnect function. i have an athlon xp 1600+)
-> 
-> what are now this errata bugs ?
-> 
-> bug 11:
-> when the processor is disconnected from the fsb, the internal clock is
-> slowed down to save power. when the processor is reconnected, it should
-> return to the normal clock ratio. but ... in some cases it doesn't ! "the
-> pll can exceed ther normal operating frequency, causing a failure to
-> maintain suffient system bus I/O drive strength levels in the driver
-> compension circuit. the compensation circuit attempts to correct this
-> drive strength, but if there is not sufficient time to perform this
-> function, the system bus cannot operate properly" (taken form the rev.
-> guide)
-> the laste few words could be a explanation for the video / sound skips ...
-> ?
-> 
-> the guide also says, that a workaround is possible by bios manipulation
-> ... so the manufacturer of the motherboard could make a bios which
-> corrects this problem ... (dimm it to a level where no system influence is
-> noticable)
-> 
-> bug14:
-> processors with half-frequency multipliers (like 11.5, 12.5, ...) may hang
-> upon wake-up from disconnect. this problem comes from a circuit which is
-> used to wake up from low-power states (c2 and c3) and which could glitch
-> when coming out of the c2 and c3 states.
-> this could cause an system hang!
-> -> suggested workaround from the guide: the bios programmer should disable
-> c2 and c3 (leastwise for the cpus with half frequency multio.)... very
-> helpfull :(
-> 
-> 
-> what other problems could be ?
-> 
-> some motherboards or cheaper powersuplies can't handle the jumps of
-> power-consumption when entering or leaving the 1/c2 states ... sometimes
-> this could be such extrem jumps like from 5W to 50W ... (information taken
-> from an asus page and vcool faq)
-> 
-> a suggestion which came up in the thread was, that pci latancy or other
-> pci-bios options could influence the "skips"-problem in video and
-> soundstreams ... i will test this today or tomorrow at my computer ...
-> but i am not shure whether i have a chance to reproduce any of the
-> problems, cause i have a cp cpu and a good motherboard and good
-> powersuply ...
-> 
-> oh ... and after what i have read the reconnect could take "some time"
-> maybe this could also be an answer for the skips if your system requires a
-> continual stream of data ....
-> 
-> what could you do ?
-> 
-> if you have problem: test whether some tuning on the pci settings in the
-> bios influences your problems ... maybe use some "slower" setting and lokk
-> whether the problems vanishes or get fewer ...
-> 
-> are there any people who have problems with the patch and an athlon xp ?
-> 
-> maybe test a newer bios ... !
-> 
-> does the "delay transaction" function influence the behavior ? Beware !
-> this function could cause data loss on some computers !
-> 
-> ok ... enough for now ...
-> 
-> daniel
-> 
-> 
-> # Daniel Nofftz
-> # Sysadmin CIP-Pool Informatik
-> # University of Trier(Germany), Room V 103
-> # Mail: daniel@nofftz.de
+It is documented, RTFC.
 
+Andreas.
 
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

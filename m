@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281413AbRKEWtc>; Mon, 5 Nov 2001 17:49:32 -0500
+	id <S281409AbRKEW5M>; Mon, 5 Nov 2001 17:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281414AbRKEWtX>; Mon, 5 Nov 2001 17:49:23 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:61368 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281410AbRKEWtE>; Mon, 5 Nov 2001 17:49:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Ben Greear <greearb@candelatech.com>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Mon, 5 Nov 2001 23:51:52 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0111051638230.27028-100000@duckman.distro.conectiva> <160qqc-1ClvWqC@fmrl04.sul.t-online.com> <3BE70B9A.1010904@candelatech.com>
-In-Reply-To: <3BE70B9A.1010904@candelatech.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <160sXt-0LMrdQC@fmrl04.sul.t-online.com>
+	id <S281410AbRKEW5D>; Mon, 5 Nov 2001 17:57:03 -0500
+Received: from inetc.connecttech.com ([64.7.140.42]:18186 "EHLO
+	inetc.connecttech.com") by vger.kernel.org with ESMTP
+	id <S281409AbRKEW4v>; Mon, 5 Nov 2001 17:56:51 -0500
+Message-ID: <054801c1664d$8bc8eb80$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [Patch] Serial lockup fixed
+Date: Mon, 5 Nov 2001 17:59:38 -0500
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 November 2001 22:58, Ben Greear wrote:
-> So if BNF makes it harder for shell scripts and sscanf, and harder for
-> the kernel developers...what good does it do???  
+After installing any serial-5.00 or later in kernels 2.2.18, 19 or 20,
+rs_init is entered twice. This results in the serial timer being added
+twice, which corrupts the timer list and causes an infinite loop. The
+symptom is a complete hang on boot, usually just after the "Freeing
+unused kernel memory" message.
 
-You know how to parse the file. 
-Take a look at /proc/partitions. Is its exact syntax obvious without 
-examining the source in the kernel? Can it happen that there is a space or 
-another unusual character in the device path and what happens then? Could it 
-be that someone decides that an additional column is neccessary and how can 
-my parser stay compatible then? Are there any suprises or special conditions 
-that I don't know about? Maybe one of the fields is hexadecimal but I think 
-it is decimal, I can't see it from looking at the file's content.
+Pre 18 the call path is do_basic_setup() -> device_setup() ->
+chr_dev_setup() -> tty_init() -> rs_init().
 
-bye...
+In 2.4.x rs_init is entered with the module_init() (__initcall) magic.
+
+The attached is for 2.2.20, and simply removes the tty_init() ->
+rs_init() path. This mimics 2.4.x.
+
+There might be an issue; do_initcalls() is slightly later in
+do_basic_setup() than device_setup(), but the in between code looks
+similar to 2.4.x kernels so I don't think it's a problem delaying the
+serial init.
+
+I'll post the slightly less elegant hack to the serial driver that
+compensates for the broken kernels shortly.
+
+Patch status is: Works For Me. Testers needed.
+
+..Stu
+
+----
+
+diff -ru linux-2.2.20/drivers/char/tty_io.c
+linux-2.2.20-serial-init-fix/drivers/char/tty_io.c
+--- linux-2.2.20/drivers/char/tty_io.c Fri Nov  2 11:39:06 2001
++++ linux-2.2.20-serial-init-fix/drivers/char/tty_io.c Mon Nov  5 22:03:54
+2001
+@@ -2189,9 +2189,6 @@
+ #ifdef CONFIG_ESPSERIAL  /* init ESP before rs, so rs doesn't see the port
+*/
+  espserial_init();
+ #endif
+-#ifdef CONFIG_SERIAL
+- rs_init();
+-#endif
+ #ifdef CONFIG_COMPUTONE
+  ip2_init();
+ #endif
+
+

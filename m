@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130473AbQKIMcF>; Thu, 9 Nov 2000 07:32:05 -0500
+	id <S130536AbQKIMj1>; Thu, 9 Nov 2000 07:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130515AbQKIMb4>; Thu, 9 Nov 2000 07:31:56 -0500
-Received: from 255.255.255.255.in-addr.de ([212.8.197.242]:51725 "HELO
-	255.255.255.255.in-addr.de") by vger.kernel.org with SMTP
-	id <S130473AbQKIMbm>; Thu, 9 Nov 2000 07:31:42 -0500
-Date: Thu, 9 Nov 2000 13:31:36 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: Christoph Rohland <cr@sap.com>, Larry McVoy <lm@bitmover.com>,
-        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re:  [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Message-ID: <20001109133136.B747@marowsky-bree.de>
-In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com> <3A09C725.6CFA0EE2@holly-springs.nc.us> <qwwn1f9lhdg.fsf@sap.com> <20001108235312.H22781@work.bitmover.com> <qwwzoj9k02h.fsf@sap.com> <3A0A968B.85A6770E@holly-springs.nc.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-In-Reply-To: <3A0A968B.85A6770E@holly-springs.nc.us>; from "Michael Rothwell" on 2000-11-09T07:20:27
-X-Ctuhulu: HASTUR
+	id <S130515AbQKIMjR>; Thu, 9 Nov 2000 07:39:17 -0500
+Received: from mars.foursticks.com.au ([150.101.72.105]:16273 "EHLO
+	mars.foursticks.com.au") by vger.kernel.org with ESMTP
+	id <S130509AbQKIMjB>; Thu, 9 Nov 2000 07:39:01 -0500
+From: Paul Schulz <paul@mars.foursticks.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: [Patch] QoS as modules in 2.4.0-test10 not compiling.
+Reply-To: pschulz@foursticks.com
+Message-Id: <E13tqyk-0002gK-00@mars.foursticks.com.au>
+Date: Thu, 09 Nov 2000 23:08:54 +1030
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2000-11-09T07:20:27,
-   Michael Rothwell <rothwell@holly-springs.nc.us> said:
+Greetings,
 
-> > I understand that the one size fits all approach has some limitations
-> > if you want to run on PDAs up to big iron. But a framework to overload
-> > core kernel functions with modules smells a lot of binary only, closed
-> > source, vendor specific Linux on high end machines.
-> 
-> Since Linux is GPL, how would you stop this?
+I've been trying to compile the kernel with the QoS code as modules.
 
-Christoph / SAP is in a rather good position to stop that being supported by
-vendors...
+The net/Makefile didn't have 'sched' listed as a module subdirectory,
+so it wasntt getting walked in a make_modules... any way, the
+following patch fixes the problem.
 
-> Same as before -- freedom and low cost. The primary advantae of Linux
-> over other OSes is the GPL. 
+Paul Schulz (pschulz@foursticks.com.au)
+Foursticks Systems
 
-And that is why that has to govern the kernel and its modules as far as
-possible.
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-    Development HA
-
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
+--- net/Makefile.old	Thu Nov  9 23:06:00 2000
++++ net/Makefile	Thu Nov  9 22:18:40 2000
+@@ -7,7 +7,7 @@
+ 
+ O_TARGET :=	network.o
+ 
+-mod-subdirs :=	ipv4/netfilter ipv6/netfilter ipx irda atm netlink
++mod-subdirs :=	ipv4/netfilter ipv6/netfilter ipx irda atm netlink sched
+ export-objs :=	netsyms.o
+ 
+ subdir-y :=	core ethernet
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

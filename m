@@ -1,60 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130202AbRAMXLI>; Sat, 13 Jan 2001 18:11:08 -0500
+	id <S129849AbRAMXTd>; Sat, 13 Jan 2001 18:19:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130374AbRAMXK7>; Sat, 13 Jan 2001 18:10:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41622 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130202AbRAMXKm>;
-	Sat, 13 Jan 2001 18:10:42 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S130188AbRAMXTX>; Sat, 13 Jan 2001 18:19:23 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1289 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130073AbRAMXTO>; Sat, 13 Jan 2001 18:19:14 -0500
+Subject: Re: [PATCH] sparc64 compile fix
+To: davem@redhat.com (David S. Miller)
+Date: Sat, 13 Jan 2001 23:15:16 +0000 (GMT)
+Cc: ppetru@ppetru.net (Petru Paler), linux-kernel@vger.kernel.org
+In-Reply-To: <14944.56558.198555.536993@pizda.ninka.net> from "David S. Miller" at Jan 13, 2001 02:55:42 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14944.57417.917410.380225@pizda.ninka.net>
-Date: Sat, 13 Jan 2001 15:10:01 -0800 (PST)
-To: trond.myklebust@fys.uio.no
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS devel <nfs-devel@linux.kernel.org>
-Subject: Re: Spinlocking patch for in xprt.c
-In-Reply-To: <14942.64595.157544.350302@charged.uio.no>
-In-Reply-To: <14942.64595.157544.350302@charged.uio.no>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-Id: <E14HZtG-0006kl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> What does this fix?  Things compile just fine without
+> it and looking at the code it was intended to be of
+> the original type.
 
-Trond, did you actually look at how this code works before
-you made modifications to my fixes?
+2.4.0-ac has quota fixes (there are bad quota races in 2.4.0) and changes
+to support 32bit uid. They aren't in the sparc64 diffs yet and until Linus
+has the major bugs out they probably arent a major worry.
 
-xprt_lock serializes sleep/wakeup sequences in the xprt code, so you
-cannot remove xprt_lock from the sections where I added holding of
-xprt_sock_lock to protect the state of xprt->snd_task.  So for
-example, this part of your patch is completely bogus and will create
-new corruptions and crashes:
-
-@@ -1143,10 +1143,10 @@
- 	struct rpc_xprt *xprt = task->tk_rqstp->rq_xprt;
- 
- 	if (xprt->snd_task && xprt->snd_task == task) {
--		spin_lock(&xprt_lock);
-+		spin_lock_bh(&xprt_sock_lock);
- 		xprt->snd_task = NULL;
- 		rpc_wake_up_next(&xprt->sending);
--		spin_unlock(&xprt_lock);
-+		spin_unlock_bh(&xprt_sock_lock);
- 	}
- }
-
-You _must_ hold both xprt_lock and xprt_sock_lock in this
-section of code, not just one or just the other.
-
-Linus, please do not apply this patch until these issues
-are addressed.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279860AbRKFSCq>; Tue, 6 Nov 2001 13:02:46 -0500
+	id <S279873AbRKFSJg>; Tue, 6 Nov 2001 13:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279884AbRKFSCf>; Tue, 6 Nov 2001 13:02:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33803 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279860AbRKFSC0>; Tue, 6 Nov 2001 13:02:26 -0500
-Date: Tue, 6 Nov 2001 09:59:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <E161AIX-0001BL-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0111060949370.2194-100000@penguin.transmeta.com>
+	id <S279874AbRKFSJV>; Tue, 6 Nov 2001 13:09:21 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:8851 "EHLO
+	smtprelay2.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S279873AbRKFSIn>; Tue, 6 Nov 2001 13:08:43 -0500
+Date: Tue, 6 Nov 2001 13:09:42 -0500 (EST)
+From: "Steven N. Hirsch" <shirsch@adelphia.net>
+X-X-Sender: <hirsch@atx.fast.net>
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-0.9.15 against linux-2.4.14
+In-Reply-To: <3BE7AB6C.97749631@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0111061305540.8366-100000@atx.fast.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Nov 2001, Andrew Morton wrote:
 
-On Tue, 6 Nov 2001, Alan Cox wrote:
->
-> > Especially on x86 chips.
->
-> Well so far I've found one laptop that eats %cr2 on APM calls, and we have
-> some mystery cases.
+> Download details and documentation are at
+> 
+> 	http://www.uow.edu.au/~andrewm/linux/ext3/
+> 
+> Changes since ext3-0.9.13 (which was against linux-2.4.13):
+> 
+> - For a long time, the ext3 patch has used a semaphore in the core
+>   kernel to prevent concurrent pagein and truncate of the same
+>   file.  This was to prevent a race wherein the paging-in task
+>   would wake up after the truncate and would instantiate a page
+>   in the process's page tables which had attached buffers.  This
+>   leads to a BUG() if the swapout code tries to swap the page out.
+> 
+>   This semaphore has been removed.  The swapout code has been altered
+>   to simply detect and ignore these pages.
+> 
+>   This is an incredibly obscure and hard-to-hit situation.  The testcase
+>   which used to trigger it can no longer do so.  So if anyone sees the
+>   message "try_to_swap_out: page has buffers!", please shout out.
 
-Well, APM is going away, and it should be easy enough to work around it
-(and I don't _think_ you can reasonably do the same in ACPI or SMM: SMM
-will save the whole CPU state and has to do that anyway, and ACPI doesn't
-actually get to touch things like %cr2).
+Andrew,
 
-So I'd be more nervous about future CPU's just not having the register
-writable (or having only parts of it, or..)
+I have been getting thousands of these when the system was under heavy 
+load, but didn't realize it was from the ext3 code!  I'm using Linus's 
+2.4.14-pre7 + ext3 patch from Neil Brown's site (the latter is identified 
+as "ZeroNineFourteen".)  Would you like me to upgrade kernel and patch?
 
-> Peter's suggestion of using %fs or %gs looks more
-> promising at the moment
+Steve
 
-The problem with using a segment register is that then you have to
-save/restore it over system calls - pretty much whether the call needs it
-or not. Ie you can pretty much _guarantee_ that any system call will be
-slowed down by something on the order of 10-15 cycles (on a good day, some
-CPU's are slower at it). Same goes for task switch etc.
-
-Which is why I'd much rather just color using the high bits of %esp, and
-spend a few more cycles inside "get_current()". I can guarantee you that
-it won't slow down paths that don't even need current at all (unlike the
-segment register approach), and even the paths that _do_ need current will
-only be ~5 cycles slower (plus possible the cache miss of doing the
-function call, but the call-site itself will actually be slightly smaller
-than the current in-lined 32-bit immediate and "andl").
-
-Using high bits of %esp has zero impact on task-switch, and makes
-"get_current" interrupt safe (ie switching tasks is totally atomic, as
-it's the one single "movl ..,%esp" instruction that does the real switch
-as far as the kernel is concerned).
-
-It does require using an order-2 allocation, which the current VM will
-allow anyway, but which is obviously nastier than an order-1.
-
-		Linus
 

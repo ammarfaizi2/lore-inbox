@@ -1,206 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311269AbSCSOWG>; Tue, 19 Mar 2002 09:22:06 -0500
+	id <S311280AbSCSOYH>; Tue, 19 Mar 2002 09:24:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311277AbSCSOVv>; Tue, 19 Mar 2002 09:21:51 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:9226 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S311267AbSCSOUb>; Tue, 19 Mar 2002 09:20:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Henrique Gobbi <henrique@cyclades.com>
-Reply-To: henrique@cyclades.com
-Organization: Cyclades Corporation
-To: linux-kernel@vger.kernel.org
-Subject: TTY driver kernel panic
-Date: Tue, 19 Mar 2002 11:21:35 -0300
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <02031911213504.03840@henrique.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S311267AbSCSOWL>; Tue, 19 Mar 2002 09:22:11 -0500
+Received: from bgp491751bgs.verona01.nj.comcast.net ([68.37.203.28]:37381 "HELO
+	athene.jacked-in.org") by vger.kernel.org with SMTP
+	id <S311273AbSCSOVs>; Tue, 19 Mar 2002 09:21:48 -0500
+Subject: [PATCH] Support for Belkin Wireless PCI Adapter (PLX PCI9502 Based)
+	in Kernel >= 2.4.18
+From: "Brendan W. McAdams" <rit@jacked-in.org>
+To: linux-kernel@vger.kernel.org, linux-wlan-devel@lists.linux-wlan.com
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com, dan@telent.net
+Content-Type: multipart/mixed; boundary="=-RP7NDIHTf2cfZAvkcMZS"
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 19 Mar 2002 09:16:58 -0500
+Message-Id: <1016547419.10236.20.camel@mycroft.themunicenter.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all !!!
 
-I am trying to make a simple tty driver to illustrate the tty driver 
-interface. I have made this the module and the application listed below. When 
-I run the application I get a kernel segmentation fault.
+--=-RP7NDIHTf2cfZAvkcMZS
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-My "call trace" shows that the error is in function write_chan from n_tty.c 
-and I did not find the reason for the fault.
+I'm not sure who the current "keeper of the flame" is on drivers/net/wireless/orinoco_plx.c so I'm submitting this patch to any conceivably appropriate places.
 
-Could anyone help me ?
+This patch adds support to the Linux kernel (tested on 2.4.18, 2.4.19-pre3 and 2.4.19-pre3-ac1) for the Belkin F5D6000 "Wireless Desktop PCI Network Adapter".  This is a PLX PCI9502 based PCMCIA adapter that allows 802.11b wireless network cards (mainly Prism2 based, like the Belkin F5D6020) to work on desktop boxen. 
 
-Thanks in advance
----
-Henrique Gobbi
-henrique@cyclades.com
+This patch would be a great addition to the appropriate packages, including the Linux kernel as Belkins components tend to be low cost and high quality, as well as widely available.
 
----------------------------------------------------------------------------------
-* This module make nothing. It is just to illustrate 
- * some aspects of tty driver interface
- */
+The patch contents are basically an addition to orinoco_plx.c so that it recognizes the IO Addresses of the Belkin F5D6000 and configures it appropriately.  It is a small patch but it does the trick; I have tested it extensively on my Linux box in both Managed and Ad-Hoc modes with a Belkin F5D6020 card.
 
-#include <linux/config.h>
-#include <linux/module.h>
-#include <linux/errno.h>
-#include <linux/signal.h>
-#include <linux/sched.h>
-#include <linux/timer.h>
-#include <linux/interrupt.h>
-#include <linux/tty.h>
-#include <linux/serial.h>
-#include <linux/major.h>
-#include <linux/string.h>
-#include <linux/fcntl.h>
-#include <linux/ptrace.h>
-#include <linux/mm.h>
-#include <linux/ioport.h>
-#include <linux/init.h>
-#include <linux/delay.h>
-#include <linux/spinlock.h>
-#include <linux/proc_fs.h>
-#include <linux/slab.h>
+It has been applied and tested (as aformentioned) against 2.4.18, 2.4.19-pre3 and 2.4.19-pre3-ac1.
 
-#include <asm/system.h>
-#include <asm/io.h>
-#include <asm/irq.h>
-#include <asm/uaccess.h>
-#include <asm/bitops.h>
+I am posting a page at http://www.jacked-in.org/linux/belkin_wireless.php with more details on this patch and using Belkin's Wireless components with Linux for those interested.
 
-#include <linux/types.h>
-#include <linux/kernel.h>
-#include <linux/pci.h>
-#include <linux/version.h>
-#include <linux/stat.h>
+Patch follows inline & attached:
 
-static struct tty_driver cy_serial_driver;
-static int serial_refcount;
+--- linux/drivers/net/wireless/orinoco_plx.c	Mon Feb 25 14:38:03 2002
++++ linux.bmcadams-patched/drivers/net/wireless/orinoco_plx.c	Mon Mar 18 10:42:48 2002
+@@ -385,6 +385,10 @@
+ 	{0x16ab, 0x1101, PCI_ANY_ID, PCI_ANY_ID,},	/* Reported working, but unknown */
+ 	{0x16ab, 0x1102, PCI_ANY_ID, PCI_ANY_ID,},	/* Linksys WDT11 */
+ 	{0x16ec, 0x3685, PCI_ANY_ID, PCI_ANY_ID,},	/* USR 2415 */
++	{0xec80, 0xec00, PCI_ANY_ID, PCI_ANY_ID,}, 	/* Belkin F5D6000
++							   Tested & Working with
++							   Belkin's F5D6020 Prism2 based PCMCIA NIC 
++							   - Brendan W. McAdams <rit@jacked-in.org> */
+ 	{0,},
+ };
+ 
+-----
+Brendan W. McAdams
+rit@jacked-in.org
 
-static struct tty_struct *serial_table;
-static struct termios *serial_termios;
-static struct termios *serial_termios_locked;
+"I cannot make my days longer, so I strive to make them better."
+- Henry David Thoreau
 
-static unsigned char * tmp_buf;
 
-void cy_cleanup_module(void) {
-	printk("Driver - GoodBye, cruel world\n");
-}
 
-static int cy_open (struct tty_struct *tty, struct file *filp) {
-	unsigned long page;
-	MOD_INC_USE_COUNT;
-	printk("Driver - open. Minor: %d\n", MINOR(tty->device) );
+--=-RP7NDIHTf2cfZAvkcMZS
+Content-Disposition: attachment; filename=orinoco_plx-belkin-bmcadams.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=orinoco_plx-belkin-bmcadams.patch; charset=UTF-8
 
-	if ( !tmp_buf ) {
-		page = get_free_page(GFP_KERNEL);
-		if ( !page ) {
-			return -ENOMEM;
-		}
-		if ( tmp_buf ) {
-			free_page(page);
-		} else {
-			tmp_buf = (unsigned char *) page;
-		}
-	}
-	
-	return 0;
-}
+--- linux/drivers/net/wireless/orinoco_plx.c	Mon Feb 25 14:38:03 2002
++++ linux.bmcadams-patched/drivers/net/wireless/orinoco_plx.c	Mon Mar 18 10=
+:42:48 2002
+@@ -385,6 +385,10 @@
+ 	{0x16ab, 0x1101, PCI_ANY_ID, PCI_ANY_ID,},	/* Reported working, but unkno=
+wn */
+ 	{0x16ab, 0x1102, PCI_ANY_ID, PCI_ANY_ID,},	/* Linksys WDT11 */
+ 	{0x16ec, 0x3685, PCI_ANY_ID, PCI_ANY_ID,},	/* USR 2415 */
++	{0xec80, 0xec00, PCI_ANY_ID, PCI_ANY_ID,}, 	/* Belkin F5D6000
++							   Tested & Working with
++							   Belkin's F5D6020 Prism2 based PCMCIA NIC=20
++							   - Brendan W. McAdams <rit@jacked-in.org> */
+ 	{0,},
+ };
+=20
 
-static void cy_close (struct tty_struct * tty, struct file *filp) {
-	printk("Driver - close\n");	
-	MOD_DEC_USE_COUNT;
+--=-RP7NDIHTf2cfZAvkcMZS--
 
-	if (tmp_buf) {
-		free_page( (unsigned long) tmp_buf );
-		tmp_buf = NULL;
-	}
-	
-	return;
-}
-
-static int cy_write ( struct tty_struct * tty, int from_user, const unsigned 
-char *buf, int count) {
-	printk("Driver - Trying to write %d bytes\n", count);
-	return 0;
-}
-
-int __init cy_init(void)
-{
-	printk("Driver - init\n");	
-	/* Initialize the tty_driver structure */
-
-	memset(&cy_serial_driver, 0, sizeof(struct tty_driver));
-	cy_serial_driver.magic = TTY_DRIVER_MAGIC;
-	cy_serial_driver.driver_name = "curso";
-#ifdef CONFIG_DEVFS_FS
-	cy_serial_driver.name = "tts/curso%d";
-#else
-	cy_serial_driver.name = "ttycurso%d";
-#endif
-	cy_serial_driver.major = 87;
-	cy_serial_driver.minor_start = 0;
-	cy_serial_driver.num = 1;
-	cy_serial_driver.type = TTY_DRIVER_TYPE_SERIAL;
-	cy_serial_driver.subtype = SERIAL_TYPE_NORMAL;
-	cy_serial_driver.init_termios = tty_std_termios;
-	cy_serial_driver.init_termios.c_cflag =
-		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
-	cy_serial_driver.init_termios.c_oflag |= OPOST;
-	cy_serial_driver.flags = TTY_DRIVER_REAL_RAW;
-	cy_serial_driver.refcount = &serial_refcount;
-	cy_serial_driver.table = & serial_table;
-	cy_serial_driver.termios = & serial_termios;
-	cy_serial_driver.termios_locked = & serial_termios_locked;
-
-	cy_serial_driver.open = cy_open;
-	cy_serial_driver.close = cy_close;
-	cy_serial_driver.write = cy_write;
-	
-	if (tty_register_driver(&cy_serial_driver))
-		panic("Couldn't register Cyclades serial driver\n");
-
-	return 0;
-
-}
-
-module_init(cy_init);
-module_exit(cy_cleanup_module);
-----------------------------------------------------------------------------------
-//  Application
-
-# include <stdio.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <fcntl.h>
-# include <errno.h>
-# include <unistd.h>
-
-int main (void) {
-		int fd;
-		int aux;
-		char buf[100];
-		
-		printf("User - Opening the device\n");
-		fd = open ("/dev/ttycurso0", O_RDWR | O_NONBLOCK);
-		if ( fd == -1) {
-			perror("User - Error opening the device, exiting");
-			return 1;
-		}
-	
-		strcpy(buf, "Espero 13");
-		
-		printf("User - Writing 10 bytes to device");
-		aux = write(fd, buf, 10);
-		printf("User - Writing return: %d", aux);
-		
-		printf("User - Closing the device\n");
-		aux = close(fd);
-		if ( aux == -1) {
-			perror("User - Error closing the device, exiting");
-			return 1;
-		}
-
-		return 0;
-}
---------------------------------------------------------------------------------------

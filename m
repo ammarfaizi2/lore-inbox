@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbULQQgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbULQQgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbULQQgf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 11:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbULQQge
+	id S261831AbULQQgc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 11:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbULQQgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 11:36:34 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15529 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261870AbULQQdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 11:33:02 -0500
-Date: Fri, 17 Dec 2004 17:33:01 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, linux-pm@lists.osdl.org,
-       Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: Cleanup PCI power states
-Message-ID: <20041217163301.GA7917@atrey.karlin.mff.cuni.cz>
-References: <20041217000526.GA11531@kroah.com> <Pine.LNX.4.44L0.0412171109260.1920-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Dec 2004 11:36:32 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:48843 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261831AbULQQbL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 11:31:11 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: linux-os@analogic.com
+Subject: Re: [Coverity] Untrusted user data in kernel
+Date: Fri, 17 Dec 2004 17:31:05 +0100
+User-Agent: KMail/1.6.2
+Cc: Bill Davidsen <davidsen@tmr.com>, James Morris <jmorris@redhat.com>,
+       Patrick McHardy <kaber@trash.net>, Bryan Fulton <bryan@coverity.com>,
+       netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+References: <41C26DD1.7070006@trash.net> <41C2FF99.3020908@tmr.com> <Pine.LNX.4.61.0412171108340.4216@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0412171108340.4216@chaos.analogic.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0412171109260.1920-100000@ida.rowland.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412171731.05735.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Hm, ok, can everyone agree (especially the linux-pm list people) that
-> > the patch below is the way we are all moving toward?
+> > Are you saying that processes with capability don't make mistakes? This isn't 
+> > a bug related to untrusted users doing privileged operations, it's a case of 
+> > using unchecked user data.
+> >
 > 
-> Yes, provided it is clear that this code only gives a _default_ mapping 
-> and that drivers will have access to the complete pm_message_t data so 
-> they can choose a different mapping if they want.
+> But isn't there always the possibility of "unchecked user data"?
+> I can, as root, do `cp /dev/zero /dev/mem` and have the most
+> spectacular crask you've evet seen. I can even make my file-
+> systems unrecoverable.
 
-Yes, that's the plan.
-									Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Only if you have the capability for raw hardware access.
+The same is true for the firmware interface. What other subsystems might
+be dangerous?
+
+	Regards
+		Oliver

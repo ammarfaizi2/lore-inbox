@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129535AbQLUH1n>; Thu, 21 Dec 2000 02:27:43 -0500
+	id <S129752AbQLUHby>; Thu, 21 Dec 2000 02:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbQLUH1e>; Thu, 21 Dec 2000 02:27:34 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:5740 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129535AbQLUH1V>;
-	Thu, 21 Dec 2000 02:27:21 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jesper Juhl <juhl@eisenstein.dk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange warnings about .modinfo when compiling 2.2.18 on Alpha 
-In-Reply-To: Your message of "Tue, 19 Dec 2000 15:20:17 GMT."
-             <20001219.15201700@jju.hyggekrogen.dk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 21 Dec 2000 17:56:40 +1100
-Message-ID: <5806.977381800@kao2.melbourne.sgi.com>
+	id <S130132AbQLUHbp>; Thu, 21 Dec 2000 02:31:45 -0500
+Received: from entropy.muc.muohio.edu ([134.53.213.10]:387 "EHLO
+	entropy.muc.muohio.edu") by vger.kernel.org with ESMTP
+	id <S129752AbQLUHb3>; Thu, 21 Dec 2000 02:31:29 -0500
+Date: Thu, 21 Dec 2000 02:00:49 -0500 (EST)
+From: George <greerga@entropy.muc.muohio.edu>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+cc: "Michael H. Warfield" <mhw@wittsend.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: iptables: "stateful inspection?"
+In-Reply-To: <3A40DE97.96228B5E@holly-springs.nc.us>
+Message-ID: <Pine.LNX.4.30.0012210147540.8317-100000@entropy.muc.muohio.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2000 15:20:17 GMT, 
-Jesper Juhl <juhl@eisenstein.dk> wrote:
->I just compiled 2.2.18 for my AlphaServer 400 4/233, and noticed a lot of 
->messages like the following during the compile, they all contain the 
->'Ignoring changed section attributes for .modinfo' part:
+On Wed, 20 Dec 2000, Michael Rothwell wrote:
 
-The way .modinfo is created is a kludge to prevent the .modinfo section
-being loaded as part of the module.  The initial reference to .modinfo
-creates it as non-allocated, later references try to allocate data in
-the section.  Older versions of gcc silently ignored the mismatch,
-newer ones warn about the mismatch.
+>"Michael H. Warfield" wrote:
+>>         I think that's more than a little overstatement on your
+>> part.  It depends entirely on the application you intend to put
+>> it to.
+>
+>Fine. How do I make FTP work through it? How can I allow all outgoing
+>TCP connections without opening the network to inbound connections on
+>the ports of desired services?
 
-modutils >= 2.3.19 makes sure that .modinfo is not loaded so the kernel
-kludge is no longer required.  Alan Cox (quite rightly) will not force
-2.2 users to upgrade modutils, but if you jump to modutils 2.3.23 and
-apply this patch against kernel 2.2.18 then the warnings will disappear.
+/etc/sysctl.conf:
+	# Set local port range to be higher.
+	net.ipv4.ip_local_port_range = 32768 33792
 
-Index: 18.1/include/linux/module.h
---- 18.1/include/linux/module.h Tue, 12 Sep 2000 13:37:17 +1100 kaos (linux-2.2/F/51_module.h 1.1.7.2 644)
-+++ 18.1(w)/include/linux/module.h Thu, 21 Dec 2000 17:55:23 +1100 kaos (linux-2.2/F/51_module.h 1.1.7.2 644)
-@@ -190,11 +190,6 @@ const char __module_parm_desc_##var[]		\
- __attribute__((section(".modinfo"))) =		\
- "parm_desc_" __MODULE_STRING(var) "=" desc
- 
--/* The attributes of a section are set the first time the section is
--   seen; we want .modinfo to not be allocated.  */
--
--__asm__(".section .modinfo\n\t.previous");
--
- /* Define the module variable, and usage macros.  */
- extern struct module __this_module;
- 
+/etc/ftpaccess:
+	passive ports 0.0.0.0/0 32768 36863
+
+Firewall script:
+-----------------
+STDPORT=32768:33792
+IP=1.2.3.4/32
+
+# Client FTP
+ipchains -A output -j ACCEPT -p tcp -s $IP $STDPORT -d 0.0.0.0/0 ftp-data -y -l
+ipchains -A output -j ACCEPT -p tcp -s $IP $STDPORT -d 0.0.0.0/0 ftp-data
+ipchains -A output -j ACCEPT -p tcp -s $IP $STDPORT -d 0.0.0.0/0 ftp -y -l
+ipchains -A output -j ACCEPT -p tcp -s $IP $STDPORT -d 0.0.0.0/0 ftp
+
+# Server FTP
+ipchains -A input -j ACCEPT -p tcp -s 0.0.0.0/0 ftp-data -d $IP $STDPORT # Needs SYN
+ipchains -A input -j ACCEPT -p tcp -s 0.0.0.0/0 ftp -d $IP $STDPORT ! -y
+
+[now deny all for all chains]
+
+Unfortunately, any FTP server that doesn't use port 20 for data streams
+won't work in Passive mode (oh well).  So I just download elsewhere first
+and then get it locally for browsers that insist upon Passive.
+
+For allowing outgoing connections without inbound, you'd use:
+
+	ipchains -A input -j DENY -p tcp -y
+
+or if that complains:
+
+	ipchains -A input -j DENY -p tcp -s 0.0.0.0/0 -d $IP -y
+
+You'll notice above I used '! -y' on the Server FTP rule.  If I missed a
+detail, it might be due to trying to condense everything I have into what
+you wanted.
+
+-George Greer
+
+(7,323 and 189 lines in my firewall rule script.)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

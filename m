@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293639AbSCFQEX>; Wed, 6 Mar 2002 11:04:23 -0500
+	id <S293633AbSCFQEX>; Wed, 6 Mar 2002 11:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293634AbSCFQEO>; Wed, 6 Mar 2002 11:04:14 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41222 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S293633AbSCFQD5>; Wed, 6 Mar 2002 11:03:57 -0500
-Date: Wed, 6 Mar 2002 11:01:28 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-In-Reply-To: <3C85F872.7050306@evision-ventures.com>
-Message-ID: <Pine.LNX.3.96.1020306105428.386A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293639AbSCFQEN>; Wed, 6 Mar 2002 11:04:13 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:21553 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S293634AbSCFQD6>; Wed, 6 Mar 2002 11:03:58 -0500
+Date: Wed, 6 Mar 2002 10:03:57 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200203061603.KAA21855@tomcat.admin.navo.hpc.mil>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <E16ict0-0002zT-00@starship.berlin>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Martin Dalecki wrote:
+Daniel Phillips <phillips@bonn-fries.net>:
+> On March 5, 2002 07:30 pm, Benjamin LaHaise wrote:
+> > On Tue, Mar 05, 2002 at 01:12:19PM -0500, Jeff Dike wrote:
+> > > Really?  And you're unconcerned about the impact on the rest of the system
+> > > of a UML grabbing (say) 128M of memory when it starts up?  Especially if it
+> > > may never use it?
+> > 
+> > Honestly, I think that most people want to know if the system they've setup 
+> > is overcommited at as early a point as possible: a UML failing at startup 
+> > with out of memory is better than random segvs at some later point when the 
+> > system is under load.  Refer to the principle of least surprise.  And if the 
+> > user truely wants to disable that, well, you can give them a command line 
+> > option to shoot themselves in the foot with.
+> 
+> Suppose you have 512 MB memory and an equal amount of swap.  You start 8
+> umls with 64 MB each.  With your and Peter's suggestion, the system always
+> goes into swap.  Whereas if the memory is only allocated on demand it
+> probably doesn't.
 
-> 2. It convinced me that the current task-file interface in linux
->     is inadequate. So Alan please bear with me if your CF format
->     microdrive will have to not wakeup properly for some time...
->     The current mess will just have to go before something more
->     adequate can go in.
+Not unless the VM is really bad... All that is called for is that the
+virtual space be available. Each umls gets 64 MB, but the rest is guaranteed
+available via swap. Nothing has to swap until all processes have expanded
+to use all available ram. Currently the only way to ensure that the memory
+IS available is to modify every page at startup. Yes it will swap the modified
+pages.
 
-  Fortunately you have the 2.5 kernel to do just this type of thing,
-and others who don't share the "it's not perfect, rewrite from scratch"
-may be able to find a clean way to provide true RAW access for root."
- 
-> 3. Someone had too much time at apple, becouse the C++ found
->     there doesn't apparently contain anything that couldn't
->     be expressed without any pain in plain C with structs containing
->     function pointers ;-).
+But it should only do so once, until the pages are really needed.
 
-  Can't disagree, I never understood how people who can understand
-inheritance can be fuddled by pointers to functions.
+Otherwise the umls run until the system goes OOM - then somebody gets killed.
+Much nicer to have it die at the beginning instead of after 4-5 hours of
+operation when it needs just "one more page" only to find out that the system
+lied when it said it was available.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.

@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262824AbUCJUvF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 15:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbUCJUvF
+	id S262827AbUCJUw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbUCJUw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 15:51:05 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:53937 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262824AbUCJUuN (ORCPT
+	Wed, 10 Mar 2004 15:52:56 -0500
+Received: from main.gmane.org ([80.91.224.249]:33514 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262827AbUCJUvr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:50:13 -0500
-Message-ID: <404F7F54.1000105@us.ibm.com>
-Date: Wed, 10 Mar 2004 14:49:24 -0600
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Rusty Russell <rusty@au1.ibm.com>, Mike Anderson <andmike@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       kai@germaschewski.name, sam@ravnborg.org, akpm@osdl.org
-Subject: Re: Question on MODULE_VERSION macro
-References: <20040119214233.GF967@beaverton.ibm.com> <20040120005915.2A54A17DD8@ozlabs.au.ibm.com> <20040120011734.GB6309@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 15:51:47 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: how to detect udp packets drops ?
+Date: Wed, 10 Mar 2004 21:51:44 +0100
+Message-ID: <yw1xy8q8xw67.fsf@kth.se>
+References: <404E36F1.8000908@newsguy.com> <404F6F52.2000202@cs.princeton.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:zRW8RG6Sz/q2BMG3nurVpeV07+U=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like the MODULE_VERSION macro is now in the tree.
-Greg, any status on the sysfs patch you mention below?
+KyoungSoo Park <kyoungso@cs.princeton.edu> writes:
 
-thanks,
+> Hi,
+>
+> I'm not sure if my question is appropriate, but is there any way to
+> directly detect UDP packet drops in linux 2.4.x ?  I'd like to know
+> how many UDP packets get actually dropped by the kernel for the
+> overloaded time period.  Any suggestions?
 
-Brian
-
-
-Greg KH wrote:
-> On Tue, Jan 20, 2004 at 11:57:38AM +1100, Rusty Russell wrote:
-> 
->>In message <20040119214233.GF967@beaverton.ibm.com> you write:
->>
->>>Rusty,
->>>	Christoph mentioned that a MODULE_VERSION macro may be pending.
->>
->>Hey, thanks Christoph for the reminder.  I stopped when we were
->>frozen.
->>
->>This still seems to apply.  Do people think this is huge overkill, or
->>a work of obvious beauty and genius?
-> 
-> 
-> Looks sane.  I'm guessing that modinfo can show this?
-> 
-> 
->>Doesn't put things in sysfs, but Greg was working on that for module
->>parameters... Greg?
-> 
-> 
-> Oh yeah, I'll dig out that patch later this week.  An older version has
-> been sitting in my bk tree forever, need to update it with the last
-> changes you sent me.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
+The thing about UDP is that you can't tell if the packet got through,
+that's what unreliable means.  However, if you just want to test a
+link you could send a stream of packets with known data in them, such
+as an increasing number sequence.  The receiving end will then be able
+to tell if there were any drops.  Remember that out of order delivery
+is allowed for UDP, so you might want to check for that too.
 
 -- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+Måns Rullgård
+mru@kth.se
 

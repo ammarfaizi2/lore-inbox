@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBALJv>; Thu, 1 Feb 2001 06:09:51 -0500
+	id <S129078AbRBALUq>; Thu, 1 Feb 2001 06:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129063AbRBALJk>; Thu, 1 Feb 2001 06:09:40 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:16312 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129032AbRBALJb>; Thu, 1 Feb 2001 06:09:31 -0500
-Date: Thu, 1 Feb 2001 12:04:55 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: James Sutherland <jas88@cam.ac.uk>
-cc: Grzegorz Sojka <grzes@prioris.mini.pw.edu.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: BUG
-In-Reply-To: <Pine.SOL.4.21.0101312317340.24868-100000@orange.csi.cam.ac.uk>
-Message-ID: <Pine.GSO.3.96.1010201120045.17657B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129080AbRBALUf>; Thu, 1 Feb 2001 06:20:35 -0500
+Received: from oxmail3.ox.ac.uk ([129.67.1.180]:5507 "EHLO oxmail.ox.ac.uk")
+	by vger.kernel.org with ESMTP id <S129078AbRBALUW>;
+	Thu, 1 Feb 2001 06:20:22 -0500
+Date: Thu, 1 Feb 2001 11:20:15 +0000
+From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [UPDATE] Fresh zerocopy patch on kernel.org
+Message-ID: <20010201112014.A27009@sable.ox.ac.uk>
+In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net> <20010131152653.C13345@sable.ox.ac.uk> <14968.49462.674977.825098@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <14968.49462.674977.825098@pizda.ninka.net>; from davem@redhat.com on Wed, Jan 31, 2001 at 05:51:50PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, James Sutherland wrote:
+David S. Miller writes:
+> 
+> Malcolm Beattie writes:
+>  > David S. Miller writes:
+>  > > 
+>  > > At the usual place:
+>  > > 
+>  > > ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.1-1.diff.gz
+>  > 
+>  > Hmm, disappointing results here; maybe I've missed something.
+> 
+> As discussed elsewhere there is a %10 to %15 performance hit for
+> normal write()'s done with the new code.
+> 
+> If you do your testing using sendfile() as the data source, you'll
+> results ought to be wildly different and more encouraging.
 
-> > Jan 31 23:39:18 Zeus kernel: APIC error on CPU1: 08(02)
-> > Jan 31 23:39:46 Zeus kernel: APIC error on CPU0: 04(02)
-[...]
-> (These are common, but fairly harmless FWIH, on BP6s.)
+I did say that the ftp test used sendfile() as the data source and
+it dropped from 86 MB/s to 62 MB/s. Alexey has mailed me suggesting
+the problem may be that netfilter is turned on. It is indeed turned
+on in both the 2.4.1 config and the 2.4.1+zc config but maybe it has
+a far higher detrimental effect in the zerocopy case. I'm currently
+building new non-netfilter kernels and I'll go through the exercise
+again. I'm confident I'll end up being impressed with the numbers
+even if it takes some tweaking to get there :-)
 
- Yep, until you get a lockup due to an undetected error...
+--Malcolm
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Unix Systems Programmer
+Oxford University Computing Services
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

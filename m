@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbTIOWbh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbTIOWbh
+	id S261671AbTIOWeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbTIOWeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:31:37 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:36515 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261642AbTIOWbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:31:36 -0400
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: davidsen@tmr.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       zwane@linuxpower.ca
-In-Reply-To: <200309151934.h8FJYI84002544@81-2-122-30.bradfords.org.uk>
-References: <200309151934.h8FJYI84002544@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063664888.8256.25.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Mon, 15 Sep 2003 23:28:09 +0100
+	Mon, 15 Sep 2003 18:34:17 -0400
+Received: from [193.138.115.2] ([193.138.115.2]:24816 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S261671AbTIOWeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:34:14 -0400
+Date: Tue, 16 Sep 2003 00:33:02 +0200 (CEST)
+From: Jesper Juhl <jju@dif.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] config BLK_DEV_IDE_TCQ_DEPTH - text and real life don't
+ match
+Message-ID: <Pine.LNX.4.56.0309160025510.6467@jju_lnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-15 at 20:34, John Bradford wrote:
-> Yes, you're right, from a stability point of view I was being a bit
-> impractical.  Any idea how many developers are actually regularly
-> testing code on 386s these days, by the way?
 
-I test 486 still but not 386. Even finding embedded 386 stuff that isnt
-obsolete is hard nowdays (6117 etc). 
+In drivers/ide/Kconfig you find the following help text for
+BLK_DEV_IDE_TCQ_DEPTH
+
+"You probably just want the default of 32 here. If you enter an invalid
+ number, the default value will be used."
+
+But the default is /not/ 32, the default is 8. The patch bellow changes
+the default to match the help text... An alternative is of course to
+change the text to match the current default of 8, but I opted for
+changing the default in this patch.
+
+
+Kind regards,
+
+Jesper Juhl <jju@dif.dk>
+
+
+
+diff -u linux-2.6.0-test5-orig/drivers/ide/Kconfig linux-2.6.0-test5/drivers/ide/Kconfig
+--- linux-2.6.0-test5-orig/drivers/ide/Kconfig  2003-09-08 21:50:03.000000000 +0200
++++ linux-2.6.0-test5/drivers/ide/Kconfig       2003-09-16 00:30:20.000000000 +0200
+@@ -471,7 +471,7 @@
+ config BLK_DEV_IDE_TCQ_DEPTH
+        int "Default queue depth"
+        depends on BLK_DEV_IDE_TCQ
+-       default "8"
++       default "32"
+        help
+          Maximum size of commands to enable per-drive. Any value between 1
+          and 32 is valid, with 32 being the maxium that the hardware supports.
 

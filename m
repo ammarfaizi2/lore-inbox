@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266557AbRGGUvJ>; Sat, 7 Jul 2001 16:51:09 -0400
+	id <S266559AbRGGUz2>; Sat, 7 Jul 2001 16:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266559AbRGGUuu>; Sat, 7 Jul 2001 16:50:50 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:63236 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266557AbRGGUuq>; Sat, 7 Jul 2001 16:50:46 -0400
-Date: Sat, 7 Jul 2001 17:50:44 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jim Roland <jroland@roland.net>
-Cc: "M.H.VanLeeuwen" <vanl@megsinet.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Does kernel require IDE enabled in BIOS to access HD, FS errors?
-In-Reply-To: <000401c10725$47643b20$bb1cfa18@JimWS>
-Message-ID: <Pine.LNX.4.33L.0107071750270.1389-100000@duckman.distro.conectiva>
+	id <S266562AbRGGUzS>; Sat, 7 Jul 2001 16:55:18 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28677 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266559AbRGGUzG>; Sat, 7 Jul 2001 16:55:06 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@transmeta.com (H. Peter Anvin)
+Subject: Re: Machine check exception? (2.4.6+SMP+VIA)
+Date: 7 Jul 2001 13:54:19 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9i7str$f30$1@tazenda.transmeta.com>
+In-Reply-To: <HDEBKHLDKIDOBMHPKDDKEEAIEMAA.vhou@khmer.cc>
+Reply-To: hpa@transmeta.com (H. Peter Anvin)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jul 2001, Jim Roland wrote:
+Followup to:  <HDEBKHLDKIDOBMHPKDDKEEAIEMAA.vhou@khmer.cc>
+By author:    "Vibol Hou" <vhou@khmer.cc>
+In newsgroup: linux.dev.kernel
+>
+> Hi,
+> 
+> I was running 2.4.6-stable in SMP mode on a dual P3-1GHz machine (VIA 694D
+> Chipset / MSI-6321 M/B + ) and the following message popped up after which
+> the system hardlocked (no SysRQ input).  What does this message mean?
+> 
+> CPU 1: Machine Check Exception: 0000000000000004
+> Bank 1: b200000000000115
+> Kernel panic: CPU context corrupt
+> 
+> Message from syslogd@delta at Sat Jul  7 13:18:36 2001 ...
+> delta kernel: CPU 1: Machine Check Exception: 0000000000000004
+> 
+> Message from syslogd@delta at Sat Jul  7 13:18:36 2001 ...
+> delta kernel: Bank 1: b200000000000115
+> 
+> Message from syslogd@delta at Sat Jul  7 13:18:36 2001 ...
+> delta kernel: Kernel panic: CPU context corrupt
+> 
 
-> but it's possible that the kernel is making a BIOS call,
+It means your hardware is bad.
 
-Not really ...
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

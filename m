@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265006AbUFVQMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264992AbUFVQMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265006AbUFVQMI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 12:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264890AbUFVP3b
+	id S264992AbUFVQMv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 12:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUFVQMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 11:29:31 -0400
-Received: from holomorphy.com ([207.189.100.168]:37251 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264880AbUFVPRL (ORCPT
+	Tue, 22 Jun 2004 12:12:20 -0400
+Received: from gate.crashing.org ([63.228.1.57]:18600 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265027AbUFVQL5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 11:17:11 -0400
-To: linux-kernel@vger.kernel.org
-From: William Lee Irwin III <wli@holomorphy.com>
-Subject: [profile]: [8/23] arm26 profiling cleanups
-Message-ID: <0406220816.JbIb5aKb4aHb0aJb3a5aZaXaXaHbWa1a4a0aJbXaMbYaJb2aLbKb2aZaWaHb2a4a15250@holomorphy.com>
-In-Reply-To: <0406220816.4a1a5aIb4aLb1a2a2aHbMbXa3aIb5a0a3aMb2aLbLb0aYaWaZaIbIb4a1aMb2a2a15250@holomorphy.com>
-CC: rddunlap@osdl.org
-Date: Tue, 22 Jun 2004 08:17:09 -0700
+	Tue, 22 Jun 2004 12:11:57 -0400
+Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "David S. Miller" <davem@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>, kernel@nn7.de,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+In-Reply-To: <40D84A9B.8010503@pobox.com>
+References: <20040621141144.119be627.davem@redhat.com>
+	 <40D847E3.2080109@nortelnetworks.com>  <40D84A9B.8010503@pobox.com>
+Content-Type: text/plain
+Message-Id: <1087920212.22687.50.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 22 Jun 2004 11:03:34 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert arm26 to use profiling_on() and profile_tick().
+On Tue, 2004-06-22 at 10:04, Jeff Garzik wrote:
+> Chris Friesen wrote:
+> > Just a quick question.  Does the sungem chip support jumbo frames?  I'd 
+> > like to use MTU of 9000 to make large local transfers more efficient, 
+> > but it didn't seem to work last time I checked.
+> 
+> 
+> Are you 100% certain you configured the other side to support jumbo?
+> 
+> Jumbo frames are non-standard, and sometimes require configuring MTU on 
+> the switch or remote network card (if directly connected).
 
-Index: prof-2.6.7/arch/arm26/kernel/time.c
-===================================================================
---- prof-2.6.7.orig/arch/arm26/kernel/time.c	2004-06-15 22:19:42.000000000 -0700
-+++ prof-2.6.7/arch/arm26/kernel/time.c	2004-06-22 07:25:49.764597800 -0700
-@@ -72,21 +72,8 @@
-  */
- static inline void do_profile(struct pt_regs *regs)
- {
--	if (!user_mode(regs) &&
--	    prof_buffer &&
--	    current->pid) {
--		unsigned long pc = instruction_pointer(regs);
--		extern int _stext;
--
--		pc -= (unsigned long)&_stext;
--
--		pc >>= prof_shift;
--
--		if (pc >= prof_len)
--			pc = prof_len - 1;
--
--		prof_buffer[pc] += 1;
--	}
-+	if (!user_mode(regs) && profiling_on() && current->pid)
-+		profile_tick(instruction_pointer(regs));
- }
- 
- static unsigned long next_rtc_update;
+Well, it's not enabled in the driver I think, or at least it wasn't last
+time I looked. Dave told me the chip fifo's are too small to do anything
+useful with jumbo frames.
+
+Ben.
+
+

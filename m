@@ -1,47 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUHFWyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267908AbUHFW54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUHFWyt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 18:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUHFWyt
+	id S267908AbUHFW54 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 18:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267910AbUHFW54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 18:54:49 -0400
-Received: from hera.kernel.org ([63.209.29.2]:23720 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266189AbUHFWys (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 18:54:48 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: PATCH: fix some 32bit isms
-Date: Fri, 6 Aug 2004 22:53:50 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <cf125u$hnt$1@terminus.zytor.com>
-References: <20040728135941.GA17409@devserv.devel.redhat.com> <20040728092334.74e0cfcd.akpm@osdl.org>
+	Fri, 6 Aug 2004 18:57:56 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:8423 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S267908AbUHFW5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 18:57:48 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: schilling@fokus.fraunhofer.de, axboe@suse.de
+Content-Type: text/plain
+Organization: 
+Message-Id: <1091823988.1232.2552.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1091832830 18174 127.0.0.1 (6 Aug 2004 22:53:50 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 6 Aug 2004 22:53:50 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 Aug 2004 16:26:29 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040728092334.74e0cfcd.akpm@osdl.org>
-By author:    Andrew Morton <akpm@osdl.org>
-In newsgroup: linux.dev.kernel
->
-> Alan Cox <alan@redhat.com> wrote:
-> >
-> >  		printk(MYIOC_s_ERR_FMT 
-> >   		     "Invalid IOC facts reply, msgLength=%d offsetof=%d!\n",
-> >  -		     ioc->name, facts->MsgLength, (offsetof(IOCFactsReply_t,
-> >  +		     ioc->name, facts->MsgLength, (int)(offsetof(IOCFactsReply_t,
-> 
-> printk expects %zd for a size_t
-> 
+In various emails, Joerg Schilling writes:
 
-It should be %zu, since size_t is unsigned.
+> Linux users like to call cdrecord -scanbus and they like to
+> see _all_ SCSI devices from a single call to cdrecord.
 
-%zd is appropriate for ssize_t.
+If you really think so, you've been smoking crack.
+Users _hate_ to call "cdrecord -scanbus". They don't
+see why it should be needed. The normal reaction to
+reading your documentation goes something like this:
 
-	-hpa
+"What the fuck? Can't I just give it a device name?"
+
+Alternately:
+
+"Uh... I don't have SCSI. I guess I need a different program."
+
+Heck, you could do the silly -scanbus thing internally
+if you must. Then users wouldn't get it wrong and wouldn't
+have to screw with it.
+
+> Looks like a typical answer from somebody who's thoughts
+> are limited to a Linux environment. Take into account, that
+> cdrecord runs on more than 30 different platforms and that
+> several of these platforms do not have device nodes like
+> UNIX has. Cdrecord has been implemented to use a portable
+> addressing method.
+
+I'm sure a Windows user would want to use something like
+a drive letter. So... give it to them. Not even a Solaris
+user would really want to use raw SCSI notation. On all
+platforms, people want to use the native naming system.
+
+> The fact that the Linux kernel does not return instance
+> numbers for /dev/hd* SCSI devices makes it impossible to
+> implement a unique address space :-(
+
+We have a unique address space: the /dev directory
+
+We don't need a second address space.
+
+> If you like to compile an application that uses kernel interfaces,
+> you need to make sure that both, the application and the kernel
+> are compiled with the same "interface description" which is just
+> the kernel include files.
+
+No change to the kernel headers would allow you to produce
+a binary on an old system that makes use of new features.
+The only way this can work is if you bring your own headers.
+
+I use kernel interfaces all the time in procps. For the old
+and standard ones, I rely on the C library. For all the rest,
+I have my own header files. This works great.
+
+I can compile procps on a system with the 2.4.xx kernel
+and 2.4.xx headers. Then, I can take this binary to a system
+with the 2.2.xx or 2.6.x kernel and expect it to work great.
+That's 3 major kernel revisions: 2.2.xx, 2.4.xx, and 2.6.x.
+Really, it's not hard.
+
+> I wish that discussions with the Linux kernel hackers would be as
+> easy and fruitful as they are with the Solaris kernel hackers.
+
+You're trying to force Linux developers to comply with Solaris
+interfaces. You should try things the other way and see how far
+you get. If you don't get far, you're being unfair. If you do
+get far, well, isn't that good?
+
+> Just make sure not to use a broken version from the SuSE source tree....
+
+I wonder why SuSE felt they needed to patch your code.
+While I've found that some vendors are really crazy about
+breaking things, SuSE has been pretty good.
+
+If everyone around you seems to be insane, maybe it's you.
+
+> Let's see whether "Linux" is open enough to listen to the
+> demands of the users......
+
+How about cdrecord? Demands of the users:
+
+1. tools built with headers derived from Linux 2.2.xx will
+   take full advantage of Linux 2.6.xx features
+
+2. tools built with headers derived from Linux 2.6.x will
+   still work on the oldest Linux you support
+
+3. in all cases, including SCSI, the /dev/* name is used
+   (the Solaris and Windows users would love that as well)
+
+

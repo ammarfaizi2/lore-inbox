@@ -1,65 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUL0OgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbUL0Oje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUL0OgY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 09:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbUL0OgX
+	id S261491AbUL0Oje (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 09:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbUL0Oje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 09:36:23 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:24494 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261451AbUL0OgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 09:36:21 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andreas Steinmetz <ast@domdv.de>
-Subject: Re: Linux 2.6.10-ac1
-Date: Mon, 27 Dec 2004 15:36:29 +0100
-User-Agent: KMail/1.7.1
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1104103881.16545.2.camel@localhost.localdomain> <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de>
-In-Reply-To: <41CF649E.20409@domdv.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412271536.29783.rjw@sisk.pl>
+	Mon, 27 Dec 2004 09:39:34 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:214 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S261491AbUL0OjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 09:39:24 -0500
+Date: Mon, 27 Dec 2004 15:35:02 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Real-time rw-locks (Re: [patch] Real-Time Preemption,
+ -RT-2.6.10-rc2-mm3-V0.7.32-15)
+In-Reply-To: <20041214113519.GA21790@elte.hu>
+Message-Id: <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 27 of December 2004 02:25, Andreas Steinmetz wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > What do you need 'serialize' option for?
+I haven't seen much traffic on real-time preemption lately. Is it due
+to Christmas or lost interest?
+
+I noticed that you changed rw-locks to behave quite diferently under
+real-time preemption: They basicly works like normal locks now. I.e. there
+can only be one reader task within each region. This can can however lock
+the region recursively. I wanted to start looking at fixing that because
+it ought to hurt scalability quite a bit - and even on UP create a few
+unneeded task-switchs. However, the more I think about it the bigger the 
+problem:
+
+First, let me describe how I see a read-write lock. It has 3 states:
+a) unlocked
+b) locked by n readers
+c) locked by 1 writer
+There can either be 1 writer within the protected region or n>=0
+readers within the region. When a writer wants to take the lock,
+calling down_write(), it has to wait until the read count is 0. When a
+reader wants to take the lock, calling down_read(), he has only to wait
+until the the writer is done - there is no need to wait for the other
+readers.
+
+Now in a real-time system down_X() ought to have a deterministic
+blocking time. It should be easy to make down_read() deterministic: If
+there is a writer let it inherit the calling readers priority. 
+However, down_write() is hard to make deterministic. Even if we assume
+that the lock not only keeps track of the number of readers but keeps a
+list of all the reader threads within the region it can traverse the list
+and boost the priority of all those threads. If there is n readers when
+down_write() is called the blocking time would be
+ O(ceil(n/#cpus))
+time - which is unbounded as n is not known!
+
+Having a rw-lock with deterministic down_read() but non-deterministic
+down_write() would be very usefull in a lot of cases. The characteritic is
+that the data structure being protected is relative static, is going
+to be used by a lot of RT readers and the updates doesn't have to be done
+with any real-time requirements.
+However, there is no way to know in general which locks in the kernel can
+be allowed to work like that and which can't. A good compromise would be
+limit the number of readers in a lock by the number of cpu's on the
+system. That would make the system scale over several CPUs without hitting
+unneeded congestions on read-locks and still have a determnistic
+down_write(). 
+
+down_write() shall then do the following: Boost the priority of all the
+active readers to the priority of the caller. This will in turn distribute
+the readers over the cpu's of the system assuming no higher priority RT
+tasks are running. All the reader tasks will then run to up_read() in
+time O(1) as they can all run in parellel - assuming there is no ugly
+nested locking ofcourse!
+down_read() should first check if there is a writer. If there is
+boost it and wait. If there isn't but there isn't room for another reader
+boost one of the readers such it will run to up_read().
+
+An extra bonus of not having the number of readers bounded: The various
+structures needed for making the list of readers can be allocated once.
+There is no need to call kmalloc() from within down_read() to get a list
+element for the lock's list of readers.
+
+I don't know wether I have time for coding this soon. Under all
+circumstances I do not have a SMP system so I can't really test it if I
+get time to code it :-(
+
+Esben
+
+
+
+On Tue, 14 Dec 2004, Ingo Molnar wrote:
+
 > 
-> I didn't check if the problem is gone with 2.6.10 but there's boards 
-> like my tyan 2885 which do need the serialize option to work properly 
-> for add-on ide controllers.
+> * Rui Nuno Capela <rncbc@rncbc.org> wrote:
 > 
->  From the X86-64 patch release notes of Andi Kleen:
+> > Isn't this tightly related to mkinitrd sometimes hanging while on
+> > mount -o loop, that I've been reporting a couple of times before? It
+> > used to hang on any other time I do a new kernel install, but latetly
+> > it seems to be OK (RT-V0.9.32-19 and -20).
 > 
-> Reports that dual Tyan S2885 and S2880 can lock up when multiple IDE 
-> channels are stressed in parallel. "noapic" or "ideX=serialize" seems to 
-> work around it. Andre Hedrick thinks it's a generic bug/race in the IDE 
-> code.
+> yeah, i've added Thomas Gleixner's earlier semaphore->completion
+> conversion to the loop device, to -19 or -18.
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Well, that's not the only case, I think.  I am able to lock up an S2885-based 
-box by ripping audio CDs.  The CDs go into /dev/hda, which is a LiteOn 
-DVD-ROM and the target is on /dev/sdb*, which is on a 3ware SATA RAID 
-controller.  The machine locks up on one CD out of three (approx. 10 tracks 
-each), quite regularly (I use KAudioCreator).  It does not lock up this way 
-in any other conditions, apparently.
-
-> Do you want to force people to disable the io-apic just because of 
-> option removal? In my case the serialized devices are a disk and a 
-> dvd-rw which is rarely used, so disabling the io-apic is a bad solution.
-
-AFAIK, you can't disable the io-apic on these boards.
-
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

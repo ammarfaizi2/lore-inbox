@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262448AbSLCRkh>; Tue, 3 Dec 2002 12:40:37 -0500
+	id <S262023AbSLCRjS>; Tue, 3 Dec 2002 12:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262648AbSLCRkh>; Tue, 3 Dec 2002 12:40:37 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:62310 "EHLO xsmtp.ethz.ch")
-	by vger.kernel.org with ESMTP id <S262448AbSLCRkg>;
-	Tue, 3 Dec 2002 12:40:36 -0500
-Message-ID: <3DECEE53.2030003@debian.org>
-Date: Tue, 03 Dec 2002 18:48:03 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en, it-ch, it, fr
+	id <S262040AbSLCRjS>; Tue, 3 Dec 2002 12:39:18 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:54204 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262023AbSLCRjR>;
+	Tue, 3 Dec 2002 12:39:17 -0500
+Importance: Normal
+Sensitivity: 
+Subject: IBM/MontaVista Dynamic Power Management Project
+To: linux-kernel@vger.kernel.org, cpufreq@www.linux.uk.org,
+       linux-pm-devel@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF6879354C.0478D137-ON86256C84.005CA3C0@pok.ibm.com>
+From: "Bishop Brock" <bcbrock@us.ibm.com>
+Date: Tue, 3 Dec 2002 11:46:26 -0600
+X-MIMETrack: Serialize by Router on D01ML068/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 12/03/2002 12:46:34 PM
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Large block device patch, part 1 of 9
-References: <fa.l4d1mqv.1ghm1h2@ifi.uio.no> <fa.j8nq6dv.14lihor@ifi.uio.no> <3DEC6F41.9000106@debian.org> <3DECECAB.3030308@zytor.com>
-In-Reply-To: <3DECECAB.3030308@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Dec 2002 17:48:06.0415 (UTC) FILETIME=[22AB61F0:01C29AF4]
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+IBM and MontaVista have initiated a joint project to develop a
+dynamic power management control and policy mechanism for Linux
+for processors supporting dynamic voltage and frequency scaling.
+A paper describing the proposal can be obtained from
+
+http://www.research.ibm.com/arl/projects/dpm.html
+
+A working prototype of the proposed framework for
+the IBM PowerPC 405LP processor exists and will be made
+public in the near future.
+
+Bishop Brock
+
+IBM Research, Austin Center for Low-Power Computing
+11400 Burnet Road    MS/904-6F021
+Austin, TX 78758
+(512) 838-0149    IBM T/L 678-0149
 
 
-H. Peter Anvin wrote:
-> Giacomo Catenazzi wrote:
-> 
->>
->> kprintf would be better
-> 
->  >
-> 
-> Why?  We don't have, say, kstrcpy() or ksscanf() for other functions 
-> that are library-equivalent.
-
-k to remember people that it is not the std function, thus not a write to
-the standard output. I see more like fprintf (file) and [v]sprintf (string),
-we write to a special buffer ("klog").
-But if we don't move the verbosity level out of string, also the simple
-'printf' would be fine.
-
-ciao
-	giacomo
 

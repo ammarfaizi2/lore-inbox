@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVBGWi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVBGWme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVBGWi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVBGWiz
+	id S261310AbVBGWme (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVBGWmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:38:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3808 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261288AbVBGWih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:38:37 -0500
-Date: Mon, 7 Feb 2005 23:38:33 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Brian King <brking@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] PCI: Dynids - passing driver data
-Message-ID: <20050207223833.GA2651@atrey.karlin.mff.cuni.cz>
-References: <200502072200.j17M0S0N008552@d01av02.pok.ibm.com> <20050207221820.GA27543@kroah.com> <4207ECDB.7060506@us.ibm.com>
+	Mon, 7 Feb 2005 17:42:33 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:62215 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261310AbVBGWlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:41:46 -0500
+Message-Id: <200502072241.j17MfTfP027969@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Chris Wright <chrisw@osdl.org>
+Cc: Michael Halcrow <mhalcrow@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8) 
+In-Reply-To: Your message of "Mon, 07 Feb 2005 14:26:03 PST."
+             <20050207142603.A469@build.pdx.osdl.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us>
+            <20050207142603.A469@build.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4207ECDB.7060506@us.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/signed; boundary="==_Exmh_1107816087_22594P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 07 Feb 2005 17:41:28 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+--==_Exmh_1107816087_22594P
+Content-Type: text/plain; charset=us-ascii
 
-> >Which is a good thing, right?  "driver_data" is usually a pointer to
-> >somewhere.  Having userspace specify it would not be a good thing.
-> 
-> That depends on the driver usage, and the patch allows it to be 
-> configurable and defaults to not being used.
+On Mon, 07 Feb 2005 14:26:03 PST, Chris Wright said:
 
-Maybe we could just define the operation as cloning of an entry
-for another device ID, including its driver_data.
+> Hard links still point to same inode, what's the issue that this
+> addresses?
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Only dead fish swim with the stream.
+For those systems that have everything on one big partition, you can often
+do stuff like:
+
+ln /etc/passwd /tmp/<filename_generated_by_mktemp>
+
+and wait for /etc/passwd to get clobbered by a cron job run by root...
+
+--==_Exmh_1107816087_22594P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCB+6XcC3lWbTT17ARAv8pAJ9BJ53CZDrP7jPY/xrd58Trf79w3wCfWPDr
+D0agMzr+RXVJOzZegD6dzJQ=
+=qj7B
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107816087_22594P--

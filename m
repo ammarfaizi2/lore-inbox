@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUGFUek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264542AbUGFUe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbUGFUek (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 16:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUGFUec
+	id S264542AbUGFUe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 16:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUGFUdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 16:34:32 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:33173 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S264571AbUGFUeG (ORCPT
+	Tue, 6 Jul 2004 16:33:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19369 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264512AbUGFUcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 16:34:06 -0400
-To: Zack Brown <zbrown@tumblerings.org>
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: problems getting SMP to work with vanilla 2.4.26
-References: <A6974D8E5F98D511BB910002A50A6647615FF683@hdsmsx403.hd.intel.com>
-	<1089054464.15675.56.camel@dhcppc4>
-	<20040706164839.GA1094@tumblerings.org>
-	<1089133780.15675.468.camel@dhcppc4>
-	<20040706171547.GB1453@tumblerings.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 06 Jul 2004 22:07:09 +0200
-In-Reply-To: <20040706171547.GB1453@tumblerings.org> (Zack Brown's message
- of "Tue, 6 Jul 2004 10:15:47 -0700")
-Message-ID: <m3pt78c32q.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Jul 2004 16:32:11 -0400
+Date: Tue, 6 Jul 2004 13:31:46 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+Message-Id: <20040706133146.7ed47c69@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040706131731.540dd5fd.davem@redhat.com>
+References: <32886.63.170.215.71.1088564087.squirrel@www.osdl.org>
+	<20040629222751.392f0a82.davem@redhat.com>
+	<20040630152750.2d01ca51@dell_ss3.pdx.osdl.net>
+	<20040630153049.3ca25b76.davem@redhat.com>
+	<20040701133738.301b9e46@dell_ss3.pdx.osdl.net>
+	<20040701140406.62dfbc2a.davem@redhat.com>
+	<20040702013225.GA24707@conectiva.com.br>
+	<20040706093503.GA8147@outpost.ds9a.nl>
+	<20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
+	<20040706185856.GN18841@lug-owl.de>
+	<20040706131731.540dd5fd.davem@redhat.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zack Brown <zbrown@tumblerings.org> writes:
+On Tue, 6 Jul 2004 13:17:31 -0700
+"David S. Miller" <davem@redhat.com> wrote:
 
-> No, I have 2.6.6 working pretty well now. I thought you just wanted a
-> 2.4 success case. My dmesg output from 2.6.6 is appended.
+> On Tue, 6 Jul 2004 20:58:56 +0200
+> Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
+> 
+> > On Tue, 2004-07-06 11:47:41 -0700, Stephen Hemminger <shemminger@osdl.org>
+> > wrote in message <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>:
+> > 
+> > > I propose that the following that will avoid sending window scaling that
+> > > is big enough to break in these cases unless the tcp_rmem has been increased.
+> > > It will keep default configuration from blowing in a corrupt world.
+> > 
+> > I'm not sure if this is the right way to react. I'd think it's okay to
+> > give the user the possibility to scale the window so that it works with
+> > his b0rk3d firewall, but default behavior should be to do whatever the
+> > protocol dictates/allows.
+> 
+> I totally agree, and that's why the sysctl is there for people to
+> tweak as they desire.
+> 
+> Jan, any particular reason you removed so much stuff (in particular
+> netdev@oss.sgi.com) from the CC: list in your posting here?
 
-Not sure if it matters, but I'm running Linux 2.4 on CUV4X-D (no onboard
-LAN/SCSI) with no problems. I had to change (in BIOS setup) MPS 1.4 to
-1.1 though (not sure if it's still needed).
--- 
-Krzysztof Halasa
+The point is we are sending a bigger window scale then we need to.
+The maximum receive window is limited by tcp_rmem[2], so we only need to
+allow that much.  Having a different sysctl just for that is unnecessary and
+potentially confusing.
+
+The default tcp_rmem[2] is 174760, so we only need a wscale of 2 to represent
+that. We were sending 7.

@@ -1,101 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVA2W1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVA2W1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVA2W1i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 17:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVA2W0F
+	id S261582AbVA2W1h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 17:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVA2W02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 17:26:05 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:28079 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261585AbVA2WUw (ORCPT
+	Sat, 29 Jan 2005 17:26:28 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:28591 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261582AbVA2WVH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 17:20:52 -0500
-Date: Sat, 29 Jan 2005 23:20:48 +0100 (CET)
+	Sat, 29 Jan 2005 17:21:07 -0500
+Date: Sat, 29 Jan 2005 23:21:05 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 7/8] Kconfig: cleanup sound menu
-Message-ID: <Pine.LNX.4.61.0501292320430.7666@scrub.home>
+cc: linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH 8/8] Kconfig: cleanup USB menu
+Message-ID: <Pine.LNX.4.61.0501292320530.7670@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This properly indents the sound menu.
+This properly indents the USB menu.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- core/Kconfig |    7 ++++++-
- oss/Kconfig  |    8 ++++----
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ Kconfig         |   18 ++++++++++++++++++
+ host/Kconfig    |   18 ------------------
+ storage/Kconfig |    1 +
+ 3 files changed, 19 insertions(+), 18 deletions(-)
 
-Index: linux-2.6.11/sound/oss/Kconfig
+Index: linux-2.6.11/drivers/usb/host/Kconfig
 ===================================================================
---- linux-2.6.11.orig/sound/oss/Kconfig	2005-01-29 22:56:42.549085439 +0100
-+++ linux-2.6.11/sound/oss/Kconfig	2005-01-29 22:56:50.842656776 +0100
-@@ -880,6 +880,10 @@ config SOUND_SB
- 	  You can say M here to compile this driver as a module; the module is
- 	  called sb.
- 
-+config SOUND_KAHLUA
-+	tristate "XpressAudio Sound Blaster emulation"
-+	depends on SOUND_SB
-+
- config SOUND_AWE32_SYNTH
- 	tristate "AWE32 synth"
- 	depends on SOUND_OSS
-@@ -1104,10 +1108,6 @@ config SOUND_TVMIXER
- 	  Support for audio mixer facilities on the BT848 TV frame-grabber
- 	  card.
- 
--config SOUND_KAHLUA
--	tristate "XpressAudio Sound Blaster emulation"
--	depends on SOUND_SB
+--- linux-2.6.11.orig/drivers/usb/host/Kconfig	2005-01-29 22:50:43.297964628 +0100
++++ linux-2.6.11/drivers/usb/host/Kconfig	2005-01-29 22:56:58.568325936 +0100
+@@ -1,21 +1,3 @@
+-# Host-side USB depends on having a host controller
+-# NOTE:  dummy_hcd is always an option, but it's ignored here ...
+-# NOTE:  SL-811 option should be board-specific ...
+-config USB_ARCH_HAS_HCD
+-	boolean
+-	default y if USB_ARCH_HAS_OHCI
+-	default y if ARM				# SL-811
+-	default PCI
 -
- config SOUND_ALI5455
- 	tristate "ALi5455 audio support"
- 	depends on SOUND_PRIME!=n && PCI
-Index: linux-2.6.11/sound/core/Kconfig
+-# many non-PCI hcds implement OHCI
+-config USB_ARCH_HAS_OHCI
+-	boolean
+-	default y if SA1111
+-	default y if ARCH_OMAP
+-	default y if ARCH_LH7A404
+-	default y if PXA27x
+-	default PCI
+-
+ #
+ # USB Host Controller Drivers
+ #
+Index: linux-2.6.11/drivers/usb/storage/Kconfig
 ===================================================================
---- linux-2.6.11.orig/sound/core/Kconfig	2005-01-29 22:50:43.345956362 +0100
-+++ linux-2.6.11/sound/core/Kconfig	2005-01-29 22:56:50.843656604 +0100
-@@ -1,16 +1,20 @@
- # ALSA soundcard-configuration
- config SND_TIMER
- 	tristate
-+	depends on SND
+--- linux-2.6.11.orig/drivers/usb/storage/Kconfig	2005-01-29 22:50:43.297964628 +0100
++++ linux-2.6.11/drivers/usb/storage/Kconfig	2005-01-29 22:56:58.568325936 +0100
+@@ -3,6 +3,7 @@
+ #
  
- config SND_PCM
- 	tristate
- 	select SND_TIMER
-+	depends on SND
+ comment "NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information"
++	depends on USB
  
- config SND_HWDEP
- 	tristate
-+	depends on SND
+ config USB_STORAGE
+ 	tristate "USB Mass Storage support"
+Index: linux-2.6.11/drivers/usb/Kconfig
+===================================================================
+--- linux-2.6.11.orig/drivers/usb/Kconfig	2005-01-29 22:50:43.297964628 +0100
++++ linux-2.6.11/drivers/usb/Kconfig	2005-01-29 22:56:58.568325936 +0100
+@@ -4,6 +4,24 @@
  
- config SND_RAWMIDI
- 	tristate
-+	depends on SND
+ menu "USB support"
  
- config SND_SEQUENCER
- 	tristate "Sequencer support"
-@@ -40,6 +44,7 @@ config SND_SEQ_DUMMY
- 
- config SND_OSSEMUL
- 	bool
-+	depends on SND
- 
- config SND_MIXER_OSS
- 	tristate "OSS Mixer API"
-@@ -70,7 +75,7 @@ config SND_PCM_OSS
- 
- config SND_SEQUENCER_OSS
- 	bool "OSS Sequencer API"
--	depends on SND_SEQUENCER
-+	depends on SND && SND_SEQUENCER
- 	select SND_OSSEMUL
- 	help
- 	  Say Y here to enable OSS sequencer emulation (both
++# Host-side USB depends on having a host controller
++# NOTE:  dummy_hcd is always an option, but it's ignored here ...
++# NOTE:  SL-811 option should be board-specific ...
++config USB_ARCH_HAS_HCD
++	boolean
++	default y if USB_ARCH_HAS_OHCI
++	default y if ARM				# SL-811
++	default PCI
++
++# many non-PCI hcds implement OHCI
++config USB_ARCH_HAS_OHCI
++	boolean
++	default y if SA1111
++	default y if ARCH_OMAP
++	default y if ARCH_LH7A404
++	default y if PXA27x
++	default PCI
++
+ # ARM SA1111 chips have a non-PCI based "OHCI-compatible" USB host interface.
+ config USB
+ 	tristate "Support for Host-side USB"

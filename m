@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268171AbTCFSFo>; Thu, 6 Mar 2003 13:05:44 -0500
+	id <S268255AbTCFSRp>; Thu, 6 Mar 2003 13:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268190AbTCFSFo>; Thu, 6 Mar 2003 13:05:44 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:694 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S268171AbTCFSFn>;
-	Thu, 6 Mar 2003 13:05:43 -0500
-Date: Thu, 6 Mar 2003 19:15:48 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: John Levon <levon@movementarian.org>, Andrew Morton <akpm@digeo.com>,
-       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303061003110.7720-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0303061914250.16561-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268256AbTCFSRo>; Thu, 6 Mar 2003 13:17:44 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:47880 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268255AbTCFSRo>;
+	Thu, 6 Mar 2003 13:17:44 -0500
+Date: Thu, 6 Mar 2003 10:18:30 -0800
+From: Greg KH <greg@kroah.com>
+To: Ian Soboroff <ian.soboroff@nist.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TransMeta longrun control utility maintainer?
+Message-ID: <20030306181829.GA3431@kroah.com>
+References: <9cfy93s4mbd.fsf@rogue.ncsl.nist.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9cfy93s4mbd.fsf@rogue.ncsl.nist.gov>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 6 Mar 2003, Linus Torvalds wrote:
-
-> > It's still there. Red Hat 8.0, 2.5.63. The  thing can pause for 15+
-> > seconds (and during this time madplay quite happily trundled on playing
-> > an mp3). Workload was KDE, gcc, nothing exciting...
+On Thu, Mar 06, 2003 at 09:11:18AM -0500, Ian Soboroff wrote:
 > 
-> Oh, well. I didn't actually even verify that UNIX domain sockets will
-> cause synchronous wakeups, so the patch may literally be doing nothing
-> at all. You can try that theory out by just removing the test for
-> "in_interrupt()".
+> I know this isn't the best place to ask, but maybe someone here knows.
+> 
+> Who is maintaining the longrun(1) (should probably be longrun(8))
+> utility?  The author is listed as Daniel Quinlan
+> <quinlan@transmeta.com>, but mail to that address bounces.
+> 
+> The longrun utility frobs the MSR on TransMeta processors to switch
+> between performance and economy modes.
+> 
+> On my laptop, currently running 2.4.21-pre5-ac1, I get the following
+> error:
 
-you are not referring to the 'synchronous wakeups' as used by fs/pipe.c,
-right? in_interrupt() isolates interrupt-context wakeups (asynchronous
-wakeups) and process-context wakeups - which can also be called
-synchronous, in a way.
+It works for me just fine on 2.4.21-pre5, have you tried that kernel
+version?
 
-so i think your current patch should cover unix domain sockets just as
-well, they certain dont use IRQ-context wakeups.
+thanks,
 
-	Ingo
-
+greg k-h

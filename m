@@ -1,58 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269028AbUIHDoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUIHENP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269028AbUIHDoA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 23:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269045AbUIHDoA
+	id S266512AbUIHENP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268706AbUIHENP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 23:44:00 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60372 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269028AbUIHDmz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 23:42:55 -0400
-Subject: Re: [CHECKER] 2.6.8.1 deadlock in rpc_queue_lock <<===>> 
-	rpc_sched_lock
-From: Greg Banks <gnb@melbourne.sgi.com>
-To: Dawson Engler <engler@coverity.dreamhost.com>
-Cc: linux-kernel@vger.kernel.org, developers@coverity.com
-In-Reply-To: <Pine.LNX.4.58.0409071915020.23546@coverity.dreamhost.com>
-References: <Pine.LNX.4.58.0409071915020.23546@coverity.dreamhost.com>
-Content-Type: text/plain
-Organization: Silicon Graphics Inc, Australian Software Group.
-Message-Id: <1094615460.20243.165.camel@hole.melbourne.sgi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 08 Sep 2004 13:51:00 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Sep 2004 00:13:15 -0400
+Received: from web11908.mail.yahoo.com ([216.136.172.192]:35341 "HELO
+	web11908.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266512AbUIHENI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 00:13:08 -0400
+Message-ID: <20040908041307.34927.qmail@web11908.mail.yahoo.com>
+Date: Tue, 7 Sep 2004 21:13:07 -0700 (PDT)
+From: Mike Mestnik <cheako911@yahoo.com>
+Subject: Re: [BUG] r200 dri driver deadlocks
+To: Dave Airlie <airlied@gmail.com>, arjanv@redhat.com,
+       Roland Scheidegger <rscheidegger_lists@hispeed.ch>
+Cc: =?ISO-8859-1?Q?=20=22Felix=5FK=FChling=22?= <fxkuehl@gmx.de>,
+       Lee Revell <rlrevell@joe-job.com>, diablod3@gmail.com,
+       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <21d7e997040907013071ebb60d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-08 at 12:15, Dawson Engler wrote:
-> Hi All,
+Sorry, I don't know why we are cross posting and including subscribers in
+CC.  This belongs on the DRI list, as it is only with 3rd party DRI-client
+code that the problem exists.
+
+--- Dave Airlie <airlied@gmail.com> wrote:
+
+> On Tue, 07 Sep 2004 09:07:11 +0200, Arjan van de Ven <arjanv@redhat.com>
+> wrote:
+> > On Tue, 2004-09-07 at 08:54, Dave Airlie wrote:
+> > 
+> > > Feel free to implement it and profile it, but there are so many ways
+> > > to lock up a radeon chip it is scary, the above was just one
+> example,
+> > > some days if you look at it funny it can lockup :-), it is accepted
+> > > that userland can crap out 3D chips, the Intel ones are fairly easy
+> to
+> > > hangup also..
+> > 
+> > 
+> > hmmm.. I thought the entire reason for having part of DRM in the
+> kernel
+> > was to be able to prevent such events from happening....
 > 
-> below is a possible deadlock in linux-2.6.8.1 found by a static deadlock
-> checker I'm writing.  Let me know if it looks valid and/or whether the
-> output is too cryptic.  (Note, the error is in debugging code so maybe
-> not such a big deal).
+> only one reason...
+> http://dri.sourceforge.net/doc/drm_low_level.html
 > 
->[...]
->              /u2/engler/mc/oses/linux/linux-2.6.8.1/net/sunrpc/sched.c:__rpc_wake_up_task
->                 430: __rpc_wake_up_task(struct rpc_task *task)
->                 431: {
->                 432: 	dprintk("RPC: %4d __rpc_wake_up_task (now %ld inh %d)\n",
->                 433: 					task->tk_pid, jiffies, rpc_inhibit);
->                 434:
->                 435: #ifdef RPC_DEBUG
->                 436: 	if (task->tk_magic != 0xf00baa) {
->                 437: 		printk(KERN_ERR "RPC: attempt to wake up non-existing task!\n");
->                 438: 		rpc_debug = ~0;
-> ===>            439: 		rpc_show_tasks();
+> But to be honest the chips are entirely capable of locking up on what
+> the docs say are valid things, writing enough workarounds and test
+> would bloat the drm considerably,
+> at the moment we try and have it so a valid OpenGL application doesn't
+> lock it up, but someone writing directly to the DRM would be able to
+> lockup a fair few chips in many interesting ways....
+> 
+> Dave.
+> 
 
-If this arc ever happens, you have data structure corruption issues
-which are far more worrying than a deadlock.
+--- Roland Scheidegger <rscheidegger_lists@hispeed.ch> wrote:
+> 
+> I seriously doubt this is doable. Unless you put the whole driver in the
+> 
+> kernel, which of course nobody wants. I frequently caused gpu lockups by
+> 
+> experimental driver changes (for instance, wrong vertex setup). I think 
+> the consensus was that it's ok for the driver to lock up the gpu, but it
+> 
+> should not lock up the kernel.
+> It might be possible to prevent lockups by a watchdog, resetting the gpu
+> 
+> if a lockup is detected. This is how ATI deals with lockups in windows 
+> (dubbed "VPU Recover"), and there is a patch floating around for DRI too
+> 
+> (though it is not exactly for that, and doesn't always work).
+> 
+> Roland
+> 
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+It's a simple matter of enforcing 3rd party(this means every DRM user)
+clients to use DRI's *dialect or style*.  If the DRM see activities that
+are not expected to be generated by pure DRI-clients, action should be
+taken to prevent a posible lockup.  This means that even valid activities
+should be treated as invalid IF the DRM can clerly detect a deviation from
+pure DRI-client activities.
+
+For example, pure DRI-clients emit state changing commands is a vary
+specific order.  The DRM could easily spot if these cmds where out of any
+knowen/used order or if any other cmds where also inserted into the
+expected order.  This should be denied"."  Only DRI-clients(any client)
+using the DRI supplied order(the one used by pure DRI-clients) should be
+allowed to access the hardware.
 
 
+
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

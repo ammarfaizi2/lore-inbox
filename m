@@ -1,101 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264008AbRFNVcn>; Thu, 14 Jun 2001 17:32:43 -0400
+	id <S264069AbRFNVew>; Thu, 14 Jun 2001 17:34:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264066AbRFNVcc>; Thu, 14 Jun 2001 17:32:32 -0400
-Received: from ns.snowman.net ([63.80.4.34]:43023 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S264053AbRFNVcX>;
-	Thu, 14 Jun 2001 17:32:23 -0400
-Date: Thu, 14 Jun 2001 17:32:16 -0400 (EDT)
-From: <nick@snowman.net>
-To: Kip Macy <kmacy@netapp.com>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-In-Reply-To: <Pine.GSO.4.10.10106141426170.6619-100000@orbit-fe.eng.netapp.com>
-Message-ID: <Pine.LNX.4.21.0106141731030.16013-100000@ns>
+	id <S264071AbRFNVeo>; Thu, 14 Jun 2001 17:34:44 -0400
+Received: from maild.telia.com ([194.22.190.101]:14075 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S264069AbRFNVe3>;
+	Thu, 14 Jun 2001 17:34:29 -0400
+Message-Id: <200106142134.f5ELYGA19032@maild.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Roger Larsson <roger.larsson@norran.net>
+To: root@chaos.analogic.com
+Subject: Re: SMP spin-locks
+Date: Thu, 14 Jun 2001 23:30:58 +0200
+X-Mailer: KMail [version 1.2.2]
+In-Reply-To: <Pine.LNX.3.95.1010614165153.16430A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1010614165153.16430A-100000@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erm, that is going to be a problem.  Crypto benifits more from open source
-than any other market segment, and binary only drivers for linux are not
-the way to go.  I guess I need to get rid of my 5-10 3cr990s and replace
-them with someone else's product?
-	Nick
+On Thursday 14 June 2001 23:05, you wrote:
+> On Thu, 14 Jun 2001, Roger Larsson wrote:
+> > Hi,
+> >
+> > Wait a minute...
+> >
+> > Spinlocks on a embedded system? Is it _really_ SMP?
+>
+> The embedded system is not SMP. However, there is definite
+> advantage to using an unmodified kernel that may/may-not
+> have been compiled for SMP. Of course spin-locks are used
+> to prevent interrupts from screwing up buffer pointers, etc.
+>
 
-On Thu, 14 Jun 2001, Kip Macy wrote:
+Not really - it prevents another processor entering the same code
+segment  (spin_lock_irqsave prevents both another processor and
+local interrupts).
 
-> IPsec support will be binary only.
-> 
-> 	-Kip
-> On Thu, 14 Jun 2001 nick@snowman.net wrote:
-> 
-> > So what is the truth to the rumors 3com was throwing around about the
-> > "linux driver with ipsec support"?
-> > 	Nick
-> > 
-> > On Thu, 14 Jun 2001, Martin Moerman wrote:
-> > 
-> > > 
-> > > 
-> > > On Thu, 14 Jun 2001, Brent D. Norris wrote:
-> > > 
-> > > > > Now, if the NIC were to integrate with OpenSSL and offload some of THAT
-> > > > > donkey work... Just offloading DES isn't terribly useful, as Pavel says:
-> > > > > apart from anything else, DES is a bit elderly now - SSH using 3DES or
-> > > > > Blowfish etc... How dedicated is this card? Could it be used to offload
-> > > > > other work?
-> > > > 
-> > > > Sorry my bad it is 3DES that they have on it, but I don't know how
-> > > > in-grained it is in it.  Like I sad it just floated across my desk a few
-> > > > days ago and it sounded like a cool bit of hardware.
-> > > 
-> > > 
-> > > The card is offloading TCP/IP checksums, TCP/IP packet fragmentation, and
-> > > does IPSEC through the ARM9 proc.
-> > > 
-> > > I like the card. but no real real linux drivers yet. only basic network
-> > > card drivers for linux.
-> > > 
-> > > /Martin
-> > > martin_moerman@eur.3com.com
-> > > 
-> > > 
-> > > 
-> > > > 
-> > > > Brent Norris
-> > > > 
-> > > > Executive Advisor -- WKU-Linux
-> > > > 
-> > > > System Administrator -- WKU-Center for Biodiversity
-> > > >                         Best Mechanical
-> > > > 
-> > > > W: 270-745-8864
-> > > > H: 270-563-9226
-> > > > 
-> > > > "The problem with the Linux learning curve is that it is _so_ steep once
-> > > >  at the top you can't see the people at the bottom"  --Doug Hagan
-> > > > 
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > > 
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
+An interrupt on UP can not wait on a spin lock - it will never be released
+since no other code than the interrupt spinning will be able to execute)
 
+
+> > What kind of performance problem do you have?
+>
+> The problem is that a data acquisition board across the PCI bus
+> gives a data transfer rate of 10 to 11 megabytes per second
+> with a UP kernel, and the transfer drops to 5-6 megabytes per
+> second with a SMP kernel. The ISR is really simple and copies
+> data, that's all.
+>
+> The 'read()' routine uses a spinlock when it modifies pointers.
+>
+> I started to look into where all the CPU clocks were going. The
+> SMP spinlock code is where it's going. There is often contention
+> for the lock because interrupts normally occur at 50 to 60 kHz.
+>
+
+SMP compiled kernel, but running on UP hardware - right?
+Then this _should not_ happen!
+
+see linux/Documentation/spinlocks.txt
+
+Is it your spinlocks that are causing this, or?
+
+> When there is contention, a very long........jump occurs into
+> the test.lock segment. I think this is flushing queues.
+>
+
+It does not matter, if there is contention - let it take time. Waiting is what
+spinlocking is about anyway...
+
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden

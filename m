@@ -1,95 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267131AbRGJUT0>; Tue, 10 Jul 2001 16:19:26 -0400
+	id <S267135AbRGJUUg>; Tue, 10 Jul 2001 16:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267133AbRGJUTR>; Tue, 10 Jul 2001 16:19:17 -0400
-Received: from L0173P30.dipool.highway.telekom.at ([62.46.85.158]:29355 "EHLO
-	mannix") by vger.kernel.org with ESMTP id <S267131AbRGJUTC>;
-	Tue, 10 Jul 2001 16:19:02 -0400
-Date: Tue, 10 Jul 2001 22:23:19 +0200
-To: "Martin A. Brooks" <martin.brooks@hyperlink.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: es1370/1371 compilation clash
-Message-ID: <20010710222319.A8588@aon.at>
-In-Reply-To: <994759043.3b4ad183f0364@extranet.jtrix.com>
+	id <S267134AbRGJUUQ>; Tue, 10 Jul 2001 16:20:16 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:23738 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S267133AbRGJUUL>;
+	Tue, 10 Jul 2001 16:20:11 -0400
+Date: Tue, 10 Jul 2001 11:48:50 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] SCI Scalable Coherent Interface Drivers 1.7-1 Released
+Message-ID: <20010710114850.A2865@vger.timpanogas.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <994759043.3b4ad183f0364@extranet.jtrix.com>
-User-Agent: Mutt/1.3.18i
-From: Alexander Griesser <tuxx@aon.at>
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 10, 2001 at 10:57:23AM +0100, you wrote:
-> I know this isn't really a valid combination however using 2.4.6ac2 and
-> selecting both es1370 and es1371 gives this...
+Version 1.7-1 of the Dolphin PCI-SCI (Scalable Coherent Interface) 
+drivers for Linux kernels 2.2 and 2.4 are have been released and
+are available for download at ftp.timpanogas.org and www.timpanogas.org.
+Numerous enhancements have been added to this release, including 
+enhanced support for X-Y dual fabric SCI rings. 
 
-[ output snipped ]
+Bug fixes and modifications contained in this release:
 
-> Arguably someone could have both chipsets in the same box, though.
+  
+IRM 1.10.6 ( March 4th 2001 )
 
-You're right.
-This patch should fix that.
+*Genif: Added implementation of SPEEP_OK for sci_create_segment()
+*Solaris X86: Fixed build_IRM and added dummy function for hostbridge
+ manipulation. Thanks to Joachim Worringen.
+*2d Torus topology support enhanced ( only for D33x family ) Requres
+ recompilation of the IRM driver with the ENABLE_MESH_TOPOLOGY_SUPPORT
+ flag seg. More info in IRM/drv/src/prolog.h.
+*VxWorks: Fixed Interrupt registration problem that could cause loss of
+ interrupts
 
-regards, alexx
--- 
-|    .-.    |   CCNAIA Alexander Griesser <tuxx@aon.at>  |   .''`.  |
-|    /v\    |  http://www.tuxx-home.at -=- ICQ:63180135  |  : :' :  |
-|  /(   )\  |    echo "K..?f{1,2}e[nr]böck" >>~/.score   |  `. `'   |
-|   ^^ ^^   |    Linux Version 2.4.6 - Debian Unstable   |    `-    |
+IRM 1.10.7 ( April 26th 2001 )
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename="es137x-2.4.6-ac2.diff"
-Content-Transfer-Encoding: 8bit
+*Added initial entry for Intel i960 support ( not completed ).
+*Solaris X86: Completed hostbridge manipulation functionality. Tested
+ and verified on Solaris 7 / ServerWorks. Thanks to Joachim Worringen.
+*Added support for 2D torus topology in scidiag.
+*Solaris SPARC: Added support for hostbridge detecting D330 as "name=pci11c8,40"
 
---- linux/drivers/sound/es1371.c.orig	Tue Jul 10 22:16:15 2001
-+++ linux/drivers/sound/es1371.c	Tue Jul 10 22:18:33 2001
-@@ -135,7 +135,18 @@
- #include <asm/dma.h>
- #include <asm/uaccess.h>
- #include <asm/hardirq.h>
-+
-+/* ESS1370 and ESS1371 conflict, when both are to be comopiled */
-+/* This is a small workaround for this problem                 */
-+/*   by Alexander Griesser <tuxx@aon.at>                       */
-+#ifdef CONFIG_SOUND_ES1370
-+  #define ESS137X_CONFLICT 1
-+#endif
-+
- #include <linux/gameport.h>
-+
-+extern void gameport_register_port(struct gameport *gameport);¶
-+extern void gameport_unregister_port(struct gameport *gameport);¶
- 
- /* --------------------------------------------------------------------- */
- 
---- linux/include/linux/gameport.h.orig	Tue Jul 10 22:16:19 2001
-+++ linux/include/linux/gameport.h	Tue Jul 10 22:21:25 2001
-@@ -66,6 +66,8 @@
- 	struct gameport_dev *next;
- };
- 
-+#ifndef ESS137X_CONFLICT
-+
- int gameport_open(struct gameport *gameport, struct gameport_dev *dev, int mode);
- void gameport_close(struct gameport *gameport);
- void gameport_rescan(struct gameport *gameport);
-@@ -137,5 +139,7 @@
- 	current->state = TASK_UNINTERRUPTIBLE;
- 	schedule_timeout(1 + ms * HZ / 1000);
- }
-+
-+#endif
- 
- #endif
+IRM 1.10.8 ( 22th May 2001 )
 
---ReaqsoxgOBHFXBhH--
+*Added support for adapter D230 (PSB66 - LC3). A PCI reset will reset the LC3.
+ This functionality is a request from Siemens.
+*Added autodetection of topology. ENABLE_MESH_TOPOLOGY_SUPPORT no
+ longer needed.
+*PSB64 not properly supported. Full support from next release again.
+
+IRM 1.10.9 ( 25th May 2001 )
+
+*Code to support PSB64 again added
+*VxWorks: Updated to support psb66 ( D33x family ) on PowerPC
+*updated sciconfig to set and get link-frequency, prefetch and
+ no-prefetch space size for more than one adapter.
+*Fixed problem for Solaris 2.5.1 in build_IRM, and added exit 1 status
+ for compilation faults.
+*Solaris:Added option for skipping all_build variants in package create
+ script.
+
+
+IRM 1.10.10 ( 5th June 2001 )
+*Added support for 2D torus up to 15x15 nodes
+*Added support for ServerWorks HE idenitying with device id 0x00081166 
+
+
+IRM 1.10.11 ( 19th June 2001 )
+*Disabled speculative hold as default for psb66
+*Added extra check to make sure that a new DMA transfer (DMA kick) is not 
+ done before the previous DMA transfer has completed.
+*Bug fix for 2d-mesh topology using nodeId 200.
+*Linux:Added property to reduce mapping of prefetchspace to less than
+ PCI MEMSIZE
+*Linux: Bigphysarea patch requirement disabled as default for linux 2.4
+
+SISCI 1.10.7 ( 26th April 2001 )
+*Added initial entry for Intel i960 support ( not completed ).
+*Linux:Enabled MMX intructions support in sciMemCopy()
+*Cleaned up and simplified common IOCTL and MMAP code.
+*VxWorks: Added support for cache line manipulation for in sciMemcopy,
+ and added new map flag SCI_FLAG_WRITE_BACK_CACHE_MAP.
+*sci ping pong benchmark updated. (SISCI/cmd/test/scipp) Tested on VxWorks/Linux.
+
+SISCI 1.10.8 ( 22th May 2001 )
+*Solaris: Optimalization in sciMemCopy().
+*Linux: Added flag SLEEP_OK to call to sci_create_segment. Memory
+ allocaiton thread may now sleep while Linux is allocating memory.
+*Linux: Removed erronous DIS/src/SISCI/src/LINUX/os/mmapcode.h
+*Linux: Fixed bug in SISCI callback functionality and enabled by default.
+*Added implementation of new SCIFlush() SISCI function. Please note that this
+ function and signature is subject to change.
+
+
+SISCI 1.10.9 ( 25th May 2001 )
+*VxWorks: Added support for PSB66 adatpters
+
+SISCI 1.10.10 ( 5th June 2001 )
+*Added support for ServerWorks HE idenifying with device id 0x00081166 
+
+SISCI 1.10.11 ( 19th June 2001 )
+*New IOCTL interface for NT and Windows 2000
+*LINUX: Fixed problem with SMP variable not being exported on some systems
+
+Please direct and problems, bug reports, or suggestions regarding this 
+release to jmerkey@timpanogas.org or hugo@dolphinics.no.
+
+Jeff Merkey
+TRG
+
+

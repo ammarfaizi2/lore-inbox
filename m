@@ -1,54 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282862AbRLBMdg>; Sun, 2 Dec 2001 07:33:36 -0500
+	id <S282861AbRLBMtA>; Sun, 2 Dec 2001 07:49:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282864AbRLBMd1>; Sun, 2 Dec 2001 07:33:27 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:47573 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S282861AbRLBMdR>; Sun, 2 Dec 2001 07:33:17 -0500
-Date: Sun, 2 Dec 2001 13:33:14 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.4.17.2: make ext2 smaller
-Message-ID: <20011202133314.B717@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3C0A1105.18B76D64@mandrakesoft.com> <25560.1007294074@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <25560.1007294074@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Dec 02, 2001 at 10:54:34PM +1100
+	id <S282863AbRLBMsu>; Sun, 2 Dec 2001 07:48:50 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:42765 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S282861AbRLBMsq>;
+	Sun, 2 Dec 2001 07:48:46 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: Kernel Build for 2.5, Release 1.10 is available
+Date: Sun, 02 Dec 2001 23:48:29 +1100
+Message-ID: <26392.1007297309@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 02, 2001 at 10:54:34PM +1100, Keith Owens wrote:
-> On Sun, 02 Dec 2001 06:31:17 -0500, 
-> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> >Simply, all ext2 files are #include'd into a single file, ext2_all.c,
-> >and all functions and data structures are declared static.
-> 
-> I like it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Me also. Except for the KSTATIC spread all over the Kernel.
+Content-Type: text/plain; charset=us-ascii
 
-> With kbuild 2.5 the generation of ext2_all.c (I prefer
-> ext2_static.c) can be automated.
-> 
-> The code that is normally linked into xxxx.o has to be manually changed
-> to add XXXX_STATIC before a make_static(xxxx) command can be added.
+Release 1.10 of kernel build for kernel 2.5 (kbuild 2.5) has been
+released.  http://sourceforge.net/projects/kbuild/, Package kbuild-2.5,
+download release 1.10.
 
-Even this doesn't have to be done manually. Everything that is
-not covered by EXPORT_SYMBOL() in this case can be static, since
-it belongs only to this subsystem and is not oficially exported
-to other ones, which is a BUG if something depend on it with
-CONFIG_MAKE_STATIC enabled.
+This is now ready to go to Linus for inclusion in 2.5.[12].  There are
+still items on the todo list but none are show stoppers, the code works
+as is.  The sooner this is in 2.5 and other architectures the better,
+otherwise I will just be chasing releases and getting no useful work
+done.
 
-Now if GCC had an option to make all symbols static by default,
-which are not also declared extern...
+kbuild 2.5 currently supports i386 (2.4.16), ia64 (2.4.16-011128),
+sparc32 (2.4.16), sparc64 (2.4.16).
 
-Regards
+Thanks to Debian for providing a sparc system and Ben Collins for
+testing sparc32 and doing the sparc64 conversion.  The sparc support is
+against Linus's 2.4.16 kernel, not against the vger tree, the latter is
+moving too fast.  I expect that some tweaking will be required for the
+vger sparc changes, in particular the removal of config options for
+netlink.
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
+contains information about the base release.
+
+Changelog:
+
+  Upgrade to kernel 2.4.16, this release will also work on kernel 2.5.0.
+
+  Separate nostdinc into its own [ca]flags so it can be temporarily
+  overridden.
+
+  Add make defconfig.
+
+  Correct selections in drivers/pcmcia/Makefile.in.
+
+  Standardize the asm/offset vs asm-offset include code.
+
+  Add sparc64 support, Ben Collins did most of the work.
+
+  Update ia64 support for sn/hp/generic platforms, cannot be tested
+  because none of those platforms compile under kbuild 2.4.
+
+  Partial work on CML2 support.  This release does not fully support
+  CML2, only use it with CML1.  CML2 support in progress.
+
+TODO:
+
+  Complete CML2 support.
+  Rewrite core code to improve performance.
+  Handle setup() dependencies correctly, nothing uses setup() yet.
+  Fallback processing for make clean/mrproper using a common
+  source/object tree when .config is not available.
+  Require make *config after any change to [Cc]onfig.in.
+  Add a variable containing the basename of the installable kernel, for
+  use in install scripts.
+  Help convert other architectures to kbuild 2.5.
+  Sleep.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE8CiMai4UHNye0ZOoRAuwbAJ9tRVFdDuQ8fJI1xL8B9HqsVHE6lQCgv5ZI
+/nGzbMnMMnvaxTXTLBDa64E=
+=IwBF
+-----END PGP SIGNATURE-----
+

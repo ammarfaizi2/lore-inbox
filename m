@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263133AbTJPTzY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 15:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbTJPTzY
+	id S263129AbTJPT4D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 15:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbTJPT4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 15:55:24 -0400
-Received: from sea2-f17.sea2.hotmail.com ([207.68.165.17]:3088 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263133AbTJPTzX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 15:55:23 -0400
-X-Originating-IP: [217.132.232.153]
-X-Originating-Email: [zstingx@hotmail.com]
-From: "sting sting" <zstingx@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: short explanation -jiffies (newbie)
-Date: Thu, 16 Oct 2003 21:55:22 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F17IdRclmEBOum000104f7@hotmail.com>
-X-OriginalArrivalTime: 16 Oct 2003 19:55:22.0759 (UTC) FILETIME=[6F3BC170:01C3941F]
+	Thu, 16 Oct 2003 15:56:03 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:46600 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S263129AbTJPTz7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 15:55:59 -0400
+Date: Thu, 16 Oct 2003 21:55:05 +0200 (CEST)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Sanil K <Sanil.K@lntinfotech.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Interrupt handling
+In-Reply-To: <Pine.LNX.4.53.0310160934410.590@chaos>
+Message-ID: <Pine.LNX.4.44.0310162152590.29425-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-can someone give a short explanation what jiffies are?
-regards
-sting
+On Thu, 16 Oct 2003, Richard B. Johnson wrote:
 
-_________________________________________________________________
-Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
+> The memory-map idea has security problems, though.
+> If the area ever gets unmapped (the user exits), a
+> fatal error could occur in kernel mode within the
+> ISR. In general, it's always best to allocate an
+> interrupt-safe buffer within the driver (module),
+> that is guaranteed to persist as long as the driver
+> is installed. This ultimately means that a copy
+> operation is necessary.
+> 
+> Memory-to-memory copy is real fast now days. The
+> copy_to_user() is just memcpy() with a trap mechanism
+> that can save the kernel from a user-induced seg-fault.
+> The actual trap is hardware-induced in ix86 machines
+> and therefore adds no overhead to the normal copy operation.
+
+Is there any reason why we couldn't via kernel routine let user space 
+access read-only certain pages of kernel memory?  I.e. having the 
+userspace function call the driver to map into it's (user) address space a 
+read-only mapping of the drivers (kernel) private r/w area?
+If I'm not mistaken this is doable on x86 hardware isn't it?
+
+Cheers,
+MaZe.
 

@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272537AbTHPBrm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 21:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272552AbTHPBrm
+	id S272557AbTHPCIb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 22:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272559AbTHPCIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 21:47:42 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:32983 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S272537AbTHPBrk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 21:47:40 -0400
-Message-ID: <3F3D8D3B.3020708@colorfullife.com>
-Date: Sat, 16 Aug 2003 03:47:39 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Fri, 15 Aug 2003 22:08:31 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:9162
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272557AbTHPCI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 22:08:29 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: [PATCH]O16.1int was Re: [PATCH] O16int for interactivity
+Date: Sat, 16 Aug 2003 12:14:43 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       gaxt <gaxt@rogers.com>, Mike Galbraith <efault@gmx.de>
+References: <200308160149.29834.kernel@kolivas.org> <1060974000.692.5.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1060974000.692.5.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] slab debug vs. L1 alignement
-References: <3F3D558D.5050803@colorfullife.com> <1060990883.581.87.camel@gaston>
-In-Reply-To: <1060990883.581.87.camel@gaston>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_TOZP/nRk9nQt4oq"
+Message-Id: <200308161214.43966.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
 
->On Fri, 2003-08-15 at 23:50, Manfred Spraul wrote:
->  
->
->>Ben wrote:
->>
->>    
->>
->>>Currently, when enabling slab debugging, we lose the property of
->>>having the objects aligned on a cache line size.
->>> 
->>>
->>>      
->>>
->>Correct. Cache line alignment is advisory. Slab debugging is not the 
->>only case that violates the alignment, for example 32-byte allocations 
->>are not padded to the 128 byte cache line size of the Pentium 4 cpus. I 
->>really doubt we want that.
->>    
->>
->
->Yes, I understand that, but that is wrong for GFP_DMA imho. Also, 
->SLAB_MUST_HWCACHE_ALIGN just disables redzoning, which is not smart,
->I'd rather allocate more and keep both redzoning and cache alignement,
->that would help catch some of those subtle problems when a chip DMA
->engine plays funny tricks.
->
-I don't want to upgrade SLAB_HWCACHE_ALIGN to SLAB_MUST_HWCACHE_ALIGN 
-depending on GFP_DMA: IIRC one arch (ppc64?) marks everything as 
-GFP_DMA, because all memory is DMA capable.
+--Boundary-00=_TOZP/nRk9nQt4oq
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Which arch do you use? Perhaps alignment could be added for broken archs.
+On Sat, 16 Aug 2003 05:00, Felipe Alfaro Solana wrote:
+> Well, I'm sorry to say there's something really wrong here with O16int.
+> 2.6.0-test3-mm2 plus O16int takes exactly twice the time to boot than
 
-Actually I think you should fix your arch, perhaps by double buffering 
-in pci_map_ if the input pointers are not aligned. What if someone uses 
-O_DIRECT with an unaligned pointer?
+Easy fix. Sorry about that. Here is an O16.1int patch. Backs out the selective 
+preemption by only interactive tasks.
 
---
-    Manfred
+Con
+
+--Boundary-00=_TOZP/nRk9nQt4oq
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="patch-O16-O16.1int"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="patch-O16-O16.1int"
+
+--- linux-2.6.0-test3-mm2/kernel/sched.c	2003-08-16 12:01:38.000000000 +1000
++++ linux-2.6.0-test3-mm2-O16/kernel/sched.c	2003-08-16 12:11:03.000000000 +1000
+@@ -566,8 +566,7 @@ repeat:
+ 
+ static inline int task_preempts_curr(task_t *p, runqueue_t *rq)
+ {
+-	if (p->prio < rq->curr->prio &&
+-		((TASK_INTERACTIVE(p) && p->mm) || !p->mm)) {
++	if (p->prio < rq->curr->prio) {
+ 			/*
+ 			 * Prevent a task preempting it's own waker
+ 			 * to avoid starvation
+
+--Boundary-00=_TOZP/nRk9nQt4oq--
 

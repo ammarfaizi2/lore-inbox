@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVCQXmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVCQXpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVCQXmH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 18:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVCQXmH
+	id S261377AbVCQXpx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 18:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVCQXpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 18:42:07 -0500
-Received: from mail.dif.dk ([193.138.115.101]:51081 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261304AbVCQXmB (ORCPT
+	Thu, 17 Mar 2005 18:45:53 -0500
+Received: from wbar24.tmp1-4.28.177.218.tmp1.dsl-verizon.net ([4.28.177.218]:1284
+	"HELO wbar24.tmp1-4.28.177.218.tmp1.dsl-verizon.net")
+	by vger.kernel.org with SMTP id S261265AbVCQXps (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 18:42:01 -0500
-Date: Fri, 18 Mar 2005 00:43:33 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Walt Drummond <drummond@valinux.com>,
-       David Mosberger-Tang <davidm@hpl.hp.com>,
-       Stephane Eranian <eranian@hpl.hp.com>
-Subject: [PATCH] avoid signed vs unsigned comparison in efi_range_is_wc()
-Message-ID: <Pine.LNX.4.62.0503180032520.2512@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Mar 2005 18:45:48 -0500
+Message-ID: <20040929124340.CCA97265910109746393684.82749Pgvl.Holder@sbcglobal.net>
+Notification: No
+Reply-To: "Kxv.Sanderson@usa.net" <Pgvl.Holder@sbcglobal.net>
+Date: Thu, 17 Mar 2005 18:43:41 -0500
+From: "Kxv.Sanderson@usa.net" <Pgvl.Holder@sbcglobal.net>
+To: linux-kernel-announce@vger.kernel.org
+Subject: Pre-approved Application for linux-kernel-announce@vger.kernel.org Thu, 17 Mar 2005 15:45:41 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-This little function in include/linux/efi.h :
+We sent you an email a while ago, because you now qualify
+for a much lower rate based on the biggest rate drop in years.
 
-static inline int efi_range_is_wc(unsigned long start, unsigned long len)
-{
-        int i;
+You can now get $327,000 for as little as $617 a month!
+Bad credit? Doesn't matter, low rates are fixed no matter what!
 
-        for (i = 0; i < len; i += (1UL << EFI_PAGE_SHIFT)) {
-                unsigned long paddr = __pa(start + i);
-                if (!(efi_mem_attributes(paddr) & EFI_MEMORY_WC))
-                        return 0;
-        }
-        /* The range checked out */
-        return 1;
-}
+Follow this link to process your application and a 24 hour approval:
 
-generates this warning when building with gcc -W : 
+http://www.alowerrate.net/?id=c77
 
-include/linux/efi.h: In function `efi_range_is_wc':
-include/linux/efi.h:320: warning: comparison between signed and unsigned
-
-It looks to me like a significantly large 'len' passed in could cause the 
-loop to never end. Isn't it safer to make 'i' an unsigned long as well? 
-Like this little patch below (which of course also kills the warning) :
+Best Regards,
+Augustus Felton
 
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.11-mm4-orig/include/linux/efi.h linux-2.6.11-mm4/include/linux/efi.h
---- linux-2.6.11-mm4-orig/include/linux/efi.h	2005-03-16 15:45:35.000000000 +0100
-+++ linux-2.6.11-mm4/include/linux/efi.h	2005-03-18 00:34:36.000000000 +0100
-@@ -315,7 +315,7 @@ extern struct efi_memory_map memmap;
-  */
- static inline int efi_range_is_wc(unsigned long start, unsigned long len)
- {
--	int i;
-+	unsigned long i;
- 
- 	for (i = 0; i < len; i += (1UL << EFI_PAGE_SHIFT)) {
- 		unsigned long paddr = __pa(start + i);
-
-
-
+http://www.alowerrate.net/byebye.php

@@ -1,119 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbUJXRpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUJXRtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbUJXRpH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 13:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbUJXRpH
+	id S261563AbUJXRtD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 13:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbUJXRtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 13:45:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7844 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261550AbUJXRoz (ORCPT
+	Sun, 24 Oct 2004 13:49:03 -0400
+Received: from smtp1.BelWue.de ([129.143.2.12]:65458 "EHLO smtp1.BelWue.DE")
+	by vger.kernel.org with ESMTP id S261563AbUJXRpW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 13:44:55 -0400
-Date: Sun, 24 Oct 2004 10:44:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-cc: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <4d8e3fd304102403241e5a69a5@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0410241027320.13209@ppc970.osdl.org>
-References: <41752E53.8060103@pobox.com>  <20041019153126.GG18939@work.bitmover.com>
-  <41753B99.5090003@pobox.com>  <4d8e3fd304101914332979f86a@mail.gmail.com>
-  <20041019213803.GA6994@havoc.gtf.org>  <4d8e3fd3041019145469f03527@mail.gmail.com>
-  <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>  <20041023161253.GA17537@work.bitmover.com>
- <4d8e3fd304102403241e5a69a5@mail.gmail.com>
+	Sun, 24 Oct 2004 13:45:22 -0400
+Date: Sun, 24 Oct 2004 19:45:20 +0200 (CEST)
+From: Oliver Tennert <tennert@science-computing.de>
+To: linux-kernel@vger.kernel.org
+Subject: libata and software RAID (fwd)
+Message-ID: <Pine.LNX.4.58.0410241942300.9382@picard.science-computing.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK, I accept that I did not set BLK_DEV_IDE_SATA to yes. This is now 
+allright with me, because libata works well.
+
+But two other issues remain:
+
+How do I
+
+- use smartctl on such pseudo-SCSI devices
+- set DMA to other values?
+
+Best regards
+
+Oliver
+__
+________________________________________creating IT solutions
+
+Dr. Oliver Tennert			science + computing ag
+phone   +49(0)7071 9457-598		Hagellocher Weg 71-75	
+fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
+O.Tennert@science-computing.de		www.science-computing.de
 
 
-On Sun, 24 Oct 2004, Paolo Ciarrocchi wrote:
-> 
-> Well, I'm not interested in having the list of all the bk trees used
-> during the develpoment of a release.
-> I was looking to the trees used by mantainers.
 
-Well, not only is "maintainer" fairly fluid, as Larry said, even if you 
-accept the fact that things will change, there's the issue that
+---------- Forwarded message ----------
+Date: Fri, 22 Oct 2004 11:17:44 +0200
+From: Oliver Tennert <tennert@science-computing.de>
+To: linux-kernel@vger.kernel.org
+Subject: libata and software RAID
 
- - I do _not_ want people to "own" subsystems. And that's not so much an 
-   anti-maintainer issue (I _love_ maintainers), as more of a "conceptual" 
-   issue. When people expect one person or one group of person to be the 
-   only way to touch a certain subsystem, we have problems. I really 
-   really want everybody (users, developers _and_ maintainers) to realize 
-   that no code is an island, and work with other people touching their 
-   subsystem.
 
-   And part of that is that I do not like codifying maintainership. Even 
-   something as simple as saying "this tree is the xxxx tree" is in my 
-   opinion _bad_. Yes, a lot of core development for subsystems happen in 
-   some specific "subsystem tree", but every time that has turned into 
-   something "exclusive", it's been a _major_ problem.
+Hello Jeff (and others),
 
-   And yes, we've had that problem several times. People having CVS trees 
-   for networking, sound drivers, and other special development 
-   subprojects invariably ended up breakign and throwing away work that 
-   happened "unofficially". And often the "unofficial" work is nearly as 
-   important as the official one.
+I am currently running a 2.6.9 kernel on my system, and everything's fine,
+ but for a little issue:
 
-   So BK helps this model, because the distributed nature of BK means that 
-   you can have several pseudo-official trees _and_ totally unofficial
-   ones, and merging is automatic and basically impossible to avoid, so 
-   the "official" tree never gets to drown out the unofficial work. But 
-   despite that, I want to make people _aware_ that maintainership does
-   not imply total ownership, and that we don't have a "hierarchy" of 
-   developers but a *network* of developers.
+I have an ASUS A7N8X Deluxe board with on-board nforce2-chipset and a SiS
+S-ATA controller.
 
-   To make a long story short: I do not ever even WANT "official" trees. 
-   Because it gives the wrong idea to people.
+Previously, my two S-ATA drives had been driven by the IDE driver, and were
+assembled to a  RAID-1 MD device (via software RAID) on them.
 
-   I don't know if you've noticed, but I try to encourage other people to
-   make their own version of _my_ "official" tree, and unlike pretty much
-   all other open source projects I'm aware of, the Linux kernel
-   development model has always encouraged things like the "Alan Cox" tree
-   or "Andrew Morton" tree or "Andrea Arcangeli" tree. Or all the vendor 
-   trees.
+Now, with 2.6.9, the libata driver takes over, and my md device seems no
+longer present (booting to an older 2.6.5 kernel, however, makes them visible
+again). The IDE driver seems not to probe for the S-ATA drives in the first
+hand:
 
-   Many other projects try to control "the one true tree". Linux never 
-   really did, and for the last several years it's been a conscious
-   decision for me to _encourage_ people to do their own trees. Exactly 
-   because I don't want people to think that there are any really official
-   trees. My tree perhaps comes closest, but even I don't expect to be the 
-   "final word on Linux".
+<dmesg>
+NFORCE2: IDE controller at PCI slot 0000:00:09.0
+NFORCE2: chipset revision 162
+NFORCE2: not 100% native mode: will probe irqs later
+NFORCE2: 0000:00:09.0 (rev a2) UDMA133 controller
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+Probing IDE interface ide0...
+Probing IDE interface ide1...
+...
+...
+libata version 1.02 loaded.
+sata_sil version 0.54
+ACPI: PCI interrupt 0000:01:0b.0[A] -> GSI 18 (level, high) -> IRQ 209
+ata1: SATA max UDMA/100 cmd 0xF909A080 ctl 0xF909A08A bmdma 0xF909A000 irq
+ 209 ata2: SATA max UDMA/100 cmd 0xF909A0C0 ctl 0xF909A0CA bmdma 0xF909A008
+ irq 209 usb 1-2: new low speed USB device using address 3
+ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003
+88:207f
+ata1: dev 0 ATA, max UDMA/133, 398297088 sectors: lba48
+ata1: dev 0 configured for UDMA/100
+scsi1 : sata_sil
+ata2: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 86:3e01 87:4003
+88:207f
+ata2: dev 0 ATA, max UDMA/133, 490234752 sectors: lba48
+ata2: dev 0 configured for UDMA/100
+scsi2 : sata_sil
+  Vendor: ATA       Model: Maxtor 6Y200M0    Rev: YAR5
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sdc: 398297088 512-byte hdwr sectors (203928 MB)
+</dmesg>
 
-   This keeps us all honest.
+Can you tell me how I either
+a) am able to "import" the RAID-1 md device, the meta-information of which is
+now located on SCSI drives, or
+b) tell the IDE driver to probe the S-ATA bus and tell the libata driver to
+NOT drive my S-ATA drives?
 
-Second, and less fundamentally:
+The other question is: libata seems to activate UDMA/100 for my S-ATA drives,
+although they are able to run with UDMA/133. "hdparm" does not work with SCSI
+drives, in this case. Can I tell libata to activate UDMA/133?
 
- - Even if we had "official maintainers" (and at any one time, certain 
-   sub-areas certainly tend to have pretty strong maintainership), those 
-   maintainers tend to have pretty fluid trees of their own, and they
-   change pretty dynamically.
+Many thanks for your help and best regards
 
-   Look at how trees are merged, and you'll notice that several 
-   maintainers did a special "merge these things for 2.6.9" tree that
-   contained the stuff that they wanted to push out quickly, and that I
-   merged for just that release. It was basically a "throw-away" tree that
-   got used once.
+Oliver Tennert
 
-   This happens all the time, and again, I _like_ it. It means that people 
-   can react a lot more dynamically to what is going on. Again, having a 
-   documented "list of trees" would not make this kind of thing
-   technically impossible, but it would foster the wrong kind of "mental
-   landscape".
+__
+________________________________________creating IT solutions
 
-See what I'm saying? It all boils down to the fact that I really like 
-having a dynamic development model, and that I want to try to avoid 
-putting in mental road-blocks to that model. I want Linux development to 
-be fluid, and I think the best way to reach that goal is to make people 
-_think_ of it as being fluid.
+Dr. Oliver Tennert   science + computing ag
+phone   +49(0)7071 9457-598  Hagellocher Weg 71-75
+fax     +49(0)7071 9457-411  D-72070 Tuebingen, Germany
+O.Tennert@science-computing.de  www.science-computing.de
 
-It's the old "perception changes reality" thing. It's really true. How you 
-think about something quite heavily influences what you do.
+-------------------------------------------------------
 
-Wow. That was deep. Time to go watch TV again.
+-- 
+__
+________________________________________creating IT solutions
 
-		Linus
+Dr. Oliver Tennert			science + computing ag
+phone   +49(0)7071 9457-598		Hagellocher Weg 71-75	
+fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
+O.Tennert@science-computing.de		www.science-computing.de
+

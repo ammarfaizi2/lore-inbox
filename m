@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315631AbSFCWei>; Mon, 3 Jun 2002 18:34:38 -0400
+	id <S315634AbSFCWiK>; Mon, 3 Jun 2002 18:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315634AbSFCWeh>; Mon, 3 Jun 2002 18:34:37 -0400
-Received: from pD9E23450.dip.t-dialin.net ([217.226.52.80]:12938 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315631AbSFCWeg>; Mon, 3 Jun 2002 18:34:36 -0400
-Date: Mon, 3 Jun 2002 16:34:29 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Diego Calleja <diegocg@teleline.es>
-cc: Daniel Phillips <phillips@bonn-fries.net>, <kaos@ocs.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: If you want kbuild 2.5, tell Linus
-In-Reply-To: <20020604001005.2e188689.diegocg@teleline.es>
-Message-ID: <Pine.LNX.4.44.0206031633580.3833-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315690AbSFCWiJ>; Mon, 3 Jun 2002 18:38:09 -0400
+Received: from 216-42-72-145.ppp.netsville.net ([216.42.72.145]:27265 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S315634AbSFCWiI>; Mon, 3 Jun 2002 18:38:08 -0400
+Subject: Re: [patch 12/16] fix race between writeback and unlink
+From: Chris Mason <mason@suse.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0206031514110.868-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 03 Jun 2002 18:36:23 -0400
+Message-Id: <1023143783.31682.28.camel@tiny>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2002-06-03 at 18:19, Linus Torvalds wrote:
+> 
+> 
+> On 3 Jun 2002, Chris Mason wrote:
+> >
+> > Or am I missing something?
+> 
+> No. I think that in the long run we really would want all of the writeback
+> preallocation should happen in the "struct file", not in "struct inode".
+> And they should be released at file close ("release()"), not at iput()
+> time.
 
-On Tue, 4 Jun 2002, Diego Calleja wrote:
-> "KEITH, I'LL MERGE KBUILD 2.5"
+reiserfs does preallocation and tail packing in release() right now, but
+do we really need preallocation at all once delayed allocation is
+stable?
 
-I'm currently on it! Please don't cry out so badly.
+-chris
 
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
 

@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317993AbSGPVgP>; Tue, 16 Jul 2002 17:36:15 -0400
+	id <S317984AbSGPVfW>; Tue, 16 Jul 2002 17:35:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318026AbSGPVgO>; Tue, 16 Jul 2002 17:36:14 -0400
-Received: from p508875D5.dip.t-dialin.net ([80.136.117.213]:58259 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317993AbSGPVgK>; Tue, 16 Jul 2002 17:36:10 -0400
-Date: Tue, 16 Jul 2002 15:38:50 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-In-Reply-To: <20020716212322.GT442@clusterfs.com>
-Message-ID: <Pine.LNX.4.44.0207161534280.3452-100000@hawkeye.luckynet.adm>
-X-Location: Calgary; CA
+	id <S317993AbSGPVfV>; Tue, 16 Jul 2002 17:35:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44551 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317984AbSGPVfU>;
+	Tue, 16 Jul 2002 17:35:20 -0400
+Message-ID: <3D3491C7.99B35813@zip.com.au>
+Date: Tue, 16 Jul 2002 14:36:07 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Jari Ruusu <jari.ruusu@pp.inet.fi>, Jens Axboe <axboe@suse.de>,
+       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] loop.c oopses
+References: <20020716163636.GW811@suse.de> <Pine.LNX.4.44L.0207161349100.3009-100000@duckman.distro.conectiva> <20020716170921.GX811@suse.de> <3D34773C.F61E7C0F@pp.inet.fi> <20020716211455.GE1096@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+William Lee Irwin III wrote:
+> 
+> On Tue, Jul 16, 2002 at 10:42:52PM +0300, Jari Ruusu wrote:
+> > The patch below fixes that remap issue, plus uncounted number of other loop
+> > issues. For example, device backed loops use pre-allocated pages for zero VM
+> > pressure.
+> 
+> I'd like to understand this (and possibly even use it) as I tend to use
+> the loopback block driver often. Any chance you could break this up into
+> a blow-by-blow series of bugfixes? As it is here, it's a bit much for me
+> to digest as a newbie to bio.
+> 
+> My needs for explanation are perhaps greater than others on the cc: list,
+> so it's really optional, but I'd be much obliged if you could do so.
+> 
 
-On Tue, 16 Jul 2002, Andreas Dilger wrote:
-> This is all done already for both LVM and EVMS snapshots.  The filesystem
-> (ext3, reiserfs, XFS, JFS) flushes the outstanding operations and is
-> frozen, the snapshot is created, and the filesystem becomes active again.
-> It takes a second or less.
+Seconded, please.  It's obviously an important patch but it's
+rather large and opaque.  A description of what it is doing and
+in particularly *why* it is doing it would really help.
 
-Anyway, we could do that in parallel if we did it like that:
+A nice way of providing such a description is inside
 
-sync	-> significant data is being written
-lock	-> data writes stay cached, but aren't written
-snapshot
-unlock	-> data is getting written
-now unmount the snapshout (clean it)
-write the modified snapshot to disk...
+/*
+ * these thingies
+ */
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+so the information is not lost.
 
+I particular:
+
+- Does the file_operations-based file-backed IO work with all
+  crypto setups?
+
+- What are those preallocated pages doing?  Are they really needed
+  with the 2.5 VM?  What problem are they solving?
+
+Thanks.
+
+(BTW: check out the ARRAY_SIZE macro ;))
+
+-

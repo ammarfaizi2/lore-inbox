@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282843AbSANOXr>; Mon, 14 Jan 2002 09:23:47 -0500
+	id <S288870AbSANOWf>; Mon, 14 Jan 2002 09:22:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283204AbSANOXg>; Mon, 14 Jan 2002 09:23:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1811 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282843AbSANOXR>; Mon, 14 Jan 2002 09:23:17 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Mon, 14 Jan 2002 14:35:00 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), yodaiken@fsmlabs.com,
-        phillips@bonn-fries.net (Daniel Phillips),
-        arjan@fenrus.demon.nl (Arjan van de Ven), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201141330350.29208-100000@serv> from "Roman Zippel" at Jan 14, 2002 02:39:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289250AbSANOWZ>; Mon, 14 Jan 2002 09:22:25 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:59065 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S289175AbSANOWN>; Mon, 14 Jan 2002 09:22:13 -0500
+Date: Mon, 14 Jan 2002 15:19:00 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Jim Studt <jim@federated.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
+In-Reply-To: <Pine.LNX.4.33.0201141541540.9075-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.GSO.3.96.1020114150024.16706C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Q8CS-0001rO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So the worst behaviour I see is that on a loaded system, a low priority
-> task can hold up another task, if that task should be our interactive
-> task, the interactivity is of course gone. But this problem is not really
-> new, as we have no guarantees regarding i/o latencies. So everyone using
-> any patch should be aware of that it's not a magical tool and for getting
-> better scheduling latencies, one has to trade something else, but so far
-> I haven't seen any evidence that it makes something else much worse.
+On Mon, 14 Jan 2002, Zwane Mwaikambo wrote:
 
-It doesn't make anything better is the issue. Its more complex than ll but
-gains nothing
+> You may have noticed the great deal of "hacks" which people have put into
+> the kernel over the years to get it to work with the imperfect world of
+> hardware. It makes you wonder wether we should waste our time supporting
+
+ Well, I added a few trivial firmware workarounds myself, but the question
+is how much we can obfuscate the kernel before it gets to the point of
+insanity and how much effort one should put in them before deciding it's
+not worth the trouble.  One-liners are usually fine, but is anything more
+complex?  And I/O APIC routing table bugs are quite hopeless -- you need
+to know the physical layout of traces on a given PCB before even trying to
+do anything useful. 
+
+> broken hardware... Then again if we didn't we'd only run on 0.1% of the
+> boxes out there ;) But... i'm in no way advocating for adding more
+> kludges.
+
+ SMP hardware is mostly targetted to the server market which seems to care
+of Linux due to many customers running it.  If they ask vendors for fixes
+or choose another brand (surprisingly enough, there are vendors that can
+get their MP tables right), the vendors will start fixing bugs.  If we
+work them around, they will not, as there won't be a reason to. 
+
+ The "noapic" option should probably get removed -- it was meant as a
+debugging aid (as many of the "no*" options) at the early days of I/O APIC
+support, I believe...  Now the support is pretty stable.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266309AbUAVVIL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 16:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266331AbUAVVIL
+	id S266240AbUAVLiK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 06:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUAVLiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 16:08:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39883 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266309AbUAVVII
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 16:08:08 -0500
-Message-ID: <40103BAB.4080601@pobox.com>
-Date: Thu, 22 Jan 2004 16:07:55 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Shutdown IDE before powering off.
-References: <1074735774.31963.82.camel@laptop-linux>	<20040121234956.557d8a40.akpm@osdl.org>	<200401220813.i0M8DX4Q000511@81-2-122-30.bradfords.org.uk> <m3y8rzlrj5.fsf@lugabout.jhcloos.org>
-In-Reply-To: <m3y8rzlrj5.fsf@lugabout.jhcloos.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 22 Jan 2004 06:38:10 -0500
+Received: from gaia.ailab.ch ([130.60.75.60]:43147 "EHLO gaia.ailab.ch")
+	by vger.kernel.org with ESMTP id S266240AbUAVLiG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 06:38:06 -0500
+Subject: Re: Linux-2.6.1-mm4/5 dies booting on an Athlon64
+From: Hanspeter Kunz <hkunz@ifi.unizh.ch>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <400FAA7D.1010807@freemail.hu>
+References: <400FAA7D.1010807@freemail.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1074771664.2638.49.camel@septumania>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 22 Jan 2004 12:41:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James H. Cloos Jr. wrote:
->>>>>>"John" == John Bradford <john@grabjohn.com> writes:
+Just an idea: I had similar problems in 2.6.1-mm4.
+I had to disable PNP bios support.
+
+cheers,
+Hp.
+
+On Thu, 2004-01-22 at 11:48, Boszormenyi Zoltan wrote:
+> Hi,
 > 
+> > Boszormenyi Zoltan writes:
+> >  > Hi,
+> >  > 
+> >  > mainboard is MSI K8T Neo, Athlon64 3200+.
+> >  > It does not boot successfully without the "nolapic"
+> >  > option. "noapic" does not make any difference, "nolapic" does.
+> >  > Kernel is compiled on a 32bit Fedora,
+> >  > K7/Athlon and Hammer/Opteron/Athlon64
+> >  > are selected under CPU support.
+> > 
+> > 1. "does not boot successfully" is extremely vague.
+> >    Please supply a boot log or decoded kernel oops.
 > 
->>>This spins down the disk(s) when you're just doing do a reboot.
->>>That's fairly irritating and could affect reboot times if one has
->>>many disks.
+> Uncompressing kernel... and then nothing. Even the screen is emptied,
+> cursor blinks in column 0 of line approx. 8, at about 1/3 of the screen.
 > 
+> > 2. Does this also occur with 2.6.1 or 2.6.2-rc1?
+> >    If so, what was the last standard 2.6 kernel that worked?
+> > 3. Does 2.4.25-pre6 work?
 > 
-> John> I think it is an attempt to force some broken drives to flush
-> John> their cache, but I wonder whether it will simply move the
-> John> problem from one set of broken drives to another :-).
+> I will try these. FC1 2.4.22-2149 definitely works.
 > 
-> It will.  I've had to work with a few drives or drive combos over
-> the years that would not spin up reliably.  It was vital to keep
-> them spinning once they were (all) up.  Adding this would make
-> reboot unnecessarily unuseable in such cases.  Perhaps just
-> flush, pause, flush would work as well?
-
-
-Flush is what is needed, flush is what it does in 2.4, and flush is what 
-it should do in 2.6 :)
-
-Rebooting does not shut down nor unload the IDE driver, so it is 
--critical- that a flush occurs before reboot, otherwise it is entirely 
-possible that writes the drive has ack'd back to the OS will not 
-actually get written to the media.
-
-	Jeff
-
-
+> > 4. Try a minimal .config w/o any non-essential features.
+> >    (Where non-essential mean anything not needed to boot
+> >    and get to a login prompt.)
+> 
+> OK.
+-- 
+Hanspeter Kunz
+Artificial Intelligence Lab
+Dept. of Information Technology
+University of Zurich
++41 1 635 43 06 work
++41 1 635 68 09 fax
+www.ifi.unizh.ch/~hkunz
 

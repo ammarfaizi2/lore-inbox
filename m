@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbQLFWVW>; Wed, 6 Dec 2000 17:21:22 -0500
+	id <S129683AbQLFWbN>; Wed, 6 Dec 2000 17:31:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129683AbQLFWVN>; Wed, 6 Dec 2000 17:21:13 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:44929 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S129231AbQLFWU6>;
-	Wed, 6 Dec 2000 17:20:58 -0500
-From: mkloppstech@freenet.de
-Message-Id: <200012062150.WAA01033@john.epistle>
-Subject: Ext2-fs error
-To: linux-kernel@vger.kernel.org
-Date: Wed, 6 Dec 2000 22:50:43 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S129765AbQLFWbD>; Wed, 6 Dec 2000 17:31:03 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:57826 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129683AbQLFWau>; Wed, 6 Dec 2000 17:30:50 -0500
+Date: Wed, 6 Dec 2000 14:00:12 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test12pre6: BUG in schedule (sched.c, 115)
+Message-ID: <20001206140012.B2215@w-mikek.des.sequent.com>
+In-Reply-To: <20001206195908.A190@lightside.2y.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001206195908.A190@lightside.2y.net>; from ragnar_hojland@eresmas.com on Wed, Dec 06, 2000 at 07:59:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The EXT2-fs errors I recently reported for test11 seem to be gone with
-test12-pre5. At least I couldn't reproduce the error, neither with
-overcommit_memory turned on nor off; maybe the error was due to
-turning on write cache of my hard disk.
+Ragnar,
 
-The error was a wrong reading of directory lengths and inode nnumbers:
-The file system seemed to read the inode numbers not as supposed to do:
-xxxx|xxxx|xxxx|xxxx|xxxx
-     rrrr
+Are you sure that was line 115?  Could it have been line 515?
+Also, do you have any Oops data?
 
-but like this:
-xxxx|xxxx|xxxx|xxxx|xxxx
- rrr_r
-The message was:
+Thanks,
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center
+15450 SW Koll Parkway
+Beaverton, OR 97006-6063                     (503)578-3494
 
-Dec  4 13:04:19 john kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory #280596: rec_len % 4 != 0 - offset=0, inode=68583844, rec_len=13758, name_len=0
-Dec  4 15:38:07 john kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory #280596: rec_len % 4 != 0 - offset=0, inode=33188, rec_len=3591, name_len=0
-Dec  4 15:38:07 john kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory #659481: directory entry across
-blocks - offset=0, inode=33188, rec_len=2536, name_len=0
-Dec  4 15:39:38 john kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory #280596: rec_len % 4 != 0 - offset=0, inode=33188, rec_len=3591, name_len=0
-Dec  4 15:39:38 john kernel: EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory #659481: directory entry across
-blocks - offset=0, inode=33188, rec_len=2536, name_len=0
 
-Mirko Kloppstech
+On Wed, Dec 06, 2000 at 07:59:08PM +0100, Ragnar Hojland Espinosa wrote:
+> as per subject.. BUG in schedule (sched.c, 115)
+> -- 
+> ____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
+> \ o.O|                                                   2F0D27DE025BE2302C
+>  =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
+>    U     chaos and madness await thee at its end."       hkp://keys.pgp.com
+> 
+> Handle via comment channels only.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

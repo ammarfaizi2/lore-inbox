@@ -1,148 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbTFGGVK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 02:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTFGGVK
+	id S262363AbTFGGeV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 02:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTFGGeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 02:21:10 -0400
-Received: from zero.aec.at ([193.170.194.10]:49673 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261820AbTFGGVF (ORCPT
+	Sat, 7 Jun 2003 02:34:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:2179 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262363AbTFGGeN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 02:21:05 -0400
-Date: Sat, 7 Jun 2003 08:34:24 +0200
-From: Andi Kleen <ak@muc.de>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, vojtech@suse.cz
-Subject: [PATCH] Making keyboard/mouse drivers dependent on CONFIG_EMBEDDED
-Message-ID: <20030607063424.GA12616@averell>
+	Sat, 7 Jun 2003 02:34:13 -0400
+Date: Fri, 06 Jun 2003 23:44:01 -0700 (PDT)
+Message-Id: <20030606.234401.104035537.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: manfred@colorfullife.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: problem with blk_queue_bounce_limit()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200306062013.h56KDcLe026713@napali.hpl.hp.com>
+References: <16096.16492.286361.509747@napali.hpl.hp.com>
+	<20030606.003230.15263591.davem@redhat.com>
+	<200306062013.h56KDcLe026713@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Fri, 6 Jun 2003 13:13:38 -0700
 
-I finally got sick of seeing bug reports from people who did not enable
-CONFIG_VT or forgot to enable the obscure options for the keyboard
-driver. This is especially a big problem for people who do make oldconfig
-with a 2.4 configuration, but seems to happen in general often.
-I also included the PS/2 mouse driver. It is small enough and a useful
-fallback on any PC.
+   Yes, but the comment certainly is confusing.  How about something like
+   this:
+   
+No arguments.
 
-This patch wraps all this for i386/amd64 in CONFIG_EMBEDDED. If 
-CONFIG_EMBEDDED is not defined they are not visible and always enabled.
+     David> The whole block layer makes all kinds of assumptions about
+     David> what physically contiguous addresses mean about how they'll
+     David> be contiguous in the bus addresses the device will actually
+     David> use to perform the DMA transfer.
+   
+   This sounds all very dramatic, but try as I might, all I find is three
+   places where PCI_DMA_BUS_IS_PHYS is used:
+   
+   	- ide-lib.c: used to disable bounce buffering
+   	- scsi_lib.c: used to disable bounce buffering
 
-I only tried to give good defaults for PC type of hardware. So far 
-the assumption is that people running other architectures know how 
-to configure a kernel.
+Fix your grep, 
 
-I also included VGA_CONSOLE with this. Arguably a lot of people use
-fbcon now, but having vga console compiled in too as a fallback doesn't hurt.
+   	- tg3.c: what the heck??
+   
+In order to workaround a "just below 4GB dma address" bug in the
+chip, we have to have a reliable way to "remap" the given networking
+buffer to some other DMA address that does not meet the hw bug case.
 
-Hopefully this will fix one of the major FAQs on linux-kernel.
+If we don't have an IOMMU, we have to change the buffer itself and
+we accomplish this with SKB copy.
 
--Andi
+But on an IOMMU system, we could end up mapping to the same bogus
+DMA address.  So we have to solve this problem by keeping the
+existng bad mapping, doing a new DMA mapping, then trowing away
+the old one.
+   
+   Did I get this right (or at least close enough)?
+   
+Precisely.
 
-diff -u linux-2.5.70/drivers/char/Kconfig-KCONFIG linux-2.5.70/drivers/char/Kconfig
---- linux-2.5.70/drivers/char/Kconfig-KCONFIG	2003-05-08 04:52:43.000000000 +0200
-+++ linux-2.5.70/drivers/char/Kconfig	2003-06-06 23:46:52.000000000 +0200
-@@ -5,8 +5,9 @@
- menu "Character devices"
- 
- config VT
--	bool "Virtual terminal"
-+	bool "Virtual terminal" if EMBEDDED
- 	requires INPUT=y
-+	default y
- 	---help---
- 	  If you say Y here, you will get support for terminal devices with
- 	  display and keyboard devices. These are called "virtual" because you
-@@ -35,8 +36,9 @@
- 	  shiny Linux system :-)
- 
- config VT_CONSOLE
--	bool "Support for console on virtual terminal"
-+	bool "Support for console on virtual terminal" if EMBEDDED
- 	depends on VT
-+	default y
- 	---help---
- 	  The system console is the device which receives all kernel messages
- 	  and warnings and which allows logins in single user mode. If you
-diff -u linux-2.5.70/drivers/input/keyboard/Kconfig-KCONFIG linux-2.5.70/drivers/input/keyboard/Kconfig
---- linux-2.5.70/drivers/input/keyboard/Kconfig-KCONFIG	2003-03-28 18:32:22.000000000 +0100
-+++ linux-2.5.70/drivers/input/keyboard/Kconfig	2003-06-06 23:46:51.000000000 +0200
-@@ -2,7 +2,7 @@
- # Input core configuration
- #
- config INPUT_KEYBOARD
--	bool "Keyboards"
-+	bool "Keyboards" if (X86 && EMBEDDED) || (!X86)
- 	default y
- 	depends on INPUT
- 	help
-@@ -12,7 +12,7 @@
- 	  If unsure, say Y.
- 
- config KEYBOARD_ATKBD
--	tristate "AT keyboard support"
-+	tristate "AT keyboard support" if (X86 && EMBEDDED) || (!X86) 
- 	default y
- 	depends on INPUT && INPUT_KEYBOARD && SERIO
- 	help
-diff -u linux-2.5.70/drivers/input/serio/Kconfig-KCONFIG linux-2.5.70/drivers/input/serio/Kconfig
---- linux-2.5.70/drivers/input/serio/Kconfig-KCONFIG	2003-03-28 18:32:22.000000000 +0100
-+++ linux-2.5.70/drivers/input/serio/Kconfig	2003-06-06 23:56:20.000000000 +0200
-@@ -19,7 +19,7 @@
- 	  as a module, say M here and read <file:Documentation/modules.txt>.
- 
- config SERIO_I8042
--	tristate "i8042 PC Keyboard controller"
-+	tristate "i8042 PC Keyboard controller" if (X86 && EMBEDDED) || (!X86)
- 	default y
- 	depends on SERIO
- 	---help---
-diff -u linux-2.5.70/drivers/input/Kconfig-KCONFIG linux-2.5.70/drivers/input/Kconfig
---- linux-2.5.70/drivers/input/Kconfig-KCONFIG	2003-02-10 19:37:58.000000000 +0100
-+++ linux-2.5.70/drivers/input/Kconfig	2003-06-06 23:44:32.000000000 +0200
-@@ -5,7 +5,7 @@
- menu "Input device support"
- 
- config INPUT
--	tristate "Input devices (needed for keyboard, mouse, ...)"
-+	tristate "Input devices (needed for keyboard, mouse, ...)" if EMBEDDED
- 	default y
- 	---help---
- 	  Say Y here if you have any input device (mouse, keyboard, tablet,
-@@ -27,7 +27,7 @@
- comment "Userland interfaces"
- 
- config INPUT_MOUSEDEV
--	tristate "Mouse interface"
-+	tristate "Mouse interface" if EMBEDDED
- 	default y
- 	depends on INPUT
- 	---help---
-@@ -45,7 +45,7 @@
- 	  a module, say M here and read <file:Documentation/modules.txt>.
- 
- config INPUT_MOUSEDEV_PSAUX
--	bool "Provide legacy /dev/psaux device"
-+	bool "Provide legacy /dev/psaux device" if EMBEDDED
- 	default y
- 	depends on INPUT_MOUSEDEV
- 
-diff -u linux-2.5.70/drivers/video/console/Kconfig-KCONFIG linux-2.5.70/drivers/video/console/Kconfig
---- linux-2.5.70/drivers/video/console/Kconfig-KCONFIG	2003-03-28 18:32:25.000000000 +0100
-+++ linux-2.5.70/drivers/video/console/Kconfig	2003-06-07 08:23:50.000000000 +0200
-@@ -5,8 +5,9 @@
- menu "Console display driver support"
- 
- config VGA_CONSOLE
--	bool "VGA text console"
-+	bool "VGA text console" if (EMBEDDED && X86) || (!X86)
- 	depends on !ARCH_ACORN && !ARCH_EBSA110 || !4xx && !8xx
-+	default y
- 	help
- 	  Saying Y here will allow you to use Linux in text mode through a
- 	  display that complies with the generic VGA standard. Virtually
+   Otherwise, you could just always use the copy-the-entire-buffer
+   workaround.
+
+The new PCI dma mapping I make could map to the SAME bad DMA
+address, that's the problem.  I could loop forever making new
+DMA mappings on an IOMMU system, each and every one falls into
+the hw bug case.
+
+   I really dislike PCI_DMA_BUS_IS_PHYS, because it introduces a
+   discontinuity.  I don't think it should be necessary.
+   
+I totally disagree.
+
+     David> We could convert the few compile time checks of
+     David> PCI_DMA_BUS_IS_PHYS so that you can set this based upon the
+     David> configuration of the machine if for some configurations it is
+     David> true.  drivers/net/tg3.c is the only offender, my bad :-)
+   
+   Yes.  Would you mind fixing that?
+   
+Sure, no problem.
+
+   

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288623AbSANByb>; Sun, 13 Jan 2002 20:54:31 -0500
+	id <S288632AbSANCFW>; Sun, 13 Jan 2002 21:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288632AbSANByW>; Sun, 13 Jan 2002 20:54:22 -0500
-Received: from zero.tech9.net ([209.61.188.187]:51218 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288623AbSANByL>;
-	Sun, 13 Jan 2002 20:54:11 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kenneth Johansson <ken@canit.se>, arjan@fenrus.demon.nl,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0201132349450.32617-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0201132349450.32617-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 13 Jan 2002 20:56:52 -0500
-Message-Id: <1010973413.814.35.camel@phantasy>
+	id <S288633AbSANCFN>; Sun, 13 Jan 2002 21:05:13 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:7945 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288632AbSANCE7>;
+	Sun, 13 Jan 2002 21:04:59 -0500
+Date: Mon, 14 Jan 2002 00:04:52 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: duraid@fl.net.au (Duraid Madina), linux-kernel@vger.kernel.org
+Subject: Re: Any non-BS VM work queued for 2.5?
+Message-ID: <20020114020452.GC8213@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	duraid@fl.net.au (Duraid Madina), linux-kernel@vger.kernel.org
+In-Reply-To: <1010956364.50291.0.camel@simplex.idesign.fl.net.au> <E16PsBq-00083i-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16PsBq-00083i-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-01-13 at 20:50, Rik van Riel wrote:
-
-> > So far I haven't seen any evidence, that preempt introduces any _new_
-> > serious problems, so I'd rather like to see to get the best out of
-> > both.
+Em Sun, Jan 13, 2002 at 09:29:18PM +0000, Alan Cox escreveu:
+> > 	Is this true? Judging by the ease with which AA's hackwork made it into
+> > 2.4, I think we may all be, well, fucked.
 > 
-> Are you seriously suggesting you haven't read a single
-> email in this thread yet ?
+> 2.4 is now in good hands. Now be careful before the sun comes up and you get
+> turned to stone ;)
 
-No, I think he is suggesting he doesn't consider any of the problems
-serious.  A lot of it is just smoke.  What is "bad" wrt 2.5?
+Oh, this has something to do with that "don't feed the..." thing?
 
-	Robert Love
+;)
 
-
+- Arnaldo

@@ -1,69 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271696AbTG2Mh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271698AbTG2MhZ
+	id S271692AbTG2Moo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 08:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271700AbTG2Mog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:37:25 -0400
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:54648
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S271696AbTG2MhX (ORCPT
+	Tue, 29 Jul 2003 08:44:36 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:7692 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S271692AbTG2Mm6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:37:23 -0400
-Message-ID: <3F266D33.4040106@rogers.com>
-Date: Tue, 29 Jul 2003 08:48:51 -0400
-From: gaxt <gaxt@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 08:42:58 -0400
+From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Reply-To: krishnakumar@naturesoft.net
+Organization: Naturesoft
+To: davej@suse.de
+Subject: [PATCH]2.6.0-test2 : removing obsolete EXPORT_NO_SYMBOLS
+Date: Tue, 29 Jul 2003 18:14:28 +0530
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: WINE + Galciv + Con Kolivas's 011 patch to  2.6.0-test2
-References: <3F22F75D.8090607@rogers.com> <200307290739.04993.kernel@kolivas.org> <3F25DC33.8080908@rogers.com> <200307291325.09096.kernel@kolivas.org>
-In-Reply-To: <200307291325.09096.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [65.49.219.239] using ID <dw2price@rogers.com> at Tue, 29 Jul 2003 08:37:22 -0400
+Content-Disposition: inline
+Message-Id: <200307291814.28363.krishnakumar@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried O11. Still chuggy in the AVIs and then locks out input into X. I 
-switch to Alt-F1 console and hear the video advance, switch back, it 
-pauses, switch to Alt-F1 etc. to get it through the video and then it's 
-fine.
+Dear Dave,
 
-Incidentally, I moved my /home to another hard drive last night (same 
-7200 rpms) to get more space. It makes no difference to performance. 
-260-test2-vanilla was quite good and -mm1 and -O11 are chuggy and lock 
-out input to X and require switching to virtual console to advance 
-through the videos.
+This patch removes the obsolete EXPORT_NO_SYMBOLS 
+from some of the source code. The above said macro has become
+obsolete for 2.6 kernel series.
 
-If there is some other data I can provide you, let me know.
+The patch is against 2.6.0-test2.
 
-Con Kolivas wrote:
-> On Tue, 29 Jul 2003 12:30, gaxt wrote:
-> 
->>Con Kolivas wrote:
->>
->>>File I/O ? Try booting with elevator=deadline
->>
->>Setting elevator=deadline results in wine+galciv loading without the
->>horrible long pauses but there is still chugging and while the AVIs
->>play, the rest of Gnome is unresponsive (ie can't switch windows by
->>clicking etc) though I can switch to Alt-F1 virtual terminal. Still not
->>as good as 260-test-2-vanilla
-> 
-> 
-> Well that is weird, but no doubt IO is playing some part here. Can you please 
-> try the preview O11 patch (incremental against 2.6.0-test2-mm1 but should 
-> patch against an O10 patched vanilla) in 
-> 
-> http://kernel.kolivas.org/2.5/experimental
-> 
-> While not specifically addressing this problem, it may help.
-> 
-> Con
-> 
-> 
+Please push it to linus for inclusion.
 
+Regards
+KK
+
+
+=================================================
+diffstat output of the patch:
+
+
+arch/cris/arch-v10/drivers/pcf8563.c  |    1 -
+drivers/net/meth.c                            |    4 ----
+sound/oss/harmony.c                       |    1 -
+sound/oss/swarm_cs4297a.c            |    2 --
+4 files changed, 8 deletions(-)
+
+=================================================
+Here is the patch
+
+diff -urN -X dontdiff linux-2.6.0-test2.orig/arch/cris/arch-v10/drivers/pcf8563.c linux-2.6.0-test2/arch/cris/arch-v10/drivers/pcf8563.c
+--- linux-2.6.0-test2.orig/arch/cris/arch-v10/drivers/pcf8563.c	2003-07-27 22:30:21.000000000 +0530
++++ linux-2.6.0-test2/arch/cris/arch-v10/drivers/pcf8563.c	2003-07-29 17:53:23.000000000 +0530
+@@ -282,6 +282,5 @@
+ 	return 0;
+ }
+ 
+-EXPORT_NO_SYMBOLS;
+ module_init(pcf8563_init);
+ module_exit(pcf8563_exit);
+diff -urN -X dontdiff linux-2.6.0-test2.orig/drivers/net/meth.c linux-2.6.0-test2/drivers/net/meth.c
+--- linux-2.6.0-test2.orig/drivers/net/meth.c	2003-07-27 22:37:22.000000000 +0530
++++ linux-2.6.0-test2/drivers/net/meth.c	2003-07-29 17:53:53.000000000 +0530
+@@ -844,10 +844,6 @@
+ 		printk("meth: error %i registering device \"%s\"\n",
+ 		       result, meth_devs->name);
+ 	else device_present++;
+-#ifndef METH_DEBUG
+-	EXPORT_NO_SYMBOLS;
+-#endif
+-	
+ 	return device_present ? 0 : -ENODEV;
+ }
+ 
+diff -urN -X dontdiff linux-2.6.0-test2.orig/sound/oss/harmony.c linux-2.6.0-test2/sound/oss/harmony.c
+--- linux-2.6.0-test2.orig/sound/oss/harmony.c	2003-07-27 22:37:05.000000000 +0530
++++ linux-2.6.0-test2/sound/oss/harmony.c	2003-07-29 17:55:07.000000000 +0530
+@@ -1296,7 +1296,6 @@
+ 	unregister_parisc_driver(&harmony_driver);
+ }
+ 
+-EXPORT_NO_SYMBOLS;
+ 
+ MODULE_AUTHOR("Alex DeVries <alex@linuxcare.com>");
+ MODULE_DESCRIPTION("Harmony sound driver");
+diff -urN -X dontdiff linux-2.6.0-test2.orig/sound/oss/swarm_cs4297a.c linux-2.6.0-test2/sound/oss/swarm_cs4297a.c
+--- linux-2.6.0-test2.orig/sound/oss/swarm_cs4297a.c	2003-07-27 22:32:56.000000000 +0530
++++ linux-2.6.0-test2/sound/oss/swarm_cs4297a.c	2003-07-29 17:54:47.000000000 +0530
+@@ -90,7 +90,6 @@
+ #include <asm/sibyte/64bit.h>
+ 
+ struct cs4297a_state;
+-EXPORT_NO_SYMBOLS;
+ 
+ static void stop_dac(struct cs4297a_state *s);
+ static void stop_adc(struct cs4297a_state *s);
+@@ -2734,7 +2733,6 @@
+ 
+ // --------------------------------------------------------------------- 
+ 
+-EXPORT_NO_SYMBOLS;
+ 
+ MODULE_AUTHOR("Kip Walker, kwalker@broadcom.com");
+ MODULE_DESCRIPTION("Cirrus Logic CS4297a Driver for Broadcom SWARM board");
+
+-
 

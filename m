@@ -1,85 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265122AbTFRJ3K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 05:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbTFRJ3K
+	id S264862AbTFRJb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 05:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTFRJb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 05:29:10 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51441 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265122AbTFRJ3H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 05:29:07 -0400
-Message-ID: <3EF02D07.6000108@mvista.com>
-Date: Wed, 18 Jun 2003 02:12:39 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Wed, 18 Jun 2003 05:31:56 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:54500 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264862AbTFRJbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 05:31:55 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Karl Vogel <karl.vogel@seagha.com>, linux-kernel@vger.kernel.org
+Subject: Re: How do I make this thing stop laging?  Reboot?  Sounds like  Windows!
+Date: Wed, 18 Jun 2003 11:44:43 +0200
+User-Agent: KMail/1.5.1
+References: <200306172030230870.01C9900F@smtp.comcast.net> <3EF0214A.3000103@aitel.hist.no> <E19SZ8v-0005Ie-00@relay-1.seagha.com>
+In-Reply-To: <E19SZ8v-0005Ie-00@relay-1.seagha.com>
 MIME-Version: 1.0
-To: "B. D. Elliott" <bde@nwlink.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: Re: Sparc64-2.5.72: A Serious Time Problem
-References: <20030618073556.94E966A4FC@smtp4.pacifier.net>
-In-Reply-To: <20030618073556.94E966A4FC@smtp4.pacifier.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306181144.43460.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-B. D. Elliott wrote:
-> There is a serious bug in setting time on 64-bit sparcs (and probably other
-> 64-bit systems).  The symptom is that ntpdate or date set the time back to
-> 1969 or 1970.  The underlying problems are that stime is broken, and any
-> settimeofday call fails with a bad fractional value.  Ntpdate falls back to
-> stime when settimeofday fails.
-> 
-> The settimeofday problem is that the timeval and timespec structures are not
-> the same size.  In particular, the fractional part is an int in timeval, and
-> a long in timespec.  The stime problem is that the argument is not an int,
-> but a time_t, which is long on at least some 64-bit systems.
-> 
-> The following patch appears to fix this on my sparc64.
 
-Looks reasonable.  The stime problem must have been there for some 
-time but I just introduced the timespec/ timeval thing.  Someday soon 
-I will get this 64-bit long/int thing down.  I promise :)
+> Swap prefetching? If you have >10% free physical ram and any used swap it
+> will start swapping pages back into physical ram. Probably not of real
+> benefit but many people like this idea. I have a soft spot for it and like
+> using it.
+> --
+>
+> The disadvantage is ofcourse that you will be using up more RAM than is
+> really necessary.
 
--g
-> 
-> ===================================================================
-> --- ./kernel/time.c.orig	2003-06-16 22:36:04.000000000 -0700
-> +++ ./kernel/time.c	2003-06-18 00:00:43.000000000 -0700
-> @@ -66,7 +66,7 @@
->   * architectures that need it).
->   */
->   
-> -asmlinkage long sys_stime(int * tptr)
-> +asmlinkage long sys_stime(time_t * tptr)
->  {
->  	struct timespec tv;
->  
-> @@ -162,13 +162,15 @@
->  
->  asmlinkage long sys_settimeofday(struct timeval __user *tv, struct timezone __user *tz)
->  {
-> +	struct timeval user_tv;
->  	struct timespec	new_tv;
->  	struct timezone new_tz;
->  
->  	if (tv) {
-> -		if (copy_from_user(&new_tv, tv, sizeof(*tv)))
-> +		if (copy_from_user(&user_tv, tv, sizeof(*tv)))
->  			return -EFAULT;
-> -		new_tv.tv_nsec *= NSEC_PER_USEC;
-> +		new_tv.tv_sec = user_tv.tv_sec;
-> +		new_tv.tv_nsec = user_tv.tv_usec * NSEC_PER_USEC;
->  	}
->  	if (tz) {
->  		if (copy_from_user(&new_tz, tz, sizeof(*tz)))
-> ===================================================================
-> 
+No, free RAM is wasted RAM.
+You will start wasting RAM once you refuse to free up
+pages you just read from swap space for other more
+important needs. But that's a general VM problem.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+You'll waste IO bandwidth and CPU power to read in pages
+that will be evicted unused, but you may get hits and save
+page faults. It's just a matter of selecting pages to be preswapped.
+
+But those preswapped pages are either clean and thus immediately
+evictable or you were right to preswap them and saved a page fault.
+
+	Regards
+		Oliver
 

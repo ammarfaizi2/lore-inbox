@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbUK0VL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbUK0VP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbUK0VL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 16:11:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUK0VL4
+	id S261337AbUK0VP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 16:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbUK0VP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 16:11:56 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:5388 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261331AbUK0VLx (ORCPT
+	Sat, 27 Nov 2004 16:15:56 -0500
+Received: from www.zeroc.com ([63.251.146.250]:3819 "EHLO www.zeroc.com")
+	by vger.kernel.org with ESMTP id S261337AbUK0VPv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 16:11:53 -0500
-Message-ID: <41A8ED8F.5010402@domdv.de>
-Date: Sat, 27 Nov 2004 22:11:43 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
+	Sat, 27 Nov 2004 16:15:51 -0500
+Message-ID: <009501c4d4c6$40b4f270$6400a8c0@centrino>
+From: "Bernard Normier" <bernard@zeroc.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <006001c4d4c2$14470880$6400a8c0@centrino> <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr>
+Subject: Re: Concurrent access to /dev/urandom
+Date: Sat, 27 Nov 2004 16:15:36 -0500
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
-       matthew@wil.cx, dwmw2@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <19865.1101395592@redhat.com> <20041127210331.GB7857@mars.ravnborg.org>
-In-Reply-To: <20041127210331.GB7857@mars.ravnborg.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	format=flowed;
+	charset="UTF-8";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Thu, Nov 25, 2004 at 03:13:12PM +0000, David Howells wrote:
-> 
->>We've been discussing splitting the kernel headers into userspace API headers
->>and kernel internal headers and deprecating the __KERNEL__ macro. This will
->>permit a cleaner interface between the kernel and userspace; and one that's
->>easier to keep up to date.
->>
->>What we've come up with is this:
->>
->> (1) Create new directories in the linux sources to shadow existing include
->>     directories:
->>
->>	NEW DIRECTORY		DIRECTORY SHADOWED
->>	=============		==================
->>	include/user/		include/linux/
->>	include/user-*/		include/asm-*/
->>
->>     Note that this doesn't take account of the other directories under
->>     include/, but I don't think they're relevant.
-> 
-> 
-> If we go for some resturcturing of include/ then we should get rid of
-> the annoying asm symlink. Following layout deals with that:
-> 
-> include/<arch>/asm		<= Files from include/asm-<arch>
-> include/<arch>/mach*		<= Files from include/mach-*
-> 
-> This layout solve the symlink issue in an elegant way.
-> We need to do trivial changes to compiler options to make it work. Changing
-> compiler options is much more relaible than using symlinks.
-> 
-> Then the userspace part would then be located in:
-> include/<arch>/user-asm
-> 
+> >As long as I serialize access to /dev/urandom, I get different values.
+>>However, with concurrent access to /dev/urandom, I quickly get duplicate
+>
+> How do you concurrently read from urandom? That's only possible with 2 or 
+> more
+> CPUs, and even then, I hope that the urandom chardev has some spinlock.
+>
+As shown in the code included in my first e-mail, each thread simply
+open("/dev/urandom", O_RDONLY), use read(2) to read 16 bytes, and
+then close the file descriptor.
+Duplicates appear quickly on: single CPU with HT, dual CPU without HT,
+and dual CPU with HT (all with smp kernels)
+But not on a lower end single CPU without HT (2.6.8-1.521 non-smp).
 
-This complicates things for bi-arch architectures like x86_64 where one 
-can use a dispatcher directory instead of a symlink to suit include/asm 
-for 32bit as well as 64bit.
+>>#include <pthread.h>
+>>[...]
+>
+> Rule of thumb: Post the smallest possible code that shows the problem.
+Will do next time!
 
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Bernard
+
+

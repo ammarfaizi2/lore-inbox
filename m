@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135722AbRDZRTZ>; Thu, 26 Apr 2001 13:19:25 -0400
+	id <S135723AbRDZRXg>; Thu, 26 Apr 2001 13:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135723AbRDZRTO>; Thu, 26 Apr 2001 13:19:14 -0400
-Received: from fluent1.pyramid.net ([206.100.220.212]:312 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S135722AbRDZRS7>; Thu, 26 Apr 2001 13:18:59 -0400
-Message-Id: <4.3.2.7.2.20010426100340.00b4ebf0@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Thu, 26 Apr 2001 10:16:40 -0700
-To: <imel96@trustix.co.id>
-From: Stephen Satchell <satch@fluent-access.com>
+	id <S135725AbRDZRX0>; Thu, 26 Apr 2001 13:23:26 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:64439 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S135723AbRDZRXN>; Thu, 26 Apr 2001 13:23:13 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200104261722.SAA16939@mauve.demon.co.uk>
 Subject: Re: [PATCH] Single user linux
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0104262026140.1816-100000@tessy.trustix.co.i
- d>
-In-Reply-To: <Pine.LNX.4.33.0104261423380.1026-100000@grignard.amagerkollegiet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+To: brownfld@irridia.com (Ken Brownfield)
+Date: Thu, 26 Apr 2001 18:22:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200104261700.MAA13391@asooo.flowerfire.com> from "Ken Brownfield" at Apr 26, 2001 10:00:02 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:03 PM 4/26/01 +0700, you wrote:
->right now it's the kernel who thinks that root
->is special, and applications work around that because there's a
->division of super-user and plain user. is that a must?
+> 
+> 
+> On Thursday, April 26, 2001, at 07:03 AM, <imel96@trustix.co.id> wrote:
+> > he owns the computer, he may do anything he wants.
+<snip>
+> Any OS worth its weight in silicon will make a distinction between 
+> blessed and unblessed users.  It can be phrased in different ways -- 
+> root vs. non-root, admin vs. non-admin.  But no one should EVER log in 
+> to a machine as root.  Period. (1)
 
-Short answer:  Yes.
+Also, there is another reason.
+If you'r logged in as root, then any exploitable bug in large programs,
+be it netscape, realplayer, wine, vmware, ... means that the 
+cracker owns your machine.
+If they are not, then the cracker has to go through another significant
+hoop, in order to get access to the machine.
+For optimal security, you can do things like running netscape and other 
+apps under unpriveledged users, where they only have access to their own
+files.
 
-Long answer:  The division is artificial, but is absolutely necessary for 
-administration of a Unix-type system.  For example, when the process 
-currently running is not running as a "superuser" process, the process 
-cannot run resources down to absolute zero -- think disk allocation.  This 
-means that the administrator (who may be the same person as the "user") has 
-a chance of being able to recover from a runaway process gracefully by 
-being able to go in and kill that process before the whole system lays down 
-and dies.
-
-Ever watch what happens when Windows runs out of "swap space" because the 
-swap file can't get any space?  Ever try to recover from it?  Make damn 
-sure you have the non-upgrade CD around when you try this.  Even more 
-important, make sure you have multiple back-ups when you try this.
-
-The whole point of "user" and "superuser" is that when the user does 
-something stupid or careless or even malicious, the superuser can bail the 
-system out.  You don't usually work in superuser mode, and programs that 
-don't need superuser access don't get it.
-
-Humans make mistakes a number of orders of magnitude more often than 
-computers do.  The barrier helps minimize the damage.
-
-Satch
+(Note, netscape/.. are just used as examples, I'm not saying they are
+more buggy than others, just large, and hard to get bug-free)
 

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUDFW6t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 18:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263889AbUDFW6t
+	id S264080AbUDFW5R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbUDFW5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 18:58:49 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:36049 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262634AbUDFW6q convert rfc822-to-8bit
+	Tue, 6 Apr 2004 18:57:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5549 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264080AbUDFW5M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 18:58:46 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [BUG][2.6.5 final][e100] NETDEV_WATCHDOG Timeout - Was not a problem with 2.6.5-rc3
-Date: Tue, 6 Apr 2004 18:58:41 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE002F7B6C6@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG][2.6.5 final][e100] NETDEV_WATCHDOG Timeout - Was not a problem with 2.6.5-rc3
-Thread-Index: AcQahvfy7Iu7orCfTKSJk7numyuLmQArwmeQAD0v6IA=
-From: "Brown, Len" <len.brown@intel.com>
-To: "Feldman, Scott" <scott.feldman@intel.com>,
-       "Shawn Starr" <shawn.starr@rogers.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Apr 2004 22:58:42.0407 (UTC) FILETIME=[B4FF9770:01C41C2A]
+	Tue, 6 Apr 2004 18:57:12 -0400
+Date: Tue, 6 Apr 2004 23:57:11 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Timothy Miller <miller@techsource.com>
+Cc: Sergiy Lozovsky <serge_lozovsky@yahoo.com>, root@chaos.analogic.com,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack challenge
+Message-ID: <20040406225711.GM31500@parcelfarce.linux.theplanet.co.uk>
+References: <20040406211550.30263.qmail@web40514.mail.yahoo.com> <407332E0.2040809@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <407332E0.2040809@techsource.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 06, 2004 at 06:44:48PM -0400, Timothy Miller wrote:
+> >5. Well known. So there would be people around who
+> >already know this language and expectations are clear.
+> >And there are books around about this language.
+> 
+> LISP completely violates this requirement.  While I appreciate the power 
+> of LISP for abstraction, list processing, and how it lends itself 
+> towards many AI-related tasks, it's not a commonly-used language.
 
->> When I try to access the eth0 device I get:
->> 
->> Apr  4 15:39:01 coredump kernel: NETDEV WATCHDOG: eth0: 
->> transmit timed out Apr  4 16:22:12 coredump kernel: NETDEV 
->> WATCHDOG: eth0: transmit timed out
->
->Shawn, try turning off ACPI for interrupt routing.  Load the 
->kernel with
->the kernel parameter "noapci" set.
-
-You mean "acpi=off", or "pci=noacpi".  If either of these fix the
-problem, please let me know.  (and send me the dmesg and
-/proc/interrupts for both cases)
-
-"noapic" (note spelling) would have no effect on this box b/c it is
-running in PIC-mode.
-
-Cheers,
--Len
+Whether it's commonly-used or not, there's another killer problem with LISP -
+it's fragmented worse than even Pascal.  And "which subset and extensions
+do we have in $IMPLEMENTATION" is worth "which language are we dealing with".
+Worse, actually.  If you want a functional language - at least pick a
+well-defined one.

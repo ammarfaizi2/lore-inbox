@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269860AbRHIU7E>; Thu, 9 Aug 2001 16:59:04 -0400
+	id <S270590AbRHIVAo>; Thu, 9 Aug 2001 17:00:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266827AbRHIU6y>; Thu, 9 Aug 2001 16:58:54 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:33541 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269860AbRHIU6r>; Thu, 9 Aug 2001 16:58:47 -0400
-Date: Thu, 9 Aug 2001 17:58:33 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Dirk W. Steinberg" <dws@dirksteinberg.de>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: Swapping for diskless nodes
-In-Reply-To: <m1snf1tb1q.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33L.0108091758070.1439-100000@duckman.distro.conectiva>
+	id <S266827AbRHIVAe>; Thu, 9 Aug 2001 17:00:34 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:43513 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S270596AbRHIVAW>; Thu, 9 Aug 2001 17:00:22 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108092058.f79KwIKn024532@webber.adilger.int>
+Subject: Re: [PATCH] LVM snapshot support for reiserfs and others
+In-Reply-To: <440850000.997389251@tiny> "from Chris Mason at Aug 9, 2001 04:34:11
+ pm"
+To: Chris Mason <mason@suse.com>
+Date: Thu, 9 Aug 2001 14:58:18 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, viro@math.psu.edu, lvm-devel@sistina.com
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Aug 2001, Eric W. Biederman wrote:
+Chris, you write:
+> Andreas Dilger <adilger@turbolinux.com> wrote:
+> > On an "add this patch to the kernel, please" note, support for the
+> > write_super_lockfs() VFS method is already in ext3, so it is a good
+> > thing, with the above caveats.
+> 
+> Ok, recoding with these suggestions.  I'll need an ext3 tester, please
+> drop me a line if you are willing ;-)
 
-> I don't know about that.  We already can swap over just about
-> everything because we can swap over the loopback device.
+Consider it tested.  I already have my code changed like I suggested, but
+never heard back the last time I mentioned it.  In the end I don't think
+the changes can have a behaviour impact other than a small CPU savings,
+and a few lines of comments removed.
 
-Last I looked the loopback device could deadlock your
-system without you needing to swap over it ;)
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

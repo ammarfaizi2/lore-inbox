@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbTJ0Jrk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 04:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTJ0Jrk
+	id S261492AbTJ0J7W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 04:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbTJ0J7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 04:47:40 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:50622 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261342AbTJ0JrE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 04:47:04 -0500
-Date: Mon, 27 Oct 2003 01:40:32 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries.Brouwer@cwi.nl, akpm@osdl.org, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Linux 2.6.0-test9
-Message-Id: <20031027014032.4908019f.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0310261752160.3157-100000@home.osdl.org>
-References: <UTC200310270148.h9R1mqO06057.aeb@smtp.cwi.nl>
-	<Pine.LNX.4.44.0310261752160.3157-100000@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Mon, 27 Oct 2003 04:59:21 -0500
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:47347 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S261492AbTJ0J7Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 04:59:16 -0500
+Subject: Remote Serial Console on 2.6.x ?
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1067248709.30367.10.camel@rade7.s.cs.auc.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 27 Oct 2003 10:58:29 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I'm going to just revert the changeset in the networking
-fixes I send to Linus today.
+I was used to debug my kernel code with the remote serial console
+facility on the 2.4.x serie, but I really can't figure how does it works
+to activate it on the 2.6.0-test9 that I just got.
 
-If we resolve this some other way, that's fine and the
-original change is in the revision history for people
-to refer to.
+I took a look at the relevant HOWTO:
+http://www.tldp.org/HOWTO/Remote-Serial-Console-HOWTO/kernelcompile-25.html
+
+But, it seems that all the configure scheme has changed for the 2.6.x...
+
+Can anybody give me some pointers on a documentation or give me some
+hints ???
+
+Regards
+-- 
+Emmanuel Fleury
+
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
+

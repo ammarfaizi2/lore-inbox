@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbTEFMo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 08:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbTEFMo4
+	id S262709AbTEFMmR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 08:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbTEFMmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 08:44:56 -0400
-Received: from home.wiggy.net ([213.84.101.140]:25542 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262722AbTEFMoz (ORCPT
+	Tue, 6 May 2003 08:42:17 -0400
+Received: from [203.94.130.164] ([203.94.130.164]:60112 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id S262709AbTEFMmQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 08:44:55 -0400
-Date: Tue, 6 May 2003 14:57:26 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
+	Tue, 6 May 2003 08:42:16 -0400
+Date: Tue, 6 May 2003 22:34:04 +1000 (EST)
+From: Brett <generica@email.com>
+X-X-Sender: brett@bad-sports.com
+To: Wichert Akkerman <wichert@wiggy.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.5.69 just doesn't boot (neither does anything > .67)
-Message-ID: <20030506125726.GH20419@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030506124249.GG20419@wiggy.net> <Pine.LNX.4.44.0305062230420.2201-100000@bad-sports.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305062230420.2201-100000@bad-sports.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030506124249.GG20419@wiggy.net>
+Message-ID: <Pine.LNX.4.44.0305062230420.2201-100000@bad-sports.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Brett wrote:
-> linuxfromscratch system
-> unless they fix the source compilation problem i reported
-> <http://savannah.gnu.org/bugs/?func=detailbug&bug_id=3343&group_id=68>
-> then i can't install it
+On Tue, 6 May 2003, Wichert Akkerman wrote:
 
-You can always install manually. 
+> Previously Brett wrote:
+> > (0.93 fails to compile, reported to grub savannah page, and have heard 
+> > nothing back from)
+> 
+> 0.92 is over a year old and a lot has changed since then. Debian has
+> grub 0.93 packages which work fine with 2.5.67-69 for me, you could try
+> that.
+> 
 
-> and anyway, can you provide any backup that this will fix it ?? what 
-> changed between 2.5.66 and 2.5.67 to stop grub loading the kernel ? why 
-> hasn't anyone else reported this ???
+linuxfromscratch system
+unless they fix the source compilation problem i reported
+<http://savannah.gnu.org/bugs/?func=detailbug&bug_id=3343&group_id=68>
+then i can't install it
 
-I couldn't boot 2.5 at all until I upgraded an ancient grub. Having
-a recent bootloader is never a bad thing though, and 0.92 is pretty
-old.
+and anyway, can you provide any backup that this will fix it ?? what 
+changed between 2.5.66 and 2.5.67 to stop grub loading the kernel ? why 
+hasn't anyone else reported this ???
 
-Wichert.
+i'm just highly dubious that upgrading grub one revision will help
 
--- 
-Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
-http://www.wiggy.net/                     It is hard to make things simple.
+and it isn't something i can do right now anyway
+
+thanks,
+
+	/ Brett
 

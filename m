@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbTJHDAN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 23:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbTJHDAN
+	id S261176AbTJHDJz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 23:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbTJHDJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 23:00:13 -0400
-Received: from mail.inter-page.com ([12.5.23.93]:2826 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S261346AbTJHDAI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 23:00:08 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "'David Lang'" <david.lang@digitalinsight.com>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Albert Cahalan'" <albert@users.sourceforge.net>,
-       "'Ulrich Drepper'" <drepper@redhat.com>,
-       "'Mikael Pettersson'" <mikpe@csd.uu.se>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-Date: Tue, 7 Oct 2003 19:59:18 -0700
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAG15dxRiudEualTNpHNYqMgEAAAAA@casabyte.com>
+	Tue, 7 Oct 2003 23:09:54 -0400
+Received: from [209.77.185.85] ([209.77.185.85]:40358 "EHLO lumo.pacujo.net")
+	by vger.kernel.org with ESMTP id S261176AbTJHDJx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 23:09:53 -0400
+To: linux-kernel@vger.kernel.org
+Subject: NAPI Race?
+CC: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+CC: Jamal Hadi Salim <hadi@cyberus.ca>
+CC: Robert Olsson <Robert.Olsson@data.slu.se>
+Date: 07 Oct 2003 20:07:31 -0700
+Message-ID: <m3smm4qvf0.fsf@lumo.pacujo.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.58.0310071931570.19619@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii
+From: Marko Rauhamaa <marko@pacujo.net>
+X-Delivery-Agent: TMDA/0.82 (Needles)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, the point I am trying to _make_ is that Linux allows you to share
-or not share each item (already) but making a coherent "thread" implies a
-unity of interface over the entities.  We already have VM and Signals in
-that unity, but not file descriptors.  I think that's bad.  Since the old
-way lets me have this 2/3-of-a-thread already.  When I ask for a thread I
-should get a thread, not just a composite of otherwise identical shareable
-options.
 
-After all, if I deliver SIGPIPE to a "process" and it gets serviced by one
-of the "theads" how does the "thread" know the file descriptor in the signal
-is from its own file descriptor table?  If the signals are only going to the
-specific member threads and, in fact NOT to the "process", then how is the
-sharing of signal context anything more than a renaming of what is already
-there as of 2.2?
+It looks to me like net_rx_action() might suffer from a race, which in
+turn might explain some weirdness in my driver test results.
 
-If CLONE_THREAD exists solely to reproduce the existing
-(CLONE_VM|CLONE_SIGHAND[|CLONE_whatever]) functionality, why did anybody
-bother doing more than a #define?
+Here's the essence of the function from net/core/dev.c:
 
-Presumably CLONE_THREAD is supposed to make a LWP (in the classic sense)
-that runs with view of the kernel that is consistent with all its peer LWPs.
-If not, it is going to surprise a heck of a lot of (posix AND non posix)
-thread programmers worldwide.  "They ought to know better" has merit, but
-that merit is equal to "they might as well use the old stuff".
+net_rx_action()
+{
+        local_irq_disable();
+        while (!list_empty(&queue->poll_list)) {
+                local_irq_enable();
+                /* do stuff */
+                local_irq_disable();
+        }
+        local_irq_enable();
+}
 
-Rob.
+Say I receive a packet. net_rx_action() processes it in the while loop
+and reenables interrupts. But just before net_rx_action() returns, I
+receive another packet, and __netif_rx_schedule() gets called from the
+driver. Then the soft irq is raised from within itself. If I'm not
+interrupted for some other reason, the packet will get processed only at
+the next jiffie when the soft irq is invoked again.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of David Lang
-Sent: Tuesday, October 07, 2003 7:39 PM
-To: Robert White
-Cc: 'Linus Torvalds'; 'Albert Cahalan'; 'Ulrich Drepper'; 'Mikael
-Pettersson'; 'Kernel Mailing List'
-Subject: RE: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Am I mistaken?
 
-Robert, you are missing the point. Linux allows you to share or not share
-each item.
-.
+As an aside, it looks also as though the design might technically allow
+the network driver to starve the CPU (the very situation NAPI was
+designed to protect against). If I receive a new packet always right
+after returning from net_rx_action(), the interrupt will cause the soft
+irq to be executed immediately. It's true that this scenario would
+require a very accurately calibrated packet stream, but in my business
+that just might take place.
 
 
+Marko
+
+-- 
+Marko Rauhamaa      mailto:marko@pacujo.net     http://pacujo.net/marko/

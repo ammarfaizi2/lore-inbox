@@ -1,148 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280448AbRKHOvt>; Thu, 8 Nov 2001 09:51:49 -0500
+	id <S280110AbRKHOv6>; Thu, 8 Nov 2001 09:51:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280159AbRKHOvV>; Thu, 8 Nov 2001 09:51:21 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:14508 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S280110AbRKHOvJ>; Thu, 8 Nov 2001 09:51:09 -0500
-Message-ID: <3BEA9992.3080403@wipro.com>
-Date: Thu, 08 Nov 2001 20:11:22 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S280159AbRKHOvv>; Thu, 8 Nov 2001 09:51:51 -0500
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:36108 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S280110AbRKHOvb> convert rfc822-to-8bit; Thu, 8 Nov 2001 09:51:31 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Balbir Singh <balbir.singh@wipro.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]Problems with compling 2.4.14 on SMP and kernel versioning on modules set.
-In-Reply-To: <3BEA7875.5000303@wipro.com> <3BEA7EF9.80604@wipro.com>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] Update to the Compaq cpqarray driver for 2.4.14 kernel tree ...
+Date: Thu, 8 Nov 2001 08:51:25 -0600
+Message-ID: <A2C35BB97A9A384CA2816D24522A53BB0EA42A@cceexc18.americas.cpqcorp.net>
+Thread-Topic: [PATCH] Update to the Compaq cpqarray driver for 2.4.14 kernel tree ...
+Thread-Index: AcFoY0NUTF5TCSNkTFeSb/6nhBWS7gAAKdgg
+From: "White, Charles" <Charles.White@COMPAQ.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: "Alan Cox (E-mail)" <alan@redhat.com>, <linux-kernel@vger.kernel.org>,
+        "Cameron, Steve" <Steve.Cameron@COMPAQ.com>
+X-OriginalArrivalTime: 08 Nov 2001 14:51:25.0747 (UTC) FILETIME=[D7135030:01C16864]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is a multi-part message in MIME format.
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Ignore all below
-
-TIA,
-Balbir
-
-Balbir Singh wrote:
-
-> Found another one in md.h
->
-> *** md.h.org    Thu Nov  8 17:56:38 2001
-> --- md.h        Thu Nov  8 17:56:50 2001
-> ***************
-> *** 26,32 ****
->  #include <linux/ioctl.h>
->  #include <linux/types.h>
->  #include <asm/bitops.h>
-> - #include <linux/module.h>
->  #include <linux/hdreg.h>
->  #include <linux/proc_fs.h>
->  #include <linux/smp_lock.h>
-> --- 26,31 ----
-> ***************
-> *** 35,40 ****
-> --- 34,40 ----
->  #include <linux/random.h>
->  #include <linux/locks.h>
->  #include <linux/kernel_stat.h>
-> + #include <linux/module.h>
->  #include <asm/io.h>
->  #include <linux/completion.h>
->
->
-> Balbir
->
->
-> BALBIR SINGH wrote:
->
->> I could not compile a UP (non-SMP) kernel on my system, with module
->> versioning set, the problem was traced to ksyms.c
->>
->> * Herein lies all the functions/variables that are "exported" for 
->> linkage
->> * with dynamically loaded kernel modules.
->> *                      Jon.
->> *
->>
->> Now linux/module.h is included in ksyms.c
->>
->> Below is a patch for compiling a NON-SMP kernel in 2.4.14. If this is
->> correct, please apply. In this patch, the include of linux/module.h
->> (which redifines smp_num_cpus based on kernel versioning) has been moved
->> below the include of linux/kernel_stat.h
->>
->>
->> --- ksyms.c     Thu Nov  8 17:41:39 2001
->> +++ ksyms.c.org Thu Nov  8 16:41:48 2001
->> @@ -9,12 +9,12 @@
->>  *   by Bjorn Ekwall <bj0rn@blox.se>
->>  */
->>
->> -#include <linux/blkdev.h>
->> -#include <linux/cdrom.h>
->> -#include <linux/kernel_stat.h>
->> #include <linux/config.h>
->> #include <linux/slab.h>
->> #include <linux/module.h>
->> +#include <linux/blkdev.h>
->> +#include <linux/cdrom.h>
->> +#include <linux/kernel_stat.h>
->> #include <linux/vmalloc.h>
->> #include <linux/sys.h>
->> #include <linux/utsname.h>
->>
->>
->>
->> ------------------------------------------------------------------------
->>
->> ------------------------------------------------------------------------------------------------------------------------- 
->>
->> Information transmitted by this E-MAIL is proprietary to Wipro and/or 
->> its Customers and
->> is intended for use only by the individual or entity to which it is
->> addressed, and may contain information that is privileged, 
->> confidential or
->> exempt from disclosure under applicable law. If you are not the intended
->> recipient or it appears that this mail has been forwarded to you without
->> proper authority, you are notified that any use or dissemination of this
->> information in any manner is strictly prohibited. In such cases, please
->> notify us immediately at mailto:mailadmin@wipro.com and delete this mail
->> from your records.
->> ---------------------------------------------------------------------------------------------------------------------- 
->>
->>
->
->
+Yes, it is backing out the do_request changes, because that version was
+locking up on format.. 
+I just got your fix for that... I will work it into the next rev of the
+driver... 
 
 
+		-----Original Message-----
+		From:	Jens Axboe [mailto:axboe@suse.de]
+		Sent:	Thursday, November 08, 2001 8:40 AM
+		To:	White, Charles
+		Cc:	Alan Cox (E-mail); linux-kernel@vger.kernel.org;
+Cameron, Steve
+		Subject:	Re: [PATCH] Update to the Compaq
+cpqarray driver for 2.4.14 kernel tree ...
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="InterScan_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="InterScan_Disclaimer.txt"
+		On Thu, Nov 08 2001, White, Charles wrote:
+		> The patch is to big to include in the e-mail... 
+		> This is version 2.4.20 of the cpqarray driver... 
+		> 
+		> This changes the driver to use the new 2.4 kernel PCI
+APIs. This changes
+		> how all our cards are detected. 
+		> This adds some new IOCTLs for adding/deleting volumes
+while the driver
+		> is online. 
+		> It have added code to request/release the io-region
+used by our cards.
+		> 
+		> It has a small fix to the flush on unload.  
+		> 
+		>
+ftp://ftp.compaq.com/pub/products/drivers/linux/released/cpqarray/cpqarr
+		> ay_2.4.20D_for_2.4.14.patch
 
--------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
+		It's backing out the recent changes etc.
 
---------------InterScan_NT_MIME_Boundary--
+		-- 
+		Jens Axboe
+		

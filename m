@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSEEXEc>; Sun, 5 May 2002 19:04:32 -0400
+	id <S313817AbSEEXU6>; Sun, 5 May 2002 19:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313307AbSEEXEc>; Sun, 5 May 2002 19:04:32 -0400
-Received: from mnh-1-15.mv.com ([207.22.10.47]:33542 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S313305AbSEEXEb>;
-	Sun, 5 May 2002 19:04:31 -0400
-Message-Id: <200205060006.TAA03379@ccure.karaya.com>
+	id <S313818AbSEEXU6>; Sun, 5 May 2002 19:20:58 -0400
+Received: from mnh-1-07.mv.com ([207.22.10.39]:63751 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S313817AbSEEXU5>;
+	Sun, 5 May 2002 19:20:57 -0400
+Message-Id: <200205060022.TAA03703@ccure.karaya.com>
 X-Mailer: exmh version 2.0.2
-To: Larry McVoy <lm@bitmover.com>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Guest section DW <dwguest@win.tue.nl>,
-        Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
-        user-mode-linux-devel@lists.sourceforge.net,
-        user-mode-linux-user@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: UML is now self-hosting! 
-In-Reply-To: Your message of "Sun, 05 May 2002 09:21:33 MST."
-             <20020505092133.L18594@work.bitmover.com> 
+To: hugang <gang_hu@soul.com.cn>
+cc: glonnon@ridgerun.com, Pavel Machek <pavel@suse.cz>, seasons@fornax.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATH] Port software to UML. 
+In-Reply-To: Your message of "Sun, 05 May 2002 21:48:19 +0800."
+             <20020505214819.19cb9a86.gang_hu@soul.com.cn> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 05 May 2002 19:06:01 -0500
+Date: Sun, 05 May 2002 19:22:39 -0500
 From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lm@bitmover.com said:
-> See http://www.bitmover.com/cc-pitch/ for some more on this idea.  I
-> think  the UML approach would be very cool. 
+gang_hu@soul.com.cn said:
+> Ther problem in bread.
 
-Actually, what I outlined is different from your CC-smp.  A lot simpler
-and a lot less likely to be practical :-)
+No, the problem is in not understanding UML.
 
-http://www.bitmover.com/cc-pitch/ also deserves to be looked at along with
-MOSIX and Compaq's SSI project for UML (and physical) clustering.
+UML's state is somewhat more complicated than the state of a native kernel.
+
+You also need to recreate 
+	the host processes
+	the ptrace relationships between the tracing thread and the other 
+processes
+	open file descriptors
+	and maybe a few other things that aren't coming to mind
 
 				Jeff
 

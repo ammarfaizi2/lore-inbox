@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270178AbRHGKq7>; Tue, 7 Aug 2001 06:46:59 -0400
+	id <S270183AbRHGKvX>; Tue, 7 Aug 2001 06:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270180AbRHGKqt>; Tue, 7 Aug 2001 06:46:49 -0400
-Received: from pD9E16562.dip.t-dialin.net ([217.225.101.98]:58617 "EHLO
-	tolot.miese-zwerge.org") by vger.kernel.org with ESMTP
-	id <S270178AbRHGKqg>; Tue, 7 Aug 2001 06:46:36 -0400
-Date: Tue, 7 Aug 2001 12:46:04 +0200
-From: Jochen Striepe <jochen@tolot.escape.de>
-To: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>,
-        Thibaut Laurent <thibaut@celestix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.8pre5 does not build
-Message-ID: <20010807124604.A29638@tolot.miese-zwerge.org>
-In-Reply-To: <20010807114023.A23521@tolot.miese-zwerge.org> <20010807175438.211052d5.thibaut@celestix.com> <20010807114023.A23521@tolot.miese-zwerge.org> <20010807120837.A23823@pc8.lineo.fr>
+	id <S270181AbRHGKvK>; Tue, 7 Aug 2001 06:51:10 -0400
+Received: from customers.imt.ru ([212.16.0.33]:10245 "HELO smtp.direct.ru")
+	by vger.kernel.org with SMTP id <S270182AbRHGKux>;
+	Tue, 7 Aug 2001 06:50:53 -0400
+Message-ID: <20010807034620.B10193@saw.sw.com.sg>
+Date: Tue, 7 Aug 2001 03:46:20 -0700
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Colin Walters <walters@cis.ohio-state.edu>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 (PCI ID 82820) lockups/failure
+In-Reply-To: <87elqs2wbx.church.of.emacs@space-ghost.verbum.org> <20010806022727.A25793@saw.sw.com.sg> <873d75janh.church.of.emacs@space-ghost.verbum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010807175438.211052d5.thibaut@celestix.com> <20010807120837.A23823@pc8.lineo.fr>
-User-Agent: Mutt/1.3.20i
-X-Editor: vim/5.8.9
-X-Signature-Color: blue
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <873d75janh.church.of.emacs@space-ghost.verbum.org>; from "Colin Walters" on Mon, Aug 06, 2001 at 02:39:14PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Hi,
-
-On 07 Aug 2001, christophe barbé <christophe.barbe@lineo.fr> wrote:
-> You should read the previous message from Carlo E. Prelz (with the subject
-> : "2.4.7ac8: small patch needed") which comes with a solution to your
-> problem.
-
-On 07 Aug 2001, Thibaut Laurent <thibaut@celestix.com> wrote:
+On Mon, Aug 06, 2001 at 02:39:14PM -0400, Colin Walters wrote:
 > 
-> It seems to be the same problem as in kernel 2.4.7-ac8.
-> Please apply the patch that Carlo E. Prelz sent about one hour ago:
+> > In short, that patch isn't a real solution.  If someone provides me
+> > with the information which commands times-out and how much time they
+> > really need, we could have a real solution.
+> 
+> How can I help?  Instrument the code by hand with printk statements?
+> Or is there a better way?
 
-Thanks, that solved it; now it builds fine. 
+I would do it by just printk.
+The first round is to check how many `udelay(1)' loops are necessary to get
+an ack for longest commands (and what that commands are).
 
+Then it's interesting to know how long the wait_for_cmd_done loop has been
+executed when it times out.
+Not in loop counter, of course, but in clock time.
+It can be measured by CPU cycle counter.
 
-Greetings from Germany,
+This way we check how much time a command may need and whether the timeout in
+the loop works as expected.
 
-Jochen.
+Another possibility is that the new chip revisions have some unknown timing
+constraints, like requirements for delays between certain commands or register
+accesses.  Those `udelay(1)', executed after every command, may provide such
+delays as a side effect.
+It's not clear what the easiest way to check it is.
 
--- 
-"This software comes with ABSOLUTELY NO WARRANTY. Even if it
-erases your hard drive, too bad. Although we did fix that bug
-from the last release."
-                      --README from a long-ago release of DJGPP 
+Best regards
+		Andrey

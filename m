@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbTLTWUi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 17:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTLTWUi
+	id S261744AbTLTWrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 17:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTLTWrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 17:20:38 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:43181 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261731AbTLTWUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 17:20:37 -0500
-Date: Sat, 20 Dec 2003 23:20:34 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-Message-ID: <20031220222034.GA2040@merlin.emma.line.org>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1071864709.1044.172.camel@localhost> <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au> <200312201355.08116.kernel@kolivas.org> <1071891168.1044.256.camel@localhost> <3FE3C6FC.7050401@cyberone.com.au>
-Mime-Version: 1.0
+	Sat, 20 Dec 2003 17:47:08 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:59852 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S261744AbTLTWrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 17:47:06 -0500
+To: linux-kernel@vger.kernel.org
+Subject: bcm5705 with tg3 driver and high rx load -> bad system
+ responsiveness
+From: Ronald Wahl <ronald.wahl@informatik.tu-chemnitz.de>
+Date: Sat, 20 Dec 2003 23:47:04 +0100
+Message-ID: <m27k0rds47.fsf@rohan.middle-earth.priv>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Reasonable Discussion,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE3C6FC.7050401@cyberone.com.au>
-User-Agent: Mutt/1.5.5.1i
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: --- Start der SpamAssassin 2.61 Textanalyse (0.0 Punkte)
+	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
+	--- Ende der SpamAssassin Textanalyse
+X-Scan-Signature: 489ffd0e04f7de08dacf4c0626a7b16e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Dec 2003, Nick Piggin wrote:
+Hallo,
 
-> >/dev/hda:
-> >multcount    =  0 (off)
-> >IO_support   =  0 (default 16-bit)
-> >unmaskirq    =  0 (off)
-> >using_dma    =  1 (on)
-> >keepsettings =  0 (off)
-> >readonly     =  0 (off)
-> >readahead    = 256 (on)
-> >geometry     = 65535/16/63, sectors = 117210240, start = 0
-> >
-> 
-> This might be a problem - try turning unmaskirq on, and possibly
-> 32-bit IO support on (hdparm -u1 -c1 /dev/hda). I think there is
-> a remote possibility that doing this will corrupt your data just
+I just got the 2.6.0 kernel running (without major problems). The
+only annoying issue I have is the tg3 network driver. Sending out a
+100 MBit/s stream is no problem. Receiving with this speed makes
+the system a bit unresponsive. This means the mouse (usb) freezes
+now and then for a short period and the system monitor applets from
+gnome hanging at the same time too. There are no system messages
+that indicate any error. With 2.4.x I used the original driver from
+Broadcom (http://www.broadcom.com/drivers/downloaddrivers.php) that
+worked without any problem. The tg3 driver in 2.4.23 caused a high
+system load on network traffic - maybe this problem is related.  My
+system is a Pentium 4 @ 3GHz with Hyperthreading enabled - i.e. 2
+logical processors. The mainboard (Epox 4PDA2+) has a bcm 5705
+network chip:
 
-Does 32-bit I/O support make a difference for DMA transfers at all or
-just for PIO?
+02:01.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5705 Gigabit Ethernet (rev 01)
+        Subsystem: Unknown device 1695:9013
+        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 21
+        Memory at f8000000 (64-bit, non-prefetchable) [size=64K]
+        Capabilities: [48] Power Management version 2
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
 
--- 
-Matthias Andree
+Is this issue known? Are there any fixes. Do you need more information?
 
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+Thanks,
+ron
+
+PS: Keep me in Cc:, please! I'm not on the list. Thanks!

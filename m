@@ -1,69 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTEMRZM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbTEMRZM
+	id S262278AbTEMR15 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 13:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbTEMR15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:25:12 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:11414 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262273AbTEMRZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:25:09 -0400
-Date: Tue, 13 May 2003 18:38:01 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <20030513173801.GA2763@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <shswugvjcy9.fsf@charged.uio.no> <20030513135756.GA676@suse.de> <16065.3159.768256.81302@charged.uio.no> <20030513152228.GA4388@suse.de> <16065.4109.129542.777460@charged.uio.no> <20030513154741.GA4511@suse.de> <16065.5911.55131.430734@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16065.5911.55131.430734@charged.uio.no>
-User-Agent: Mutt/1.5.4i
+	Tue, 13 May 2003 13:27:57 -0400
+Received: from maxlb1ip.uk2net.com ([213.239.57.81]:5565 "EHLO
+	maxio2.uk2net.com") by vger.kernel.org with ESMTP id S262278AbTEMR1x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 13:27:53 -0400
+Message-ID: <3341.62.161.214.25.1052846387.squirrel@maxproxy5.uk2net.com>
+Date: Tue, 13 May 2003 18:19:47 +0100 (BST)
+From: "promotions manager" <internationallotto01@uk2.net>
+To: internationallotto01@uk2.net
+User-Agent: SquirrelMail/1.4.0
+MIME-Version: 1.0
+X-Priority: 3
+Importance: Normal
+X-SA-Exim-Rcpt-To: internationallotto01@uk2.net, langley@yankee.com, language@gol.com, langustus@chat.ru, lannes@cnpgl.embrapa.br, lannes@mailcity.com, lantonio@gratis.co.cr, lantunes@cybernet.com.br, lantunes@home.cybernet, lantunes@home.cybernet.com, lanza@yahoo.com, lanzarote@antibes.co.uk, lanzarote@travelfactfile.com, laodonghcm@vnn.vn, laoutaris@hol.gr, lapem@hotmail.com, Lara.Okunola@fsa.gov.uk, larann2@ionet.net, larasera@olemail.com, larissa.pissarra@turner.com, larocadehoreb@hotmail.com, larry@inet.no, larry.ostrom@princeton.k12.mn.us, larrystotler@netscape.net, lars@stm-sport.dk, Lars.Aarhus@nr.no, lars.karman@open.by, lars.lundgaard@energy.sintef.no, larsa@unik.no, las@certi.ufsc.br, lascenciov@ts.com.pe, LaserScans@aol.com, lasher@mailbox.hu, lassa@entelchile.net, lasse.dalen@chello.no, lastcrab24@hotmail.com, lastcrab24@hotmasil.com, lastle@ibm.net, lasulpadora@aol.com, laszlo.orban@eth.ericsson.se, laszlo_n@ratalalsz.hu, lasznagy@excite.com, lat_modemsupport@usr.com, lates@lates.com.br, lathika_menon@rediffmail.com, latifah@post1.com, latin@divcom.com, latincontent@real.com, latingerard@hotmail.com, latkinson@mla.com.au, latos@uole.com, latrobe@antibes.co.uk, latrobe@mistral.co.uk, latuff@gbl.com.br, latv.diab.federat@delfi.lv, lauand@yazigi.com, laublasi@adinet.com.uy, laukvikl@online.no, lauly@pd.jaring.my, LaUnidad99@hotmail.com, laura.lakatos@chello.at, lauradohe@hotmail.com, laurag@cotelnet.com.ar, LAURANA@TELELINE.ES, lauraruiz@earthlink.net, laurencesmets@hotmail.com, laurencio.korbes@caixa.gov.br, laurent@quicknet.nl, laurent_kratzenberg@compuserve.com, law33m@cab.cnea.gov.ar, laxmi82@hotmail.com, laxmimar@wilnetonline.net, layas@geocities.com, layton@bcschool.qc.ca, lazarinini@flag-tecnologia.com.br, lazzieta@hotmail.com, lbabuse@linkexchange.com, lbailote@macp.k12.nf.ca, lbblvcioo@virqjxkhjeo.puh, lbddsmhatqlc@moddqu.gv, lbgetel@codetel.net.do, lbowtell@mla.com.au, lbrahim@3aes.com, lbrock@doce.lsu.edu, lcain@respack.com, lcamargo@idg.com.br, lcann@diabetes.org, lcarro@doe.uva.es!
+ , lcente
+X-Spam-Report: ---- Start SpamAssassin results
+  6.90 points, 5 required;
+  *  0.7 -- From: ends in numbers
+  *  0.2 -- BODY: Talks about prizes
+  *  0.6 -- BODY: Nigerian scam key phrase ($NN,NNN,NNN.NN)
+  *  0.3 -- 'Message-Id' was added by a relay (3)
+  *  1.8 -- Subject has lots of exclamation marks
+  *  0.5 -- Message has priority setting, but no X-Mailer
+  *  2.8 -- Message body has multiple indications of Nigerian spam
+  *  0.0 -- Has a User-Agent header
+  ---- End of SpamAssassin results
+X-Spam-Flag: YES
+Subject: [SPAM] winner!!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 06:02:31PM +0200, Trond Myklebust wrote:
- > Then I'm confused as to what you are saying. Are we talking about a
- > full NFS server crash or just a temporary 'server not responding'
- > situation? Does NFS over TCP fix it, for instance?
+FWINNING NOTICE FOR CATEGORY B WINNER:
+KP6821873DL
 
-Just to keep you busy..
-I had thought NFS over TCP fixed it. It rang for a lot longer
-(around 50 minutes), and then did the following..
-Looks like a different bug to my untrained eye.
 
-(17:51:02:root@tetrachloride:mesh)# ~/fsx voon
-truncating to largest ever: 0x13e76
-truncating to largest ever: 0x2e52c
-truncating to largest ever: 0x3c2c2
-truncating to largest ever: 0x3f15f
-truncating to largest ever: 0x3fcb9
-truncating to largest ever: 0x3fe96
-truncating to largest ever: 0x3ff9d
-truncating to largest ever: 0x3ffff
-skipping zero size read
-skipping zero size write
-Size error: expected 0x30501 stat 0x1f486 seek 0x1f486
-LOG DUMP (90892 total operations):
-90893(13 mod 256): MAPREAD	0x227bf thru 0x2e4a4	(0xbce6 bytes)
-90894(14 mod 256): WRITE	0x20dbf thru 0x28e7b	(0x80bd bytes)
-90895(15 mod 256): READ	0x1d762 thru 0x241ff	(0x6a9e bytes)
-90896(16 mod 256): WRITE	0x26621 thru 0x33855	(0xd235 bytes)
-90897(17 mod 256): READ	0x28df3 thru 0x33603	(0xa811 bytes)
-90898(18 mod 256): READ	0xe303 thru 0x13c31	(0x592f bytes)
-90899(19 mod 256): WRITE	0x3b680 thru 0x3ffff	(0x4980 bytes) HOLE
-90900(20 mod 256): MAPWRITE 0x33ba5 thru 0x34740	(0xb9c bytes)
-90901(21 mod 256): READ	0x15ed6 thru 0x2546a	(0xf595 bytes)
-90902(22 mod 256): MAPWRITE 0x188e8 thru 0x260ec	(0xd805 bytes)
-90903(23 mod 256): WRITE	0x29f99 thru 0x2b02a	(0x1092 bytes)
-90904(24 mod 256): TRUNCATE DOWN	from 0x40000 to 0x279fb
+It is our pleasure to inform you that you have emerged
+as a Category "B" winner of the UK International
+Lotto. CONGRATULATIONS! You are entitled to a prize
+sum of US$2,500,000.00. Reference number for your
+prize is KP6821873DL, ticket number A/03-4912.
 
-Complete (60KB) fsx log is at http://www.codemonkey.org.uk/cruft/voon.fsxlog
+As a category B winner, you have been selected from a
+total number of 25,000 names drawn from Asia, Africa,
+Europe, Middle East and America. After the computer
+ballot of our International Promotions Program, only
+six winners emerged in the category and therefore they
+are to receive payouts of US$2,500,000.00 from the
+total US$15,000,000.00 for second category winners.
 
-		Dave
+To immediately collect your prize, please contact our
+Category "B" financial handlers with information
+below:
 
+Mr. Carl Gareth
+Financial Director
+International Contracting Company Ltd
+76 New Fetter Lane
+London, EC4A 1AG
+TELEPHONE: +44 7743400803, 008821652070052
+FAX: + 44 7092 026618
+Email:
+carlgareth4@internationalcontractingcompanyltd.net
+
+Provide prize reference number-KP6821873DL and winning
+ticket number-A/03-4912 for confirmation. In your best
+interests, you must initiate contact within one week
+of receipt of this correspondence. International
+Contracting Company Ltd will handle all matters with
+regards to claiming your prize. You are also advised
+to send a copy of this email,either by fax or email,
+to your financial handler Mr. Carl Gareth,when
+contacting him.
+
+You are to keep all lottery information from the
+public as we will not entertain cases of multiple
+claims processing or compromise the privacy and
+security for all winners.
+
+Other necessary International Lotto Uk information
+are:
+
+Draw 1 number: 01-11417
+Draw 2 number: 02-7962
+International Lottery code no: IL55008
+
+You may be required to provide any of the above
+information during the process of collecting your
+prize.
+
+We congratulate you once again and it is our hope that
+you participate in any of our international programs
+in the nearest future.
+
+Thank you.
+
+
+Sincerely,
+
+
+Burk J. Fellow
+Promotions Manager
+International Lotto UK
+
+
+---------------------------------------------
+This email was sent using http://mail.uk2.net
+UK2.NET - UK's Biggest Host! - http://uk2.net

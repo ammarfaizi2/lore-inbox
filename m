@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279664AbRJYBHR>; Wed, 24 Oct 2001 21:07:17 -0400
+	id <S279661AbRJYBC5>; Wed, 24 Oct 2001 21:02:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279665AbRJYBHH>; Wed, 24 Oct 2001 21:07:07 -0400
-Received: from [63.220.7.190] ([63.220.7.190]:13014 "HELO gamerack.com")
-	by vger.kernel.org with SMTP id <S279664AbRJYBGx>;
-	Wed, 24 Oct 2001 21:06:53 -0400
-Subject: Re: SiS/Trident 4DWave sound driver oops
-From: "Michael F. Robbins" <compumike@compumike.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
-Date: 24 Oct 2001 21:07:26 -0400
-Message-Id: <1003972047.2393.9.camel@tbird.robbins>
-Mime-Version: 1.0
+	id <S279663AbRJYBCr>; Wed, 24 Oct 2001 21:02:47 -0400
+Received: from viper.haque.net ([66.88.179.82]:52356 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S279661AbRJYBCi>;
+	Wed, 24 Oct 2001 21:02:38 -0400
+Date: Wed, 24 Oct 2001 21:03:03 -0400 (EDT)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Tim Tassonis <timtas@cubic.ch>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
+In-Reply-To: <E15wYTb-0000Po-00@lttit>
+Message-ID: <Pine.LNX.4.33.0110242100070.14064-100000@viper.haque.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a very similar OOPS that I reported to linux-kernel just last
-week: see full details at
-http://uwsg.iu.edu/hypermail/linux/kernel/0110.1/1690.html
+On Thu, 25 Oct 2001, Tim Tassonis wrote:
 
-> This kernel oops is totally reproducible (on every occasion) in 2.4.9,
-> 2.4.10, and 2.4.12. I have not tried earlier kernels in the 2.4 
-> series
+> I'm quite suprised, but this actually worked for me. Rebooted without
+> using hdparm, created the partintion (3GB) and everything seems ok. Looks
+> as if hdparm is doing something wrong here (v3.6).
+>
 
-I also have a totally reproduceable OOPS on 2.4.9 through 2.4.12. 
-Kernel 2.4.7 works just fine.  If the soundcard is compiled in to the
-kernel, it dies while booting.  If it is compiled as a module, it dies
-when attempting to load the module (typically when artsd starts).
+More than likely it's just triggering something that causes the problem.
 
-> The machine in question is a Clevo lp200t SiS630S "all-in-one" 
-> machine.
+-- 
 
-My machine is an ECS K7AMA: ALi 1645 northbridge, ALi Magic 1535D+
-southbridge.  Sound is onboard the southbridge.  I ran ksymoops on my
-OOPS report, so you can see the trace at the message archive.
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
 
-Mike Robbins
-compumike@compumike.com
-(Please also cc your reply to me.)
-
+  "Alcohol and calculus don't mix.             Developer/Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 

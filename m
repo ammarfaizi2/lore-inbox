@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262481AbSJKOJk>; Fri, 11 Oct 2002 10:09:40 -0400
+	id <S262476AbSJKOJW>; Fri, 11 Oct 2002 10:09:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbSJKOJj>; Fri, 11 Oct 2002 10:09:39 -0400
-Received: from users.linvision.com ([62.58.92.114]:48282 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S262481AbSJKOJX>; Fri, 11 Oct 2002 10:09:23 -0400
-Date: Fri, 11 Oct 2002 16:14:54 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Walter Landry <wlandry@ucsd.edu>, linux-kernel@vger.kernel.org
-Subject: Re: A simple request (was Re: boring BK stats)
-Message-ID: <20021011161454.C345@bitwizard.nl>
-References: <20021009.163920.85414652.wlandry@ucsd.edu> <3DA58B60.1010101@pobox.com> <20021010072818.F27122@work.bitmover.com> <20021011153538.A345@bitwizard.nl> <20021011160828.B345@bitwizard.nl>
+	id <S262484AbSJKOJV>; Fri, 11 Oct 2002 10:09:21 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:45573 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S262476AbSJKOIm>; Fri, 11 Oct 2002 10:08:42 -0400
+Date: Fri, 11 Oct 2002 08:10:31 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: [PATCH] 2.5.41, cciss (3 of 3)
+Message-ID: <20021011081031.C1911@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021011160828.B345@bitwizard.nl>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 11, 2002 at 04:08:28PM +0200, Rogier Wolff wrote:
-> Jeff: 
-> 
-> The trick is that I would have hardlinked trees. Thus 
-> 
-> 	linux-2.2.18.clean/drivers/char/tty_ioctl.c
-> and
-> 	linux-2.2.18.rio/drivers/char/tty_ioctl.c
-> 
-> would have the same inode number, and diff wouldn't even bother to
-> open the file.... 
 
-FYI: 
+Wait up to 20 seconds for polled commands to complete.  A certain multiport
+storage box needs this.
 
-Just tested the how long it takes to make a diff between my
-2.2.18-clean tree and the 2.2.18.rio tree:
-
-cold cache over NFS:     25 seconds
-warm cache over NFS:     13 seconds
-warm cache LOCAL disk:    0.34 seconds. 
-
-					Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+diff -urN linux-2.5.41-p/drivers/block/cciss.c linux-2.5.41-q/drivers/block/cciss.c
+--- linux-2.5.41-p/drivers/block/cciss.c	Wed Oct  9 15:22:14 2002
++++ linux-2.5.41-q/drivers/block/cciss.c	Wed Oct  9 15:54:35 2002
+@@ -1318,9 +1318,9 @@
+         unsigned long done;
+         int i;
+ 
+-        /* Wait (up to 2 seconds) for a command to complete */
++        /* Wait (up to 20 seconds) for a command to complete */
+ 
+-        for (i = 200000; i > 0; i--) {
++        for (i = 2000000; i > 0; i--) {
+                 done = hba[ctlr]->access.command_completed(hba[ctlr]);
+                 if (done == FIFO_EMPTY) {
+                         udelay(10);     /* a short fixed delay */

@@ -1,60 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbTEUU3b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 16:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTEUU3b
+	id S262361AbTEUVHI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 17:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTEUVHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 16:29:31 -0400
-Received: from mail.gmx.de ([213.165.65.60]:8539 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262269AbTEUU3a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 16:29:30 -0400
-Message-Id: <5.2.0.9.2.20030521221522.00cc0790@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Wed, 21 May 2003 22:46:15 +0200
-To: davidm@hpl.hp.com
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: web page on O(1) scheduler
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-In-Reply-To: <16075.48579.189593.405154@napali.hpl.hp.com>
-References: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
- <16075.8557.309002.866895@napali.hpl.hp.com>
- <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 21 May 2003 17:07:08 -0400
+Received: from nelson.SEDSystems.ca ([192.107.131.136]:41465 "EHLO
+	nelson.sedsystems.ca") by vger.kernel.org with ESMTP
+	id S262361AbTEUVHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 17:07:06 -0400
+Date: Wed, 21 May 2003 15:20:02 -0600 (CST)
+From: Kendrick Hamilton <hamilton@sedsystems.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Module problems with gcc-3.2.x (please CC hamilton@sedsystems.ca)
+Message-ID: <Pine.LNX.4.44.0305211512210.3274-300000@sw-55.sedsystems.ca>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1807747459-960216319-1053552002=:3289"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:56 AM 5/21/2003 -0700, David Mosberger wrote:
-> >>>>> On Wed, 21 May 2003 11:26:31 +0200, Mike Galbraith <efault@gmx.de> 
-> said:
->
->   Mike> The page mentions persistent starvation.  My own explorations
->   Mike> of this issue indicate that the primary source is always
->   Mike> selecting the highest priority queue.
->
->My working assumption is that the problem is a bug with the dynamic
->prioritization.  The task receiving the signals calls sleep() after
->handling a signal and hence it's dynamic priority should end up higher
->than the priority of the task sending signals (since the sender never
->relinquishes the CPU voluntarily).
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-The only thing that matters is how much you sleep vs run, so yes, it should 
-have a higher priority unless that handling is heavy on cpu.  If it 
-doesn't, then you have to have a different problem, because the dynamic 
-priority portion of the scheduler is dead simple.  The only way I can 
-imagine that priority could end up lower than expected is heavyweight 
-interrupt load, or spinning out of control.
+--1807747459-960216319-1053552002=:3289
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
->However, I haven't actually had time to look at the relevant code, so
->I may be missing something.  If you understand the issue better,
->please explain to me why this isn't a dynamic priority issue.
+Hi,
+	I have been continuing the track down problems with a module I am 
+making. If I compile the kernel and module with gcc-2.95.3, the module 
+installs and works correctly. If I compile the kernel and module with 
+gcc-3.2.3, the module finishes installation and its interrupt service 
+routine runs, then the kernel crashes. I am using linux 2.4.18 and 2.4.20. 
+The computers are all pentium computers (I, II, III, celeron, xeon) with 
+Redhat Linux 7.3. Any suggestions would be appreciated.
 
-I just saw your other post regarding the web page.  Now that I know that 
-there's a detailed description in there somewhere, I'll go read it and see 
-if any of what I've gleaned from crawling around the scheduler code is 
-useful.  I thought you might be encountering the same kind of generic 
-starvation I've seen.  Ergo, the simple diag patch.
+ I am assuming there is a problem with my makefiles and 
+have attached them. I can tgz the entire driver and mail it to the list.
 
-         -Mike 
+-- 
+Kendrick Hamilton E.I.T.
+SED Systems, a division of Calian Ltd.
+18 Innovation Blvd.
+PO Box 1464
+Saskatoon, Saskatchewan
+Canada
+S7N 3R1
 
+Hamilton@sedsystems.ca
+Tel: (306) 933-1453
+Fax: (306) 933-1486
+
+--1807747459-960216319-1053552002=:3289
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=Makefile
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0305211520020.3289@sw-55.sedsystems.ca>
+Content-Description: 
+Content-Disposition: attachment; filename=Makefile
+
+I05PVEU6CUNQUCByZWZlcnMgdG8gdGhlIEMgcHJlLXByb2Nlc3NvciwgQ1hY
+IHJlZmVyZXMgdG8gQysrIGNvbXBpbGVyLg0KS0VSTkVMX0xPQ0FUSU9OCTo9
+CS91c3Ivc3JjL2xpbnV4DQojIFN1YiBkaXJlY3RvcmllcyBjb250YWluaW5n
+IGZpbGVzIHRvIG1ha2UuDQpTUkNESVIJCTo9CWRhc20gZWFoIGZpZm8gbWFp
+biBwY2kgcGxsIHFkdWMgdHNwDQojIEMgc291cmNlIGZpbGVzDQpTUkMJCTo9
+CXZlcnNpb24uYw0KDQpPQkpTCQk6PQkkKGZvcmVhY2ggRElSLCAkKFNSQ0RJ
+UiksICQoRElSKS5vKQ0KUEtHUwkJOj0JJChmb3JlYWNoIERJUiwgJChTUkNE
+SVIpLCAkKERJUikubykNCk9CSlMJCSs9CSQoU1JDWFg6LmNwcD0ubykNCk9C
+SlMJCSs9CSQoU1JDOi5jPS5vKQ0KDQpUT1BESVIJCTo9CSQoc2hlbGwgL2Jp
+bi9wd2QpDQpVU0VSTkFNRQk6PQkkKHNoZWxsIC91c3IvYmluL3dob2FtaSkN
+CkRBVEUJCTo9CSQoc2hlbGwgL2Jpbi9kYXRlKQ0KDQpLRVJORUxfSEVBREVS
+Uwk6PQkkKEtFUk5FTF9MT0NBVElPTikvaW5jbHVkZQ0KDQppbmNsdWRlICQo
+S0VSTkVMX0xPQ0FUSU9OKS8uY29uZmlnDQoNCkNQUEZMQUdTCTo9CS1JJChU
+T1BESVIpIC1JJChLRVJORUxfSEVBREVSUykgLURfX0tFUk5FTF9fIC1ETU9E
+VUxFIFwNCgkJCS1ERVhQT1JUX1NZTVRBQiAtRFNFRF9VU0VSTkFNRT0iXCIk
+KFVTRVJOQU1FKVwiIiBcDQoJCQktRFNFRF9EQVRFPSJcIiQoREFURSlcIiIg
+LURfX05PX1ZFUlNJT05fXw0KaWZkZWYgQ09ORklHX1NNUA0KCUNQUEZMQUdT
+ICs9IC1EX19TTVBfXyAtRFNNUA0KZW5kaWYNCg0KQ0MJCTo9CWdjYw0KTEQJ
+CTo9CWxkDQpDRkxBR1MJCTo9CS1XYWxsIC1PMiAtZmlubGluZS1mdW5jdGlv
+bnMgLXBpcGUNCg0KDQoNCkVYRQkJOj0Jc3BmbHNtZGQubw0KDQpleHBvcnQg
+Q0MgQ1BQRkxBR1MgQ0ZMQUdTIENYWEZMQUdTIFRPUERJUiBMRA0KDQolLmQ6
+ICUuYw0KCXNldCAtZTsgJChDQykgLU1NICQoQ1BQRkxBR1MpICQ8IFwNCgl8
+IHNlZCAncy9cKCQqXClcLm9bIDpdKi9cMS5vICRAIDogL2cnID4gJEA7IFwN
+CglbIC1zICRAIF0gfHwgcm0gLWYgJEANCg0KLlBIT05ZIDogYWxsDQphbGw6
+ICQoRVhFKQ0KDQouUEhPTlkgOiBkb2MNCmRvYzogRG94eWZpbGUNCglAZWNo
+byAiR2VuZXJhdGluZyBkb2N1bWVudHMgdXNpbmcgZG94eWdlbi4uLiINCglA
+ZG94eWdlbiAkPA0KDQoNCkRFUEVORFMJCT0gJChTUkM6LmM9LmQpDQoNCmlm
+bmVxICgkKFNSQyksICkNCmluY2x1ZGUgJChERVBFTkRTKQ0KZW5kaWYNCg0K
+JChFWEUpOiAkKE9CSlMpDQoJJChMRCkgLXIgLW8gJEAgJF4NCg0KZGFzbS5v
+OiBGT1JDRQ0KCSQoTUFLRSkgLUMgZGFzbQ0KDQplYWgubzogRk9SQ0UNCgkk
+KE1BS0UpIC1DIGVhaA0KDQpmaWZvLm86IEZPUkNFDQoJJChNQUtFKSAtQyBm
+aWZvDQoNCm1haW4ubzogRk9SQ0UNCgkkKE1BS0UpIC1DIG1haW4NCg0KcGNp
+Lm86IEZPUkNFDQoJJChNQUtFKSAtQyBwY2kNCg0KcGxsLm86IEZPUkNFDQoJ
+JChNQUtFKSAtQyBwbGwNCg0KcWR1Yy5vOiBGT1JDRQ0KCSQoTUFLRSkgLUMg
+cWR1Yw0KDQp0c3AubzogRk9SQ0UNCgkkKE1BS0UpIC1DIHRzcA0KDQp2ZXJz
+aW9uLm86IEZPUkNFDQoNCkZPUkNFOg0KDQouUEhPTlkgOiBjbGVhbg0KY2xl
+YW46IG5lYXQNCglybSAtcmYgJChFWEUpICQoT0JKUykNCg0KLlBIT05ZIDog
+bmVhdA0KbmVhdDoNCglybSAtZiAkKE9CSlMpICQoRVhFKQ0KCXJtIC1mICQo
+REVQRU5EUykNCglybSAtZiBjb3JlDQoJQGZvciBwa2cgaW4gJChTUkNESVIp
+OyBkbyBcDQoJCSQoTUFLRSkgLUMgJCRwa2cgY2xlYW47IFwNCglkb25lOw0K
+CWZpbmQgKiAtdHlwZSBmIHwgZ3JlcCAnficgfCB4YXJncyBybSAtZg0KDQou
+UEhPTlkgOiBkZXANCmRlcDogJChERVBFTkRTKQ0KCUBmb3IgcGtnIGluICQo
+U1JDRElSKTsgZG8gXA0KCQkkKE1BS0UpIC1DICQkcGtnIGRlcDsgXA0KCWRv
+bmU7DQoNCg==
+--1807747459-960216319-1053552002=:3289
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=Makefile
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0305211520021.3289@sw-55.sedsystems.ca>
+Content-Description: 
+Content-Disposition: attachment; filename=Makefile
+
+IyBDIFNvdXJjZSBGaWxlcw0KU1JDCQk6PQllYWhfZXJyb3IuYw0KUEFDS0FH
+RQkJOj0JLi4vZWFoLm8NCg0KT0JKUwkJOj0NCk9CSlMJCSs9ICAkKFNSQzou
+Yz0ubykNCg0KJS5kOiAlLmMNCglzZXQgLWU7ICQoQ0MpIC1NTSAkKENQUEZM
+QUdTKSAkPCBcDQoJfCBzZWQgJ3MvXCgkKlwpXC5vWyA6XSovXDEubyAkQCA6
+IC9nJyA+ICRAOyBcDQoJWyAtcyAkQCBdIHx8IHJtIC1mICRADQoNCi5QSE9O
+WSA6IGFsbA0KDQphbGw6ICQoUEFDS0FHRSkNCg0KaWZuZXEgKCQoU1JDKSwg
+KQ0KaW5jbHVkZSAkKFNSQzouYz0uZCkNCmVuZGlmDQpERVBFTkRTICAgICA9
+ICQoU1JDOi5jPS5kKQ0KDQokKFBBQ0tBR0UpOiAkKE9CSlMpDQoJJChMRCkg
+LXIgLW8gJEAgJF4NCg0KRk9SQ0U6DQoNCi5QSE9OWSA6IGNsZWFuDQpjbGVh
+bjoNCglybSAtZiAkKE9CSlMpICQoREVQRU5EUykNCg0KLlBIT05ZIDogaW5z
+dGFsbA0KaW5zdGFsbDoNCg0KLlBIT05ZIDogZGVwDQpkZXA6ICQoREVQRU5E
+UykNCg==
+--1807747459-960216319-1053552002=:3289--

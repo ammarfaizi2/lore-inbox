@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265543AbTA1Odb>; Tue, 28 Jan 2003 09:33:31 -0500
+	id <S267337AbTA1Oqf>; Tue, 28 Jan 2003 09:46:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265650AbTA1Odb>; Tue, 28 Jan 2003 09:33:31 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:16389 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265543AbTA1Oda>;
-	Tue, 28 Jan 2003 09:33:30 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301281443.h0SEhSGk001163@darkstar.example.net>
-Subject: Re: Bootscreen
-To: wichert@wiggy.net (Wichert Akkerman)
-Date: Tue, 28 Jan 2003 14:43:28 +0000 (GMT)
+	id <S267338AbTA1Oqf>; Tue, 28 Jan 2003 09:46:35 -0500
+Received: from mail2.webart.de ([195.30.14.11]:51470 "EHLO mail2.webart.de")
+	by vger.kernel.org with ESMTP id <S267337AbTA1Oqe>;
+	Tue, 28 Jan 2003 09:46:34 -0500
+Message-ID: <398E93A81CC5D311901600A0C9F29289469387@cubuss2>
+From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+To: "'jeff millar'" <wa1hco@adelphia.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030128142837.GX4868@wiggy.net> from "Wichert Akkerman" at Jan 28, 2003 03:28:37 PM
-X-Mailer: ELM [version 2.5 PL6]
+Subject: AW: Bootscreen
+Date: Tue, 28 Jan 2003 15:46:37 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Surely the most sensible lines to think along are:
-> > 
-> > * Make boot times as short as possible
+> WinXP outputs an image, starts it dim, fades it up to bright, starts a
+> sliding indicator, moves the slider back and forth at various speeds, then
+> starts the gui (?) and it goes more various steps.
 > 
-> So with a short boot time instead of seeing text messages for a while
-> you'll get some flickering on the screen - I don't call that an
-> improvement.
+> I imagine someone with the right documentation could say exactly what's
+> going on at each step.
+I imagine you'll hardly find such a "someone" ;-)
 
-Well, if the machine boots up OK, you can always review the messages
-with dmesg.  If it doesn't, the messages are there to review.
 
-> > * Support, and encourage the use of more efficient CPU designs, so
-> >   that it becomes sensible to leave machines on all the time.
-> 
-> Unfortunately in the real world we are dealing with existing cheap
-> hardware.
 
-Well, my current IA-32 box is hopefully going to be my last :-).
 
-John.

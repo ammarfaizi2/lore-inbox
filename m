@@ -1,174 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S445176AbUKBHE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S446062AbUKBHQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S445176AbUKBHE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 02:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S377828AbUKBHE2
+	id S446062AbUKBHQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 02:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S289046AbUKBHQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 02:04:28 -0500
-Received: from potato.cts.ucla.edu ([149.142.36.49]:34450 "EHLO
-	potato.cts.ucla.edu") by vger.kernel.org with ESMTP id S445176AbUKBHDj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 02:03:39 -0500
-Date: Mon, 1 Nov 2004 23:03:39 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: linux-kernel@vger.kernel.org
-Subject: deadlock with 2.6.9
-Message-ID: <Pine.LNX.4.61.0411012112450.24956@potato.cts.ucla.edu>
+	Tue, 2 Nov 2004 02:16:45 -0500
+Received: from wasp.net.au ([203.190.192.17]:433 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S446179AbUKBHP7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 02:15:59 -0500
+Message-ID: <41873452.8040804@wasp.net.au>
+Date: Tue, 02 Nov 2004 11:16:34 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.8+ (X11/20041029)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-rc1-bk page allocation failure. order:2, mode:0x20
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The machine collects remote syslog, roughly 1000 packets per second. The 
-logs are burned to dvd several times per week.  The hanging may have 
-coincided with the completion of one of the log burning sessions.  Before 
-the last crash I was using ide-scsi to do the burning.  Since the last 
-crash, I switched over to directly using the ide device and have disabled 
-ide-scsi.
+G'day all,
 
-The machine did not crash.  Remote access with ssh would hang after 
-authentication.  Already running processes that didn't fork anything 
-responded fine to the network.  I could not fork a shell from a serial 
-console.  I was able to use sysrq to pull debugging information.  I was 
-also able to kill off all running processes (sysrq+e and sysrq+i), then 
-log in from the serial console and restart things.
+I'm still getting quite a lot of these come up in the logs when the system is under mild load.
+I suspect it might have something to do with running an MTU of 9000 on the main ethernet port which 
+is directly feeding a workstation with an NFS root (and thus gets quite a high load at times)
 
-I had the same problem with 2.6.8.1
+It's not so much an issue but it does cause the workstation to stall for up to a second while it 
+waits for data every time it occurs.
 
-Most of the processes seem to be stuck in schedule_timeout.
+The loaded ethernet port is this one on an PCI card
 
-The full sysrq and .config are at http://hashbrown.cts.ucla.edu/deadlock/
+0000:00:0d.0 Ethernet controller: Marvell Technology Group Ltd. Yukon Gigabit Ethernet 
+10/100/1000Base-T Adapter (rev 12)
 
+This started rearing its ugly head when I moved from 2.6.5 to 2.6.9-preX and persists with BK as of 
+about 2 days ago.
 
-cbs:~ > lsmod
-Module                  Size  Used by
-sg                     35040  0
-sr_mod                 14884  0
-cdrom                  38460  1 sr_mod
-ide_scsi               15332  0
-e100                   29760  0
-bonding                64552  0
+Regards,
+Brad
 
+srv:/home/brad# uname -a
+Linux srv 2.6.10-rc1 #2 Sun Oct 31 10:56:30 GST 2004 i686 GNU/Linux
 
+srv:/home/brad# free
+              total       used       free     shared    buffers     cached
+Mem:        514676     251088     263588          0      13280     156328
+-/+ buffers/cache:      81480     433196
+Swap:       987988        284     987704
 
-telnet> send brk
-SysRq : Show Regs
+srv:/home/brad# lspci
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP] Host Bridge (rev 80)
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+0000:00:09.0 Ethernet controller: 3Com Corporation 3c940 10/100/1000Base-T [Marvell] (rev 12)
+0000:00:0b.0 Unknown mass storage controller: Promise Technology, Inc. PDC20318 (SATA150 TX4) (rev 02)
+0000:00:0c.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 46)
+0000:00:0d.0 Ethernet controller: Marvell Technology Group Ltd. Yukon Gigabit Ethernet 
+10/100/1000Base-T Adapter (rev 12)
+0000:00:0e.0 Unknown mass storage controller: Promise Technology, Inc. PDC20318 (SATA150 TX4) (rev 02)
+0000:00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller (rev 80)
+0000:00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus 
+Master IDE (rev 06)
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 South]
+0000:00:13.0 Unknown mass storage controller: Promise Technology, Inc. PDC20318 (SATA150 TX4) (rev 02)
+0000:01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 315PRO PCI/AGP VGA Display 
+Adapter
 
-Pid: 0, comm:              swapper
-EIP: 0060:[<c01022cf>] CPU: 0
-EIP is at default_idle+0x2f/0x40
-  EFLAGS: 00000246    Not tainted  (2.6.9)
-EAX: 00000000 EBX: c039b000 ECX: c01022a0 EDX: c039b000
-ESI: c04080a0 EDI: c04081a0 EBP: c039bfc4 DS: 007b ES: 007b
-CR0: 8005003b CR2: bffffd66 CR3: 0fb3f000 CR4: 000006d0
-  [<c0102516>] show_regs+0x146/0x170
-  [<c0207a81>] __handle_sysrq+0x71/0xf0
-  [<c021a5aa>] receive_chars+0x11a/0x230
-  [<c021a9bd>] serial8250_interrupt+0xdd/0xe0
-  [<c0106c96>] handle_IRQ_event+0x36/0x70
-  [<c0107063>] do_IRQ+0xe3/0x1b0
-  [<c0104cf0>] common_interrupt+0x18/0x20
-  [<c010235b>] cpu_idle+0x3b/0x50
-  [<c039cb8b>] start_kernel+0x16b/0x190
-  [<c0100211>] 0xc0100211
+srv:/home/brad# ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:0E:A6:41:45:94
+           inet addr:192.168.3.82  Bcast:192.168.3.255  Mask:255.255.255.0
+           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+           collisions:0 txqueuelen:1000
+           RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+           Interrupt:18 Memory:de800000-0
 
+eth1      Link encap:Ethernet  HWaddr 00:04:E2:8E:1E:AD
+           inet addr:192.168.2.82  Bcast:192.168.2.255  Mask:255.255.255.0
+           UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
+           RX packets:5207091 errors:430 dropped:430 overruns:0 frame:0
+           TX packets:4805338 errors:0 dropped:0 overruns:0 carrier:0
+           collisions:0 txqueuelen:1000
+           RX bytes:322428903 (307.4 MiB)  TX bytes:2838601552 (2.6 GiB)
+           Interrupt:16 Memory:dc800000-0
 
-
-telnet> send brk
-SysRq : Show Memory
-Mem-info:
-DMA per-cpu:
-cpu 0 hot: low 2, high 6, batch 1
-cpu 0 cold: low 0, high 2, batch 1
-Normal per-cpu:
-cpu 0 hot: low 30, high 90, batch 15
-cpu 0 cold: low 0, high 30, batch 15
-HighMem per-cpu: empty
-
-Free pages:        1348kB (0kB HighMem)
-Active:26008 inactive:2118 dirty:10 writeback:0 unstable:0 free:337 
-slab:16168 mapped:25917 pagetables:12564
-DMA free:172kB min:32kB low:64kB high:96kB active:160kB inactive:48kB 
-present:16384kB
-protections[]: 0 0 0
-Normal free:1176kB min:480kB low:960kB high:1440kB active:103872kB 
-inactive:8424kB present:245760kB
-protections[]: 0 0 0
-HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB 
-present:0kB
-protections[]: 0 0 0
-DMA: 23*4kB 2*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 
-0*2048kB 0*4096kB = 172kB
-Normal: 54*4kB 8*8kB 14*16kB 5*32kB 2*64kB 1*128kB 1*256kB 0*512kB 
-0*1024kB 0*2048kB 0*4096kB = 1176kB
-HighMem: empty
-Swap cache: add 66873, delete 65915, find 54916/55208, race 0+0
-Free swap:       805560kB
-65536 pages of RAM
-0 pages of HIGHMEM
-1786 reserved pages
-600111 pages shared
-958 pages swap cached
+lo        Link encap:Local Loopback
+           inet addr:127.0.0.1  Mask:255.0.0.0
+           UP LOOPBACK RUNNING  MTU:16436  Metric:1
+           RX packets:138 errors:0 dropped:0 overruns:0 frame:0
+           TX packets:138 errors:0 dropped:0 overruns:0 carrier:0
+           collisions:0 txqueuelen:0
+           RX bytes:9378 (9.1 KiB)  TX bytes:9378 (9.1 KiB)
 
 
+srv:/home/brad# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/hda1              19G  9.4G  8.1G  54% /
+tmpfs                 252M     0  252M   0% /dev/shm
+/dev/hda3             165G   38G  119G  24% /raid0
+/dev/md0              2.1T  2.1T   12G 100% /raid
+/dev/md2              459G  315G  145G  69% /raid2
 
+swapper: page allocation failure. order:2, mode:0x20
+  [<c0138a98>] __alloc_pages+0x1c8/0x390
+  [<c0138c7f>] __get_free_pages+0x1f/0x40
+  [<c013c18d>] kmem_getpages+0x1d/0xb0
+  [<c013ce26>] cache_grow+0xb6/0x170
+  [<c013d03e>] cache_alloc_refill+0x15e/0x220
+  [<c013d400>] __kmalloc+0x80/0xa0
+  [<c02e61e7>] alloc_skb+0x47/0xe0
+  [<e08bc871>] FillRxDescriptor+0x31/0xc0 [sk98lin]
+  [<e08bc824>] FillRxRing+0x54/0x70 [sk98lin]
+  [<e08bb89a>] SkGeIsrOnePort+0x17a/0x190 [sk98lin]
+  [<c0132b24>] handle_IRQ_event+0x34/0x70
+  [<c0132c42>] __do_IRQ+0xe2/0x160
+  [<c0106666>] do_IRQ+0x26/0x40
+  [<c0104aa8>] common_interrupt+0x18/0x20
+  [<c0101fb0>] default_idle+0x0/0x30
+  [<c0101fd3>] default_idle+0x23/0x30
+  [<c010204a>] cpu_idle+0x3a/0x60
+  [<c047e7c2>] start_kernel+0x142/0x160
+  [<c047e3b0>] unknown_bootoption+0x0/0x1b0
+syslogd: page allocation failure. order:2, mode:0x20
+  [<c0138a98>] __alloc_pages+0x1c8/0x390
+  [<c0138c7f>] __get_free_pages+0x1f/0x40
+  [<c013c18d>] kmem_getpages+0x1d/0xb0
+  [<c013ce26>] cache_grow+0xb6/0x170
+  [<c013d03e>] cache_alloc_refill+0x15e/0x220
+  [<c013d400>] __kmalloc+0x80/0xa0
+  [<c02e61e7>] alloc_skb+0x47/0xe0
+  [<e08bc871>] FillRxDescriptor+0x31/0xc0 [sk98lin]
+  [<e08bc824>] FillRxRing+0x54/0x70 [sk98lin]
+  [<e08bb89a>] SkGeIsrOnePort+0x17a/0x190 [sk98lin]
+  [<c0132b24>] handle_IRQ_event+0x34/0x70
+  [<c0132c42>] __do_IRQ+0xe2/0x160
+  [<c0106666>] do_IRQ+0x26/0x40
+  [<c0104aa8>] common_interrupt+0x18/0x20
+syslogd: page allocation failure. order:2, mode:0x20
+  [<c0138a98>] __alloc_pages+0x1c8/0x390
+  [<c0104e15>] show_trace+0x35/0x90
+  [<c0138c7f>] __get_free_pages+0x1f/0x40
+  [<c013c18d>] kmem_getpages+0x1d/0xb0
+  [<c013ce26>] cache_grow+0xb6/0x170
+  [<c013d03e>] cache_alloc_refill+0x15e/0x220
+  [<c0138c7f>] __get_free_pages+0x1f/0x40
+  [<c013d400>] __kmalloc+0x80/0xa0
+  [<c02e61e7>] alloc_skb+0x47/0xe0
+  [<e08bc871>] FillRxDescriptor+0x31/0xc0 [sk98lin]
+  [<e08bc824>] FillRxRing+0x54/0x70 [sk98lin]
+  [<e08c0584>] SkDrvEvent+0xa44/0xaa0 [sk98lin]
+  [<e08cd953>] SkGeSirqIsr+0x1d3/0x890 [sk98lin]
+  [<e08d06e4>] SkEventDispatcher+0xc4/0x160 [sk98lin]
+  [<e08bb7cc>] SkGeIsrOnePort+0xac/0x190 [sk98lin]
+  [<c0132b24>] handle_IRQ_event+0x34/0x70
+  [<c0132c42>] __do_IRQ+0xe2/0x160
+  [<c0106666>] do_IRQ+0x26/0x40
+  [<c0104aa8>] common_interrupt+0x18/0x20
 
-cron          S C1205F60     0  2614    435          2628  2613 (NOTLB)
-cde0bc9c 00000082 00000000 c1205f60 c12068c0 c4dba97c cde0bc94 c014584e
-        c4dba940 c57d3468 b7fe7000 00000001 c1205f60 001aff4a d6c5bd65 0003d278
-        c8c5e530 cf9aed40 7fffffff 00000001 cde0bcd8 c02f9f04 b7fe7000 00000001
-Call Trace:
-  [<c02f9f04>] schedule_timeout+0xb4/0xc0
-  [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
-  [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
-  [<c0293cab>] sock_sendmsg+0xbb/0xe0
-  [<c0295161>] sys_sendto+0xe1/0x100
-  [<c02951b2>] sys_send+0x32/0x40
-  [<c0295a1a>] sys_socketcall+0x13a/0x250
-  [<c0104383>] syscall_call+0x7/0xb
-cron          S C1205F60     0  2628    435          2640  2614 (NOTLB)
-cc738c9c 00000086 c8c5e930 c1205f60 c82e1b7c c4dba73c cc738c94 00000000
-        c4dba700 00000007 cc738cac cebb0690 c1205f60 00289ad9 af39036a 0003d2be
-        c8c5ea90 cf9aed40 7fffffff 00000001 cc738cd8 c02f9f04 00000246 000000d0
-Call Trace:
-  [<c02f9f04>] schedule_timeout+0xb4/0xc0
-  [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
-  [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
-  [<c0293cab>] sock_sendmsg+0xbb/0xe0
-  [<c0295161>] sys_sendto+0xe1/0x100
-  [<c02951b2>] sys_send+0x32/0x40
-  [<c0295a1a>] sys_socketcall+0x13a/0x250
-  [<c0104383>] syscall_call+0x7/0xb
-
-cron          S C1205F60     0  2640    435          2655  2628 (NOTLB)
-c2bfbc9c 00000082 c721b9d0 c1205f60 cd21db7c c4dba07c c2bfbc94 00000000
-        c4dba040 00000007 cf06b200 cebb0690 c1205f60 0027ced4 87b993a6 0003d304
-        c721bb30 cf9aed40 7fffffff 00000001 c2bfbcd8 c02f9f04 c138f6c0 c9bdea4c
-Call Trace:
-  [<c02f9f04>] schedule_timeout+0xb4/0xc0
-  [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
-  [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
-  [<c0293cab>] sock_sendmsg+0xbb/0xe0
-  [<c0295161>] sys_sendto+0xe1/0x100
-  [<c02951b2>] sys_send+0x32/0x40
-  [<c0295a1a>] sys_socketcall+0x13a/0x250
-  [<c0104383>] syscall_call+0x7/0xb
-sshd          S C1205F60     0  2653   1410          2654 17528 (NOTLB)
-c163dc9c 00000086 c721b470 c1205f60 00000000 00000000 00000000 00000000
-        c4dba4c0 00000007 cf06b560 c721af10 c1205f60 00039ddd 67910d34 0003d32a
-        c721b5d0 cf9aed40 7fffffff 00000001 c163dcd8 c02f9f04 c138f6c0 c9bdea4c
-Call Trace:
-  [<c02f9f04>] schedule_timeout+0xb4/0xc0
-  [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
-  [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
-  [<c0293cab>] sock_sendmsg+0xbb/0xe0
-  [<c0295161>] sys_sendto+0xe1/0x100
-  [<c02951b2>] sys_send+0x32/0x40
-  [<c0295a1a>] sys_socketcall+0x13a/0x250
-  [<c0104383>] syscall_call+0x7/0xb
-
-
-
-
-
--Chris

@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266518AbRGLSws>; Thu, 12 Jul 2001 14:52:48 -0400
+	id <S266519AbRGLTEU>; Thu, 12 Jul 2001 15:04:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266508AbRGLSw3>; Thu, 12 Jul 2001 14:52:29 -0400
-Received: from dweeb.lbl.gov ([128.3.1.28]:30611 "EHLO beeble.lbl.gov")
-	by vger.kernel.org with ESMTP id <S266507AbRGLSwV>;
-	Thu, 12 Jul 2001 14:52:21 -0400
-Message-ID: <3B4DF1A8.BDE85995@lbl.gov>
-Date: Thu, 12 Jul 2001 11:51:20 -0700
-From: Thomas Davis <tadavis@lbl.gov>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Golds <jgolds@resilience.com>
-CC: Laurent Itti <itti@java.usc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: receive stats null for bond0 in 2.4.6
-In-Reply-To: <Pine.SV4.3.96.1010711163709.5481B-100000@java.usc.edu> <3B4CF00C.5B62DDBA@resilience.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266523AbRGLTEL>; Thu, 12 Jul 2001 15:04:11 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:10979 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S266519AbRGLTD7>; Thu, 12 Jul 2001 15:03:59 -0400
+Message-Id: <5.1.0.14.2.20010712195903.00a83d10@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 12 Jul 2001 20:04:05 +0100
+To: Greg KH <greg@kroah.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Security hooks, "standard linux security" & embedded use
+Cc: Hans Reiser <reiser@namesys.com>, LA Walsh <law@sgi.com>,
+        reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com
+In-Reply-To: <20010712114729.B735@kroah.com>
+In-Reply-To: <5.1.0.14.2.20010712192608.0365e588@pop.cus.cam.ac.uk>
+ <3B49F602.DB39B3A@sgi.com>
+ <3B4DDFD8.27C1C3D9@namesys.com>
+ <5.1.0.14.2.20010712192608.0365e588@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Golds wrote:
-> 
-> Laurent Itti wrote:
+At 19:47 12/07/2001, Greg KH wrote:
+>On Thu, Jul 12, 2001 at 07:37:36PM +0100, Anton Altaparmakov wrote:
 > >
-> > Hi all:
+> > This seems very good in view of implementing ACL support for NTFS, too. -
+> > We have all the NTFS layout knowledge to do it now. We just lack the
+> > kernel/user space infrastructure.
 > >
-> > just installed 2.4.6 and all is well except that all stats in
-> > /proc/net/dev are at zero on the receive side for our 3x100Mbps
-> > channel-bonded network interface (bond0, using kernel module "bonding").
-> > The interface works great (we do receive packets).  Transmit side stats
-> > appear ok. All stats also ok on the 3 ethernet boards that are enslaved
-> > into the bond.
-> >
-> > any idea? thanks!
-> >
-> 
-> It's always zero because the bonding driver included with the Linux
-> kernel is pretty broken.  The comments say that its stats are collected
-> from the slaves, but this is untrue.  See the source code at
-> http://sourceforge.net/projects/bonding for how the stats should be
-> collected.
-> 
+> > When designing this modular security infrastructure it would be useful if
+> > it is made generic enough to allow callbacks into user space for 
+> permission
+> > checking.
+>
+>The current model lets you do whatever you want in your kernel module.
+>It imposes no policy, that's up to you.
 
-No, in 2.2, bonding collected stats by adding up the slave's stats, and
-presenting that.
+Ok, that's fair enough. A wrapper module could always be written that then 
+in turn invokes user space. That's good enough for me although it makes for 
+additional overhead but I guess that is not too bad.
 
-In 2.4, the stats was changed to be exactly what the bonding device has
-seen.
+>All the better to keep userspace callbacks for security out of my
+>kernels, for that way is ripe for problems (for specific examples why,
+>see the linux-security-module mailing list archives.)
 
-Bonding device will never ever see anything to do with recieve packets.
+Oh, sure. There are problems. I don't deny that. But I am not too sure that 
+those problems outweigh the problems created by putting in huge amounts of 
+code into the kernel which could live outside it just as well. - IMHO the 
+kernel should be as small as possible rather than contain everything under 
+the sun just because it's easier to do that way...
+
+Best regards,
+
+Anton
+
 
 -- 
-------------------------+--------------------------------------------------
-Thomas Davis		| ASG Cluster guy
-tadavis@lbl.gov		| 
-(510) 486-4524		| "80 nodes and chugging Captain!"
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

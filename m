@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbULCWh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbULCWps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbULCWh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbULCWh2
+	id S262435AbULCWps (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbULCWps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:37:28 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:42624
+	Fri, 3 Dec 2004 17:45:48 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:44416
 	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262442AbULCWhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:37:19 -0500
+	id S262435AbULCWpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 17:45:42 -0500
 Subject: Re: [PATCH] oom killer (Core)
 From: Thomas Gleixner <tglx@linutronix.de>
 Reply-To: tglx@linutronix.de
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
-In-Reply-To: <20041203022854.GL32635@dualathlon.random>
-References: <20041201211638.GB4530@dualathlon.random>
+To: Andre Tomt <andre@tomt.net>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
+       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
+       nickpiggin@yahoo.com.au
+In-Reply-To: <41AF76E0.5050907@tomt.net>
+References: <20041201104820.1.patchmail@tglx>
+	 <20041201211638.GB4530@dualathlon.random>
 	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
 	 <20041202033619.GA32635@dualathlon.random>
 	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
@@ -25,51 +27,41 @@ References: <20041201211638.GB4530@dualathlon.random>
 	 <20041202085518.58e0e8eb.akpm@osdl.org>
 	 <20041202180823.GD32635@dualathlon.random>
 	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>
-	 <20041202233459.GF32635@dualathlon.random>
-	 <20041203022854.GL32635@dualathlon.random>
+	 <20041202110729.57deaf02.akpm@osdl.org>
+	 <1102014493.13353.239.camel@tglx.tec.linutronix.de>
+	 <20041202112208.34150647.akpm@osdl.org>
+	 <1102015450.13353.245.camel@tglx.tec.linutronix.de>
+	 <41AF76E0.5050907@tomt.net>
 Content-Type: text/plain
-Date: Fri, 03 Dec 2004 23:37:17 +0100
-Message-Id: <1102113437.13353.290.camel@tglx.tec.linutronix.de>
+Date: Fri, 03 Dec 2004 23:45:40 +0100
+Message-Id: <1102113940.13353.295.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-03 at 03:28 +0100, Andrea Arcangeli wrote:
-> On Fri, Dec 03, 2004 at 12:34:59AM +0100, Andrea Arcangeli wrote:
-> > I'll add to my last patch the removal of the PF_MEMDIE check in oom_kill
-> > plus I'll fix the remaining race with PF_EXITING/DEAD, and I'll add a
-> > cond_resched. Then you can try again with my simple way (w/ and w/o
-> > PREEMPT ;).
+On Thu, 2004-12-02 at 21:11 +0100, Andre Tomt wrote:
+> Thomas Gleixner wrote:
+> > On Thu, 2004-12-02 at 11:22 -0800, Andrew Morton wrote:
+> >>You can issue sysrq commands over serial consoles too.
+> > 
+> > I know, but the console and the reset button are 150km away. When I dial
+> > into the machine or try to connect via the network, I cannot connect
+> > with the current kernels. Neither 2.4, because the fork fails, nor 2.6
+> > because oom killed sshd. So I cannot send anything except a service man,
+> > who drives 150km to hit sysrq-F or the reset button.
 > 
-> Ok, I expect this patch to fix the problem completely. 
-> <SNIP>
-> With this thing, I doubt any wrong task will ever be killed again...
+> Get one of those terminal server/concentrators that export the serial 
+> consoles over IP. Or one of those KVM-over-IP extenders. Worth every penny.
 
-You're right. oom-kill() did not do anything wrong. See log below
+Makes totally sense. 
 
-This is w/o PREEMPT. Is it neccecary to verify w/ PREEMPT too ?
+I add 1000$ equipment to a 300$ embedded box because there is a software
+bug.
 
-If it would have booted it still would have killed sshd instead of the
-application which was forking a lot of childs.
+Is it possible that we are living in a different universe ?
 
 tglx
-
-Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
-Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Memory: 126476k/131060k available (1690k kernel code, 4044k reserved,
-732k data)Checking if this processor honours the WP bit even in
-supervisor mode... Ok.
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 128K
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU: Intel Celeron (Mendocino) stepping 00
-Enabling fast FPU save and restore... done.
-Checking 'hlt' instruction... OK.
-
-END OF LOG
 
 

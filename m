@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262883AbSJBBKO>; Tue, 1 Oct 2002 21:10:14 -0400
+	id <S262898AbSJBBQK>; Tue, 1 Oct 2002 21:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262886AbSJBBKO>; Tue, 1 Oct 2002 21:10:14 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:30199 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262883AbSJBBKN>; Tue, 1 Oct 2002 21:10:13 -0400
-Subject: Re: cpufreq patches for 2.5.39 follow
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Dominik Brodowski <linux@brodo.de>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       hpa@zytor.com, cpufreq@www.linux.org.uk
-In-Reply-To: <20020930023850.E35@toy.ucw.cz>
-References: <20020928112130.A1217@brodo.de>  <20020930023850.E35@toy.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Oct 2002 02:22:50 +0100
-Message-Id: <1033521770.20081.60.camel@irongate.swansea.linux.org.uk>
+	id <S262901AbSJBBQJ>; Tue, 1 Oct 2002 21:16:09 -0400
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:10564 "HELO
+	laura.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S262898AbSJBBQI>; Tue, 1 Oct 2002 21:16:08 -0400
+From: brian@worldcontrol.com
+Date: Tue, 1 Oct 2002 18:21:29 -0700
+To: linux-kernel@vger.kernel.org
+Subject: aha152x.c:1944: warning: implicit declaration `queue_task'
+Message-ID: <20021002012129.GA26564@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-30 at 03:38, Pavel Machek wrote:
-> How does it interact with ACPI? Ie. I do echo "100%100%foo", but ACPI thermal
-> managment decides to slow down?
+Linux 2.5.40 (gcc 3.2)
 
-In an ACPI world you probably want ACPI to do the kernel requests to set
-the policy not diddle it by hand. "native power control" or whatever
-ACPI calls 'not using ACPI' 8)
+drivers/scsi/pcmcia/../aha152x.c: In function `intr':
+drivers/scsi/pcmcia/../aha152x.c:1944: warning: implicit declaration of function `queue_task'
+drivers/scsi/pcmcia/../aha152x.c:1944: `tq_immediate' undeclared (first use in this function)
+drivers/scsi/pcmcia/../aha152x.c:1944: (Each undeclared identifier is reported only once
+drivers/scsi/pcmcia/../aha152x.c:1944: for each function it appears in.)
+drivers/scsi/pcmcia/../aha152x.c:1945: warning: implicit declaration of function `mark_bh'
+drivers/scsi/pcmcia/../aha152x.c:1945: `IMMEDIATE_BH' undeclared (first use in this function)
 
-> > Support for mobile AMD K7 processors is still in development.
-> 
-> What about mobile celerons?
 
-Intel support is poor. Intel have been *extremely* difficult about
-speedstep, no documentation, no help, no good explanation of why they
-are being a pain either. That there is any speedstep support is thanks
-to a lot of work by the cpufreq folks.
 
-Alan
 
+
+-- 
+Brian Litzinger

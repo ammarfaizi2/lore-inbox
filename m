@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130841AbRBWXdz>; Fri, 23 Feb 2001 18:33:55 -0500
+	id <S130840AbRBWXpr>; Fri, 23 Feb 2001 18:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130867AbRBWXdq>; Fri, 23 Feb 2001 18:33:46 -0500
-Received: from cc668399-a.ewndsr1.nj.home.com ([24.180.97.113]:50159 "EHLO
-	eriador.mirkwood.net") by vger.kernel.org with ESMTP
-	id <S130841AbRBWXdg>; Fri, 23 Feb 2001 18:33:36 -0500
-Date: Fri, 23 Feb 2001 18:28:35 -0500 (EST)
-From: pf-kernel@mirkwood.net
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.2 - kernel BUG at apic.c:220!
-Message-ID: <Pine.LNX.4.20.0102231825220.19730-100000@eriador.mirkwood.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130867AbRBWXph>; Fri, 23 Feb 2001 18:45:37 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:58343 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130840AbRBWXpc>;
+	Fri, 23 Feb 2001 18:45:32 -0500
+Date: Fri, 23 Feb 2001 17:35:57 -0600
+From: "Dwayne C. Litzenberger" <dlitz@dlitz.net>
+To: Kevin Turner <acapnotic@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.1] system goes glacial, Reiser on /usr doesn't sync
+Message-ID: <20010223173557.A2744@zed.dlitz.net>
+In-Reply-To: <20010220021609.B11523@troglodyte.menefee>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010220021609.B11523@troglodyte.menefee>; from acapnotic@users.sourceforge.net on Tue, Feb 20, 2001 at 02:16:09AM -0800
+X-Homepage: http://www.dlitz.net/
+X-Spam-Policy-URL: http://www.dlitz.net/go/spamoff.shtml
+X-PGP-Public-Key-URL: http://www.dlitz.net/gpgkey2.asc
+X-PGP-ID-Sign: 0xE272C3C3
+X-PGP-Fingerprint-Sign: 9413 0BD2 1030 070E 301E  594F F998 B6D8 E272 C3C3
+X-Operating-System: Debian testing/unstable GNU/Linux zed 2.4.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When running 2.4.2 on a pentium 4, I get the following during boot: (any
-typos are due to me typing this in manually, off of what I see on the
-monitor connected to the P4.  I've made sure the addresses are correct, at
-least... note that this happens with noapic passed as an option to the
-kernel as well)
 
-CPU: After generic, caps: 3febf9ff 00000000 00000000 00000000
-CPU: Common caps: 3febf9ff 00000000 00000000 00000000
-CPU: Intel(R) Pentium(R) 4 CPU 1300MHz stepping 07
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-leaving PIC mode, enabling symmetric IO mode.
-kernel BUG at apic.c:220!
-invalid operand: 0000
-CPU:	0
-EIP:	0010:[<c02352e7>]
-EFLAGS: 00010286
-eax: 0000001a	ebx: f000ae7e	ecx: 00000001	edx: c021a108
-esi: 0000007e	edi: c0105000	ebp: 0008e000	esp: c022ffc0
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=c022f000)
-Stack: c01e4725 c01e4932 000000dc 0000ff87 0009b800 c0113873 c02308f6 c01deec0
-       0000ff87 0000ff87 0000ff87 0000ff87 0000ff87 c0267fc0 00010808 c0100191
-Call Trace: [<c0113873>] [<c0100191>]
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Code: 0f 0b 83 c4 0c b8 ff ff ff ff 8b 0d cc 14 28 c0 a3 e0 e0 ff
-Kernel panic: Attempted to kill the idle task!
-In idle task - not syncing
+I have the same problem with 2.4.1 (and 2.4.2).  Two processes that are
+actively using the disk (multiple files) seem to deadlock the system.  Kill=
+ing
+the right process (SysRq-K) seems to fix things.
 
+I'm kind of new to kernel debugging.  Anyone want to guide me through it?
 
------------------------------------
-Unsolicited advertisments to this address are not welcome.
+=20
+--=20
+Dwayne C. Litzenberger - dlitz@dlitz.net
 
+- Please always Cc to me when replying to me on the lists.
+- See the mail headers for GPG/advertising/homepage information.
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjqW890ACgkQ+Zi22OJyw8N7SQCggaLKQOqsik6qIfjtQ+1v5PlG
+a2gAoIInZ/CsB/e8lbv0zUNDm3cp18yr
+=YGWz
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

@@ -1,42 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292688AbSBZWek>; Tue, 26 Feb 2002 17:34:40 -0500
+	id <S293609AbSBZWjA>; Tue, 26 Feb 2002 17:39:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293609AbSBZWea>; Tue, 26 Feb 2002 17:34:30 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:57362 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S292688AbSBZWeS>; Tue, 26 Feb 2002 17:34:18 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 26 Feb 2002 14:37:04 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: schedule()
-In-Reply-To: <Pine.LNX.3.95.1020226161330.7314A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0202261435281.1544-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293613AbSBZWiw>; Tue, 26 Feb 2002 17:38:52 -0500
+Received: from CompactServ-SUrNet.ll.surnet.ru ([195.54.9.58]:33778 "EHLO
+	zzz.zzz") by vger.kernel.org with ESMTP id <S293609AbSBZWip>;
+	Tue, 26 Feb 2002 17:38:45 -0500
+Date: Wed, 27 Feb 2002 03:36:47 +0500
+From: Denis Zaitsev <zzz@cd-club.ru>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] matroxfb_base.c - a little fix
+Message-ID: <20020227033646.A27903@natasha.zzz.zzz>
+In-Reply-To: <12EE5C947552@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12EE5C947552@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Tue, Feb 26, 2002 at 08:43:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Richard B. Johnson wrote:
-
-> On Tue, 26 Feb 2002, Davide Libenzi wrote:
-> >
-> > In 2.5 yield() maps to sys_sched_yield(). You can handle it in the same
-> > way in your includes if version <= 2.4.
->
-> It's not exported as well as not defined in a header! It results in
-> an undefined symbol in the module.
-
-You can try to ask Marcelo to add a line in include/linux/sched.h and one
-in kernel/ksym.c
-In this way a compatibility interface can be achieved for code that needs it.
-
-
-
-
-- Davide
-
-
+BTW, a little question: you use the (green.length == 5) test to
+distinct bpp15 from bpp16 (matroxfb_base.c:509).  Why?  Is the "real"
+15 not used as the bits_per_pixel's value?  Thanks in advance.

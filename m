@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269596AbUJLKdC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269600AbUJLKf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269596AbUJLKdC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 06:33:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUJLKdC
+	id S269600AbUJLKf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 06:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269602AbUJLKf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 06:33:02 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:17038 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S269596AbUJLKc5 (ORCPT
+	Tue, 12 Oct 2004 06:35:27 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:45269 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269600AbUJLKdx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 06:32:57 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: James Bruce <bruce@andrew.cmu.edu>
-Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
-Date: Tue, 12 Oct 2004 12:24:44 +0200
-User-Agent: KMail/1.6.2
-Cc: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20041011120701.GA824@outpost.ds9a.nl> <416B9436.3010902@andrew.cmu.edu>
-In-Reply-To: <416B9436.3010902@andrew.cmu.edu>
-MIME-Version: 1.0
+	Tue, 12 Oct 2004 06:33:53 -0400
+Date: Tue, 12 Oct 2004 12:35:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>
+Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
+Message-ID: <20041012103512.GA24836@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <1097573492.6157.26.camel@libra>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410121224.44910.oliver@neukum.org>
+In-Reply-To: <1097573492.6157.26.camel@libra>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> With *nix, most data only gets written at unmount, so the only way this 
-> can "sanely" work is for mounts you haven't written to.  That case is of 
 
-This is not a law of nature. You can mount sync as well. That, of course,
-sucks in terms of performance and wear. A reasonable compromise
-would be to do sync on close.
-Supermount did this years ago.
+* Wen-chien Jesse Sung <jesse@cola.voip.idv.tw> wrote:
 
-> course not currently handled very well, but writing would be damn near 
-> impossible to unmount well.  In order to keep the device consistent, the 
-> only thing you can do is wait for the user to reinsert the device and 
-> then clear your caches.  However they might have modified the storage in 
+> > this should fix the UP build issues reported by many. -T6 also brings
+> > back the ->break_lock framework and converts a few more locks to raw.
+> 
+> UP build is still failed: 
+>  arch/i386/kernel/vm86.c:707: error: `__RAW_SPIN_LOCK_UNLOCKED'
+> undeclared here (not in a function)
 
-You cannot. That's giving mlock() to everybody.
+ok, fixed this one too and re-uploaded -T6 - please check whether it
+builds for you now.
 
-[..]
-> Automated mounting with special fixed names can already be done, this 
-> has little to do with forced dismounting.  Use something like udev for 
-> this part.
-
-Exactly.
-
-[..] 
-> All I ever expect the kernel to eventually support is forced dismount of 
-> devices that haven't been written to.  I think from there its up to
-
-Devices break. You have to cope with devices going away suddenly.
-You are not required to ensure data integrity in all cases, but the system
-must not suffer. To allow that you must be able to get rid of the mounts
-even if users do not cooperate. 
-
-	Regards
-		Oliver
+	Ingo

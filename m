@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVCQQRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVCQQV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVCQQRh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 11:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVCQQRh
+	id S261941AbVCQQV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 11:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCQQV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 11:17:37 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20233 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261763AbVCQQRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 11:17:34 -0500
-Date: Thu, 17 Mar 2005 16:17:29 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [UART] 8250:RTS/CTS flow control issue.
-Message-ID: <20050317161729.A12344@flint.arm.linux.org.uk>
-Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
-	linux-kernel@vger.kernel.org
-References: <20050317143450.83739.qmail@web25101.mail.ukl.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050317143450.83739.qmail@web25101.mail.ukl.yahoo.com>; from francis_moreau2000@yahoo.fr on Thu, Mar 17, 2005 at 03:34:49PM +0100
+	Thu, 17 Mar 2005 11:21:58 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:26899 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S261941AbVCQQVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 11:21:55 -0500
+Message-ID: <4239AE80.1070403@shadowen.org>
+Date: Thu, 17 Mar 2005 16:21:20 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Dave Hansen <haveblue@us.ibm.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH 0/4] sparsemem intro patches
+References: <1110834883.19340.47.camel@localhost> <20050314183042.7e7087a2.akpm@osdl.org>
+In-Reply-To: <20050314183042.7e7087a2.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2005 at 03:34:49PM +0100, moreau francis wrote:
-> But why should I "degrade" my UART because some 8250
-> devices have
-> poor hardware implementation. Maybe we should limit
-> their tx fifo to
-> one byte when rts/cts flow control is enabled...
+Andrew Morton wrote:
+> Dave Hansen <haveblue@us.ibm.com> wrote:
+> 
+>> The following four patches provide the last needed changes before the
+>> introduction of sparsemem.  For a more complete description of what this
+>> will do, please see this patch:
+>>
+>> http://www.sr71.net/patches/2.6.11/2.6.11-bk7-mhp1/broken-out/B-sparse-150-sparsemem.patch
 
-Because you don't actually understand what "hardware" and "software" flow
-control refer to.  It doesn't refer to the way the control is derived, as
-your messages appear to imply.
+> I don't know what to think about this.  Can you describe sparsemem a little
+> further, differentiate it from discontigmem and tell us why we want one? 
+> Is it for memory hotplug?  If so, how does it support hotplug?
 
-What it does refer to is the *signalling* method:
+SPARSEMEM was born out of discussions which followed the OLS last year 
+over the NONLINEAR memory model which was being proposed for hotplug. 
+We got interested as it appeared that a simple form of NONLINEAR memory 
+could help us handle some problematics cases with DISCONTIG memory. 
+Particularly the case where we have large intra-node memory holes.
 
-* Hardware flow control is performed using the RTS and CTS signals.
-  These signals may be software controlled.
+The DISCONTIGMEM memory model appears to have been designed to handle 
+discontiguous UMA configuration.  It was subsequently put into service 
+to provide node support under NUMA configurations.  This dual use seems 
+to have led to confusing code and compromises on functionality.  In its 
+current form we can only express inter-node memory spaces, making it 
+majorly inefficient for NUMA systems with sparse physical inter-node 
+memory maps, effectivly not supporting some configurations.  Also, 
+although DISCONTIGMEM is a common model between a number of 
+architectures there is almost no code overlap.
 
-* Software flow control means sending an XOFF character to stop
-  transmission, and another character to start transmission.
+SPARSEMEM essentially is a replacement for DISCONTIGMEM providing 
+support for non-contigious memory but with the advantage of handling 
+both inter- and intra-node memory holes.  The goal of the implementation 
+was to design a clean memory memory model covering the needs of both UMA 
+and NUMA discontigouos memory layouts whilst providing a basis for 
+hotplug.  This should allow us to consolidate the implementation of 
+various "discontiguous" memory model whilst trying to fix its short comings.
 
-In both flow control scenarios, it is very common that there may be some
-latency between the reception of the "stop transmission" signal and the
-transmission actually stopping.
+Hotplug at its most complex puts two requirements on the memory model. 
+Firstly, It requires the arbirary replacement of physical memory with 
+memory which may be at a different address (the breaking of V=P+c) to 
+cope with the case of memory replacement under unmovable kernel objects. 
+  Secondly, it requires we cope with memory "all over" the physical map. 
+  SPARSEMEM is geared towards providing the required infrastructure for 
+NONLINEAR memory needed in hotplug.  The idea being that NONLINEAR would 
+be layered on top of it and share its implementation.
 
-This is precisely why the 8250 UARTs which do have "automatic flow
-control" incorporated into the receiver have *large* FIFOs with
-programmable trigger levels - it allows for the latency at the
-transmission end.
-
-If you want it to be immediate, then I'm afraid you're going to have a
-relatively hard time, with compatibility problems with various systems.
-You can't really dictate to people that they must turn off the FIFOs on
-their UARTs for your product to work.  (Well, you can, but _you_ would
-have to support them.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-apw.

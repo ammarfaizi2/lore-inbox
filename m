@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbUFQT7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263745AbUFQUMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbUFQT7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 15:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUFQT7Y
+	id S263745AbUFQUMX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 16:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFQUMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 15:59:24 -0400
-Received: from meetpoint.leesburg-geeks.org ([66.63.28.250]:2058 "EHLO
-	meetpoint.home") by vger.kernel.org with ESMTP id S262008AbUFQT7R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 15:59:17 -0400
-Message-ID: <40D1F809.8030405@leesburg-geeks.org>
-Date: Thu, 17 Jun 2004 15:59:05 -0400
-From: Ken Ryan <linuxryan@leesburg-geeks.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Egger <degger@fhm.edu>
-CC: Hans Reiser <reiser@namesys.com>, Timothy Miller <miller@techsource.com>,
-       linux-kernel@vger.kernel.org, pla@morecom.no
-Subject: Re: mode data=journal in ext3. Is it safe to use?
-References: <40D1B110.7020409@leesburg-geeks.org> <40D1C18B.1030907@techsource.com> <40D1D2F0.7080102@namesys.com> <A5938B92-C096-11D8-AAF6-000A958E35DC@fhm.edu>
-In-Reply-To: <A5938B92-C096-11D8-AAF6-000A958E35DC@fhm.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Jun 2004 16:12:22 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:24007 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262337AbUFQUMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 16:12:20 -0400
+Subject: Re: Proposal for new generic device API: dma_get_required_mask()
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040617152818.GZ20511@parcelfarce.linux.theplanet.co.uk>
+References: <1087481331.2210.27.camel@mulgrave> 
+	<20040617152818.GZ20511@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 17 Jun 2004 15:12:17 -0500
+Message-Id: <1087503138.1795.60.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger wrote:
+On Thu, 2004-06-17 at 10:28, Matthew Wilcox wrote:
+> So let's look at the sym2 implementation to see how this would work.
+> A straight diff -u is not terribly helpful, So let's try a more verbose
+> context diff:
 
-> On 17.06.2004, at 19:20, Hans Reiser wrote:
->
->> Actually, most compact flash devices DO do wear leveling, from what I 
->> have heard.
->
->
-> Care to mention sources? I'd be surprised if they did simply because
-> it'll cost money that could be earned otherwise. Also I think you
-> confuse bad block remapping with wear leveling and even the former
-> I haven't experienced so far.
->
-> CF disks were designed for simply the reason of having an empty disk,
-> writing data onto it up to a certain level, reading it a few times
-> and emptying the disk again. So except for the organizational blocks
-> and "the end" of a disk which tends to get rarely hit there're a
-> well distributed write utilization.
->
-> Servus,
->       Daniel
+actually, no.  I'm proposing an additional API, not a modification to
+dma_set_mask(), so the new code would read
 
+       struct pci_dev *pdev = &np->s.device;
+ 
+        if (np->features & FE_DAC) {
+               if (dma_set_mask(&pdev->dev, 0xffffffffffULL))
+	               if (dma_get_required_mask(&pdev->dev) > 0xffffffffUL)
+        	               goto use_dac;
+		
+        }
+ 
+       dma_set_mask(&pdev->dev, 0xffffffffUL);
+        return 0;
+  
+  use_dac:
+       np->use_dac = 1;
+       printf_info("%s: using 64 bit DMA addressing\n", sym_name(np));
+       return 0;
 
-For example:
-
-Just bop over to the Sandisk website, go the the OEM section, and download
-the manual/datasheet for CF devices.  The wearlevel command itself isn't
-supported (I'm ignorant of flash on IDE, I assume it is intended to mean
-full scrub-style wear levelling) but they note they roll simplified wear 
-levelling
-into the erased page pool.
-
-Doing that is an easy way to get part of the way there without needing a 
-lot of
-infrastructure.  And for the fill-read-empty usage model it's perfectly 
-fine.
-
-                ken
+James
 
 

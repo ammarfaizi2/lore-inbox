@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264693AbRFQGZZ>; Sun, 17 Jun 2001 02:25:25 -0400
+	id <S264441AbRFQHDG>; Sun, 17 Jun 2001 03:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264694AbRFQGZQ>; Sun, 17 Jun 2001 02:25:16 -0400
-Received: from gecius-0.dsl.speakeasy.net ([216.254.67.146]:14076 "EHLO
-	maniac.gecius.de") by vger.kernel.org with ESMTP id <S264693AbRFQGZE>;
-	Sun, 17 Jun 2001 02:25:04 -0400
+	id <S264694AbRFQHC4>; Sun, 17 Jun 2001 03:02:56 -0400
+Received: from mlug.missouri.edu ([128.206.94.75]:6028 "EHLO mlug.missouri.edu")
+	by vger.kernel.org with ESMTP id <S264441AbRFQHCw>;
+	Sun, 17 Jun 2001 03:02:52 -0400
+Date: Sun, 17 Jun 2001 02:02:49 -0500 (CDT)
+From: Michael <mogmios@mlug.missouri.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Longstanding APIC/NE2K bug
-In-Reply-To: <20010617000645.A2022@zarq.dhs.org>
-From: Jens Gecius <jens@gecius.de>
-Date: 17 Jun 2001 02:25:00 -0400
-In-Reply-To: <20010617000645.A2022@zarq.dhs.org> (rc@zarq.dhs.org's message of "Sun, 17 Jun 2001 00:06:45 -0400")
-Message-ID: <87d783ei83.fsf@maniac.gecius.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Academic Rigor)
+Subject: linux crashes when i try to burn audio cd's
+Message-ID: <Pine.LNX.4.21.0106170153070.27718-100000@mlug.missouri.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	rc@zarq.dhs.org writes:
+I'm using kernel 2.2.16-22 w/ RedHat 7.0 w/ cdrecord 1.9. I have a P133 w/
+64M RAM w/ a Smart & Friendly 2006 Plus SCSI CD-R. It burns data discs
+without problem but when I try to burn an audio disc Linux comes to a
+complete halt. I can't get any console or network response and no error
+messages appear or get logged. I've tried both wav and cdr sound files. In
+Windows the audio discs burn without problems.
 
-> There has been a bug in the 2.4.x series of kernels for a long time (at
-> least -pre9) concerning SMP and ne2k-pci.
-> 
-> Maciej W. Rozycki posted a patch back during 2.4.0 that fixed this problem
-> "[patch] 2.4.0, 2.4.0-ac12: APIC lock-ups" in late January.  I've been
-> trying new kernels regularly since, and the patch doesn't seem to have
-> made it in (tested 2.4.2, .3, .4 and .5).  Falling back on my patched
-> 2.4.0 works fine.
-> 
-> Symptoms: Network driver locks up.  Repeated messages of "ETH0: Transmit
-> timeout" occurs.  Unloading and reloading network drivers does not help,
-> reboot is required.  Usually only triggered by heavy network traffic
-> (300-400 megs at 700k or so usually does it).
+Thanks.
 
-This fits exactly my problems I mentioned a couple weeks ago. Same
-question here. Therefore my question: can we expect to see this patch
-implemented? If not, any other suggestions?
+*^*^*^*
+Michael McGlothlin <mogmios@mlug.missouri.edu>
+http://www.kavlon.com
 
--- 
-Tschoe,                    Get my gpg-public-key here
- Jens                     http://gecius.de/gpg-key.txt

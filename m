@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268729AbUHZLeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268728AbUHZL2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268729AbUHZLeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 07:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268783AbUHZL2c
+	id S268728AbUHZL2L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 07:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267859AbUHZLTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 07:28:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18850 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268633AbUHZLW6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 07:22:58 -0400
-Date: Thu, 26 Aug 2004 04:20:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Spam <spam@tnonline.net>
-Cc: wichert@wiggy.net, jra@samba.org, torvalds@osdl.org, reiser@namesys.com,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 07:19:51 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:4494 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S268795AbUHZLQ5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 07:16:57 -0400
+Date: Thu, 26 Aug 2004 13:19:43 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <14210549944.20040826131943@tnonline.net>
+To: Jamie Lokier <jamie@shareable.org>
+CC: Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-Message-Id: <20040826042043.15978b0a.akpm@osdl.org>
-In-Reply-To: <1453776111.20040826131547@tnonline.net>
-References: <20040824202521.GA26705@lst.de>
-	<412CEE38.1080707@namesys.com>
-	<20040825152805.45a1ce64.akpm@osdl.org>
-	<112698263.20040826005146@tnonline.net>
-	<Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
-	<1453698131.20040826011935@tnonline.net>
-	<20040825163225.4441cfdd.akpm@osdl.org>
-	<20040825233739.GP10907@legion.cup.hp.com>
-	<20040825234629.GF2612@wiggy.net>
-	<1939276887.20040826114028@tnonline.net>
-	<20040826024956.08b66b46.akpm@osdl.org>
-	<839984491.20040826122025@tnonline.net>
-	<20040826032457.21377e94.akpm@osdl.org>
-	<742303812.20040826125114@tnonline.net>
-	<20040826035500.00b5df56.akpm@osdl.org>
-	<1453776111.20040826131547@tnonline.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20040826110258.GC30449@mail.shareable.org>
+References: <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de>
+ <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
+ <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org>
+ <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
+ <20040826001152.GB23423@mail.shareable.org>
+ <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk>
+ <20040826010049.GA24731@mail.shareable.org>
+ <20040826100530.GA20805@taniwha.stupidest.org>
+ <20040826110258.GC30449@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spam <spam@tnonline.net> wrote:
->
->    Secondly, do you expect file managers like Nautilus and Konqueror to
->    support  every piece of file format on the planet so they could read
->    information directly from the documents?
 
-Sure.  You're proposing that we implement a single, golden multi-stream file
-format in the kernel.
 
-We could just as well do that in libmultistreamfileformat.so.
+> Chris Wedgwood wrote:
+>> On Thu, Aug 26, 2004 at 02:00:49AM +0100, Jamie Lokier wrote:
+>> 
+>> > One of the big potential uses for file-as-directory is to go inside
+>> > archive files, ELF files, .iso files and so on in a convenient way.
+>> 
+>> Arguably this belongs in userspace --- and people have put it there.
 
-But I'll grant that one cannot go adding new metadata to, say, C files this
-way.  I don't know how useful such a thing is though.
+> I agree that these belong in userspace, and that there's plenty* of
+> userspace code doing a similar thing already.  I don't think there's
+> any argument over it.
 
-Remember that my main point is that there's a lack of coordination in
-userspace.  Hell, there's none.  Putting it in-kernel forces that
-coordination, and may be the way to go, but it's pretty sad.
+> However, as far as I know it's not accessible in a file-as-directory
+> form as yet.  In my opinion that is the most natural form and it would
+> be very intuitive to use.  I hope we can pick a useful semantics for
+> them, and also provide filesystem-independent plugins with GNU
+> Hurd-like per-user extensibility.
+
+> -- Jamie
+
+> * plenty == too much.
+>   Gnome, KDE, Emacs and Bash all see different virtual filesystems.
+>   (All but Bash implement their own virtual filesystem extensions).
+>   That makes them much less useful than they could be.
+
+  Exactly,  and  I  doubt  they  have the ability to join together and
+  create  a  common  uniform standard out of it either. They have just
+  far to different views on Linux and how they want things to be done.
+
 

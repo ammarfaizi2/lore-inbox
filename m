@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVDFULZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVDFUMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVDFULZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 16:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVDFULY
+	id S262309AbVDFUMX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 16:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVDFUMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 16:11:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32428 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262309AbVDFUK5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 16:10:57 -0400
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-References: <20050326162801.GA20729@logos.cnet>
-	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
-	 <16968.40186.628410.152511@cse.unsw.edu.au>
-	 <20050329215207.GE5018@logos.cnet>
-	 <16970.9679.874919.876412@cse.unsw.edu.au>
-	 <20050330115946.GA7331@logos.cnet>
-	 <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-Content-Type: text/plain
+	Wed, 6 Apr 2005 16:12:23 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:22934 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262309AbVDFUMJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 16:12:09 -0400
+X-ORBL: [69.107.61.180]
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] USB glitches after suspend on ppc
+Date: Wed, 6 Apr 2005 13:11:53 -0700
+User-Agent: KMail/1.7.1
+Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, debian-powerpc@lists.debian.org
+References: <20050405204449.5ab0cdea@jack.colino.net> <200504051353.36788.david-b@pacbell.net> <20050406192007.7f71c61d@jack.colino.net>
+In-Reply-To: <20050406192007.7f71c61d@jack.colino.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1112818233.3377.52.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 06 Apr 2005 21:10:33 +0100
+Content-Disposition: inline
+Message-Id: <200504061311.53720.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 06 April 2005 10:20 am, Colin Leroy wrote:
+> On 05 Apr 2005 at 13h04, David Brownell wrote:
+> > > 
+> > > What kind of work on these is needed so that they get in?
+> > 
+> > Briefly, given 2.6.12-rc2 plus the patches mentioned above,
+> > find out what else is needed.
+> > ...
+> > How's that sound?
+> 
+> Nice :)
+> 
+> Ok, here are the results of my tests with 2.6.12-rc2 and the patches
+> you sent me applied:
+> 
+> - plug USB device, sleep, unplug USB device, resume: no more oops
+> - sleep, plug in USB device: no oops, but it wakes the laptop up for a
+> few seconds; then, it goes back to sleep. No oops on second resume. I
+> can live with that :)
 
-On Wed, 2005-04-06 at 11:01, Hifumi Hisashi wrote:
+Interesting.  Looks like pci_enable_wake(dev, state, 0) isn't actually
+disabling wakeup on your hardware.  (Assuming CONFIG_USB_SUSPEND=n; if
+not, then it's odd that the system went back to sleep!)  Do you think
+that might be related to those calls manipulating the Apple ASICs being
+in the OHCI layer rather than up nearer the generic PCI glue?  (I still
+think they don't belong in USB code -- ohci or usbcore -- at all.  If
+the platform-specific PCI hooks don't suffice, they need fixing.)
 
-> I have measured the bh refcount before the buffer_uptodate() for a few days.
-> I found out that the bh refcount sometimes reached to 0 .
-> So, I think following modifications are effective.
+Thanks for the testing update.  I'm glad to know that there seems to
+be only one (minor) glitch that's PPC-specific!
+ 
 
-Thanks --- it certainly looks like this should fix the dereferencing of
-invalid bh's, and this code mirrors what 2.6 does around that area.
+> - once out of two resumes, resume leaves the ports unpowered; so I still
+> need my usb-ehci-power.patch that re-powers ports unconditionnaly.
 
-However, 2.6 is suspected of still having leaks in ext3.  To be certain
-that we're not just backporting one of those to 2.4, we need to
-understand who exactly is going to clean up these bh's if they are in
-fact unused once we complete this code and do the final put_bh().  
+OK, I just posted the patch cleaning up EHCI port power switching;
+that should remove the need for that separate patch.  (As well as
+fixing some minor annoyances.)
 
-I'll give this patch a spin with Andrew's fsx-based leak stress and see
-if anything unpleasant appears.  
-
-Cheers,
- Stephen
-
+- Dave

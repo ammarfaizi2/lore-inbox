@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271850AbRHUUSP>; Tue, 21 Aug 2001 16:18:15 -0400
+	id <S271849AbRHUUQz>; Tue, 21 Aug 2001 16:16:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271852AbRHUUSG>; Tue, 21 Aug 2001 16:18:06 -0400
-Received: from [145.254.145.253] ([145.254.145.253]:20975 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S271850AbRHUUR4>;
-	Tue, 21 Aug 2001 16:17:56 -0400
-Message-ID: <3B82C1AF.819C52B3@pcsystems.de>
-Date: Tue, 21 Aug 2001 22:16:47 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: multiply NULL pointer
-In-Reply-To: <3B72BA01.34D2A67F@pcsystems.de> <3B770C04.C8FDD6E6@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271855AbRHUUQp>; Tue, 21 Aug 2001 16:16:45 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:50857 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S271849AbRHUUQd>;
+	Tue, 21 Aug 2001 16:16:33 -0400
+Date: Tue, 21 Aug 2001 22:24:38 +0200
+From: Stefan Fleiter <stefan.fleiter@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
+Message-ID: <20010821222438.A1767@shuttle.mothership.home.dhs.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010820144602.A12334@shuttle.mothership.home.dhs.org> <200108202028.f7KKSnY41961@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200108202028.f7KKSnY41961@aslan.scsiguy.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Hello!
-> >
-> > Running a p2 400 mhz box with a 3com 3c905, with
-> > _very_ heavy nfs traffic and disc io the following NULL
-> > pointers were produced. I attached the whole dmesg output.
-> > If more informations are needed, I will send them.
-> >
-> > After every NULL pointer printed on the console
-> > I took a new dmesg, so the one with the highest number
-> > should be relevant.
-> >
->
-> Please tell us exactly which kernel you're using.  It appears
-> to be a flavour of 2.4.7 with ext3, yes?
+Hi Justin!
 
-Yes. plain 2.4.7 + ext3 patch
+On Mon, 20 Aug 2001 Justin T. Gibbs wrote:
 
-> Also, please take the very first oops output which occurs
-> after a reboot and feed that into
->
->         ksymoops -m System.map < oops-trace-file.txt
->
-> Make sure you have the correct System.map!
 
-I hope it was the right one (it was the only one left after
-I cleaned the system some days ago )
+>> I have the same problem, but my Adaptec is _not_ onboard.
+> 
+> Not the same problem.  I need a full error message log with "aic7xxx=verbose".
 
-> The fact that your bdflush and kupdate daemons have gone zombie
-> suggests that the kernel died in the new buffer flushing code.
-> There was a bug fixed in that area late in the 2.4.8-pre series.
->
-> >From memory, the bug was a missing test for a null bh in
-> fs/buffer.c:sync_old-buffers():
->
->         for (;;) {
->                 struct buffer_head *bh;
->
->                 spin_lock(&lru_list_lock);
->                 bh = lru_list[BUF_DIRTY];
->                 if (!bh || time_before(jiffies, bh->b_flushtime))
->                     ^^^^^^
->
-> You should try 2.4.8.
+Only happened once.
+Will send it when I find a way to reproduce.
 
-ok. Will upgrade in the next days.
-
-Nico
-
-ps: ksymoops in another email
-
+Thanks,
+Stefan

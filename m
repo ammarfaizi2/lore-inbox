@@ -1,42 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVDCXoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVDCXq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVDCXoG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 19:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVDCXoF
+	id S261959AbVDCXq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 19:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVDCXq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 19:44:05 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:16256 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261959AbVDCXny
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 19:43:54 -0400
-Message-ID: <42507F2F.1050405@rtr.ca>
-Date: Sun, 03 Apr 2005 19:41:35 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en, en-us
+	Sun, 3 Apr 2005 19:46:59 -0400
+Received: from inet-tsb5.toshiba.co.jp ([202.33.96.24]:400 "EHLO
+	inet-tsb5.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S261959AbVDCXqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 19:46:44 -0400
+Subject: RE: Isn't there race issue during fput() and the dentry_open()?
 MIME-Version: 1.0
-To: Zan Lynx <zlynx@acm.org>
-Cc: Greg KH <greg@kroah.com>, Aaron Gyes <floam@sh.nu>,
-       Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-References: <1111886147.1495.3.camel@localhost>	 <490243b66dc7c3f592df7a7d0769dcb7@mac.com>	 <20050327181221.GB14502@kroah.com> <1112058277.14563.4.camel@localhost>	 <20050329033350.GA6990@kroah.com> <1112069010.12853.52.camel@localhost>
-In-Reply-To: <1112069010.12853.52.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 4 Apr 2005 08:42:30 +0900
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Message-ID: <BF571719A4041A478005EF3F08EA6DF0D963B0@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+Thread-Topic: Isn't there race issue during fput() and the dentry_open()?
+Thread-Index: AcU4Cgvu4YPY5QPcSpWSmK9CWiEcYwAmmMZg
+From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+To: "Al Viro" <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: "LKML" <linux-kernel@vger.kernel.org>,
+       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zan Lynx wrote:
->
-> That does not really make sense, as the driver model code could be used
-> for ndiswrapper, for example.  That would not make the Windows net
-> drivers derived code of the Linux kernel.  ndiswrapper, yes it would be.
-> Binary driver blobs, no.
+Hi Viro,
 
-The Windows net drivers are not (we believe) compiled using GPL'd
-header files and their included macros, asm code, etc..
+Thank you for your replay.
 
-Probably all Linux binary drivers *are* compiled using GPL'd header files,
-and thus are themselves subject to the GPL.
+> > Stack traceback for pid 2130
+> > 0xf717f1b0	2130	1	1	0	R	
+> 0xf717f400 *irqbalance
+> > ESP	EIP	Function (args)
+> > 0xf75bfe38 0xc02d04b2 _spin_lock+0x2e (0xf7441a80)
+> > 0xf75bff34 0xc015667c file_move+0x14 (0xf63080e4, 
+> 0xf75bff58, 0x0, 0xf74bf000)
+> > 0xf75bff40 0xc0154e37 dentry_open+0xb9 (0xf63080e4, 
+> 0xf7f5ad80, 0xc02d00e6, 0x100100, 0x246)
+> > 0xf75bff58 0xc0154d78 filp_open+0x36
+> > 0xf75bffb4 0xc0155079 sys_open+0x31
+> > 0xf75bffc4 0xc02d196f syscall_call+0x7
+> > 
+> > The patch was made. Is this patch right?
+> > 
+> > diff -urN linux-2.6.12-rc1.orig/fs/file_table.c 
+> linux-2.6.12-rc1/fs/file_table.c
+> > --- linux-2.6.12-rc1.orig/fs/file_table.c	2005-03-02 
+> 16:37:47.000000000 +0900
+> > +++ linux-2.6.12-rc1/fs/file_table.c	2005-03-31 
+> 17:50:46.323999320 +0900
+> > @@ -209,11 +209,11 @@
+> >  
+> >  void file_kill(struct file *file)
+> >  {
+> > +	file_list_lock();
+> >  	if (!list_empty(&file->f_list)) {
+> > -		file_list_lock();
+> >  		list_del_init(&file->f_list);
+> > -		file_list_unlock();
+> >  	}
+> > +	file_list_unlock();
+> >  }
+> 
+> This is absolutely useless.  What are you trying to protect 
+> and how the
+> hell could keeping a lock around that check prevent any sort 
+> of deadlock?
 
-Cheers
+I think that it is true not to be able to acquire file_list_lock()
+that is called from file_move().
+ 
+> Besides, who could possibly call fput() on struct file allocated by
+> dentry_open() and do that before the latter returns a reference to
+> that struct file?
+
+Indeed, Is there a good method of debugging this issue?
+In the check on the source, a doubtful place was not found except file_kill(). 
+I might call not race of fput() and the dentry_open() but
+the deadlock of file_list_lock(). 
+--
+Haruo

@@ -1,102 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264893AbUDWSER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUDWSLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264893AbUDWSER (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 14:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264897AbUDWSER
+	id S264902AbUDWSLb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 14:11:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbUDWSLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 14:04:17 -0400
-Received: from mail.kroah.org ([65.200.24.183]:19089 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264893AbUDWSEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 14:04:14 -0400
-Date: Fri, 23 Apr 2004 11:03:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-usb-devel@lists.sourceforge.net, vojtech@suse.cz
-Cc: Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Simon Kelley <simon@thekelleys.org.uk>
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-Message-ID: <20040423180342.GA14533@kroah.com>
-References: <200404230142.46792.dtor_core@ameritech.net> <1082723147.1843.14.camel@merlin> <200404230802.42293.dtor_core@ameritech.net> <20040423153111.GB12126@kroah.com> <20040423171953.GB13835@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040423171953.GB13835@kroah.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 23 Apr 2004 14:11:31 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:50442 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264902AbUDWSL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 14:11:26 -0400
+Message-ID: <40895CFF.6010307@techsource.com>
+Date: Fri, 23 Apr 2004 14:14:23 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
+Subject: Re: File system compression, not at the block layer
+References: <408951CE.3080908@techsource.com> <c6bjrd$pms$1@news.cistron.nl> <20040423174146.GB5977@thunk.org>
+In-Reply-To: <20040423174146.GB5977@thunk.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 23, 2004 at 10:19:53AM -0700, Greg KH wrote:
-> On Fri, Apr 23, 2004 at 08:31:11AM -0700, Greg KH wrote:
-> > 
-> > No, we need to oops, as that's a real bug.  Can you post the whole oops
-> > that was generated with this usb problem?  I can't seem to duplicate
-> > this here.
+
+
+Theodore Ts'o wrote:
+> On Fri, Apr 23, 2004 at 05:30:21PM +0000, Miquel van Smoorenburg wrote:
 > 
-> Nevermind I dug up a device here that causes this problem.  I'll track
-> it down...
+>>In article <408951CE.3080908@techsource.com>,
+>>Timothy Miller  <miller@techsource.com> wrote:
+>>
+>>>Well, why not do the compression at the highest layer?
+>>>[...] doing it transparently and for all files.
+>>
+>>http://e2compr.sourceforge.net/
+> 
+> 
+> It's been done (see the above URL), but given how cheap disk space has
+> gotten, and how the speed of CPU has gotten faster much more quickly
+> than disk access has, many/most people have not be interested in
+> trading off performance for space.  As a result, there are race
+> conditions in e2compr (which is why it never got merged into
+> mainline), and there hasn't been sufficient interest to either (a)
+> forward port e2compr to more recent kernels revisions, or (b) find and
+> fix the race conditions.
 
-Ok, here's a patch that fixes it for me.  I was waiting for a good
-reason to finally get rid of this fake usb_interface structure, and now
-I have it :)
+Well, performance has been my only interest.  Aside from the embedded 
+space (which already uses cramfs or something, right?), the only real 
+benefit to FS compression is the fact that it would reduce the amount of 
+data that you have to read from disk.  If your IDE drive gives you 
+50MB/sec, and your file compresses by 50%, then you get 100MB/sec 
+reading that file.
 
-Let me know if it solves the problem for you too and then I'll send it
-off to Linus.
+In a private email, one gentleman (who can credit himself if he likes) 
+pointed out that compression doesn't reduce the number of seeks, and 
+since seek times dominate, the benefit of compression would diminish.
 
-Any objections Vojtech?
+SO... in addition to the brilliance of AS, is there anything else that 
+can be done (using compression or something else) which could aid in 
+reducing seek time?
 
-thanks,
+Nutty idea:  Interleave files on the disk.  So, any given file will have 
+its blocks allocated at, say, intervals of every 17 blocks.  Make up for 
+the sequential performance hit with compression or something, but to get 
+to the beginning of groups of files, seek time is reduced.  Maybe. 
+Probably not, but hey.  :)
 
-greg k-h
+Another idea is to actively fragment the disk based on access patterns. 
+  The most frequently accessed blocks are grouped together so as to 
+maximize over-all throughput.  The problem with this is that, well, say 
+boot time is critical -- booting wouldn't happen enough to get enough 
+attention so that its blocks get optimized (they would get dispersed as 
+a result of more common activities); but database access could benefit 
+in the long-term.
 
-
-# USB: fix up fake usb_interface structure in hiddev
-#
-# This fixes a oops in the current kernel tree.
-
-diff -Nru a/drivers/usb/input/hiddev.c b/drivers/usb/input/hiddev.c
---- a/drivers/usb/input/hiddev.c	Fri Apr 23 11:00:23 2004
-+++ b/drivers/usb/input/hiddev.c	Fri Apr 23 11:00:23 2004
-@@ -53,7 +53,6 @@
- 	wait_queue_head_t wait;
- 	struct hid_device *hid;
- 	struct hiddev_list *list;
--	struct usb_interface intf;
- };
- 
- struct hiddev_list {
-@@ -234,7 +233,7 @@
- static struct usb_class_driver hiddev_class;
- static void hiddev_cleanup(struct hiddev *hiddev)
- {
--	usb_deregister_dev(&hiddev->intf, &hiddev_class);
-+	usb_deregister_dev(hiddev->hid->intf, &hiddev_class);
- 	hiddev_table[hiddev->minor] = NULL;
- 	kfree(hiddev);
- }
-@@ -775,7 +774,7 @@
- 		return -1;
- 	memset(hiddev, 0, sizeof(struct hiddev));
- 
-- 	retval = usb_register_dev(&hiddev->intf, &hiddev_class);
-+ 	retval = usb_register_dev(hid->intf, &hiddev_class);
- 	if (retval) {
- 		err("Not able to get a minor for this device.");
- 		kfree(hiddev);
-@@ -784,13 +783,13 @@
- 
- 	init_waitqueue_head(&hiddev->wait);
- 
-- 	hiddev->minor = hiddev->intf.minor;
-- 	hiddev_table[hiddev->intf.minor - HIDDEV_MINOR_BASE] = hiddev;
-+ 	hiddev->minor = hid->intf->minor;
-+ 	hiddev_table[hid->intf->minor - HIDDEV_MINOR_BASE] = hiddev;
- 
- 	hiddev->hid = hid;
- 	hiddev->exist = 1;
- 
-- 	hid->minor = hiddev->intf.minor;
-+ 	hid->minor = hid->intf->minor;
- 	hid->hiddev = hiddev;
- 
- 	return 0;

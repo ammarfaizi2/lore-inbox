@@ -1,59 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279326AbRLDQDv>; Tue, 4 Dec 2001 11:03:51 -0500
+	id <S280027AbRLDQ3N>; Tue, 4 Dec 2001 11:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279113AbRLDQDl>; Tue, 4 Dec 2001 11:03:41 -0500
-Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:37288 "HELO smeg")
-	by vger.kernel.org with SMTP id <S278625AbRLDQD2>;
-	Tue, 4 Dec 2001 11:03:28 -0500
-Message-ID: <16303.193.132.197.81.1007481686.squirrel@mail.mswinxp.net>
-Date: Tue, 4 Dec 2001 16:01:26 -0000 (GMT)
-Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
-From: "Lee Packham" <linux@mswinxp.net>
-To: vherva@niksula.hut.fi
-In-Reply-To: <20011204145949.H21566@niksula.cs.hut.fi>
-In-Reply-To: <20011204145949.H21566@niksula.cs.hut.fi>
-Cc: gdf@gsource.org, linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 1.0.6)
+	id <S278625AbRLDQ3D>; Tue, 4 Dec 2001 11:29:03 -0500
+Received: from Sungate-2.ser.netvision.net.il ([212.143.108.74]:26002 "EHLO
+	BEASLEY.il.sangate.com") by vger.kernel.org with ESMTP
+	id <S280967AbRLDQ2v> convert rfc822-to-8bit; Tue, 4 Dec 2001 11:28:51 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+content-class: urn:content-classes:message
+Subject: Docs on PC disk partition tables?
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 4 Dec 2001 18:28:44 +0200
+Message-ID: <B71796881E0DF7409F066FE6656BDF29040F31@BEASLEY.il.sangate.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Docs on PC disk partition tables?
+Thread-Index: AcF84L3IY+wJMmtDSkeZlHIscrXR4Q==
+From: "Mark Mokryn" <mark@sangate.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now, I have a KT7A-RAID with the HPT370... and I have no problems at all. I 
-have the 3R bios update (i think...) from the www.abit.com.tw site.
-
-> On Mon, Dec 03, 2001 at 11:44:57PM -0500, you [gdf] claimed:
->> 
->> I concur with Matt Schulkind.  This is usually symptom of and old
->> Highpoint bios or even KT7A bios version.
-> 
-> I've tried Highpoint BIOSes 1.0.3b1 (Abit bios ZT), 1.2.0612 (Abit 
-> bios49b01+), 1.11.0402 (Abit bios 64). No help.
-> 
-> Can someone shed some light on how much the Highpoint bios actually
-> matters under linux?
-> 
->> If you believe it to be some sort of a driver problem i urge you to
->> query the atariad mailing list.
->> 
->> Until then... for your mothe board i would point you to the KT7 FAQ.
->> http://www.viahardware.com/faq/kt7/kt7faq.htm
->> 
->> Though it is a bit windows centric, it describes in great detail many
->> of the issues with the board.  
-> 
-> True, I've been reading it.
-> 
->  
-> -- v --
-> 
-> v@iki.fi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Does anyone know of docs describing the PC disk partition tables, MBR
+format, etc?
+ 
+Thanks,
+-Mark

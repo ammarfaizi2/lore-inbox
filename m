@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317541AbSGUEje>; Sun, 21 Jul 2002 00:39:34 -0400
+	id <S317637AbSGUE7K>; Sun, 21 Jul 2002 00:59:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317637AbSGUEje>; Sun, 21 Jul 2002 00:39:34 -0400
-Received: from web12905.mail.yahoo.com ([216.136.174.72]:45587 "HELO
-	web12905.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317541AbSGUEjd>; Sun, 21 Jul 2002 00:39:33 -0400
-Message-ID: <20020721044238.70210.qmail@web12905.mail.yahoo.com>
-Date: Sat, 20 Jul 2002 21:42:38 -0700 (PDT)
-From: Tom Walcott <thomaswalcott@yahoo.com>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-To: linux-kernel@vger.kernel.org
+	id <S317639AbSGUE7K>; Sun, 21 Jul 2002 00:59:10 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:35136 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317637AbSGUE7J>; Sun, 21 Jul 2002 00:59:09 -0400
+Date: Sat, 20 Jul 2002 23:02:13 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: David Caplan <david@polycode.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Asus-a7v/Via-Vt8233 data corruption
+In-Reply-To: <20020721043653.NLID8251.tomts6-srv.bellnexxia.net@david>
+Message-ID: <Pine.LNX.4.44.0207202300180.3309-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 21, 2002  01:24 +0100, Alan Cox wrote:
-> On Sat, 2002-07-20 at 22:24, Andreas Dilger wrote:
-> > I, for one, would like to have the choice to use
-the AIX LVM format, and
-> > I'm sure that people thinking of migrating from
-HP/UX or whatever would
-> > want to be able to add support for their on-disk
-LVM format.  It really
-> > provides a framework to consolidate all of the
-partition/MD code into
-> > a single place (e.g. RAID, LVM, LDM (windows NT),
-DOS, BSD, Sun, etc).
-> 
-> The LVM format for AIX and so on call all be handled
-by LVM2
+Hi,
 
-Can LVM2 currently do everything that EVMS does? From
-looking at this, it appears there is a difference.
-http://evms.sourceforge.net/comparison.pdf
+On Sun, 21 Jul 2002, David Caplan wrote:
+> Assersion Failure in __journal_file_buffer() transaction.c:1937
 
--Tom
+That means nothing but incorrect locking, I guess. What else do we assert 
+there? FWIW, line 1937 is empty...
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Health - Feel better, live better
-http://health.yahoo.com
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

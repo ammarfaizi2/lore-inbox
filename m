@@ -1,124 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVAVX2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVAVXeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVAVX2y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 18:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVAVX2x
+	id S261160AbVAVXeW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 18:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVAVXeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 18:28:53 -0500
-Received: from waste.org ([216.27.176.166]:64992 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261157AbVAVX2o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 18:28:44 -0500
-Date: Sat, 22 Jan 2005 15:28:14 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, Olaf Kirch <okir@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 1/13] Qsort
-Message-ID: <20050122232814.GG3867@waste.org>
-References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de>
+	Sat, 22 Jan 2005 18:34:21 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:44635
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261160AbVAVXeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 18:34:19 -0500
+Date: Sun, 23 Jan 2005 00:34:18 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: seccomp for 2.6.11-rc1-bk8
+Message-ID: <20050122233418.GH7587@dualathlon.random>
+References: <20050121100606.GB8042@dualathlon.random> <20050121120325.GA2934@elte.hu> <20050121093902.O469@build.pdx.osdl.net> <Pine.LNX.4.61.0501211338190.15744@chimarrao.boston.redhat.com> <20050121105001.A24171@build.pdx.osdl.net> <20050121195522.GA14982@elte.hu> <20050121203425.GB11112@dualathlon.random> <20050122103242.GC9357@elf.ucw.cz> <20050122172542.GF7587@dualathlon.random> <20050122194242.GB21719@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050122203618.962749000@blunzn.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050122194242.GB21719@elf.ucw.cz>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 22, 2005 at 09:34:01PM +0100, Andreas Gruenbacher wrote:
-> Add a quicksort from glibc as a kernel library function, and switch
-> xfs over to using it. The implementations are equivalent. The nfsacl
-> protocol also requires a sort function, so it makes more sense in
-> the common code.
+On Sat, Jan 22, 2005 at 08:42:42PM +0100, Pavel Machek wrote:
+> Well, then you can help auditing ptrace()... It is probably also true
+> that more people audited ptrace() than seccomp :-).
 
-Please update this to kernel formatting standards and try to modernize
-it a bit.
-
-> +/* Byte-wise swap two items of size SIZE. */
-> +#define SWAP(a, b, size)						      \
-> +  do									      \
-> +    {									      \
-> +      register size_t __size = (size);					      \
-> +      register char *__a = (a), *__b = (b);				      \
-> +      do								      \
-> +	{								      \
-> +	  char __tmp = *__a;						      \
-> +	  *__a++ = *__b;						      \
-> +	  *__b++ = __tmp;						      \
-> +	} while (--__size > 0);						      \
-> +    } while (0)
-
-Inline, please? Register keyword?!
-
-> +typedef struct
-> +  {
-> +    char *lo;
-> +    char *hi;
-> +  } stack_node;
-
-void *, please
-
-> +
-> +/* The next 5 #defines implement a very fast in-line stack abstraction. */
-> +/* The stack needs log (total_elements) entries (we could even subtract
-> +   log(MAX_THRESH)).  Since total_elements has type size_t, we get as
-> +   upper bound for log (total_elements):
-> +   bits per byte (CHAR_BIT) * sizeof(size_t).  */
-> +#define CHAR_BIT 8
-> +#define STACK_SIZE	(CHAR_BIT * sizeof(size_t))
-
-So the stack is going to be either 256 or 1024 bytes. Seems like we
-ought to kmalloc it.
-
-> +#define PUSH(low, high)	((void) ((top->lo = (low)), (top->hi = (high)), ++top))
-> +#define	POP(low, high)	((void) (--top, (low = top->lo), (high = top->hi)))
-> +#define	STACK_NOT_EMPTY	(stack < top)
-
-There's only one usage of POP, one of STACK_NOT_EMPTY and two of PUSH
-that can trivially be made one. Please kill these macros.
-
-> +   3. Only quicksorts TOTAL_ELEMS / MAX_THRESH partitions, leaving
-> +      insertion sort to order the MAX_THRESH items within each partition.
-> +      This is a big win, since insertion sort is faster for small, mostly
-> +      sorted array segments.
-
-This observation may be dated, instruction cache issues may dominate now.
-
-> +	  char *mid = lo + size * ((hi - lo) / size >> 1);
-
-Get rid of all this char* stuff, please. It makes for lots of ugly and
-unnecessary casting.
-
-> +	  if ((*cmp) ((void *) mid, (void *) lo) < 0)
-> +	    SWAP (mid, lo, size);
-
-cmp(mid, lo)
-
-> +	  if ((*cmp) ((void *) hi, (void *) mid) < 0)
-> +	    SWAP (mid, hi, size);
-> +	  else
-> +	    goto jump_over;
-> +	  if ((*cmp) ((void *) mid, (void *) lo) < 0)
-> +	    SWAP (mid, lo, size);
-> +	jump_over:;
-
-?!
-
-> +  /* Once the BASE_PTR array is partially sorted by quicksort the rest
-> +     is completely sorted using insertion sort, since this is efficient
-> +     for partitions below MAX_THRESH size. BASE_PTR points to the beginning
-> +     of the array to sort, and END_PTR points at the very last element in
-> +     the array (*not* one beyond it!). */
-> +
-> +  {
-> +    char *end_ptr = &base_ptr[size * (total_elems - 1)];
-> +    char *tmp_ptr = base_ptr;
-> +    char *thresh = min(end_ptr, base_ptr + max_thresh);
-> +    register char *run_ptr;
-
-Move these vars to the top or better yet, split this into two functions.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+Why should I spend time auditing ptrace when I have a superior solution
+that doesn't require me any auditing at all? I've an huge pile of work,
+I'm not doing this for fun, just thinking at wasting time auditing a
+single line of ptrace code is insane as far as I'm concerned (if I can
+avoid it with a more robust, less likely to break and simpler approach).
+If the l-k community forces me to use ptrace, I'll be forced to do that
+indeed (and you should be ready to take the blame if something goes
+wrong), but be sure I'll try as much as I can to stay away from ptrace
+completely.  ptrace is a debugging knob, uml itself is a debugging tool
+that depends on a debugging knob and that's fine. I'm not doing a
+debugging tool, I'm doing something that requires the maximum level of
+security ever, and using ptrace is dead wrong for that IMHO.

@@ -1,54 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263141AbTCLKrK>; Wed, 12 Mar 2003 05:47:10 -0500
+	id <S263153AbTCLLHM>; Wed, 12 Mar 2003 06:07:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263142AbTCLKrK>; Wed, 12 Mar 2003 05:47:10 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:35315 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S263141AbTCLKrJ>; Wed, 12 Mar 2003 05:47:09 -0500
-Date: Wed, 12 Mar 2003 03:56:15 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312035615.I12806@schatzie.adilger.int>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Ben Collins <bcollins@debian.org>,
-	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int> <20030312103155.GN811@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263152AbTCLLHM>; Wed, 12 Mar 2003 06:07:12 -0500
+Received: from smtp2.libero.it ([193.70.192.52]:3289 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S263149AbTCLLHG> convert rfc822-to-8bit;
+	Wed, 12 Mar 2003 06:07:06 -0500
+From: Willy Gardiol <gardiol@libero.it>
+Reply-To: gardiol@libero.it
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Bug in IDE controllers when connected to PCI?
+Date: Wed, 12 Mar 2003 12:21:06 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030312103155.GN811@suse.de>; from axboe@suse.de on Wed, Mar 12, 2003 at 11:31:55AM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Message-Id: <200303121221.11335.gardiol@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 12, 2003  11:31 +0100, Jens Axboe wrote:
-> I've been very happy with BK, been using it shortly after Linus started
-> doing so. Mostly out of curiosity at first, later because it was
-> actually quite useful. I even see myself as a fairly pragmatic
-> individual, but even so I do find it increasingly difficult to defend my
-> BK usage.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Interesting.  I _had_ lumped you into the "unhappy with BK" camp that has
-become so vocal on l-k these days.  My apologies.  I do find it sort of sad
-that you (or anyone) actually have to defend your BK usage to others.
 
-I'm personally a "do what you want and let others do what they want as
-long as it doesn't interfere with me" kind of person, but it seems that
-lots of people here have the opinion that they know what is better for
-everyone else, and have no problem telling the list over an over about it.
-Probably time to fork a linux-code-repository mailing list and have everyone
-spend their time over there instead of rehashing BK flamewars and/or BK
-replacement here every week.
+Hi to all,
+i think i run into a bug in current stable kernel's regarding IDE controllers 
+and PCI.
+Sorry for the long post, but i need some help from you to investigate this 
+deeper.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+I own a CDRW Philips 1610A, here is hdparm -i and -I output:
+
+(hdparm -i)
+/dev/hdf:
+ Model=PHILIPS CDRW1610A, FwRev=0.010000, SerialNo=5VO2149DL13692
+ Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=DualPortCache, BuffSize=128kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 udma2
+ AdvancedPM=no
+
+(hdparm -I)
+/dev/hdf:
+ATAPI CD-ROM, with removable media
+        Model Number:           PHILIPS CDRW1610A
+        Serial Number:          5VO2149DL13692
+        Firmware Revision:      0.010000
+Standards:
+Configuration:
+        DRQ response: 50us.
+        Packet size: 12 bytes
+Capabilities:
+        LBA, IORDY(cannot be disabled)
+        Buffer size: 128.0kB
+        DMA: sdma0 sdma1 sdma2 mdma0 mdma1 *mdma2 udma0 udma1 udma2
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
+
+It works and burns correctly with DMA enabled( hdparm -d1) when connected to 
+the on-board IDE controller, following is /rpco/pci of it:
+  Bus  0, device   4, function  1:
+    IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 
+6).
+      Master Capable.  Latency=32.
+      I/O at 0xd800 [0xd80f].
+
+I also have two different PCI IDE ATA100/133 controllers:
+a Promise Ultra100 TX2 (chip PDC20268)
+a Sil  0680 based RAID ATA133 board
+Here is /proc/pci for the 0680 (the other one is not conented right now)
+  Bus  0, device  11, function  0:
+    RAID bus controller: CMD Technology Inc PCI0680 (rev 2).
+      IRQ 10.
+      Master Capable.  Latency=32.
+      I/O at 0x9800 [0x9807].
+      I/O at 0x9400 [0x9403].
+      I/O at 0x9000 [0x9007].
+      I/O at 0x8800 [0x8803].
+      I/O at 0x8400 [0x840f].
+      Non-prefetchable 32 bit memory at 0xd4800000 [0xd48000ff].
+
+When connected to any of these two controllers (as hde, hdf or hdg, not tryed 
+hdh but dont think it changes something) if i enable DMA (hdparm -d1) the 
+kernel hangs when i try to burn: no logs are written (!) but i managed to get 
+this output (sending all logs to /dev/tty12):
+
+IDE_DMAPROC: chipset supported IDE_DMA_TIMEOUT only: 14
+hdf: status timeout: status 0xd0 { Busy }
+hdf: drive not ready for command
+vmunix: scsi: aborting command due to timeout: pid 934, scsi0, channel 0, id 
+0, lun 0 2x2a 00 00 00 00 00 00 1f 00
+IDE_DMAPROC: chipset supported IDE_DMA_TIMEOUT only: 14
+hdf: status timeout: status 0xd0 { Busy }
+hdf: drive not ready for command
+hdf: ATAPI reset complete
+unable to handle kernel null pointer dereference at virtual address 00018
+(follow a register dump, omitted because i didnt copied it)
+kernel panic: Aieee, killing interrupt handler!
+in interrupt handler - NOT SYNCING
+
+I had to copy this by hand so maybe there are some typo errors.
+
+I also own a DVD reader, also connected to this PCI controllers which uses 
+UDMA5 (hdparm -d1 -X69) and has different troubles:
+- - with the Promise PCD20268 it causes a kernel panic when i try to read a 
+dirty CD (which, on the other hand the cdburner correctly reads)
+- - with the 0680 it reads the same CD without giving ANY read errors and 
+without hanging the kernel! (but gives many reading errors with the 
+burner...)
+
+Off course none of this problems had ever been noticed using the 
+motherboard-integrated IDE controllers....
+
+Please note, this troubles appeared first in kernel 2.4.18, and are 
+reproducing up to 2.4.20 (i have not tryed 2.4.21-preX nor 2.5.x). There 
+where no troubles with any other 2.4.x i tryed (2.4.7, 2.4.14, 2.4.17 at 
+least)
+
+What do you think of this? Where could be the problem? what could i do to get 
+more info and solve this problem?
+
+Thanks to all!
+
+- -- 
+
+! 
+ Willy Gardiol - gardiol@libero.it
+ goemon.polito.it/~gardiol
+ Use linux for your freedom.
+
+    Non ho parole, fratelli. 
+    Quaranta paesi bambini 
+    hanno attaccato un asilo 
+        e la chiamano guerra.
+    Gli eserciti più potenti del mondo 
+    hanno attaccato il più straccione.
+
+	Jack Folla ( 8/10/2001 )	
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+bxgnQ9qolN/zUk4RAlF4AJ431AQ7jTaaxJPugtEQTtimaqWZ7QCgryeJ
+TpRdVaO97yfsr08v8D6lwB0=
+=qUwm
+-----END PGP SIGNATURE-----
 

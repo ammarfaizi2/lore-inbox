@@ -1,101 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272377AbTHNOXe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 10:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272385AbTHNOXe
+	id S272372AbTHNOfL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 10:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272385AbTHNOfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 10:23:34 -0400
-Received: from smtp2.BelWue.de ([129.143.2.15]:58023 "EHLO smtp2.BelWue.DE")
-	by vger.kernel.org with ESMTP id S272377AbTHNOXb (ORCPT
+	Thu, 14 Aug 2003 10:35:11 -0400
+Received: from oker.escape.de ([194.120.234.254]:58807 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id S272372AbTHNOfG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 10:23:31 -0400
-Date: Thu, 14 Aug 2003 16:23:28 +0200 (CEST)
-From: Oliver Tennert <tennert@science-computing.de>
+	Thu, 14 Aug 2003 10:35:06 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6 kbuild config logic and initrd
-In-Reply-To: <Pine.LNX.4.44.0308141100280.12796-100000@picard.science-computing.de>
-Message-ID: <Pine.LNX.4.44.0308141621540.16114-200000@picard.science-computing.de>
+Subject: 2.4.22-rc, IDE: cannot unload piix module
+From: Urs Thuermann <urs@isnogud.escape.de>
+Date: 14 Aug 2003 16:33:04 +0200
+Message-ID: <m2k79gxqan.fsf@isnogud.escape.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="662276-117648344-1060870966=:16114"
-Content-ID: <Pine.LNX.4.44.0308141623170.16343@picard.science-computing.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+After loading the module piix.o for some Intel IDE chips, the usage
+count is 1 even if the module isn't used, so the module cannot be
+unloaded.
 
---662276-117648344-1060870966=:16114
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44.0308141623171.16343@picard.science-computing.de>
+I think this is because of the following code in
+linux/drivers/ide/pci/piix.c:
 
-This is a patch remedying the problem stated below.
+    /**
+     *	piix_init_one	-	called when a PIIX is found
+     *	@dev: the piix device
+     *	@id: the matching pci id
+     *
+     *	Called when the PCI registration layer (or the IDE initialization)
+     *	finds a device matching our IDE device tables.
+     */
+     
+    static int __devinit piix_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+    {
+            ide_pci_device_t *d = &piix_pci_info[id->driver_data];
+    
+            if (dev->device != d->device)
+                    BUG();
+            d->init_setup(dev, d);
+            MOD_INC_USE_COUNT;
+            return 0;
+    }
+    
 
-
-
-On Thu, 14 Aug 2003, Oliver Tennert wrote:
-
->
-> Hello,
->
-> While trying to use initrds with the 2.6.0-test3 kernel,
-> I found out that ramdisk support (CONFIG_BLK_DEV_RAM) is allowed to be
-> modular, while at the same time initrd support (CONFIG_BLK_DEV_INITRD) can be
-> compiled into the kernel:
->
-> CONFIG_BLK_DEV_RAM=m
-> CONFIG_BLK_DEV_INITRD=y
->
-> This does not make sense, however, as no initial ramdisk can be loaded
-> while the generic ramdisk driver is outside the static kernel part!
->
-> Consequently, I promptly fell for it, though I agree that it should have
-> come to my mind before actually compiling the kernel!
->
-> In 2.4 kernels, the configuration logic does not allow that.
->
->
-> Regards
->
-> Oliver
->
->
-> --
-> ________________________________________creating IT solutions
->
-> Dr. Oliver Tennert			science + computing ag
-> phone   +49(0)7071 9457-598		Hagellocher Weg 71-75
-> fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
-> O.Tennert@science-computing.de		www.science-computing.de
->
->
->
->
-
---
-________________________________________creating IT solutions
-
-Dr. Oliver Tennert			science + computing ag
-phone   +49(0)7071 9457-598		Hagellocher Weg 71-75
-fax     +49(0)7071 9457-411		D-72070 Tuebingen, Germany
-O.Tennert@science-computing.de		www.science-computing.de
+But there is no MOD_DEC_USE_COUNT anywhere.  Is that intended?
 
 
-
---662276-117648344-1060870966=:16114
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="patch.initrd"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0308141622460.16114@picard.science-computing.de>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="patch.initrd"
-
-LS0tIGRyaXZlcnMvYmxvY2svS2NvbmZpZy5vbGQJU2F0IEF1ZyAgOSAwNjoz
-Mzo1MyAyMDAzDQorKysgZHJpdmVycy9ibG9jay9LY29uZmlnCVRodSBBdWcg
-MTQgMTY6MjA6NDYgMjAwMw0KQEAgLTMzMSw2ICszMzEsNyBAQA0KIA0KIGNv
-bmZpZyBCTEtfREVWX0lOSVRSRA0KIAlib29sICJJbml0aWFsIFJBTSBkaXNr
-IChpbml0cmQpIHN1cHBvcnQiDQorCWRlcGVuZHMgb24gQkxLX0RFVl9SQU09
-eQ0KIAloZWxwDQogCSAgVGhlIGluaXRpYWwgUkFNIGRpc2sgaXMgYSBSQU0g
-ZGlzayB0aGF0IGlzIGxvYWRlZCBieSB0aGUgYm9vdCBsb2FkZXINCiAJICAo
-bG9hZGxpbiBvciBsaWxvKSBhbmQgdGhhdCBpcyBtb3VudGVkIGFzIHJvb3Qg
-YmVmb3JlIHRoZSBub3JtYWwgYm9vdA0K
---662276-117648344-1060870966=:16114--
+urs

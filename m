@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143618AbRAHMvZ>; Mon, 8 Jan 2001 07:51:25 -0500
+	id <S143491AbRAHM5Q>; Mon, 8 Jan 2001 07:57:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143633AbRAHMvP>; Mon, 8 Jan 2001 07:51:15 -0500
-Received: from DKBH-T-002-p-251-187.tmns.net.au ([203.54.251.187]:37903 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S143618AbRAHMvC>;
-	Mon, 8 Jan 2001 07:51:02 -0500
-Message-ID: <3A59B76D.9C8163A@eyal.emu.id.au>
-Date: Mon, 08 Jan 2001 23:49:49 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac3 i686)
+	id <S143570AbRAHM5F>; Mon, 8 Jan 2001 07:57:05 -0500
+Received: from colorfullife.com ([216.156.138.34]:2835 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S143491AbRAHM4z>;
+	Mon, 8 Jan 2001 07:56:55 -0500
+Message-ID: <3A59B8EB.6DA1D078@colorfullife.com>
+Date: Mon, 08 Jan 2001 13:56:11 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mohammedazad@nestec.net
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0-ac4
-In-Reply-To: <E14FS17-0003lC-00@the-village.bc.nu>
+Subject: [OT] Re: WaitForSingleObject in linux????..
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> Handle with care. I think the fs updates are right but I don't guarantee it.
+I would try to:
 
-The .config selectes everything as 'm' when possible.
+* implement foo_poll() in the kernel driver.
+* the user space app calls select() or poll().
 
+WaitForSingleObject should be easy to replace.
 
-make[2]: Entering directory `/data2/usr/local/src/linux-2.4/fs/qnx4'
-gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
--DMODVERSIONS -include
-/usr/local/src/linux/include/linux/modversions.h   -c -o inode.o inode.c
-inode.c: In function `qnx4_read_super':
-inode.c:372: `sb' undeclared (first use in this function)
-inode.c:372: (Each undeclared identifier is reported only once
-inode.c:372: for each function it appears in.)
-make[2]: *** [inode.o] Error 1
+WaitForMultipleObjects could be tricky if you wait for different events
+(e.g. wait until either the kernel driver has new data, or another
+process exits, or a pthread_mutex is released by another thread).
+
+> I am porting a NT driver and app into linux...
+
+Good luck, I hope you release the kernel driver under GPL
 
 --
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

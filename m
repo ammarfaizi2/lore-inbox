@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261505AbREYSjo>; Fri, 25 May 2001 14:39:44 -0400
+	id <S261513AbREYSpE>; Fri, 25 May 2001 14:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbREYSje>; Fri, 25 May 2001 14:39:34 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:42406 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261505AbREYSjS>;
-	Fri, 25 May 2001 14:39:18 -0400
-Date: Fri, 25 May 2001 14:39:16 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S261519AbREYSoy>; Fri, 25 May 2001 14:44:54 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:1930 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S261513AbREYSon>; Fri, 25 May 2001 14:44:43 -0400
+Date: Fri, 25 May 2001 11:52:27 -0700 (PDT)
+From: Lance Larsh <llarsh@oracle.com>
+To: Heikki Tuuri <Heikki.Tuuri@innobase.inet.fi>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (part 5) fs/super.c cleanups
-Message-ID: <Pine.GSO.4.21.0105251436110.27664-100000@weyl.math.psu.edu>
+Subject: Re: Why O_SYNC and fsync are slow in Linux?
+In-Reply-To: <20010516183630.FZOA13813.fep07.tmt.tele.fi@omnibook>
+Message-ID: <Pine.LNX.4.21.0105251058060.1395-100000@llarsh-pc3.us.oracle.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Takes allocation/initalization of vfsmounts into separate function.
-We will need this separation to deal with several places where we need
-a non-blocking (and non-failing) equivalent of add_vfsmnt(). There allocation
-will be done outside of critical area.
+On Wed, 16 May 2001, Heikki Tuuri wrote:
 
-	Please, apply.
+> On Red Hat 6.2 and 7.? Intel big block writes are very slow if
+> I open the file with O_SYNC. I call pwrite to write 1 MB chunks to
+> the file, and I get only 1 MB/s write speed. If I open without O_SYNC
+> and call fsync only after writing the whole 100 MB file,
+> I get 5 MB/s. I got the same adequate speed 5 MB/s with 16 MB writes
+> after which I called fdatasync.
 
-diff -urN S5-pre6-MNT_VISIBLE/fs/super.c S5-pre6-alloc_vfsmnt/fs/super.c
---- S5-pre6-MNT_VISIBLE/fs/super.c	Thu May 24 23:57:23 2001
-+++ S5-pre6-alloc_vfsmnt/fs/super.c	Fri May 25 04:13:30 2001
-@@ -282,6 +282,21 @@
- 
- static LIST_HEAD(vfsmntlist);
- 
-+struct vfsmount *alloc_vfsmnt(void)
-+{
-+	struct vfsmount *mnt = kmalloc(sizeof(struct vfsmount), GFP_KERNEL); 
-+	if (mnt) {
-+		memset(mnt, 0, sizeof(struct vfsmount));
-+		atomic_set(&mnt->mnt_count,1);
-+		INIT_LIST_HEAD(&mnt->mnt_clash);
-+		INIT_LIST_HEAD(&mnt->mnt_child);
-+		INIT_LIST_HEAD(&mnt->mnt_mounts);
-+		INIT_LIST_HEAD(&mnt->mnt_list);
-+		mnt->mnt_owner = current->uid;
-+	}
-+	return mnt;
-+}
-+
- static void detach_mnt(struct vfsmount *mnt, struct nameidata *old_nd)
- {
- 	old_nd->dentry = mnt->mnt_mountpoint;
-@@ -324,10 +339,9 @@
- 	struct super_block *sb = root->d_inode->i_sb;
- 	char *name;
- 
--	mnt = kmalloc(sizeof(struct vfsmount), GFP_KERNEL);
-+	mnt = alloc_vfsmnt();
- 	if (!mnt)
- 		goto out;
--	memset(mnt, 0, sizeof(struct vfsmount));
- 
- 	/* It may be NULL, but who cares? */
- 	if (dev_name) {
-@@ -337,8 +351,6 @@
- 			mnt->mnt_devname = name;
- 		}
- 	}
--	mnt->mnt_owner = current->uid;
--	atomic_set(&mnt->mnt_count,1);
- 	mnt->mnt_sb = sb;
- 
- 	spin_lock(&dcache_lock);
-@@ -351,10 +363,7 @@
- 	} else {
- 		mnt->mnt_mountpoint = mnt->mnt_root;
- 		mnt->mnt_parent = mnt;
--		INIT_LIST_HEAD(&mnt->mnt_child);
--		INIT_LIST_HEAD(&mnt->mnt_clash);
- 	}
--	INIT_LIST_HEAD(&mnt->mnt_mounts);
- 	list_add(&mnt->mnt_instances, &sb->s_mounts);
- 	if (nd || dev_name)
- 		list_add(&mnt->mnt_list, vfsmntlist.prev);
+When you open with O_SYNC, the data must go all the way to disk on
+every write call.  This means you get at least one disk access for
+every write, and possibly more if the writes are large (>64k).
+
+When you don't use O_SYNC and only flush after all writes have been
+submitted by the application, then the kernel is able to combine writes
+in the cache and at the blk dev layer.  Therefore you end up with fewer
+accesses to the physical disk, which makes it much faster.
+
+> On a Linux-Compaq Alpha I measured the following: if I open with O_SYNC,
+> I can flush the end of my file (it is a log file) to
+> disk 170 times / second. If I do not open with O_SYNC,
+> but call fsync or fdatasync after each write, I get only 50
+> writes/second.
+
+This is generally the case.  If you need to sync every write, O_SYNC
+is usually faster than fsync.  If you don't need to sync
+every individual write, then a single fsync after the last
+write is the fastest to get all the data to disk.
+
+> 
+> On the Red Hat 7.? I get 500 writes per second if I open with O_SYNC.
+> That is too much because the disk does not rotate
+> 500 rotations/second. Does the disk fool the operating
+> system to believe a write has ended while it has not?
+
+Are you using an IDE disk?  If so, it probably has a huge cache.
+
+-Lance
 

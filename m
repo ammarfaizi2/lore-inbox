@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbTINRVO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 13:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTINRVO
+	id S261206AbTINRRn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 13:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbTINRRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 13:21:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7400 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261216AbTINRVN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 13:21:13 -0400
-Message-ID: <3F64A37A.1040803@pobox.com>
-Date: Sun, 14 Sep 2003 13:20:58 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Justin Cormack <justin@street-vision.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-References: <1063484193.1781.48.camel@mulgrave> 	<20030913212723.GA21426@gtf.org> <1063538182.1510.78.camel@lotte.street-vision.com>
-In-Reply-To: <1063538182.1510.78.camel@lotte.street-vision.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Sep 2003 13:17:43 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:60138 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261206AbTINRRm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 13:17:42 -0400
+Date: Sun, 14 Sep 2003 19:17:41 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Mo McKinlay <lkml@ekto.ekol.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: logging when SIGSEGV is processed?
+Message-ID: <20030914171741.GA18627@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Mo McKinlay <lkml@ekto.ekol.co.uk>, linux-kernel@vger.kernel.org
+References: <20030914111408.GA14514@strawberry.blancmange.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030914111408.GA14514@strawberry.blancmange.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Cormack wrote:
-> LABEL= is so broken that I immediately remove it from all my redhat
-> systems. It is not unique at all. As soon as you plug another system
-> disk into your system at boot time all hell breaks loose.
+On Sun, Sep 14, 2003 at 12:14:08PM +0100, Mo McKinlay wrote:
 
-That's your fault as a sysadmin ;-)
+> Admittedly, it might need some shoehorning into some existing setups (i.e.,
+> where the daemon you wish to watch isn't started directly, but by something
+> else), but it wouldn't be too tricky, I'd've thought.
 
-> At least it
-> could have a random number in it or something.
+init receives that stuff if a process has no other parent, I think, so that
+might be a great place.
 
-You can use UUIDs today!  :)
-
-
-> If you need to know your bootdisk (why?) why not just get the bootloader
-> to tell you?
-
-The only time one cares what the boot disk is, is when _installing_ the 
-boot loader...
-
-	Jeff
-
-
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

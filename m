@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293101AbSBWF56>; Sat, 23 Feb 2002 00:57:58 -0500
+	id <S293104AbSBWGNm>; Sat, 23 Feb 2002 01:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293102AbSBWF5s>; Sat, 23 Feb 2002 00:57:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28945 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293101AbSBWF53>;
-	Sat, 23 Feb 2002 00:57:29 -0500
-Message-ID: <3C772EF4.DB49876F@zip.com.au>
-Date: Fri, 22 Feb 2002 21:56:04 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: hugang <gang_hu@soul.com.cn>
-CC: Justin Piszcz <war@starband.net>, linux-kernel@vger.kernel.org
-Subject: Re: gcc-2.95.3 vs gcc-3.0.4
-In-Reply-To: <3C771D29.942A07C2@starband.net>,
-		<3C771D29.942A07C2@starband.net> <20020223134053.4fbe25ed.gang_hu@soul.com.cn>
-Content-Type: text/plain; charset=us-ascii
+	id <S293107AbSBWGNd>; Sat, 23 Feb 2002 01:13:33 -0500
+Received: from zero.tech9.net ([209.61.188.187]:60424 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293104AbSBWGNU>;
+	Sat, 23 Feb 2002 01:13:20 -0500
+Subject: [PATCH] only irq-safe atomic ops
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@zip.com.au
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 23 Feb 2002 01:13:29 -0500
+Message-Id: <1014444810.1003.53.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hugang wrote:
-> 
-> On Fri, 22 Feb 2002 23:40:09 -0500
-> Justin Piszcz <war@starband.net> wrote:
-> 
-> ...
-> > GCC 2.95.3
-> ...
-> > System is 899 kB
-> ...
-> > GCC 3.0.4
-> ...
-> > System is 962 kB
-> ...
-> >
-> Why the system size is different. Possble your use differ config.
+The following patch implements i386 versions of atomic_inc and
+atomic_dec that are LOCK-less but provide IRQ-atomicity and act as a
+memory-barrier.
 
-Later versions of gcc produce larger executables, due to more aggressive
-alignment of code and data.  Most of this can be turned off, but the
-kernel build system isn't doing that.
+An applicable use would be data that needs to be IRQ-safe but not
+SMP-safe (or, more likely, is already SMP-safe for some other reason).
 
--
+Additionally, these variants could prevent having to use
+preempt_disable/enable or "full" atomic ops around per-CPU data with a
+preemptible kernel.
+
+The patch is against 2.5.5.  Enjoy,
+
+	Robert Love
+
+diff -urN linux-2.5.5/include/asm-i386/atomic.h linux/include/asm-i386/atomic.h
+--- linux-2.5.5/include/asm-i386/atomic.h	Tue Feb 19 21:10:58 2002
++++ linux/include/asm-i386/atomic.h	Fri Feb 22 22:42:02 2002
+@@ -111,6 +111,21 @@
+ }
+ 
+ /**
++ * atomic_inc_irq - increment atomic variable
++ * @v: pointer of type atomic_t
++ *
++ * This is an IRQ-safe and memory-barrier
++ * increment without lock
++ */
++static __inline__ void atomic_inc_irq(atomic_t *v)
++{
++	__asm__ __volatile__(
++		"incl %0"
++		:"=m" (v->counter)
++		:"m" (v->counter));
++}
++
++/**
+  * atomic_dec - decrement atomic variable
+  * @v: pointer of type atomic_t
+  * 
+@@ -124,6 +139,21 @@
+ 		:"=m" (v->counter)
+ 		:"m" (v->counter));
+ }
++
++/**
++ * atomic_dec_irq - decrement atomic variable
++ * @v: pointer of type atomic_t
++ *
++ * This is an IRQ-safe and memory-barrier
++ * decrement without lock
++ */
++static __inline__ void atomic_dec_irq(atomic_t *v)
++{
++	__asm__ __volatile__(
++		"decl %0"
++		:"=m" (v->counter)
++		:"m" (v->counter));
++}
+ 
+ /**
+  * atomic_dec_and_test - decrement and test
+
+

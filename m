@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287449AbSBGPyC>; Thu, 7 Feb 2002 10:54:02 -0500
+	id <S287607AbSBGQCO>; Thu, 7 Feb 2002 11:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287289AbSBGPxp>; Thu, 7 Feb 2002 10:53:45 -0500
-Received: from [195.141.66.36] ([195.141.66.36]:57816 "EHLO pink.pearsoft.ch")
-	by vger.kernel.org with ESMTP id <S287193AbSBGPxc>;
-	Thu, 7 Feb 2002 10:53:32 -0500
-Subject: Re: 2.4.17 freezes
-From: Robin Farine <robin.farine@acn-group.ch>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020207171332.D20396@mea-ext.zmailer.org>
-In-Reply-To: <1013089032.8112.6.camel@halftrack> 
-	<20020207171332.D20396@mea-ext.zmailer.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Feb 2002 16:53:12 +0100
-Message-Id: <1013097192.8112.8.camel@halftrack>
+	id <S287386AbSBGQCF>; Thu, 7 Feb 2002 11:02:05 -0500
+Received: from ns.suse.de ([213.95.15.193]:13066 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287289AbSBGQBz>;
+	Thu, 7 Feb 2002 11:01:55 -0500
+Date: Thu, 7 Feb 2002 17:01:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+Message-ID: <20020207170154.B15455@wotan.suse.de>
+In-Reply-To: <3C6192A5.911D5B4F@nortelnetworks.com.suse.lists.linux.kernel> <p73it9a9mvc.fsf@oldwotan.suse.de> <3C62A47C.3BA52818@nortelnetworks.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C62A47C.3BA52818@nortelnetworks.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-07 at 16:13, Matti Aarnio wrote:
+On Thu, Feb 07, 2002 at 10:59:56AM -0500, Chris Friesen wrote:
+> Okay, I must be missing something, so can you enlighten me?  I can't figure out
+> where the qdisc is attached to the ethernet device.
 
-[snip]
+net/core/dev.c:dev_open -> dev_activate. 
 
-> 
->   The freezing machines all have RAID-1 and fast CPUs and a lot
->   (500-1000 MB) memory ?  .. and are SMP ?
-> ... 
-
-No, basic hardware configurations (no RAID, no SMP):
-        *  450Mzh Pentium III (512KB L2 cache), 64MB SDRAM
-        *  450Mzh Pentium III (512KB L2 cache), 256MB SDRAM
-        *  650Mzh Pentium III (256KB L2 cache), 256MB SDRAM
-
-[snip]
-
-> /Matti Aarnio
-
-Robin
-
-
+-Andi

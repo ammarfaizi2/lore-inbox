@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313133AbSC1LRK>; Thu, 28 Mar 2002 06:17:10 -0500
+	id <S313132AbSC1LMU>; Thu, 28 Mar 2002 06:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313136AbSC1LRB>; Thu, 28 Mar 2002 06:17:01 -0500
-Received: from mail.gmx.net ([213.165.64.20]:43124 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S313133AbSC1LQv>;
-	Thu, 28 Mar 2002 06:16:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Sebastian Roth <xsebbi@gmx.de>
-Reply-To: xsebbi@gmx.de
-Message-Id: <200203281216.32590@xsebbi.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.7-dj2] Compile Error
-Date: Thu, 28 Mar 2002 12:17:43 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S313133AbSC1LMA>; Thu, 28 Mar 2002 06:12:00 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:41996 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S313132AbSC1LL5>; Thu, 28 Mar 2002 06:11:57 -0500
+Date: Thu, 28 Mar 2002 11:11:52 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
+In-Reply-To: <Pine.LNX.4.33.0203272354430.17217-100000@sphinx.mythic-beasts.com>
+Message-ID: <Pine.LNX.4.33.0203281057350.30187-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Thu, 28 Mar 2002, Matthew Kirkwood wrote:
 
-make bzImage says:
-make[1]: Entering directory `/usr/src/linux-2.5-dj/kernel'
-make all_targets
-make[2]: Entering directory `/usr/src/linux-2.5-dj/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux-2.5-dj/include -Wall 
--Wstrict-prototypes -Wno-
-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpref
-erred-stack-boundary=2 -march=i686 -malign-functions=4    
--DKBUILD_BASENAME=acct
-  -c -o acct.o acct.c
-acct.c:235: parse error before `do'
-acct.c:378: parse error before `do'
-acct.c:384: parse error before `&'
-acct.c:386: warning: type defaults to `int' in declaration of 
-`do_acct_process'
-acct.c:386: warning: parameter names (without types) in function 
-declaration
-acct.c:386: conflicting types for `do_acct_process'
-acct.c:297: previous declaration of `do_acct_process'
-acct.c:386: warning: data definition has no type or storage class
-acct.c:387: warning: type defaults to `int' in declaration of `fput'
-acct.c:387: warning: parameter names (without types) in function 
-declaration
-acct.c:387: conflicting types for `fput'
-/usr/src/linux-2.5-dj/include/linux/file.h:36: previous declaration of 
-`fput'
-acct.c:387: warning: data definition has no type or storage class
-acct.c:388: parse error before `}'
-make[2]: *** [acct.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5-dj/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5-dj/kernel'
-make: *** [_dir_kernel] Error 2
+> I'll try to find time to run these again tomorrow to convince
+> myself that all is sane, but these numbers are usually pretty
+> stable.
 
-just for information.
+Here's another run, with noatime on, and default postgres
+parameters.
 
-		Sebastian
+        tuning? single  ir      mx-ir   oltp    mixed-oltp
+                (sec)   (tps)   (sec)   (tps)   (sec)
+ext3     dn     1296.30 66.34   207.59  69.19   318.26
+ext3-wb  dn     1286.38 66.27   212.48  135.48  229.74
+ext3-jd  dn     1293.08 68.72   209.33  113.40  283.97
+
+Looks like I'll have to invest some time in tuning postgres
+a little better before the filesystem becomes more of a
+bottleneck.
+
+Matthew.
+

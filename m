@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131904AbQKQKyr>; Fri, 17 Nov 2000 05:54:47 -0500
+	id <S131933AbQKQKzI>; Fri, 17 Nov 2000 05:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131933AbQKQKy3>; Fri, 17 Nov 2000 05:54:29 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:46169 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131904AbQKQKyN>; Fri, 17 Nov 2000 05:54:13 -0500
-Date: Fri, 17 Nov 2000 10:24:11 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: John Cavan <johncavan@home.com>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (new for ppa and imm) Re: [PATCH] Re: Patch to fix lockup on ppa insert
-Message-ID: <20001117102411.S6735@redhat.com>
-In-Reply-To: <3A13D4BA.AD4A580B@home.com> <3A13D8D6.8C12E31A@home.com> <20001116162027.C597@suse.de> <3A149D00.9D38FA24@home.com>
+	id <S131946AbQKQKy7>; Fri, 17 Nov 2000 05:54:59 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:65276 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S131933AbQKQKyu>; Fri, 17 Nov 2000 05:54:50 -0500
+Date: Fri, 17 Nov 2000 12:24:33 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Jacob Luna Lundberg <jacob@velius.chaos2.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
+Message-ID: <20001117122433.I703@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.21.0011170905030.19287-100000@callisto.yi.org> <Pine.LNX.4.21.0011170026130.10109-100000@velius.chaos2.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="hEarWVD7htqb1VxP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A149D00.9D38FA24@home.com>; from johncavan@home.com on Thu, Nov 16, 2000 at 09:50:40PM -0500
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0011170026130.10109-100000@velius.chaos2.org>; from jacob@velius.chaos2.org on Fri, Nov 17, 2000 at 12:35:03AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 17, 2000 at 12:35:03AM -0800, Jacob Luna Lundberg wrote:
+> > atomic_dec_and_test() returns true.
+> 
+> Indeed, after studying the asm in question I think I see how it ticks.
+> What is the reasoning behind reversing the result of the test instead of
+> returning the new value of the counter?
 
---hEarWVD7htqb1VxP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The full name of this operation is: "Decrement the value given
+and test the result for equality with zero in one atomic operation".
 
-On Thu, Nov 16, 2000 at 09:50:40PM -0500, John Cavan wrote:
+So basically: 
 
-> [...] This patch unlocks, allows the lowlevel driver to do it's
-> probes, and then relocks. It could probably be more granular in the
-> parport_pc code, but my own home tests show it to be working fine.
+#define dec_and_test(i) ( (--i) ? 0 : 1)
 
-Is that safe?
+but atomically.
 
-Also, what bit of the parport code is tripping over the lock?
-Request_module or something?
+This is implemented in hardware for some archs and a required
+operation for proper and fast refcounting.
 
-A nicer fix would probably be to use parport_register_driver, but
-that's likely to be too big a change right now.
+Regards
 
-Tim.
-*/
-
---hEarWVD7htqb1VxP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6FQdKONXnILZ4yVIRAkW4AJwOQcf0NHM5QxP7WnuMnhUccMhybwCgnE9/
-Z6nvx1dOdzbfsPy91pgWwmk=
-=WSVc
------END PGP SIGNATURE-----
-
---hEarWVD7htqb1VxP--
+Ingo Oeser
+-- 
+To the systems programmer, users and applications
+serve only to provide a test load.
+<esc>:x
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269725AbUJGGfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269727AbUJGGxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269725AbUJGGfx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 02:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269726AbUJGGfx
+	id S269727AbUJGGxM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 02:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269728AbUJGGxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 02:35:53 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:44922
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S269725AbUJGGfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 02:35:50 -0400
-Message-Id: <s164f1d5.069@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
-Date: Thu, 07 Oct 2004 08:35:58 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Pavel Machek" <pavel@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [kernel] Fix random crashes in x86-64 swsusp
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 02:53:12 -0400
+Received: from relay.pair.com ([209.68.1.20]:18186 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S269727AbUJGGxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 02:53:07 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <4164DAC9.8080701@kegel.com>
+Date: Wed, 06 Oct 2004 22:57:29 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, de-de
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
+       bertrand marquis <bertrand.marquis@sysgo.com>
+Subject: Building on case-insensitive systems and systems where -shared doesn't
+ work well (was: Re: 2.6.8 link failure for sparc32 (vmlinux.lds.s: No such
+ file or directory)?)
+References: <414FC41B.7080102@kegel.com> <58517.194.237.142.24.1095763849.squirrel@194.237.142.24>
+In-Reply-To: <58517.194.237.142.24.1095763849.squirrel@194.237.142.24>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe not really a final version: The __init should remain there if
-suspend/resume isn't enabled in the configuration. I'd guess you want
-something for this paralleling the __cpuinit/__devinit/module_init stuff
-(if these occur very rarely, then doing this inline may of course also
-be an acceptable choice). Jan
+Sam Ravnborg wrote:
+> On Tue, Sep 21, 2004 at 10:40:24PM -0700, Dan Kegel wrote:
+>>     683    2328   27265 linux-2.6.8-build_on_case_insensitive_fs-1.patch
+>>      28     122    1028 linux-2.6.8-noshared-kconfig.patch
+> 
+> Can you please post these two patches.
+> The fist I hope is very small today.
 
->>> pavel@suse.cz 07.10.04 00:06:00 >>>
-Hi!
+OK, here they are, plus a third one that also seems neccessary:
 
-fix_processor_context was calling functions marked __init on x86-64;
-bad idea. Maybe we should memset freed memory to zero so such bugs are
-prevented?
+This one's by Martin Schaffner:
+http://www.kegel.com/crosstool/crosstool-0.28-rc37/patches/linux-2.6.8/linux-2.6.8-build_on_case_insensitive_fs.patch
 
-Thanks to Rafael for keeping notifying me about this bug, and someone
-get me yet another brown paper bag.
+This one's by Kevin Hilman.  I haven't tried it yet, but seems neccessary:
+http://www.kegel.com/crosstool/linux-2.6.8-netfilter-case-insensitive.patch
 
-Anyway, this should fix it, please apply,
-								Pavel
+Both of the above choose arbitrary ways to avoid using
+filenames identical but for case.  Feel free to pick
+some other way, there's nothing magic about the names we picked.
 
---- clean-suse/arch/x86_64/ia32/syscall32.c	2004-06-22
-12:36:00.000000000 +0200
-+++ linux-suse/arch/x86_64/ia32/syscall32.c	2004-10-06
-23:58:27.000000000 +0200
-@@ -76,7 +76,8 @@
- 	
- __initcall(init_syscall32); 
- 
--void __init syscall32_cpu_init(void)
-+/* May not be __init: called during resume */
-+void syscall32_cpu_init(void)
- {
- 	if (use_sysenter < 0)
-  		use_sysenter = (boot_cpu_data.x86_vendor ==
-X86_VENDOR_INTEL);
---- clean-suse/arch/x86_64/kernel/setup64.c	2004-10-05
-11:36:21.000000000 +0200
-+++ linux-suse/arch/x86_64/kernel/setup64.c	2004-10-06
-23:59:08.000000000 +0200
-@@ -195,7 +195,8 @@
- char boot_exception_stacks[N_EXCEPTION_STACKS * EXCEPTION_STKSZ] 
- __attribute__((section(".bss.page_aligned")));
- 
--void __init syscall_init(void)
-+/* May not be marked __init: used by software suspend */
-+void syscall_init(void)
- {
- 	/* 
- 	 * LSTAR and STAR live in a bit strange symbiosis.
+This one's after an idea by bertrand.marquis@sysgo.com,
+but it's small enough to be considered trivial.  Many OS's
+don't support shared libraries as easily as Linux does,
+and there's nothing to be gained by making libkconfig shared, so don't.
+http://www.kegel.com/crosstool/crosstool-0.28-rc37/patches/linux-2.6.8/linux-2.6.8-noshared-kconfig.patch
+
+Anything you can do to help get these patches
+reviewed and possibly applied would be quite welcome.
+- Dan
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTKNRIX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 12:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTKNRGJ
+	id S262787AbTKNRDP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 12:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbTKNRDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 12:06:09 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:8638 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262784AbTKNRFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 12:05:24 -0500
-Message-ID: <3FB50B4D.1000300@nortelnetworks.com>
-Date: Fri, 14 Nov 2003 12:05:17 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 14 Nov 2003 12:03:14 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:48651 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S264585AbTKNRBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 12:01:36 -0500
+Message-ID: <3FB50CA4.9080108@techsource.com>
+Date: Fri, 14 Nov 2003 12:11:00 -0500
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: why no Kconfig in "kernel" subdir?
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: "things are about right" kernel test?
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Having recently built a new PC for running Linux, one of the things I 
+wanted to do right away was test to make sure that everything was 
+performing as it should.  Periodically, someone will post to the list, 
+complaining about something or other being slow, and then another person 
+responds with a simple kernel parameter change to fix it.  Well...
 
-I was adding a new general syscall the other day, and it struck me as 
-odd that there is no Kconfig in the "kernel" subdirectory.
+What I want to know is if there is any tool that's been developed to 
+determine if various aspects of system performance are within tolerance. 
+  (say, I/O scheduler latency/throughput, process scheduler 
+latency/throughput, network, and unrelated things which can have 
+performance issues)
 
-A quick search shows 36 separate config options being used in that 
-subdirectory (stuff like PREEMPT, SMP, FUTEX, HOTPLUG, SYSCTL, etc). 
-Why is there no Kconfig for it?  As it stands, all of these have to be 
-copied and pasted in every single arch.  This seems odd.
+My system seems to be just fine, but honestly, I can't really be sure. 
+Despite the fact that it's on mirrored raid of two WD1200JB drives, it 
+doesn't SEEM (insert comment about flawed human perception) to boot much 
+faster than my last Linux box.  This is an example of something which I 
+would like to have objective analysis of.
 
-Would people be open to a series of patches that create a new Kconfig 
-and start moving generic stuff to it?  Or are these things really 
-arch-specific enough to warrent massive duplication?
+Obviously, one way to check this is to run a myriad of performance 
+benchmarks and then compare them to comparable systems, etc.  But this 
+is overkill for what I think really only requires a simple "quick and 
+dirty sanity check".
 
-Chris
+If this kind of tool doesn't exist, then I would be interested in taking 
+suggestions to get started on this.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Some Q&D tests that I think should be run might include:
+
+- Check disk perf by reading and writing a file larger than RAM.  We 
+sanity check this by comparing against results from other systems.
+
+- Check memory perf.  We should be able to test different kinds or 
+systems with different kinds of RAM and have the program check to see if 
+actual system performance is sane.
+
+- Don't know what to do about network performance without a special setup.
+
+
+I recall some people mentioning that if they have 1GiB of RAM, something 
+(I forget what) performs badly.  They set it to 900-some MiB, and then 
+things work better.  A test for that with built-in tips for solving the 
+problem might be helpful.
+
+In fact, there are numerous things which I have seen mentioned which 
+require tweaks and require simple suggestions to fix.
+
+
+In addition to being a sanity check, this program could act as sortof a 
+FAQ for people with common problems.  They run it, it finds the problem, 
+and then tells them what to do about it.  Furthermore, this can help 
+kernel developers with identifying problems with new systems (KT600, for 
+example).
+
+
+Right now, I'm going to go off and code up some simple stuff to 
+demonstrate that I'm serious about this.  :)
+
 

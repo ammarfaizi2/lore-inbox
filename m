@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272435AbTHIQj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 12:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272445AbTHIQj0
+	id S272416AbTHIQnj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 12:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272446AbTHIQnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 12:39:26 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:53434 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S272435AbTHIQjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 12:39:25 -0400
-Message-ID: <3F352855.1090103@genebrew.com>
-Date: Sat, 09 Aug 2003 12:59:01 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
+	Sat, 9 Aug 2003 12:43:39 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:6923 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S272416AbTHIQnd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 12:43:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: Jamie Lokier <jamie@shareable.org>, Wes Janzen <superchkn@sbcglobal.net>
+Subject: Re: FS Corruption with VIA MVP3 + UDMA/DMA
+Date: Sat, 9 Aug 2003 19:43:25 +0300
+X-Mailer: KMail [version 1.4]
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
+References: <16128.19218.139117.293393@charged.uio.no> <3F34E6D1.7030900@sbcglobal.net> <20030809162710.GC29647@mail.jlokier.co.uk>
+In-Reply-To: <20030809162710.GC29647@mail.jlokier.co.uk>
 MIME-Version: 1.0
-To: war <war@lucidpixels.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Multiple problems with 2.4.21?
-References: <Pine.LNX.4.56.0308081440160.5382@p500>
-In-Reply-To: <Pine.LNX.4.56.0308081440160.5382@p500>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308091943.25231.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-war wrote:
-> does or can the nvidia module cause other
-> processes to die etc?
+On Saturday 09 August 2003 19:27, Jamie Lokier wrote:
+> Wes Janzen wrote:
+> > I seemed to get a skeptical reaction when I originally posted this to
+> > the list, however, just google for "mvp3 corrupt dma mode" to confirm.
+>
+> The VP2/97 also had severe problems with DMA.  I could never run
+> standard kernels on mind in the 2.0 days, and distro installs would
+> always lock up during installation, although Mandrake 8 seemed
+> reliable so something improved.
 
-Yes. It's your X session that is crashing after all.
+I had a VIA VPX sometime ago. AFAIR it worked fine...
 
-> 0: NVRM: AGPGART: unable to retrieve symbol table
-
-And this message is repeated over and over in your logs. Unless you can 
-reproduce the problem without the nvidia module loaded, it is clear 
-where the problem lies.
-
--Rahul
--- 
-Rahul Karnik
-rahul@genebrew.com
-
+I suspect PCI conf tweaks etc could work around
+this trouble. I'm afraid there won't be much interest
+in fixing these oldies. For example, I got rid of that
+board (exchanged for Socket A one) -> no way to test fixes :(
+--
+vda

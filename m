@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283227AbRK2Nzm>; Thu, 29 Nov 2001 08:55:42 -0500
+	id <S283231AbRK2N7C>; Thu, 29 Nov 2001 08:59:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283229AbRK2Nzc>; Thu, 29 Nov 2001 08:55:32 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:15623 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S283227AbRK2NzX>; Thu, 29 Nov 2001 08:55:23 -0500
-Date: Thu, 29 Nov 2001 16:54:56 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Jens Axboe <axboe@suse.de>
+	id <S283230AbRK2N6n>; Thu, 29 Nov 2001 08:58:43 -0500
+Received: from ns.caldera.de ([212.34.180.1]:1923 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S283229AbRK2N6i>;
+	Thu, 29 Nov 2001 08:58:38 -0500
+Date: Thu, 29 Nov 2001 14:58:28 +0100
+Message-Id: <200111291358.fATDwSh32089@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: maftoul@esrf.fr (Samuel Maftoul)
 Cc: linux-kernel@vger.kernel.org
-Subject: new bio: compile fix for alpha
-Message-ID: <20011129165456.A13610@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: Re: rpm builder of kernel image
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20011129143411.A3221@pcmaftoul.esrf.fr>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Added BUG_ON macro, similar to x86 one;
-arg 2 for blk_queue_bounce_limit() declared `long long' in blkdev.h
-and `u64' in ll_rw_blk.c, which is not the same thing on alpha.
-There are several compiler warnings "long long format, long arg",
-caused by the same reason, but I think they could be ignored at this point.
+In article <20011129143411.A3221@pcmaftoul.esrf.fr> you wrote:
+> Hello everyone,
+> I'm searching for something on Rpm based distributions.
+> I'm usually using debian and whenever I recompile my kernel I use the
+> make-kpkg buildpackage in the /usr/src/linux directory to have a nice
+> debian pacakge with creates the lilo image (I'm using grub but whatever
+> :) ).
+> Is there such a tool for redhat based distribution or at least only for
+> the suse (7.2 or 7.3) ?
+> Thanks for any help.
 
-Ivan.
+You might want to take a look at make-krpm [1], currently I only have
+support for Caldera and a default target that might work or not work
+for others.  I accept patches..
 
---- 2.5.1p3/include/linux/blkdev.h	Wed Nov 28 16:35:34 2001
-+++ linux/include/linux/blkdev.h	Wed Nov 28 18:31:32 2001
-@@ -238,7 +238,7 @@ extern void blk_attempt_remerge(request_
- extern int blk_init_queue(request_queue_t *, request_fn_proc *, char *);
- extern void blk_cleanup_queue(request_queue_t *);
- extern void blk_queue_make_request(request_queue_t *, make_request_fn *);
--extern void blk_queue_bounce_limit(request_queue_t *, unsigned long long);
-+extern void blk_queue_bounce_limit(request_queue_t *, u64);
- extern void blk_queue_max_sectors(request_queue_t *q, unsigned short);
- extern void blk_queue_max_segments(request_queue_t *q, unsigned short);
- extern void blk_queue_max_segment_size(request_queue_t *q, unsigned int);
---- 2.5.1p3/include/asm-alpha/page.h	Wed Nov 28 16:34:32 2001
-+++ linux/include/asm-alpha/page.h	Wed Nov 28 18:30:31 2001
-@@ -64,7 +64,14 @@ do {										\
- 	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__);			\
- 	__asm__ __volatile__("call_pal %0  # bugchk" : : "i" (PAL_bugchk));	\
- } while (0)
-+
- #define PAGE_BUG(page)	BUG()
-+
-+#define BUG_ON(condition)			\
-+	do {					\
-+		if (unlikely((long)(condition)))\
-+			BUG();			\
-+	} while (0)
- 
- /* Pure 2^n version of get_order */
- extern __inline__ int get_order(unsigned long size)
+	Christoph
+
+[1] ftp://ftp.openlinux.org/pub/people/hch/make-krpm/
+-- 
+Whip me.  Beat me.  Make me maintain AIX.

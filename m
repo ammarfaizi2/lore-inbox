@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314485AbSECP5i>; Fri, 3 May 2002 11:57:38 -0400
+	id <S314491AbSECQAD>; Fri, 3 May 2002 12:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314486AbSECP5h>; Fri, 3 May 2002 11:57:37 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:32013 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S314485AbSECP5g>;
-	Fri, 3 May 2002 11:57:36 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: tomas szepe <kala@pinerecords.com>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 release 2.4
-In-Reply-To: Your message of "Fri, 03 May 2002 17:45:54 +0200."
-             <20020503154554.GB15883@louise.pinerecords.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 04 May 2002 01:57:26 +1000
-Message-ID: <15755.1020441446@ocs3.intra.ocs.com.au>
+	id <S314493AbSECQAC>; Fri, 3 May 2002 12:00:02 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:11793 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314491AbSECQAB>; Fri, 3 May 2002 12:00:01 -0400
+Message-ID: <3CD2A54E.2070404@evision-ventures.com>
+Date: Fri, 03 May 2002 16:57:18 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.5.13 IDE and preemptible kernel problems
+In-Reply-To: <20020503173859.A1016@averell>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 May 2002 17:45:54 +0200, 
-tomas szepe <kala@pinerecords.com> wrote:
->$ make -f Makefile-2.5 menuconfig
->[enable RAMDISK support, tweak ramdisk size, enable initrd]
->...
->
->Now, issuing "M installable" will result in nearly all files getting rebuilt.
->The same happens when switching ramdisk off again. How's that?
->
->I tried enabling/disabling many other config options and doing rebuilds but
->couldn't find anything as damaging buildtime-wise as the ramdisk stuff.
+Uz.ytkownik Andi Kleen napisa?:
+> Hi,
+> 
+> When booting an preemptible kernel 2.5.13 kernel on x86-64 I get 
+> very quickly an scheduling in interrupt BUG. It looks like the 
+> preempt_count becomes 0 inside the ATA interrupt handler. This 
+> could happen when save_flags/restore_flags and friends are unmatched
+> and you have too many flags restores in IDE. 
 
-CONFIG_BLK_DEV_INITRD is tested in include/linux/fs.h.  Because of the
-messy kernel include files, a config change to fs.h affects hundreds of
-other files and forces lots of rebuilds.  This is a separate problem
-from kbuild, other people are looking at cleaning up the include files.
+Thank you for pointing out. I will re check it.
 

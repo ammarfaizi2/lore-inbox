@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265077AbRGAKmV>; Sun, 1 Jul 2001 06:42:21 -0400
+	id <S265083AbRGALLp>; Sun, 1 Jul 2001 07:11:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265090AbRGAKmM>; Sun, 1 Jul 2001 06:42:12 -0400
-Received: from edu.joroinen.fi ([195.156.135.125]:55559 "HELO edu.joroinen.fi")
-	by vger.kernel.org with SMTP id <S265077AbRGAKmE> convert rfc822-to-8bit;
-	Sun, 1 Jul 2001 06:42:04 -0400
-Date: Sun, 1 Jul 2001 13:42:01 +0300 (EEST)
-From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-X-X-Sender: <pk@edu.joroinen.fi>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Broken tulip in 2.4.5+
-In-Reply-To: <20010630182110.A1144@opus.bloom.county>
-Message-ID: <Pine.LNX.4.33.0107011339100.24303-100000@edu.joroinen.fi>
+	id <S265086AbRGALLg>; Sun, 1 Jul 2001 07:11:36 -0400
+Received: from ABordeaux-102-1-1-204.abo.wanadoo.fr ([193.253.253.204]:9477
+	"EHLO rayanne.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265083AbRGALL0>; Sun, 1 Jul 2001 07:11:26 -0400
+Message-ID: <XFMail.20010701130635.petchema@concept-micro.com>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <3B3B8C47.D1363D6F@bigfoot.com>
+Date: Sun, 01 Jul 2001 13:06:35 +0200 (CEST)
+Reply-To: petchema@concept-micro.com
+Organization: Concept Micro
+From: Pierre Etchemaite <petchema@concept-micro.com>
+To: Tim Moore <timothymoore@bigfoot.com>
+Subject: Re: AMD thunderbird oops
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 30 Jun 2001, Tom Rini wrote:
+On 28-Jun-2001 Tim Moore wrote:
+>> (I wrote)
+>> Some ASUS boards (mostly P3B-F) would either freeze or self reboot
+>> when using PhotoShop 5. Everything else would run perfectly.
+>> 
+>> Disabling MMX optimizations in this software would "solve" the
+>> problem.  Another solution found on the web (sorry, I don't have
+>> the URL at hand) is to add two or three additionnal capacitors on
+>> the back of the board, to solve the electric instabilities that
+>> cause the reboots.
+> 
+> This is incorrect information.  Abit BP6 early revs suffered under load
+> from a 100uF cap (EC10, between the CPU sockets) that should have been
+> 1500uF.  This was compounded by a weak or otherwise inadequate power
+> supply.
+> 
+> Having run literally 7 P3F-Fs and 6 of their P2B-F predecessors, not a
+> single one had any problems.  They were the premiere overclocking boards
+> of their day.
 
-> Hello.  The current tulip driver in 2.4.5 and up no longer works with my
-> 'tulip' ethernet card.  0.9.14 (what's in prior to 2.4.5-pre6, iirc) works
-> fine with the card, as does de4x5.  Version 0.9.15-pre5 (2.4.6-pre8) and
-> 1.1.8 (from sourceforge) both don't work.
->
+Don't get me wrong, I like ASUS boards, and BX chipset boards were a
+very safe choice at the time, that's why this problem was very
+disturbing when I experienced it on 2 or 3 boards (out of more than 100,
+but I guess many never ran Photoshop since then).
 
-I am seeing the same problem.
-I had to plug my tulip to 10Mbps HUB yesterday, and it couldn't autosense
-(options=0) 10Mbps Halfduplex! It tried to use 100Mbps or something..
+I digged my archives.
 
-Also, If I try to create 100Mbps Fullduplex connection with cross-cable
-between two tulip-cards (2.2.19 on the other end, and 2.4.5 on the other
-end) it doesn't work either.
+Adobe Knowledgebase article about the problem
+(http://www.adobe.com/support/techdocs/2256a.htm) mentions spontaneous
+reboots with Dell Optiplex GX1, ASUS P2B-F and ASUS P3B-F.
 
+I could not find anything about the problem on ASUS websites at the
+time.
 
-- Pasi Kärkkäinen
+(unofficial) P2B-(L)S fixing is documented here:
+http://www.turbotech.ch/articles2000/000815-p2bls_rework-01.html
 
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+(unofficial) CUBX fixing (some of those are also affected):
+http://members.ams.chello.nl/mgherard/html/photoshop.html
 
+Best regards,
+Pierre.

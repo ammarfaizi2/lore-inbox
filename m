@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316753AbSHOLHm>; Thu, 15 Aug 2002 07:07:42 -0400
+	id <S316757AbSHOLGy>; Thu, 15 Aug 2002 07:06:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316768AbSHOLHm>; Thu, 15 Aug 2002 07:07:42 -0400
-Received: from mail-fe71.tele2.ee ([212.107.32.235]:61893 "HELO everyday.com")
-	by vger.kernel.org with SMTP id <S316753AbSHOLHl> convert rfc822-to-8bit;
-	Thu, 15 Aug 2002 07:07:41 -0400
-Date: Thu, 15 Aug 2002 13:11:33 +0200
-Message-Id: <200208151111.NAA01608@eday-fe3.tele2.ee>
-From: "Thomas Munck Steenholdt" <tmus@get2net.dk>
-Cc: linux-kernel@vger.kernel.org
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: promise ultra 133 tx2 lets system standby during use...?
-MIME-Version: 1.0
-X-EdMessageId: 004d170a1b544f505c4b5553571c5a415e135e1f5d515b5c14114c54525962565d74
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S316753AbSHOLGx>; Thu, 15 Aug 2002 07:06:53 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26619 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316757AbSHOLGx>; Thu, 15 Aug 2002 07:06:53 -0400
+Subject: Re: [NFS] Re: Will NFSv4 be accepted?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: marius@citi.umich.edu
+Cc: Brian Pawlowski <beepy@netapp.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, dax@gurulabs.com,
+       Linus Torvalds <torvalds@transmeta.com>, kmsmith@umich.edu,
+       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+In-Reply-To: <20020815061848.GA9122@umich.edu>
+References: <200208142234.g7EMYvQ21700@tooting-fe.eng>
+	<1029373829.28240.16.camel@irongate.swansea.linux.org.uk> 
+	<20020815061848.GA9122@umich.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 15 Aug 2002 12:08:27 +0100
+Message-Id: <1029409707.29812.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 2002-08-15 at 11:21, Thomas Munck Steenholdt wrote:
-> > I've been having a lot of problems with my Ultra 133 TX2 controller,
-> > that if I boot my system a just doesn't touch it for a while, the
-> system
-> > suspends to complete standby, even though the ext3 data is committed
-> > every 5 secs. causing disk activity and thus should disallow standby
-> > behaviour (at least that's the way it works on my onboard controller).
+On Thu, 2002-08-15 at 07:18, marius aamodt eriksen wrote:
+
+> > ACL works in NFSv2 and nicely in NFSv3 - again the problems Linux has
+> > are the client failing to respect basic NFS rules of operation.
 > 
-> Lots of BIOSes are not bright enough to monitor a second IDE controller.
-> You should be able to frob in the APM/ACPI bios and add its IRQ line to
-> the monitor list
+> there is no over-the-wire specification for sending or receving ACLs
+> on NFSv{2,3} - hence the server may choose to obey them, but an
+> arbitrary client cannot set them, or view them.
 
-That would be in the BIOS right (or could it be done from linux) ?
-
-Like i mentioned, my system is an IBM, which means tailored for users, 
-which means that it(this particular system) won't let me add IRQ's to
-monitor, at least not from within the BIOS setup.
-I can select to monitor "Hard Disks" "Serial Ports" that kind
-of granularity... But at least, what you are telling me, suggests to me
-that actually this is probably a problem in my BIOS rather than the kernel.
-
-Would apm=off bypass this kind of thing?
-
-
--- Send gratis SMS og brug gratis e-mail på Everyday.com -- 
+If you are trying to argue that NFSv4 handles ACL's better you are
+preaching to the choir
 

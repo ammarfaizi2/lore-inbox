@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136421AbRAIAAB>; Mon, 8 Jan 2001 19:00:01 -0500
+	id <S136438AbRAIAAL>; Mon, 8 Jan 2001 19:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136426AbRAHX7w>; Mon, 8 Jan 2001 18:59:52 -0500
-Received: from anime.net ([63.172.78.150]:5134 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S136438AbRAHX7h>;
-	Mon, 8 Jan 2001 18:59:37 -0500
-Date: Mon, 8 Jan 2001 16:00:45 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Joseph Wang <joe@gnacademy.tzo.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: HomePNA 2.0 flamage
+	id <S136426AbRAIAAB>; Mon, 8 Jan 2001 19:00:01 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:49142 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S136438AbRAHX7x>; Mon, 8 Jan 2001 18:59:53 -0500
+Date: Mon, 8 Jan 2001 17:59:52 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
 In-Reply-To: <E14Fm7H-0005e6-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0101081600050.21110-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.30.0101081724340.10568-100000@confucius.gnacademy.org> 
+	from "Joseph Wang" at Jan 08, 2001 05:35:10 PM
+Subject: Re: HomePNA 2.0 flamage
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-Id: <20010108235956Z136438-400+2083@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Alan Cox wrote:
+** Reply to message from Alan Cox <alan@lxorguk.ukuu.org.uk> on Mon, 8 Jan 2001
+23:54:16 +0000 (GMT)
+
+
 > I suspect homepna is dead to be honest.
 
-Apparently its competing rather well with DSL for MDU deployments (eg
-hotels, apartment complexes)
+I'm not so sure.  My father-in-law just purchased a Gateway system with a
+HomePNA device.  It was the only networking device the computer came with.
 
--Dan
+It certainly would be a great addition to Linux (and other OS's).
 
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

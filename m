@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280796AbRKBS4R>; Fri, 2 Nov 2001 13:56:17 -0500
+	id <S280800AbRKBTEQ>; Fri, 2 Nov 2001 14:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280793AbRKBSyd>; Fri, 2 Nov 2001 13:54:33 -0500
-Received: from mail311.mail.bellsouth.net ([205.152.58.171]:43080 "EHLO
-	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280788AbRKBSwj>; Fri, 2 Nov 2001 13:52:39 -0500
-Message-ID: <3BE2EB6F.CB4FAF27@mandrakesoft.com>
-Date: Fri, 02 Nov 2001 13:52:31 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
+	id <S280797AbRKBTDL>; Fri, 2 Nov 2001 14:03:11 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:31499 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S280795AbRKBTCA>;
+	Fri, 2 Nov 2001 14:02:00 -0500
+Message-ID: <3BE2EBF4.52E3F906@osdl.org>
+Date: Fri, 02 Nov 2001 10:54:44 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: Keith Owens <kaos@ocs.com.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Oops on 2.4.13
-In-Reply-To: <80D353813B1@vcnet.vc.cvut.cz>
+To: Kirill Ratkin <kratkin@egartech.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA->USB
+In-Reply-To: <3BE29AC3.DEB4B31A@egartech.com> <3BE2CC18.976C2A9B@osdl.org> <3BE2D20C.3F7E7817@egartech.com> <3BE2D2F9.B9058C81@osdl.org> <3BE2DBA9.847AA3C0@egartech.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
+Kirill Ratkin wrote:
 > 
-> On  2 Nov 01 at 13:02, Keith Owens wrote:
+> "Randy.Dunlap" wrote:
+> >
+> > Kirill Ratkin wrote:
+> > >
+> > > "Randy.Dunlap" wrote:
+> > > >
+> > > > The usb-ohci driver has been known to work with PCMCIA/USB OHCI
+> > > > cards.
+> >
+> > Do you mean that you are working on a PCMCIA (CardBus I hope ?)
+> > to USB card and want to know if it will work with Linux?
+> >
+> > Is it OHCI- or UHCI- or ECHI-based (USB controller)?
 > 
-> > drivers/video/matrox/matroxfb_crtc2.o - no license, needs patch
-> > drivers/video/matrox/matroxfb_g450.o - no license, needs patch
-> > drivers/video/matrox/matroxfb_maven.o - no license, needs patch
-> > drivers/video/matrox/matroxfb_misc.o - no license, needs patch
+> I have device (see description below) and I started to find
+> documentation for it now (I'd like to write driver of it for education
+> goals). And I ask because may be somebody wrote it already and there
+> isn't necessary to write same one.
 > 
-> They are all GPL-ed. Does it mean that I have to fix that someone
-> else changed kernel API during stable serie?
+> --->>>---
+> ? For PC, Notebook and MAC Powerbook ? Adds two USB ports into your
+> notebook
+> computer for instant multiple USB device connections ? Built in driver
+> support from Apple and
+> Microsoft PC : Windows 98 , Windows 98 SE, Windows ME, Windows 2000 Mac
+> : OS 8.6 or
+> later ? Compliant with USB Specification, Version 1.1 ? Compliant with
+> OpenHCI
+> Specification, Revision 1.0a ? Chip set: Opti chip ? Regulatory
+> approval(s): FCC Class B & CE
+> ? Version: v1.0
+> ---<<<---
 
-yes, they need MODULE_LICENSE
+That's an OHCI ("OpenHCI" above) controller.
+The usb-ohci driver works with that chip.
+You don't need to write another one.
 
-
-> P.S.: I still do not understand this MODULE_LICENSE() thing. VMware
-> modules will probably contain GPL tag in next release, but kernel
-> hackers refuse to look at these reports anyway (I'm not complaining,
-> this is their right to ignore these reports; but if they say that they
-> are doing that due to non-GPL, they lie). So I think it should be changed
-> from MODULE_LICENSE() to
-> MODULE_CERTIFIED_BY_LINUX_KERNEL_WORKING_GROUP("xxx says it works").
-> It would match real meaning much better.
-
-Are VMware kernel modules 100% open source?  If yes, then that is
-appropriate.
-
-If VMware kernel modules use ANY closed source libraries (foo.a) etc.,
-then putting MODULE_LICENSE("GPL") on that source is wrong.
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+~Randy

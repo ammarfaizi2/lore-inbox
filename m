@@ -1,87 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130531AbQKITrp>; Thu, 9 Nov 2000 14:47:45 -0500
+	id <S130993AbQKITtP>; Thu, 9 Nov 2000 14:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130634AbQKITre>; Thu, 9 Nov 2000 14:47:34 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:11957 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S130531AbQKITr1>;
-	Thu, 9 Nov 2000 14:47:27 -0500
-Date: Thu, 9 Nov 2000 21:50:45 +0000
-From: Ingo Rohloff <lundril@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with NFS in 2.4test10
-Message-ID: <20001109215045.A591@flashline.chipnet>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S130754AbQKITtF>; Thu, 9 Nov 2000 14:49:05 -0500
+Received: from 34-ZARA-X26.libre.retevision.es ([62.82.241.34]:32004 "EHLO
+	head.redvip.net") by vger.kernel.org with ESMTP id <S130634AbQKITs7>;
+	Thu, 9 Nov 2000 14:48:59 -0500
+Message-ID: <3A0ABEA2.5DBD89EE@zaralinux.com>
+Date: Thu, 09 Nov 2000 16:11:30 +0100
+From: Jorge Nerin <comandante@zaralinux.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-t11-p1-8390 i586)
+X-Accept-Language: es-ES, es, en
+MIME-Version: 1.0
+To: Paul Gortmaker <p_gortmaker@yahoo.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux SMP Mailing List <linux-smp@vger.kernel.org>
+Subject: Re: ping -f kills ne2k (was:[patch] NE2000)
+In-Reply-To: <E13pz9c-0006Jh-00@the-village.bc.nu> <39FD5433.587FF7C6@zaralinux.com> <39FFE612.2688A5AD@yahoo.com> <3A02F9AA.AFB2DB1B@zaralinux.com> <3A065867.6902473D@yahoo.com> <3A070FD4.7F650A87@zaralinux.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jorge Nerin wrote:
+> 
+> Paul Gortmaker wrote:
+> >
+> > >
+> > > Well, I have tried it with 2.4.0-test10, both SMP and non-SMP, and the
+> > > result is a little confusing.
+> > >
+> > > Under SMP a ping -s 50000 -f other_host takes down the network access
+> > > with no messages (ne2k-pci), and no possibility of being restored
+> > > without a reboot.
+> > >
+> > > Under UP the same command works ok, but after a while the dots stop for
+> > > 30sec, then ping prints an 'E' and the dots continue. strace revealed
+> > > this:
+> >
+> > Another suggestion - if you have your heart set on using ping
+> > as your network stress tool, you may want to try using multiple
+> > instances of MTU sized pings versus  a single "ping -s 50000".
+> > In this way you aren't involving any IP frag code and its associated
+> > bean counting - giving us one less factor to consider.
+> >
+> > Oh, and since you get a silent failure, maybe you would be interested
+> > in testing this patch I was (originally) saving for 2.5.x. -- It adds
+> > watchdog transmit timeout functionality to 8390.c (which is used by
+> > the ne2k-pci driver).  Last time I updated it was a couple of months
+> > ago, but nothing has changed since then.
+> >
+> > Paul.
+> >
+> 
+> Tested with ping -f -s 1400 (1400 in order not to reach 1500)
+> It took about half an hour and more than one million packets, but I
+> finally took the net down, with 12 concurrent pings.
+> 
+> To eliminate factors I have deleted all the NAT rules wich gave messages
+> about dropped packets, and unloaded all the iptables modules.
+> 
+> I have to make the test without the test check in sock_wait_for_wmem:
+>         if ((current->state & (TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE))
+> == 0)
+>                 BUG();
+> 
+> Because as I said in a previous msg it gave me BUG()s very early in the
+> tests, and I still had network access.
+> 
+> If someone has a better sugestion as a nic stress tool I can try it, but
+> now I only have two ways of reaching this limits, ping -f of big
+> packets, and sometimes (only 4 or 5) during a copy of a large file over
+> NFS, but it's not a easy way to cause this.
+> 
+> --
+> Jorge Nerin
+> <comandante@zaralinux.com>
 
-First a description of my machine:
-I use a Dual Celeron System with glibc-2.1.3 and
-linux-2.4test10 . 
-For information on peripherial devices I give the output of /proc/pci
+Well, now it's kernel 2.4.0-test11-pre1 + 8390nmi, and the same
+conditions, about 8 pings concurrent, and this time it took only 202k
+packets to take the ne2k-pci down, but this time the watchdog says:
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 2).
-      Master Capable.  Latency=64.  
-      Prefetchable 32 bit memory at 0xe0000000 [0xe3ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 2).
-      Master Capable.  Latency=64.  Min Gnt=128.
-  Bus  0, device   7, function  0:
-    ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 2).
-  Bus  0, device   7, function  1:
-    IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 1).
-      Master Capable.  Latency=64.  
-      I/O at 0xf000 [0xf00f].
-  Bus  0, device   7, function  2:
-    USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 1).
-      IRQ 19.
-      Master Capable.  Latency=64.  
-      I/O at 0xe000 [0xe01f].
-  Bus  0, device   7, function  3:
-    Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 2).
-  Bus  0, device   8, function  0:
-    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS) (rev 0).
-      IRQ 16.
-      I/O at 0xe400 [0xe41f].
-  Bus  0, device  11, function  0:
-    VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+] (rev 0).
-      Non-prefetchable 32 bit memory at 0xe5000000 [0xe57fffff].
+Nov  9 16:00:52 quartz kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Nov  9 16:00:52 quartz kernel: eth0: Tx timed out, lost interrupt?
+TSR=0x3, ISR=0x3, t=1792.
+Nov  9 16:00:54 quartz kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Nov  9 16:00:54 quartz kernel: eth0: Tx timed out, lost interrupt?
+TSR=0x3, ISR=0x3, t=117.
+Nov  9 16:00:56 quartz kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Nov  9 16:00:56 quartz kernel: eth0: Tx timed out, lost interrupt?
+TSR=0x3, ISR=0x3, t=117.
+Nov  9 16:00:58 quartz kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Nov  9 16:00:58 quartz kernel: eth0: Tx timed out, lost interrupt?
+TSR=0x3, ISR=0x3, t=117.
+Nov  9 16:01:00 quartz kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Nov  9 16:01:00 quartz kernel: eth0: Tx timed out, lost interrupt?
+TSR=0x3, ISR=0x3, t=117.
+Nov  9 16:01:02 quartz kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Nov  9 16:01:02 quartz kernel: eth0: Tx timed out, lost interrupt?
+TSR=0x3, ISR=0x3, t=117.
 
+And never comes alive again.
 
-I have another computer (a K6) which is used as NFS server
-(running Universal NFS Server 2.2beta41 under glibc-2.0.7 and
- linux-2.2.16 )
-
-I try to Encode WAV files to MP3s, which are both hosted
-on the K6. The files are located on a ReiserFS partition,
-which is mounted via NFS from the Dual Celeron.
-
-My Dual Celeron locks up regularily during this operation.
-The encoding process simply stops and the whole computer
-locks up. (No pinging possible).
-
-I first suspected that it had something to do with 
-the Kernel NFS _Server_ which I use on the Dual Celeron,
-but since in this case the Dual Celeron acts as client,
-this shouldn't be the reason right ?
-
-Any Ideas how to track down this problem (like putting
-some printk's in strategically important locations ?)
-
-so long
-  Ingo
-
-PS: I might be a hardware problem, since dual Celerons
-    should be impossible... But i do a lot of compiling
-    on this machine and it never locked up, or threw errors
-    during compiling. So I suspect it isn't the hardware.
+-- 
+Jorge Nerin
+<comandante@zaralinux.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

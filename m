@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129337AbQKGHy3>; Tue, 7 Nov 2000 02:54:29 -0500
+	id <S129253AbQKGH7a>; Tue, 7 Nov 2000 02:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129615AbQKGHyT>; Tue, 7 Nov 2000 02:54:19 -0500
-Received: from shell.webmaster.com ([209.133.28.73]:15324 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S129337AbQKGHyM>; Tue, 7 Nov 2000 02:54:12 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "RAJESH BALAN" <atmproj@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: malloc(1/0) ??
-Date: Mon, 6 Nov 2000 23:54:11 -0800
-Message-ID: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20001107035905.18154.qmail@web3707.mail.yahoo.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S129538AbQKGH7T>; Tue, 7 Nov 2000 02:59:19 -0500
+Received: from atlantis.hlfl.org ([213.41.91.231]:9476 "HELO atlantis.hlfl.org")
+	by vger.kernel.org with SMTP id <S129352AbQKGH7M>;
+	Tue, 7 Nov 2000 02:59:12 -0500
+Date: Tue, 7 Nov 2000 08:59:11 +0100
+From: "Arnaud S . Launay" <asl@launay.org>
+To: Andries Brouwer <aeb@veritas.com>
+Cc: aprasad@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: processes> 2^15
+Message-ID: <20001107085911.A2546@profile4u.com>
+Mail-Followup-To: Andries Brouwer <aeb@veritas.com>, aprasad@in.ibm.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <CA25698D.00608C13.00@d73mta05.au.ibm.com> <20001104210158.A13496@veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001104210158.A13496@veritas.com>; from aeb@veritas.com on Sat, Nov 04, 2000 at 09:01:58PM +0100
+X-PGP-Key: http://launay.org/pgpkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hi,
-> why does this program works. when executed, it doesnt
-> give a segmentation fault. when the program requests
-> memory, is a standard chunk is allocated irrespective
-> of the what the user specifies. please explain.
->
-> main()
-> {
->    char *s;
->    s = (char*)malloc(0);
->    strcpy(s,"fffff");
->    printf("%s\n",s);
-> }
->
-> NOTE:
->   i know its a 'C' problem. but i wanted to know how
-> this works
+Le Sat, Nov 04, 2000 at 09:01:58PM +0100, Andries Brouwer a écrit:
+> > after reaching process count something around 30568, processes start
+> > getting pid from start, which ever is the first free entry slot in process
+> > table. that means we can't have simultaneously more than roughly 2^15
+> > processes?
+> > am i correct?
+> 
+> Yes.
+> (If that displeases you I can give you the trivial patch.
+> However, you really need some awesome machine before it
+> becomes reasonable to run that many processes.)
 
-	The program does not work. A program works if it does what it's supposed to
-do. If you want to argue that this program is supposed to print "ffffff"
-then explain to me why the 'malloc' contains a zero in parenthesis.
+In the fact, the first limit to be reached will be NR_TASKS defined in
+linux/tasks.h:
+#define NR_TASKS        512     /* On x86 Max 4092, or 4090 w/APM configured. */
 
-	The program can't possibly work because it invokes undefined behavior. It
-is impossible to determine what a program that invokes undefined behavior is
-'supposed to do'.
+So I wonder if we could really have more than 4092 process under x86 ?
 
-	DS
-
+	Arnaud.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUEYK1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264843AbUEYKgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUEYK1o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 06:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEYK1o
+	id S264843AbUEYKgR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 06:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEYKgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 06:27:44 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:60816 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S264833AbUEYK1m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 06:27:42 -0400
-Date: Tue, 25 May 2004 12:26:59 +0200
-From: Malte =?ISO-8859-1?B?U2NocvZkZXI=?= <MalteSch@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@muc.de>
-Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
-Message-Id: <20040525122659.395783f4@highlander.Home.LAN>
-In-Reply-To: <m3r7t9d3li.fsf@averell.firstfloor.org>
-References: <1ZqbC-5Gl-13@gated-at.bofh.it>
-	<m3r7t9d3li.fsf@averell.firstfloor.org>
-Reply-To: MalteSch@gmx.de
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 25 May 2004 06:36:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46208 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264843AbUEYKgP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 06:36:15 -0400
+Date: Tue, 25 May 2004 14:25:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Help understanding slow down
+Message-ID: <20040525122539.GA7673@elte.hu>
+References: <20040524062754.GO1833@holomorphy.com> <20040524063959.5107.qmail@web90007.mail.scd.yahoo.com> <20040524005331.71465614.akpm@osdl.org> <20040525103238.GA4212@elte.hu> <20040525022941.62ab4cc4.akpm@osdl.org> <20040525114258.GA6674@elte.hu> <20040525025826.6c31c71f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040525025826.6c31c71f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-New information :)
-I didn't profile it yet but I think I found what caused the problem.
-It turned out that I have to disable alsa mmap-support in xine (mplayer wor=
-ked w/o problems, it does not offer alsa mmap), so X is not involved at all=
-. Do you still need a profile or is this a known thing?
-Ah, before I forget, my userspace is 32bit-only, I have a 64-bit chroot I w=
-anted to do some testing with.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Greets
---=20
----------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
----------------------------------------
+> > it makes it a bit more plausible, but kernel profiling based on ticks in
+> > a HT environment is still quite unreliable, even with idle=poll. The HT
+> > cores will yield to each other on various occasions - like spinlock
+> > loops. This disproportionatly increases the hits of various looping
+> > functions, creating false impressions of lock contention where there's
+> > only little contention. Plus idle=poll is a constant ~20% performance
+> > drain on the non-idle HT core, further distorting the profile. HT makes
+> > profiling really hard, no matter what.
+> 
+> But often one is looking for relativities rather than real absolute
+> numbers.  (In which case the absent idle time doesn't matter, but it
+> freaks me out...)
 
+but it's the relativities that get skewed by HT, fundamentally - both
+with and without idle=poll. A function that does not generate alot of
+HT-yield activity will fare much less on the profiler histogram than a
+function that happens to hit some contention point every now and then.
+Also, cachemisses get far more prominent due to HT (they are a yield
+point too) - suppressing other, possibly more important functions in the
+list. So a kernel profile done under HT gives a rough idea but a
+function could easily have half the overhead that the profiler credits
+it to have. Profiling under HT magnifies the effect of lock-contention
+and cache-misses, and shrinks the effect of algorithmic overhead. Plus
+this skewing is not deterministic, it depends on the actual system
+activity.
 
---Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf
-Content-Type: application/pgp-signature
+unfortunately i see no good way to do reliable time-based profiling
+under HT, given the interaction of logical CPUs. The virtual CPUs break
+the single-EIP notion of 'what is this physical CPU doing now'. Perhaps
+it would be more reliable to not use time but use some of the other
+triggers: e.g. # of uops retired?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAsx924q3E2oMjYtURAoojAKCf/UsclBrNXP9tXPtMDI4xizqilACfeWy2
-u5jsJnugpkv6Zi7m4UT8p5c=
-=IqUh
------END PGP SIGNATURE-----
-
---Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf--
+	Ingo

@@ -1,37 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266235AbUFPKpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUFPKwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266235AbUFPKpI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 06:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUFPKpI
+	id S266236AbUFPKwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 06:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUFPKwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 06:45:08 -0400
-Received: from mta-fs-be-03.sunrise.ch ([194.158.229.17]:50922 "EHLO
-	mail-fs.sunrise.ch") by vger.kernel.org with ESMTP id S266235AbUFPKpF
+	Wed, 16 Jun 2004 06:52:09 -0400
+Received: from mimesweeper.alpha.gr ([193.193.184.66]:34053 "EHLO
+	mailrelay.alpha.gr") by vger.kernel.org with ESMTP id S266236AbUFPKwI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 06:45:05 -0400
-From: Antille Julien <julien.antille@eivd.ch>
+	Wed, 16 Jun 2004 06:52:08 -0400
+From: MAILsweeper@alpha.gr
 To: linux-kernel@vger.kernel.org
-Subject: kacpid takes 99% of CPU when laptop lid is closed
-Date: Wed, 16 Jun 2004 12:44:54 +0200
-User-Agent: KMail/1.6.2
+Date: Wed, 16 Jun 2004 13:52:17 +0300 (EEDT)
+Subject: Message with subject "Re: Request" from linux-kernel@vger.kernel.org
+    has been blocked
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406161244.55502.julien.antille@eivd.ch>
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <S266236AbUFPKwI/20040616105208Z+497@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can confirm that the ACPI bug I described 
-here :http://marc.theaimsgroup.com/?l=linux-kernel&m=108452002205471&w=2
-is still present in the recent 2.6.7 kernel.
+A mail message with subject "Re: Request" has been found containing a virus.
 
-However, the process taking all the CPU is kacpid now (was keventd in previous 
-kernels)
+The message was sent from linux-kernel@vger.kernel.org to the following:
+davgeropoulos@alpha.gr
 
-I hope that helps.
-
-Please add me to CC.
-
-Julien Antille

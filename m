@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261165AbTCFXA1>; Thu, 6 Mar 2003 18:00:27 -0500
+	id <S268496AbTCFW70>; Thu, 6 Mar 2003 17:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261177AbTCFXA1>; Thu, 6 Mar 2003 18:00:27 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:12292 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261165AbTCFXAX>;
-	Thu, 6 Mar 2003 18:00:23 -0500
-Date: Thu, 6 Mar 2003 22:26:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reserving physical memory at boot time
-Message-ID: <20030306212607.GA173@elf.ucw.cz>
-References: <Pine.LNX.3.95.1021204115837.29419B-100000@chaos.analogic.com> <Pine.LNX.4.33L2.0212040905230.8842-100000@dragon.pdx.osdl.net> <b442s0$pau$1@cesium.transmeta.com> <32981.4.64.238.61.1046844111.squirrel@www.osdl.org> <b453mj$qpi$1@cesium.transmeta.com>
+	id <S268511AbTCFW7Z>; Thu, 6 Mar 2003 17:59:25 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39080
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268496AbTCFW7W>; Thu, 6 Mar 2003 17:59:22 -0500
+Subject: Re: Make ipconfig.c work as a loadable module.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Robin Holt <holt@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <20030306222546.K838@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com>
+	 <1046990052.18158.121.camel@irongate.swansea.linux.org.uk>
+	 <20030306221136.GB26732@gtf.org>
+	 <20030306222546.K838@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046996037.18158.142.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b453mj$qpi$1@cesium.transmeta.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 07 Mar 2003 00:13:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > OK, with feeling:
+On Thu, 2003-03-06 at 22:25, Russell King wrote:
+> > > The right fix is to delete ipconfig.c, it has been the right fix for a long
+> > > long time. There are initrd based bootp/dhcp setups that can also then mount
+> > > a root NFS partition and they do *not* need any kernel helper.
 > > 
-> > I agree with you since the boot protocol is well-defined.
+> > The klibc tarball on kernel.org also has ipconfig-type code, waiting for
+> > initramfs early userspace :)
 > > 
-> > Just to be clear, my comment was referring to
-> > Documentation/kernel-parameters.txt, not to any C code.
-> > 
-> > And it would really be helpful to catch issues like this soon
-> > after they happen...
-> > 
+> > Many have wanted to delete ipconfig.c for a while now...
 > 
-> Unfortunately last time I commented on this the response was roughly
-> "well, the patch already made it into Linus' kernel, it's too late to
-> fix it now."  That isn't exactly a very helpful response.
-> 
-> The mem= parameter has the semantic in the i386/PC boot protocol that
-> it specifies the top address of the usable memory region that begins
-> at 0x100000.  It's a bit of a wart that the boot loaders have to be
-> aware of this, but it's so and it's been so for a very long time.
+> Yep, can't the deletion wait a couple more weeks or so until klibc gets
+> merged?  It's not like ipconfig.c is broken currently, is it?
 
-Really? So user has to know where ACPI tables are and specify less
-than that on mem= command line? That seems very
-counter-intuitive. [Ahha, its probaly okay because e820 saves you.]
+Thats how it ended up in 2.4. Klibc doesnt really matter, the apps exist
+linked with dietlibc and stuff even without klibc.
 
-What do you pass on 4GB machine as mem= parameter? AFAIK those beasts
-have hole at 3.75G. [Hopefully bigmem machines have working e820
-tables?]
+Time for it to die
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

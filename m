@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265639AbUABUKO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 15:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265640AbUABUKO
+	id S265636AbUABUJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 15:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUABUJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 15:10:14 -0500
-Received: from gprs178-245.eurotel.cz ([160.218.178.245]:41611 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265639AbUABUKI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 15:10:08 -0500
-Date: Fri, 2 Jan 2004 21:10:15 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Go Taniguchi <go@turbolinux.co.jp>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1 with JP106 keyboard
-Message-ID: <20040102201015.GA3080@ucw.cz>
-References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <3FF4F8EA.6090602@turbolinux.co.jp> <20040102131737.GB395@ucw.cz> <3FF5C015.7050806@turbolinux.co.jp>
+	Fri, 2 Jan 2004 15:09:25 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:62926 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265636AbUABUJS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 15:09:18 -0500
+Date: Fri, 2 Jan 2004 21:09:17 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Compatibility of Nvidia NVNET driver license with GPL
+Message-ID: <20040102200917.GD14285@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031231073101.A474@beton.cybernet.src> <20031231211101.68ba1362.pj@sgi.com> <20040101174845.GB2022@gtf.org> <20040102170402.GD5731@helium.inexs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mSxgbZZZvrAyzONB"
 Content-Disposition: inline
-In-Reply-To: <3FF5C015.7050806@turbolinux.co.jp>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040102170402.GD5731@helium.inexs.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 04:01:41AM +0900, Go Taniguchi wrote:
 
-> >>Hi,
-> >>2.6.1-rc1 with JP106 keybord. keycode was changed....
-> >>                                        2.6.0 -> 2.6.1-rc1
-> >>lower-right backslash (scancode 0x73)   89    -> 181
-> >>upper-right backslash (scancode 0x7d)   183   -> 182
-> > 
-> > 
-> > These two scancodes are defined as japanese language selection keys.
-> > Hence the atkbd.c driver delivers these as such. What should be updated
-> > is the default keymap (defkeymap.map, defkeymap.c).
-> > 
-> 
-> Thank you so much.
-> I try so that it can be solved.
-> > What should be updated  is the default keymap (defkeymap.map, defkeymap.c).
-> Sorry, does this mean that a default key map is re-defined?
-> We need to add 181 and 182 keycodes to the keymap?
+--mSxgbZZZvrAyzONB
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Exactly so.
+On Fri, 2004-01-02 11:04:02 -0600, Chuck Campbell <campbell@accelinc.com>
+wrote in message <20040102170402.GD5731@helium.inexs.com>:
+> On Thu, Jan 01, 2004 at 12:48:45PM -0500, Jeff Garzik wrote:
+> >=20
+> > For a network driver, nVidia will have a really tough time convincing me
+> > there is useful IP in their NIC driver, or the NIC itself :)  There are
+> > much more advanced NICs out there (with public docs, no less)...
+>=20
+> Where might one look to find a list of these, for system planning purpose=
+s?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Personally, I like to buy tulip based cards. One you might easily get is
+the KTI KT-320 (or was it KF-320? Both exist, one is el-cheapo, the good
+one is at about 40..50 EUR or US-$).
+
+Some time ago, I also used eepro100-based cards. But since Intel has
+started to put these into their chipset (as it seems with some
+additional silicone bugs, which freezes the box with eepro100, but not
+with working-around Intel's e100 driver) I don't use them any longer...
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--mSxgbZZZvrAyzONB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/9c/tHb1edYOZ4bsRArRlAJ92Cd4Ps4XAkj5P9UQK75+4Dxpm6wCbBvNa
+PHv1E0TxyO5jHthksWw6do4=
+=1bi9
+-----END PGP SIGNATURE-----
+
+--mSxgbZZZvrAyzONB--

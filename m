@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286867AbRLWLch>; Sun, 23 Dec 2001 06:32:37 -0500
+	id <S286868AbRLWLiS>; Sun, 23 Dec 2001 06:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286868AbRLWLcR>; Sun, 23 Dec 2001 06:32:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:30984 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S286867AbRLWLcL>;
-	Sun, 23 Dec 2001 06:32:11 -0500
-Date: Sun, 23 Dec 2001 12:31:55 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-Cc: Vasil Kolev <lnxkrnl@mail.ludost.net>, Keith Owens <kaos@ocs.com.au>,
-        Norbert Veber <nveber@pyre.virge.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference
- to `local symbols...
-In-Reply-To: <Pine.LNX.4.33.0112231206090.4356-100000@boris.prodako.se>
-Message-ID: <Pine.LNX.4.33.0112231229190.15032-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286873AbRLWLiH>; Sun, 23 Dec 2001 06:38:07 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:33746 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S286868AbRLWLhz>; Sun, 23 Dec 2001 06:37:55 -0500
+Date: Sun, 23 Dec 2001 06:37:33 -0500
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference to `local symbols...
+Message-ID: <20011223113733.GA26429@opeth.ath.cx>
+In-Reply-To: <Pine.LNX.4.33.0112231226260.1032-100000@doom.bastun.net> <23624.1009106899@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Disposition: inline
+In-Reply-To: <23624.1009106899@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.3.24i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Dec 2001, Tobias Ringstrom wrote:
 
-> On Sun, 23 Dec 2001, Vasil Kolev wrote:
-> > # ./reference_discarded.pl
-> > Finding objects, 538 objects, ignoring 0 module(s)
-> > Finding conglomerates, ignoring 48 conglomerate(s)
-> > Scanning objects
-> > Error: ./drivers/net/dmfe.o .data refers to 00000514 R_386_32
-> > .text.exit
-> > Done
->
-> Does this patch fix the problem?
->
-> /Tobias
->
-> --- dmfe.c.orig	Fri Nov 23 13:14:17 2001
-> +++ dmfe.c	Sun Dec 23 12:09:25 2001
-> @@ -527,7 +527,7 @@
->  }
->
-> -static void __exit dmfe_remove_one (struct pci_dev *pdev)
-> +static void __devexit dmfe_remove_one (struct pci_dev *pdev)
->  {
->  	struct net_device *dev = pci_get_drvdata(pdev);
->  	struct dmfe_board_info *db = dev->priv;
-> @@ -2059,7 +2059,7 @@
->  	name:		"dmfe",
->  	id_table:	dmfe_pci_tbl,
->  	probe:		dmfe_init_one,
-> -	remove:		dmfe_remove_one,
-> +	remove:		__devexit_p(dmfe_remove_one),
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Note, that this patch was dropped between rc2 & final,
-(on Jeff's request iirc).
+On Sun, Dec 23, 2001 at 10:28:19PM +1100, Keith Owens wrote:
+> AFAICT dmfe.c is hotplug aware, it has the required probe and remove
+> pci_driver functions.  But dmfe_remove_one is defined as __exit instead
+> of __devexit, it should probably be changed to __devexit and change
+>         remove: dmfe_remove_one
+> to
+>         remove:         __devexit_p(dmfe_remove_one)
+>=20
+> The dmfe maintainer and/or Jeff Garzik needs to decide.
 
-Dave.
+This is one of the hunks I submitted and is in .17-rc2 but was
+removed (along with a bunch of incorrect ones I did, oops) in
+-final.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8JcH9MwVVFhIHlU4RApTgAJ4qNlvKgYJmoPPmXocAu1EgONyGjwCfZiL2
+lauj/mZXs6AWbJU7xRu4KVo=
+=LYCy
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--

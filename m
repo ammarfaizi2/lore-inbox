@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbULCPLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbULCPWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbULCPLr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 10:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbULCPLr
+	id S262258AbULCPWe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 10:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbULCPWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 10:11:47 -0500
-Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:1028 "EHLO
-	globaledgesoft.com") by vger.kernel.org with ESMTP id S262248AbULCPLn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 10:11:43 -0500
-Message-ID: <41B081AE.3000509@globaledgesoft.com>
-Date: Fri, 03 Dec 2004 20:39:34 +0530
-From: krishna <krishna.c@globaledgesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+	Fri, 3 Dec 2004 10:22:33 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:43428 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S262258AbULCPWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 10:22:30 -0500
+Date: Fri, 03 Dec 2004 10:22:28 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: wakeup_pmode_return jmp failing?
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Message-id: <41B084B4.1050402@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: How to understand flow of kernel code
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MDRemoteIP: 172.16.6.42
-X-Return-Path: krishna.c@globaledgesoft.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Elladan,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-    Thank you very much.
-    Can u tell me how can I start from an interrupt.
+Hello,
 
-Regards,
-Krishna Chaitanya
+Not sure who to direct this to.  I've been trying to get acpi s3 to work
+on my pentium M laptop (tecra m2).  Without the nvidia driver loaded, I
+can echo 3 > /proc/acpi/sleep and the machine does indeed suspend (power
+light throbs and all).  However, when I try to wake up the thing, it
+would flash the bios screen and throw me back to grub.
 
-Elladan wrote:
+I've been investigating the code at arch/i386/kernel/acpi/wakeup.S, and
+have discovered that if I place a busy wait directory before the ljmpl
+to wakeup_pmode_return, that I indeed do see 'Lin' on the screen instead
+of the bios screen.
 
-It's written in C, so it should be quite simple.
+The joke is, if I place a busy wait first thing after the
+wakeup_pmode_return label, it never gets executed and I get a regular boot.
 
-Most everything starts from a syscall, or an interrupt.  
+It would appear as though the jump from 16bit code into the 32bit code
+is failing and the bios is kicking in with a regular startup.
 
--J
+Anybody have any suggestions?
 
-On Thu, Dec 02, 2004 at 10:16:54AM +0530, krishna wrote:
-  
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-Hi,
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Can Anyone tell me the tips/tricks/techniques/practices followed in 
-understanding flow of Linux kernel code?
-
-Regards,
-Krishna Chaitanya
-
+iD8DBQFBsIS0dQs4kOxk3/MRAjlMAJ9HZus6LJ7oTj/OYpzn+D9nle0fsACghVot
+tpOzjmA3Klxvyig/SIMr+xo=
+=LvHT
+-----END PGP SIGNATURE-----

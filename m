@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265816AbUA1ADS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 19:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265763AbUA1ADS
+	id S265675AbUA0Xyh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:54:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUA0Xyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 19:03:18 -0500
-Received: from smtp02.web.de ([217.72.192.151]:15898 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S265816AbUA1ADF (ORCPT
+	Tue, 27 Jan 2004 18:54:37 -0500
+Received: from ozlabs.org ([203.10.76.45]:5508 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265675AbUA0Xyc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 19:03:05 -0500
-From: Bernd Schubert <bernd-schubert@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.2-rc2] R31 hangs after booting oops
-Date: Wed, 28 Jan 2004 01:02:53 +0100
-User-Agent: KMail/1.6
-Cc: r31@rnbhq.org
+	Tue, 27 Jan 2004 18:54:32 -0500
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401280102.53758.bernd-schubert@web.de>
+Message-ID: <16406.63734.400759.452955@cargo.ozlabs.ibm.com>
+Date: Wed, 28 Jan 2004 10:49:10 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: davidm@hpl.hp.com
+Cc: Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@trained-monkey.org>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
+ ia64
+In-Reply-To: <16406.36741.510353.456578@napali.hpl.hp.com>
+References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
+	<20040120090004.48995f2a.akpm@osdl.org>
+	<16401.57298.175645.749468@napali.hpl.hp.com>
+	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
+	<16405.41953.344071.456754@napali.hpl.hp.com>
+	<16406.10170.911012.262682@cargo.ozlabs.ibm.com>
+	<16406.36741.510353.456578@napali.hpl.hp.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+David Mosberger writes:
 
-my Thinkpad R31 stops during the boot-process when I give 'acpi=off' as boot 
-option, but on using acpi it boots fine (so when I'm not giving this option).
-Unfortunality it has no serial port to capture this oops -- any suggestions 
-how to capture it via parallel port or via usb-to-serial cable?
+>   Paul> Also, I don't think there is enough code there to be worth the
+>   Paul> bother of trying to abstract the generic routine so you can
+>   Paul> plug in different compare and move-element routines.  The
+>   Paul> whole sort routine is only 16 lines of code, after all.  Why
+>   Paul> not just have an ia64-specific version of sort_extable?
+>   Paul> That's what I thought you would do.
+> 
+> Because the Alpha needs exactly the same code.
 
-I manually write down some maybe helpfull messages, please tell me, if you 
-need more or have an idea how to get a full automatic trace.
+I really don't like the uglification of lib/extable.c.  I think it is
+much better to have ~20 lines of code in each of arch/ia64/mm and
+arch/alpha/mm than to try to generalize lib/extable.c.  Once you add
+all the extra definitions you need for your version, I doubt that the
+overall savings would be more than a dozen lines or so.
 
-Floppy drives(s): fd0 is 1.44M
-Unable to hande kernel pointer dereference at virtual address 00000004
- printing eip:
-c01449ec
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:	0
-EIP:	0060:[<c01449ec>] Not tainted
+The point is that with lib/extable.c as it is, you can look at one
+page of code, and everything you need to understand that code is
+there.  With your change, I have to hunt around to check what the
+macros are doing on each arch, and flip backwards and forwards to
+check side effects, calling environment etc.  With an ia64-specific
+extable.c, you should be able to look at one page of code there and
+see that the ia64 version is also correct.
 
-(I leave out the other numbers and registers)
-
-Process swapper (pid: 0, threadinginfo=c048000 task c941ed60)
-
-(please ask for Stack numbers if needed)
-
-Call Trace: (without all numbers)
-
-drain_array
-reap_timer
-update_process_times
-reap_timer_softirq
-do_softirq
-common interrrupt
-apm_bios_call_simple
-apm_do_idle
-apm_cpu_idle
-_stext
-cpu_idle
-start_kernel
-unknown_bootoption
-
-Kernel panic: Fatal exception in interrrupt
-In interrupt handler - not syncing
-
-
-Thanks in advance for your help,
-	Bernd
+Paul.

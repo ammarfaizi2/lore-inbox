@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbTADNwy>; Sat, 4 Jan 2003 08:52:54 -0500
+	id <S266924AbTADN6W>; Sat, 4 Jan 2003 08:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266924AbTADNwy>; Sat, 4 Jan 2003 08:52:54 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:29966 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S266907AbTADNwx>; Sat, 4 Jan 2003 08:52:53 -0500
-Date: Sat, 4 Jan 2003 15:00:58 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][FBDEV]: fb_putcs() and fb_setfont() methods
-Message-ID: <20030104140058.GA10918@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <1041672313.958.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266927AbTADN6W>; Sat, 4 Jan 2003 08:58:22 -0500
+Received: from 205-158-62-146.outblaze.com ([205.158.62.146]:35764 "HELO
+	wspf1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S266924AbTADN6V>; Sat, 4 Jan 2003 08:58:21 -0500
+Message-ID: <20030104140643.19228.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <1041672313.958.17.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: kasperd@daimi.au.dk, ciarrocchi@linuxmail.org
+Cc: linux-kernel@vger.kernel.org
+Date: Sat, 04 Jan 2003 22:06:43 +0800
+Subject: Re: Linux v2.5.54
+X-Originating-Ip: 62.10.40.78
+X-Originating-Server: ws5-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Antonino Daplas <adaplas@pol.net>
-Date: Sat, Jan 04, 2003 at 05:25:14PM +0800
-> Attached is a patch against 2.5.54 in an attempt to add putcs() and
-> setfont() methods for fbdev drivers that require them:
+From: Kasper Dupont <kasperd@daimi.au.dk>
+> Paolo Ciarrocchi wrote:
+> > 
+> > From: Kasper Dupont <kasperd@daimi.au.dk>
+> > [...]
+> > > > arch/i386/kernel/vm86.c:289: structure has no member named `saved_gs'
+> > > > make[1]: *** [arch/i386/kernel/vm86.o] Error 1
+> > > > make: *** [arch/i386/kernel] Error 2
+> > >
+> > > Doesn't happen to me. Maybe I can reproduce it if I get a copy of
+> > > your .config file. And BTW, which gcc version are you using?
+> > 
+> > [root@frodo linux-2.5.53]# gcc -v
+> > Reading specs from /usr/lib/gcc-lib/i586-mandrake-linux-gnu/3.2/specs
+> > Configured with: ../configure --prefix=/usr --libdir=/usr/lib --with-slibdir=/lib --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix --disable-checking --enable-long-long --enable-__cxa_atexit --enable-languages=c,c++,ada,f77,objc,java --host=i586-mandrake-linux-gnu --with-system-zlib
+> > Thread model: posix
+> > gcc version 3.2 (Mandrake Linux 9.0 3.2-1mdk)
 > 
-And those drivers would be the matrox framebuffer drivers, for example?
+> I'm using a different compiler version. That might be related to
+> the problem:
+> 
+> [kasperd:pts/0:/mnt/misc/kasperd/test/linux-2.5.54] gcc -v
+> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+> gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
+> [kasperd:pts/0:/mnt/misc/kasperd/test/linux-2.5.54] 
+> 
+> > 
+> > And here it goes my .config.
+> 
+> The FB_I810 option was missing, but if I just set that one to no
+> I could compile without problems using your .config file.
+> 
+> How many versions do you have to go backwards to find a kernel
+> you can compile?
 
-That would be really great!
+Just one :-) 2.5.53 is happily running on my laptop.
+I think I've compiled and booted all the kernel version 
+since 2.5.3something.
 
-Thanks,
-Jurriaan
+Ciao,
+       Paolo
+
 -- 
-Me I'm just like you
-I don't have a clue
-	Shotgun Messiah - Nobody's Home
-GNU/Linux 2.5.53 SMP/ReiserFS 2x2752 bogomips 7 users load av: 2.24 1.99 1.56
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

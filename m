@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262109AbRETR3x>; Sun, 20 May 2001 13:29:53 -0400
+	id <S262112AbRETRbN>; Sun, 20 May 2001 13:31:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262111AbRETR3n>; Sun, 20 May 2001 13:29:43 -0400
-Received: from [195.250.204.70] ([195.250.204.70]:25128 "EHLO raq.trendnet.si")
-	by vger.kernel.org with ESMTP id <S262109AbRETR3h>;
-	Sun, 20 May 2001 13:29:37 -0400
-From: David Osojnik <dworf@siol.net>
-Reply-To: dworf@siol.net
-To: linux-kernel@vger.kernel.org
-Subject: tcp_mem problem
-Date: Sun, 20 May 2001 19:33:15 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <01052019331500.00946@cool>
-Content-Transfer-Encoding: 7BIT
+	id <S262113AbRETRbD>; Sun, 20 May 2001 13:31:03 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:33050 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262112AbRETRau>; Sun, 20 May 2001 13:30:50 -0400
+Date: Sun, 20 May 2001 19:30:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: root <root@nospam.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5pre2aa1 panic during boot
+Message-ID: <20010520193043.B30738@athlon.random>
+In-Reply-To: <3B07F7ED.7C22DAFD@nospam.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B07F7ED.7C22DAFD@nospam.com>; from root@nospam.com on Mon, May 21, 2001 at 01:59:25AM +0900
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the system with problem is using kernel 2.4.2 on an P200 with 64mb ram. It 
-has about 20 users that use the box... (ftp, telnet, lynx, bitchx,...).
+On Mon, May 21, 2001 at 01:59:25AM +0900, root wrote:
+> Andrea told us that he will not care for anything
+> compiled with gcc-2.95 or version lower than that.
 
-the problem is when the parameter tcp_mem HIGH gets exeded after about a day 
-of use! Then the box is going from the net and its not awailable. I tried to 
-tune the system with adding more in proc tcp_mem but the problem is still 
-there the box only lasts for bout 2h longer.
+I said I don't care about bugreport of alpha kernel crashes if the
+_alpha_ kernel was compiled with gcc 2.95.*. 2.95 is fine on the x86,
+but it's broken on the alpha. In short:
 
-and i get this in messages
+	x86 2.4 kernels		->	use 2.95.[34] or egcs 1.1.2 (I
+					use 2.95.4 from the
+					gcc_2_95_branch of CVS)
+	alpha 2.4 kernel	->	use egcs 1.1.2 or 2.96 with some
+					houndred of patches (I
+					personally still use the egcs
+					1.1.2)
 
-kernel: TCP: too many of orphaned sockets
+> However, it seems that this kernel panic has anything
+> to do with gcc-2.95.
 
-It looks like my system is not droping closed sockets?
+Please try to reproduce with egcs 1.1.2 to be sure.
 
-David
+> Anyway, gcc-2.95 is still the official release of gcc.
+> Even SuSE-7.1 has this version only.  I wish SuSE puts
+
+x86 and alpha are completly different issues with regard to the
+compiler. I never heard of problems with 2.95.4 on x86 and I would never
+replace 2.95.4 from the gcc_2_95_branch for the latest 2.96 on my x86
+boxes, I'd instead try again gcc 3.0 after the inline asm fixes for "+="
+constranints on local variables are done.
+
+Andrea

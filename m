@@ -1,37 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136242AbREAW11>; Tue, 1 May 2001 18:27:27 -0400
+	id <S136747AbREAWm1>; Tue, 1 May 2001 18:42:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136740AbREAW1Q>; Tue, 1 May 2001 18:27:16 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:47591 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136242AbREAW1F>;
-	Tue, 1 May 2001 18:27:05 -0400
-Date: Tue, 1 May 2001 15:26:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...]
-Message-ID: <20010501152611.A12378@opus.bloom.county>
-In-Reply-To: <20010427193501.A9805@thyrsus.com> <15084.12152.956561.490805@gargle.gargle.HOWL> <20010429183526.B32748@thyrsus.com> <15085.37569.205459.898540@gargle.gargle.HOWL> <20010430133932.B28849@thyrsus.com> <20010430141623.A15821@cadcamlab.org> <20010430152536.A29699@thyrsus.com> <3AEE80A3.EB0ACEB1@dplanet.ch> <20010501123112.A7699@thyrsus.com> <20010501173512.A2815@zalem.puupuu.org>
+	id <S136748AbREAWmH>; Tue, 1 May 2001 18:42:07 -0400
+Received: from pop.gmx.net ([194.221.183.20]:16669 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S136744AbREAWl6>;
+	Tue, 1 May 2001 18:41:58 -0400
+Date: Wed, 2 May 2001 00:41:52 +0200
+From: Daniel Elstner <daniel.elstner@gmx.net>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs+lndir problem [was: 2.4.4 SMP: spurious EOVERFLOW "Value too large for defined data type"]
+Message-Id: <20010502004152.23a0751b.daniel@master.daniel.homenet>
+In-Reply-To: <1026200000.988679027@tiny>
+In-Reply-To: <20010430225557.3f28d1b0.daniel@master.daniel.homenet>
+	<1026200000.988679027@tiny>
+X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010501173512.A2815@zalem.puupuu.org>; from galibert@pobox.com on Tue, May 01, 2001 at 05:35:12PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 01, 2001 at 05:35:12PM -0400, Olivier Galibert wrote:
-> On Tue, May 01, 2001 at 12:31:12PM -0400, Eric S. Raymond wrote:
-> > You are proposing an interface that will handle easy cases but blow
-> > up in the user's face in any hard one.  That's poor design, frustrating
-> > the user exactly when he/she most needs help.
+Hi,
+
+On Mon, 30 Apr 2001 21:03:47 -0400 Chris Mason <mason@suse.com> wrote:
+
+> > Apparently it's a reiserfs/symlink problem.
+> > I tried doing the lndir on an ext2 partition, sources still
+> > on reiserfs. And it worked just fine!
 > 
-> Yeah, but what is the current method, vi?
+> Neat, thanks for the extra details.  Does that mean you can consistently
+> repeat on reiserfs now?  What happens when you do the lndir on reiserfs and
+> diff the directories?
 
-If you edit a .config (current or CML2'ed) and fix a problem, it works.
-What was the question again?  (And, if you edit an old .config, %s/^# CONFIG/CONFIG and %s/ is not set/=n, oldconfig works like you would expect, and can help
-point out places where CML2 is slightly off).
+I just played around a bit with the following results:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+sources on reiserfs, lndir on reiserfs -> make fails, diff ok
+sources on reiserfs, lndir on ext2     -> make ok
+sources on ext2, lndir on reiserfs     -> make fails, diff ok
+
+Doing the diff against a second copy of the tree shows no errors, too.
+Always the same behaviour: You have to run lndir at least twice to
+get the error. If the link tree was already set up after a boot, the
+error occurs only after rm + lndir + rm + lndir.
+
+There's a strange way to get things working just like after a reboot.
+After diff'ing the link tree with the 2nd copy (both on reiserfs),
+make World won't fail - at least once.
+
+I also tried in the link tree:
+    find ! -type d -exec cat '{}' \; >/dev/null
+And it seems to have the same effect as the diff.
+
+> Any useful messages in /var/log/messages?
+
+Nope, not any single message (except the usual ones).
+
+The error on shutdown (when umounting /proc) appeared once again,
+with the the same error message. Though I have no clue how that
+could be related to reiserfs.
+
+Two missed details: the reiserfs partion exists on a software
+raid0 device. I configured glibc-2.2.3 with --enable-kernel=2.4.1.
+
+Shall I try moving back to glibc-2.2.2 / configuring for lower kernel?
+
+-- Daniel

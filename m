@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270159AbRH1COZ>; Mon, 27 Aug 2001 22:14:25 -0400
+	id <S270155AbRH1CQp>; Mon, 27 Aug 2001 22:16:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270168AbRH1COQ>; Mon, 27 Aug 2001 22:14:16 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:29964 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S270159AbRH1COA>; Mon, 27 Aug 2001 22:14:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Peter Magnusson <iocc@flashdance.cx>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM balancing stuff in 2.4.8-9 broken
-Date: Tue, 28 Aug 2001 04:20:56 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33L2.0108280403140.1540-100000@papperstuss.flashdance.cx>
-In-Reply-To: <Pine.LNX.4.33L2.0108280403140.1540-100000@papperstuss.flashdance.cx>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010828021416Z16074-32383+1856@humbolt.nl.linux.org>
+	id <S270168AbRH1CQf>; Mon, 27 Aug 2001 22:16:35 -0400
+Received: from 203-79-82-83.adsl-wns.paradise.net.nz ([203.79.82.83]:32231
+	"HELO volcano.plumtree.co.nz") by vger.kernel.org with SMTP
+	id <S270155AbRH1CQY>; Mon, 27 Aug 2001 22:16:24 -0400
+Date: Tue, 28 Aug 2001 14:16:34 +1200
+From: Nicholas Lee <nj.lee@plumtree.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Crashing with Abit KT7, 2.2.19+ide patches
+Message-ID: <20010828141633.C14714@cone.kiwa.co.nz>
+In-Reply-To: <20010827200106.A26175@cone.kiwa.co.nz> <3B8AD463.C196B9B6@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B8AD463.C196B9B6@bigfoot.com>; from timothymoore@bigfoot.com on Mon, Aug 27, 2001 at 04:14:43PM -0700
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 28, 2001 04:06 am, Peter Magnusson wrote:
-> I just wanted to say that the VM balancing stuff in 2.4.8 and 2.4.9 doesnt
-> work very well. 2.4.8 and .9 will use 200 Mbyte of my swap after just 6
-> hours! I got 512 Mbyte RAM, 256 Mbyte swap.
-> 
-> I have now switched back to 2.4.7. Uptime 6 days and 11 Mbyte swap used.
-> I would prefer if Linux used as little swap as possible. It only gets
-> slower.
-> 
-> (if you want to reply to me send mail to iocc@flashdancejahatjosan.cx
-> without jahatjosan.)
 
-Known problem, a patch exists and was applied in 2.4.10-pre1.  Here it is 
-again if you want to verify this:
 
---- ../2.4.9.clean/mm/memory.c	Mon Aug 13 19:16:41 2001
-+++ ./mm/memory.c	Sun Aug 19 21:35:26 2001
-@@ -1119,6 +1119,7 @@
- 			 */
- 			return pte_same(*page_table, orig_pte) ? -1 : 1;
- 		}
-+		SetPageReferenced(page);
- 	}
- 
- 	/*
+I managed to catch one of these crash the system messages:
+
+Aug 28 14:07:51 hoppa kernel: hda: timeout waiting for DMA
+Aug 28 14:07:51 hoppa kernel: hda: ide_dma_timeout: Lets do it again!stat = 0xd0, dma_stat = 0x20
+Aug 28 14:07:51 hoppa kernel: hda: DMA disabled
+Aug 28 14:07:51 hoppa kernel: hda: irq timeout: status=0x80 { Busy }
+Aug 28 14:07:51 hoppa kernel: hda: DMA disabled
+Aug 28 14:07:51 hoppa kernel: hda: ide_set_handler: handler not null; old=c018f67c, new=c018f67c
+Aug 28 14:07:51 hoppa kernel: bug: kernel timer added twice at c018f526.
+Aug 28 14:07:53 hoppa kernel: ide0: reset: success
+
+
+Note the second the last line: "bug: kernel timer added twice at
+c018f526"
+
+
+This occured 4 mintues after a system reboot and some rsync activity. 
+It occured this time when I was in the shell doing a cd [tab].
+
+Other times the HDD might have just crashed again.
+
+
+Note: this box is also acting as a router between three interfaces at
+the same time with IPSec on one of these interfaces.   
+
+
+Is this likely to make the situation worse?
+
+
+Nicholas

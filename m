@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265519AbUFCOm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264155AbUFCOiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265519AbUFCOm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265428AbUFCOlV
+	id S264155AbUFCOiM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 10:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265007AbUFCO2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:41:21 -0400
-Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:29704 "EHLO
-	odie.graycell.biz") by vger.kernel.org with ESMTP id S265552AbUFCOiS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:38:18 -0400
-Subject: Oops accessing smbfs
-From: Nuno Ferreira <nuno.ferreira@graycell.biz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Graycell
-Date: Thu, 03 Jun 2004 15:38:16 +0100
-Message-Id: <1086273496.8873.7.camel@taz.graycell.biz>
+	Thu, 3 Jun 2004 10:28:16 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:45713 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264965AbUFCO0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 10:26:42 -0400
+Date: Thu, 3 Jun 2004 15:26:40 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org,
+       axboe@suse.de, kevcorry@us.ibm.com, arjanv@redhat.com,
+       iro@parcelfarce.linux.theplanet.co.uk, trond.myklebust@fys.uio.no,
+       anton@samba.org, lustre-devel@clusterfs.com
+Subject: Re: [PATCH/RFC] Lustre VFS patch, version 2
+Message-ID: <20040603142640.GA16837@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Lars Marowsky-Bree <lmb@suse.de>,
+	"Peter J. Braam" <braam@clusterfs.com>,
+	linux-kernel@vger.kernel.org, axboe@suse.de, kevcorry@us.ibm.com,
+	arjanv@redhat.com, iro@parcelfarce.linux.theplanet.co.uk,
+	trond.myklebust@fys.uio.no, anton@samba.org,
+	lustre-devel@clusterfs.com
+References: <20040602231554.ADC7B3100AE@moraine.clusterfs.com> <20040603135952.GB16378@infradead.org> <20040603141922.GI4423@marowsky-bree.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Jun 2004 14:33:21.0123 (UTC) FILETIME=[B8105330:01C44977]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040603141922.GI4423@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this oops after mounting 2 different shares on /home/nmf/tmp by
-mistake. The mounts were made calling smbmount by a regular user and did
-not fail.
-After calling ls on the dir (it hang) this I realised my mistake and
-found this on the log.
+On Thu, Jun 03, 2004 at 04:19:22PM +0200, Lars Marowsky-Bree wrote:
+> On 2004-06-03T14:59:52,
+>    Christoph Hellwig <hch@infradead.org> said:
+> 
+> > > Well, how close are we now to this being acceptable?
+> > As already mentioned above they're completely uninteresting without
+> > actually getting the user in tree _and_ maintained there (unlike e.g.
+> > intermezzo or coda that are creeping along).  I think based on those
+> > patch we should be able to properly integrate intermezzo once 2.7 opens.
+> 
+> This is something I've got to disagree with.
+> 
+> First, Inter-mezzo is reasonably dead, from what I can see. As is Coda.
+> You'll notice that the developers behind them have sort-of moved on to
+> Lustre ;-)
 
-Jun  2 17:57:52 taz kernel: smb_file_read: //pagefile.sys validation failed, error=4294967270
-Jun  2 18:05:02 taz kernel: smb_lookup: find //.Trash-nmf failed, error=-5
-Jun  2 18:05:02 taz kernel: Unable to handle kernel NULL pointer dereference at
-virtual address 00000000
-Jun  2 18:05:02 taz kernel:  printing eip:
-Jun  2 18:05:02 taz kernel: 00000000
-Jun  2 18:05:02 taz kernel: *pde = 00000000
-Jun  2 18:05:02 taz kernel: Oops: 0000 [#1]
-Jun  2 18:05:02 taz kernel: Modules linked in: smbfs twofish serpent aes blowfish sha256 crypto_null lp binfmt_misc 8139cp mii crc32 yenta_socket pcmcia_core snd_ali5451 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_page_alloc snd_timer snd ohci_hcd ati_agp br2684 atm parport_pc parport powernow_k7
-Jun  2 18:05:02 taz kernel: CPU:    0
-Jun  2 18:05:02 taz kernel: EIP:    0060:[<00000000>]    Not tainted VLI
-Jun  2 18:05:02 taz kernel: EFLAGS: 00210246   (2.6.6-mm5)
-Jun  2 18:05:02 taz kernel: EIP is at 0x0
-Jun  2 18:05:02 taz kernel: eax: d2cc9ce0   ebx: d3809ed8   ecx: c0155fb0   edx: d546ffa0
-Jun  2 18:05:02 taz kernel: esi: d546ff44   edi: c45e2024   ebp: d2cc9ce0   esp: d546ff10
-Jun  2 18:05:02 taz kernel: ds: 007b   es: 007b   ss: 0068
-Jun  2 18:05:02 taz kernel: Process nautilus (pid: 2247, threadinfo=d546f000 task=d544d930)
-Jun  2 18:05:02 taz kernel: Stack: de96c2ff d546ff44 00000000 00000002 00000004
-ca51e178 00000000 c108bc40
-Jun  2 18:05:02 taz kernel:        c45e2000 dbbcb758 d21e8f58 c0155fb0 d546ffa0
-00000000 01e41cee d2cc9ce0
-Jun  2 18:05:02 taz kernel:        00000000 00000000 c45e2000 00000002 00000000
-00000000 00000001 00000004
-Jun  2 18:05:02 taz kernel: Call Trace:
-Jun  2 18:05:02 taz kernel:  [pg0+509371135/1069907968] smb_readdir+0x37f/0x4d0
-[smbfs]
-Jun  2 18:05:02 taz kernel:  [filldir64+0/224] filldir64+0x0/0xe0
-Jun  2 18:05:02 taz kernel:  [vfs_readdir+123/144] vfs_readdir+0x7b/0x90
-Jun  2 18:05:02 taz kernel:  [sys_getdents64+102/160] sys_getdents64+0x66/0xa0
-Jun  2 18:05:02 taz kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jun  2 18:05:02 taz kernel:
-Jun  2 18:05:02 taz kernel: Code:  Bad EIP value.
+Arggg, sorry.  Typo there.  It should have of course read
 
--- 
-Nuno Ferreira
+"I think based on those patches we should be able to properly integrate
+LUSTRE once 2.7 opens"
+
+.oO(/me looks for a brown paperbag to hide)
+
+> The logic that _all_ modules and functionality need to be "in the tree"
+> right from the start for hooks to be useful is flawed, I'm afraid. Pure
+> horror that a proprietary cluster file system might also profit from it
+> is not, exactly, a sound technical argument. (I can assure you I don't
+> care at all for the proprietary cluster-fs.)
+
+It's more about maintaince overhead.   Maintaining features without the
+user direct at hand isn't going anywhere.  Especially when messing around
+deeply in the VFS.  By your argumentation we should also throw in all the
+mosix and openssi hooks because they could be possibly useful, no? ;-)
+
+> Another example of this is the cache invalidation hook which we went
+> through a few weeks ago too. Back then you complained about not having
+> an Open Source user (because it was requested by IBM GPFS), and so
+> GFS/OpenGFS chimed in - now it is the lack of an _in-tree_ Open Source
+> user...
+
+I was always arguing against the lack of an intree user mostly.  Lack of
+something that could we could merge even in the future is even worse.
 

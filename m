@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbTDGSbi (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 14:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTDGSbi (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 14:31:38 -0400
-Received: from almesberger.net ([63.105.73.239]:13062 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262846AbTDGSbh (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 14:31:37 -0400
-Date: Mon, 7 Apr 2003 15:43:03 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Clayton Weaver <cgweav@email.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new syscall: flink
-Message-ID: <20030407154303.C19288@almesberger.net>
-References: <20030407165009.13596.qmail@email.com>
-Mime-Version: 1.0
+	id S263587AbTDGSiV (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 14:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTDGSiV (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 14:38:21 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:12993 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263587AbTDGSiS (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 14:38:18 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030407165009.13596.qmail@email.com>; from cgweav@email.com on Mon, Apr 07, 2003 at 11:50:08AM -0500
+Content-Transfer-Encoding: 7bit
+Message-ID: <16017.51280.497389.142672@napali.hpl.hp.com>
+Date: Mon, 7 Apr 2003 11:49:52 -0700
+To: "Robert Williamson" <robbiew@us.ibm.com>
+Cc: davidm@hpl.hp.com, Andi Kleen <ak@suse.de>, aniruddha.marathe@wipro.com,
+       linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: Re: Same syscall is defined to different numbers on 3 different archs(was
+ Re: Makefile  issue)
+In-Reply-To: <OFE1A01154.21E41A43-ON85256D01.0063E065-86256D01.00646C2E@pok.ibm.com>
+References: <16017.48795.43569.182784@napali.hpl.hp.com>
+	<OFE1A01154.21E41A43-ON85256D01.0063E065-86256D01.00646C2E@pok.ibm.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clayton Weaver wrote:
-> If the client process subsequently flink()s to the inode, it is merely
-> a zerocopy file copy.
+>>>>> On Mon, 7 Apr 2003 13:16:21 -0500, "Robert Williamson" <robbiew@us.ibm.com> said:
 
-As far as access to the data is concerned, yes. But there's also the
-location of the file. E.g. this might enable you to fill somebody
-else's quota, or, if distinct physical devices can be be covered by
-the same file system, to access a physical device that would
-otherwise not be available to you.
+  Robert> The original note had the testcases in question, which uses
+  Robert> _syscall3......but since this was left off I'll summarize.
+  Robert> The author did use the following:
 
-Example: I write some kind of RAID mounted at /world, that contains
-my disk under /world/disk, and some Flash storage under /world/flash.
-I protect /world/flash against writes by other people. If a
-read-only FD could be turned into something writeable, some malicious
-creature could "wear out" my Flash by writing to it a lot of times.
+  Robert> _syscall3 (int, timer_create, clockid_t, which_clock, struct sigevent *,
+  Robert> timer_event_spec, timer_t *, timer_id);
 
-- Werner
+  Robert> but compilation failed with:
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+  Robert> timer_delete01.c: In function `timer_create':
+  Robert> timer_delete01.c:86: `__NR_timer_create' undeclared (first use in this
+  Robert> function)
+
+  Robert> The only way we were able to resolve this was to either to
+  Robert> add the kernel includes to the include path: "-I
+  Robert> /usr/src/linux-2.5.66/include".  Obviously, this option will
+  Robert> not work for the LTP and our users who frequently change
+  Robert> kernel levels and install locations, we have to use "such
+  Robert> ugly, platform-dependent code"
+
+But you still can use syscall() instead of the non-portable syscallN()
+macros.  Also, it should go something like this:
+
+#include <sys/syscall.h>
+
+#ifndef SYS_timer_create
+# if defined(__i386)
+#  define SYS_timer_create	259
+# elif defined(...)
+   ...
+# endif
+#endif
+
+	--david

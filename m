@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVDFQi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbVDFQoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbVDFQi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 12:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVDFQi7
+	id S262255AbVDFQoY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 12:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVDFQoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 12:38:59 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:58786 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S262249AbVDFQiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 12:38:51 -0400
-Mime-Version: 1.0 (Apple Message framework v619.2)
+	Wed, 6 Apr 2005 12:44:24 -0400
+Received: from ns1.s2io.com ([142.46.200.198]:33245 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S262255AbVDFQoS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 12:44:18 -0400
+Subject: Re: AOE and large filesystems?
+From: Dmitry Yusupov <dima@neterion.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dan Stromberg <strombrg@dcs.nac.uci.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <42531A42.90508@pobox.com>
+References: <pan.2005.04.05.20.44.39.37209@dcs.nac.uci.edu>
+	 <42531A42.90508@pobox.com>
+Content-Type: text/plain
+Organization: Neterion, Inc
+Date: Wed, 06 Apr 2005 09:44:06 -0700
+Message-Id: <1112805846.16753.46.camel@beastie>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <a0b2cb42ff815dcf964b7a728f638b87@freescale.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: LKML list <linux-kernel@vger.kernel.org>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: return value of ptep_get_and_clear
-Date: Wed, 6 Apr 2005 11:38:48 -0500
-X-Mailer: Apple Mail (2.619.2)
+X-Spam-Score: -102.5
+X-Spam-Outlook-Score: ()
+X-Spam-Features: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ptep_get_and_clear has a signature that looks something like:
+On Tue, 2005-04-05 at 19:07 -0400, Jeff Garzik wrote:
+> As a tangent, I'd also like to see iSCSI over SCTP.
 
-static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned 
-long addr,
-                                        pte_t *ptep)
+existing iSCSI over TCP ietf draft just does not fit into SCTP.
 
-It appears that its suppose to return the pte_t pointed to by ptep 
-before its modified.  Why do we bother doing this?  The caller seems 
-perfectly able to dereference ptep and hold on to it.  Am I missing 
-something here?
+There was some activity on IPS recently:
 
-If not, I'll work up a set of patches to change ptep_get_and_clear and 
-its callers for post 2.6.12 release.
+http://www1.ietf.org/mail-archive/web/ips/current/msg01279.html
 
-- kumar
+it ends up with needs for new ietf draft which will describe iSCSI over
+SCTP transport.
+
+Dmitry
+
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

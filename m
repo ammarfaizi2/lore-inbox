@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315630AbSGSP4T>; Fri, 19 Jul 2002 11:56:19 -0400
+	id <S316860AbSGSQGY>; Fri, 19 Jul 2002 12:06:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316855AbSGSP4T>; Fri, 19 Jul 2002 11:56:19 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:27607 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315630AbSGSP4S>;
-	Fri, 19 Jul 2002 11:56:18 -0400
+	id <S316864AbSGSQGY>; Fri, 19 Jul 2002 12:06:24 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:28899 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316860AbSGSQGX>;
+	Fri, 19 Jul 2002 12:06:23 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Hubertus Franke <frankeh@watson.ibm.com>
 Reply-To: frankeh@watson.ibm.com
 Organization: IBM Research
-To: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: if_exist_pid()
-Date: Fri, 19 Jul 2002 10:55:40 -0400
+To: Ingo Molnar <mingo@elte.hu>, shreenivasa H V <shreenihv@usa.net>
+Subject: Re: Gang Scheduling in linux
+Date: Fri, 19 Jul 2002 11:05:57 -0400
 User-Agent: KMail/1.4.1
-References: <Pine.LNX.3.95.1020716131206.19310A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1020716131206.19310A-100000@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0207181930170.32666-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0207181930170.32666-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200207191055.40646.frankeh@watson.ibm.com>
+Message-Id: <200207191105.57814.frankeh@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 July 2002 01:19 pm, Richard B. Johnson wrote:
-> Anybody know the 'correct' way of determining if a pid still
-> exists?  I've been using "kill(pid, 0)" and, if it does not
-> return an error, it is supposed to exist. This is to release
-> a user-mode lock (semaphore) if the task that held the lock
-> crashed. Maybe there is a 'if_exist_pid(pid)' call somewhere?
-> Sending signal 0 to a pid sometimes returns 0, even if the pid
-> is long-gone and I don't want to read /proc to look for info.
+On Thursday 18 July 2002 01:40 pm, Ingo Molnar wrote:
+> you are right in that the Linux scheduler does not enable classic
+> gang-scheduling: where multiple processes are scheduled 'at once' on
+> multiple CPUs. Can you point out specific (real-life) workloads where this
+> would be advantegous? Some testcode would be the best form of expressing
+> this. Pretty much any job that uses sane (kernel-based or kernel-helped)
+> synchronization should see good throughput.
 >
-> Cheers,
-> Dick Johnson
->
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
->
->                  Windows-2000/Professional isn't.
+> 	Ingo
 >
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+Go to any of the national labs. 
+I was involved in the gangscheduler implementation for the IBM 340 node SP2 
+cluster at Lawrence Livermore National Lab.
+Implementation aside, one can show that the total system utilization can be 
+raised from ~60% to a ~90% when doing gang scheduling rather than FIFO 
+scheduling, which one would otherwise do to get a dedicated machine.
+We got tons of papers on this. 
 
-You can take your clues from the get_pid algo and implementation.
-
-The currently correct way to do this is to 
-scan all tasks and figure out whether either of pid, gid, tgid .. is using 
-your questioned pid number for small number of task this should be
-trivial timewise, for large number of task its a different story
-
-Bill Irwin is working on a patch that release pids upon their last usage
-and such thing could then be recorded in a bitmap. Checking availability
-would simply then mean checking a particular bit.
-I have a patch lying around to move pid allocation to a bitmap.
-
+For this it seems sufficient to simply STOP apps on a larger granularity and 
+have that done through a user level daemon. The kernel scheduler simply 
+schedules the runnable threads that given the U-Sched would always amount
+to a limited number of threads/tasks.
 
 -- 
 -- Hubertus Franke  (frankeh@watson.ibm.com)

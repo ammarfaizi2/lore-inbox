@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131152AbQKATai>; Wed, 1 Nov 2000 14:30:38 -0500
+	id <S131510AbQKATbT>; Wed, 1 Nov 2000 14:31:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131510AbQKATa2>; Wed, 1 Nov 2000 14:30:28 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:45219 "EHLO
-	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S131152AbQKATaZ>; Wed, 1 Nov 2000 14:30:25 -0500
-Message-ID: <3A006EFB.CD2EAF98@linux.com>
-Date: Wed, 01 Nov 2000 11:28:59 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S131551AbQKATbK>; Wed, 1 Nov 2000 14:31:10 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:11771 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131510AbQKATaz>; Wed, 1 Nov 2000 14:30:55 -0500
+Date: Wed, 1 Nov 2000 17:30:31 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Dennis Bjorklund <dennisb@cs.chalmers.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Broadcast
+In-Reply-To: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
+Message-ID: <Pine.LNX.4.21.0011011729500.6740-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: "M.H.VanLeeuwen" <vanl@megsinet.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.0-test10
-In-Reply-To: <39FFB221.D6A1B5FF@megsinet.net>
-Content-Type: multipart/mixed;
- boundary="------------DF397E4DA1CD58344D0715C8"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------DF397E4DA1CD58344D0715C8
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Wed, 1 Nov 2000, Dennis Bjorklund wrote:
 
-"M.H.VanLeeuwen" wrote:
+> I'm trying to turn of the broadcast flag for a network card. But
+> I can't, why??
 
-> 3. Enabling PIIX4, kernel locks hard when printing the partition
->    tables for hdc.   hdc has no partitions.
->    I think this problem is on Ted's problem list???
+Because ethernet is a broadcast medium (in contrast
+to P-t-P media)
 
-Disable PIIXn tuning and recompile your kernel.  How does it fare now?
+> eth1      Link encap:Ethernet  HWaddr 00:50:BA:6E:76:63  
+>           inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
 
--d
-
+Rik
 --
-"The difference between 'involvement' and 'commitment' is like an
-eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-'committed'."
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
 
-
-
---------------DF397E4DA1CD58344D0715C8
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-org:<img src="http://www.kalifornia.com/images/paradise.jpg">
-adr:;;;;;;
-version:2.1
-email;internet:david@kalifornia.com
-title:Blue Labs Developer
-x-mozilla-cpt:;-12480
-fn:David Ford
-end:vcard
-
---------------DF397E4DA1CD58344D0715C8--
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

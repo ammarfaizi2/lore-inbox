@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131698AbRAHRR1>; Mon, 8 Jan 2001 12:17:27 -0500
+	id <S132431AbRAHRR6>; Mon, 8 Jan 2001 12:17:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132431AbRAHRRV>; Mon, 8 Jan 2001 12:17:21 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:20477 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131698AbRAHRRE>; Mon, 8 Jan 2001 12:17:04 -0500
-Date: Mon, 8 Jan 2001 15:16:48 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        "William A. Stein" <was@math.harvard.edu>
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.30.0101072014300.17414-100000@mf1.private>
-Message-ID: <Pine.LNX.4.21.0101081514180.21675-100000@duckman.distro.conectiva>
+	id <S131941AbRAHRRj>; Mon, 8 Jan 2001 12:17:39 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:43014 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S132431AbRAHRRb>; Mon, 8 Jan 2001 12:17:31 -0500
+Date: Mon, 8 Jan 2001 17:15:27 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+To: Paul Powell <moloch16@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 'console=' kernel parameter questions
+In-Reply-To: <20010108165050.13240.qmail@web119.yahoomail.com>
+Message-ID: <Pine.LNX.4.10.10101081714580.26102-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Wayne Whitney wrote:
+On Mon, 8 Jan 2001, Paul Powell wrote:
 
-> Well, here is a workload that performs worse on 2.4.0 than on 2.2.19pre,
+> 'console=ttys0','console=cua0','console=ttys0,9600n8', etc....
+              ^
 
-> The typical machine is a dual Intel box with 512MB RAM and 512MB swap.
+console=ttyS0
 
-How does 2.4 perform when you add an extra GB of swap ?
-
-2.4 keeps dirty pages in the swap cache, so you will need
-more swap to run the same programs...
-
-Linus: is this something we want to keep or should we give
-the user the option to run in a mode where swap space is
-freed when we swap in something non-shared ?
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Matthew.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131478AbRCNRfI>; Wed, 14 Mar 2001 12:35:08 -0500
+	id <S131479AbRCNRh2>; Wed, 14 Mar 2001 12:37:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131479AbRCNRe6>; Wed, 14 Mar 2001 12:34:58 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:34509 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131478AbRCNRet>;
-	Wed, 14 Mar 2001 12:34:49 -0500
-Date: Wed, 14 Mar 2001 12:31:22 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: <cowboy@badlands.lexington.ibm.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: alarm() vs setitimer() problem?
-Message-ID: <Pine.LNX.4.33.0103141226060.2359-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131483AbRCNRhS>; Wed, 14 Mar 2001 12:37:18 -0500
+Received: from customer-203-176-1-28.ip.iphil.net ([203.176.1.28]:1284 "HELO
+	maravillo") by vger.kernel.org with SMTP id <S131479AbRCNRhD>;
+	Wed, 14 Mar 2001 12:37:03 -0500
+Date: Thu, 15 Mar 2001 01:35:44 +0800
+From: Mike Maravillo <mike.maravillo@q-linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.2-ac20: Trying to vfree() nonexistent vm area (c8138000)
+Message-ID: <20010315013542.A2228@maravillo.maravillo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+Organization: Q Linux Solutions, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is linux 2.4.2-ac19 (and to a lesser extent 2.2.19pre16) doing something
-non-standard wrt setitimer?
+Hi all,
 
-On light to mid loaded machines (2-8 load average), it seems like I'm
-missing some setitimer(REAL) signals !
+The following appeared on my home box running 2.4.2-ac20.  I have
+X, netscape, and broadcast2000 running on it when this happened.
+The system is still up, though I have the slightest idea what to
+check next... any ideas?
 
-Running the program using alarm() instead of setitimer(REAL) doesn't
-miss events.
-
-Both machines are UP, running glibc 2.2.2 and gcc 2.95.3
-
-on 2.2.19pre16, chaning the interval from 60s to 180s seems to have
-removed the problem
-
-on 2.4.2-ac19, using 180s didn't change the problem at all, only running
-with alarm() instead solves the problem.
+Mar 15 00:58:25 mmj kernel: Trying to vfree() nonexistent vm area (c8138000)
+Mar 15 00:58:41 mmj kernel: Trying to vfree() nonexistent vm area (c8138000)
 
 -- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
-
+ .--.  Michael J. Maravillo                   office://+63.2.894.3592/
+( () ) Q Linux Solutions, Inc.              mobile://+63.917.897.0919/
+ `--\\ A Philippine Open Source Solutions Co.  http://www.q-linux.com/

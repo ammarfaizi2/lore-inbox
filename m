@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUI0Il6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266308AbUI0Irm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUI0Il6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 04:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUI0Il6
+	id S266308AbUI0Irm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 04:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUI0Irm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 04:41:58 -0400
-Received: from 217-114-210-112.kunde.vdserver.de ([217.114.210.112]:56075 "EHLO
-	old-fsckful.ath.cx") by vger.kernel.org with ESMTP id S266252AbUI0Il5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 04:41:57 -0400
-Date: Mon, 27 Sep 2004 10:41:49 +0200
-From: Andreas Happe <andreashappe@flatline.ath.cx>
-To: Michal Ludvig <michal@logix.cz>
-Cc: Andreas Happe <crow@old-fsckful.ath.cx>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>
-Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
-Message-ID: <20040927084149.GA3625@final-judgement.ath.cx>
-References: <20040831175449.GA2946@final-judgement.ath.cx> <Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com> <20040901082819.GA2489@final-judgement.ath.cx> <Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz> <20040907143509.GA30920@old-fsckful.ath.cx> <Pine.LNX.4.53.0409071659070.19015@maxipes.logix.cz> <20040910105502.GA4663@final-judgement.ath.cx>
+	Mon, 27 Sep 2004 04:47:42 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:5760 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S266308AbUI0Irl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 04:47:41 -0400
+Date: Mon, 27 Sep 2004 18:45:51 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: promise controller resource alloc problems with ~2.6.8
+Message-ID: <20040927084550.GA1134@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040910105502.GA4663@final-judgement.ath.cx>
-X-Request-PGP: subkeys.pgp.net
-X-Hangover: none
-User-Agent: Mutt/1.5.6i
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Happe <andreashappe@flatline.ath.cx> [040910 12:55]:
-> [class - based sysfs patch]
+I have a Promise PDC20267 card in my desktop and whilst it works
+in 2.6.8-rc2, it no longer functions beginning with at least 2.6.9-rc2.
+Latest kernel I ran is 2.6.9-rc2-bk8 and it was still not available.
 
-hi,
-just wanted to know if there's any feedback regarding this patch. It
-still applies to -rc2 without problems.
+dmesg does mention it though as:
 
-	--Andreas
+PDC20267: IDE controller at PCI slot 0000:00:0d.0
+PCI: Found IRQ 11 for device 0000:00:0d.0
+PCI: Unable to reserve I/O region #5:40@1080 for device 0000:00:0d.0
+
+And that's as far as it gets.
+
+-- 
+    Red herrings strewn hither and yon.

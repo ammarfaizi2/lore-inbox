@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317329AbSILVT4>; Thu, 12 Sep 2002 17:19:56 -0400
+	id <S319482AbSILVZ2>; Thu, 12 Sep 2002 17:25:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319318AbSILVTb>; Thu, 12 Sep 2002 17:19:31 -0400
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:20128 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S319340AbSILVT0> convert rfc822-to-8bit; Thu, 12 Sep 2002 17:19:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Thunder from the hill <thunder@lightweight.ods.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Killing/balancing processes when overcommited
-Date: Thu, 12 Sep 2002 16:19:53 -0500
-User-Agent: KMail/1.4.1
-Cc: Jim Sibley <jlsibley@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Giuliano Pochini <pochini@shiny.it>, <riel@conectiva.com.br>
-References: <Pine.LNX.4.44.0209121441060.10048-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0209121441060.10048-100000@hawkeye.luckynet.adm>
+	id <S319485AbSILVZ2>; Thu, 12 Sep 2002 17:25:28 -0400
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:40196 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S319482AbSILVZ0>;
+	Thu, 12 Sep 2002 17:25:26 -0400
+Date: Thu, 12 Sep 2002 17:30:17 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Larry McVoy <lm@bitmover.com>
+cc: Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [OFFTOPIC] Spamcop
+In-Reply-To: <20020912141338.B14230@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0209121729030.27346-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209121619.53111.pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 September 2002 03:43 pm, Thunder from the hill wrote:
-> Hi,
+On Thu, 12 Sep 2002, Larry McVoy wrote:
+
+> Date: Thu, 12 Sep 2002 14:13:38 -0700
+> From: Larry McVoy <lm@bitmover.com>
+> To: Gerhard Mack <gmack@innerfire.net>
+> Cc: Russell King <rmk@arm.linux.org.uk>,
+>      Linux Kernel List <linux-kernel@vger.kernel.org>
+> Subject: Re: [OFFTOPIC] Spamcop
 >
-> On 12 Sep 2002, Alan Cox wrote:
-> > On Thu, 2002-09-12 at 20:08, Thunder from the hill wrote:
-> > > These problems can be solved via ulimit. I was referring to things
-> > > like rsyncd which was blowing up under certain situations, but runs
-> > > under a trusted account (say UID=0). In order to condemn it you'd need
-> > > the setup I've mentioned.
+> On Thu, Sep 12, 2002 at 05:06:15PM -0400, Gerhard Mack wrote:
+> > Check your logs .. it looks like maybe somone was sending spoofed
+> > requests?  Either that or somone was a total dumbass.
 > >
-> > Ulimit won't help you one iota
+> > I wonder how hard it is to generate enough requests to get somone listed.
 >
-> Why so pessimistic? You can ban users using ulimit, as you know. (You will
-> always remember when you wake up and your memory is ulimited to 1MB.)
+> In the for what it is worth department, I got mail from "esr@thyrus.org"
+> with a subject of "cool game" or something like that, and it was obviously
+> forged.  It's interesting that they are getting smart enough to make it look
+> like it comes from someone that you've communicated with in the past.  Sigh.
 >
-> 			Thunder
 
-ulimit is a per login limit, not a global per user limit. The sum of all user
-logins can still exceed the available memory. Even a large number of
-simultaneous network connections (telnetd/sshd) can drive a system OOM.
+Looking at it again it takes 3 requests in 48 hours.. a number that is
+stupidly low.  And since the headders are munged there is no way to tell
+from the complaints if they are all the same recipiant or not.
 
-Now, which of these processes should be killed?
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
 
-Any opinions expressed are solely my own.
+	Gerhard
+
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

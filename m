@@ -1,114 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbTJYG6a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 02:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbTJYG6a
+	id S262461AbTJYHHT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 03:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTJYHHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 02:58:30 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:34739
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S262133AbTJYG62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 02:58:28 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Autoregulate vm swappiness cleanup
-Date: Sat, 25 Oct 2003 16:58:22 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
-References: <200310232337.50538.kernel@kolivas.org> <8720000.1066920153@[10.10.2.4]> <200310240103.19336.kernel@kolivas.org>
-In-Reply-To: <200310240103.19336.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_O8hm/eFJfH3suNg"
-Message-Id: <200310251658.23070.kernel@kolivas.org>
+	Sat, 25 Oct 2003 03:07:19 -0400
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:60044
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262461AbTJYHHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 03:07:17 -0400
+From: John Mock <kd6pag@qsl.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kill unneccessary debug printk [PATCH]
+Message-Id: <E1ADIWJ-00012u-00@penngrove.fdns.net>
+Date: Sat, 25 Oct 2003 00:07:31 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    > Better yet, let's take this opportunity to do this more cleanly.  How 
+    > about having something like /sys/power/vmode (or /proc/...) contain that 
+    > inforemation instead?  With luck, it might even be few kernel bytes than
+    > the original printk (or at least not much more).  (I know nothing about
+    > either /proc or /sys, so it would take me awhile to suggest a patch).
 
---Boundary-00=_O8hm/eFJfH3suNg
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+    Well, you probably know about as much as I do. I'm afraid I'm just
+    going to take the easy way out.
+								    Pavel
 
-On Fri, 24 Oct 2003 01:03, Con Kolivas wrote:
-> On Friday 24 October 2003 00:42, Martin J. Bligh wrote:
-> > It seems that you don't need si_swapinfo here, do you? i.freeram,
-> > i.bufferram, and i.totalram all come from meminfo, as far as I can
-> > see? Maybe I'm missing a bit ...
->
-> Well I did do it a while ago and it seems I got carried away adding and
-> subtracting info indeed. :-) Here's a simpler patch that does the same
-> thing.
+OK, then, here's a quick fix (perhaps someone else can refine it) which 
+reads back saved video mode via '/sys/power/gmode'.  Maybe someone else
+who understand mechanism better than i do can come up with some cleaner
+code to do the same thing (or at least find a better place to put this).
+Hopefully, i've at least picked the right CONFIG variable...
 
-The off-list enthusiasm has been rather strong so here is a patch done the 
-right way (tm). There is no need for the check of totalram being zero (the 
-original version of this patch modified the swappiness every tick which was 
-wasteful and had a divide by zero on init). Adjusting vm_swappiness only when 
-there is pressure to swap means totalram shouldn't be ever be zero. The 
-sysctl is made read only since writing to it would be ignored now.
+				-- JM
 
-Con
-
---Boundary-00=_O8hm/eFJfH3suNg
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="patch-test8-am-3"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="patch-test8-am-3"
-
---- linux-2.6.0-test8-base/kernel/sysctl.c	2003-10-19 20:24:49.000000000 +1000
-+++ linux-2.6.0-test8-am/kernel/sysctl.c	2003-10-25 16:37:44.384824976 +1000
-@@ -664,11 +664,8 @@ static ctl_table vm_table[] = {
- 		.procname	= "swappiness",
- 		.data		= &vm_swappiness,
- 		.maxlen		= sizeof(vm_swappiness),
--		.mode		= 0644,
--		.proc_handler	= &proc_dointvec_minmax,
--		.strategy	= &sysctl_intvec,
--		.extra1		= &zero,
--		.extra2		= &one_hundred,
-+		.mode		= 0444 /* read-only*/,
-+		.proc_handler	= &proc_dointvec,
- 	},
- #ifdef CONFIG_HUGETLB_PAGE
- 	 {
---- linux-2.6.0-test8-base/mm/vmscan.c	2003-10-19 20:24:36.000000000 +1000
-+++ linux-2.6.0-test8-am/mm/vmscan.c	2003-10-25 16:40:33.099176496 +1000
-@@ -47,7 +47,7 @@
- /*
-  * From 0 .. 100.  Higher means more swappy.
-  */
--int vm_swappiness = 60;
-+int vm_swappiness = 0;
- static long total_memory;
+Attachment: Patch to 2.6.0-test8-bk2
+-------------------------------------------------------------------------------
+--- ./kernel/power/disk.c.orig	2003-10-17 14:42:53.000000000 -0700
++++ ./kernel/power/disk.c	2003-10-25 00:02:10.000000000 -0700
+@@ -326,10 +326,55 @@
+ 	.attrs = g,
+ };
  
- #ifdef ARCH_HAS_PREFETCH
-@@ -600,6 +600,7 @@ refill_inactive_zone(struct zone *zone, 
- 	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
- 	struct page *page;
- 	struct pagevec pvec;
-+	struct sysinfo i;
- 	int reclaim_mapped = 0;
- 	long mapped_ratio;
- 	long distress;
-@@ -642,6 +643,14 @@ refill_inactive_zone(struct zone *zone, 
- 	mapped_ratio = (ps->nr_mapped * 100) / total_memory;
+-
+ static int __init pm_disk_init(void)
+ {
+ 	return sysfs_create_group(&power_subsys.kset.kobj,&attr_group);
+ }
  
- 	/*
-+	 * Autoregulate vm_swappiness to be equal to the percentage of
-+	 * pages in physical ram that are application pages. -ck
-+	 */
-+	si_meminfo(&i);
-+	vm_swappiness = 100 - (((i.freeram + get_page_cache_size() -
-+		swapper_space.nrpages) * 100) / i.totalram);
+ core_initcall(pm_disk_init);
 +
-+	/*
- 	 * Now decide how much we really want to unmap some pages.  The mapped
- 	 * ratio is downgraded - just because there's a lot of mapped memory
- 	 * doesn't necessarily mean that page reclaim isn't succeeding.
++#ifdef CONFIG_VIDEO_SELECT
++/*
++ *	gmode - report graphics mode
++ *
++ * In order for software suspend to succeed, the video mode must match that
++ * supplied via the console or from the kernel command line.  This provides
++ * an orderly means of retrieving that information (rather than grep'ing
++ * 'dmesg' at an appropriate time, as was the previous means of obtaining
++ * this datum).
++ *
++ * TO DO:  Make sure framebuffer code updates 'saved_videomode' if it is
++ *	   capable of changing the video mode ('vesafb' apparently cannot).
++ */
++extern unsigned long saved_videomode;
++
++static ssize_t gmode_show(struct subsystem * subsys, char * buf)
++{
++	return sprintf(buf,"0x%lx\n",saved_videomode);
++}
++
++static ssize_t gmode_store(struct subsystem * s, const char * buf, size_t n) {
++	return -EINVAL;
++}
++
++/* Probably should use some macro which makes 'gmode' read-only, since the
++   above code didn't report an error when storing into /sys/prog/gmode */
++power_attr(gmode);
++
++static struct attribute * g2[] = {
++	&gmode_attr.attr,
++	NULL,
++};
++
++static struct attribute_group attr_group2 = {
++	.attrs = g2,
++};
++
++static int __init pm_gmode_init(void)
++{
++	return sysfs_create_group(&power_subsys.kset.kobj,&attr_group2);
++}
++
++core_initcall(pm_gmode_init);
++
++#endif /* CONFIG_VIDEO_SELECT */
 
---Boundary-00=_O8hm/eFJfH3suNg--
-
+===============================================================================

@@ -1,290 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266645AbUBFWQj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 17:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266936AbUBFWQj
+	id S266880AbUBFWKn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 17:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUBFWKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 17:16:39 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:4591 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S266645AbUBFWQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 17:16:09 -0500
-Date: Fri, 6 Feb 2004 14:15:45 -0800
-From: Tim Hockin <thockin@sun.com>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, akpm@osdl.org, viro@math.psu.edu
-Subject: PATCH - raise max_anon limit
-Message-ID: <20040206221545.GD9155@sun.com>
-Reply-To: thockin@sun.com
+	Fri, 6 Feb 2004 17:10:43 -0500
+Received: from uranium.btinternet.com ([194.73.73.89]:12985 "EHLO
+	uranium.btinternet.com") by vger.kernel.org with ESMTP
+	id S266880AbUBFWKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 17:10:22 -0500
+Subject: Kernel DRI support
+From: David Seery <djseery@btinternet.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1076105424.27023.18.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="NhBACjNc9vV+/oop"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.5.2 
+Date: Fri, 06 Feb 2004 22:10:24 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---NhBACjNc9vV+/oop
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I have a laptop with a Radeon IGP 320M U1 Mobility graphics card.
 
-Attached is a patch to raise the limit of anonymous block devices.  The
-sysctl allows the admin to set the order of pages allocated for the unnamed
-bitmap from 1 page to the full MINORBITS limit.
+I've been looking for information on the bugzilla at XFree86, usenet,
+various Linux forums and the archives of this and other mailing lists.
+It's not too difficult to get the thing up and running, at the moment
+with a patched XFree86 and a patched 2.6.2 kernel.
 
-what think?
+I have two questions:
 
-Tim
+1.  It seems like support for these nasty chipsets went into the kernel
+around 2.4.22, but it doesn't work out of the box on 2.6.2 and I needed
+to apply a patch, mostly to drivers/char/drm/radeon_cp.c, to shift the
+base of the framebuffer.  This comes from http://bugs.xfree86.org/
+show_bug.cgi?id=314.  The patch didn't apply cleanly so I did it by
+hand.
 
--- 
-Tim Hockin
-Sun Microsystems, Linux Software Engineering
-thockin@sun.com
-All opinions are my own, not Sun's
+Is this correct, or should the radeon agp stuff work as is?
 
---NhBACjNc9vV+/oop
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="max_anon_sysctl-2.6.2-4.diff"
+2.  The result is not really any faster than doing it in software.  In
+particular, it doesn't make any difference if I have mtrr write-
+combining ranges set up or not, so it seems like the AGP acceleration
+isn't really being used.   (This is why I am directing my query here.)
 
-===== fs/namespace.c 1.52 vs edited =====
---- 1.52/fs/namespace.c	Tue Feb  3 21:37:02 2004
-+++ edited/fs/namespace.c	Thu Feb  5 17:20:55 2004
-@@ -25,6 +25,7 @@
- 
- extern int __init init_rootfs(void);
- extern int __init sysfs_init(void);
-+extern void __init max_anon_init(void);
- 
- /* spinlock for vfsmount related operations, inplace of dcache_lock */
- spinlock_t vfsmount_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-@@ -1171,6 +1172,7 @@
- 		d++;
- 		i--;
- 	} while (i);
-+	max_anon_init();
- 	sysfs_init();
- 	init_rootfs();
- 	init_mount_tree();
-===== fs/super.c 1.110 vs edited =====
---- 1.110/fs/super.c	Sun Oct  5 01:07:55 2003
-+++ edited/fs/super.c	Fri Feb  6 12:56:58 2004
-@@ -24,6 +24,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
-+#include <linux/init.h>
- #include <linux/acct.h>
- #include <linux/blkdev.h>
- #include <linux/quotaops.h>
-@@ -34,6 +35,7 @@
- #include <linux/vfs.h>
- #include <linux/writeback.h>		/* for the emergency remount stuff */
- #include <asm/uaccess.h>
-+#include <asm/semaphore.h>
- 
- 
- void get_filesystem(struct file_system_type *fs);
-@@ -535,16 +537,101 @@
-  * filesystems which don't use real block-devices.  -- jrs
-  */
- 
--enum {Max_anon = 256};
--static unsigned long unnamed_dev_in_use[Max_anon/(8*sizeof(unsigned long))];
-+int max_anon_order; /* = 0 */
-+static int max_anon;
-+static unsigned long *unnamed_dev_in_use;
- static spinlock_t unnamed_dev_lock = SPIN_LOCK_UNLOCKED;/* protects the above */
- 
-+static int set_max_anon_order(int old_order, int new_order)
-+{
-+	unsigned long *new_map;
-+	unsigned long *old_map;
-+	int new_bytes;
-+	int old_bytes;
-+
-+	/*
-+	 * you can only raise the order, or we have to handle the case of
-+	 * having used bits that will not exist after lowering the order
-+	 */
-+	if (new_order < old_order) {
-+		/* the sysctl proc_handler has already stored the value */
-+		max_anon_order = old_order;
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * writing too high a value clamps to the highest value
-+	 * max order is : 2^MINORBITS / 8 (bits per byte) / 2^PAGE_SHIFT
-+	 */
-+	if (new_order > (MINORBITS - PAGE_SHIFT - 3))
-+		new_order = MINORBITS - PAGE_SHIFT - 3;
-+
-+	if (new_order == old_order)
-+		return 0;
-+
-+	new_map = (unsigned long *)__get_free_pages(GFP_KERNEL, new_order);
-+	if (!new_map) {
-+		printk(KERN_ERR "Could not allocate new anonymous device map");
-+		max_anon_order = old_order;
-+		return -ENOMEM;
-+	}
-+	new_bytes = (1U << new_order) * PAGE_SIZE;
-+
-+	old_bytes = (1U << old_order) * PAGE_SIZE;
-+
-+	/* zero and copy old bit array, save the state */
-+	memset(new_map, 0, new_bytes);
-+	spin_lock(&unnamed_dev_lock);
-+	old_map = unnamed_dev_in_use;
-+	memcpy(new_map, old_map, old_bytes);
-+	unnamed_dev_in_use = new_map;
-+	max_anon = new_bytes * 8;
-+	spin_unlock(&unnamed_dev_lock);
-+	free_pages((unsigned long)old_map, old_order);
-+	max_anon_order = new_order;
-+
-+	return 0;
-+}
-+
-+int max_anon_sysctl_handler(ctl_table *table, int write, struct file *filp,
-+    void __user *buffer, size_t *lenp)
-+{
-+	int ret;
-+	int old_order;
-+	static DECLARE_MUTEX(max_anon_sem);
-+
-+	down(&max_anon_sem);
-+	old_order = max_anon_order;
-+	ret = proc_dointvec(table, write, filp, buffer, lenp);
-+	if (ret)
-+		goto out;
-+	if (write)
-+		ret = set_max_anon_order(old_order, max_anon_order);
-+out:
-+	up(&max_anon_sem);
-+	return ret;
-+}
-+
-+void __init max_anon_init(void)
-+{
-+	int new_bytes;
-+
-+	unnamed_dev_in_use = (unsigned long *)__get_free_pages(GFP_ATOMIC,
-+	    max_anon_order);
-+	if (!unnamed_dev_in_use) {
-+		panic("Could not initialize anonymous device map");
-+	}
-+	new_bytes = (1U << max_anon_order) * PAGE_SIZE;
-+	memset(unnamed_dev_in_use, 0, new_bytes);
-+	max_anon = new_bytes * 8;
-+}
-+
- int set_anon_super(struct super_block *s, void *data)
- {
- 	int dev;
- 	spin_lock(&unnamed_dev_lock);
--	dev = find_first_zero_bit(unnamed_dev_in_use, Max_anon);
--	if (dev == Max_anon) {
-+	dev = find_first_zero_bit(unnamed_dev_in_use, max_anon);
-+	if (dev == max_anon) {
- 		spin_unlock(&unnamed_dev_lock);
- 		return -EMFILE;
- 	}
-===== include/linux/fs.h 1.283 vs edited =====
---- 1.283/include/linux/fs.h	Mon Jan 19 15:38:10 2004
-+++ edited/include/linux/fs.h	Thu Feb  5 17:20:55 2004
-@@ -19,6 +19,7 @@
- #include <linux/cache.h>
- #include <linux/radix-tree.h>
- #include <linux/kobject.h>
-+#include <linux/sysctl.h>
- #include <asm/atomic.h>
- 
- struct iovec;
-@@ -1045,6 +1046,8 @@
- 			void *data);
- struct super_block *get_sb_pseudo(struct file_system_type *, char *,
- 			struct super_operations *ops, unsigned long);
-+int max_anon_sysctl_handler(ctl_table *table, int write, struct file *filp,
-+			void __user *buffer, size_t *lenp);
- 
- /* Alas, no aliases. Too much hassle with bringing module.h everywhere */
- #define fops_get(fops) \
-===== include/linux/sysctl.h 1.59 vs edited =====
---- 1.59/include/linux/sysctl.h	Sun Feb  1 11:17:41 2004
-+++ edited/include/linux/sysctl.h	Thu Feb  5 17:20:55 2004
-@@ -615,6 +615,7 @@
- 	FS_LEASE_TIME=15,	/* int: maximum time to wait for a lease break */
- 	FS_DQSTATS=16,	/* disc quota usage statistics */
- 	FS_XFS=17,	/* struct: control xfs parameters */
-+	FS_MAX_ANON_ORDER=18, /* int: max anonymous blockdevs oreder */
- };
- 
- /* /proc/sys/fs/quota/ */
-===== kernel/sysctl.c 1.59 vs edited =====
---- 1.59/kernel/sysctl.c	Tue Feb  3 21:30:55 2004
-+++ edited/kernel/sysctl.c	Thu Feb  5 17:20:55 2004
-@@ -38,6 +38,7 @@
- #include <linux/security.h>
- #include <linux/initrd.h>
- #include <linux/times.h>
-+#include <linux/fs.h>
- #include <asm/uaccess.h>
- 
- #ifdef CONFIG_ROOT_NFS
-@@ -63,6 +64,7 @@
- extern int min_free_kbytes;
- extern int printk_ratelimit_jiffies;
- extern int printk_ratelimit_burst;
-+extern int max_anon_order;
- 
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
- static int maxolduid = 65535;
-@@ -813,6 +815,14 @@
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= FS_MAX_ANON_ORDER,
-+		.procname	= "max-anon-order",
-+		.data		= &max_anon_order,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &max_anon_sysctl_handler,
- 	},
- 	{ .ctl_name = 0 }
- };
-===== Documentation/sysctl/fs.txt 1.2 vs edited =====
---- 1.2/Documentation/sysctl/fs.txt	Mon Dec 30 04:29:09 2002
-+++ edited/Documentation/sysctl/fs.txt	Thu Feb  5 17:31:17 2004
-@@ -23,6 +23,7 @@
- - inode-max
- - inode-nr
- - inode-state
-+- max-anon-order
- - overflowuid
- - overflowgid
- - super-max
-@@ -116,6 +117,19 @@
- preshrink is nonzero when the nr_inodes > inode-max and the
- system needs to prune the inode list instead of allocating
- more.
-+
-+==============================================================
-+
-+max-anon-order
-+
-+Unnamed block devices are dummy devices used by virtual filesystems which
-+don't use real block-devices, such as NFS.  The maximum number of unnamed
-+block devices is controlled by this sysctl value.  The value represents a
-+power-of-two page size.  For example, setting the default order, 0, results
-+in 2^0 = 1 page being allocated for the anonymous device bitmap.  Setting
-+the order to 2 results in 2^2 = 4 pages being allocated for the bitmap.
-+Once increased, this value can not be decreased.  There is a limit of
-+2^MINORBITS bits available at maximum.
- 
- ==============================================================
- 
+Am I off the mark here, or is this a known problem with support for
+these IGP devices?
 
---NhBACjNc9vV+/oop--
+I've been unable to find previous responses about this.  Pardon me if
+I'm rehashing old ground.
+
+For benchmarking purposes, I get about 450-480 fps with glxgears as
+compared with 430-450 without DRI.  Or, is there another reason I should
+be thinking about for poor performance?  (Such as, the inherent badness
+of the card, perhaps?)
+
+Cheers,
+
+David
+
+Some relevant output:
+
+dmesg | grep -i agp
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.AGPB._PRT]
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected Ati IGP320/M chipset
+agpgart: Maximum main memory to use for agp memory: 148M
+agpgart: AGP aperture is 64M @ 0xd4000000
+agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:01:05.0 into 4x mode
+
+dmesg | grep -i drm
+[drm] Initialized i830 1.3.2 20021108 on minor 0
+[drm] Initialized radeon 1.9.0 20020828 on minor 1
+
+cat /proc/mtrr
+reg00: base=0x00000000 (   0MB), size= 128MB: write-back, count=1
+reg01: base=0x08000000 ( 128MB), size=  64MB: write-back, count=1
+reg02: base=0xd4000000 (3392MB), size=  64MB: write-combining, count=2
+reg03: base=0xe0000000 (3584MB), size=  64MB: write-combining, count=2
+
+grep -i drm /var/log/XFree86.0.log        (trimmed)
+drmOpenDevice: minor is 0
+drmOpenDevice: node name is /dev/dri/card0
+drmOpenDevice: open result is 6, (OK)
+drmOpenDevice: minor is 0
+drmOpenDevice: node name is /dev/dri/card0
+drmOpenDevice: open result is 6, (OK)
+drmOpenDevice: minor is 0
+drmOpenDevice: node name is /dev/dri/card0
+drmOpenDevice: open result is 6, (OK)
+drmOpenDevice: minor is 1
+drmOpenDevice: node name is /dev/dri/card1
+drmOpenDevice: open result is 6, (OK)
+drmGetBusid returned ''
+(II) RADEON(0): [drm] created "radeon" driver at busid "PCI:1:5:0"
+(II) RADEON(0): [drm] added 8192 byte SAREA at 0xcc92b000
+(II) RADEON(0): [drm] mapped SAREA 0xcc92b000 to 0x44268000
+(II) RADEON(0): [drm] framebuffer handle = 0xe0000000
+(II) RADEON(0): [drm] added 1 reserved context for kernel
+(II) RADEON(0): [drm] register handle = 0xd0100000
+(II) RADEON(0): [drm] installed DRM signal handler
+(II) RADEON(0): [drm] Added 32 65536 byte vertex/indirect buffers
+(II) RADEON(0): [drm] Mapped 32 vertex/indirect buffers
+(II) RADEON(0): [drm] dma control initialized, using IRQ 9
+(II) RADEON(0): [drm] Initialized kernel GART heap manager, 5111808
+
+grep -i agp /var/log/XFree86.0.log             (trimmed)
+(**) RADEON(0): Option "AGPMode" "4"
+(**) RADEON(0): Option "AGPFastWrite" "true"
+(II) RADEON(0): AGP card detected
+(**) RADEON(0): AGP 4x mode is configured
+(**) RADEON(0): Enabling AGP Fast Write
+(II) RADEON(0): [agp] Mode 0x0f000214 [AGP 0x1002/0xcab0; Card
+0x1002/0x4336]
+(II) RADEON(0): [agp] 8192 kB allocated with handle 0x00000001
+(II) RADEON(0): [agp] ring handle = 0xd4000000
+(II) RADEON(0): [agp] Ring mapped at 0x4426a000
+(II) RADEON(0): [agp] ring read ptr handle = 0xd4101000
+(II) RADEON(0): [agp] Ring read ptr mapped at 0x4436b000
+(II) RADEON(0): [agp] vertex/indirect buffers handle = 0xd4102000
+(II) RADEON(0): [agp] Vertex/indirect buffers mapped at 0x4436c000
+(II) RADEON(0): [agp] GART texture map handle = 0xd4302000
+(II) RADEON(0): [agp] GART Texture map mapped at 0x4456c000
+

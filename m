@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbTJFPuS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 11:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTJFPuS
+	id S263898AbTJFQHn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 12:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263998AbTJFQHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 11:50:18 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:14011 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S262333AbTJFPuP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 11:50:15 -0400
-Date: Mon, 6 Oct 2003 17:49:51 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: John Bradford <john@grabjohn.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-       Dave Jones <davej@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: FDC motor left on
-In-Reply-To: <Pine.LNX.4.53.0310061059220.9165@chaos>
-Message-ID: <Pine.GSO.3.96.1031006174121.18687C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	Mon, 6 Oct 2003 12:07:42 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:65450 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S263898AbTJFQHi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 12:07:38 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Russell King <rmk@arm.linux.org.uk>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH 2.6] Warnings in 8250_acpi
+Date: Mon, 6 Oct 2003 10:07:36 -0600
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200310060131.55852.dtor_core@ameritech.net> <20031006093811.A12713@flint.arm.linux.org.uk>
+In-Reply-To: <20031006093811.A12713@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310061007.36240.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Oct 2003, Richard B. Johnson wrote:
-
-> > This is not a problem to deal with in the kernel - what if there is
-> > hardware other than a floppy controller at that address?
+On Monday 06 October 2003 2:38 am, Russell King wrote:
+> On Mon, Oct 06, 2003 at 01:31:55AM -0500, Dmitry Torokhov wrote:
+> > Lastest changes in 8250_acpi.c produce warnings about type mismatch
+> > in printk. We could either change format to print long long arguments
+> > or, until most of us are on 64 bits, just trim values to 32.
 > 
-> In the ix86 architecture (and it is in arch-specific code), there
-> cannot be anything at this address except a floppy or nothing.
-> In both cases, you are covered.
+> I'd like Bjorn to comment before I apply this.
 
- Huh?  The floppies use ordinary I/O ports at the ISA bus, not the range
-reserved for motherboard devices as, until quite recently, FDCs used to
-exist solely as add-on cards (I still have one).  Any other ISA device is
-free to use the port range if it's unused by anything else (e.g. no FDC
-there).  Ditto for IRQ6 -- older cards used to have an option to use this
-line, only newer ones often do not have it anymore, for unknown reason
-(i.e. the cost is probably one).
+Oops, sorry about that.  Here's my preference for fixing it:
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+===== drivers/serial/8250_acpi.c 1.3 vs edited =====
+--- 1.3/drivers/serial/8250_acpi.c	Wed Oct  1 03:11:17 2003
++++ edited/drivers/serial/8250_acpi.c	Mon Oct  6 12:33:54 2003
+@@ -28,8 +28,7 @@
+ 	req->iomem_base = ioremap(req->iomap_base, size);
+ 	if (!req->iomem_base) {
+ 		printk(KERN_ERR "%s: couldn't ioremap 0x%lx-0x%lx\n",
+-			__FUNCTION__, addr->min_address_range,
+-			addr->max_address_range);
++			__FUNCTION__, req->iomap_base, req->iomap_base + size);
+ 		return AE_ERROR;
+ 	}
+ 	req->io_type = SERIAL_IO_MEM;
+
+
 

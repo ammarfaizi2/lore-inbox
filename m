@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265571AbSKADwd>; Thu, 31 Oct 2002 22:52:33 -0500
+	id <S265577AbSKADyD>; Thu, 31 Oct 2002 22:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265575AbSKADwc>; Thu, 31 Oct 2002 22:52:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:65202 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265571AbSKADwc>;
-	Thu, 31 Oct 2002 22:52:32 -0500
-Date: Fri, 1 Nov 2002 13:21:14 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Martin Bligh <mjbligh@us.ibm.com>
-Subject: Re: [rfc][patch] MAX_NR_NODES vs. MAX_NUMNODES
-Message-ID: <20021101022114.GA728@krispykreme>
-References: <3DB8927E.5090909@us.ibm.com>
+	id <S265580AbSKADyC>; Thu, 31 Oct 2002 22:54:02 -0500
+Received: from ns.miraclelinux.com ([219.101.34.26]:35066 "EHLO
+	dns01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id <S265577AbSKADyC>; Thu, 31 Oct 2002 22:54:02 -0500
+To: linux-kernel@vger.kernel.org
+Cc: hyoshiok@miraclelinux.com
+Subject: build error in 2.5.45
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Cuyahoga Valley)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB8927E.5090909@us.ibm.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20021101125652G.hyoshiok@miraclelinux.com>
+Date: Fri, 01 Nov 2002 12:56:52 +0900
+From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  arch/i386/oprofile/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
+net/built-in.o: In function `p8022_request':
+net/built-in.o(.text+0xf4b9): undefined reference to `llc_build_and_send_ui_pkt'
+net/built-in.o: In function `register_8022_client':
+net/built-in.o(.text+0xf502): undefined reference to `llc_sap_open'
+net/built-in.o: In function `unregister_8022_client':
+net/built-in.o(.text+0xf52e): undefined reference to `llc_sap_close'
+net/built-in.o: In function `snap_request':
+net/built-in.o(.text+0xf663): undefined reference to `llc_build_and_send_ui_pkt'
+net/built-in.o: In function `snap_init':
+net/built-in.o(.init.text+0x613): undefined reference to `llc_sap_open'
+make: *** [.tmp_vmlinux1] Error 1
 
-Hi Matt,
-
-> This patch
-> 1) Gets rid of the include/asm-xxx/numnodes.h files
-> 2) Defines MAX_NR_NODES to the appropriate per-arch value in 
-> include/asm-xxx/param.h
-> 3) changes all remaining occurences MAX_NUMNODES to MAX_NR_NODES 
-> throughout the kernel
-
-Looks good for ppc64.
-
-Anton (using 20 hours of flights trying to catch up on email)
+Thanks in advance,
+  Hiro

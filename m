@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbSIYBEN>; Tue, 24 Sep 2002 21:04:13 -0400
+	id <S261864AbSIYAzp>; Tue, 24 Sep 2002 20:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261869AbSIYBEN>; Tue, 24 Sep 2002 21:04:13 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:44738 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261866AbSIYBEN>; Tue, 24 Sep 2002 21:04:13 -0400
-Date: Tue, 24 Sep 2002 18:08:59 -0700 (PDT)
-From: Dave Hansen <dave@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.38-mm2 dbench $N times
-In-Reply-To: <3D9103EB.FC13A744@digeo.com>
-Message-ID: <Pine.LNX.4.44.0209241802120.11685-100000@nighthawk.sr71.net>
+	id <S261865AbSIYAzp>; Tue, 24 Sep 2002 20:55:45 -0400
+Received: from mailf.telia.com ([194.22.194.25]:26603 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S261864AbSIYAzo>;
+	Tue, 24 Sep 2002 20:55:44 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Adam Goldstein <Whitewlf@Whitewlf.net>, linux-kernel@vger.kernel.org
+Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
+Date: Wed, 25 Sep 2002 02:59:12 +0200
+User-Agent: KMail/1.4.7
+Cc: Adam Taylor <iris@servercity.com>
+References: <37EF12D6-D015-11D6-AD2E-000502C90EA3@Whitewlf.net>
+In-Reply-To: <37EF12D6-D015-11D6-AD2E-000502C90EA3@Whitewlf.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200209250259.12810.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Sep 2002, Andrew Morton wrote:
+Asking some of the things I guess others will ask later, but I won't
+look into this anymore this night.
 
-> William Lee Irwin III wrote:
-> > 
-> > William Lee Irwin III wrote:
-> > >> Taken on 32x/32G NUMA-Q:
-> > >> Throughput 67.3949 MB/sec (NB=84.2436 MB/sec  673.949 MBit/sec)  16 procs
-> > >> dbench 16  11.72s user 122.21s system 422% cpu 31.733 total
->
-> dbench 16 on that sort of machine is a memory bandwidth test.
-> And a dcache lock exerciser.  It basically doesn't touch the
-> disk.  Something very bad is happening.
-> 
-> Anton can get 3000 MByte/sec ;)
+Have you been able to determine if it is I/O bound or CPU bound?
+Or maybe using to much CPU to do I/O?
 
-Bill's Machine cost around $50, plus the cost to repair the walls that I 
-crushed when hauling the pieces around.  Anton's cost $2 million.  Bill 
-wins :)
+Does anyone know what virtual memory system does Mandrake uses? 
+ Linus, Andreas or Riels?
+ Have you tried Mandrakes support?
 
-Are you trying to bind the processes anywhere?  I wonder what would happen 
-if you make it always run quad 0...
+vmstat	over some time would be nice to get a hint on what it is doing.
+ext3		do you use the same journaling mode as on Moja?
+top		how much CPU time does the kernel processes use?
+
+/RogerL
+
 -- 
-Dave Hansen
-haveblue@us.ibm.com
+Roger Larsson
+Skellefteå
+Sweden
 

@@ -1,47 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132701AbRDIH4d>; Mon, 9 Apr 2001 03:56:33 -0400
+	id <S132705AbRDIIme>; Mon, 9 Apr 2001 04:42:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132702AbRDIH4Y>; Mon, 9 Apr 2001 03:56:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10765 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132701AbRDIH4N>;
-	Mon, 9 Apr 2001 03:56:13 -0400
-Date: Mon, 9 Apr 2001 09:56:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ian Eure <ieure@insynq.com>
+	id <S132706AbRDIImY>; Mon, 9 Apr 2001 04:42:24 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:26372 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S132705AbRDIImM>;
+	Mon, 9 Apr 2001 04:42:12 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104090842.f398g2f495273@saturn.cs.uml.edu>
+Subject: Re: [PATCH] Re: softirq buggy
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Mon, 9 Apr 2001 04:42:02 -0400 (EDT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: loop problems continue in 2.4.3
-Message-ID: <20010409095607.A432@suse.de>
-In-Reply-To: <15055.36597.353681.125824@pyramid.insynq.com>
-Mime-Version: 1.0
+In-Reply-To: <3AD0D9A8.189AA43C@colorfullife.com> from "Manfred Spraul" at Apr 08, 2001 11:35:36 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15055.36597.353681.125824@pyramid.insynq.com>; from ieure@insynq.com on Sat, Apr 07, 2001 at 03:04:37PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 07 2001, Ian Eure wrote:
-> i'm still having loopback problems with linux 2.4.3, even though they
-> were supposed to be fixed. it doesn't deadlock my maching right away
-> anymore, but instead causes a kernel panic after 4-6 uses of the loop
-> device.
-> 
-> the message i get is: "Kernel panic: Invalid blocksize passed to
-> set_blocksize"
-> 
-> 100% reproducable. has anyone else seen this?
-> 
-> i did compile with gcc 2.92.3, and i have hedrick's ide patches
-> applied.
-> 
-> anyone else see this?
+> I'd prefer to inline cpu_is_idle(), but optimizing the idle
+> code path is probably not that important ;-)
 
-Nope, please add a printk like before set_blocksize in
-drivers/block/loop.c and print the bs info, like so
-
-        printk("loop: setting %d bs for %s\n", bs, kdevname(inode->i_rdev));
-        set_blocksize(dev, bs);
-
--- 
-Jens Axboe
-
+Sure it is, in one way: how fast can you get back to work?
+(not OK to take a millisecond getting out of the idle loop)

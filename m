@@ -1,130 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271217AbTHFSaq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 14:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271373AbTHFSaq
+	id S270869AbTHFSfb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 14:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270870AbTHFSfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 14:30:46 -0400
-Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:24070 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S271217AbTHFSan
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 14:30:43 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Russel King <rmk@arm.linux.org.uk>
-Subject: [PATCH 2.6] ToPIC specific init for yenta_socket
-Date: Wed, 6 Aug 2003 20:25:08 +0200
-User-Agent: KMail/1.5.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-pcmcia" <linux-pcmcia@lists.infradead.org>
+	Wed, 6 Aug 2003 14:35:31 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:43528 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S270869AbTHFSfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 14:35:25 -0400
+Message-ID: <3F314D6B.9090302@techsource.com>
+Date: Wed, 06 Aug 2003 14:48:11 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Interactivity improvements
+References: <200308050207.18096.kernel@kolivas.org> <200308051220.04779.kernel@kolivas.org> <3F2F149F.1020201@cyberone.com.au> <200308051306.38180.kernel@kolivas.org> <3F2F21DF.1050601@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308062025.08861.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch adds override functions for the ToPIC family of controllers.
-also adds the device id for ToPIC100 and (untested) support for zoom
-video for ToPIC97/100.
+Here's a kooky idea...
 
-tested with start/stop and suspend/resume.
+I'm not sure about this detail, but I would guess that the int 
+schedulers are trying to determine relatively stable priority values for 
+processes.  A process does not instantly come to its correct priority 
+level, because it gets there based on accumulation of behavioral patterns.
 
+Well, it occurs to me that we could benefit from situations where 
+priority changes are underdamped.  The results would sometimes be an 
+oscillation in priority levels.  In the short term, a given process may 
+be given different amounts of CPU time when it is run, although in the 
+long term, it should average out.
 
---- 1.3/drivers/pcmcia/topic.h	Sat Oct 19 01:11:25 2002
-+++ edited/drivers/pcmcia/topic.h	Wed Aug  6 19:25:39 2003
-@@ -93,4 +93,60 @@
- #define  TOPIC97_RCR_CAUDIO_OFF		0x00000002
- #define  TOPIC_RCR_CAUDIO_INVERT	0x00000001
- 
-+#define TOPIC97_ZOOM_VIDEO_CONTROL	0x009c  /* 8 bit */
-+#define  TOPIC97_ZOOM_VIDEO_ENABLE	0x01
-+
-+/* general ToPIC stuff */
-+static int topic_init(struct pcmcia_socket *sock)
-+{
-+	struct yenta_socket *socket = container_of(sock, struct yenta_socket, socket);
-+	u8 val;
-+	
-+	yenta_init(sock);
-+
-+	/* enable CB, CB/PCCARD regs, lock ID */
-+	val = config_readb(socket, TOPIC_SLOT_CONTROL);
-+	val |= TOPIC_SLOT_SLOTON | TOPIC_SLOT_SLOTEN | TOPIC_SLOT_ID_LOCK |
-+	       TOPIC_SLOT_ID_WP;
-+	config_writeb(socket, TOPIC_SLOT_CONTROL, val);
-+
-+	/* enable CB, HW change detect */
-+	val = config_readb(socket, TOPIC_CARD_DETECT);
-+	val |= TOPIC_CDR_MODE_PC32;
-+	val &= ~TOPIC_CDR_SW_DETECT;
-+	config_writeb(socket, TOPIC_CARD_DETECT, val);
-+
-+	return 0;
-+}
-+
-+static int topic_override(struct yenta_socket *socket)
-+{
-+	socket->socket.ops->init = topic_init;
-+	return 0;
-+}
-+
-+/* ToPIC97/100 stuff */
-+static void topic97_zoom_video(struct pcmcia_socket *sock, int onoff)
-+{
-+	struct yenta_socket *socket = container_of(sock, struct yenta_socket, socket);
-+	config_writeb(socket, TOPIC97_ZOOM_VIDEO_CONTROL,
-+	              onoff? TOPIC97_ZOOM_VIDEO_ENABLE: 0);
-+}
-+
-+static int topic97_init(struct pcmcia_socket *sock)
-+{
-+	topic_init(sock);
-+
-+	/* ToPIC97/100 support ZV */
-+	sock->zoom_video = topic97_zoom_video;
-+
-+	return 0;
-+}
-+
-+static int topic97_override(struct yenta_socket *socket)
-+{
-+	socket->socket.ops->init = topic97_init;
-+	return 0;
-+}
-+
- #endif /* _LINUX_TOPIC_H */
---- 1.35/drivers/pcmcia/yenta_socket.c	Sun Aug  3 17:05:56 2003
-+++ edited/drivers/pcmcia/yenta_socket.c	Wed Aug  6 17:27:24 2003
-@@ -769,6 +769,7 @@
- 
- #include "ti113x.h"
- #include "ricoh.h"
-+#include "topic.h"
- 
- /*
-  * Different cardbus controllers have slightly different
-@@ -809,6 +810,11 @@
- 	{ PD(RICOH,RL5C475), &ricoh_override },
- 	{ PD(RICOH,RL5C476), &ricoh_override },
- 	{ PD(RICOH,RL5C478), &ricoh_override },
-+
-+	{ PD(TOSHIBA,TOPIC95_A), &topic_override },
-+	{ PD(TOSHIBA,TOPIC95_B), &topic_override },
-+	{ PD(TOSHIBA,TOPIC97), &topic97_override },
-+	{ PD(TOSHIBA,TOPIC100), &topic97_override },
- 
- 	{ }, /* all zeroes */
- };
---- 1.112/include/linux/pci_ids.h	Wed Aug  6 00:37:33 2003
-+++ edited/include/linux/pci_ids.h	Wed Aug  6 16:55:04 2003
-@@ -1310,6 +1310,7 @@
- #define PCI_DEVICE_ID_TOSHIBA_601	0x0601
- #define PCI_DEVICE_ID_TOSHIBA_TOPIC95	0x060a
- #define PCI_DEVICE_ID_TOSHIBA_TOPIC97	0x060f
-+#define PCI_DEVICE_ID_TOSHIBA_TOPIC100	0x0617
- 
- #define PCI_VENDOR_ID_TOSHIBA_2		0x102f
- #define PCI_DEVICE_ID_TOSHIBA_TX3927	0x000a
+At the same time, certain tasks can only be judged correctly over the 
+long term, like X, for example.  Its long-term behavior is interactive, 
+but now and then, it will become a CPU hog, and we want to LET it.
+
+The idea I'm proposing, however poorly formed, is that if we allow some 
+"excessive" oscillation early on in the life of a process, we may be 
+able to more quickly get processes to NEAR its correct priority, OR get 
+its CPU time over the course of three times being run for the 
+underdamped case to be about the same as it would be if we knew in 
+advance what the priority should be.  But in the underdamped case, the 
+priority would continue to oscillate up and down around the correct 
+level, because we are intentionally overshooting the mark each time we 
+adjust priority.
+
+This may not be related, but something that pops into my mind is a 
+numerical method called Newton's Method.  It's a way to solve for roots 
+of an equation, and it involved derivatives, and I don't quite remember 
+how it works.  But in any event, the results are less accurate than, 
+say, bisection, but you get to the answer MUCH more quickly.
 

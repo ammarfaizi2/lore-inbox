@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbRCENWz>; Mon, 5 Mar 2001 08:22:55 -0500
+	id <S129290AbRCENaq>; Mon, 5 Mar 2001 08:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129281AbRCENWp>; Mon, 5 Mar 2001 08:22:45 -0500
-Received: from 4dyn174.delft.casema.net ([195.96.105.174]:7 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129270AbRCENWi>; Mon, 5 Mar 2001 08:22:38 -0500
-Message-Id: <200103051322.OAA31726@cave.bitwizard.nl>
-Subject: Re: kmalloc() alignment
-In-Reply-To: <E14ZuyF-00071y-00@the-village.bc.nu> from Alan Cox at "Mar 5, 2001
- 01:24:13 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 5 Mar 2001 14:22:35 +0100 (MET)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Kenn Humborg <kenn@linux.ie>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S129283AbRCENa0>; Mon, 5 Mar 2001 08:30:26 -0500
+Received: from ns.caldera.de ([212.34.180.1]:24073 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129282AbRCENaW>;
+	Mon, 5 Mar 2001 08:30:22 -0500
+Date: Mon, 5 Mar 2001 14:30:08 +0100
+Message-Id: <200103051330.OAA31295@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: Matt_Domsch@Dell.com
+Cc: R.E.Wolff@BitWizard.nl, fluffy@snurgle.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9E09@ausxmrr501.us.dell.com>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > As far as I know, you can count on 16-bytes alignment from
-> > kmalloc. The trouble is that you would have to keep the original
-> 
-> Actually it depends on the debug settings
+Hi Matt,
 
-Actually THAT's a bug in the debug stuff.... 
+In article <CDF99E351003D311A8B0009027457F1403BF9E09@ausxmrr501.us.dell.com> you wrote:
+> My concern is that if there continues to be a 2GB swap partition/file size
+> limitation, and you can have (as currently #defined) 8 swap partitions,
+> you're limited to 16GB swap, which then follows a max of 8GB RAM.  We'd like
+> to sell servers with 32GB or 64GB RAM to customers who request such for
+> their applications.  Such customers generally have no problem purchasing
+> additional disks to be used for swap, likely on a hardware RAID controller.
 
-		Roger.
+dou you actually want to page that high memory?  These high memory
+configurations are usually used by databases and other huge applications
+that have their own memory management.
 
+Other UNIX versions, e.g. the UnixWare with dshm have implemented special
+memory pools (in this case dshm) to give unswappable memory to this
+applications.  While I don't like such implementations with fixed memory
+pools it might be a good idea to have a MAP_DEDICATED flags to mmap
+(/dev/zero) to allocate non-aged and thus non-paged memory.
+
+To not make the system unusable by allocating too much of this memory
+allocation might need a special capability and/or a dynamic limit of
+allocatable unaged memory (sysctl?).
+
+	Christoph
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Of course it doesn't work. We've performed a software upgrade.

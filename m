@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbTFAOlV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 10:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbTFAOlV
+	id S264635AbTFAOod (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 10:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264637AbTFAOod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 10:41:21 -0400
-Received: from Mail1.kontent.de ([81.88.34.36]:52672 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S262340AbTFAOlU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 10:41:20 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: David Brownell <david-b@pacbell.net>, alexh@ihatent.com
-Subject: Re: USB 2.0 with 250Gb disk and insane loads
-Date: Sun, 1 Jun 2003 16:53:47 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <3EDA0E5D.8080404@pacbell.net>
-In-Reply-To: <3EDA0E5D.8080404@pacbell.net>
+	Sun, 1 Jun 2003 10:44:33 -0400
+Received: from h-69-3-230-179.CHCGILGM.covad.net ([69.3.230.179]:55356 "EHLO
+	the-breaks.com") by vger.kernel.org with ESMTP id S264635AbTFAOoc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 10:44:32 -0400
+Date: Sun, 1 Jun 2003 10:08:09 -0500 (CDT)
+From: xombi@accessus.net
+X-X-Sender: xombi@localhost.localdomain
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Margit Schubert-While <margitsw@t-online.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: weird keyboard with 2.5.70
+In-Reply-To: <1054396897.27312.8.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306011003520.13639-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306011653.47958.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 1. Juni 2003 16:31 schrieb David Brownell:
-> > I'm trying to nail own a problem here, with my shiny new Maxtor 250Gb
-> > USB 2.0 disk. Under 2.4 (vanilla, latest 21-preX and 21-preX-acY) the
-> > disk will mount and talk nicely. As soon as any load hits it, e.g. a
-> > single cp from my internal CD-ROM to the disk, the mahcine load will
-> > sky-rocket and at some point within a few minuter hang the machine.
-> >
-> > On 2.5 (vanilla and -mm) the load will show as i/o-wait and at some
-> > point hang any access to the drive, but the kernel will go on working.
+On 31 May 2003, Alan Cox wrote:
+> On Sad, 2003-05-31 at 17:44, Margit Schubert-While wrote:
+> > Errr, guys - you do know that PS2 is NOT hotplug and you
+> > may well end up hosing your mainboard ?
 >
-> That's a big clue -- nothing in the USB code ever shows up
-> as "i/o wait".  It can't, since USB is usually built as
-> modules and things like io_schedule() are, for some odd
-> reason, never exported for use in modules.  So USB I/O
-> can't use them, and won't show up as "i/o" ... and that
-> load must come from some place other than USB.
+> For any vaguely modern machine you'll find thats not the case. If
+> I remember rightly the requirement for PS/2 to be hotplug safe was
+> added into the PC specs the vendors use about 1998
 
-Probably the block layer as it waits for free io slots.
-But that doesn't tell us why the requests are not executed.
-Where is SCSI timeout kicking in?
-Have you tried enabling debugging in storage?
-Could you try on USB1.1 only?
+I have a Abit-KT7 (Socket A, wo/RAID) motherboard that dies if you unplug
+the keyboard, but not the mouse. IIRC that's a mid-to late 2000
+motherboard.
 
-	Regards
-		Oliver
+-- 
+\ \/ / _       |~\  _ In God We Trust. All Others Pay Cash.
+ >  < / \|\  /|+-< | |  "The world is a comedy to those that think,
+/ /\ \\_/| \/ ||__)|_|   a tragedy to those who feel." - Horace Walpole
 

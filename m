@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311841AbSDXLj3>; Wed, 24 Apr 2002 07:39:29 -0400
+	id <S311866AbSDXLvJ>; Wed, 24 Apr 2002 07:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311866AbSDXLj2>; Wed, 24 Apr 2002 07:39:28 -0400
-Received: from ns.suse.de ([213.95.15.193]:42765 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S311841AbSDXLj2>;
-	Wed, 24 Apr 2002 07:39:28 -0400
-Date: Wed, 24 Apr 2002 13:39:27 +0200
-From: Dave Jones <davej@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.4.19-pre6aa1 (i586) ?
-Message-ID: <20020424133927.C14343@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020423092731.GA6327@smart.cobolt.net> <20020423150709.A4982@dualathlon.random> <20020424085458.GC9292@smart.cobolt.net> <20020424132505.M29841@suse.de> <20020424113249.GA30841@smart.cobolt.net>
+	id <S311884AbSDXLvI>; Wed, 24 Apr 2002 07:51:08 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:49264 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S311866AbSDXLvH>; Wed, 24 Apr 2002 07:51:07 -0400
+Message-Id: <5.1.0.14.2.20020424124953.03cde900@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 24 Apr 2002 12:51:45 +0100
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: ANN: NTFS 2.0.2 for kernel 2.5.9 released
+Cc: linux-ntfs-dev@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 24, 2002 at 01:32:49PM +0200, Dennis Schoen wrote:
- > > > opel:~# ./ewbe
- > > > HWCR=               2
- > > > Current EWBE mode is strong ordering
- > > 
- > > Bah, told you it was a long shot. Oh well..
- > Hhm, could you (or someone else) explain me what that output means?
+Hi,
 
-It's a decoded version of one of the CPU registers that describes the
-ordering model of the memory.  The K6-2 / K6-3 have iirc 3 different
-settings here, weak, notsoweak, strong. Weak ordering is faster, but
-may show up strange bugs. Which after Andrea pointed out that the
-function in the oops was unlikely to erm, oops, I got wondering if
-perhaps your BIOS had programmed it too aggressively.
+NTFS 2.0.2 for kernel 2.5.9 is now available. This is a small update mainly 
+to incorporate kernel 2.5.9. Also the default fmask is changed to 0177 
+which means files do not get the executable bit by default. The majority of 
+users prefer it this way. Minor misc bug fixes. Updating is recommended and 
+is necessary if you want to use kernel 2.5.9. Note the patch will work with 
+2.5.7, too but it may not apply cleanly so you may have to do some minimal 
+& obvious patch work yourself.
 
-But, this was just a random thought that didn't prove right, so
-back to the drawing board.. 8-)
+You can download patches for kernel 2.5.9 from Sourceforge:
+
+http://linux-ntfs.sf.net/downloads.html
+
+And of course you can use BitKeeper to get our BitKeeper repository at:
+         http://linux-ntfs.bkbits.net/ntfs-tng-2.5
+
+And a on-line view of the repository is available here:
+         http://linux-ntfs.bkbits.net:8080/ntfs-tng-2.5
+
+Best regards,
+
+         Anton
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

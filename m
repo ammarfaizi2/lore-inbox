@@ -1,50 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267888AbTBEJls>; Wed, 5 Feb 2003 04:41:48 -0500
+	id <S267895AbTBEKK7>; Wed, 5 Feb 2003 05:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267890AbTBEJls>; Wed, 5 Feb 2003 04:41:48 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2827 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267888AbTBEJls>; Wed, 5 Feb 2003 04:41:48 -0500
-Date: Wed, 5 Feb 2003 09:51:14 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andrew Morton <akpm@digeo.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, tytso@thunk.org, rddunlap@osdl.org
-Subject: Re: [PATCH][RESEND 3] disassociate_ctty SMP fix
-Message-ID: <20030205095114.A25479@flint.arm.linux.org.uk>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Andrew Morton <akpm@digeo.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, tytso@thunk.org, rddunlap@osdl.org
-References: <Pine.LNX.4.50L.0302042235180.32328-100000@imladris.surriel.com> <Pine.LNX.4.50L.0302042306230.32328-100000@imladris.surriel.com> <20030204175109.57bbfc51.akpm@digeo.com> <Pine.LNX.4.50L.0302042356580.32328-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.50L.0302042356580.32328-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Feb 04, 2003 at 11:58:52PM -0200
+	id <S267896AbTBEKK7>; Wed, 5 Feb 2003 05:10:59 -0500
+Received: from wg.pu.ru ([193.124.85.219]:14341 "EHLO wg.pu.ru")
+	by vger.kernel.org with ESMTP id <S267895AbTBEKK6>;
+	Wed, 5 Feb 2003 05:10:58 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: "George A. Nikandrov" <gogan@pochtamt.ru>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.4.20] - USB Storage and Olympus Cameras
+Date: Wed, 5 Feb 2003 13:29:23 +0300
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200302051329.23978.gogan@pochtamt.ru>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 11:58:52PM -0200, Rik van Riel wrote:
-> I guess it's time to fix the caller of this function then,
-> since something strange is going on here:
-> 
-> http://bugme.osdl.org/show_bug.cgi?id=54
+Hello!
 
-I don't think the tty is null there.  It'll be a filp->private_data
-being null.
+The following is a patch to make some buggy Olympus cameras (such as C-1)
+to work with Linux. It is based by information I've found from debugging
+output of usb-storage module. Please test, even if you don't have
+an Olympus, and report any bugs.
 
->From the trace, my guess is that a file descriptor is being left
-with a null filp->private_data, yet its on the file descriptor list
-for the tty, and its fops is set to tty_fops.
 
-I'll see if I can reproduce it here and work out what's going on.
-However, note the following (and I think this is the crux of the problem):
-release_dev is _supposed_ to run under the BKL.  So how the fsck are we
-getting into tty_do_hangup's BKL protected region while also being in
-release_dev's BKL protected region?  Is it the BKL which has broken?
+---8<---| Cut here |---8<---
+diff -urN linux-2.4.20.orig/drivers/usb/Config.in linux-2.4.20/drivers/usb/Config.in
+--- linux-2.4.20.orig/drivers/usb/Config.in     2003-01-29 11:23:10.000000000 +0300
++++ linux-2.4.20/drivers/usb/Config.in  2003-01-29 11:25:48.000000000 +0300
+@@ -39,6 +39,7 @@
+    fi
+    dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
+       dep_mbool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG $CONFIG_USB_STORAGE
++      dep_mbool '    Olympus Cameras support (EXPERIMENTAL)' CONFIG_USB_STORAGE_USBU $CONFIG_USB_STORAGE
+       dep_mbool '    Datafab MDCFE-B Compact Flash Reader support' CONFIG_USB_STORAGE_DATAFAB $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+       dep_mbool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM  $CONFIG_USB_STORAGE
+       dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE
+diff -urN linux-2.4.20.orig/drivers/usb/storage/transport.c linux-2.4.20/drivers/usb/storage/transport.c
+--- linux-2.4.20.orig/drivers/usb/storage/transport.c   2003-01-29 11:23:10.000000000 +0300
++++ linux-2.4.20/drivers/usb/storage/transport.c        2003-01-29 11:31:08.000000000 +0300
+@@ -1233,8 +1233,13 @@
+        US_DEBUGP("Bulk status Sig 0x%x T 0x%x R %d Stat 0x%x\n",
+                  le32_to_cpu(bcs->Signature), bcs->Tag, 
+                  bcs->Residue, bcs->Status);
+-       if (bcs->Signature != cpu_to_le32(US_BULK_CS_SIGN) || 
+-           bcs->Tag != bcb->Tag || 
++       if (bcs->Tag != bcb->Tag ||
++#ifdef CONFIG_USB_STORAGE_USBU
++           ( bcs->Signature != cpu_to_le32(US_BULK_CS_SIGN) &&
++             bcs->Signature != cpu_to_le32(US_BULK_CS_SIGN_USBU) ) || 
++#else
++           bcs->Signature != cpu_to_le32(US_BULK_CS_SIGN) || 
++#endif
+            bcs->Status > US_BULK_STAT_PHASE || partial != 13) {
+                US_DEBUGP("Bulk logical error\n");
+                ret = USB_STOR_TRANSPORT_ERROR;
+diff -urN linux-2.4.20.orig/drivers/usb/storage/transport.h linux-2.4.20/drivers/usb/storage/transport.h
+--- linux-2.4.20.orig/drivers/usb/storage/transport.h   2003-01-29 11:23:10.000000000 +0300
++++ linux-2.4.20/drivers/usb/storage/transport.h        2003-01-29 11:30:21.000000000 +0300
+@@ -106,6 +106,11 @@
+ 
+ #define US_BULK_CS_WRAP_LEN    13
+ #define US_BULK_CS_SIGN                0x53425355      /* spells out 'USBS' */
++
++#ifdef CONFIG_USB_STORAGE_USBU
++#define US_BULK_CS_SIGN_USBU   0x55425355      /* spells out 'USBU' */
++#endif
++
+ #define US_BULK_STAT_OK                0
+ #define US_BULK_STAT_FAIL      1
+ #define US_BULK_STAT_PHASE     2
+---8<---| Cut here |---8<---
+
+That's all. Thank you
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--------<==========[ George A. Nikandrov ]=========>--------
+mailto:   gogan@pochtamt.ru        www:      n/a (not yet ;)
+ICQ#:     22817226                 Jabber:   gogan@jabber.ru
+------------------------------------------------------------
 

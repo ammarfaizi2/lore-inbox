@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUIVHM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUIVH1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267446AbUIVHM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 03:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUIVHM1
+	id S261169AbUIVH1H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 03:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUIVH1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 03:12:27 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:51868 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267446AbUIVHMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 03:12:25 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 0/3] New input patches
-Date: Wed, 22 Sep 2004 02:12:23 -0500
-User-Agent: KMail/1.6.2
+	Wed, 22 Sep 2004 03:27:07 -0400
+Received: from styx.suse.cz ([82.119.242.94]:33674 "EHLO shadow.suse.cz")
+	by vger.kernel.org with ESMTP id S261169AbUIVH1F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 03:27:05 -0400
+Date: Wed, 22 Sep 2004 09:27:27 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: John Lenz <lenz@cs.wisc.edu>
 Cc: linux-kernel@vger.kernel.org
-References: <200409162358.27678.dtor_core@ameritech.net> <20040921121040.GA1603@ucw.cz> <200409210815.34509.dtor_core@ameritech.net>
-In-Reply-To: <200409210815.34509.dtor_core@ameritech.net>
-MIME-Version: 1.0
+Subject: Re: [PATCH] new class for led devices
+Message-ID: <20040922072727.GA4553@ucw.cz>
+References: <1095829641l.11731l.0l@hydra>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409220212.23110.dtor_core@ameritech.net>
+In-Reply-To: <1095829641l.11731l.0l@hydra>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 September 2004 08:15 am, Dmitry Torokhov wrote:
-> On Tuesday 21 September 2004 07:10 am, Vojtech Pavlik wrote:
+On Wed, Sep 22, 2004 at 05:07:21AM +0000, John Lenz wrote:
 
-> > So the condition needs to be inverted. However, it's not necessary at
-> > all, since the input layer will not pass the RAW events when the MSC_RAW
-> > bit is not set.
+> This is an attempt to provide an alternative to the current arm  
+> specific led interface that is generic for all arches and uses the "one  
+> value, one file" idea of sysfs.
 > 
-> I see, my bad. I will drop that bit.
-> 
-> Thanks for the comments!
-> 
+> I removed the function attribute that was in the previous patch, and  
+> added the ability for userspace to control the timer on each led  
+> individually.  Userspace can also set the delay in milliseconds for the  
+> blink.
 
-Vojtech,
-
-I have fixed the aforementioned bug and re-diffed the patches against your
-latest tree. Please do:
-
-	bk pull bk://dtor.bkbits.net/input
-
-Thanks!
+Well, we already have an interface for setting LEDs through the input
+layer, it'd be trivial to create an input device driver with just LEDs
+and no buttons/keys ...
 
 -- 
-Dmitry
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130355AbRA0NV4>; Sat, 27 Jan 2001 08:21:56 -0500
+	id <S130113AbRA0NaI>; Sat, 27 Jan 2001 08:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132623AbRA0NVr>; Sat, 27 Jan 2001 08:21:47 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:56242 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130355AbRA0NVe>; Sat, 27 Jan 2001 08:21:34 -0500
-Message-ID: <3A72CD1E.32BB523F@uow.edu.au>
-Date: Sun, 28 Jan 2001 00:29:02 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S130950AbRA0N37>; Sat, 27 Jan 2001 08:29:59 -0500
+Received: from gw-enternet.enternet.se ([193.13.79.17]:15490 "HELO
+	mail.ornskoldsvik.com") by vger.kernel.org with SMTP
+	id <S130113AbRA0N3s>; Sat, 27 Jan 2001 08:29:48 -0500
+Message-ID: <3A72CD7B.62402916@sorliden.ornskoldsvik.com>
+Date: Sat, 27 Jan 2001 14:30:35 +0100
+From: Matti Långvall 
+	<matti.langvall@sorliden.ornskoldsvik.com>
+Reply-To: matti.langvall@sorliden.ornskoldsvik.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+X-Accept-Language: sv, en
 MIME-Version: 1.0
-To: jamal <hadi@cyberus.ca>
-CC: lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-In-Reply-To: <3A726087.764CC02E@uow.edu.au> <Pine.GSO.4.30.0101270729270.24088-100000@shell.cyberus.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Running 2.4.0-ac11
+In-Reply-To: <3A720485.58D656A4@sorliden.ornskoldsvik.com> <20010127015122.E23160@suse.de> <3A72921C.D013F074@sorliden.ornskoldsvik.com> <20010127121742.A27553@suse.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
-> 
-> ..
-> It is also useful to have both client and server stats.
-> BTW, since the laptop (with the 3C card) is the client, the SG
-> shouldnt kick in at all.
+Jens Axboe wrote:
 
-The `client' here is doing the sendfiling, so yes, the
-gathering occurs on the client.
-
-> ...
-> > The test tool is, of course, documented [ :-)/2 ].  It's at
+> On Sat, Jan 27 2001, Matti Långvall wrote:
+> > > > Jan 26 23:44:57 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
+> > > > Jan 26 23:45:29 h-10-26-17-2 last message repeated 32 times
+> > > > Jan 26 23:46:31 h-10-26-17-2 last message repeated 62 times
+> > > > Jan 26 23:47:32 h-10-26-17-2 last message repeated 60 times
+> > > > Jan 26 23:48:34 h-10-26-17-2 last message repeated 62 times
+> > > > Jan 26 23:49:36 h-10-26-17-2 last message repeated 62 times
+> > >
+> > > Running magicdev by any chance?
+> > >
+> > > rpm -e magicdev
+> > >
 > >
-> >       http://www.uow.edu.au/~andrewm/linux/#zc
+> > YES
 > >
-> 
-> I'll give this a shot later. Can you try with the sendfiled-ttcp?
-> http://www.cyberus.ca/~hadi/ttcp-sf.tar.gz
+> > magicdev -0.2.7-1
+> >
+> > That's it?
+>
+> You tell me, do the errors disappear if you remove this package?
+>
+> --
+> * Jens Axboe <axboe@suse.de>
+> * SuSE Labs
 
-hmm..  I didn't bother with TCP_CORK because the files being
-sent are "much" larger than a frame.  Guess I should.
+You're right, no more Busy inodes.
+But magicdev is nice for us lazy people..
+Thanks
 
-The problem with things like ttcp is the measurement of CPU load.
-If your network is so fast that your machine can't keep up then
-fine, raw throughput is a good measure. But if the link is saturated
-then normal process accounting doesn't cut it.
+Matti L
 
-For example, at 100 mbps, `top' says ttcp is chewing 4% CPU. But guess
-what?  A low-priority process running on the same machine is in fact
-slowed down by 30%.  top lies.  Most of the cost of the networking layer
-is being accounted to swapper, and lost.  And who accounts for cache
-eviction, bus utilisation, etc.  We're better off measuring what's
-left behind, rather than measuring what is consumed.
 
-You can in fact do this with ttcp: run it with a super-high priority
-and run a little task in the background (dummyload.c in the above
-tarball does this).  See how much the dummy task is slowed down
-wrt an unloaded system.  It gets tricky on SMP though.
-
--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

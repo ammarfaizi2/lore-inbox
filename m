@@ -1,187 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130151AbRALPk1>; Fri, 12 Jan 2001 10:40:27 -0500
+	id <S131512AbRALP4D>; Fri, 12 Jan 2001 10:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130392AbRALPkR>; Fri, 12 Jan 2001 10:40:17 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:32011 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S130151AbRALPkG>;
-	Fri, 12 Jan 2001 10:40:06 -0500
-Date: Fri, 12 Jan 2001 16:36:33 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-Message-ID: <20010112163633.A22301@unternet.org>
-In-Reply-To: <20010110223015.B18085@unternet.org> <3A5D9D87.8A868F6A@uow.edu.au> <20010111201819.B3269@unternet.org> <3A5E0849.EB428D70@mandrakesoft.com>, <3A5E0849.EB428D70@mandrakesoft.com>; <20010112012839.A11091@unternet.org> <3A5EED14.88D8D9AF@uow.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5EED14.88D8D9AF@uow.edu.au>; from andrewm@uow.edu.au on Fri, Jan 12, 2001 at 10:40:04PM +1100
+	id <S131965AbRALPzy>; Fri, 12 Jan 2001 10:55:54 -0500
+Received: from tux.rsn.hk-r.se ([194.47.143.135]:23433 "EHLO tux.rsn.hk-r.se")
+	by vger.kernel.org with ESMTP id <S131512AbRALPzo>;
+	Fri, 12 Jan 2001 10:55:44 -0500
+Date: Fri, 12 Jan 2001 16:55:49 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Stephen Torri <s.torri@lancaster.ac.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux booting from HD on Promise Ultra ATA 100
+In-Reply-To: <Pine.LNX.4.21.0101121523040.4379-100000@egb070000014.lancs.ac.uk>
+Message-ID: <Pine.LNX.4.21.0101121653220.6280-100000@tux.rsn.hk-r.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 10:40:04PM +1100, Andrew Morton wrote:
-> Here is a debugging patch.  Could you please apply this,
-> rebuild and:
+On Fri, 12 Jan 2001, Stephen Torri wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> 1: Type ALT-SYSRQ-A when everything is good
-> 2: Type ALT-SYSRQ-A when everything is bad
-> 3: send the resulting logs.
+> I'm having difficulty booting from the Promise controller. Here is the
+> story:
+> 
+> I originally had my system setup with all drives working off the
+> mainsboard IDE controller (Intel 82371AB PIIX4). The setup was
+> 
+> /dev/hda - ST310232A, FwRev=3.09  (Seagate)
+> /dev/hdb - 927308, FwRev=RA530JNO (Maxtor) * Linux installed here
+> /dev/hdc - CD-532E-B (Teach CDROM)
+> /dev/hdd - CD-RW4224A (Smart & Friendly CDRW).
+> 
+> Well I got an Promise Ultra ATA 100 controller card. Went over to
+> linux-ide.org and get the patches for kernel-2.2.16. Took a pristine
+> kernel-2.2.16 and patched it and then compiled it on a RedHat 6.2
+> system. I then made a bootdisk with this new kernel.
+> 
+> So then I installed the drives in this order:
+> 
+> (Mainsboard controller)
+> primary master - ST310232A (Seagate)
+> primary slave - none
+> secondary master - CDROM
+> secondary slave - CDRW
+> 
+> (Promise controller)
+> primary slave - IBM-DLTA-307045 (IBM)
+> primary slave - 927308 (Maxtor) * Linux install here
+> secondary master - none
+> secondary slave - none
+> 
+> The system boots if I use the bootdisk and tell it "linux
+> root=/dev/hdf3".  I edited the lilo.conf and the fstab for the new
+> setup. I can log in and do my business with my the linux partition but
+> when I tried to use lilo to setup the MBR on the first disk (mainsboard) I
+> got this:
+> 
+> warning: BIOS Drive 0x82 may not be accessible.
+> 
+> Is there some settings that I need to give to the lilo to boot?
 
-OK, here's the results I get...
+My setup looks like this, I boot from hde
+I configured my BIOS to boot from SCSI (I have no scsi-adapter but the
+promise card reports itself as one at boottime)
 
-Before network hang
-===================
+boot = /dev/hde3
+delay = 50
+message = /boot/message
+vga = extended
+read-only
+lba32
+disk=/dev/hde
+  bios=0x80
 
-print_PIC()
-printing PIC contents
-print_IO_APIC()
-testing the IO APIC.......................
+image=/boot/kernel/vmlinuz-2.4.1-pre2
+  label = Linux
+  root = /dev/hde5
 
-.................................... done.
-print_all_local_APICs()
-
-... APIC ID:      01000000 (1)
-... APIC VERSION: 00040011
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000001000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000010000000000000000
-
-
-... APIC ID:      00000000 (0)
-... APIC VERSION: 00040011
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000010000000000000001000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000001000
-
-NOTICE: results differ every time I hit ALT-SYSRQ-A.
-	The '1' bit at 'row 11, col. 26' stays '1'
-	no matter how many times I use the magic keys.
-	The other '1' bits jump around a bit, or
-	disappear alltogether. Also, the sequence
-	in which the APICs appear in the dump sometimes
-	differs (this example shows 1 first, then 0,
-	other times you'd see 0 first, then 1)
-
-After network hang
-==================
-
-print_PIC()
-printing PIC contents
-print_IO_APIC()
-testing the IO APIC.......................
-
-.................................... done.
-print_all_local_APICs()
-
-... APIC ID:      00000000 (0)
-... APIC VERSION: 00040011
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000010000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000010000000000000000
+image=/boot/kernel/vmlinuz-2.4.0-test10
+  label = test10
+  root = /dev/hde5
 
 
-... APIC ID:      01000000 (1)
-... APIC VERSION: 00040011
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000001000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000010000000000000000
 
-NOTICE:	hmmm... see, now that '1' bit at row 11,
-	col. 26 for APIC 0 which was '1' before
-	has turned to '0'. It will stay '0' no
-	matter how many times I hit the magic keys...
-	It seems to have been replaced by the '1'
-	bit at row 11, col. 10, since that bit 
-	stays '1' no matter how many magic I
-	throw at it...
 
-Hope this helps... If you need more, let me know...
+This works perfectly fine here
 
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+/Martin
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262633AbREVQvO>; Tue, 22 May 2001 12:51:14 -0400
+	id <S262628AbREVQwy>; Tue, 22 May 2001 12:52:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262650AbREVQvE>; Tue, 22 May 2001 12:51:04 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:3345 "EHLO
+	id <S262643AbREVQwo>; Tue, 22 May 2001 12:52:44 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9745 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262633AbREVQu5>; Tue, 22 May 2001 12:50:57 -0400
-Date: Tue, 22 May 2001 09:50:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Akash Jain <aki51@acura.stanford.edu>
-cc: su.class.cs99q@nntp.stanford.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]drivers/net/wan/lmc/lmc_main.c
-In-Reply-To: <20010521204844.A2399@acura.stanford.edu>
-Message-ID: <Pine.LNX.4.21.0105220949240.19531-100000@penguin.transmeta.com>
+	id <S262628AbREVQwj>; Tue, 22 May 2001 12:52:39 -0400
+Message-ID: <3B0A9937.369A2FF0@transmeta.com>
+Date: Tue, 22 May 2001 09:52:07 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
+In-Reply-To: <3B0A28C0.2FFFC935@TeraPort.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Martin.Knoblauch" wrote:
+> 
+> >>
+> >> Hi,
+> >>
+> >> while trying to enhance a small hardware inventory script, I found that
+> >> cpuinfo is missing the details of L1, L2 and L3 size, although they may
+> >> be available at boot time. One could of cource grep them from "dmesg"
+> >> output, but that may scroll away on long lived systems.
+> >>
+> >
+> >Any particular reason this needs to be done in the kernel, as opposed
+> >to having your script read /dev/cpu/*/cpuid?
+> >
+> >        -hpa
+> 
+>  terse answer: probably the same reason as for most stuff in
+> /proc/cpuinfo :-)
+> 
 
-On Mon, 21 May 2001, Akash Jain wrote:
->
-> Sorry if this is reposted, previous one seemed to get tied up.
-> Here is a patch to the drivers/net/wan/lmc/lmc_main.c file.
+Terse but just plain wrong.
 
-I got the previous one, here's a copy of my reply to the people who
-weren't cc'd on that one.
+Most stuff in /proc/cpuinfo is either hard (under some set of
+circumstances) for userspace to obtain, or it is used by the kernel
+itself anyway.
 
-		Linus
+	-hpa
 
---- in a previous email, Linus wrote ---
-
-lmc_main.c is _soo_ broken than this patch only scratches the surface and
-only hides a small small part of the offenders.
-
-In particular, the fact that it does allocations with GFP_KERNEL while
-holding a spinlock is the _least_ of its troubles: it also does a
-"copy_from/to_user()" while holding the same spinlock (and has timeouts
-of up to half a second with interrupts disabled from the same spinlock).
-
-The kmalloc() is likely to succeed: a copy_from_user() can be trivially
-made to cause IO every time by a wily user.
-
-In short, the whole locking strategy is broken, and there's no way to fix
-it with small micro-patches. So not applied.
-
-(And it also looks like your sanity checker doesn't trap "copy to/from
-user space with spinlocks held or irq's disabled", hint hint ;).
-
-Btw, what's the right address to send this kind of feedback to the
-stanford group? 
-
-Good work by the checker, btw. it's not your fault that the problem goes
-deeper than what you found.
-
-        Thanks,
-
-                Linus
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbUBZLJV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 06:09:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUBZLJV
+	id S262772AbUBZLT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 06:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbUBZLT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 06:09:21 -0500
-Received: from mail-gate.ait.ac.th ([202.183.214.47]:7397 "EHLO
-	mail-gate.ait.ac.th") by vger.kernel.org with ESMTP id S262770AbUBZLJT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 06:09:19 -0500
-Date: Thu, 26 Feb 2004 18:09:03 +0700
-From: Alain Fauconnet <alain@ait.ac.th>
+	Thu, 26 Feb 2004 06:19:27 -0500
+Received: from server2.netdiscount.de ([217.13.198.2]:41381 "EHLO
+	server2.netdiscount.de") by vger.kernel.org with ESMTP
+	id S262772AbUBZLTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 06:19:24 -0500
+Date: Thu, 26 Feb 2004 12:19:12 +0100
+From: Christian Leber <christian@leber.de>
 To: linux-kernel@vger.kernel.org
-Subject: smbfs broken in 2.4.25? (Too many open files in system)
-Message-ID: <20040226110903.GC621@ait.ac.th>
+Subject: Re: 2.4.25 - large inode_cache
+Message-ID: <20040226111912.GB4554@core.home>
+References: <20040226013313.GN29776@unthought.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040226013313.GN29776@unthought.net>
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Feb 26, 2004 at 02:33:14AM +0100, Jakob Oestergaard wrote:
+> Besides, after a few days of running, the machine will use about 100MB
+> of memory for cache, 100MB for buffers, about 100MB for userspace, and
+> the remaining 600-700 MB of memory for inode_cache and dentry_cache.
 
-Hope I won't get flamed for this, I've spent a  fair  amount  of  time
-searching archives and news without finding anything close enough.
+I have the same problem (it's an dual PIII NFS fileserver with promise sx6000
+raid, 320 GB ext3 filesystem and only 512 MB Ram).
 
-Since I've updated my Slackware 8.0 desktop to the 2.4.25 kernel (from
-source, loaded .config from .24)  I  can't  access  shares  off  Win9x
-systems reliably (98/98SE tested). smbfs is loaded as a module.
+After only 2 days running the bloatmeter output looks like:
+   inode_cache:   336585KB   357234KB   94.21
+  dentry_cache:    50305KB    56523KB   88.99
+       size-32:     1516KB     1695KB   89.46
 
-I get random 'Too many open files in system'. E.g.:
+free output is this:
+             total       used       free     shared    buffers  cached
+Mem:        515980     506464       9516          0    2272      19204
+-/+ buffers/cache:     484988      30992
+Swap:      1951856       7992    1943864
 
-# /usr/local/samba/bin/smbmount //w98box/c /dosc -o password=xxxxx
-# ls /dosc
-/bin/ls: /dosc: Too many open files in system
-(command repeated several times: hit up arrow and enter... and then:)
-# ls /dosc
-ASD.LOG*       BIN/          CONFIG.TXT*  MSDOS.SYS*       SUHDLOG.---*
-AUTOEXEC.001*  BOOTLOG.DMA*  CONFIG.W95*  MSDOS.W95*       SUHDLOG.BAK*
-(...works!)
 
-It seems to randomly succeed or fail, with a majority of failures.
-I've been able to catch messages like the following in syslog:
+Regards
 
-Feb 26 13:42:27 alain kernel: smb_lookup: find windows/MSDFMAP.INI failed, error=-23
+Christian Leber
 
-This used to work flawlessly in 2.4.24.
-The Gods of Linux forgive me, I've copied ./fs/smbfs/* and
-./include/linux/smb*.h from the 2.4.24 tree, "make modules" and
-reloaded smbfs.o: now it works all the time!
-
-Some background: Samba is v2.2.8a built from source.
-
-Any hints? I've tried rebuilding smbfs with debug options in the
-Makefile, SMBFS_PARANOIA on and off, I haven't been able to
-make much sense out of it. It keeps failing in every configuration.
-
-Greets,
-_Alain_
+-- 
+  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
+   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)
+  Translation: <http://gnuhh.org/work/fsf-europe/augustinus.html>

@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288190AbSACENL>; Wed, 2 Jan 2002 23:13:11 -0500
+	id <S288195AbSACEPM>; Wed, 2 Jan 2002 23:15:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288191AbSACENC>; Wed, 2 Jan 2002 23:13:02 -0500
-Received: from bexfield.research.canon.com.au ([203.12.172.125]:18475 "HELO
-	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S288190AbSACEMp>;
-	Wed, 2 Jan 2002 23:12:45 -0500
-Date: Thu, 3 Jan 2002 15:08:43 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: C undefined behavior fix
-Message-ID: <20020103150843.B644@zapff.research.canon.com.au>
-Reply-To: cs@zip.com.au
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
+	id <S288194AbSACEPC>; Wed, 2 Jan 2002 23:15:02 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:14208 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S288192AbSACEOn>;
+	Wed, 2 Jan 2002 23:14:43 -0500
+Date: Wed, 02 Jan 2002 20:13:52 -0800 (PST)
+Message-Id: <20020102.201352.104034173.davem@redhat.com>
+To: kernel@Expansa.sns.it
+Cc: Nikita@Namesys.COM, linux-kernel@vger.kernel.org,
+        Reiserfs-List@Namesys.COM
+Subject: Re: reiserfs does not work with linux 2.4.17 on sparc64 CPUs
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0112281058130.30085-100000@Expansa.sns.it>
+In-Reply-To: <15403.16930.233614.432899@laputa.namesys.com>
+	<Pine.LNX.4.33.0112281058130.30085-100000@Expansa.sns.it>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 02, 2002 at 12:09:10PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 12:09:10PM -0700, Tom Rini <trini@kernel.crashing.org> wrote:
-| On Wed, Jan 02, 2002 at 01:03:25AM +0200, Momchil Velikov wrote:
-| > The GCC tries to replace the strcpy from a constant string source with
-| > a memcpy, since the length is know at compile time.
-| 
-| Okay, here's a summary of all of the options we have:
-| 1) Change this particular strcpy to a memcpy
-| 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-| optimization comes back on with this flag later on, it would be a
-| compiler bug, yes?)
-| 3) Modify the RELOC() marco in such a way that GCC won't attempt to
-| optimize anything which touches it [1]. (Franz, again by Jakub)
-| 4) Introduce a function to do the calculations [2]. (Corey Minyard)
-| 5) 'Properly' set things up so that we don't need the RELOC() macros
-| (-mrelocatable or so?), and forget this mess altogether.
+   From: Luigi Genoni <kernel@Expansa.sns.it>
+   Date: Fri, 28 Dec 2001 11:03:27 +0100 (CET)
 
-Dudes, maybe I'm missing something here, but why don't you just mark the
-source data as volatile? Then it _can't_ assume it knows the length of
-the strcpy because it can't assume it knows the content:
+   OK, here is my oops
+   
+   reiserfs: checking transaction log (device 08:14) ...
+   Using r5 hash to sort names
+   Unsupported unaligned load/store trap for kernel at <000000000059bae8>.
 
-If PTRRELOC cast the pointer type to
+Looks like some change in reiserfs in 2.4.17 has caused it to start
+doing {set,clear,change}_bit() operations on pointers which are not
+"long" aligned.
 
-	volatile void *
-
-or something else suitable generic but volatile then this discussion might
-not be happening. It would at least move the optimisation into "definite
-compiler bug" if it still happens.
--- 
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
-
-I think... Therefore I ride.  I ride... Therefore I am.
-	- Mark Pope <erectus@yarrow.wt.uwa.edu.au>
+Franks a lot,
+David S. Miller
+davem@redhat.com

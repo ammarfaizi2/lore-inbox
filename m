@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUJVXE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268527AbUJVXHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268360AbUJVXE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUJVW6w
+	id S268527AbUJVXHe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 19:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUJVXEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 18:58:52 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:25815 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268330AbUJVW62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 18:58:28 -0400
-Subject: Re: My thoughts on the "new development model"
-From: Lee Revell <rlrevell@joe-job.com>
-To: Espen =?ISO-8859-1?Q?Fjellv=E6r?= Olsen <espenfjo@gmail.com>
+	Fri, 22 Oct 2004 19:04:44 -0400
+Received: from mail.kroah.org ([69.55.234.183]:47519 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268278AbUJVXC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 19:02:56 -0400
+Date: Fri, 22 Oct 2004 16:02:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Ari Pollak <aripollak@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7aaed09104102214521e90c27c@mail.gmail.com>
-References: <7aaed09104102213032c0d7415@mail.gmail.com>
-	 <7aaed09104102214521e90c27c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 22 Oct 2004 18:58:24 -0400
-Message-Id: <1098485905.1440.11.camel@krustophenia.net>
+Subject: Re: udev doesn't add a device for one of my partitions under 2.6.9
+Message-ID: <20041022230209.GA26748@kroah.com>
+References: <clbgip$63d$1@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <clbgip$63d$1@sea.gmane.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 23:52 +0200, Espen Fjellvær Olsen wrote:
-> I think that 2.6 should be frozen from now on, just security related
-> stuff should be merged.
-> This would strengthen Linux's reputation as a stable and secure
-> system, not a unstable and a system just used for fun.
+On Fri, Oct 22, 2004 at 01:39:01PM -0400, Ari Pollak wrote:
+> Hi,
+> 
+> I'm currently running kernel 2.6.9 with udev 0.034 and Debian's hotplug 
+> 0.0.20040329-15. I'm assuming this is a device driver bug and not a udev 
+> or hotplug bug because I'm pretty sure this worked fine in 2.6.8.1.
+> My only hard drive on my IBM Thinkpad T41 has a primary partition, a 
+> logical partition, and an extended partition (hda1, hda2, and hda5). 
+> Both /dev/hda1 and /dev/hda2 show up as devices, but /dev/hda5 doesn't 
+> show up at all. If I create the /dev/hda5 manually with mknod, accessing 
+> it works fine. Below is the IDE-related output from dmesg on system 
+> startup, the output from lspci, and my kernel config.
 
-My $0.02:
+Does /sys/block/hda/ show partition the partition you are missing?  If
+not, there's no way that udev could know to create it.
 
-Part of the reasoning behind the new development model is that if you
-want a stable kernel, there are many vendors who will give you one.  The
-new dev model is partially driven by vendors and developers desire to
-get their features into mainline quicker.  There is an inherent
-stability cost associated with this, but the price is only paid by users
-who want stability AND the latest kernel.org kernel.  The big players
-all seem to agree that the new development model better suits users and
-their own needs.  The distros are in a better position to determine what
-constitutes a stable kernel anyway, they have millions of users to test
-on.  Let the vendors AND the kernel hackers do what they are each best
-at.
+thanks,
 
-We need to continue the rapid pace of development because although Linux
-rules in the small to mid server arena there are other areas where MS
-and Apple are clearly ahead.  If you want to make an omelette you have
-to break some eggs...
-
-Lee
-
+greg k-h

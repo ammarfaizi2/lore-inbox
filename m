@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbTGAPJs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 11:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTGAPJs
+	id S262409AbTGAPIR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 11:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTGAPIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 11:09:48 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:8115 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S262423AbTGAPJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 11:09:45 -0400
-Date: Wed, 2 Jul 2003 01:25:34 +1000
-From: CaT <cat@zip.com.au>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org,
-       alsa-devel@lists.sourceforge.net
-Subject: Re: Realtek ALC650E support in 2.[45]?
-Message-ID: <20030701152534.GF6404@zip.com.au>
-References: <20030630084943.GB385@zip.com.au> <s5hznjzlw55.wl@alsa2.suse.de> <20030630115219.GC385@zip.com.au> <s5hd6guli4l.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hd6guli4l.wl@alsa2.suse.de>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	Tue, 1 Jul 2003 11:08:17 -0400
+Received: from relay5.ftech.net ([195.200.0.100]:11431 "EHLO relay5.ftech.net")
+	by vger.kernel.org with ESMTP id S262409AbTGAPIQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 11:08:16 -0400
+Message-ID: <7C078C66B7752B438B88E11E5E20E72E25C962@GENERAL.farsite.co.uk>
+From: Kevin Curtis <kevin.curtis@farsite.co.uk>
+To: "'Krzysztof Halasa'" <khc@pm.waw.pl>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.22-pre2
+Date: Tue, 1 Jul 2003 16:22:37 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 01, 2003 at 11:18:50AM +0200, Takashi Iwai wrote:
-> At Mon, 30 Jun 2003 21:52:19 +1000,
-> > > ALC650E is a revision E of ALC650, which has some minor extensions
-> > > (like S/PDIF support) but mostly identical with ALC650. 
-> > > So both should work.
-> > 
-> > Aha. Ok. What about with an Nvidia2 backend (MCP-T) to all this?
+Marcello,
+	Yes please do that.  There are people who want it in.
+
+Kevin Curtis
+Linux Development
+FarSite Communications Ltd
+kevin.curtis@farsite.co.uk
+tel:   +44 1256 330461
+fax:  +44 1256 854931
+http://www.farsite.co.uk
+
+-----Original Message-----
+From: Krzysztof Halasa [mailto:khc@pm.waw.pl]
+Sent: 28 June 2003 00:39
+To: Marcelo Tosatti
+Cc: lkml
+Subject: Re: Linux 2.4.22-pre2
+
+
+Hi,
+
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+
+> Here goes -pre2 with a big number of changes, including the new aic7xxx
+> driver.
 > 
-> it's (almost) compatible with Intel ICH and works with the recent
-> intel driver above.
+> I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
+> short.
 
-ALSA, right? What's in 2.5 or still outside of it? And if outside, soon
-to be added?
+What's wrong with the generic HDLC update then? Are you going to apply it?
 
+ftp://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
+or http://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
+
+Yes, it applies to 2.4.21-pre7 and later kernels, including 2.4.22-pre2.
+I hope it will require "-R" to apply it to pre3...
+
+TIA.
 -- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://www.toledoblade.com/apps/pbcs.dll/artikkel?SearchID=73139162287496&Avis=TO&Dato=20030624&Kategori=NEWS28&Lopenr=106240111&Ref=AR
+Krzysztof Halasa
+Network Administrator
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,90 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbRAERLu>; Fri, 5 Jan 2001 12:11:50 -0500
+	id <S129436AbRAERMJ>; Fri, 5 Jan 2001 12:12:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130155AbRAERLj>; Fri, 5 Jan 2001 12:11:39 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:14088 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S129436AbRAERLd>; Fri, 5 Jan 2001 12:11:33 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: Daniel Phillips <phillips@innominate.de>
-cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        linux-kernel@vger.kernel.org
-Message-ID: <862569CB.005E6373.00@smtpnotes.altec.com>
-Date: Fri, 5 Jan 2001 11:11:27 -0600
-Subject: Re: Change of policy for future 2.2 driver submissions
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S131058AbRAERLu>; Fri, 5 Jan 2001 12:11:50 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:43023 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129860AbRAERLm>; Fri, 5 Jan 2001 12:11:42 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEB5@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'alasta@bigfoot.com'" <alasta@bigfoot.com>, linux-kernel@vger.kernel.org
+Subject: RE: Adding devices to dc2xx.c
+Date: Fri, 5 Jan 2001 09:11:32 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hello, and thank you to those who responded to my query about 
+> adding my
+> Agfa ePhoto to the USB mass storage device database. I had no success
+> with this (the machine locked hard on connecting the device), 
+> so I have decided to try it with the dc2xx driver.
+> 
+> I have added it to /usr/src/linux/drivers/usb/dc2xx.c as follows:
+> ..
+>     { idVendor: 0x040a, idProduct: 0x0112 },		// Kodak DC-290
+>     { idVendor: 0xf003, idProduct: 0x6002 },		// HP 
+> PhotoSmart C500
+>     { idVendor: 0x06bd, idProduct: 0x0403 },	// Agfa ePhoto CL18
+> ..
+> 
+> However, after I recompile and reboot with the new boot 
+> image, I receive the following:
+> ..
+> Jan  5 19:37:33 localhost kernel: usb.c: registered new driver dc2xx 
+> ..
+> Jan  5 19:37:33 localhost kernel: hub.c: USB new device 
+> connect on bus1/2, assigned device number 2 
+> Jan  5 19:37:33 localhost kernel: usb.c: USB device 2 (vend/prod
+> 0x6bd/0x403) is not claimed by any active driver. 
+> ..
+> 
+> Why is dc2xx not being associated with the camera? I note 
+> that the vendor
+> and product names of the camera omit the leading '0', but I have tried
+> adding them to the driver file as both '0x06bd' and '0x6bd' and 
+> neither works. I'm
+> using 2.4.0-prerelease, in case that helps.
+> 
+> So, does this sound like a bug with the above driver, or is 
+> there something that I've missed?
 
+Either you don't have dc2xx compiled into the kernel, or
+if it's a module, you don't have it loaded yet.  You should
+load it manually or add hotplug support
+and the proper support files for it.
+See http://www.linux-usb.org/policy.html.
 
-In other words, there's no longer any such thing as a "stable" branch.  The
-whole point of having separate production and development branches was to have
-one in which each succeeding patch could be counted upon to be more reliable
-than the last.  If new development is going into the "stable" kernels, then
-there's no way to be certain that the latest patches don't have more bugs than
-the earlier ones, at least not without thoroughly testing them.  And if testing
-is necessary, then we might as well just use the development kernels for
-everything, because we have to test them anyway.
-
-Wayne
-
-
-
-
-Daniel Phillips <phillips@innominate.de> on 01/05/2001 06:52:00 AM
-
-To:   Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-      linux-kernel@vger.kernel.org
-cc:    (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: Change of policy for future 2.2 driver submissions
-
-
-
-Mark Hahn wrote:
-> > I personaly do not trust the 2.4.x kernel entirely yet, and would prefer to
-> ...
-> > afraid that this may partialy criple 2.2 driver development.
->
-> egads!  how can there be "development" on a *stable* kernel line?
->
-> maybe this is the time to reconsider terminology/policy:
-> does "stable" mean "bugfixes only"?
-> or does it mean "development kernel for conservatives"?
-
-It means development kernel for those who don't have enough time to
-debug the main kernel as well as their own project.  The stable branch
-tends to be *far* better documented than the bleeding edge branch.  Try
-to find documentation on the all-important page cache, for example.  It
-makes a whole lot of sense to develop in the stable branch, especially
-for new kernel developers, providing, of course, that the stable branch
-has the basic capabilities you need for your project.
-
-Alan isn't telling anybody which branch to develop in - he's telling
-people what they have to do if they want their code in his tree.  This
-means that when you develop in the stable branch you've got an extra
-step to do at the end of your project: port to the unstable branch.
-This only has to be done once and your code *will* get cleaned up a lot
-in the process.  (It's amazing how the prospect of merging 500 lines of
-rejected patch tends to concentrate the mind.)  I'd even suggest another
-step after that: port your unstable version back to the stable branch,
-and both versions will be cleaned up.
-
---
-Daniel
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
-
-
-
+~Randy
+_______________________________________________
+|randy.dunlap_at_intel.com        503-677-5408|
+|NOTE: Any views presented here are mine alone|
+|& may not represent the views of my employer.|
+-----------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

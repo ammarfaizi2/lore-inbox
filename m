@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291640AbSBNNdv>; Thu, 14 Feb 2002 08:33:51 -0500
+	id <S291641AbSBNNeu>; Thu, 14 Feb 2002 08:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291641AbSBNNdj>; Thu, 14 Feb 2002 08:33:39 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52242 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291640AbSBNNd3>; Thu, 14 Feb 2002 08:33:29 -0500
-Subject: Re: Using kernel_fpu_begin() in device driver - feasible or not?
-To: rwestman@telia.com (Rickard Westman)
-Date: Thu, 14 Feb 2002 13:47:23 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C6B00B3.6000602@telia.com> from "Rickard Westman" at Feb 14, 2002 01:11:31 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291642AbSBNNel>; Thu, 14 Feb 2002 08:34:41 -0500
+Received: from ns.suse.de ([213.95.15.193]:16902 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291641AbSBNNe0>;
+	Thu, 14 Feb 2002 08:34:26 -0500
+Mail-Copies-To: never
+To: m.knoblauch@teraport.de
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.5-pre1
+In-Reply-To: <3C6BB42A.AADAA82E@TeraPort.de>
+From: Andreas Jaeger <aj@suse.de>
+Date: Thu, 14 Feb 2002 14:34:24 +0100
+In-Reply-To: <3C6BB42A.AADAA82E@TeraPort.de> (Martin Knoblauch's message of
+ "Thu, 14 Feb 2002 13:57:14 +0100")
+Message-ID: <hok7tgtcf3.fsf@gee.suse.de>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16bMEO-0008Up-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. Would it be sufficient to just bracket all fpu-using code code by
-> kernel_fpu_begin()/kernel_fpu_end()?  If not, what problems could I
-> run into?
+Martin Knoblauch <Martin.Knoblauch@TeraPort.de> writes:
 
-You can do that providing you dont
+>> linux-2.5.5-pre1
+>> 
+>> From: Linus Torvalds (torvalds@transmeta.com)
+>> Date: Wed Feb 13 2002 - 17:38:12 EST
+>> 
+>> 
+>> This is a _huge_ patch, mainly because it includes three big pending
+>> things: the ALSA merge (which is much smaller in the BK tree than in the
+>> patch, because a lot of them are due to renames), merging most of x86_64,
+>> and merging some PPC patches.
+>> 
+>
+>  just curious :-)) Is the x86_64 stuff based/tested on real HW,
+> simulators or just on the specs.
 
-> 2. Would it be OK to go to sleep inside such a region, or should I
-> take care to avoid that?
+The x86-64 stuff was developed and extensivly tested - and also
+demonstrated at the last show cases like LinuxWorldExpo NY ;-) - using
+a software simulator.  You cannot develop such a beast just with the
+specs...
 
-You can't sleep in such a region - there is nowhere left to store the
-FPU context
+For more information about Linux on x86-64, check also
+http://www.x86-64.org
 
-> 3. Perhaps I should call init_fpu() at some point as well?  If so,
-> should it be done before or after kernel_fpu_begin()?
-
-After
-
-> 4. Is there any difference between doing this in the context of a user
-> process (implementation of an ioctl) compared to doing it in a
-> daemonized kernel thread (created by a loadable kernel module)?
-
-The kernel thread is actually easier, you can happily corrupt its user
-FPU context by sleeping since you are the only FPU user for the thread.
-Not nice, not portable but should work fine on x86 without any of the 
-above for the moment.
-
-You should probably also test the FPU is present and handle it accordingly
-with polite messages not an oops 8)
+Andreas
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

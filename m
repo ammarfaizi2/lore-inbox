@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbUKCTJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbUKCTVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbUKCTJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 14:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbUKCTI5
+	id S261813AbUKCTVV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 14:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbUKCTVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:08:57 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:37597 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261819AbUKCTGj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:06:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=X3noEoFt3ykj6rzPHohyieXNQDyrPycn3aDzJDaH+DLZMdO/14N0dmABknEjGrYjNeAMnnKXQ743v4Q/+s77IQrCtqlSsEJZvUaYGkjmAMDlGQ/cspy2XB1mxQ8ft8Zoow8fmcfHr0a7tcCU89rfxbPbVnXD3Nlm80YuahexYfg=
-Message-ID: <69cfd1b80411031106663a1cc8@mail.gmail.com>
-Date: Wed, 3 Nov 2004 12:06:39 -0700
-From: Sai Prathap <saiprathap@gmail.com>
-Reply-To: Sai Prathap <saiprathap@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Installing software on a knoppix CD
+	Wed, 3 Nov 2004 14:21:20 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:41355 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261817AbUKCTUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 14:20:39 -0500
+Date: Wed, 3 Nov 2004 11:20:27 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] deprecate pci_module_init
+Message-ID: <20041103192027.GA25543@taniwha.stupidest.org>
+References: <20041103091039.GA22469@taniwha.stupidest.org> <41891980.6040009@pobox.com> <20041103190757.GA25451@taniwha.stupidest.org> <41892DE3.5040402@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41892DE3.5040402@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Nov 03, 2004 at 02:13:39PM -0500, Jeff Garzik wrote:
 
-I have a question regarding knoppix. If we boot from a knoppix CD, Is
-it possible to get any software installed on it ? Because, whenever I
-try to install something  it says its not writable. Please advice.
+> There is a 2.4 version of module_param().
 
-Thanks.
-Sai
+2.4 what?
+
+> The semantics of pci_module_init() versus pci_register_driver() are
+> different across 2.4/2.6.
+
+I actually didn't realize this... (in truth I didn't think about it).
+Is this explained anywhere?
+
+> If you deprecate pci_module_init(), you are breaking drivers which
+> right now can be ported to 2.4 with a simple cp(1).
+
+> It's just downright silly to deprecate the API that is used most
+> heavily in drivers.
+
+Sure, I'll buy that.

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbTJAAwo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 20:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJAAwn
+	id S261733AbTI3WDu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 18:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTI3WDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 20:52:43 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:37892 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261835AbTJAAwm (ORCPT
+	Tue, 30 Sep 2003 18:03:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14546 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261733AbTI3WDr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 20:52:42 -0400
-Date: Wed, 1 Oct 2003 02:52:14 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Rob Landley <rob@landley.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Keyboard dead on bootup on -test6.
-Message-ID: <20031001005214.GC1520@win.tue.nl>
-References: <200309301632.01498.rob@landley.net>
+	Tue, 30 Sep 2003 18:03:47 -0400
+Date: Tue, 30 Sep 2003 14:43:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: arun.sharma@intel.com, linux-kernel@vger.kernel.org, kevin.tian@intel.com,
+       willy@debian.org
+Subject: Re: [PATCH] incorrect use of sizeof() in ioctl definitions
+Message-Id: <20030930144313.601a4655.akpm@osdl.org>
+In-Reply-To: <20030930223531.B10154@flint.arm.linux.org.uk>
+References: <3F79ED60.2030207@intel.com>
+	<20030930140805.0e3158e7.akpm@osdl.org>
+	<20030930223531.B10154@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309301632.01498.rob@landley.net>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 04:32:01PM -0500, Rob Landley wrote:
-
-> This was the failure:
+Russell King <rmk@arm.linux.org.uk> wrote:
+>
+> >  /* out param: u32*	backlight value: 0 to 15 */
+> > -#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, sizeof(__u32*))
+> > +#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, __u32*)
+> >  /* in param: u32*	backlight value: 0 to 15 */
+> > -#define FBIO_ATY128_SET_MIRROR	_IOW('@', 2, sizeof(__u32*))
+> > +#define FBIO_ATY128_SET_MIRROR	_IOW('@', 2, __u32*)
+> >  
+> >  static int aty128fb_ioctl(struct inode *inode, struct file *file, u_int cmd,
+> >  			  u_long arg, struct fb_info *info)
+> > 
+> > 
+> > Matthew's conversion mainly converted things to size_t, but from the looks
+> > of it, __u32* is the right thing to use in this case, I think?
 > 
-> Sep 30 16:17:31 localhost kernel: atkbd.c: Unknown key pressed (raw set 0, 
-> code 0xfc, data 0xfc, on isa0060/serio1).
-> Sep 30 16:17:31 localhost kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-> Sep 30 16:17:31 localhost kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-> 
-> Under -test5, that failure would have left me with a stuck key endlessly 
-> repeating (and an otherwise dead keyboard).  Now at least the stuck key part 
-> has gone away, but the keyboard is still dead until I power cycle the 
-> machine.
+> sizeof(__u32*) may not be sizeof(sizeof(__u32*)), so this would be an API
+> change...  Therefore, all these wrong entries need to change to size_t
+> (preferably with the real type following inside a comment so we don't
+> loose useful information.)
 
-I suppose this is the kernel trying to set LEDs on the mouse,
-and the mouse complains.
+In that case I'm going to need a bit of education as to what the whole
+thing is trying to do.
 
-Andries
-
-
-(0xfc is a typical mouse error code; also "set 0" suggests this)
+If FBIO_ATY128_SET_MIRROR is really supposed to be passing a pointer into
+the ioctl then we *want* the encoded ioctl number to be different for
+32-bit-compiled userspace and 64-bit-compiled userspace, don't we?
 

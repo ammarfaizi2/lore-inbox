@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbTCRQBt>; Tue, 18 Mar 2003 11:01:49 -0500
+	id <S262474AbTCRP6L>; Tue, 18 Mar 2003 10:58:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262507AbTCRQBt>; Tue, 18 Mar 2003 11:01:49 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:16035 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S262506AbTCRQBs>; Tue, 18 Mar 2003 11:01:48 -0500
-Message-Id: <200303181611.h2IGBsGi018064@locutus.cmf.nrl.navy.mil>
-To: Till Immanuel Patzschke <tip@inw.de>
-cc: Mitchell Blank Jr <mitch@sfgoth.com>,
-       linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] first pass at fixing atm spinlock 
-In-reply-to: Your message of "Mon, 17 Mar 2003 17:13:38 PST."
-             <3E7672C2.635C7D58@inw.de> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Tue, 18 Mar 2003 11:11:54 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S262479AbTCRP6L>; Tue, 18 Mar 2003 10:58:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42762 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262474AbTCRP6J>; Tue, 18 Mar 2003 10:58:09 -0500
+Date: Tue, 18 Mar 2003 16:09:02 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.65-mm1
+Message-ID: <20030318160902.C21945@flint.arm.linux.org.uk>
+Mail-Followup-To: Alexander Hoogerhuis <alexh@ihatent.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030318031104.13fb34cc.akpm@digeo.com> <87adfs4sqk.fsf@lapper.ihatent.com> <87bs08vfkg.fsf@lapper.ihatent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <87bs08vfkg.fsf@lapper.ihatent.com>; from alexh@ihatent.com on Tue, Mar 18, 2003 at 04:51:11PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->good job, cleaning the ATM stuff up -- on the note below: I've been having lot
->problems w/ the close and "dangeling" vccs, since in my scenarios traffic was
->coming in AFTER the close.  I tried to defer the destruction and it got rid of
+On Tue, Mar 18, 2003 at 04:51:11PM +0100, Alexander Hoogerhuis wrote:
+> Oh well, I've had one hang within 10 minutes of booting, came back and
+> the machine was unresponsive (mouse and keyboard under X, unable to
+> switch to console). Apart from that I've got two funnies in my boot
+> messages:
 
-what driver are you using?  this seem like wrong behavior imho.  the first
-part of close should stop the card from delivering anymore traffic on the
-particular vpi/vci.  close should return after it is certain that no more
-traffic will arrive on said vpi/vci pair.
+Could you send the full bus information for all devices (lspci -vv),
+and the contents of /proc/iomem and /proc/ioports ?
 
->Anyway, how about re-doing the VCC stuff mor in the way you did it for the
->HE device driver - having an array, indexed by a pvc hash -- and one could eas
+I don't believe there's anything in my PCI updates which should have
+changed the behaviour - they were touching mainly the scanning for
+devices, and the way we write resources back into the hardware.  The
+latter rarely happens on x86, except for cardbus devices.
 
-almost all the drivers walk the vcc list trying to find a vpi/vci pair.  
-enough that there should be a real lookup that is hashed.  however,
-some drivers (like the nicstar) keep an indexed array of vpi/vcc pointing
-to the approriate vcc.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
->BTW: Have you addressed the difficulty that, depending on the ATM board, some
->packet receives are handled while still in the IRQ and others (the newer/bette
->ones always go through a tasklet?
-
-that's really up the driver authors.  convince the author to change to a
-tasklet.  change it yourself.  it shouldnt be too difficult in most cases.

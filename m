@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbTF1AXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 20:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264975AbTF1AXF
+	id S265009AbTF1AV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 20:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbTF1AV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 20:23:05 -0400
-Received: from web40610.mail.yahoo.com ([66.218.78.147]:16968 "HELO
-	web40610.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265007AbTF1AVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 20:21:41 -0400
-Message-ID: <20030628003556.53308.qmail@web40610.mail.yahoo.com>
-Date: Fri, 27 Jun 2003 17:35:56 -0700 (PDT)
-From: Miles T Lane <miles_lane@yahoo.com>
-Subject: 2.5.73-bk5 -- drivers/scsi/pci2000.c:512: error: structure has no member named `address'
-To: linux-kernel@vger.kernel.org, tech@psidisk.com
+	Fri, 27 Jun 2003 20:21:26 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:17840 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265006AbTF1AVO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 20:21:14 -0400
+Date: Fri, 27 Jun 2003 17:27:09 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>
+cc: greearb@candelatech.com, davidel@xmailserver.org,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+Message-ID: <34700000.1056760028@[10.10.2.4]>
+In-Reply-To: <20030628001954.GD18676@work.bitmover.com>
+References: <3EFCC1EB.2070904@candelatech.com> <20030627.151906.102571486.davem@redhat.com> <3EFCC6EE.3020106@candelatech.com> <20030627.170022.74744550.davem@redhat.com> <20030628001954.GD18676@work.bitmover.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  CC [M]  drivers/scsi/pci2000.o
-drivers/scsi/pci2000.c: In function
-`Pci2000_QueueCommand':
-drivers/scsi/pci2000.c:512: error: structure has no
-member named `address'
-drivers/scsi/pci2000.c:537: error: structure has no
-member named `address'
-make[2]: *** [drivers/scsi/pci2000.o] Error 1
+--Larry McVoy <lm@bitmover.com> wrote (on Friday, June 27, 2003 17:19:54 -0700):
 
-Gnu C                  3.3
-Gnu make               3.80
-util-linux             2.11z
-mount                  2.11x
-e2fsprogs              1.34-WIP
-jfsutils               1.1.1
-xfsprogs               2.4.12
-pcmcia-cs              3.2.2
-PPP                    2.4.1
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 3.1.9
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.0
-Modules Loaded         3c59x parport_pc lp parport
-soundcore ipx mousedev hid usbmouse input md usb-ohci
-autofs4 af_packet nls_iso8859-1 nls_cp437 serial
-usb-uhci usbcore ds yenta_socket pcmcia_core apm rtc
-ext3 jbd
+> On Fri, Jun 27, 2003 at 05:00:22PM -0700, David S. Miller wrote:
+>>    From: Ben Greear <greearb@candelatech.com>
+>>    Date: Fri, 27 Jun 2003 15:36:30 -0700
+>>    
+>>    So, you'd be happy so long as bugz sent mail to the netdev mailing
+>>    lists instead of to you?
+>> 
+>> The best power I have to scale is the delete key in my email
+>> reader, when I delete an email it's gone and that's it.
+>> 
+>> bugme bugs don't have this attribute, they are like emails that
+>> persist forever until someone does something about them, and this is
+>> the big problem I have with it.
+> 
+> I've proposed this before and nobody listened but maybe this time...
+> 
+> I think what you want is a bug database which distinguishes between
+> filed bugs and reviewed bugs.  You want to capture all bug reports, 
+> as Alan says (he's right, there is no question about it, you need to
+> capture the data).  You also want an *automatic* way for bugs to just
+> rot.  Anyone can file a bug but unless someone with expertise in the 
+> area reviews the bug and agrees to do something about it, the bug rots.
+> 
+> It's level 1 (capture) and level 2 (we really need to do something about
+> this some day).  Level 1 will have zillions of duplicates and tons of 
+> other noise.  Level 2 should be a small list, no duplicates, carefully
+> managed.
 
+That's a trivial change to make if you want it. we just add a "reviewed"
+/ "certified" state between "new" and "assigned". Yes, might be a good 
+idea.  I'm not actually that convinced that "assigned" is overly useful
+in the context of open-source, but that's a separate discussion.
 
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com
+I'm hoping to get a discussion going at Kernel Summit / OLS on how 
+people want this to evolve, I'll add this one to the list ... thanks.
+
+M.
+

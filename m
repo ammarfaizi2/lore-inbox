@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272817AbRIPUtG>; Sun, 16 Sep 2001 16:49:06 -0400
+	id <S272829AbRIPVIh>; Sun, 16 Sep 2001 17:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272818AbRIPUs5>; Sun, 16 Sep 2001 16:48:57 -0400
-Received: from cs6669232-106.austin.rr.com ([66.69.232.106]:9344 "HELO
-	erik.bigsexymo.com") by vger.kernel.org with SMTP
-	id <S272817AbRIPUsq>; Sun, 16 Sep 2001 16:48:46 -0400
-Date: Sun, 16 Sep 2001 15:47:14 -0400 (EDT)
-From: Erik Elmore <erik@bigsexymo.com>
-To: Polymorphic Anomaly <linux.geeke@verizon.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: gamecon.c in 2.4.x series
-In-Reply-To: <3BA506AE.6583DD@verizon.net>
-Message-ID: <Pine.LNX.4.33.0109161545580.1127-100000@erik.bigsexymo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272824AbRIPVI2>; Sun, 16 Sep 2001 17:08:28 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:29686 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S272818AbRIPVIK>; Sun, 16 Sep 2001 17:08:10 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Sun, 16 Sep 2001 15:08:06 -0600
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] multipath RAID personality, 2.4.10-pre9
+Message-ID: <20010916150806.E1541@turbolinux.com>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, linux-raid@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109141144260.2577-300000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109141144260.2577-300000@localhost.localdomain>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a similar problem so I used both the parport and the gamecon code
-from ac10 and used them with the official 2.4.9 kernel to get it to work
+On Sep 14, 2001  12:01 +0200, Ingo Molnar wrote:
+> the attached patches implement multipath IO for Linux in form of a sw-RAID
+> personality. Multipath-IO is the ability of certain devices to address the
+> same physical disk over multiple 'IO paths'.
 
--Erik
+> /*
+>  * This routine returns the disk from which the requested read should
+>  * be done. It bookkeeps the last read position for every disk
+>  * in array and when new read requests come, the disk which last
+>  * position is nearest to the request, is chosen.
 
-On Sun, 16 Sep 2001, Polymorphic Anomaly wrote:
+I'm not sure I understand why this is here?  If we are talking about a
+multipath situation, there IS only a single disk, so which path is chosen
+is mostly irrelevant.  Also, it is my understanding that with some multipath
+hardware, if you read from the "backup" path it will kill access to the
+primary path (this can be used when more than one system access shared disk
+for failover).  As a result, we should always read from the "primary" path
+for each disk unless there is an error.
 
-> Hello, I have been having trouble with a SNES controller on the parport,
-> where, on say, 2.4.8, the upper and left buttons are stuck "down" and
-> nothing else is accepted as input. In newer kernels, including the
-> 2.4.9-ac10, it simply does nothing
->
-> any help would be greatly appreciated.
->
-> Poly
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

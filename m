@@ -1,91 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbTLDBDk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 20:03:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbTLDBDk
+	id S262788AbTLDBDN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 20:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTLDBDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 20:03:40 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:63169 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S262790AbTLDBDe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 20:03:34 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Aaron Smith <aws4y@virginia.edu>
-Cc: linux-kernel@vger.kernel.org
-Date: Wed, 3 Dec 2003 17:47:45 -0800 (PST)
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <3FCE854A.70404@virginia.edu>
-Message-ID: <Pine.LNX.4.58.0312031742150.8229@dlang.diginsite.com>
-References: <3FCDE5CA.2543.3E4EE6AA@localhost> <Pine.LNX.4.58.0312031533530.2055@home.osdl.org>
- <3FCE854A.70404@virginia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Dec 2003 20:03:13 -0500
+Received: from ns1.skjellin.no ([80.239.42.66]:10700 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S262789AbTLDBDE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 20:03:04 -0500
+Subject: Re: Serial ATA (SATA) for Linux status report
+From: Andre Tomt <lkml@tomt.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <3FCE737C.1080105@pobox.com>
+References: <20031203204445.GA26987@gtf.org>
+	 <1070494030.15415.111.camel@slurv.pasop.tomt.net>
+	 <3FCE737C.1080105@pobox.com>
+Content-Type: text/plain
+Message-Id: <1070499770.15415.158.camel@slurv.pasop.tomt.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Dec 2003 02:02:50 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-there is no way to taint something so much that it's no longer covered by
-the GPL (if it was that would mean that you have no legal way to have a
-copy of it).
+On Thu, 2003-12-04 at 00:36, Jeff Garzik wrote:
+> Andre Tomt wrote:
+> > One question - with "including hotplug", does that mean some set hotplug
+> > standard? Reason I'm asking is, we have a few servers from SuperMicro,
+> > with a ICH5R S-ATA controller that claims it's supporting hotplug, but
+> > hotplug is not in your ICH5-summary.
+> 
+> Alas, there is no hotplug support in the ICH5 or ICH5-R SATA hardware.
+> 
+> One could argue there is "coldplug" support in that hardware -- disable 
+> the entire interface, including any active devices, then re-enable and 
+> re-scan -- but it's a bit of a hack.  If there's enough demand, I could 
+> write some code for that.  It would involve something like
+> 
+> 	# /sbin/sata off
+> 	{ plug in or remove a device }
+> 	# /sbin/sata on
+> 
+> You really, really, really don't want to actually unplug a SATA drive 
+> while it's active, on ICH5 hardware.
 
-Remember that the GPL doesn't put any restrictions on what you do with the
-code as long as you are not distributing it.
+Hmm. There is a backplane involved, that might change things a little.
 
-becouse of this you could take the kernel and include any propriatary code
-in it that you want and run it. You don't even need to use modules, just
-paste in th code and compile (make sure you have a legal right to the code
-you are pasting in though :-)
+Quoting the manual:
+"A Serial ATA controller is incorporated into the 875P chipset to
+provide a two-port Serial ATA subsystem, which is RAID 0 and RAID 1
+supported. The Serial ATA drives are hot-swappable units. Note: The
+operating system you use must have RAID support to enable the hot-swap
+capability and RAID function of the Serial ATA drives."
 
-the GPL comes in when you distribute it (and even here there are grey
-areas, does it count as distributing code to put it on a companies
-desktops for example?, but if you sell it or incude it in a product that
-you sell you definantly do have to release the source)
+"The Serial ATA drives plug into a backplane that provides power, drive
+ID and bus termination. A RAID controller can be used with the backplane
+to provide data security. The operating system you use must have RAID
+support to enable the hot-swap capability of the Serial ATA drives."
 
-if you are talking about the 'tainted' flag in the kernel, that is just a
-flag that you should not expect to get support for this configuration
-from the opensource developers.
+The wording here is a little confusing, but hot-swap seems to work quite
+well with intels windows fakeraid-drivers, at least. One just pushes the
+"i'm going to pull you out now"-button on the tray, and pull the drive
+tray out. Maybe it triggers an event to the fakeraid-driver, wich then
+powers down the bus? black backplane-magic?
 
-does this answer your question?
+Anyways, REAL S-ATA hardware RAID controllers are pretty cheap over here
+nowadays..
 
-David Lang
+[trimmed off linux-scsi]
 
-On Wed, 3 Dec 2003, Aaron Smith wrote:
-
-> Date: Wed, 03 Dec 2003 19:52:26 -0500
-> From: Aaron Smith <aws4y@virginia.edu>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: Linux GPL and binary module exception clause?
->
->
-> >So being a module is not a sign of not being a derived work. It's just
-> >one sign that _maybe_ it might have other arguments for why it isn't
-> >derived.
-> >
-> >		Linus
-> >
-> >
-> My question is a natural extension of this point and subsequent posts,
-> When is a kernel so tainted it can no longer be considered GPL, or can
-> no longer be considered free software? I write software for astronomical
-> applications where some vendors give binary only drivers, or give you
-> restricted access to the source code so I will some times load 5 or 6
-> devices that are binary only or at least non GPL. So what taint is
-> allowable?
->
-> Thanks,
-> Aaron Smith
-> Virginia Astronomical Instrumentation Laboratory
-> Programmer
->
-> PS sorry if this is a stupid question.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan

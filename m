@@ -1,176 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbTELJpP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 05:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTELJpO
+	id S262018AbTELJpH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 05:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTELJpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 05:45:14 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:7250 "EHLO
+	Mon, 12 May 2003 05:45:06 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:5149 "EHLO
 	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262019AbTELJpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262018AbTELJpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 12 May 2003 05:45:02 -0400
-Date: Mon, 12 May 2003 11:54:33 +0200
-Message-Id: <200305120954.h4C9sXIw000961@callisto.of.borg>
+Date: Mon, 12 May 2003 11:54:30 +0200
+Message-Id: <200305120954.h4C9sUix000948@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k IRQ API updates [2/20]
+Subject: [PATCH] M68k IRQ API updates [1/20]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k Amiga: Update to the new irq API (from Roman Zippel and me) [2/20]
+M68k core: Update to the new irq API (from Roman Zippel and me) [1/20]
 
---- linux-2.5.69/arch/m68k/amiga/amiints.c	Tue Nov  5 10:09:40 2002
-+++ linux-m68k-2.5.69/arch/m68k/amiga/amiints.c	Tue May  6 13:50:49 2003
-@@ -51,7 +51,7 @@
- #include <asm/amipcmcia.h>
+Linus: I sent these to you before in one chunk, but because of the size they
+never reached lkml. If you already applied them, please ignore.
+
+--- linux-2.5.69/arch/m68k/kernel/ints.c	Tue Nov  5 10:09:41 2002
++++ linux-m68k-2.5.69/arch/m68k/kernel/ints.c	Tue May  6 13:50:49 2003
+@@ -60,14 +60,14 @@
+ static void dummy_enable_irq(unsigned int irq);
+ static void dummy_disable_irq(unsigned int irq);
+ static int dummy_request_irq(unsigned int irq,
+-		void (*handler) (int, void *, struct pt_regs *),
++		irqreturn_t (*handler) (int, void *, struct pt_regs *),
+ 		unsigned long flags, const char *devname, void *dev_id);
+ static void dummy_free_irq(unsigned int irq, void *dev_id);
  
- extern int cia_request_irq(struct ciabase *base,int irq,
--                           void (*handler)(int, void *, struct pt_regs *),
-+                           irqreturn_t (*handler)(int, void *, struct pt_regs *),
-                            unsigned long flags, const char *devname, void *dev_id);
- extern void cia_free_irq(struct ciabase *base, unsigned int irq, void *dev_id);
- extern void cia_init_IRQ(struct ciabase *base);
-@@ -70,9 +70,10 @@
+ void (*enable_irq) (unsigned int) = dummy_enable_irq;
+ void (*disable_irq) (unsigned int) = dummy_disable_irq;
  
- static short ami_ablecount[AMI_IRQS];
+-int (*mach_request_irq) (unsigned int, void (*)(int, void *, struct pt_regs *),
++int (*mach_request_irq) (unsigned int, irqreturn_t (*)(int, void *, struct pt_regs *),
+                       unsigned long, const char *, void *) = dummy_request_irq;
+ void (*mach_free_irq) (unsigned int, void *) = dummy_free_irq;
  
--static void ami_badint(int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t ami_badint(int irq, void *dev_id, struct pt_regs *fp)
- {
- 	num_spurious += 1;
-+	return IRQ_NONE;
- }
- 
- /*
-@@ -183,7 +184,7 @@
+@@ -121,7 +121,7 @@
+  * include/asm/irq.h.
   */
- 
- int amiga_request_irq(unsigned int irq,
--		      void (*handler)(int, void *, struct pt_regs *),
-+		      irqreturn_t (*handler)(int, void *, struct pt_regs *),
-                       unsigned long flags, const char *devname, void *dev_id)
+ int request_irq(unsigned int irq,
+-		void (*handler) (int, void *, struct pt_regs *),
++		irqreturn_t (*handler) (int, void *, struct pt_regs *),
+ 		unsigned long flags, const char *devname, void *dev_id)
  {
- 	irq_node_t *node;
-@@ -368,7 +369,7 @@
-  * The builtin Amiga hardware interrupt handlers.
-  */
- 
--static void ami_int1(int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t ami_int1(int irq, void *dev_id, struct pt_regs *fp)
- {
- 	unsigned short ints = custom.intreqr & custom.intenar;
- 
-@@ -389,9 +390,10 @@
- 		custom.intreq = IF_SOFT;
- 		amiga_do_irq(IRQ_AMIGA_SOFT, fp);
- 	}
-+	return IRQ_HANDLED;
+ 	return mach_request_irq(irq, handler, flags, devname, dev_id);
+@@ -133,7 +133,7 @@
  }
  
--static void ami_int3(int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t ami_int3(int irq, void *dev_id, struct pt_regs *fp)
- {
- 	unsigned short ints = custom.intreqr & custom.intenar;
- 
-@@ -410,9 +412,10 @@
- 	/* if a vertical blank interrupt */
- 	if (ints & IF_VERTB)
- 		amiga_do_irq_list(IRQ_AMIGA_VERTB, fp);
-+	return IRQ_HANDLED;
- }
- 
--static void ami_int4(int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t ami_int4(int irq, void *dev_id, struct pt_regs *fp)
- {
- 	unsigned short ints = custom.intreqr & custom.intenar;
- 
-@@ -439,9 +442,10 @@
- 		custom.intreq = IF_AUD3;
- 		amiga_do_irq(IRQ_AMIGA_AUD3, fp);
- 	}
-+	return IRQ_HANDLED;
- }
- 
--static void ami_int5(int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t ami_int5(int irq, void *dev_id, struct pt_regs *fp)
- {
- 	unsigned short ints = custom.intreqr & custom.intenar;
- 
-@@ -456,14 +460,15 @@
- 		custom.intreq = IF_DSKSYN;
- 		amiga_do_irq(IRQ_AMIGA_DSKSYN, fp);
- 	}
-+	return IRQ_HANDLED;
- }
- 
--static void ami_int7(int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t ami_int7(int irq, void *dev_id, struct pt_regs *fp)
- {
- 	panic ("level 7 interrupt received\n");
- }
- 
--void (*amiga_default_handler[SYS_IRQS])(int, void *, struct pt_regs *) = {
-+irqreturn_t (*amiga_default_handler[SYS_IRQS])(int, void *, struct pt_regs *) = {
- 	ami_badint, ami_int1, ami_badint, ami_int3,
- 	ami_int4, ami_int5, ami_badint, ami_int7
- };
---- linux-2.5.69/arch/m68k/amiga/cia.c	Thu Jan  2 12:53:54 2003
-+++ linux-m68k-2.5.69/arch/m68k/amiga/cia.c	Tue May  6 13:50:49 2003
-@@ -90,7 +90,7 @@
- }
- 
- int cia_request_irq(struct ciabase *base, unsigned int irq,
--                    void (*handler)(int, void *, struct pt_regs *),
-+                    irqreturn_t (*handler)(int, void *, struct pt_regs *),
+ int sys_request_irq(unsigned int irq, 
+-                    void (*handler)(int, void *, struct pt_regs *), 
++                    irqreturn_t (*handler)(int, void *, struct pt_regs *), 
                      unsigned long flags, const char *devname, void *dev_id)
  {
- 	unsigned char mask;
-@@ -120,7 +120,7 @@
- 	cia_able_irq(base, 1 << irq);
+ 	if (irq < IRQ1 || irq > IRQ7) {
+@@ -215,7 +215,7 @@
  }
  
--static void cia_handler(int irq, void *dev_id, struct pt_regs *fp)
-+static irqreturn_t cia_handler(int irq, void *dev_id, struct pt_regs *fp)
+ static int dummy_request_irq(unsigned int irq,
+-		void (*handler) (int, void *, struct pt_regs *),
++		irqreturn_t (*handler) (int, void *, struct pt_regs *),
+ 		unsigned long flags, const char *devname, void *dev_id)
  {
- 	struct ciabase *base = (struct ciabase *)dev_id;
- 	int mach_irq, i;
-@@ -138,6 +138,7 @@
- 		ints >>= 1;
+ 	printk("calling uninitialized request_irq()\n");
+--- linux-2.5.69/arch/m68k/kernel/setup.c	Mon May  5 10:30:22 2003
++++ linux-m68k-2.5.69/arch/m68k/kernel/setup.c	Fri May  9 10:21:30 2003
+@@ -67,14 +67,14 @@
+ 
+ char m68k_debug_device[6] = "";
+ 
+-void (*mach_sched_init) (void (*handler)(int, void *, struct pt_regs *)) __initdata = NULL;
++void (*mach_sched_init) (irqreturn_t (*handler)(int, void *, struct pt_regs *)) __initdata = NULL;
+ /* machine dependent irq functions */
+ void (*mach_init_IRQ) (void) __initdata = NULL;
+-void (*(*mach_default_handler)[]) (int, void *, struct pt_regs *) = NULL;
++irqreturn_t (*(*mach_default_handler)[]) (int, void *, struct pt_regs *) = NULL;
+ void (*mach_get_model) (char *model) = NULL;
+ int (*mach_get_hardware_list) (char *buffer) = NULL;
+ int (*mach_get_irq_list) (struct seq_file *, void *) = NULL;
+-void (*mach_process_int) (int, struct pt_regs *) = NULL;
++irqreturn_t (*mach_process_int) (int, struct pt_regs *) = NULL;
+ /* machine dependent timer functions */
+ unsigned long (*mach_gettimeoffset) (void);
+ int (*mach_hwclk) (int, struct rtc_time*) = NULL;
+--- linux-2.5.69/arch/m68k/kernel/time.c	Tue Mar 25 10:06:08 2003
++++ linux-m68k-2.5.69/arch/m68k/kernel/time.c	Tue May  6 13:50:49 2003
+@@ -57,7 +57,7 @@
+  * timer_interrupt() needs to keep up the real-time clock,
+  * as well as call the "do_timer()" routine every clocktick
+  */
+-static void timer_interrupt(int irq, void *dummy, struct pt_regs * regs)
++static irqreturn_t timer_interrupt(int irq, void *dummy, struct pt_regs * regs)
+ {
+ 	do_timer(regs);
+ 
+@@ -87,6 +87,7 @@
+ 	    }
  	}
- 	amiga_do_irq_list(base->server_irq, fp);
+ #endif /* CONFIG_HEARTBEAT */
 +	return IRQ_HANDLED;
  }
  
- void __init cia_init_IRQ(struct ciabase *base)
---- linux-2.5.69/arch/m68k/amiga/config.c	Tue Mar 25 10:06:07 2003
-+++ linux-m68k-2.5.69/arch/m68k/amiga/config.c	Tue May  6 13:50:49 2003
-@@ -71,12 +71,12 @@
+ void time_init(void)
+--- linux-2.5.69/include/asm-m68k/irq.h	Mon May  5 10:32:45 2003
++++ linux-m68k-2.5.69/include/asm-m68k/irq.h	Tue May  6 13:50:50 2003
+@@ -2,6 +2,7 @@
+ #define _M68K_IRQ_H_
  
- extern char m68k_debug_device[];
+ #include <linux/config.h>
++#include <linux/interrupt.h>
  
--static void amiga_sched_init(void (*handler)(int, void *, struct pt_regs *));
-+static void amiga_sched_init(irqreturn_t (*handler)(int, void *, struct pt_regs *));
- /* amiga specific irq functions */
- extern void amiga_init_IRQ (void);
--extern void (*amiga_default_handler[]) (int, void *, struct pt_regs *);
-+extern irqreturn_t (*amiga_default_handler[]) (int, void *, struct pt_regs *);
- extern int amiga_request_irq (unsigned int irq,
--			      void (*handler)(int, void *, struct pt_regs *),
-+			      irqreturn_t (*handler)(int, void *, struct pt_regs *),
-                               unsigned long flags, const char *devname,
- 			      void *dev_id);
- extern void amiga_free_irq (unsigned int irq, void *dev_id);
-@@ -491,7 +491,7 @@
+ /*
+  * # of m68k interrupts
+@@ -76,7 +77,7 @@
+ struct pt_regs;
  
- static unsigned short jiffy_ticks;
+ extern int sys_request_irq(unsigned int, 
+-	void (*)(int, void *, struct pt_regs *), 
++	irqreturn_t (*)(int, void *, struct pt_regs *), 
+ 	unsigned long, const char *, void *);
+ extern void sys_free_irq(unsigned int, void *);
  
--static void __init amiga_sched_init(void (*timer_routine)(int, void *,
-+static void __init amiga_sched_init(irqreturn_t (*timer_routine)(int, void *,
- 							  struct pt_regs *))
- {
- 	static struct resource sched_res = {
+@@ -98,7 +99,7 @@
+  * interrupt source (if it supports chaining).
+  */
+ typedef struct irq_node {
+-	void		(*handler)(int, void *, struct pt_regs *);
++	irqreturn_t	(*handler)(int, void *, struct pt_regs *);
+ 	unsigned long	flags;
+ 	void		*dev_id;
+ 	const char	*devname;
+@@ -109,7 +110,7 @@
+  * This structure has only 4 elements for speed reasons
+  */
+ typedef struct irq_handler {
+-	void		(*handler)(int, void *, struct pt_regs *);
++	irqreturn_t	(*handler)(int, void *, struct pt_regs *);
+ 	unsigned long	flags;
+ 	void		*dev_id;
+ 	const char	*devname;
+--- linux-2.5.69/include/asm-m68k/machdep.h	Fri Jan 17 12:09:37 2003
++++ linux-m68k-2.5.69/include/asm-m68k/machdep.h	Fri May  9 10:21:35 2003
+@@ -2,6 +2,7 @@
+ #define _M68K_MACHDEP_H
+ 
+ #include <linux/seq_file.h>
++#include <linux/interrupt.h>
+ 
+ struct pt_regs;
+ struct mktime;
+@@ -9,17 +10,17 @@
+ struct rtc_pll_info;
+ struct buffer_head;
+ 
+-extern void (*mach_sched_init) (void (*handler)(int, void *, struct pt_regs *));
++extern void (*mach_sched_init) (irqreturn_t (*handler)(int, void *, struct pt_regs *));
+ /* machine dependent irq functions */
+ extern void (*mach_init_IRQ) (void);
+-extern void (*(*mach_default_handler)[]) (int, void *, struct pt_regs *);
+-extern int (*mach_request_irq) (unsigned int irq, void (*handler)(int, void *, struct pt_regs *),
++extern irqreturn_t (*(*mach_default_handler)[]) (int, void *, struct pt_regs *);
++extern int (*mach_request_irq) (unsigned int irq, irqreturn_t (*handler)(int, void *, struct pt_regs *),
+                                 unsigned long flags, const char *devname, void *dev_id);
+ extern void (*mach_free_irq) (unsigned int irq, void *dev_id);
+ extern void (*mach_get_model) (char *model);
+ extern int (*mach_get_hardware_list) (char *buffer);
+ extern int (*mach_get_irq_list) (struct seq_file *p, void *v);
+-extern void (*mach_process_int) (int irq, struct pt_regs *fp);
++extern irqreturn_t (*mach_process_int) (int irq, struct pt_regs *fp);
+ /* machine dependent timer functions */
+ extern unsigned long (*mach_gettimeoffset)(void);
+ extern int (*mach_hwclk)(int, struct rtc_time*);
 
 Gr{oetje,eeting}s,
 

@@ -1,75 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270725AbTGUUm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 16:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270726AbTGUUm4
+	id S270711AbTGUUqi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 16:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270713AbTGUUqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 16:42:56 -0400
-Received: from mailf.telia.com ([194.22.194.25]:7679 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id S270725AbTGUUmz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 16:42:55 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Subject: Re: driver error in mm2 compilation
-From: Christian Axelsson <smiler@lanil.mine.nu>
-To: Pedro Ribeiro <deadheart@netcabo.pt>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F1CA198.2040603@netcabo.pt>
-References: <3F1CA198.2040603@netcabo.pt>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-G2txtyu4FZChumXpHIz0"
-Message-Id: <1058821069.11592.2.camel@sm-wks1.lan.irkk.nu>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 21 Jul 2003 22:57:50 +0200
+	Mon, 21 Jul 2003 16:46:38 -0400
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:38149 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S270688AbTGUUpu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 16:45:50 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Javier Achirica <achirica@telefonica.net>
+Subject: Re: [PATCH 2.5] fixes for airo.c
+Date: Mon, 21 Jul 2003 23:01:39 +0200
+User-Agent: KMail/1.5.2
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Mike Kershaw <dragorn@melchior.nerv-un.net>
+References: <Pine.SOL.4.30.0307212056370.29431-100000@tudela.mad.ttd.net>
+In-Reply-To: <Pine.SOL.4.30.0307212056370.29431-100000@tudela.mad.ttd.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307212301.39264.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon July 21 2003 21:44, Javier Achirica wrote:
+> 
+> On Mon, 21 Jul 2003, Daniel Ritz wrote:
+> 
+> > On Mon July 21 2003 13:00, Javier Achirica wrote:
+> > >
+> > > Daniel,
+> > >
+> > > Thank you for your patch. Some comments about it:
+> > >
+> > > - I'd rather fix whatever is broken in the current code than going back to
+> > > spinlocks, as they increase latency and reduce concurrency. In any case,
+> > > please check your code. I've seen a spinlock in the interrupt handler that
+> > > may lock the system.
+> >
+> > but we need to protect from interrupts while accessing the card and waiting for
+> > completion. semaphores don't protect you from that. spin_lock_irqsave does. the
+> > spin_lock in the interrupt handler is there to protect from interrupts from
+> > other processors in a SMP system (see Documentation/spinlocks.txt) and is btw.
+> > a no-op on UP. and semaphores are quite heavy....
+> 
+> Not really. You can still read the received packets from the card (as
+> you're not issuing any command and are using the other BAP) while a
+> command is in progress. There are some specific cases in which you need
+> to have protection, and that cases are avoided with the down_trylock.
+> 
 
---=-G2txtyu4FZChumXpHIz0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+ok, i think i have to look closer...if the card can handle that then we don't need
+to irq-protect all the areas i did protect...but i do think that those down_trylock and
+then the schedule_work should be replaced by a simple spinlock_irq_save...
 
-On Tue, 2003-07-22 at 04:29, Pedro Ribeiro wrote:
-> I get this error when I try to compile mm2:
->=20
-> drivers/video/riva/fbdev.c: In function `rivafb_cursor':
-> drivers/video/riva/fbdev.c:1525: warning: passing arg 2 of=20
-> `move_buf_aligned' from incompatible pointer type
-> drivers/video/riva/fbdev.c:1525: warning: passing arg 4 of=20
-> `move_buf_aligned' makes pointer from integer without a cast
-> drivers/video/riva/fbdev.c:1525: too few arguments to function=20
-> `move_buf_aligned'
-> drivers/video/riva/fbdev.c:1527: warning: passing arg 2 of=20
-> `move_buf_aligned' from incompatible pointer type
-> drivers/video/riva/fbdev.c:1527: warning: passing arg 4 of=20
-> `move_buf_aligned' makes pointer from integer without a cast
-> drivers/video/riva/fbdev.c:1527: too few arguments to function=20
-> `move_buf_aligned'
-> make[3]: *** [drivers/video/riva/fbdev.o] Error 1
-> make[2]: *** [drivers/video/riva] Error 2
-> make[1]: *** [drivers/video] Error 2
-> make: *** [drivers] Error 2
+i look closer at it tomorrow.
+you happen to have the tech spec lying aroung? 
 
-The rivafb driver is broken. It's beeing worked on by James Simmons.
+> AFAIK, interrupt serialization is assured by the interrupt handler, so you
+> don't need to do that.
+> 
+> > > - The fix for the transmit code you mention, is about fixing the returned
+> > > value in case of error? If not, please explain it to me as I don't see any
+> > > other changes.
+> >
+> > fixes:
+> > - return values
+> > - when to free the skb, when not
+> > - disabling the queues
+> > - netif_wake_queue called from the interrupt handler only (and on the right
+> >   net_device)
+> > - i think the priv->xmit stuff and then the schedule_work is evil:
+> >   if you return 0 from the dev->hard_start_xmit then the network layer assumes
+> >   that the packet was kfree_skb()'ed (which does only frees the packet when the
+> >   refcount drops to zero.) this is the cause for the keventd killing, for sure!
+> >
+> >   if you return 0 you already kfree_skb()'ed the packet. and that's it.
+> 
+> This is where I have the biggest problems. As I've read in
+> Documentation/networking/driver.txt, looks like the packet needs to be
+> freed "soon", but doesn't require to be before returning 0 in
+> hard_start_xmit. Did I get it wrong?
+> 
 
---=20
-Christian Axelsson
-  smiler@lanil.mine.nu
+no, i got it wrong. but still...it's the xmit where the oops comes from.... 
 
-GPG ID:
-  6C3C55D9 @ ldap://keyserver.pgp.com
+wait. isn't there a race in airo_do_xmit? at high xfer rates (when it oopses) the
+queue can wake right after it is stopped in the down_trylock section. so you can
+happen to loose an skb 'cos the write to priv->xmit is not protected at all and
+there should be a check so that only one skb can be queue there. no?
+(and then the irq-handler can wake the queue too)
 
---=-G2txtyu4FZChumXpHIz0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+ok, i think i got it now. i'll do a new patch tomorrow or so that tries:
+- to fix the transmit not to oops
+- to avoid disabling the irq's whenever possible
+- using spinlocks instead of the heavier semaphores ('cos i think if it's done cleaner
+  than i did it now, it's faster than the semas, and to make hch happy :) 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQA/HFPNyqbmAWw8VdkRArOmAJ9eSlKrdDFECiLDVk6OmcYYWu5mNwCgsNJz
-gVc6S2gUjYSFCr4eNCFuwPY=
-=pxeU
------END PGP SIGNATURE-----
+> Thanks for your help,
+> Javier Achirica
+> 
 
---=-G2txtyu4FZChumXpHIz0--
+rgds
+-daniel
 

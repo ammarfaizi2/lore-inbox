@@ -1,47 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbULJWGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbULJWHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbULJWGR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbULJWGQ
+	id S261835AbULJWHh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbULJWHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:06:16 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:7386 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261834AbULJWGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:06:11 -0500
-Subject: Re: SO_RCVLOWAT option to socket()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rob Sanders <rarob@comcast.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E6D51930-4A60-11D9-9C95-000A95A6FC34@comcast.net>
-References: <E6D51930-4A60-11D9-9C95-000A95A6FC34@comcast.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1102712550.3201.70.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Dec 2004 21:02:32 +0000
+	Fri, 10 Dec 2004 17:07:36 -0500
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:40679 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S261838AbULJWGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 17:06:34 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mark_H_Johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
+Date: Fri, 10 Dec 2004 16:06:15 -0600
+Message-ID: <OFC6899882.DBD65C9D-ON86256F66.00796C43-86256F66.00796C5C@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/10/2004 04:06:19 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-12-10 at 04:06, Rob Sanders wrote:
-> Hey y'all,
->     Can anyone point me to a resource for why SO_RCVLOWAT is hardcoded 
-> to 1 in linux?
+Here is my get_ltrace.sh script (at the end).
 
-The 1003.1g drafts require it is supported.
+So I read the preempt_max_latency (to see if its changed) before
+I copy the latency_trace output. I am not so sure that cat is
+really doing an "atomic" read when some of the latency traces
+are over 300 Kbytes in length.
 
-> If you are using select or poll with timeouts it would be less costly 
-> to have the kernel tell you
-> when all of the data you reqested (via SO_RCVLOWAT) is ready to be read 
+Also note that some of the files were empty :-(. I don't think
+I've seen that symptom before.
 
-But is the cost of all those special case checks and all the handling
-for
-it such as select computing if enough tcp packets together accumulated
-worth
-the cost on every app not using LOWAT for the microscopic gain given
-that
-essentially nobody uses it.
+Note that the preempt_max_latency value DID match the last line of
+the trace output in the example I described. It is just the header
+that had some stale data in it.
 
-Alan
+  --Mark
+
+--- get_ltrace.sh ---
+
+#!/bin/sh
+
+let MAX=`cat /proc/sys/kernel/preempt_max_latency`
+let I=0 J=1
+let MP=${1:-1000}
+echo "Current Maximum is $MAX, limit will be $MP."
+while (( I < 100 )) ; do
+    sleep 1s
+    let NOW=`cat /proc/sys/kernel/preempt_max_latency`
+    if (( MAX != NOW )) ; then
+        echo "New trace $I w/ $NOW usec latency."
+        cat /proc/latency_trace > lt.`printf "%02d" $I`
+#       sync ; sync
+        let I++
+        let MAX=NOW
+    elif (( J++ >= 10 )) ; then
+        if (( MAX != MP )) ; then
+            echo "Resetting max latency from $MAX to $MP."
+            echo $MP > /proc/sys/kernel/preempt_max_latency
+            let MAX=$MP
+        else
+            echo "No new latency samples at `date`."
+        fi
+        let J=1
+# else do nothing...
+    fi
+done
 

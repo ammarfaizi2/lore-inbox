@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131065AbRCGNmd>; Wed, 7 Mar 2001 08:42:33 -0500
+	id <S131075AbRCGNzX>; Wed, 7 Mar 2001 08:55:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131071AbRCGNmX>; Wed, 7 Mar 2001 08:42:23 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:18189 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131065AbRCGNmI>;
-	Wed, 7 Mar 2001 08:42:08 -0500
-Date: Wed, 7 Mar 2001 14:41:20 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hashing and directories
-Message-ID: <20010307144120.A9878@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.GSO.4.21.0103011547200.11577-100000@weyl.math.psu.edu> <Pine.LNX.4.21.0103012103140.754-100000@penguin.homenet> <20010302095608.G15061@atrey.karlin.mff.cuni.cz> <20010307013729.A7184@pcep-jamie.cern.ch> <984bur$lqq$1@penguin.transmeta.com>
+	id <S131080AbRCGNzN>; Wed, 7 Mar 2001 08:55:13 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:47581 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131075AbRCGNy4>;
+	Wed, 7 Mar 2001 08:54:56 -0500
+Date: Wed, 7 Mar 2001 13:51:35 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: scsi vs ide performance on fsync's
+Message-ID: <20010307135135.B3715@redhat.com>
+In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <984bur$lqq$1@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Mar 06, 2001 at 08:03:39PM -0800
+In-Reply-To: <20010306213720.U2803@suse.de>; from axboe@suse.de on Tue, Mar 06, 2001 at 09:37:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> The long-term solution for this is to create the new VM space for the
-> new process early, and add it to the list of mm_struct's that the
-> swapper knows about, and then just get rid of the pages[MAX_ARG_PAGES]
-> array completely and instead just populate the new VM directly.  That
-> way the destination is swappable etc, and you can also remove the
-> "put_dirty_page()" loop later on, as the pages will already be in their
-> right places. 
+Hi,
+
+On Tue, Mar 06, 2001 at 09:37:20PM +0100, Jens Axboe wrote:
 > 
-> It's definitely not a one-liner, but if somebody really feels strongly
-> about this, then I can tell already that the above is the only way to do
-> it sanely.
+> SCSI has ordered tag, which fit the model Alan described quite nicely.
+> I've been meaning to implement this for some time, it would be handy
+> for journalled fs to use such a barrier. Since ATA doesn't do queueing
+> (at least not in current Linux), a synchronize cache is probably the
+> only way to go there.
 
-Yup.  We discussed this years ago, and it nobody thought it important
-enough.  mm->mmlist didn't exist then, and creating it it _just_ for
-this feature seemed too intrusive.  I agree it's the only sane way to
-completely remove the limit.
+Note that you also have to preserve the position of the barrier in the
+elevator queue, and you need to prevent LVM and soft raid from
+violating the barrier if different commands end up being sent to
+different disks.
 
--- Jamie
+--Stephen

@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135669AbRDSNou>; Thu, 19 Apr 2001 09:44:50 -0400
+	id <S135670AbRDSNtB>; Thu, 19 Apr 2001 09:49:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135670AbRDSNok>; Thu, 19 Apr 2001 09:44:40 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:21495 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S135669AbRDSNob>; Thu, 19 Apr 2001 09:44:31 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-pm-devel@lists.sourceforge.net>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI power management
-Date: Thu, 19 Apr 2001 15:43:33 +0200
-Message-Id: <20010419134333.31606@mailhost.mipsys.com>
-In-Reply-To: <E14qEYX-0007Cl-00@the-village.bc.nu>
-In-Reply-To: <E14qEYX-0007Cl-00@the-village.bc.nu>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S135672AbRDSNsk>; Thu, 19 Apr 2001 09:48:40 -0400
+Received: from passat.ndh.net ([195.94.90.26]:33017 "EHLO passat.ndh.net")
+	by vger.kernel.org with ESMTP id <S135670AbRDSNsg>;
+	Thu, 19 Apr 2001 09:48:36 -0400
+Date: Thu, 19 Apr 2001 15:48:32 +0200
+From: Alex Riesen <a.riesen@traian.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: missing poll(2) for semaphores
+Message-ID: <20010419154832.B8090@traian.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010419114646.B798@traian.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010419114646.B798@traian.de>; from a.riesen@traian.de on Thu, Apr 19, 2001 at 11:46:46AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->null = 'do absolutely nothing'
->generic = 'do D3 as per the specification'
->
->The idea being the PM layer would go around calling
->
->	dev->power_off(dev);
->
->as a default notifier for PCI devices.
+Just an addition to the sample:
 
-Ok, I see. I didn't understand that the functions you were talking about
-would be defaults to put directly in the pci_dev structure.
+fds[3] = sem3;
+fds[4] = sem4;
+fds[5] = sem5;
+fds[6] = sem6;
 
->And in the case of the cards like that you would need a custom mask. So you'd
->do
->	pci_set_power_handler(dev, atyfb_power_on, atyfb_power_off)
->
->to get a custom function. For most authors however they can call the power
->handler setup just using prerolled functions that do the right thing and know
->about any architecture horrors they dont.
+.. and wait for any of them? or for all together?
+and sure have this mixed with descriptors.
 
-Right. However, rare are the drivers that don't need at least to know
-that a power management sequence is going on. All bus mastering drivers,
-at least, must stop bus mastering (and clearing the bit in the command
-register is not enough on a bunch of them). Most drivers have to cleanly
-stop ongoing operations, refuse (or block) requests while the driver is
-sleeping, etc... and finally configure things back once waking up. I
-don't see much cases where a simple "default" function would work. 
+Wellknown win32 api WaitForMultipleObjects provides such
+functionality, and having something like
+that would help to port the applications using that api.
 
-My current scheme on powerbook don't do half of that... it still sorta
-works since I manage to stop all scheduling and shut things down in the
-proper order, but it's neither a clean nor a safe way to do things.
-
->I'd rather
->
->	pci_dev->powerstate
->
->or similar as a set of flags in the device.
-
-Ok, agree with that one.
-
-I sill consider, however, that the current suspend/resume callbacks in
-the pci_dev structure are not the best way to do things. I would have
-really prefered that each pci_dev embed a pm notifier structure. In some
-cases, we want to pass more than simple suspend/resume messages (suspend
-request, suspend now, suspend cancel, and resume are the 4 messages I use
-on powerbooks). 
-
-Also, this can be generalized to other type of drivers (USB, IEEE1394,
-..), eventually passing bus-specific messages
-
-Ben.
-
-
+On Thu, Apr 19, 2001 at 11:46:46AM +0200, Alex Riesen wrote:
+ Hi, all
+ i am missing a good (i think) feature of unix descriptors
+ in SysV semaphores - to be poll(2)-able.
+ Have someone an idea to somehow achieve the goal ? 
+ 
+ 
+ something like this:
+ 
+ int sem = create_our_pollable_semaphore();
+ ...
+ ...
+ pollfd fds[xxx];
+ 
+ for(i=0; i < countof(fds); fds[i++].events = POLLIN|POLLOUT);
+ fds[0].fd = sem;
+ fds[1].fd = server_sock1;
+ fds[2].fd = cmd_sock2;
+ 
+ while ( poll(fds, countof(fds), -1) >= 0 )
+  ...
+ 
+ Thank you in advance
+ 
+ Alex Riesen
 

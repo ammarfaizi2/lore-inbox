@@ -1,78 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267644AbTA3Vux>; Thu, 30 Jan 2003 16:50:53 -0500
+	id <S267646AbTA3V4A>; Thu, 30 Jan 2003 16:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267646AbTA3Vux>; Thu, 30 Jan 2003 16:50:53 -0500
-Received: from waste.org ([209.173.204.2]:29569 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S267644AbTA3Vuw>;
-	Thu, 30 Jan 2003 16:50:52 -0500
-Date: Thu, 30 Jan 2003 16:00:12 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] Report write errors to applications
-Message-ID: <20030130220011.GC4357@waste.org>
-References: <20030129060916.GA3186@waste.org> <20030128232929.4f2b69a6.akpm@digeo.com> <20030129162411.GB3186@waste.org> <20030129134205.3e128777.akpm@digeo.com> <20030130211212.GB4357@waste.org> <3E399B93.90B32D12@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E399B93.90B32D12@digeo.com>
-User-Agent: Mutt/1.3.28i
+	id <S267647AbTA3Vz7>; Thu, 30 Jan 2003 16:55:59 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:19865 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267646AbTA3Vz6>;
+	Thu, 30 Jan 2003 16:55:58 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 30 Jan 2003 23:05:16 +0100 (MET)
+Message-Id: <UTC200301302205.h0UM5GW22958.aeb@smtp.cwi.nl>
+To: james@fsm.com.au, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: drivers/scsi/sd.c - Incorrect Reporting of Blocks and Capacity of Large SCSI Disk Arrays
+Cc: marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 30, 2003 at 01:39:31PM -0800, Andrew Morton wrote:
-> Oliver Xymoron wrote:
-> > 
-> > On Wed, Jan 29, 2003 at 01:42:05PM -0800, Andrew Morton wrote:
-> > > Oliver Xymoron <oxymoron@waste.org> wrote:
-> > > >
-> > > > > - fsync_buffers_list() will handle them and will return errors to the fsync()
-> > > > > caller.  We only need to handle those buffers which were stripped
-> > > > > asynchronously by VM activity.
-> > > >
-> > > > Are we guaranteed that we'll get a try_to_free_buffers after IO
-> > > > completion and before sync? I haven't dug through this path much.
-> > >
-> > > Think so.  That's the only place where buffers are detached.  Otherwise,
-> > > fsync_buffers_list() looks at them all.
-> > 
-> > The other problem here is that by the time we're in
-> > try_to_free_buffers we no longer know that we're looking at a harmless
-> > stale page (readahead?) or a write error, which is why Linus had me
-> > make the separate end_buffer functions. So I don't think this pans out
-> > - thoughts?
-> 
-> If the buffer has buffer_req and !buffer_uptodate and !buffer_locked
-> we know that it was submitted for IO, that the IO has completed, and
-> that it failed.
+| From: "James Bourne" <james@fsm.com.au>
+|
+| drivers/scsi/sd.c - Incorrect Reporting of Blocks and Capacity of Large 
+| SCSI Disk Arrays
+|
+| This problem exists on both a custom 2.4.20 kernel and on a stock RedHat 
+| 2.4.18-19.8.0smp kernel. This problem report pertains to the latter kernel.
+|
+| For example:
+|
+| SCSI device sdb: -562247552 512-byte hdwr sectors (4294679426 MB)
+|  sdb: sdb1
+| SCSI device sdc: -1997908992 512-byte hdwr sectors (76582 MB)
+|  sdc: sdc1
+|
+| Array Capacity
+|    Total unformatted capacity for Array 1: 1962814MB (1916.81GB, 1.87TB)
+|    Total unformatted capacity for Array 2: 1261809MB (1232.23GB, 1.20TB)
+-----
 
-2.5 says this:
+Please try the patch below.
+Andries
 
-void end_buffer_io_sync(struct buffer_head *bh, int uptodate)
-{
-        if (uptodate) {
-                set_buffer_uptodate(bh);
-        } else {
-                /*
-                 * This happens, due to failed READA attempts.
-                 * buffer_io_error(bh);
-                 */
-                clear_buffer_uptodate(bh);
-        }
-        unlock_buffer(bh);
-        put_bh(bh);
-}
+----------------------------------------------------------------
+>From aeb  Fri Dec 13 00:15:47 2002
+To: anders.henke@sysiphus.de, linux-kernel@vger.kernel.org
+Subject: Re: using 2 TB  in real life
+Cc: marcelo@conectiva.com.br
+Content-Length: 974
 
-The comment suggests that we need to distinguish read errors from
-write errors and I tend to agree. Bear in mind that we're limited to
-doing this per inode, so if we start flagging errors for reads, we can
-really confuse writers. Perhaps not fatal, but suboptimal certainly.
+> SCSI device sdb: -320126976 512-byte hdwr sectors (-163904 MB)
 
-On the other hand, I haven't been able to find anywhere in 2.4 that's
-setting b_end_io to end_io_write_sync that's not also setting b_page,
-so I think my original patch is safe in this regard. I suspect 2.5 is
-similar.
+Yes, the code in 2.4.20 works up to 30 bits.
+A slight modification works up to 31 bits.
+[This is cosmetic only.]
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Andries
+
+--- /linux/2.4/linux-2.4.20/linux/drivers/scsi/sd.c	Sat Aug  3 02:39:44 2002
++++ ./sd.c	Fri Dec 13 00:12:00 2002
+@@ -1001,7 +1001,7 @@
+ 			 */
+ 			int m;
+ 			int hard_sector = sector_size;
+-			int sz = rscsi_disks[i].capacity * (hard_sector/256);
++			unsigned int sz = (rscsi_disks[i].capacity/2) * (hard_sector/256);
+ 
+ 			/* There are 16 minors allocated for each major device */
+ 			for (m = i << 4; m < ((i + 1) << 4); m++) {
+@@ -1009,9 +1009,9 @@
+ 			}
+ 
+ 			printk("SCSI device %s: "
+-			       "%d %d-byte hdwr sectors (%d MB)\n",
++			       "%u %d-byte hdwr sectors (%u MB)\n",
+ 			       nbuff, rscsi_disks[i].capacity,
+-			       hard_sector, (sz/2 - sz/1250 + 974)/1950);
++			       hard_sector, (sz - sz/625 + 974)/1950);
+ 		}
+ 
+ 		/* Rescale capacity to 512-byte units */
+

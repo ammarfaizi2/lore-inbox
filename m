@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270992AbRIWPyo>; Sun, 23 Sep 2001 11:54:44 -0400
+	id <S271645AbRIWQYY>; Sun, 23 Sep 2001 12:24:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271569AbRIWPye>; Sun, 23 Sep 2001 11:54:34 -0400
-Received: from [200.203.199.88] ([200.203.199.88]:46600 "HELO netbank.com.br")
-	by vger.kernel.org with SMTP id <S270992AbRIWPyY>;
-	Sun, 23 Sep 2001 11:54:24 -0400
-Date: Sun, 23 Sep 2001 12:53:56 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: [PATCH *] page aging fixed, 2.4.9-ac14
-Message-ID: <Pine.LNX.4.33L.0109231251070.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271825AbRIWQYQ>; Sun, 23 Sep 2001 12:24:16 -0400
+Received: from ns.caldera.de ([212.34.180.1]:25567 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S271645AbRIWQYD>;
+	Sun, 23 Sep 2001 12:24:03 -0400
+Date: Sun, 23 Sep 2001 18:24:14 +0200
+Message-Id: <200109231624.f8NGOEX24344@ns.caldera.de>
+From: Marcus Meissner <mm@ns.caldera.de>
+To: adam@yggdrasil.com ("Adam J. Richter"), linux-kernel@vger.kernel.org
+Subject: Re: PATCH: linux-2.4.10-pre14/drivers/sound/maestro.c ignored pci_module_init results
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010922230237.A10872@baldur.yggdrasil.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+In article <20010922230237.A10872@baldur.yggdrasil.com> you wrote:
 
-I've made a new page aging patch, this time against 2.4.9-ac14;
-this one has two added features over the patch against 2.4.9-ac12:
+> --M9NhX3UHpAaciwkO
+> Content-Type: text/plain; charset=us-ascii
+> Content-Disposition: inline
 
-1) uses min()/max() for smaller page_age_{up,down} functions
+> 	The initialization routine in
+> linux-2.4.10-pre14/drivers/sound/maestro.c ignores the return value
+> from pci_module_init, and allows module initialization to succeed
+> even if pci_module_init failed.  pci_module_init fails and unloads
+> the driver if the caller is a module and there is no matching hardware.
+> Because maestro.c ignored this failure, loading maestro.o on a system
+> where the corresponding alsa driver was already loaded or on a system
+> without matchin hardware would result in a kernel null pointer dereference
+> in pci_unregister_driver when the module is unloaded or when one
+> attempts to reboot the system (i.e., when the module attempt to
+> unregister a PCI driver that is not registered).
 
-2) if we have no free shortage, don't waste CPU time trying
-   to enforce the inactive target but rely on background
-   scanning only
+Why and where does it Oops? The code for pci_unregister_driver in
+drivers/pci/pci.c looks correct and should not Oops.
 
-You can get the patch (a bit large for email) at:
+The reboot notifier might be problematic, but I have not checked it.
 
-   http://www.surriel.com/patches/2.4/2.4.9-ac14-aging
-
-Please apply for the next 2.4.9-ac kernel, thanks.
-
-regards,
-
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Ciao, Marcus

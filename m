@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317898AbSFSOxb>; Wed, 19 Jun 2002 10:53:31 -0400
+	id <S317899AbSFSPG2>; Wed, 19 Jun 2002 11:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317899AbSFSOxa>; Wed, 19 Jun 2002 10:53:30 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:4641 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S317898AbSFSOx3>; Wed, 19 Jun 2002 10:53:29 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A783A79A2@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'o.pitzeier@uptime.at'" <o.pitzeier@uptime.at>,
-       linux-kernel@vger.kernel.org
-Subject: RE: New Build problem in sched.c in 2.5.23 on an Alpha
-Date: Wed, 19 Jun 2002 09:53:18 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S317900AbSFSPG1>; Wed, 19 Jun 2002 11:06:27 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:57733 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S317899AbSFSPG1>; Wed, 19 Jun 2002 11:06:27 -0400
+Date: Wed, 19 Jun 2002 17:06:15 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5] export ioremap_nocache to modules
+Message-ID: <20020619150615.GA16023@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> sched.c: In function `schedule':
-> sched.c:822: warning: implicit declaration of function
-> `prepare_arch_schedule'
-> sched.c:879: warning: implicit declaration of function
-> `prepare_arch_switch'
-> sched.c:883: warning: implicit declaration of function
-> `finish_arch_switch'
-> sched.c:886: warning: implicit declaration of function
-> `finish_arch_schedule'
-> make[1]: *** [sched.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.5.23/kernel'
-> make: *** [kernel] Error 2
+This patch exports ioremap_nocache to modules, used by at least
+some of the sound drivers....
 
-What Arch are you on?  Alpha?
+Stelian.
 
-Search the archive, you'll see that some of these are from Ingo's scheduler
-changes.
-
-B.
+===== arch/i386/kernel/i386_ksyms.c 1.23 vs edited =====
+--- 1.23/arch/i386/kernel/i386_ksyms.c	Mon May 20 19:51:16 2002
++++ edited/arch/i386/kernel/i386_ksyms.c	Wed Jun 19 16:55:00 2002
+@@ -63,6 +63,7 @@
+ EXPORT_SYMBOL(dump_fpu);
+ EXPORT_SYMBOL(dump_extended_fpu);
+ EXPORT_SYMBOL(__ioremap);
++EXPORT_SYMBOL(ioremap_nocache);
+ EXPORT_SYMBOL(iounmap);
+ EXPORT_SYMBOL(enable_irq);
+ EXPORT_SYMBOL(disable_irq);
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

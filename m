@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319815AbSIMWbE>; Fri, 13 Sep 2002 18:31:04 -0400
+	id <S319812AbSIMWil>; Fri, 13 Sep 2002 18:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319811AbSIMWbE>; Fri, 13 Sep 2002 18:31:04 -0400
-Received: from smtp2.san.rr.com ([24.25.195.39]:18860 "EHLO smtp2.san.rr.com")
-	by vger.kernel.org with ESMTP id <S319806AbSIMWbC>;
-	Fri, 13 Sep 2002 18:31:02 -0400
-Date: Fri, 13 Sep 2002 15:28:35 -0700
-From: Andrew Vasquez <praka@san.rr.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: qlogic failover multipath
-Message-ID: <20020913222835.GB4315@praka.local.home>
-Mail-Followup-To: Andrew Vasquez <praka@san.rr.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <20020906153437.GA2164@beaverton.ibm.com> <Pine.LNX.4.44.0209070822250.21784-100000@omega.s-tec.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209070822250.21784-100000@omega.s-tec.de>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.18-4GB
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	id <S319816AbSIMWil>; Fri, 13 Sep 2002 18:38:41 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:54938 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319812AbSIMWik>; Fri, 13 Sep 2002 18:38:40 -0400
+Date: Fri, 13 Sep 2002 19:42:57 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Good way to free as much memory as possible under 2.5.34?
+In-Reply-To: <1031953717.20072.5.camel@bip>
+Message-ID: <Pine.LNX.4.44L.0209131942330.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 07 Sep 2002, Oktay Akbal wrote:
-
-> On Fri, 6 Sep 2002, Mike Anderson wrote:
-> 
-> > You can edit the qla_settings.h file and set MPIO_SUPPORT to 1 or I
-> > believe if you use the qla2x00src-v6.1b5-fo archive that this should
-> > already be set to 1.
-> 
-> Thank you, I will try at Monday. It is set to 0 in b5.
-> But my archive is named: qla2x00src-v6.1b5.tgz
-> -fo seems to come only from enabling MPIO ?
+On 13 Sep 2002, Xavier Bestel wrote:
+> Le ven 13/09/2002 à 23:33, Rik van Riel a écrit :
 >
-The only functional difference between the -fo package referenced by 
-Mike Anderson and the non-fo (qla2x00src-v6.1b5.tgz) available from
-the QLogic download site is:
+> > I suspect only very few people will use swsuspend, so it should
+> > not be intrusive.
+>
+> I don't think so.
 
-	o MPIO_SUPPORT always set to 1
-	o Different README files.
+You think many people will use it, or you think swsuspend
+should be intrusive and have code in all other kernel
+subsystems ? ;)
 
-Thus, multipathing support can be enabled with standard package.
-
-Regards,
+Rik
 -- 
-Andrew Vasquez | praka@san.rr.com |
-	I prefer an accomidating vice to an obstinate virtue
-DSS: 0x508316BB, FP: 79BD 4FAC 7E82 FF70 6C2B  7E8B 168F 5529 5083 16BB
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

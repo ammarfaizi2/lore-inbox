@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265096AbSLBWYh>; Mon, 2 Dec 2002 17:24:37 -0500
+	id <S265097AbSLBWaq>; Mon, 2 Dec 2002 17:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbSLBWYh>; Mon, 2 Dec 2002 17:24:37 -0500
-Received: from mail.hometree.net ([212.34.181.120]:53198 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265096AbSLBWYc>; Mon, 2 Dec 2002 17:24:32 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: LM sensors into kernel?
-Date: Mon, 2 Dec 2002 22:31:59 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <asgn0v$tm$1@forge.intermeta.de>
-References: <200212021842.gB2Igou00740@devserv.devel.redhat.com> <Pine.LNX.3.96.1021202140938.433H-100000@gatekeeper.tmr.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1038868319 3574 212.34.181.4 (2 Dec 2002 22:31:59 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 2 Dec 2002 22:31:59 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S265098AbSLBWaq>; Mon, 2 Dec 2002 17:30:46 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:1551 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265097AbSLBWaq>; Mon, 2 Dec 2002 17:30:46 -0500
+Date: Mon, 2 Dec 2002 22:38:00 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, marcelo@connectiva.com.br,
+       rml@tech9.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+Message-ID: <20021202223800.A24773@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, marcelo@connectiva.com.br,
+	rml@tech9.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021202192652.A25938@sgi.com> <1919608311.1038822649@[10.10.2.3]> <20021202201101.A26164@sgi.com> <1038869248.8945.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1038869248.8945.18.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Dec 02, 2002 at 10:47:28PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> writes:
+On Mon, Dec 02, 2002 at 10:47:28PM +0000, Alan Cox wrote:
+> > Ingo vetoed it.
+> 
+> I wasnt aware Ingo had a veto
 
->Okay, thanks. I was hoping since lm_sensors were proposed before the
->freeze, relatively stable, and highly useful that they might get in.
-
-As most of the I2C code is in, I would consider the lm_sensors mainly
-as "drivers" so they wouldn't be hit by the freeze. 
-
-If you want it in, lobby it with Linus. I'm sure that he is open to
-reason (Hah! :-) ).
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+It's not exactly considered nice to merge code against the intention
+of it's author.  (which doesn't mean it's impossible, of course)

@@ -1,112 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264130AbTDJS6E (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbTDJS6E (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 14:58:04 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:20228 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264130AbTDJS6B (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 14:58:01 -0400
-Date: Thu, 10 Apr 2003 20:09:41 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
+	id S264122AbTDJTHK (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 15:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTDJTHK (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 15:07:10 -0400
+Received: from WARSL401PIP4.highway.telekom.at ([195.3.96.79]:4401 "HELO
+	email05.aon.at") by vger.kernel.org with SMTP id S264122AbTDJTHI (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 15:07:08 -0400
+From: Hermann Himmelbauer <dusty@violin.dyndns.org>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Geert Uytterhoeven <geert@linux-m68k.org>, <adaplas@pol.net>
-Subject: [FBDEV updates] Newest framebuffer fixes.
-Message-ID: <Pine.LNX.4.44.0304102005330.23030-100000@phoenix.infradead.org>
+Subject: rtl8139 Problem/kernel panic (probably unrelated)
+Date: Thu, 10 Apr 2003 21:18:24 +0200
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304102118.24350.dusty@violin.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I have problems with my Ovis Link 10/100 PCI Network adapter (based on 
+RTL8139too)
 
-Hi!
+Until yesterday the NIC worked flawlessly with Linux-2.4.19-SuSE (from SuSE 
+8.1) and rtl8139too (driver version 0.9.26).
 
-  Here are the latest framebuffer changes. Some driver updates and a 
-massive cleanup of teh cursor code. Tony please test it on the i810 
-chipset. I tested it on the Riva but there is one bug I can't seem to 
-find. Please test this patch. It is against 2.5.67 BK. It shoudl work 
-against 2.5.67 as well. 
+Yesterday I exchanged motherboards + Processor (from MSI 6195, K7pro with 
+Slot1 K7-700 to MSI 3660, K7turbo with Socket A 1.2 Thunderbird) and added 
+256MB RAM (now 512MB).
 
-Please test. 
+The old motherboard had a AMD751 Irongate chipset, the new has a Via 
+KT133A(552BGA)/VIA686B(352BGA) chipset.
 
-Standard patch is at 
+Now the network connection is sometimes "stuck" for ~1-2 seconds every ~30
+seconds, "dmesg" outputs the following:
 
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+eth0: Too much work at interrupt, IntrStatus=0x0001.
 
-and you can do a bk pull http://fbdev.bkbits.net/fbdev-2.5
+I googled around a bit but all I could find was the advice to try another
+PCI slot (tried it - but helped nothing) and to replace the cheap NIC to a
+better quality one.
 
-Linus, please do a
+Oooops - while writing this and opening the Acrobat Reader I received
+multiple kernel panics:
 
-	bk pull http://gkernel.bkbits.net/fbdev-2.5
+--------------- snip -----------------
+Unable to handle kernel paging request at virtual address 67726f46
+ printing eip:
+c0147790
+*pde = 00000000
+Oops: 0000 2.4.19-4GB #1 Fri Sep 13 13:14:56 UTC 2002
+CPU:    0
+EIP:    0010:[<c0147790>]    Tainted: P
+EFLAGS: 00013a83
+eax: c8740000   ebx: 67726f2e   ecx: 000001d2   edx: 000001d2
+esi: 00000001   edi: c0b75480   ebp: 00000001   esp: c8741dd8
+ds: 0018   es: 0018   ss: 0018
+Process X (pid: 1097, stackpage=c8741000)
+Stack: c0b753c0 c10206c0 c0b75480 c0147934 c0b75480 c10206c0 000001d2 c10206c0
+       c02d3e2c 00004a7e c013ac80 c10206c0 000001d2 c8740000 00000000 00000c80
+       000001d2 00000012 00000020 000001d2 c02d3e2c c02d3e2c c013b11f c8741e50
+Call Trace:    [<c0147934>] [<c013ac80>] [<c013b11f>] [<c013b180>] 
+[<c013c249>]
+  [<c013c4f7>] [<c013c5ff>] [<c012f82f>] [<c012ff26>] [<c011a78d>] 
+[<c9c180e9>]
+  [<c9d58c00>] [<c9c180ab>] [<c9c17fed>] [<c9c18c50>] [<c9c01821>] 
+[<c010a034>]
+  [<c9d58c00>] [<c010a1c8>] [<c011a5e0>] [<c0108f74>]
+Modules: [(nvidia:<c9c00060>:<c9d79680>)]
+Code: f7 43 18 06 00 00 00 74 37 b8 07 00 00 00 0f ab 43 18 19 c0
+ <1>Unable to handle kernel paging request at virtual address 742e778f
+ printing eip:
+c0147790
+*pde = 00000000
+Oops: 0000 2.4.19-4GB #1 Fri Sep 13 13:14:56 UTC 2002
+CPU:    0
+EIP:    0010:[<c0147790>]    Tainted: P
+EFLAGS: 00013a83
+eax: 00000000   ebx: 742e7777   ecx: 000001d0   edx: 000001d0
+esi: 00000000   edi: c0b75780   ebp: 00000001   esp: dff9df10
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=dff9d000)
+Stack: c0b75720 c1021230 c0b75780 c0147934 c0b75780 c1021230 000001d0 c1021230
+       c02d3e2c 00004833 c013ac80 c1021230 000001d0 dff9c000 00000000 000003e8
+       000001d0 0000000a 0000000a 000001d0 c02d3e2c c02d3e2c c013b11f dff9df88
+Call Trace:    [<c0147934>] [<c013ac80>] [<c013b11f>] [<c013b180>] 
+[<c013b2ce>]
+  [<c013b326>] [<c013b462>] [<c0105000>] [<c01072c6>] [<c013b3c0>]
+Code: f7 43 18 06 00 00 00 74 37 b8 07 00 00 00 0f ab 43 18 19 c0
+ <1>Unable to handle kernel paging request at virtual address 0000cdd0
+ printing eip:
+c0147790
+*pde = 00000000
+Oops: 0000 2.4.19-4GB #1 Fri Sep 13 13:14:56 UTC 2002
+CPU:    0
+EIP:    0010:[<c0147790>]    Tainted: P
+EFLAGS: 00010203
+eax: da494000   ebx: 0000cdb8   ecx: 000001d2   edx: 000001d2
+esi: 00000001   edi: c0b75d80   ebp: 00000001   esp: da495dc8
+ds: 0018   es: 0018   ss: 0018
+Process acroread (pid: 2306, stackpage=da495000)
+Stack: c0b75d20 c1021350 c0b75d80 c0147934 c0b75d80 c1021350 000001d2 c1021350
+       c02d3e2c 00004a45 c013ac80 c1021350 000001d2 da494000 00000000 00000898
+       000001d2 00000015 00000016 000001d2 c02d3e2c c02d3e2c c013b11f da495e40
+Call Trace:    [<c0147934>] [<c013ac80>] [<c013b11f>] [<c013b180>] 
+[<c013c249>]
+  [<c013c4f7>] [<c0134681>] [<c013c5ff>] [<c012fc0b>] [<c012ff26>] 
+[<c011a78d>]
 
-This will update the following files:
+-------------------- snip ----------------------
 
- Documentation/devices.txt       |    7 
- drivers/video/aty/aty128fb.c    |   16 -
- drivers/video/cfbimgblt.c       |    4 
- drivers/video/console/fbcon.c   |  548 ++++++++++++++++++----------------------
- drivers/video/console/fbcon.h   |    1 
- drivers/video/controlfb.c       |   18 -
- drivers/video/fbcmap.c          |   33 +-
- drivers/video/fbmem.c           |  159 ++++++-----
- drivers/video/i810/i810.h       |    6 
- drivers/video/i810/i810_accel.c |  140 +++++-----
- drivers/video/i810/i810_dvt.c   |    3 
- drivers/video/i810/i810_gtf.c   |    7 
- drivers/video/i810/i810_main.c  |  135 ++++-----
- drivers/video/i810/i810_main.h  |    4 
- drivers/video/logo/logo.c       |   69 ++---
- drivers/video/platinumfb.c      |   28 --
- drivers/video/radeonfb.c        |   10 
- drivers/video/riva/fbdev.c      |    2 
- drivers/video/softcursor.c      |  198 +++++++-------
- drivers/video/tdfxfb.c          |   18 -
- drivers/video/tgafb.c           |    2 
- drivers/video/vga16fb.c         |    6 
- include/linux/fb.h              |   16 -
- include/linux/linux_logo.h      |    2 
- 24 files changed, 690 insertions(+), 742 deletions(-)
+Well - this could be due to these buggy nvidia drivers. :-(
 
-through these ChangeSets:
+Anyway, do you have another suggestion to the network card problems - except
+replacing cards - or is this just a incompatibility between the 8139 chipset
+and the Via KT133A chipset?
 
-<jsimmons@kozmo.(none)> (03/04/02 1.991.1.2)
-   [FBDEV SOFT CURSOR] Test to see if kmalloc failed.
-   
-   [FBCON] Test to see if the user priovides there own work queue.
+                Best Regards,
+                Hermann
 
-<jsimmons@kozmo.(none)> (03/04/02 1.991.1.1)
-   [FBDEV] Final cursor code cleanups. Now the burden of handling the cursor code lies on the driver side. The reason for this is that a invalid cursor might come from userland.
-
-<jsimmons@kozmo.(none)> (03/03/31 1.990)
-   [FBDEV] Massive cleanups of the cursor api.
-
-<jsimmons@maxwell.earthlink.net> (03/03/26 1.986)
-   [FBDEV] Documentation on the device numbers of /dev/fb being mulitples of 32 is no longer true. Removed that info.
-   
-   [FBDEV] Logo fixes. Now we can display different color logos on screens of different color depths.
-   
-   [VGA16 FBDEV] Small compile error. Fixed it now.
-
-<jsimmons@maxwell.earthlink.net> (03/03/26 1.984)
-   [I810 FBDEV] Driver updates.
-   
-   [FBCON] Reversed some of my cursor changes.
-
-<jsimmons@kozmo.(none)> (03/03/25 1.983)
-   [FBDEV] The image color depth of zero hack has been killed.
-
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.982)
-   [FBCON] Now we use workqueues so framebuffer code can always work in a process context.
-   
-   [GENERIC CURSOR] Safety check in case kmalloc failes
-
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.981)
-   [FBCON] Could be called outside of a process context. This fixes that.
-
-<jsimmons@maxwell.earthlink.net> (03/03/25 1.979)
-   [RAGE 128/CONTROL/PLATNIUM FBDEV] PPC updates.
-   
-   [RADEON FBDEV] PLL fix for specific type of card.
-
+-- 
+x1@aon.at
+GPG key ID: 299893C7 (on keyservers)
+FP: 0124 2584 8809 EF2A DBF9  4902 64B4 D16B 2998 93C7
 

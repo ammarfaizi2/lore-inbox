@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129740AbRCARPE>; Thu, 1 Mar 2001 12:15:04 -0500
+	id <S129730AbRCARRE>; Thu, 1 Mar 2001 12:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRCAROz>; Thu, 1 Mar 2001 12:14:55 -0500
-Received: from smtp.primusdsl.net ([209.225.164.93]:18191 "EHLO
-	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
-	id <S129740AbRCAROg>; Thu, 1 Mar 2001 12:14:36 -0500
-Date: Thu, 1 Mar 2001 12:15:54 -0500
-From: James Lewis Nance <jlnance@intrex.net>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-Message-ID: <20010301121554.A861@bessie.dyndns.org>
-In-Reply-To: <3A9D891C.434E3AA7@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A9D891C.434E3AA7@namesys.com>; from reiser@namesys.com on Thu, Mar 01, 2001 at 02:26:20AM +0300
+	id <S129737AbRCARQ4>; Thu, 1 Mar 2001 12:16:56 -0500
+Received: from [62.90.5.51] ([62.90.5.51]:16393 "EHLO salvador.shunra.co.il")
+	by vger.kernel.org with ESMTP id <S129730AbRCARQp>;
+	Thu, 1 Mar 2001 12:16:45 -0500
+Message-ID: <F1629832DE36D411858F00C04F24847A11DED5@SALVADOR>
+From: Ofer Fryman <ofer@shunra.co.il>
+To: "'Jes Sorensen'" <jes@linuxcare.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Intel-e1000 for Linux 2.0.36-pre14
+Date: Thu, 1 Mar 2001 19:21:24 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="WINDOWS-1255"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 02:26:20AM +0300, Hans Reiser wrote:
-> I have a client that wants to implement a webcache, but is very leery of
-> implementing it on Linux rather than BSD.
-> 
-> They know that iMimic's polymix performance on Linux 2.2.* is half what it
-> is on BSD.  Has the Linux 2.4 networking code caught up to BSD?
-> 
-> Can I tell them not to worry about the Linux networking code strangling their
-> webcache product's performance, or not?
+I am upgrading to 2.2.x, but mean while I need e1000 driver to run on 2.0.x,
+I'm sure that others might need it too.
 
-Hi Hans,
-    I dont have an answer for you, but it would be nice to know the answer.
-Would it be difficult to measure this?  It should not be difficult to make
-a machine dual boot Linux and BSD, and then we can measure the differences.
-If there is a significant performance difference either way then we can
-try and investigate it to see why.
+-----Original Message-----
+From: Jes Sorensen [mailto:jes@linuxcare.com]
+Sent: Thursday, March 01, 2001 7:07 PM
+To: Ofer Fryman
+Cc: 'kernel@kvack.org'; 'linux-kernel@vger.kernel.org'
+Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
 
-Thanks,
 
-Jim
+>>>>> "Ofer" == Ofer Fryman <ofer@shunra.co.il> writes:
+
+Ofer> I need a giga fiber PMC cards for linux2.0.36-pre14, the only
+Ofer> cards I know are either Intel based or level-one lxt-1001 card,
+Ofer> the level-one lxt-1001 has very bad performance so I cannot use
+Ofer> it.
+
+I'd recommend you to upgrade to at least 2.2.x, the scalability of
+2.0.x means there is really no good reason to spend time porting GigE
+drivers to it.
+
+Jes

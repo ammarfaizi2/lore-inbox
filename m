@@ -1,99 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269345AbUIBXsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269406AbUICAHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269345AbUIBXsI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:48:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269333AbUIBXoU
+	id S269406AbUICAHf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 20:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269375AbUICAHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:44:20 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:29587 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S269324AbUIBXnL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:43:11 -0400
-Date: Fri, 3 Sep 2004 01:43:02 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1076230617.20040903014302@tnonline.net>
-To: Valdis.Kletnieks@vt.edu
-CC: Frank van Maarseveen <frankvm@xs4all.nl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-In-Reply-To: <200409022319.i82NJlTN025039@turing-police.cc.vt.edu>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain>
- <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
- <1094118362.4847.23.camel@localhost.localdomain>
- <20040902203854.GA4801@janus>
- <200409022319.i82NJlTN025039@turing-police.cc.vt.edu>
+	Thu, 2 Sep 2004 20:07:11 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:33780 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S269410AbUIBX6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:58:32 -0400
+Date: Thu, 2 Sep 2004 20:02:55 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Matt Mackall <mpm@selenic.com>, Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH][6/8] Arch agnostic completely out of line locks / arm
+Message-ID: <Pine.LNX.4.58.0409021237000.4481@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ arch/arm/kernel/time.c              |   12 ++++++++++++
+ arch/arm/kernel/vmlinux.lds.S       |    1 +
+ arch/arm/oprofile/op_model_xscale.c |    4 ++--
+ include/asm-arm/ptrace.h            |    5 +++++
+ 4 files changed, 20 insertions(+), 2 deletions(-)
 
-  
+Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
 
-> On Thu, 02 Sep 2004 22:38:54 +0200, Frank van Maarseveen said:
+Index: linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/time.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/arm/kernel/time.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 time.c
+--- linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/time.c	26 Aug 2004 13:13:04 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/time.c	2 Sep 2004 15:51:37 -0000
+@@ -52,6 +52,18 @@ EXPORT_SYMBOL(rtc_lock);
+ /* change this if you have some constant time drift */
+ #define USECS_PER_JIFFY	(1000000/HZ)
 
->> Can it do this:
->> 
->> 	cd FC2-i386-disc1.iso
->> 	ls
++#ifdef CONFIG_SMP
++unsigned long profile_pc(struct pt_regs *regs)
++{
++	unsigned long pc = instruction_pointer(regs);
++
++	if (pc >= (unsigned long)&__lock_text_start &&
++	    pc <= (unsigned long)&__lock_text_end)
++		return regs->ARM_lr;
++	return pc;
++}
++EXPORT_SYMBOL(profile_pc);
++#endif
 
-> That one's at least theoretically doable, assuming that it really *IS* the
-> Fedora Core disk and an ISO9660 format...
+ /*
+  * hook for setting the RTC's idea of the current time.
+Index: linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/vmlinux.lds.S
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/arm/kernel/vmlinux.lds.S,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 vmlinux.lds.S
+--- linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/vmlinux.lds.S	26 Aug 2004 13:13:04 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/vmlinux.lds.S	2 Sep 2004 13:08:12 -0000
+@@ -71,6 +71,7 @@ SECTIONS
+ 		_text = .;		/* Text and read-only data	*/
+ 			*(.text)
+ 			SCHED_TEXT
++			LOCK_TEXT
+ 			*(.fixup)
+ 			*(.gnu.warning)
+ 			*(.rodata)
+Index: linux-2.6.9-rc1-mm1-stage/arch/arm/oprofile/op_model_xscale.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/arm/oprofile/op_model_xscale.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 op_model_xscale.c
+--- linux-2.6.9-rc1-mm1-stage/arch/arm/oprofile/op_model_xscale.c	26 Aug 2004 13:13:05 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/arch/arm/oprofile/op_model_xscale.c	2 Sep 2004 15:52:39 -0000
+@@ -343,7 +343,7 @@ static void inline __xsc2_check_ctrs(voi
 
->> 	cd /dev/cdrom
->> 	ls
+ static irqreturn_t xscale_pmu_interrupt(int irq, void *arg, struct pt_regs *regs)
+ {
+-	unsigned long eip = instruction_pointer(regs);
++	unsigned long pc = profile_pc(regs);
+ 	int i, is_kernel = !user_mode(regs);
+ 	u32 pmnc;
 
-> And the CD in the drive at the moment is AC/DC "Back in Black".  What
-> should this produce as output?
+@@ -357,7 +357,7 @@ static irqreturn_t xscale_pmu_interrupt(
+ 			continue;
 
-  Yes why not? If there was any filesystem drivers for the AudioCD
-  format then it could.
+ 		write_counter(i, -(u32)results[i].reset_counter);
+-		oprofile_add_sample(eip, is_kernel, i, smp_processor_id());
++		oprofile_add_sample(pc, is_kernel, i, smp_processor_id());
+ 		results[i].ovf--;
+ 	}
 
-  I had such a driver for Windows 9x which would display several
-  folders and files for inserted AudioCD's:
+Index: linux-2.6.9-rc1-mm1-stage/include/asm-arm/ptrace.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/include/asm-arm/ptrace.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 ptrace.h
+--- linux-2.6.9-rc1-mm1-stage/include/asm-arm/ptrace.h	26 Aug 2004 13:13:12 -0000	1.1.1.1
++++ linux-2.6.9-rc1-mm1-stage/include/asm-arm/ptrace.h	2 Sep 2004 13:08:15 -0000
+@@ -130,7 +130,12 @@ static inline int valid_user_regs(struct
 
-  D: (cdrom)
-    Stereo
-      22050
-        Track01.wav
-        Track02.wav
-        ...
-      44100
-        Track01.wav
-        ...
-    Mono
-      22050
-        Track01.wav
-        ...
-      44100
-        Track01.wav
-        ...
+ #define instruction_pointer(regs) \
+ 	(pc_pointer((regs)->ARM_pc))
++
++#ifdef CONFIG_SMP
++extern unsigned long profile_pc(struct pt_regs *regs);
++#else
+ #define profile_pc(regs) instruction_pointer(regs)
++#endif
 
-  Normal AudioCD players would also work even though this driver was
-  installed. These files were also visible for legacy applications in
-  the command prompt (inside Windows).
-
-  I do not see why this would not be possible in Linux. Of course, it
-  would perhaps require a filesystem driver/module to be present when
-  you mount.
-
-  If you just want to do a cd file.iso then it may be a totally
-  different thing. Either you would have a automount feature or a
-  filesystem/vfs plugin that could load secondary modules to support
-  this kind of thing.
-
-  ~S
-
+ #ifdef __KERNEL__
+ extern void show_regs(struct pt_regs *);

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319128AbSIJOGD>; Tue, 10 Sep 2002 10:06:03 -0400
+	id <S319131AbSIJOHO>; Tue, 10 Sep 2002 10:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319131AbSIJOGD>; Tue, 10 Sep 2002 10:06:03 -0400
-Received: from angband.namesys.com ([212.16.7.85]:16768 "HELO
+	id <S319135AbSIJOHN>; Tue, 10 Sep 2002 10:07:13 -0400
+Received: from angband.namesys.com ([212.16.7.85]:17792 "HELO
 	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S319128AbSIJOGC>; Tue, 10 Sep 2002 10:06:02 -0400
-Date: Tue, 10 Sep 2002 18:10:45 +0400
+	id <S319131AbSIJOHM>; Tue, 10 Sep 2002 10:07:12 -0400
+Date: Tue, 10 Sep 2002 18:11:53 +0400
 From: Oleg Drokin <green@namesys.com>
-To: Dave Jones <davej@suse.de>, Hans Reiser <reiser@namesys.com>,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [BK] ReiserFS changesets for 2.4 (performs writes more than 4k at a time)
-Message-ID: <20020910181045.A1095@namesys.com>
-References: <3D7DF05E.7030903@namesys.com> <20020910160659.A15158@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu, andre@linux-ide.org
+Subject: Re: 2.5.34 BUG at kernel/sched.c:944 (partitions code related?)
+Message-ID: <20020910181153.B1095@namesys.com>
+References: <20020910175639.A830@namesys.com> <20020910140622.GX8719@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20020910160659.A15158@suse.de>
+In-Reply-To: <20020910140622.GX8719@suse.de>
 User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-On Tue, Sep 10, 2002 at 04:07:00PM +0200, Dave Jones wrote:
->  > It passes all of our testing, but it is the kind of code that is more 
->  > likely than most to have elusive lurking bugs.  It cannot be tested in 
->  > 2.5 first because 2.5 is too broken at this particular moment.
-> What in particular holds you back from testing this in 2.5 ?
+On Tue, Sep 10, 2002 at 04:06:22PM +0200, Jens Axboe wrote:
 
-I cannot boot into 2.5.34, that's it. ;)
+> >    Now it does it in reverse like this:
+> > hdb: host protected area => 1
+> > hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> > hdb: hdb1
+> > hda: host protected area => 1
+> > hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> > hda: hda1 hda2 hda3 hda4 < hda5PANIC
+> Kernel compiled with preempt support or not?
 
-> This seems quite dubious for inclusion first in what it supposed
-> to be the stable series.
-
-I believe that code itself is pretty stable now ;)
-Also it got some testing outside of NAMESYS already.
+No.
+green@angband:~/bk_work/reiser3-linux-2.5-work-t> grep PREEM .config
+# CONFIG_PREEMPT is not set
 
 Bye,
     Oleg

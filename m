@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266949AbUBMMNV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 07:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266953AbUBMMNV
+	id S266976AbUBMMXx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 07:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266979AbUBMMXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 07:13:21 -0500
-Received: from main.gmane.org ([80.91.224.249]:42119 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266949AbUBMMNF (ORCPT
+	Fri, 13 Feb 2004 07:23:52 -0500
+Received: from pop.gmx.de ([213.165.64.20]:26093 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266976AbUBMMXv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 07:13:05 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Fri, 13 Feb 2004 07:23:51 -0500
+Date: Fri, 13 Feb 2004 13:23:49 +0100 (MET)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
-Date: Fri, 13 Feb 2004 13:13:01 +0100
-Message-ID: <yw1xptcjrxde.fsf@kth.se>
-References: <200402130615.10608.mhf@linuxmail.org> <XFMail.20040213095802.pochini@shiny.it>
- <20040213124232.B2871@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:INsN8x6TQx+JAKlXc5GKyAcltjI=
+MIME-Version: 1.0
+Subject: Re: File system performance, hardware performance, ext3, 3ware RAID1, etc.
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <9792.1076675029@www11.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <aebr@win.tue.nl> writes:
+Willy Tarreau <willy@w.ods.org> wrote in message
+news:<1oEGw-2ex-1@gated-at.bofh.it>...
+> On Thu, Feb 12, 2004 at 06:32:31PM -0500, Timothy Miller wrote:
+>  
+> > For writes, iozone found an upper bound of about 10megs/sec, which is 
+> > abysmal.  Typically, I'd expect writes to be faster (on a single drive) 
+> > than reads, because once the write is sent, you can forget about it. 
+> > You don't have to wait around for something to come back, and that 
+> > latency for reads can hurt performance.  The OS can also buffer writes 
+> > and reorder them in order to improve efficiency.
+> 
+> It depends on the disk too. Lots of disks (specially IDE) are far slower
+> on writes than they are on reads.
 
-> On Fri, Feb 13, 2004 at 09:58:02AM +0100, Giuliano Pochini wrote:
->
->>> +The limit on the length of lines is 80 columns and this is a hard limit.
->> 
->> Well, I think this requirement is a bit silly IMHO. How many of us
->> do usually code in a 80x25 terminal screen nowadays ?
->
-> I do. (That is, 80xN with N in 24..60 or so.)
+No. Have you verified this? If you 'dd' your swap partition from /dev/zero
+on IDE, you'll see write performance closely matches read performance, for
+drives old and new.
 
-So do I.  I like to be able to fit a few xterms or emacsen side by
-side on the screen.  I can't do that if I make them too wide.
+In the case of small transfers, the drive can hand them off to the on-drive
+write cache (2/8MB usually). The only case where IDE disks will be 'slow' for
+write performance is where you have no disk I/O scheduling and lots of small
+reads/writes - this case wins on SCSI, but many modern IDE disks and
+controllers also have tagged command queuing, so it is even more of a corner case.
+
+Dan
 
 -- 
-Måns Rullgård
-mru@kth.se
+Daniel J Blueman
+
+GMX ProMail (250 MB Mailbox, 50 FreeSMS, Virenschutz, 2,99 EUR/Monat...)
+jetzt 3 Monate GRATIS + 3x DER SPIEGEL +++ http://www.gmx.net/derspiegel +++
 

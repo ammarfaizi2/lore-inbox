@@ -1,114 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263595AbVBCQcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263673AbVBCQeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbVBCQcG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 11:32:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVBCQcF
+	id S263673AbVBCQeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 11:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbVBCQda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 11:32:05 -0500
-Received: from svana.org ([203.20.62.76]:57356 "EHLO svana.org")
-	by vger.kernel.org with ESMTP id S263351AbVBCQbd (ORCPT
+	Thu, 3 Feb 2005 11:33:30 -0500
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:62939 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S262788AbVBCQdI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 11:31:33 -0500
-Date: Thu, 3 Feb 2005 17:31:15 +0100
-From: Martijn van Oosterhout <kleptog@svana.org>
-To: Pankaj Agarwal <pankaj@toughguy.net>
-Cc: S Iremonger <exxsi@bath.ac.uk>, linux-os@analogic.com,
-       linux-kernel@vger.kernel.org, Linux Net <linux-net@vger.kernel.org>
+	Thu, 3 Feb 2005 11:33:08 -0500
+Date: Thu, 3 Feb 2005 17:33:05 +0100
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: "Pankaj Agarwal" <pankaj@toughguy.net>
+Cc: "S Iremonger" <exxsi@bath.ac.uk>, <linux-os@analogic.com>,
+       <linux-kernel@vger.kernel.org>, "Linux Net" <linux-net@vger.kernel.org>
 Subject: Re: Query - Regarding strange behaviour.
-Message-ID: <20050203163110.GE16100@svana.org>
-Reply-To: Martijn van Oosterhout <kleptog@svana.org>
-References: <001501c509ff$d4be02e0$8d00150a@dreammac> <Pine.LNX.4.61.0502031017430.9404@chaos.analogic.com> <015901c50a07$721f2620$8d00150a@dreammac> <Pine.GSO.4.53.0502031602400.21155@amos.bath.ac.uk> <019501c50a0b$fcf8a9c0$8d00150a@dreammac>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a2FkP9tdjPU2nyhF"
-Content-Disposition: inline
+Message-ID: <20050203173305.65503be7@phoebee>
 In-Reply-To: <019501c50a0b$fcf8a9c0$8d00150a@dreammac>
-User-Agent: Mutt/1.3.28i
-X-PGP-Key-ID: Length=1024; ID=0x0DC67BE6
-X-PGP-Key-Fingerprint: 295F A899 A81A 156D B522  48A7 6394 F08A 0DC6 7BE6
-X-PGP-Key-URL: <http://svana.org/kleptog/0DC67BE6.pgp.asc>
+References: <001501c509ff$d4be02e0$8d00150a@dreammac>
+	<Pine.LNX.4.61.0502031017430.9404@chaos.analogic.com>
+	<015901c50a07$721f2620$8d00150a@dreammac>
+	<Pine.GSO.4.53.0502031602400.21155@amos.bath.ac.uk>
+	<019501c50a0b$fcf8a9c0$8d00150a@dreammac>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+ boundary=Signature_Thu__3_Feb_2005_17_33_05_+0100_hVNcF9T1ubZ6V8DF;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---a2FkP9tdjPU2nyhF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Signature_Thu__3_Feb_2005_17_33_05_+0100_hVNcF9T1ubZ6V8DF
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 03, 2005 at 09:48:12PM +0530, Pankaj Agarwal wrote:
+On Thu, 3 Feb 2005 21:48:12 +0530
+"Pankaj Agarwal" <pankaj@toughguy.net> bubbled:
+
+> my fault...i'm able to copy it using -rf with CP. So, solution given
+> by Dick  Johnson (Linux-OS) can be used, if all are unable to find
+> what's the  problem...
+>=20
+> here's the output of the two commands you've asked for..
+>=20
+> [root@test usr]# ls -ld /usr/bin
+> drwxr-xr-x    2 root     root        61440 Nov 21 20:30 /usr/bin
+>=20
 > [root@test usr]# lsattr -d /usr/bin
 > su--ia------- /usr/bin
 
-Well, there's your problem. These mean:
+i =3D IMMUTABLE, so you are unable to modify it.
+a =3D only append mode for writing
+u =3D allow undelete
+s =3D zero the file if deleted
 
-s: when deleted, its blocks are zeroed and written back to the disk
-u: when deleted, its contents are saved.=20
-i: cannot be modified: it cannot be deleted or renamed,
-a: can only be open in append mode for writing
+but s and u should currently not work on ext2/3.
 
-Remove those flags with chattr...
-
-Hope this helps,
-
->=20
-> ----- Original Message -----=20
-> From: "S Iremonger" <exxsi@bath.ac.uk>
-> To: "Pankaj Agarwal" <pankaj@toughguy.net>
-> Cc: <linux-os@analogic.com>; <linux-kernel@vger.kernel.org>; "Linux Net"=
-=20
-> <linux-net@vger.kernel.org>
-> Sent: Thursday, February 03, 2005 9:37 PM
-> Subject: Re: Query - Regarding strange behaviour.
->=20
->=20
-> >>its not even allowing me to copy it ...then surely it wont allow me mv =
-as
-> >>well... what else can i try...
-> >>[root@test root]# mount
-> >>/dev/hda2 on / type ext3 (rw)
-> >>[root@test /]# cd /usr
-> >>[root@test usr]# cp bin testbin
-> >>cp: omitting directory `bin'
-> >
-> >"cp" does not normally copy direcrories as such by DEFAULT.
-> >
-> >Use the "-R" flag on "cp" to make it 'recurse' and copy the whole
-> > directory and directory/files under it.
-> >
-> >e.g. "cp -R bin bincopy"
-> >
-> >
-> >And, show us all the results of the following 2 commands, please.
-> >
-> >ls -ld /usr/bin
-> >lsattr -d /usr/bin
-> >
-> >--S Iremonger <exxsi@bath.ac.uk>
-> >
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-net" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Try "chattr -iusa /usr/bin" as root.
 
 --=20
-Martijn van Oosterhout   <kleptog@svana.org>   http://svana.org/kleptog/
-> Patent. n. Genius is 5% inspiration and 95% perspiration. A patent is a
-> tool for doing 5% of the work and then sitting around waiting for someone
-> else to do the other 95% so you can sue them.
+MyExcuse:
+bad ether in the cables
 
---a2FkP9tdjPU2nyhF
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature_Thu__3_Feb_2005_17_33_05_+0100_hVNcF9T1ubZ6V8DF
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFCAlHOY5Twig3Ge+YRAgBbAKCH95rEWSv9Q+fN6cqaGS7b9HnjewCg0gUK
-GOh5FFQVAYCJihl3Vnp3aWg=
-=L7rA
+iD8DBQFCAlJBmjLYGS7fcG0RAka5AKCGJF4gJKtrOveV2kPVYjCTcrqokgCghfxN
+rW8ZoQOPwB/9F0XgnLZYDKw=
+=ccKg
 -----END PGP SIGNATURE-----
 
---a2FkP9tdjPU2nyhF--
+--Signature_Thu__3_Feb_2005_17_33_05_+0100_hVNcF9T1ubZ6V8DF--

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271415AbTHDIyw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 04:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271418AbTHDIyw
+	id S271419AbTHDJHx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 05:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271420AbTHDJHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 04:54:52 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:46751 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S271415AbTHDIyv (ORCPT
+	Mon, 4 Aug 2003 05:07:53 -0400
+Received: from main.gmane.org ([80.91.224.249]:30615 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S271419AbTHDJHw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 04:54:51 -0400
-Message-ID: <3F2E1F7B.3020906@softhome.net>
-Date: Mon, 04 Aug 2003 10:55:23 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Werner Almesberger <werner@almesberger.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TOE brain dump
-References: <g83n.8vu.9@gated-at.bofh.it> <3F2CFC80.4090401@softhome.net> <20030803151000.D10280@almesberger.net>
-In-Reply-To: <20030803151000.D10280@almesberger.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 05:07:52 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.6 ide i/o performance
+Date: Mon, 04 Aug 2003 11:04:42 +0200
+Message-ID: <yw1xel01kd3p.fsf@users.sourceforge.net>
+References: <200308021205.59280.vt@vt.fermentas.lt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:3Xf1tX1r78ffBbGLQJN3xqQDzSQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> Ihar 'Philips' Filipau wrote:
-> 
->>    Modern NPUs generally do this.
-> 
-> 
-> Unfortunately, they don't - they run *some* code, but that
-> is rarely a Linux kernel, or a substantial part of it.
-> 
+Vitalis Tiknius <vt@vt.fermentas.lt> writes:
 
-   Embedded CPU we are using is based MIPS, and has a lot of specialized 
-instructions.
-   It makes not that much sense to run kernel (especially Linux) on CPU 
-which is optimized for handling of network packets. (And has actually 
-several co-processors to help in this task).
-   How much sense it makes to run general purpose OS (optimized for PCs 
-and servers) on devices which can make only couple of functions? (and no 
-MMU btw)
+> i simultaneously burned (audio mode, without scsi emulation) and ripped cd's 
+> under 2.6.0-test2-mm2. devices are:
+>
+>  ../ide/host0/bus1/target0/lun0/cd (Teac CD-W552E) 
+>  ../ide/host0/bus1/target1/lun0/cd (Teac DV-516E).
+>
+> mobo is Intel 875. software is k3b-0.9, cdrtools-2.01_alpha18, grip-3.1.1, and 
+> cdparanoia-3.9.8 with all paranoia options on.
+>
+> when burning and ripping are performed separately, their speeds are approx. 
+> 42x and 6.3x. when simultaneously, 12x and 1.6x with no options touched.
+>
+> although devices are on the same controller (my first controller is
+> SATA) and on the same bus, i'd rather expect linear and not almost
+> square-law throughput regression observed. are the things expected
+> to go this way, or there is some room for optimizations, etc.?
 
-   It is a whole idea behind this kind of CPUs - to do a few of 
-functions - but to do them good.
+The first thing to do is to use separate cables for those devices, and
+see if it helps.
 
-   If you will start stretching CPUs like this to fit Linux kernel - it 
-will generally just increase price. Probably there are some markets 
-which can afford this.
-
-   Remeber - "Small is beatiful" (c) - and linux kernel far from it.
-   Our routing code which handles two GE interfaces (actually not pure 
-GE, but up to 2.5GB) fits into 3k. 3k of code - and that's it. not 650kb 
-of bzip compressed bloat. And it handles two interfaces, handles fast 
-data path from siblign interfaces, handles up to 1E6 routes. 3k of code. 
-not 650k of bzip.
+-- 
+Måns Rullgård
+mru@users.sf.net
 

@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbTDGRvR (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263569AbTDGRvR (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:51:17 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:64010 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP id S263564AbTDGRvQ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 13:51:16 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] new syscall: flink
-Date: 7 Apr 2003 17:37:36 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <b6sd10$45g$1@abraham.cs.berkeley.edu>
-References: <20030407165009.13596.qmail@email.com>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1049737056 4272 128.32.153.211 (7 Apr 2003 17:37:36 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 7 Apr 2003 17:37:36 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id S263573AbTDGR5L (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbTDGR5L (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:57:11 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:56251 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S263573AbTDGR5K (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 13:57:10 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16017.48795.43569.182784@napali.hpl.hp.com>
+Date: Mon, 7 Apr 2003 11:08:27 -0700
+To: "Robert Williamson" <robbiew@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, aniruddha.marathe@wipro.com,
+       linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: Re: Same syscall is defined to different numbers on 3 different archs(was
+ Re: Makefile  issue)
+In-Reply-To: <OFA555B9E6.223C91CB-ON85256D01.00582D99-86256D01.005A64CB@pok.ibm.com>
+References: <p73vfxqxpz4.fsf@oldwotan.suse.de>
+	<OFA555B9E6.223C91CB-ON85256D01.00582D99-86256D01.005A64CB@pok.ibm.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clayton Weaver wrote:
->Once a process unlinks the last directory entry referencing a particular
->inode that it has an
->open fd for and then passes the open fd to some other process
->(regardless of exactly how it does that), it seems to me that it has
->conceded any interest in the previous security constraints associated
->with that inode or with the recently
->unlinked last directory entry for it.
+>>>>> On Mon, 7 Apr 2003 11:26:49 -0500, "Robert Williamson" <robbiew@us.ibm.com> said:
 
-Huh?  That's not the Unix model.  If I pass you a read-only file
-descriptor, you're not supposed to be able to get write access to
-the fd.  If you can, that's a security hole.  This is true whether
-the fd refers to an inode still linked into the filesystem or not.
+  Robert> Hmmm...so I guess the only viable solution for a single test
+  Robert> to cover as many archs as possible, is to explicitly define
+  Robert> the number for each arch.
 
->The cases with potential security implications are all in the context of
->flink()ing to an open fd for an inode that still corresponds to at least
->one directory entry.
+  Robert> Here's how I would do it Aniruddha:
+  Robert> ------------------------------------------
+  Robert> #ifdef __i386__
+  Robert> #define __NR_timer_create 259
+  Robert> #endif
 
-No, that's not correct.
+  Robert> #ifdef __x86_64__
+  Robert> #define __NR_timer_create 222
+  Robert> #endif
+
+  Robert> #if defined(__ppc__) || defined(__ppc64__)
+  Robert> #define __NR_timer_create 240
+  Robert> #else /* Not defined on this architecture */
+
+  Robert> #include "test.h"
+  Robert> #include "usctest.h"
+
+  Robert> int TST_TOTAL = 0;      /* Total number of testcases */
+
+  Robert> int main()
+  Robert> {
+  Robert> tst_resm(TCONF,"This system call is not defined for this architecture.");
+  Robert> tst_exit();
+  Robert> /* NOT REACHED */
+  Robert> return(0);
+  Robert> }
+  Robert> #endif /* Not defined on this architecture */
+
+  Robert> <REST OF TEST HERE>
+  Robert> ------------------------------------------
+
+  Robert> Any comments???
+
+Why use such ugly, platform-dependent code when syscall(3) will do it
+just fine?  (AFAIK, there is no man-page for syscall(3), but the glibc
+info manual documents it in detail.)
+
+	--david

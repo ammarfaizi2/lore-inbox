@@ -1,96 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281487AbRKPTCt>; Fri, 16 Nov 2001 14:02:49 -0500
+	id <S281492AbRKPTJ3>; Fri, 16 Nov 2001 14:09:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281488AbRKPTCk>; Fri, 16 Nov 2001 14:02:40 -0500
-Received: from smtp02.web.de ([217.72.192.151]:10786 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S281487AbRKPTC3>;
-	Fri, 16 Nov 2001 14:02:29 -0500
-Date: Fri, 16 Nov 2001 20:04:30 +0100
-From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] strtok --> strsep in framebuffer drivers, last pieces (really!)
-Message-Id: <20011116200430.40edfa7e.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S281489AbRKPTJU>; Fri, 16 Nov 2001 14:09:20 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:54959 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S281488AbRKPTJH>; Fri, 16 Nov 2001 14:09:07 -0500
+Message-Id: <200111161907.fAGJ7XE12507@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: <lk@Aniela.EU.ORG>, <linux-kernel@vger.kernel.org>
+Subject: Re: what hardware for AMD processors ?
+Date: Fri, 16 Nov 2001 14:07:22 -0500
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33.0111162002560.785-100000@ns1.Aniela.EU.ORG>
+In-Reply-To: <Pine.LNX.4.33.0111162002560.785-100000@ns1.Aniela.EU.ORG>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+For SMP, your only options at the moment are the two Tyan boards.  We had 
+some issues with them on multiple small (256MB) memory modules, but they 
+have been kind to us since we moved to 512MB modules.  Obviously, they 
+have only been out a few months, so long-term stability is still up in the 
+air.
 
-this seems to be the really last patch regarding `strtok in framebuffer
-drivers'. It removes another compiler warning, converts the last three
-strtok()s to strsep()s and in two cases adds `skip empty tokens'-code.
-Please, apply.
+The latest revision we received can boot headless (no video card) off a 
+serial port.  Linux, of course, can run console off serial, too.
 
-René
+We haven't had a hint of trouble with the Gigabyte GA-7DX, but we haven't 
+pushed it past 1.2 GHz and 512MB.  YMMV, especially since a couple people 
+here mentioned issues with large capacity memory modules.  The AMD 761's 
+AGP support is also as fragile as glass -- not that it sounds like you'll 
+use it.
 
+	-- Brian
 
-
-diff -Nur linux-2.4.15-pre5/drivers/video/atafb.c linux-2.4.15-pre5-rs/drivers/video/atafb.c
---- linux-2.4.15-pre5/drivers/video/atafb.c	Fri Sep 14 01:04:43 2001
-+++ linux-2.4.15-pre5-rs/drivers/video/atafb.c	Fri Nov 16 20:21:39 2001
-@@ -2899,7 +2899,7 @@
-     if (!options || !*options)
- 		return 0;
-      
--    for(this_opt=strtok(options,","); this_opt; this_opt=strtok(NULL,",")) {
-+    while ((this_opt = strsep(&options, ",")) != NULL) {
- 	if (!*this_opt) continue;
- 	if ((temp=get_video_mode(this_opt)))
- 		default_par=temp;
-diff -Nur linux-2.4.15-pre5/drivers/video/aty/atyfb_base.c linux-2.4.15-pre5-rs/drivers/video/aty/atyfb_base.c
---- linux-2.4.15-pre5/drivers/video/aty/atyfb_base.c	Thu Nov  8 22:51:16 2001
-+++ linux-2.4.15-pre5-rs/drivers/video/aty/atyfb_base.c	Fri Nov 16 20:10:21 2001
-@@ -2522,6 +2522,8 @@
- 	return 0;
- 
-     while ((this_opt = strsep(&options, ",")) != NULL) {
-+	if (!*this_opt)
-+		continue;
- 	if (!strncmp(this_opt, "font:", 5)) {
- 		char *p;
- 		int i;
-diff -Nur linux-2.4.15-pre5/drivers/video/aty128fb.c linux-2.4.15-pre5-rs/drivers/video/aty128fb.c
---- linux-2.4.15-pre5/drivers/video/aty128fb.c	Fri Nov 16 18:43:02 2001
-+++ linux-2.4.15-pre5-rs/drivers/video/aty128fb.c	Fri Nov 16 20:13:10 2001
-@@ -1620,7 +1620,9 @@
-     if (!options || !*options)
- 	return 0;
- 
--    while (this_opt = strsep(&options, ",")) {
-+    while ((this_opt = strsep(&options, ",")) != NULL) {
-+	if (!*this_opt)
-+	    continue;
- 	if (!strncmp(this_opt, "font:", 5)) {
- 	    char *p;
- 	    int i;
-diff -Nur linux-2.4.15-pre5/drivers/video/clgenfb.c linux-2.4.15-pre5-rs/drivers/video/clgenfb.c
---- linux-2.4.15-pre5/drivers/video/clgenfb.c	Thu Nov  8 22:51:16 2001
-+++ linux-2.4.15-pre5-rs/drivers/video/clgenfb.c	Fri Nov 16 20:19:51 2001
-@@ -2823,8 +2823,7 @@
- 	if (!options || !*options)
- 		return 0;
- 
--	for (this_opt = strtok (options, ","); this_opt != NULL;
--	     this_opt = strtok (NULL, ",")) {
-+	while ((this_opt = strsep (&options, ",")) != NULL) {
- 		if (!*this_opt) continue;
- 
- 		DPRINTK("clgenfb_setup: option '%s'\n", this_opt);
-diff -Nur linux-2.4.15-pre5/drivers/video/sis/sis_main.c linux-2.4.15-pre5-rs/drivers/video/sis/sis_main.c
---- linux-2.4.15-pre5/drivers/video/sis/sis_main.c	Fri Nov 16 18:43:03 2001
-+++ linux-2.4.15-pre5-rs/drivers/video/sis/sis_main.c	Fri Nov 16 20:19:04 2001
-@@ -2257,8 +2257,7 @@
- 	if (!options || !*options)
- 		return 0;
- 
--	for (this_opt = strtok (options, ","); this_opt;
--	     this_opt = strtok (NULL, ",")) {
-+	while ((this_opt = strsep (&options, ",")) != NULL) {
- 		if (!*this_opt)
- 			continue;
- 
+On Friday 16 November 2001 01:06 pm, lk@Aniela.EU.ORG wrote:
+> Hi,
+>
+> 	I have a question about AMD AthlonXP and AthlonMP:
+> What motherboards do you recomend for building an Atlon based network
+> server that will run 24/7 365days a year under high loads ? I need a
+> rock solid motherboard that can support at least 2GB of RAM, and
+> optionally integrated video card onboard.

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbTJAXFb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 19:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbTJAXFb
+	id S262669AbTJAW5x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 18:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTJAW5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 19:05:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38296 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262601AbTJAXF2 (ORCPT
+	Wed, 1 Oct 2003 18:57:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4626 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262669AbTJAW5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 19:05:28 -0400
-Date: Wed, 1 Oct 2003 16:05:26 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: Chris Wright <chrisw@osdl.org>, Rik van Riel <riel@redhat.com>,
-       torvalds@osdl.org, greg@kroah.com, vserver@solucorp.qc.ca
-Subject: Re: [vserver] Re: sys_vserver
-Message-ID: <20031001160526.R14398@osdlab.pdx.osdl.net>
-References: <20031001115127.A14425@osdlab.pdx.osdl.net> <Pine.LNX.4.44.0310011454530.19538-100000@chimarrao.boston.redhat.com> <20031001121536.J14398@osdlab.pdx.osdl.net> <20031001194747.GA24632@DUK2.13thfloor.at> <20031001141654.N14398@osdlab.pdx.osdl.net> <20031001225247.GA26496@DUK2.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20031001225247.GA26496@DUK2.13thfloor.at>; from herbert@13thfloor.at on Thu, Oct 02, 2003 at 12:52:48AM +0200
+	Wed, 1 Oct 2003 18:57:47 -0400
+Date: Wed, 1 Oct 2003 18:57:46 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Rik van Riel <riel@redhat.com>
+cc: Chris Wright <chrisw@osdl.org>, <torvalds@osdl.org>, <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>, <vserver@solucorp.qc.ca>
+Subject: Re: sys_vserver
+In-Reply-To: <Pine.LNX.4.44.0310011744030.19538-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0310011852270.15287-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Herbert Poetzl (herbert@13thfloor.at) wrote:
-> 
-> hmm, okay I see it now clearly, we should take
-> the approach which was so successful for scsi ...
-> 
-> echo "vserver add-new-vserver 100 0 1 192 0 0 1" >/proc/1/attr/new
-> 
-> and of course to 'change' the context, a simple
-> 
-> echo "vserver change-to-old-context 100" >/proc/self/attr/migrate
-> (and it was never seen again, because it vanished in context 100)
-> 
-> will be sufficient ...
+On Wed, 1 Oct 2003, Rik van Riel wrote:
 
-Sorry if I don't follow your example correctly.  There is an attr/prev
-as well as attr/current, if you are worried the previous context would
-be lost.
+> On Wed, 1 Oct 2003, Chris Wright wrote:
+> 
+> > I believe a reasonable portion of vserver can become a security module,
+> > but there would clearly remain a need for some of the virtualization
+> > (e.g. hostname, etc.).
+> 
+> I definately want to have as much as possible of vserver
+> using the normal security infrastructure, simply because
+> it will save the vserver maintainers a lot of work ;)
+> 
 
-> seriously I am completely on your side if we talk about
-> limiting a process or changing it's environment, even
-> if we talk about setting a class assignment, but I just 
-> don't believe it's the perfect solution for everything ...
+I think virtualization is important/useful enough to warrant an API of
+it's own.  It could be similar to LSM, e.g.  allow pluggable
+virtualization modules, with no cost for the base kernel.
 
-Yes, I agree, it won't be useful for everything, but where
-possible/sensible, we should reuse it.
 
-thanks,
--chris
+
+- James
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+James Morris
+<jmorris@redhat.com>
+
+

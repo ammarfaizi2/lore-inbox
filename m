@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276877AbRJ0T01>; Sat, 27 Oct 2001 15:26:27 -0400
+	id <S276907AbRJ0TjI>; Sat, 27 Oct 2001 15:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276894AbRJ0T0R>; Sat, 27 Oct 2001 15:26:17 -0400
-Received: from calais.pt.lu ([194.154.192.52]:56313 "EHLO calais.pt.lu")
-	by vger.kernel.org with ESMTP id <S276877AbRJ0T0M>;
-	Sat, 27 Oct 2001 15:26:12 -0400
-Message-Id: <200110271926.f9RJQcT01766@hitchhiker.org.lu>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
-Reply-To: alain@linux.lu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Re: Poor floppy performance in kernel 2.4.10 
-In-Reply-To: Your message of "Sat, 27 Oct 2001 15:19:48 EDT."
-             <Pine.GSO.4.21.0110271517010.21545-100000@weyl.math.psu.edu> 
-Date: Sat, 27 Oct 2001 21:26:37 +0200
-From: Alain Knaff <Alain.Knaff@hitchhiker.org.lu>
+	id <S276914AbRJ0Ti7>; Sat, 27 Oct 2001 15:38:59 -0400
+Received: from host155.209-113-146.oem.net ([209.113.146.155]:9212 "EHLO
+	tibook.netx4.com") by vger.kernel.org with ESMTP id <S276907AbRJ0Tir>;
+	Sat, 27 Oct 2001 15:38:47 -0400
+Message-ID: <3BDB0D56.3070305@mvista.com>
+Date: Sat, 27 Oct 2001 15:39:02 -0400
+From: Dan Malek <dan@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.10-pre5 ppc; en-US; 0.8) Gecko/20010419
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kalyan <kalyand@cruise-controls.com>
+CC: paulus@samba.org, linuxppc-dev@lists.linuxppc.org,
+        ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Wild Pointer!!!! ( some more info )
+In-Reply-To: <03c101c15a76$7d067320$aac8a8c0@cruise> <15316.1504.603255.831736@cargo.ozlabs.ibm.com> <00b301c15ebc$2783dba0$aac8a8c0@cruise>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->On Sat, 27 Oct 2001, Alain Knaff wrote:
->
->> And "mapping" itself seems to point to i_data of the device's inode
->> structure (not the device entry's inode, but the device's itself).
-> 
->> Which means that if the inode is put (all references to the block
->> device closed), and later the same major/minor is reopened, it may
->
->Stop here.  bdev->bd_inode is destroyed only when bdev is destroyed.
->If we make block_device long-living (i.e. they stay around until all
->pages are evicted from cache _or_ device gets unregistered) ->bd_inode
->will follow.
+Kalyan wrote:
 
-That would be ok with me. Long live block_device! ;-)
+> hi ,
+>             after my failed attempts at 2.4.11 -pre 5 ...i decide to try
+> 2.4.12.. ( from kernel.org.)...
 
-Alain
+
+What was the last kernel version that worked on this board?
+
+> how can this be possible???? can i supect stack problems here?????
+
+Anything is possible :-).  It could be an improperly initialized
+data structure that contains an indirect function pointer, too.
+
+
+	-- Dan
+

@@ -1,68 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbTJMJD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 05:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTJMJD2
+	id S261575AbTJMI5B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 04:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTJMI5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 05:03:28 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:49101
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261601AbTJMJD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 05:03:27 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: linux-kernel@vger.kernel.org
-Subject: Hermes wireless 802.11b card lost its marbles under -test6.
-Date: Mon, 13 Oct 2003 03:26:56 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Oct 2003 04:57:01 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:53007 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261575AbTJMI47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 04:56:59 -0400
+Date: Mon, 13 Oct 2003 09:56:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com, jbarnes@sgi.com
+Subject: Re: [PATCH] Altix I/O code cleanup
+Message-ID: <20031013095652.A25495@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+	davidm@napali.hpl.hp.com, jbarnes@sgi.com
+References: <3F872984.7877D382@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310130326.56169.rob@landley.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F872984.7877D382@sgi.com>; from pfg@sgi.com on Fri, Oct 10, 2003 at 04:49:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Snippet from the log:
+On Fri, Oct 10, 2003 at 04:49:57PM -0500, Patrick Gefre wrote:
+> This is my first patch for this - more to come ....
 
-Oct 13 02:05:55 localhost dhclient: DHCPACK from 192.168.200.1
-Oct 13 02:05:55 localhost dhclient: bound to 192.168.200.67 -- renewal in 236 
-seconds.                                                                          
-Oct 13 02:07:13 localhost kernel: eth0: New link status: AP Out of Range 
-(0004) Oct 13 02:09:51 localhost dhclient: DHCPREQUEST on eth0 to 
-192.168.200.1 port 67Oct 13 02:10:41 localhost last message repeated 3 times                         
-Oct 13 02:12:01 localhost last message repeated 5 times                         
-Oct 13 02:13:58 localhost last message repeated 2 times                         
-Oct 13 02:15:18 localhost dhclient: DHCPREQUEST on eth0 to 255.255.255.255 
-port 67                                                                              
-Oct 13 02:15:56 localhost kernel: hermes @ IO 0x100: Card removed while 
-waiting for command completion.                                                         
-Oct 13 02:15:56 localhost kernel: eth0: Error -19 disabling MAC port            
-Oct 13 02:15:57 localhost kernel: hermes @ IO 0x100: Card removed while 
-waiting for command completion.                                                         
-Oct 13 02:15:57 localhost kernel: eth0: Error -19 setting MAC address           
-Oct 13 02:15:57 localhost kernel: eth0: Error -19 configuring card              
-Oct 13 02:15:57 localhost kernel: hermes @ IO 0x100: Card removed while 
-waiting for command completion.                                                         
-Oct 13 02:15:57 localhost kernel: eth0: Error -19 setting MAC address           
-Oct 13 02:15:57 localhost kernel: eth0: Error -19 configuring card              
-Oct 13 02:15:58 localhost dhclient: DHCPDISCOVER on eth0 to 255.255.255.255 
-port 67 interval 6
-Oct 13 02:15:58 localhost dhclient: send_packet: Network is down
-Oct 13 02:15:58 localhost dhclient: receive_packet failed on eth0: Network is 
-down
+It would be nice to give those credits who submitted those patches.
+And life would be a lot simpler if you wouldn't submit my individual
+patches instead of putting them into a big one - this gives useful
+entries in the revision history and allows for easier binary search
+if something goes wrong.
 
-Due to a signal fluctuation, the access port "went out of range", and this was 
-interpreted as the card having been ejected.  (Removing the card would 
-require half an hour with a screwdriver; it's built in to this laptop.)
+p.s. the right list for this would probably be linux-ia64@vger.kernel.org
 
-I tried "ifconfig eth0 down; ifconfig eth0 up", and it said no such device...
+>  
+>  void *
+> -snia_kmem_zalloc(size_t size, int flag)
+> +snia_kmem_zalloc(size_t size)
+>  {
+>          void *ptr = kmalloc(size, GFP_KERNEL);
 
-Logically, the link status toggled.  This should be no different than 
-unplugging and plugging in a cat 5 cable.  It is NOT synonymous with a 
-cardbus eject...
+passing a gfp_mask down here would make sense..
 
-Rob
+> - * the alloc/free_node routines do a simple kmalloc for now ..
+> - */
+> -void *
+> -snia_kmem_alloc_node(register size_t size, register int flags, cnodeid_t node)
+> -{
+> -	/* someday will Allocate on node 'node' */
+> -	return(kmalloc(size, GFP_KERNEL));
+> -}
+> -
+> -void *
+> -snia_kmem_zalloc_node(register size_t size, register int flags, cnodeid_t node)
+> -{
+> -	void *ptr = kmalloc(size, GFP_KERNEL);
+> -	if ( ptr )
+> -		BZERO(ptr, size);
+> -        return(ptr);
+> -}
 
+Why do you remove the per-nod wrappers?  Unlike the other these actually
+had some use as preparation for a node-aware kmalloc..
+
+>  	int rc;
+> -	extern void * snia_kmem_zalloc(size_t size, int flag);
+> +	extern void * snia_kmem_zalloc(size_t size);
+
+This is in a header, isn't it?
+
+>  
+> -	xvolinfo = snia_kmem_zalloc(sizeof(struct xswitch_vol_s), GFP_KERNEL);
+> +	xvolinfo = snia_kmem_zalloc(sizeof(struct xswitch_vol_s));
+
+You still need to handle a NULL return here.
+
+>  
+> -	intr_hdl = snia_kmem_alloc_node(sizeof(struct hub_intr_s), KM_NOSLEEP, cnode);
+> +	intr_hdl = kmalloc(sizeof(struct hub_intr_s), GFP_KERNEL);
+>  	ASSERT_ALWAYS(intr_hdl);
+
+NULL return not handled again (and the assert is totally useless)
+
+> -#define NEWAf(ptr,n,f)	(ptr = snia_kmem_zalloc((n)*sizeof (*(ptr)), (f&PCIIO_NOSLEEP)?KM_NOSLEEP:KM_SLEEP))
+> -#define NEWA(ptr,n)	(ptr = snia_kmem_zalloc((n)*sizeof (*(ptr)), KM_SLEEP))
+> +#define NEWAf(ptr,n,f)	(ptr = snia_kmem_zalloc((n)*sizeof (*(ptr))))
+> +#define NEWA(ptr,n)	(ptr = snia_kmem_zalloc((n)*sizeof (*(ptr))))
+>  #define DELA(ptr,n)	(kfree(ptr))
+
+What about killing this stupid wrappers while you're at it?
+ Also PCIIO_NOSLEEP is never set.
 

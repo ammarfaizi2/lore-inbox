@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271287AbTHHLUE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 07:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271295AbTHHLUE
+	id S271211AbTHHLTg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 07:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271287AbTHHLTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 07:20:04 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:4497 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S271287AbTHHLUA (ORCPT
+	Fri, 8 Aug 2003 07:19:36 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:2961 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S271211AbTHHLTf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 07:20:00 -0400
-Date: Fri, 8 Aug 2003 13:19:58 +0200 (MEST)
-Message-Id: <200308081119.h78BJwKP015664@harpo.it.uu.se>
+	Fri, 8 Aug 2003 07:19:35 -0400
+Date: Fri, 8 Aug 2003 13:19:32 +0200 (MEST)
+Message-Id: <200308081119.h78BJWQ5015656@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: ide-tape broken (was Re: [PATCH] use ide-identify.h, fix endian bug)
-Cc: linux-kernel@vger.kernel.org
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.4 1/2] backport 2.6 x86 cpu capabilities
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Aug 2003 02:10:19 +0200 (MET DST), Bartlomiej Zolnierkiewicz wrote:
->> I'd rather use ide-scsi+st or a new clean ATAPI tape driver
->> than ide-tape.c. (I've studied ide-tape.c. It reeks of poor
+On Thu, 7 Aug 2003 22:54:30 -0400, Jeff Garzik wrote:
+>(hopefully destined for 2.4.23-pre1)
 >
->"new clean ATAPI tape drive" == the one yet to be written?
+>#
+>#	include/asm-i386/msr.h	1.8     -> 1.9    
+>#	include/asm-i386/cpufeature.h	1.5     -> 1.6    
+>#	arch/i386/kernel/setup.c	1.70    -> 1.71   
+>#
+...
+>-#define NCAPINTS	4	/* Currently we have 4 32-bit words worth of info */
+>+#define NCAPINTS	6	/* Currently we have 6 32-bit words worth of info */
 
-Correct.
-
->> coding style, kludges for Onstream, and an over-engineered
->> buffering scheme. And it's known to have problems with DMA.)
->
->So you are familiar with the code, cool. ;-)
-
-Only as a generic coder trying to fix it, and as a user
-looking at other people's bug reports.
+If you change NCAPINTS you also have to change the hardcoded
+struct offset X86_VENDOR_ID in arch/i386/kernel/head.S. Otherwise
+nasty stuff happen at boot since boot_cpu_data gets broken.
 
 /Mikael

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSHFUvD>; Tue, 6 Aug 2002 16:51:03 -0400
+	id <S316113AbSHFUtm>; Tue, 6 Aug 2002 16:49:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSHFUuD>; Tue, 6 Aug 2002 16:50:03 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:19681 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S315919AbSHFUtO>;
-	Tue, 6 Aug 2002 16:49:14 -0400
-Date: Tue, 6 Aug 2002 13:52:51 -0700
+	id <S315921AbSHFUs6>; Tue, 6 Aug 2002 16:48:58 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:11231 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S315919AbSHFUsb>;
+	Tue, 6 Aug 2002 16:48:31 -0400
+Date: Tue, 6 Aug 2002 13:52:08 -0700
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Jeff Garzik <jgarzik@mandrakesoft.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] : ir240_usb_disconnect-2.diff
-Message-ID: <20020806205251.GF11677@bougret.hpl.hp.com>
+Subject: [PATCH 2.4] : ir240_discovery_fixes.diff
+Message-ID: <20020806205208.GE11677@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,317 +25,291 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir240_usb_disconnect-2.diff :
-----------------------------------
-	o [CRITICA] Fix race condition between disconnect and the rest
-	o [CRITICA] Force synchronous unlink of URBs in disconnect
-	o [CRITICA] Cleanup instance if disconnect before close
+ir240_discovery_fixes.diff :
+--------------------------
+	<Need to apply after ir240_trivial_fixes-3.diff to avoid "offset">
+	o [FEATURE] Propagate mode of discovery to higher protocols
+	o [CORRECT] Disable passive discovery in ircomm and irlan
+	  Prevent client and server to simultaneously connect to each other
+	o [CORRECT] Force expiry of discovery log on LAP disconnect
 
 
-diff -u -p linux/drivers/net/irda/irda-usb.d7.c linux/drivers/net/irda/irda-usb.c
---- linux/drivers/net/irda/irda-usb.d7.c	Thu Jun  6 18:21:46 2002
-+++ linux/drivers/net/irda/irda-usb.c	Thu Jun  6 19:04:54 2002
-@@ -45,6 +45,8 @@
-  * Amongst the reasons :
-  *	o uhci doesn't implement USB_ZERO_PACKET
-  *	o uhci non-compliant use of urb->timeout
-+ * The final fix for USB_ZERO_PACKET in uhci is likely to be in 2.4.19 and
-+ * 2.5.8. With this fix, the driver will work properly. More on that later.
-  *
-  * Jean II
-  */
-@@ -243,10 +245,10 @@ static void irda_usb_build_header(struct
- /*------------------------------------------------------------------*/
+diff -u -p linux/include/net/irda/irlmp.d7.h linux/include/net/irda/irlmp.h
+--- linux/include/net/irda/irlmp.d7.h	Thu Jun  6 16:17:02 2002
++++ linux/include/net/irda/irlmp.h	Thu Jun  6 16:20:02 2002
+@@ -72,7 +72,7 @@ typedef enum {
+ 	S_END,
+ } SERVICE;
+ 
+-typedef void (*DISCOVERY_CALLBACK1) (discovery_t *, void *);
++typedef void (*DISCOVERY_CALLBACK1) (discovery_t *, DISCOVERY_MODE, void *);
+ typedef void (*DISCOVERY_CALLBACK2) (hashbin_t *, void *);
+ 
+ typedef struct {
+@@ -214,7 +214,7 @@ void irlmp_disconnect_indication(struct 
+ 				 struct sk_buff *userdata);
+ int  irlmp_disconnect_request(struct lsap_cb *, struct sk_buff *userdata);
+ 
+-void irlmp_discovery_confirm(hashbin_t *discovery_log);
++void irlmp_discovery_confirm(hashbin_t *discovery_log, DISCOVERY_MODE);
+ void irlmp_discovery_request(int nslots);
+ struct irda_device_info *irlmp_get_discoveries(int *pn, __u16 mask, int nslots);
+ void irlmp_do_expiry(void);
+diff -u -p linux/include/net/irda/discovery.d7.h linux/include/net/irda/discovery.h
+--- linux/include/net/irda/discovery.d7.h	Thu Jun  6 16:17:12 2002
++++ linux/include/net/irda/discovery.h	Thu Jun  6 16:20:02 2002
+@@ -39,6 +39,14 @@
+ #define DISCOVERY_EXPIRE_TIMEOUT 6*HZ
+ #define DISCOVERY_DEFAULT_SLOTS  0
+ 
++/* Types of discovery */
++typedef enum {
++	DISCOVERY_LOG,		/* What's in our discovery log */
++	DISCOVERY_ACTIVE,	/* Doing our own discovery on the medium */
++	DISCOVERY_PASSIVE,	/* Peer doing discovery on the medium */
++	EXPIRY_TIMEOUT,		/* Entry expired due to timeout */
++} DISCOVERY_MODE;
++
+ #define NICKNAME_MAX_LEN 21
+ 
  /*
-  * Send a command to change the speed of the dongle
-+ * Need to be called with spinlock on.
-  */
- static void irda_usb_change_speed_xbofs(struct irda_usb_cb *self)
+diff -u -p linux/include/net/irda/irlan_client.d7.h linux/include/net/irda/irlan_client.h
+--- linux/include/net/irda/irlan_client.d7.h	Thu Jun  6 16:17:26 2002
++++ linux/include/net/irda/irlan_client.h	Thu Jun  6 16:20:02 2002
+@@ -34,7 +34,7 @@
+ #include <net/irda/irlan_event.h>
+ 
+ void irlan_client_start_kick_timer(struct irlan_cb *self, int timeout);
+-void irlan_client_discovery_indication(discovery_t *, void *);
++void irlan_client_discovery_indication(discovery_t *, DISCOVERY_MODE, void *);
+ void irlan_client_wakeup(struct irlan_cb *self, __u32 saddr, __u32 daddr);
+ 
+ void irlan_client_open_ctrl_tsap( struct irlan_cb *self);
+diff -u -p linux/net/irda/irlmp.d7.c linux/net/irda/irlmp.c
+--- linux/net/irda/irlmp.d7.c	Thu Jun  6 16:17:48 2002
++++ linux/net/irda/irlmp.c	Thu Jun  6 16:20:02 2002
+@@ -732,7 +732,9 @@ void irlmp_do_expiry()
+ 	 * On links which are connected, we can't do discovery
+ 	 * anymore and can't refresh the log, so we freeze the
+ 	 * discovery log to keep info about the device we are
+-	 * connected to. - Jean II
++	 * connected to.
++	 * This info is mandatory if we want irlmp_connect_request()
++	 * to work properly. - Jean II
+ 	 */
+ 	lap = (struct lap_cb *) hashbin_get_first(irlmp->links);
+ 	while (lap != NULL) {
+@@ -804,7 +806,7 @@ void irlmp_do_discovery(int nslots)
+ void irlmp_discovery_request(int nslots)
  {
--	unsigned long flags;
- 	__u8 *frame;
- 	purb_t purb;
- 	int ret;
-@@ -261,8 +263,6 @@ static void irda_usb_change_speed_xbofs(
- 		return;
+ 	/* Return current cached discovery log */
+-	irlmp_discovery_confirm(irlmp->cachelog);
++	irlmp_discovery_confirm(irlmp->cachelog, DISCOVERY_LOG);
+ 
+ 	/* 
+ 	 * Start a single discovery operation if discovery is not already
+@@ -907,7 +909,8 @@ void irlmp_check_services(discovery_t *d
+  * partial/selective discovery based on the hints that it passed to IrLMP.
+  */
+ static inline void
+-irlmp_notify_client(irlmp_client_t *client, hashbin_t *log)
++irlmp_notify_client(irlmp_client_t *client,
++		    hashbin_t *log, DISCOVERY_MODE mode)
+ {
+ 	discovery_t *discovery;
+ 
+@@ -930,7 +933,7 @@ irlmp_notify_client(irlmp_client_t *clie
+ 		 * bits ;-)
+ 		 */
+ 		if (client->hint_mask & discovery->hints.word & 0x7f7f)
+-			client->disco_callback(discovery, client->priv);
++			client->disco_callback(discovery, mode, client->priv);
+ 
+ 		discovery = (discovery_t *) hashbin_get_next(log);
  	}
- 
--	spin_lock_irqsave(&self->lock, flags);
--
- 	/* Allocate the fake frame */
- 	frame = self->speed_buff;
- 
-@@ -281,7 +281,6 @@ static void irda_usb_change_speed_xbofs(
- 	if ((ret = usb_submit_urb(purb))) {
- 		WARNING(__FUNCTION__ "(), failed Speed URB\n");
- 	}
--	spin_unlock_irqrestore(&self->lock, flags);
- }
- 
- /*------------------------------------------------------------------*/
-@@ -335,14 +334,20 @@ static int irda_usb_hard_xmit(struct sk_
- 	s16 xbofs;
- 	int res, mtt;
- 
--	/* Check if the device is still there */
-+	netif_stop_queue(netdev);
-+
-+	/* Protect us from USB callbacks, net watchdog and else. */
-+	spin_lock_irqsave(&self->lock, flags);
-+
-+	/* Check if the device is still there.
-+	 * We need to check self->present under the spinlock because
-+	 * of irda_usb_disconnect() is synchronous - Jean II */
- 	if ((!self) || (!self->present)) {
- 		IRDA_DEBUG(0, __FUNCTION__ "(), Device is gone...\n");
-+		spin_unlock_irqrestore(&self->lock, flags);
- 		return 1;	/* Failed */
- 	}
- 
--	netif_stop_queue(netdev);
--
- 	/* Check if we need to change the number of xbofs */
-         xbofs = irda_get_next_xbofs(skb);
-         if ((xbofs != self->xbofs) && (xbofs != -1)) {
-@@ -366,16 +371,14 @@ static int irda_usb_hard_xmit(struct sk_
- 			 * Jean II */
- 			irda_usb_change_speed_xbofs(self);
- 			netdev->trans_start = jiffies;
--			dev_kfree_skb(skb);
- 			/* Will netif_wake_queue() in callback */
--			return 0;
-+			goto drop;
- 		}
- 	}
- 
- 	if (purb->status != USB_ST_NOERROR) {
- 		WARNING(__FUNCTION__ "(), URB still in use!\n");
--		dev_kfree_skb(skb);
--		return 0;
-+		goto drop;
- 	}
- 
- 	/* Make sure there is room for IrDA-USB header. The actual
-@@ -386,13 +389,10 @@ static int irda_usb_hard_xmit(struct sk_
- 		IRDA_DEBUG(0, __FUNCTION__ "(), Insuficient skb headroom.\n");
- 		if (skb_cow(skb, USB_IRDA_HEADER)) {
- 			WARNING(__FUNCTION__ "(), failed skb_cow() !!!\n");
--			dev_kfree_skb(skb);
--			return 0;
-+			goto drop;
- 		}
- 	}
- 
--	spin_lock_irqsave(&self->lock, flags);
--
- 	/* Change setting for next frame */
- 	irda_usb_build_header(self, skb_push(skb, USB_IRDA_HEADER), 0);
- 
-@@ -473,6 +473,12 @@ static int irda_usb_hard_xmit(struct sk_
- 	spin_unlock_irqrestore(&self->lock, flags);
+@@ -943,7 +946,7 @@ irlmp_notify_client(irlmp_client_t *clie
+  *    device it is, and give indication to the client(s)
+  * 
+  */
+-void irlmp_discovery_confirm(hashbin_t *log) 
++void irlmp_discovery_confirm(hashbin_t *log, DISCOVERY_MODE mode) 
+ {
+ 	irlmp_client_t *client;
  	
- 	return 0;
-+
-+drop:
-+	/* Drop silently the skb and exit */
-+	dev_kfree_skb(skb);
-+	spin_unlock_irqrestore(&self->lock, flags);
-+	return 0;
- }
+@@ -957,7 +960,7 @@ void irlmp_discovery_confirm(hashbin_t *
+ 	client = (irlmp_client_t *) hashbin_get_first(irlmp->clients);
+ 	while (client != NULL) {
+ 		/* Check if we should notify client */
+-		irlmp_notify_client(client, log);
++		irlmp_notify_client(client, log, mode);
+ 			
+ 		client = (irlmp_client_t *) hashbin_get_next(irlmp->clients);
+ 	}
+@@ -987,7 +990,8 @@ void irlmp_discovery_expiry(discovery_t 
+ 		/* Check if we should notify client */
+ 		if ((client->expir_callback) &&
+ 		    (client->hint_mask & expiry->hints.word & 0x7f7f))
+-			client->expir_callback(expiry, client->priv);
++			client->expir_callback(expiry, EXPIRY_TIMEOUT,
++					       client->priv);
  
- /*------------------------------------------------------------------*/
-@@ -481,6 +487,7 @@ static int irda_usb_hard_xmit(struct sk_
-  */
- static void write_bulk_callback(purb_t purb)
- {
-+	unsigned long flags;
- 	struct sk_buff *skb = purb->context;
- 	struct irda_usb_cb *self = ((struct irda_skb_cb *) skb->cb)->context;
+ 		/* Next client */
+ 		client = (irlmp_client_t *) hashbin_get_next(irlmp->clients);
+diff -u -p linux/net/irda/irlmp_frame.d7.c linux/net/irda/irlmp_frame.c
+--- linux/net/irda/irlmp_frame.d7.c	Thu Jun  6 16:18:05 2002
++++ linux/net/irda/irlmp_frame.c	Thu Jun  6 16:20:02 2002
+@@ -378,7 +378,7 @@ void irlmp_link_discovery_indication(str
  	
-@@ -511,11 +518,15 @@ static void write_bulk_callback(purb_t p
- 	}
- 
- 	/* urb is now available */
--	purb->status = USB_ST_NOERROR;
-+	//purb->status = USB_ST_NOERROR; -> tested above
-+
-+	/* Make sure we read self->present properly */
-+	spin_lock_irqsave(&self->lock, flags);
- 
- 	/* If the network is closed, stop everything */
- 	if ((!self->netopen) || (!self->present)) {
- 		IRDA_DEBUG(0, __FUNCTION__ "(), Network is gone...\n");
-+		spin_unlock_irqrestore(&self->lock, flags);
- 		return;
- 	}
- 
-@@ -527,6 +538,7 @@ static void write_bulk_callback(purb_t p
- 		/* Otherwise, allow the stack to send more packets */
- 		netif_wake_queue(self->netdev);
- 	}
-+	spin_unlock_irqrestore(&self->lock, flags);
+ 	/* Just handle it the same way as a discovery confirm,
+ 	 * bypass the LM_LAP state machine (see below) */
+-	irlmp_discovery_confirm(irlmp->cachelog);
++	irlmp_discovery_confirm(irlmp->cachelog, DISCOVERY_PASSIVE);
  }
  
- /*------------------------------------------------------------------*/
-@@ -540,15 +552,20 @@ static void write_bulk_callback(purb_t p
-  */
- static void irda_usb_net_timeout(struct net_device *netdev)
- {
-+	unsigned long flags;
- 	struct irda_usb_cb *self = netdev->priv;
- 	purb_t purb;
- 	int	done = 0;	/* If we have made any progress */
- 
- 	IRDA_DEBUG(0, __FUNCTION__ "(), Network layer thinks we timed out!\n");
- 
-+	/* Protect us from USB callbacks, net Tx and else. */
-+	spin_lock_irqsave(&self->lock, flags);
-+
- 	if ((!self) || (!self->present)) {
- 		WARNING(__FUNCTION__ "(), device not present!\n");
- 		netif_stop_queue(netdev);
-+		spin_unlock_irqrestore(&self->lock, flags);
- 		return;
- 	}
- 
-@@ -623,6 +640,7 @@ static void irda_usb_net_timeout(struct 
- 			break;
- 		}
- 	}
-+	spin_unlock_irqrestore(&self->lock, flags);
- 
- 	/* Maybe we need a reset */
- 	/* Note : Some drivers seem to use a usb_set_interface() when they
-@@ -1013,8 +1031,10 @@ static int irda_usb_net_close(struct net
- 			purb->context = NULL;
- 		}
- 	}
--	/* Cancel Tx and speed URB */
-+	/* Cancel Tx and speed URB - need to be synchronous to avoid races */
-+	self->tx_urb.transfer_flags &= ~USB_ASYNC_UNLINK;
- 	usb_unlink_urb(&(self->tx_urb));
-+	self->speed_urb.transfer_flags &= ~USB_ASYNC_UNLINK;
- 	usb_unlink_urb(&(self->speed_urb));
- 
- 	/* Stop and remove instance of IrLAP */
-@@ -1033,6 +1053,7 @@ static int irda_usb_net_close(struct net
-  */
- static int irda_usb_net_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- {
-+	unsigned long flags;
- 	struct if_irda_req *irq = (struct if_irda_req *) rq;
- 	struct irda_usb_cb *self;
- 	int ret = 0;
-@@ -1043,23 +1064,26 @@ static int irda_usb_net_ioctl(struct net
- 
- 	IRDA_DEBUG(2, __FUNCTION__ "(), %s, (cmd=0x%X)\n", dev->name, cmd);
- 
--	/* Check if the device is still there */
--	if(!self->present)
--		return -EFAULT;
--
- 	switch (cmd) {
- 	case SIOCSBANDWIDTH: /* Set bandwidth */
- 		if (!capable(CAP_NET_ADMIN))
- 			return -EPERM;
--		/* Set the desired speed */
--		self->new_speed = irq->ifr_baudrate;
--		irda_usb_change_speed_xbofs(self);
--		/* Note : will spinlock in above function */
-+		/* Protect us from USB callbacks, net watchdog and else. */
-+		spin_lock_irqsave(&self->lock, flags);
-+		/* Check if the device is still there */
-+		if(self->present) {
-+			/* Set the desired speed */
-+			self->new_speed = irq->ifr_baudrate;
-+			irda_usb_change_speed_xbofs(self);
-+		}
-+		spin_unlock_irqrestore(&self->lock, flags);
- 		break;
- 	case SIOCSMEDIABUSY: /* Set media busy */
- 		if (!capable(CAP_NET_ADMIN))
- 			return -EPERM;
--		irda_device_set_media_busy(self->netdev, TRUE);
-+		/* Check if the IrDA stack is still there */
-+		if(self->netopen)
-+			irda_device_set_media_busy(self->netdev, TRUE);
- 		break;
- 	case SIOCGRECEIVING: /* Check if we are receiving right now */
- 		irq->ifr_receiving = irda_usb_is_receiving(self);
-@@ -1409,8 +1433,7 @@ static void *irda_usb_probe(struct usb_d
- 		dev->descriptor.idProduct);
- 
- 	/* Try to cleanup all instance that have a pending disconnect
--	 * Instance will be in this state is the disconnect() occurs
--	 * before the net_close().
-+	 * In theory, it can't happen any longer.
+ /*
+@@ -404,7 +404,7 @@ void irlmp_link_discovery_confirm(struct
+ 	 *	2) It doesn't affect the LM_LAP state
+ 	 *	3) Faster, slimer, simpler, ...
  	 * Jean II */
- 	for (i = 0; i < NIRUSB; i++) {
- 		struct irda_usb_cb *irda = &irda_instance[i];
-@@ -1494,33 +1517,47 @@ static void *irda_usb_probe(struct usb_d
- /*
-  * The current irda-usb device is removed, the USB layer tell us
-  * to shut it down...
-+ * One of the constraints is that when we exit this function,
-+ * we cannot use the usb_device no more. Gone. Destroyed. kfree().
-+ * Most other subsystem allow you to destroy the instance at a time
-+ * when it's convenient to you, to postpone it to a later date, but
-+ * not the USB subsystem.
-+ * So, we must make bloody sure that everything gets deactivated.
-+ * Jean II
+-	irlmp_discovery_confirm(irlmp->cachelog);
++	irlmp_discovery_confirm(irlmp->cachelog, DISCOVERY_ACTIVE);
+ }
+ 
+ #ifdef CONFIG_IRDA_CACHE_LAST_LSAP
+diff -u -p linux/net/irda/irlmp_event.d7.c linux/net/irda/irlmp_event.c
+--- linux/net/irda/irlmp_event.d7.c	Thu Jun  6 16:18:13 2002
++++ linux/net/irda/irlmp_event.c	Thu Jun  6 16:20:02 2002
+@@ -459,6 +459,15 @@ static void irlmp_state_active(struct la
+ 					    LM_LAP_DISCONNECT_INDICATION,
+ 					    NULL);
+ 		}
++
++		/* Force an expiry of the discovery log.
++		 * Now that the LAP is free, the system may attempt to
++		 * connect to another device. Unfortunately, our entries
++		 * are stale. There is a small window (<3s) before the
++		 * normal discovery will run and where irlmp_connect_request()
++		 * can get the wrong info, so make sure things get
++		 * cleaned *NOW* ;-) - Jean II */
++		irlmp_do_expiry();
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), Unknown event %s\n",
+diff -u -p linux/net/irda/af_irda.d7.c linux/net/irda/af_irda.c
+--- linux/net/irda/af_irda.d7.c	Thu Jun  6 16:18:24 2002
++++ linux/net/irda/af_irda.c	Thu Jun  6 16:20:02 2002
+@@ -414,6 +414,7 @@ static void irda_getvalue_confirm(int re
+  * hint bits), and then wake up any process waiting for answer...
   */
- static void irda_usb_disconnect(struct usb_device *dev, void *ptr)
+ static void irda_selective_discovery_indication(discovery_t *discovery,
++						DISCOVERY_MODE mode,
+ 						void *priv)
  {
-+	unsigned long flags;
- 	struct irda_usb_cb *self = (struct irda_usb_cb *) ptr;
- 	int i;
+ 	struct irda_sock *self;
+diff -u -p linux/net/irda/ircomm/ircomm_tty_attach.d7.c linux/net/irda/ircomm/ircomm_tty_attach.c
+--- linux/net/irda/ircomm/ircomm_tty_attach.d7.c	Thu Jun  6 16:18:44 2002
++++ linux/net/irda/ircomm/ircomm_tty_attach.c	Thu Jun  6 16:20:02 2002
+@@ -47,6 +47,7 @@
  
- 	IRDA_DEBUG(1, __FUNCTION__ "()\n");
+ static void ircomm_tty_ias_register(struct ircomm_tty_cb *self);
+ static void ircomm_tty_discovery_indication(discovery_t *discovery,
++					    DISCOVERY_MODE mode,
+ 					    void *priv);
+ static void ircomm_tty_getvalue_confirm(int result, __u16 obj_id, 
+ 					struct ias_value *value, void *priv);
+@@ -305,12 +306,27 @@ int ircomm_tty_send_initial_parameters(s
+  *
+  */
+ static void ircomm_tty_discovery_indication(discovery_t *discovery,
++					    DISCOVERY_MODE mode,
+ 					    void *priv)
+ {
+ 	struct ircomm_tty_cb *self;
+ 	struct ircomm_tty_info info;
  
--	/* Oups ! We are not there any more */
-+	/* Make sure that the Tx path is not executing. - Jean II */
-+	spin_lock_irqsave(&self->lock, flags);
+ 	IRDA_DEBUG(2, __FUNCTION__"()\n");
 +
-+	/* Oups ! We are not there any more.
-+	 * This will stop/desactivate the Tx path. - Jean II */
- 	self->present = 0;
++	/* Important note :
++	 * We need to drop all passive discoveries.
++	 * The LSAP management of IrComm is deficient and doesn't deal
++	 * with the case of two instance connecting to each other
++	 * simultaneously (it will deadlock in LMP).
++	 * The proper fix would be to use the same technique as in IrNET,
++	 * to have one server socket and separate instances for the
++	 * connecting/connected socket.
++	 * The workaround is to drop passive discovery, which drastically
++	 * reduce the probability of this happening.
++	 * Jean II */
++	if(mode == DISCOVERY_PASSIVE)
++		return;
  
--	/* Hum... Check if networking is still active */
--	if (self->netopen) {
-+	/* We need to have irq enabled to unlink the URBs. That's OK,
-+	 * at this point the Tx path is gone - Jean II */
-+	spin_unlock_irqrestore(&self->lock, flags);
+ 	info.daddr = discovery->daddr;
+ 	info.saddr = discovery->saddr;
+diff -u -p linux/net/irda/irlan/irlan_client.d7.c linux/net/irda/irlan/irlan_client.c
+--- linux/net/irda/irlan/irlan_client.d7.c	Thu Jun  6 16:19:08 2002
++++ linux/net/irda/irlan/irlan_client.c	Thu Jun  6 16:20:02 2002
+@@ -145,7 +145,9 @@ void irlan_client_wakeup(struct irlan_cb
+  *    Remote device with IrLAN server support discovered
+  *
+  */
+-void irlan_client_discovery_indication(discovery_t *discovery, void *priv) 
++void irlan_client_discovery_indication(discovery_t *discovery,
++				       DISCOVERY_MODE mode,
++				       void *priv) 
+ {
+ 	struct irlan_cb *self;
+ 	__u32 saddr, daddr;
+@@ -154,6 +156,15 @@ void irlan_client_discovery_indication(d
+ 
+ 	ASSERT(irlan != NULL, return;);
+ 	ASSERT(discovery != NULL, return;);
 +
-+	/* Hum... Check if networking is still active (avoid races) */
-+	if((self->netopen) || (self->irlap)) {
- 		/* Accept no more transmissions */
- 		/*netif_device_detach(self->netdev);*/
- 		netif_stop_queue(self->netdev);
- 		/* Stop all the receive URBs */
- 		for (i = 0; i < IU_MAX_RX_URBS; i++)
- 			usb_unlink_urb(&(self->rx_urb[i]));
--		/* Cancel Tx and speed URB */
-+		/* Cancel Tx and speed URB.
-+		 * Toggle flags to make sure it's synchronous. */
-+		self->tx_urb.transfer_flags &= ~USB_ASYNC_UNLINK;
- 		usb_unlink_urb(&(self->tx_urb));
-+		self->speed_urb.transfer_flags &= ~USB_ASYNC_UNLINK;
- 		usb_unlink_urb(&(self->speed_urb));
--
--		IRDA_DEBUG(0, __FUNCTION__ "(), postponing disconnect, network is still active...\n");
--		/* better not do anything just yet, usb_irda_cleanup()
--		 * will do whats needed */
--		return;
- 	}
++	/*
++	 * I didn't check it, but I bet that IrLAN suffer from the same
++	 * deficiency as IrComm and doesn't handle two instances
++	 * simultaneously connecting to each other.
++	 * Same workaround, drop passive discoveries.
++	 * Jean II */
++	if(mode == DISCOVERY_PASSIVE)
++		return;
  
- 	/* Cleanup the device stuff */
-@@ -1570,7 +1607,8 @@ void __exit usb_irda_cleanup(void)
- 	struct irda_usb_cb *irda = NULL;
- 	int	i;
- 
--	/* Find zombie instances and kill them... */
-+	/* Find zombie instances and kill them...
-+	 * In theory, it can't happen any longer. Jean II */
- 	for (i = 0; i < NIRUSB; i++) {
- 		irda = &irda_instance[i];
- 		/* If the Device is zombie */
+ 	saddr = discovery->saddr;
+ 	daddr = discovery->daddr;
+diff -u -p linux/net/irda/irnet/irnet_irda.d7.h linux/net/irda/irnet/irnet_irda.h
+--- linux/net/irda/irnet/irnet_irda.d7.h	Thu Jun  6 16:19:36 2002
++++ linux/net/irda/irnet/irnet_irda.h	Thu Jun  6 16:20:02 2002
+@@ -151,9 +151,11 @@ static void
+ #ifdef DISCOVERY_EVENTS
+ static void
+ 	irnet_discovery_indication(discovery_t *,
++				   DISCOVERY_MODE,
+ 				   void *);
+ static void
+ 	irnet_expiry_indication(discovery_t *,
++				DISCOVERY_MODE,
+ 				void *);
+ #endif
+ /* -------------------------- PROC ENTRY -------------------------- */
+diff -u -p linux/net/irda/irnet/irnet_irda.d7.c linux/net/irda/irnet/irnet_irda.c
+--- linux/net/irda/irnet/irnet_irda.d7.c	Thu Jun  6 16:19:46 2002
++++ linux/net/irda/irnet/irnet_irda.c	Thu Jun  6 16:20:02 2002
+@@ -1599,8 +1599,9 @@ irnet_discovervalue_confirm(int		result,
+  * is to messy, so we leave that to user space...
+  */
+ static void
+-irnet_discovery_indication(discovery_t *discovery,
+-			   void *	priv)
++irnet_discovery_indication(discovery_t *	discovery,
++			   DISCOVERY_MODE	mode,
++			   void *		priv)
+ {
+   irnet_socket *	self = &irnet_server.s;
+ 	
+@@ -1638,6 +1639,7 @@ irnet_discovery_indication(discovery_t *
+  */
+ static void
+ irnet_expiry_indication(discovery_t *	expiry,
++			DISCOVERY_MODE	mode,
+ 			void *		priv)
+ {
+   irnet_socket *	self = &irnet_server.s;

@@ -1,174 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbUDWU40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUDWU6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbUDWU40 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUDWU40
+	id S261378AbUDWU6c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUDWU6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:56:26 -0400
-Received: from mail.stw-bonn.de ([131.220.99.37]:6609 "EHLO mail.stw-bonn.de")
-	by vger.kernel.org with ESMTP id S261317AbUDWU4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:56:21 -0400
-Date: Fri, 23 Apr 2004 22:56:17 +0200
-From: "E. Oltmanns" <oltmanns@uni-bonn.de>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Oops during usb usage (2.6.5)
-Message-ID: <20040423205617.GA1798@local>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="rwEMma7ioTxnRzrJ"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 23 Apr 2004 16:58:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:14208 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261378AbUDWU62 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 16:58:28 -0400
+Date: Fri, 23 Apr 2004 16:59:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: File system compression, not at the block layer
+In-Reply-To: <yw1xoepio24x.fsf@kth.se>
+Message-ID: <Pine.LNX.4.53.0404231651120.1643@chaos>
+References: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu>
+ <Pine.LNX.4.53.0404231624010.1352@chaos> <yw1xoepio24x.fsf@kth.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Apr 2004, [iso-8859-1] Måns Rullgård wrote:
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+>
+> > On Fri, 23 Apr 2004, Joel Jaeggli wrote:
+> >
+> >> On Fri, 23 Apr 2004, Paul Jackson wrote:
+> >>
+> >> > > SO... in addition to the brilliance of AS, is there anything else that
+> >> > > can be done (using compression or something else) which could aid in
+> >> > > reducing seek time?
+> >> >
+> >> > Buy more disks and only use a small portion of each for all but the
+> >> > most infrequently accessed data.
+> >>
+> >> faster drives. The biggest disks at this point are far slower that the
+> >> fastest... the average read service time on a maxtor atlas 15k is like
+> >> 5.7ms on 250GB western digital sata, 14.1ms, so that more than twice as
+> >> many reads can be executed on the fastest disks you can buy now... of
+> >> course then you pay for it in cost, heat, density, and controller costs.
+> >> everthing is a tradeoff though.
+> >>
+> >
+> > If you want to have fast disks, then you should do what I
+> > suggested to Digital 20 years ago when they had ST-506
+> > interfaces and SCSI was available only from third-parties.
+> > It was called "striping" (I'm serious!). Not the so-called
+> > RAID crap that took the original idea and destroyed it.
+> > If you have 32-bits, you design an interface board for 32
+> > disks. The interface board strips each bit to the data that
+> > each disk gets. That makes the whole array 32 times faster
+> > than a single drive and, of course, 32 times larger.
+>
+> For best performance, the spindles should be synchronized too.  This
+> might be tricky with disks not intended for such operation, of course.
 
-Hello everyone,
+Actually not. You need a FIFO to cache your bits into buffers of bytes
+anyway. Depending upon the length of the FIFO, you can "rubber-band" a
+lot of rotational latency. When you are dealing with a lot of drives,
+you are never going to have all the write currents turn on at the same
+time anyway because they are (very) soft-sectored, i.e., block
+replacement, etc.
 
-Summary:
-Kernel Oops caused by multiple access requests to a single scanner
-through libusb.
+Your argument was used to shout down the idea. Actually, I think
+it was lost in the NIH syndrome anyway.
 
-Detailed description:
-The following script leads to an kernel oops on my System:
-#!/bin/bash
-scanimage > test &
-scanimage -h
-
-This is because scanimage -h tries to append a list of availlable
-scanners to the help output and thus interferes with the first
-scanimage process which is initializing the scanner at the same
-moment. I am using the kernel 2.6.5 and the usb host controller
-ohci-hcd. The kernel is tainted because I am using the loop-aes module
-and the mppe patch from pptpclient.sf.net/mppe/ which should not
-interfere with the scanning process.
-
-Relevant kernel logs and the output of ksymoops applied to those logs
-are attached seperately. Please let me know if you need any further
-information.
-Btw: After the occurrence of the kernel oops I tried a
-# modprobe -r ohci-hcd
-
-After showing some messages which indicated modprobe's effort to
-process the command, modprobe hang it even
-kill -9 pid
-or
-killall -9 modprobe
-could not stop the process. When rebooting the system stopped during
-shut down when it tried to stop alsa (most likely, because it uses
-modprobe to unload the alsa related modules at this point).
-
-Best regards,
-
-Elias
-
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kern.log"
-
-Apr 23 21:56:13 linux kernel: usb 2-1: usb_disable_device nuking non-ep0 URBs
-Apr 23 21:56:13 linux kernel: usb 2-1: unregistering interface 2-1:1.0
-Apr 23 21:56:13 linux kernel: drivers/usb/core/usb.c: usb_hotplug
-Apr 23 21:56:13 linux kernel: usb 2-1: registering 2-1:1.0 (config #1, interface 0)
-Apr 23 21:56:13 linux kernel: drivers/usb/core/usb.c: usb_hotplug
-Apr 23 21:56:13 linux kernel: usb 2-1: usb_disable_device nuking non-ep0 URBs
-Apr 23 21:56:13 linux kernel: ohci_hcd 0000:00:02.3: shutdown urb dc97d0c0 pipe c0018200 ep3out-bulk
-Apr 23 21:56:13 linux kernel: usbfs: USBDEVFS_BULK failed dev 2 ep 0x3 len 5 ret -108
-Apr 23 21:56:13 linux kernel: usb 2-1: unregistering interface 2-1:1.0
-Apr 23 21:56:13 linux kernel: drivers/usb/core/usb.c: usb_hotplug
-Apr 23 21:56:13 linux kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
-Apr 23 21:56:13 linux kernel:  printing eip:
-Apr 23 21:56:13 linux kernel: e08f12c2
-Apr 23 21:56:13 linux kernel: *pde = 00000000
-Apr 23 21:56:13 linux kernel: Oops: 0000 [#1]
-Apr 23 21:56:13 linux kernel: PREEMPT 
-Apr 23 21:56:13 linux kernel: CPU:    0
-Apr 23 21:56:13 linux kernel: EIP:    0060:[__crc_sleep_on+2586755/10722792]    Tainted: PF 
-Apr 23 21:56:13 linux kernel: EFLAGS: 00010246   (2.6.5) 
-Apr 23 21:56:13 linux kernel: EIP is at findintfep+0x32/0xb0 [usbcore]
-Apr 23 21:56:13 linux kernel: eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 00000000
-Apr 23 21:56:13 linux kernel: esi: dc97da40   edi: ffffffea   ebp: bfffa7a0   esp: dddcbeac
-Apr 23 21:56:13 linux kernel: ds: 007b   es: 007b   ss: 0068
-Apr 23 21:56:13 linux kernel: Process scanimage (pid: 2087, threadinfo=dddca000 task=dcf6b120)
-Apr 23 21:56:13 linux kernel: Stack: dddcbec8 00000000 df678a40 00000000 00000000 dc97da40 dddcbf00 bfffa7a0 
-Apr 23 21:56:13 linux kernel:        e08f1961 df6f5400 00000003 00000010 c0147546 df1e6b80 dea6b840 df6f5400 
-Apr 23 21:56:13 linux kernel:        00000000 dbc95ad0 dc2c2400 00000002 df1e6b80 00000003 00000005 00007530 
-Apr 23 21:56:13 linux kernel: Call Trace:
-Apr 23 21:56:13 linux kernel:  [__crc_sleep_on+2588450/10722792] proc_bulk+0x71/0x320 [usbcore]
-Apr 23 21:56:13 linux kernel:  [handle_mm_fault+214/368] handle_mm_fault+0xd6/0x170
-Apr 23 21:56:13 linux kernel:  [__crc_sleep_on+2595205/10722792] usbdev_ioctl+0x274/0x330 [usbcore]
-Apr 23 21:56:13 linux kernel:  [schedule+812/1440] schedule+0x32c/0x5a0
-Apr 23 21:56:13 linux kernel:  [inflate_codes+786/1184] inflate_codes+0x312/0x4a0
-Apr 23 21:56:13 linux kernel:  [file_ioctl+116/432] file_ioctl+0x74/0x1b0
-Apr 23 21:56:13 linux kernel:  [inflate_codes+786/1184] inflate_codes+0x312/0x4a0
-Apr 23 21:56:13 linux kernel:  [inflate_codes+786/1184] inflate_codes+0x312/0x4a0
-Apr 23 21:56:13 linux kernel:  [sys_ioctl+289/656] sys_ioctl+0x121/0x290
-Apr 23 21:56:13 linux kernel:  [inflate_codes+786/1184] inflate_codes+0x312/0x4a0
-Apr 23 21:56:13 linux kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Apr 23 21:56:13 linux kernel:  [inflate_codes+786/1184] inflate_codes+0x312/0x4a0
-Apr 23 21:56:13 linux kernel: 
-Apr 23 21:56:13 linux kernel: Code: 0f b6 40 04 39 44 24 0c 73 5c 89 44 24 08 8b 4c 24 0c 31 ed 
-Apr 23 21:56:14 linux kernel:  <7>usb 2-1: registering 2-1:1.0 (config #1, interface 0)
-Apr 23 21:56:14 linux kernel: drivers/usb/core/usb.c: usb_hotplug
-
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ksymoops.log"
-
-ksymoops 2.4.9 on i686 2.6.5.  Options used
-     -V (default)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.5/ (default)
-     -m /boot/System.map-2.6.5 (default)
-
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Apr 23 21:56:13 linux kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
-Apr 23 21:56:13 linux kernel: e08f12c2
-Apr 23 21:56:13 linux kernel: *pde = 00000000
-Apr 23 21:56:13 linux kernel: Oops: 0000 [#1]
-Apr 23 21:56:13 linux kernel: CPU:    0
-Apr 23 21:56:13 linux kernel: EIP:    0060:[__crc_sleep_on+2586755/10722792]    Tainted: PF 
-Apr 23 21:56:13 linux kernel: EFLAGS: 00010246   (2.6.5) 
-Apr 23 21:56:13 linux kernel: eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 00000000
-Apr 23 21:56:13 linux kernel: esi: dc97da40   edi: ffffffea   ebp: bfffa7a0   esp: dddcbeac
-Apr 23 21:56:13 linux kernel: ds: 007b   es: 007b   ss: 0068
-Apr 23 21:56:13 linux kernel: Stack: dddcbec8 00000000 df678a40 00000000 00000000 dc97da40 dddcbf00 bfffa7a0 
-Apr 23 21:56:13 linux kernel:        e08f1961 df6f5400 00000003 00000010 c0147546 df1e6b80 dea6b840 df6f5400 
-Apr 23 21:56:13 linux kernel:        00000000 dbc95ad0 dc2c2400 00000002 df1e6b80 00000003 00000005 00007530 
-Apr 23 21:56:13 linux kernel: Call Trace:
-Warning (Oops_read): Code line not seen, dumping what data is available
+>
+> --
+> Måns Rullgård
+> mru@kth.se
+>
 
 
->>esi; dc97da40 <__crc_enable_lapic_nmi_watchdog+ab116/2ef085>
->>edi; ffffffea <__kernel_rt_sigreturn+1baa/????>
->>ebp; bfffa7a0 <__crc_xfrm_policy_put_afinfo+18802f/1c9ec6>
->>esp; dddcbeac <__crc_register_filesystem+27ce24/4c8196>
-
-Apr 23 21:56:13 linux kernel: Code: 0f b6 40 04 39 44 24 0c 73 5c 89 44 24 08 8b 4c 24 0c 31 ed 
-Using defaults from ksymoops -t elf32-i386 -a i386
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f b6 40 04               movzbl 0x4(%eax),%eax
-Code;  00000004 Before first symbol
-   4:   39 44 24 0c               cmp    %eax,0xc(%esp,1)
-Code;  00000008 Before first symbol
-   8:   73 5c                     jae    66 <_EIP+0x66>
-Code;  0000000a Before first symbol
-   a:   89 44 24 08               mov    %eax,0x8(%esp,1)
-Code;  0000000e Before first symbol
-   e:   8b 4c 24 0c               mov    0xc(%esp,1),%ecx
-Code;  00000012 Before first symbol
-  12:   31 ed                     xor    %ebp,%ebp
-
-
-1 warning issued.  Results may not be reliable.
-
---rwEMma7ioTxnRzrJ--

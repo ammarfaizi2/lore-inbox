@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313917AbSDJWo3>; Wed, 10 Apr 2002 18:44:29 -0400
+	id <S313918AbSDJWql>; Wed, 10 Apr 2002 18:46:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313918AbSDJWo2>; Wed, 10 Apr 2002 18:44:28 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:65468 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S313917AbSDJWo1>; Wed, 10 Apr 2002 18:44:27 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Wed, 10 Apr 2002 15:42:37 -0700 (PDT)
-Subject: Re: Kernel developer attitudes, a problem to watch for.
-In-Reply-To: <Pine.LNX.4.33.0204101444360.6452-100000@shell1.aracnet.com>
-Message-ID: <Pine.LNX.4.44.0204101540261.29888-100000@dlang.diginsite.com>
+	id <S313919AbSDJWqk>; Wed, 10 Apr 2002 18:46:40 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:65290 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313918AbSDJWqj>; Wed, 10 Apr 2002 18:46:39 -0400
+Message-ID: <3CB4B248.2807558D@zip.com.au>
+Date: Wed, 10 Apr 2002 14:44:40 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <Pine.GSO.4.21.0204100725410.15110-100000@weyl.math.psu.edu> <3CB48F8A.DF534834@zip.com.au> <20020410221211.GA6076@ravel.coda.cs.cmu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My post was intended to make people realize how ti fit into the existing
-structure, I am not saying that the structure is fundmentally broken and
-needs to be scrapped.
+Jan Harkes wrote:
+> 
+> On Wed, Apr 10, 2002 at 12:16:26PM -0700, Andrew Morton wrote:
+> > I believe that the object relationship you're describing is
+> > that the inode->i_mapping points to the main address_space,
+> > and the `host' field of both the main and private address_spaces
+> > both point at the same inode?  That the inode owns two
+> > address_spaces?
+> 
+> Actually with Coda we've got 2 inodes that have an identical i_mapping.
+> The Coda inode's i_mapping is set to point to the hosting inode's
+> i_data.
 
-the fundamental existing process has been far more sucessful then the more
-formal procedures that are allocated, people just need to realize what is
-going on and not expect things to happen that won't.
+I see.  So this is all your fault :)
 
-David Lang
+> ...
+> 
+> But Coda has 2 inodes, which one are you connecting to whose superblock.
+> My guess is that it would be correct to add inode->i_mapping->host to
+> inode->i_mapping->host->i_sb, which will be the underlying inode in
+> Coda's case, but host isn't guaranteed to be an inode, it just happens
+> to be an inode in all existing situations.
 
+When a page is marked dirty, the path which is followed
+is page->mapping->host->i_sb.  So in this case the page will
+be attached to its page->mapping.dirty_pages, and
+page->mapping->host will be attached to page->mapping->host->i_sb.s_dirty
 
- On Wed, 10 Apr 2002, M. Edward (Ed) Borasky wrote:
+This is as it always was - I didn't change any of this.
 
-> Date: Wed, 10 Apr 2002 15:02:46 -0700 (PDT)
-> From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-> To: David Lang <david.lang@digitalinsight.com>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Kernel developer attitudes, a problem to watch for.
->
-> On Wed, 10 Apr 2002, David Lang wrote:
->
-> [soapbox snipped]
->
-> In the absence of
->
-> a. A formal software development process,
->
-> b. Formal requirements documents,
->
-> c. A high-level formal design document,
->
-> d. Marketing and sales,
->
-> e. A formal Quality Assurance, Security Assurance and Performance
-> Assurance effort,
->
-> f. A corporate structure,
->
-> etc. ...
->
-> I don't think it's reasonable to expect people to behave in a different
-> manner from the way they currently behave. I've heard this described as
-> a brutal meritocracy, and organizations that need any of the above to
-> meet their objectives are free to implement them at their own cost and
-> to their own (and presumably their customers') benefit.
->
-> That said, I think Linux could benefit greatly from some of the above,
-> in particular c. and e. And the recent debate over printk vs. event logs
-> would be a non-issue if we had b. and d. -- we'd have both because one
-> is wonderful for rapid debugging and the other is wonderful for system
-> administration.
-> --
-> M. Edward Borasky
-> znmeb@borasky-research.net
->
-> The COUGAR Project
-> http://www.borasky-research.com/Cougar.htm
->
-> If God had meant carrots to be eaten cooked, He would have given rabbits
-> fire.
->
+> > > What's more, I wonder how well does your scheme work with ->i_mapping
+> > > to a different inode's ->i_data (CODA et.al., file access to block devices).
+> >
+> > Presumably, those different inodes have a superblock?  In that
+> > case set_page_dirty will mark that inode dirty wrt its own
+> > superblock.  set_page_dirty() is currently an optional a_op,
+> > but it's not obvious that there will be a need for that.
+> 
+> Coda's inodes don't have to get dirtied because we never write them out,
+> although the associated dirty pages do need to hit the disk eventually :)
+> 
+
+Right.  Presumably, the pages hit the disk via the hosting inode's
+filesystem's mechanics.
+
+And it remains the case that Coda inodes will not be marked DIRTY_PAGES
+because set_page_dirty()'s page->mapping->host walk will arrive at
+the hosting inode.
+
+-

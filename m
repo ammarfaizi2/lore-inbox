@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316431AbSE3Gc7>; Thu, 30 May 2002 02:32:59 -0400
+	id <S316416AbSE3Gkt>; Thu, 30 May 2002 02:40:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316444AbSE3Gc6>; Thu, 30 May 2002 02:32:58 -0400
-Received: from smtp2.Stanford.EDU ([171.64.14.116]:39872 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S316431AbSE3Gc6>; Thu, 30 May 2002 02:32:58 -0400
-Message-ID: <11a801c207a3$d5449320$8f320c80@adar>
-From: "Adar Dembo" <adar@stanford.edu>
-To: <mac@melware.de>
-Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] drivers/isdn/eicon/eicon_idi.c: (2.5.17) dev_kfree_skb on wrong variable
-Date: Wed, 29 May 2002 23:32:55 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S316422AbSE3Gks>; Thu, 30 May 2002 02:40:48 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8966 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316416AbSE3Gks>; Thu, 30 May 2002 02:40:48 -0400
+Date: Thu, 30 May 2002 08:40:48 +0200
+From: Jan Hubicka <jh@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dave Jones <davej@suse.de>, Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        "J.A. Magallon" <jamagallon@able.es>, Luca Barbieri <ldb@ldb.ods.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4}
+Message-ID: <20020530064048.GJ19308@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.44.0205260128110.2047-100000@Expansa.sns.it> <Pine.LNX.4.44.0205260044270.10923-100000@sharra.ivimey.org> <20020526023009.G16102@suse.de> <20020527085301.A38@toy.ucw.cz> <20020529134202.F27463@suse.de> <20020529195727.GC31266@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> Hi!
+> 
+> >  > > I would be (pleasantly) surprised to see gcc turn a C memcpy into faster
+> >  > > assembly than our current implementation. And I'll bet
+> >  > 
+> >  > gcc has hand-coded assembly inside itself, if gcc compiled memcpy is slower
+> >  > than hand-optimized one, you found a compiler bug.
+> > 
+> > Not at all. gcc compiled memcpy just has no knowledge of things like
+> > non-temporal stores, and using mmx/sse to move 64 bits at a time
+> 
+> non-temporal stores are bypassing cache? Is it always good idea?
 
-        The patch below changes one of the dev_kfree_skb() calls, which
-incorrectly frees the wrong variable, and leaves some memory orphaned.
-Specifically, in idi_send_data(), two skb's, "xmit_skb" and "skb2" are
-allocated with alloc_skb. A check is made to see if either allocation
-failed; if one did, whichever one (if at all) succeeded is
-dev_kfree_skb()'d, and the function returns an error message. One of
-these dev_kfree_skb() calls was freeing "skb" instead of "xmit_skb".
+The strategy GCC uses is to emit memcpy/memset for short blocks and call
+function for others expecting that the function will contain all nasty
+tricks possible.  For large blocks this is a win concerning code size
+bloat caused by inlining MMX loops.
 
-        Looking at the other calls to idi_send_data() and the rest of
-the function, I believe "skb" should still be dev_kfree_skb()'d prior to
-the return, but I am not 100% sure. The maintainer should look into this
-and fix it if necessary.
+Nontemporal stores is definitly win for large blocks that does not fit
+into cache as a whole, I am not sure whether this is the case of kernel.
+I think kernel itself is usually zeroing memory just before it is used,
+but I may be mistaken.
+> 
+> > instead
+> > of 32 bit registers. (It's only recently it got prefetch abilities
+> > too).
+> 
+> gcc knows about mmx/sse, and could decide to use it.
 
--Adar Dembo
+I don't do that at the moment.  I am thinking about teaching it to use
+SSE moves for moving/clearing 64bit and larger values in memory.
+(ie for inlining constantly sized string operations)
 
---- drivers/isdn/eicon/eicon_idi.c.orig 2002-05-20
-22:07:28.000000000 -0700
-+++ drivers/isdn/eicon/eicon_idi.c      2002-05-27
-01:42:04.000000000 -0700
-@@ -2972,7 +2972,7 @@
-                        spin_unlock_irqrestore(&eicon_lock, flags);
-                        eicon_log(card, 1, "idi_err: Ch%d: alloc_skb
-failed in s
-end_data()\n", chan->No);
-                        if (xmit_skb)
--                               dev_kfree_skb(skb);
-+                               dev_kfree_skb(xmit_skb);
-                        if (skb2)
-                                dev_kfree_skb(skb2);
-                        return -ENOMEM;
-
-
+Honza
+> 									Pavel
+> -- 
+> Casualities in World Trade Center: ~3k dead inside the building,
+> cryptography in U.S.A. and free speech in Czech Republic.

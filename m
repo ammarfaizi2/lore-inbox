@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288855AbSAQOev>; Thu, 17 Jan 2002 09:34:51 -0500
+	id <S288882AbSAQOqV>; Thu, 17 Jan 2002 09:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288835AbSAQOem>; Thu, 17 Jan 2002 09:34:42 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:2845 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S288854AbSAQOee>; Thu, 17 Jan 2002 09:34:34 -0500
-Date: Thu, 17 Jan 2002 15:35:04 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Diego Calleja <grundig@teleline.es>, linux-kernel@vger.kernel.org
-Subject: bugfix backed out
-Message-ID: <20020117153504.J4847@athlon.random>
-In-Reply-To: <20020116215449Z289156-13996+7212@vger.kernel.org> <Pine.LNX.4.33L.0201162001480.32617-100000@imladris.surriel.com>
+	id <S288871AbSAQOqL>; Thu, 17 Jan 2002 09:46:11 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:29320
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288882AbSAQOqB>; Thu, 17 Jan 2002 09:46:01 -0500
+Date: Thu, 17 Jan 2002 09:29:17 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020117092917.A7905@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20020116204345.A22055@thyrsus.com> <20020116164758.F12306@thyrsus.com> <esr@thyrsus.com> <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de> <20020116164758.F12306@thyrsus.com> <26592.1011230762@redhat.com> <20020116204345.A22055@thyrsus.com> <3515.1011257639@redhat.com> <20020117083757.A7299@thyrsus.com> <13681.1011276592@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.33L.0201162001480.32617-100000@imladris.surriel.com>; from riel@conectiva.com.br on Wed, Jan 16, 2002 at 08:02:42PM -0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <13681.1011276592@redhat.com>; from dwmw2@infradead.org on Thu, Jan 17, 2002 at 02:09:52PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 08:02:42PM -0200, Rik van Riel wrote:
-> On Wed, 16 Jan 2002, Diego Calleja wrote:
-> > On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
-> > > attached) and most important I don't have a single bugreport about the
-> > > current 2.4.18pre2aa2 VM (except perhaps the bdflush wakeup that seems
-> >
-> > Well, I haven't reported it yet, but booting my box with mem=4M
-> > gave as result: (running 2.4.18-pre2aa2):
-> > diego# cat /var/log/messages | grep gfp
-> > Jan 13 15:37:10 localhost kernel: __alloc_pages: 0-order allocation failed
-> > (gfp=0xf0/0)
-> 
-> > Each script of /etc/rc.d was killed by VM when it was started,
-> 
-> It seems Andrea's patch backs out a bugfix for this problem
-> which marcelo and me put into the normal 2.4 kernel ...
+David Woodhouse <dwmw2@infradead.org>:
+> Utter crap. CML2 makes them possible, and is a step in the right direction.
+> I'm not suggesting that you never make these changes - just that you do them
+> separately from the change in mechanism.
 
-hmm, is this the bugfix you mean? that shouldn't really matter to me as
-far I can tell, I did it in an alternate way since the first place.
+Sorry, it's *way* too late for that.  In fact, it was already way too
+late for that at the kernel summit last March when Linus issued his ukase.
+The "change in mechanism" phase of the project was essentially complete
+almost a year ago now.  If you had been paying attention, you would 
+have noticed this.
 
-diff -urN 2.4.17pre8/mm/vmscan.c 2.4.17/mm/vmscan.c
---- 2.4.17pre8/mm/vmscan.c      Fri Nov 23 08:21:05 2001
-+++ 2.4.17/mm/vmscan.c  Fri Dec 21 20:06:55 2001
-@@ -338,7 +338,7 @@
- {
-        struct list_head * entry;
-        int max_scan = nr_inactive_pages / priority;
--       int max_mapped = nr_pages << (9 - priority);
-+       int max_mapped = min((nr_pages << (10 - priority)), max_scan / 10);
- 
-        spin_lock(&pagemap_lru_lock);
-        while (--max_scan >= 0 && (entry = inactive_list.prev) != &inactive_list) {
+The idea that a pure change in mechanism could ever have been cleanly 
+separated from changes in behavior was a fantasy anyway.  Large changes in
+a software architecture just don't work that way, as we rediscover every
+time a significant subsystem gets reworked to fix bugs.
 
-furthmore I hate those "10" hardwirded magic numbers that you keep
-adding. The less of them the better. At least I put those magics in
-sysctl.
+I have held off on many things that I think badly need to be done in
+order to pacify the conservative instincts of people like yourself --
+for example, I think the device menus cry out to be reorganized on a
+functional basis rather than on the basis of internal distinctions
+like "block" vs. "character" devices that are pointless to anyone 
+but a kernel implementor.
 
-see what my max_mapped is:
+But if attempting that implausibility of no behavioral changes is what
+you think I "agreed" to, we'd best both forget the "agreement" --
+because it would be hypocrisy if I agreed falsely and an absurd,
+project-strangling shackle if I agreed sincerely.
 
-	int orig_max_mapped = SWAP_CLUSTER_MAX * vm_mapped_ratio,
+Continuity, avoiding gratuitous changes, and a good-faith effort to
+emulate the interfaces people are expecting is one thing; artificial
+stasis is entirely another.  I'm doing my best to give you the former.
+You won't get the latter, no way, nohow.
 
-It is controlled by the vm_mapped_ratio and by the swap-cluster. So we
-unmap one swap cluster at every vm_mapped_ratio of pages scanned that
-were mapped. This ensure we unmap when there's some relevant work to do.
-The lower the vm_mapped_ratio, the earlier the kernel will start
-swapping/paging. (ah, and of course also the SWAP_CLUSTER_MAX would
-better be a sysctl but it isn't yet)
+If you have spotted errors, the time to tell me about them is *now*.
+It's unfair to me and to other developers to artificially hold off
+until we pass some mythical point at which it will suddenly be OK for
+behavior to change.  The real world doesn't work that way, and I am
+sure you are too experienced to believe it does.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Andrea
+If a thousand men were not to pay their tax-bills this year, that would
+... [be] the definition of a peaceable revolution, if any such is possible.
+	-- Henry David Thoreau

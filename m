@@ -1,90 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264281AbTDPKAV (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 06:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbTDPKAV 
+	id S264284AbTDPKEY (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 06:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTDPKEY 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 06:00:21 -0400
-Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:29321
-	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S264281AbTDPKAS 
+	Wed, 16 Apr 2003 06:04:24 -0400
+Received: from mail.hometree.net ([212.34.181.120]:46273 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S264284AbTDPKEU 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 06:00:18 -0400
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: DMA transfers in 2.5.67
-References: <yw1x3ckjfs2v.fsf@zaphod.guide>
-	<1050438684.28586.8.camel@dhcp22.swansea.linux.org.uk>
-	<yw1xy92be915.fsf@zaphod.guide>
-	<1050439715.28586.17.camel@dhcp22.swansea.linux.org.uk>
-	<yw1xptnne7lv.fsf@zaphod.guide>
-	<20030416123654.A2629@jurassic.park.msu.ru>
-	<yw1xk7duessc.fsf@zaphod.guide> <yw1xadeqes1s.fsf@zaphod.guide>
-	<yw1x65peeqm4.fsf@zaphod.guide>
-	<20030416140110.A642@jurassic.park.msu.ru>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 16 Apr 2003 12:11:02 +0200
-In-Reply-To: <20030416140110.A642@jurassic.park.msu.ru>
-Message-ID: <yw1x1y02eoqx.fsf@zaphod.guide>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 16 Apr 2003 06:04:20 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: [2.4.21-pre7-ac1] IDE Warning when booting
+Date: Wed, 16 Apr 2003 10:16:12 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <b7jahc$8f0$1@tangens.hometree.net>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1050488172 8672 212.34.181.4 (16 Apr 2003 10:16:12 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 16 Apr 2003 10:16:12 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
+Hi,
 
-> > I set the latency to 128 using setpci and now I get 66 MB/s.  Other
-> > values give slower transfer rates.  Is there some other setting that
-> > could improve it even more?
-> 
-> Interesting. Did you set latency 128 for all devices or only for
-> 3Dlabs card?
+I get these since many 2.4.21-pre<x>-ac<y> versions.
 
-Only the 3Dlabs.  The remaining cards are configured like this:
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX3: IDE controller at PCI slot 00:07.1
+PIIX3: chipset revision 0
+PIIX3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+hda: QUANTUM BIGFOOT_CY6480A, ATA DISK drive
+blk: queue c02d2bc0, I/O limit 4095Mb (mask 0xffffffff)
+hdc: IBM-DTLA-307060, ATA DISK drive
+blk: queue c02d3018, I/O limit 4095Mb (mask 0xffffffff)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-disk driver.
 
-00:05.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 78)
-	Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC Management NIC
-	Flags: bus master, medium devsel, latency 64, IRQ 25
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-00:06.0 Display controller: 3DLabs GLINT R3 (rev 01)
-	Subsystem: 3DLabs: Unknown device 0121
-	Flags: bus master, 66Mhz, medium devsel, latency 128, IRQ 27
+hda: 12706470 sectors (6506 MB) w/67KiB Cache, CHS=790/255/63, DMA
+hdc: attached ide-disk driver.
+hdc: host protected area => 1
+hdc: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63, (U)DMA
+ide-floppy driver 0.99.newide
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 >
+ hdc: [PTBL] [7943/240/63] hdc1 < hdc5 hdc6 >
+ide-floppy driver 0.99.newide
 
-00:07.0 RAID bus controller: Triones Technologies, Inc.: Unknown device 0008 (rev 07)
-	Subsystem: Triones Technologies, Inc.: Unknown device 0001
-	Flags: bus master, 66Mhz, medium devsel, latency 120, IRQ 26
+The kernels itself are not too stable on my trustworthy old PPro 200
+box (which runs rock solid with the RedHat 7.3 release kernels). Not
+too stable means "crashes about every other night".
 
-00:07.1 RAID bus controller: Triones Technologies, Inc.: Unknown device 0008 (rev 07)
-	Subsystem: Triones Technologies, Inc.: Unknown device 0001
-	Flags: bus master, 66Mhz, medium devsel, latency 120, IRQ 26
+The is a PPro 200 with 256 MBytes RAM, Tyan Mainboard. Not
+overclocked, well cooled, lightly loaded. It normally crashes when the
+only really disk pushing operation (Backup via Amanda) is started at
+night.
 
-00:08.1 IDE interface: Contaq Microsystems 82c693 (prog-if 80 [Master])
-	Flags: bus master, medium devsel, latency 0
+I sent some crash reports to Alan, I will post any with pre7-ac1
+here. I got a serial console hooked up to that box and I intent to use
+it. :-)
 
-00:08.2 IDE interface: Contaq Microsystems 82c693 (prog-if 00 [])
-	Flags: bus master, medium devsel, latency 0
-
-00:08.3 USB Controller: Contaq Microsystems 82c693 (prog-if 10 [OHCI])
-	Flags: bus master, medium devsel, latency 0
-
-00:09.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
-	Subsystem: Adaptec: Unknown device 0035
-	Flags: bus master, medium devsel, latency 64, IRQ 24
-
-00:09.1 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
-	Subsystem: Adaptec: Unknown device 0035
-	Flags: bus master, medium devsel, latency 64, IRQ 28
-
-00:09.2 USB Controller: NEC Corporation: Unknown device 00e0 (rev 02) (prog-if 20)
-	Subsystem: Adaptec: Unknown device 00e0
-	Flags: bus master, medium devsel, latency 68, IRQ 32
-
-As you can see, the good IDE controller (Triones/Highpoint hpt374) has
-a latency of 120.  Disk transfer rates are still only half of what I
-get with a 2.4 kernel.  What could be the cause of this?
+	Regards
+		Henning
 
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

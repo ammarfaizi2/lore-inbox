@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280960AbRLDQzo>; Tue, 4 Dec 2001 11:55:44 -0500
+	id <S281215AbRLDQ5Y>; Tue, 4 Dec 2001 11:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281463AbRLDQyX>; Tue, 4 Dec 2001 11:54:23 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:18824 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S281297AbRLDQyC>;
-	Tue, 4 Dec 2001 11:54:02 -0500
-Message-ID: <3C0CFF5F.3090404@dplanet.ch>
-Date: Tue, 04 Dec 2001 17:52:47 +0100
-From: Giacomo Catenazzi <cate@dplanet.ch>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: esr@thyrsus.com, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-In-Reply-To: <20011204111115.A15160@thyrsus.com>  <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com> <20011204140050.A10691@caldera.de> <20011204081640.A12658@thyrsus.com> <20011204142958.A14069@caldera.de> <19642.1007484062@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Dec 2001 16:54:00.0903 (UTC) FILETIME=[45D48D70:01C17CE4]
+	id <S278932AbRLDQz4>; Tue, 4 Dec 2001 11:55:56 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:7703 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281116AbRLDQzs>; Tue, 4 Dec 2001 11:55:48 -0500
+Date: Tue, 4 Dec 2001 17:55:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Peter Zaitsev <pz@spylog.ru>, Andrew Morton <akpm@zip.com.au>,
+        theowl@freemail.c3.hu, theowl@freemail.hu,
+        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: your mail on mmap() to the kernel list
+Message-ID: <20011204175504.E3447@athlon.random>
+In-Reply-To: <16498470022.20011204183624@spylog.ru> <Pine.LNX.4.33L.0112041439210.4079-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33L.0112041439210.4079-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Dec 04, 2001 at 02:42:28PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-
+On Tue, Dec 04, 2001 at 02:42:28PM -0200, Rik van Riel wrote:
+> On Tue, 4 Dec 2001, Peter Zaitsev wrote:
+> > Tuesday, December 04, 2001, 5:15:49 PM, you wrote:
 > 
-> I do have objections to some of the other ideas which have been floated for
-> changing the behaviour of the config rules, which aren't strictly related to
-> the change in language. 
+> > AA> You can fix the problem in userspace by using a meaningful 'addr' as
+> > AA> hint to mmap(2), or by using MAP_FIXED from userspace, then the kernel
+> > AA> won't waste time searching the first available mapping over
+> > AA> TASK_UNMAPPED_BASE.
+> 
+> > Well. Really you can't do this, because you can not really track all of
+> > the mappings in user program as glibc and probably other libraries
+> > use mmap for their purposes.
+> 
+> There's no reason we couldn't do this hint in kernel space.
+> 
+> In arch_get_unmapped_area we can simply keep track of the
+> lowest address where we found free space, while on munmap()
+> we can adjust this hint if needed.
+>
+> OTOH, I doubt it would help real-world workloads where the
+> application maps and unmaps areas of different sizes and
+> actually does something with the memory instead of just
+> mapping and unmapping it ;)))
 
+exactly, while that would be simple to implement and very lightweight at
+runtime, that's not enough to mathematically drop the complexity of the
+get_unmapped_area algorithm. It would optimize only the case where
+there's no fragmentation of the mapped virtual address space.
 
-The rules are nearly the same (but written in another language).
-The problem was in converting rules: esr found a lot of error:
-these error should be corrected, also some rules are different.
+For finding the best fit in the heap with O(log(N)) complexity (rather
+than the current O(N) complexity of the linked list) one tree indexed by
+the size of each hole would be necessary.
 
-Also converting rules, you surelly found some error: i.e. wrong
-dependencies syntax, wrong implementation,....
-
-I don't think esr changed non problematic rules, but one:
-all rules without help become automatically dependent to
-CONFIG_EXPERIMENTAL. I don't like it, but I understand why
-he makes this decision.
-
-Remember: The config.in files contain a lot of errors, and
-automatic tools can not find all.
-
-	giacomo
-
+Andrea

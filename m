@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129162AbRBMKsv>; Tue, 13 Feb 2001 05:48:51 -0500
+	id <S130113AbRBMKyb>; Tue, 13 Feb 2001 05:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129465AbRBMKsl>; Tue, 13 Feb 2001 05:48:41 -0500
-Received: from ns.linking.ee ([195.222.24.241]:16902 "EHLO ns.linking.ee")
-	by vger.kernel.org with ESMTP id <S129162AbRBMKsa>;
-	Tue, 13 Feb 2001 05:48:30 -0500
-Date: Tue, 13 Feb 2001 12:48:16 +0200 (GMT-2)
-From: Elmer Joandi <elmer@linking.ee>
-To: linux-kernel@vger.kernel.org
-Subject: USB mouse jumping
-Message-ID: <Pine.LNX.4.21.0102131244190.24377-100000@ns.linking.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130385AbRBMKyV>; Tue, 13 Feb 2001 05:54:21 -0500
+Received: from tsukuba.m17n.org ([192.47.44.130]:26003 "EHLO tsukuba.m17n.org")
+	by vger.kernel.org with ESMTP id <S130113AbRBMKyM>;
+	Tue, 13 Feb 2001 05:54:12 -0500
+Date: Tue, 13 Feb 2001 19:53:11 +0900 (JST)
+Message-Id: <200102131053.TAA11808@mule.m17n.org>
+From: NIIBE Yutaka <gniibe@m17n.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (lkml)
+Subject: Re: [PATCH] swapin flush cache bug
+In-Reply-To: <200102130950.f1D9ohq01768@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.21.0102122107550.29855-100000@freak.distro.conectiva>
+	<200102130950.f1D9ohq01768@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King wrote:
+ > What was the problem?  The old code seems to behave well on a virtual
+ > address indexed virtual address tagged cache.
 
+My case (SH-4) is: virtual address indexed, physical address tagged cache
+(which has alias issue).
 
-
-I dont know, if it is bug or feature, but, 
-
- USB mouse jumps around (between) /dev/input/mouse0 and mouse1
- when taken out and put back in(to same connector), 2.4.0 kernel.
-
-Annoys, should not be the default behaviour, IMHO.
-
-
-elmer.
-
-
+Suppose there's I/O to the physical page P asynchronously, and the
+page is placed in the swap cache.  It remains cache entry, say,
+indexed kernel virtual address K.  Then, process maps P at U.  U and K
+(may) indexes differently.  The process will get the data from memory
+(not the one in the cashe), if it's not flushed.
+-- 

@@ -1,117 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293074AbSBWEDM>; Fri, 22 Feb 2002 23:03:12 -0500
+	id <S293085AbSBWEJm>; Fri, 22 Feb 2002 23:09:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293077AbSBWEDD>; Fri, 22 Feb 2002 23:03:03 -0500
-Received: from mail.gmx.de ([213.165.64.20]:16440 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S293074AbSBWECu>;
-	Fri, 22 Feb 2002 23:02:50 -0500
-Message-ID: <3C770E77.5C7111B1@gmx.de>
-Date: Sat, 23 Feb 2002 04:37:27 +0100
-From: Edgar Toernig <froese@gmx.de>
+	id <S293087AbSBWEJd>; Fri, 22 Feb 2002 23:09:33 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32516
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S293085AbSBWEJT>; Fri, 22 Feb 2002 23:09:19 -0500
+Date: Fri, 22 Feb 2002 19:56:54 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Adam Huffman <bloch@verdurin.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Boot problem with PDC20269
+In-Reply-To: <20020223015348.A1148@bloch.verdurin.priv>
+Message-ID: <Pine.LNX.4.10.10202221953470.3281-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Dan Aloni <da-x@gmx.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org>
-Content-Type: multipart/mixed;
- boundary="------------BC6CCA47544425EA45E8E072"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------BC6CCA47544425EA45E8E072
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Dan Aloni wrote:
+Hi Adam,
+
+http://www.tecchannel.de/hardware/817/index.html
+
+
+We do not put ATAPI devices on such HOSTS.
+The driver will not work w/ ATAPI there because it uses a different DMA
+engine location and is not supported in Linux.
+
+You will find greater success in putting your ATAPI device on the native
+south bridge.
+
+Cheers,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+
+
+
+
+On Sat, 23 Feb 2002, Adam Huffman wrote:
+
+> When I try to boot a kernel with the latest IDE driver in order to
+> support my Promise UltraATA133 TX2 card, the system hangs at the point
+> where it should be listing the two drives attached to the card i.e. it
+> shows /dev/hdc which is a DVD drive, then stops.  Sometimes I can reboot
+> with Alt-SysRq, sometimes a hard reset is needed.  This happens with
+> 2.4.17+ide, 2.4.18-rc1, 2.5.5-dj1.
 > 
-> The attached patch implements C exceptions in the kernel,
-
-Bad idea ...
-
-> which *don't* depend on special support from the compiler.
-
-... which can be implemented in simple ANSI-C.  See below.
-
-Ciao, ET.
---------------BC6CCA47544425EA45E8E072
-Content-Type: text/plain; charset=us-ascii;
- name="try-n-catch.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="try-n-catch.c"
-
-#include <setjmp.h>
-
-struct _catch
-{
-    struct _catch *next;
-    jmp_buf buf;
-};
-
-static struct _catch _catch_top[1];
-struct _catch *_catch = _catch_top;
-
-#define throw()				\
-    do {				\
-	_catch = _catch->next;		\
-	longjmp(_catch->buf, 1);	\
-    } while (0)
-
-
-#define try				\
-    if (setjmp(_catch->buf) == 0) {	\
-	struct _catch _catch_new[1];	\
-	_catch_new->next = _catch;	\
-	_catch = _catch_new;
-
-#define catch \
-	_catch = _catch->next;		\
-    } else
-
-
-/**** example below ****/
-
-#include <stdio.h>
-
-int a = 1;
-
-void
-foo(int x)
-{
-    a=2;
-    if (x & 1)
-	throw();
-}
-
-int
-main(int argc, char **argv)
-{
-    int i;
-
-    for (i = 0; i < 10; ++i)
-    {
-	a=i;
-	try
-	{
-	    try foo(i); catch
-	    {
-		printf("2: caught at %d (a=%d)\n", i, a);
-		if ((i&3)==1)
-		    throw();
-	    }
-	}
-	catch
-	{
-	    printf("1: caught at %d (a=%d)\n", i, a);
-	}
-	printf("a=%d\n", a);
-    }
-    return 0;
-}
-
-
---------------BC6CCA47544425EA45E8E072--
-
+> Motherboard is MSI K7T-Turbo 2, K7 1.4, drives attached to the Promise
+> card are an IBM 60GXP and a Maxtor D740X-6L.  The drives work when
+> attached to the VIA interface on the m/b.
 

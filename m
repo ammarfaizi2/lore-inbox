@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263745AbUFBRfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUFBRe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbUFBRfo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 13:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbUFBRfX
+	id S263741AbUFBRe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 13:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbUFBRey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 13:35:23 -0400
-Received: from mail.kroah.org ([65.200.24.183]:29149 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263711AbUFBRdz (ORCPT
+	Wed, 2 Jun 2004 13:34:54 -0400
+Received: from mail.kroah.org ([65.200.24.183]:50397 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263766AbUFBRe1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 13:33:55 -0400
-Date: Wed, 2 Jun 2004 10:12:57 -0700
+	Wed, 2 Jun 2004 13:34:27 -0400
+Date: Wed, 2 Jun 2004 10:32:00 -0700
 From: Greg KH <greg@kroah.com>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: two patches - request for comments
-Message-ID: <20040602171257.GK7829@kroah.com>
-References: <20040529012030.795ad27e.zap@homelink.ru> <20040528221006.GB13851@kroah.com> <20040529124421.28c776cc.zap@homelink.ru> <40BCF3BF.3020202@pobox.com> <20040602015740.3cedd197.zap@homelink.ru>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040602173200.GA12254@kroah.com>
+References: <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org> <20040602150440.GA26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org> <20040602152741.GC26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020839230.3403@ppc970.osdl.org> <20040602161721.GA29296@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020921220.3403@ppc970.osdl.org> <20040602171732.GA30427@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040602015740.3cedd197.zap@homelink.ru>
+In-Reply-To: <20040602171732.GA30427@wohnheim.fh-wedel.de>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 01:57:40AM +0400, Andrew Zabolotny wrote:
-> On Tue, 01 Jun 2004 17:23:11 -0400
-> Jeff Garzik <jgarzik@pobox.com> wrote:
+On Wed, Jun 02, 2004 at 07:17:32PM +0200, J?rn Engel wrote:
 > 
-> > Typical Linux usage to an item being registered is
-> > 	ptr = alloc_foo()
-> > 	register_foo(ptr)
-> > 	unregister_foo(ptr)
-> > 	free_foo()
-> In this case it is:
+> Leaves usb_audio_recurseunit() as the only function in question, that
+> one could actually be sane, although it looks rather interesting:
+> WARNING: trivial recursion detected:
+>        0  usb_audio_recurseunit
+> WARNING: recursion detected:
+>       16  usb_audio_selectorunit
+>        0  usb_audio_recurseunit
+> WARNING: multiple recursions around usb_audio_recurseunit()
+> WARNING: recursion detected:
+>        0  usb_audio_recurseunit
+>        0  usb_audio_processingunit
 > 
-> register_lcd_device("foo", ...);
-> ...
-> unregister_lcd_device("foo");
-> 
-> The name is guaranteed to be unique by sysfs design during the whole
-> device lifetime, and calling unregister_xxx() outside the lifetime brackets
-> is clearly an error.
-> 
-> > It is quite unusual to unregister based on name.  Pointers are far more 
-> > likely to be unique, and the programmer is far less likely to screw up 
-> > the unregister operation.
-> I understand this, I see why it looks unusual. I'll fix this if it matters.
+> Greg, can you say whether this construct makes sense?
 
-It matters, please fix it.
+Well it's sane only if you think that USB descriptors can be sane :)
 
-> It'll be something like:
-> 
-> lcd_device = register_lcd_device ("foo", ...);
-> ...
-> unregister_lcd_device (lcd_device);
+Anyway, this loop will always terminate as we have a finite sized USB
+descriptor that this function is parsing.  As to how many times we will
+recurse, I don't really know as I haven't spent much time looking into
+the different messed up USB audio devices out there on the market...
 
-What about:
-	lcd_device = alloc_lcd_device("foo", ...);
-	error = register_lcd_device(lcd_device);
-	...
-	unregister_lcd_device(lcd_device);
+Sorry I can't be of more help, but I don't think you need to worry about
+this function.
 
 thanks,
 

@@ -1,93 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263889AbTDVWre (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 18:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTDVWre
+	id S263890AbTDVWro (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 18:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263892AbTDVWrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 18:47:34 -0400
-Received: from aneto.able.es ([212.97.163.22]:53498 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S263889AbTDVWrc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 18:47:32 -0400
-Date: Wed, 23 Apr 2003 00:59:31 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc1
-Message-ID: <20030422225931.GA9066@werewolf.able.es>
-References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+	Tue, 22 Apr 2003 18:47:43 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:37905 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S263890AbTDVWrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 18:47:41 -0400
+Date: Tue, 22 Apr 2003 15:59:43 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Greg KH <greg@kroah.com>
+Cc: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       Linux-usb-users@lists.sourceforge.net
+Subject: Re: [Linux-usb-users] Re: PATCH: some additional unusual_devs-entries for usb-storage-driver, kernel 2.5.68
+Message-ID: <20030422155943.A32297@one-eyed-alien.net>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	=?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+	Linux-usb-users@lists.sourceforge.net
+References: <20030421214805.7de5e4f3.hanno@gmx.de> <20030422213247.GA5076@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Apr 21, 2003 at 20:47:32 +0200
-X-Mailer: Balsa 2.0.10
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030422213247.GA5076@kroah.com>; from greg@kroah.com on Tue, Apr 22, 2003 at 02:32:47PM -0700
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 04.21, Marcelo Tosatti wrote:
-> 
-> Here goes the first candidate for 2.4.21.
-> 
-> Please test it extensively.
-> 
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-binfmt_elf.c is still buggy wrt HT cpus when setting AT_PLATFORM.
-This patch corrects it and also optimizes stack usage changing from
-fixed 64 cpus to NR_CPUS (unless I misunderstood what the '64' stands for...)
+On Tue, Apr 22, 2003 at 02:32:47PM -0700, Greg KH wrote:
+> Ok, in talking with the usb-storage author, I'll be accepting all
+> unushal_devs.h patches now, as long as they contain the following:
+> 	- a comment above the entry with a email address of someone who
+> 	  has this device that this entry fixes the driver for them.
+> 	  This is to allow us to possibly remove entries at a later time
+> 	  if the core changes, and get a verification that it's ok to do
+> 	  so.
+> 	- a copy of the /proc/bus/usb/devices device entry with the
+> 	  device plugged in and the driver loaded (this should not be in
+> 	  the patch, but in the body of the email.)
+> 	 =20
+> So, if there are any outstanding drivers/usb/storage/unusual_devs.h
+> entries that people have floating around, sent them on!
 
---- linux/fs/binfmt_elf.c.orig	2002-12-28 00:12:32.000000000 +0100
-+++ linux/fs/binfmt_elf.c	2002-12-28 00:32:37.000000000 +0100
-@@ -116,11 +116,14 @@
- 	elf_caddr_t *argv;
- 	elf_caddr_t *envp;
- 	elf_addr_t *sp, *csp;
-+	char *stack_top;
- 	char *k_platform, *u_platform;
- 	long hwcap;
- 	size_t platform_len = 0;
- 	size_t len;
- 
-+	stack_top = p;
-+
- 	/*
- 	 * Get hold of platform and hardware capabilities masks for
- 	 * the machine we are running on.  In some cases (Sparc), 
-@@ -135,8 +138,8 @@
- 		platform_len = strlen(k_platform) + 1;
- 		u_platform = p - platform_len;
- 		__copy_to_user(u_platform, k_platform, platform_len);
--	} else
--		u_platform = p;
-+		stack_top = u_platform;
-+	}
- 
- #if defined(__i386__) && defined(CONFIG_SMP)
- 	/*
-@@ -149,15 +152,14 @@
- 	 * processors. This keeps Mr Marcelo Person happier but should be
- 	 * removed for 2.5
- 	 */
--	 
- 	if(smp_num_siblings > 1)
--		u_platform = u_platform - ((current->pid % 64) << 7);
-+		stack_top -= ((current->pid % NR_CPUS) << 7);
- #endif	
- 
- 	/*
- 	 * Force 16 byte _final_ alignment here for generality.
- 	 */
--	sp = (elf_addr_t *)(~15UL & (unsigned long)(u_platform));
-+	sp = (elf_addr_t *)(~15UL & (unsigned long)(stack_top));
- 	csp = sp;
- 	csp -= (1+DLINFO_ITEMS)*2 + (k_platform ? 2 : 0);
- #ifdef DLINFO_ARCH_ITEMS
+I want to take a moment publically to thank Greg for doing this, which
+allows me to focus my energies on other parts of the driver.
 
+Matt
 
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-rc1-jam1 (gcc 3.2.2 (Mandrake Linux 9.2 3.2.2-5mdk))
+You suck Stef.
+					-- Greg=20
+User Friendly, 11/29/97
+
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE+pcleIjReC7bSPZARAj+FAKDBuzvXjzR5rgxCUWvl3RWhmXYunwCgsyVR
+tDIZL+MJWWETujXJ79YurS4=
+=/iy/
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--

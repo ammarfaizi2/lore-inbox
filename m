@@ -1,92 +1,133 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313568AbSEEU6c>; Sun, 5 May 2002 16:58:32 -0400
+	id <S313638AbSEEVBL>; Sun, 5 May 2002 17:01:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313571AbSEEU5P>; Sun, 5 May 2002 16:57:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47369 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313559AbSEEU4h>;
-	Sun, 5 May 2002 16:56:37 -0400
-Message-ID: <3CD59D0F.49E4C321@zip.com.au>
-Date: Sun, 05 May 2002 13:58:55 -0700
+	id <S313592AbSEEU76>; Sun, 5 May 2002 16:59:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49161 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313559AbSEEU7A>;
+	Sun, 5 May 2002 16:59:00 -0400
+Message-ID: <3CD59D9E.FCA0D078@zip.com.au>
+Date: Sun, 05 May 2002 14:01:18 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 8/10] Fix PG_launder
+Subject: [patch 10/10] Documentation update
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-Set PG_launder against pages which are under VM writeback.  So page
-allocators will throttle against them.
-
-
-=====================================
-
---- 2.5.13/mm/page-writeback.c~page_launder-fix	Sun May  5 13:32:03 2002
-+++ 2.5.13-akpm/mm/page-writeback.c	Sun May  5 13:32:03 2002
-@@ -354,6 +354,8 @@ int generic_writeback_mapping(struct add
- 		lock_page(page);
+--- 2.5.13/mm/filemap.c~lock-doc-cleanup	Sat May  4 13:45:40 2002
++++ 2.5.13-akpm/mm/filemap.c	Sat May  4 13:45:40 2002
+@@ -43,8 +43,7 @@
+  *  pagemap_lru_lock
+  *  ->i_shared_lock		(vmtruncate)
+  *    ->i_bufferlist_lock	(__free_pte->__set_page_dirty_buffers)
+- *      ->unused_list_lock	(try_to_free_buffers)
+- *        ->mapping->page_lock
++ *      ->mapping->page_lock
+  *      ->inode_lock		(__mark_inode_dirty)
+  *        ->sb_lock		(fs/fs-writeback.c)
+  */
+--- 2.5.13/Documentation/filesystems/Locking~lock-doc-cleanup	Sat May  4 13:46:18 2002
++++ 2.5.13-akpm/Documentation/filesystems/Locking	Sat May  4 14:06:02 2002
+@@ -137,6 +137,9 @@ prototypes:
+ 	int (*writepage)(struct page *);
+ 	int (*readpage)(struct file *, struct page *);
+ 	int (*sync_page)(struct page *);
++	int (*writeback_mapping)(struct address_space *, int *nr_to_write);
++	int (*vm_writeback)(struct page *, int *nr_to_write);
++	int (*set_page_dirty)(struct page *page);
+ 	int (*prepare_write)(struct file *, struct page *, unsigned, unsigned);
+ 	int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
+ 	int (*bmap)(struct address_space *, long);
+@@ -145,32 +148,71 @@ prototypes:
+ 	int (*direct_IO)(int, struct inode *, struct kiobuf *, unsigned long, int);
  
- 		if (TestClearPageDirty(page)) {
-+			if (current->flags & PF_MEMALLOC)
-+				SetPageLaunder(page);
- 			err = writepage(page);
- 			if (!ret)
- 				ret = err;
---- 2.5.13/fs/fs-writeback.c~page_launder-fix	Sun May  5 13:32:03 2002
-+++ 2.5.13-akpm/fs/fs-writeback.c	Sun May  5 13:32:03 2002
-@@ -17,6 +17,7 @@
- #include <linux/spinlock.h>
- #include <linux/sched.h>
- #include <linux/fs.h>
-+#include <linux/mm.h>
- #include <linux/writeback.h>
+ locking rules:
+-	All may block
+-		BKL	PageLocked(page)
+-writepage:	no	yes, unlocks
+-readpage:	no	yes, unlocks
+-sync_page:	no	maybe
+-prepare_write:	no	yes
+-commit_write:	no	yes
+-bmap:		yes
+-flushpage:	no	yes
+-releasepage:	no	yes
++	All except set_page_dirty may block
++
++			BKL	PageLocked(page)
++writepage:		no	yes, unlocks
++readpage:		no	yes, unlocks
++sync_page:		no	maybe
++writeback_mapping:	no
++vm_writeback:		no	yes
++set_page_dirty		no	no
++prepare_write:		no	yes
++commit_write:		no	yes
++bmap:			yes
++flushpage:		no	yes
++releasepage:		no	yes
  
- /**
-@@ -135,7 +136,7 @@ static void __sync_single_inode(struct i
- 	if (mapping->a_ops->writeback_mapping)
- 		mapping->a_ops->writeback_mapping(mapping, nr_to_write);
- 	else
--		filemap_fdatawrite(mapping);
-+		generic_writeback_mapping(mapping, NULL);
- 
- 	/* Don't write the inode if only I_DIRTY_PAGES was set */
- 	if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
---- 2.5.13/mm/filemap.c~page_launder-fix	Sun May  5 13:32:03 2002
-+++ 2.5.13-akpm/mm/filemap.c	Sun May  5 13:32:03 2002
-@@ -659,7 +659,6 @@ EXPORT_SYMBOL(wait_on_page_writeback);
- void unlock_page(struct page *page)
- {
- 	wait_queue_head_t *waitqueue = page_waitqueue(page);
--	clear_bit(PG_launder, &(page)->flags);
- 	smp_mb__before_clear_bit();
- 	if (!TestClearPageLocked(page))
- 		BUG();
-@@ -674,7 +673,7 @@ void unlock_page(struct page *page)
- void end_page_writeback(struct page *page)
- {
- 	wait_queue_head_t *waitqueue = page_waitqueue(page);
--	clear_bit(PG_launder, &(page)->flags);
-+	ClearPageLaunder(page);
- 	smp_mb__before_clear_bit();
- 	if (!TestClearPageWriteback(page))
- 		BUG();
---- 2.5.13/include/linux/page-flags.h~page_launder-fix	Sun May  5 13:32:03 2002
-+++ 2.5.13-akpm/include/linux/page-flags.h	Sun May  5 13:32:03 2002
-@@ -174,6 +174,7 @@ extern void get_page_state(struct page_s
- 
- #define PageLaunder(page)	test_bit(PG_launder, &(page)->flags)
- #define SetPageLaunder(page)	set_bit(PG_launder, &(page)->flags)
-+#define ClearPageLaunder(page)	clear_bit(PG_launder, &(page)->flags)
- 
- #define SetPagePrivate(page)	set_bit(PG_private, &(page)->flags)
- #define ClearPagePrivate(page)	clear_bit(PG_private, &(page)->flags)
+ 	->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
+ may be called from the request handler (/dev/loop).
+-	->readpage() and ->writepage() unlock the page.
++
++	->readpage() unlocks the page, either synchronously or via I/O
++completion.
++
++	->writepage() unlocks the page synchronously, before returning to
++the caller.  If the page has write I/O underway against it, writepage()
++should run SetPageWriteback() against the page prior to unlocking it.
++The write I/O completion handler should run ClearPageWriteback against
++the page.
++
++	That is: after 2.5.12, pages which are under writeout are *not*
++locked.
++
+ 	->sync_page() locking rules are not well-defined - usually it is called
+ with lock on page, but that is not guaranteed. Considering the currently
+ existing instances of this method ->sync_page() itself doesn't look
+ well-defined...
++
++	->writeback_mapping() is used for periodic writeback and for
++systemcall-initiated sync operations. The address_space should start
++I/O against at least *nr_to_write pages.  *nr_to_write must be decremented
++for each page which is written.  *nr_to_write must not go negative (this
++will be relaxed later).  If nr_to_write is NULL, all dirty pages must
++be written.
++
++	->vm_writeback() is called from the VM.  The address_space should
++start I/O against at least *nr_to_write pages, including the passed page. As
++each page is written its PG_launder flag must be set (inside the page lock).
++
++	The vm_writeback() function is provided so that filesytems can perform
++clustered writeback around the page which the VM is trying to clean.
++If a_ops.vm_writeback is NULL the VM will fall back to single-page writepage().
++
++	->set_page_dirty() is called from various places in the kernel
++when the target page is marked as needing writeback.  It may be called
++under spinlock (it cannot block) and is sometimes called with the page
++not locked.
++
+ 	->bmap() is currently used by legacy ioctl() (FIBMAP) provided by some
+ filesystems and by the swapper. The latter will eventually go away. All
+ instances do not actually need the BKL. Please, keep it that way and don't
+ breed new callers.
++
+ 	->flushpage() is called when the filesystem must attempt to drop
+ some or all of the buffers from the page when it is being truncated.  It
+ returns zero on success.  If ->flushpage is zero, the kernel uses
+ block_flushpage() instead.
++
+ 	->releasepage() is called when the kernel is about to try to drop the
+ buffers from the page in preparation for freeing it.  It returns zero to
+ indicate that the buffers are (or may be) freeable.  If ->releasepage is zero,
 
 
 -

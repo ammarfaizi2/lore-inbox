@@ -1,108 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272971AbRIHGnI>; Sat, 8 Sep 2001 02:43:08 -0400
+	id <S272968AbRIHGrI>; Sat, 8 Sep 2001 02:47:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272968AbRIHGm6>; Sat, 8 Sep 2001 02:42:58 -0400
-Received: from [144.137.83.84] ([144.137.83.84]:44794 "EHLO e4.eyal.emu.id.au")
-	by vger.kernel.org with ESMTP id <S272969AbRIHGmq>;
-	Sat, 8 Sep 2001 02:42:46 -0400
-Message-ID: <3B99BC72.2FBF12F2@eyal.emu.id.au>
-Date: Sat, 08 Sep 2001 16:36:34 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "Cox, Alan" <laughing@shared-source.org>
-Subject: 2.4.9-ac10 (not 2.4.10-pre5!) wan fixes
-In-Reply-To: <Pine.LNX.4.33.0109072117580.1259-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------ECE9404D785D6982F134C357"
+	id <S272969AbRIHGqs>; Sat, 8 Sep 2001 02:46:48 -0400
+Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:7890 "EHLO
+	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272968AbRIHGqk>; Sat, 8 Sep 2001 02:46:40 -0400
+From: Josh McKinney <forming@home.com>
+Date: Sat, 8 Sep 2001 01:46:43 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre5
+Message-ID: <20010908014643.A846@home.com>
+Mail-Followup-To: josh, linux-kernel@vger.kernel.org
+In-Reply-To: <3B99A8C2.56E88CE3@isn.net> <003001c1382d$f483d9d0$010da8c0@uglypunk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003001c1382d$f483d9d0$010da8c0@uglypunk>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------ECE9404D785D6982F134C357
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On approximately Sat, Sep 08, 2001 at 03:44:31PM +0930, Kingsley Foreman wrote:
+> Yes i got this too
+> anyone got a fix
+Don't use gcc-3.0
+> 
+> 
+> ----- Original Message -----
+> From: "Garst R. Reese" <reese@isn.net>
+> To: "linux-kernel" <linux-kernel@vger.kernel.org>
+> Cc: <torvalds@transmeta.com>
+> Sent: Saturday, September 08, 2001 2:42 PM
+> Subject: 2.4.10-pre5
+> 
+> 
+> > gcc-3.0
+> > log should be self explanatory.
+> > cc me if rqd.
+> > Garst
+> 
+> 
+> ----------------------------------------------------------------------------
+> ----
+> 
+> 
+> > make[2]: Entering directory `/usr/src/linux/drivers/block'
+> >
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-tri
+> graphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpre
+> ferred-stack-boundary=2 -march=i586 -DMODULE   -c -o rd.o rd.c
+> > rd.c: In function `rd_ioctl':
+> > rd.c:262: invalid type argument of `->'
+> > rd.c: In function `rd_cleanup':
+> > rd.c:375: too few arguments to function `blkdev_put'
+> > make[2]: *** [rd.o] Error 1
+> > make[2]: Leaving directory `/usr/src/linux/drivers/block'
+> > make[1]: *** [_modsubdir_block] Error 2
+> > make[1]: Leaving directory `/usr/src/linux/drivers'
+> > make: *** [_mod_drivers] Error 2
+> > Command exited with non-zero status 2
+> > 4.13user 0.37system 0:04.50elapsed 99%CPU (0avgtext+0avgdata
+> 0maxresident)k
+> > 0inputs+0outputs (3849major+4162minor)pagefaults 0swaps
+> >
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-A number of modules fail to include <linux/module.h> but use the new
-MODULE_LICENSE macro.
---------------ECE9404D785D6982F134C357
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.9-ac10-wan.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.9-ac10-wan.patch"
-
-diff -u -r linux/drivers/net/wan-orig/sdla_chdlc.c linux/drivers/net/wan/sdla_chdlc.c
---- linux/drivers/net/wan-orig/sdla_chdlc.c	Sat Sep  8 16:22:28 2001
-+++ linux/drivers/net/wan/sdla_chdlc.c	Sat Sep  8 16:17:52 2001
-@@ -48,6 +48,7 @@
- * Aug 07, 1998	David Fong	Initial version.
- *****************************************************************************/
- 
-+#include <linux/module.h>
- #include <linux/version.h>
- #include <linux/kernel.h>	/* printk(), and other useful stuff */
- #include <linux/stddef.h>	/* offsetof(), etc. */
-diff -u -r linux/drivers/net/wan-orig/sdla_fr.c linux/drivers/net/wan/sdla_fr.c
---- linux/drivers/net/wan-orig/sdla_fr.c	Sat Sep  8 16:23:04 2001
-+++ linux/drivers/net/wan/sdla_fr.c	Sat Sep  8 16:23:17 2001
-@@ -138,6 +138,7 @@
- * Jan 02, 1997	Gene Kozin	Initial version.
- *****************************************************************************/
- 
-+#include <linux/module.h>
- #include <linux/version.h>
- #include <linux/kernel.h>	/* printk(), and other useful stuff */
- #include <linux/stddef.h>	/* offsetof(), etc. */
-diff -u -r linux/drivers/net/wan-orig/sdla_ft1.c linux/drivers/net/wan/sdla_ft1.c
---- linux/drivers/net/wan-orig/sdla_ft1.c	Sat Sep  8 16:13:18 2001
-+++ linux/drivers/net/wan/sdla_ft1.c	Sat Sep  8 16:13:34 2001
-@@ -20,6 +20,7 @@
- * Aug 07, 1998	David Fong	Initial version.
- *****************************************************************************/
- 
-+#include <linux/module.h>
- #include <linux/version.h>
- #include <linux/kernel.h>	/* printk(), and other useful stuff */
- #include <linux/stddef.h>	/* offsetof(), etc. */
-diff -u -r linux/drivers/net/wan-orig/sdla_ppp.c linux/drivers/net/wan/sdla_ppp.c
---- linux/drivers/net/wan-orig/sdla_ppp.c	Sat Sep  8 16:22:13 2001
-+++ linux/drivers/net/wan/sdla_ppp.c	Sat Sep  8 16:18:50 2001
-@@ -90,6 +90,7 @@
- * Jan 06, 1997	Gene Kozin	Initial version.
- *****************************************************************************/
- 
-+#include <linux/module.h>
- #include <linux/version.h>
- #include <linux/kernel.h>	/* printk(), and other useful stuff */
- #include <linux/stddef.h>	/* offsetof(), etc. */
-diff -u -r linux/drivers/net/wan-orig/sdla_x25.c linux/drivers/net/wan/sdla_x25.c
---- linux/drivers/net/wan-orig/sdla_x25.c	Sat Sep  8 16:15:33 2001
-+++ linux/drivers/net/wan/sdla_x25.c	Sat Sep  8 16:15:12 2001
-@@ -81,6 +81,7 @@
-  * 	Includes 
-  *=====================================================*/
- 
-+#include <linux/module.h>
- #include <linux/version.h>
- #include <linux/kernel.h>	/* printk(), and other useful stuff */
- #include <linux/stddef.h>	/* offsetof(), etc. */
-diff -u -r linux/drivers/net/wan-orig/wanpipe_multppp.c linux/drivers/net/wan/wanpipe_multppp.c
---- linux/drivers/net/wan-orig/wanpipe_multppp.c	Sat Sep  8 16:24:02 2001
-+++ linux/drivers/net/wan/wanpipe_multppp.c	Sat Sep  8 16:19:59 2001
-@@ -17,6 +17,7 @@
- *  		module.
- *****************************************************************************/
- 
-+#include <linux/module.h>
- #include <linux/version.h>
- #include <linux/kernel.h>	/* printk(), and other useful stuff */
- #include <linux/stddef.h>	/* offsetof(), etc. */
-
---------------ECE9404D785D6982F134C357--
-
+-- 
+Linux, the choice          | Stupidity is its own reward. 
+of a GNU generation   -o)  | 
+Kernel 2.4.9-ac1       /\  | 
+on a i586             _\_v | 
+                           | 

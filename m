@@ -1,89 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUCPSQX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 13:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUCPSQX
+	id S261160AbUCPSSn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 13:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUCPSSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 13:16:23 -0500
-Received: from scrye.com ([216.17.180.1]:59297 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S261184AbUCPSQU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 13:16:20 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Tue, 16 Mar 2004 11:16:09 -0700
-From: Kevin Fenzi <kevin@scrye.com>
+	Tue, 16 Mar 2004 13:18:43 -0500
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:47089 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S261160AbUCPSSk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 13:18:40 -0500
+Subject: Problem with ohci module
+From: Emmanuel Fleury <fleury@cs.auc.dk>
 To: linux-kernel@vger.kernel.org
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Subject: Re: Dealing with swsusp vs. pmdisk
-References: <20040312224645.GA326@elf.ucw.cz>
-	<20040313004756.GB5115@thunk.org>
-	<20040313122819.GB3084@openzaurus.ucw.cz>
-	<m2d67dr98y.fsf@tnuctip.rychter.com>
-From: Kevin Fenzi <kevin@scrye.com>
-Message-Id: <20040316181612.91F9DB617A@voldemort.scrye.com>
+Content-Type: text/plain
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1079461007.24676.11.camel@rade7.s.cs.auc.dk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 16 Mar 2004 19:16:47 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
->>>>> "Jan" == Jan Rychter <jan@rychter.com> writes:
+I noticed today that I got several time the following error log in my
+/var/log/messages:
 
->>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
-Jan> [...]  Theodore Ts'o <tytso@mit.edu>:
->>> Pavel, what do you think of the swsusp2 patch, BTW?  My biggest
->>> complaint about it is that since it's maintained outside of the
->>> kernel, it's constantly behind about 0.75 revisions behind the
->>> latest 2.6 release.  The feature set of swsusp2, if they can ever
->>> get it completely bugfree(tm) is certainly impressive.
+Mar 16 13:37:26 hermes vmunix: ohci_hcd 0000:00:0f.0: remove, state 1
+Mar 16 13:37:26 hermes kernel: usb usb1: USB disconnect, address 1
+Mar 16 13:37:26 hermes vmunix: usb 1-1: USB disconnect, address 2
+Mar 16 13:37:27 hermes vmunix: ohci_hcd 0000:00:0f.0: USB bus 1
+deregistered
+Mar 16 13:37:27 hermes vmunix: ohci_hcd 0000:00:14.0: remove, state 1
+Mar 16 13:37:27 hermes kernel: usb usb2: USB disconnect, address 1
+Mar 16 13:37:27 hermes vmunix: ohci_hcd 0000:00:14.0: USB bus 2
+deregistered
+Mar 16 13:37:27 hermes vmunix:  printing eip:
+Mar 16 13:37:27 hermes vmunix: d7063251
+Mar 16 13:37:27 hermes vmunix: Oops: 0000 [#1]
+Mar 16 13:37:27 hermes vmunix: PREEMPT
+Mar 16 13:37:27 hermes vmunix: CPU:    0
+Mar 16 13:37:27 hermes vmunix: EIP:    0060:[<d7063251>]    Not tainted
+Mar 16 13:37:27 hermes vmunix: EFLAGS: 00010206
+Mar 16 13:37:27 hermes vmunix: EIP is at 0xd7063251
+Mar 16 13:37:27 hermes vmunix: eax: 1efa52a0   ebx: 00008008   ecx:
+1efa4f10   edx: 00008008
+Mar 16 13:37:27 hermes vmunix: esi: d64ec0b0   edi: c0105000   ebp:
+d64ec000   esp: c03b9fbc
+Mar 16 13:37:27 hermes vmunix: ds: 007b   es: 007b   ss: 0068
+Mar 16 13:37:27 hermes vmunix: Process swapper (pid: 0,
+threadinfo=c03b8000 task=c03475e0)
+Mar 16 13:37:27 hermes vmunix: Stack: 0009b600 00000001 c03b8000
+0009b600 c0105000 0008e000 c0107264 c03b8000
+Mar 16 13:37:27 hermes vmunix:        c03ba724 c03475e0 00000000
+c03d5b00 00000014 c03ba470 c03dba80 00000000
+Mar 16 13:37:27 hermes vmunix:        c010017e
+Mar 16 13:37:27 hermes vmunix: Call Trace:
+Mar 16 13:37:27 hermes vmunix:  [<c0105000>] _stext+0x0/0x60
+Mar 16 13:37:27 hermes vmunix:  [<c0107264>] cpu_idle+0x34/0x40
+Mar 16 13:37:27 hermes vmunix:  [<c03ba724>] start_kernel+0x164/0x190
+Mar 16 13:37:27 hermes vmunix:  [<c03ba470>]
+unknown_bootoption+0x0/0x120
+Mar 16 13:37:27 hermes vmunix:
+Mar 16 13:37:27 hermes vmunix: Code:  Bad EIP value.
 
-Pavel> My biggest problem with swsusp2 is that it is big. Also last
-Pavel> time I looked it had some ugly hooks sprinkled all over the
-Pavel> kernel. Then there are some features I don't like (graphical
-Pavel> screens with progress, escape-to-abort) and
-Pavel> ithasvariableslikethis. OTOH it supports highmem and smp.
 
-Jan> It also has the advantage of working extremely reliably on 2.4
-Jan> (and a large part of the code base is shared, so that's a
-Jan> significant data point). I couldn't get it to crash or do
-Jan> anything bad for months now, and I'm doing at least several
-Jan> suspend/resumes a day on my laptop.
+Is it a known bug ?
 
-It's been working pretty well on 2.6 for me too. 2.4 was very stable
-with it, 2.6 has been less so but is getting there fast. 
+Regards
+-- 
+Emmanuel Fleury
 
-Jan> Also, thanks to the excellent compression feature, suspend/resume
-Jan> times are very short and in fact competitive with suspend-to-ram
-Jan> schemes.
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
 
-Seconded. With the compression it takes about 15 seconds for my 1gb
-memory laptop to suspend and about 15 seconds to resume. This is much
-much better than the hardware hibernate my old laptop used to have in
-bios. 
-
-Jan> I think it's better not to mix personal preferences (such as the
-Jan> escape-to-abort thing) with technical discussions. On a practical
-Jan> level, swsusp2 is the only implementation which works reliably,
-Jan> does its job very well, and has a responsive maintainer willing
-Jan> to fix problems as they arise.
-
-I tried pmdisk and swsusp1 a while back... I couldn't get either to
-come back from suspend. swsusp2 is _much_ more reliable for me. 
-
-I would love to see swsusp2 the only implementation in the kernel... 
-
-Just my 2cents. 
-
-Jan> --J.
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQFAV0Rs3imCezTjY0ERAgEqAKCDe8mNAIywP6kfn8gUqqDRFqvJUQCeIJTr
-82Apf+UlCk8jJlxgeTo1WFo=
-=62Qn
------END PGP SIGNATURE-----

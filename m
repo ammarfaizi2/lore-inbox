@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbULMCrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbULMDDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbULMCrM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 21:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbULMCrM
+	id S262197AbULMDDK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 22:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbULMDDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 21:47:12 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:55301 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262196AbULMCq5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 21:46:57 -0500
-Date: Mon, 13 Dec 2004 02:46:51 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "Maciej W. Rozycki" <macro@mips.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Chris Dearman <chris@mips.com>
-Subject: Re: [PATCH] Don't touch BARs of host bridges
-In-Reply-To: <1102713904.5237.3.camel@gaston>
-Message-ID: <Pine.LNX.4.58L.0412120528411.27824@blysk.ds.pg.gda.pl>
-References: <Pine.LNX.4.61.0412092349560.6535@perivale.mips.com> 
- <1102653999.22763.22.camel@gaston>  <Pine.LNX.4.58L.0412100448490.30913@blysk.ds.pg.gda.pl>
- <1102713904.5237.3.camel@gaston>
+	Sun, 12 Dec 2004 22:03:10 -0500
+Received: from ozlabs.org ([203.10.76.45]:16860 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262197AbULMDDF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 22:03:05 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16829.1730.440135.994385@cargo.ozlabs.ibm.com>
+Date: Mon, 13 Dec 2004 14:04:34 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: willschm@us.ibm.com, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 Make sure lppaca doesn't cross page boundary
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Dec 2004, Benjamin Herrenschmidt wrote:
+This patch is from Will Schmidt <willschm@us.ibm.com>, with some extra
+comments from me.
 
-> >  Well, some of these bridges may be used for peripheral devices (option
-> > cards) built around a CPU, typically after reprogramming the class code to
-> > something corresponding to their actual function.  Why should the address
-> > decoder circuitry suddenly change in this case?
-> 
-> To stay in the PCI spec ? :) They would need at least a way to "lock"
-> the BARs.
+On iSeries and on POWER5 machines, there is a data structure which is
+used for communication between the hypervisor and the kernel, called
+the `lppaca'.  The kernel tells the hypervisor where it is, and the
+hypervisor requires that it doesn't cross a page boundary.  With other
+changes in the last few months we have ended up with a situation where
+it could cross a page boundary.  This patch increases the alignment
+requirement for the struct to make sure that it can't cross a page
+boundary.
 
- What do you mean?  If used in an option card, you may want some of the
-device's internal address space to be accessible from your host somehow,
-e.g. as a way of interfacing the device's firmware, so you need a BAR to
-map it somewhere in the PCI address space.
+This is a bug fix and should go into 2.6.10.
 
-> >  These are pre-2.0 PCI devices -- from before the detailed classification
-> > was agreed upon.  AFAIK, just a couple of them exist -- I can name:  
-> > Intel's 82424 and 82425 families of i486 host bridges, their 82375 family
-> > of PCI-EISA bridges and their 82378/9 family of PCI-ISA bridges (also used
-> > in a few DEC Alpha systems).  There are probably a handful of other chips,
-> > all of them about ten years old.  Our i386 and ppc resource managers skip
-> > over them as well and I suppose this is a safe default.  If any of them
-> > needs BAR setup (none of these Intel ones), it can be added explicitly by
-> > means of its vendor:device ID.
-> 
-> Ok.
+Signed-off-by:  Will Schmidt  <willschm@us.ibm.com>
+Signed-off-by:  Paul Mackerras <paulus@samba.org>
 
- And BTW, we fix it up for the 82375 as a quirk, by substituting the
-"right" class code.  It can be done for others if there's a need.
-
-  Maciej
+diff -urN linux-2.5/include/asm-ppc64/paca.h test/include/asm-ppc64/paca.h
+--- linux-2.5/include/asm-ppc64/paca.h	2004-09-09 09:59:50.000000000 +1000
++++ test/include/asm-ppc64/paca.h	2004-12-13 13:56:00.350040112 +1100
+@@ -99,11 +99,17 @@
+ 	u64 exdsi[8];		/* used for linear mapping hash table misses */
+ 
+ 	/*
+-	 * iSeries structues which the hypervisor knows about - Not
+-	 * sure if these particularly need to be cacheline aligned.
++	 * iSeries structure which the hypervisor knows about -
++	 * this structure should not cross a page boundary.
++	 * The vpa_init/register_vpa call is now known to fail if the
++	 * lppaca structure crosses a page boundary.
+ 	 * The lppaca is also used on POWER5 pSeries boxes.
++	 * The lppaca is 640 bytes long, and cannot readily change
++	 * since the hypervisor knows its layout, so a 1kB
++	 * alignment will suffice to ensure that it doesn't
++	 * cross a page boundary.
+ 	 */
+-	struct ItLpPaca lppaca __attribute__((aligned(0x80)));
++	struct ItLpPaca lppaca __attribute__((__aligned__(0x400)));
+ #ifdef CONFIG_PPC_ISERIES
+ 	struct ItLpRegSave reg_save;
+ #endif

@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264217AbTCXOUq>; Mon, 24 Mar 2003 09:20:46 -0500
+	id <S264232AbTCXOYb>; Mon, 24 Mar 2003 09:24:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264218AbTCXOUq>; Mon, 24 Mar 2003 09:20:46 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:65420 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264217AbTCXOUm>; Mon, 24 Mar 2003 09:20:42 -0500
-Date: Mon, 24 Mar 2003 09:33:29 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ded-Fat 8.0 and ext3
-In-Reply-To: <1048515655.1636.4.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.53.0303240926001.24323@chaos>
-References: <Pine.LNX.4.53.0303211420170.13876@chaos>  <1048324118.3306.3.camel@LNX.iNES.RO>
-  <Pine.LNX.4.53.0303240909410.24249@chaos> <1048515655.1636.4.camel@laptop.fenrus.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264233AbTCXOYb>; Mon, 24 Mar 2003 09:24:31 -0500
+Received: from mail.bytecamp.net ([195.127.199.19]:21003 "EHLO
+	mail.bytecamp.net") by vger.kernel.org with ESMTP
+	id <S264232AbTCXOY3>; Mon, 24 Mar 2003 09:24:29 -0500
+Subject: [RESENT] [PATCH-2.5] Tiny compile include fix
+From: Christian Neumair <chris@gnome-de.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048517916.9008.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1- 
+Date: 24 Mar 2003 15:58:37 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Mar 2003, Arjan van de Ven wrote:
+Hi there!
+I don't know whether there where formal reasons that prevented Linus
+from commiting the included patch.
+If so, please clarify why you rejected it.
+I changed "#include <asm/pgalloc.h>"'s position because i'd like to use
+alphabetical include order where possible. 
 
-> On Mon, 2003-03-24 at 15:11, Richard B. Johnson wrote:
->
-> > I did not bother to go any further than `make oldconfig` and
-> > `make dep` in this "Show-and-tell". As previously reported,
->
-> as previously report to YOU: you have to do a make mrproper first.
-> Then it just works.
->
+The patch sent with this email fixes the following compile problem:
 
-Look at the damn script. It does every possible:
-make clean
-make distclean
-make mrproper  (line 71)
+-- snip --
+In file included from arch/i386/kernel/acpi/boot.c:34:
+include/asm-i386/mach-numaq/mach_apic.h: In function
+`setup_portio_remap':
+include/asm-i386/mach-numaq/mach_apic.h:96: `xquad_portio' undeclared
+(first use in this function)
+include/asm-i386/mach-numaq/mach_apic.h:96: (Each undeclared identifier
+is reported only once
+include/asm-i386/mach-numaq/mach_apic.h:96: for each function it appears
+in.)
+include/asm-i386/mach-numaq/mach_apic.h:96: warning: implicit
+declaration of function `ioremap'
+include/asm-i386/mach-numaq/mach_apic.h:96: `XQUAD_PORTIO_BASE'
+undeclared (first use in this function)
+include/asm-i386/mach-numaq/mach_apic.h:96: `XQUAD_PORTIO_QUAD'
+undeclared (first use in this function)
+include/asm-i386/mach-numaq/mach_mpparse.h: At top level:
+include/asm-i386/mach-numaq/mach_mpparse.h:5: warning:
+`smp_read_mpc_oem' declared `static' but never defined
+make[2]: *** [arch/i386/kernel/acpi/boot.o] Fehler 1
+make[1]: *** [arch/i386/kernel/acpi] Fehler 2
+make: *** [arch/i386/kernel] Fehler 2
+-- snap --
 
-It's hard to find because script got broken in that distribution,
-too.
+This is my first patch sent to this ML so I hope to have respected all
+formal guidelines.
 
-Again look at the evidence, rather than just barking back a
-retort.
+regs,
+ Chris
 
-> I've not received a SINGLE report where starting with make mrproper
-> didn't fix this issue. You can claim I ignore this issue, but I don't.
-> It's just not an issue at all so far!
->
-Well you got more than a "SINGLE" report now. Please check it out.
+Index: arch/i386/kernel/acpi/boot.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/i386/kernel/acpi/boot.c,v
+retrieving revision 1.4
+diff -u -r1.4 boot.c
+--- arch/i386/kernel/acpi/boot.c	27 Feb 2003 16:44:23 -0000	1.4
++++ arch/i386/kernel/acpi/boot.c	23 Mar 2003 07:59:32 -0000
+@@ -26,9 +26,10 @@
+ #include <linux/init.h>
+ #include <linux/config.h>
+ #include <linux/acpi.h>
+-#include <asm/pgalloc.h>
+ #include <asm/apic.h>
++#include <asm/io.h>
+ #include <asm/mpspec.h>
++#include <asm/pgalloc.h>
+ 
+ #if defined (CONFIG_X86_LOCAL_APIC)
+ #include <mach_apic.h>
 
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 

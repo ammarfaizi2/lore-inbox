@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130899AbQLQLFd>; Sun, 17 Dec 2000 06:05:33 -0500
+	id <S132463AbQLQLJe>; Sun, 17 Dec 2000 06:09:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131880AbQLQLFW>; Sun, 17 Dec 2000 06:05:22 -0500
-Received: from tiku.hut.fi ([130.233.228.86]:59664 "EHLO tiku.hut.fi")
-	by vger.kernel.org with ESMTP id <S130899AbQLQLFP>;
-	Sun, 17 Dec 2000 06:05:15 -0500
-Date: Sun, 17 Dec 2000 12:34:32 +0200 (EET)
-From: Tuomas Heino <iheino@cc.hut.fi>
-To: James Simmons <jsimmons@suse.com>
-cc: Pavel Machek <pavel@suse.cz>,
-        Frédéric L . W . Meunier 
-	<0@pervalidus.net>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SysRq behavior
-In-Reply-To: <Pine.LNX.4.21.0012111440460.296-100000@euclid.oak.suse.com>
-Message-ID: <Pine.OSF.4.10.10012171228250.25720-100000@smaragdi.hut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132456AbQLQLJY>; Sun, 17 Dec 2000 06:09:24 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:12813 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131880AbQLQLJW>; Sun, 17 Dec 2000 06:09:22 -0500
+Date: Sun, 17 Dec 2000 04:38:45 -0600
+To: Tim Riker <Tim@Rikers.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: loop device length
+Message-ID: <20001217043845.S3199@cadcamlab.org>
+In-Reply-To: <3A398E0A.A12F973E@Rikers.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A398E0A.A12F973E@Rikers.org>; from Tim@Rikers.org on Thu, Dec 14, 2000 at 08:20:42PM -0700
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000, James Simmons wrote:
 
-> > > When built into the Kernel, by only pressing the
-> > > PrintScreen/SysRq the current application is terminated (tested
-> > > on a console and GNU screen). Is this just me or I should
-> > > expect it?
+[Tim Riker]
+> losetup allows for setting a starting offset within a file for the
+> loop block device. There however is no length parameter to permit
+> setting the length. Adding a length parameter would allow for
+> multiple fs images in a single file (or device) and would correctly
+> handle programs like resize2fs.
 
-Well this should happen even when sysrq is NOT compiled into the kernel...
+You don't need a length field for this, although it may be a good idea.
+Filesystems know how big they are.  You only need to force it at mkfs
+and resize time, and in both cases you can override the tool's
+knowledge.
 
-> > Probably bug. Happens for me, too, and it is pretty nasty.
+In other words, you *can* put multiple fs images on a single piece of
+backing store as long as you manage the lengths manually, which you
+have to do anyway since you're keeping track of the starting offsets.
 
-Not a bug - just an easy-to-disable "feature" - read on ;)
+All the length parameter buys is not having to specify the same length
+to losetup and mke2fs.  And a little protection from shooting yourself
+in the foot, but by the time you are messing with stuff like this you
+had better be careful anyway.
 
-> Just played with this bug. It doesn't kill a login shell but does any
-> app running on it. I just went looking for where "Quit" is printed
-> out. When I press SysRq Quit is printed on the command line. Any ideas?
-
-Well that "print-screen" key is usually bound to ^\ :
-
-% dumpkeys | grep 'e  99'
-keycode  99 = Control_backslash
-        control alt     keycode  99 = Meta_Control_backslash
-
-Now by default ^\ is bound to sigquit - and should be as quite a few
-programs depend on that...
-
-% dumpkeys | grep [^_]Control_backslash
-keycode   5 = four             degree           dollar
-Control_backslash Control_backslash
-        altgr   control keycode  12 = Control_backslash
-        control keycode  43 = Control_backslash
-keycode  99 = Control_backslash
-
-Looks like there're quite a few ways to generate ^\ - so disabling one of
-them won't hurt:
-
-% echo 'keycode  99 = VoidSymbol' | loadkeys
-
-(Note that this leaves all the "modified" versions of sysrq to do whatever
-they were already doing - so shift-printscreen will still generate ^\)
-
-In any case putting that somewhere in your bootup scripts should solve it ;)
-
-(or even users' login scripts as Linux allows anyone to screw up the
-keyboard mappings - why?!)
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSGTO3g>; Sat, 20 Jul 2002 10:29:36 -0400
+	id <S317414AbSGTO1r>; Sat, 20 Jul 2002 10:27:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317416AbSGTO3g>; Sat, 20 Jul 2002 10:29:36 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:39301 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S317404AbSGTO3f>;
-	Sat, 20 Jul 2002 10:29:35 -0400
-Date: Sat, 20 Jul 2002 08:31:18 -0600
-From: yodaiken@fsmlabs.com
-To: Georg Nikodym <georgn@somanetworks.com>
-Cc: yodaiken@fsmlabs.com, Larry McVoy <lm@work.bitmover.com>,
-       Rob Landley <landley@trommello.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-Message-ID: <20020720083118.A31658@hq.fsmlabs.com>
-References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com> <20020719082023.A4884@hq.fsmlabs.com> <1027174927.1702.11.camel@keller>
+	id <S317410AbSGTO1r>; Sat, 20 Jul 2002 10:27:47 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:19981 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S317408AbSGTO1q>;
+	Sat, 20 Jul 2002 10:27:46 -0400
+Date: Sat, 20 Jul 2002 22:32:30 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: "fxzhang@ict.ac.cn" <fxzhang@ict.ac.cn>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: problem with eepro100 NAPI driver
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1027174927.1702.11.camel@keller>; from georgn@somanetworks.com on Sat, Jul 20, 2002 at 10:22:07AM -0400
-Organization: FSM Labs
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200207202235471.SM00792@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, Jul 20, 2002 at 10:22:07AM -0400, Georg Nikodym wrote:
-> On Fri, 2002-07-19 at 10:20, yodaiken@fsmlabs.com wrote:
-> > On Thu, Jul 18, 2002 at 09:38:57PM -0700, Larry McVoy wrote:
-> > > On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
-> > > > I've been sitting on this question for years, hoping I'd come across the 
-> > > > answer, and I STILL don't know what the "i" is short for.  Somebody here has 
-> > > > got to know this. :)
-> > > 
-> > > Incore node, I believe.  In the original Unix code there was dinode and
-> > > inode if I remember correctly, for disk node and incore node.
-> > 
-> > So what was that program that was used to fix file system errors called? Started
-> > with a "d". I remembered the name up until a few years ago when I said
-> > something about fixing filesystems with whatever it was and adb in front of Dave Miller
-> > who seemed ready to rush me off to the museum to be exhibited in the paleology section.
-> > Now I'm too old to even remember the name.
-> 
-> Sure you're not thinking of "fsdb"?
-
-icheck and dcheck - thanks to the people who sent me mail reminding me.
+i tried ehe eepro100 NAPI driver on linux2.4.19. the kernel was compiled successfully. but when i tested the throughput of the system,i met some problem.
+i tested the system with smartbits. when the frame size is 64bytes, in the beginning the system can receive and transmit packets. but after a while, the network card would not receive and transmit packets any more. 
+then with frame size bigger than 128bytes, it worked well. the throughput was improved. (but sometimes it also has some problem just like 64bytes frames).
+so what's the problem? is there something wrong with the driver?
+please cc. thanks.
 
 
-
-> 
-> -g
-> 
-
-
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+zhengchuanbo  
 

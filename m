@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275448AbRJJLaW>; Wed, 10 Oct 2001 07:30:22 -0400
+	id <S275424AbRJJLfP>; Wed, 10 Oct 2001 07:35:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275424AbRJJLaN>; Wed, 10 Oct 2001 07:30:13 -0400
-Received: from p17-max10.syd.ihug.com.au ([203.173.155.17]:45584 "EHLO
-	bugger.jampot.org") by vger.kernel.org with ESMTP
-	id <S275448AbRJJLaE>; Wed, 10 Oct 2001 07:30:04 -0400
-Message-ID: <3BC38813.4030601@linuxmail.org>
-Date: Wed, 10 Oct 2001 09:28:19 +1000
-From: Cyrus <cyrus@linuxmail.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20011005
-X-Accept-Language: en-us
+	id <S275449AbRJJLfE>; Wed, 10 Oct 2001 07:35:04 -0400
+Received: from mail.case.pt ([194.65.97.60]:7184 "EHLO case_primary.case.pt")
+	by vger.kernel.org with ESMTP id <S275424AbRJJLey>;
+	Wed, 10 Oct 2001 07:34:54 -0400
+Message-ID: <01C15186.EA371330.rui.ribeiro@case.pt>
+From: Rui Ribeiro <rui.ribeiro@case.pt>
+Reply-To: "rui.ribeiro@case.pt" <rui.ribeiro@case.pt>
+To: "'Cyrus'" <cyrus@linuxmail.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Clock Skew?... kernel compile.....2.4.11...
+Date: Wed, 10 Oct 2001 12:27:22 +0100
+Organization: Case, S.A.
+X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
 MIME-Version: 1.0
-Newsgroups: linux.dev.kernel
-To: linux-kernel@vger.kernel.org
-Subject: Clock Skew?... kernel compile.....2.4.11...
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+The same thing happens to me when I have booted a kernel without RTC 
+support. (I have a two-set floppy disk for recovery operations w/ a *very* 
+simplified kernel).
+
+It got something to do with RTC and timezone adjustments. I still didn't 
+discover the full details.
+
+Rui
+
+-----Original Message-----
+From:	Cyrus [SMTP:cyrus@linuxmail.org]
+Sent:	Quarta-feira, 10 de Outubro de 2001 0:28
+To:	linux-kernel@vger.kernel.org
+Subject:	Clock Skew?... kernel compile.....2.4.11...
+
 hi all,
 
-i was compiling kernel 2.4.11... on my two machines. my server, which is 
+i was compiling kernel 2.4.11... on my two machines. my server, which is
 an intel p2 233Mhz mmx... went alright without errors....
 
 but my athlon system, 1.2 thunderbird was spewing out this error.
@@ -46,7 +64,7 @@ any ideas?... thanks in a lot...
 
 cyrus
 
--- 
+--
   Cyrus Santos
 
 Registered Slackware Linux User # 220455
@@ -57,3 +75,8 @@ Sydney, Australia
 
 
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

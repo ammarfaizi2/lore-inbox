@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263083AbTCLAwn>; Tue, 11 Mar 2003 19:52:43 -0500
+	id <S262997AbTCLA3W>; Tue, 11 Mar 2003 19:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbTCLAwm>; Tue, 11 Mar 2003 19:52:42 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:33041 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263083AbTCLAwj>; Tue, 11 Mar 2003 19:52:39 -0500
-Date: Wed, 12 Mar 2003 02:03:14 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, David Miller <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-net@vger.kernel.org>
-Subject: Re: [PATCH] (1/8) Eliminate brlock in psnap
-In-Reply-To: <1047428075.15875.97.camel@dell_ss3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0303120200391.32518-100000@serv>
-References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
- <1047428075.15875.97.camel@dell_ss3.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262994AbTCLA3V>; Tue, 11 Mar 2003 19:29:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48134 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262997AbTCLA25>; Tue, 11 Mar 2003 19:28:57 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+Date: 11 Mar 2003 16:39:30 -0800
+Organization: Transmeta Corporation
+Message-ID: <b4lvk2$vcd$1@cesium.transmeta.com>
+References: <32835.4.64.238.61.1047269795.squirrel@www.osdl.org> <Pine.LNX.4.30.0303100723300.2790-100000@divine.city.tvnet.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <Pine.LNX.4.30.0303100723300.2790-100000@divine.city.tvnet.hu>,
+Szakacsits Szabolcs  <szaka@sienet.hu> wrote:
+>
+>At least spinlock debugging triggers this bad code generation in the
+>widely used init_waitqueue_head() but quite probably there are others.
+>AFAIK fomit-frame-pointer was used earlier to workaround this but
+>apparently not anymore, so the bug came back. Maybe the new kernel
+>build broke it or it was just forgotten or it's a new policy not
+>supporting broken compilers, etc. I don't know.
+>
+>But something should be done about it, IMHO.
 
-On 11 Mar 2003, Stephen Hemminger wrote:
+Ouch, hell yes. Compiler bugs are nasty to chase down.
 
->  void unregister_snap_client(struct datalink_proto *proto)
->  {
-> -	br_write_lock_bh(BR_NETPROTO_LOCK);
-> +	static RCU_HEAD(snap_rcu);
->  
-> -	list_del(&proto->node);
-> -	kfree(proto);
-> +	spin_lock_bh(&snap_lock);
-> +	list_del_rcu(&proto->node);
-> +	spin_unlock_bh(&snap_lock);
->  
-> -	br_write_unlock_bh(BR_NETPROTO_LOCK);
-> +	call_rcu(&snap_rcu, (void (*)(void *)) kfree, proto);
->  }
+If there is a well-known list of compilers, we should put a BIG warning
+in some core kernel file to guide people to upgrade (or maybe work
+around it by forcing -fno-frame-pointer if that fixes it for the
+affected compilers).
 
-Is this really correct? What happens with snap_rcu, if 
-unregister_snap_client is called again, before the call_rcu callback 
-finished?
+Do we have a list?
 
-bye, Roman
-
+			Linus

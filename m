@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268463AbUIPRtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268218AbUIPRmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268463AbUIPRtX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbUIPRrD
+	id S268218AbUIPRmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268581AbUIPRlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:47:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56962 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268381AbUIPRpk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 13:45:40 -0400
-Date: Thu, 16 Sep 2004 19:45:30 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Utz Lehmann <lkml@de.tecosim.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] flexmmap: optimise mmap_base gap for hard limited stack
-Message-ID: <20040916174529.GA16439@devserv.devel.redhat.com>
-References: <20040916165613.GA10825@de.tecosim.com>
+	Thu, 16 Sep 2004 13:41:08 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:21361 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S268297AbUIPRiO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 13:38:14 -0400
+Subject: Re: PATCH: tty drivers take two
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040916164550.GA20766@devserv.devel.redhat.com>
+References: <20040916143057.GA15163@devserv.devel.redhat.com>
+	 <1095347152.2006.17.camel@deimos.microgate.com>
+	 <20040916164550.GA20766@devserv.devel.redhat.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095356269.2772.22.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-Content-Disposition: inline
-In-Reply-To: <20040916165613.GA10825@de.tecosim.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Sep 2004 12:37:50 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-09-16 at 11:45, Alan Cox wrote:
+> I was looking at that but some of them do the wakeup before and
+> some after and I've not had time to figure out if the order ever
+> matters
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I don't see the order mattering as far as breaking things,
+but might matter a little for performance.
+(depending on the particular ldisc implementation)
 
-On Thu, Sep 16, 2004 at 06:56:13PM +0200, Utz Lehmann wrote:
-> Hi
-> 
-> With the flexmmap memory layout there is at least a 128 MB gap between
-> mmap_base and TASK_SIZE. I think this is for the case that a running process
-> can expand it's stack soft rlimit.
-> 
-> If there is a hard limit for the stack this minium gap is just a waste of
-> space. This patch reduce the gap to the hard limit + 1 MB hole. If a process
-> has a 8192 KB hard limit it have additional 119 MB space available over the
-> current behavior.
+wake_up_interruptible(&tty->write_wait) should
+come after the ldisc write_wakeup (as is done in tty_io.c)
+so that send data buffered by the ldisc
+can be sent to the driver before trying to process
+more send data from a sleeping user context.
 
+The various serial drivers make the two calls for
+the same reason: the driver has become capable of
+accepting more data. That the drivers make the
+calls in different order points back to the
+order not mattering for strictly functional purposes.
 
-I'm not so convinced this is the right approach... a bit of room for the
-apps to increase their stack sounds useful. (and a "reasonable" amount is
-SuS specified afaik, 128Mb is quite reasonable)
+*BUT*
 
- 
-> And the current implemention has a problem. If the stack soft limit is
-> 128+ MB there is no hole between the stack and mmap_base. If there is a
-> mapping at mmap_base stack overflows are not detected. The patch made a
-> 1MB hole between them.
+You made a statement about reworking tty locking
+one step at a time, and concentrating on the ldisc
+locking first.
 
-ack on this part.
+In that light, it might be better to factor out the
+wake_up_interruptible(&tty->write_wait) calls
+after the ldisc locking is complete and integrated.
 
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+Paul Fulghum
+paulkf@microgate.com
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBSdE4xULwo51rQBIRAtKjAJ9edlzP9P1zgrpMXUffl+FDTNVWswCcCumP
-vX/sRHkQ8Xd3JnChRKAb8Pg=
-=jb8C
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--

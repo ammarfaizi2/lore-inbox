@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbVCWGxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262829AbVCWHIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262831AbVCWGxg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 01:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVCWGxf
+	id S262829AbVCWHIk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 02:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVCWHIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 01:53:35 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:48295 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262832AbVCWGxW (ORCPT
+	Wed, 23 Mar 2005 02:08:40 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:51112 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262829AbVCWHIj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 01:53:22 -0500
-Date: Wed, 23 Mar 2005 07:53:13 +0100 (MET)
+	Wed, 23 Mar 2005 02:08:39 -0500
+Date: Wed, 23 Mar 2005 08:07:18 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jeff Moyer <jmoyer@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: unused 'size' assignment in filemap_nopage
-In-Reply-To: <16960.37814.651437.634849@segfault.boston.redhat.com>
-Message-ID: <Pine.LNX.4.61.0503230751370.21578@yvahk01.tjqt.qr>
-References: <16960.37814.651437.634849@segfault.boston.redhat.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Arun Srinivas <getarunsri@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: help needed pls. scheduler(kernel 2.6) + hyperthreaded related
+ questions?
+In-Reply-To: <4240A744.1000306@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0503230806460.21578@yvahk01.tjqt.qr>
+References: <BAY10-F42C3843D362DEB897FCABBD94E0@phx.gbl> <4240A744.1000306@yahoo.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->	size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
->	if (pgoff >= size)
->		goto outside_data_content;
->	...
->	if (size > endoff)
->		size = endoff;
->
->After this, size is not referenced.  So, either this potential reassignment
->of size is superfluous, or we are missing some other code later on in the
->function.  If it is the former, I've attached a patch which will remove the
->code.
+> It is pretty tricky. Basically processes on different CPUs are
+> scheduled completely independently of one another. The only time
+> when they may get moved from one CPU to another is with
+> load_balance, load_balance_newidle, active_load_balance,
+> try_to_wake_up, sched_exec, wake_up_new_task.
 
-Only if you can make sure the SIZE will never be bigger than ENDOFF.
-What you see here is basically:
-  size = min(endoff, (i_size_read...))
-With a pgoff>=size somewhere ;)
+And of course, migrate_task() if I'm not mistaken. :)
+
 
 
 Jan Engelhardt

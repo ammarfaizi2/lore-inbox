@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262408AbSKDS2P>; Mon, 4 Nov 2002 13:28:15 -0500
+	id <S262457AbSKDShZ>; Mon, 4 Nov 2002 13:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262447AbSKDS2P>; Mon, 4 Nov 2002 13:28:15 -0500
-Received: from [217.144.230.27] ([217.144.230.27]:42252 "HELO
-	lexx.infeline.org") by vger.kernel.org with SMTP id <S262408AbSKDS2O>;
-	Mon, 4 Nov 2002 13:28:14 -0500
-Date: Mon, 4 Nov 2002 19:34:47 +0100 (CET)
-From: Ketil Froyn <ketil-kernel@froyn.net>
-X-X-Sender: ketil@lexx.infeline.org
-To: Thomas Schenk <tschenk@origin.ea.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Need assistance in determining memory usage
-In-Reply-To: <1036433472.2884.42.camel@shire>
-Message-ID: <Pine.LNX.4.44.0211041931150.17060-100000@lexx.infeline.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262512AbSKDShZ>; Mon, 4 Nov 2002 13:37:25 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:40593 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262457AbSKDShY>; Mon, 4 Nov 2002 13:37:24 -0500
+Subject: RE: Patch: 2.5.45 PCI Fixups for PCI HotPlug
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: jung-ik.lee@intel.com, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200211041823.KAA09629@adam.yggdrasil.com>
+References: <200211041823.KAA09629@adam.yggdrasil.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Nov 2002 19:05:39 +0000
+Message-Id: <1036436739.2040.111.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Nov 2002, Thomas Schenk wrote:
+On Mon, 2002-11-04 at 18:23, Adam J. Richter wrote:
+> 	There is no reason to use __pci_devinit for chipsets that are
+> only soldered into motherboards.  I believe there are only a few of
+> those quirk handlers that CONFIG_PCI_HOTPLUG users really need to
+> retain in their kernels.
 
-> Q. How can you determine how much memory a process is using at a given
-> point in time?  Specifically, I want to know of a method or tool that
-> will tell me how much total memory a process is using, how much of that
-> total is shared with other processes, how much is resident, and how much
-> is swapped out.
-
-/proc/<pid>/{stat,statm,status} are probably helpful. There's some info on
-this in Documentation/filesystems/proc.txt
-
-Ketil
+You might be suprised what "motherboard" chips turn up in docking
+stations.My TP600 for example has an IBM southbridge in it.
 

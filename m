@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317279AbSGaMJU>; Wed, 31 Jul 2002 08:09:20 -0400
+	id <S317984AbSGaMXb>; Wed, 31 Jul 2002 08:23:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317987AbSGaMJU>; Wed, 31 Jul 2002 08:09:20 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24821 "EHLO
+	id <S317996AbSGaMXb>; Wed, 31 Jul 2002 08:23:31 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:33781 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317279AbSGaMJT>; Wed, 31 Jul 2002 08:09:19 -0400
-Subject: RE: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+	id <S317984AbSGaMXb>; Wed, 31 Jul 2002 08:23:31 -0400
+Subject: Re: [patch] Input cleanups for 2.5.29 [2/2]
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Luyer <david@luyer.net>
+To: blp@cs.stanford.edu
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <00b601c23881$a8dfa180$638317d2@pacific.net.au>
-References: <00b601c23881$a8dfa180$638317d2@pacific.net.au>
+In-Reply-To: <87znw8anje.fsf@pfaff.Stanford.EDU>
+References: <Pine.LNX.4.33.0207301433480.2051-100000@penguin.transmeta.com>
+	<Pine.GSO.4.21.0207301738090.6010-100000@weyl.math.psu.edu> 
+	<87znw8anje.fsf@pfaff.Stanford.EDU>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 31 Jul 2002 14:28:45 +0100
-Message-Id: <1028122125.8510.52.camel@irongate.swansea.linux.org.uk>
+Date: 31 Jul 2002 14:42:58 +0100
+Message-Id: <1028122978.8510.59.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> procps version is 2.0.7 (Debian 3.0).
-> 
-> Where's the mistake -- should timer interrupts be on both
-> CPUs (I think this is the problem), or is procps miscalculating
-> Hz (seems less likely, someone would have noticed by now...)?
+On Tue, 2002-07-30 at 22:55, Ben Pfaff wrote:
+> 1    The typedef name intN_t designates a signed integer type with
+>      width N, no padding bits, and a two's complement
+>      representation. Thus, int8_t denotes a signed integer type
+>      with a width of exactly 8 bits.
 
-HZ on x86 for user space is defined as 100. Its a procps problem
+And arbitary alignment requirements. At least I see nothing in C99
+saying that
+
+	uint8_t foo;
+	uint8_t bar;
+
+isnt allowed to give you interesting suprises
+
 

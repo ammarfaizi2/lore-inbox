@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263577AbTDTNgH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 09:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTDTNgH
+	id S263578AbTDTNn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 09:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTDTNn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 09:36:07 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:23217 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263577AbTDTNgG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 09:36:06 -0400
-Message-ID: <3EA2A4DD.2080809@shemesh.biz>
-Date: Sun, 20 Apr 2003 16:47:09 +0300
-From: Shachar Shemesh <lkml@shemesh.biz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Sun, 20 Apr 2003 09:43:56 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2176 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263578AbTDTNnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 09:43:55 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304201359.h3KDx0q5000260@81-2-122-30.bradfords.org.uk>
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Sun, 20 Apr 2003 14:59:00 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20030419190046.6566ed18.skraw@ithnet.com> from "Stephan von Krawczynski" at Apr 19, 2003 07:00:46 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK->CVS, kernel.bkbits.net
-References: <Pine.GSO.4.21.0304201157280.14680-100000@vervain.sonytel.be>
-In-Reply-To: <Pine.GSO.4.21.0304201157280.14680-100000@vervain.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
+> Ok, you mean active error-recovery on reading. My basic point is the writing
+> case. A simple handling of write-errors from the drivers level and a retry to
+> write on a different location could help a lot I guess.
 
->On Sun, 20 Apr 2003, Shachar Shemesh wrote:
->  
->
->>The idea is that it uses the full duplexity of the channel to get client 
->>    
->>
->                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->  
->
->>side information about the repository on that end while downloading 
->>changes, thus increasing the effective bandwidth. It only falls back to 
->>    
->>
->
->What does this mean for asymmetric links (ADSL or cable)?
->
->Gr{oetje,eeting}s,
->
->						Geert
->  
->
-ADSL is still full duplex, just not symetrical.
+A filesystem is not the place for that - it could either be done at a
+lower level, like I suggested in a separate post, or at a much higher
+level - E.G. a database which encounters a write error could dump it's
+entire contents to a tape drive, shuts down, and page an
+administrator, on the basis that the write error indicated impending
+drive failiure.
 
-If I understand cvsup's operation enough, it uses the fact it 
-understands what a CVS repository is to send to the server the revisions 
-available for a given file. The lets the server know which parts of the 
-file it needs to send back. The uplink side receives a very low 
-utilization compared to the downlink side. In practice, I'm using cvsup 
-for the Wine repository over an ADSL (1.5M down, I don't remeber whether 
-it's 64 or 128K up), and am very pleased from it. Admitebly, I was not a 
-very enthusiastic rsync convert, so I can't tell you how much faster 
-cvsup is.
+> > Buy IDE disks in pairs use md1, and remember to continually send the
+> > hosed ones back to the vendor/shop (and if they keep appearing DOA to
+> > your local trading standards/fair trading type bodies).
+> 
+> Just to give some numbers: from 25 disk I bought during last half
+> year 16 have gone dead within the first month. This is
+> ridiculous. Of course they are all returned and guarantee-replaced,
+> but it gets on ones nerves to continously replace disks, the rate
+> could be lowered if one could use them at least 4 months (or upto a
+> deadline number of bad blocks mapped by the fs - still guarantee but
+> fewer replacement cycles).
 
-If you want an official benchmark, you'll have to wait a few days for my 
-Wine rep. to fall out of synch. I should note the cvsup is useless if 
-all your'e going to do is get the initial version. If I recall 
-correctly, it actually use rsync to transfer files it cannot parse as 
-CVS files, which means that initial repository retrieval should be 
-equally fast with both.
+Are you using the disks within their operational limits?  Are you sure
+they are not overheating and/or being run 24/7 when they are not
+intended to be?
 
--- 
-Shachar Shemesh
-Open Source integration consultant
-Home page & resume - http://www.shemesh.biz/
-
-
+John.

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274373AbRITIwV>; Thu, 20 Sep 2001 04:52:21 -0400
+	id <S274376AbRITJAC>; Thu, 20 Sep 2001 05:00:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274374AbRITIwL>; Thu, 20 Sep 2001 04:52:11 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:41999 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S274373AbRITIwC>;
-	Thu, 20 Sep 2001 04:52:02 -0400
-To: rgooch@ras.ucalgary.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: drivers/char/sonypi.h broken
-In-Reply-To: <200109200401.f8K413n29745@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <200109200401.f8K413n29745@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E15jzZF-0003Qc-00@come.alcove-fr>
-From: Stelian Pop <stelian@alcove.fr>
-Date: Thu, 20 Sep 2001 10:52:21 +0200
+	id <S274386AbRITI7w>; Thu, 20 Sep 2001 04:59:52 -0400
+Received: from lxxxvii.yapay.inka.de ([212.227.14.215]:61189 "EHLO emil.home")
+	by vger.kernel.org with ESMTP id <S274376AbRITI7n>;
+	Thu, 20 Sep 2001 04:59:43 -0400
+Message-ID: <3BA9A0D9.E111CC70@inka.de>
+Date: Thu, 20 Sep 2001 09:55:05 +0200
+From: Markus Kossmann <markus.kossmann@inka.de>
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-4GB-SMP i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.10-pre12 breaks compiling drivers/atm/firestream.c
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In alcove.lists.linux.kernel, you wrote:
+patch-2.4.10-pre12 contains the following hunk, which removes the label
+err_out_free_fs_dev without removing the goto jumping to it :
 
->   Hi, Linus. I now find that drivers/char/sonypi.h has been broken in
-> 2.4.10-pre12. I get the following compile errors:
-> 
-> sonypi.h:195: `SONYPI_EVENT_PKEY_P1' undeclared here (not in a function)
-[...]
+@@ -1928,8 +1928,6 @@
+ 
+  err_out_free_atm_dev:
+        atm_dev_deregister(atm_dev);
+- err_out_free_fs_dev:
+-       kfree(fs_dev);
+  err_out:
+        return -ENODEV;
+ }
 
-Already submitted a patch for this here and cc:'ed to Linus. 
-See: http://www.uwsg.indiana.edu/hypermail/linux/kernel/0109.2/0617.html
-
-> Hopefully the guilty party (i.e. the lazy bastard who sent in a
-> broken patch without bothering to compile the fucking thing first)
-> will be shamed into generating a patch ASAP.
-
-Calm down. The lazy bastard here is either Linus or Alan. This driver
-update is a merge from the -ac tree, where this driver remained 
-unmodified for several weeks now.
-
-Stelian.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+Markus Kossmann                                    
+markus.kossmann@inka.de

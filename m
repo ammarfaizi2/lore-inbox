@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUAIQnx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 11:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUAIQnx
+	id S262888AbUAIRBC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 12:01:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbUAIRBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 11:43:53 -0500
-Received: from columba.eur.3com.com ([161.71.171.238]:18616 "EHLO
-	columba.www.eur.3com.com") by vger.kernel.org with ESMTP
-	id S262794AbUAIQnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 11:43:52 -0500
-Message-ID: <3FFEDA46.8080708@jburgess.uklinux.net>
-Date: Fri, 09 Jan 2004 16:43:50 +0000
-From: Jon Burgess <lkml@jburgess.uklinux.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-gb, en-us, en
+	Fri, 9 Jan 2004 12:01:02 -0500
+Received: from [212.239.224.221] ([212.239.224.221]:10119 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262888AbUAIRA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 12:00:59 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.18]: Reiserfs: vs-2120: add_save_link: insert_item returned -28
+Date: Fri, 9 Jan 2004 18:00:55 +0100
+User-Agent: KMail/1.5.4
+Cc: reiserfs-list@namesys.com
+References: <200401091622.41352.lkml@kcore.org>
+In-Reply-To: <200401091622.41352.lkml@kcore.org>
 MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem - 2.6.0 Kernel and irq 18: nobody cared!
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401091800.55426.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Christian Treusch  wrote:
- > Mainboard is an Asus P4P800 Deluxe (Intel i865PE Chipset)
+On Friday 09 January 2004 16:22, Jan De Luyck wrote:
+> Hello list,
+>
+> Today I discovered I could no longer create files on one of my boxes, which
+> still runs 2.4.18 (box is too far away to upgrade right now). It gives me
+> 'disk full' messages.
+>
+> The following message is all over my logs since January 3:
+>
+> vs-2120: add_save_link: insert_item returned -28
+>
+> I can't seem to find much on this issue, is this a bug in reiserfs (which
+> is fixed in a later version)? Is something wrong with the fs itself?
+>
+> Thanks for answers.
 
-This looks like the same problem which Raphaël RIGO mentioned recently.
-There seems to be a problem with the handling of the IDE controller when 
-it is in native mode.
-The workaround provided by Matthias Hentges was as follows:
+Nevermind this... I was looking at the wrong partition... for half an hour.... 
 
- > The trick for me was to configure "Enhanced Mode, SATA only" in
- > the BIOS.
- > See http://www.hentges.net/howtos/p4p800_SATA.html for details.
+:-(
 
-
-    Jon
-
+Jan
+-- 
+My apologies if I sound angry.  I feel like I'm talking to a void.
+	-- Avery Pennarun
 

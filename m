@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbTDPMcM (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTDPMcL 
+	id S264335AbTDPMkX (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264336AbTDPMkX 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 08:32:11 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:45538 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S264339AbTDPMcH 
+	Wed, 16 Apr 2003 08:40:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61572 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264335AbTDPMkW 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 08:32:07 -0400
-From: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
-To: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-newbie@vger.kernel.org
-Message-ID: <3E9DF958.39FEB550@adaptec.com>
-Date: Thu, 17 Apr 2003 06:16:16 +0530
-Organization: Adaptec
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-Subject: inux-source debugging with kgdb-patch
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Apr 2003 08:40:22 -0400
+Date: Wed, 16 Apr 2003 05:45:21 -0700 (PDT)
+Message-Id: <20030416.054521.26525548.davem@redhat.com>
+To: ak@muc.de
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, anton@samba.org,
+       schwidefsky@de.ibm.com, davidm@hpl.hp.com, matthew@wil.cx,
+       ralf@linux-mips.org, rth@redhat.com
+Subject: Re: Reduce struct page by 8 bytes on 64bit
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030415112430.GA21072@averell>
+References: <20030415112430.GA21072@averell>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Andi Kleen <ak@muc.de>
+   Date: Tue, 15 Apr 2003 13:24:30 +0200
+   
+   I worked around this by declaring a new data type atomic_bitmask32
+   with matching set_bit32/clear_bit32 etc. interfaces. Currently only 
+   on x86-64 aomitc_bitmask32 is defined to unsigned, everybody else
+   still uses unsigned long. The other 64bit architectures can define it to
+   unsigned too if they can confirm that it's ok to do.
 
+I have no problem with this.
 
-Hello,
-
-BACKGROUND:
-
-I was keen to see kgdb running  for  purely academic reasons. Thus,
-I made a setup of 2 machines for source-level debugging of the
-linux-kernel. The procedure mentioned on the web-site
-[ kgdb.sourceforge.net] has  been adhered to.  I was able to
-successfully configure the setup. Also, I decided to use "ddd" front-end
-on gdb [local m/c]  for debugging  the kgdb-patched kernel on the remote
-machine, which is the usual setup for such debugging-efforts.
-    The m/c to be debugged stops with the message "Waiting for
-connection from remote gdb..." until the "target remote" command is run
-from the "gdb" prompt of "ddd", upon which the m/c to be debugged
-continues it's bootup till it shows the command-prompt.
-
-PROBLEM:
-
-I was interested in setting a break-point in start_kernel thru' "ddd"
-such that the boot-up  of the m/c to be debugged could be analysed
-step-by-step remotely. Though, I am able to set the breakpoint in
-start_kernel(),
-the commands "run" or "continue" on the "gdb" prompt, only throw up the
-following errors :
-
-(gdb) info break
-Num Type           Disp Enb Address    What
-7   breakpoint      keep  y   0xc027e7f0 in start_kernel at
-init/main.c:614
-(gdb) run
-warning: shared library handler failed to enable breakpoint
-warning: Cannot insert breakpoint 7:
-Cannot access memory at address 0xc027e7f0
-
-QUESTION:
-
-I very strongly suspect that this exercise follows a particular sequence
-of steps to get it right. Either I am missing some step or I am not
-following the "order".  In either case, I would be glad to receive some
-help/comments on my academic endeavour to be able to remotely debug the
-kernel.
-
-- Kindly let me know a solution
-
-- TIA
-
-- Shobhit Mathur
+If you are clever, you can define a generic version even for the
+"unsigned long" 64-bit platforms.  It's left as an exercise to
+the reader :-)

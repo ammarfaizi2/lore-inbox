@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbTIIWEf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 18:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTIIWEf
+	id S264605AbTIIV6M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264606AbTIIV6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 18:04:35 -0400
-Received: from mx2.it.wmich.edu ([141.218.1.94]:12464 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S264502AbTIIWEc (ORCPT
+	Tue, 9 Sep 2003 17:58:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5350 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264605AbTIIV6A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 18:04:32 -0400
-Message-ID: <3F5E4E6E.1070806@wmich.edu>
-Date: Tue, 09 Sep 2003 18:04:30 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Markus Plail <linux-kernel@gitteundmarkus.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: atapi write support? No
-References: <3F5E2BA4.60704@wmich.edu> <20030909195428.GQ4755@suse.de>	<3F5E338F.2000007@wmich.edu> <87brttemlk.fsf@gitteundmarkus.de>
-In-Reply-To: <87brttemlk.fsf@gitteundmarkus.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 17:58:00 -0400
+Message-Id: <200309092157.h89Lvkm31595@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: joshk@triplehelix.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       akpm@osdl.org
+Subject: Re: 2.6.0-test5-mm1 
+In-Reply-To: Message from Joshua Kwan <joshk@triplehelix.org> 
+   of "Tue, 09 Sep 2003 00:02:13 PDT." <20030909070213.GF7314@triplehelix.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 09 Sep 2003 14:57:46 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Plail wrote:
-> On Tue, 09 Sep 2003, Ed Sweetman wrote:
-> 
-> 
->>Jens Axboe wrote: 
->>
->>>On Tue, Sep 09 2003, Ed Sweetman wrote:
->>
->>There is no other information needed.
-> 
-> 
-> There is...
 
-You seemed to get it without any more.
+OSDL's STP saw this problem, no tests ran on 2.6.0-test5-mm1
 
-> 
->>By use atapi write support i mean Get it to do anything besides error
->>out reporting that it cant access the drive. If you can query the
->>drive much less actually write anything to it using the ATAPI
->>interface than that's more than i've been able to do.
->>
->>for example   cdrecord dev=ATAPI:1,0,0 checkdisk
-> 
-> 
-> ATAPI: is most likely wrong for what you want to do. It's meant for
-> notebooks (PCATA or something).
-> If you just want to get rid of ide-scsi, you have to use dev=/dev/hdX in
-> cdrecord.
-
-this method states that the method of access is unsupported and 
-unintentional.  Which is why i didn't think that it was the right way to 
-use cdrecord on atapi devices without ide-scsi.
+We've added this patch (PLM #2112) and are running tests now.
+cliffw
 
 
-> regards
-> Markus
+> On Mon, Sep 08, 2003 at 11:50:28PM -0700, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2.6.0-test5-mm1/
 > 
-> PS: A little change in attitude towards people who are willing to help
-> you wouldn't be the worst idea. IMHO of course.
+> Needs the following patch to compile:
 > 
+> --- mm/slab.c~	2003-09-08 23:58:31.000000000 -0700
+> +++ mm/slab.c	2003-09-08 23:58:33.000000000 -0700
+> @@ -2794,11 +2794,13 @@
+>  		} else {
+>  			kernel_map_pages(virt_to_page(objp), c->objsize/PAGE_SIZE, 1);
+>  
+> +#if DEBUG
+>  			if (c->flags & SLAB_RED_ZONE)
+>  				printk("redzone: 0x%lx/0x%lx.\n", *dbg_redzone1(c, objp), *dbg_redzone2(c, objp));
+>  
+>  			if (c->flags & SLAB_STORE_USER)
+>  				printk("Last user: %p.\n", *dbg_userword(c, objp));
+> +#endif
+>  		}
+>  		spin_unlock_irqrestore(&c->spinlock, flags);
+>  
+> -- 
+> Joshua Kwan
 
-If you make what is a general question too specific with details you 
-limit your responses if anyone thinks their response is correct for you 
-anyway.  I limited my question as much as i wanted to, with the desired 
-effect no less.
-
-
-apparently cdrecord's documention is a little behind it's code. Now 
-tracking down why it seems to be botching audio cds for me would require 
-a full bugreport style mail now that i know cdrecord is being used in 
-the correct manner.
 

@@ -1,77 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284794AbSAGSUs>; Mon, 7 Jan 2002 13:20:48 -0500
+	id <S284890AbSAGS1S>; Mon, 7 Jan 2002 13:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284795AbSAGSUj>; Mon, 7 Jan 2002 13:20:39 -0500
-Received: from smtp3.libero.it ([193.70.192.53]:58590 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S284794AbSAGSUZ>;
-	Mon, 7 Jan 2002 13:20:25 -0500
-Message-ID: <3C39E6A0.34A88990@alsa-project.org>
-Date: Mon, 07 Jan 2002 19:19:12 +0100
-From: Abramo Bagnara <abramo@alsa-project.org>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i586)
-X-Accept-Language: en, it
+	id <S284860AbSAGS1J>; Mon, 7 Jan 2002 13:27:09 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:11794 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284886AbSAGS05>; Mon, 7 Jan 2002 13:26:57 -0500
+Date: Mon, 7 Jan 2002 10:31:55 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Matthias Hanisch <mjh@vr-web.de>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, Jens Axboe <axboe@suse.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.2-pre performance degradation on an old 486
+In-Reply-To: <Pine.LNX.4.10.10201070803290.135-100000@pingu.franken.de>
+Message-ID: <Pine.LNX.4.40.0201071030210.1612-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@ns.caldera.de>,
-        Jaroslav Kysela <perex@suse.cz>, sound-hackers@zabbo.net,
-        linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org
-Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
-In-Reply-To: <Pine.LNX.4.33.0201070959430.6559-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 7 Jan 2002, Alan Cox wrote:
-> > > Or we could just have a really _deep_ hierarchy, and put everything under
-> > > "linux/drivers/sound/..", but I'd rather break cleanly with the old.
-> >
-> > Christoph has an interesting point. Networking is
-> >
-> >       net/[protocol]/
-> >       drivers/net/[driver]
-> >
-> > so by that logic we'd have
-> >
-> >       sound/soundcore.c
-> >       sound/alsa/alsalibcode
-> >       sound/oss/osscore
-> >
-> >       sound/drivers/cardfoo.c
-> >
-> > which would also be much cleaner since the supporting crap would be seperate
-> > from the card drivers
-> 
-> I would certainly not oppose that. Look sane to me, although the question
-> then ends up being about "drivers/sound" or "sound/drivers" (the latter
-> has the advantage that it keeps sound together, the former is more
-> analogous to the "net" situation).
+On Mon, 7 Jan 2002, Matthias Hanisch wrote:
 
-IMO the latter makes much more sense (also for "net" case), but I doubt
-you're willing to change current schema.
+> On Sat, 5 Jan 2002, Davide Libenzi wrote:
+>
+> > There should be some part of the kernel that assume a certain scheduler
+> > behavior. There was a guy that reported a bad  hdparm  performance and i
+> > tried it. By running  hdparm -t  my system has a context switch of 20-30
+> > and an irq load of about 100-110.
+>
+> This guy was me, IMHO (just with my office email address :).
+>
+>
+> > The scheduler itself, even if you code it in visual basic, cannot make
+> > this with such loads.
+> > Did you try to profile the kernel ?
+>
+> To answer your question, I wanted to profile 2.5.2-pre8 against
+> 2.5.2-pre8-old-scheduler. _Fortunately_ I made some mistake and forgot to
+> back out the following chunk of memory.
+>
+> --- v2.5.1/linux/arch/i386/kernel/process.c     Thu Oct  4 18:42:54 2001
+> +++ linux/arch/i386/kernel/process.c    Thu Dec 27 08:21:28 2001
+> @@ -125,7 +125,6 @@
+>         /* endless idle loop with no priority at all */
+>         init_idle();
+>         current->nice = 20;
+> -       current->counter = -100;
 
-If you want to keep top level cleaner and avoid proliferation of entries
-we might have:
+In sched.c::init_idle() :
 
-subsys/sound
-subsys/sound/drivers
-subsys/net
-subsys/net/drivers
+current->dyn_prio = -100;
 
-and so on.
+Let me know.
 
-Clean and without ambiguities about stuff location. Unfortunately it's a
-*big* change.
 
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
 
-ALSA project               http://www.alsa-project.org
-It sounds good!
+- Davide
+
+

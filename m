@@ -1,117 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261352AbSJLVSR>; Sat, 12 Oct 2002 17:18:17 -0400
+	id <S261351AbSJLVPm>; Sat, 12 Oct 2002 17:15:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbSJLVSQ>; Sat, 12 Oct 2002 17:18:16 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:15669 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261352AbSJLVSP>;
-	Sat, 12 Oct 2002 17:18:15 -0400
-From: <Hell.Surfers@cwctv.net>
-To: jw@pegasys.ws, linux-kernel@vger.kernel.org
-Date: Sat, 12 Oct 2002 22:23:51 +0100
-Subject: RE:Re: OT (Re: Re: The end of embedded Linux?)
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1034457831444"
-Message-ID: <01bfc2922210ca2DTVMAIL10@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1034457831444
-Content-Type: text/plain; charset=us-ascii
+	id <S261352AbSJLVPm>; Sat, 12 Oct 2002 17:15:42 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49842 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261351AbSJLVPl>; Sat, 12 Oct 2002 17:15:41 -0400
+Subject: Re: Performance improvement inquiry
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zapp Foster <zzaappp@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021012202642.53345.qmail@web11908.mail.yahoo.com>
+References: <20021012202642.53345.qmail@web11908.mail.yahoo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-
-brilliantly this summerises every problem, theres no enter.. am i really replying by attachment...?
-
-Cheers, Dean.
-
-On 	Wed, 9 Oct 2002 16:32:57 -0700 	jw schultz <jw@pegasys.ws> wrote:
-
---1034457831444
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Thu, 10 Oct 2002 00:34:28 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263242AbSJIX1S>; Wed, 9 Oct 2002 19:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263249AbSJIX1R>; Wed, 9 Oct 2002 19:27:17 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:57872 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S263242AbSJIX1Q>; Wed, 9 Oct 2002 19:27:16 -0400
-Received: from leto.pegasys.ws (leto.pegasys.ws [10.1.1.20])
-	by vladimir.pegasys.ws (Mail Transfer Agent) with ESMTP id 70FEADF2C
-	for <linux-kernel@vger.kernel.org>; Wed,  9 Oct 2002 16:35:23 -0700 (PDT)
-Received: from duncan.pegasys.ws (duncan.pegasys.ws [10.1.1.50])
-	by leto.pegasys.ws (Mail Transfer Agent) with ESMTP id 28060189
-	for <linux-kernel@vger.kernel.org>; Wed,  9 Oct 2002 16:32:59 -0700 (PDT)
-Received: by duncan.pegasys.ws (Postfix on SuSE Linux 8.0 (i386), from userid 1001)
-	id 4A6304AF3; Wed,  9 Oct 2002 16:32:58 -0700 (PDT)
-Date: Wed, 9 Oct 2002 16:32:57 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: OT (Re: Re: The end of embedded Linux?)
-Message-ID: <20021009233257.GB14644@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <070a200271409a2DTVMAIL5@smtp.cwctv.net> <20021009151427.GB12943@debian>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Oct 2002 22:33:34 +0100
+Message-Id: <1034458414.15067.25.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021009151427.GB12943@debian>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 05:14:27PM +0200, Filip Van Raemdonck wrote:
-> On Wed, Oct 09, 2002 at 03:28:32PM +0100, Hell.Surfers@cwctv.net wrote:
-> > With-the-way-your-email-client-doesn't-quote-I've-got-no-clue-who wrote:
-> >> 
-> >> Its called FreeDOS,
-> > 
-> > oops didnt see that..
-> 
-> Pretty useless to reply to such post when you break threading entirely.
-> Only through reordering by author and by date and figuring out what your
-> previous post said I've got an idea what you're meaning to say with this
-> answer.
-> 
-> 
-> Regards,
-> 
-> Filip
-> 
+On Sat, 2002-10-12 at 21:26, Zapp Foster wrote:
+> First question:  Will compiling a kernel with
+> the network module resident (as opposed to a loadable
+> module) make network performance any better?  From
+> the reading, it appears that resident modules are only
+> faster in initialization, not runtime.  I'm new to
+> this, so please correct me if I'm wrong.
 
-We are supposed to blame Liberate TVMail 2.6 for all the bad
-practices of Hell.Surfers.  It isn't his fault he uses a
-product that breaks threads, replies by attachment nor the
-fact that he doesn't press the carriage return (enter key).
-After all this way he can read his email on TV while reclining on
-plush cushions.
-</sarcasm>
+Modules are very very fractionally slower than compiled in code due to
+TLB misses
+ 
+> Second:  Threads.  Each server runs one to several
+> custom services I've written, each of which performs a
+> part of data processing on the incoming data.  Each
+> service consists of eight to thirty threads.  The
+> question:  Is there a way to tweak the kernel to
+> improve thread performance?  I hear the 2.5 kernel 
 
-Actually i had no trouble telling that it was Alan he quoted.
-If you turn off header filtering you will see that the
-complete mail header (including delivery routing info) is
-included in the attachment.
+Update to the RH 7.3 kernel and you will get the O(1) scheduler too
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+> how likely it is that shared libs (used either by my
+> services or the kernel/OS) are being re-read from
+> disk?  I am hoping that the libs get cached and thus
+> load from cache back into memory.
 
-		Remember Cernan and Schmitt
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1034457831444--
+They do
 
 

@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265858AbRF2Km6>; Fri, 29 Jun 2001 06:42:58 -0400
+	id <S264023AbRF2KmJ>; Fri, 29 Jun 2001 06:42:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265857AbRF2Kms>; Fri, 29 Jun 2001 06:42:48 -0400
-Received: from ns.suse.de ([213.95.15.193]:14087 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S265855AbRF2Kmo>;
-	Fri, 29 Jun 2001 06:42:44 -0400
-To: Dan Kegel <dank@kegel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT please; Sybase 12.5
-In-Reply-To: <3B3C4CB4.6B3D2B2F@kegel.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Jun 2001 12:42:37 +0200
-In-Reply-To: Dan Kegel's message of "29 Jun 2001 11:38:26 +0200"
-Message-ID: <oupwv5v36ua.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S265855AbRF2Kl6>; Fri, 29 Jun 2001 06:41:58 -0400
+Received: from [211.108.47.117] ([211.108.47.117]:11785 "EHLO progress.plw.net")
+	by vger.kernel.org with ESMTP id <S264023AbRF2Klk>;
+	Fri, 29 Jun 2001 06:41:40 -0400
+Date: Fri, 29 Jun 2001 19:41:06 +0900 (KST)
+From: Byeong-ryeol Kim <jinbo21@hananet.net>
+Reply-To: Byeong-ryeol Kim <jinbo21@hananet.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: compile error about do_softirq in 2.4.5-ac21
+Message-ID: <Pine.LNX.4.33.0106291939100.8064-100000@progress.plw.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel <dank@kegel.com> writes:
-> 
-> And what are the chances Sybase will support that flag any time
-> soon?  I just read on news://forums.sybase.com/sybase.public.ase.linux
+I met following error while compiling 2.4.5-ac21:
 
-When Sybase always submits its buffers block aligned (same requirement as
-for raw io) you can do it with a simple LD_PRELOAD hack.
+I know, of course, this error was reported several times as the
+compile problem of 2.4.6-preX, and there posted a patch about it
+by Mr. Keith Owens. I confirmed It had been applied to
+include/asm-i386/softirq.h of 2.4.5-ac21).
+But I see this in 2.4.5-ac21 again, and confused so much.
 
-I hacked sapdb (which has source available unlike sybase) to do direct IO 
-and it seems to not hurt at least.
+I use Red Hat 7.1 (with up to latest errata updates + kernel-2.4.5-ac19,
+glibc-2.2.3, gcc-2.96-88, binutils-2.11.90.0.15, etc.)
+BTW, this error ocurred on both K6-II+ desktop(no-name) and Pentium III
+500 MHZ noteboot(IBM ThkinPad 600X), and compiler was the same on both
+machines.
 
-> It supports raw partitions, which is good; that might satisfy my
-> boss (although the administration will be a pain, and I'm not
-> sure whether it's really supported by Dell RAID devices).
-> I'd prefer O_DIRECT :-(
+Before trying to compile, I applied a patch about drivers/net/Config.in
+posted to this list by Mr. Keith Owens.
 
-LVM makes raw partitions much less worse than they used to be. It is 
-basically a file system of raw partitions; allowing you to move and resize
-them.
+Long lines were wrapped by me.
 
--Andi
+...
+make[2]: Leaving directory `/usr/src/linux-2.4.5-ac21/fs/jffs'
+make -C jffs2 modules
+...
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.5-ac21/include -Wall \
+   -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer \
+   -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 \
+   -march=k6 -DMODULE -DMODVERSIONS \
+   -include /usr/src/linux-2.4.5-ac21/include/linux/modversions.h \
+   -c -o background.o background.c
+background.c: In function `jffs2_garbage_collect_trigger':
+background.c:57: `do_softirq_Rf0a529b7' undeclared (first use in \
+                this function)
+background.c:57: (Each undeclared identifier is reported only once
+background.c:57: for each function it appears in.)
+background.c: In function `jffs2_stop_garbage_collect_thread':
+background.c:87: `do_softirq_Rf0a529b7' undeclared (first use in this \
+                function)
+background.c: In function `jffs2_garbage_collect_thread':
+background.c:141: `do_softirq_Rf0a529b7' undeclared (first use in this \
+                function)
+make[2]: *** [background.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.5-ac21/fs/jffs2'
+make[1]: *** [_modsubdir_jffs2] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.5-ac21/fs'
+make: *** [_mod_fs] Error 2
+
+-- 
+Where there is a will, there is a way.       jinbo21@hananet.net
+  For the future of you and me!              jinbo21@hitel.net
+fingerprint = 1429 8AAF 8A2C 6043 DA2E  BD4C 964C 2698 687D 4B7D
+

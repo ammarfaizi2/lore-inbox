@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUIEMag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUIEMdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266574AbUIEMag (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 08:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIEMag
+	id S266566AbUIEMdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 08:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUIEMdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 08:30:36 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:10642 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S266574AbUIEMaZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 08:30:25 -0400
-Date: Sun, 5 Sep 2004 14:30:12 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1819110960.20040905143012@tnonline.net>
-To: Tonnerre <tonnerre@thundrix.ch>
-CC: Christer Weinigel <christer@weinigel.se>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040905115854.GH26560@thundrix.ch>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
- <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
- <m3eklm9ain.fsf@zoo.weinigel.se> <20040905111743.GC26560@thundrix.ch>
- <1215700165.20040905135749@tnonline.net> <20040905115854.GH26560@thundrix.ch>
+	Sun, 5 Sep 2004 08:33:38 -0400
+Received: from steffenspage.de ([213.9.79.102]:18091 "EHLO
+	mail.steffenspage.de") by vger.kernel.org with ESMTP
+	id S266566AbUIEMdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 08:33:36 -0400
+From: Steffen Zieger <lkml@steffenspage.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Codemercs IO-Warrior support
+Date: Sun, 5 Sep 2004 14:33:34 +0200
+User-Agent: KMail/1.7
+References: <200409032114.08743.lkml@steffenspage.de> <20040903234208.380eeb64.akpm@osdl.org>
+In-Reply-To: <20040903234208.380eeb64.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409051433.37210.lkml@steffenspage.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 04 September 2004 08:42, Andrew Morton wrote:
+> It's wordwrapped by your email client.
+Sorry for this.
+Here it is again. This time it's hopefully functional.
 
-  
+HAND,
+Steffen
 
-> Salut,
 
-> On Sun, Sep 05, 2004 at 01:57:49PM +0200, Spam wrote:
->>   What if I do not use emacs, but vim, mcedit, gedit, or some other
->>   editor? It doesn't seem logical to have to patch every application
->>   that uses files.
 
-> We would have to do that in  either case, so let's patch them to do it
-> in a nonintrusive way. And as to reading and writing inside tar files,
-> write and/or  use a really nice  userspace library to do  it. (As does
-> MacOS/X, as does KDE, etc.)
+--- /usr/src/linux/drivers/usb/input/hid-core.c.orig    2004-09-03 20:53:49.124191720 +0200
++++ /usr/src/linux/drivers/usb/input/hid-core.c 2004-09-03 20:59:14.728692312 +0200
+@@ -1439,6 +1439,13 @@
+ #define USB_DEVICE_ID_1_PHIDGETSERVO_20        0x8101
+ #define USB_DEVICE_ID_4_PHIDGETSERVO_20        0x8104
 
-  The problem with the userspace library is standardization. What
-  would be needed is a userspace library that has a extensible plugin
-  interface that is standardized. Otherwise we would need lots of
-  different libraries, and I seriously doubt that 1) this will happen
-  and 2) we get all Linux programs to be patched to use it.
++#define USB_VENDOR_ID_CODEMERCS        0x07c0
++#define USB_DEVICE_ID_CODEMERCS_IOW40  0x1500
++#define USB_DEVICE_ID_CODEMERCS_IOW24  0x1501
++#define USB_DEVICE_ID_CODEMERCS_IOW48  0x1502
++#define USB_DEVICE_ID_CODEMERCS_IOW28  0x1503
++
+ static struct hid_blacklist {
+        __u16 idVendor;
+        __u16 idProduct;
+@@ -1520,6 +1527,11 @@
+        { USB_VENDOR_ID_NEC, USB_DEVICE_ID_NEC_USB_GAME_PAD, HID_QUIRK_BADPAD },
+        { USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+        { USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
++
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW40, HID_QUIRK_IGNORE },
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW24, HID_QUIRK_IGNORE },
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW48, HID_QUIRK_IGNORE },
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28, HID_QUIRK_IGNORE },
 
-  ~S
-
-> 			    Tonnerre
-
+        { 0, 0 }
+ };

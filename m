@@ -1,97 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263674AbUJ3AEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263728AbUJ3AMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263674AbUJ3AEh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 20:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbUJ3ACr
+	id S263728AbUJ3AMk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 20:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbUJ3AIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 20:02:47 -0400
-Received: from soundwarez.org ([217.160.171.123]:61360 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S263676AbUJ3AAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 20:00:31 -0400
-Date: Sat, 30 Oct 2004 02:00:45 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew <cmkrnl@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
-Message-ID: <20041030000045.GA13356@vrfy.org>
-References: <20041027142925.GA17484@imladris.arnor.me> <20041027152134.GA13991@kroah.com> <417FCD78.6020807@speakeasy.net> <20041029201314.GA29171@kroah.com> <20041029212856.GA12582@vrfy.org> <20041029231319.GA503@kroah.com>
+	Fri, 29 Oct 2004 20:08:10 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:38551 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263606AbUJ3AFd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 20:05:33 -0400
+Date: Fri, 29 Oct 2004 17:02:15 -0700
+From: Suresh Siddha <suresh.b.siddha@intel.com>
+To: jamesclv@us.ibm.com, ak@suse.de, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch] x86-64: fix sibling map again!
+Message-ID: <20041029170215.A26372@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041029231319.GA503@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 06:13:19PM -0500, Greg KH wrote:
-> On Fri, Oct 29, 2004 at 11:28:56PM +0200, Kay Sievers wrote:
-> > > But there might still be a problem.  With this change, the sequence
-> > > number is not sent out the kevent message.  Kay, do you think this is an
-> > > issue?  I don't think we can get netlink messages out of order, right?
-> > 
-> > Right, especially not the events with the same DEVPATH, like "remove"
-> > beating an "add". But I'm not sure if the number isn't useful. Whatever
-> > we may do with the hotplug over netlink in the future, we will only have
-> > /sbin/hotplug for the early boot and it may be nice to know, what events
-> > we have already handled...
-> > 
-> > > I'll hold off on applying this patch until we figure this out...
-> > 
-> > How about just reserving 20 bytes for the number (u64 will never be
-> > more than that), save the pointer to that field, and fill the number in
-> > later?
-> 
-> Ah, something like this instead?  I like it, it's even smaller than the
-> previous patch.  Compile tested only...
+Recent x86-64 sibling map fix for clustered mode by James
+(http://linux.bkbits.net:8080/linux-2.6/cset@414b34a6jkiHQ5AnhA269av76y3ZAw?nav=index.html)
+is not the recommended way of fixing it.
 
-I like that. How about the following. It will keep the buffer clean from
-random chars, cause the kevent does not have the vector and relies on
-the '\0' to separate the strings from each other.
-I've tested it. The netlink-hotplug message looks like this:
+That patch assumes BIOS for non-clustered systems accept the HW assigned
+value. Why make this assumption when we can fix it in a better fashion(which
+is also used by x86 kernel's today)
 
-recv(3, "remove@/class/input/mouse2\0ACTION=remove\0DEVPATH=/class/input/mouse2\0SUBSYSTEM=input\0SEQNUM=961                 \0", 1024, 0) = 113
+Basically use HW assigned apic_id's(returned by cpuid) for non clustered
+systems and for clustered use BIOS provided apic_id's. Appended patch does
+this.
+
+Note: Similar issue was earlier disussed in context of x86 approx an year 
+back and James then backed out his changes.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/0167.html
+
+--
+
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
 
-> --------
-> 
-> --- 1.5/lib/kobject_uevent.c	2004-10-22 17:42:27 -05:00
-> +++ edited/kobject_uevent.c	2004-10-29 18:07:50 -05:00
-> @@ -182,6 +182,7 @@
->  	char *argv [3];
->  	char **envp = NULL;
->  	char *buffer = NULL;
-> +	char *seq_buff;
->  	char *scratch;
->  	int i = 0;
->  	int retval;
-> @@ -258,6 +259,11 @@
->  	envp [i++] = scratch;
->  	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
->  
-> +	/* reserve space for the sequence, 
-> +	 * put the real one in after the hotplug call */
-> +	envp[i++] = seq_buff = scratch;
-> +	scratch += sprintf(scratch, "SEQNUM=12345678901234567890") + 1;
-
-+       scratch += strlen("SEQNUM=12345678901234567890") + 1;
-
-> +
->  	if (hotplug_ops->hotplug) {
->  		/* have the kset specific function add its stuff */
->  		retval = hotplug_ops->hotplug (kset, kobj,
-> @@ -273,9 +279,7 @@
->  	spin_lock(&sequence_lock);
->  	seq = ++hotplug_seqnum;
->  	spin_unlock(&sequence_lock);
-> -
-> -	envp [i++] = scratch;
-> -	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
-> +	sprintf(seq_buff, "SEQNUM=%lld", (long long)seq);
-
-+       sprintf(seq_buff, "SEQNUM=%-20lld", (long long)seq);
-
->  	pr_debug ("%s: %s %s seq=%lld %s %s %s %s %s\n",
->  		  __FUNCTION__, argv[0], argv[1], (long long)seq,
-> 
+diff -Nru linux-2.6.10-rc1/arch/x86_64/kernel/genapic_cluster.c linux-ht/arch/x86_64/kernel/genapic_cluster.c
+--- linux-2.6.10-rc1/arch/x86_64/kernel/genapic_cluster.c	2004-10-08 20:32:25.000000000 -0700
++++ linux-ht/arch/x86_64/kernel/genapic_cluster.c	2004-10-09 18:55:32.091017328 -0700
+@@ -111,6 +111,16 @@
+ 		return BAD_APICID;
+ }
+ 
++/* cpuid returns the value latched in the HW at reset, not the APIC ID
++ * register's value.  For any box whose BIOS changes APIC IDs, like
++ * clustered APIC systems, we must use hard_smp_processor_id.
++ *
++ * See Intel's IA-32 SW Dev's Manual Vol2 under CPUID.
++ */
++static unsigned int phys_pkg_id(int index_msb)
++{
++	return hard_smp_processor_id() >> index_msb;
++}
+ 
+ struct genapic apic_cluster = {
+ 	.name = "clustered",
+@@ -124,4 +134,5 @@
+ 	.send_IPI_allbutself = cluster_send_IPI_allbutself,
+ 	.send_IPI_mask = cluster_send_IPI_mask,
+ 	.cpu_mask_to_apicid = cluster_cpu_mask_to_apicid,
++	.phys_pkg_id = phys_pkg_id,
+ };
+diff -Nru linux-2.6.10-rc1/arch/x86_64/kernel/genapic_flat.c linux-ht/arch/x86_64/kernel/genapic_flat.c
+--- linux-2.6.10-rc1/arch/x86_64/kernel/genapic_flat.c	2004-10-08 20:32:25.000000000 -0700
++++ linux-ht/arch/x86_64/kernel/genapic_flat.c	2004-10-09 18:55:25.908957144 -0700
+@@ -103,6 +103,13 @@
+ 	return cpus_addr(cpumask)[0] & APIC_ALL_CPUS;
+ }
+ 
++static unsigned int phys_pkg_id(int index_msb)
++{
++	u32 ebx;
++
++	ebx = cpuid_ebx(1);
++	return ((ebx >> 24) & 0xFF) >> index_msb;
++}
+ 
+ struct genapic apic_flat =  {
+ 	.name = "flat",
+@@ -116,4 +123,5 @@
+ 	.send_IPI_allbutself = flat_send_IPI_allbutself,
+ 	.send_IPI_mask = flat_send_IPI_mask,
+ 	.cpu_mask_to_apicid = flat_cpu_mask_to_apicid,
++	.phys_pkg_id = phys_pkg_id,
+ };
+diff -Nru linux-2.6.10-rc1/arch/x86_64/kernel/setup.c linux-ht/arch/x86_64/kernel/setup.c
+--- linux-2.6.10-rc1/arch/x86_64/kernel/setup.c	2004-10-22 14:38:16.000000000 -0700
++++ linux-ht/arch/x86_64/kernel/setup.c	2004-10-09 15:24:02.000000000 -0700
+@@ -56,6 +56,7 @@
+ #include <asm/smp.h>
+ #include <asm/proto.h>
+ #include <asm/setup.h>
++#include <asm/mach_apic.h>
+ 
+ /*
+  * Machine setup..
+@@ -710,7 +711,6 @@
+ #ifdef CONFIG_SMP
+ 	u32 	eax, ebx, ecx, edx;
+ 	int 	index_lsb, index_msb, tmp;
+-	int	initial_apic_id;
+ 	int 	cpu = smp_processor_id();
+ 	
+ 	if (!cpu_has(c, X86_FEATURE_HT))
+@@ -745,8 +745,7 @@
+ 		}
+ 		if (index_lsb != index_msb )
+ 			index_msb++;
+-		initial_apic_id = hard_smp_processor_id();
+-		phys_proc_id[cpu] = initial_apic_id >> index_msb;
++		phys_proc_id[cpu] = phys_pkg_id(index_msb);
+ 		
+ 		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
+ 		       phys_proc_id[cpu]);
+diff -Nru linux-2.6.10-rc1/include/asm-x86_64/genapic.h linux-ht/include/asm-x86_64/genapic.h
+--- linux-2.6.10-rc1/include/asm-x86_64/genapic.h	2004-10-08 20:32:26.000000000 -0700
++++ linux-ht/include/asm-x86_64/genapic.h	2004-10-09 15:23:45.000000000 -0700
+@@ -26,6 +26,7 @@
+ 	void (*send_IPI_all)(int vector);
+ 	/* */
+ 	unsigned int (*cpu_mask_to_apicid)(cpumask_t cpumask);
++	unsigned int (*phys_pkg_id)(int index_msb);
+ };
+ 
+ 
+diff -Nru linux-2.6.10-rc1/include/asm-x86_64/mach_apic.h linux-ht/include/asm-x86_64/mach_apic.h
+--- linux-2.6.10-rc1/include/asm-x86_64/mach_apic.h	2004-10-08 20:32:26.000000000 -0700
++++ linux-ht/include/asm-x86_64/mach_apic.h	2004-10-08 20:42:09.000000000 -0700
+@@ -24,5 +24,6 @@
+ #define send_IPI_allbutself (genapic->send_IPI_allbutself)
+ #define send_IPI_all (genapic->send_IPI_all)
+ #define cpu_mask_to_apicid (genapic->cpu_mask_to_apicid)
++#define phys_pkg_id	(genapic->phys_pkg_id)
+ 
+ #endif /* __ASM_MACH_APIC_H */
 

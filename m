@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264979AbUGGIB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264966AbUGGIDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264979AbUGGIB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 04:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbUGGIB7
+	id S264966AbUGGIDG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 04:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUGGIDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 04:01:59 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:9667 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S264965AbUGGIBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 04:01:54 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: CONFIG_SLAB_DEBUG and NUMA API
-Date: Wed, 7 Jul 2004 10:10:59 +0200
-User-Agent: KMail/1.5
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-References: <20040706063149.GA37299@muc.de> <20040705234945.1f920d1b.akpm@osdl.org> <20040706210331.GA29417@muc.de>
-In-Reply-To: <20040706210331.GA29417@muc.de>
+	Wed, 7 Jul 2004 04:03:06 -0400
+Received: from shockwave.systems.pipex.net ([62.241.160.9]:61129 "EHLO
+	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S264966AbUGGICz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 04:02:55 -0400
+Date: Wed, 7 Jul 2004 09:01:38 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: Andrew Morton <akpm@osdl.org>
+Cc: Brad Fitzpatrick <brad@danga.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: nfs_inode_cache not getting pruned
+In-Reply-To: <20040707004034.540e3fcb.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0407070845570.1240-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407071011.00016.rjwysocki@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 of July 2004 23:03, Andi Kleen wrote:
-> On Mon, Jul 05, 2004 at 11:49:45PM -0700, Andrew Morton wrote:
-> > Andi Kleen <ak@muc.de> wrote:
-> > > I tested 2.6.7-mm6 with NUMA on with CONFIG_SLAB_DEBUG and I didn't see
-> > > any oopses. Do you have a recipe to reproduce them?
-> >
-> > Still happens here.  Booting SLES9.1 with the attached config.
->
-> [...]
->
-> Here's a patch. The problem was that the kernel exit would allocate
-> memory to send exit signals after the local mempolicy was already freed,
-> but not zeroed.  When the allocator tried to grab more memory it would
-> fall over.
->
-> -Andi
->
-> -------------------------------------------------------------
->
-> Move the memory policy freeing to later in exit to make sure
-> the last memory allocations don't use an uninitialized policy
+On Wed, 7 Jul 2004, Andrew Morton wrote:
+> Sorry, I still cannot reproduce it.  I suspect it's specific to the access
+> patterns in some way.
 
-It fixed the problems that I had reported on both 2.6.7-mm6 and 2.6.7-bk18.  
-Thanks a lot,
+A simple access pattern that drives mad any filesystem over NFS is:
 
-rjw
+# symlink & readlink & unlink &
 
--- 
-Rafael J. Wysocki
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+symlink.c is while (1) symlink("a", "/test/b");
+readlink.c is while(1) readlink("/test/b", buf, 900);
+unlink.c is while(1) unlink("/test/b");
+
+On the server nothing interesting happens (except expected messages about
+"//b" being already there and d_count being too high):
+
+nfs_safe_remove: //b busy, d_count=2
+nfs_proc_symlink: //b already exists??
+nfs_proc_symlink: //b already exists??
+nfs_proc_symlink: //b already exists??
+nfs_proc_symlink: //b already exists??
+nfs_proc_symlink: //b already exists??
+nfs_proc_symlink: //b already exists??
+nfs_proc_symlink: //b already exists??
+nfs_safe_remove: //b busy, d_count=2
+nfs_proc_symlink: //b already exists??
+nfs_proc_symlink: //b already exists??
+
+But on the client the inode_cache and dentry_cache grow indefinitely. The
+kernel (both client and server) is 2.4.21-15.ELsmp (haven't tried on 2.6
+yet). The fs on the server was ext3 made with default options and mounted 
+with defaults and exported with:
+
+/mnt *(rw,no_root_squash,insecure,no_subtree_check,sync)
+
+Btw, this access pattern was suggested by running racer. If you run the
+whole racer over NFS you may hit other interesting problems after a
+while.
+
+Kind regards
+Tigran
+

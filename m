@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263666AbTHZLg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 07:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263678AbTHZLg6
+	id S263616AbTHZL5m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 07:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTHZL5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 07:36:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28126 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263666AbTHZLg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 07:36:56 -0400
-Date: Tue, 26 Aug 2003 13:36:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Samphan Raruenrom <samphan@nectec.or.th>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Linux TLE Team <rdi1@opentle.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [Rdi1] Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
-Message-ID: <20030826113633.GA22124@suse.de>
-References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th> <20030826083249.B20776@infradead.org> <3F4B23E2.8040401@nectec.or.th> <20030826105613.A23356@infradead.org> <20030826095830.GA20693@suse.de> <3F4B44C2.4030406@nectec.or.th>
+	Tue, 26 Aug 2003 07:57:42 -0400
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:49753 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S263616AbTHZL5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 07:57:41 -0400
+Date: Tue, 26 Aug 2003 13:57:39 +0200
+From: Lukasz Trabinski <lukasz@oceanic.wsisiz.edu.pl>
+To: chas williams <chas@cmf.nrl.navy.mil>
+Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ATM-General] linux-2.4.22 Oops on ATM PCA-200EPC
+Message-ID: <20030826115739.GA9450@oceanic.wsisiz.edu.pl>
+References: <Pine.LNX.4.53.0308260104580.17995@oceanic.wsisiz.edu.pl> <200308261112.h7QBCVNv020928@ginger.cmf.nrl.navy.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-In-Reply-To: <3F4B44C2.4030406@nectec.or.th>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200308261112.h7QBCVNv020928@ginger.cmf.nrl.navy.mil>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26 2003, Samphan Raruenrom wrote:
-> >Exactly. You poll media events from the drive, and upon an eject request
-> >you try and umount it. If it suceeds, you eject the tray. 
+On Tue, Aug 26, 2003 at 07:12:33AM -0400, chas williams wrote:
+> >I have always used vanilla kernel with very old patch for ATM
+> >(name: linux-2.3.99-pre6-fore200e-0.2f.patch) It worked well -
+> >trouble-free. 
+> >I have just tried vanilla 2.4.22, here is oops. ATM doesn't work :(
 > 
-> No, it seems impossible to sense the eject request (right?). This
+> what did you do to get this crash?  just startup an interface?
+> is clip built as a module?
 
-No it isn't, in fact there are several ways to do it. Just by searching
-this list you should be able to find them.
+During startup or restart interface by script
 
-> is what I really did with the patched kernel and patched magicdev.
+[...]
+        if is_yes "$CLIP" ; then
+                msg_starting "ATM CLIP"
+                daemon atmarpd -b
+                for i in $interfaces_atm_boot ; do
+                        run_cmd -a "$(nls 'Bringing up interface') $i" /sbin/ifup $i
+ boot
+[...]
 
-magicdev is a piece of crap.
 
-> When, for example:-
-> 
-> - user insert CD
-> - magicdev sense the CD, mount /dev/cdrom -> eject is ok
-> - user play an mp3 file in the disc
-> - magicdev found MOUNT_STATUS=BUSY, lock the drive -> eject disabled
-> - user stop using any file on the disc
-> - magicdev found MOUNT_STATUS=MOUNTED, unlock the drive -> eject is ok
-> - user push the eject button, the disc pop out because it's not locked.
-> - magicdev sense empty drive, umount /dev/cdrom
+[root@voices linux]# cat .config |grep ATM |grep -v "#"
+CONFIG_ATM=y
+CONFIG_ATM_CLIP=y
+CONFIG_ATM_CLIP_NO_ICMP=y
+CONFIG_ATM_LANE=m
+CONFIG_ATM_MPOA=m
+CONFIG_NET_SCH_ATM=y
+CONFIG_ATM_NICSTAR=m
+CONFIG_ATM_NICSTAR_USE_SUNI=y
+CONFIG_ATM_FORE200E_MAYBE=m
+CONFIG_ATM_FORE200E_PCA=y
+CONFIG_ATM_FORE200E_PCA_DEFAULT_FW=y
+CONFIG_ATM_FORE200E_TX_RETRY=16
+CONFIG_ATM_FORE200E_DEBUG=0
+CONFIG_ATM_FORE200E=m
 
-That's not the way to do it. For drives that support media status event
-reporting you don't lock the drive, you just intercept the eject
-request. And at that time you check if you can umount /cdrom (or
-whatever) - if that suceeds, you send an eject request to the drive.
-This will work with any drive made in the last few years. You can also
-check out MS media status notification, I think you can even find that
-document on microsoft.com.
+[root@voices linux]# lsmod
+nicstar                28984   7  (autoclean)
+suni                    4740   0  (autoclean) [nicstar]
 
-I think you need to spend a little more time thinking/researching this
-problem. At least it really looks like you are going about it all wrong.
 
 -- 
-Jens Axboe
-
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

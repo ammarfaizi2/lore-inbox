@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVCJRSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262758AbVCJRSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbVCJRSV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVCJRQF
+	id S262758AbVCJRSU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVCJRPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:16:05 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:19591 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262677AbVCJRMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:12:52 -0500
-Date: Thu, 10 Mar 2005 12:12:51 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: minor 2.6.11-bk6 config issue or user error
-In-reply-to: <423069EC.8070207@arcor.de>
-To: linux-kernel@vger.kernel.org
-Cc: Prakash Punnoor <prakashp@arcor.de>
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503101212.51466.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <423069EC.8070207@arcor.de>
-User-Agent: KMail/1.7
+	Thu, 10 Mar 2005 12:15:51 -0500
+Received: from mail.tmr.com ([216.238.38.203]:47888 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262192AbVCJRIg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 12:08:36 -0500
+Date: Thu, 10 Mar 2005 11:56:45 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make st seekable again
+In-Reply-To: <1110456640.6291.79.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.3.96.1050310114027.11549B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 March 2005 10:38, Prakash Punnoor wrote:
->Hi,
->
->I went from bk4 to bk6. After patching i just typed make to
-> recompile (as I thought this would be enough). But it errored out
-> because CONFIG_BASE_SMALL wasn't defined. So I did make menuconfig
-> and saved my config again and now it compiles through.
->
->Is it needed to run make oldconfig or make menuconfig and save
-> before kernel upgrade? I thought make oldconfig is run
-> automatically on make?
->
->--
->Prakash Punnoor
->
-I believe thats mistaken Prakash.  One should do a make oldconfig 
-after applying any patch, or when moving an existing .config from an 
-older version's tree to the new tree you are building.  Its all part 
-of my scripts so I don't forget.
+On Thu, 10 Mar 2005, Arjan van de Ven wrote:
 
->formerly known as Prakash K. Cheemplavam
+> >  critical user data.
+> > 
+> > In other words, it should work correctly or not at all. At the least this
+> > should be a config option, like UNSAFE_TAPE_POSITIONING or some such.
+> > And show the option if the build includes BROKEN features. That should put
+> > the decision where it belongs and clarify the possible failures.
+> 
+> CONFIG_SECURITY_HOLES doesn't make sense.
+> Better to just fix the security holes instead.
+
+I think you're an idealist. If this were something other than tar it would
+be simple, and you would be right. Well, you ARE right, but a change which
+breaks tar, which many sites use for backups, is really not practical,
+without a loophole until tar gets fixed. And as Alan noted, keeping track
+of the physical position is very hard, and getting a tar fix might take a
+while.
+
+None of the choices is good; I see:
+ - leave it the way it is
+ - fix the hole and break tar
+ - wait for FSF to fix tar, then fix the hole
+ - try to fix it without breaking tar, which may not be really possible
+   and could leave part of the problem and still break tar somehow
+ - fix it, and leave the admin a way to build a kernel with the hole other
+   than just reverting the fix
+
+I proposed the last, I won't cry if no one else likes it, it just seemed
+realistic for people who don't use certain features of tar.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

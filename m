@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVATEQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVATEV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbVATEQS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 23:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVATEQS
+	id S262043AbVATEV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 23:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVATEV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 23:16:18 -0500
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:3492 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262040AbVATEQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 23:16:14 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Daniel Gryniewicz <daniel@gryniewicz.com>
-Subject: Re: Linux 2.6.11-rc1
-Date: Wed, 19 Jan 2005 23:16:03 -0500
+	Wed, 19 Jan 2005 23:21:27 -0500
+Received: from smtp.golden.net ([199.166.210.31]:12302 "EHLO smtp.golden.net")
+	by vger.kernel.org with ESMTP id S262043AbVATEVV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 23:21:21 -0500
+From: Chris Bruner <cryst@golden.net>
+To: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>,
+       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: COMMAND_LINE_SIZE increasing in 2.6.11-rc1-bk6
+Date: Wed, 19 Jan 2005 23:21:16 -0500
 User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Peter Osterlund <petero2@telia.com>
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <1106168848.22163.10.camel@athena.fprintf.net>
-In-Reply-To: <1106168848.22163.10.camel@athena.fprintf.net>
+References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
+In-Reply-To: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200501192316.04173.dtor_core@ameritech.net>
+Message-Id: <200501192321.16473.cryst@golden.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 January 2005 16:07, Daniel Gryniewicz wrote:
-> On Tue, 2005-01-11 at 21:09 -0800, Linus Torvalds wrote:
-> > Ok, the big merges after 2.6.10 are hopefully over, and 2.6.11-rc1 is out 
-> > there.
-> > 
-> <snip>
-> 
-> > Peter Osterlund:
-> >   o input: Add ALPS touchpad driver, driver by Neil Brown, Peter
-> >     Osterlund and Dmitry Torokhov, some fixes by Vojtech Pavlik.
-> 
-> 2.6.11-rc1 broke my ALPS touchpad.  I have a Dell Inspiron 8600, and
-> previously, I was patching my kernels with the patch from 
-> 
-> Message-Id: <200407110045.08208.dtor_core@ameritech.net>
-> Subject: [RFT/PATCH 2.6] ALPS touchpad driver
-> 
-> and this worked fine.  I had the scroll zones and tapping, and so on,
-> working fine, and dmesg included indications that the Alps was detected:
-> 
-> Jan 19 10:09:40 athena alps.c: E6 report: 00 00 64
-> Jan 19 10:09:40 athena alps.c: E7 report: 73 02 0a
-> Jan 19 10:09:40 athena alps.c: E6 report: 00 00 64
-> Jan 19 10:09:40 athena alps.c: E7 report: 73 02 0a
-> Jan 19 10:09:40 athena alps.c: Status: 15 01 0a
-> Jan 19 10:09:40 athena ALPS Touchpad (Glidepoint) detected
-> Jan 19 10:09:40 athena alps.c: Status: 15 01 0a
-> Jan 19 10:09:40 athena input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
-> 
-> 
+FYI, I found that the problem I was having was caused by the "BIOS Enhanced 
+Disk Drives" turned on.   It was on in previous versions as well, and they 
+worked ok, so I assume that something has changed. In anycase turning it off 
+fixed my problem.
 
-Hi,
+Chris Bruner
 
-Could you please try this patch by Peter Osterlund:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110513688110246&q=raw
-
-It looks like Kensington and ALPS hate each other.
+On Wed January 19 2005 06:13 pm, Janos Farkas wrote:
+> Hi Andi!
+>
+> I had difficulties booting recent rc1-bkN kernels on at least two
+> Athlon machines (but somehow, on an *old* Pentium laptop booted with the
+> a very similar system just fine).
+>
+> The kernel just hung very early, just after displaying "BIOS data check
+> successful" by lilo (22.6.1).  Ctrl-Alt-Del worked to reboot, but
+> nothing else was shown.
+>
+> It is a similar experience to Chris Bruner's post here:
+> > http://article.gmane.org/gmane.linux.kernel/271352
+>
+> I also recall someone having similar problem with Opterons too, but
+> can't find just now..
+>
+> rc1-bk6 didn't boot, and thus I started checking revisions:
+> rc1-bk3 did boot (as well as plain rc1)
+> rc1-bk4 didn't boot
+>
+> rc1-bk7 booted *after* reverting the patch below:
+> > 4 days ak 1.2329.1.38 [PATCH] x86_64/i386: increase command line size
+> > Enlarge i386/x86-64 kernel command line to 2k
+> > This is useful when the kernel command line is used to pass other
+> > information to initrds or installers.
+> > On i386 it was duplicated for unknown reasons.
+> > Signed-off-by: Andi Kleen
+> > Signed-off-by: Andrew Morton
+> > Signed-off-by: Linus Torvalds
+>
+> While arguably it's not a completely scientific approach (no plain bk7,
+> and no bk6 reverted was tested), I'm inclined to say this was my
+> problem...
+>
+> Isn't this define a lilo dependence?
 
 -- 
-Dmitry
+   I say, if your knees aren't green by the end of the day, you ought to
+seriously re-examine your life.  -- Calvin

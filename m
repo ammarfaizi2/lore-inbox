@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318491AbSGSKdI>; Fri, 19 Jul 2002 06:33:08 -0400
+	id <S318490AbSGSKrX>; Fri, 19 Jul 2002 06:47:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318494AbSGSKdI>; Fri, 19 Jul 2002 06:33:08 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:47549 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S318491AbSGSKdH>;
-	Fri, 19 Jul 2002 06:33:07 -0400
-Date: Fri, 19 Jul 2002 12:36:09 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200207191036.MAA26927@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org, reality@delusion.de
-Subject: Re: [OOPS] Floppy oops with 2.5.26
+	id <S318494AbSGSKrX>; Fri, 19 Jul 2002 06:47:23 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:6599 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S318490AbSGSKrX>; Fri, 19 Jul 2002 06:47:23 -0400
+Date: Fri, 19 Jul 2002 13:08:18 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: dave@cs.curtin.edu.au, <linux-kernel@vger.kernel.org>
+Subject: Re: SMP Problem with 2.4.19-rc2 on Asus A7M266-D
+In-Reply-To: <200207191031.MAA26909@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.44.0207191307370.29194-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jul 2002 10:34:03 +0200, Udo A. Steinberg wrote:
->Following oops happened with 2.5.26 when trying to mount a disk in /dev/fd0.
+On Fri, 19 Jul 2002, Mikael Pettersson wrote:
 
-a. This has been mentioned over and over again on LKML for months now.
-b. <http://www.csd.uu.se/~mikpe/linux/patches/2.5/> has a partial fix,
-   but read the README there first. Dave Jones' -dj kernel patch kit
-   also includes it.
-c. The patch only fixes the oopses and repairs raw access. I'm not
-   working on repairing VFS since I don't have time for that and can
-   live without it for now. I had hoped that the VFS hackers who broke it
-   in the first place would have fixed it, but that's not been the case.
+> 08 is a "Receive Accept Error" for all but the P4 family.
+> The K7s tend to be like the P6s.
 
-/Mikael
+-EBRAIN off by one, i plead lack of coffee...
+
+Cheers,
+	Zwane
+
+-- 
+function.linuxpower.ca
+

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289317AbSA3Pn4>; Wed, 30 Jan 2002 10:43:56 -0500
+	id <S289315AbSA3Pq4>; Wed, 30 Jan 2002 10:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289315AbSA3Pnq>; Wed, 30 Jan 2002 10:43:46 -0500
-Received: from B558a.pppool.de ([213.7.85.138]:1810 "HELO Nicole.fhm.edu")
-	by vger.kernel.org with SMTP id <S289314AbSA3Pne>;
-	Wed, 30 Jan 2002 10:43:34 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-From: Daniel Egger <degger@fhm.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 30 Jan 2002 14:13:15 +0100
-Message-Id: <1012396396.32247.2.camel@sonja>
+	id <S289326AbSA3Pqq>; Wed, 30 Jan 2002 10:46:46 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:55236 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S289315AbSA3Pqb>; Wed, 30 Jan 2002 10:46:31 -0500
+Date: Wed, 30 Jan 2002 10:46:27 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: Fw: Writeup on AIO design (uploaded) - corrected url
+Message-ID: <20020130104627.N10157@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <20020130205115.B1864@in.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020130205115.B1864@in.ibm.com>; from suparna@in.ibm.com on Wed, Jan 30, 2002 at 08:51:15PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mit, 2002-01-30 um 00.50 schrieb Linus Torvalds:
+On Wed, Jan 30, 2002 at 08:51:15PM +0530, Suparna Bhattacharya wrote:
+> 
+> Oops, oops, oops, I mispelt the website.
+> It should have been:
+> 
+> http://lse.sourceforge.net/io/aionotes.txt
 
-> Or look at USB: I get the USB patches from Greg, and he gets them from
-> various different people. Johannes Erdfelt is the maintainer for uhci.c,
-> and he sends them to Greg, not to me.
+  a. User level threads
+        - glibc approach (one user thread per operation ?)
+          poor scalability, performance
 
-What about creating a small document that states who's the correct
-recipient for a subsystem? This would prevent dotzends of questions
-like "Where do I send my patches?" and turn them into a RTFF.
- 
--- 
-Servus,
-       Daniel
+Glibc uses a pool of threads, not one thread per operation.
+All requests against a single file descriptor are served sequentially,
+while for different fds they are served by different threads unless aio
+thread limit has been reached, in which case they are queued too.
 
+  b. Pool of threads
+        - have a pool of threads servicing an aio request queue for the
+          task - tradeof between degree of concurrency/utilization and
+          resource consumption.
+
+	Jakub

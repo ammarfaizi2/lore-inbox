@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264469AbUAAPyD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 10:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbUAAPyD
+	id S264471AbUAAQSH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 11:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbUAAQSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 10:54:03 -0500
-Received: from imf17aec.mail.bellsouth.net ([205.152.59.65]:4755 "EHLO
-	imf17aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S264469AbUAAPyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 10:54:01 -0500
+	Thu, 1 Jan 2004 11:18:07 -0500
+Received: from mail2-116.ewetel.de ([212.6.122.116]:55180 "EHLO
+	mail2.ewetel.de") by vger.kernel.org with ESMTP id S264471AbUAAQRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 11:17:55 -0500
+Date: Thu, 1 Jan 2004 17:17:50 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: udev and devfs - The final word
-From: Rob Love <rml@ximian.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-In-Reply-To: <20040101164831.A2431@pclin040.win.tue.nl>
-References: <18Cz7-7Ep-7@gated-at.bofh.it>
-	 <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur>
-	 <200401010634.28559.rob@landley.net> <1072970573.3975.3.camel@fur>
-	 <20040101164831.A2431@pclin040.win.tue.nl>
-Content-Type: text/plain
-Message-Id: <1072972440.3975.29.camel@fur>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Thu, 01 Jan 2004 10:54:00 -0500
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20031231192306.GG25389@kroah.com>
+Message-ID: <Pine.LNX.4.44.0401011714460.934-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-01 at 10:48, Andries Brouwer wrote:
+On Wed, 31 Dec 2003, Greg KH wrote:
 
-> I am afraid I have to disappoint you. I made them 64-bit,
-> and I think they were 64-bit for a few months in the -mm tree,
-> forgot the details, but unfortunately Al went back to 32-bit again.
+> You would not have any "extra" overhead if you don't add any new devices
+> to your system.  udev only runs when /sbin/hotplug runs. As for extra
+> space on your disk, this email thread is almost as big as the udev
+> binary is :)
 
-You did disappoint me!  My heart is crushed and my aspirations for the
-future ruined.
+Well, but if random device numbers become a reality, udev would have
+to run at boot time or I wouldn't get usable device nodes. So there
+is some setup complexity (because so far I don't need a correctly setup
+hotplug system at all). Not much of a problem, granted, distributions
+will do this for most of us and only a few people will do it by hand.
 
-But you are right, dunno what I was thinking.
-
-	Rob Love
-
+-- 
+Ciao,
+Pascal
 

@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbTDOUID (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264062AbTDOUID 
+	id S264062AbTDOUIY (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264065AbTDOUIY 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 16:08:03 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:733 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264061AbTDOUIC 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 16:08:02 -0400
-Date: Tue, 15 Apr 2003 13:18:17 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Pavel Machek <pavel@ucw.cz>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: PATCH: MTRR save and restore.
-In-Reply-To: <20030407201311.GA177@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0304151313260.912-100000@cherise>
+	Tue, 15 Apr 2003 16:08:24 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:8967 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264062AbTDOUIW (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 16:08:22 -0400
+Date: Tue, 15 Apr 2003 21:20:12 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Sean Estabrooks <seanlkml@rogers.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: FBCON - vesa graphics modes no longer work on Toshiba Laptop
+In-Reply-To: <1050336424.32705.31.camel@linux1.classroom.com>
+Message-ID: <Pine.LNX.4.44.0304152119300.8236-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'd like to see the rest of this thread ;)
-
-> > > > We could add it to suspend scripts, but wouldn't mtrrs fit into the
-> > > > driver model idea? Would you say the same thing about implementing S3
-> > > > support?
-> > > 
-> > > I think going through the driver model is the right thing to
-> > > do.
-> > 
-> > It's useless bloat.
-
-What exactly is useless bloat? Based on the level of indentation, I'd 
-assume that Richard said that...care to elaborate? 
-
-> > > Userspace should not need to know about mtrrs,
-> > 
-> > It's a swsuspend helper daemon, not some random application. There
-> > *should* be a helper daemon, if not, the design is flawed.
-
-Care to elaborate on that one, too? What does a userland daemon add to 
-make it a sane design? 
-
-> There's no helper daemon, nor I plan to make one. Notice that mtrr
-> stuff is shared between S3 (== suspend to ram) and swsusp. Both S3 and
-> swsusp can be used to do some pretty important stuff (machine
-> overheats or battery critically low -> suspend somewhere), so I do not
-> think userland daemon is good idea.
+> S3 Inc. 86C270-294 Savage/IX-MV (rev 11) 
 > 
-> It can be dependend on CONFIG_PM; if you still think that's too much
-> bloat, it could be dependend on CONFIG_SLEEP which could be only
-> compiled when S3 or swsusp is selected (but I feel that would be
-> overdesign).
+> 2.4.20 kernel works well with vga=0x305 and uses the entire LCD panel.
+> 
+> 2.5.67 kernel with vga=0x305 sets a graphic mode that only uses the
+> inner 640x480 set of pixels and the display is just a jumbled mess.  
+> 
+> I did try the latest fb patch and the problem remains.  Also found a
+> note that said to try "video=vesa:ywrap,pmipal,mtrr" and this didn't
+> work either.
+> 
+> Regards,
+> Sean
 
-Yes, that's too much. 
+Try disabling CONFIG_VGA_CONSOLE. Tell me if this fixes all your problems.
 
-MTRRs are one interface to an x86 CPU. CPUs are already represented in the
-device tree. The proper thing to do would be to have the CPU suspend/ 
-resume methods save and restore the MTRRs. It still requires an #ifdef in 
-the CPU code, but with a little work, could be massaged down a ways. 
-
-
-	-pat
+> CONFIG_VGA_CONSOLE=y
+> # CONFIG_MDA_CONSOLE is not set
+> CONFIG_DUMMY_CONSOLE=y
+> CONFIG_FRAMEBUFFER_CONSOLE=y
+> CONFIG_PCI_CONSOLE=y
+> CONFIG_FONTS=y
+> CONFIG_FONT_8x8=y
+> CONFIG_FONT_8x16=y
+> CONFIG_FONT_6x11=y
+> CONFIG_FONT_PEARL_8x8=y
+> CONFIG_FONT_ACORN_8x8=y
+> CONFIG_FONT_MINI_4x6=y
+> CONFIG_FONT_SUN8x16=y
+> CONFIG_FONT_SUN12x22=y
 

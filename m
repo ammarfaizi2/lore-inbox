@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbTD3CWc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 22:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTD3CWc
+	id S261769AbTD3CW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 22:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTD3CW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 22:22:32 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:64705 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S261702AbTD3CWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 22:22:31 -0400
-Date: Tue, 29 Apr 2003 22:33:09 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: desc v0.61 found a 2.5 kernel bug
-To: Gabriel Paubert <paubert@iram.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304292234_MC3-1-369F-3000@compuserve.com>
+	Tue, 29 Apr 2003 22:22:59 -0400
+Received: from muss.CIS.McMaster.CA ([130.113.64.9]:3068 "EHLO
+	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S261769AbTD3CW5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 22:22:57 -0400
+From: Gabriel Devenyi <devenyga@mcmaster.ca>
+To: alan@redhat.com, torvalds@transmeta.com
+Subject: [PATCH] REVISED - Replace existing current->state with __set_current_state and set_current_state
+Date: Tue, 29 Apr 2003 22:34:52 +0000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
+Message-Id: <200304292235.00130.devenyga@mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->>  And shouldn't CR3 be intitialized in case anyone actually wants to
->> switch back to the kernel TSS?
->
-> For now no, since the only task gate ever taken (double fault), never
-> returns (you don't want to update the TSS's CR3 field on every 
-> switch_to() so you would have to do it in the task gate return 
-> path, as well as having a correct LDT field).
+This patch applies to 2.5.68. I made the changes that Randy suggested, and 
+found a couple of other errors which I also fixed. Are there any further 
+errors which I missed or things to consider than I'm completely unaware of? 
+Please CC me with any discussion.
 
-  I want to write a TSS-based debug exception handler that just does
-an iret when it gets invoked.  For now it looks easier to just keep
-CR3 up-to-date on every switch.
+http://muss.mcmaster.ca/~devenyga/linux-2.5.68-set_current_state.patch
 
-> However, returning from a task gate is so much fraught with races wrt 
-> segment registers that the best thing to do is to avoid it.
+- -- 
+Building the Future,
+Gabriel Devenyi
+devenyga@mcmaster.ca
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
- Even with interrupts off?
+iD8DBQE+rv4Q7I5UBdiZaF4RAkTXAJ4n7CQWod1K5685nLAAeJIeUhWCAQCfSloN
+OVLmmBQpHPXd7r1HpdjmnNE=
+=pU7z
+-----END PGP SIGNATURE-----
 
-
-------
- Chuck

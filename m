@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287263AbRL2XjL>; Sat, 29 Dec 2001 18:39:11 -0500
+	id <S287253AbRL2XjS>; Sat, 29 Dec 2001 18:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287257AbRL2Xil>; Sat, 29 Dec 2001 18:38:41 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:62725 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S287253AbRL2Xi2>;
-	Sat, 29 Dec 2001 18:38:28 -0500
-Message-Id: <200112292338.AAA29985@webserver.ithnet.com>
-Cc: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Date: Sun, 30 Dec 2001 00:38:12 +0100
-Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
-To: Davide Libenzi <davidel@xmailserver.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-In-Reply-To: <Pine.LNX.4.40.0112291424560.1580-100000@blue1.dev.mcafeelabs.com>
-From: Stephan von Krawczynski <skraw@ithnet.com>
+	id <S287250AbRL2XjO>; Sat, 29 Dec 2001 18:39:14 -0500
+Received: from bitmover.com ([192.132.92.2]:47528 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S287256AbRL2Xil>;
+	Sat, 29 Dec 2001 18:38:41 -0500
+Date: Sat, 29 Dec 2001 15:38:40 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Dave Jones <davej@suse.de>
+Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Benjamin LaHaise <bcrl@redhat.com>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+Message-ID: <20011229153840.C21760@work.bitmover.com>
+Mail-Followup-To: Dave Jones <davej@suse.de>, Larry McVoy <lm@bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin LaHaise <bcrl@redhat.com>,
+	Oliver Xymoron <oxymoron@waste.org>,
+	Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011229151440.A21760@work.bitmover.com> <Pine.LNX.4.33.0112300027400.1336-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0112300027400.1336-100000@Appserv.suse.de>; from davej@suse.de on Sun, Dec 30, 2001 at 12:33:29AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, 29 Dec 2001, Dieter [iso-8859-15] Nützel wrote:             
->                                                                     
-> The new patch need ver >= 2.5.2-pre3 because Linus merged the Time  
-Slice                                                                 
-> Split Scheduler and making it to apply to 2.4.x could be a pain in  
-the b*tt.                                                             
-> Yes, as i expected numbers on big SMP are very good but still i     
-don't                                                                 
-> think that this can help you with your problem.                     
-                                                                      
-Just a short note on that:                                            
-                                                                      
-Before the scheduler stuff really got rolling there was a pretty      
-distinct discussion why L didn't quite get involved in the thread. I  
-may remind you that he thought it to be not a _that_ interesting stuff
-and I well remember he said something about the smallness and the low 
-possibility that it gets broken by (well-thought-out) patches. This   
-leads me to believe he has no major issues with enhancements to 2.4   
-scheduler.                                                            
-Well, me neither :-)                                                  
-In fact we should keep in mind that 2.5 is a _development_ kernel and 
-a next stable branch is out-of-sight at this time. So it would be     
-quite reasonable to do a "backport" to 2.4 of the scheduler, because  
-SMP systems do get more in size and number today and the near future. 
-And we should not expect the not-LKML world to use _development_      
-kernels on their cool-nu-SMP-box (tm), because this can only be bad   
-for ongoing comparisons with other OSs. Well, you know what I mean.   
-In fact I can see two major steps to take for marcelo's maintenance   
-(besides the bugfixes of course):                                     
-1) the SMP-scheduling (its all yours, Davide :-)                      
-2) the HIGHMEM problems (a warm welcome to Andrea :-)                 
-We cannot deny the fact that people expect the scalability of the     
-system, and just to give you a small hint, I personally already       
-stopped buying UP machines. There is no real big difference in prices 
-between UP and 2-SMP these days, and RAM is unbelievably cheap in this
-decade - and it makes your seti-statistics fly ;-)                    
-So these issues will be very much in the mainstream of all users. No  
-way to deny this.                                                     
-I have no fear: this is a reachable goal, let's just take it.         
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
-PS: Yes, Alan, I read your mail about the 32GB box and DMA and stuff, 
-but nevertheless we should keep up with the market-ongoings (damn     
-cheap 1GB modules).                                                   
-                                                                      
-                                                                      
+On Sun, Dec 30, 2001 at 12:33:29AM +0100, Dave Jones wrote:
+> On Sat, 29 Dec 2001, Larry McVoy wrote:
+> 
+> > So that means that pretty much 100% of development to any one area is being
+> > done by one person?!?   That's cool, but doesn't it limit the speed at which
+> > forward progress can be made?
+> 
+> The closest approximation my minds-eye can make of how things work
+> look something like this..
+> 
+> h h h h h
+> \ | | | /
+>  m  m m
+>   \ |/
+>   ttt
+>    |
+>    l
+> 
+> h - random j hacker working on same file/subsystem different goals
+> m - maintainer for file/subsys
+> t - "forked" tree maintainer (-ac, -dj, -aa etc..)
+> l - Linus
+> 
+> Whilst development happens concurrently in parallel, the notion of
+> progress is somewhat serialised as changes work their way down to
+> Linus.
+
+In my message above, I specifically asked about any one area, asking if 
+there was parallel development in that area.  So far, noone has said "yes".
+If the answer was "yes", somebody in your fanin (nice ascii, BTW :) is
+merging.  So the answer is either
+
+	noone => no parallel development in any one area
+or
+	someone
+
+If it is "someone", who is it?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbTDCUHn 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:07:43 -0500
+	id S263590AbTDCUHY 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:07:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263592AbTDCUHm 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:07:42 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:15877 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S263591AbTDCUHf convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:07:35 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	id S263591AbTDCUHX 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:07:23 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:59543 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id S263590AbTDCUHR 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:07:17 -0500
+Date: Thu, 3 Apr 2003 15:21:25 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+In-Reply-To: <20030403.120046.98056137.davem@redhat.com>
+Message-ID: <Pine.LNX.4.53.0304031520120.9911@chaos>
+References: <Pine.LNX.4.53.0304031113490.5422@chaos> <1049397747.12168.1.camel@rth.ninka.net>
+ <Pine.LNX.4.53.0304031458190.9794@chaos> <20030403.120046.98056137.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
-Date: Thu, 3 Apr 2003 14:18:57 -0600
-Message-ID: <45B36A38D959B44CB032DA427A6E10640451339C@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
-Thread-Index: AcL6HAzh3Rm9zb09TEG/+WXteHTpigAAWHXg
-From: "Cameron, Steve" <Steve.Cameron@hp.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, "lkml" <linux-kernel@vger.kernel.org>
-Cc: "Arrays" <arrays@hp.com>
-X-OriginalArrivalTime: 03 Apr 2003 20:18:58.0226 (UTC) FILETIME=[41F3E120:01C2FA1E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Apr 2003, David S. Miller wrote:
 
-> This patch to 2.5.66 reduces stack usage in ida_ioctl() by about
-> 0x500 bytes (on x86).
-
-Looks ok to me, (but i haven't tried it.)
-
+>    From: "Richard B. Johnson" <root@chaos.analogic.com>
+>    Date: Thu, 3 Apr 2003 15:02:41 -0500 (EST)
 >
-> There is a possibility that the allocation here should be done one time
-> only and the buffer pointer saved for re-use instead of allocating it
-> on each call to ida_ioctl.  If that's desirable, I'll have a few
-> questions.
+>    Well it's not a yahoo users problem because yahoo users can't fix
+>    it. Some yahoo users have yahoo "free" mail as their only connection
+>    to the internet because of facist network administrators.
+>
+> If you want all the SPAM that will result on Linux-kernel, we
+> can disable the filter if you want.
 
-No, I don't think so.  I think we should
-allow for the possibllity of concurrent calls 
-to this ioctl.  (whether linux allows it is 
-another question.  I think it used to be the case
-that only one ioctl could get in at a time... I can't
-recall if it's still that way.)
+No. I think you can let empty HTML sections go through.
 
--- steve
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

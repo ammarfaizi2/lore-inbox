@@ -1,64 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262999AbTCLBF3>; Tue, 11 Mar 2003 20:05:29 -0500
+	id <S262994AbTCLBCr>; Tue, 11 Mar 2003 20:02:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262996AbTCLBF3>; Tue, 11 Mar 2003 20:05:29 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:13800
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261747AbTCLBF0>; Tue, 11 Mar 2003 20:05:26 -0500
-Date: Tue, 11 Mar 2003 20:13:09 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, David Miller <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "" <linux-net@vger.kernel.org>
-Subject: Re: [PATCH] (1/8) Eliminate brlock in psnap
-In-Reply-To: <1047428075.15875.97.camel@dell_ss3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.50.0303111954080.6957-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
- <1047428075.15875.97.camel@dell_ss3.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262999AbTCLBCr>; Tue, 11 Mar 2003 20:02:47 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:57862 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262994AbTCLBCr>;
+	Tue, 11 Mar 2003 20:02:47 -0500
+Date: Tue, 11 Mar 2003 17:02:45 -0800
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USB speedtouch: send path optimization
+Message-ID: <20030312010244.GB20821@kroah.com>
+References: <200303101038.52069.baldrick@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303101038.52069.baldrick@wanadoo.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Mar 2003, Stephen Hemminger wrote:
+On Mon, Mar 10, 2003 at 10:38:52AM +0100, Duncan Sands wrote:
+> Write multiple cells in one function call, rather than one cell per
+> function call.  Under maximum send load, this reduces cell writing
+> CPU usage from 0.0095% to 0.0085% on my machine.  A 10% improvement! :)
 
->  void unregister_snap_client(struct datalink_proto *proto)
->  {
-> -	br_write_lock_bh(BR_NETPROTO_LOCK);
-> +	static RCU_HEAD(snap_rcu);
->  
-> -	list_del(&proto->node);
-> -	kfree(proto);
-> +	spin_lock_bh(&snap_lock);
-> +	list_del_rcu(&proto->node);
-> +	spin_unlock_bh(&snap_lock);
->  
-> -	br_write_unlock_bh(BR_NETPROTO_LOCK);
-> +	call_rcu(&snap_rcu, (void (*)(void *)) kfree, proto);
->  }
+Applied, thanks.
 
-Do we need the spin_lock_bh around the list_del_rcu? But also How 
-about. This way we don't change the previous characteristic of block till 
-done unregistering
-
-struct datalink_proto {
-...
-	struct completion registration;
-};
-
-void __unregister_snap_client(void *__proto)
-{
-	struct datalink_proto *proto = __proto;
-	complete(&proto->registration);
-}
-
-unregister_snap_client(struct datalink_proto *proto)
-{
-	list_del_rcu(&proto->node);
-	call_rcu(&snap_rcu, __unregister_snap_client, proto);
-	wait_for_completion(&proto->registration);
-	kfree(proto);
-}
+greg k-h

@@ -1,50 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278945AbRJ2B6v>; Sun, 28 Oct 2001 20:58:51 -0500
+	id <S278954AbRJ2CMb>; Sun, 28 Oct 2001 21:12:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278950AbRJ2B6l>; Sun, 28 Oct 2001 20:58:41 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:19515 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S278945AbRJ2B63>;
-	Sun, 28 Oct 2001 20:58:29 -0500
-Date: Sun, 28 Oct 2001 18:58:44 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: jgarzik@mandrakesoft.com, miles@megapathdsl.net, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: What is standing in the way of opening the 2.5 tree?
-Message-ID: <20011028185844.C1311@lynx.no>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	jgarzik@mandrakesoft.com, miles@megapathdsl.net,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1004219488.11749.19.camel@stomata.megapathdsl.net> <3BDB91D7.C7975C44@mandrakesoft.com> <20011027.224602.74750641.davem@redhat.com>
+	id <S278957AbRJ2CMV>; Sun, 28 Oct 2001 21:12:21 -0500
+Received: from rj.sgi.com ([204.94.215.100]:2690 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S278954AbRJ2CMP>;
+	Sun, 28 Oct 2001 21:12:15 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.org
+Subject: [patch] 2.4.13 remove unused warnings on module tables
+In-Reply-To: Your message of "Sun, 28 Oct 2001 10:03:17 -0800."
+             <20011028100317.C8059@kroah.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011027.224602.74750641.davem@redhat.com>; from davem@redhat.com on Sat, Oct 27, 2001 at 10:46:02PM -0700
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Date: Mon, 29 Oct 2001 13:12:41 +1100
+Message-ID: <3030.1004321561@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 27, 2001  22:46 -0700, David S. Miller wrote:
-> In particular, the quota stuff, which has sat in Alan's tree forever.
-> If Linus is ignoring the changes it probably is for a good reason
-> but it would be nice for him to let Alan know what that reason is :-)
+On Sun, 28 Oct 2001 10:03:17 -0800, 
+Greg KH <greg@kroah.com> wrote:
+>On Sun, Oct 28, 2001 at 08:58:36PM +1100, Keith Owens wrote:
+>> drivers/usb/serial/belkin_sa.c:106: warning: `id_table_combined' defined but not used
+>These, and lots of the other pci_id table warnings are due to the tables
+>being used for MODULE_DEVICE_TABLE() information.  When the code is not
+>compiled as modules, those tables are not needed.
 
-AFAIK (not much, since I don't use quotas), the on-disk quota format used
-by Alan's tree was changed to support 32-bit UID/GIDs, which makes it
-incompatible with that used in the Linus tree.  However, there was also
-some quota merging done in 2.4.13 or so, which _may_ have resolved this.
+Against 2.4.13 or 2.4.13-ac*.  It adds a dummy reference (which is then
+discarded) for module tables when code is built in.  This removes the
+spurious warning messages.
 
-Yes, it's vague, but nobody else has answered yet.  I'm only aware of these
-issues because the ext3 code had to work with both trees, and the quota
-compat stuff was removed in the most recent ext3 release.  That may have
-only been an in-kernel API issue and not the on-disk format, I don't know.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Index: 13.1/include/linux/module.h
+--- 13.1/include/linux/module.h Tue, 09 Oct 2001 11:09:32 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.6.1.1 644)
++++ 13.13(w)/include/linux/module.h Mon, 29 Oct 2001 12:04:23 +1100 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.8 644)
+@@ -11,6 +11,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ 
++#ifndef CONFIG_KBUILD_2_5
+ #ifdef __GENKSYMS__
+ #  define _set_ver(sym) sym
+ #  undef  MODVERSIONS
+@@ -21,6 +22,7 @@
+ #   include <linux/modversions.h>
+ # endif
+ #endif /* __GENKSYMS__ */
++#endif /* CONFIG_KBUILD_2_5 */
+ 
+ #include <asm/atomic.h>
+ 
+@@ -257,8 +259,6 @@ static const unsigned long __module_##gt
+   __attribute__ ((unused)) = sizeof(struct gtype##_id); \
+ static const struct gtype##_id * __module_##gtype##_table \
+   __attribute__ ((unused)) = name
+-#define MODULE_DEVICE_TABLE(type,name)		\
+-  MODULE_GENERIC_TABLE(type##_device,name)
+ 
+ /*
+  * The following license idents are currently accepted as indicating free
+@@ -312,8 +312,15 @@ static const char __module_using_checksu
+ #define MODULE_SUPPORTED_DEVICE(name)
+ #define MODULE_PARM(var,type)
+ #define MODULE_PARM_DESC(var,desc)
+-#define MODULE_GENERIC_TABLE(gtype,name)
+-#define MODULE_DEVICE_TABLE(type,name)
++
++/* Create a dummy reference to the table to suppress gcc unused warnings.  Put
++ * the reference in the .data.exit section which is discarded when code is built
++ * in, so the reference does not bloat the running kernel.  Note: cannot be
++ * const, other exit data may be writable.
++ */
++#define MODULE_GENERIC_TABLE(gtype,name) \
++static struct gtype##_id * __module_##gtype##_table \
++  __attribute__ ((unused, __section__(".data.exit"))) = name
+ 
+ #ifndef __GENKSYMS__
+ 
+@@ -327,6 +334,9 @@ extern struct module *module_list;
+ #endif /* !__GENKSYMS__ */
+ 
+ #endif /* MODULE */
++
++#define MODULE_DEVICE_TABLE(type,name)		\
++  MODULE_GENERIC_TABLE(type##_device,name)
+ 
+ /* Export a symbol either from the kernel or a module.
+ 
 

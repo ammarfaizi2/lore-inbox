@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267605AbTAXItK>; Fri, 24 Jan 2003 03:49:10 -0500
+	id <S267608AbTAXIwv>; Fri, 24 Jan 2003 03:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267608AbTAXItK>; Fri, 24 Jan 2003 03:49:10 -0500
-Received: from jack.stev.org ([217.79.103.51]:20531 "EHLO jack.stev.org")
-	by vger.kernel.org with ESMTP id <S267605AbTAXItJ>;
-	Fri, 24 Jan 2003 03:49:09 -0500
-Message-ID: <00b601c2c387$ebc51c00$0cfea8c0@ezdsp.com>
-From: "James Stevenson" <james@stev.org>
-To: "Andrey Borzenkov" <arvidjaar@mail.ru>, "Brian King" <brking@charter.net>
-Cc: <linux-kernel@vger.kernel.org>
-References: <E18bxDI-000Ic3-00@f15.mail.ru>
-Subject: Re: Re[2]: OOPS in idescsi_end_request
-Date: Fri, 24 Jan 2003 09:06:44 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4920.2300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	id <S267609AbTAXIwv>; Fri, 24 Jan 2003 03:52:51 -0500
+Received: from [209.195.52.120] ([209.195.52.120]:684 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id <S267608AbTAXIwu>; Fri, 24 Jan 2003 03:52:50 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: "Anoop J." <cs99001@nitc.ac.in>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Date: Fri, 24 Jan 2003 00:48:39 -0800 (PST)
+Subject: Re: your mail
+In-Reply-To: <54208.210.212.228.78.1043398260.webmail@mail.nitc.ac.in>
+Message-ID: <Pine.LNX.4.44.0301240046580.10187-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[LARGE SNIP]
+I think this is a case of the same tuerm being used for two different
+purposes. I don't know the use you are refering to.
 
-> Would you agree to test the patch (possibly next week).
-
-yeah sure.
+David Lang
 
 
-> cheers
+On Fri, 24 Jan 2003, Anoop J. wrote:
+
+> I read that the data coherency problem due to virtual indexing is avoided
+> through page coloring and it has also got the speed of physical indexing
+> can u just elaborate on how this is possible?
 >
-> -andrey
 >
-> > >
-> > > If you can reliably reproduce the problem you could give it a try.
-> > >
-> > > Anybody sees yet another race condition here? :))
-> > >
-> > > -andrey
-> > >
-> > >
-> > >>While burning a CD tonight I ended up taking an oops on my system. I
-had
-> > >>the lkcd patch applied to my 2.4.19 kernel, so I was able to look at
-the
-> > >>  oops after my system rebooted. After digging into it a little and
-> > >>looking at the ide-scsi code I think I found the problem but am not
-> > >>sure. How can idescsi_reset simply return SCSI_RESET_SUCCESS to the
-scsi
-> > >>mid layer? I think what is happening is that a command times out,
-> > >>idescsi_abort is called, which returns SCSI_ABORT_SNOOZE. Later on
-> > >>idescsi_reset gets called, which returns SCSI_RESET_SUCCESS. At this
-> > >>point the scsi mid-layer owns the scsi_cmnd and returns the failure
-back
-> > >>up the chain. Later on, the command gets run through
-> > >>idescsi_end_request, which then tries to access the scsi_cmnd
-structure
-> > >>which is it no longer owns.
-> > >>
-> > >>Any help is appreciated. I have a complete lkcd dump of the failure if
-> > >>anyone would like more information...
-> > >>
-
-
+> Thanks
+>
+>
+>
+>
+> > implementing a fully associative cache eliminates the need for page
+> > coloring, but it has to be implemented in hardware. if you don't have
+> > fully associative caches in your hardware page coloring helps avoid the
+> > worst case memory allocations.
+> >
+> > from what I have seen on the attempts to implement it the problem is
+> > that the calculations needed to do page colored allocations end up
+> > costing enough that they end up with a net loss compared to the old
+> > method.
+> >
+> > David Lang
+> >
+> >
+> >  On Fri, 24 Jan 2003, Anoop J.
+> > wrote:
+> >
+> >> Date: Fri, 24 Jan 2003 11:24:24 +0530 (IST)
+> >> From: Anoop J. <cs99001@nitc.ac.in>
+> >> To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+> >>
+> >>
+> >> How is this different from a fully associative cache .Would be better
+> >> if u could deal it based on the address bits used
+> >>
+>
+>
+>

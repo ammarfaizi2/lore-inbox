@@ -1,106 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbVDEUeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVDEUeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbVDEUeq (ORCPT <rfc822;willy@w.ods.org>);
+	id S261984AbVDEUeq (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 5 Apr 2005 16:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDEUcd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVDEUbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 16:32:33 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:31898 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261964AbVDEUKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 16:10:01 -0400
-Message-ID: <4252F090.4040605@mesatop.com>
-Date: Tue, 05 Apr 2005 14:09:52 -0600
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Reuben Farrelly <reuben-lkml@reub.net>, len.brown@intel.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.12-rc2-mm1: ACPI=y, ACPI_BOOT=n problems
-References: <fa.gcqu6i7.1o6qrhn@ifi.uio.no> <42524D83.1080104@reub.net> <20050405121444.GB6885@stusta.de> <6.2.3.0.2.20050406002812.04393a30@tornado.reub.net> <20050405132417.GD6885@stusta.de>
-In-Reply-To: <20050405132417.GD6885@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+	Tue, 5 Apr 2005 16:31:41 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:37545 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S261945AbVDEUGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 16:06:09 -0400
+Message-Id: <20050405194446.284170000@delft.aura.cs.cmu.edu>
+References: <20050405193859.506836000@delft.aura.cs.cmu.edu>
+Date: Tue, 05 Apr 2005 15:39:02 -0400
+From: Jan Harkes <jaharkes@cs.cmu.edu>
+To: Greg KH <greg@kroah.com>, Sam Ravnborg <sam@ravnborg.org>
+Cc: jaharkes@cs.cmu.edu, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
+Subject: [patch 3/5] Hotplug firmware loader for Keyspan usb-serial driver
+Content-Disposition: inline; filename=keyspan-dumpfw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Wed, Apr 06, 2005 at 12:32:52AM +1200, Reuben Farrelly wrote:
-> 
->>Hi again
->>
->>At 12:14 a.m. 6/04/2005, Adrian Bunk wrote:
->>
->>>On Tue, Apr 05, 2005 at 08:34:11PM +1200, Reuben Farrelly wrote:
->>>
->>>
->>>>Hi,
->>>
->>>Hi Reuben,
->>>
->>>
->>>>...
->>>>Hrm. Something changed between the last -mm release which compiled
->>>>through, and this one..
->>>>...
->>>>  LD      .tmp_vmlinux1
->>>>arch/i386/kernel/built-in.o(.init.text+0x1823): In function `setup_arch':
->>>>: undefined reference to `acpi_boot_table_init'
->>>>arch/i386/kernel/built-in.o(.init.text+0x1828): In function `setup_arch':
->>>>: undefined reference to `acpi_boot_init'
->>>>make: *** [.tmp_vmlinux1] Error 1
->>>>[root@tornado linux-2.6]#
->>>>
->>>>Backing out bk-acpi.patch works around it..
->>>
->>>Please send your .config .
->>
->>Have just figured out that it seems to be caused by having ACPI 
->>disabled in .config, once I re-enabled ACPI the build problem went away.
->>
->>Config attached anyway, I imagine the problem is quite reproduceable..
-> 
-> 
-> Ah, this was the working .config .
-> fter setting CONFIG_ACPI=n I started seeing different but most likely 
-> related problems.
-> 
-> 
-> @Len:
-> ACPI=y and ACPI_BOOT=n seems to be a legal configuration (with 
-> X86_HT=y), but it breaks into pieces if you try the compilation.
-> 
 
-Here is some additional and hopefully helpful information.
-Without CONFIG_ACPI=y, I first got:
+Simple program to convert the keyspan firmware header files to IHEX
+formatted files that can be loaded with hotplug.
 
-arch/i386/kernel/setup.c: In function 'setup_arch':
-arch/i386/kernel/setup.c:1571: warning: implicit declaration of function 'acpi_boot_table_init'
-arch/i386/kernel/setup.c:1572: warning: implicit declaration of function 'acpi_boot_init'
+This is really only needed once to convert the existing keyspan firmware
+headers, which is what the next patch does.
 
-and then at the end:
 
-arch/i386/kernel/built-in.o(.init.text+0x1b81): In function `setup_arch':
-: undefined reference to `acpi_boot_table_init'
-arch/i386/kernel/built-in.o(.init.text+0x1b86): In function `setup_arch':
-: undefined reference to `acpi_boot_init'
-make: *** [.tmp_vmlinux1] Error 1
+Index: linux/drivers/usb/serial/dumpfw.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux/drivers/usb/serial/dumpfw.c	2005-03-10 23:16:37.240765747 -0500
+@@ -0,0 +1,98 @@
++/*
++ * Convert keyspan firmware header files to Intel HEX format
++ * cc -I/usr/src/linux/drivers/usb/serial -o dumpfw dumpfw.c
++ */
++#include <stdint.h>
++#include <stdio.h>
++
++//#include "keyspan.h" /* ezusb_hex_record */
++
++struct ezusb_hex_record {
++    uint16_t address;
++    uint8_t  size;
++    uint8_t  data[64];
++};
++
++#include "keyspan_usa28_fw.h"
++#include "keyspan_usa28x_fw.h"
++#include "keyspan_usa28xa_fw.h"
++#include "keyspan_usa28xb_fw.h"
++#include "keyspan_usa19_fw.h"
++#include "keyspan_usa19qi_fw.h"
++#include "keyspan_mpr_fw.h"
++#include "keyspan_usa19qw_fw.h"
++#include "keyspan_usa18x_fw.h"
++#include "keyspan_usa19w_fw.h"
++#include "keyspan_usa49w_fw.h"
++#include "keyspan_usa49wlc_fw.h"
++
++char *boilerplate = "\
++# This firmware for the Keyspan %s USB-to-Serial adapter is\n\
++#\n\
++#    Copyright (C) 1999-2003\n\
++#    Keyspan, A division of InnoSys Incorporated (\"Keyspan\")\n\
++#\n\
++# as an unpublished work. This notice does not imply unrestricted or\n\
++# public access to the source code from which this firmware image is\n\
++# derived.  Except as noted below this firmware image may not be\n\
++# reproduced, used, sold or transferred to any third party without\n\
++# Keyspan's prior written consent.  All Rights Reserved.\n\
++#\n\
++# Permission is hereby granted for the distribution of this firmware\n\
++# image as part of a Linux or other Open Source operating system kernel\n\
++# in text or binary form as required.\n\
++#\n\
++# This firmware may not be modified and may only be used with\n\
++# Keyspan hardware.  Distribution of this firmware, in whole or in\n\
++# part, requires the inclusion of this statement.\n\
++#\n";
++
++void dumpfw(char *name, const struct ezusb_hex_record *record)
++{
++    char fw_name[20];
++    char NAME[10];
++    uint16_t address, i;
++    uint8_t crc;
++    FILE *f;
++
++    for (i = 0; name[i] != '\0'; i++)
++	NAME[i] = toupper(name[i]);
++    NAME[i] = '\0';
++
++    sprintf(fw_name, "keyspan-%s.fw", name);
++    printf("writing %s\n", fw_name);
++
++    f = fopen(fw_name, "w");
++    fprintf(f, boilerplate, NAME);
++
++    while (record->address != 0xffff) {
++	crc = record->size + (record->address >> 8) + record->address;
++	fprintf(f, ":%02X%04X00", record->size, record->address);
++	for (i = 0; i < record->size; i++) {
++	    fprintf(f, "%02X", record->data[i]);
++	    crc += record->data[i];
++	}
++	fprintf(f, "%02X\n", (uint8_t)-crc);
++	record++;
++    }
++    fprintf(f, ":00000001FF\n");
++
++    fclose(f);
++}
++
++int main(int argc, char **argv)
++{
++    dumpfw("mpr",	keyspan_mpr_firmware);
++    dumpfw("usa18x",	keyspan_usa18x_firmware);
++    dumpfw("usa19",	keyspan_usa19_firmware);
++    dumpfw("usa19qi",	keyspan_usa19qi_firmware);
++    dumpfw("usa19qw",	keyspan_usa19qw_firmware);
++    dumpfw("usa19w",	keyspan_usa19w_firmware);
++    dumpfw("usa28",	keyspan_usa28_firmware);
++    dumpfw("usa28x",	keyspan_usa28x_firmware);
++    dumpfw("usa28xa",	keyspan_usa28xa_firmware);
++    dumpfw("usa28xb",	keyspan_usa28xb_firmware);
++    dumpfw("usa49w",	keyspan_usa49w_firmware);
++    dumpfw("usa49wlc",	keyspan_usa49wlc_firmware);
++}
++
 
-With these set linux-2.6.12-rc2-mm1 built OK.
+--
 
-[steven@spc1 linux-2.6.12-rc2-mm1]$ grep ^CONFIG_ACPI .config
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_BLACKLIST_YEAR=0
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-
-Steven

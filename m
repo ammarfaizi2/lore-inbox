@@ -1,52 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266409AbUG2Gs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267429AbUG2H1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266409AbUG2Gs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 02:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUG2Gs6
+	id S267429AbUG2H1K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 03:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267456AbUG2H1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 02:48:58 -0400
-Received: from cantor.suse.de ([195.135.220.2]:35762 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264492AbUG2Gsz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 02:48:55 -0400
-Date: Thu, 29 Jul 2004 08:48:13 +0200
-From: Olaf Hering <olh@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] fix zlib debug in ppc boot header
-Message-ID: <20040729064813.GB17282@suse.de>
-References: <20040728112222.GA7670@suse.de> <1091014495.2795.25.camel@laptop.fenrus.com> <20040728150145.GK10891@smtp.west.cox.net> <20040728153633.GA21105@suse.de> <20040728230635.GC16468@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040728230635.GC16468@smtp.west.cox.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Thu, 29 Jul 2004 03:27:10 -0400
+Received: from mail024.syd.optusnet.com.au ([211.29.132.242]:61396 "EHLO
+	mail024.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267429AbUG2H1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 03:27:01 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16648.42669.907048.112765@wombat.chubb.wattle.id.au>
+Date: Thu, 29 Jul 2004 17:26:37 +1000
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: "David S. Miller" <davem@redhat.com>, Chris Wedgwood <cw@f00f.org>,
+       peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org
+Subject: Re: stat very inefficient
+In-Reply-To: <20040729002924.GK12308@parcelfarce.linux.theplanet.co.uk>
+References: <233602095@toto.iv>
+	<16648.10711.200049.616183@wombat.chubb.wattle.id.au>
+	<20040728154523.20713ef1.davem@redhat.com>
+	<20040729000837.GA24956@taniwha.stupidest.org>
+	<20040728171414.5de8da96.davem@redhat.com>
+	<20040729002924.GK12308@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Jul 28, Tom Rini wrote:
+>>>>> "viro" == viro  <viro@parcelfarce.linux.theplanet.co.uk> writes:
 
-> On Wed, Jul 28, 2004 at 05:36:33PM +0200, Olaf Hering wrote:
-> 
-> > 
-> >  On Wed, Jul 28, Tom Rini wrote:
-> > 
-> > > Olaf, has having this code work for you ever been useful?  Thanks.
-> > 
-> > The debug stuff? Sure. Now I know we have to improve the memcpy
-> > alignment handling. But thats a different story.
-> 
-> Can you please elaborate?  Thanks.
+>> On Wed, 28 Jul 2004 17:08:37 -0700 Chris Wedgwood <cw@f00f.org>
+>> wrote:
+>> 
+>> > Just How bad is it for you?  I just tested stat on my crapbox and
+>> for > a short path 1M stats takes 0.5s and for a longer path (30
+>> bytes or > so) 2.8s.
+>> 
+>> Run "time find . -type f" on the kernel tree, both before and after
+>> removing the third unnecessary copy.
 
-ppc 601 barfs on unaligned string instructions. we can handle the
-exceptions when the kernel runs, but not when OF is still in charge.
+viro> ... with hot cache, otherwise IO time will dominate.  I don't
+viro> disagree with you, but in all realistic cases I can think of
+viro> it's going to be noise (e.g. this find over kernel tree is
+viro> almost certainly followed by xargs grep, etc.).
+
+With hot cache the system time is really small.
+
+On a 2GHz Pentium 4, Compare
+	find .-type f -mtime -2000 >/dev/null
+with
+	find . -type f -mtime -2000
+in a freshly checked out 2.8 kernel tree.
+
+(the -mtime test is to force a stat, otherwise, as Ulrich says, almost
+no stat system calls will take place)
+
+	to xterm     	>/dev/null	| xargs grep foo
+sys	0.34		0.103		0.35
+user    0.29		0.08		0.104
+real    18.551		0.204		220.25
+
+Using strace reveals that around 60% of the system time in the
+redirected to /dev/null case is lstat64 --- 41465 calls, 1.5usec per
+call.  Where it's in a pipe that uses the files, the time is swamped
+by the time to process the files, and the time spent in write() ---
+lstat64 drops to around 16% of the time in find.
+
+The nice thing about the current three-copy implementation is that
+it's simple and obviously correct.  Personally, I don't think that the
+increased complexity of arhcitecture-specific callbacks, etc., is
+worth the small performance gain.
 
 
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

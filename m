@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130350AbQKGXDh>; Tue, 7 Nov 2000 18:03:37 -0500
+	id <S130448AbQKGXER>; Tue, 7 Nov 2000 18:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbQKGXD2>; Tue, 7 Nov 2000 18:03:28 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:3591 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130350AbQKGXDL>; Tue, 7 Nov 2000 18:03:11 -0500
-Message-ID: <3A088948.99379D08@timpanogas.org>
-Date: Tue, 07 Nov 2000 15:59:20 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S130449AbQKGXEH>; Tue, 7 Nov 2000 18:04:07 -0500
+Received: from m11.boston.juno.com ([63.211.172.74]:60585 "EHLO
+	m11.boston.juno.com") by vger.kernel.org with ESMTP
+	id <S130448AbQKGXD6>; Tue, 7 Nov 2000 18:03:58 -0500
+To: alan@lxorguk.ukuu.org.uk
+Cc: x_coder@hotmail.com, andre@linux-ide.org, linux-kernel@vger.kernel.org
+Date: Sat, 4 Nov 2000 19:04:08 -0500
+Subject: Re: Pentium 4 and 2.4/2.5
+Message-ID: <20001104.190410.-351455.2.fdavis112@juno.com>
+X-Mailer: Juno 4.0.5
 MIME-Version: 1.0
-To: Su Hwan Hwang <coredumping@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to study linux kernel?
-In-Reply-To: <F244xroC6POYFSrAuWi0000f22c@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Juno-Line-Breaks: 0-5,8-12,14-28
+X-Juno-Att: 0
+X-Juno-RefParts: 0
+From: Frank Davis <fdavis112@juno.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan,
+  As for 'rep nop', couldn't we add in the code, as an example:  
+#ifdef Pentium_4
+rep nop
+#endif
 
+  As for the 2.2.18 patch for correctly determining 2GHz and above, can
+it be easily  merged into the 2.4.x kernel, and if so, what's the maximum
+clock speed that can be detected?
 
-Su Hwan Hwang wrote:
+Regards,
+-Frank
+
+On Tue, 7 Nov 2000 21:48:40 +0000 (GMT) Alan Cox
+<alan@lxorguk.ukuu.org.uk> writes:
+> > are you saying that rep;nop is not needed in the spinlocks? 
+> (because they
+> > are for P4)
 > 
-> I'm interested in linux-kernel but I'm beginner.
+> rep;nop is a magic instruction on the PIV and possibly some PIII 
+> series CPUs
+> [not sure]. As far as I can make out it naps momentarily or until 
+> bus
+> activity thus saving power on spinlocks.
 > 
-> So I don't know how to study linux-kernel.
-
-1.  Go to www.linuxdoc.org and read the HOWTOs on the Linux kernel.
-2.  Buy a coffee maker and 3000 lbs. of coffee beans.  You will also
-need a coffee grinder to grind the beans so you can stay awake around
-the clock reviewing code.
-3.  Grow a very thick skin and expect "baptism by fire" when asking any
-question on this list.
-4.  Be very nice to Alan Cox.  He will answer questions and if you are
-really wanting to help out.
-5.  Buy a copy of "Unix - a practical implementation" and read it.  
-6.  "Linux Kernel Internals" is another great book, get it -- the basics
-are there.
-7.  Grow a ponytail -- view it as your telepathic antenna to other Linux
-Kernel Developers.
-
-:-)
-
-Jeff   
-
+> The problem is 'rep nop' is not defined on other cpus so we can only 
+> really use
+> it on the PIII/PIV kernel builds
 > 
-> Please tell me.
-> _________________________________________________________________________
-> Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
-> 
-> Share information about yourself, create your own public profile at
-> http://profiles.msn.com.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

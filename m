@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261500AbRERK5b>; Fri, 18 May 2001 06:57:31 -0400
+	id <S262292AbRERLJ0>; Fri, 18 May 2001 07:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262292AbRERK5V>; Fri, 18 May 2001 06:57:21 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:6108 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261500AbRERK5M>; Fri, 18 May 2001 06:57:12 -0400
-Message-ID: <3B04FEE8.FC45EAFE@uow.edu.au>
-Date: Fri, 18 May 2001 20:52:24 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Santiago Garcia Mantinan <manty@udc.es>
-CC: linux-kernel@vger.kernel.org, Jens David <dg1kjd@afthd.tu-darmstadt.de>
-Subject: Re: 8139too on 2.2.19 doesn't close file descriptors
-In-Reply-To: <20010518000450.A3755@man.beta.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262293AbRERLJP>; Fri, 18 May 2001 07:09:15 -0400
+Received: from jalon.able.es ([212.97.163.2]:46744 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S262292AbRERLJI>;
+	Fri, 18 May 2001 07:09:08 -0400
+Date: Fri, 18 May 2001 13:08:59 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new version of singlecopy pipe
+Message-ID: <20010518130859.A1049@werewolf.able.es>
+In-Reply-To: <3AFC36BA.B71FC470@colorfullife.com> <20010512020742.A1054@werewolf.able.es> <15100.33537.982370.753962@pizda.ninka.net> <20010512095057.A2539@werewolf.able.es> <15100.62190.251880.613889@pizda.ninka.net> <3B043BBF.6F8E7B7C@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3B043BBF.6F8E7B7C@colorfullife.com>; from manfred@colorfullife.com on Thu, May 17, 2001 at 22:59:43 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Santiago Garcia Mantinan wrote:
-> 
-> Hi!
-> 
-> I was tracking down a problem with Debian installation freezing when doing
-> the ifconfig of the 8139too driver on 2.2.19 kernel, and found that this was
-> caused by 8139too for 2.2.19 not closing it's file descriptors.
-> 
-> The original code by Jeff for the 2.4 series is ok, and searching for the
-> cause of the problem I have found a difference in the way rtl8139_thread
-> exits on both versions:
-> 
-> 2.2 version:
->         up (&tp->thr_exited);
->         return 0;
-> 
-> 2.4 version:
->         up_and_exit (&tp->thr_exited, 0);
-> 
-> I think the problem must be there, not doing the do_exit on the 2.2 version,
-> but I may be wrong, can anybody look this up?
 
-No, that's OK.
+On 05.17 Manfred Spraul wrote:
+> "David S. Miller" wrote:
+> > 
+> > J . A . Magallon writes:
+> >  > > What platform?
+> > 
+> >  > Any more info ?
+> > 
+> > No, I thought it might be some cache flushing issue
+> > on a non-x86 machine.
+> > 
+> I found the problem: 
+> I sent out the old patch :-(
+> 
+> Attached is the correct version of patch-copy_user_user.
+> 
 
-In 2.2, daemonize() does *not* do exit_files().  In 2.4
-it does.  I wonder why?
+Yes, this time it worked fine (against ac11)...
 
-Try putting an
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.4-ac11 #2 SMP Fri May 18 12:27:06 CEST 2001 i686
 
-	exit_files(current);
-
-at the start of rtl8139_thread()

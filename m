@@ -1,135 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276654AbRJBTqN>; Tue, 2 Oct 2001 15:46:13 -0400
+	id <S276649AbRJBTsd>; Tue, 2 Oct 2001 15:48:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276653AbRJBTqE>; Tue, 2 Oct 2001 15:46:04 -0400
-Received: from mailb.telia.com ([194.22.194.6]:33802 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S276649AbRJBTp4>;
-	Tue, 2 Oct 2001 15:45:56 -0400
-From: "Per Persson" <per.persson@gnosjo.pp.se>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] triple_down in fs.h
-Date: Tue, 2 Oct 2001 21:42:12 +0200
-Message-ID: <NDBBJMOHILCIIKFHCBHAEELACAAA.per.persson@gnosjo.pp.se>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0000_01C14B8B.1926E000"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S276653AbRJBTsY>; Tue, 2 Oct 2001 15:48:24 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:39165 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S276649AbRJBTsL>; Tue, 2 Oct 2001 15:48:11 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Tue, 2 Oct 2001 13:46:17 -0600
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+Cc: Ben Greear <greearb@candelatech.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
+        kuznet@ms2.inr.ac.ru, Ingo Molnar <mingo@elte.hu>, netdev@oss.sgi.com
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <20011002134617.J8954@turbolinux.com>
+Mail-Followup-To: Robert Olsson <Robert.Olsson@data.slu.se>,
+	Ben Greear <greearb@candelatech.com>,
+	Benjamin LaHaise <bcrl@redhat.com>, jamal <hadi@cyberus.ca>,
+	linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
+	Ingo Molnar <mingo@elte.hu>, netdev@oss.sgi.com
+In-Reply-To: <20011001210445.D15341@redhat.com> <Pine.GSO.4.30.0110012127410.28105-100000@shell.cyberus.ca> <20011002011351.A20025@redhat.com> <3BB956D3.AE0FCC54@candelatech.com> <15289.62283.695135.525478@robur.slu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15289.62283.695135.525478@robur.slu.se>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Oct 02, 2001  19:03 +0200, Robert Olsson wrote:
+> Jamal mentioned some about the polling efforts for Linux. I can give some
+> experimental data here with GIGE. Motivation, implantation etc is in paper 
+> to presented at USENIX Oakland. 
 
-------=_NextPart_000_0000_01C14B8B.1926E000
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+How do you determine the polling rate?  I take it that this is a different
+patch than Ingo's?
 
-Cleaned up some code.
+> Iface   MTU Met  RX-OK RX-ERR RX-DRP RX-OVR  TX-OK TX-ERR TX-DRP TX-OVR Flags
+> eth0   1500   0 4031309 7803725 7803725 5968699    22     0      0      0 BRU
+> eth1   1500   0     18      0      0      0 4031305      0      0      0 BRU
+> 
+> The RX-ERR, RX-DRP are bugs from the e1000 driver. Anyway we getting 40% of 
+> packet storm routed. With a estimated throughput is about 350.000 p/s 
 
-[PATCH of 2.4.10 attached]
+Are you sure they are "bugs" and not dropped packets?  It seems to me that
+RX-ERR == RX-DRP, which would seem to me that the receive buffers are full
+on the card and are not being emptied quickly enough (or maybe that is
+indicated by RX-OVR...)  I don't know whether it is _possible_ to empty
+the buffers quickly enough, I suppose CPU usage info would also shed some
+light on that.
 
-Per Persson
-per.persson@gnosjo.pp.se
-
-------=_NextPart_000_0000_01C14B8B.1926E000
-Content-Type: application/octet-stream;
-	name="fs.h.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="fs.h.patch"
-
---- include/linux/fs.h.orig	Sat Sep 29 22:10:21 2001=0A=
-+++ include/linux/fs.h	Sat Sep 29 22:32:28 2001=0A=
-@@ -1476,14 +1476,25 @@=0A=
- /*=0A=
-  * Whee.. Deadlock country. Happily there are only two VFS=0A=
-  * operations that does this..=0A=
-+ *=0A=
-+ * {double,triple}_down modified by Per Persson in September, 2001=0A=
-  */=0A=
-+=0A=
-+#define exch(x,y)			\=0A=
-+do {					\=0A=
-+	typeof(x) __tmp__ =3D (x);	\=0A=
-+	(x) =3D (y);			\=0A=
-+	(y) =3D __tmp__;			\=0A=
-+} while(0)=0A=
-+=0A=
-+#define sort(x,y)			\=0A=
-+if((x) > (y))				\=0A=
-+	exch((x), (y))=0A=
-+=0A=
- static inline void double_down(struct semaphore *s1, struct semaphore =
-*s2)=0A=
- {=0A=
- 	if (s1 !=3D s2) {=0A=
--		if ((unsigned long) s1 < (unsigned long) s2) {=0A=
--			struct semaphore *tmp =3D s2;=0A=
--			s2 =3D s1; s1 =3D tmp;=0A=
--		}=0A=
-+		sort((ulong) s2, (ulong) s1);	// s2 < s1=0A=
- 		down(s1);=0A=
- 	}=0A=
- 	down(s2);=0A=
-@@ -1493,9 +1504,11 @@=0A=
-  * Ewwwwwwww... _triple_ lock. We are guaranteed that the 3rd argument =
-is=0A=
-  * not equal to 1st and not equal to 2nd - the first case (target is =
-parent of=0A=
-  * source) would be already caught, the second is plain impossible =
-(target is=0A=
-- * its own parent and that case would be caught even earlier). Very =
-messy.=0A=
-- * I _think_ that it works, but no warranties - please, look it through.=0A=
-- * Pox on bloody lusers who mandated overwriting rename() for =
-directories...=0A=
-+ * its own parent and that case would be caught even earlier).=0A=
-+ *=0A=
-+ * Hopefully it does the same thing as the old code,=0A=
-+ * but in a cleaner and more efficient way.=0A=
-+ *     /Per=0A=
-  */=0A=
- =0A=
- static inline void triple_down(struct semaphore *s1,=0A=
-@@ -1503,30 +1516,11 @@=0A=
- 			       struct semaphore *s3)=0A=
- {=0A=
- 	if (s1 !=3D s2) {=0A=
--		if ((unsigned long) s1 < (unsigned long) s2) {=0A=
--			if ((unsigned long) s1 < (unsigned long) s3) {=0A=
--				struct semaphore *tmp =3D s3;=0A=
--				s3 =3D s1; s1 =3D tmp;=0A=
--			}=0A=
--			if ((unsigned long) s1 < (unsigned long) s2) {=0A=
--				struct semaphore *tmp =3D s2;=0A=
--				s2 =3D s1; s1 =3D tmp;=0A=
--			}=0A=
--		} else {=0A=
--			if ((unsigned long) s1 < (unsigned long) s3) {=0A=
--				struct semaphore *tmp =3D s3;=0A=
--				s3 =3D s1; s1 =3D tmp;=0A=
--			}=0A=
--			if ((unsigned long) s2 < (unsigned long) s3) {=0A=
--				struct semaphore *tmp =3D s3;=0A=
--				s3 =3D s2; s2 =3D tmp;=0A=
--			}=0A=
--		}=0A=
-+		sort((ulong) s2, (ulong) s1);	// s2 < s1=0A=
-+		sort((ulong) s3, (ulong) s1);	// s3 < s1=0A=
- 		down(s1);=0A=
--	} else if ((unsigned long) s2 < (unsigned long) s3) {=0A=
--		struct semaphore *tmp =3D s3;=0A=
--		s3 =3D s2; s2 =3D tmp;=0A=
- 	}=0A=
-+	sort((ulong) s3, (ulong) s2);		// s2 > s3=0A=
- 	down(s2);=0A=
- 	down(s3);=0A=
- }=0A=
-
-------=_NextPart_000_0000_01C14B8B.1926E000--
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268714AbTGOPSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 11:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268564AbTGOPPT
+	id S268537AbTGOPPO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 11:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbTGOPPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 11:15:19 -0400
-Received: from host81-136-144-97.in-addr.btopenworld.com ([81.136.144.97]:25581
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP id S268470AbTGOPMb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 11:12:31 -0400
-Subject: Re: [RFC][PATCH 0/5] relayfs
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, karim@opersys.com, bob@watson.ibm.com
-In-Reply-To: <16148.6807.578262.720332@gargle.gargle.HOWL>
-References: <16148.6807.578262.720332@gargle.gargle.HOWL>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-X/eJnZlljnpKlwbA4Jnu"
-Message-Id: <1058282847.375.3.camel@sherbert>
+	Tue, 15 Jul 2003 11:15:07 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:17413 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S268453AbTGOPIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 11:08:41 -0400
+Subject: Re: [PATCH] N1int for interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200307151355.23586.kernel@kolivas.org>
+References: <200307151355.23586.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1058282608.626.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 15 Jul 2003 16:27:28 +0100
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 15 Jul 2003 17:23:28 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-07-15 at 05:55, Con Kolivas wrote:
+> I've modified Mike Galbraith's nanosleep work for greater resolution to help 
+> the interactivity estimator work I've done in the O*int patches. This patch 
+> applies to any kernel patched up to the latest patch-O5int-0307150857 which 
+> applies on top of 2.5.75-mm1.
+> 
+> Please test and comment, and advise what further changes you think are 
+> appropriate or necessary, including other archs. I've preserved Mike's code
+> unchanged wherever possible. It works well for me, but n=1 does not
+> a good sample population make.
+> 
+> The patch-N1int-0307151249 is available here:
+> http://kernel.kolivas.org/2.5
 
---=-X/eJnZlljnpKlwbA4Jnu
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I can still starve XMMS on 2.5.75-mm1 + patch-O5int-0307150857 +
+patch-N1int-0307152010:
 
-On Tue, 2003-07-15 at 16:15, Tom Zanussi wrote:
-> The following 5 patches implement relayfs, adding a dynamic channel
-> resizing capability to the previously posted version.
->=20
-> relayfs is a filesystem designed to provide an efficient mechanism for
-> tools and facilities to relay large amounts of data from kernel space
-> to user space.  Full details can be found in Documentation/filesystems/
-> relayfs.txt.  The current version can always be found at
-> http://www.opersys.com/relayfs.
+1. Log on to KDE
+2. Launch Konqueror
+3. Launch XMMS and make it play
+4. Move Konqueror window all over the desktop
 
-Could this be used to replace mmap() packet socket, how does it compare?
+Step 4 will make XMMS starve for a few seconds. Also, under heavy load
+(while true; do a=2; done), moving the Konqueror window like crazy makes
+X go jerky after a few seconds. If I quit moving windows around, after a
+few other seconds, X returns to normal/smooth behavior.
 
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+I can fix the starvation/smoothness by setting:
 
+#define PRIO_BONUS_RATIO        45
+#define INTERACTIVE_DELTA       4
+#define MAX_SLEEP_AVG           (HZ)
+#define STARVATION_LIMIT        (HZ)
 
---=-X/eJnZlljnpKlwbA4Jnu
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+For me, 2.6.0-test1 stock scheduler plus above changes makes the most
+user-friendly desktop I've ever seen.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/FB1fkbV2aYZGvn0RAolMAJ9O4qPMw3eanq59EkOmmQSBiGao0ACfbdWO
-ipsB8Bj26Eo21Gvh/3R0saI=
-=pMKW
------END PGP SIGNATURE-----
-
---=-X/eJnZlljnpKlwbA4Jnu--
+Thanks!
 

@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUHEUvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267962AbUHEU6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267957AbUHEUvr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267962AbUHEUrB
+	id S267962AbUHEU6h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUHEU5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:47:01 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:6669 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S267957AbUHEUov convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:44:51 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: cciss update [1 of 6]
-Date: Thu, 5 Aug 2004 15:44:47 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DBFBB4@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-topic: cciss update [1 of 6]
-Thread-index: AcR7HuIEX/BEIL4ZQxW0oZcpdOjZUQADghgA
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: "Andrew Morton" <akpm@osdl.org>, <axboe@suse.de>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Aug 2004 20:44:48.0657 (UTC) FILETIME=[0C7E6010:01C47B2D]
+	Thu, 5 Aug 2004 16:57:43 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:29022 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267973AbUHEUwa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 16:52:30 -0400
+Date: Thu, 5 Aug 2004 22:54:01 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Tom Duffy <tduffy@sun.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix x86_64 build of mmconfig.c
+Message-ID: <20040805205401.GB22342@mars.ravnborg.org>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Tom Duffy <tduffy@sun.com>, linux-kernel@vger.kernel.org
+References: <1091728096.10131.16.camel@duffman> <20040805223205.3dd2ee1a.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805223205.3dd2ee1a.ak@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 05, 2004 at 10:32:05PM +0200, Andi Kleen wrote:
+> On Thu, 05 Aug 2004 10:48:16 -0700
+> Tom Duffy <tduffy@sun.com> wrote:
+> 
+> > Signed-by: Tom Duffy <tduffy@sun.com>
+> > 
+> >   gcc -Wp,-MD,arch/x86_64/pci/.mmconfig.o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude -Iinclude2 -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/include -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci -Iarch/x86_64/pci -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -mno-red-zone -mcmodel=kernel -pipe -fno-reorder-blocks -Wno-sign-compare -fno-asynchronous-unwind-tables -O2 -fomit-frame-pointer -Wdeclaration-after-statement -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/ -I arch/i386/pci  -DKBUILD_BASENAME=mmconfig -DKBUILD_MODNAME=mmconfig -c -o arch/x86_64/pci/mmconfig.o /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c
+> > /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c:10:17: pci.h: No such file or directory
+> > 
+> > --- arch/x86_64/pci/Makefile.orig	2004-08-05 09:54:24.932007000 -0700
+> > +++ arch/x86_64/pci/Makefile	2004-08-05 09:53:53.171006000 -0700
+> > @@ -3,7 +3,7 @@
+> >  #
+> >  # Reuse the i386 PCI subsystem
+> >  #
+> > -CFLAGS += -I arch/i386/pci
+> > +CFLAGS += -Iarch/i386/pci
+> 
+> It never failed this way for me in hundreds of builds. Why is it failing for you? 
+> What gcc version do you use? 
+> 
+> Normally -Ifoo and -I foo should be really equivalent.
 
+Notice the originally poster uses the make O=dir syntax - visible from the include2
+directory being present on the commandline.
 
------Original Message-----
-From: viro@www.linux.org.uk [mailto:viro@www.linux.org.uk]On Behalf Of
-viro@parcelfarce.linux.theplanet.co.uk
-Sent: Thursday, August 05, 2004 1:26 PM
-To: Miller, Mike (OS Dev)
-Cc: Andrew Morton; axboe@suse.de; linux-kernel@vger.kernel.org
-Subject: Re: cciss update [1 of 6]
+This issue is kbuild related. When using 'make O=dir' syntax kbuild process
+options passed to gcc, and all -Isomething are processed.
+Whitin the limits of the make syntax it it not easy to handle -I something.
+When I originally implemented this I grepped the kernel and did not
+find any uses of -I something, but only -Isomething.
+I may easy have overlooked one.
 
+And to the easy answer: fix kbuild.
+If anyone can see a way to fix this using make syntax please let me know. I did not
+find the answer.
+The lines to pay attention to are in Makefile.lib where cflags are processed.
 
-On Thu, Aug 05, 2004 at 09:23:20AM -0500, Miller, Mike (OS Dev) wrote:
->> Sorry, I thought the descriptions in the patch were sufficient. 
->> Again, I wish viro would copy me on patches to cciss. Isn't that the normal protocol, include the maintainer in any updates?
+Escaping to a shell is no option since this would be needed for all .o files
+even in an otherwise noop build.
+That's because all flags has to be evaluated each time to check if the flags changed.
 
->My apologies; it *was* a part of huge series, though ;-/
-
-I understand. I'm over it now. :)
-
-mikem
+	Sam

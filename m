@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVAaPDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVAaPKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVAaPDp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 10:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVAaPDo
+	id S261229AbVAaPKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 10:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVAaPKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 10:03:44 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:38457 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261228AbVAaPDj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 10:03:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=B0VKQWYqPZYRm/sl451ptpDYVSceiZMhkibahDfaW6QYc6ZjDrLycqhAa5D+IQpwbaR81rLcP7jbBcXJLD2Dqg5qCX2JoWaxDqP4xVuya42X9dnAcEb1Uyt9WlQdrCmmhv29ZhnvLjzJe1vx7MXgqNqRsWiWIaPzSssX0kgPVd0=
-Message-ID: <d120d50005013107005a8c39b1@mail.gmail.com>
-Date: Mon, 31 Jan 2005 10:00:51 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [-mm patch] connector.c: make notify_lock static
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050131124119.GE18316@stusta.de>
+	Mon, 31 Jan 2005 10:10:16 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1553 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261229AbVAaPKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 10:10:10 -0500
+Date: Mon, 31 Jan 2005 16:10:08 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
+       Nathan Scott <nathans@sgi.com>
+Subject: Re: 2.6.11-rc2-mm2
+Message-ID: <20050131151008.GM18316@stusta.de>
+References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org> <20050130105429.GA28300@infradead.org> <20050130105738.GA28387@infradead.org> <20050130120009.GG3185@stusta.de> <20050130121241.GH3185@stusta.de> <Pine.LNX.4.61.0501302358270.6118@scrub.home> <20050130231055.GA7103@stusta.de> <Pine.LNX.4.61.0501310025360.6118@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050131124119.GE18316@stusta.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501310025360.6118@scrub.home>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005 13:41:19 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> notify_lock isn't a good name for a global lock.
-> But since it's not used outside of the file, it can be made static.
+On Mon, Jan 31, 2005 at 12:36:02AM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> On Mon, 31 Jan 2005, Adrian Bunk wrote:
 > 
-> --- linux-2.6.11-rc2-mm2-full/drivers/connector/connector.c.old 2005-01-31 13:09:14.000000000 +0100
-> +++ linux-2.6.11-rc2-mm2-full/drivers/connector/connector.c     2005-01-31 13:09:28.000000000 +0100
-> @@ -41,7 +41,7 @@
-> module_param(cn_idx, uint, 0);
-> module_param(cn_val, uint, 0);
+> > WANT_EXPORTFS gets selected by NFSD.
+> > 
+> > EXPORTFS is usually WANT_EXPORTFS, but if WANT_EXPORTFS=m and 
+> > XFS_WANT_EXPORT=y, then EXPORTFS=y.
+> > 
+> > Since XFS_WANT_EXPORT itself depends on WANT_EXPORTFS this was my 
+> > workaround to avoid a circular dependency.
 > 
-> -spinlock_t notify_lock = SPIN_LOCK_UNLOCKED;
-> +static spinlock_t notify_lock = SPIN_LOCK_UNLOCKED;
-> static LIST_HEAD(notify_list);
+> Why not just let XFS_FS select EXPORTFS directly:
 > 
-> static struct cn_dev cdev;
-> 
+> config XFS_FS
+> 	select EXPORTFS if NFSD
 
-Isn't this supposed to be "static DEFINE_SPINLOCK(notify_lock);" nowadays?
+This has the wrong semantics:
+With NFSD=m and XFS_FS=y it only sets EXPORTFS=m.
+
+> bye, Roman
+
+cu
+Adrian
 
 -- 
-Dmitry
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

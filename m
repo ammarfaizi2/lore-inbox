@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273364AbRJQBLI>; Tue, 16 Oct 2001 21:11:08 -0400
+	id <S273565AbRJQBPs>; Tue, 16 Oct 2001 21:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273565AbRJQBKs>; Tue, 16 Oct 2001 21:10:48 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:22535 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S273364AbRJQBKl>;
-	Tue, 16 Oct 2001 21:10:41 -0400
-Date: Wed, 17 Oct 2001 03:11:13 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Oops in usb-storage.c
-Message-ID: <20011017031113.A3072@gondor.com>
-In-Reply-To: <20011017005822.A2161@gondor.com> <20011016175640.A18541@one-eyed-alien.net>
+	id <S273619AbRJQBPi>; Tue, 16 Oct 2001 21:15:38 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:13152 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S273565AbRJQBPX>; Tue, 16 Oct 2001 21:15:23 -0400
+Date: Wed, 17 Oct 2001 03:15:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Patrick McFarland <unknown@panax.com>, linux-kernel@vger.kernel.org
+Subject: Re: VM
+Message-ID: <20011017031542.X2380@athlon.random>
+In-Reply-To: <20011017013856.R2380@athlon.random> <Pine.LNX.4.33L.0110162247210.6440-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011016175640.A18541@one-eyed-alien.net>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33L.0110162247210.6440-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Oct 16, 2001 at 10:49:28PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 16, 2001 at 05:56:40PM -0700, Matthew Dharm wrote:
-> Actually, this is a side-effect of another problem, which is that INQUIRY
-> is legal for a device at any time (at least, to SCSI).  What we really need
-> to do is fake an INQURIY response for detached devices, separate from also
-> those devices which need a faked-inquiry all the time.
+On Tue, Oct 16, 2001 at 10:49:28PM -0200, Rik van Riel wrote:
+> The VM just doesn't have the information it needs to
+> determine what to do...
 
-Ok, then the fix could look like the following, I think. The INQUIRY
-response in the disconnected case is a little bit different, as the
-information from pusb_dev is not available, but the INQUIRY works and
-the oops is fixed.
+additional page aging cannot make it different as far I can tell.
+The twekaing I'm speaking about is a number. After probing the cache and
+after getting many faliures I need to choose when it's time to start
+the pagetable scanning. Additional bit of aging can only influence the number of
+faliures, I cannot see how can it help to know when to start the
+pagetable scanning. It's a _ratio_ between the faliures and the size of
+the scan that tells me when it's the time. You need the same logic too
+somewhere in -ac vm. Now if I turn the ratio very high the cache will
+shrink more before we start pagetable scanning.  If I make it low we'll
+swapout very easily. This ratio doesn't need to be perfect, it will
+never trigger anyways most of the time, but it must be a sane number,
+and it can make some difference during swapout.
 
-Jan
-
-
---- linux-2.4.12-ac3/drivers/usb/storage/usb.c.orig	Mon Oct  1 12:15:29 2001
-+++ linux-2.4.12-ac3/drivers/usb/storage/usb.c	Wed Oct 17 03:04:32 2001
-@@ -268,10 +268,12 @@
- 	memcpy(data+16, us->unusual_dev->productName, 
- 		strlen(us->unusual_dev->productName) > 16 ? 16 :
- 		strlen(us->unusual_dev->productName));
--	data[32] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>12) & 0x0F);
--	data[33] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>8) & 0x0F);
--	data[34] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>4) & 0x0F);
--	data[35] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice) & 0x0F);
-+	if(us->pusb_dev) {
-+		data[32] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>12) & 0x0F);
-+		data[33] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>8) & 0x0F);
-+		data[34] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>4) & 0x0F);
-+		data[35] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice) & 0x0F);
-+	}
- 
- 	if (us->srb->use_sg) {
- 		sg = (struct scatterlist *)us->srb->request_buffer;
-
-
-
+Andrea

@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132123AbRAaBGF>; Tue, 30 Jan 2001 20:06:05 -0500
+	id <S131402AbRAaBHF>; Tue, 30 Jan 2001 20:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132268AbRAaBFz>; Tue, 30 Jan 2001 20:05:55 -0500
-Received: from shell.cyberus.ca ([209.195.95.7]:44983 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S132123AbRAaBFo>;
-	Tue, 30 Jan 2001 20:05:44 -0500
-Date: Tue, 30 Jan 2001 20:04:51 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Ion Badulescu <ionut@cs.columbia.edu>, Andrew Morton <andrewm@uow.edu.au>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: Still not sexy! (Re: sendfile+zerocopy: fairly sexy (nothing to
- do with ECN)
-In-Reply-To: <Pine.LNX.4.30.0101310156380.13299-100000@elte.hu>
-Message-ID: <Pine.GSO.4.30.0101302000471.3017-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131374AbRAaBGp>; Tue, 30 Jan 2001 20:06:45 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:29424 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S131124AbRAaBGf>; Tue, 30 Jan 2001 20:06:35 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101310105.f0V15qi03324@webber.adilger.net>
+Subject: Re: Multiple SCSI host adapters, naming of attached devices
+In-Reply-To: <20010130224912.A388@kermit.wd21.co.uk> from Michael Pacey at "Jan
+ 30, 2001 10:49:12 pm"
+To: Michael Pacey <michael@wd21.co.uk>
+Date: Tue, 30 Jan 2001 18:05:51 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Pacey writes:
+> Given two host adapters each with 1 disk of ID 0, how do I tell Linux which
+> is sda and which sdb?
 
+You can't - you need to make sure either the cards are different and check
+the SCSI host probe order, or the detection order in the PCI bus.  You
+should only need to do this once, and simply use the order you get.
 
-On Wed, 31 Jan 2001, Ingo Molnar wrote:
+> After this I'll be filling the 2nd SCSI chain completely, so assigning a
+> different ID is not an option.
 
->
-> On Tue, 30 Jan 2001, jamal wrote:
->
-> > Kernel     |  tput  | sender-CPU | receiver-CPU |
-> > -------------------------------------------------
-> > 2.4.0-pre3 | 99MB/s |   87%      |  23%         |
-> > NSF        |        |            |              |
-> > -------------------------------------------------
-> > 2.4.0-pre3 | 68     |   8%       |  8%          |
-> > +ZC  SF    | MB/s   |            |              |
-> > -------------------------------------------------
->
-> isnt the CPU utilization difference amazing? :-)
->
+If you are using ext2 filesystems, you don't care which is which, because
+you can mount by filesystem UUID or LABEL, so just ignore the device names.
+The same is true with LVM.
 
-With a caveat, sadly ;-> ttcp uses times() system call (or a diff of
-times() one at the beggining and another at the end). So the cpu
-measurements are not reflective.
-
-> a couple of questions:
->
-> - is this UDP or TCP based? (UDP i guess)
->
-TCP
-
-> - what wsize/rsize are you using? How do these requests look like on the
->   network, ie. are they suffieciently MTU-sized?
-
-yes. writes vary from 8K->64K but not much difference over the long period
-of time.
-
->
-> - what happens if you run multiple instances of the testcode, does it
->   saturate bandwidth (or CPU)?
-
-This is something of great interest. I havent tried it. I should.
-I suspect this would be where the value of the ZC changes will become
-evident.
-
-cheers,
-jamal
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

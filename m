@@ -1,71 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263140AbVCDXIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263138AbVCDXSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbVCDXIT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbVCDWQr
+	id S263138AbVCDXSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263289AbVCDXNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 17:16:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38308 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263104AbVCDU7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:59:00 -0500
-Date: Fri, 4 Mar 2005 12:58:43 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.11.1
-Message-ID: <20050304205842.GA32232@kroah.com>
-References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org>
+	Fri, 4 Mar 2005 18:13:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38562 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263185AbVCDUyz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:54:55 -0500
+Cc: shawn.starr@rogers.com
+Subject: [PATCH] I2C: lm80 driver improvement
+In-Reply-To: <11099685953317@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:36:35 -0800
+Message-Id: <11099685952869@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304124431.676fd7cf.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 12:44:31PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > A few of us $suckers will be trying to maintain a 2.6.x.y set of
-> >  	releases that happen after 2.6.x is released.
-> 
-> Just to test things out a bit...
-> 
-> Here's the list of things which we might choose to put into 2.6.11.2.  I was
-> planning on sending them in for 2.6.12 when that was going to be
-> errata-only.
+ChangeSet 1.2095, 2005/03/02 12:10:18-08:00, shawn.starr@rogers.com
 
-Ok, care to forward them on?
+[PATCH] I2C: lm80 driver improvement
 
-> From 2.6.11-mm1:
-> 
-> cramfs-small-stat2-fix.patch
-> setup_per_zone_lowmem_reserve-oops-fix.patch
-> dv1394-ioctl-retval-fix.patch
-> ppc32-compilation-fixes-for-ebony-luan-and-ocotea.patch
-> nfsd--sgi-921857-find-broken-with-nohide-on-nfsv3.patch
-> nfsd--exportfs-reduce-stack-usage.patch
-> nfsd--svcrpc-add-a-per-flavor-set_client-method.patch
-> nfsd--svcrpc-rename-pg_authenticate.patch
-> nfsd--svcrpc-move-export-table-checks-to-a-per-program-pg_add_client-method.patch
-> nfsd--nfs4-use-new-pg_set_client-method-to-simplify-nfs4-callback-authentication.patch
-> nfsd--lockd-dont-try-to-match-callback-requests-against-export-table.patch
-> audit-mips-fix.patch
-> make-st-seekable-again.patch
-> 
-> wrt the nfsd patches, Neil said:
-> 
-> The problem they fix is that currently:
->     Client A holds a lock
->     Client B tries to get the lock and blocks
->     Client A drops the lock
->   **Client B doesn't get the lock immediately, but has to wait for a
->            timeout. (several seconds)
+Description: Cleanup some cluttered macros, add error checking for fan divisor value set.
 
-Hm, odds are the nfsd one doesn't fit our list of "acceptable things",
-but let's see the patches...
+Signed-off-by: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Signed-off-by: Shawn Starr <shawn.starr@rogers.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-thanks,
 
-greg k-h
+ drivers/i2c/chips/lm80.c |   17 ++++++++++++-----
+ 1 files changed, 12 insertions(+), 5 deletions(-)
+
+
+diff -Nru a/drivers/i2c/chips/lm80.c b/drivers/i2c/chips/lm80.c
+--- a/drivers/i2c/chips/lm80.c	2005-03-04 12:25:03 -08:00
++++ b/drivers/i2c/chips/lm80.c	2005-03-04 12:25:03 -08:00
+@@ -99,10 +99,7 @@
+ #define TEMP_LIMIT_TO_REG(val)		SENSORS_LIMIT((val)<0?\
+ 					((val)-500)/1000:((val)+500)/1000,0,255)
+ 
+-#define ALARMS_FROM_REG(val)		(val)
+-
+ #define DIV_FROM_REG(val)		(1 << (val))
+-#define DIV_TO_REG(val)			((val)==8?3:(val)==4?2:(val)==1?0:1)
+ 
+ /*
+  * Client data (each client gets its own)
+@@ -263,7 +260,17 @@
+ 			   DIV_FROM_REG(data->fan_div[nr]));
+ 
+ 	val = simple_strtoul(buf, NULL, 10);
+-	data->fan_div[nr] = DIV_TO_REG(val);
++
++	switch (val) {
++	case 1: data->fan_div[nr] = 0; break;
++	case 2: data->fan_div[nr] = 1; break;
++	case 4: data->fan_div[nr] = 2; break;
++	case 8: data->fan_div[nr] = 3; break;
++	default:
++		dev_err(&client->dev, "fan_div value %ld not "
++			"supported. Choose one of 1, 2, 4 or 8!\n", val);
++		return -EINVAL;
++	}
+ 
+ 	reg = (lm80_read_value(client, LM80_REG_FANDIV) & ~(3 << (2 * (nr + 1))))
+ 	    | (data->fan_div[nr] << (2 * (nr + 1)));
+@@ -321,7 +328,7 @@
+ static ssize_t show_alarms(struct device *dev, char *buf)
+ {
+ 	struct lm80_data *data = lm80_update_device(dev);
+-	return sprintf(buf, "%d\n", ALARMS_FROM_REG(data->alarms));
++	return sprintf(buf, "%u\n", data->alarms);
+ }
+ 
+ static DEVICE_ATTR(in0_min, S_IWUSR | S_IRUGO, show_in_min0, set_in_min0);
+

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315734AbSEQLMf>; Fri, 17 May 2002 07:12:35 -0400
+	id <S315595AbSEQLRJ>; Fri, 17 May 2002 07:17:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315634AbSEQLMe>; Fri, 17 May 2002 07:12:34 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:53963 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S315595AbSEQLMd>;
-	Fri, 17 May 2002 07:12:33 -0400
-Date: Fri, 17 May 2002 13:11:45 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Torrey Hoffman <Torrey.Hoffman@myrio.com>
-cc: Rolland Dudemaine <rolland.dudemaine@msg-software.com>, mj@ucw.cz,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: RE: boot logo size patch
-In-Reply-To: <A015F722AB845E4B8458CBABDFFE63420FE3EF@mail0.myrio.com>
-Message-ID: <Pine.GSO.4.21.0205171310530.395-100000@vervain.sonytel.be>
+	id <S315634AbSEQLRI>; Fri, 17 May 2002 07:17:08 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:57608 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315595AbSEQLRH>; Fri, 17 May 2002 07:17:07 -0400
+Message-ID: <3CE4D7A7.6090704@evision-ventures.com>
+Date: Fri, 17 May 2002 12:12:55 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Neil Conway <nconway.list@ukaea.org.uk>
+CC: Mike Fedyk <mfedyk@matchmail.com>, vda@port.imtp.ilyichevsk.odessa.ua,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <5.1.0.14.2.20020514202811.01fcc1d0@pop.cus.cam.ac.uk> <3CE22B2B.5080506@evision-ventures.com> <200205151138.g4FBcGY13110@Port.imtp.ilyichevsk.odessa.ua> <3CE24CB9.8DFC5821@ukaea.org.uk> <20020517070750.GD627@matchmail.com> <3CE4E445.3F9F57A3@ukaea.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 May 2002, Torrey Hoffman wrote:
-> Rolland Dudemaine wrote:
-> > For a *long* time, the boot logo has stayed in the kernel at many 
-> > places. Recently, it has been cleaned up to reduce the number of 
-> > identical logos. 
+Uz.ytkownik Neil Conway napisa?:
+> Mike Fedyk wrote:
 > 
-> [...]
+>>On Wed, May 15, 2002 at 12:55:37PM +0100, Neil Conway wrote:
+>>
+>>>You can (and must) safely "touch the cable" in between TCQ commands in
+>>>the right circumstances.  You are therefore touching the cable while the
+>>>hwgroup is busy, hence my suggestion that the flag we use to prevent
+>>>touching the cable during DMA should be named something other than busy.
+>>
+>>Ahh, but with TCQ the concept of busy changes.  The wire (simplified) is
+>>only busy when the tags are being transfered, otherwise the cable is unused
+>>unless the cable has been "locked" by one of the devices.
 > 
-> If you are interested in cleaning up the boot logo, you may want to
-> check out the patch set at www.arnor.net/linuxlogo
 > 
-> That sequence of six patches begins as you have, moving LOGO_H and 
-> LOGO_W into the individual logo files where they belong.
-> 
-> The second patch introduces a C program "tologo" to the scripts 
-> directory.  It converts arbitrary .ppm files to the linux_logo.h 
-> format, but is not 100% done (works correctly for 256 color images
-> but not the 16 color or black & white ones)
+> Hmm: "locked by one of the devices": do you mean a DMA transfer for
+> example?  These are initiated by the host, but proceed asynchronously,
+> so I'm not sure I'd describe it as being locked "by the device" as
+> such.  At any rate, the IDE code has to remember that the cable is
+> asynchronously active until DMA ends...  (Or I suppose it could just
+> check the hwif BMDMA bits for the active state.)
 
-For a program that handles all cases, check out my page:
+Grep for IDE_DMA busy bits to see it - it does precisely this.
 
-    http://home.tvd.be/cr26864/Linux/fbdev/logo.html
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

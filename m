@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129563AbRBRW5h>; Sun, 18 Feb 2001 17:57:37 -0500
+	id <S129279AbRBRXIm>; Sun, 18 Feb 2001 18:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129786AbRBRW5S>; Sun, 18 Feb 2001 17:57:18 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:38729 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129563AbRBRW5Q>; Sun, 18 Feb 2001 17:57:16 -0500
-Date: Sun, 18 Feb 2001 16:57:13 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Pedro Diaz Jimenez <pdiaz88@terra.es>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Beware - kernel Newbie!
-In-Reply-To: <01021823470200.00315@tajo>
-Message-ID: <Pine.LNX.3.96.1010218165420.28032C-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129339AbRBRXId>; Sun, 18 Feb 2001 18:08:33 -0500
+Received: from f91.law7.hotmail.com ([216.33.237.91]:62221 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129279AbRBRXIR>;
+	Sun, 18 Feb 2001 18:08:17 -0500
+X-Originating-IP: [193.237.25.148]
+From: "lafanga lafanga" <lafanga1@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Proliant hangs with 2.4 but works with 2.2.
+Date: Sun, 18 Feb 2001 23:08:11 -0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F91i3lDraH8kvLMxLQn00012fe9@hotmail.com>
+X-OriginalArrivalTime: 18 Feb 2001 23:08:11.0857 (UTC) FILETIME=[AA428410:01C099FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Feb 2001, Pedro Diaz Jimenez wrote:
-> This is an typical mail from an experienced user-land programmer who wants to 
-> help in kernel development ;D. 
-> 
-> I've been lurking for a while in this list and I'm wondering if this is the 
-> right list for asking stupid newbie questions. Is it?. If not, do you know 
-> one?. Where I can find documentation?
+I have a Compaq Proliant 1600 server which can be hung on demand with all 
+the 2.4 series kernels I have tried (2.4, 2.4.1 & 2.4.2-pre3). Kernel 2.2.16 
+runs perfectly (from a default RH7.0).
 
-We are always welcome to answer newbie -kernel hacking- questions...
-just ask specific ones.  For example, ask "how does struct netdevice's
-last_rx member get used?", not "what do I need to do to write a network
-driver?"....
+I have ensured that the server meets the necessary requirements for the 2.4 
+kernels (modutils etc) and I have tried kgcc and various gcc versions. When 
+compiling I have tried default configs and also minimalist configs (with 
+only cpqarray and tlan). I have also ensured that I have the latest current 
+SmartStart CD (4.9) and have setup the firmware for installing Linux.
 
-The documentation is in linux/Documentation/*
+The programs 'gpm', 'kudzu' and 'startx' all hang the server immediately 
+after they exit (with exit status 0). I cannot pinpoint why the kernel hangs 
+and would appreciate any help. The only thing I suspect it may be is that it 
+is a dual processor mobo with only one processor but I don't know how this 
+detection has changed in the 2.4 kernels.
 
-> (yeah, yeah, read the code. But
-> things are always better with an 'vi   Doc.txt' in the processes tree :)
+Thanks.
 
-Really.  The code is the best documentation.  Hone your code reading
-skills.  Use the source, Luke.
-
-	Jeff
-
-
-
+Ayub.
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

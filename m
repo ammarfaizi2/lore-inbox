@@ -1,43 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267209AbUG1PJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267201AbUG1PJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267209AbUG1PJT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 11:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267211AbUG1PJT
+	id S267201AbUG1PJo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 11:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267211AbUG1PJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 11:09:19 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:19351 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267209AbUG1PJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 11:09:15 -0400
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: suparna@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <35040000.1091025526@[10.10.2.4]>
-References: <16734.1090513167@ocs3.ocs.com.au>
-	 <20040725235705.57b804cc.akpm@osdl.org>
-	 <m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-	 <20040728105455.GA11282@in.ibm.com>
-	 <1091011565.30404.0.camel@localhost.localdomain>
-	 <35040000.1091025526@[10.10.2.4]>
-Content-Type: text/plain
+	Wed, 28 Jul 2004 11:09:44 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:63661 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S267201AbUG1PJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 11:09:39 -0400
+Message-ID: <4107C109.2070600@xeon2.local.here>
+Date: Wed, 28 Jul 2004 17:06:49 +0200
+From: kladit@t-online.de (Klaus Dittrich)
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Klaus Dittrich <kladit@t-online.de>,
+       Jan-Frode Myklebust <janfrode@parallab.uib.no>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: dentry cache leak? Re: rsync out of memory 2.6.8-rc2
+References: <20040726150615.GA1119@xeon2.local.here> <20040726123702.222ae654.akpm@osdl.org> <4105633C.3080204@xeon2.local.here> <20040726133846.604cef91.akpm@osdl.org> <41057A16.60801@xeon2.local.here> <20040726221420.GA8789@ii.uib.no> <4106BE6C.1030701@xeon2.local.here> <4106C3B7.10603@xeon2.local.here> <4106FF9F.5060609@yahoo.com.au>
+In-Reply-To: <4106FF9F.5060609@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1091023585.30740.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 28 Jul 2004 15:06:27 +0100
+X-ID: TnNDOMZcZemjJ7saxONCpehfHOhrXWP8f1mcrxpHvoq0eCjcylCW4G
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-07-28 at 15:38, Martin J. Bligh wrote:
-> After kexec, we shouldn't need such things, do we? Before it, Linus won't 
-> take the patch, as he said he doesn't like systems in unstable states doing
-> crashdumps to disk ...
+Nick Piggin wrote:
 
-And what does kexec do.. it accesses the disk. A SHA signed standalone
-dumper is as safe as anything else if not safer.
+> Klaus Dittrich wrote:
+>
+>> Klaus Dittrich wrote:
+>
+>
+>>> I did a test with a value of 500. echo 500 > 
+>>> /proc/sys/vm/vfs_cache_pressure.
+>>>
+>>> The highest numbers a cat /proc/sys/fs/dentry-state then showed during
+>>> a du -s were
+>>> 780721  750505  45      0       0       0
+>>>
+>>> The system survied. No processes were killed.
+>>>
+>>> With vfs_cache_pressure=100 a cat /proc/sys/fs/dentry-state showed
+>>> numbers of about 1090000 before processes got killed.
+>>>
+>>> Hope that helps to narrow the region to look for what has changed.
+>>>
+>> PS. Two concurrent du -s however "kernel: Out of Memory: Killed 
+>> process .." *
+>> *
+>
+>
+> Your vfs_cache_pressure probably wants to be higher than 500. Make it 
+> 10000.
 
-Alan
+*No problems when using 10000.
+But I think of this as workaround only.
 
+I have read the "Scaling dcache with RCU" article from linuxjournal.com
+to get some insight how things should work. Pretty complicated.
+
+I added some printk statements in dcache.c to see what functions
+actually get called to shink a dcache during a du -s.
+The only one I found is prune_dcache().
+Which events should trigger the use of d_invalidate() ?
+
+
+**
+*

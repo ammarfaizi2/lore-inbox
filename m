@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317063AbSHPI0T>; Fri, 16 Aug 2002 04:26:19 -0400
+	id <S317107AbSHPImq>; Fri, 16 Aug 2002 04:42:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317078AbSHPI0T>; Fri, 16 Aug 2002 04:26:19 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:56594 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S317063AbSHPI0S>; Fri, 16 Aug 2002 04:26:18 -0400
-Message-Id: <200208160824.g7G8Ogp24070@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Christian Reis <kiko@async.com.br>
-Subject: Re: General network slowness on SIS 530 with eepro100
-Date: Fri, 16 Aug 2002 11:21:33 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: eepro100@scyld.com, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <20020813212923.L2219@blackjesus.async.com.br> <200208150844.g7F8iQp19827@Port.imtp.ilyichevsk.odessa.ua> <20020815162155.L30462@blackjesus.async.com.br>
-In-Reply-To: <20020815162155.L30462@blackjesus.async.com.br>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S317112AbSHPImq>; Fri, 16 Aug 2002 04:42:46 -0400
+Received: from f109.law15.hotmail.com ([64.4.23.109]:46098 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S317107AbSHPImp>;
+	Fri, 16 Aug 2002 04:42:45 -0400
+X-Originating-IP: [202.56.162.141]
+From: "Misha Alex" <misha_zant@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Harddisk CHS to byte
+Date: Fri, 16 Aug 2002 08:46:36 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F109qdBYbueKJ5iSFUc0000b46b@hotmail.com>
+X-OriginalArrivalTime: 16 Aug 2002 08:46:37.0375 (UTC) FILETIME=[6EAA8CF0:01C24501]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 August 2002 17:21, Christian Reis wrote:
-> On Thu, Aug 15, 2002 at 11:41:20AM -0200, Denis Vlasenko wrote:
-> > On 13 August 2002 22:29, Christian Reis wrote:
-> > > On tri, which is the referred SIS530 box, as you can see, for most runs
-> > > the CPU usage is just so much higher than minas, which has practically
-> > > the same setup: K6-500, old PCI (no AGP) board, eepro100 card. I'm
-> > > wondering if anybody has seen something like this before?
-> >
-> > Start swapping hardware between these two boxes
+
+
+
+>>Hi,
+>   1)How do convert C,H,S into bytes.
+>     How can one read in linux if we know the C,H,S.
 >
-> I've done it, actually. I've swapped processor, memory and video cards
-> (which are the only things the boxes actually contain) and there has
-> been no change. It's very strange - block read and block write consume
-> enormous amounts of CPU, no matter how much I tinker. I've tried 2.4.19,
-> 2.2.21, NFS patches, etc.
+>      Also i tried the linear addressing linear = c*H*S + h*S +s -1 .But 
+>linear or linear*512 never gave me the exact byte offset to seek.
+>
+>I am working in linux and using a hexeditor to seek .How many exact bytes 
+>should i seek to find out the extended partition.I read the MBR and found 
+>the exteneded partiton.
+>00 01 01 00 02 fe 3f 01 3f 00 00 00 43 7d 00 00
+>80 00 01 02 0b fe bf 7e 82 7d 00 00 3d 26 9c 00
+>00 00 81 7f 0f fe ff ff bf a3 9c 00 f1 49 c3 01
+>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>
+>
+>See the third column it is 0f(extended windows).The cylinder is 639(7f81 h)
+>and sector is 1 .I don't know where to exactly read for the next partiton.
+>The byte offset for finding out the next partitions.
+>
+>If i open hda3(Mind you hda3 is an extended partition on hda) with a
+>hexeditor i get
+>
+>00 01 81 7f 83 fe ff 7d 3f 00 00 00 00 82 3e 00
+>00 00 c1 7e 05 fe ff ff 3f 82 3e 00 7e 04 7d 00
+>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>
+>.Now the first partition is of type 83 which is linux and the next
+>extended partition is of type 05(extended) and cylinder894 and sec1.
+>
+>
+>
+>*************************************
+>How do i find the next chain of extended partitions.I mean how do i convert 
+>cylinder 894 ,sec1 and head 0 into absolute bytes so that i can hexdump the 
+>next partition table for finding out ?
+>************************************
+>
+>Thank you,
+>Misha
+>
 
-Network card?
-Motherboard? :-)
-BIOS? 8-)
 
-Compare BIOS/chipset setup (lspci -vvvxxx)
---
-vda
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+

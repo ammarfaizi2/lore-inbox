@@ -1,98 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319102AbSIDIh1>; Wed, 4 Sep 2002 04:37:27 -0400
+	id <S319100AbSIDIgl>; Wed, 4 Sep 2002 04:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319103AbSIDIh0>; Wed, 4 Sep 2002 04:37:26 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:23569 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S319102AbSIDIhY>;
-	Wed, 4 Sep 2002 04:37:24 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209040841.g848fsT26299@oboe.it.uc3m.es>
-Subject: Re: [RFC] mount flag "direct" (fwd)
-In-Reply-To: <3D75B344.66D4166@aitel.hist.no> from Helge Hafting at "Sep 4, 2002
- 09:16:20 am"
+	id <S319102AbSIDIgl>; Wed, 4 Sep 2002 04:36:41 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:39410 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S319100AbSIDIgk>; Wed, 4 Sep 2002 04:36:40 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 4 Sep 2002 02:39:16 -0600
 To: Helge Hafting <helgehaf@aitel.hist.no>
-Date: Wed, 4 Sep 2002 10:41:54 +0200 (MET DST)
 Cc: ptb@it.uc3m.es, linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+Subject: Re: [RFC] mount flag "direct" (fwd)
+Message-ID: <20020904083916.GX32468@clusterfs.com>
+Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>, ptb@it.uc3m.es,
+	linux-kernel@vger.kernel.org
+References: <200209032107.g83L71h10758@oboe.it.uc3m.es> <3D75B344.66D4166@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D75B344.66D4166@aitel.hist.no>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Helge Hafting wrote:"
-> > The "big view" calculations indicate that we must have distributed
-> > shared writable data.
-> > 
-> Increasing demands for performance may indeed force a need
-> for shared writeable data someday.  Several solutions for that is
-> being developed.
+On Sep 04, 2002  09:16 +0200, Helge Hafting wrote:
 > Your idea about re-reading stuff over and over isn't going to help 
-
-I really don't see why you people don't get it. Rereading is a RARE
-operation. Normally we write once and read once. That's all. Once
-the data's in memory we use it.
-
-And if we ever have to reread something, it will very very rarely be
-metadata.
-
 > because that sort of thing consumes much more bandwith. Caches help
 > because they _avoid_ data transfers.  So shared writeable data
+> will happen, and it will use some sort of cache coherency,
+> for performance reasons.
 
-Tough. Data transfers are inevitable in this scenario. There's no
-sense in trying to avoid them. Data comes in at A and goes out at B.
-Ergo it's transfered.
+You assume too much about the applications.  For example, Oracle
+does not want _any_ cacheing to be done by the OS, because it
+manages the cache itself, and would rather allocate the full amount
+of RAM itself instead of the OS duplicating data it is cacheing
+internally.
 
-> > So, start thinking about general mechanisms to do distributed storage.
-> > Not particular FS solutions.
-> Distributed systems will need somewhat different solutions, because
-> they are fundamentally different.  Existing fs'es like ext2 is built
-> around a single-node assumption.  I claim that making a new fs from
+Similarly, there are many "write only" applications that are only
+hindered by OS cache, such as any kind of high-speed data recording
+(video, particle accelerators, scientific computing, etc) which is
+using most of the RAM for internal structures and wants the data it
+writes to go directly to disk at the highest possible speed.
 
-I am still getting afeel for the problem. Only avoiding directory
-caching (and inode caching) has worried me. I looked at the name
-lookup routines on the train and I don't see we onne can't force a
-reread from root every time, or a reread every time there is a
-"changed" bit set in the sb.
+> I claim that making a new fs from scratch for the distributed
+> case is easier than tweaking ext2 and 10-20 other existing fs'es
+> to work in such an environment.  Making a new fs from scratch
+> isn't such a big deal after all.
 
-> scratch for the distributed case is easier than tweaking ext2
+The problem isn't making a new fs, the problem is making a _good_
+new fs.  It takes at least several years of development, testing,
+tuning, etc to get just a local fs right, if not longer (i.e.
+reiserfs, JFS, XFS, ext3, etc).  Add in the complexity of the
+network side of things and it just gets that much harder to do
+it all well.
 
-No tweak. But I'm looking.
+We have taken the approach that local filesystems do a good job
+with the "one node" assumption, so just use them as-is to
+do a job they are good at.  All of the network and locking code
+for Lustre is outside of the filesystem, and the "local" filesystems
+are used for storing either the directory structure + attributes
+(for the metadata server), or file data (for the storage targets).
 
-> The case of distributed storage is similiar, it is fundamentally
-> different from the one-node case just as random-access media
+Local filesystems can do both of those jobs very well already, so
+no need to re-invent the wheel.
 
-I agree. But the case of one FS accessed from different nodes is not
-fundamentally different from the situation we have now. It requires
-locking. It also requires either explicit sharing of cached
-information, or no caching (which is the same thing :-). I merely
-opine that the latter is easier to try first and may not be so bad.
+See http://www.lustre.org/docs.html for lots of papers and
+documentation on the design of Lustre.
 
-> If you merely proposed making the VFS and existing fs'es
-> cache-coherent,then I'd agree it might work well, but
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-I'm proposing making no caching _possible_. Not mandatory, but
-_possible_. If you like, you can see it as a trivial case of cache
-sharing.
-
-> by throwing away caching _will_ be too slow, it certainly
-
-Why? The only thing I've seen mentioned that might slow things down
-is that at every open we have to trace the full path anew. So what?
-OK, so there's also objections about what happens if one kernel frees
-the data and anotehr adds to it. I'm thinking about what that implies.
-
-> There will probably be different needs for which people
-> will build different distributed fs'es.  So a 
-> "VDFS" makes sense for those fs'es, putting the common stuff
-> in one place.  But I am sure the VDFS will contain cache
-> coherency calls for dropping pages from cache when 
-> necessary, instead of dropping the cache unconditionally
-> in every case.
-
-That's possible, but right now I don't know any way of saying to the
-kernel "I just stepped all over X on disk, please invalidate anything
-you have cached that points to X". I'd like it very much in the
-buffering layer too (i.e. vMs).
-
-Peter

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311301AbSCLRpd>; Tue, 12 Mar 2002 12:45:33 -0500
+	id <S311264AbSCLSHb>; Tue, 12 Mar 2002 13:07:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311304AbSCLRpX>; Tue, 12 Mar 2002 12:45:23 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:59147 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S311301AbSCLRpF>; Tue, 12 Mar 2002 12:45:05 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Linux 2.4.19-pre3
-Date: 12 Mar 2002 17:47:06 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrna8sfoq.8at.kraxel@bytesex.org>
-In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva> <slrna8rmfn.46r.kraxel@bytesex.org>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1015955226 8542 127.0.0.1 (12 Mar 2002 17:47:06 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S311303AbSCLSHV>; Tue, 12 Mar 2002 13:07:21 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:31648 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S311264AbSCLSHN>; Tue, 12 Mar 2002 13:07:13 -0500
+Date: Tue, 12 Mar 2002 10:06:25 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: walter <walt@nea-fast.com>, linux-kernel@vger.kernel.org
+Subject: Re: oracle rmap kernel version
+Message-ID: <177640000.1015956385@flay>
+In-Reply-To: <200203121729.MAA08522@int1.nea-fast.com>
+In-Reply-To: <200203121729.MAA08522@int1.nea-fast.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-> >  Here goes -pre3, with the new IDE code. It has been stable enough time in
-> >  the -ac tree, in my and Alan's opinion.
->  
->  Doesn't boot my machine.  "Intel machine check architecture supported"
->  is the last message printed before it just hangs.
+> Does anyone have any production experience running Oracle 8i on Linux? I've 
+> run it at home, RH 7.2 with vanilla 2.4.16 kernel all IDE drives, and its 
+> fast. We are replacing our SUN/Oracle 8 servers at work in next couple of 
+> months with Linux/Oracle 8i (Pentium 4 1GB ram).  My question is, what is the 
+> best kernel version to use,  vanilla 2.4.x or a RH kernel built from the ac 
+> tree with rmap. All drives will be SCSI. 
+> I read an interview yesterday with Rik van Riel where he said rmap worked 
+> better for db servers but I expect that he is partial to rmap 8-).
+> Our web servers are running vanilla 2.4.16 and we haven't had a problem yet 
+> (knock on wood).
 
-With the -pre2 version of arch/i386/kernel/bluesmoke.c the box does boot.
+The real answer is to try them and do a benchmark for your particular
+application. Shouldn't take that long .... try the -aa tree too.
 
-  Gerd
+Martin.
 

@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbTE1ACC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 20:02:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTE1ACC
+	id S264456AbTE1ARv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 20:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264459AbTE1ARv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 20:02:02 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:39687 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S264455AbTE1ACB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 20:02:01 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Corey Minyard <minyard@acm.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Registering for notifier chains in modules (was Linux 2.4.21-rc3 - ipmi unresolved) 
-In-reply-to: Your message of "Tue, 27 May 2003 12:09:12 EST."
-             <3ED39BB8.9030306@acm.org> 
+	Tue, 27 May 2003 20:17:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5297 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264456AbTE1ARu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 20:17:50 -0400
+Date: Wed, 28 May 2003 01:31:05 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] procfs bug exposed by cdev changes
+Message-ID: <20030528003105.GD27916@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 28 May 2003 10:15:02 +1000
-Message-ID: <8261.1054080902@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003 12:09:12 -0500, 
-Corey Minyard <minyard@acm.org> wrote:
->viro@parcelfarce.linux.theplanet.co.uk wrote:
-viro>>How the devil would registration code figure out which module should
-viro>>be used?
+	fs/inode.c assumes that any ->delete_inode() will call clear_inode().
+procfs instance doesn't.  It had passed unpunished for a while; cdev changes
+combined with ALSA creating character devices in procfs made it fatal.
 
-I am glad that somebody gets it.
+	Patch follows.  It had fixed ALSA-triggered memory corruption here -
+what happens in vanilla 2.5.70 is that clear_inode() is not called when
+procfs character device inodes are freed.  That leaves a freed inode on
+a cyclic list, with obvious unpleasantness following when we try to traverse
+it (e.g. when unregistering a device).
 
-minyard>You create a new call that also takes the module as a parameter, and
-minyard>have the old call set the module owner to NULL.  You export the new
-minyard>call, and modules use it.
+	Please, apply.  Folks who'd seen oopsen/memory corruption after
+ALSA access - please, check if that fixes all problems.
 
-Which brings us right back to where we started.
-
-* Find all users of notifier_chain_register() and change them to the
-  new API.
-
-* If any of the calls to notifier_chain_register() are in service
-  routines then add a new parameter to the service routine to pass in
-  the module owner.  There are several service routines that do this,
-  especially in the network code.
-
-* Find all callers of all the modified service routines and change them
-  to use the new API for these service routines.
-
-* Repeat until you have propagated the new API all the way out to the
-  end points, to the only code that knows the module owner.
-
-Not in 2.4 thanks.
-
+--- C70/fs/proc/inode.c	Mon May 26 22:21:40 2003
++++ C70-current/fs/proc/inode.c	Tue May 27 20:07:01 2003
+@@ -61,8 +61,6 @@
+ 	struct proc_dir_entry *de;
+ 	struct task_struct *tsk;
+ 
+-	inode->i_state = I_CLEAR;
+-
+ 	/* Let go of any associated process */
+ 	tsk = PROC_I(inode)->task;
+ 	if (tsk)
+@@ -75,6 +73,7 @@
+ 			module_put(de->owner);
+ 		de_put(de);
+ 	}
++	clear_inode(inode);
+ }
+ 
+ struct vfsmount *proc_mnt;

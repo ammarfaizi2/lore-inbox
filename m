@@ -1,110 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSJQRmn>; Thu, 17 Oct 2002 13:42:43 -0400
+	id <S262038AbSJQRwQ>; Thu, 17 Oct 2002 13:52:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbSJQRmm>; Thu, 17 Oct 2002 13:42:42 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:32495 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261963AbSJQRlv>; Thu, 17 Oct 2002 13:41:51 -0400
-Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
-To: yoshfuji@linux-ipv6.org
-Cc: ajtuomin@morphine.tml.hut.fi, davem@redhat.com, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, pekkas@netcore.fi,
-       torvalds@transmeta.com, "Venkata Jagana" <jagana@us.ibm.com>,
-       yoshfuji@linux-ipv6.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFAE12FFFA.084238B4-ON88256C55.0060FC98@boulder.ibm.com>
-From: "Krishna Kumar" <kumarkr@us.ibm.com>
-Date: Thu, 17 Oct 2002 10:46:00 -0700
-X-MIMETrack: Serialize by Router on D03NM801/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 10/17/2002 11:47:33 AM
+	id <S262039AbSJQRwQ>; Thu, 17 Oct 2002 13:52:16 -0400
+Received: from fep02.tuttopmi.it ([212.131.248.101]:46282 "EHLO
+	fep02-svc.flexmail.it") by vger.kernel.org with ESMTP
+	id <S262038AbSJQRwO> convert rfc822-to-8bit; Thu, 17 Oct 2002 13:52:14 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Frederik Nosi <fredi@e-salute.it>
+Reply-To: fredi@e-salute.it
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][neofb]2.5.4[0-3]
+Date: Thu, 17 Oct 2002 20:01:08 +0000
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210172001.08099.fredi@e-salute.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi yoshifuji,
+(I'm sending this message to the list becouse mailing you directly bouces)
 
-> [network_mods etc.]
+
+At first thank you for your reply. 
+
+On Thursday 17 October 2002 16:43, you wrote:
+> > I have a DELL Latitude CPi D233SP. With kernels from 2.5.40 to 2.5.43
+> > using neofb during shutdown I get an Oops:
+> >
+> > Danger danger! Oopsen imminent
+> > MTRR setting reg 2
+> >
+> > This is the second time I'm reporting this, the first time I CC'ed the
+> > mantainer too without results. Here is the link to my previous posting:
+> >
+> > http://www.cs.helsinki.fi/linux/linux-kernel/2002-39/1108.html
 >
->  1. Too many hooks,
->     and many duplicate codes in ipv6 stack and mipv6 stack.
->     (prefix handler, header parser, ndisc handler etc...)
+> I saw it but I was busy finsihing the fbdev changes that are about to go
+> in. I also have this chipset so I plan to track down the bug now that I
+> have finished my work.
 
-What do you mean about having too many hooks ? Eg. prefix handler, you need
-to have a hook in the receive of router advertisement to do this. This is
-minimum hooks :-). Also, some of the ndisc handlers evaluate to NULL code
-for both regular IPv6 code (unless you have configured mobility) as well as
-some components of Mobile IPv6. Eg ndisc_mipv6_mn_solicit_ha() evaluates to
-NULL on HA and CN, but is a function call on every MN node. So I don't
-understand your concern here.
+Ok, no problem, this dont seems as a serious issue so I can live with that.
 
-Thanks,
-
-- KK
-
-
-
-                                                                                                                                          
-                      YOSHIFUJI Hideaki                                                                                                   
-                      / 吉藤英明               To:       ajtuomin@morphine.tml.hut.fi                                                     
-                      <yoshfuji@linux-i        cc:       davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,                      
-                      pv6.org>                  linux-kernel@vger.kernel.org, pekkas@netcore.fi, torvalds@transmeta.com, Venkata          
-                      Sent by:                  Jagana/Beaverton/IBM@IBMUS, yoshfuji@linux-ipv6.org                                       
-                      netdev-bounce@oss        Subject:  Re: [PATCHSET] Mobile IPv6 for 2.5.43                                            
-                      .sgi.com                                                                                                            
-                                                                                                                                          
-                                                                                                                                          
-                      10/17/2002 10:18                                                                                                    
-                      AM                                                                                                                  
-                                                                                                                                          
-                                                                                                                                          
-
-
-
-In article <20021017162624.GC16370@morphine.tml.hut.fi> (at Thu, 17 Oct
-2002 19:26:25 +0300), Antti Tuominen <ajtuomin@morphine.tml.hut.fi> says:
-
-> The patch has been split for easier reading as follows:
 >
-> ipv6_tunnel.patch            6over6 tunneling
-> network_mods.patch           Modifications to network code and hooks
+> > With the 2.4.19/20-pre-last kernels scrolling up in the console is very
+> > slow using the neofb driver as I've wrote in my previous posting.
+>
+> What color depth? Acceleration only works for 8 and 16 bpp modes :-(
 
-Several comments.
+I'm booting kernels with the " vga=771"  option. If I remeber well this is 
+800x600 with 16bpp. However with this same settings the slowness in scrolling 
+up dont happens with the latest 2.5 kernels
+If you want more info just drop me a mail.
 
-[ipv6_tunnel]
-
-I think this is almost ok.
-
-  1. I believe s/ARPHRD_IPV6_IPV6_TUNNEL/ARPHRD_TUNNEL6/.
-  2. Please put outer address to hardware address in dev.
-     Note: you need to modify SIOxxx ioctls too not to overrun!
-
-[network_mods etc.]
-
-  1. Too many hooks,
-     and many duplicate codes in ipv6 stack and mipv6 stack.
-     (prefix handler, header parser, ndisc handler etc...)
-
-more comment will come later...
-
-
-> http://www.mipl.mediapoli.com/patches/mipv6_cn_support.patch
-> http://www.mipl.mediapoli.com/patches/mipv6_mn_support.patch
-> http://www.mipl.mediapoli.com/patches/mipv6_ha_support.patch
-
-Well, I can't find them. I hope they'll be available when I wake up
-tomorrow...
-
---
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-
-
-
-
-
-
-
-
+Cheers,
+Frederik Nosi
 

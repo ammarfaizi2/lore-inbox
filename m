@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129462AbRBVGEC>; Thu, 22 Feb 2001 01:04:02 -0500
+	id <S129791AbRBVGX3>; Thu, 22 Feb 2001 01:23:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129791AbRBVGDw>; Thu, 22 Feb 2001 01:03:52 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:11392 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129462AbRBVGDp>;
-	Thu, 22 Feb 2001 01:03:45 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14996.43857.22794.280050@pizda.ninka.net>
-Date: Wed, 21 Feb 2001 22:01:53 -0800 (PST)
-To: linux-kernel@vger.kernel.org
-CC: netdev@oss.sgi.com
-Subject: [UPDATE] Zerocopy BETA 2 against 2.4.2 final.
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S130144AbRBVGXT>; Thu, 22 Feb 2001 01:23:19 -0500
+Received: from mail.valinux.com ([198.186.202.175]:14860 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129791AbRBVGXN>;
+	Thu, 22 Feb 2001 01:23:13 -0500
+To: phillips@innominate.de
+CC: Linux-kernel@vger.kernel.org, adilger@turbolinux.com, hch@ns.caldera.de,
+        ext2-devel@lists.sourceforge.net
+In-Reply-To: <01022020011905.18944@gimli> (message from Daniel Phillips on
+	Tue, 20 Feb 2001 16:04:50 +0100)
+Subject: Re: [Ext2-devel] [rfc] Near-constant time directory index for Ext2
+From: tytso@valinux.com
+Phone: (781) 391-3464
+In-Reply-To: <01022020011905.18944@gimli>
+Message-Id: <E14Vp9h-0001IB-00@beefcake.hdqt.valinux.com>
+Date: Wed, 21 Feb 2001 22:23:09 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel,
 
-Usual place:
+Nice work!
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.2-1.diff.gz
+A couple of comments.  If you make the beginning of each index block
+look like a an empty directory block (i.e, the first 8 blocks look like
+this):
 
-Besides merging to the 2.4.2-final release there are two bug fixes:
+	32 bits: ino == 0
+	16 bits: rec_len == blocksize
+	16 bits: name_len = 0
 
-1) New TCP receive queue collapser could trigger assertion failures
-   in tcp_recvmsg(), reason: uninitialized skb->used field in fresh
-   SKB allocated for collapsing.
+... then you will have full backwards compatibility, both for reading
+*and* writing.  When reading, old kernels will simply ignore the index
+blocks, since it looks like it has an unpopulated directory entry.  And
+if the kernel attempts to write into the directory, it will clear the
+BTREE_FL flag, in which case new kernels won't treat the directory as a
+tree anymore.  (Running a smart e2fsck which knows about directory trees
+will be able to restore the tree structure).
 
-2) IP header IDs are generated differently on big vs. little endian
-   systems, added htons() to fix.
+Is it worth it?  Well, it means you lose an index entry from each
+directory block, thus reducing your fanout at each node of the tree by a
+worse case of 0.7% in the worst case (1k blocksize) and 0.2% if you're
+using 4k blocksizes.
 
-Some have asked why this isn't pushed to Alan for his AC patches yet,
-the reason is that I want to fully resolve the final few performance
-issues that remain (1.5K mtu on gbit still has some warts).  Once
-those are cleared and everyone involved is satisfied that there are no
-performance regressions against vanilla 2.4.2, I will ask Alan to
-consider including it.
+						- Ted
 
-Later,
-David S. Miller
-davem@redhat.com

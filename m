@@ -1,179 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbUCODMa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 22:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbUCODMa
+	id S262205AbUCODU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 22:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUCODU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 22:12:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48309 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262135AbUCODMZ (ORCPT
+	Sun, 14 Mar 2004 22:20:28 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:43671 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S262205AbUCODUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 22:12:25 -0500
-Date: Sun, 14 Mar 2004 19:07:24 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Nivedita Singhvi <niv@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org, davem@redhat.com,
-       netdev@oss.sgi.com
-Subject: Re: [patch/RFC] networking menus
-Message-Id: <20040314190724.1af1f11d.rddunlap@osdl.org>
-In-Reply-To: <4055122D.8030809@us.ibm.com>
-References: <20040314163327.53102f46.rddunlap@osdl.org>
-	<4055122D.8030809@us.ibm.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 14 Mar 2004 22:20:25 -0500
+From: mahipal@softhome.net
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.4-rc2mm1 hangs at shutdown
+Date: Sun, 14 Mar 2004 20:20:24 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [202.63.96.140]
+Message-ID: <courier.405520F8.00002CDA@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Mar 2004 18:17:17 -0800 Nivedita Singhvi <niv@us.ibm.com> wrote:
 
-| Randy.Dunlap wrote:
-| 
-| > This is just a first pass/RFC.  It moves "Networking support" out of
-| > the "Device Drivers" menu, which seems helpful to me.  However,
-| > ISTM that it should really just be the "Networking options" here
-| > and not include Amateur Radio, IrDA, and Bluetooth support.
-| > I.e., I think that those latter 3 should fall under Device Drivers.
-| > Does that make sense to anyone else?
-| 
-| Just a comment that those 3 subsystems are not just
-| device drivers, they have non-trivial amount of code
-| in the protocol stack under ../net/. So would moving
-| them to device drivers be misleading in any way?
-| 
-| I can see pulling out Networking support from under
-| device drivers, though.
+Hi 
 
-Agreed, I looked again and those 3 should stay under
-"Networking support."  I'm still looking for other items
-to move to make it all easier to navigate.
+The machine is hangs at shutdown with 2.6.4-rc2mm1. The hangs are not 
+consistent on every reboot. One more problem is 2.6.4-mm1 panics at
+boot with almost same errors. I couldnot capture those because I dont have 
+any serial cable. 
 
-| > Does this need to be discussed on netdev (also)?
-| 
-| Yes. :)
+ 
 
-OK.  Thanks for cc-ing it.
-
-| thanks,
-| Nivedita
-| 
-| > 
-| > // Linux 2.6.4
-| > // Rearrange networking menus so that Networking support/options
-| > // isn't buried inside Device Drivers.
-|  >
-| > diffstat:=
-| >  drivers/Kconfig       |    4 +++-
-| >  init/Kconfig          |    0
-| >  net/Kconfig           |    6 ++----
-| >  net/ax25/Kconfig      |    7 ++-----
-| >  net/bluetooth/Kconfig |    4 +---
-| >  net/irda/Kconfig      |    6 ++----
-| >  6 files changed, 10 insertions(+), 17 deletions(-)
-| > 
-| > 
-| > diff -Naurp ./drivers/Kconfig~net_config ./drivers/Kconfig
-| > --- ./drivers/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
-| > +++ ./drivers/Kconfig	2004-03-12 15:20:39.000000000 -0800
-| > @@ -1,5 +1,7 @@
-| >  # drivers/Kconfig
-| >  
-| > +source "net/Kconfig"
-| > +
-| >  menu "Device Drivers"
-| >  
-| >  source "drivers/base/Kconfig"
-| > @@ -28,7 +30,7 @@ source "drivers/message/i2o/Kconfig"
-| >  
-| >  source "drivers/macintosh/Kconfig"
-| >  
-| > -source "net/Kconfig"
-| > +source "drivers/net/Kconfig"
-| >  
-| >  source "drivers/isdn/Kconfig"
-| >  
-| > diff -Naurp ./net/bluetooth/Kconfig~net_config ./net/bluetooth/Kconfig
-| > --- ./net/bluetooth/Kconfig~net_config	2004-03-10 18:55:43.000000000 -0800
-| > +++ ./net/bluetooth/Kconfig	2004-03-12 15:41:42.000000000 -0800
-| > @@ -2,10 +2,8 @@
-| >  # Bluetooth subsystem configuration
-| >  #
-| >  
-| > -menu "Bluetooth support"
-| > +menuconfig BT
-| >  	depends on NET
-| > -
-| > -config BT
-| >  	tristate "Bluetooth subsystem support"
-| >  	help
-| >  	  Bluetooth is low-cost, low-power, short-range wireless technology.
-| > diff -Naurp ./net/irda/Kconfig~net_config ./net/irda/Kconfig
-| > --- ./net/irda/Kconfig~net_config	2004-03-10 18:55:27.000000000 -0800
-| > +++ ./net/irda/Kconfig	2004-03-12 15:39:39.000000000 -0800
-| > @@ -2,11 +2,9 @@
-| >  # IrDA protocol configuration
-| >  #
-| >  
-| > -menu "IrDA (infrared) support"
-| > +menuconfig IRDA
-| >  	depends on NET
-| > -
-| > -config IRDA
-| > -	tristate "IrDA subsystem support"
-| > +	tristate "IrDA (infrared) subsystem support"
-| >  	---help---
-| >  	  Say Y here if you want to build support for the IrDA (TM) protocols.
-| >  	  The Infrared Data Associations (tm) specifies standards for wireless
-| > diff -Naurp ./net/ax25/Kconfig~net_config ./net/ax25/Kconfig
-| > --- ./net/ax25/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
-| > +++ ./net/ax25/Kconfig	2004-03-12 15:40:01.000000000 -0800
-| > @@ -6,9 +6,8 @@
-| >  #		Joerg Reuter DL1BKE <jreuter@yaina.de>
-| >  # 19980129	Moved to net/ax25/Config.in, sourcing device drivers.
-| >  
-| > -menu "Amateur Radio support"
-| > -
-| > -config HAMRADIO
-| > +menuconfig HAMRADIO
-| > +	depends on NET
-| >  	bool "Amateur Radio support"
-| >  	help
-| >  	  If you want to connect your Linux box to an amateur radio, answer Y
-| > @@ -109,5 +108,3 @@ source "drivers/net/hamradio/Kconfig"
-| >  
-| >  endmenu
-| >  
-| > -endmenu
-| > -
-| > diff -Naurp ./net/Kconfig~net_config ./net/Kconfig
-| > --- ./net/Kconfig~net_config	2004-03-10 18:55:21.000000000 -0800
-| > +++ ./net/Kconfig	2004-03-12 15:24:30.000000000 -0800
-| > @@ -2,9 +2,9 @@
-| >  # Network configuration
-| >  #
-| >  
-| > -menu "Networking support"
-| > +###menu "Networking support"
-| >  
-| > -config NET
-| > +menuconfig NET
-| >  	bool "Networking support"
-| >  	---help---
-| >  	  Unless you really know what you are doing, you should say Y here.
-| > @@ -650,8 +650,6 @@ endmenu
-| >  
-| >  endmenu
-| >  
-| > -source "drivers/net/Kconfig"
-| > -
-| >  source "net/ax25/Kconfig"
-| >  
-| >  source "net/irda/Kconfig"
-| > diff -Naurp ./init/Kconfig~net_config ./init/Kconfig
-| > -
+Mar 15 04:53:22 ubergeek kernel: klogd 1.4.1#13, log source = /proc/kmsg 
+started.
+Mar 15 04:53:22 ubergeek kernel: Cannot find map file.
+Mar 15 04:53:22 ubergeek kernel: No module symbols loaded - kernel modules 
+not enabled.
+Mar 15 04:53:22 ubergeek kernel: Linux version 2.6.4-rc2-mm1 (root@ubergeek) 
+(gcc version 3.3.3 (Debian)) #3 Sat Mar 13 13:58:35 IST 2004
+Mar 15 04:53:22 ubergeek kernel: BIOS-provided physical RAM map: 
 
 
---
-~Randy
+Mar 15 04:58:02 ubergeek kernel: ------------[ cut here ]------------
+Mar 15 04:58:02 ubergeek kernel: kernel BUG at fs/proc/generic.c:664!
+Mar 15 04:58:02 ubergeek kernel: invalid operand: 0000 [#1]
+Mar 15 04:58:02 ubergeek kernel: PREEMPT DEBUG_PAGEALLOC
+Mar 15 04:58:02 ubergeek kernel: CPU:    0
+Mar 15 04:58:02 ubergeek kernel: EIP:    0060:[<c01b8cf0>]    Not tainted 
+VLI
+Mar 15 04:58:02 ubergeek kernel: EFLAGS: 00010286
+Mar 15 04:58:02 ubergeek kernel: EIP is at remove_proc_entry+0xe1/0x11d
+Mar 15 04:58:02 ubergeek kernel: eax: c61a28ac   ebx: c67ccdc8   ecx: 
+c648c820   edx: c6806f54
+Mar 15 04:58:02 ubergeek kernel: esi: 00000005   edi: c648c820   ebp: 
+c55ffe54   esp: c55ffe34
+Mar 15 04:58:02 ubergeek kernel: ds: 007b   es: 007b   ss: 0068
+Mar 15 04:58:02 ubergeek kernel: Process modprobe (pid: 341, 
+threadinfo=c55fe000 task=c674a9d0)
+Mar 15 04:58:02 ubergeek kernel: Stack: c648c820 c648c868 c648c820 0000000c 
+c648c868 ca868440 c648c8ac c67ccd98
+Mar 15 04:58:02 ubergeek kernel:        c55ffe70 ca85f355 c648c868 c67ccd98 
+c6e54bf8 c6e54bf8 ca8bc244 c55ffe84
+Mar 15 04:58:02 ubergeek kernel:        ca85ee50 c648c8ac c67ccd98 c55fe000 
+c55ffec0 ca85d248 c6e54bf8 00000002
+Mar 15 04:58:02 ubergeek kernel: Call Trace:
+Mar 15 04:58:02 ubergeek kernel:  [<ca85f355>] snd_info_unregister+0x52/0x7f 
+[snd]
+Mar 15 04:58:02 ubergeek kernel:  [<ca85ee50>] snd_info_card_free+0x31/0x5a 
+[snd]
+Mar 15 04:58:02 ubergeek kernel:  [<ca85d248>] snd_card_free+0xf3/0x229 
+[snd]
+Mar 15 04:58:02 ubergeek kernel:  [<c018f03e>] dput+0x23/0x761
+Mar 15 04:58:02 ubergeek kernel:  [<c019fd45>] simple_unlink+0x4a/0x59
+Mar 15 04:58:02 ubergeek kernel:  [<ca8b8dd1>] snd_intel8x0_remove+0x21/0x2f 
+[snd_intel8x0]
+Mar 15 04:58:02 ubergeek kernel:  [<c0258bab>] pci_device_remove+0x3b/0x3d
+Mar 15 04:58:02 ubergeek kernel:  [<c029d322>] 
+device_release_driver+0x62/0x64
+Mar 15 04:58:02 ubergeek kernel:  [<c029d346>] driver_detach+0x22/0x31
+Mar 15 04:58:02 ubergeek kernel:  [<c029d5c3>] bus_remove_driver+0x57/0x8f
+Mar 15 04:58:02 ubergeek kernel:  [<c029d9c8>] driver_unregister+0x1a/0x44
+Mar 15 04:58:02 ubergeek kernel:  [<c0258d11>] 
+pci_unregister_driver+0x14/0x18
+Mar 15 04:58:02 ubergeek kernel:  [<ca8b8e52>] 
+alsa_card_intel8x0_exit+0x12/0x2e [snd_intel8x0]
+Mar 15 04:58:02 ubergeek kernel:  [<c013ef2b>] sys_delete_module+0x12c/0x194
+Mar 15 04:58:02 ubergeek kernel:  [<c015d953>] sys_munmap+0x57/0x75
+Mar 15 04:58:02 ubergeek kernel:  [<c035ee9b>] syscall_call+0x7/0xb
+Mar 15 04:58:02 ubergeek kernel:
+Mar 15 04:58:02 ubergeek kernel: Code: 44 01 00 00 00 89 44 24 0c 8b 47 04 
+89 44 24 08 8b 45 0c 8b 40 04 c7 04 24 80 cb 37 c0 89 44 24 04 e8 e1 85 f6 
+ff e9 77 ff ff ff <0f> 0b 98 02 2c 9d 37 c0 eb b5 8b 45 0c 66 83 68 0a 01 eb 
+87 8d
+Mar 15 04:58:04 ubergeek kernel: Kernel logging (proc) stopped.
+Mar 15 04:58:04 ubergeek kernel: Kernel log daemon terminating.
+Mar 15 04:58:04 ubergeek exiting on signal 15 

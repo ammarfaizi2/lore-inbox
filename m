@@ -1,38 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVAJRRC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVAJRUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbVAJRRC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:17:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVAJRRB
+	id S262333AbVAJRUh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVAJRUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:17:01 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:34183 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262335AbVAJRQ6 (ORCPT
+	Mon, 10 Jan 2005 12:20:37 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:2694 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262333AbVAJRUR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 12:16:58 -0500
-Date: Mon, 10 Jan 2005 09:16:05 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       linux-ia64@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       linux-mm@kvack.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
-In-Reply-To: <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0501100915200.19135@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Jan 2005 12:20:17 -0500
+Date: Mon, 10 Jan 2005 09:19:45 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] PCI patches for 2.6.10-rc2
+Message-ID: <20050110171945.GA30375@kroah.com>
+References: <20050110171827.GA30296@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050110171827.GA30296@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Jan 2005, Hugh Dickins wrote:
+Bah, subject should say "for 2.6.10" not "-rc2".  Sorry about that,
+these are all merged against your latest -bk tree anyway.
 
-> Christoph, a late comment: doesn't this effectively replace
-> do_anonymous_page's clear_user_highpage by clear_highpage, which would
-> be a bad idea (inefficient? or corrupting?) on those few architectures
-> which actually do something with that user addr?
+thanks,
 
-Yes. Right my ia64 centric vision got me again. Thanks for all the other
-patches that were posted. I hope this is now all cleared up?
-
+greg k-h

@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbUJYG3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbUJYGdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbUJYG3g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 02:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbUJYG3g
+	id S261689AbUJYGdX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 02:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUJYGa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 02:29:36 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:5392 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261614AbUJYG1F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 02:27:05 -0400
-Date: Mon, 25 Oct 2004 15:27:49 +0900 (JST)
-Message-Id: <20041025.152749.00307602.yoshfuji@linux-ipv6.org>
-To: jgarzik@pobox.com
-Cc: nakasima@kumin.ne.jp, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       yoshfuji@linux-ipv6.org
-Subject: Re: linux-2.6.9 eepro100 warning
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <417C9A4E.3030909@pobox.com>
-References: <200410232313.AA00003@prism.kumin.ne.jp>
-	<417C9A4E.3030909@pobox.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Mon, 25 Oct 2004 02:30:56 -0400
+Received: from holomorphy.com ([207.189.100.168]:63704 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261629AbUJYG3d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 02:29:33 -0400
+Date: Sun, 24 Oct 2004 23:29:20 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hugh@veritas.com, andrea@novell.com, albert@users.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] statm: shared = rss - anon_rss
+Message-ID: <20041025062920.GV17038@holomorphy.com>
+References: <Pine.LNX.4.44.0410241644000.12023-100000@localhost.localdomain> <Pine.LNX.4.44.0410241647080.12023-100000@localhost.localdomain> <20041024160814.GT17038@holomorphy.com> <20041024232443.1a18eb44.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041024232443.1a18eb44.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <417C9A4E.3030909@pobox.com> (at Mon, 25 Oct 2004 02:16:46 -0400), Jeff Garzik <jgarzik@pobox.com> says:
+On Sun, Oct 24, 2004 at 04:49:48PM +0100, Hugh Dickins wrote:
+>>> Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-> Note that eepro100 driver will be deleted soon.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>>  Signed-off-by: William Irwin <wli@holomorphy.com>
 
-I'm afraid that e100 does not work well on some systems (e.g. my ThinkPad
-T30 on 2.4.x) while eepro100 does.
-(I also know there're systems which does not work well
-with eepro100 but e100.)
+On Sun, Oct 24, 2004 at 11:24:43PM -0700, Andrew Morton wrote:
+> I'll change these three to "Acked-by:".  Unless you actually had a hand in
+> developing these patches, in which case I'll unchange things.
 
-Has all of such kind of issues been solved?
+Never seen that before. s/Signed-off/Acked/ is fine by me, and
+probably more descriptive.
 
---yoshfuji
+
+-- wli

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbTF2UKh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbTF2UKg
+	id S262095AbTF2UIL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTF2UHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:10:36 -0400
-Received: from post.pl ([212.85.96.51]:270 "HELO matrix01b.home.net.pl")
-	by vger.kernel.org with SMTP id S264736AbTF2UJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:09:37 -0400
-Message-ID: <3EFF4B5B.9060603@post.pl>
-Date: Sun, 29 Jun 2003 22:26:03 +0200
-From: "Leonard Milcin Jr." <thervoy@post.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
+	Sun, 29 Jun 2003 16:07:38 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:23685 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264979AbTF2UGi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:06:38 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 29 Jun 2003 13:19:24 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: File System conversion -- ideas
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <200306291445470220.01DC8D9F@smtp.comcast.net> <3EFF3FFA.60806@post.pl> <20030629194423.GE26258@mail.jlokier.co.uk> <20030629200239.GI27348@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030629200239.GI27348@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.55.0306291317300.14949@bigblue.dev.mcafeelabs.com>
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
+ <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl>
+ <20030629192847.GB26258@mail.jlokier.co.uk> <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk>
+ <200306291545410600.02136814@smtp.comcast.net>
+ <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> Not really.  Never, ever, try a new code on live system.  Put together
-> a test box and/or test disk.  Regardless of nature of code in question -
-> if you want to test something, go for a dedicated test setup.
+On Sun, 29 Jun 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-You forgot, that new code after some time will change to good and
-well-tested code, which one would find useful and enough safe.
+> I think that I will believe it when I see the patchset implementing it.
+> Provided that it will be convincing enough.  Other than that...  Not
+> really.  You will need code for each pair of filesystems, since
+> convertor will need to know *both* layouts.  No amount of handwaving
+> is likely to work around that.  And we have what, something between
+> 10 and 20 local filesystems?  Have fun...
+>
+> If you want your idea to be considered seriously - take reiserfs code,
+> take ext3 code, copy both to userland and put together a conversion
+> between them.  Both ways.  That, by definition, is easier than doing
+> it in kernel - you have the same code available and none of the limitations/
+> interaction with other stuff.  When you have it working, well, time to
+> see what extra PITA will come from making it coexist with other parts
+> of kernel (and with much more poor runtime environment).
+>
+> AFAICS, it is _very_ hard to implement.  Even outside of the kernel.
+> If you can get it done - well, that might do a lot for having the
+> idea considered seriously.  "Might" since you need to do it in a way
+> that would survive transplantation into the kernel _and_ would scale
+> better that O((number of filesystem types)^2).
 
--- 
-"Unix IS user friendly... It's just selective about who its friends are."
-                                                        -- Tollef Fog Heen
+Maybe defining a "neutral" metadata export/import might help in limiting
+such NFS^2 ...
+
+
+
+- Davide
 

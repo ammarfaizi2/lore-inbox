@@ -1,64 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbUC0FAS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 00:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUC0FAS
+	id S261606AbUC0FVi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 00:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUC0FVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 00:00:18 -0500
-Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:8405 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S261605AbUC0FAM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 00:00:12 -0500
-Date: Fri, 26 Mar 2004 23:54:59 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PnPBIOS: Unknown tag '0x82'
-Message-ID: <20040326235459.GC3213@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Meelis Roos <mroos@linux.ee>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20040324162942.GA16164@neo.rr.com> <Pine.GSO.4.44.0403251316210.6391-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0403251316210.6391-100000@math.ut.ee>
-User-Agent: Mutt/1.4.1i
+	Sat, 27 Mar 2004 00:21:38 -0500
+Received: from web12822.mail.yahoo.com ([216.136.174.203]:20662 "HELO
+	web12822.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261619AbUC0FVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 00:21:34 -0500
+Message-ID: <20040327052132.95751.qmail@web12822.mail.yahoo.com>
+Date: Fri, 26 Mar 2004 21:21:32 -0800 (PST)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: Re: [ANNOUNCE] WOLK v2.3 for Kernel v2.6.4
+To: Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-849906064-1080364892=:95067"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 01:19:53PM +0200, Meelis Roos wrote:
-> > Could you please try this patch.
->
-> It works, thanks!
+--0-849906064-1080364892=:95067
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-Great.  I'll submit this with my next set of changes.
+Hi Marc,
 
->
-> dmesg now reports
->
-> PnPBIOS: Scanning system for PnP BIOS support...
-> PnPBIOS: Found PnP BIOS installation structure at 0xc00f2480
-> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x1d2a, dseg 0xf0000
-> pnp: 00:09: ioport range 0x4d0-0x4d1 has been reserved
-> pnp: 00:09: ioport range 0xcf8-0xcff could not be reserved
-> pnp: 00:0b: ioport range 0x800-0x87f has been reserved
-> PnPBIOS: 20 nodes reported by PnP BIOS; 20 recorded by driver
->
-> I don't have the previous output of lspnp at hand but now it reports
-> among other things
->
-> 0a INT0800 memory controller: flash
->     flags: [no disable] [no config] [static]
->     allocated resources:
->         mem 0xffb00000-0xffbfffff [32 bit] [r/o]
->     possible resources:
->     compatible devices:
->         identifier 'Intel Firmware Hub'
->
-> This might be it showing up.
+I took the patch for a spin and found a few glitches.
+A patch is attached to fix them.
 
-Yes, I think it's the same tag.
+1. The kernel oops'ed in vt_ioctl due to driver_data
+being NULL in the tty.  I copied the relevant fix from
+2.6.5-rc2-mm2.
+
+2. I did not configure the in-kernel statd daemon for
+NFS.  That caused a BUG() in mon.c:nsm_monitor()
+because the handle was never initialized.
+
+3. A typo fix in ipmi/af_ipmi.c.
 
 Thanks,
-Adam
+Shantanu
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Finance Tax Center - File online. File on time.
+http://taxes.yahoo.com/filing.html
+--0-849906064-1080364892=:95067
+Content-Type: application/octet-stream; name="wolk.patch"
+Content-Transfer-Encoding: base64
+Content-Description: wolk.patch
+Content-Disposition: attachment; filename="wolk.patch"
+
+LS0tIC4vZHJpdmVycy9jaGFyL3Z0LmMufjF+CTIwMDQtMDMtMjYgMjE6MzI6
+MDUuMTAyNTEwNDkxIC0wNTAwCisrKyAuL2RyaXZlcnMvY2hhci92dC5jCTIw
+MDQtMDMtMjYgMjM6MDQ6NDEuNDQzOTQzNzc2IC0wNTAwCkBAIC0yNTA5LDEz
+ICsyNTA5LDExIEBACiAJaWYgKHR0eSAmJiB0dHktPmNvdW50ID09IDEpIHsK
+IAkJc3RydWN0IHZ0X3N0cnVjdCAqdnQ7CiAKKwkJdmNzX3JlbW92ZV9kZXZm
+cyh0dHkpOwogCQl2dCA9IHR0eS0+ZHJpdmVyX2RhdGE7CiAJCWlmICh2dCkK
+IAkJCXZjX2NvbnNbdnQtPnZjX251bV0uZC0+dmNfdHR5ID0gTlVMTDsKIAkJ
+dHR5LT5kcml2ZXJfZGF0YSA9IDA7Ci0JCXJlbGVhc2VfY29uc29sZV9zZW0o
+KTsKLQkJdmNzX3JlbW92ZV9kZXZmcyh0dHkpOwotCQlyZXR1cm47CiAJfQog
+CXJlbGVhc2VfY29uc29sZV9zZW0oKTsKIH0KLS0tIC4vZnMvbG9ja2QvaG9z
+dC5jLn4xfgkyMDA0LTAzLTI2IDIxOjMyOjE0LjAwMDAwMDAwMCAtMDUwMAor
+KysgLi9mcy9sb2NrZC9ob3N0LmMJMjAwNC0wMy0yNiAyMzozNzo1MS44NDIw
+MDEzNDMgLTA1MDAKQEAgLTU1LDYgKzU1LDI1IEBACiB9CiAKIC8qCisgKiBB
+bGxvY2F0ZSBhbiBOU00gaGFuZGxlCisgKi8KK3N0cnVjdCBuc21faGFuZGxl
+ICoKK25zbV9hbGxvYyhzdHJ1Y3Qgc29ja2FkZHJfaW4gKnNpbikKK3sKKwlz
+dHJ1Y3QgbnNtX2hhbmRsZSAqbnNtOworCisJbnNtID0gKHN0cnVjdCBuc21f
+aGFuZGxlICopIGttYWxsb2Moc2l6ZW9mKCpuc20pLCBHRlBfS0VSTkVMKTsK
+KwlpZiAobnNtID09IE5VTEwpCisJCXJldHVybiBOVUxMOworCisJbWVtc2V0
+KG5zbSwgMCwgc2l6ZW9mKCpuc20pKTsKKwltZW1jcHkoJm5zbS0+c21fYWRk
+ciwgc2luLCBzaXplb2YobnNtLT5zbV9hZGRyKSk7CisJYXRvbWljX3NldCgm
+bnNtLT5zbV9jb3VudCwgMSk7CisKKwlyZXR1cm4gbnNtOworfQorCisvKgog
+ICogQ29tbW9uIGhvc3QgbG9va3VwIHJvdXRpbmUgZm9yIHNlcnZlciAmIGNs
+aWVudAogICovCiBzdHJ1Y3QgbmxtX2hvc3QgKgpAQCAtMTQzLDEwICsxNjIs
+MTAgQEAKIAkJCX0KIAkJfQogCX0KKyNlbmRpZgogCiAJaWYgKGhvc3QtPmhf
+bnNtaGFuZGxlID09IE5VTEwpCiAJCWhvc3QtPmhfbnNtaGFuZGxlID0gbnNt
+X2FsbG9jKCZob3N0LT5oX2FkZHIpOwotI2VuZGlmCiAKIAlpZiAoKytucmhv
+c3RzID4gTkxNX0hPU1RfTUFYKQogCQluZXh0X2djID0gMDsKLS0tIC4vZnMv
+bG9ja2QvbW9uLmMufjF+CTIwMDQtMDMtMjYgMjE6MzI6MTQuNTk3NTk4Mjcx
+IC0wNTAwCisrKyAuL2ZzL2xvY2tkL21vbi5jCTIwMDQtMDMtMjYgMjM6NDU6
+NTkuOTE1MDU3MDY2IC0wNTAwCkBAIC05OCw3ICs5OCw3IEBACiB7CiAJc3Ry
+dWN0IG5zbV9oYW5kbGUgKm5zbTsKIAlzdHJ1Y3QgbnNtX3JlcwlyZXM7Ci0J
+aW50CQlzdGF0dXM7CisJaW50CQlzdGF0dXMgPSAwOwogCiAJbnNtID0gaG9z
+dC0+aF9uc21oYW5kbGU7CiAJaG9zdC0+aF9uc21oYW5kbGUgPSBOVUxMOwpA
+QCAtMTEyLDkgKzExMiw4IEBACiAJCWlmIChzdGF0dXMgPCAwKQogCQkJcHJp
+bnRrKEtFUk5fTk9USUNFICJsb2NrZDogY2Fubm90IHVubW9uaXRvciAlc1xu
+IiwKIAkJCQkgICAgICAgCWhvc3QtPmhfbmFtZSk7Ci0JCWVsc2UKLQkJCW5z
+bS0+c21fbW9uaXRvcmVkID0gMDsKIAl9CisJa2ZyZWUobnNtKTsKIAlyZXR1
+cm4gc3RhdHVzOwogfQogCi0tLSAuL2ZzL2xvY2tkL3N0YXRkLmMufjF+CTIw
+MDQtMDMtMjYgMjE6MzI6MTQuNTk4NTk4MTc1IC0wNTAwCisrKyAuL2ZzL2xv
+Y2tkL3N0YXRkLmMJMjAwNC0wMy0yNiAyMzozNzoyMC45OTA5NzAxOTIgLTA1
+MDAKQEAgLTE4OSwyNSArMTg5LDYgQEAKIH0KIAogLyoKLSAqIEFsbG9jYXRl
+IGFuIE5TTSBoYW5kbGUKLSAqLwotc3RydWN0IG5zbV9oYW5kbGUgKgotbnNt
+X2FsbG9jKHN0cnVjdCBzb2NrYWRkcl9pbiAqc2luKQotewotCXN0cnVjdCBu
+c21faGFuZGxlICpuc207Ci0KLQluc20gPSAoc3RydWN0IG5zbV9oYW5kbGUg
+Kikga21hbGxvYyhzaXplb2YoKm5zbSksIEdGUF9LRVJORUwpOwotCWlmIChu
+c20gPT0gTlVMTCkKLQkJcmV0dXJuIE5VTEw7Ci0KLQltZW1zZXQobnNtLCAw
+LCBzaXplb2YoKm5zbSkpOwotCW1lbWNweSgmbnNtLT5zbV9hZGRyLCBzaW4s
+IHNpemVvZihuc20tPnNtX2FkZHIpKTsKLQlhdG9taWNfc2V0KCZuc20tPnNt
+X2NvdW50LCAxKTsKLQotCXJldHVybiBuc207Ci19Ci0KLS8qCiAgKiBTZXQg
+dXAgbW9uaXRvcmluZyBvZiBhIHJlbW90ZSBob3N0CiAgKiBOb3RlIHdlIGhv
+bGQgdGhlIHNlbWFwaG9yZSBmb3IgdGhlIGhvc3QgdGFibGUgd2hpbGUKICAq
+IHdlJ3JlIGhlcmUuCi0tLSAuL25ldC9pcG1pL2FmX2lwbWkuYy5+MX4JMjAw
+NC0wMy0yNiAyMTozMjoyNy4xNDgzOTI1MDkgLTA1MDAKKysrIC4vbmV0L2lw
+bWkvYWZfaXBtaS5jCTIwMDQtMDMtMjYgMjI6MDM6MzQuMDc3NzQ1MTEzIC0w
+NTAwCkBAIC01MTUsNyArNTE1LDcgQEAKIHsKIAlzdHJ1Y3QgaXBtaV9zb2Nr
+ICppOwogCi0JaWYgKGF0b21pY19yZWFkKCZpcG1pX25yX3NvY2tzKSA+PSAy
+KmZpbGVzX3N0YXQubWF4X2ZpbGVzKQorCWlmIChhdG9taWNfcmVhZCgmaXBt
+aV9ucl9zb2NrcykgPj0gMipmaWxlc19zdGF0Lm1heF9maWxlc19oYXJkKQog
+CQlyZXR1cm4gTlVMTDsKIAogCWkgPSAoc3RydWN0IGlwbWlfc29jayAqKXNr
+X2FsbG9jKFBGX0lQTUksIEdGUF9LRVJORUwsCg==
+
+--0-849906064-1080364892=:95067--

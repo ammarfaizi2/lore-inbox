@@ -1,59 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbUBOVnc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 16:43:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUBOVnc
+	id S265212AbUBOVxi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 16:53:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUBOVxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 16:43:32 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:62197 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S264498AbUBOVnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 16:43:31 -0500
-Date: Sun, 15 Feb 2004 16:43:26 -0500
-From: Willem Riede <wrlk@riede.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.3-rc3 ide-tape: sleeping function called from invalid context
-Message-ID: <20040215214326.GY4957@serve.riede.org>
-Reply-To: wrlk@riede.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.16
+	Sun, 15 Feb 2004 16:53:35 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.120]:63392 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S265212AbUBOVxc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 16:53:32 -0500
+Message-ID: <402FEAD4.8020602@myrealbox.com>
+Date: Sun, 15 Feb 2004 13:55:32 -0800
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BUG] usblp_write spins forever after an error
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem:
+I recently cancelled a print job with the printer's cancel function, and the 
+CUPS backend got stuck in usblp_write (using 100% CPU and not responding to 
+signals).
 
-Feb 15 16:11:22 fallguy kernel: Debug: sleeping function called from invalid context at kernel/sched.c:1870
-Feb 15 16:11:22 fallguy kernel: in_atomic():0, irqs_disabled():1
-Feb 15 16:11:22 fallguy kernel: Call Trace:
-Feb 15 16:11:22 fallguy kernel:  [<c0127b91>] __might_sleep+0x91/0xc0
-Feb 15 16:11:22 fallguy kernel:  [<c0125c1a>] wait_for_completion+0x1a/0x190
-Feb 15 16:11:22 fallguy kernel:  [<e0ddb117>] idetape_initiate_read+0x1b7/0x250 [ide_tape]
-Feb 15 16:11:22 fallguy kernel:  [<e0dd9752>] idetape_wait_for_request+0x92/0xf0 [ide_tape]
-Feb 15 16:11:22 fallguy kernel:  [<e0dda992>] idetape_wait_first_stage+0xa2/0xd0 [ide_tape]
-Feb 15 16:11:22 fallguy kernel:  [<e0ddb2c7>] idetape_get_logical_blk+0x117/0x270 [ide_tape]
-Feb 15 16:11:22 fallguy kernel:  [<e0ddb47a>] idetape_add_chrdev_read_request+0x5a/0x200 [ide_tape]
-Feb 15 16:11:22 fallguy kernel:  [<e0dd9313>] idetape_copy_stage_to_user+0x83/0xf0 [ide_tape]
-Feb 15 16:11:22 fallguy kernel:  [<e0ddc39c>] idetape_chrdev_read+0x18c/0x240 [ide_tape]
-Feb 15 16:11:22 fallguy kernel:  [<c016c601>] vfs_read+0xd1/0x120
-Feb 15 16:11:22 fallguy kernel:  [<c016c858>] sys_read+0x38/0x60
-Feb 15 16:11:22 fallguy kernel:  [<c010bc3f>] syscall_call+0x7/0xb
+The printer is a Kyocera Mita FS-1900 (which has some other problems with the 
+linux USB code: usblp_check_status often times out, even though the printer is 
+bidirectional -- but that's a whole different issue).
 
-Fix (against 2.6.3-rc3):
+It looks like the problem is that the write failed, so wcomplete got set
+to 1 and the status is nonzero.  This case appears to be mishandled in usblp.c:
 
---- p0/drivers/ide/ide-tape.c	2004-02-15 16:35:31.000000000 -0500
-+++ p1/drivers/ide/ide-tape.c	2004-02-15 16:36:58.000000000 -0500
-@@ -3212,7 +3212,7 @@
- #endif /* IDETAPE_DEBUG_BUGS */
- 	rq->waiting = &wait;
- 	tape->waiting = &wait;
--	spin_unlock(&tape->spinlock);
-+	spin_unlock_irq(&tape->spinlock);
- 	wait_for_completion(&wait);
- 	/* The stage and its struct request have been deallocated */
- 	tape->waiting = NULL;
+         while (writecount < count) {
+                 if (!usblp->wcomplete) {
+			[... not reaching this code]
+                 }
+
+                 down (&usblp->sem);
+                 if (!usblp->present) {
+                         up (&usblp->sem);
+                         return -ENODEV;
+                 }
+                 if (usblp->writeurb->status != 0) {
+
+			[ check status? ]
+
+                         schedule ();
+                         continue; <-- problem
+                 }
+
+After the write fails, the current code keeps checking the same status, and 
+never checks for signals or fails.  I'm not sure what the right fix is, but it 
+might be something like this:
+
+--- ./usblp.c.orig      2004-02-15 06:27:29.176169752 -0800
++++ ./usblp.c   2004-02-15 06:29:40.137260640 -0800
+@@ -645,13 +645,11 @@
+                                 err = usblp->writeurb->status;
+                         } else
+                                 err = usblp_check_status(usblp, err);
+-                       up (&usblp->sem);
+
+-                       /* if the fault was due to disconnect, let khubd's
+-                        * call to usblp_disconnect() grab usblp->sem ...
+-                        */
+-                       schedule ();
+-                       continue;
++                       writecount += usblp->writeurb->transfer_buffer_length;
++                       up (&usblp->sem);
++                       count = writecount ? writecount : err;
++                       break;
+                 }
+
+                 writecount += usblp->writeurb->transfer_buffer_length;
 
 
-Regards, Willem Riede.
+--Andy
+
+Please CC me -- I'm not subscribed.

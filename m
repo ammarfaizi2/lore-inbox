@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265098AbSKJTMf>; Sun, 10 Nov 2002 14:12:35 -0500
+	id <S265102AbSKJTNW>; Sun, 10 Nov 2002 14:13:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265101AbSKJTMf>; Sun, 10 Nov 2002 14:12:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4104 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265098AbSKJTMd>; Sun, 10 Nov 2002 14:12:33 -0500
-Date: Sun, 10 Nov 2002 11:18:42 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>, <ak@suse.de>
-Subject: Re: swsusp critical code rewritten to assembly
-In-Reply-To: <20021110132122.GA364@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0211101117190.9581-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265104AbSKJTNW>; Sun, 10 Nov 2002 14:13:22 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:27908 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265102AbSKJTNP>;
+	Sun, 10 Nov 2002 14:13:15 -0500
+Date: Sun, 10 Nov 2002 20:18:23 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: vojtech@ucw.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Voyager subarchitecture for 2.5.46
+Message-ID: <20021110191822.GA1237@elf.ucw.cz>
+References: <20021110163012.GB1564@elf.ucw.cz> <Pine.LNX.4.44.0211101050170.9581-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211101050170.9581-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Sun, 10 Nov 2002, Pavel Machek wrote:
+> > Unfortunately, this means "bye bye vsyscalls for gettimeofday".
 > 
-> do_magic was really too fragile to be written in C. This patch
-> rewrites it into assembly, to make sure C compiler does not generate
-> stack access and corrupt memory that way. Plus it cleans up suspend.c
-> a bit, makes it really free memory it needs, an no longer calls
-> drivers from atomic context.
+> Not necessarily. All of the fastpatch and the checking can be done by the
+> vsyscall, and if the vsyscall notices that there is a backwards jump
+> in
 
-But this still has stuff in C:
+I believe you need to *store* last value given to userland. Checking
+backwards jump can be dealt with, but to check for time going
+backwards you need to *store* result each result of vsyscall. I do not
+think that can be done from userlnad.
 
-> +	asm volatile ("movl %0, %%esp" :: "m" (saved_context_esp));
-> +	asm volatile ("movl %0, %%ebp" :: "m" (saved_context_ebp));
-> +	asm volatile ("movl %0, %%eax" :: "m" (saved_context_eax));
-> +	asm volatile ("movl %0, %%ebx" :: "m" (saved_context_ebx));
-> +	asm volatile ("movl %0, %%ecx" :: "m" (saved_context_ecx));
-> +	asm volatile ("movl %0, %%edx" :: "m" (saved_context_edx));
-> +	asm volatile ("movl %0, %%esi" :: "m" (saved_context_esi));
-> +	asm volatile ("movl %0, %%edi" :: "m" (saved_context_edi));
->  
-> -	fix_processor_context();
-> +	restore_processor_state();
+> That said, I suspect that the real issue with vsyscalls is that they don't
+> really make much sense. The only system call we've ever found that matters
+> at all is gettimeofday(), and the vsyscall implementation there looks like
+> a "cool idea, but doesn't really matter (and complicates things a lot)".
 
-What's up with that? There's no way you can safely restore regular 
-registers and _especially_ %%esp from C code, since the compiler may be 
-using them for other things.
-
-		Linus
-
+I don't like vsyscalls at all...
+									Pavel
+-- 
+When do you have heart between your knees?

@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314069AbSDVGcN>; Mon, 22 Apr 2002 02:32:13 -0400
+	id <S314068AbSDVGkw>; Mon, 22 Apr 2002 02:40:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314070AbSDVGcM>; Mon, 22 Apr 2002 02:32:12 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:56582 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314069AbSDVGcL>; Mon, 22 Apr 2002 02:32:11 -0400
-Date: Mon, 22 Apr 2002 16:33:45 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: torvalds@transmeta.com, spyro@armlinux.org, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-Id: <20020422163345.31a9172f.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S314070AbSDVGkv>; Mon, 22 Apr 2002 02:40:51 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:43275 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314068AbSDVGku>; Mon, 22 Apr 2002 02:40:50 -0400
+Message-Id: <200204220638.g3M6cGX10365@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: /proc/stat weirdness
+Date: Mon, 22 Apr 2002 09:41:26 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33.0204211427110.21092-100000@coffee.psychology.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Apr 2002 00:05:27 -0400 (EDT)
-Alexander Viro <viro@math.psu.edu> wrote:
+On 21 April 2002 16:27, Mark Hahn wrote:
+> > * top with continuous update
+> > * output of "while true; do cat /proc/stat; done | grep -F 'cpu  '"
+>
+> I told you, I don't ever see any of this phenomenon.
 
-> As one of the guys who doesn't use BK _and_ had submitted a lot of patches
-> since Linus had started using it, I'm probably qualified to tell whether it
-> hurts or not, right?  Well, it doesn't.  So far the only difference was
-> in the quality (and latency) of changelogs and that was definitely welcome.
+I'd like to add that it is easily seen only on slower boxes.
+It was really hard to catch on PIII 800 (1458 BogoMIPS):
+top was too slow refreshing, cat script however was fast enough when 
+redirected to file to show backstepping. See below.
 
-"me too".  Actually, I found it easier to get the Trivial patches in, and
-about the same for per-cpu and futex patches.  I don't bk.
+Hey lkml folks, please run:
+# while true; do cat /proc/stat; done | grep -F 'cpu  ' >/tmp/log
+do you see something like this?
 
-When patches didn't go in, it's more due to Mingo Theorum[1] than being
-non-bk.  And that's a Good Thing for calibrating my coding tastes upwards.
+cpu  1170 0 3066 28631
+cpu  1170 0 3066 28632
+cpu  1170 0 3066 28634
+cpu  1170 0 3067 28634
+cpu  1171 0 3067 28634
+cpu  1171 0 3067 28635 <<<
+cpu  1171 0 3069 28634 <<<
+cpu  1171 0 3070 28634 <<<
+cpu  1171 0 3070 28635
+cpu  1171 0 3070 28636
+cpu  1172 0 3070 28637
+cpu  1172 0 3071 28637
 
-Rusty.
-[1] Message-ID: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Or better yet, this hunter script:
+#!/bin/sh
+prev=0
+while true; do cat /proc/stat; done | \
+grep -F 'cpu  ' | \
+cut -d ' ' -f 6 | \
+while read next; do
+    diff=$(($next-$prev))
+    if test $diff -lt 0; then
+        echo "$prev -> $next"
+    fi
+    prev=$next
+done
+
+It will print only 'bad' idle counter pairs
+--
+vda

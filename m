@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbREQD0m>; Wed, 16 May 2001 23:26:42 -0400
+	id <S262181AbREQDix>; Wed, 16 May 2001 23:38:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262181AbREQD0c>; Wed, 16 May 2001 23:26:32 -0400
-Received: from mta01.alltel.net ([166.102.165.143]:40178 "EHLO
-	mta01-srv.alltel.net") by vger.kernel.org with ESMTP
-	id <S261369AbREQD0Q>; Wed, 16 May 2001 23:26:16 -0400
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-From: "Wayne Johnson" <bigman1@alltel.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.4-ac9 problems on Iwill KK266
-X-Mailer: Pronto v2.2.5 On linux/Pg
-Date: 16 May 2001 22:26:13 CDT
-Reply-To: "Wayne Johnson" <bigman1@alltel.net>
-Message-Id: <20010517032615.ZYUW19918.mta01-srv.alltel.net@crazies>
+	id <S262182AbREQDid>; Wed, 16 May 2001 23:38:33 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:40462 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S262181AbREQDi3>; Wed, 16 May 2001 23:38:29 -0400
+Date: Wed, 16 May 2001 23:38:21 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Shane Wegner <shane@cm.nu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.20pre1: Problems with SMP
+Message-ID: <20010516233820.L25814@sventech.com>
+In-Reply-To: <20010506175050.A1968@cm.nu> <E14wiNn-0003JF-00@the-village.bc.nu> <20010507102053.A2276@cm.nu> <20010507110250.H903@valinux.com> <20010507111436.A17314@cm.nu> <20010516125655.S906@valinux.com> <20010516192736.A6060@cm.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <20010516192736.A6060@cm.nu>; from Shane Wegner on Wed, May 16, 2001 at 07:27:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 16, 2001, Shane Wegner <shane@cm.nu> wrote:
+> On Wed, May 16, 2001 at 12:56:55PM -0700, Johannes Erdfelt wrote:
+> > Could you try this patch? It applies on top of 2.2.20pre1
+> > 
+> > It also cleans up a couple of comments
+> 
+> That fixes it alright.
 
-Hello
-I have been trying to get 2.4.x to boot on my machine for sometime. I
-finally got ac9 to boot today but I had to change the Processor Opts
-from Athlon/K7/etc to PII/Celeron. I am running on an Iwill KK266 board
-with a duron 800, 384 megs of RAM, SB Live X-Gamer, Adaptec 2910 and
-2940UW, tnt2, and linksys Etherfast 10/100 nic. I run Debian sid. I
-have been running 2.2.19 for sometime with no troubles. 2.4.x with k7
-opts always would opps out while runing rcS scripts and never would get
-past single user.
-More info available upon request
-Wayne "bigguy" Johnson
+Excellent. Alan, could you apply the patch to 2.2.20pre2?
+
+JE
 

@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266914AbRGXEic>; Tue, 24 Jul 2001 00:38:32 -0400
+	id <S266907AbRGXE36>; Tue, 24 Jul 2001 00:29:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266929AbRGXEiV>; Tue, 24 Jul 2001 00:38:21 -0400
-Received: from rj.sgi.com ([204.94.215.100]:3731 "EHLO rj.corp.sgi.com")
-	by vger.kernel.org with ESMTP id <S266914AbRGXEiQ>;
-	Tue, 24 Jul 2001 00:38:16 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: pyrenees@club-internet.fr
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The moxa.c module is not compiled in 2.4.7 kernel. 
-In-Reply-To: Your message of "Mon, 23 Jul 2001 23:49:17 +0200."
-             <01072323491700.00616@linux> 
-Mime-Version: 1.0
+	id <S266914AbRGXE3t>; Tue, 24 Jul 2001 00:29:49 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:47377 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S266907AbRGXE3l>;
+	Tue, 24 Jul 2001 00:29:41 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107240429.f6O4Tdt274181@saturn.cs.uml.edu>
+Subject: Re: [PATCH] 64 bit scsi read/write
+To: phillips@bonn-fries.net (Daniel Phillips)
+Date: Tue, 24 Jul 2001 00:29:39 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), tuxx@aon.at (Alexander Griesser),
+        phillips@bonn-fries.net (Daniel Phillips), cw@f00f.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <01072316412405.00315@starship> from "Daniel Phillips" at Jul 23, 2001 04:41:24 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 24 Jul 2001 14:38:11 +1000
-Message-ID: <23760.995949491@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 23 Jul 2001 23:49:17 +0200, 
-"J.L.Carlet" <pyrenees@club-internet.fr> wrote:
->I have a problem with the 2.4.7 kernel only, not with the 2.4.6.
->In the 2.4.6, using make xconfig, I select Moxa Intellio support, in the 
->Character devices menu. I made make dep, make clean, make modules, make 
->modules_install, and then I obtained the moxa.o file in 
->/lib/modules/2.4.6/kernel/drivers/char directory.
->If I make the same operations with 2.4.7 kernel, I don't obtain moxa.o
->The file is not compiled and not installed.
+Daniel Phillips writes:
+> On Sunday 22 July 2001 05:52, Albert D. Cahalan wrote:
+>> [...]
+>>> On Sun, Jul 15, 2001 at 09:08:41PM -0400, you wrote:
 
-It compiles and installs for me on 2.4.7, using make xconfig.
+>>>> In a tree-structured filesystem, checksums on everything would
+>>>> only cost you space similar to the number of pointers you have.
+>>>> Whenever a non-leaf node points to a child, it can hold a checksum
+>>>> for that child as well.  This gives a very reliable way to spot
+>>>> filesystem errors, including corrupt data blocks.
+...
+>> To have a child is to have a checksum+pointer pair.
+...
+> I agree that your suggestion will work and that doubling the size
+> of the metadata isn't an enormous cost, especially if you'd already
+> compressed it using extents.  On the other hand, sometimes I just
+> feel like trusting the hardware a little.  Both atomic-commit and
+> journalling strategies take care of normal failure modes, and the
+> disk hardware is supposed to flag other failures by ecc'ing each
+> sector on disk.
 
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-# CONFIG_SERIAL_CONSOLE is not set
-CONFIG_SERIAL_EXTENDED=y
-# CONFIG_SERIAL_MANY_PORTS is not set
-# CONFIG_SERIAL_SHARE_IRQ is not set
-# CONFIG_SERIAL_DETECT_IRQ is not set
-# CONFIG_SERIAL_MULTIPORT is not set
-# CONFIG_HUB6 is not set
-CONFIG_SERIAL_NONSTANDARD=y
-# CONFIG_COMPUTONE is not set
-# CONFIG_ROCKETPORT is not set
-# CONFIG_CYCLADES is not set
-# CONFIG_DIGIEPCA is not set
-# CONFIG_DIGI is not set
-# CONFIG_ESPSERIAL is not set
-CONFIG_MOXA_INTELLIO=m
-# CONFIG_MOXA_SMARTIO is not set
-# CONFIG_ISI is not set
-# CONFIG_SYNCLINK is not set
-# CONFIG_N_HDLC is not set
-# CONFIG_RISCOM8 is not set
-# CONFIG_SPECIALIX is not set
-# CONFIG_SX is not set
-# CONFIG_RIO is not set
-# CONFIG_STALDRV is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
+Maybe you should discuss power-loss behavior with Theodore T'so.
+For whatever reason, it seems that many drives and/or controllers
+like to scribble on random unrelated sectors as power is lost.
+
+For the atomic-commit case, an additional defense against this
+sort of problem might be to keep a few extra trees on disk,
+using a generation counter to pick the latest one. This does
+bring us back to scanning the whole filesystem at boot though,
+in order to disregard snapshots that have been damaged.
+
 

@@ -1,85 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264312AbTEGXhU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 19:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbTEGXCY
+	id S264199AbTEGXhR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 19:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264338AbTEGXCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 19:02:24 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:19620 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264186AbTEGXCA convert rfc822-to-8bit
+	Wed, 7 May 2003 19:02:19 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:5589 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264184AbTEGXCA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 7 May 2003 19:02:00 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10523493882794@kroah.com>
+Message-Id: <10523493863054@kroah.com>
 Subject: Re: [PATCH] TTY changes for 2.5.69
-In-Reply-To: <10523493881375@kroah.com>
+In-Reply-To: <10523493864074@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 7 May 2003 16:16:28 -0700
+Date: Wed, 7 May 2003 16:16:26 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1111, 2003/05/07 15:01:42-07:00, hannal@us.ibm.com
+ChangeSet 1.1093, 2003/05/07 14:58:42-07:00, hannal@us.ibm.com
 
-[PATCH] amiserial tty_driver add .owner field remove MOD_INC/DEC_USE_COUNT
-
-
- drivers/char/amiserial.c |    7 +------
- 1 files changed, 1 insertion(+), 6 deletions(-)
+[PATCH] serial_tx3912  tty_driver add .owner field remove MOD_INC/DEC_USE_COUNT
 
 
-diff -Nru a/drivers/char/amiserial.c b/drivers/char/amiserial.c
---- a/drivers/char/amiserial.c	Wed May  7 16:00:21 2003
-+++ b/drivers/char/amiserial.c	Wed May  7 16:00:21 2003
-@@ -1528,7 +1528,6 @@
+ drivers/char/serial_tx3912.c |   35 +----------------------------------
+ 1 files changed, 1 insertion(+), 34 deletions(-)
+
+
+diff -Nru a/drivers/char/serial_tx3912.c b/drivers/char/serial_tx3912.c
+--- a/drivers/char/serial_tx3912.c	Wed May  7 16:01:40 2003
++++ b/drivers/char/serial_tx3912.c	Wed May  7 16:01:40 2003
+@@ -41,8 +41,6 @@
+ static void rs_shutdown_port (void * ptr); 
+ static int rs_set_real_termios (void *ptr);
+ static int rs_chars_in_buffer (void * ptr); 
+-static void rs_hungup (void *ptr);
+-static void rs_close (void *ptr);
  
- 	if (tty_hung_up_p(filp)) {
- 		DBG_CNT("before DEC-hung");
--		MOD_DEC_USE_COUNT;
- 		local_irq_restore(flags);
- 		return;
- 	}
-@@ -1555,7 +1554,6 @@
- 	}
- 	if (state->count) {
- 		DBG_CNT("before DEC-2");
--		MOD_DEC_USE_COUNT;
- 		local_irq_restore(flags);
- 		return;
- 	}
-@@ -1615,7 +1613,6 @@
- 	info->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CALLOUT_ACTIVE|
- 			 ASYNC_CLOSING);
- 	wake_up_interruptible(&info->close_wait);
--	MOD_DEC_USE_COUNT;
- 	local_irq_restore(flags);
- }
+ /*
+  * Used by generic serial driver to access hardware
+@@ -56,8 +54,6 @@
+ 	.shutdown_port         = rs_shutdown_port,  
+ 	.set_real_termios      = rs_set_real_termios,  
+ 	.chars_in_buffer       = rs_chars_in_buffer, 
+-	.close                 = rs_close, 
+-	.hungup                = rs_hungup,
+ }; 
  
-@@ -1894,15 +1891,12 @@
- 	int 			retval, line;
- 	unsigned long		page;
+ /*
+@@ -579,9 +575,6 @@
  
--	MOD_INC_USE_COUNT;
- 	line = tty->index;
- 	if ((line < 0) || (line >= NR_PORTS)) {
--		MOD_DEC_USE_COUNT;
- 		return -ENODEV;
- 	}
- 	retval = get_async_struct(line, &info);
+ 	rs_dprintk (TX3912_UART_DEBUG_OPEN, "before inc_use_count (count=%d.\n", 
+ 	            port->gs.count);
+-	if (port->gs.count == 1) {
+-		MOD_INC_USE_COUNT;
+-	}
+ 	rs_dprintk (TX3912_UART_DEBUG_OPEN, "after inc_use_count\n");
+ 
+ 	/* Jim: Initialize port hardware here */
+@@ -595,7 +588,6 @@
+ 	            retval, port->gs.count);
+ 
  	if (retval) {
 -		MOD_DEC_USE_COUNT;
+ 		port->gs.count--;
  		return retval;
  	}
- 	tty->driver_data = info;
-@@ -2116,6 +2110,7 @@
+@@ -621,32 +613,6 @@
+ }
  
- 	memset(&serial_driver, 0, sizeof(struct tty_driver));
- 	serial_driver.magic = TTY_DRIVER_MAGIC;
-+	serial_driver.owner = THIS_MODULE;
- 	serial_driver.driver_name = "amiserial";
- 	serial_driver.name = "ttyS";
- 	serial_driver.major = TTY_MAJOR;
+ 
+-
+-static void rs_close (void *ptr)
+-{
+-	func_enter ();
+-
+-	/* Anything to do here? */
+-
+-	MOD_DEC_USE_COUNT;
+-	func_exit ();
+-}
+-
+-
+-/* I haven't the foggiest why the decrement use count has to happen
+-   here. The whole linux serial drivers stuff needs to be redesigned.
+-   My guess is that this is a hack to minimize the impact of a bug
+-   elsewhere. Thinking about it some more. (try it sometime) Try
+-   running minicom on a serial port that is driven by a modularized
+-   driver. Have the modem hangup. Then remove the driver module. Then
+-   exit minicom.  I expect an "oops".  -- REW */
+-static void rs_hungup (void *ptr)
+-{
+-	func_enter ();
+-	MOD_DEC_USE_COUNT;
+-	func_exit ();
+-}
+-
+ static int rs_ioctl (struct tty_struct * tty, struct file * filp, 
+                      unsigned int cmd, unsigned long arg)
+ {
+@@ -839,6 +805,7 @@
+ 
+ 	memset(&rs_driver, 0, sizeof(rs_driver));
+ 	rs_driver.magic = TTY_DRIVER_MAGIC;
++	rs_driver.owner = THIS_MODULE;
+ 	rs_driver.driver_name = "serial";
+ 	rs_driver.name = "ttyS";
+ 	rs_driver.major = TTY_MAJOR;
 

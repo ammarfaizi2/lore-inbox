@@ -1,73 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbTERGw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 02:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbTERGw3
+	id S261201AbTERHqU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 03:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbTERHqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 02:52:29 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44875 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261177AbTERGw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 02:52:27 -0400
-Date: Sun, 18 May 2003 03:05:22 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200305180705.h4I75MT13787@devserv.devel.redhat.com>
-To: Jes Sorensen <jes@wildopensource.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] support 64 bit pci_alloc_consistent
-In-Reply-To: <mailman.1053231184.22467.linux-kernel2news@redhat.com>
-References: <mailman.1053231184.22467.linux-kernel2news@redhat.com>
+	Sun, 18 May 2003 03:46:20 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:50379 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S261201AbTERHqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 03:46:19 -0400
+Date: Sun, 18 May 2003 09:59:10 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Jeffrey Baker <jwbaker@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
+Message-ID: <20030518075910.GX3478@louise.pinerecords.com>
+References: <20030517035612.GA543@noodles>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030517035612.GA543@noodles>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The default mask for pci_alloc_consistent() is still 32 bit as there are
-> 64 bit capable hardware out there that doesn't support 64 bit addresses
-> for descripters etc.
+> [jwbaker@acm.org]
+> 
+> I have the same problem on VIA chipset.  IDE DMA is disabled in
+> 2.4.21-rc2 but works fine otherwise:
 
-I think this is a mix-up of concepts. You mean aic7xxx, right?
-IMHO, it's an example of a device which needs various masks
-for different allocations. As it happens, the driver uses
-consistent allocations with one mask, streaming allocations
-with other mask. This is a pure coincidence, however. Being
-consistent or streaming is one thing, and asking for various
-masks is another thing.
+Please post the relevant extract of your .config and dmesg output.
 
-But I see that there may be practical differences if we suddenly
-make pci_set_dma_mask act upon consistent allocations. So,
-perhaps you're right... Let's add a call...
-
-> @@ -94,6 +103,11 @@
->  
->  	int pci_set_dma_mask(struct pci_dev *pdev, u64 device_mask);
->  
-> +The query for consistent allocations is performed via a a call to
-> +pci_set_consistent_dma_mask():
-> +
-> +	int pci_set_consistent_dma_mask(struct pci_dev *pdev, u64 device_mask);
-
-I think it's not a query, but a request, but I'm not a native
-speaker.
-
-> +pci_set_consistent_dma_mask() will always be able to set the same or a
-> +smaller mask as pci_set_dma_mask(). However for the rare case that a
-> +device driver only uses consistent allocations, one would have to
-> +check the return value from pci_set_consistent().
-
-pci_set_consistent_dma_mask, surely.
-
-> +	dev->consistent_dma_mask = mask;
- 
-> +	u64		consistent_dma_mask;/* Like dma_mask, but for
-> +					       pci_alloc_consistent mappings as
-> +					       not all hardware supports
-> +					       64 bit addresses for consistent
-> +					       allocations such descriptors. */
-
-> +int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
-
-This is cool, but where is the implementation?
-
-I do not see anyone honouring the ->consistent_dma_mask
-in the patch. I'm stupid, right?
-
--- Pete
+-- 
+Tomas Szepe <szepe@pinerecords.com>

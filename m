@@ -1,46 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263544AbSLZTji>; Thu, 26 Dec 2002 14:39:38 -0500
+	id <S263366AbSLZUBo>; Thu, 26 Dec 2002 15:01:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbSLZTji>; Thu, 26 Dec 2002 14:39:38 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:41997 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263544AbSLZTjh>; Thu, 26 Dec 2002 14:39:37 -0500
-Date: Thu, 26 Dec 2002 19:47:52 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Jurriaan <thunder7@xs4all.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: also frustrated with the framebuffer and your matrox-card in
- 2.5.53? hack/patch available!
-In-Reply-To: <20021226142032.GA7852@middle.of.nowhere>
-Message-ID: <Pine.LNX.4.44.0212261942290.5748-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263760AbSLZUBo>; Thu, 26 Dec 2002 15:01:44 -0500
+Received: from cpe-66-1-165-152.az.sprintbbd.net ([66.1.165.152]:37629 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S263366AbSLZUBm>; Thu, 26 Dec 2002 15:01:42 -0500
+Subject: Re: nforce2 and agpgart
+From: "Carl D. Blake" <carl@boeckeler.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <086101c2ad18$46fea8b0$6502a8c0@jeff>
+References: <1040669417.4563.24.camel@vulcan><1040678186.2237.4.camel@localhost.localdom
+	 ain><1040683214.4447.7.camel@vulcan> 
+	<037301c2aadf$4aea4050$6502a8c0@jeff> <1040928705.6372.27.camel@vulcan> 
+	<086101c2ad18$46fea8b0$6502a8c0@jeff>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 26 Dec 2002 13:09:53 -0700
+Message-Id: <1040933393.6369.38.camel@vulcan>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-12-26 at 12:52, Jeff Nguyen wrote:
+> That's strange because my Red Hat kernel did not enable DMA.
+> Did you have to run hdparam to change the IDE setting?
+> 
 
-> It's rather annoying that in a feature-freeze period a change goes in
-> that cripples the one framebuffer with the best speed and features -
-> the matrox framebuffer. 
+Yes, I had to run hdparm to setup the IDE hard drive for maximum
+performance.
 
-Because a driver has over 10,000 lines of code does not mean it is a 
-quality driver.
+> Jeff
+> 
+> ----- Original Message -----
+> From: "Carl D. Blake" <carl@boeckeler.com>
+> To: "Jeff Nguyen" <jeff@aslab.com>
+> Sent: Thursday, December 26, 2002 10:51 AM
+> Subject: Re: nforce2 and agpgart
+> 
+> 
+> > On Mon, 2002-12-23 at 16:59, Jeff Nguyen wrote:
+> > > Carl,
+> > >
+> > > Are you using the onboard IDE controller for your hard disk?
+> > > If so, please check to see if DMA is enabled or not.
+> > >
+> > > Jeff
+> > >
+> >
+> > I am using the onboard IDE controller and DMA is enabled.
+> >
+> > > ----- Original Message -----
+> > > From: "Carl D. Blake" <carl@boeckeler.com>
+> > > To: <linux-kernel@vger.kernel.org>
+> > > Sent: Monday, December 23, 2002 2:40 PM
+> > > Subject: Re: nforce2 and agpgart
+> > >
+> > >
+> > > > On Mon, 2002-12-23 at 14:16, Bongani Hlope wrote:
+> > > > > On Mon, 2002-12-23 at 20:50, Carl D. Blake wrote:
+> > > > > > I'm having trouble getting agpgart support to work with an nforce2
+> > > > > > chipset.  Is this supported on any kernels?  I'm running a Redhat
+> 7.1
+> > > > > > system with Redhat's 2.4.9-21 kernel.
+> > > > >
+> > > > > Try to use a newer kernel from Redhat, because that kernel was
+> around
+> > > > > looong before nforce was released. IIRC support for nforce2 was
+> added
+> > > > > around 2.4.19
+> > > > >
+> > > >
+> > > > I just upgraded to the 2.4.18 kernel provided by Redhat and it didn't
+> > > > make any difference.  The message I get in dmesg is:
+> > > >
+> > > > Linux agpgart interface v0.99 (c) Jeff Hartmann
+> > > > agpgart: Maximum main memory to use for agp memory: 439M
+> > > > agpgart: unsupported bridge
+> > > > agpgart: no supported devices found.
+> > > >
+> > > > You suggested trying 2.4.19, so I downloaded kernel 2.4.20 from
+> > > > kernel.org and compared its agp code (drivers/char/agp) with the code
+> in
+> > > > 2.4.18.  There are a few differences - such as supporting AMD 8151 -
+> but
+> > > > nothing that indicates improved support for agpgart on the nforce2
+> > > > chipset.  The changelog for 2.4.20 indicated some added support for
+> the
+> > > > nforce2 chipset, but that seems to be support for the audio and
+> network
+> > > > portions of the chipset, not agp.  I was able to incorporate the audio
+> > > > changes manually for kernel 2.4.18 by using Nvidia's patches, but I
+> > > > can't get agp to work.
+> > > >
+> > > > Any other suggestions?  Thanks for your help.
+> > > > > --
+> > > > > For future reference - don't anybody else try to send patches as vi
+> > > > > scripts, please. Yes, it's manly, but let's face it, so is
+> > > > > bungee-jumping with the cord tied to your testicles.
+> > > > >
+> > > > >                 -- Linus
+> > > > --
+> > > > Carl D. Blake
+> > > > Director of Engineering
+> > > > Boeckeler Instruments, Inc.
+> > > > 4650 S. Butterfield Dr.
+> > > > Tucson, AZ  85714
+> > > >
+> > > > Phone: 520-745-0001
+> > > > FAX: 520-745-0004
+> > > > email: carl@boeckeler.com
+> > > >
+> > > > .com
+> > > >
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > >
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > --
+> > Carl D. Blake
+> > Director of Engineering
+> > Boeckeler Instruments, Inc.
+> > 4650 S. Butterfield Dr.
+> > Tucson, AZ  85714
+> >
+> > Phone: 520-745-0001
+> > FAX: 520-745-0004
+> > email: carl@boeckeler.com
+> >
+> > .com
+> >
+-- 
+Carl D. Blake
+Director of Engineering
+Boeckeler Instruments, Inc.
+4650 S. Butterfield Dr.
+Tucson, AZ  85714
 
-> The author mentioned it could be weeks or months
-> before he would be able to get his matrox framebuffer working with the
-> new framework, since its simple API doesn't fit the possibilities of the
-> matrox framebuffer. Read more about it on the fbdev-users or
-> fbdev-developers mailinglist on sourceforge.
+Phone: 520-745-0001
+FAX: 520-745-0004
+email: carl@boeckeler.com
 
-Petr is expressing his political view. It has nothing to do with technical 
-arguments. In fact I place a bet. I will port the matrox driver and it 
-will have the same functionality as the previous driver except for text 
-mode support. If I can't do it I will not only revert the changes but I 
-will give Petr his wetdream. I will start inetergrating vt.c and 
-vt_ioctl.c into each fbdev driver. Each fbdev driver will be its own 
-console system. We will not longer need vt.c and vt_ioctl.c as each driver 
-will have its own version intergated into the driver. Sound fair?
+.com
 

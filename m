@@ -1,130 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289916AbSAPOG6>; Wed, 16 Jan 2002 09:06:58 -0500
+	id <S289951AbSAPO20>; Wed, 16 Jan 2002 09:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289936AbSAPOGs>; Wed, 16 Jan 2002 09:06:48 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:58623 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S289916AbSAPOGj>;
-	Wed, 16 Jan 2002 09:06:39 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AA3@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Luigi Genoni'" <kernel@Expansa.sns.it>,
-        Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: Amit Gupta <amit.gupta@amd.com>, linux-kernel@vger.kernel.org
-Subject: RE: arpd not working in 2.4.17 or 2.5.1
-Date: Wed, 16 Jan 2002 06:06:32 -0800
+	id <S289950AbSAPO2Q>; Wed, 16 Jan 2002 09:28:16 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:41670 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S289951AbSAPO17>; Wed, 16 Jan 2002 09:27:59 -0500
+Date: Wed, 16 Jan 2002 06:28:08 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: floating point exception
+In-Reply-To: <3C45858E.39F31DBA@didntduck.org>
+Message-ID: <Pine.LNX.4.33.0201160612360.27975-100000@shell1.aracnet.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right now it's fully working with 2.4.9, i'll put
-2.4.17 on there and see what it does :)
+On Wed, 16 Jan 2002, Brian Gerst wrote:
 
-> -----Original Message-----
-> From: Luigi Genoni [mailto:kernel@Expansa.sns.it]
-> Sent: January 16, 2002 06:50
-> To: Dana Lacoste
-> Cc: Amit Gupta; linux-kernel@vger.kernel.org
-> Subject: RE: arpd not working in 2.4.17 or 2.5.1
-> 
-> 
-> How are you managing /dev/arpd?
-> It seems that the kernel is not behaving correctly with this device
-> 
-> 
-> On Tue, 15 Jan 2002, Dana Lacoste wrote:
-> 
-> > I have a 2.4 compatible arpd running, but with our
-> > company being bought by a big US software company
-> > I'm having trouble convincing management to allow
-> > the GPL release.  It's becoming very important so
-> > I'm hopeful that I'll be successful shortly, but
-> > until then I have to be quiet :)
-> >
-> > --
-> > Dana Lacoste      - Linux Developer
-> > Peregrine Systems - Ottawa, Canada
-> >
-> > (Note that Peregrine acquired Loran, and jlayes@loran.com
-> > is an email address of a former employee, so i'm kind of
-> > the relevant person to talk to for arpd stuff, because that
-> > other address won't work :)
-> >
-> > > -----Original Message-----
-> > > From: Luigi Genoni [mailto:kernel@Expansa.sns.it]
-> > > Sent: January 15, 2002 10:03
-> > > To: Amit Gupta
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Subject: Re: arpd not working in 2.4.17 or 2.5.1
-> > >
-> > >
-> > > Latest  kernel I saw working with arpd (user space daemon) I
-> > > am manteining
-> > > is 2.2.16, then from 2.4.4 (for 2.4 series), some changes 
-> were done to
-> > > kernel so that the kernel does not talk correctly with the device
-> > > /dev/arpd anymore.
-> > > It is not the first time I write about this on lkml, but it
-> > > seems none is
-> > > interested in manteining the kernel space component for 
-> arpd support.
-> > > I did some investigation, but the code for arpd support
-> > > itself inside of
-> > > the kernel seems to be ok, something else is wrong with 
-> neighour.c.
-> > >
-> > > So at less I can say the user space daemon works well on 
-> 2.2.16 I have
-> > > around ;).
-> > >
-> > > Luigi
-> > >
-> > > On Mon, 14 Jan 2002, Amit Gupta wrote:
-> > >
-> > > >
-> > > > Hi All,
-> > > >
-> > > > I am running 2.5.1 kernel on a 2 AMD processor system and
-> > > have enable
-> > > > routing messages, netlink and arpd support inside kernel as
-> > > described in
-> > > > arpd docs.
-> > > >
-> > > > Then after making 36 character devices, when I run arpd,
-> > > it's starts up
-> > > > but always keeps silent (strace) and the kernel also does
-> > > not keep it's
-> > > > 256 arp address limit.
-> > > >
-> > > > Pls help fix it, I need linux to be able to talk to 
-> more than 1024
-> > > > clients.
-> > > >
-> > > > Thanks in Advance.
-> > > >
-> > > > Amit
-> > > > amit.gupta@amd.com
-> > > >
-> > > >
-> > > >
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe
-> > > linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
+> Last I checked, Athlon XP's weren't certified for SMP, only MP's.
+> That's likely what the problem is.  And for the record, Tyan also
+> makes Intel boards too.
 >
+> Processor manufacturing 101:  All processors of a given family come
+> off the same production line.  Due to variations in the process, some
+> processors have defects that only show up at higher clock speeds, SMP
+> mode, etc.  At the end of the line the processor is tested.  If it
+> fails at higher clock speeds it is marked at a lower speed.  If it
+> fails SMP it is marked as an XP.  Market demand can also cause a chip
+> to be rated lower than it really is, so you can sometimes get away
+> with overclocking, etc. but it's just random luck if it really works.
+
+
+Could you be more specific on this "random luck" bit? Let's say we have
+a production line making processors that should *all* run SMP at, say,
+1800 MHz. What fraction of them will actually run SMP and 1800? What
+fraction of them will actually run at 1800 UP? What fraction of them
+will run at 1700 SMP, 1600 SMP, etc.? And what fraction of them run at
+1800 SMP at the end of the line but croak when they get stuck in
+<ducking> Aunt Tillie's motherboard?
+
+I'm not looking for anyone's proprietary yield statistics here -- just a
+rough idea of what kind of distributions we're dealing with here. For my
+application, the 1.3 GHz Athlon I've got now is overkill. I wanted a
+dual when I got the system last March, but there weren't any
+motherboards available that I could find.
+
+-- 
+M. Edward Borasky
+znmeb@borasky-research.net
+
+The COUGAR Project
+http://www.borasky-research.com/Cougar.htm
+
+Q. How do you tell when a pineapple is ready to eat?
+A. It picks up its knife and fork.
+

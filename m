@@ -1,81 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVAXUpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVAXUys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVAXUpG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:45:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVAXUny
+	id S261653AbVAXUys (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVAXUyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:43:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17036 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261632AbVAXUmZ (ORCPT
+	Mon, 24 Jan 2005 15:54:38 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:28380 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261653AbVAXUwL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:42:25 -0500
-Subject: Re: [Ext2-devel] [PATCH] JBD: fix against journal overflow
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <m38y6ieigl.fsf@bzzz.home.net>
-References: <m3r7khv3id.fsf@bzzz.home.net>
-	 <1106588589.2103.116.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3llaien2g.fsf@bzzz.home.net>
-	 <1106590709.2103.132.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m38y6ieigl.fsf@bzzz.home.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1106596141.2103.179.camel@sisko.sctweedie.blueyonder.co.uk>
+	Mon, 24 Jan 2005 15:52:11 -0500
+Date: Tue, 25 Jan 2005 00:10:47 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050125001047.1fc256ed@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050124203353.GA5048@infradead.org>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<20050124175449.GK3515@stusta.de>
+	<20050124203353.GA5048@infradead.org>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 24 Jan 2005 20:42:07 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 24 Jan 2005 20:33:53 +0000
+Christoph Hellwig <hch@infradead.org> wrote:
 
-On Mon, 2005-01-24 at 19:27, Alex Tomas wrote:
-
-> oops. i overlooked this line. so, the fix becomes minor improvement patch ;)
-
-Agreed, but a worthwhile one anyway.  I'm still worried if you've seen
-tests where this patch definitely cured a journal overflow, though ---
-if so, it may be masking some other bug somewhere else.
-
-> do you think the following can be improved?
+> On Mon, Jan 24, 2005 at 06:54:49PM +0100, Adrian Bunk wrote:
+> > It seems noone who reviewed the SuperIO patches noticed that there are 
+> > now two modules "scx200" in the kernel...
 > 
-> 	/*
-> 	 * @@@ AKPM: This seems rather over-defensive.  We're giving commit
-> 	 * a _lot_ of headroom: 1/4 of the journal plus the size of
-> 	 * the committing transaction.  
-...
+> Did anyone review them?
 
-Possibly.  But what this bit is doing is effectively chunking the
-checkpoint operations --- if we have run out of journal space, we wait
-until we've got enough room left for a maximally-sized transaction
-before we let the new transaction start.  And by doing that, we make
-sure that the new transaction can grow to its full size before a commit
-is forced.
+As I said it is completely my fault, I pressed on Greg, 
+since patch several month laid after testing and people often asked
+about GPIO in various SuperIO chips.
 
-The trouble is, it is not possible to wait for more log space during a
-transaction's lifetime.  You can't clear old log entries without making
-sure that the buffers in them have been written back elsewhere, either
-to more recent transactions in the log, or to the final writeback
-store.  And if you've got a buffer touched both in the oldest
-transaction and the current one, then it's being journaled so you can't
-do writeback; so you can't flush the old transaction from the log until
-you've finished running and committing the current one.  
+Patches were sent into lm_sensors@ mail list some time ago 
+and code itself did not meet any objections.
 
-So if we want to allow a transaction to grow to its full size, we *must*
-wait for the log to have enough space for a maximal transaction before
-we let the transaction start in the first place.  And obviously, at that
-point we don't know how large the transaction is going to get, so we
-can't tell in advance whether we would be able to get away with a
-smaller amount of space. :)
+	Evgeniy Polyakov
 
-We could in theory monitor the usage, and if all the transactions being
-committed are much smaller than maximum, we could shrink the space
-requirement here.  But I'm not convinced it's really worth it.  (It
-might be a small improvement for things like mail servers, though.)
-
-Cheers,
- Stephen
-
+Only failure makes us experts. -- Theo de Raadt

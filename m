@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUIOGSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUIOGSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266245AbUIOGSB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 02:18:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUIOGSB
+	id S266344AbUIOGSe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 02:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIOGSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 02:18:01 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40064 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266245AbUIOGR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 02:17:59 -0400
-Date: Wed, 15 Sep 2004 08:19:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040915061922.GA11683@elte.hu>
-References: <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914145457.GA13113@elte.hu> <414776CE.5030302@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <414776CE.5030302@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 15 Sep 2004 02:18:34 -0400
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:51396 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266344AbUIOGSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 02:18:30 -0400
+To: linux-kernel@vger.kernel.org
+Date: Wed, 15 Sep 2004 08:18:25 +0200
+From: Soeren Sonnenburg <kernel@nn7.de>
+Message-ID: <pan.2004.09.15.06.18.23.771355@nn7.de>
+Organization: Local Intranet News
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+References: <20040914160530.GA729@evilgeek.net>
+Subject: Re: pdc202xx_new + software raid0 freezes on array writes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Sep 2004 16:05:30 +0000, Peter Mc Aulay wrote:
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Hi...
+> 
+> [NOTE: Please CC replies to me personally as I'm not a list subscriber.
+> Thank you.]
+> 
+> I was wondering if anyone could help me at all with a little problem I'm
+> having.
+> 
+> I have 4 Western Digital 200GB hard disks (WDC WD2000JB) in a software
+> RAID0 setup, two each connected to a Promise Ultra100TX2 (PDC20268) and
+> an Ultra133TX2 (PDC20269) (pdc202XX_new driver compiled into the
+> kernel).  The system itself is a K6-2 450Mhz CPU on an ATX mainboard of
+> unknown brand using the ALi M1541/5229 chipset (ALI15X3).  It boots from
+> a seperate Seagate (ST38410A) hard disk connected to the on-board
+> controller.
 
-> No, but I mean putting them right down into fastpaths like the vmscan
-> one, for example.
+I had the very same problems with the pdc20268 and also reported them
+(that was 1-2 years ago)... I threw them away now and replaced them with
+some hpt370 controllers... then also the problems went away...
 
-it is a very simple no-parameters call to a function that reads a
-likely-cached word and returns. The cost is in the 2-3 cycles range - a
-_single_ cachemiss can be 10-100 times more expensive, and cachemisses
-happen very frequently in every iteration of the VM _scanning_ path
-since it (naturally and inevitably) deals with lots of sparsely
-scattered data structures that havent been referenced for quite some
-time.
+However I found that using some device on the secondary controller and
+accessing that one makes it freeze already...
 
-The function (cond_resched()) triggers scheduling only very rarely, you
-should not be worried about that aspect either.
-
-> And if I remember correctly, you resorted to putting them into
-> might_sleep as well (but I haven't read the code for a while, maybe
-> you're now getting decent results without doing that).
-
-i'm not arguing that now at all, that preemption model clearly has to be
-an optional thing - at least initially.
-
-	Ingo
+Soeren

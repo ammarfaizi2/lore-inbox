@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265476AbUBGMyT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 07:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265525AbUBGMyT
+	id S265549AbUBGM5d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 07:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265583AbUBGM5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 07:54:19 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:779 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265476AbUBGMyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 07:54:18 -0500
-Subject: Re: 2.6.2-mm1+XFS
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: johann.lombardi@free.fr
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <4024B074.4070704@free.fr>
-References: <4024B074.4070704@free.fr>
-Content-Type: text/plain
-Message-Id: <1076158457.798.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Sat, 07 Feb 2004 13:54:18 +0100
+	Sat, 7 Feb 2004 07:57:33 -0500
+Received: from fep05.swip.net ([130.244.199.133]:56010 "EHLO
+	fep05-svc.swip.net") by vger.kernel.org with ESMTP id S265549AbUBGM5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 07:57:32 -0500
+From: jjluza <jjluza@free.fr>
+Reply-To: jjluza@free.fr
+To: linux-kernel@vger.kernel.org
+Subject: BUG: 2.6.3-rc1: No sound with nforce2 sound system
+Date: Sat, 7 Feb 2004 13:57:35 +0100
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402071357.35566.jjluza@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-02-07 at 10:31, Johann Lombardi wrote:
-
-> XFS mounting filesystem hde5
-> i_size_write() called without i_sem
-> Call Trace:
-> [<c013e4db>] i_size_write_check+0x5b/0x60
-> 
-> Howerver, the filesystem seems to be OK.
-> Is it something to worry about?
-
-It's a new debugging "feature" introduced in 2.6.2-rc-mm kernels to help
-chase down some inode operations invoked without properly signaling the
-i_sem semaphore (at least, that's what I understood).
-
+I have an nforce2 motherboard with the sound module snd_intel8x0.
+I had no problem with sound with kernel 2.6.2-bk2.
+But now, aplay doesn't work anymore, enemy-territory too.
+Other programs like xmms, kde apps using arts, and play still works.
+I get an error message with enemy-territory :
+> /dev/dsp: Input/output error
+> Could not mmap /dev/dsp

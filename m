@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131038AbQLOTkf>; Fri, 15 Dec 2000 14:40:35 -0500
+	id <S129413AbQLOTqZ>; Fri, 15 Dec 2000 14:46:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129391AbQLOTk0>; Fri, 15 Dec 2000 14:40:26 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:52302 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131051AbQLOTkG>; Fri, 15 Dec 2000 14:40:06 -0500
-Date: Fri, 15 Dec 2000 20:09:06 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: J Sloan <jjs@toyota.com>, Linux kernel <linux-kernel@vger.kernel.org>
+	id <S129692AbQLOTqQ>; Fri, 15 Dec 2000 14:46:16 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42249 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129413AbQLOTqD>; Fri, 15 Dec 2000 14:46:03 -0500
 Subject: Re: [lkml]Re: VM problems still in 2.2.18
-Message-ID: <20001215200906.H17781@inspiron.random>
-In-Reply-To: <20001215192207.E17781@inspiron.random> <E146zsJ-0001fT-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Fri, 15 Dec 2000 19:17:47 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jjs@toyota.com (J Sloan),
+        linux-kernel@vger.kernel.org (Linux kernel)
+In-Reply-To: <20001215200906.H17781@inspiron.random> from "Andrea Arcangeli" at Dec 15, 2000 08:09:06 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E146zsJ-0001fT-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 15, 2000 at 06:46:32PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1470MY-0001ib-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 06:46:32PM +0000, Alan Cox wrote:
-> so the actual problem is either - the returning 1 when it is the wrong answer
-> - or the failure to block somewhere else (where its safe) based on a kpiod
-> maintained semaphore ?
+> Now we know when we can block so we can run f_ops->write ourselfs that's also
+> more efficient in terms of both performance and also memory pressure during
+> swap of course.
 
-The problem is not to find a safe place where to wait, the problem is to know
-"when" we can block. That's the only thing current->fs_locks tells us. Sometime
-we simply can't wait because I/O can't start until we return (it would deadlock
-regardless we wait on a kpiod semaphore or in down(i_sem) ourselfs).
+Yep
 
-Once we know "if" we can't wait or not the whole point of kpiod is lost
-as kpiod exists only because we didn't know that and so we were not able
-to wait.
+> As said reiserfs AFIK didn't need any change, so only VFS is using
+> fs_down/fs_up from the point of view of reiserfs.
 
-Now we know when we can block so we can run f_ops->write ourselfs that's also
-more efficient in terms of both performance and also memory pressure during
-swap of course.
+Ok. Im not keen on adding fs_down but it does look like the right bandage
+(and a nice speed up) for 2.2. 
 
-> I assume thats not an issue to reiserfs ?
+I hate that kind of bug
 
-As said reiserfs AFIK didn't need any change, so only VFS is using
-fs_down/fs_up from the point of view of reiserfs.
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

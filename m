@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282349AbRKXCiL>; Fri, 23 Nov 2001 21:38:11 -0500
+	id <S282350AbRKXClL>; Fri, 23 Nov 2001 21:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282350AbRKXCiC>; Fri, 23 Nov 2001 21:38:02 -0500
-Received: from butterblume.comunit.net ([192.76.134.57]:44305 "EHLO
-	butterblume.comunit.net") by vger.kernel.org with ESMTP
-	id <S282349AbRKXChw>; Fri, 23 Nov 2001 21:37:52 -0500
-Date: Sat, 24 Nov 2001 03:37:35 +0100 (CET)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: haegar@space.comunit.de
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ftp.kernel.org down?
-In-Reply-To: <20011123202735.A1481@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.40.0111240336310.17355-100000@space.comunit.de>
+	id <S282352AbRKXClB>; Fri, 23 Nov 2001 21:41:01 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:40320 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S282350AbRKXCkq>;
+	Fri, 23 Nov 2001 21:40:46 -0500
+Message-ID: <3BFF08AA.9433E93F@pobox.com>
+Date: Fri, 23 Nov 2001 18:40:42 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-ll-preempt-tux2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arnvid Karstad <arnvid@karstad.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel: VFS: Disk change detected on device ide1(22,0)
+In-Reply-To: <20011124023830.E927.ARNVID@karstad.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Nov 2001, Jeff V. Merkey wrote:
+Arnvid Karstad wrote:
 
-> Is ftp.kernel.org down at present or do we just have some
-> messed up routers?  Neither ftp.kernel.org or www.kernel.org seem to
-> be up at present.
+> Hiya
+>
+> I'm getting alot of these messages all the time.
+> every other second or so.. what are they?
+>
+> ide1 is where my dvd rom is located.. and Hitachi DVD-Rom GD-s200.
+>
+> Kernel is 2.4.15 and distribution is Red Hat 7.2
+>
+> I didn't have any of these messages with the 2.4.9..
 
-please read that mail:
+killall magicdev
+rpm -evv magicdev
 
-From: H. Peter Anvin <hpa@zytor.com>
-To: linux-kernel@vger.kernel.org
-Date: 23 Nov 2001 16:23:17 -0800
-Subject: kernel.org multiple hardware failure
+killall autorun
+rpm -evv autorun
 
+-- works for me...
 
-c'ya
-sven
+cu
 
--- 
+jjs
 
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
 

@@ -1,81 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131275AbRDSVcf>; Thu, 19 Apr 2001 17:32:35 -0400
+	id <S131459AbRDSV2F>; Thu, 19 Apr 2001 17:28:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135716AbRDSVcZ>; Thu, 19 Apr 2001 17:32:25 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:10761 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131275AbRDSVcJ> convert rfc822-to-8bit; Thu, 19 Apr 2001 17:32:09 -0400
-From: s-jaschke@t-online.de (Stefan Jaschke)
-Reply-To: stefan@jaschke-net.de
-Organization: jaschke-net.de
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
-Date: Thu, 19 Apr 2001 23:11:31 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01041714250400.01376@antares> <01041914440701.01232@antares> <20010419150332.B22159@suse.de>
-In-Reply-To: <20010419150332.B22159@suse.de>
-MIME-Version: 1.0
-Message-Id: <01041923113102.01232@antares>
-Content-Transfer-Encoding: 8BIT
+	id <S131275AbRDSV14>; Thu, 19 Apr 2001 17:27:56 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:7689 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S135716AbRDSV1l>; Thu, 19 Apr 2001 17:27:41 -0400
+Date: Thu, 19 Apr 2001 23:25:36 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: AJ Lewis <lewis@sistina.com>
+Cc: Jes Sorensen <jes@linuxcare.com>, linux-kernel@vger.kernel.org,
+        linux-openlvm@nl.linux.org, Arjan van de Ven <arjanv@redhat.com>,
+        Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>,
+        riel@conectiva.com.br, linux-lvm@sistina.com
+Subject: Re: [linux-lvm] Re: [repost] Announce: Linux-OpenLVM mailing list
+Message-ID: <20010419232535.M22869@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	AJ Lewis <lewis@sistina.com>, Jes Sorensen <jes@linuxcare.com>,
+	linux-kernel@vger.kernel.org, linux-openlvm@nl.linux.org,
+	Arjan van de Ven <arjanv@redhat.com>, Jens Axboe <axboe@suse.de>,
+	Martin Kasper Petersen <mkp@linuxcare.com>, riel@conectiva.com.br,
+	linux-lvm@sistina.com
+In-Reply-To: <d37l0gvkuf.fsf@lxplus015.cern.ch> <20010419132927.D10345@sistina.com> <20010419144014.H10345@sistina.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3loezlmesXOUD0D5"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010419144014.H10345@sistina.com>; from lewis@sistina.com on Thu, Apr 19, 2001 at 02:40:15PM -0500
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 April 2001 15:03, Jens Axboe wrote:
-> On Thu, Apr 19 2001, Stefan Jaschke wrote:
-> > OK. I'll check again with 2.4.4-pre4+patches:
-> > (1) Mounting the SuSE DVD-ROM (-t iso9660) from /dev/hdc on /dvd and
-> >     reading from /dvd works. Same for CD-ROMs. I don't have a formatted
-> >     DVD-RAM.
-> > (2) Reading with "dd if=/dev/hdc ..."
-> >    (2.1) works with CD-ROM inserted
-> >    (2.2) fails with DVD-ROM inserted
->
-> dd fails with DVD-ROM inserted??? In the same way? Is this the SuSE DVD,
-> and not a movie DVD? Also, check dmesg for errors.
-> >    (2.3) fails with DVD-RAM inserted
 
-"dd if=/dev/hdc of=/dev/null bs=2k count=3" produces the same strace, whether
-the DVD-RAM or the SuSE DVD-ROM is inserted. I interpret the fact that the
-first read() returns 0 as some lower layer coming to the conclusion that
-"/dev/hdc" has length 0. 
-The only line that appears in the system logs is
-  "VFS: Disk change detected on device ide1(22,0)"
-when I change the disks.
+--3loezlmesXOUD0D5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > (3) Writing with "dd of=/dev/hdc ..." works (with DVD-RAM inserted).
-> > (4) "mke2fs -b 2048 /dev/hdc" fails (with DVD-RAM inserted).
-I took a closer look at the strace of the "mke2fs ...". The first system call
-that fails is
-old_mmap(NULL, 504938496, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 
--1, 0) = -1 ENOMEM
-It asks for 481MB, which I simply don't have. (128MB RAM,  256MB swap).
-So, this may be unrelated to the kernel, just a quirk of mke2fs to ask for
-that much memory.
+Hi AJ,
 
-> Could be, try
-> cat /proc/ide/hdc/capacity
-0                  (with empty tray)
-8946816       (with single-sided 4.7GB DVD-RAM)
-4875840       (with single-sided 2.6GB DVD-RAM)
-9106700       (with SuSE DVD-ROM)
-1325240       (with SuSE CD-ROM)
+On Thu, Apr 19, 2001 at 02:40:15PM -0500, AJ Lewis wrote:
+> The list is now open.  I've talked to our admin and he's opening it up.
+> Send me e-mail if it doesn't work, 'cause something else is broken.
 
-Seem to be 512 Byte blocks. Looks OK.
+to me it looks like your reactions are too late.
 
-> And lets stick to hardware for now, ok? :-)
-This means "There is hope to get the drive working under Linux"?
+I suggest you Sistina people accept the fact the there is an open list
+(better) managed by somebody else now and you all move there and use this as
+a forum for your discussions from now on. Just send the new list admin a
+list with your people to be subscribed ... and I can not imagine they will
+refuse to help you. (Otherwise they would be as closed-minded as you were.)
 
-Correct me if I am wrong in my interpretations.
+Maintaining a project which got integrated into the kernel and forms a
+critical part of it (if there are bugs) is not an easy thing to do, and you
+should expect controversary discussions. On the one hand you want to fix
+things and introduce small and large improvements, on the other hand you
+don't want to take risks. Just get used to it.
 
-There are two mysteries (for me at least) left:
-(1) Why does mke2fs need 481MB memory?
-(2) Why does the very first read() on /dev/hdc return EOF?
+You'll always have a newer version to test than the one in the kernel.
+However, it works best if you try to submit your changes as often as
+possible. Of course I know, this is close to impossible when you have to
+redesign stuff and have to wait for stabilization ...
 
-What would you suggest to try next?
+Good luck!
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
-Stefan
+--3loezlmesXOUD0D5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4g (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE631fPxmLh6hyYd04RAmh9AKCW/TfxVZzSZ4+40jyJ7jpnabkXcACgvkPz
+4QyzSU7Bk7O5RGoWh4KmEXg=
+=achL
+-----END PGP SIGNATURE-----
+
+--3loezlmesXOUD0D5--

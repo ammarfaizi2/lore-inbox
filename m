@@ -1,85 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbSJPOOp>; Wed, 16 Oct 2002 10:14:45 -0400
+	id <S264994AbSJPOT5>; Wed, 16 Oct 2002 10:19:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264976AbSJPOOp>; Wed, 16 Oct 2002 10:14:45 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:34438 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262500AbSJPOOo>; Wed, 16 Oct 2002 10:14:44 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 16 Oct 2002 07:28:50 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "Charles 'Buck' Krasic" <krasic@acm.org>
-cc: John Gardiner Myers <jgmyers@netscape.com>,
-       Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] async poll for 2.5
-In-Reply-To: <xu4lm4zf6ew.fsf@brittany.cse.ogi.edu>
-Message-ID: <Pine.LNX.4.44.0210160618190.1548-100000@blue1.dev.mcafeelabs.com>
+	id <S264995AbSJPOT5>; Wed, 16 Oct 2002 10:19:57 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:39951 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S264994AbSJPOTz>;
+	Wed, 16 Oct 2002 10:19:55 -0400
+Message-ID: <3DAD786A.E238B234@tv-sign.ru>
+Date: Wed, 16 Oct 2002 18:32:10 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Ingo Molnar <mingo@elte.hu>
+Subject: [BUG] [3d RESEND] de_thread()
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Oct 2002, Charles 'Buck' Krasic wrote:
+Hello.
 
+On Thu, 10 Oct 2002, Oleg Nesterov wrote:
+> 
+> Suppose process P in thread group was cloned _without_
+> CLONE_DETACHED flag. Then another thread, group_leader
+> for simplicity, does exec and calls de_thread(). It kills
+> P via _broadcast_thread_group(). While doing do_exit(),
+> P skips release_task(), because its exit_signal != -1,
+> and becomes TASK_ZOMBIE.
 >
-> John Gardiner Myers <jgmyers@netscape.com> writes:
+> Then leader calls schedule() with TASK_UNINTERRUPTIBLE
+> in while(oldsig->count > 1) {...} and sleeps forever,
+> because nobody can do wake_up_process(sig->group_exit_task).
 >
-> > The epoll API is deficient--it is subtly error prone and it forces
-> > work on user space that is better done in the kernel.  That the API
-> > is specified in a deficient way does not make it any less deficient.
->
-> You can argue that any API is subtly error prone.  The whole sockets
-> API is that way.  That's why the W. Richard Stevens network
-> programming books are such gems.  That's why having access to kernel
-> source is invaluable.  You have to pay attention to details to avoid
-> errors.
->
-> With /dev/epoll, it is perfectly feasible to write user level
-> wrapper libraries that help avoid the potential pitfalls.
->
-> I think it was Dan Kegel who has already mentioned one.
->
-> I've written one myself, and I'm very confident in it.  I've written a
-> traffic generator application on top of my library that stresses the
-> Linux kernel protocol stack to the extreme.  It generates the
-> proverbial 10k cps, saturates gigabit networks, etc.
->
-> It has no problem running over /dev/epoll.
->
-> IMHO, the code inside my wrapper library for the epoll case is
-> significantly easier to understand than the code for the case that
-> uses the legacy poll() interface.
->
-> If /dev/epoll were so error prone as you say it is, I think I would
-> have noticed it.
 
-The /dev/epoll usage is IMHO very simple. Once the I/O fd is created you
-register it with POLLIN|POLLOUT and you leave it inside the monitor set
-until it is needed ( mainly until you close() it ). It is not necessary to
-continuosly switch the event mask from POLLIN and POLLOUT. An hypothetical
-syscall API should look like :
+This program should hang leaving task in D state.
 
-int sys_epoll_create(int maxfds);
-void sys_epoll_close(int epd);
-int sys_epoll_addfd(int epd, int fd, int evtmask);
-int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <asm/unistd.h>
 
-with the option ( if benchmarks will give positive results ) like Ben
-suggested, of using the AIO event collector instead of sys_epoll_wait().
+#define CLONE_SIGHAND	0x00000800
+#define CLONE_THREAD	0x00010000
 
+#define	__NR_sys_clone	__NR_clone
 
+static inline _syscall2(int,sys_clone, int,flag, void*,stack)
 
+int main(void)
+{
+	static char stack[1024];
+	int pid = sys_clone(CLONE_THREAD | CLONE_SIGHAND | SIGCHLD, stack);
 
-- Davide
+	if (pid < 0) {
+		printf("ERR!! clone: %s.\n", strerror(errno));
+		return -1;
+	}
 
+	if (pid == 0) _exit(0);
 
+	execlp("echo", "echo", "Should not happen.", 0);
+	printf("ERR!! exec: %s.\n", strerror(errno));
 
+	return 0;
+}
 
+Oleg.

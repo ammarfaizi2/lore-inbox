@@ -1,112 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbUCDWDI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 17:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbUCDWDI
+	id S261976AbUCDWOh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 17:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUCDWOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 17:03:08 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:3062 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261955AbUCDWDC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 17:03:02 -0500
-Message-ID: <4047A78E.4050506@mvista.com>
-Date: Thu, 04 Mar 2004 14:02:54 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Thu, 4 Mar 2004 17:14:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48538 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261976AbUCDWOf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 17:14:35 -0500
+Date: Thu, 4 Mar 2004 17:14:30 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Peter Zaitsev <peter@mysql.com>,
+       <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+In-Reply-To: <20040304175821.GO4922@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403041711500.20043-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-References: <20040302213901.GF20227@smtp.west.cox.net> <20040303160409.GT20227@smtp.west.cox.net> <40467999.8000106@mvista.com> <200403041031.00316.amitkale@emsyssoft.com>
-In-Reply-To: <200403041031.00316.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> On Thursday 04 Mar 2004 6:04 am, George Anzinger wrote:
-> 
->>Tom Rini wrote:
->>
->>>On Wed, Mar 03, 2004 at 04:51:06PM +0100, Pavel Machek wrote:
->>>
->>>>Hi!
->>>>
->>>>
->>>>>>>More precisely:
->>>>>>>http://lkml.org/lkml/2004/2/11/224
->>>>>>
->>>>>>Well, that just says Andrew does not care too much. I think that
->>>>>>having both serial and ethernet support *is* good idea after all... I
->>>>>>have few machines here, some of them do not have serial, and some of
->>>>>>them do not have supported ethernet. It would be nice to use same
->>>>>>kernel on all of them. Also distribution wants to have "debugging
->>>>>>kernel", but does _not_ want to have 10 of them.
->>>>>
->>>>>But unless I'm missing something, supporting eth or 8250 at all times
->>>>>doesn't work right now anyhow, as eth if available will always take
->>>>>over.
->>>>
->>>>Well, that can be fixed. [Probably if kgdbeth= is not passed, ethernet
->>>>interface should not take over. So user selects which one should be
->>>>used by either passing kgdbeth or kgdb8250. That means that 8250
->>>>should not be initialized until user passes kgdb8250=... not sure how
->>>>you'll like that].
->>>
->>>At this point, I'm going to give up on killing kgdb_serial, and pass
->>>along some comments from David Woodhouse on IRC as well (I was talking
->>>about this issue, and the init/main.c change):
->>>(Tartarus == me, dwmw2 == David Woodhouse)
->>>
->>><Tartarus> dwmw2, the problem is how do you deal with all of the
->>>possibilities of i/o (8250, kgdboe, or other serial) and do you allow
->>>for passing 'gdb' on the command line to result in kgdb not being dropped
->>>into?  You can always break in later on of course
->>><dwmw2> parse command line early for 'gdb=' argument specifying which
->>>i/o device to use. init kgdb core early. init each i/o device as early
->>>as possible for that i/o device. Start the selected i/o device as soon
->>>as it becomes available.
->>><dwmw2> just like console could, if we looked for console= a little bit
->>>earlier. (forget all the earlyconsole shite, it's not necessary)
->>><dwmw2> Tartarrus, do the __early_setup() thing to replace __setup() for
->>>selected args. We can use that for console= too.
->>><dwmw2> since 'console=' on the command line _already_ remembers its
->>>arguments, and starts to use the offending device as soon as it gets
->>>registered with register_console().
->>><Tartarus> dwmw2, __early_setup() ?
->>><dwmw2> See __setup("gdb=", gdb_setup_func);
->>><dwmw2> Replace with __early_setup(...)
->>><Tartarus> where is __early_setup ?
->>><dwmw2> before we normally parse the command line
->>><dwmw2> in my head
->>>
->>>So perhaps someone can take these ideas and fix both problems... :)
->>>(I've got some other stuff I need to work on today).
->>
->>Well, __early_setup could mean the fist setup call and if so that would be
->>what we do in -mm.  It is done by putting the code in the first module ld
->>sees, not nice, but it works.
-> 
-> 
-> I would prefer something that modifies start_kernel itself, rather than 
-> depending on ld. It will split start_kernel command line parsing into early 
-> parse and late parse, but that's the price we have to pay to do special 
-> parsing of kgdb arguments.
+On Thu, 4 Mar 2004, Andrea Arcangeli wrote:
+> On Thu, Mar 04, 2004 at 07:12:23AM -0500, Rik van Riel wrote:
 
-There was some talk along these lines at one point, I don't think anything came 
-of it.  We would like it to be the very first, not just one of the first.
+> > All the CPUs use the _same_ mm_struct in kernel space, so
+> > all VM operations inside the kernel are effectively single 
+> > threaded.
+> 
+> so what, the 3:1 has the same bottleneck too.
 
-I think modifying the kernel to support this for kgdb is more like the tail 
-wagging the dog :)
+Not true, in the 3:1 split every process has its own
+mm_struct and they all happen to share the top GB with
+kernel stuff.  You can do a copy_to_user on multiple
+CPUs efficiently.
 
+> or maybe you mean the page_table_lock hold during copy-user that Andrew
+> mentioned? (copy-user doesn't mean "all VM operations" not sure if you
+> meant this or the usual locking of every 2.4/2.6 kernel out there)
+
+True, there are some other operations.  However, when
+you consider the fact that copy-user operations are
+needed for so many things they are the big bottleneck.
+
+Making it possible to copy things to and from userspace
+in a lockless way will help performance quite a bit...
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

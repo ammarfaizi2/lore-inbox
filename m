@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbRCPGEW>; Fri, 16 Mar 2001 01:04:22 -0500
+	id <S129855AbRCPG2q>; Fri, 16 Mar 2001 01:28:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130029AbRCPGEM>; Fri, 16 Mar 2001 01:04:12 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18358 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130013AbRCPGEC>;
-	Fri, 16 Mar 2001 01:04:02 -0500
-Date: Fri, 16 Mar 2001 01:03:20 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Mason <mason@suse.com>
+	id <S130029AbRCPG2f>; Fri, 16 Mar 2001 01:28:35 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:2065 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129855AbRCPG20>; Fri, 16 Mar 2001 01:28:26 -0500
+Date: Fri, 16 Mar 2001 01:27:45 -0500
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>
 cc: David <david@blue-labs.org>, linux-kernel@vger.kernel.org
 Subject: Re: [OOPS] report
-In-Reply-To: <667310000.984721919@tiny>
-Message-ID: <Pine.GSO.4.21.0103160056060.10709-100000@weyl.math.psu.edu>
+Message-ID: <681360000.984724065@tiny>
+In-Reply-To: <Pine.GSO.4.21.0103160056060.10709-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 16 Mar 2001, Chris Mason wrote:
+On Friday, March 16, 2001 01:03:20 AM -0500 Alexander Viro
+<viro@math.psu.edu> wrote:
 
-> > I suspect that the right fix is to drop the ->s_lock bogosity along with
-> > sys_sync() call in panic()...
+>> Ok, I was more talking about the ugliness that is reiserfs_panic (how
+>> many times do we need a commented out for(;;)?).  For panic() calling
+>> sys_sync, I think there non-filesystem related panics where we do want
+>> to sync.
 > 
-> Ok, I was more talking about the ugliness that is reiserfs_panic (how many
-> times do we need a commented out for(;;)?).  For panic() calling sys_sync,
-> I think there non-filesystem related panics where we do want to sync.
+> panic doesn't sync if called from interrupt (thanks $DEITY).
+> It is pointless to sync during boot.
+> sync from driver panic is not better than one from fs.
+> 
+> What does it leave? I hadn't checked each panic(), but it seems that
+> if we ever want syncing upon panic() it's safer to do sys_sync() by
+> hands before calling panic(). If it is actually ever needed, that is.
+> 
+> 
 
-panic doesn't sync if called from interrupt (thanks $DEITY).
-It is pointless to sync during boot.
-sync from driver panic is not better than one from fs.
+A quick grep -r shows over 700 panic callers (outside reiserfs).  Most look
+like init messages, or things that generally happen during interrupts.
+But, I think there are too many to assume that nobody could benefit from a
+sync.
 
-What does it leave? I hadn't checked each panic(), but it seems that
-if we ever want syncing upon panic() it's safer to do sys_sync() by
-hands before calling panic(). If it is actually ever needed, that is.
+Does that mean they _need_ the sync?  Probably not.
+
+-chris
 

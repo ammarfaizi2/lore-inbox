@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293592AbSBZMSO>; Tue, 26 Feb 2002 07:18:14 -0500
+	id <S293593AbSBZMXY>; Tue, 26 Feb 2002 07:23:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293593AbSBZMSE>; Tue, 26 Feb 2002 07:18:04 -0500
-Received: from mtao1.east.cox.net ([68.1.17.244]:50105 "EHLO
-	lakemtao01.cox.net") by vger.kernel.org with ESMTP
-	id <S293592AbSBZMSA>; Tue, 26 Feb 2002 07:18:00 -0500
-Message-ID: <000501c1bebf$80a3e460$a7eb0544@CX535256D>
-From: "Barubary" <barubary@cox.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <006001c1beb9$ea412690$a7eb0544@CX535256D> <3C7B7908.1040508@ellinger.de> <009c01c1bebe$41321730$a7eb0544@CX535256D>
-Subject: Change that to an NTFS bug not loopback
-Date: Tue, 26 Feb 2002 04:17:04 -0800
+	id <S293595AbSBZMXO>; Tue, 26 Feb 2002 07:23:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:782 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293593AbSBZMXB>; Tue, 26 Feb 2002 07:23:01 -0500
+Subject: Re: ISO9660 bug and loopback driver bug
+To: barubary@cox.net (Barubary)
+Date: Tue, 26 Feb 2002 12:37:36 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <009201c1bebd$7a5f5910$a7eb0544@CX535256D> from "Barubary" at Feb 26, 2002 04:02:34 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <E16fgrQ-0000Vo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to mount a 20 meg ISO from an NTFS partition mounted read-only and
-it glitched.  It has nothing to do with the size of the file.  I would've
-checked smaller files if I had mkisofs handy, which I didn't when I tried
-it.
+> Why is it locale-dependent?  All ISO9660 file times are stored as Gregorian
+> calendar dates regardless of who made them, and the target (UNIX file time)
 
-Now I'm afraid that it's a known bug and I've wasted your time... :(
+Thanks - I wasn't aware it was always defined to be the gregorian calendar
+in ISO9660. The orthodox calendar differs in computation (its more accurate)
+and the two actually diverge in 2800. (Pan Orthodox congress 1923 if anyone
+actually cares)
 
--- Barubary
+> isn't locale-dependent either.  Why would it affect the calculation if the
+> local system used the Muslim calendar?
 
+Unix file time is clean of those problems 
+
+> Shouldn't there be a gregorian_date_to_unix_time() function in the kernel so
+> that every driver that needs such conversion can share that implementation?
+> It would keep date processing consistent and make it easy to spot date bugs.
+
+Not a bad idea if there are enough file systems doing it.

@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262877AbTCWHAg>; Sun, 23 Mar 2003 02:00:36 -0500
+	id <S262924AbTCWHJT>; Sun, 23 Mar 2003 02:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbTCWHAf>; Sun, 23 Mar 2003 02:00:35 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:49675 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262877AbTCWHAc>;
-	Sun, 23 Mar 2003 02:00:32 -0500
-Date: Sat, 22 Mar 2003 23:11:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@redhat.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.65-ac3
-Message-ID: <20030323071124.GA23036@kroah.com>
-References: <3E7CF48F.9070204@pobox.com> <200303230044.h2N0i9r32560@devserv.devel.redhat.com>
+	id <S262882AbTCWHJN>; Sun, 23 Mar 2003 02:09:13 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:45696 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S262908AbTCWHFg>; Sun, 23 Mar 2003 02:05:36 -0500
+Date: Sun, 23 Mar 2003 16:15:46 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH 2.5.65-ac3] Additionals for support PC-9800 (9/10) PCMCIA
+Message-ID: <20030323071546.GI2951@yuzuki.cinet.co.jp>
+References: <20030323065928.GF2851@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303230044.h2N0i9r32560@devserv.devel.redhat.com>
+In-Reply-To: <20030323065928.GF2851@yuzuki.cinet.co.jp>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 22, 2003 at 07:44:09PM -0500, Alan Cox wrote:
-> Fixing the pci api hotplug races
+This is the patch to support NEC PC-9800 subarchitecture
+against 2.5.65-ac3. (9/10)
 
-Is this just the pci device list issue (lack of locking), or something
-else?
+Small change for PCMCIA (16bits) support.
+For fix usable IRQ number.
 
-thanks,
+Regards,
+Osamu Tomita
 
-greg k-h
+diff -Nru linux-2.5.62-ac1/drivers/pcmcia/i82365.c linux98-2.5.62-ac1/drivers/pcmcia/i82365.c
+--- linux-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-18 07:56:55.000000000 +0900
++++ linux98-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-21 11:14:30.000000000 +0900
+@@ -188,7 +188,11 @@
+ };
+ 
+ /* Default ISA interrupt mask */
++#ifndef CONFIG_X86_PC9800
+ #define I365_MASK	0xdeb8	/* irq 15,14,12,11,10,9,7,5,4,3 */
++#else
++#define I365_MASK	0xd668	/* irq 15,14,12,10,9,6,5,3 */
++#endif
+ 
+ #ifdef CONFIG_ISA
+ static int grab_irq;

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVBPCGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVBPCmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbVBPCGi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 21:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVBPCGi
+	id S261972AbVBPCmT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 21:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVBPCmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 21:06:38 -0500
-Received: from orb.pobox.com ([207.8.226.5]:1254 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261971AbVBPCGg (ORCPT
+	Tue, 15 Feb 2005 21:42:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:38544 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261972AbVBPCmP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 21:06:36 -0500
-Date: Tue, 15 Feb 2005 20:06:28 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] kthread_bind new worker threads when onlining cpu
-Message-ID: <20050216020628.GA25596@otto>
-References: <20050211232821.GA14499@otto> <Pine.LNX.4.61.0502121019080.26742@montezuma.fsmlabs.com> <20050214215948.GA22304@otto> <20050215070217.GB13568@elte.hu>
+	Tue, 15 Feb 2005 21:42:15 -0500
+Subject: Re: Radeon FB troubles with recent kernels
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Vincent C Jones <vcjones@networkingunlimited.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050216015323.GA7223@NetworkingUnlimited.com>
+References: <3y1SR-5K6-1@gated-at.bofh.it>
+	 <20050215150713.EE7721DE4A@X31.nui.nul> <1108504921.13376.21.camel@gaston>
+	 <20050216015323.GA7223@NetworkingUnlimited.com>
+Content-Type: text/plain
+Date: Wed, 16 Feb 2005 13:41:20 +1100
+Message-Id: <1108521681.13376.77.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050215070217.GB13568@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew-
+On Tue, 2005-02-15 at 20:53 -0500, Vincent C Jones wrote:
 
-On Tue, Feb 15, 2005 at 08:02:17AM +0100, Ingo Molnar wrote:
 > 
-> * Nathan Lynch <ntl@pobox.com> wrote:
+> Kernel command line: auto BOOT_IMAGE=Test_9.2 ro root=306 pci=usepirqmask desktop idebus=66 video=radeonfb:1024x768-24@60
 > 
-> > 
-> > It looks as if we need to explicitly bind worker threads to a newly
-> > onlined cpu.  This gets rid of the smp_processor_id warnings from
-> > cache_reap.  Adding a little more instrumentation to the debug
-> > smp_processor_id showed that new worker threads were actually running
-> > on the wrong cpu...
-> > 
-> > Does this look ok?
+> Note the "video=radeonfb:1024x768-24@60" which used to be required to
+> get the console into 1024x768 mode but is documented in "modefb.txt"
+> as an invalid combination of mode specifications (and also states
+> that radeonfb does not support mode specification...). So other
+> than the loss of temporary working of backlight controls, I just
+> see undocumented progress :-)
 > 
-> indeed - looks much better than the 'turn off the warning' solution.
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
+> Thanks again, and keep up the great work!
 
-We weren't binding new worker threads to their cpu when onlining.
-Using preempt and the debug version of smp_processor_id found this.
+Heh, good. Well, the mode spec should work in fact, provided that you
+get the syntax right, though I haven't tried. I'll have a look later,
+but if it doesn't work, then it was always broken and it's not a
+regression :) I still want to fix more stuff in this area, but for now,
+I'm concerned mostly about regressions.
 
-Signed-off-by: Nathan Lynch <ntl@pobox.com>
+Can you remind me exactly what's up with the backlight control ?
 
-Index: linux-2.6.11-rc4-bk2/kernel/workqueue.c
-===================================================================
---- linux-2.6.11-rc4-bk2.orig/kernel/workqueue.c	2005-02-14 11:13:08.000000000 -0600
-+++ linux-2.6.11-rc4-bk2/kernel/workqueue.c	2005-02-14 15:18:35.000000000 -0600
-@@ -485,8 +485,10 @@
- 
- 	case CPU_ONLINE:
- 		/* Kick off worker threads. */
--		list_for_each_entry(wq, &workqueues, list)
-+		list_for_each_entry(wq, &workqueues, list) {
-+			kthread_bind(wq->cpu_wq[hotcpu].thread, hotcpu);
- 			wake_up_process(wq->cpu_wq[hotcpu].thread);
-+		}
- 		break;
- 
- 	case CPU_UP_CANCELED:
+Ben.
+
+

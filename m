@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262804AbSJEX1x>; Sat, 5 Oct 2002 19:27:53 -0400
+	id <S262813AbSJEXis>; Sat, 5 Oct 2002 19:38:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbSJEX1x>; Sat, 5 Oct 2002 19:27:53 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48902 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262804AbSJEX1w>; Sat, 5 Oct 2002 19:27:52 -0400
-Date: Sat, 5 Oct 2002 16:35:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Maksim (Max)  Krasnyanskiy" <maxk@qualcomm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK 2/6] 2.5.x Bluetooth subsystem update. USB driver.
-In-Reply-To: <1033856171.6657.89.camel@champ.qualcomm.com>
-Message-ID: <Pine.LNX.4.44.0210051634010.1587-100000@home.transmeta.com>
+	id <S262814AbSJEXis>; Sat, 5 Oct 2002 19:38:48 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51848 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262813AbSJEXir>;
+	Sat, 5 Oct 2002 19:38:47 -0400
+Date: Sat, 5 Oct 2002 19:44:22 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
+       Ben Collins <bcollins@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <1033861827.4441.31.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0210051943410.21637-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 5 Oct 2002, Maksim (Max)  Krasnyanskiy wrote:
-> Patch #2:
 
-Why is it so hard to just read the "submitting patches" thing.
+On 6 Oct 2002, Alan Cox wrote:
 
-Don't bother to email me if you can't be bothered to read how to submit 
-patches. People do it all the time, and I'm not interested in fetching 
-compressed patches from web-sites etc. 
+> On Sun, 2002-10-06 at 00:28, Larry McVoy wrote:
+> > Because Linus is using BK it is easier for him to make his work in 
+> > progress available, so he does.  Before he was using BK, you got a 
+> > snapshot when he put up for ftp.  It is an absolute fact that Linus
+> > tree is far more quickly available, via regular patches or BK, than
+> > it was before he used BK.
+> 
+> Linus used to do about a patch every 2 days. Nowdays its a lot slower. I
+> put that down to buttkeeper
 
-		Linus
+Rik's snapshots are once every 2 hours, IIRC...
 

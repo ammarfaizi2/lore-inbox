@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVCAKac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVCAKs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVCAKac (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 05:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVCAKac
+	id S261857AbVCAKs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 05:48:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVCAKs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 05:30:32 -0500
-Received: from gprs215-195.eurotel.cz ([160.218.215.195]:21210 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261847AbVCAKa1 (ORCPT
+	Tue, 1 Mar 2005 05:48:27 -0500
+Received: from gprs215-195.eurotel.cz ([160.218.215.195]:19167 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261857AbVCAKsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 05:30:27 -0500
-Date: Tue, 1 Mar 2005 11:30:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp logic error?
-Message-ID: <20050301103011.GA1345@elf.ucw.cz>
-References: <20050208203950.GA21623@cirrus.madduck.net> <20050227174309.GA27265@piper.madduck.net> <20050228135604.GA6364@piper.madduck.net> <200502281533.01621.rjw@sisk.pl> <20050228144506.GA11125@piper.madduck.net> <20050301082254.GA4402@piper.madduck.net>
+	Tue, 1 Mar 2005 05:48:21 -0500
+Date: Tue, 1 Mar 2005 11:48:10 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>
+Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
+Message-ID: <20050301104810.GF1345@elf.ucw.cz>
+References: <20050228231721.GA1326@elf.ucw.cz> <20050301020722.6faffb69.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050301082254.GA4402@piper.madduck.net>
+In-Reply-To: <20050301020722.6faffb69.akpm@osdl.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,23 +27,53 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > Could you, please, verify that you don't need to load any
-> > > > modules from initrd for your swap partition to work?  It won't
-> > > > work if you do.
-> > > 
-> > > this makes perfect sense to me when you talk about resuming.
-> > > does it also apply to suspending?
-> > 
-> > As kernel is the same for suspend and resume... Yes, it seems it
-> > makes sense.
-> 
-> But before the suspend, the IDE modules are loaded, so the swap
-> drive is accessible, no? Or are IDE modules (yes, they are modules
-> here) unloaded just before writing to swap?
+> btw, suspend is a bit messy.  The disk spins down.  Then up.  Then down
+> again.  And:
 
-Yes, IDE modules are loaded and swap drive is accessible during
-suspend. But you want to resume some time later, and you want to
-resume with same kernel, right?
+Yes, that's known, pm_message_t needs to become struct to solve disk
+pingpong properly.
+
+> Debug: sleeping function called from invalid context at mm/slab.c:2082
+> in_atomic():0, irqs_disabled():1                                      
+>  [<c010318d>] dump_stack+0x19/0x20
+>  [<c0111731>] __might_sleep+0x91/0x9c
+>  [<c01365df>] kmem_cache_alloc+0x23/0x84
+>  [<c0232d50>] acpi_evaluate_integer+0x3c/0xac
+>  [<c024b3d9>] acpi_bus_get_status+0x39/0x94  
+>  [<c024ca99>] acpi_pci_link_set+0x16d/0x1e8
+>  [<c024ce65>] acpi_pci_link_resume+0x1d/0x28
+>  [<c024ce8a>] irqrouter_resume+0x1a/0x38    
+>  [<c0281e3c>] sysdev_resume+0x2c/0xae   
+>  [<c0285ea8>] device_power_up+0x8/0x11
+>  [<c012a873>] swsusp_suspend+0x4b/0x58
+>  [<c012ac35>] pm_suspend_disk+0x35/0x74
+>  [<c01292ea>] enter_state+0x2e/0x70    
+>  [<c0129336>] software_suspend+0xa/0x10
+>  [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
+>  [<c0149f1b>] vfs_write+0xaf/0x118             
+>  [<c014a028>] sys_write+0x3c/0x68 
+>  [<c0102c05>] sysenter_past_esp+0x52/0x75
+
+ACPI problem, patches are available (s/GFP_KERNEL/GFP_ATOMIC), but Len
+claims better solution is ready... OTOH he claims that for half a year
+already so we may push him a bit (added to cc). 
+
+> Powering off system
+> Debug: sleeping function called from invalid context at include/linux/rwsem.h:66
+> in_atomic():0, irqs_disabled():1                                                
+>  [<c010318d>] dump_stack+0x19/0x20
+>  [<c0111731>] __might_sleep+0x91/0x9c
+>  [<c0285872>] device_shutdown+0x16/0x82
+>  [<c012aa97>] power_down+0x47/0x74     
+>  [<c012ac5a>] pm_suspend_disk+0x5a/0x74
+>  [<c01292ea>] enter_state+0x2e/0x70    
+>  [<c0129336>] software_suspend+0xa/0x10
+>  [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
+>  [<c0149f1b>] vfs_write+0xaf/0x118             
+>  [<c014a028>] sys_write+0x3c/0x68 
+>  [<c0102c05>] sysenter_past_esp+0x52/0x75
+
+I'll look at this one.
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129937AbQKIW5B>; Thu, 9 Nov 2000 17:57:01 -0500
+	id <S129740AbQKIW6V>; Thu, 9 Nov 2000 17:58:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130392AbQKIW4w>; Thu, 9 Nov 2000 17:56:52 -0500
-Received: from avocet.prod.itd.earthlink.net ([207.217.121.50]:56559 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S130378AbQKIW4g>; Thu, 9 Nov 2000 17:56:36 -0500
+	id <S130503AbQKIW6B>; Thu, 9 Nov 2000 17:58:01 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:52231 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129740AbQKIW5z>;
+	Thu, 9 Nov 2000 17:57:55 -0500
+Date: Thu, 9 Nov 2000 17:57:52 -0500 (EST)
+From: Infamous Woodchuck <garzik@pobox.com>
 To: Ivan Passos <lists@cyclades.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Patch generation
 In-Reply-To: <Pine.LNX.4.10.10011091442570.26422-100000@main.cyclades.com>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 09 Nov 2000 14:56:16 -0800
-In-Reply-To: <Pine.LNX.4.10.10011091442570.26422-100000@main.cyclades.com>
-Message-ID: <m3em0kvjov.fsf@matrix.mandrakesoft.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Message-ID: <Pine.LNX.4.10.10011091757050.24624-100000@havoc.gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Passos <lists@cyclades.com> writes:
-
+On Thu, 9 Nov 2000, Ivan Passos wrote:
 > Where in the src tree can I find (or what is) the command to generate a
 > patch file from two Linux kernel src trees, one being the original and the
 > other being the newly changed one??
+> 
 > I've tried 'diff -ruN', but that does diff's on several files that could
 > stay out of the comparison (such as the files in include/config, .files,
 > etc.).
 
-use the dontdiff file from tigran with -X option of diff at :
+You are running the correct command for diff, you are just not running
+'make mrproper' to clean your source tree before diffing.  :)
 
-http://www.moses.uklinux.net/patches/dontdiff
+	Jeff
 
--- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

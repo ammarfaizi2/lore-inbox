@@ -1,387 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266491AbTGJVeN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 17:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbTGJVeN
+	id S266479AbTGJVoz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 17:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbTGJVoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 17:34:13 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:58833 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S266495AbTGJV1d (ORCPT
+	Thu, 10 Jul 2003 17:44:55 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:41476 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S266479AbTGJVox convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 17:27:33 -0400
-Date: Thu, 10 Jul 2003 23:42:15 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: bug in softirq.c / 2.5.73+patches
-Message-ID: <20030710214215.GA6919@gmx.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d9ADC0YsG2v16Js0"
-Content-Disposition: inline
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.5.74-mm1-ww1-O2int-0307041440 i686
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
-User-Agent: Mutt/1.5.4i
+	Thu, 10 Jul 2003 17:44:53 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: FW: cciss updates for 2.4.22-pre3 [2 of 6]
+Date: Thu, 10 Jul 2003 16:59:33 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF104052A64@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cciss updates for 2.4.22-pre3 [2 of 6]
+Thread-Index: AcNHLKvfNOWt2Q6CR+yy7bsK3/MmFwAAdQ3A
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Jul 2003 21:59:34.0015 (UTC) FILETIME=[8C0BB0F0:01C3472E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---d9ADC0YsG2v16Js0
-Content-Type: multipart/mixed; boundary="96YOpH+ONegL0A3E"
-Content-Disposition: inline
+
+-----Original Message-----
+From: Miller, Mike (OS Dev) 
+Sent: Thursday, July 10, 2003 4:46 PM
+To: 'axboe@suse.de'; 'marcelo@conectiva.com.br'
+Cc: 'alan@lxorguk.ukuu.org.uk'; 'linuxkernel@vger.kernel.org'
+Subject: cciss updates for 2.4.22-pre3 [2 of 6]
 
 
---96YOpH+ONegL0A3E
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+These patches can be installed in any order EXCEPT the final 2 of the 6. They are name p1* & p2* respectively.
 
-Hello,
-
-I just experienced a strange bug which brought down my x session and
-made my keyboard not accept keystrokes except of alt-f1,f2,f3, etc.
-Just before the crash my dsl provider seemed to have cut my link
-for some reason. Here's the trace:
-
-Jul 10 23:26:18 kakerlak pppoe[270]: Session 55831 terminated --
-received PADT from peer
-Jul 10 23:26:18 kakerlak pppoe[270]: Sent PADT
-Jul 10 23:26:18 kakerlak pppd[258]: Modem hangup
-Jul 10 23:26:18 kakerlak kernel: Badness in local_bh_enable at
-kernel/softirq.c:117
-
-about 30 seconds later...
-
-Jul 10 23:26:18 kakerlak kernel: Call Trace: [local_bh_enable+133/144]
-[ppp_async_push+162/400]  [lookup_hash+108/192]
-[ppp_asynctty_wakeup+45/96]  [pty_unthrottle+88/96]
-[check_unthrottle+61/64]  [n_tty_flush_buffer+19/96]
-[pty_flush_buffer+103/112]  [do_tty_hangup+1009/1120]
-[release_dev+1575/1632]  [zap_pmd_range+75/112]
-[unmap_page_range+67/112]  [dput+34/608]  [tty_release+42/96]
-[__fput+264/288]  [filp_close+77/128]  [put_files_struct+84/192]
-[do_exit+337/1088]  [do_IRQ+252/304]  [do_group_exit+58/176]
-[syscall_call+7/11]=20
-Jul 10 23:26:18 kakerlak pppd[258]: Connection terminated.
-Jul 10 23:26:18 kakerlak pppd[258]: Connect time 545.8 minutes.
-Jul 10 23:26:18 kakerlak pppd[258]: Sent 4090983 bytes, received
-15119705 bytes.
-
-On a sidenote a getty on console /dev/ttyS1 is complaining about an
-input/output error every few minutes. However it does so for a time now
-and it didn't bother me yet:
-getty[6811]: ttyS1: ioctl: Input/output error
-
-I use 2.5.74-mm1 (without the 64bit dev_t patch) and Con's
-O2int-0307041440 patch. Preempt is enabled and the .config attached.
-
---=20
-Regards,
-
-Wiktor Wodecki
-
---96YOpH+ONegL0A3E
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=config
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_EDD=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_SOFTWARE_SUSPEND=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_MISC=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_IDEDMA_ONLYDISK=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=m
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=64
-CONFIG_AIC7XXX_RESET_DELAY_MS=2000
-CONFIG_AIC7XXX_DEBUG_MASK=0
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_BLK_DEV_DM=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_ARPD=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_PKTTYPE=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_RECENT=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_NAT_IRC=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_ECN=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=y
-CONFIG_NET_SCH_PRIO=y
-CONFIG_NET_SCH_SFQ=y
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=y
-CONFIG_NET_CLS_POLICE=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=y
-CONFIG_NET_PCI=y
-CONFIG_SIS900=y
-CONFIG_PPP=y
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_SYNC_TTY=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_PPPOE=y
-CONFIG_SLIP=y
-CONFIG_SLIP_COMPRESSED=y
-CONFIG_SLIP_SMART=y
-CONFIG_SLIP_MODE_SLIP6=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_I2C=y
-CONFIG_I2C_ALGOBIT=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_VIAPRO=y
-CONFIG_SENSORS_VIA686A=y
-CONFIG_I2C_SENSOR=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=y
-CONFIG_VIDEO_DEV=y
-CONFIG_VIDEO_PROC_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_SMB_FS=m
-CONFIG_CIFS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_UTF8=y
-CONFIG_FB=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_MILLENIUM=y
-CONFIG_FB_3DFX=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_CMIPCI=y
-CONFIG_SND_VIA82XX=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_INFO=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
-
---96YOpH+ONegL0A3E--
-
---d9ADC0YsG2v16Js0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/Dd236SNaNRgsl4MRAvATAJ9Ijdu4YaWjx8bMyVqJGH3u83NYQgCfdpFV
-nYOaNrzJAIw1cXUIwLMJRgE=
-=gJxC
------END PGP SIGNATURE-----
-
---d9ADC0YsG2v16Js0--
+This patch was built & tested using kernel 2.4.21 with the 2.4.22pre3 patch
+applied. It is intended for inclusion in the 2.4.22 kernel.
+Patch name: cciss_2447_PCI_BAR_fix.patch
+Changes:
+	1. Changes the PCI_BASE_ADDRESS_MEM_PREFETCH case in the 
+	   find_PCI_BAR_index() function to a default case. This
+	   should never happen in PCI version 2.2. Bug fix.
+--------------------------------------------------------------------------------------------------------------------
+diff -burN lx2422p3/drivers/block/cciss.c lx2422p3.test/drivers/block/cciss.c
+--- lx2422p3/drivers/block/cciss.c	2003-07-07 13:49:34.000000000 -0500
++++ lx2422p3.test/drivers/block/cciss.c	2003-07-07 14:43:05.000000000 -0500
+@@ -2460,7 +2460,9 @@
+ 				case PCI_BASE_ADDRESS_MEM_TYPE_64:
+ 					offset += 8;
+ 					break;
+-				case PCI_BASE_ADDRESS_MEM_PREFETCH:
++				default: /* reserved in PCI 2.2 */
++					printk(KERN_WARNING "Base address is invalid\n");
++					return -1;	
+ 				break;
+ 			}
+ 		}

@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVBNXEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVBNXIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVBNXEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 18:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVBNXEJ
+	id S261278AbVBNXIf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 18:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVBNXIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 18:04:09 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:47765 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261220AbVBNXEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 18:04:01 -0500
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-From: Lee Revell <rlrevell@joe-job.com>
-To: Prakash Punnoor <prakashp@arcor.de>
-Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, Greg KH <gregkh@suse.de>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <42106685.40307@arcor.de>
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
-	 <20050211011609.GA27176@suse.de>
-	 <1108354011.25912.43.camel@krustophenia.net>
-	 <4d8e3fd305021400323fa01fff@mail.gmail.com>  <42106685.40307@arcor.de>
+	Mon, 14 Feb 2005 18:08:35 -0500
+Received: from gate.crashing.org ([63.228.1.57]:54765 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261278AbVBNXId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 18:08:33 -0500
+Subject: Re: Radeon FB troubles with recent kernels
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, adaplas@pol.net
+In-Reply-To: <1108420723.12740.17.camel@gaston>
+References: <20050214203902.GH15058@waste.org>
+	 <1108420723.12740.17.camel@gaston>
 Content-Type: text/plain
-Date: Mon, 14 Feb 2005 18:04:00 -0500
-Message-Id: <1108422240.28902.11.camel@krustophenia.net>
+Date: Tue, 15 Feb 2005 10:08:11 +1100
+Message-Id: <1108422492.12653.30.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 09:51 +0100, Prakash Punnoor wrote:
-> Paolo Ciarrocchi schrieb:
-> > On Sun, 13 Feb 2005 23:06:51 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> >>On Thu, 2005-02-10 at 17:16 -0800, Greg KH wrote:
-> >>
-> >>>All distros are trying to reduce boot time.
-> >>
-> >>They certainly aren't all trying very hard.  Debian and Fedora (last
-> >>time I checked) do not even run the init scripts in parallel.
-> >
-> >
-> > Is there any distro that is running the init scripts in parallel ?
+
+> Appeared ? hah... that's strange. X is known to fuck up the chip when
+> quit, but I wouldn't have expected any change due to the new version of
+> radeonfb. From what you describe, it looks like an offset register is
+> changed by X, or the surface control.
 > 
-> Gentoo.
+> My patch did not change any of radeonfb accel code though...
 > 
+> I'll catch up with you on IRC ...
 
-Last I heard Gentoo does not even do it by default.
+Ok, from our discussions, it's not related to the power management code,
+and an engine reset triggered by fbset fixes it. So at this point, I can
+see no change in the driver explaining it...
 
-I don't see why so much effort goes into improving boot time on the
-kernel side when the most obvious user space problem is ignored.
+We did some changes to the VT layer to force a mode setting (and thus an
+engine reset) when going away from X, so I can't see why that wouldn't
+work, while using fbset later on works ... this goes through the same
+code path in the driver... unless we are facing a timing issue...
 
-Lee
+X is known to play funny tricks, like touching the engine when it's in
+the background (not frontmost VT) and quit, or possibly other bad things
+on console switch. Maybe I changed enough delays (speeded up) the mode
+switch so that we fall into a case where X has not finished mucking up
+with us...
+
+Can you try adding some msleep(200) or so at the beginning at
+radeonfb_set_par() or radeon_write_mode() to see if that makes any
+difference ?
+
+Some printk's in there would help to... I expect calls to
+radeon_engine_init() to fix it and such a call is present in the mode
+restore unless accel is disabled...
+
+Can you check what's happening ?
+
+Ben.
+
 

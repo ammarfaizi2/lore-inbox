@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290912AbSAaDyo>; Wed, 30 Jan 2002 22:54:44 -0500
+	id <S290907AbSAaD6e>; Wed, 30 Jan 2002 22:58:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290910AbSAaDye>; Wed, 30 Jan 2002 22:54:34 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:48272 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S290906AbSAaDyY>;
-	Wed, 30 Jan 2002 22:54:24 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin 
-In-Reply-To: Your message of "Wed, 30 Jan 2002 22:41:12 CDT."
-             <20020130224112.A25977@havoc.gtf.org> 
+	id <S290909AbSAaD6Y>; Wed, 30 Jan 2002 22:58:24 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:25351 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290907AbSAaD6N>;
+	Wed, 30 Jan 2002 22:58:13 -0500
+Date: Wed, 30 Jan 2002 19:56:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@suse.de>, Nathan <wfilardo@fuse.net>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Various issues with 2.5.2-dj6
+Message-ID: <20020131035651.GC31006@kroah.com>
+In-Reply-To: <3C58B3DD.3000800@fuse.net> <20020131041901.H31313@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 31 Jan 2002 14:54:16 +1100
-Message-ID: <8589.1012449256@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20020131041901.H31313@suse.de>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 03 Jan 2002 01:45:06 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002 22:41:12 -0500, 
-Jeff Garzik <garzik@havoc.gtf.org> wrote:
->On Wed, Jan 30, 2002 at 10:29:39PM -0500, Rob Landley wrote:
->> I expect it will all get worked out eventually.  Now that the secret of the 
->> difference between maintainers and lieutenants is out.  The thread seems to 
->> be dying down a bit... :)
->
->There Is No Cabal
+On Thu, Jan 31, 2002 at 04:19:01AM +0100, Dave Jones wrote:
+> On Wed, Jan 30, 2002 at 10:02:53PM -0500, Nathan wrote:
+>  
+>  > Issue 3: Turning off hotplug (/etc/init.d/hotplug stop on a Debian 
+>  > unstable box - updated today) gives the following oopses (captured by 
+>  > "klogd -x") - see below.
+> 
+>  Could be related to the usb-driverfs changes, 2.5.3-dj1 is still cooking
+>  here, but has Greg KH's updated version of this work. See if you
+>  can repeat it later..
 
-Actually the correct secret phrase is "There is no Eric conspiracy".
-Hi Bruce.
+Agreed.  The original usb driverfs patch could be oopsed by removing the
+host controller driver.  Hopefully my more recent patch is more stable.
+Let me know if you have a problem with that one.
 
-http://tuxedo.org/~esr/ecsl/
+thanks,
 
+greg k-h

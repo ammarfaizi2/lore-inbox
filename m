@@ -1,95 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUKGNBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbUKGNFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUKGNBP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 08:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbUKGNBO
+	id S261607AbUKGNFB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 08:05:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUKGNFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 08:01:14 -0500
-Received: from imap3.nextra.sk ([195.168.1.92]:31756 "EHLO tic.nextra.sk")
-	by vger.kernel.org with ESMTP id S261605AbUKGNBL (ORCPT
+	Sun, 7 Nov 2004 08:05:00 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:25443 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261607AbUKGNEy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 08:01:11 -0500
-Message-ID: <418E1CB4.2040805@rainbow-software.org>
-Date: Sun, 07 Nov 2004 14:01:40 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041105)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "=?ISO-8859-1?Q?Rams=E9s_Rodr=EDguez_Mart=EDnez?=" <harpago@terra.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic while using netcat since linux-2.6.9
-References: <20041106202600.GA1002@debbie>
-In-Reply-To: <20041106202600.GA1002@debbie>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 7 Nov 2004 08:04:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=QQ1K4izQ+9dRAFVZu7cqko/noeLlqco3UfmNxi4Z5VNkNrmJiR/rWHoOYsstsurxfhHINvRXrT21pHZUGviJRJ7dkm5y8YdBFmDERrm2Zo7gVqmoblV8Na1Q8XgL8b8odHfsOjS1y32uHeUeXQ+lCyIGyd92OZ02qBvGMt6q/nQ=
+Message-ID: <aad1205e04110705044faaacfb@mail.gmail.com>
+Date: Sun, 7 Nov 2004 21:04:54 +0800
+From: andyliu <liudeyan@gmail.com>
+Reply-To: andyliu <liudeyan@gmail.com>
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [PATCH]tar filesystem for 2.6.10-rc1-mm3(easily access tar file)
+Cc: linux-kernel@vger.kernel.org, kaz@earth.email.ne.jp,
+       jimtabor@adsl-64-217-116-74.dsl.hstntx.swbell.net
+In-Reply-To: <20041107.172838.74752953.taka@valinux.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <aad1205e0411062306690c21f8@mail.gmail.com>
+	 <418DCB2F.2030303@adsl-64-217-116-74.dsl.hstntx.swbell.net>
+	 <aad1205e041106233274e78428@mail.gmail.com>
+	 <20041107.172838.74752953.taka@valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ramsés Rodríguez Martínez wrote:
-> Hi,
-> Sorry i don't include any dump, but it seems kernel-patch-lkcd for 2.6.9 is
-> not available yet. I could handcopy the kernel-oops if you want. I think
-> it'll be something related with bind() as it fails with "netcat".
+On Sun, 07 Nov 2004 17:28:38 +0900 (JST), Hirokazu Takahashi
+<taka@valinux.co.jp> wrote:
+> Hi, Andyliu,
 > 
-> The problem is only present with 2.6.9 (or at least not with 2.6.8 nor
-> 2.6.5)
+> Amazing that you continue our work!
+> Where did you get the code?
+Thanks for your code, I got it form your web but i cannot connect to it now.
+
 > 
-> ------------------------
-> SCRIPT TO REPRODUCE:
->   
-> su
-> apt-get install nc
-> exit
-> nc -p2000 127.0.0.1 2000        # kernel panic
+> Several years ago, we - Kazuto and I -  made the filesystem
+> just for magazine readers. We designed it as simple as we could,
+> as it was a sample filesystem to explain about the design and the
+> implementation of linux filesystems.
 > 
-> ------------------------
+I am a newbie.so your simple tar filesystem is good for me to learn 
+and do something like make it run on 2.6.10-rc1-mm3.
 
-It does the same thing for me. Here's the BUG output from serial console.
-
-
-------------[ cut here ]------------
-kernel BUG at net/ipv4/tcp_output.c:277!
-invalid operand: 0000 [#1]
-PREEMPT
-Modules linked in: 3c509 snd_sb16 snd_opl3_lib snd_hwdep snd_sb16_dsp 
-snd_sb_common
-CPU:    0
-EIP:    0060:[<c02dd6da>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.9-pentium)
-EIP is at tcp_transmit_skb+0x8ca/0x8e0
-eax: c7fb72c0   ebx: c6424210   ecx: 00000020   edx: c727bf60
-esi: c6424040   edi: c6424210   ebp: c727b920   esp: c4869dd4
-ds: 007b   es: 007b   ss: 0068
-Process nc (pid: 2263, threadinfo=c4869000 task=c64cb560)
-Stack: ffffff60 c727b880 c727bf60 000000a0 00000246 c727bf60 c727b880 
-00000020
-        c727bf98 c6424178 c727bf60 c6424040 c6424210 c6424040 c6424040 
-c727b920
-        c02dc200 00000218 c7fb7478 c727b920 c6424040 c6424210 00000028 
-c02dcb25
-Call Trace:
-  [<c02dc200>] tcp_rcv_synsent_state_process+0x500/0x550
-  [<c02dcb25>] tcp_rcv_state_process+0x8d5/0x9d0
-  [<c02e4161>] tcp_v4_do_rcv+0x71/0xf0
-  [<c02b4ca7>] __release_sock+0x47/0x70
-  [<c02b53bc>] release_sock+0x6c/0x70
-  [<c02f11fb>] inet_wait_for_connect+0x7b/0xd0
-  [<c0111870>] autoremove_wake_function+0x0/0x30
-  [<c0111870>] autoremove_wake_function+0x0/0x30
-  [<c02f12f3>] inet_stream_connect+0xa3/0x180
-  [<c02b320c>] sys_connect+0x5c/0x80
-  [<c02b3e79>] sock_setsockopt+0x99/0x510
-  [<c02b1e7f>] sock_map_fd+0xff/0x140
-  [<c011eabe>] do_sigaction+0x15e/0x1f0
-  [<c01173bb>] do_setitimer+0x15b/0x1d0
-  [<c02b3a61>] sys_socketcall+0x81/0x1a0
-  [<c011e17a>] sys_rt_sigprocmask+0x7a/0xd0
-  [<c0103d77>] syscall_call+0x7/0xb
-Code: ff 7f e9 44 f8 ff ff 8a 87 2f 01 00 00 84 c0 0f 84 2c f8 ff ff 8b 
-54 24 1c 25 ff 00 00 00 8d 54 c2 04 89 54 24 1c e9 16 f8 ff ff <0f> 0b 
-15 01 9b e9 33 c0 e9 86
-  <0>Kernel panic - not syncing: Fatal exception in interrupt
+> I guess there may remain many things to do about it:
+>    - To support tar.gz and tar.bz2. I guess this should be done in
+>      a compression device, which might be md layers or a loop device
+>      itself.
+>    - It may be better if you can make tarent objects free-able
+>      while the filesystem is mounted.
+>    - It may be possible to implement append mode.
+>      A new file can be appended to the filesystem.
+> 
+> We're expecting you to do a good job.
+> 
+I am thinking how to make it support tar.gz type file.I will try my best.
+> 
+> 
+> > oh,sorry.it's a readonly filesystem now.i will try to make it writeable.
+> > but i use tar file as loop device.
+> >
+> > by the way,if we mount an iso file it's a readonly filesystem too.
+> > i think maybe we should do something on the loop device to support
+> > this kind of write.
+> >
+> > On Sun, 07 Nov 2004 07:13:51 +0000, James Tabor
+> > <jimtabor@adsl-64-217-116-74.dsl.hstntx.swbell.net> wrote:
+> > > andyliu wrote:
+> > >
+> > >
+> > > > hi
+> > > >
+> > > >   let's think about the way we access the file which contained in a tar file
+> > > > may we can untar the whole thing and we find the file we want to access
+> > > > or we can use the t option with tar to list all the files in the tar
+> > > > and then untar the only one file we want to access.
+> > > >
+> > > >   but with the help of the tarfs,we can mount a tar file to some dir and access
+> > > > it easily and quickly.it's like the tarfs in mc.
+> > > >
+> > > >  just mount -t tarfs tarfile.tar /dir/to/mnt -o loop
+> > > > then access the files easily.
+> > > >
+> > > > it was writen by Kazuto Miyoshi (kaz@earth.email.ne.jp) Hirokazu
+> > > > Takahashi (h-takaha@mub.biglobe.ne.jp) for linux 2.4.0
+> 
+> This address is no longer usable.
+> 
+> 
+> 
+> > > > and i make it work for linux 2.6.0. now a patch for linux 2.6.10-rc1-mm3
+> > > >
+> > > > the patch is to big to send it as plain text, so i can only send it as
+> > > > an attachment
+> > > >
+> > > > thanks
+> > > >
+> > > Wow! How cool is this! Can you copy files into a tarfs subsystem? Just like
+> > > we do with iso's?
+> > > Cool,
+> > > James
+> 
+> Thanks,
+> Hirokazu Takahashi.
+> 
+> 
 
 
 -- 
-Ondrej Zary
+Yours andyliu

@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130537AbRBWCt1>; Thu, 22 Feb 2001 21:49:27 -0500
+	id <S130160AbRBWCu1>; Thu, 22 Feb 2001 21:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130160AbRBWCtT>; Thu, 22 Feb 2001 21:49:19 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:32658 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S130856AbRBWCtL>;
-	Thu, 22 Feb 2001 21:49:11 -0500
-Date: Fri, 23 Feb 2001 03:49:05 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102230249.DAA252851.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, phillips@innominate.de,
-        torvalds@transmeta.com
-Subject: Re: [rfc] Near-constant time directory index for Ext2
+	id <S131002AbRBWCuR>; Thu, 22 Feb 2001 21:50:17 -0500
+Received: from [209.143.110.29] ([209.143.110.29]:58894 "HELO
+	mail.the-rileys.net") by vger.kernel.org with SMTP
+	id <S130160AbRBWCuG>; Thu, 22 Feb 2001 21:50:06 -0500
+Message-ID: <3A95D05E.43DBBB73@the-rileys.net>
+Date: Thu, 22 Feb 2001 21:52:14 -0500
+From: David Riley <oscar@the-rileys.net>
+Organization: The Riley Family
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Bus mastering troubles with AGP Voodoo3
+Content-Type: multipart/mixed;
+ boundary="------------1A1278D01CA0EDB35EB57D01"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------1A1278D01CA0EDB35EB57D01
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-    Just looking at R5 I knew it wasn't going to do well in this application
-    because it's similar to a number of hash functions I tried with the same
-    idea in mind: to place similar names together in the same leaf block. 
-    That turned out to be not very important compared to achieving a
-    relatively high fullness of leaf blocks.  The problem with R5 when used
-    with my htree is, it doesn't give very uniform dispersal.
+I knew my performance hit had to be coming from somewhere...
 
-    The bottom line: dx_hack_hash is still the reigning champion.
+I'm using an MSI K7T Pro mtherboard (KT133 chipset) and a Voodoo3 2000. 
+I can't seem to set bus mastering on the AGP card at all.  This does not
+work:
 
-Now that you provide source for r5 and dx_hack_hash, let me feed my
-collections to them.
-r5: catastrophic
-dx_hack_hash: not bad, but the linear hash is better.
+setpci -s 01:00.0 4.w=0007 (setpci -s 01:00.0 4.w gives me 0003)
 
-E.g.:
-Actual file names:
+Nor does:
 
-Linear hash, m=11, sz=2048, min 262, max 283,  av 272.17, stddev 12.25
-dx_hack_hash:      sz=2048, min 220, max 330,  av 272.17, stddev 280.43
-r5:                sz=2048, min 205, max 382,  av 272.17, stddev 805.18
+setpci -s 01:00.0 COMMAND=0007
 
-Linear hash, m=11, sz=65536, min 0, max 24, av 8.51, stddev 8.70
-dx_hack_hash:      sz=65536, min 0, max 23, av 8.51, stddev 8.51
-r5:                sz=65536, min 0, max 26, av 8.51, stddev 8.89
+No permutation of this works.  No error messages are returned, but the
+register remains unchanged at 3.  I have tried using -H1 and -H2, to no
+avail (-H2 doesn't even get there, complaining about something on the
+normal PCI bus).  I have tried this with the BIOS set on "PnP OS" and
+off, with no difference.  My guess is that this is a motherboard
+specific problem (broken BIOS, anyone), though I don't think I've heard
+of a broken BIOS causing unwriteable PCI config registers.  For what
+it's worth, I've attached the output of 'lspci -vv -s 0:1.0' (the AGP
+host bridge) and 'lspci -vv -s 1:0.0' (the card).
 
-Generated consecutive names:
+Thanks for any help you may have...
+--------------1A1278D01CA0EDB35EB57D01
+Content-Type: text/plain; charset=us-ascii;
+ name="foobar"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="foobar"
 
-Linear hash, m=11, sz=2048, min 262, max 283,  av 272.17, stddev 12.25
-dx_hack_hash:      sz=2048, min 191, max 346,  av 272.17, stddev 636.11
-r5:                sz=2048, min 0,   max 3587, av 272.17, stddev 755222.91
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 0000c000-0000cfff
+	Memory behind bridge: d0000000-d3ffffff
+	Prefetchable memory behind bridge: d4000000-d5ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+	Capabilities: <available only to root>
 
-Linear hash, m=11, sz=65536, min 2, max  14, av 8.51, stddev 2.79
-dx_hack_hash:      sz=65536, min 0, max  26, av 8.51, stddev 12.24
-r5:                sz=65536, min 0, max 120, av 8.51, stddev 738.08
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01) (prog-if 00 [VGA])
+	Subsystem: 3Dfx Interactive, Inc. Voodoo3 AGP
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at d0000000 (32-bit, non-prefetchable) [size=32M]
+	Region 1: Memory at d4000000 (32-bit, prefetchable) [size=32M]
+	Region 2: I/O ports at c000 [size=256]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: <available only to root>
 
-Andries
+
+--------------1A1278D01CA0EDB35EB57D01--
+

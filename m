@@ -1,103 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277742AbRJLSuA>; Fri, 12 Oct 2001 14:50:00 -0400
+	id <S277758AbRJLTBW>; Fri, 12 Oct 2001 15:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277750AbRJLStu>; Fri, 12 Oct 2001 14:49:50 -0400
-Received: from e23.nc.us.ibm.com ([32.97.136.229]:52893 "EHLO
-	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277742AbRJLSte>; Fri, 12 Oct 2001 14:49:34 -0400
-Date: Sat, 13 Oct 2001 00:23:13 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        paul.mckenney@us.ibm.com
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011013002313.A30411@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20011012132733.75734399.rusty@rustcorp.com.au> <Pine.LNX.4.33.0110120948540.31692-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0110120948540.31692-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Oct 12, 2001 at 09:56:58AM -0700
+	id <S277803AbRJLTBD>; Fri, 12 Oct 2001 15:01:03 -0400
+Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:14088 "EHLO
+	mail.applianceware.com") by vger.kernel.org with ESMTP
+	id <S277758AbRJLTAu>; Fri, 12 Oct 2001 15:00:50 -0400
+Message-ID: <006501c15351$76e881d0$cc00000a@foo>
+From: "Jean-Gabriel Rican" <grican@applianceware.com>
+To: "Ingo Molnar" <mingo@redhat.com>, <gaby@applianceware.com>
+Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110120220290.7954-100000@devserv.devel.redhat.com>
+Subject: Re: [PATCH] for Multiple Device driver - md.c (kernel 2.4.12)
+Date: Fri, 12 Oct 2001 12:09:49 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 09:56:58AM -0700, Linus Torvalds wrote:
-> 
-> Yes. With maybe
-> 
-> 	non_preempt()
-> 	..
-> 	preempt()
-> 
-> around it for the pre-emption patches.
+Ingo,
 
-Yes. While in the read side, preemption will have to be disabled
-to prevent local pointers being carried across context switches.
-It isn't impossible to allow preemption, but that makes the
-quiescent point detection logic much more complicated.
+Yes you are right: raidhotadd does the job and I cannot believe that I
+wasn't considering it myself. Probably I was so focused on the process of
+adding a hot spare that I forgot to try this.
 
-> 
-> However, you also need to make your free _free_ be aware of the count.
-> Which means that the current RCU patch is really unusable for this. You
-> need to have the "count" always in a generic place (put it with the hash),
-> and your schedule-time free needs to do
-> 
-> 	if (atomic_read(&count))
-> 		skip_this_do_it_next_time
-> 
-> which starts getting complicated (it means your RCU free now has to have a
-> notion of "next time" - just leaving the RCU active will slow down
-> scheduling for as long as any reader holds on to an entry). So your
-> unread() path probably has to be
-> 
-> 	if (atomic_dec_and_test(&count))
-> 		free_it()
-> 
-> and the act of hashing should add a count and unhashing should delete a
-> count (so that the reader doesn't free it while it is hashed).
+It looks that my patch isn't necessary required after all. The only
+advantage that it offers is that it saves a raidhotremove call (and the test
+to see if the drive is really faulty or still present in the RAID array -
+because raidhotadd will fail in this case), but in rest it seems to be
+rather equivalent.
 
-Perhaps I am missing something here but shouldn't the refcount based 
-schemes anyway have to do this with or without RCU ? If you do
+Anyway, thank you for the solution and I hope that I didn't caused any
+inconvenience.
 
-	unhash
-	if (atomic_dec_and_test(&count))
-		free_it();
+Jean-Gabriel Rican
 
-the isn't it that if refcount is not 0, sometime later it will have to be 
-cleaned up by some garbage collection scheme ? Whatever that scheme is, 
-it still needs to be made certain that the element is not back in the 
-hash table.  It seems to me that with RCU the same logic can be made use of.
-So instead of doing 
+>
+> > Suppose you can hot-swap a hard disk in a system. Now if you have a
+> > degraded Software RAID device (for example a RAID-5 with one disk
+> > failed) and you replace the failed disk on-the-fly you cannot start
+> > reconstruction (with raidhotadd) of the Software RAID device with the
+> > replaced disk because it says it is BUSY.
+>
+> this is possible already: you should first raidhotremove the failed drive,
+> then raidhotadd the new drive. It can be the 'same' drive if it's a
+> hot-swap disk, or it can be another, spare disk.
+>
+> > + if (rdev && rdev->faulty) {
+> > + err = hot_remove_disk(mddev, dev);
+>
+> what your patch does is a forced remove of any drive that is
+> raidhotadd-ed. This is less finegrained than the current solution, and
+> might make the method more volatile. (easier to mess up accidentally.) Is
+> there anything your patch allows that is not possible today, via
+> raidhotremove+raidhotadd?
+>
+> Ingo
+>
 
-	if (atomic_dec_and_test(&count))
-		rcu_free_it()
-
-you may do 
-
-	if (atomic_dec_and_test(&count))
-		free_it();
-
-
-where in free_it()
-
-	if (atomic_read(&count))
-		return;
-	rcu_free_it();
-
-Of course, there may be more complicated freeing schemes for which
-we may need additional logic just like you suggested.
-
-> 
-> Do that, and the RCU patches may start looking usable for the real world.
-> 
-
-One RCU example for refcount + hash table is at
-http://lse.sourceforge.net/locking/patches/rt_rcu-2.4.6-02.patch
-(ipv4 route cache). 
-
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

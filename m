@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130512AbRAaSti>; Wed, 31 Jan 2001 13:49:38 -0500
+	id <S130299AbRAaSwS>; Wed, 31 Jan 2001 13:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130521AbRAaSt2>; Wed, 31 Jan 2001 13:49:28 -0500
-Received: from 4dyn210.com21.casema.net ([212.64.95.210]:58638 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S130512AbRAaStQ>;
-	Wed, 31 Jan 2001 13:49:16 -0500
-Date: Wed, 31 Jan 2001 19:48:57 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Nathan Black <NBlack@md.aacisd.com>
+	id <S130521AbRAaSwI>; Wed, 31 Jan 2001 13:52:08 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:10991 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S130299AbRAaSv5>;
+	Wed, 31 Jan 2001 13:51:57 -0500
+Date: Wed, 31 Jan 2001 10:54:18 -0800
+From: Greg KH <greg@wirex.com>
+To: Lukasz Gogolewski <lucas@supremedesigns.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: how to use and get raw devices
-Message-ID: <20010131194856.A22586@home.ds9a.nl>
-Mail-Followup-To: Nathan Black <NBlack@md.aacisd.com>,
+Subject: Re: problem with compiling kernel 2.4.1 on top of 2.2.14
+Message-ID: <20010131105418.A20191@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	Lukasz Gogolewski <lucas@supremedesigns.com>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <8FED3D71D1D2D411992A009027711D671880@md>
+In-Reply-To: <3A7840C8.17841498@supremedesigns.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <8FED3D71D1D2D411992A009027711D671880@md>; from NBlack@md.aacisd.com on Wed, Jan 31, 2001 at 01:29:05PM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A7840C8.17841498@supremedesigns.com>; from lucas@supremedesigns.com on Wed, Jan 31, 2001 at 11:43:52AM -0500
+X-Operating-System: Linux 2.2.18-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 31, 2001 at 01:29:05PM -0500, Nathan Black wrote:
+On Wed, Jan 31, 2001 at 11:43:52AM -0500, Lukasz Gogolewski wrote:
+> 
+> Someone please help. I need my USB and Sound Card to work.
 
-> That is what I wanted to do...Write directly to the disk. But the
-> kernel(2.4.1) is caching the io...
+USB support is pretty good in 2.2.18 :)
 
-Is it caching when you do O_SYNC? 
-
-> try opening with O_SYNC, or call fsync() every once in a while. Otherwise,
-> this sounds like an application for a raw device, whereby you can write
-> directly to the disk, with no caching in between.
-
-A raw device is something different than just /dev/sda1 - a raw device is
-created with the 'raw' utility and is assigned /dev/raw or /dev/raw1. This
-utility, and some documentation can be found on
-
-     ftp://ftp.linux.org.uk/pub/linux/sct/fs/raw-io/raw-19990728.tar.gz
-
-AFAIK you don't need any patches anymore if you run 2.4 or a recent 2.3.
-
-Regards,
-
-bert hubert
+greg k-h
 
 -- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

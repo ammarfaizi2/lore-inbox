@@ -1,80 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUGHQfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUGHQl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbUGHQfP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 12:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUGHQfO
+	id S264444AbUGHQl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 12:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUGHQl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 12:35:14 -0400
-Received: from null.rsn.bth.se ([194.47.142.3]:18119 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S264002AbUGHQfB (ORCPT
+	Thu, 8 Jul 2004 12:41:29 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:30735 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S264444AbUGHQl0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 12:35:01 -0400
-Subject: Re: window tracking firewall involved, was: Re: preliminary
-	conclusions regarding window size issues
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: "David S. Miller" <davem@redhat.com>
-Cc: bert hubert <ahu@ds9a.nl>, jamie@shareable.org, shemminger@osdl.org,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ALESSANDRO.SUARDI@ORACLE.COM
-In-Reply-To: <20040708083708.5f63bc71.davem@redhat.com>
-References: <20040707232757.GA14471@outpost.ds9a.nl>
-	 <20040708014443.GE17266@mail.shareable.org>
-	 <20040708060326.GA22258@outpost.ds9a.nl>
-	 <20040708063700.GA23496@outpost.ds9a.nl>
-	 <20040708083708.5f63bc71.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8d09E3ns7FktNIp5ICAo"
-Message-Id: <1089304497.2588.12.camel@tux.rsn.bth.se>
+	Thu, 8 Jul 2004 12:41:26 -0400
+Date: Thu, 8 Jul 2004 18:41:21 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Gabriel Paubert <paubert@iram.es>, tom st denis <tomstdenis@yahoo.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: 0xdeadbeef vs 0xdeadbeefL
+Message-ID: <20040708164121.GA7496@pclin040.win.tue.nl>
+References: <20040707184737.GA25357@infradead.org> <20040707185340.42091.qmail@web41112.mail.yahoo.com> <20040708093249.GC32629@iram.es> <20040708111521.GK12308@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 08 Jul 2004 18:34:57 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040708111521.GK12308@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 08, 2004 at 12:15:21PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
 
---=-8d09E3ns7FktNIp5ICAo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> - Dirichlet Principle bites you anyway.
 
-On Thu, 2004-07-08 at 17:37, David S. Miller wrote:
+Ah, it took me a few seconds to reconstruct what principle
+you are referring to.
 
-> > This has now been confirmed with the packages.gentoo.org firewall!
->=20
-> It's the netfilter patches added to the gentoo WOLK kernel running
-> on packages.gentoo.org
->=20
-> Specifically, it's the tcp-window-tracking patch from netfilter's
-> patch-o-matic.  There's some bug in there wrt. it's window scaling
-> support.
->=20
-> I bet if the tcp-window-scaling diff is removed from the kernel running
-> there, the problem will totally go away.
->=20
-> I note that it is using a very old version of the tcp-window-tracking
-> patch, the current version is 2.2 and probably fixes this bug.  The
-> gentoo linux-2.4.20-wolk-4.14 kernel is using version 1.7
+I am used to seeing "Dirichlet Principle" in a context where
+one wants to solve a boundary value problem for certain elliptic
+partial differential equations. (Then the principle states,
+roughly, that the unique solution is found by minimizing
+some integral.)
 
-That bug was probably fixed May 21 2003 according to cvs history.
-"Patch updated: window scaling bug fixed, improved, etc. (JK)."
-It updates the version to 1.9
+You invoke what I am used to call the pigeonhole principle.
 
-As reference, I'm using v2.2 with -bk from 040626 which does use
-wscale=3D7 and I don't see any problems connecting to/from machines with
-lower or equal wscale. I drop and log all packets tcp-window-tracking
-classifies as INVALID.
-
---=20
-/Martin
-
---=-8d09E3ns7FktNIp5ICAo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA7XexWm2vlfa207ERAhsZAKC7uBD+jwCHfMcQH4HXu4gTpMqghACfat5M
-BKR138LZyBmozfPJc2s/eq4=
-=xXsk
------END PGP SIGNATURE-----
-
---=-8d09E3ns7FktNIp5ICAo--
+Andries

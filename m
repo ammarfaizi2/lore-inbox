@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUAaApb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 19:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUAaApa
+	id S264455AbUAaAqo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 19:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUAaAqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 19:45:30 -0500
-Received: from mail.kroah.org ([65.200.24.183]:64711 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264444AbUAaApY (ORCPT
+	Fri, 30 Jan 2004 19:46:44 -0500
+Received: from ns.suse.de ([195.135.220.2]:23442 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264455AbUAaAqO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 19:45:24 -0500
-Date: Fri, 30 Jan 2004 16:34:35 -0800
-From: Greg KH <greg@kroah.com>
-To: Adam Belay <ambx1@neo.rr.com>, Russell King <rmk@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Remove uneeded resource structures from pci_dev
-Message-ID: <20040131003435.GC10465@kroah.com>
-References: <20040130004841.GA12473@neo.rr.com>
-Mime-Version: 1.0
+	Fri, 30 Jan 2004 19:46:14 -0500
+To: Mark Haverkamp <markh@osdl.org>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+Subject: Re: ide taskfile and cdrom hang
+References: <1075502193.26342.61.camel@markh1.pdx.osdl.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 31 Jan 2004 01:46:13 +0100
+In-Reply-To: <1075502193.26342.61.camel@markh1.pdx.osdl.net.suse.lists.linux.kernel>
+Message-ID: <p73ekthlzca.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040130004841.GA12473@neo.rr.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 12:48:41AM +0000, Adam Belay wrote:
-> Hi,
-> 
-> The following patch remove irq_resource and dma_resource from pci_dev.  It
-> appears that the serial pci driver depends on irq_resource, however, it may be
-> broken portions of an old quirk.  I attempted to maintain the existing behavior
-> while removing irq_resource.  I changed FL_IRQRESOURCE to FL_NOIRQ.  Russell,
-> could you provide any comments?  irq_resource and dma_resource are most likely
-> remnants from when pci_dev was shared with pnp.
+Mark Haverkamp <markh@osdl.org> writes:
 
-Ok, I've added this to my PCI bk tree, which will end up in the next -mm
-release.  If that seems to work ok, I'll send it to Linus (after
-whenever 2.6.2 comes out...)
+> We have some test machines here at OSDL that have a problem with the ide
+> cdrom driver hanging when we cat the /proc/ide/hda/identify file. After
+> 30 seconds the console displays: "hda: lost interrupt" which reoccurs
+> every 30 seconds forever. We noticed it on 2.6.2-rc2-mm1 but It looks
+> like this has been a problem for a while. Our test machines just changed
+> their configuration to use make defconfig.  I found that if
+> CONFIG_IDE_TASKFILE_IO is N then the hang doesn't occur.  Is this a
+> common problem or are there just certain drives that won't work with
+> taskfile i/o enabled?  I've included my .config, lspci as attachments.  
+> The cdrom model is CD-224E.
 
-thanks,
+I looked at this some time ago together with BenH and Bart. The problem 
+seems to be that the taskfile statemachine for identify is quite broken.
+(even when it didn't hang it usually returned only garbage on other
+CD ROMs). 
 
-greg k-h
+The CD ROM doesn't answer the request for some reason and then the
+Linux taskfile code goes into an endless loop sending retries.
+
+Bart had a patch to at least cure the hang by erroring out.
+
+-Andi
+

@@ -1,37 +1,170 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293689AbSCAKGj>; Fri, 1 Mar 2002 05:06:39 -0500
+	id <S310321AbSCALGa>; Fri, 1 Mar 2002 06:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310422AbSCAKEt>; Fri, 1 Mar 2002 05:04:49 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47628 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S310435AbSCAKAO>; Fri, 1 Mar 2002 05:00:14 -0500
-Date: Fri, 1 Mar 2002 11:00:11 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Jose' Manuel Pereira" <jmp@ist.utl.pt>
-Cc: swsusp@lister.fornax.hu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18/swsusp bugs
-Message-ID: <20020301100011.GC10619@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200202201702.g1KH2YR05704@fuji.home.perso> <15477.26769.969651.333984@saladd2.ist.utl.pt> <20020222020202.GC30638@atrey.karlin.mff.cuni.cz> <15478.33963.155227.154314@saladd2.ist.utl.pt> <20020222185606.GC1351@atrey.karlin.mff.cuni.cz> <15478.49275.3087.824024@saladd2.ist.utl.pt> <20020223212820.GA943@elf.ucw.cz> <15485.22755.869916.466453@saladd2.ist.utl.pt> <20020228101705.GE4760@atrey.karlin.mff.cuni.cz> <15486.52695.972327.496962@saladd2.ist.utl.pt>
-Mime-Version: 1.0
+	id <S310422AbSCALEE>; Fri, 1 Mar 2002 06:04:04 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:3332 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S310321AbSCAK7k>; Fri, 1 Mar 2002 05:59:40 -0500
+Date: Fri, 1 Mar 2002 02:59:34 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: lonely wolf <wolfy@pcnet.ro>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: disk transfer speed problem
+In-Reply-To: <3C7EE6A3.FF431772@pcnet.ro>
+Message-ID: <Pine.LNX.4.10.10203010255530.514-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15486.52695.972327.496962@saladd2.ist.utl.pt>
-User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 1 Mar 2002, lonely wolf wrote:
 
->   PM> [swsusp list no longer works, doing cc to l-k.]
+> From: Tim Moore
+> >Please post dmesg, /proc/pci and chipset info from /proc/ide. Also,
+> >what is result from 'hdparm -tT /dev/hda'?
 > 
-> So it seems. It didn't bounce yesterday, but didn't get a response. OTOH, l-k
-> isn't too busy a place to discuss swsusp? How about the ACPI list?
+> From: Andre Hedrick
+> >What is more useful is the cat /proc/ide/ide0/config !!!
+> 
 
-Well, at least we do not increase noise/signal ratio on l-k ;-). We
-can go to acpi list if you prefer.
+Well it is clear now, after obtaining the unpublished errata that a minor
+bug may be showing it face.  It has to do with the programable timing
+index and which registers can be set.  It also states that multiple bit
+sets shall default to the highest supported clock.
 
-									Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+So I will need to look at the docs public, unpublished, and call my friend
+again to verify.
+
+IIRC, he stated there is no problem but I am always paranoid about timing
+issues.
+
+Cheers,
+
+
+> [root@bugmaster /root]# cat /proc/ide/ide0/config
+> pci bus 00 device f9 vid 8086 did 244b channel 0
+> 86 80 4b 24 05 00 80 02 11 80 01 01 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> a1 ff 00 00 00 00 00 00 00 00 00 00 86 80 4d 42
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 07 a3 77 e3 38 00 00 00 0d 00 02 33 00 00 00 00
+> 00 00 00 00 5d 04 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 4d 04 00 00 00 00 00 00
+> 
+> [root@bugmaster /root]# cat /proc/ide/ide1/config
+> pci bus 00 device f9 vid 8086 did 244b channel 1
+> 86 80 4b 24 05 00 80 02 11 80 01 01 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> a1 ff 00 00 00 00 00 00 00 00 00 00 86 80 4d 42
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 07 a3 77 e3 38 00 00 00 0d 00 02 33 00 00 00 00
+> 00 00 00 00 5d 04 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 00 00 00 00 00 00 00 00 4d 04 00 00 00 00 00 00
+> 
+> [root@bugmaster /root]# cat /proc/pci
+> PCI devices found:
+>   Bus  0, device   0, function  0:
+>     Host bridge: PCI device 8086:1130 (Intel Corporation) (rev 4).
+>   Bus  0, device   2, function  0:
+>     VGA compatible controller: PCI device 8086:1132 (Intel Corporation) (rev 4).
+> 
+>       IRQ 11.
+>       Prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
+>       Non-prefetchable 32 bit memory at 0xffa80000 [0xffafffff].
+>   Bus  0, device  30, function  0:
+>     PCI bridge: Intel Corporation 82801BAM PCI (rev 17).
+>       Master Capable.  No bursts.  Min Gnt=6.
+>   Bus  0, device  31, function  0:
+>     ISA bridge: Intel Corporation 82801BA ISA Bridge (ICH2) (rev 17).
+>   Bus  0, device  31, function  1:
+>     IDE interface: Intel Corporation 82801BA IDE U100 (rev 17).
+>       I/O at 0xffa0 [0xffaf].
+>   Bus  0, device  31, function  2:
+>     USB Controller: Intel Corporation 82801BA(M) USB (Hub A) (rev 17).
+>       IRQ 10.
+>       I/O at 0xef40 [0xef5f].
+>   Bus  0, device  31, function  3:
+>     SMBus: Intel Corporation 82801BA(M) SMBus (rev 17).
+>       IRQ 9.
+>       I/O at 0xefa0 [0xefaf].
+>   Bus  0, device  31, function  4:
+>     USB Controller: Intel Corporation 82801BA(M) USB (Hub B) (rev 17).
+>       IRQ 6.
+>       I/O at 0xef80 [0xef9f].
+>   Bus  1, device   8, function  0:
+>     Ethernet controller: Intel Corporation 82801BA(M) Ethernet (rev 3).
+>       IRQ 3.
+>       Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+>       Non-prefetchable 32 bit memory at 0xff8ff000 [0xff8fffff].
+>       I/O at 0xdf00 [0xdf3f].
+> 
+> [root@bugmaster /root]# cat /proc/ide/drivers
+> ide-floppy version 0.98
+> ide-disk version 1.11
+> 
+> [root@bugmaster /root]# cat /proc/ide/piix
+> 
+>                                 Intel PIIX4 Ultra 100 Chipset.
+> --------------- Primary Channel ---------------- Secondary Channel -------------
+>                  enabled                          enabled
+> --------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+> DMA enabled:    yes              no              yes               yes
+> UDMA enabled:   yes              no              yes               yes
+> UDMA enabled:   4                X               4                 4
+> UDMA
+> DMA
+> PIO
+> 
+> [root@bugmaster /root]# /sbin/hdparm -tT /dev/hda
+> 
+> /dev/hda:
+>  Timing buffer-cache reads:   128 MB in  1.10 seconds =116.36 MB/sec
+>  Timing buffered disk reads:  64 MB in  3.73 seconds = 17.16 MB/sec
+> [root@bugmaster /root]# /sbin/hdparm -tT /dev/hda;/sbin/hdparm -i /dev/hda
+> 
+> /dev/hda:
+>  Timing buffer-cache reads:   128 MB in  1.11 seconds =115.32 MB/sec
+>  Timing buffered disk reads:  64 MB in  3.48 seconds = 18.39 MB/sec
+> 
+> /dev/hda:
+> 
+>  Model=QUANTUM FIREBALLlct15 07, FwRev=A01.0F00, SerialNo=611025994167
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=15522/15/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+>  BuffType=DualPortCache, BuffSize=418kB, MaxMultSect=16, MultSect=16
+>  CurCHS=15522/15/63, CurSects=-771620641, LBA=yes, LBAsects=14668290
+>  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes: pio0 pio1 pio2 pio3 pio4
+>  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

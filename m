@@ -1,98 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVAOAwC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVAOA72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVAOAwC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 19:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVAOAvC
+	id S262075AbVAOA72 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 19:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVAOA4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 19:51:02 -0500
-Received: from waste.org ([216.27.176.166]:10721 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262074AbVAOAtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 19:49:16 -0500
-Date: Fri, 14 Jan 2005 18:49:08 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <10.563253706@selenic.com>
-Message-Id: <11.563253706@selenic.com>
-Subject: [PATCH 10/10] random pt2: kill misnamed log2
+	Fri, 14 Jan 2005 19:56:02 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:27077 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262078AbVAOAyC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 19:54:02 -0500
+Date: Fri, 14 Jan 2005 16:50:01 -0800
+From: Greg KH <greg@kroah.com>
+To: Tom Zanussi <zanussi@comcast.net>
+Cc: Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH 4/4] relayfs for 2.6.10: headers
+Message-ID: <20050115005001.GB9046@kroah.com>
+References: <41E736C4.3080806@opersys.com> <20050114191013.GB15337@kroah.com> <41E8282F.8060208@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E8282F.8060208@comcast.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove incorrectly named ln (it's log2!) and x86 asm function and
-replace with fls bitop.
+On Fri, Jan 14, 2005 at 02:14:39PM -0600, Tom Zanussi wrote:
+> Greg KH wrote:
+> >On Thu, Jan 13, 2005 at 10:04:36PM -0500, Karim Yaghmour wrote:
+> >
+> >>+/**
+> >>+ *	have_cmpxchg - does this architecture have a cmpxchg?
+> >>+ *
+> >>+ *	Returns 1 if this architecture has a cmpxchg useable by
+> >>+ *	the lockless scheme, 0 otherwise.
+> >>+ */
+> >>+static inline int
+> >>+have_cmpxchg(void)
+> >>+{
+> >>+#if defined(__HAVE_ARCH_CMPXCHG)
+> >>+	return 1;
+> >>+#else
+> >>+	return 0;
+> >>+#endif
+> >>+}
+> >
+> >
+> >Shouldn't this be a build time check, and not a runtime one?
+> >
+> 
+> This was to avoid having an ifdef in the main body of the code.  It's 
+> only used in channel setup, so I did'nt worrry about runtime checking.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+This should all be set up properly for you anyway.  I don't think this
+is needed at all.
 
-Index: rnd/drivers/char/random.c
-===================================================================
---- rnd.orig/drivers/char/random.c	2005-01-12 21:28:07.768525540 -0800
-+++ rnd/drivers/char/random.c	2005-01-12 21:28:08.700406735 -0800
-@@ -395,54 +395,11 @@
- static void sysctl_init_random(struct entropy_store *random_state);
- #endif
- 
--/*****************************************************************
-- *
-- * Utility functions, with some ASM defined functions for speed
-- * purposes
-- *
-- *****************************************************************/
- static inline __u32 rol32(__u32 word, int shift)
- {
- 	return (word << shift) | (word >> (32 - shift));
- }
- 
--/*
-- * More asm magic....
-- *
-- * For entropy estimation, we need to do an integral base 2
-- * logarithm.
-- *
-- * Note the "12bits" suffix - this is used for numbers between
-- * 0 and 4095 only.  This allows a few shortcuts.
-- */
--#if 0	/* Slow but clear version */
--static inline __u32 int_ln_12bits(__u32 word)
--{
--	__u32 nbits = 0;
--
--	while (word >>= 1)
--		nbits++;
--	return nbits;
--}
--#else	/* Faster (more clever) version, courtesy Colin Plumb */
--static inline __u32 int_ln_12bits(__u32 word)
--{
--	/* Smear msbit right to make an n-bit mask */
--	word |= word >> 8;
--	word |= word >> 4;
--	word |= word >> 2;
--	word |= word >> 1;
--	/* Remove one bit to make this a logarithm */
--	word >>= 1;
--	/* Count the bits set in the word */
--	word -= (word >> 1) & 0x555;
--	word = (word & 0x333) + ((word >> 2) & 0x333);
--	word += (word >> 4);
--	word += (word >> 8);
--	return word & 15;
--}
--#endif
--
- #if 0
- static int debug = 0;
- module_param(debug, bool, 0644);
-@@ -808,10 +765,7 @@
- 		 * Round down by 1 bit on general principles,
- 		 * and limit entropy entimate to 12 bits.
- 		 */
--		delta >>= 1;
--		delta &= (1 << 12) - 1;
--
--		entropy = int_ln_12bits(delta);
-+		entropy = min_t(int, fls(delta>>1), 11);
- 	}
- 
- 	/*
+thanks,
+
+greg k-h

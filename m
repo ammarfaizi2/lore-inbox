@@ -1,112 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbSLTXGJ>; Fri, 20 Dec 2002 18:06:09 -0500
+	id <S266307AbSLTXVY>; Fri, 20 Dec 2002 18:21:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266307AbSLTXGJ>; Fri, 20 Dec 2002 18:06:09 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:33714 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266200AbSLTXGH>;
-	Fri, 20 Dec 2002 18:06:07 -0500
-Subject: linux-2.5.52-dcl1
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1040426052.1078.96.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 20 Dec 2002 15:14:12 -0800
-Content-Transfer-Encoding: 7bit
+	id <S266316AbSLTXVY>; Fri, 20 Dec 2002 18:21:24 -0500
+Received: from services.cam.org ([198.73.180.252]:9228 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S266307AbSLTXVX>;
+	Fri, 20 Dec 2002 18:21:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: [drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+Date: Fri, 20 Dec 2002 18:29:18 -0500
+User-Agent: KMail/1.4.3
+References: <20021218094714.43C712C076@lists.samba.org> <200212181803.23279.tomlins@cam.org> <20021219105909.GE29122@suse.de>
+In-Reply-To: <20021219105909.GE29122@suse.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212201829.18430.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an update to the OSDL CGL/DCL  development conduit.  It is in
-two pieces:  a common subset for CGL and DCL, and a separate patch for
-DCL-only stuff.  The generic patches are for enhancements that are yet
-to make the mainline kernel but are requested by both Carrier Grade
-Linux (CGL) and Data Center Linux (DCL).
+On December 19, 2002 05:59 am, Dave Jones wrote:
+> On Wed, Dec 18, 2002 at 06:03:23PM -0500, Ed Tomlinson wrote:
+>  > both with and without agp 3.0 enabled I get:
+>  >
+>  > Dec 18 17:51:10 oscar kernel: Linux agpgart interface v0.100 (c) Dave
+>  > Jones Dec 18 17:51:29 oscar kernel: via_agp: Unknown symbol
+>  > agp_generic_agp_3_0_enable
+>
+> I don't get this. Can you mail me your .config ?
 
-The DCL-only patch applies after the first one (OSDL patch) and has
-enhancements that are applicable mostly to NUMA systems used in 
-data center systems.
+Dave, with the pull from this morning (8am EST), it almost works modular.
+I get:
 
-The latest release is available in downloadable patches from
-        http://sourceforge.net/projects/osdldcl
+Dec 20 18:20:19 oscar upsd[636]: Communication established
+Dec 20 18:20:47 oscar kernel: Linux agpgart interface v0.100 (c) Dave Jones
+Dec 20 18:20:47 oscar kernel: agpgart: Detected VIA MVP3 chipset
+Dec 20 18:20:47 oscar kernel: agpgart: AGP aperture is 64M @ 0xe0000000
+Dec 20 18:20:58 oscar kernel: [drm] Initialized mga 3.1.0 20021029 on minor 0
+Dec 20 18:20:58 oscar kernel: Module agpgart cannot be unloaded due to unsafe usage in drivers/char/ag
+p/backend.c:58
 
-or public BitKeeper repositories
-        Common code:            bk://bk.osdl.org/linux-2.5-osdl
-        Common code + CGL:      bk://bk.osdl.org/linux-2.5-cgl
-        Common code + DCL:      bk://bk.osdl.org/linux-2.5-dcl
+but find this in the X startup log.
 
-The kernel compiles and runs on an SMP system.  It passes the basic
-tests but has not been extensively stress-tested yet.
+(EE) MGA: Failed to load module "mga_hal" (module does not exist, 0)
+(EE) MGA(0): [agp] Out of memory (-1014)
+(EE) MGA(0): [drm] failed to remove DRM signal handler
+DRIUnlock called when not locked
 
-Note: module loading has changed in latest versions of 2.5 and
-a new version of module utilities is required.  Available at:
-        http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+ideas?
 
-OSDL common:
-* linux-2.5.52-osdl1
-. More updates to LKCD                  (me)
-. Update kprobes to use notifiers       (me)
-. Megaraid 2 SCSI driver		      (Matt Domsch, Atul Mukker)
-
-
-DCL-specific:  
-* patch-2.5.52-osdl1-dcl1
-. NUMA scheduler update		     (Eric Focht)
-. MD driver fixes                    (Joe Thornber)
-. Scheduler tunables                 (Robert Love)
-. RCU stats                          (Dipankar Sarma)
-. Flock fix for SAPDB                (Matthew Wilcox)
-
-
-Previous releases
------------------
-* linux-2.5.51-osdl1
-. Update to LKCD kernel hooks           (me)
-
-* linux-2.5.47-osdl2
-. More fixes to the megaraid driver     (Matt Domsch, Mark Haverkamp)
-. Fix to LKCD block device setup        (me)
-. Default ACPI to off for SMP systems   (me)
-. Fix I/O errors on loop driver         (Hugh Dickins)
-
-* linux-2.5.47-osdl1
-. Linux Trace Toolkit (LTT)          (Karim Yaghmour)
-. Linux Kernel Crash Dumps           (Matt Robinson, LKCD team)
-.   Network crash dumps              (Mohammed Abbas)
-. Kprobes                            (Rusty Russell)
-. Kernel Config storage              (Khalid Aziz, Randy Dunlap)
-. DAC960 driver fixes                (Dave Olien)
-
-
-* patch-2.5.51-osdl1-dcl1
-. NUMA scheduler                     (Eric Focht, Michael Hohnbaum)
-
-
-Getting Involved
-----------------
-If interested in development of DCL, please subscribe to the mailing
-list at http://lists.osdl.org/mailman/listinfo/dcl_discussion .
-
-This kernel has been built and run on a small set of machines, SMP
-and UP.  Testers are encouraged to exercise the features.  If a
-problem is found, please compare the result with a standard 2.5.51
-kernel.  Please report any problems or successes to the mailing list.
-
-Developers are encouraged to send any enhancements or bug fix
-patches.  Patches should be tested by using the OSDL Scalable Test
-Platform (STP) and Patch Lifecycle Manager (PLM) facilities.
-
-Project information:
-        http://www.osdl.org/projects/cgl/
-        http://cglinux.sourceforge.net/
-        http://sourceforge.net/projects/cglinux/
-DCL:
-        http://www.osdl.org/projects/dcl/
-        http://osdldcl.sourceforge.net
-        http://sourceforge.net/projects/osdldcl
-
-
-
+Ed Tomlinson
 

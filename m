@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269626AbUICLeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269628AbUICLnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269626AbUICLeo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 07:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269627AbUICLen
+	id S269628AbUICLnq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 07:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269630AbUICLnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 07:34:43 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:25507 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269626AbUICLel (ORCPT
+	Fri, 3 Sep 2004 07:43:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19158 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269628AbUICLnp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 07:34:41 -0400
-Date: Fri, 3 Sep 2004 13:36:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Free Ekanayaka <free@agnula.org>, Eric St-Laurent <ericstl34@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-R2
-Message-ID: <20040903113600.GA29108@elte.hu>
-References: <1094171082.19760.7.camel@krustophenia.net> <1094181447.4815.6.camel@orbiter> <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net> <20040903070500.GB13100@elte.hu> <1094197233.19760.115.camel@krustophenia.net> <87acw7bxkh.fsf@agnula.org> <1094198755.19760.133.camel@krustophenia.net> <20040903092547.GA18594@elte.hu>
+	Fri, 3 Sep 2004 07:43:45 -0400
+Date: Fri, 3 Sep 2004 13:41:28 +0200
+From: Greg KH <greg@kroah.com>
+To: Roeland Moors <roelandmoors@telenet.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev removable media
+Message-ID: <20040903114128.GA13192@kroah.com>
+References: <20040903112833.GA3584@laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040903092547.GA18594@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040903112833.GA3584@laptop>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 03, 2004 at 01:28:33PM +0200, Roeland Moors wrote:
+> I have an USB zip drive in combination with udev.
+> 
+> When I connect the drive with a disk inserted, everything works
+> fine. Here is the udev rule:
+> BUS="usb", SYSFS{product}="USB Zip 750", KERNEL="sd?1",
+> NAME="%k", SYMLINK="zip"
+> 
+> When connecting the drive without a disk the symlink is not
+> created. This is ok, beceause there is no disk.
+> 
+> But if I now insert a disk, there is still no symlink?
 
-i've uploaded -R2:
+That's because we don't get a "media inserted" event, sorry.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R2
+> I've search a bit on google and if I understand correctly the
+> main problem is the SCSI protocol.
+> 
+> Is there a solution to this problem?
 
-no function changes, only fixing some rough edges: it fixes an UP
-boot-time assert that occurs right after 'checking hlt'. I also fixed
-PREEMPT_TIMING + !LATENCY_TRACE build bugs, and another boot bug that
-occurs when PREEMPT_TIMING + !FRAME_POINTERS is used.
+You can use the "all_partitions" solution in udev to always create the
+partition device nodes.  See the udev manpage for more information.
 
-(the reboot assert i'm not sure about - tried to reproduce but here
-reboot works fine. Will need some sort of serial log to debug this.)
+thanks,
 
-	Ingo
+greg k-h

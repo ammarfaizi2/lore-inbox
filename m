@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbUCSJRb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 04:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbUCSJRb
+	id S261995AbUCSJSL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 04:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUCSJSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 04:17:31 -0500
-Received: from mail.shareable.org ([81.29.64.88]:34702 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261995AbUCSJR3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 04:17:29 -0500
-Date: Fri, 19 Mar 2004 09:17:22 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core update for 2.6.4
-Message-ID: <20040319091722.GD2650@mail.shareable.org>
-References: <1AajM-5vw-21@gated-at.bofh.it> <1Abpq-6Av-1@gated-at.bofh.it> <1Aj3K-5Fn-9@gated-at.bofh.it> <1AjwZ-65D-15@gated-at.bofh.it> <m3brmwojk8.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3brmwojk8.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Mar 2004 04:18:11 -0500
+Received: from ns.suse.de ([195.135.220.2]:15801 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261995AbUCSJSF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 04:18:05 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Consistently translate LF to CRLF on serial console
+References: <jeekrpbun3.fsf@sykes.suse.de> <1079661779.1947.81.camel@gaston>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I'm meditating on the FORMALDEHYDE and the ASBESTOS leaking into my
+ PERSONAL SPACE!!
+Date: Fri, 19 Mar 2004 10:18:03 +0100
+In-Reply-To: <1079661779.1947.81.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Fri, 19 Mar 2004 13:03:00 +1100")
+Message-ID: <jek71hb3g4.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> > eh?  If there is any argument against this code it is that it is so simple
-> > that the thing which it abstracts is not worth abstracting.  But given that
-> > it is so unwasteful, this seems unimportant.
-> 
-> The bloat argument was about the additional pointer in the dynamic 
-> data structure (on a 64bit architecture it costs 12 bytes) 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-This is one place where C++-style vtable inheritance would help.
-Many of those *_operations tables could logically derive from a kref_operations table.
+> On Fri, 2004-03-19 at 10:30, Andreas Schwab wrote:
+>> Some serial console drivers translate LF to CRLF, some do LFCR.  This
+>> patch changes them to consistently translate to CRLF.
+>
+> macserial is obsolete (and will be soon removed), please look
+> into pmac zilog rather.
 
-I doubt if there is a nice to way to represent it with C macros, but
-maybe there is.
+I did.
 
--- Jamie
+> Also, why did you move the test for
+> the transmit buffer empty ? You should at least check there
+> is room in it _before_ writing to it
+
+I did that too.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

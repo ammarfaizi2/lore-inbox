@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136638AbREAQGd>; Tue, 1 May 2001 12:06:33 -0400
+	id <S136648AbREAQId>; Tue, 1 May 2001 12:08:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136641AbREAQGN>; Tue, 1 May 2001 12:06:13 -0400
-Received: from [209.202.46.62] ([209.202.46.62]:21009 "HELO fluke.haryan.to")
-	by vger.kernel.org with SMTP id <S136638AbREAQGC>;
-	Tue, 1 May 2001 12:06:02 -0400
-Date: Tue, 1 May 2001 11:05:12 -0500
-From: Ronny Haryanto <ronny-linux@haryan.to>
-To: linux-kernel@vger.kernel.org
-Subject: tulip driver broken in 2.4.4?
-Message-ID: <20010501110512.A8148@haryan.to>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S136646AbREAQIW>; Tue, 1 May 2001 12:08:22 -0400
+Received: from jalon.able.es ([212.97.163.2]:1510 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S136641AbREAQIG>;
+	Tue, 1 May 2001 12:08:06 -0400
+Date: Tue, 1 May 2001 18:07:58 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Peter Osterlund <peter.osterlund@mailbox.swipnet.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac2
+Message-ID: <20010501180758.A1057@werewolf.able.es>
+In-Reply-To: <20010501170632.A1057@werewolf.able.es> <Pine.LNX.4.21.0105011644170.1399-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: Get my public key from http://ronny.haryan.to/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0105011644170.1399-100000@localhost.localdomain>; from hugh@veritas.com on Tue, May 01, 2001 at 17:50:52 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just tried 2.4.4 yesterday and found that my eth1 was dead after 5 minutes.
-The log says:
 
-Apr 30 10:30:59 fluke kernel: NETDEV WATCHDOG: eth1: transmit timed out 
-Apr 30 10:30:59 fluke kernel: eth1: Transmit timed out, status fc664010, CSR12 00000000, resetting... 
-Apr 30 10:31:07 fluke kernel: NETDEV WATCHDOG: eth1: transmit timed out 
-Apr 30 10:31:07 fluke kernel: eth1: Transmit timed out, status fc664010, CSR12 00000000, resetting...  
-... and so on repeatedly ...
+On 05.01 Hugh Dickins wrote:
+> 
+> Don't ask me why, but I think you may find it's Peter's patch to
+> the women-and-children-first in kernel/fork.c: I'm not yet running
+> -ac2, but I am trying that patch, fine on UP but hanging right there
+> (well, I get a "go go go" message too) on SMP.
+>
 
-I had to ifdown-ifup cycle to re-enable it but it's dead again after 5
-minutes with the same problem. The card is LinkSys LNE100TX v4.1. It is
-currently working fine with 2.2.18. If there's any other info that is needed
-please let me know.
+After APIC_DEBUG = 1, I also get the gogo, i will try reverting the change.
 
-Ronny
+> Try reversing the:
+> 
+> -	p->counter = current->counter;
+> -	current->counter = 0;
+> +	p->counter = (current->counter + 1) >> 1;
+> +	current->counter >>= 1;
+> +	current->policy |= SCHED_YIELD;
+> 
+
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
+
+Linux werewolf 2.4.4-ac1 #1 SMP Tue May 1 11:35:17 CEST 2001 i686
+

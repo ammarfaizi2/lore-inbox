@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317600AbSGFCbW>; Fri, 5 Jul 2002 22:31:22 -0400
+	id <S317601AbSGFDR0>; Fri, 5 Jul 2002 23:17:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317601AbSGFCbV>; Fri, 5 Jul 2002 22:31:21 -0400
-Received: from kc.hitachisoftware.com ([205.158.62.105]:47755 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S317600AbSGFCbU>; Fri, 5 Jul 2002 22:31:20 -0400
-Message-ID: <20020706023351.11868.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Anthony Spinillo" <tspinillo@linuxmail.org>
+	id <S317602AbSGFDRZ>; Fri, 5 Jul 2002 23:17:25 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:19973 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317601AbSGFDRZ>; Fri, 5 Jul 2002 23:17:25 -0400
+Date: Sat, 6 Jul 2002 00:19:28 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
 To: linux-kernel@vger.kernel.org
-Date: Sat, 06 Jul 2002 10:33:51 +0800
-Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
-X-Originating-Ip: 24.49.74.187
-X-Originating-Server: ws4-4.us4.outblaze.com
+Subject: [PATCH][RFT] minimal rmap for 2.5
+Message-ID: <Pine.LNX.4.44L.0207060015170.8346-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
+Hi,
 
-I just fired up 2.5.25. DMA was enabled upon boot on 
-my DVD drive and burner. (no IDE hard drive - SCSI)
+below is a minimal rmap patch for 2.5.25, unfortunately
+untested because the main hard disk on my test box died
+of old age and I'm waiting for the ISO image to download
+so I can install Linux on the other spare disk...
 
-2.4.19pre10ac2 works for me also.
+If you have some time left this weekend and feel brave,
+please test the patch which can be found at:
 
-I also turned in a Bugzilla for Limbo the new RedHat
-beta.
+	http://surriel.com/patches/2.5/2.5.25-rmap-untested
 
-Intel 845GBVL motherboard - 845G chipset.
+This patch is based on Craig Kulesa's minimal rmap patch
+for 2.5.24, with a few changes:
+- removed a few unrelated changes
+- updated armv/rmap.h for new pagetable layout of linux/arm
+- dropped per-zone pte_chain freelists, we want to make per-cpu
+  ones for SMP scalability
+- ported to 2.5.25 (PF_NOWARN instead of PF_RADIX_TREE)
+- drop spelling and whitespace fixes (should be merged separately)
 
-Thanks!
+It should be mostly ready for being integrated into the 2.5 tree,
+with the note that pte-highmem support still needs to be implemented
+(some IBMers have been volunteered for this task, this functionality
+can easily be added afterwards).
 
-Tony
+Right now this patch needs testing and careful scrutiny. If you can
+find anything wrong with it, please let me know.
 
->Does it work in 2.5 ?
+kind regards,
 
-
-On Thu, 4 Jul 2002, Nick Evgeniev wrote:
-
->> Well, anyway, 2.4.19-pre10-ac2 works for me :)
-
+Rik
 -- 
-Get your free email from www.linuxmail.org 
+Bravely reimplemented by the knights who say "NIH".
 
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Powered by Outblaze

@@ -1,95 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUGPFxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUGPF64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266479AbUGPFxN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUGPFxN
+	id S266163AbUGPF64 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 01:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUGPF64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:53:13 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:64645 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266479AbUGPFxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 01:53:07 -0400
-Message-ID: <40F76D3F.8050309@yahoo.com.au>
-Date: Fri, 16 Jul 2004 15:53:03 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       John Hawkes <hawkes@sgi.com>
-Subject: Re: [PATCH] reduce inter-node balancing frequency
-References: <200407151829.20069.jbarnes@engr.sgi.com> <200407152038.32755.jbarnes@engr.sgi.com> <40F733D2.2000309@yahoo.com.au> <200407152158.17605.jbarnes@engr.sgi.com> <2700000.1089956404@[10.10.2.4]>
-In-Reply-To: <2700000.1089956404@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jul 2004 01:58:56 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:42489 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266163AbUGPF6y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 01:58:54 -0400
+Date: Fri, 16 Jul 2004 11:08:35 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Lock free fd lookup
+Message-ID: <20040716053835.GA1257@obelix.in.ibm.com>
+References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714045640.GB1220@obelix.in.ibm.com> <20040714081737.N1973@build.pdx.osdl.net> <200407151022.53084.jbarnes@engr.sgi.com> <20040715161054.GB3957@in.ibm.com> <20040715093408.A1924@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040715093408.A1924@build.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> --Jesse Barnes <jbarnes@engr.sgi.com> wrote (on Thursday, July 15, 2004 21:58:17 -0400):
+On Thu, Jul 15, 2004 at 09:34:08AM -0700, Chris Wright wrote:
+> * Dipankar Sarma (dipankar@in.ibm.com) wrote:
+> > On Thu, Jul 15, 2004 at 10:22:53AM -0400, Jesse Barnes wrote:
+> > > On Wednesday, July 14, 2004 11:17 am, Chris Wright wrote:
+> > ... 
+> > Chris raises an interesting issue. There are two ways we can benefit from
+> > lock-free lookup - avoidance of atomic ops in lock acquisition/release
+> > and avoidance of contention. The latter can also be provided by
+> > rwlocks in read-mostly situations like this, but rwlock still has
+> > two atomic ops for acquisition/release. So, in another
+> > thread, I have suggested looking into the contention angle. IIUC,
+> > tiobench is threaded and shares fd table. 
 > 
-> 
->>On Thursday, July 15, 2004 9:48 pm, Nick Piggin wrote:
->>
->>>Yeah, these numbers actually used to be a lot higher, but someone
->>>at Intel (I forget who it was right now) found them to be too high
->>>on even a 32 way SMT system. They could probably be raised a *little*
->>>bit in the generic code.
->>
->>Ok, but I wouldn't want to hurt the performance of small machines at all.  If 
->>possible, I'd rather just add another level to the hierarchy if MAX_NUMNODES 
->>
->>>some value.
-> 
-> 
-> Arch code. Arch code. Arch code ;-) Or at least base it of nr_cpus or 
-> numnodes. Seriously ... a 2x or 4x opteron obviously needs different
-> parameters from a 16x x440 or a 512x SGI box ... why we have a flexible
-> infrastructure that can stand on its head and do backflips, and then
-> we don't use it at all is a mystery to me ;-)
-> 
-> I'd even go so far as to suggest there should be NO default settings for
-> NUMA, only in arch code - that'd make people actually think about it.
-> If there are, they should be based off the topo infrastructure, not static
-> values.
->  
+> Given the read heavy assumption that RCU makes (supported by your
+> benchmarks), I believe that the comparison with RCU vs. current scheme
+> is unfair.  Better comparison is against rwlock_t, which may give a
+> similar improvement w/out the added complexity.  But, I haven't a patch
+> nor a benchmark, so it's all handwavy at this point.
 
-I'm going to cut a patch to consolidate the arch setup code in a
-bit. It would be easy to just not define SD_NODE_INIT at all in
-generic code. I expect that won't go down too well at this stage
-though ;)
+It would be a good datapoint to experiment with rwlock.
+But note that on x86 (my testbed right now)
+1. read_lock + read_unlock + atomic_inc will be 3 (bus locking) atomic ops
+2. spin_lock + spin_unlock + atomic_inc will be 2 atomic ops 
+   (x86 spin_unlock is just a move)
+3. rcu_read_lock, rcu_read_unlock + cmpxchg is just one atomic op,
+added to it the cs is small in fget, fget_light....
 
-> 
->>>>We may have enough information to do that already... I'll look.
->>>
->>>The plan is to allow arch overridable SD_CPU/NODE_INIT macros for
->>>those architectures that just look like a regular SMT+SMP+NUMA, and
->>>have the generic code set them up.
->>
->>Would simply creating a 'supernode' scheduling domain work with the existing 
->>scheduler?  My thought was that in the ia64 code we'd create them for every N 
->>regular nodes; its children would be the regular nodes with the existing 
->>defaults.
-> 
-> 
-> Nick would know better than I, but I think so ... it seems to cope with
-> arbitrary levels, groupings, ... gravitational dimensions, etc ;-)
-> 
+IIRC, the files_struct.file_lock was a rwlock sometime back.  
+(it still is in 2.4 i think) I am not sure why it was changed to spinlocks.  
+I will try to dig through the archives, but if someone can quickly 
+fill in that would be nice.
 
-Well I think the main thing is that you do not want a global domain
-with 512 CPUs in it, even if it is very rarely balanced.
-
-Apart from having to pull hot cachelines off 511 CPUs while in interrupt
-context, it just doesn't make sense: It could easily move a task to a
-node that is  x (=large) hops away.
-
-It is probably way too much complexity to try to model your topology in
-any amount of detail at this stage, but it could be made smarter.
-
-Instead of a top level domain spanning all CPUs, have each CPU's top level
-domain just span all CPUs within a couple of hops (enough to get, say 16 to
-64 CPUs into each top level domain). I could give you a hand with this if
-you need.
-
+Thanks,
+Kiran

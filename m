@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbTIVTTd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 15:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTIVTTd
+	id S263274AbTIVTOl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 15:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTIVTOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 15:19:33 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:36225 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263290AbTIVTTc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 15:19:32 -0400
-Date: Mon, 22 Sep 2003 20:19:21 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: arjanv@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
-Message-ID: <20030922191921.GD27209@mail.jlokier.co.uk>
-References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com> <1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk> <20030922162602.GB27209@mail.jlokier.co.uk> <1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk> <1064250691.6235.2.camel@laptop.fenrus.com> <m165jkk5vn.fsf@ebiederm.dsl.xmission.com>
+	Mon, 22 Sep 2003 15:14:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26314 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263274AbTIVTOj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 15:14:39 -0400
+Date: Mon, 22 Sep 2003 11:55:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Cc: alistair@devzero.co.uk, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.0-test5-mm4
+Message-Id: <20030922115509.4d3a3f41.akpm@osdl.org>
+In-Reply-To: <20030922143605.GA9961@gemtek.lt>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org>
+	<200309221317.42273.alistair@devzero.co.uk>
+	<20030922143605.GA9961@gemtek.lt>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m165jkk5vn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Alan, can you describe a little more what the original delay is needed
-> for?  I don't see it documented in my 8254 data sheet.  The better I
-> can understand the problem the better I can write the comments on this
-> magic bit of code as I fix it.
+Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
+>
+> Btw Andrew ,
 > 
-> The oldest machine I have is a 386 MCA system.  Any chance of the bug
-> showing up there?  I'd love to have a test case.
+> this change  "Synaptics" -> "SynPS/2" - breaks driver synaptic driver
+> from http://w1.894.telia.com/~u89404340/touchpad/index.html. 
 > 
-> Another reason for fixing this is we are killing who knows how much
-> I/O bandwidth with this stream of failing writes to port 0x80.
+> 
+> -static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/
+> 2", "ImPS/2", "ImExPS/2", "Synaptics"}; 
+> +static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
 
-Unfortunately, a lot of drivers use the _p operators so if the delay
-is simply removed, it may take a while before the ill effects of that
-are discovered.
+You mean it breaks the XFree driver?  Is it just a matter of editing
+XF86Config to tell it the new protocl name?
 
--- Jamie
+Either way, it looks like a change which should be reverted?
+

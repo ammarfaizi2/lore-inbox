@@ -1,82 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbTIBUVU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 16:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTIBUVU
+	id S261292AbTIBVXa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 17:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbTIBVXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 16:21:20 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:8405 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S264061AbTIBUVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 16:21:12 -0400
-Date: Tue, 2 Sep 2003 22:18:07 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bastian@schottelius.org
-Subject: Re: [BUGS?: 2.6.0test4] iptables and tc problems
-Message-ID: <20030902201807.GO1055@obroa-skai.de.gnumonks.org>
-References: <20030901122818.GE5524@schottelius.org>
+	Tue, 2 Sep 2003 17:23:02 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:55434 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261292AbTIBVWz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 17:22:55 -0400
+Date: Tue, 2 Sep 2003 22:20:56 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hugh@veritas.com, rusty@rustcorp.com.au, mingo@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
+Message-ID: <20030902212056.GA16805@mail.jlokier.co.uk>
+References: <20030902065144.GC7619@mail.jlokier.co.uk> <Pine.LNX.4.44.0309021626540.1542-100000@localhost.localdomain> <20030902195427.GA15262@mail.jlokier.co.uk> <20030902131537.53d02113.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Y142/9l9nQlBiaj"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030901122818.GE5524@schottelius.org>
-X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.6.0-test4
-X-Date: Today is Setting Orange, the 26th day of Bureaucracy in the YOLD 3169
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030902131537.53d02113.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Jamie Lokier <jamie@shareable.org> wrote:
+> >
+> > 	3. For (vma & VM_SHARED), look up futex_qs keyed on
+> > 	   (vma->vm_file, vma->vm_pgoff + (uaddr - vma->vm_start) >>
+> > 	   PAGE_SHIFT, offset).
+> 
+> That's a bit meaningless in non-linear mappings.
 
---4Y142/9l9nQlBiaj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You think it's worth supporting futexes on non-linear mappings?
+I see your point of view; they could be useful.
 
-On Mon, Sep 01, 2003 at 02:28:18PM +0200, Nico Schottelius wrote:
+In that case, the (vma & VM_SHARED) case needs to look up the correct
+pgoff or page after all.
 
-> Then trying to match the ftp connections
-> bruehe:~#  iptables -A OUTPUT -m owner --uid-owner 0 -j ACCEPT  =20
-> iptables: Invalid argument
-> bruehe:~# iptables -t mangle -A POSTROUTING -o ppp0 -m owner --uid-owner =
-1001 -j MARK --set-mark 55
-> iptables: Invalid argument
->=20
-> Why does iptables or the kernel not accept that?
+It might be worth a VM_NONLINEAR flag, to skip walking the page table
+in the non-linear case, but that's just an optimisation.
 
-you will most likely have to recompile your iptables userspace program.
-The owner match has recently undergone some changes in the structure
-used for communication between kernel and userspace.
+-- Jamie
 
-btw: you can easily match ftp data sessions (if you use
-ip_conntrack_ftp) by matching with "-m helper --helper ftp"
-
-please direct netfilter/iptables related questions to
-netfilter@lists.netfilter.org in the future. =20
-
-> Greetings,
-> Nico
-
---=20
-- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-Programming is like sex: One mistake and you have to support it your lifeti=
-me
-
---4Y142/9l9nQlBiaj
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/VPr+XaXGVTD0i/8RAiW/AJ4j6dRVlXvvusPUE8R/JCyx10DDWQCfarjB
-i7t0u8fjwNN+9MET+S2sXZE=
-=Plgv
------END PGP SIGNATURE-----
-
---4Y142/9l9nQlBiaj--

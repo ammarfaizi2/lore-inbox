@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269162AbRHDROb>; Sat, 4 Aug 2001 13:14:31 -0400
+	id <S268567AbRHDRKV>; Sat, 4 Aug 2001 13:10:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269176AbRHDROV>; Sat, 4 Aug 2001 13:14:21 -0400
-Received: from imo-m08.mx.aol.com ([64.12.136.163]:28629 "EHLO
-	imo-m08.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S269162AbRHDROK>; Sat, 4 Aug 2001 13:14:10 -0400
-From: Floydsmith@aol.com
-Message-ID: <11f.2b1593f.289d8764@aol.com>
-Date: Sat, 4 Aug 2001 13:14:12 EDT
-Subject: can't get buffer cache to flush with /dev/ram with 2.4.4 using "update"/"sync" 
+	id <S267233AbRHDRKM>; Sat, 4 Aug 2001 13:10:12 -0400
+Received: from titan.golden.net ([199.166.210.90]:15871 "EHLO titan.golden.net")
+	by vger.kernel.org with ESMTP id <S268567AbRHDRJy>;
+	Sat, 4 Aug 2001 13:09:54 -0400
+From: "John L. Males" <software_iq@TheOffice.net>
+Organization: Toronto, Ontario, Canada
 To: linux-kernel@vger.kernel.org
-CC: Floydsmith@aol.com
+Date: Sat, 4 Aug 2001 13:09:28 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 4.0 for Windows 95 sub 14
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: First Time Memory Use Observations using 2.4(.7) Kernel - 20010804
+Reply-to: software_iq@TheOffice.net
+Message-ID: <3B6BF408.21678.2A5073@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the repeat - the kernel I am running is 2.4.4 (not 2.2.4 as 
-reported originally) - also, this problem does occur with 2.2.18.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hello all,
+Hello,
 
-I boot linux using "loadlin" with an "initrd" ram disk image ("minix" type 
-fs) of size 32 Meg with kernel 2.4.4. The /linuxrc (a C executable) runs and 
-it shows that the mounted file sysem is of proper type and size. Then my 
-"linuxrc" extracts a "tar" achrive (to populate the mounted /dev/ram [on 
-"/"]) with a small subset of  "linux" about (18 Meg) (as a "rescue" floppy 
-boot). Before the "extract", debug code shows that the "cached" entry in 
-"/proc/meminfo" to be practically zero (and thus plenty of "freemem"). 
-However, after the "extract", the "cached" line shows about "18Meg"  and I 
-can find nothing that works to "flush" it. I have tried "spawing" 
-"/sbin/update" and waiting several min. and running "/bin/sync" and also 
-waiting - no change in the "cahed" entry (or and increase in the "freemem").  
-(ps -ef shows a process "bdflush" running [spawned] on its own.) Thus, trying 
-to bring up a "logon" shell (and its "init" scripts) results in that process 
-being killed do to lack of "freemem". I have only 64M and less than 4 Meg 
-free after the "extract". Any suggestions greatly appreciated in advance. If 
-there any "syscall" I can make in "linuxrc" that will flush "all" buffers 
-without knowing anything like "file descriptors"? Is this "syscall" 
-"synchronus" - or do do I have wait several seconds for it to work?
+After a few hoops and loops of efforts over past week I have managed
+to to have my SuSE 6.4 start up the 2.4 kernel.  I wanted to get a
+feel for the 2.4 kernel and specifically the memory management
+behaviour.  I had felt there were some issues at least at the 2.2
+Kernel, but not sure how much is kernel vs application related.
 
-Floyd,
+My first experience is with the 2.4.7 Kernel.  I have not used a 2.4
+kernel before.  I am not using a varient of the kernel with the
+single-use patch from Daniel Phillips.
+
+My initial overall impression of the 2.4.7 kernel is encouraging. On
+the specific memory management aspect, I saw some positive
+improvement in the way memory is "consumed", but discovered by
+accident that in another manner a sudden leak from 182MB to 230MB+. 
+When I checked via qps to see where the gain was, I could not seem to
+find any cause for this jump in the applications. as it had seemed to
+be indiacted via qps with a 2.2 kernel.  I can only assume the cause
+of this sudden bump was within the Kernel itself, but cannot prove
+that.  This type of bump up in memory never happened with the 2.2
+Kernels I have used to date, and I have been using the 2.2.19 kernel
+almost since its release.  I shut down the one major application I
+had been using to see if it would restore memory to pre-application
+like usage levels.  Sadly it only partly did and not to level I am
+accustomed to with the 2.2 kernels.
+
+I am not on the Kernel mailing list, so any thoughts to my
+observations or how I can validate my observations with metrics would
+be appreciated be replying to my eMail address.  I am not using a
+varient of the kernel with the single-use patch from Daniel Phillips.
+
+
+Regards,
+
+John L. Males
+Software I.Q. Consulting
+Toronto, Ontario
+Canada
+04 August 2001 13:09
+mailto:software_iq@TheOffice.net
+mailto:jlmales@softhome.net
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use <http://www.pgp.com>
+
+iQA/AwUBO2w6U14sOqR1C4kdEQK30QCfb0pY+MBxWm/1h5zLcjg5rUx4d9kAoK8+
+Vug7S739jl8r/kQJo+tNSWDk
+=c1bn
+-----END PGP SIGNATURE-----
+

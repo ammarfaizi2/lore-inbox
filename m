@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319007AbSIDCM4>; Tue, 3 Sep 2002 22:12:56 -0400
+	id <S319005AbSIDCMR>; Tue, 3 Sep 2002 22:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319010AbSIDCMz>; Tue, 3 Sep 2002 22:12:55 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:58309 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S319007AbSIDCMy>;
-	Tue, 3 Sep 2002 22:12:54 -0400
-Message-ID: <3D756DA3.8DD9941D@alphalink.com.au>
-Date: Wed, 04 Sep 2002 12:19:15 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
+	id <S319007AbSIDCMR>; Tue, 3 Sep 2002 22:12:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36618 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319005AbSIDCMQ>; Tue, 3 Sep 2002 22:12:16 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.4.18 --> 2.4.19. Ramdisk requires floppy?
+Date: 3 Sep 2002 19:16:38 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <al3qe6$lvl$1@cesium.transmeta.com>
+References: <20020903165133.GA8726@southpole.se>
 MIME-Version: 1.0
-To: Kernel Build Mailing List <kbuild-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ANNOUNCE: gcml2 version 0.7.1
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-G'day,
+Followup to:  <20020903165133.GA8726@southpole.se>
+By author:    jakob@southpole.se (Jakob Sandgren)
+In newsgroup: linux.dev.kernel
+>
+> Hi,
+> 
+> I've noticed that the 2.4.19 version of "prepare_namespace"
+> (init/do_mounts.c) not allows you to mount a non floppy as a
+> ramdisk(?). This has changed since 2.4.18 (split of main.c ->
+> {do_mounts,main}.c).
+> 
+> 2.4.18 does a very simple check (below):
+> 
+> --- 2.4.18 ---
+> #ifdef CONFIG_BLK_DEV_RAM
+> #ifdef CONFIG_BLK_DEV_INITRD
+>         if (mount_initrd)
+>                 initrd_load();
+>         else
+> #endif
+>         rd_load();
+> #endif
+> --- 2.4.18 ---
+> 
+> however, in 2.4.19 it just tries to load a ramdisk if it's on a
+> floppy. Why? There may still be a ramdisk on an other device, NOT
+> using initrd. 
+> 
 
-gcml2 is (among other things) a Linux kconfig language syntax checker.
-Version 0.7.1 is available at:
+You can't search every device hunting for a ramdisk.  rd_load() is
+ancient cruft that should be nuked, and will be pushed into userspace
+as part of the initramfs/early userspace work.
 
-http://sourceforge.net/project/showfiles.php?group_id=18813&release_id=108721
-
-and
-
-http://www.alphalink.com.au/~gnb/gcml2/download.html
-
-This is a bugfix release of gcml2.  Thanks to Randy Dunlap in particular
-for reporting problems.  Future announcements of minor releases will be
-on the kbuild-devel list only.
-
-Here is a brief change log.
-
-* Fixed memory corruption error where the banner node was being
-  freed but not removed from the hashtable of all nodes.
-* The CONFIG_DECSTATION bug in the mips port triggered an assert
-  failure in the overlap code; this case is now handled more
-  gracefully.
-* Added two new warnings, condition-loop and dependency-loop.
-* Gracefully handle case where a define_bool is conditional on itself.
-* Fixed misfeature where failure to find a "source"d file would
-  terminate parsing the remainder of the rulebase.
-* Using a symbol name instead of a sub-prompt as the default
-  value for a "choice" no longer causes a parse error.
-* Various minor bugs, memory leaks, speed improvements.
-
-Greg.
+	-hpa
 -- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

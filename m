@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318245AbSHDTip>; Sun, 4 Aug 2002 15:38:45 -0400
+	id <S318244AbSHDTii>; Sun, 4 Aug 2002 15:38:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318248AbSHDTip>; Sun, 4 Aug 2002 15:38:45 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1550 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318245AbSHDTio>; Sun, 4 Aug 2002 15:38:44 -0400
-Date: Sun, 4 Aug 2002 16:41:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S318245AbSHDTii>; Sun, 4 Aug 2002 15:38:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1042 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318244AbSHDTii>; Sun, 4 Aug 2002 15:38:38 -0400
+Date: Sun, 4 Aug 2002 12:28:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
 cc: Hubertus Franke <frankeh@watson.ibm.com>,
        "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>,
        <davidm@napali.hpl.hp.com>, <gh@us.ibm.com>, <Martin.Bligh@us.ibm.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
+       <wli@holomorpy.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <Pine.LNX.4.44.0208041131380.10314-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0208041637030.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <3D4D7F24.10AC4BDB@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0208041225180.10314-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Aug 2002, Linus Torvalds wrote:
-> On Sun, 4 Aug 2002, Hubertus Franke wrote:
-> >
-> > As of the page coloring !
-> > Can we tweak the buddy allocator to give us this additional functionality?
->
-> I would really prefer to avoid this, and get "95% coloring" by just doing
-> read-ahead with higher-order allocations instead of the current "loop
-> allocation of one block".
 
-OK, now I'm really going to start on some code to try and free
-physically contiguous pages when a higher-order allocation comes
-in ;)
+On Sun, 4 Aug 2002, Andrew Morton wrote:
+> 
+> Could we establish the eight pte's but still arrange for pages 1-7
+> to trap, so the kernel can zero the out at the latest possible time?
 
-(well, after this hamradio rpm I started)
+You could do that by marking the pages as being there, but PROT_NONE.
 
-cheers,
+On the other hand, cutting down the number of initial pagefaults (by _not_ 
+doing what you suggest) migth be a bigger speedup for process startup than 
+the slowdown from occasionally doing unnecessary work.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+I suspect that there is some non-zero order-X (probably 2 or 3), where you 
+just win more than you lose. Even for small programs. 
 
-http://www.surriel.com/		http://distro.conectiva.com/
+			Linus
 

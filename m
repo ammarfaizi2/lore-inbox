@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264890AbRFTPDY>; Wed, 20 Jun 2001 11:03:24 -0400
+	id <S264886AbRFTPAy>; Wed, 20 Jun 2001 11:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264891AbRFTPDO>; Wed, 20 Jun 2001 11:03:14 -0400
-Received: from paperboy.noris.net ([62.128.1.27]:53892 "EHLO mail2.noris.net")
-	by vger.kernel.org with ESMTP id <S264890AbRFTPDA>;
-	Wed, 20 Jun 2001 11:03:00 -0400
+	id <S264887AbRFTPAo>; Wed, 20 Jun 2001 11:00:44 -0400
+Received: from relay.dera.gov.uk ([192.5.29.49]:28934 "HELO relay.dera.gov.uk")
+	by vger.kernel.org with SMTP id <S264886AbRFTPAd>;
+	Wed, 20 Jun 2001 11:00:33 -0400
+Subject: Re: [UPDATE] Directory index for ext2
+From: Tony Gale <gale@syntax.dera.gov.uk>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+        Alexander Viro <viro@math.psu.edu>,
+        Andreas Dilger <adilger@turbolinux.com>
+In-Reply-To: <0105311813431J.06233@starship>
+In-Reply-To: <0105311813431J.06233@starship>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 20 Jun 2001 15:59:58 +0100
+Message-Id: <993049198.3089.2.camel@syntax.dera.gov.uk>
 Mime-Version: 1.0
-Message-Id: <p05100305b7566a3882eb@[192.109.102.36]>
-In-Reply-To: <lATeaC.A.K1B.HD-L7@dinero.interactivesi.com>
-In-Reply-To: <20010619090956.R3089@work.bitmover.com>
- <Pine.LNX.4.30.0106191714320.11271-100000@sphinx.mythic-beasts.com> 
- <20010619095239.T3089@work.bitmover.com>
- <20010619095239.T3089@work.bitmover.com>
- <lATeaC.A.K1B.HD-L7@dinero.interactivesi.com>
-Date: Wed, 20 Jun 2001 16:59:07 +0200
-To: Timur Tabi <ttabi@interactivesi.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-From: Matthias Urlichs <smurf@noris.de>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:31 -0500 2001-06-19, Timur Tabi wrote:
->Not quite.  What makes OS/2's threads superior is that the OS multitasks
->threads, not processes.  So I can create a time-critical thread in my process,
->and it will have priority over ALL threads in ALL processes.
 
-In contrast to Linux, which does exactly the same thing -- so what 
-are you trying to tell us?
+The main problem I have with this is that e2fsck doesn't know how to
+deal with it - at least I haven't found a version that will. This makes
+it rather difficult to use, especially for your root fs.
 
->A lot of OS/2 software is written with this feature in mind.  I know of one
->programmer who absolutely hates Linux because it's just too difficult porting
->software to it, and the lack of decent thread support is part of the problem.
+And, since I used it, and have since stopped using it, I have a problem
+in what all my disk free space disappears over a couple of days - I have
+to run fsck to recover it, were it appears as deleted inodes with zero
+dtime. I can't say for sure that the dir index stuff is at fault though.
+I am currently using 2.4.6-pre3 without the dir patch installed. I am
+using the grsecurity patch though.
 
-So what would you consider to be "decent thread support"?
+I have just upgraded to e2fsprogs-1.21 in the hope of sorting it out. If
+that fails I'll revert to a clean 2.4.6-pre kernel. Other ideas welcome.
 
--- 
-Matthias Urlichs
+-tony
+
+
+
+On 31 May 2001 18:13:43 +0200, Daniel Phillips wrote:
+> Changes:
+> 
+>   - Freshen to 2.4.5
+>   - EXT2_FEATURE_COMPAT_DIR_INDEX flag finalized
+>   - Break up ext2_add_entry for aesthetic reasons (Al Viro)
+>   - Handle more than 64K directories per directory (Andreas Dilger)
+>   - Bug fix: new inode no longer inherits index flag (Andreas Dilger)
+>   - Bug fix: correct handling of error on index create (Al Viro)
+> 
+> To-Do:
+> 
+>   - More factoring of ext2_add_entry
+>   - Fall back to linear search in case of corrupted index
+>   - Finalize hash function
+> 
+
+

@@ -1,41 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262650AbTCTWNj>; Thu, 20 Mar 2003 17:13:39 -0500
+	id <S262672AbTCTWVP>; Thu, 20 Mar 2003 17:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262646AbTCTWNi>; Thu, 20 Mar 2003 17:13:38 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:8855 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262284AbTCTWNh>;
-	Thu, 20 Mar 2003 17:13:37 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 20 Mar 2003 23:24:33 +0100 (MET)
-Message-Id: <UTC200303202224.h2KMOXC01107.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, zippel@linux-m68k.org
-Subject: Re: major/minor split
-Cc: Joel.Becker@oracle.com, akpm@digeo.com, andrey@eccentric.mae.cornell.edu,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S262673AbTCTWVP>; Thu, 20 Mar 2003 17:21:15 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:55490 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S262672AbTCTWVK>;
+	Thu, 20 Mar 2003 17:21:10 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A210@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: James Wright <james@jigsawdezign.com>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
+Subject: RE: P4 3.06Ghz Hyperthreading with 2.4.20?
+Date: Thu, 20 Mar 2003 14:32:00 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is a point I'd like to get clear: where should the
-> 16bit<->32bit dev_t conversion happen?
 
-I am not sure I understand the question, but if I do
-the answer is "nowhere", there is no conversion
-(other than the lengthening that happens when one
-casts an unsigned short to an unsigned int).
+> From: James Wright [mailto:james@jigsawdezign.com] 
+> ACPI: Local APIC address 0xfee00000
+> ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+> Processor #0 Pentium 4(tm) XEON(tm) APIC version 16
+> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
+> Processor #1 Pentium 4(tm) XEON(tm) APIC version 16
 
-For dev_t (8,1) is 0x00000801, but (8,256) is 0x00080100.
-(In case of a 16+16 split. Not that I advocate that,
-it is just easy talking.)
+There should be some messages about IO APICs right here. To be SMP, you
+need IO APICs.
 
-For kdev_t (8,1) is 0x00080001 and (8,256) is 0x00080100.
-So kdev_t allows simple fast composition and decomposition,
-but is restricted to the kernel.
-While dev_t requires a conditional, since it has to remain
-compatible with the old 8+8 userspace.
+If you did the ACPI cpu enumeration only, please try the full ACPI
+support. That is the only reason I can think of (except for !CONFIG_SMP)
+as to why the IO APIC(s) could be overlooked.
 
-> how can software create nodes for a specific device?
+> Kernel command line: BOOT_IMAGE=linux ro root=302 acpismp=force
 
-You do not mean using mknod?
+Don't need acpismp=force, btw. With the patch off sf.net it is on by
+default - you can use acpi=off to disable it, though. ;-)
 
-Andries
+Regards -- Andy
+
+> On Thu, 20 Mar 2003 09:11:10 -0800
+> "Grover, Andrew" <andrew.grover@intel.com> wrote:
+> 
+> > > From: James Wright [mailto:james@jigsawdezign.com] 
+> > >    So i can apply the ACPI patch to 2.4.20, and it will work, 
+> > > even though my motherboard BIOS
+> > > doesn't provide the MPS table?
+> > 
+> > Yes, because ACPI uses a different table.
+> > 
+> > > Do i still need to use 
+> > > "acpismp=force" option?
+> > 
+> > Nope.
+> > 
+> > > What do you mean
+> > > by *configuring* acpi
+> > 
+> > Configuring it into your kernel, presumably, using make menuconfig.
+> > 
+> > > do i need the "acpid" or other 
+> > > resources, than just enabling it?
+> > 
+> > Nope, all the SMP detection stuff is in the kernel.
+> > 
+> > Regards -- Andy
+> > 
+> > > 
+> > > Thanks,
+> > > James
+> > > 
+> > > 
+> > > On Wed, 19 Mar 2003 18:50:59 -0800
+> > > "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
+> > > 
+> > > > You need to apply the ACPI patch: 
+> > > http://sourceforge.net/projects/acpi and *configure* APIC. 
+> > > > 
+> > > > The 2.4 kernel depends on the MPS table for all but logical 
+> > > processors. If MPS table is not present, it will fall back to UP.
+> > > > 
+> > > > Thanks,
+> > > > Jun
+> > > > 
+> > > > > -----Original Message-----
+> > > > > From: James Wright [mailto:james@jigsawdezign.com]
+> > > > > Sent: Wednesday, March 19, 2003 5:34 PM
+> > > > > To: linux-kernel@vger.kernel.org
+> > > > > Subject: P4 3.06Ghz Hyperthreading with 2.4.20?
+> > > > > 
+> > > > > Hello,
+> > > > > 
+> > > > >    I have kernel 2.4.20 with a single P4 3.06Ghz CPU and 
+> > > Asus P4G8X
+> > > > > motherboard
+> > > > > (with the Intel E7205) Chipset. I have enabled 
+> > > Hyperthreading in the BIOS
+> > > > > options,
+> > > > > compiled in SMP & ACPI support, and also tried adding 
+> > > "acpismp=force" to
+> > > > > my lilo
+> > > > > kernel cmdline, but it just doesn't seem to detect the 
+> > > second Logical CPU.
+> > > > > My
+> > > > > current theory is that this is bcos Linux expects the 
+> > > motherboard to be an
+> > > > > SMP
+> > > > > item (as with the Xeon boards) but this board is a Single 
+> > > processor board,
+> > > > > ansd
+> > > > > doesn't have an MP table, but the cpu info is held in the 
+> > > ACPI tables.?!?
+> > > > > 
+> > > > > I have tried installing 2.5.65 but can't get past the 
+> > > compile due to
+> > > > > compile-time
+> > > > > errors... Is this a known problem? SHall i just disable 
+> > > Hyperthreading
+> > > > > until a new
+> > > > > kernel release?
+> > > > > 
+> > > > > 
+> > > > > Thanks,
+> > > > > James
+> > > > > 
+> > > > > 
+> > > > > 
+> > > > > -
+> > > > > To unsubscribe from this list: send the line "unsubscribe 
+> > > linux-kernel" in
+> > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> > > > > Please 
+> read the FAQ at  http://www.tux.org/lkml/
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe 
+> > > linux-kernel" in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> > > > Please read 
+> the FAQ at  http://www.tux.org/lkml/
+> > > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe 
+> > > linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> > 
+> 

@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268423AbTCFVxr>; Thu, 6 Mar 2003 16:53:47 -0500
+	id <S268439AbTCFWHZ>; Thu, 6 Mar 2003 17:07:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268426AbTCFVxr>; Thu, 6 Mar 2003 16:53:47 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:13316 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S268423AbTCFVxk>; Thu, 6 Mar 2003 16:53:40 -0500
-Date: Thu, 6 Mar 2003 17:00:22 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S268444AbTCFWHZ>; Thu, 6 Mar 2003 17:07:25 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15121
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S268439AbTCFWHY>; Thu, 6 Mar 2003 17:07:24 -0500
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <3E6770F3.8030207@pobox.com>
-Message-ID: <Pine.LNX.3.96.1030306164559.25959A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@digeo.com>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030306124257.4bf29c6c.akpm@digeo.com>
+References: <20030228202555.4391bf87.akpm@digeo.com>
+	 <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+	 <20030306124257.4bf29c6c.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1046989091.715.46.camel@phantasy.awol.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 06 Mar 2003 17:18:11 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003, Jeff Garzik wrote:
+On Thu, 2003-03-06 at 15:42, Andrew Morton wrote:
 
-> Pardon the suggestion of a dumb hueristic, feel free to ignore me: 
-> would it work to run-first processes that have modified their iopl() 
-> level?  i.e. "if you access hardware directly, we'll treat you specially 
-> in the scheduler"?
-> 
-> An alternative is to encourage distros to set some sort of flag for 
-> processes like the X server, when it is run.  This sounds suspiciously 
-> like the existing "renice X server" hack, but it could be something like 
-> changing the X server from SCHED_OTHER  to SCHED_HW_ACCESS instead.
-> 
-> Just throwing out some things, because I care about apps which access 
-> hardware from userspace :)
+> So I'm a happy camper, and will be using Ingo's combo patch.  But I do not
+> use XMMS and xine and things like that - they may be running like crap with
+> these patches.  I do not know, and I do not have a base to compare against
+> even if I could work out how to get them going.
 
-Well, close. But any low-latency access, even if somewhat buffered,
-is likely to be user visible if unresponsive. Clearly that means video
-memory like X and DRI, and sound, and mouse. If you define this generally
-it would include serial as well, probably not a bad thing.
+Linus,
 
-The proposal to backfeed priority from interractive processes to processes
-waking them sounds useful, perhaps that might be limited a bit however.
-Someone (Ingo?, Linus?) proposed limiting this to a fraction of the
-priority of the interractive process, but it might be more useful to
-simply limit how much could be added at one time, perhaps as a fraction of
-the delta between max and current interractive bonus, which would have the
-waker increase asymptomically toward max. Hysteresis is nice.
+This is great for me, too.  I played around with some mp3 playing and
+did the akpm-window-wiggle test.  It is definitely the smoothest.
 
-I do agree that it would be better to identify processes using physical
-devices, far better than trying to identify some subset because it's
-obvious.
+I think we definitely need Ingo's tweaked scheduler parameters - I have
+been running a similar set of values myself for some time.  But your
+patch seems to make the difference.
 
-I think this would include parallel port, although other than PL/IP I
-don't think of a case where it matters much.
+This is the most subject stuff on the planet, but here is a rough
+ranking of interactivity performance in the bad cases on a scale of 1
+(worse) to 5 (best):
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+linus-patch + tweaked-parameters:	5
+linus-patch:				4
+tweaked-parameters + reniced X:		3.5
+tweaked-parameters:			2.5
+stock:					1
+
+Sorry, did not test Ingo's full patch.  It is basically the tweaked
+parameters plus the sync wakeup which looks correct.
+
+In the average case, the O(1) scheduler does fine without any changes. 
+The heuristic works.  It is just the worst-case cases where we need
+help, and from above I think we have that.
+
+	Robert Love
 

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292396AbSBUOxv>; Thu, 21 Feb 2002 09:53:51 -0500
+	id <S292382AbSBUOxb>; Thu, 21 Feb 2002 09:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292402AbSBUOxm>; Thu, 21 Feb 2002 09:53:42 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:25058 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S292396AbSBUOxd>;
-	Thu, 21 Feb 2002 09:53:33 -0500
-Message-ID: <3C75092C.8020508@debian.org>
-Date: Thu, 21 Feb 2002 15:50:20 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S292396AbSBUOxV>; Thu, 21 Feb 2002 09:53:21 -0500
+Received: from starbug.ugh.net.au ([203.31.238.37]:29964 "EHLO
+	starbug.ugh.net.au") by vger.kernel.org with ESMTP
+	id <S292382AbSBUOxQ>; Thu, 21 Feb 2002 09:53:16 -0500
+Date: Fri, 22 Feb 2002 01:53:10 +1100 (EST)
+From: David Burrows <snadge@ugh.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: baffling linux bug / hardware problem
+Message-ID: <20020222013558.X11925-100000@starbug.ugh.net.au>
 MIME-Version: 1.0
-Newsgroups: fa.linux.kernel
-To: David Lang <david.lang@digitalinsight.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, andersen@codepoet.org,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: linux kernel config converter
-In-Reply-To: <fa.hp69onv.i7qtq3@ifi.uio.no> <fa.lqt3hav.190o1i9@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Feb 2002 14:53:30.0907 (UTC) FILETIME=[870CF6B0:01C1BAE7]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
+I have a problem where my computer locks up during "Calibrating Delay
+Loop..".  I have been using Linux on this same hardware for many years,
+and it only started doing this 2 days ago.  It does not seem to matter
+what kernel version (2.0, 2.2, 2.4.17) I use or what medium I boot from.
 
-David Lang wrote:
+I'd write this off as a hardware problem but both Windows 98 and FreeBSD
+4.5 seem to be able to boot and function properly.  I've tried to debug
+init/main.c myself and put printks in the loop calibration function.  It
+seems to go through the first while loop twice, then hang before getting
+to the __delay part.
 
-> 
-> 2. does it handle the 'I want this feature, turn on everything I need for
-> it'?
-> 
-> 3. if it handles #2 what does it do if you turn off that feature again
-> (CML2 turns off anything it turned on to support that feature, assuming
-> nothing else needs it)
+Could this be a timer interrupt problem?  How do I diagnose this?  Why do
+other oses work and Linux (which previously worked fine) no longer does
+no matter what version or where I boot it from.
 
+My hardware is p166mmx, intel HX chipset.  I have also tried a memory
+tester which says that the memory is fine.  I'm totally stumped.
 
-These are tools dependent and not language dependent.
-Please split the two problem: the language and the configuration
-tools.
+Any feedback on this problem would be much appreciated.  (CC me direct as
+I'm not subscribed to this list).
 
-	giacomo
+Thanks in advance,
 
- 
-
+Dave.
 

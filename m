@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVCLP71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVCLP7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbVCLP71 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 10:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVCLP7Z
+	id S261957AbVCLP7E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 10:59:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVCLPzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 10:59:25 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33039 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261944AbVCLPzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 10:55:55 -0500
-Date: Sat, 12 Mar 2005 16:55:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, venza@brownhat.org
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: [2.6 patch] drivers/net/sis900.c: fix a warning
-Message-ID: <20050312155551.GB3814@stusta.de>
-References: <20050312034222.12a264c4.akpm@osdl.org>
+	Sat, 12 Mar 2005 10:55:33 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:39585 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261942AbVCLPzC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 10:55:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=i9X4p6uGrI9LV7xrZPwqgi8wYfJU8eM/i1ZABfstGQWKijojQ9EtZAG/I7fBx3CYhJcp8cf4HIKZrZEU1iz/vWmFkWyCkSB0w2jXhhEMnu9NoLchjk6Q7Xe8tlUgMARm1PZaS0ghgBhov4tpCkG3DiLlW3P/cgs1jyZlRtEudZs=
+Message-ID: <6f6293f105031207535938c687@mail.gmail.com>
+Date: Sat, 12 Mar 2005 16:53:42 +0100
+From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Subject: Re: binary drivers and development
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <4230CB07.3020904@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050312034222.12a264c4.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <423075B7.5080004@comcast.net> <423082BF.6060007@comcast.net>
+	 <16944.49977.715895.8761@wombat.chubb.wattle.id.au>
+	 <4230CB07.3020904@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following warning, that comes from Linus' tree #if
-CONFIG_NET_POLL_CONTROLLER=n:
+On Thu, 10 Mar 2005 17:32:39 -0500, John Richard Moser
+<nigelenki@comcast.net> wrote:
+> CPL=3 scares me; context switches are expensive.  can they have direct
+> hardware access?  I'm sure a security model to isolate user mode drivers
+> could be in place. . .
+> 
+> . . . huh.  Xen seems to run Linux at CPL=3 and give direct hardware
+> access, so I guess user mode drivers are possible *shrug*.  Linux isn't
+> a microkernel though.
 
-<--  snip  -->
-
-...
-  CC      drivers/net/sis900.o
-drivers/net/sis900.c:199: warning: 'sis900_poll' declared `static' but never defined
-...
-
-<--  snip  -->
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-mm3/drivers/net/sis900.c.old	2005-03-12 15:55:31.000000000 +0100
-+++ linux-2.6.11-mm3/drivers/net/sis900.c	2005-03-12 15:55:53.000000000 +0100
-@@ -196,7 +196,9 @@
- MODULE_PARM_DESC(max_interrupt_work, "SiS 900/7016 maximum events handled per interrupt");
- MODULE_PARM_DESC(sis900_debug, "SiS 900/7016 bitmapped debugging message level");
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
- static void sis900_poll(struct net_device *dev);
-+#endif
- static int sis900_open(struct net_device *net_dev);
- static int sis900_mii_probe (struct net_device * net_dev);
- static void sis900_init_rxfilter (struct net_device * net_dev);
-
+Xen hypervisor runs at Ring0, while the guest OSs it supports run at Ring1.

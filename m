@@ -1,49 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133098AbRD3FL2>; Mon, 30 Apr 2001 01:11:28 -0400
+	id <S135879AbRD3FoY>; Mon, 30 Apr 2001 01:44:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133101AbRD3FLS>; Mon, 30 Apr 2001 01:11:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:60820 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S133098AbRD3FLA>;
-	Mon, 30 Apr 2001 01:11:00 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15084.62398.56283.772414@pizda.ninka.net>
-Date: Sun, 29 Apr 2001 22:10:22 -0700 (PDT)
-To: Ralf Nyren <ralf@nyren.net>
-Cc: <linux-kernel@vger.kernel.org>, kuznet@ms2.inr.ac.ru
-Subject: Re: 2.4.4: Kernel crash, possibly tcp related
-In-Reply-To: <Pine.LNX.4.31.0104291552190.523-100000@HADDOCK.100Mbit.nyren.net>
-In-Reply-To: <Pine.LNX.4.31.0104291552190.523-100000@HADDOCK.100Mbit.nyren.net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S136444AbRD3FoE>; Mon, 30 Apr 2001 01:44:04 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:3733 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S135879AbRD3Fn7>; Mon, 30 Apr 2001 01:43:59 -0400
+Date: Sun, 29 Apr 2001 22:41:46 -0700
+From: David Emory Watson <demoryw@pacbell.net>
+Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+In-Reply-To: <Pine.GSO.4.21.0104292204040.2210-100000@weyl.math.psu.edu>
+To: viro@math.psu.edu
+Cc: esr@thyrsus.com, aia21@cam.ac.uk, stoffel@casc.com,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Message-id: <988609307.21362.0.camel@shade>
+MIME-version: 1.0
+X-Mailer: Evolution/0.10 (Preview Release)
+Content-type: text/plain
+In-Reply-To: <Pine.GSO.4.21.0104292204040.2210-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ralf Nyren writes:
- > The problem appears when this value is set to 40481 or higher. For ex:
- > $ tcpblast -d0 -s 40481 another_host 9000
- ...
- > KERNEL: assertion (!skb_queue_empty(&sk->write_queue)) failed at tcp_timer.c(327):
- > tcp_retransmit_timer
- > Unable to handle kernel NULL pointer dereference...
+Al,
 
-I'm having a devil of a time finding the tcpblast sources on the
-net, can you point me to where I can get them?  The one reference
-I saw to get the original sources was:
+I really don't know why you must complain about Eric's sig.  I
+personally like them just as they are, but thats strictly besides the
+point.  IMHO, it is just not very intresting to hear you say:
 
-ftp://ftp.xlink.net/pub/network/tcpblast.shar.gz
+> Eric, it's getting tiresome.  Kindly learn what the fsck McQ is, OK?
 
-But even that directory no longer exists.
+Especially after all of the brilliant things I have heard you say.  It
+really seems like a childish move.  Let the man have his freakin sig for
+crying out loud!!  At any rate, I'm just throwin' in my 2 cents.  OK,
+now can we get back on  topic?  Good.
 
-The kernel error you see is a gross fatal error, the TCP retransmit
-timer has fired yet there are no packets on the transmit queue :-)
+I hope no offense is taken and no reply necessary..  But if I mistaken,
+then I look forward to your, in all probablity, entertaining reply
+(maybe off this list though).  :)
 
-My current theory is that tcpblast does something erratic when the
-error occurs.
+Regards,
+David
 
-Later,
-David S. Miller
-davem@redhat.com
+On 29 Apr 2001 22:24:58 -0400, Alexander Viro wrote:
+> 
+> 
+> On Sun, 29 Apr 2001, Eric S. Raymond quoted:
+> 
+> > Anton Altaparmakov <aia21@cam.ac.uk>:
+> > > I don't know about whether this is possible with Tcl but have you tried A) 
+> > > invisible text and/or B) white space character text (e.g. one or more 
+> > > spaces)? That's the kind of thing I usually try in this situation... Just 
+> > > an idea...
+> 
+> wrote
+> 
+> > I tried whitespace, but the default Tkinter font isn't fixed-width.  How
+> > do you do invisible text?
+> 
+> and sigged
+> > -- 
+> >             <a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> > 
+> > ..every Man has a Property in his own Person. This no Body has any
+> > Right to but himself.  The Labour of his Body, and the Work of his
+> > Hands, we may say, are properly his. .... The great and chief end
+> > therefore, of Mens uniting into Commonwealths, and putting themselves
+> > under Government, is the Preservation of their Property.
+> >     -- John Locke, "A Treatise Concerning Civil Government"
+> 
+> Eric, it's getting tiresome.  Kindly learn what the fsck McQ is, OK?
+> 
+> /me abstains from attaching Kibo's .sig - 1Mb of PDF is unfortunately
+> over the top for l-k...
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

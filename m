@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132585AbRDQULe>; Tue, 17 Apr 2001 16:11:34 -0400
+	id <S132605AbRDQUSP>; Tue, 17 Apr 2001 16:18:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132590AbRDQULY>; Tue, 17 Apr 2001 16:11:24 -0400
-Received: from bastard.inflicted.net ([216.10.33.10]:53005 "EHLO
-	bastard.inflicted.net") by vger.kernel.org with ESMTP
-	id <S132585AbRDQULO>; Tue, 17 Apr 2001 16:11:14 -0400
-From: Jesse S Sipprell <jss@inflicted.net>
-Date: Tue, 17 Apr 2001 16:10:36 -0400
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        proftpd-devel@proftpd.org
-Subject: Re: Possible problem with zero-copy TCP and sendfile()
-Message-ID: <20010417161036.A21620@bastard.inflicted.net>
-In-Reply-To: <20010417170206.C2589096@informatics.muni.cz> <E14pXxg-0002cI-00@the-village.bc.nu> <20010417181524.E2589096@informatics.muni.cz>
-Mime-Version: 1.0
+	id <S132606AbRDQUSG>; Tue, 17 Apr 2001 16:18:06 -0400
+Received: from raven.toyota.com ([63.87.74.200]:1299 "EHLO raven.toyota.com")
+	by vger.kernel.org with ESMTP id <S132605AbRDQURu>;
+	Tue, 17 Apr 2001 16:17:50 -0400
+Message-ID: <3ADCA4EC.B62966A3@lexus.com>
+Date: Tue, 17 Apr 2001 13:17:48 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Jasen <jjasen1@umbc.edu>
+CC: Disconnect <lkml@sigkill.net>, Dave Zarzycki <dave@zarzycki.org>,
+        linux-kernel@vger.kernel.org
+Subject: [OT] Re: Your response is requested
+In-Reply-To: <Pine.SGI.4.31L.02.0104171543370.4300774-100000@irix2.gl.umbc.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010417181524.E2589096@informatics.muni.cz>; from kas@informatics.muni.cz on Tue, Apr 17, 2001 at 06:15:24PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 06:15:24PM +0200, Jan Kasprzak wrote:
-> Alan Cox wrote:
-> : > : but once a fixed BIOS is out for your board that would be a good first step.
-> : > : If it still does it then, its worth digging for kernel naughties
-> : > : 
-> : > 	I don't think I have 686b southbridge. I have 686 (without "b"):
-> : 
-> : Ok. What revision of 3c90x card do you have ?
-> : 
-> PCI: Found IRQ 11 for device 00:0c.0
-> 3c59x.c:LK1.1.13 27 Jan 2001  Donald Becker and others. http://www.scyld.com/network/vortex.html
-> See Documentation/networking/vortex.txt
-> eth0: 3Com PCI 3c905C Tornado at 0xa000,  00:50:da:06:95:21, IRQ 11
->   product code 5957 rev 00.13 date 07-17-99
->   8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
->   MII transceiver found at address 24, status 782d.
->   Enabling bus-master transmits and whole-frame receives.
-> eth0: scatter/gather enabled. h/w checksums enabled
-> 
-> 	Some more progress: I now downgraded to proftpd without sendfile().
-> The CPU usage is now nearly 100% (with ~170 FTP users; with sendfile()
-> it was under 50% with >320 FTP users). But nevertheless, the downloaded
-> images now seem to be OK.
+John Jasen wrote:
 
-After cursory examination of proftpd, it appears that there is a misuse of the
-sendfile() call under Linux, which may be responsible for the corruption.  The
-code was originally based on BSD semantics.  Under Linux, the offset argument
-is not being used correctly to determine how much data has been sent in the
-case of EINTR.
+> On Tue, 17 Apr 2001, Disconnect wrote:
+>
+> > (Sending to LKML just so nobody else flips out)
+> >
+> > OK it wasn't just us.  Lemme reassure the admins I just forwarded it to ;)
+> >
+> > It seems to list the hostname of whoever receives it (neat trick).
+>
+> sendmail, by default, appends its domainname to incoming email that
+> doesn't have one.
 
-A patch will be coming out soon, as it is a fairly trivial fix.
+We reject domainless messages, so that's not it.
 
--- 
-"In the event of a failure, the system can be configured to automatically
-restart itself.  This feature of Windows NT Server provides maximum system
-up-time."  -- Reliability and Fault Tolerance in Windows NT Server, MSC
+jjs
+

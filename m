@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264035AbRFKU6H>; Mon, 11 Jun 2001 16:58:07 -0400
+	id <S263016AbRFKVG1>; Mon, 11 Jun 2001 17:06:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264038AbRFKU55>; Mon, 11 Jun 2001 16:57:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10757 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264035AbRFKU5w>; Mon, 11 Jun 2001 16:57:52 -0400
-Subject: Re: softirq bugs in pre2
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 11 Jun 2001 21:55:49 +0100 (BST)
-Cc: andrea@suse.de (Andrea Arcangeli), mingo@elte.hu (Ingo Molnar),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.31.0106111207350.4452-100000@penguin.transmeta.com> from "Linus Torvalds" at Jun 11, 2001 12:09:03 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S263473AbRFKVGS>; Mon, 11 Jun 2001 17:06:18 -0400
+Received: from flodhest.stud.ntnu.no ([129.241.56.24]:46840 "EHLO
+	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S263016AbRFKVGH>; Mon, 11 Jun 2001 17:06:07 -0400
+Date: Mon, 11 Jun 2001 23:06:03 +0200
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: linux-kernel@vger.kernel.org
+Subject: BCM5700, 1000 Mbps driver
+Message-ID: <20010611230603.A10927@flodhest.stud.ntnu.no>
+Reply-To: tlan@stud.ntnu.no
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E159Yiz-0000MA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The copy-user latency fixes only make sense for out-of-line copies. If
-> we're going to have a conditional function call to "schedule()", we do not
-> want to inline the dang thing any more - we've just destroyed our register
-> set etc anyway.
+I know there's a driver for this floating around (I found mine through
+search dell.com's pages), and I wondering if this is a driver that is in the
+"testing phase" before it's going into the kernel, or if it's just a driver
+provided by Dell?  The driver I found, was both pre-compiled as a module,
+and given as source code. The only problem is that I can't get the
+pre-compiled version to work on other things than std. redhat 7.x kernel
+(ie. std. kernel when you install redhat, that is).  I can't get the source
+code to compile either.
 
-Is there any reason we still inline so many copy_* and put/get user calls. I
-can't benchmark a difference out of line and the code shrinkage is more
-than measurable (AMD Athlon 550 and AMD Athlon 1GHz)
+So, to sum up; 
+
+* Are there anyone testing/maintaing this driver, trying to get it into the
+  standard kernel source?
+* If not, would it be rude for me to make it work with the latest kernels,
+  and then submitt it? (I won't take credit for anything I haven't done, but
+  since I haven't written the driver itself, I don't know what you guys think)
+
+
+
+-- 
+-Thomas

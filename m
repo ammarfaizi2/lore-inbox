@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266638AbUBMB3I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266645AbUBMB3H
+	id S266585AbUBMBsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUBMBsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:29:07 -0500
-Received: from mail.kroah.org ([65.200.24.183]:40165 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266638AbUBMB3G (ORCPT
+	Thu, 12 Feb 2004 20:48:24 -0500
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:1152 "EHLO dust")
+	by vger.kernel.org with ESMTP id S266585AbUBMBr5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:29:06 -0500
-Date: Thu, 12 Feb 2004 17:29:03 -0800
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 017 release
-Message-ID: <20040213012903.GE5351@kroah.com>
-References: <20040213011001.GA5247@kroah.com> <20040213012031.89167.qmail@web14914.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040213012031.89167.qmail@web14914.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Feb 2004 20:47:57 -0500
+Date: Thu, 12 Feb 2004 20:50:54 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+In-Reply-To: <20040212153802.65adae84.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.58.0402122049350.3343@dust>
+References: <200402130615.10608.mhf@linuxmail.org> <20040212153802.65adae84.rddunlap@osdl.org>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 05:20:31PM -0800, Jon Smirl wrote:
-> Version 107 of klibc is needed for this to build on current 2.6 bk, you're at
-> 101.
+On Thu, 12 Feb 2004, Randy.Dunlap wrote:
 
-No I am not:
+> On Fri, 13 Feb 2004 06:15:10 +0800 Michael Frank <mhf@linuxmail.org> wrote:
 
-> >   o update klibc to version .107
-> >   o sync with latest version of klibc (0.107)
+> | +Printing numbers in parenthesis ie (%d) is deprecated
+> 
+> I don't know that we reached any concensus on these.  I think
+> that these comments are just noise (IMO of course).
+> I guess I'll spell out "do not" and "cannot".
 
-Hm, two sync ups.  That isn't good enough?  :)
+You also didn't correct the last incorrect use of "parenthesis" when he
+meant "parentheses."  Of course, one would hope by this point in your
+email he'd have ... gotten the point.
 
-thanks,
-
-greg k-h
+-- 
+Alex Goddard
+agoddard at purdue dot edu

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUJPDLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268580AbUJPDNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268581AbUJPDLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 23:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUJPDLJ
+	id S268580AbUJPDNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 23:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268588AbUJPDNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 23:11:09 -0400
-Received: from main.gmane.org ([80.91.229.2]:712 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268581AbUJPDLE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 23:11:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Anand Kumria <wildfire@progsoc.org>
-Subject: b44 misdetected on Dell Inspiron 1100
-Date: Sat, 16 Oct 2004 13:11:05 +1000
-Message-ID: <pan.2004.10.16.03.11.01.490609@progsoc.org>
+	Fri, 15 Oct 2004 23:13:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24511 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268580AbUJPDNG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 23:13:06 -0400
+Date: Sat, 16 Oct 2004 04:13:01 +0100
+From: Joel Becker <jlbec@evilplan.org>
+To: Yasushi Saito <ysaito@hpl.hp.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, suparna@in.ibm.com,
+       Janet Morgan <janetmor@us.ibm.com>
+Subject: Re: [PATCH 1/2]  aio: add vectored I/O support
+Message-ID: <20041016031301.GC17142@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Yasushi Saito <ysaito@hpl.hp.com>, linux-aio@kvack.org,
+	linux-kernel@vger.kernel.org, suparna@in.ibm.com,
+	Janet Morgan <janetmor@us.ibm.com>
+References: <416EDD19.3010200@hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 203.7.227.188
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416EDD19.3010200@hpl.hp.com>
+User-Agent: Mutt/1.4.1i
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 14, 2004 at 01:10:01PM -0700, Yasushi Saito wrote:
+> This is a patch against 2.6.9-rc3-mm3 that add supports for vectored 
+> async I/O.  It adds two additional commands, IO_CMD_PREADV and 
+> IO_CMD_PWRITEV to libaio.h. The below is roughly what I did:
 
-I have a Dell Inspiron 1100 which has a Broadcom b44 built-in ethernet
-card. It appears that the subsystem_vendor and subsystem_device fields are
-being returned to userspace in the wrong order. Dell's PCI ID is 0x0128.
-The output below is with 2.6.9-rc4.
+	How does this differ substantially from lio_listio() of each I/O
+range?  Does it have some significant performance win, or is it just
+aiming for a completeness that POSIX doesn't (to my knowledge) specify?
 
-$ lspci -v
-[...]
-0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 02)
-        Subsystem: Dell: Unknown device 0149
-[...]
-0000:02:01.0 Ethernet controller: Broadcom Corporation BCM4401 100Base-T (rev 01)
-        Subsystem: Unknown device 4401:1028
-[..]
+Joel
 
-$ # audio controller
-$ cat /sys/bus/pci/devices/0000\:00\:1f.5/subsystem_vendor 
-0x1028
-$ cat /sys/bus/pci/devices/0000\:00\:1f.5/subsystem_device
-0x0149
+-- 
 
-$ # network controller
-$ cat /sys/bus/pci/devices/0000\:02\:01.0/subsystem_vendor
-0x4401
-$ cat /sys/bus/pci/devices/0000\:02\:01.0/subsystem_device
-0x1028
+Life's Little Instruction Book #464
 
-I had a quick look at b44.c and b44.h and couldn't see anything obvious
-and from emailing a few people it was suggested I email here. 
+	"Don't miss the magic of the moment by focusing on what's
+	 to come."
 
-Thanks,
-Anand
-
+			http://www.jlbec.org/
+			jlbec@evilplan.org

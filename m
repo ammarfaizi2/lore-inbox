@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272281AbTG1Biw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 21:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272263AbTG1ABs
+	id S272625AbTG1Blp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 21:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272231AbTG1BkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:48 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272929AbTG0XBd (ORCPT
+	Sun, 27 Jul 2003 21:40:10 -0400
+Received: from rth.ninka.net ([216.101.162.244]:34179 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S272315AbTG1Bj5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:01:33 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair J Strachan <alistair@devzero.co.uk>
-To: Balram Adlakha <b_adlakha@softhome.net>
-Subject: Re: 2.6.0-test2 OSS emu10k1
-Date: Sun, 27 Jul 2003 20:14:09 +0100
-User-Agent: KMail/1.5.9
-References: <20030727190257.GA2840@localhost.localdomain>
-In-Reply-To: <20030727190257.GA2840@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+	Sun, 27 Jul 2003 21:39:57 -0400
+Date: Sun, 27 Jul 2003 18:55:08 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: florin@iucha.net (Florin Iucha)
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [TRIVIAL] Fix ipt_helper compilation. Was: Linux
+ v2.6.0-test2
+Message-Id: <20030727185508.35307c31.davem@redhat.com>
+In-Reply-To: <20030727202234.GA7280@iucha.net>
+References: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
+	<20030727202234.GA7280@iucha.net>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200307272014.09560.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 July 2003 20:02, Balram Adlakha wrote:
-> I cannot compile the emu10k1 module:
->
-> sound/oss/emu10k1/hwaccess.c:182: redefinition of `emu10k1_writefn0_2'
-> sound/oss/emu10k1/hwaccess.c:164: `emu10k1_writefn0_2' previously defined
-> here make[3]: *** [sound/oss/emu10k1/hwaccess.o] Error 1
-> make[2]: *** [sound/oss/emu10k1] Error 2
-> make[1]: *** [sound/oss] Error 2
-> make: *** [sound] Error 2
+On Sun, 27 Jul 2003 15:22:34 -0500
+florin@iucha.net (Florin Iucha) wrote:
 
-Try patching a fresh tree, or redownload the 2.6.0-test2 tarball. It compiles 
-fine here.
+> One of these broke the compilation of net/ipv4/netfilter/ipt_helper.o:
+>   CC [M]  net/ipv4/netfilter/ipt_helper.o
+> In file included from net/ipv4/netfilter/ipt_helper.c:13:
+> include/linux/netfilter_ipv4/ip_conntrack_core.h: In function `ip_conntrack_confirm':
+> include/linux/netfilter_ipv4/ip_conntrack_core.h:46: error: `NF_ACCEPT' undeclared (first use in this function)
+> include/linux/netfilter_ipv4/ip_conntrack_core.h:46: error: (Each undeclared identifier is reported only once
+> include/linux/netfilter_ipv4/ip_conntrack_core.h:46: error: for each function it appears in.)
+> 
+> This trivial patch fixes it:
 
-Cheers,
-Alistair Strachan.
+Please post this to the networking and netfilter lists
+so that people who work in this area of the kernel will
+see your posting.
+
+Thank you.

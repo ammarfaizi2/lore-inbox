@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291766AbSBTLZY>; Wed, 20 Feb 2002 06:25:24 -0500
+	id <S291773AbSBTL1z>; Wed, 20 Feb 2002 06:27:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291767AbSBTLZP>; Wed, 20 Feb 2002 06:25:15 -0500
-Received: from [200.180.163.180] ([200.180.163.180]:42851 "EHLO quatroint")
-	by vger.kernel.org with ESMTP id <S291766AbSBTLZH>;
-	Wed, 20 Feb 2002 06:25:07 -0500
-Message-ID: <3C73884E.5090707@quatro.com.br>
-Date: Wed, 20 Feb 2002 08:28:14 -0300
-From: Elieser =?ISO-8859-1?Q?Le=E3o?= <elieser@quatro.com.br>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Something is wrong.
-In-Reply-To: <Pine.LNX.4.20.0202201206230.11398-100000@burken.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S291775AbSBTL1h>; Wed, 20 Feb 2002 06:27:37 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2688 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291771AbSBTL1Z>;
+	Wed, 20 Feb 2002 06:27:25 -0500
+Date: Wed, 20 Feb 2002 03:25:19 -0800 (PST)
+Message-Id: <20020220.032519.41641488.davem@redhat.com>
+To: brett@bad-sports.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 scsi changes : qlogicfas.c fixed
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0202202155190.2600-200000@bad-sports.com>
+In-Reply-To: <Pine.LNX.4.44.0202202155190.2600-200000@bad-sports.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joakim Bäcklund wrote:
+   From: Brett <brett@bad-sports.com>
+   Date: Wed, 20 Feb 2002 22:00:37 +1100 (EST)
+   
+   Once again, thanks to people messing with the scsi layer, I'm forced to 
+   attempt to fix this driver, which it seems I'm the only one using :)
 
->Hello.
->
->In the recent kernel 2.4 I can't find the module rtl8139.o.
->And I chose <M> on the realtek part in menuconfig.
->I need that driver for my networkcard that is a little old and there
->isn't any other drives for it I think. 
->In 2.2.* it could be found but not in 2.4.* so maybe you've change name on
->that module or sth?
->Please help me.
->
->/Jeck.
->
-Try using 8139too.
+The esp.c sources would be a better basis for writing a driver to
+drive this chip, BTW.
 
-________________________________
-Elieser Leão
-Support Team
-Quatro Informática Ltda..
+qlogicfas.c is rarely if ever used (as you contend) and doesn't work
+at all in the rare case we know it is used (as you also contend :-)
 

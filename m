@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVCJQZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVCJQZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262715AbVCJQZk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 11:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVCJQXO
+	id S262680AbVCJQZl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 11:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbVCJQXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 11:23:14 -0500
-Received: from stingr.net ([212.193.32.15]:14782 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id S262713AbVCJQT0 (ORCPT
+	Thu, 10 Mar 2005 11:23:05 -0500
+Received: from ns1.idleaire.net ([65.220.16.2]:37559 "EHLO iasrv1.idleaire.net")
+	by vger.kernel.org with ESMTP id S262717AbVCJQSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 11:19:26 -0500
-Date: Thu, 10 Mar 2005 19:19:09 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Lorenzo =?utf8?Q?Hern=C3=A1ndez_Garc=C3=ADa-Hierro?= 
-	<lorenzo@gnu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/1] /proc/$$/ipaddr and per-task networking bits
-Message-ID: <20050310161909.GD26532@stingr.stingr.net>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Lorenzo =?utf8?Q?Hern=C3=A1ndez_Garc=C3=ADa-Hierro?= <lorenzo@gnu.org>,
-	linux-kernel@vger.kernel.org
-References: <1110464202.9190.7.camel@localhost.localdomain> <1110464782.6291.95.camel@laptopd505.fenrus.org> <1110468517.9190.24.camel@localhost.localdomain> <1110469087.6291.103.camel@laptopd505.fenrus.org> <1110470430.9190.33.camel@localhost.localdomain> <1110470935.6291.105.camel@laptopd505.fenrus.org>
+	Thu, 10 Mar 2005 11:18:54 -0500
+Subject: Re: [Ipsec] Issue on input process of Linux native IPsec
+From: Dave Dillow <dave@thedillows.org>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050310103724.11220.qmail@web51506.mail.yahoo.com>
+References: <20050310103724.11220.qmail@web51506.mail.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 11:18:52 -0500
+Message-Id: <1110471532.5050.14.camel@dillow.idleaire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1110470935.6291.105.camel@laptopd505.fenrus.org>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Mar 2005 16:18:53.0051 (UTC) FILETIME=[D9D9DCB0:01C5258C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Arjan van de Ven:
-> On Thu, 2005-03-10 at 17:00 +0100, Lorenzo Hernández García-Hierro
-> wrote: it tries to fill the
-> > ipaddr member of the task_struct structure with the IP address
-> > associated to the user running @current task/process,if available.
-> 
-> but... a use doesn't hane an IP. a host does.
+On Thu, 2005-03-10 at 02:37 -0800, Park Lee wrote:
+> On Fri, 24 Dec 2004 at 16:15, David Dillow wrote:
+> > xfrm_lookup() is only called for outgoing packets, 
+> > not for received packets.  I don't think ping 
+> > replies (ICMP echo replies) will ever have a non-
+> > NULL sk, as they are not associated with a socket.
 
-I don't get it too
-With multihomed setup same process I have can send and receive on many
-addresses simultaneously. So single ip_addr cannot describe this
-situation.
+> Then, Why did you say that ping replies (ICMP echo
+> replies) were not associated with a socket? 
 
+Because your crashes where caused by blindly assuming the sk would never
+be NULL in xfrm_lookup(), and it clearly was. The simple debugging
+printk() I suggested you insert with your code would have shown you that
+that was the reason for your crashes.
+
+And if I was feeling nice that day, which is possible, since it was
+Christmas Eve, I may have even put the printk() in myself and tested.
+
+> Is there any difference between the special purpose
+> socket and the socket you mentioned above?
+
+I have no idea. You have the code, and probably as much understanding of
+the networking stack as I do. I suggest you use find and grep to track
+down the what you are interested in, and how xfrm_lookup() is called in
+various situations. Take good notes, especially about avenues of
+exploration that come time mind as you chase one code path. It's not
+very hard, it's how I learned.
 -- 
-Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
- This message represents the official view of the voices in my head
+Dave Dillow <dave@thedillows.org>
+

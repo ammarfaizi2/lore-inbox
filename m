@@ -1,126 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271589AbRHUIEL>; Tue, 21 Aug 2001 04:04:11 -0400
+	id <S271587AbRHUIJK>; Tue, 21 Aug 2001 04:09:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271590AbRHUIEC>; Tue, 21 Aug 2001 04:04:02 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:32197 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S271589AbRHUIDs>; Tue, 21 Aug 2001 04:03:48 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Erik Andersen <andersee@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Patch] sysinfo compatibility
-Organisation: SAP LinuxLab
-Date: 21 Aug 2001 10:03:11 +0200
-Message-ID: <m3lmkd6ds0.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S271592AbRHUIJC>; Tue, 21 Aug 2001 04:09:02 -0400
+Received: from ns.roland.net ([65.112.177.35]:30728 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S271587AbRHUIIw>;
+	Tue, 21 Aug 2001 04:08:52 -0400
+Message-ID: <003401c12a18$d65c4f00$bb1cfa18@JimWS>
+From: "Jim Roland" <jroland@roland.net>
+To: "Clint Maxwell" <clint_maxwell@yahoo.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <FBEJLMIEKBNCFFPBBGEPMEGPCAAA.clint_maxwell@yahoo.com>
+Subject: Re: Kernel suggestion
+Date: Tue, 21 Aug 2001 03:11:10 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric and Alan,
+What software are you trying to use to burn a CD?
 
-sysinfo does use a new mem_unit field if ram+swap > MAX_ULONG. That
-breaks 2.2 compatibility for a lot machines.
+Release notes on the XCDRoast website said that since direct ATAPI support
+for CDROM drives aren't included anymore (author said there was no point),
+to enable ide-scsi for your drives.  I have had to do this to see all of my
+drives.  Append this string at your LILO boot prompt (assuming hdc is your
+CDRW drive and hdb is your CDROM reader):
+    hdb=ide-scsi hdc=ide-scsi
 
-I think it is more resonable to use the mem_unit field only if one of
-ram or swap is bigger than MAX_ULONG. (And 2.2 was only broken in that
-case)
+If it works, use it in your append= statement in your /etc/lilo.conf (in the
+section for your default linux config).
 
-The appended patch implements that (and makes the logic a little bit
-easier)
+Regards,
+Jim Roland, RHCE
 
-Greetings
-		Christoph
+----- Original Message -----
+From: "Clint Maxwell" <clint_maxwell@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, August 19, 2001 3:11 AM
+Subject: Kernel suggestion
 
-diff -uNr 2.4.9/kernel/info.c 2.4.9-sysinfo/kernel/info.c
---- 2.4.9/kernel/info.c	Sat Apr 21 01:15:40 2001
-+++ 2.4.9-sysinfo/kernel/info.c	Wed Jul  4 16:56:23 2001
-@@ -16,6 +16,7 @@
- asmlinkage long sys_sysinfo(struct sysinfo *info)
- {
- 	struct sysinfo val;
-+	unsigned int mem_unit;
- 
- 	memset((char *)&val, 0, sizeof(struct sysinfo));
- 
-@@ -32,47 +33,36 @@
- 	si_meminfo(&val);
- 	si_swapinfo(&val);
- 
--	{
--		unsigned long mem_total, sav_total;
--		unsigned int mem_unit, bitcount;
--
--		/* If the sum of all the available memory (i.e. ram + swap)
--		 * is less than can be stored in a 32 bit unsigned long then
--		 * we can be binary compatible with 2.2.x kernels.  If not,
--		 * well, in that case 2.2.x was broken anyways...
--		 *
--		 *  -Erik Andersen <andersee@debian.org> */
--
--		mem_total = val.totalram + val.totalswap;
--		if (mem_total < val.totalram || mem_total < val.totalswap)
--			goto out;
--		bitcount = 0;
--		mem_unit = val.mem_unit;
--		while (mem_unit > 1) {
--			bitcount++;
--			mem_unit >>= 1;
--			sav_total = mem_total;
--			mem_total <<= 1;
--			if (mem_total < sav_total)
--				goto out;
--		}
--
--		/* If mem_total did not overflow, multiply all memory values by
--		 * val.mem_unit and set it to 1.  This leaves things compatible
--		 * with 2.2.x, and also retains compatibility with earlier 2.4.x
--		 * kernels...  */
-+	/*
-+	 * If the the available memory or swap is less than can be
-+	 * stored in a 32 bit unsigned long then we can be binary
-+	 * compatible with 2.2.x kernels.  If not, well, in that case
-+	 * 2.2.x was broken anyways...
-+	 *
-+	 *  -Erik Andersen <andersee@debian.org> 
-+	 */
-+
-+	mem_unit = val.mem_unit;
-+	if (val.totalram  * mem_unit > val.totalram &&
-+	    val.totalswap * mem_unit > val.totalswap) {
-+
-+		/*
-+		 * If mem_total did not overflow, multiply all memory
-+		 * values by val.mem_unit and set it to 1.  This
-+		 * leaves things compatible with 2.2.x, and also
-+		 * retains compatibility with earlier 2.4.x kernels...
-+		 */
- 
- 		val.mem_unit = 1;
--		val.totalram <<= bitcount;
--		val.freeram <<= bitcount;
--		val.sharedram <<= bitcount;
--		val.bufferram <<= bitcount;
--		val.totalswap <<= bitcount;
--		val.freeswap <<= bitcount;
--		val.totalhigh <<= bitcount;
--		val.freehigh <<= bitcount;
-+		val.totalram  *= mem_unit;
-+		val.freeram   *= mem_unit;
-+		val.sharedram *= mem_unit;
-+		val.bufferram *= mem_unit;
-+		val.totalswap *= mem_unit;
-+		val.freeswap  *= mem_unit;
-+		val.totalhigh *= mem_unit;
-+		val.freehigh  *= mem_unit;
- 	}
--out:
- 	if (copy_to_user(info, &val, sizeof(struct sysinfo)))
- 		return -EFAULT;
- 	return 0;
+
+> Hi, I have a suggestion for any upcoming version of the kernel, if you
+could
+> pass this on to the appropriate people who might be interested in tackling
+> this project.  I would like to see, if possible, support for the Philips
+> CDD4801 CD-R/RW.  Your work on this would be greatly appreciated.
+>
+> Sincerely,
+> Clint Maxwell
+> clint_maxwell@yahoo.com
+>
+>
+> _________________________________________________________
+> Do You Yahoo!?
+> Get your free @yahoo.com address at http://mail.yahoo.com
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

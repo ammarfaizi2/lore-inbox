@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277260AbRJIOcG>; Tue, 9 Oct 2001 10:32:06 -0400
+	id <S277241AbRJIOb4>; Tue, 9 Oct 2001 10:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277262AbRJIOb5>; Tue, 9 Oct 2001 10:31:57 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26922 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277259AbRJIObq>; Tue, 9 Oct 2001 10:31:46 -0400
-Date: Tue, 9 Oct 2001 16:31:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-Message-ID: <20011009163126.D15943@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0110091031470.5604-100000@freak.distro.conectiva>
+	id <S277258AbRJIObq>; Tue, 9 Oct 2001 10:31:46 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:48958 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S277241AbRJIOb1>; Tue, 9 Oct 2001 10:31:27 -0400
+Date: Tue, 9 Oct 2001 16:31:55 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
+Cc: linux-kernel@vger.kernel.org, mge@sistina.com
+Subject: Re: *** ANNOUNCEMENT *** LVM 1.0.1-rc3 available at www.sistina.com
+Message-ID: <20011009163154.J21695@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	"Heinz J . Mauelshagen" <mauelshagen@sistina.com>,
+	linux-kernel@vger.kernel.org, mge@sistina.com
+In-Reply-To: <20011003095339.A19833@sistina.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZG+WKzXzVby2T9Ro"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0110091031470.5604-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Oct 09, 2001 at 10:44:37AM -0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20011003095339.A19833@sistina.com>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux 2.4.10 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 10:44:37AM -0200, Marcelo Tosatti wrote:
-> 
-> Hi, 
-> 
-> I've been testing pre6 (actually its pre5 a patch which Linus sent me
-> named "prewith 16GB of RAM (thanks to OSDLabs for that), and I've found
-> out some problems. First of all, we need to throttle normal allocators
-> more often and/or update the low memory limits for normal allocators to a
-> saner value. I already said I think allowing everybody to eat up to
-> "freepages.min" is too low for a default.
-> 
-> I've got atomic memory failures with _22GB_ of swap free (32GB total):
-> 
->  eth0: can't fill rx buffer (force 0)!
-> 
-> Another issue is the damn fork() special case. Its failing in practice:
-> 
-> bash: fork: Cannot allocate memory
-> 
-> Also with _LOTS_ of swap free. (gigs of them)
-> 
-> Linus, we can introduce a "__GFP_FAIL" flag to be used by _everyone_ which
-> wants to do higher order allocations as an optimization (eg allocate big
-> scatter-gather tables or whatever). Or do you prefer to make the fork()
-> allocation a separate case ?
-> 
-> I'll take a closer look at the code now and make the throttling/limits to
-> what I think is saner for a default.
 
-I've also finished last night to fix all highmem troubles that I could
-reproduce on 128mbyte with highmem emulation, I'm confidetn it will work
-fine on real highmem too now, I hope to get access soon to some highmem
-machine too to test it.
+--ZG+WKzXzVby2T9Ro
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I guess you're not interested to test my patches since they're not in
-the mainline direction though.
+Hi Heinz,
 
-Andrea
+On Wed, Oct 03, 2001 at 09:53:39AM +0200, Heinz J . Mauelshagen wrote:
+> Hi all,
+>=20
+> LVM 1.0.1-rc3 supports both version 1 and 2 of the metadata.
+>=20
+> There's *no* need to run any metadata update tools.
+
+because I flamed you for releasing the 1.0.0 without any comfortable upgrade
+path from some versions of LVM, I want to congratulate for this one.
+
+1.0.1-rcX has been tested by me and a lot of ppl @ SuSE and it does work
+without upgrade headaches. Good job!
+
+Thanks to you, your team, Andreas Dilger and all the others that contributed
+to get this to work!
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, DE                                SCSI, Security
+
+--ZG+WKzXzVby2T9Ro
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7wwpaxmLh6hyYd04RAqKiAJ0YK61KxM5pdS3FVpKLtyiwI6FFGgCfV0bC
+cb5TUl0NYL9NeevG/V5ZvJo=
+=FQvz
+-----END PGP SIGNATURE-----
+
+--ZG+WKzXzVby2T9Ro--

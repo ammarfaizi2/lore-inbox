@@ -1,121 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129416AbQJ3UfE>; Mon, 30 Oct 2000 15:35:04 -0500
+	id <S129053AbQJ3Up0>; Mon, 30 Oct 2000 15:45:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129450AbQJ3Uey>; Mon, 30 Oct 2000 15:34:54 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61111 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129416AbQJ3Ueq>;
-	Mon, 30 Oct 2000 15:34:46 -0500
-Date: Mon, 30 Oct 2000 15:34:44 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: test10-pre7
-In-Reply-To: <Pine.LNX.4.10.10010301128380.5551-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0010301505590.1177-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129079AbQJ3UpH>; Mon, 30 Oct 2000 15:45:07 -0500
+Received: from h-205-217-237-46.netscape.com ([205.217.237.46]:31195 "EHLO
+	netscape.com") by vger.kernel.org with ESMTP id <S129053AbQJ3Uoz>;
+	Mon, 30 Oct 2000 15:44:55 -0500
+Date: Mon, 30 Oct 2000 12:44:09 -0800
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: Readiness vs. completion (was: Re: Linux's
+ implementationofpoll()not scalable?)
+To: dank@alumni.caltech.edu
+Cc: linux-kernel@vger.kernel.org
+Message-id: <39FDDD99.BD1889BB@netscape.com>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+Content-type: multipart/signed; protocol="application/x-pkcs7-signature";
+ micalg=sha1; boundary=------------ms9FD2EB51B171FF1908566527
+X-Accept-Language: en
+In-Reply-To: <39FCC2B8.DA281B4C@alumni.caltech.edu>
+ <39FDC42A.CD9C3D12@netscape.com> <39FDC97C.456478E1@alumni.caltech.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
+
+--------------ms9FD2EB51B171FF1908566527
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
 
-On Mon, 30 Oct 2000, Linus Torvalds wrote:
 
-> 
-> Ok, this one contains at least a preliminary fix for the problem with
-> truncate together with a concurrent page access - the bug that causes
-> oopses in block_read_full_page() and filemap_nopage().
-> 
-> This is a fairly minimal fix, and I'll still have to verify that I caught
-> all the relevant places, but I wanted people who have seen this problem to
-> please test this out asap - I'll make a real test10 later once I've
-> integrated some further patches from Alan and Jeff, but this should fix
-> the major show-stopper bug.
+Dan Kegel wrote:
+> If you have a top-notch completion notification event interface
+> provided natively by the OS, though, does that get rid of the
+> need for the "async poll" mechanism?
 
-Unfortunately, it doesn't fix the thing. ->sync_page() is called when we
-do not own the page lock and nfs_sync_page() uses page->mapping. Yes, we
-check it before calling the bloody thing, but we don't own the lock.
-Problem only for NFS, but I'm not sure what to do about it - the whole
-point of ->sync_page() seems to be (if I understood Trond's intentions
-right) in forcing the ->readpage() in progress.
+A top-notch completion notification event interface needs to be able to
+provide "async poll" functionality.  There are some situations where an
+application needs a completion notification event when an fd is readable
+or writeable, but cannot supply buffers or data until after the event
+arrives.
 
-Another place you've missed is in read_cache_page(). That one is easy - we've
-just locked the page and we should just repeat the whole thing if it's out
-of cache.
+One of these situations is when the application is using a nonblocking
+interface to an existing library.  When the library returns a
+"wouldblock" condition, the application determines through the interface
+(or the interface definition) which poll events need to occur before a
+subsequent call to the library is likely to result in progress.  The
+application then needs to schedule a completion event for when those
+poll events occur.  The application does not know enough about the
+library implementation to schedule async I/O and the library is not
+written to use async I/O itself.
 
-One more is in filemap_swapout() - dunno, I just shifted the check to
-filemap_write_page().
+Another situation occurs when handling a large number of mostly idle
+connections.  Consider a protocol for which a server receives one
+command per half hour per connection.  A server process would want to
+handle hundreds of thousands to millions of such connections.  If the
+server were to use asynchronous read operations, then it would have to
+allocate one input buffer per connection.  Better to instead use
+asynchronous read poll operations, allocating buffers to connections
+only when those connections have pending input.
 
-One more: check in do_generic_file_read() for ->mapping->i_shared_mmap.
-Fix: trivial.
+This latter situation would be further improved by a variant of the
+asynchronous read operation where the buffer is supplied by either the
+event queue object or the caller to get_event(), but that's a separate
+issue.
+--------------ms9FD2EB51B171FF1908566527
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-The last one is in deactivate_page_nolock() - there we check the ->mapping
-without pagecache_lock and without page lock. Hell knows whether it's a
-bug or not. Rik?
-
-Minimal patch (against -pre7) follows. It still leaves sync_page() problem
-open - any suggestions on that one are very welcome. Other than that and
-deactivate_page_nolock() we should be safe wrt. ->mapping. Please, apply -
-after that we will be in sync. nfs_sync_page() is still a problem and if
-somebody (Trond?) might tell WTF it is supposed to be...
-							Cheers,
-								Al
-
---- filemap.c	Mon Oct 30 18:46:17 2000
-+++ filemap.c.new	Mon Oct 30 18:54:05 2000
-@@ -981,7 +981,7 @@
- 		 * virtual addresses, take care about potential aliasing
- 		 * before reading the page on the kernel side.
- 		 */
--		if (page->mapping->i_mmap_shared != NULL)
-+		if (mapping->i_mmap_shared != NULL)
- 			flush_dcache_page(page);
- 
- 		/*
-@@ -1473,7 +1473,8 @@
- 	 * vma/file is guaranteed to exist in the unmap/sync cases because
- 	 * mmap_sem is held.
- 	 */
--	return page->mapping->a_ops->writepage(file, page);
-+	/* Nothing to do if somebody truncated the page from under us.. */
-+	return page->mapping?page->mapping->a_ops->writepage(file, page):0;
- }
- 
- 
-@@ -1544,9 +1545,7 @@
- 	lock_page(page);
- 
- 	error = 0;
--	/* Nothing to do if somebody truncated the page from under us.. */
--	if (page->mapping)
--		error = filemap_write_page(vma->vm_file, page, 1);
-+	error = filemap_write_page(vma->vm_file, page, 1);
- 
- 	UnlockPage(page);
- 	page_cache_free(page);
-@@ -2313,13 +2312,20 @@
- 				int (*filler)(void *,struct page*),
- 				void *data)
- {
--	struct page *page = __read_cache_page(mapping, index, filler, data);
-+	struct page *page;
-+retry:
-+	page = __read_cache_page(mapping, index, filler, data);
- 	int err;
- 
- 	if (IS_ERR(page) || Page_Uptodate(page))
- 		goto out;
- 
- 	lock_page(page);
-+	if (!page->mapping) {
-+		UnlockPage(page);
-+		page_cache_release(page);
-+		goto retry;
-+	}
- 	if (Page_Uptodate(page)) {
- 		UnlockPage(page);
- 		goto out;
+MIIIXwYJKoZIhvcNAQcCoIIIUDCCCEwCAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3DQEHAaCC
+BlkwggMMMIICdaADAgECAgIeFDANBgkqhkiG9w0BAQQFADCBkzELMAkGA1UEBhMCVVMxCzAJ
+BgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJBbWVyaWNhIE9u
+bGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMTHkludHJhbmV0
+IENlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0wMDA2MDIxNzE1MjlaFw0wMDExMjkxNzE1Mjla
+MIGCMRMwEQYKCZImiZPyLGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYIbmV0c2NhcGUxIzAh
+BgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYDVQQDEwpKb2huIE15ZXJz
+MRcwFQYKCZImiZPyLGQBARMHamdteWVyczCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA
+0+WYWlf3g+u6vFEBJwo+4Cxz0PM5GUuqOHGVkjPFTeGjR05BUJADWm8mZDoAhUuIVuTvixCx
+AB0f5JzDWmIIWbB0ea92RwOHdibSS3bT0BTwKNTgt+PQAH3ZdH+IjmGAZI6/J+5Ob3m43ZZl
+o/3lfGEd4O7gAJY62Sy76MgO1O0CAwEAAaN+MHwwEQYJYIZIAYb4QgEBBAQDAgWgMA4GA1Ud
+DwEB/wQEAwIEsDAfBgNVHSMEGDAWgBSiO2Uy9/cbifxVDQcBvIdIWv2QPTA2BggrBgEFBQcB
+AQQqMCgwJgYIKwYBBQUHMAGGGmh0dHA6Ly9uc29jc3AubmV0c2NhcGUuY29tMA0GCSqGSIb3
+DQEBBAUAA4GBAGPAOC3FZineuE0PLv+pKc52i5uz+lpHzvssmUrr5FNSSD3M+DBow7Sd3YW+
+vyPVAxH+MZ5RtE+If/aDDYQhgpCtbujQb5wPVRS5ZCmKpAC0eOnP12jcUDLr1tfhyBIlIvJQ
+6xGKj7ckSK6G7lNxuQ8a12v/v2yEEk2uADg51oY7MIIDRTCCAq6gAwIBAgIBJzANBgkqhkiG
+9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UE
+BxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
+dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFs
+IEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
+Y29tMB4XDTk5MDYwMzIyMDAzNFoXDTAxMDYwMjIyMDAzNFowgZMxCzAJBgNVBAYTAlVTMQsw
+CQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBP
+bmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5l
+dCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAOLv
+Xyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg/wAX5IiIad79g1fgoxEZEarW3Lzv
+s9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCzeauaEKW8waTReEwG5WRB/AUlYybr
+7wzHblShjM5UV7YfktqyEkuNAgMBAAGjaTBnMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0l
+BBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMBEGCWCGSAGG+EIBAQQEAwIBAjAfBgNVHSMEGDAW
+gBRyScJzNMZV9At2coF+d/SH58ayDjANBgkqhkiG9w0BAQQFAAOBgQC6UH38ALL/QbQHCDkM
+IfRZSRcIzI7TzwxW8W/oCxppYusGgltprB2EJwY5yQ5+NRPQfsCPnFh8AzEshxDVYjtw1Q6x
+ZIA0Tln6xlnmRt5OaAh1QPUdjCnWrnetyT1p5ECNRJdGb756wFiksR9qpw8pUYqBDSmOneQP
+MwuPjSQ97DGCAc4wggHKAgEBMIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAU
+BgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcG
+A1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUg
+QXV0aG9yaXR5AgIeFDAJBgUrDgMCGgUAoIGKMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
+HAYJKoZIhvcNAQkFMQ8XDTAwMTAzMDIwNDQwOVowIwYJKoZIhvcNAQkEMRYEFB4g9q0f8krH
+JDULtjO7fDkjxcmKMCsGCSqGSIb3DQEJDzEeMBwwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwIC
+AgCAMA0GCSqGSIb3DQEBAQUABIGATihthZYhzNReAB7k7eSGisdL5IxJJcAXGEy3cufhfcMm
+/GWcyznVR1Kwxkts2jAMkE6/yeSSjBcFH5Ojy1e0zFSIikRP0NkvlEi3drYatYbPmeMImD91
+a+ItMcCUykA95IJ9PoPvw0XTjIEmxvMB7hdXTvZTs1XuIgYSXYm43So=
+--------------ms9FD2EB51B171FF1908566527--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbUDVHSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263805AbUDVHTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUDVHSG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 03:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263708AbUDVHR7
+	id S263805AbUDVHTM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 03:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263797AbUDVHRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 03:17:59 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:36273 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263697AbUDVHJK (ORCPT
+	Thu, 22 Apr 2004 03:17:43 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:24499 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263722AbUDVHJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 03:09:10 -0400
-Date: Thu, 22 Apr 2004 00:07:51 -0700
+	Thu, 22 Apr 2004 03:09:20 -0400
+Date: Thu, 22 Apr 2004 00:06:57 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: [Patch 14 of 17] cpumask v4 - Optimize i386 cpumask macro usage.
-Message-Id: <20040422000751.5adc3ffc.pj@sgi.com>
+Subject: [Patch 2 of 17] cpumask v4 - Dont generate nonzero unused bits in
+ bitmap
+Message-Id: <20040422000657.1dd399fd.pj@sgi.com>
 In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
 References: <20040421232247.22ffe1f2.pj@sgi.com>
 Organization: SGI
@@ -26,26 +27,46 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mask14-cpumask-i386-simplify - Optimize i386 cpumask macro usage.
-        Optimize a bit of cpumask code for asm-i386/mach-es7000
-        Code untested, unreviewed.  Feedback welcome.
+mask2-bitmap-complement - Dont generate nonzero unused bits in bitmap
+        Tighten up bitmap so it does not generate nonzero bits
+        in the unused tail if it is not given any on input.
 
-Index: 2.6.5.bitmap/include/asm-i386/mach-es7000/mach_ipi.h
+Index: 2.6.5.bitmap/lib/bitmap.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-i386/mach-es7000/mach_ipi.h	2004-04-08 04:19:28.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-i386/mach-es7000/mach_ipi.h	2004-04-08 04:19:34.000000000 -0700
-@@ -10,9 +10,8 @@
+--- 2.6.5.bitmap.orig/lib/bitmap.c	2004-04-05 02:50:25.000000000 -0700
++++ 2.6.5.bitmap/lib/bitmap.c	2004-04-05 03:02:39.000000000 -0700
+@@ -26,10 +26,10 @@
+  * carefully filter out these unused bits from impacting their
+  * results.
+  *
+- * Except for bitmap_complement, these operations hold to a
+- * slightly stronger rule: if you don't input any bitmaps to
+- * these ops that have some unused bits set, then they won't
+- * output any set unused bits in output bitmaps.
++ * These operations actually hold to a slightly stronger rule:
++ * if you don't input any bitmaps to these ops that have some
++ * unused bits set, then they won't output any set unused bits
++ * in output bitmaps.
+  */
  
- static inline void send_IPI_allbutself(int vector)
+ #define MAX_BITMAP_BITS	512U	/* for ia64 NR_CPUS maximum */
+@@ -83,11 +83,12 @@
+ 
+ void bitmap_complement(unsigned long *bitmap, int bits)
  {
--	cpumask_t mask = cpumask_of_cpu(smp_processor_id());
--	cpus_complement(mask);
--	cpus_and(mask, mask, cpu_online_map);
-+	cpumask_t mask = cpu_online_map;
-+	cpu_clear(smp_processor_id(), mask);
- 	if (!cpus_empty(mask))
- 		send_IPI_mask(mask, vector);
+-	int k;
+-	int nr = BITS_TO_LONGS(bits);
+-
+-	for (k = 0; k < nr; ++k)
++	int k, lim = bits/BITS_PER_LONG;
++	for (k = 0; k < lim; ++k)
+ 		bitmap[k] = ~bitmap[k];
++
++	if (bits % BITS_PER_LONG)
++		bitmap[k] = ~bitmap[k] & ((1UL << (bits % BITS_PER_LONG)) - 1);
  }
+ EXPORT_SYMBOL(bitmap_complement);
+ 
 
 
 -- 

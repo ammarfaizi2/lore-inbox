@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292229AbSDTUFI>; Sat, 20 Apr 2002 16:05:08 -0400
+	id <S292231AbSDTUG3>; Sat, 20 Apr 2002 16:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292231AbSDTUFH>; Sat, 20 Apr 2002 16:05:07 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:65290 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292229AbSDTUFG>; Sat, 20 Apr 2002 16:05:06 -0400
-Subject: Re: 2.4.19-pre7-ac1 breaks my USB mouse
-From: Thomas Hood <jdthood@yahoo.co.uk>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020420182719.GA18580@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-C35BVLiET650RdhDNVRr"
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 20 Apr 2002 16:07:05 -0400
-Message-Id: <1019333233.1908.2.camel@thanatos>
-Mime-Version: 1.0
+	id <S292957AbSDTUGY>; Sat, 20 Apr 2002 16:06:24 -0400
+Received: from 216-220-241-232.midmaine.com ([216.220.241.232]:13505 "EHLO
+	nic-naa.net") by vger.kernel.org with ESMTP id <S292231AbSDTUGU>;
+	Sat, 20 Apr 2002 16:06:20 -0400
+Message-Id: <200204202000.g3KK07s07372@nic-naa.net>
+To: Dan Aloni <da-x@gmx.net>
+cc: dank@kegel.com, linux-kernel@vger.kernel.org, brunner@nic-naa.net
+Subject: Re: 32-bit process ids (was: Re: idea to enhance get_pid()) 
+In-Reply-To: Your message of "20 Apr 2002 22:12:14 +0300."
+             <1019329937.24728.111.camel@callisto.yi.org> 
+Date: Sat, 20 Apr 2002 16:00:07 -0400
+From: Eric Brunner-Williams in Portland Maine <brunner@nic-naa.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> According to the kernel patch made by the people at Cluster
+> Infrastructure ( http://ci-linux.sourceforge.net/ ), today 
+> it is clear that the upper 16 bits of the pid are used for the node
+> number. 
 
---=-C35BVLiET650RdhDNVRr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This is the one thing I let through back in 1984. Nixdorff wanted to use
+parts of the processID for processorID. Now I don't have my authors' copy
+of XPG/1 CAE anymore, but I still have a lasting sense of chagrin that as
+trivially exhausted resource as a pid had bits shaved off for mid-80s SMP
+machines. Granted, our pid_t of the time was 16 bits, and an Intel HyperCube
+made a big dent in the remaining bits-for-pid'ing, and current pid_t's on
+32-bit boxen is is 32 bits, and MPP boxes are few and far between -- but
+really large clusters are possible.
 
-The mouse doesn't work on 2.4.19-pre7 either.
-I reconfirmed that it does work on 2.4.19-pre5.
+$.02
 
---=-C35BVLiET650RdhDNVRr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Eric
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8wcppJnAhHStZL6ERAlQlAJ0akEp+7xWcBlTlDhoxt/CbIPsdmQCfdyVn
-zgUa5sEAHnJI6fQvdEpgINo=
-=SnP9
------END PGP SIGNATURE-----
-
---=-C35BVLiET650RdhDNVRr--
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
 

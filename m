@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVAUVXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVAUVZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVAUVXv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVAUVXv
+	id S262512AbVAUVZz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 16:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVAUVYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:23:51 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:710 "EHLO webmail.tiscali.de")
-	by vger.kernel.org with ESMTP id S262519AbVAUVWi (ORCPT
+	Fri, 21 Jan 2005 16:24:23 -0500
+Received: from fsmlabs.com ([168.103.115.128]:59070 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262524AbVAUVXv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:22:38 -0500
-Message-ID: <41F1729A.6000709@tiscali.de>
-Date: Fri, 21 Jan 2005 22:22:34 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Fri, 21 Jan 2005 16:23:51 -0500
+Date: Fri, 21 Jan 2005 14:23:01 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+cc: Tony Lindgren <tony@atomide.com>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+In-Reply-To: <20050121185432.GC19551@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0501211209550.18199@montezuma.fsmlabs.com>
+References: <20050119000556.GB14749@atomide.com>
+ <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com>
+ <20050121174831.GE14554@atomide.com> <Pine.LNX.4.61.0501211123260.18199@montezuma.fsmlabs.com>
+ <20050121185432.GC19551@elf.ucw.cz>
 MIME-Version: 1.0
-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: modules strip
-References: <5F106036E3D97448B673ED7AA8B2B6B301ACD8F7@scl-exch2k.phoenix.com>
-In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B301ACD8F7@scl-exch2k.phoenix.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aleksey Gorelov wrote:
+On Fri, 21 Jan 2005, Pavel Machek wrote:
 
->Hi,
->
->  I'm trying to strip modules a bit (2.6, x86) using
->
->strip -R .not -R .comment --strip-unneeded module.ko
->
->  It seems to keep intact relocation & ksymtab symbols, tested on my
->configuration and seems to reduce the overall size for about 10-15%
->(usefull for embedded). Does anybody know if there is any pitfalls with
->that ?
->
->Thanks,
->Aleks.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi!
-Why should there be a pitfall, you just strip some usualy not needed 
-information. But maybe this causes problems with functions or parts of 
-the Kernel which need this information.
+> > > > This doesn't seem to cover the local APIC timer, what do you do about the 
+> > > > 1kHz tick which it's programmed to do?
+> > > 
+> > > Sorry for the delay in replaying. Thanks for pointing that out, I
+> > > don't know yet what to do with the local APIC timer. Have to look at
+> > > more.
+> > 
+> > Pavel does your test system have a Local APIC? If so that may also explain 
+> > why you didn't see a difference.
+> 
+> My systems do have APICs, but I prefer them disabled :-).
 
-Matthias-Christian Ott
+May i ask why? ;)

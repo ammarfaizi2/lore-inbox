@@ -1,48 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318426AbSHKWO4>; Sun, 11 Aug 2002 18:14:56 -0400
+	id <S318432AbSHKWcP>; Sun, 11 Aug 2002 18:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318427AbSHKWOz>; Sun, 11 Aug 2002 18:14:55 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61450 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318426AbSHKWOz>; Sun, 11 Aug 2002 18:14:55 -0400
-Message-ID: <3D56E2A9.40303@zytor.com>
-Date: Sun, 11 Aug 2002 15:18:17 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en, sv
+	id <S318433AbSHKWcP>; Sun, 11 Aug 2002 18:32:15 -0400
+Received: from dsl-213-023-020-163.arcor-ip.net ([213.23.20.163]:27810 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318432AbSHKWcO>;
+	Sun, 11 Aug 2002 18:32:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: large page patch (fwd) (fwd)
+Date: Mon, 12 Aug 2002 00:33:29 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: frankeh@watson.ibm.com, davidm@hpl.hp.com,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, gh@us.ibm.com,
+       Martin.Bligh@us.ibm.com, wli@holomorpy.com,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com> <E17dBZN-0001Ng-00@starship> <1029097817.16421.53.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1029097817.16421.53.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: Rob Landley <landley@trommello.org>,
-       "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       Oliver Xymoron <oxymoron@waste.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: klibc development release
-References: <200208111820.g7BIKPd172856@saturn.cs.uml.edu> <200208112031.g7BKVHQ209420@pimout1-ext.prodigy.net> <20020811210406.GA27048@codepoet.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17e1H8-0001iE-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
+On Sunday 11 August 2002 22:30, Alan Cox wrote:
+> On Fri, 2002-08-09 at 16:20, Daniel Phillips wrote:
+> > On Sunday 04 August 2002 19:19, Hubertus Franke wrote:
+> > > "General Purpose Operating System Support for Multiple Page Sizes"
+> > > htpp://www.usenix.org/publications/library/proceedings/usenix98/full_papers/ganapathy/ganapathy.pdf
+> > 
+> > This reference describes roughly what I had in mind for active 
+> > defragmentation, which depends on reverse mapping.  The main additional
+> > wrinkle I'd contemplated is introducing a new ZONE_LARGE, and GPF_LARGE,
+> > which means the caller promises not to pin the allocation unit for long
+> > periods and does not mind if the underlying physical page changes
+> > spontaneously.  Defragmenting in this zone is straightforward.
 > 
->>to one side: I'm not fond of glibc and am looking to replace it in my own 
->>system, but it hasn't made it to the top of my to-do list yet.  (Dietlibc is 
->>straight GPL: it can't even be the dynamic replacement for glibc in a real 
->>world linux distribution.  HPA suggested I look at newlibc, which I've added 
->>to my to-do list).
-> 
-> As far as I know, uClibc is the only library that is able to
-> replace glibc for real world linux distributions...  And I've
-> looked long and hard (which was why I ended up making uClibc),
-> 
+> Slight problem. This paper is about a patented SGI method for handling
+> defragmentation into large pages (6,182,089). They patented it before
+> the presentation.
 
-This, of course, is not a goal for klibc at all.  I looked at uclibc,
-dietlibc, and newlib before starting klibc.  klibc is meant to be *tiny*
-first of all, and is very much not designed to be able to compile
-arbitrary programs.
+See 'straightforward' above, i.e., obvious to a practitioner of the art.
+This is another one-click patent.
 
-	-hpa
+Look at claim 16, it covers our buddy allocator quite nicely:
 
+   http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PALL&p=1&u=/netahtml/srchnum.htm&r=1&f=G&l=50&s1='6182089'.WKU.&OS=PN/6182089&RS=PN/6182089
+ 
+Claim 1 covers the idea of per-size freelist thresholds, below which no
+coalescing is done.
 
+Claim 13 covers the idea of having a buddy system on each node of a numa
+system.  Bill is going to be somewhat disappointed to find out he can't do
+that any more.
+
+It goes on in this vein.  I suggest all vm hackers have a close look at
+this.  Yes, it's stupid, but we can't just ignore it.
+
+> They also hold patents on the other stuff that you've recently been
+> discussing about not keeping seperate rmap structures until there are
+> more than some value 'n' when they switch from direct to indirect lists
+> of reverse mappings (6,112,286)
+
+This is interesting.  By setting their 'm' to 1, you get essentially the
+scheme implemented by Dave a few weeks ago, and by setting 'm' to 0, the
+patent covers pretty much every imaginable reverse mapping scheme.  Gee,
+so SGI thought of reverse mapping in 1997 or thereabouts, and nobody ever
+did before?
+
+   http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PALL&p=1&u=/netahtml/srchnum.htm&r=1&f=G&l=50&s1='6112286'.WKU.&OS=PN/6112286&RS=PN/6112286
+
+Claim 2 covers use of their reverse mapping scheme, which as we have seen,
+includes all reverse mapping schemes, for migrating the data content of
+pages, and updating the page table pointers.
+
+Claim 4 goes on to cover migration of data pages between nodes of a numa
+system.  (Got that wli?)
+
+This patent goes on to claim just about everything you can do with a
+reverse map.  It's sure lucky for SGI that they were the first to think
+of the idea of reverse mapping.
+
+> If you are going read and propose things you find on Usenix at least
+> check what the authors policies on patents are.
+
+As always, I developed my ideas from first principles.  I never saw or
+heard of the paper until a few days ago.  I don't need their self-serving
+paper to figure this stuff out, and if they are going to do blatantly
+commercial stuff like that, I'd rather the paper were not published at
+all.  Perhaps Usenix needs to establish a policy about that.
+
+> Perhaps someone should first of all ask SGI to give the Linux community
+> permission to use it in a GPL'd operating system ?
+
+Yes, we should ask nicely, if we run into something that matters.  Asking
+nicely isn't the only option though.
+
+And yes, I'm trying to be polite.  It's just so stupid.
+
+--
+Daniel

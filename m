@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266953AbTADPUZ>; Sat, 4 Jan 2003 10:20:25 -0500
+	id <S266962AbTADPeY>; Sat, 4 Jan 2003 10:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266957AbTADPUZ>; Sat, 4 Jan 2003 10:20:25 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:16028 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266953AbTADPUY>; Sat, 4 Jan 2003 10:20:24 -0500
-Date: Sat, 4 Jan 2003 13:28:41 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andre Hedrick <andre@linux-ide.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-In-Reply-To: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.50L.0301041325100.2429-100000@imladris.surriel.com>
-References: <Pine.LNX.4.10.10301040547120.421-100000@master.linux-ide.org>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266964AbTADPeW>; Sat, 4 Jan 2003 10:34:22 -0500
+Received: from main.gmane.org ([80.91.224.249]:34759 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S266962AbTADPeU>;
+	Sat, 4 Jan 2003 10:34:20 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Steven Barnhart" <sbarn03@softhome.net>
+Subject: Re: RE:Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Date: Sat, 04 Jan 2003 10:42:44 -0500
+Message-ID: <pan.2003.01.04.15.42.29.889231@softhome.net>
+References: <01cd25003050413DTVMAIL11@smtp.cwctv.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.13.0 (The whole remains beautiful)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Jan 2003, Andre Hedrick wrote:
+On Sat, 04 Jan 2003 05:05:28 +0000, Hell.Surfer wrote:
 
-> Well, all this goes to show you is that if you try to do the right thing
-> and you have something of value, you are attacked.
+> Linus didnt write all of the files they use, so he has no right to give permission.
+> 
+> Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
+> 
+> On Fri, 03 Jan 2003 15:30:32 -0500 Richard Stallman <rms@gnu.org> wrote:
 
-Attacked by (mostly) a bunch of wankers who don't seem to do much
-useful themselves.  People who do useful work once in a while know
-how much effort you are putting into Linux drivers and appreciate
-the work you're doing.
+Can't we all stop fighting about what is and not free and all that
+crap and go back to our routine hacking? This is for the linux kernel
+development not discussing Nvidia's choices and such...
 
-> Well you all have gotten all kinds of goodie for free,
+Steven
 
-And I thank you for that.
 
-> Well I was thinking of giving part of it to the community after I
-> recovered my costs of development, now I think not.
-
-That's a real shame.  I like your business model of recovering the
-development costs before releasing the software since it's a way
-to fund your work on the kernel pretty much full-time, which seems
-to have resulted in really good free drivers.
-
-To be honest I don't understand why people are complaining about
-the fact that your model keeps some drivers closed for 18 months,
-while a completely free model wouldn't even start development of
-the drivers for 18 months, until after the hardware became generally
-available.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

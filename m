@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261819AbSIZBHH>; Wed, 25 Sep 2002 21:07:07 -0400
+	id <S261852AbSIZBKh>; Wed, 25 Sep 2002 21:10:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261852AbSIZBHG>; Wed, 25 Sep 2002 21:07:06 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:22716 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261819AbSIZBHG>; Wed, 25 Sep 2002 21:07:06 -0400
-Message-ID: <3D926046.4C098C3A@us.ibm.com>
-Date: Wed, 25 Sep 2002 18:17:58 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-Mailer: Mozilla 4.78 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+	id <S261955AbSIZBKh>; Wed, 25 Sep 2002 21:10:37 -0400
+Received: from ns.suse.de ([213.95.15.193]:49421 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261852AbSIZBKh>;
+	Wed, 25 Sep 2002 21:10:37 -0400
+Date: Thu, 26 Sep 2002 03:15:53 +0200
+From: Andi Kleen <ak@suse.de>
+To: Nivedita Singhvi <niv@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-References: <3D924F9D.C2DCF56A@us.ibm.com.suse.lists.linux.kernel> <20020925.170336.77023245.davem@redhat.com.suse.lists.linux.kernel> <p73n0q5sib2.fsf@oldwotan.suse.de>
+Message-ID: <20020926031553.A21089@wotan.suse.de>
+References: <3D924F9D.C2DCF56A@us.ibm.com.suse.lists.linux.kernel> <20020925.170336.77023245.davem@redhat.com.suse.lists.linux.kernel> <p73n0q5sib2.fsf@oldwotan.suse.de> <3D926046.4C098C3A@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D926046.4C098C3A@us.ibm.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-
-> I guess he's thinking of the FIB, not the routing cache.
-
-I was, + chain explansion, but this is just (um, cough)
-to s/he/she
-
-:)
-thanks,
-Nivedita
-
-> The current FIBs have a bit heavier locking at least. Fine grain locking
-> btrees is also not easy/nice.
+On Wed, Sep 25, 2002 at 06:17:58PM -0700, Nivedita Singhvi wrote:
+> Andi Kleen wrote:
 > 
-> -Andi
+> > I guess he's thinking of the FIB, not the routing cache.
+> 
+> I was, + chain explansion, but this is just (um, cough)
+> to s/he/she
+
+I was actually thinking about the first poster in the thread (it was a 'he'
+iirc) 
+
+But thanks for the correction anyways :-)
+
+-Andi

@@ -1,41 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261319AbSJQKja>; Thu, 17 Oct 2002 06:39:30 -0400
+	id <S261344AbSJQKlQ>; Thu, 17 Oct 2002 06:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261340AbSJQKj3>; Thu, 17 Oct 2002 06:39:29 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28167 "EHLO
+	id <S261339AbSJQKjp>; Thu, 17 Oct 2002 06:39:45 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28935 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261319AbSJQKj2>; Thu, 17 Oct 2002 06:39:28 -0400
-To: James Simmons <jsimmons@infradead.org>
-CC: LKML <linux-kernel@vger.kernel.org>
+	id <S261340AbSJQKjb>; Thu, 17 Oct 2002 06:39:31 -0400
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>
 From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 2.5.29-keyboard
-Message-Id: <E18289a-0007tP-00@flint.arm.linux.org.uk>
-Date: Thu, 17 Oct 2002 11:45:22 +0100
+Subject: [PATCH] 2.5.29-rdunzip
+Message-Id: <E18289d-0007te-00@flint.arm.linux.org.uk>
+Date: Thu, 17 Oct 2002 11:45:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch appears not to be in 2.5.43, but applies cleanly.
 
-Some ARM-based machines have an extra key (#) on their numeric keypad
-that produces the ESC [ S or ESC O S escape sequences.  This patch adds
-Linux support for the key.
+This patch ensures that we report failures when unzipping ramdisks and the
+like, including if we fail to write to the ramdisk.
 
- drivers/char/keyboard.c |    4 ++--
- 1 files changed, 2 insertions, 2 deletions
+Unfortunately, there is no way to guarantee that the gunzip function will
+ever terminate (gzip itself uses a setjmp and longjmp to achieve this).
 
-diff -urN orig/drivers/char/keyboard.c linux/drivers/char/keyboard.c
---- orig/drivers/char/keyboard.c	Wed Jul 17 15:10:39 2002
-+++ linux/drivers/char/keyboard.c	Wed Jul 17 15:14:57 2002
-@@ -552,8 +552,8 @@
+ init/do_mounts.c |   19 ++++++++++++++++---
+ 1 files changed, 16 insertions, 3 deletions
+
+diff -urN orig/init/do_mounts.c linux/init/do_mounts.c
+--- orig/init/do_mounts.c	Sat Jul 27 13:55:25 2002
++++ linux/init/do_mounts.c	Sat Jul 27 14:13:56 2002
+@@ -877,6 +877,7 @@
+ static unsigned inptr;   /* index of next byte to be processed in inbuf */
+ static unsigned outcnt;  /* bytes in output buffer */
+ static int exit_code;
++static int unzip_error;
+ static long bytes_out;
+ static int crd_infd, crd_outfd;
  
- static void k_pad(struct vc_data *vc, unsigned char value, char up_flag)
+@@ -924,13 +925,17 @@
+ /* ===========================================================================
+  * Fill the input buffer. This is called only when the buffer is empty
+  * and at least one byte is really needed.
++ * Returning -1 does not guarantee that gunzip() will ever return.
+  */
+ static int __init fill_inbuf(void)
  {
--	static const char *pad_chars = "0123456789+-*/\015,.?()";
--	static const char *app_map = "pqrstuvwxylSRQMnnmPQ";
-+	static const char *pad_chars = "0123456789+-*/\015,.?()#";
-+	static const char *app_map = "pqrstuvwxylSRQMnnmPQS";
+ 	if (exit_code) return -1;
+ 	
+ 	insize = read(crd_infd, inbuf, INBUFSIZ);
+-	if (insize == 0) return -1;
++	if (insize == 0) {
++		error("RAMDISK: ran out of compressed data\n");
++		return -1;
++	}
  
- 	if (up_flag)
- 		return;		/* no action, if this is a key release */
+ 	inptr = 1;
+ 
+@@ -944,10 +949,15 @@
+ static void __init flush_window(void)
+ {
+     ulg c = crc;         /* temporary variable */
+-    unsigned n;
++    unsigned n, written;
+     uch *in, ch;
+     
+-    write(crd_outfd, window, outcnt);
++    written = write(crd_outfd, window, outcnt);
++    if (written != outcnt && unzip_error == 0) {
++	printk(KERN_ERR "RAMDISK: incomplete write (%d != %d) %d\n",
++	       written, outcnt, bytes_out);
++	unzip_error = 1;
++    }
+     in = window;
+     for (n = 0; n < outcnt; n++) {
+ 	    ch = *in++;
+@@ -962,6 +972,7 @@
+ {
+ 	printk(KERN_ERR "%s", x);
+ 	exit_code = 1;
++	unzip_error = 1;
+ }
+ 
+ static int __init crd_load(int in_fd, int out_fd)
+@@ -990,6 +1001,8 @@
+ 	}
+ 	makecrc();
+ 	result = gunzip();
++	if (unzip_error)
++		result = 1;
+ 	kfree(inbuf);
+ 	kfree(window);
+ 	return result;
 

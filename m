@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265244AbTLaTIi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 14:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbTLaTIh
+	id S265237AbTLaT2X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 14:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbTLaT2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 14:08:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37342 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265244AbTLaTIc (ORCPT
+	Wed, 31 Dec 2003 14:28:23 -0500
+Received: from mail.kroah.org ([65.200.24.183]:42131 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265237AbTLaT1p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 14:08:32 -0500
-Date: Wed, 31 Dec 2003 11:08:21 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       manfred@colorfullife.com, rusty@au1.ibm.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: BUG in x86 do_page_fault?  [was Re: in_atomic doesn't count
- local_irq_disable?]
-In-Reply-To: <20031231185959.A9041@in.ibm.com>
-Message-ID: <Pine.LNX.4.58.0312311104180.2065@home.osdl.org>
-References: <3FF044A2.3050503@colorfullife.com> <20031230185615.A9292@in.ibm.com>
- <20031231185959.A9041@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 Dec 2003 14:27:45 -0500
+Date: Wed, 31 Dec 2003 11:17:04 -0800
+From: Greg KH <greg@kroah.com>
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+Message-ID: <20031231191703.GF25389@kroah.com>
+References: <20031231002942.GB2875@kroah.com> <3FF21E23.3070709@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FF21E23.3070709@gmx.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 31 Dec 2003, Srivatsa Vaddagiri wrote:
->
-> 	in_atomic() doesn't seem to return true
-> in code sections where IRQ's have been disabled (using 
-> local_irq_disable).
+On Wed, Dec 31, 2003 at 01:53:55AM +0100, Prakash K. Cheemplavam wrote:
+> Greg KH wrote:
 > 
-> As a result, I think do_page_fault() on x86 needs to 
-> be updated to note this fact:
-
-NO. 
-
-Please don't do this, it will result in some _really_ nasty problems with 
-X and other programs that potentially disable interrupts in user space.
-
-Also, there are broken old drivers that potentially have interrupts 
-disabled, and we shouldn't just oops them. We should have a warning, but 
-we already do have that: that's what "might_sleep()" does.
-
-So something like this may be appropriate at some point, but not in this 
-format. At the very least you absolutely _have_ to check for user mode 
-(possibly in the same place where we now have that
-
-	/* It's safe to allow irq's after cr2 has been saved */
-
-comment).
-
-		Lnus
-
-> --- fault.c.org Wed Dec 31 18:34:18 2003
-> +++ fault.c     Wed Dec 31 18:35:02 2003
-> @@ -259,7 +259,7 @@
->          * If we're in an interrupt, have no user context or are running in an
->          * atomic region then we must not take the fault..
->          */
-> -       if (in_atomic() || !mm)
-> +       if (in_atomic() || irqs_disabled() || !mm)
->                 goto bad_area_nosemaphore;
+> [big snip]
+> > All the people wanting to bring up the udev vs. devfs argument go back
+> > and read the previous paragraph.  Yes, all Gentoo users who keep filling
+> > up my inbox with smoking emails, I mean you.
+> [yet another big snip]
 > 
->         down_read(&mm->mmap_sem);
+> Hihi, life is unfair to you. ;-) I am one of those nasty gentoo users 
+> and still use devfs, but I want to switch asap, as I found a thread in 
+> gentoo forums about it and furthermore tend to do experiments with my 
+> installation. So not all gentoo users are bad users. ;-) I really 
+> appreciate your work and hope you will find more time in developing udev 
+> instead of wasting time (though it was quite interesting for me to read 
+> your text) with arguing for it. So I hope when I do the transition it 
+> goes smoothly, but even if not, I won't bash onto your head. ;-)
+
+Thanks, I have gotten a lot of response to this message from Gentoo
+users appologizing for the "bad seeds".  By no means did I mean to
+disparage all Gentoo users, just the ones that keep bothering me with
+this pointless argument.
+
+In fact, now that I know Gentoo works without devfs, I'm considering
+putting it on an old laptop I have around here...
+
+thanks,
+
+greg k-h

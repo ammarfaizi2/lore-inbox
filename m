@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQKFVdj>; Mon, 6 Nov 2000 16:33:39 -0500
+	id <S129454AbQKFVe7>; Mon, 6 Nov 2000 16:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130335AbQKFVd3>; Mon, 6 Nov 2000 16:33:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29280 "EHLO
+	id <S129758AbQKFVet>; Mon, 6 Nov 2000 16:34:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30816 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129392AbQKFVdP>; Mon, 6 Nov 2000 16:33:15 -0500
+	id <S129454AbQKFVej>; Mon, 6 Nov 2000 16:34:39 -0500
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: Tim@Rikers.org (Tim Riker)
-Date: Mon, 6 Nov 2000 21:33:18 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), linux-kernel@vger.kernel.org
-In-Reply-To: <3A07063C.612A225@Rikers.org> from "Tim Riker" at Nov 06, 2000 12:27:56 PM
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+Date: Mon, 6 Nov 2000 21:34:42 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), alonz@usa.net (Alon Ziv),
+        dwmw2@infradead.org (David Woodhouse), linux-kernel@vger.kernel.org
+In-Reply-To: <200011061949.UAA31584@cave.bitwizard.nl> from "Rogier Wolff" at Nov 06, 2000 08:49:49 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13sttH-0006ej-00@the-village.bc.nu>
+Message-Id: <E13stud-0006ez-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Barring this, we could create a persistantdata module that we can
-> modprobe and then discover with Keith's inter_module_xxx and read/write
-> opaque data to/from. Then if the user does not want to use it they can
-> just "alias persistantdata off" it and poof.
+> > 	if exists && is from this boot then && is right size
+> > 		read data into __persistent ELF section
+> > 	endif
+> 
+> Alan, why are you stating "if it's from this boot"? I can think that
+> maybe you want to keep stuff across boots too. Maybe once we're at it,
+> have two sections. One that is persistent across boots, the other
+> isn't.
 
-All of this is kernel code we don't need.  Its not a good solution generically
-or otherwise. Modutils should just use the persistent data stuff that has hooks
-ready to roll already.
+Possibly. The cases brought up so far are all 'within one boot'. But I agree
+you could add long term persistent data if there was a need
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

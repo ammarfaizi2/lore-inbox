@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271578AbRH1P3b>; Tue, 28 Aug 2001 11:29:31 -0400
+	id <S271597AbRH1PhL>; Tue, 28 Aug 2001 11:37:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271505AbRH1P3W>; Tue, 28 Aug 2001 11:29:22 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:26558 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S271507AbRH1P3G>; Tue, 28 Aug 2001 11:29:06 -0400
-Message-ID: <3B8BB895.179331CE@us.ibm.com>
-Date: Tue, 28 Aug 2001 10:28:21 -0500
-From: Andrew Theurer <habanero@us.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roberto Nibali <ratz@tac.ch>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Journal Filesystem Comparison on Netbench
-In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com> <3B8B6CEF.17C616C0@tac.ch>
+	id <S271613AbRH1PhB>; Tue, 28 Aug 2001 11:37:01 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:7429 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S271597AbRH1Pgz>;
+	Tue, 28 Aug 2001 11:36:55 -0400
+Date: Tue, 28 Aug 2001 08:35:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB UHCI broken again w/ visor
+Message-ID: <20010828083537.B7376@kroah.com>
+In-Reply-To: <20010828013239.N16752@draal.physics.wisc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010828013239.N16752@draal.physics.wisc.edu>; from mcelrath+linux@draal.physics.wisc.edu on Tue, Aug 28, 2001 at 01:32:40AM -0500
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roberto Nibali wrote:
-> 
-> Hello,
-> 
-> Thank you for those interesting tests.
-> 
-> > Some optimizations were used for linux, including zerocopy,
-> > IRQ affinity, and interrupt delay for the gigabit cards,
-> > and process affinity for the smbd processes.
-> 
-> Why is ext3 the only tested journaling filesystem that showed
-> dropped packets [1] during the test and how do you explain it?
-> 
-> [1]: http://lse.sourceforge.net/benchmarks/netbench/results/\
->      august_2001/filesystems/raid1e/ext3/4p/droppped_packets.txt
+On Tue, Aug 28, 2001 at 01:32:40AM -0500, Bob McElrath wrote:
+> USB verbose debug is ON, using driver usb-uhci, on an alpha, kernel
+> 2.4.9, new batteries in the thing.  This worked with 2.4.7.  What
+> happened?  It seems like every other kernel version it gets broken
+> again, and I can't sync my visor.
 
-Dropped packets are usually a side effect of the interrupt delay option
-in the e1000 driver.  I choose 256 usec delay (default is 64) for all
-these tests, and usually there is a very small % of dropped packets,
-which usually shows up as 0.00%, since I only show 1/100's of a percent
-in that output.  The other tests do have dropped packets, and I should
-change that script to have more significant digits to show that.  I'm
-not sure why ext3 shows more than the others.  Does ext3 have any spin
-locks with interrupts disabled?
+It looks like your uhci controller is not getting interrupts anymore.
+Does the value of /proc/interrupts for the usb-uhci driver get
+incremented?
 
-Andrew Theurer
+Does any other usb devices work on this system?
+
+thanks,
+
+greg k-h

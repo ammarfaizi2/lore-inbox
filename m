@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318016AbSHVXGs>; Thu, 22 Aug 2002 19:06:48 -0400
+	id <S318033AbSHVXMw>; Thu, 22 Aug 2002 19:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318018AbSHVXGs>; Thu, 22 Aug 2002 19:06:48 -0400
-Received: from adsl-64-175-242-3.dsl.sntc01.pacbell.net ([64.175.242.3]:992
-	"HELO laura.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S318016AbSHVXGr>; Thu, 22 Aug 2002 19:06:47 -0400
-From: brian@worldcontrol.com
-Date: Thu, 22 Aug 2002 16:10:34 -0700
-To: linux-kernel@vger.kernel.org
-Subject: 3Ware ok 2.4.19, dies 2.4.19-ac4
-Message-ID: <20020822231034.GA4538@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-No-Archive: yes
-X-Noarchive: yes
+	id <S318038AbSHVXMv>; Thu, 22 Aug 2002 19:12:51 -0400
+Received: from node187121.liebert.com ([65.209.187.121]:35593 "EHLO
+	mars1.marsbase.com") by vger.kernel.org with ESMTP
+	id <S318033AbSHVXMv>; Thu, 22 Aug 2002 19:12:51 -0400
+Message-ID: <001f01c24a31$d4956a50$493e1f7e@IRV429>
+From: "Omar" <omar@natasha.org>
+To: <linux-kernel@vger.kernel.org>
+References: <OFE708D02D.C1935D57-ON85256C1D.006DDF9E@pok.ibm.com>
+Subject: serial driver maintaner
+Date: Thu, 22 Aug 2002 16:15:19 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I upgraded a machine with a 3ware RAID controller running 2.2.20 to 
-2.4.19-ac1.  The next day it lay dead.  On the screen was a
-message about 3ware: AEN overflow.
 
-I upgraded to 2.4.19-ac4.  24 hours later the same message was on
-the screen.
+I've been trying to find out information on the Linux serial driver.  The
+maintainer hasn't updated his web site in a long time, does anyone know if
+he's still maintaining it ??
 
-I downgraded to 2.4.19 and have had 7 days of uptime.
+I am asking because I have a uart that isn't directly supported in the
+driver and I may need to add support for it, but I don't want to modify the
+serial driver unless it can be included in the main distribution channel.
 
-The load on the machine is very constant.
+The uart in question is a TI 16C752.   I've tried using it with 16750 and
+16650 settings,and it occasionally drops characters or receives duplicate
+characters.
 
-I've can't say I've done enough testing to confirm that its an ac
-issue.  Just something I came across.
 
--- 
-Brian Litzinger

@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbTJSIY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 04:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTJSIY6
+	id S262070AbTJSIlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 04:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTJSIlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 04:24:58 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:63398 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262094AbTJSIYy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 04:24:54 -0400
-Message-ID: <3F924A54.7020502@namesys.com>
-Date: Sun, 19 Oct 2003 12:24:52 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-CC: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+	Sun, 19 Oct 2003 04:41:16 -0400
+Received: from users.linvision.com ([62.58.92.114]:45697 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262070AbTJSIlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 04:41:15 -0400
+Date: Sun, 19 Oct 2003 10:41:13 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Hans Reiser <reiser@namesys.com>
+Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Norman Diamond '" <ndiamond@wta.att.ne.jp>,
        "'Wes Janzen '" <superchkn@sbcglobal.net>,
        "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
+       "'John Bradford '" <john@grabjohn.com>,
+       "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>,
+       "'nikita@namesys.com '" <nikita@namesys.com>,
+       "'Pavel Machek '" <pavel@ucw.cz>,
        "'Justin Cormack '" <justin@street-vision.com>,
        "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
        "'Vitaly Fertman '" <vitaly@namesys.com>,
        "'Krzysztof Halasa '" <khc@pm.waw.pl>
 Subject: Re: Blockbusting news, results are in
-References: <785F348679A4D5119A0C009027DE33C105CDB300@mcoexc04.mlm.maxtor.com> <021501c39618$615619c0$24ee4ca5@DIAMONDLX60>
-In-Reply-To: <021501c39618$615619c0$24ee4ca5@DIAMONDLX60>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20031019084113.GC21346@bitwizard.nl>
+References: <785F348679A4D5119A0C009027DE33C105CDB300@mcoexc04.mlm.maxtor.com> <3F92488C.6030808@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F92488C.6030808@namesys.com>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norman Diamond wrote:
+On Sun, Oct 19, 2003 at 12:17:16PM +0400, Hans Reiser wrote:
+> What are the common sources of data corruption, is one of them that the 
+> drive head starts bumping the media more and more often because a 
+> bearing (or something) has started to show signs of wear?
 
->
->>What would you like "us disk makers" to say?
->>    
->>
->
->How to force reallocations even when data are lost, 
->
-buy Maxtor and write to them, thereby triggering the remap.
+I'm not sure if the manufacturer knows. Datarecovery companies
+know. 
 
-All of this said, let me just repeat that I concede that ReiserFS does 
-need to support remapping, and Reiser4 does it.  However, I think that 
-we should encourage users to ask the drive to do it for them.  Maybe 
-this is wrong if it turns out that most drives are not responsible/wise 
-about it, but I need more info before I can say about that.
+Sources of dataloss are: 
+
+	- Software
+	- crooked platters (especially on laptop drives)
+	- heads bouncing on platter
+	- broken electronics. 
+
+They more or less happen in about the same number of cases. 
+
+The fact that we see less "high end" disks doesn't mean they break
+down less. It might mean that they get sold less (true), or that the 
+people that buy them make better backups (probably also true). 
+
+	Roger. 
 
 -- 
-Hans
-
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

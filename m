@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVAOCyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVAOC5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVAOCyl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 21:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVAOCyl
+	id S262160AbVAOC5G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 21:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVAOC5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 21:54:41 -0500
-Received: from hera.kernel.org ([209.128.68.125]:54951 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262167AbVAOCyf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 21:54:35 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: chasing the four level page table
-Date: Sat, 15 Jan 2005 02:54:15 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <csa0kn$4eg$1@terminus.zytor.com>
-References: <9e47339105010609175dabc381@mail.gmail.com> <9e4733910501061205354c9508@mail.gmail.com> <20050106214159.GG16373@redhat.com> <9e47339105010721225c0cfb32@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1105757655 4561 127.0.0.1 (15 Jan 2005 02:54:15 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sat, 15 Jan 2005 02:54:15 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Fri, 14 Jan 2005 21:57:05 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:22687 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S262160AbVAOC4w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 21:56:52 -0500
+In-Reply-To: <1105748095.9838.88.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112174203.GA691@logos.cnet> <1105627541.4624.24.camel@localhost.localdomain> <20050113194246.GC24970@beowulf.thanes.org> <20050113115004.Z24171@build.pdx.osdl.net> <20050113202905.GD24970@beowulf.thanes.org> <1105645267.4644.112.camel@localhost.localdomain> <20050113210229.GG24970@beowulf.thanes.org> <20050113213002.GI3555@redhat.com> <20050113214814.GA9481@beowulf.thanes.org> <20050113220652.GJ3555@redhat.com> <Pine.LNX.4.61.0501140020470.2867@dragon.hygekrogen.localhost> <1105748095.9838.88.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <0EE1CD25-66A1-11D9-B433-000A95E3BCE4@dalecki.de>
+Content-Transfer-Encoding: 7bit
+Cc: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       Marek Habersack <grendel@caudium.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Jesper Juhl <juhl-lkml@dif.dk>
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: thoughts on kernel security issues
+Date: Sat, 15 Jan 2005 03:56:30 +0100
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <9e47339105010721225c0cfb32@mail.gmail.com>
-By author:    Jon Smirl <jonsmirl@gmail.com>
-In newsgroup: linux.dev.kernel
->
-> On Thu, 6 Jan 2005 16:41:59 -0500, Dave Jones <davej@redhat.com> wrote:
-> > No other device driver is also doing such lowlevel stuff with
-> > page tables directly afaics. drivers/char/drm seem to be the only drivers
-> > using [pgd|pmd|pte]_offset() routines.
-> 
-> On 6 Jan 2005 20:38:27 +0100, Andi Kleen <ak@muc.de> wrote:
-> > Perhaps we should add a get_user_phys() or somesuch for this.
-> 
-> I think this is a case where the memory manager is missing a function
-> that DRM needs. If there was a get_user_phys() function DRM wouldn't
-> need to walk the page tables.
-> 
 
-FWIW, the Nvidia device driver wrapper also has this issue.
+On 2005-01-15, at 01:34, Alan Cox wrote:
+> Its also about -risk- levels and the sum of risk to all parties
+> involved.
+Rather "Its also about price levels and the sum of costs to all parties 
+involved."
 
-There seems to be at least two classes of device drivers -- graphics
-and RDMA -- which have a genuine need to DMA user pages, after
-appropriate locking, of course.
+For example if you share the costs of 5000 lines of code with millions 
+of people
+you can afford to pay the costs of developing them in a way which 
+really assures safety.
+Think about the software controlling a servo motor in your car...
 
-At that point we're better off having the mm export the right
-functionality to keep device driver authors from doing it wrong.
+You can't neglect economics when thinking about security issues, because
+costs are the "metric" of this "space". If you don't like dollars just 
+think about an even more
+precise currency you have to pay with anyway: developer time.
 
-	-hpa
+Its simply expensive to develop well working code. And on the other 
+hand buggy code is not bad in itself. Its just that cheap...
+

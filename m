@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268726AbUIBRLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268714AbUIBRLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268726AbUIBRLw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 13:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268738AbUIBRLw
+	id S268714AbUIBRLn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 13:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268738AbUIBRLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 13:11:52 -0400
-Received: from mailgate.urz.tu-dresden.de ([141.30.66.154]:56758 "EHLO
-	mailgate.urz.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S268726AbUIBRLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 13:11:46 -0400
-Message-ID: <1094145103.4137544f97e2a@rmc60-231.urz.tu-dresden.de>
-Date: Thu,  2 Sep 2004 19:11:43 +0200
-From: Hendrik Fehr <s4248297@rcs.urz.tu-dresden.de>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Full CPU-usage on sis5513-chipset disc input/output-operations
+	Thu, 2 Sep 2004 13:11:43 -0400
+Received: from gate.perex.cz ([82.113.61.162]:34980 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S268714AbUIBRLl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 13:11:41 -0400
+Date: Thu, 2 Sep 2004 18:59:42 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@d74.suse.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+In-Reply-To: <20040831185656.GA27854@elte.hu>
+Message-ID: <Pine.LNX.4.58.0409021859070.2498@d74.suse.de>
+References: <OF923A124A.1D8E364E-ON86256F01.0053F7B2-86256F01.0053F7D7@raytheon.com>
+ <1093972819.5403.8.camel@krustophenia.net> <1093975773.5403.21.camel@krustophenia.net>
+ <s5hk6vfywab.wl@alsa2.suse.de> <20040831185656.GA27854@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 217.238.216.13
-X-TUD-Virus-Scanned: by amavisd-new at rks24.urz.tu-dresden.de
-X-TUD-Spam-Checker-Version: SpamAssassin 2.63 (2004-01-11) on rks24
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-I was busying myself with this for about two weeks, and today i am likely to
-say
-that this is a bug in the kernel.
+On Tue, 31 Aug 2004, Ingo Molnar wrote:
 
-The symptoms for short:
-On 2.4.x (actually 2.4.27) kernel, disk i/o operations perform well (no
-noticable cpu overhead). But: on kernel 2.6.9-rc1-bk8 (and all the other
-2.6.x that i tested), disk i/o operations perform bad: full cpu usage
-(sys) when copying files or doing other i/o operations.
+> > > Ugh.  Please remove alsa-devel from any followups, as they seem to have
+> > > inadvertently enabled moderation.
+> > 
+> > IIRC, recently the moderation was disabled, so this should be no
+> > longer problem.
+> 
+> FYI, i still got 'your mail awaits moderation' messages just 2 minutes
+> ago.
 
-And to make sure that the new scheduling interface is not the "bad guy" i
-tried different schedulers with elevator=<something>. The bug was still
-there.
+Sorry, still one button was checked wrongly. Now it's definitely 
+corrected.
 
-That is what i was doing to resolve the problem:
-I wrote to Lionel (the sis5513.c author found in MAINTAINERS) on 20040831:
-----8<-----
-I am using linux-2.6.x kernel with sis5513 support enabled. I discovered a
-strange performance problem that was mentioned on bugzilla.kernel.org some time
-before [1.]. For a full and details report you may have a look at [2.].
+						Jaroslav
 
-[1.] http://bugzilla.kernel.org/show_bug.cgi?id=2983
-[2.] http://rcswww.urz.tu-dresden.de/~s4248297/gubed/report.html
-
-I dont know if it is a problem of the sis5513.c code, but i hope you may be
-helpful in finding the right person to whom i should send this bug.
-----8<-----
-
-He tried to figure out, if this behaviour may be a problem of his driver,
-and it seems that this is not the case. He sugested that i may post this
-problem to this list, that is, what i am doing here. You can see the full
-conversation with Linonel at the web page at [2.]
-
-IMHO it must have to do with the Uniform Multi-Platform E-IDE driver. The
-2.4 kernel uses revision 7.00beta4-2.4 and the 2.6 uses revision
-7.00alpha2. If this sugestion is wrong excuse me, i am not a C programer.
-
-Everyone who is keen on solving this problem should have a look at the very
-detailed description of the bug on the web page [2.]. I kept it as close as
-possible to the rules in the REPORTING-BUGS file (hey i even made some
-screenshots).
-The question is: why would the same hardware combination on the 2.4 kernel
-perform well, and not so well on 2.6.
-
-PS: please CC me, i am not on the list ;-)
-
-Best regards,
-Hendrik Fehr.
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

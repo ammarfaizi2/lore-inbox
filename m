@@ -1,90 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUFRJCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265074AbUFRJG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbUFRJCe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 05:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbUFRJBu
+	id S265074AbUFRJG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 05:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbUFRJEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 05:01:50 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:45397 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265056AbUFRIpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 04:45:02 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 9/11] serio allow rebinding
-Date: Fri, 18 Jun 2004 03:42:39 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       vojtech@ucw.cz
-References: <200406180335.52843.dtor_core@ameritech.net> <200406180341.39441.dtor_core@ameritech.net> <200406180342.11056.dtor_core@ameritech.net>
-In-Reply-To: <200406180342.11056.dtor_core@ameritech.net>
+	Fri, 18 Jun 2004 05:04:42 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:21508 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265084AbUFRIsF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 04:48:05 -0400
+Message-ID: <40D2ACED.3060404@hist.no>
+Date: Fri, 18 Jun 2004 10:50:53 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: 4Front Technologies <dev@opensound.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com>	 <77709e76040617180749cd1f09@mail.gmail.com>	 <40D24163.5000006@opensound.com> <1087522622.5475.30.camel@louise3.6s.nl> <40D24963.7040003@opensound.com>
+In-Reply-To: <40D24963.7040003@opensound.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406180342.41100.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+4Front Technologies wrote:
 
-===================================================================
+> Bastiaan Spandaw wrote:
+>
+>>
+>> The distributions you named earlier all patch the kernels they ship with
+>> their distribution.
+>>
+>> There's only a handfull that install a vanilla kernel by default (out of
+>> the >200 distributions available)
+>>
+>> debian, redhat & gentoo patch their kernels.
+>>
+>>
+>> Is your problem that a kernel is not the kernel.org vanilla version? (If
+>> so have a fit @ debian, redhat and gentoo as well )
+>>
+>
+> Redhat/Debian/Gentoo do the right thing by the kernel from 
+> www.kernel.org.
+>
+>> Or that Suse's does not work with your income generating product?
+>>
+> We can fix our problems. It's just that it's becomming a treadmill.
+
+Consider getting your driver into the standard kernel - then you get less
+problems with header changes. (Those who change headers usually
+keep the standard tree working.)  If you want to keep a driver for yourself
+though, then you need to keep fixing it continously jsut to keep up with
+the standard kernel.  And if you want SUSE customers, then you need to
+keep up with their patches too.  An so on for all the other distributions.
+
+> What's with you guys?. Would you really like to see Linux forking?
+
+_Why not_?  It is not something I worry about.  Forks happen, but
+go away as the forked stuff either is merged back into the std. kernel
+(if it is good) or becomes obsolete after a few months.  Anyone who
+maintains their own fork get the burden of keeping up with
+Linus - this limits the forking.
+
+Helge Hafting
 
 
-ChangeSet@1.1798, 2004-06-18 02:31:47-05:00, dtor_core@ameritech.net
-  Input: allow users manually rebind serio ports, like this:
-         echo -n "psmouse" > /sys/bus/serio/devices/serio0/driver
-         echo -n "atkbd" > /sys/bus/serio/devices/serio1/driver
-         echo -n "none" > /sys/devices/serio1/driver
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+>
+>
+>
+> best regards
+>
+> Dev Mazumdar
+> ---------------------------------------------------------------------
+> 4Front Technologies
+> 4035 Lafayette Place, Unit F, Culver City, CA 90232, USA
+> Tel: 310 202 8530   Fax: 310 202 0496   URL: http://www.opensound.com
+> ---------------------------------------------------------------------
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
- serio.c |   30 +++++++++++++++++++++++++++++-
- 1 files changed, 29 insertions(+), 1 deletion(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
---- a/drivers/input/serio/serio.c	2004-06-18 03:17:30 -05:00
-+++ b/drivers/input/serio/serio.c	2004-06-18 03:17:30 -05:00
-@@ -257,7 +257,35 @@
- {
- 	return sprintf(buf, "%s\n", dev->driver ? dev->driver->name : "(none)");
- }
--static DEVICE_ATTR(driver, S_IRUGO, serio_show_driver, NULL);
-+
-+static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count)
-+{
-+	struct serio *serio = to_serio_port(dev);
-+	struct device_driver *drv;
-+	struct kobject *k;
-+	int retval;
-+
-+	retval = down_interruptible(&serio_sem);
-+	if (retval)
-+		return retval;
-+
-+	if (!strncmp(buf, "none", count)) {
-+		serio_disconnect_port(serio);
-+		retval = count;
-+	} else if (!(k = kset_find_obj(&serio_bus.drivers, buf))) {
-+		retval = -EINVAL;
-+	} else {
-+		serio_disconnect_port(serio);
-+		drv = container_of(k, struct device_driver, kobj);
-+		serio_connect_port(serio, to_serio_driver(drv));
-+		retval = count;
-+	}
-+
-+	up(&serio_sem);
-+
-+	return retval;
-+}
-+static DEVICE_ATTR(driver, S_IWUSR | S_IRUGO, serio_show_driver, serio_rebind_driver);
- 
- static void serio_release_port(struct device *dev)
- {

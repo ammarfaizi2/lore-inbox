@@ -1,50 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267218AbSLSXYw>; Thu, 19 Dec 2002 18:24:52 -0500
+	id <S267753AbSLSX00>; Thu, 19 Dec 2002 18:26:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267374AbSLSXYw>; Thu, 19 Dec 2002 18:24:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12302 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267218AbSLSXYw>; Thu, 19 Dec 2002 18:24:52 -0500
-Date: Thu, 19 Dec 2002 15:30:23 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <bart@etpmod.phys.tue.nl>,
-       <davej@codemonkey.org.uk>, <terje.eggestad@scali.com>,
-       <drepper@redhat.com>, <matti.aarnio@zmailer.org>, <hugh@veritas.com>,
-       <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.4.44.0212191437220.5879-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212191519260.6279-100000@penguin.transmeta.com>
+	id <S267754AbSLSX00>; Thu, 19 Dec 2002 18:26:26 -0500
+Received: from pop.gmx.de ([213.165.65.60]:65316 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267753AbSLSX0Y>;
+	Thu, 19 Dec 2002 18:26:24 -0500
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.52: agp, drm, i810 problem
+Date: Fri, 20 Dec 2002 00:34:12 +0100
+User-Agent: KMail/1.5.9
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200212200034.16969.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Thu, 19 Dec 2002, Linus Torvalds wrote:
-> 
-> So it's between 0-4 cycles on machines that take 200 - 1000 cycles for
-> just the system call overhead.
+Hi
 
-Side note: I'd expect indirect calls - and especially the predictable 
-ones, like this - to maintain competitive behaviour on CPU's. Even the P4, 
-which usually has really bad worst-case behaviour for more complex 
-instructions (just look at the 2000 cycles for a regular int80/iret and 
-shudder) does a indirect call without huge problems.
+I am running 2.5.52 (I must say that it is the best kernel I ever had, first 
+time acpi and sony jog dial are working, great)
 
-That's because indirect calls are actually very common, and to some degree 
-getting _more_ so with the proliferation of OO languages (and I'm 
-discounting the "indirect call" that is just a return statement - they've 
-obviously always been common, but a return stack means that CPU 
-optimizations for "ret" instructions are different from "real" indirect 
-calls).
+But I have some agp problems at the moment:
 
-So I don't worry about the indirection per se. I'd worry a lot more about
-some of the tricks people mentioned (ie the "pushl $0xfffff000 ; ret"  
-approach probably sucks quite badly on some CPU's, simply because it does
-bad things to return stacks on modern CPU's - not necessarily visible in 
-microbenchmarks, but..).
+$ modprobe i810
+FATAL: Error inserting i810 
+(/lib/modules/2.5.52/kernel/drivers/char/drm/i810.ko): Cannot allocate memory
 
-			Linus
+[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+Uninitialised timer!
+This is just a warning.  Your computer is OK
+function=0x00000000, data=0x0
+Call Trace:
+ [<c0120852>] check_timer_failed+0x42/0x50
+ [<c0120c87>] del_timer+0x17/0x80
+ [<c4969005>] i810_takedown+0x45/0x3b0 [i810]
+ [<c496d516>] i810_stub_unregister+0x36/0x3d [i810]
+ [<c49460e6>] 0xc49460e6
+ [<c4970120>] +0xa60/0x2940 [i810]
+ [<c4970102>] +0xa42/0x2940 [i810]
+ [<c012a732>] sys_init_module+0xfe/0x178
+ [<c0108cd7>] syscall_call+0x7/0xb
+
+Here is some output of lspci:
+
+00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory 
+Controller Hub (rev 11)
+        Subsystem: Sony Corporation: Unknown device 80de
+        Flags: bus master, fast devsel, latency 0
+        Capabilities: [88] #09 [f205]
+
+00:02.0 VGA compatible controller: Intel Corp. 82815 CGC [Chipset Graphics 
+Controller] (rev 11) (prog-if 00 [VGA])
+        Subsystem: Sony Corporation: Unknown device 80de
+        Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 9
+        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+        Memory at f4000000 (32-bit, non-prefetchable) [size=512K]
+        Capabilities: [dc] Power Management version 2
+
+
+I tried the i810 drm driver as module and compiled in part.
+
+
+thanks
+have fun
+Felix
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+Ald4S0DOrvdnsewRApnqAKCAM3Way11XvYh4MO/eBTPEwiKnjACdGC93
+sS7eDI5YzZabkFWTb7H8mVs=
+=D+qr
+-----END PGP SIGNATURE-----
 

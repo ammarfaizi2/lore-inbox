@@ -1,29 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313258AbSDUAAS>; Sat, 20 Apr 2002 20:00:18 -0400
+	id <S313358AbSDUAE7>; Sat, 20 Apr 2002 20:04:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313300AbSDUAAR>; Sat, 20 Apr 2002 20:00:17 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:56221 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S313288AbSDUAAR>;
-	Sat, 20 Apr 2002 20:00:17 -0400
-Date: Sun, 21 Apr 2002 09:57:29 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre7aa1
-Message-ID: <20020420235729.GB26727@krispykreme>
-In-Reply-To: <3CC1C38F.37D1F8C2@zip.com.au> <Pine.LNX.4.33.0204202310360.21635-100000@sharra.ivimey.org>
-Mime-Version: 1.0
+	id <S313366AbSDUAE6>; Sat, 20 Apr 2002 20:04:58 -0400
+Received: from relay1.pair.com ([209.68.1.20]:36615 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S313358AbSDUAE5>;
+	Sat, 20 Apr 2002 20:04:57 -0400
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3CC20271.A00B05BC@kegel.com>
+Date: Sat, 20 Apr 2002 17:06:09 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Saving RAM on an all-RAM system by compressing executables?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Well, actually the thing you wash in is a "sink". The term "sync" comes from 
-> synchronise (or -ize in American).
+I'm working with an all-RAM system (where a host processor pokes 
+the linux kernel and initial ramdisk into RAM, then releases the 
+reset line).  The kernel is 2.4.17 or so.
+I have only 64 MB (or 32 or 16, depending), so every megabyte is precious.
+The C++ app I'm running on this system is 5MB, kinda fat.
+I'd like to save a couple megabytes somehow, either by compressing
+the executable, or by using execute-in-place.
 
-Please try and keep up with the sharp Australian wit.
+I made a cramfs image of the app; that shrunk it from 5MB down to 2MB.
+You can't mount cramfs images from tmpfs, so I made a little ramfs, 
+and loopback mounted it from there, then measured ram usage on a 64MB system
+with the app both running and not running.
 
-Anton
+/bin/free reported (kb):
+in tmpfs, not running: 47888
+in tmpfs, running:     47244
+in cramfs, not running:46972
+in cramfs, running:    46336
+
+Looks like I lose!  Using cramfs to compress the app appears to
+*waste* a megabyte over just using the noncompressed app.
+
+>From what I can tell, there's no support for execute-in-place
+except on MIPS with a hacked gcc.
+
+OK, I've exhausted my stock of clever ideas; does anyone have
+a suggestion about how to save RAM in my situation?
+(gzexe won't do it, nor will upx, as they all create a temporary
+uncompressed file on execution...)
+
+Thanks,
+Dan

@@ -1,105 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277006AbRJDDiC>; Wed, 3 Oct 2001 23:38:02 -0400
+	id <S277104AbRJDDt4>; Wed, 3 Oct 2001 23:49:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277100AbRJDDhx>; Wed, 3 Oct 2001 23:37:53 -0400
-Received: from mpdr0.cleveland.oh.ameritech.net ([206.141.223.14]:28612 "EHLO
-	mailhost.cle.ameritech.net") by vger.kernel.org with ESMTP
-	id <S277006AbRJDDhd>; Wed, 3 Oct 2001 23:37:33 -0400
-Date: Wed, 3 Oct 2001 23:37:55 -0400 (EDT)
-From: Stephen Torri <storri@ameritech.net>
-X-X-Sender: <torri@base.torri.linux>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Unresolved modules 2.4.10-ac4
-Message-ID: <Pine.LNX.4.33.0110032310550.7092-100000@base.torri.linux>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277103AbRJDDtq>; Wed, 3 Oct 2001 23:49:46 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:30470 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S277102AbRJDDte>; Wed, 3 Oct 2001 23:49:34 -0400
+Date: Wed, 3 Oct 2001 23:50:02 -0400
+Message-Id: <200110040350.f943o2d08615@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <Pine.LNX.4.33.0110022256430.2543-100000@localhost.localdomain>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Received the following unresolved sysmbol messages after compiling acpi as
-modules. They were received during make modules_install.
+In article <Pine.LNX.4.33.0110022256430.2543-100000@localhost.localdomain> 
+    mingo@elte.hu wrote:
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/button/ospm_button.o
+>there are *tons* of disadvantages if IRQs are shared. In any
+>high-performance environment, not having enough interrupt sources is a
+>sizing or hw design mistake. You can have up to 200 interrupts even on a
+>PC, using multipe IO-APICs. Any decent server board distributes interrupt
+>sources properly. Shared interrupts are a legacy of the PC design, and we
+>are moving away from it slowly but surely. Especially under gigabit loads
+>there are several PCI busses anyway, so getting non-shared interrupts is
+>not only easy but a necessity as well. There is no law in physics that
+>somehow mandates or prefers the sharing of interrupt vectors: devices are
+>distinct, they use up distinct slots in the board. The PCI bus can get
+>multiple IRQ sources out of a single card, so even multi-controller cards
+>are covered.
 
-depmod: 	acpi_ut_debug_print_raw
-depmod: 	acpi_ut_debug_print
-depmod: 	acpi_ut_status_exit
-depmod: 	acpi_ut_trace
+  Sharing irq between unrelated devices is probably evil in all cases,
+but for identical devices like multiple NICs, the shared irq results in
+*one* irq call, followed by polling the devices connected, which can be
+lower overhead than servicing N interrupts on a multi-NIC system.
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/ec/ospm_ec.o
+  Shared interrupts predate the PC by a decade (or more), so the comment
+about the "PC design" is not relevant. In general polling multiple
+devices is less CPU than servicing the same i/o by a larger number of
+entries to the interrupt handler. The polling offers the possibility of
+lower the number of context switches, far more expensive than checking a
+device.
 
-depmod: 	acpi_ut_debug_print_raw
-depmod: 	acpi_ut_debug_print
-depmod: 	acpi_ut_status_exit
-depmod: 	acpi_ut_exit
-depmod: 	acpi_ut_trace
+  In serial and network devices the poll is often unavoidable, unless
+you use one irq for send and one for receive you will be doing a bit of
+polling in any case.
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/processor/ospm_processor.o
-
-depmod: 	acpi_ut_debug_print_raw
-depmod: 	acpi_ut_debug_print
-depmod: 	acpi_ut_status_exit
-depmod: 	acpi_ut_trace
-
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/system/ospm_system.o
-
-depmod: 	acpi_ut_debug_print_raw
-depmod: 	acpi_ut_debug_print
-depmod: 	dmi_broken
-depmod: 	init_8259A
-depmod: 	acpi_ut_status_exit
-depmod: 	acpi_ut_trace
-
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-ac4/kernel/drivers/acpi/ospm/thermal/ospm_thermal.o
-
-depmod: 	acpi_ut_debug_print_raw
-depmod: 	acpi_ut_debug_print
-depmod: 	acpi_ut_status_exit
-depmod: 	acpi_ut_exit
-depmod: 	acpi_ut_trace
-
-Kernel setup: 2.4.10 patched with 2.4.10-ac4
-
-#define CONFIG_ACPI 1
-#define CONFIG_ACPI_DEBUG 1
-#undef  CONFIG_ACPI_BUSMGR
-#define CONFIG_ACPI_BUSMGR_MODULE 1
-#undef  CONFIG_ACPI_SYS
-#define CONFIG_ACPI_SYS_MODULE 1
-#undef  CONFIG_ACPI_CPU
-#define CONFIG_ACPI_CPU_MODULE 1
-#undef  CONFIG_ACPI_BUTTON
-#define CONFIG_ACPI_BUTTON_MODULE 1
-#undef  CONFIG_ACPI_AC
-#undef  CONFIG_ACPI_EC
-#define CONFIG_ACPI_EC_MODULE 1
-#undef  CONFIG_ACPI_CMBATT
-#undef  CONFIG_ACPI_THERMAL
-#define CONFIG_ACPI_THERMAL_MODULE 1
-
-At this point I went and redid the configuration but said "Y" to all ACPI
-options that I had previously said "M". Now the compile went perfectly and
-here is the kernel config:
-
-#define CONFIG_ACPI 1
-#define CONFIG_ACPI_DEBUG 1
-#define CONFIG_ACPI_BUSMGR 1
-#define CONFIG_ACPI_SYS 1
-#define CONFIG_ACPI_CPU 1
-#define CONFIG_ACPI_BUTTON 1
-#undef  CONFIG_ACPI_AC
-#define CONFIG_ACPI_EC 1
-#undef  CONFIG_ACPI_CMBATT
-#define CONFIG_ACPI_THERMAL 1
-
-Hope this helps
-
-Stephen
-
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

@@ -1,70 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263357AbTKKFgN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 00:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbTKKFgN
+	id S263343AbTKKFUW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 00:20:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTKKFUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 00:36:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45018 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263357AbTKKFgJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 00:36:09 -0500
-Date: Mon, 10 Nov 2003 21:36:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Tue, 11 Nov 2003 00:20:22 -0500
+Received: from smtp800.mail.ukl.yahoo.com ([217.12.12.142]:50311 "HELO
+	smtp800.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263343AbTKKFUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 00:20:18 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Andrew Morton <akpm@osdl.org>
-cc: Paul Venezia <pvenezia@jpj.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I/O issues, iowait problems, 2.4 v 2.6
-In-Reply-To: <20031110205443.6422259f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0311102101500.2881-100000@home.osdl.org>
+Subject: Re: [PATCH?] psmouse-base.c
+Date: Tue, 11 Nov 2003 00:20:07 -0500
+User-Agent: KMail/1.5.4
+Cc: arief_m_utama@telkomsel.co.id, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+References: <3FAEF7BC.8060503@telkomsel.co.id> <200311100143.58955.dtor_core@ameritech.net> <20031109225643.2a0383ef.akpm@osdl.org>
+In-Reply-To: <20031109225643.2a0383ef.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311110020.07251.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 10 November 2003 01:56 am, Andrew Morton wrote:
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
-On Mon, 10 Nov 2003, Andrew Morton wrote:
-> >   0 10      0 1146444  18940 286856    0    0     0  2106 21450 25860  4 14 37 45
-> 
-> OK, the IO rates are obviously very poor, and the context switch rate is
-> suspicious as well.  Certainly, testing with the single disk would help.
-> 
-> But.  If the workload here was a simple dd of /dev/zero onto a regular
-> file then why on earth is the pagecache size not rising?
+> >
+> > serio_reconnect() is only in your tree (-mm), it has not been pushed
+> > to Linus yet... Unfortunately using rescan can cause input devices be
+> > shifted if some program has them open while suspending.
+>
+> Ah, I see.  So would you say that reconnect is the correct thing to use
+> here?
+>
+> That would mean that the appropriate patch against -mm is
+>
+> --- 25/drivers/input/mouse/psmouse-base.c~serio-pm-fix	2003-11-09
+> 20:12:27.000000000 -0800 +++
+> 25-akpm/drivers/input/mouse/psmouse-base.c	2003-11-09
+> 20:12:27.000000000 -0800 @@ -533,9 +533,10 @@ static int
+> psmouse_pm_callback(struct pm
+>  {
+>  	struct psmouse *psmouse = dev->data;
+>
+> -	psmouse->state = PSMOUSE_IGNORE;
+> -	serio_reconnect(psmouse->serio);
+> -
+> +	if (request == PM_RESUME) {
+> +		psmouse->state = PSMOUSE_IGNORE;
+> +		serio_reconnect(psmouse->serio);
+> +	}
+>  	return 0;
+>  }
+>
 
-Interesting. That does indeed look really strange. Paul has more than a 
-gigabyte of free memory, and it isn't shrinking.
+Yes, I believe this will work. And for vanilla 2.6 the patch below should 
+do the trick. As you can see vanilla 2.6 has custom reconnect logic in PM 
+handler but it does not work very well for devices connected to Synaptics
+pass-through port - it will unregister it and register again potentially 
+creating a new input device like serio does. The "main" mouse device will 
+retain its device though.
 
-That interrupt and context switch numbers are also _way_ out of line: Paul
-has big stretches with 25k+ interrupts per second and 30k+ context
-switches. While at the same time only feeding a few megabytes of data
-through the system.
-
-That would imply more than one interrupt per _sector_ (there really
-shouldn't be anything else going on there, if it's a local "dd").  Which
-is patently ridiculous. There's something seriously broken in there.
-
-Any "normal" IO load should get one interrupt per request, and requests
-should be in the "closer to hundred-kB" range for reasonably contiguous
-IO. For a normal "dd to file" on a good single-disk system, something like
-40MB/s with 1500+ interrupts/sec should be the normal baseline (1000
-interrupts / sec come from the regular timer interrupt, the extra 500+
-would be the IO completion interrupts).
-
-And you should see context switches on maybe a request basis (ie you might
-see 500 context switches a second). Again, seeing 30k ctx/sec for a 3MB
-throughput implies one context switch per 100 _bytes_. Whee. That's just
-_wrong_.
-
-I see 1200 context switches a second when I move my mouse around and try
-to upset X and the window manager as much as possible. That's "normal",
-with a hundred mouse events a second that just _cascade_ through a system.  
-But that's for a device that is literally _designed_ to be "lots of small
-events, and throughput isn't even on our radar".
-
-Btw, is the RAID1 setup using hw raid or the sw raid code? I _assume_ 
-you're just using the MPT hw support?
-
-		Linus
+===================================================================
+ChangeSet@1.1423, 2003-11-11 00:06:11-05:00, dtor_core@ameritech.net
+  Re-initialize mouse hardware on resume only.
 
 
+ psmouse-base.c |   20 +++++++++++---------
+ 1 files changed, 11 insertions(+), 9 deletions(-)
+
+
+diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+--- a/drivers/input/mouse/psmouse-base.c	Tue Nov 11 00:07:50 2003
++++ b/drivers/input/mouse/psmouse-base.c	Tue Nov 11 00:07:50 2003
+@@ -528,17 +528,19 @@
+ 	struct psmouse *psmouse = dev->data;
+ 	struct serio_dev *ser_dev = psmouse->serio->dev;
+ 
+-	synaptics_disconnect(psmouse);
++	if (request == PM_RESUME) {
++		synaptics_disconnect(psmouse);
+ 
+-	/* We need to reopen the serio port to reinitialize the i8042 controller */
+-	serio_close(psmouse->serio);
+-	serio_open(psmouse->serio, ser_dev);
++		/* We need to reopen the serio port to reinitialize the i8042 controller */
++		serio_close(psmouse->serio);
++		serio_open(psmouse->serio, ser_dev);
+ 
+-	/* Probe and re-initialize the mouse */
+-	psmouse_probe(psmouse);
+-	psmouse_initialize(psmouse);
+-	synaptics_pt_init(psmouse);
+-	psmouse_activate(psmouse);
++		/* Probe and re-initialize the mouse */
++		psmouse_probe(psmouse);
++		psmouse_initialize(psmouse);
++		synaptics_pt_init(psmouse);
++		psmouse_activate(psmouse);
++	}
+ 
+ 	return 0;
+ }
+
+===================================================================
+
+Unfortunately I do not suspend my laptop so I did not run it, just
+made sure it compiles. Arief? could you give this patch a try?
+
+
+Dmitry

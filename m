@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUKJVSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbUKJVUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbUKJVSc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 16:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUKJVSc
+	id S262041AbUKJVUc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 16:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUKJVUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 16:18:32 -0500
-Received: from smtp2.myrealbox.com ([192.108.102.207]:27872 "EHLO
-	smtp2-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262041AbUKJVS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 16:18:28 -0500
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, davids@webmaster.com,
-       cfriesen@nortelnetworks.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1100110480.20555.4.camel@localhost.localdomain>
-References: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com>
-	 <1100041582.16689.0.camel@localhost.localdomain>
-	 <Pine.GSO.4.61.0411101024270.17015@waterleaf.sonytel.be>
-	 <1100110480.20555.4.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 10 Nov 2004 14:18:14 -0700
-Message-Id: <1100121494.3430.3.camel@localhost.localdomain>
+	Wed, 10 Nov 2004 16:20:32 -0500
+Received: from mail.tmr.com ([216.238.38.203]:59147 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262041AbUKJVUS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 16:20:18 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [2.6 patch] Use -ffreestanding?
+Date: Wed, 10 Nov 2004 16:01:26 -0500
+Organization: TMR Associates, Inc
+Message-ID: <419281A6.5030106@tmr.com>
+References: <20041110014516.GC4089@stusta.de><20041108134448.GA2456@wotan.suse.de> <Pine.LNX.4.58.0411091750480.2301@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4) 
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1100121102 19868 192.168.12.100 (10 Nov 2004 21:11:42 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@osdl.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <Pine.LNX.4.58.0411091750480.2301@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-10 at 18:14 +0000, Alan Cox wrote: 
-> 2. "I will pay you $1000 if you do not distribute the source"
+Linus Torvalds wrote:
 > 
-> #2 Is interesting - its I think the borderline you intended to find, and
-> I'm not sure anyone could call it either way without being a qualified
-> lawyer.
+> On Wed, 10 Nov 2004, Adrian Bunk wrote:
 > 
-> Alan
+>>I'm open for examples why this actually doesn't work, but after my 
+>>(limited) testin I'd suggest the patch below for inclusion in the next 
+>>-mm.
+> 
+> 
+> When was -ffreestanding introduced? Iow, it might not work with all 
+> compiler versions.. Apart from that, I think it makes sense. 
 
-Alan, actually here in the States #2 is pretty easy to call. BTW, IANAL,
-just have had to take law classes for various classes. The law here
-clearly states that a contract is two parties exchanging things of
-value.
+ From RH 7.3:
+   gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-113)
 
-Some text book examples of contracts include one parties
-"consideration" (thing of value) may be refraining from exercising a
-right/privilege they have.
-
-Of course, anyone who is willing to give up rights indefinitely for a
-small some of money or a small benefit is a fool, but hey.
-
-Now of course, if they say "hey, I have this awesome change to this GPL
-program, I will share it with you but only if you agree to not
-distribute it is bogus. That violates the GPL on their part and revokes
-their license.
-
-Trever
---
-"Perilous to all of us are the devices of an art deeper than we possess
-ourselves." -- Gandalf the White [J.R.R. Tolkien, "The Two Towers", Bk
-3, Ch. XI]
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

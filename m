@@ -1,60 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262479AbSJ2XdW>; Tue, 29 Oct 2002 18:33:22 -0500
+	id <S262083AbSJ2XhP>; Tue, 29 Oct 2002 18:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262480AbSJ2XdW>; Tue, 29 Oct 2002 18:33:22 -0500
-Received: from NODE1.HOSTING-NETWORK.COM ([66.186.193.1]:57357 "HELO
-	unix113.hosting-network.com") by vger.kernel.org with SMTP
-	id <S262479AbSJ2XdV>; Tue, 29 Oct 2002 18:33:21 -0500
-Subject: Mounting reiserfs with nonstandard journal size fails
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Reiserfs List <reiserfs-list@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 29 Oct 2002 15:36:20 -0800
-Message-Id: <1035934581.1487.1409.camel@rivendell.arnor.net>
-Mime-Version: 1.0
+	id <S262481AbSJ2XhP>; Tue, 29 Oct 2002 18:37:15 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:17322 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S262083AbSJ2XhN> convert rfc822-to-8bit; Tue, 29 Oct 2002 18:37:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: colpatch@us.ibm.com
+Subject: Re: [PATCH] topology for ia64
+Date: Wed, 30 Oct 2002 00:43:01 +0100
+User-Agent: KMail/1.4.1
+Cc: davidm@hpl.hp.com, linux-ia64 <linux-ia64@linuxia64.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200210051904.22480.efocht@ess.nec.de> <200210221123.37145.efocht@ess.nec.de> <3DBF096D.6080703@us.ibm.com>
+In-Reply-To: <3DBF096D.6080703@us.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210300043.01786.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having trouble mounting a reiserfs filesystem created with a
-nonstandard (smaller) journal size.  But if I use the default journal
-size, it works fine.
+On Tuesday 29 October 2002 23:19, Matthew Dobson wrote:
+> Hi Erich!  Apologies for the long response delay...  I think our mail
+> server must be a bit lagged.  ;)
 
-The filesystem is on a 64 MB compact flash attached to a USB reader. It
-has a single partition, which appears as /dev/sda1.
+Should I use another email address?
 
-I've done a little detective work with strace'ing mount (8). It calls
-mount (2) which fails with EINVAL, which seems to indicate a bad
-superblock in this case.  It appears that the in-kernel superblock
-parsing for reiserfs does not understand non-standard journal sizes.
+> It looks good to me.  As far as this comment:
+> +/*
+> + * Returns the number of the first CPU on Node 'node'.
+> + * Slow in the current implementation.
+> + * Who needs this?
+> + */
+> +/* #define __node_to_first_cpu(node) pool_cpus[pool_ptr[node]] */
+> +static inline int __node_to_first_cpu(int node)
+>
+> No one is using it now.  I think that I will probably deprecate this
+> function in the near future as it is pretty useless.  Anyone looking for
+> that functionality can just do an __ffs(__node_to_cpu_mask(node))
+> instead, and hope that there is a reasonably quick implementation of
+> __node_to_cpu_mask.
 
-My kernel is an updated Red Hat 7.3 (2.4.18-10) and my reiserfsprogs are
-3.6.3, downloaded from www.namesys.com and compiled locally.  My mount
-program is version 2.11n, the standard Red Hat version.
+Yes, I know of one usage meanwhile. The problem I see is: as far as I
+understand the CPUs are not sorted by the node numbers. The NUMA API
+doesn't require that, I think. So finding the first CPU in a node is
+not really useful for looping over the CPUs of only one node.
 
-Is this fixed in later kernels?
+When you think of further developments of the NUMA API, I'd suggest
+two:
 
-Another strange thing I noticed: if I strace a successful mount of the
-normal reiserfs, I see two calls to mount (2) in the output.  The first
-returns ENOSYS, which is not documented on the mount(2) manpage, but the
-second identical call succeeds.  Weird.  Time to have a look at the
-mount sourcecode I guess...
+1: Add a sorted list of the nodes and a pointer array into that list
+pointing to the first CPU in the node. Like
 
-successful mount strace output:
-...
-mount("/dev/sda1", "/mnt/flash", "reiserfs", 0xc0ed0000, 0) = -1 ENOSYS
-(Function not implemented)
-mount("/dev/sda1", "/mnt/flash", "reiserfs", 0xc0ed0000, 0) = 0
-...
+int node_cpus[NR_CPUS];
+int node_first_ptr[MAX_NUMNODES+1];
 
-Torrey Hoffman
-thoffman@arnor.net
-torrey.hoffman@myrio.com
+(or macros, doesn't matter).
+
+Example: 2 nodes:
+         node_cpus : 0 1 4 5 2 3 6 7
+              node : 0 0 0 0 1 1 1 1
+           pointer : ^       ^       ^
+=> node_first_ptr[]: 0       4       8
+
+One can initialize this easilly by using the __cpu_to_node()
+macro. And with this you can loop over the cpus of one node by doing:
+
+       for (i=node_first_ptr[node]; i<node_first_ptr[node+1]; i++) {
+           cpu = node_cpus[i];
+           ... do stuff with cpu ...
+       }
 
 
+2: In ACPI there is a table describing the latency ratios between the
+nodes. It is called SLIT (System Locality Information Table). On an 8
+node system (NEC TX7) this is a matrix of dimension numnodes*numnodes:
 
+int __node_distance[ 8 * 8]    = { 10, 15, 15, 15, 20, 20, 20, 20,
+                                   15, 10, 15, 15, 20, 20, 20, 20,
+                                   15, 15, 10, 15, 20, 20, 20, 20,
+                                   15, 15, 15, 10, 20, 20, 20, 20,
+                                   20, 20, 20, 20, 10, 15, 15, 15,
+                                   20, 20, 20, 20, 15, 10, 15, 15,
+                                   20, 20, 20, 20, 15, 15, 10, 15,
+                                   20, 20, 20, 20, 15, 15, 15, 10 };
+
+#define node_distance(i,j)  __node_distance[i*8+j]
+
+This means:
+   node_distance(i,i) = 10   (i==j: same node, lowest latency)
+   node_distance(i,j) = 15   (i!=j: different node, same supernode)
+   node_distance(i,j) = 20   (i!=j: different node, different
+                              supernode)
+
+This macro or function describes the NUMA topology of a multi-level
+system very well. As the table comes for free with NUMA systems with
+ACPI (sooner or later they'll all have this, especially if they want
+to run Windows, too), it would be easy to take it into the topology.h.
+
+Regards,
+Erich
 
 

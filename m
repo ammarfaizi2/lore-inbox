@@ -1,76 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUIFBM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUIFBc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267516AbUIFBM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 21:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUIFBLQ
+	id S267378AbUIFBc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 21:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbUIFBc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 21:11:16 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:34239 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267381AbUIFBK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 21:10:26 -0400
-Message-ID: <413BB8C2.6010705@yahoo.com.au>
-Date: Mon, 06 Sep 2004 11:09:22 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
+	Sun, 5 Sep 2004 21:32:56 -0400
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:7184 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S267378AbUIFBcx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 21:32:53 -0400
+Date: Mon, 6 Sep 2004 11:32:26 +1000 (EST)
+From: Tim Connors <tconnors+linuxkernel1094371411@astro.swin.edu.au>
+X-X-Sender: tconnors@radium.ssi.swin.edu.au
+To: Mike Jagdis <mjagdis@eris-associates.co.uk>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net
+Subject: Re: why do i get "Stale NFS file handle" for hours?
+In-Reply-To: <413B3CBD.1000304@eris-associates.co.uk>
+Message-ID: <Pine.LNX.4.53.0409061114420.31394@radium.ssi.swin.edu.au>
+References: <chdp06$e56$1@sea.gmane.org>  <1094348385.13791.119.camel@lade.trondhjem.org>
+  <413A7119.2090709@upb.de>  <1094349744.13791.128.camel@lade.trondhjem.org>
+  <413A789C.9000501@upb.de> <1094353267.13791.156.camel@lade.trondhjem.org>
+ <slrn-0.9.7.4-19971-22570-200409051803-tc@hexane.ssi.swin.edu.au>
+ <413B3CBD.1000304@eris-associates.co.uk>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-References: <413AA7B2.4000907@yahoo.com.au> <20040904230210.03fe3c11.davem@davemloft.net> <413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au> <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Sun, 5 Sep 2004, Mike Jagdis wrote:
 
+> Tim Connors wrote:
+> > I will update one directory with rsync from one host,
 >
->On Sun, 5 Sep 2004, Nick Piggin wrote:
->
->>Hmm, and the crowning argument for not stopping at order 3 is that if we
->>never use higher order allocations, nothing will care about their watermarks
->>anyway. I think I had myself confused when that question in the first place.
->>
->>So yeah, stopping at a fixed number isn't required, and as you say it keeps
->>things general and special cases minimal.
->>
->
->Hey, please refute my "you need 20% free" to get even to order-3 for most
->cases first.
->
->
+> You mean rsync to the server and change files directly on the fs rather
+> than through an NFS client?
 
-s/need 20% free/need to free 20%/ ?
+No - the server is behind a firewall. Just an ordinary nfs client.
 
-I won't refute that. It is an unfortunate effect of using dumb scanning to
-free higher order memory. Orthogonal to my patch, which just uses the 
-current
-freeing mechanism to ensure kswapd gets off its bottom and does some 
-work for
-higher order allocators.
-
->It's probably acceptable to have a _very_ backgrounded job that does
->freeing if order-3 isn't available, but it had better be pretty
->slow-moving, I suspect. On the order of "It's probably ok to try to aim
->for up to 25% free 'overnight' if the machine is idle" but it's almost
->certainly not ok to aggressively push things out to that degree..
+> > and then try, a
+> > little later on, to operate on that directory from another host. Every
+> > now and then, from a single host only, a few files in that tree will
+> > get stale filehandles - an ls of that directory will mostly be fine
+> > apart from those files. They will also be fine from any other machine.
 >
->
+> Yeah, that's what happens... Clients that had the file open are liable
+> to get ESTALE. Stale file handles stick around until unmount. As long as
+> they're around automount will consider the mount busy and not expire it
+> (but you can unmount manually or killall -USR1 automountd).
 
-I think my mechanism is about as on-demand as you can get. I think we've
-typically leaned this way WRT the memory manager as opposed to background
-scanning and freeing.... so sure you could introduce a new method for 
-freeing
-higher order memory (ie. defragmenting), but I think you'd still want to use
-my kswapd scheme in that case as well.
+Yep - that has been the case normally (when the entire mount went stale),
+we'd just restart the automounter.
 
-So instead of always freeing pages, you'd say:
-    if (!watermark_ok(order 0 pages))
-       try_to_free_pages
-    if (!watermark_ok(order-that-i-need))
-       try_to_defragment_pages
+You almost hit the nail on the head with regards to the problem - this
+last happened a week ago, and I seem to remember 6 files getting ESTALE.
+But only 2 of those would have likely been open on the host where they
+went stale, at any time near when they went stale (if they were open at
+all), if I am remembering things right. Unless an `ls -lA --color` counts
+as "opening" (they weren't symlinks, just normal files, so I doubt it).
 
+What is strange, is I was able to make them "unstale" simply by clearing
+cache - allocating a large block of ram, and ensuring buffers and cached
+went to something very small. I didn't need to restart the automounter at
+all. Then, I could `ls` the directory fine, and could `cat` the files
+fine.
+
+I'm afraid that the intermittent nature of this problem is going to make
+it hard for me to reproduce though!
+
+I take it the files go stale (normally) because sillyrename only happens
+when 1 host tries to delete while the same host has the file open, so the
+server doesn't know that a client still has it open, and if the inode just
+happens to be allocated by something new, then the server has no choice
+but to say "bugger off"? I thought I had seen in the past that you could
+delete a file from one host, have another host still be using the file,
+and it would do the sillyrename, and the client would continue to use the
+file just fine - probably was on a Sun, come to think of it -- does it's
+equivalent of sillyrename keep track of who has what open?
+
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+"Meddle not in the affairs of cats, for they are subtle, and will
+piss on your computer."                             - Jeff Wilder

@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263102AbVCKCeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263318AbVCKCgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263102AbVCKCeX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 21:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbVCKCeX
+	id S263318AbVCKCgc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 21:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVCKCgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 21:34:23 -0500
-Received: from ozlabs.org ([203.10.76.45]:64228 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263102AbVCKCeP (ORCPT
+	Thu, 10 Mar 2005 21:36:31 -0500
+Received: from fire.osdl.org ([65.172.181.4]:62650 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263318AbVCKCgG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 21:34:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16945.948.350317.549743@cargo.ozlabs.ibm.com>
-Date: Fri, 11 Mar 2005 13:34:28 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Ingo Oeser <ioe-lkml@axxeo.de>
-Cc: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
-       Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
+	Thu, 10 Mar 2005 21:36:06 -0500
+Date: Thu, 10 Mar 2005 18:37:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Jones <davej@redhat.com>
+cc: Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PPC64] Allow emulation of mfpvr on ppc64 kernel
-In-Reply-To: <200503102317.04027.ioe-lkml@axxeo.de>
-References: <20050310021848.GD30435@localhost.localdomain>
-	<200503102317.04027.ioe-lkml@axxeo.de>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Subject: Re: AGP bogosities
+In-Reply-To: <20050311021248.GA20697@redhat.com>
+Message-ID: <Pine.LNX.4.58.0503101837020.2530@ppc970.osdl.org>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+ <20050311021248.GA20697@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser writes:
 
-> Why not putting the required information into the AUX table
-> when executing your ELF programs? I loved this feature in the
-> ix86 arch.
 
-We do put an AT_HWCAP entry in the aux table, which is a bitmap of
-features supported by the cpu.  But for some applications, such as
-programming the performance monitor hardware, you need to know the
-specific CPU model and version, and this is a way to provide that
-information.
+On Thu, 10 Mar 2005, Dave Jones wrote:
+> 
+>  >  	/* ARQSZ - Set the value to the maximum one.
+>  > @@ -642,11 +638,6 @@
+>  >  			return 0;
+>  >  		}
+>  >  		cap_ptr = pci_find_capability(device, PCI_CAP_ID_AGP);
+>  > -		if (!cap_ptr) {
+>  > -			pci_dev_put(device);
+>  > -			continue;
+>  > -		}
+>  > -			cap_ptr = 0;
+>  >  	}
+> 
+> This part I'm not so sure about.
+> The pci_get_class() call a few lines above will get a refcount that
+> we will now never release.
 
-Paul.
+That's the part I rewrote in my version, I think that one is good.
+
+		Linus

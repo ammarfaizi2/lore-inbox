@@ -1,113 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264624AbSLQPpB>; Tue, 17 Dec 2002 10:45:01 -0500
+	id <S261724AbSLQPn6>; Tue, 17 Dec 2002 10:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264625AbSLQPpB>; Tue, 17 Dec 2002 10:45:01 -0500
-Received: from web20507.mail.yahoo.com ([216.136.226.142]:65406 "HELO
-	web20507.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264624AbSLQPo5>; Tue, 17 Dec 2002 10:44:57 -0500
-Message-ID: <20021217155255.31227.qmail@web20507.mail.yahoo.com>
-Date: Tue, 17 Dec 2002 07:52:55 -0800 (PST)
-From: Manish Lachwani <m_lachwani@yahoo.com>
-Subject: Re: another seagate for the black-list?
-To: Aryix <aryix@softhome.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <courier.3DFF30A8.000033A8@softhome.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263991AbSLQPn5>; Tue, 17 Dec 2002 10:43:57 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20962
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261724AbSLQPn4>; Tue, 17 Dec 2002 10:43:56 -0500
+Subject: Re: Via 8233 flooding of errors [2.4-ac]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nathaniel Russell <reddog83@chartermi.net>
+Cc: alan@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0212171035450.1629-100000@reddog.example.net>
+References: <Pine.LNX.4.44.0212171035450.1629-100000@reddog.example.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Dec 2002 16:31:40 +0000
+Message-Id: <1040142700.19998.24.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-12-17 at 15:49, Nathaniel Russell wrote:
+> Alan,
+> What would you like to me to send you all i play are mp3's and i watch DVD's???
+> And about the ignoring drained playback i can just ignore that paranoia, that
+> is fine with me. Oh and yes i hit ^C to stop the mp3 player :).
 
->From dmesg that you sent me:
+Ok lets see if I understand what is actually going on. Can you try
 
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide1: reset: success
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete
-Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide1: reset: success
+--- drivers/sound/via82cxxx_audio.c~	2002-12-17 15:47:21.000000000 +0000
++++ drivers/sound/via82cxxx_audio.c	2002-12-17 15:48:51.000000000 +0000
+@@ -15,7 +15,7 @@
+  */
+ 
 
-which shows CRC errors. And in this case, there will
-be a UDMA downgrade. Send me the SMART data using
-smartctl and replace the cabling. The drive is
-initialized UDMA 66
+-#define VIA_VERSION	"1.9.1-ac"
++#define VIA_VERSION	"1.9.1-ac2"
+ 
 
-hda: 58633344 sectors (30020 MB) w/418KiB Cache,
-CHS=3649/255/63, (U)DMA
-blk: queue c030a928, I/O limit 4095Mb (mask
-0xffffffff)
-hdc: 12596850 sectors (6450 MB) w/256KiB Cache,
-CHS=13330/15/63, UDMA(66)
-
-but the UDMA is downgraded on CRC. Thats the expected
-behavior
-
-
-
---- Aryix <aryix@softhome.net> wrote:
-> On Tue, 17 Dec 2002 06:07:34 -0800
-> Manish Lachwani <manish@Zambeel.com> wrote:
-> 
-> >  Did you send me dmesg o/p?
-> > 
-> > Send me e-mail at m_lachwani@yahoo.com since I
-> will access that shortly 
-> > 
-> > 
-> > 
-> > -----Original Message-----
-> > From: Aryix
-> > To: Manish Lachwani
-> > Sent: 12/17/02 5:48 AM
-> > Subject: Re: another seagate for the black-list?
-> > 
-> > On Tue, 17 Dec 2002 05:45:57 -0800
-> > Manish Lachwani <manish@Zambeel.com> wrote:
-> > 
-> > > When you use hdparm -X ..., can you also check
-> dmesg for any IDE
-> > warnings.
-> > > Also, do a hdparm -I /dev/hdX 
-> > > 
-> Thank you!
->
---------------------------------------------------------------------------
-> pub  1024D/BE8E00BE 2002-12-06 Aryix Berius
-> (nothing) <aryix@softhome.net>
->      Key fingerprint = 249D C5BC 8B9A C46A C7F4 
-> 397D 2A6D 9FF6 BE8E 00BE
-> sub  2048g/C1C6CB29 2002-12-10 (linux.sophia.org.ar
-> at 200.70.32.145)
-> 
-> 
-
-> ATTACHMENT part 2 application/octet-stream
-name=dmesg
-
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+ #include <linux/config.h>
+@@ -1344,7 +1344,11 @@
+ 
+ static inline void via_chan_maybe_start (struct via_channel *chan)
+ {
+-	assert (chan->is_active == sg_active(chan->iobase));
++	if(chan->is_active != sg_active(chan->iobase))
++	{
++		chan->is_active = 0;
++		printk(KERN_ERR "via82cxx_audio: DSP stopped unexpectedly.\n");
++	}
+ 
+ 	if (!chan->is_active && chan->is_enabled) {
+ 		chan->is_active = 1;
+@@ -3275,7 +3279,7 @@
+ 
+ 	if (file->f_mode & FMODE_WRITE) {
+ 		rc = via_dsp_drain_playback (card, &card->ch_out, nonblock);
+-		if (rc && rc != ERESTARTSYS)	/* Nobody needs to know about ^C */
++		if (rc && rc != -ERESTARTSYS)	/* Nobody needs to know about ^C */
+ 			printk (KERN_DEBUG "via_audio: ignoring drain playback error %d\n", rc);
+ 
+ 		via_chan_free (card, &card->ch_out);

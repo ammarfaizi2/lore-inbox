@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131016AbQKABeO>; Tue, 31 Oct 2000 20:34:14 -0500
+	id <S131035AbQKABgY>; Tue, 31 Oct 2000 20:36:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131035AbQKABeE>; Tue, 31 Oct 2000 20:34:04 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:47629 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S131016AbQKABdy>;
-	Tue, 31 Oct 2000 20:33:54 -0500
-Message-Id: <200011010133.eA11Xtr11638@sleipnir.valparaiso.cl>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks! 
-In-Reply-To: Message from Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> 
-   of "Tue, 31 Oct 2000 14:48:53 MDT." <200010312048.OAA244641@tomcat.admin.navo.hpc.mil> 
-Date: Tue, 31 Oct 2000 22:33:54 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S131090AbQKABgO>; Tue, 31 Oct 2000 20:36:14 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:22939 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S131035AbQKABgE>; Tue, 31 Oct 2000 20:36:04 -0500
+Date: Wed, 1 Nov 2000 01:40:24 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: scsi-cdrom lockup and ide-scsi problem (both EFS related)
+In-Reply-To: <20001031183357.B11727@suse.de>
+Message-ID: <Pine.LNX.4.21.0011010138070.9072-100000@fogarty.jakma.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> said:
+On Tue, 31 Oct 2000, Jens Axboe wrote:
 
-[...]
+> It's untested behaviour at this point, all bets are off. It
+> hasn't oopses here though...
+> 
 
-> Also pay attention to the security aspects of a true "zero copy" TCP stack.
-> It means that SOMETIMES a user buffer will recieve data that is destined
-> for a different process.
+let me mail you an IRIX EFS CD.. :) 
 
-Why? AFAIKS, given proper handling of the issues involved, this can't
-happen (sure can get tricky, but can be done in principle. Or am I
-off-base?)
+(only half joking here. if you want one for testing let me know).
+
+> > so once the scsi cdrom is fixed then ide-scsi should work too?
+> 
+> Yup
+
+how far down the TODO list is it? (to this user anyway it's
+important).
+
+thanks for the answers jens,
 -- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+Paul Jakma	paul@clubi.ie
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+The reason that every major university maintains a department of
+mathematics is that it's cheaper than institutionalizing all those people.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

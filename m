@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130162AbRB1NqZ>; Wed, 28 Feb 2001 08:46:25 -0500
+	id <S130167AbRB1NwG>; Wed, 28 Feb 2001 08:52:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130165AbRB1NqQ>; Wed, 28 Feb 2001 08:46:16 -0500
-Received: from shared1-qin.whowhere.com ([209.185.123.111]:23770 "HELO
-	shared1-mail.whowhere.com") by vger.kernel.org with SMTP
-	id <S130162AbRB1NqB>; Wed, 28 Feb 2001 08:46:01 -0500
-To: linux-kernel@vger.kernel.org
-Date: Wed, 28 Feb 2001 08:45:39 -0500
-From: "David Anderson" <daveanderson@eudoramail.com>
-Message-ID: <EOFHHHCCDNNKDAAA@shared1-mail.whowhere.com>
-Mime-Version: 1.0
-X-Sent-Mail: on
-Reply-To: daveanderson@eudoramail.com
-X-Mailer: MailCity Service
-Subject: Can't compilete 2.4.2 kernel
-X-Sender-Ip: 64.158.24.160
-Organization: QUALCOMM Eudora Web-Mail  (http://www.eudoramail.com:80) 
+	id <S130170AbRB1Nv4>; Wed, 28 Feb 2001 08:51:56 -0500
+Received: from smtppop1pub.gte.net ([206.46.170.20]:27993 "EHLO
+	smtppop1pub.verizon.net") by vger.kernel.org with ESMTP
+	id <S130167AbRB1Nvt>; Wed, 28 Feb 2001 08:51:49 -0500
+Message-ID: <3A9D026D.3D5E3CE7@gte.net>
+Date: Wed, 28 Feb 2001 08:51:41 -0500
+From: Stephen Clark <sclark46@gte.net>
+Reply-To: sclark46@gte.net
+Organization: Paradigm 4
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Undo Loss msgs from 2.4.2ac5
 Content-Type: text/plain; charset=us-ascii
-Content-Language: en
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC daveanderson@eudoramail.com on your replies - I'm not on the mailing list.
+Feb 28 08:20:23 pc-sec kernel: Undo loss 24.96.49.185/22 c2 l0 ss2/65535
+p0
+Feb 28 08:22:12 pc-sec kernel: Undo loss 24.96.49.185/22 c2 l0 ss2/65535
+p0
 
-Slackware 7.1
-cd /usr/src
-tar -xvyf linux-2.4.2.tar.bz2
-mv linux linux-2.4
-cd linux-2.4
-make mrproper
-make menuconfig - {selection options, etc.}
-make dep
-make clean
-make bzImage
+Can anyone tell me what these messages mean? It looks like they are
+coming from
+tcp_input.c:tcp_try_undo_recovery
 
-Get this with bzImage:
+Should I worry about them?
 
-gcc -Wall -Wstrict-prototypes -O2- fomit-frame-pointer -o scripts/split-include scripts/split-include.c
-In file included from /usr/include/errno.h:36,
-from scripts/split-include.c:26:
-/usr/include/bits/errno.h:25: linux/errno.h: No such file or directory
-make: *** [scripts/split-include] Error 1
+PCI: Found IRQ 12 for device 00:09.0
+eth0: ADMtek Comet rev 17 at 0xe800, 00:20:78:06:94:8E, IRQ 12.
 
+Using 8139too driver.
 
-THANKS!
+TIA,
+Steve
 
-
-Join 18 million Eudora users by signing up for a free Eudora Web-Mail account at http://www.eudoramail.com

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265317AbUAETnO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 14:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUAETnO
+	id S265314AbUAETqN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 14:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265328AbUAETqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 14:43:14 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:12456 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S265317AbUAETnN (ORCPT
+	Mon, 5 Jan 2004 14:46:13 -0500
+Received: from galileo.bork.org ([66.11.174.156]:50817 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S265314AbUAETqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 14:43:13 -0500
-To: Reza Roboubi <rob@mail.requestfinder.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Subject: Linux Hardware Nightmare!
-References: <3FF942D7.2040403@mail.requestfinder.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 05 Jan 2004 14:20:32 +0100
-In-Reply-To: <3FF942D7.2040403@mail.requestfinder.com> (Reza Roboubi's
- message of "Mon, 05 Jan 2004 02:56:23 -0800")
-Message-ID: <m3d69yy1jz.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Mon, 5 Jan 2004 14:46:08 -0500
+Date: Mon, 5 Jan 2004 14:46:06 -0500
+From: Martin Hicks <mort@bork.org>
+To: DervishD <raul@pleyades.net>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Weird problems with printer using USB
+Message-ID: <20040105194606.GA1112@localhost>
+References: <20040105192430.GA15884@DervishD>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040105192430.GA15884@DervishD>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reza Roboubi <rob@mail.requestfinder.com> writes:
 
-> You see, I have some VIA chips, and they seem buggy (or Linux does.)
 
-Are you sure it isn't a RAM problem or something like that? While
-probably all chipsets on the market are buggy, I don't see any hangs
-with Linux (with VIA or non-VIA chipsets). I'm using VIA MVP3 with
-AMD K6, VIA 686B with dual PIII, VIA KT266A and KT333 with Athlons XP.
-The video cards are various older S3, NVidia GFIIs with XFree86 driver,
-ATI Radeon 8500.
+On Mon, Jan 05, 2004 at 08:24:30PM +0100, DervishD wrote:
+>     Hi all :)
+> 
+>     I have a Lexmark E312 laser printer, which comes with both a parallel
+> port and an USB port. It interprets PostScript, so when I print I
+> simply 'cat' the file to the printer device (together with some
+> codes, quite simple). This method works smoothly when using the
+> printer through the parallel port, no problem, but when I use the USB
+> port, sometimes I get the following:
+> 
+> kernel: host/usb-uhci.c: interrupt, status 2, frame# 682
+> kernel: printer.c: usblp0: nonzero read/write bulk status received: -110
+> kernel: printer.c: usblp0: error -84 reading printer status
+> kernel: printer.c: usblp0: removed
 
-It might be a problem with the video card as well, are you using NVidia
-drivers by chance?
+I'm getting this same error when printing anything but the smallest
+print job to an HP DeskJet 3550 USB.  Using latest RH9 errata packages.
+
+>     I have shown one of each error messages I get in my system logs.
+> Normally I get a couple or three of the first message, a few of the
+> last and a good bunch of the another two. Whenever I get the message
+> about the 'bulk status', the printer dies and I must turn cycle it.
+> 
+
+I also have to power cycle the printer to get it to do anything again.
+
+mh
+
 -- 
-Krzysztof Halasa, B*FH
+Martin Hicks || mort@bork.org || PGP/GnuPG: 0x4C7F2BEE

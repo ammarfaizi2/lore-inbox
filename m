@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbUALWua (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 17:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUALWua
+	id S262048AbUALWmG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 17:42:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUALWmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 17:50:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39624 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263522AbUALWu1 (ORCPT
+	Mon, 12 Jan 2004 17:42:06 -0500
+Received: from smtp03.web.de ([217.72.192.158]:21528 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S262048AbUALWmB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 17:50:27 -0500
-Date: Mon, 12 Jan 2004 14:51:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-Cc: bart@samwel.tk, kai.a.krueger@web.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Message-Id: <20040112145124.68ec3068.akpm@osdl.org>
-In-Reply-To: <1073940669.30991.7.camel@LNX.iNES.RO>
-References: <200401121707.i0CH7iQ11796@mailgate5.cinetic.de>
-	<4002F627.8000508@samwel.tk>
-	<1073940669.30991.7.camel@LNX.iNES.RO>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jan 2004 17:42:01 -0500
+From: DOSProfi <DOSProfi@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: Radeon FB
+Date: Tue, 13 Jan 2004 00:44:43 +0100
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200401130044.00467.DOSProfi@web.de>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO> wrote:
->
-> This e-mail is written using "LD_PRELOAD=no-fsync.so evolution", and the
-> disc does not spin up every time I switch to another folder or just
-> another e-mail.
-> 
-> ...
-> Now I wonder what will happen if I do this system-wide...
+Hello,
 
-I think it's a valid thing to do, personally.  I had a "personal
-laptop-mode" patch ages ago which just disabled fsync, fdatasync and O_SYNC
-kernel-wide.  Gone.
+I have a Radeon 9600 Mobility, if I activate the RadeonFB the Notebook hangs, 
+... if I choose the VESA all is best. (1024x768 64k colors)
 
-It's the sort of thing which email purists tend to get emotional about, but
-really this is a choice which should be made available to the user if you
-want to do this thing properly.
+This problem is including 2.4.25-pre4 and 2.6.1. The Radeon FB module is 
+universal for both, Radeon and Radeon FB?!?!?
 
-
-sync() needs to still work.  If you have some app which calls sync() all
-the time then you lose.
-
+EnricoB

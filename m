@@ -1,57 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129895AbQKINji>; Thu, 9 Nov 2000 08:39:38 -0500
+	id <S129787AbQKINkJ>; Thu, 9 Nov 2000 08:40:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129809AbQKINj3>; Thu, 9 Nov 2000 08:39:29 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:63637 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S129787AbQKINjO>;
-	Thu, 9 Nov 2000 08:39:14 -0500
-Date: Thu, 9 Nov 2000 13:39:04 +0000 (GMT)
-From: Paul Jakma <paulj@itg.ie>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: Christoph Rohland <cr@sap.com>, richardj_moore@uk.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <3A0A9E33.F268D4C5@holly-springs.nc.us>
-Message-ID: <Pine.LNX.4.21.0011091332080.7475-100000@rossi.itg.ie>
+	id <S130738AbQKINkB>; Thu, 9 Nov 2000 08:40:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1617 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129809AbQKINjp>; Thu, 9 Nov 2000 08:39:45 -0500
+Subject: Re: [PATCH] media/radio [check_region() removal... ]
+To: pazke@orbita.don.sitek.net (Andrey Panin)
+Date: Thu, 9 Nov 2000 13:37:41 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <20001109160652.A1953@debian> from "Andrey Panin" at Nov 09, 2000 04:06:52 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13trtf-0001A3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2000, Michael Rothwell wrote:
+> 2) i found that some net drivers (3c527.c, sk_mca.c) use io region and
+> don't call request_region() at all. Should they be fixed ?
 
-> Well, then, problem solved.
-> 
+Probably.
 
-:)
-
-> > afaik linus allows binary modules in most cases.
-> 
-> And since an "Advanced Linux Kernel Project" wouldn't be a Linus kernel,
-> what then? Would they have the same discretion as Linus? Would Linus'
-> exception apply to them?
-
-don't know. you'd have to ask him...
-
-I actually think Linus has been too loose/vague on modules. The
-official COPYING txt file in the tree contains an exception on linking
-to the kernel using syscalls from linus and the GPL. nothing about
-binary modules, and afaik the only statements he's ever made about
-binary modules were off the cuff on l-k a long time (unless someone
-knows a binary module whose vendor can show a written exception from
-Linus et al). 
-
-The result of all this is that we've had plenty of vendors ignoring
-the GPL as it applies to linux and release binary modules all because
-linus said on a mailling list that he doesn't mind too much. not a
-very strong affirmation of the conditions under which linux is
-licensed.
-
-be nice if the binary module thing could be clarified by the copyright
-holders.
-
---paulj
+MCA bus ensures there can be no collisions of I/O space but it does mean the
+user cannot see what is where as is
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

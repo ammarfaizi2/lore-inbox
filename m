@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263838AbUDPXIE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 19:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbUDPXIE
+	id S263933AbUDPXKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 19:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263939AbUDPXKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 19:08:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20965 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263838AbUDPXIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 19:08:00 -0400
-Date: Fri, 16 Apr 2004 16:07:59 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: baycom_par dereference before check.
-Message-ID: <20040416160759.D22989@build.pdx.osdl.net>
-References: <20040416212004.GO20937@redhat.com> <20040416212541.GH24997@parcelfarce.linux.theplanet.co.uk> <20040416212738.GQ20937@redhat.com> <408054C9.5070202@pobox.com> <20040416215319.GW20937@redhat.com>
+	Fri, 16 Apr 2004 19:10:24 -0400
+Received: from mail.shareable.org ([81.29.64.88]:58274 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263933AbUDPXKP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 19:10:15 -0400
+Date: Sat, 17 Apr 2004 00:10:09 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm <linux-mm@kvack.org>
+Subject: Re: msync() needed before munmap() when writing to shared mapping?
+Message-ID: <20040416231009.GA27775@mail.shareable.org>
+References: <20040416220223.GA27084@mail.shareable.org> <20040416154652.7ab27e79.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040416215319.GW20937@redhat.com>; from davej@redhat.com on Fri, Apr 16, 2004 at 10:53:19PM +0100
+In-Reply-To: <20040416154652.7ab27e79.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Jones (davej@redhat.com) wrote:
-> On Fri, Apr 16, 2004 at 05:48:57PM -0400, Jeff Garzik wrote:
->  > >Good point. Still doesn't strike me as particularly nice though.
->  > I would rather just remove the checks completely.  The success of any of 
->  > those checks is a BUG() condition that should never occur.
+Andrew Morton wrote:
+> Jamie Lokier <jamie@shareable.org> wrote:
+> > I've followed the logic from do_munmap() and it looks good:
+> > unmap_vmas->zap_pte_range->page_remove_rmap->set_page_dirty.
+> > 
+> > Can someone confirm this is correct, please?
 > 
-> That works for me too. How about this?
-> 
-> 		Dave
-> 
-> --- linux-2.6.5/drivers/net/hamradio/baycom_par.c~	2004-04-16 22:52:35.000000000 +0100
-> +++ linux-2.6.5/drivers/net/hamradio/baycom_par.c	2004-04-16 22:52:53.000000000 +0100
-> @@ -274,8 +274,8 @@
->  	struct net_device *dev = (struct net_device *)dev_id;
->  	struct baycom_state *bc = netdev_priv(dev);
->  
-> -	if (!dev || !bc || bc->hdrv.magic != HDLCDRV_MAGIC)
-> -		return;
-> +	BUG_ON(!bc);
+> yup, zap_pte_range() transfers pte dirtiness into pagecache dirtiness when
+> tearing down the mapping, leaving the dirty page floating about in
+> pagecache for kupdate/kswapd/fsync to catch.  Longstanding behaviour.
 
-If it's adding a constant offset to dev, the bc would be non-NULL in a bug
-case, no?
+Thanks.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+A related question.  The comment for MADV_DONTNEED says:
+
+ * NB: This interface discards data rather than pushes it out to swap,
+ * as some implementations do.  This has performance implications for
+ * applications like large transactional databases which want to discard
+ * pages in anonymous maps after committing to backing store the data
+ * that was kept in them.  There is no reason to write this data out to
+ * the swap area if the application is discarding it.
+ *
+ * An interface that causes the system to free clean pages and flush
+ * dirty pages is already available as msync(MS_INVALIDATE).
+
+MADV_DONTNEED calls zap_page_range().
+That propagates dirtiness into the pagecache.
+
+So it *doesn't* "discard data rather than push it out to swap", if the
+same dirty data is mapped elsewhere e.g. as a shared anonymous
+mapping, does it?
+
+The comment also mentions MS_INVALIDATE, but MS_INVALIDATE doesn't do
+what the comment says and doesn't implement anything like POSIX
+either.  (Linux's MS_INVALIDATE is practically equivalent to MS_ASYNC).
+
+Is there a call which does what the command about MS_INVALIDATE says,
+i.e. free clean pages and flush dirty ones?
+
+Thanks,
+-- Jamie

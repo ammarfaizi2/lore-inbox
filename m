@@ -1,302 +1,182 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293089AbSCRWKq>; Mon, 18 Mar 2002 17:10:46 -0500
+	id <S293122AbSCRWM4>; Mon, 18 Mar 2002 17:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293092AbSCRWK3>; Mon, 18 Mar 2002 17:10:29 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:62606 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293089AbSCRWKP>; Mon, 18 Mar 2002 17:10:15 -0500
-Date: Mon, 18 Mar 2002 14:07:01 -0800
-From: Russ Weight <rweight@us.ibm.com>
-To: mingo@elte.hu
-Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Scalable CPU bitmasks
-Message-ID: <20020318140700.A4635@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S293109AbSCRWMr>; Mon, 18 Mar 2002 17:12:47 -0500
+Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:63138 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S293092AbSCRWMe>; Mon, 18 Mar 2002 17:12:34 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 7.52 second kernel compile
+Date: Mon, 18 Mar 2002 23:12:24 +0100
+X-Mailer: KMail [version 1.3.9]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200203182312.24958.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	This patch consists of a single architecture-independent
-header file and should apply to any version of the linux kernel.
+On Mon, 18 Mar 2002, 20:23:48 Linus Torvalds wrote:
+> On Mon, 18 Mar 2002, Linus Torvalds wrote:
+> >
+> > Well, I actually hink that an x86 comes fairly close.
+>
+> Btw, here's a program that does a simple histogram of TLB miss cost, and
+> shows the interesting pattern on intel I was talking about: every 8th miss
+> is most costly, apparently because Intel pre-fetches 8 TLB entries at a
+> time.
+>
+> So on a PII core, you'll see something like
+>
+>          87.50: 36
+>          12.39: 40
+>
+> ie 87.5% (exactly 7/8) of the TLB misses take 36 cycles, while 12.4% (ie
+> 1/8) takes 40 cycles (and I assuem that the extra 4 cycles is due to
+> actually loading the thing from the data cache).
+>
+> Yeah, my program might be buggy, so take the numbers with a pinch of salt.
+> But it's interesting to see how on an athlon the numbers are
+>
+>           3.17: 59
+>          34.94: 62
+>           4.71: 85
+>          54.83: 88
+>
+> ie roughly 60% take 85-90 cycles, and 40% take ~60 cycles. I don't know
+> where that pattern would come from..
 
-          This patch implements a scalable bitmask specifically
-  for tracking CPUs. It consists of a single architecture-independent
-  header file which simply adds a new datatype and supporting functions.
-  It allows for future expansion to a CPU count which is not confined
-  to the bit-size of (unsigned long).  The new datatype (cpumap_t) and
-  supporting functions are optimized at compile-time according to
-  the definition of NR_CPUS.
-  
-          While systems with more than 32 processors are still
-  out in the future, these interfaces provide a path for gradual
-  code migration. One of the primary goals is to provide current
-  functionality without affecting performance.
-  
-          phys_cpu_present_map
-          cpu_initialized
-          wait_init_idle
-          cpu_online_map/cpu_present_mask
-          cpu_callin_map
-          cpu_callout_map
-  
-  NOTE:   The cpumap_to_ulong() and cpumap_ulong_to_cpumap() interfaces
-          are provided specifically for migration. In their current form,
-          they call BUG() if NR_CPUS is defined to be greater than the
-          bit-size of (unsigned long).
+Linus,
 
-diff -Nru a/include/linux/cpumap.h b/include/linux/cpumap.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/cpumap.h	Thu Mar 14 11:27:55 2002
-@@ -0,0 +1,246 @@
-+/*
-+ * cpumap_t data type and supporting functions
-+ *
-+ * Copyright (c) 2001 IBM Corp.
-+ *
-+ *	01/25/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+#ifndef __LINUX_CPUMAP_H
-+#define __LINUX_CPUMAP_H
-+
-+#ifdef CONFIG_SMP
-+ #include <asm/types.h>
-+ #define CPUMAP_SIZE       ((NR_CPUS + BITS_PER_LONG - 1) / BITS_PER_LONG)
-+#else
-+ #define CPUMAP_SIZE       1
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+#include <linux/bitops.h>
-+typedef unsigned long cpumap_t[CPUMAP_SIZE];
-+
-+/*
-+ * The cpumap_to_ulong() and cpumap_ulong_to_cpumap() functions
-+ * are provided primarily for migration to the cpumap_t datatype.
-+ * As currently defined, they are only valid for CPUMAP_SIZE==1.
-+ */
-+static inline unsigned long cpumap_to_ulong(cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	BUG();	/* Not supported */
-+	return 0;
-+#else
-+	return cpumap[0];
-+#endif
-+}
-+
-+static inline void cpumap_ulong_to_cpumap(unsigned long bitmap, cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	BUG();	/* Not supported */
-+#else
-+	cpumap[0] = bitmap;
-+#endif
-+}
-+
-+
-+/*
-+ * The first set of interfaces are the same for SMP and UP.
-+ */
-+static inline void cpumap_clear_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		clear_bit(nr, cpumap);
-+	} else {
-+		BUG();
-+	}
-+}
-+
-+static inline void cpumap_set_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		set_bit(nr, cpumap);
-+	} else {
-+		BUG();
-+	}
-+}
-+
-+static inline int cpumap_test_and_set_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		return test_and_set_bit(nr, cpumap);
-+	} else {
-+		BUG();
-+		return -1;
-+	}
-+}
-+
-+/*
-+ * Return 1 (non-zero) if they are equal, 0 if not equal
-+ */
-+static inline int cpumap_test_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		return test_bit(nr, cpumap);
-+	} else {
-+		return 0;
-+	}
-+}
-+
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long). The single
-+ * CPU case falls into the CPUMAP_SIZE==1 case.
-+ */
-+static inline void cpumap_clear_mask(cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		cpumap[i] = 0UL;
-+	}
-+#else
-+	cpumap[0] = 0;
-+#endif
-+}
-+
-+static inline int cpumap_is_empty(cpumap_t map)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (map[i] !=  0) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+#else
-+	return (map[0] == 0);
-+#endif
-+}
-+
-+/*
-+ * Return 1 (non-zero) if they are equal, 0 if not equal
-+ */
-+static inline int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (map1[i] !=  map2[i]) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+#else
-+	return (map1[0] ==  map2[0]);
-+#endif
-+}
-+
-+#if (NR_CPUS % BITS_PER_LONG)
-+#define	CPUMAP_FILLMASK	((1 << (NR_CPUS % BITS_PER_LONG)) -1)
-+#else
-+#define	CPUMAP_FILLMASK	(~0UL)
-+#endif
-+
-+static inline void cpumap_fill(cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+
-+	for (i = 0; i < (CPUMAP_SIZE - 1); i++) {
-+		cpumap[i] = ~0UL;
-+	}
-+	cpumap[CPUMAP_SIZE - 1] = CPUMAP_FILLMASK;
-+#else
-+	cpumap[0] = CPUMAP_FILLMASK;
-+#endif
-+}
-+
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long).
-+ */
-+static inline void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		destmap[i] = srcmap[i];
-+	}
-+#else
-+	destmap[0] = srcmap[0];
-+#endif
-+}
-+
-+static inline void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		result[i] = map1[i] & map2[i];
-+	}
-+#else
-+	result[0] = map1[0] & map2[0];
-+#endif
-+}
-+
-+/*
-+ * The following macros and functions are used to format
-+ * a cpumap_t object for display. This function knows the 
-+ * minimum size required, which is provided as CPUMAP_BUFSIZE.
-+ *
-+ * The CPUMAP_BUFSIZE is an exact calcuation of the byte count
-+ * required to display a cpumap_t object.
-+ */
-+
-+#define CPUMAP_BUFSIZE (((sizeof(long) * 2) + 1) * CPUMAP_SIZE + 2)
-+
-+#if BITS_PER_LONG > 32
-+#define CPUMAP_FORMAT_STR	"%016lx"
-+#else
-+#define CPUMAP_FORMAT_STR	"%08lx"
-+#endif
-+
-+static inline char *cpumap_format(cpumap_t map, char *buf, int size)
-+{
-+	if (size < CPUMAP_BUFSIZE) {
-+		BUG();
-+	}
-+
-+#if CPUMAP_SIZE > 1
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
-+	{
-+		int i;
-+		char *p = buf + strlen(buf);
-+		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
-+			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
-+		}
-+	}
-+#else
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
-+#endif
-+	return(buf);
-+}
-+
-+#endif /* __ASSEMBLY__ */
-+#endif /* __LINUX_CPUMAP_H */
+it seems to be that it depends on gcc and flags.
+
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 2
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 998.068
+cache size      : 512 KB
+
+/home/nuetzel> gcc -v
+Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.3/specs
+gcc version 2.95.3 20010315 (SuSE)
+
+SuSE default (-march=i486 -mcpu=i486)
+/home/nuetzel> gcc -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  12.72: 19
+  85.15: 21
+0.460u 0.050s 0:00.50 102.0%    0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -mcpu=i486 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  12.75: 19
+  84.92: 21
+0.510u 0.010s 0:00.51 101.9%    0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -mcpu=i686 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  12.96: 19
+  84.57: 21
+0.460u 0.050s 0:00.50 102.0%    0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -mcpu=k6 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  13.16: 19
+  84.88: 21
+0.490u 0.010s 0:00.50 100.0%    0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -O2 -mcpu=i686 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+   2.03: 67
+   1.33: 80
+   3.50: 82
+  19.65: 91
+   1.37: 92
+  18.17: 93
+   1.59: 94
+  41.68: 97
+   2.83: 98
+   1.82: 106
+   1.60: 107
+0.450u 0.000s 0:00.46 97.8%     0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -O2 -mcpu=i486 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+   1.98: 67
+   1.28: 80
+   3.37: 82
+  19.78: 91
+   1.37: 92
+  18.30: 93
+   1.59: 94
+  41.71: 97
+   2.84: 98
+   1.82: 106
+   1.60: 107
+0.440u 0.010s 0:00.46 97.8%     0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -O -mcpu=i486 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  31.73: 19
+  46.76: 22
+   9.90: 29
+   8.23: 30
+0.430u 0.030s 0:00.45 102.2%    0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -O1 -mcpu=i486 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  35.17: 19
+  47.28: 22
+   7.92: 29
+   6.70: 30
+0.420u 0.040s 0:00.45 102.2%    0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -Os -mcpu=i486 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+   2.66: 67
+   1.79: 80
+   4.51: 82
+  18.58: 91
+   1.31: 92
+  17.11: 93
+   1.68: 94
+  40.38: 97
+   2.87: 98
+   1.80: 106
+   1.68: 107
+0.470u 0.010s 0:00.49 97.9%     0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -march=i486 -mcpu=i486 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  17.12: 19
+  80.45: 21
+0.480u 0.030s 0:00.50 102.0%    0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -march=i686 -mcpu=i686 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  17.23: 19
+  80.57: 21
+0.480u 0.010s 0:00.50 98.0%     0+0k 0+0io 101pf+0w
+
+/home/nuetzel> gcc -march=k6 -mcpu=k6 -o TLB_miss TLB_miss.c
+/home/nuetzel> time ./TLB_miss
+  14.15: 19
+  83.81: 21
+0.480u 0.030s 0:00.50 102.0%    0+0k 0+0io 101pf+0w
+
 -- 
-Russ Weight (rweight@us.ibm.com)
-Linux Technology Center
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de
+

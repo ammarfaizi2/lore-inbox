@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264254AbTEaJVu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 05:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbTEaJVu
+	id S264256AbTEaJXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 05:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbTEaJXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 05:21:50 -0400
-Received: from A17-250-248-86.apple.com ([17.250.248.86]:7158 "EHLO
-	smtpout.mac.com") by vger.kernel.org with ESMTP id S264254AbTEaJVo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 05:21:44 -0400
-Date: Sat, 31 May 2003 19:34:42 +1000
-Subject: Re: warning: process 'update' used the obsolete bdflush...
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: <linux-kernel@vger.kernel.org>, <rol@as2917.net>
-To: "Paul Rolland" <rol@witbe.net>
-From: Stewart Smith <stewartsmith@mac.com>
-In-Reply-To: <006a01c32753$9fdac7b0$2101a8c0@witbe>
-Message-Id: <1B8F41EC-934B-11D7-B416-00039346F142@mac.com>
+	Sat, 31 May 2003 05:23:24 -0400
+Received: from h2.prohosting.com.ua ([217.106.231.81]:61912 "EHLO
+	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
+	id S264256AbTEaJXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 05:23:21 -0400
+From: Artemio <artemio@artemio.net>
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+Subject: Re: Xeon processor support
+Date: Sat, 31 May 2003 12:31:16 +0300
+User-Agent: KMail/1.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0305310204290.31933-100000@twin.uoregon.edu>
+In-Reply-To: <Pine.LNX.4.44.0305310204290.31933-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200305311231.06582.artemio@artemio.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - artemio.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, May 31, 2003, at 07:04  PM, Paul Rolland wrote:
+Hello!
 
-> Hello,
->
-> When switching from 2.4.20 to 2.5.x (x being recent), I have this
-> message...
->
-> What does this mean ?
-> 1 - I have no process named update running,
-> 2 - I can't find anything name update in /etc/rc.d/* recursively.
+> The new xeons work fine with 2.4.20. Issues with rtlinux should probably
+> be directed to fsmlabs or their respective mailing lists...
+Well, they seem to have no idea what's wrong. One guy at rtlinux mailing list 
+had success building rtlinux-3.2-pre3 with 2.4.20 kernel on dual 2.4GHz Xeon 
+machine. I have the same rtlinux-3.2-pre3 with 2.4.20 kernel on dual 2.4GHz 
+Xeon machine, but rtlinux hangs it when I start it. That guy gave me his 
+config but I didn't have any success anyway.
 
-from fs/buffer.c:
-/*
-  * There are no bdflush tunables left.  But distributions are
-  * still running obsolete flush daemons, so we terminate them here.
-  *
-  * Use of bdflush() is deprecated and will be removed in a future 
-kernel.
-  * The `pdflush' kernel threads fully replace bdflush daemons and this 
-call.
-  */
+However, I have built the same 2.4.20/3.2-pre3 on PIII boxes and rtlinux runs 
+perfectly.
 
-I'd upgrade whatever package update comes from. I can't seem to find 
-that binary around on some of my systems, what distribution and version 
-are you running? Maybe it's time to upgrade.
+> Outside that what issues are you seeing?
+No issues. 
+I just know that Intel Xeon and Intel Pentium 4 Xeon are different things, 
+that's why I was asking - there is only a "Pentium 4" option in kernel 
+config.
 
-Someone else might know specifics :)
-------------------------------
-Stewart Smith
-stewartsmith@mac.com
-Ph: +61 4 3884 4332
-ICQ: 6734154
-http://www.flamingspork.com/       http://www.linux.org.au
 
+Thanks for reply.
+
+
+Artemio.

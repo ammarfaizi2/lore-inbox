@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266859AbSLWQl1>; Mon, 23 Dec 2002 11:41:27 -0500
+	id <S266846AbSLWQfS>; Mon, 23 Dec 2002 11:35:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266886AbSLWQl1>; Mon, 23 Dec 2002 11:41:27 -0500
-Received: from beta.bandnet.com.br ([200.195.133.131]:63748 "EHLO
-	beta.bandnet.com.br") by vger.kernel.org with ESMTP
-	id <S266859AbSLWQl1>; Mon, 23 Dec 2002 11:41:27 -0500
-From: "User &" <breno_silva@beta.bandnet.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: RE: PAGE = 1k
-Date: Mon, 23 Dec 2002 13:52:45 -0300
-Message-Id: <20021223165245.M26209@beta.bandnet.com.br>
-X-Mailer: Open WebMail 1.71 20020827
-X-OriginatingIP: 200.167.224.182 (breno_silva)
+	id <S266859AbSLWQfS>; Mon, 23 Dec 2002 11:35:18 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:61589 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266846AbSLWQfR>;
+	Mon, 23 Dec 2002 11:35:17 -0500
+Date: Mon, 23 Dec 2002 08:41:49 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Gianni Tedesco <gianni@ecsc.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: Re: NMI: IOCK error (debug interrupt?) - nope
+In-Reply-To: <20021223152812.GA7773@suse.de>
+Message-ID: <Pine.LNX.4.33L2.0212230840400.20684-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean
-yes i know ,it´s depend of hardware, but maybe we can do something as mmu
-with software or something like this , i don´t know.
+On Mon, 23 Dec 2002, Dave Jones wrote:
 
+| On Mon, Dec 23, 2002 at 03:12:22PM +0000, Gianni Tedesco wrote:
+|  > > When we looked in the logs there was this. Presumably the hardware is
+|  > > broken. But I wonder if anyone can confirm this? Thanks!
+|  > >
+|  > > NMI: IOCK error (debug interrupt?)
+|  >
+|  > Turns out to be a 2bit ECC error. The machine is a dell power-edge 350.
+|
+| A while ago I mentioned it would be nice to get the ECC drivers
+| cleaned up and included. Any yays or nays to getting this stuff
+| done sometime ?
 
+Yes!
 
-Breno
+| Yes it's a feature, but it's also just extra drivers.
+| Decisions decisions...
 
+Put that way, any driver is a feature, but that's not the point AFAIK.
+So go with more drivers...
 
+-- 
+~Randy
 

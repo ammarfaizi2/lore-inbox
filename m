@@ -1,42 +1,322 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265230AbTBCT7a>; Mon, 3 Feb 2003 14:59:30 -0500
+	id <S267005AbTBCT7b>; Mon, 3 Feb 2003 14:59:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267050AbTBCT6J>; Mon, 3 Feb 2003 14:58:09 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:1284 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265230AbTBCTxu>;
-	Mon, 3 Feb 2003 14:53:50 -0500
-Date: Mon, 3 Feb 2003 13:53:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Compactflash cards dying?
-Message-ID: <20030203125344.GA480@elf.ucw.cz>
-References: <20030202223009.GA344@elf.ucw.cz> <20030202235759.GA6859@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267049AbTBCT6F>; Mon, 3 Feb 2003 14:58:05 -0500
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:63433 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S266995AbTBCTwm> convert rfc822-to-8bit; Mon, 3 Feb 2003 14:52:42 -0500
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH, =?iso-8859-1?q?B=F6blingen?=
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 fixes (5/12).
+Date: Mon, 3 Feb 2003 20:46:32 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20030202235759.GA6859@alpha.home.local>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Message-Id: <200302032046.32847.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+update extable support in s390 and s390x
 
-> I had this same problem with my very first CF (16 MB) connected to a home-made
-> IDE adapter. I quickly discovered that the power wire (+5V) had been cut and
-> that the power was driven through the logic signals, which were strong enough
-> to let the card work correctly... nearly correctly. Because it got uncorrectable
-> defects, detected as bad sectors at IDE level. So may be your adapter is too
-> weak. Or may be you also use it in a battery-powered device which has frequent
-> power outages ?
+this makes use of the unified extable code.
+for 31 bit s390, this is slightly more complicated
+than the other architectures, but as long as 
+no one outside /arch uses search_exception_tables,
+everything should work nicely
+diff -urN linux-2.5.59/arch/s390/kernel/traps.c linux-2.5.59-s390/arch/s390/kernel/traps.c
+--- linux-2.5.59/arch/s390/kernel/traps.c	Fri Jan 17 03:22:00 2003
++++ linux-2.5.59-s390/arch/s390/kernel/traps.c	Mon Feb  3 20:49:35 2003
+@@ -268,9 +268,10 @@
+ 		}
+ #endif
+         } else {
+-                unsigned long fixup = search_exception_table(regs->psw.addr);
++                const struct exception_table_entry *fixup;
++                fixup = search_exception_tables(regs->psw.addr & 0x7fffffff);
+                 if (fixup)
+-                        regs->psw.addr = fixup;
++                        regs->psw.addr = fixup->fixup | PSW_ADDR_AMODE31;
+                 else
+                         die(str, regs, interruption_code);
+         }
+diff -urN linux-2.5.59/arch/s390/mm/extable.c linux-2.5.59-s390/arch/s390/mm/extable.c
+--- linux-2.5.59/arch/s390/mm/extable.c	Fri Jan 17 03:22:24 2003
++++ linux-2.5.59-s390/arch/s390/mm/extable.c	Mon Feb  3 20:49:35 2003
+@@ -2,10 +2,8 @@
+  *  arch/s390/mm/extable.c
+  *
+  *  S390 version
+- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Hartmut Penner (hp@de.ibm.com)
+  *
+- *  Derived from "arch/i386/mm/extable.c"
++ *  identical to arch/i386/mm/extable.c
+  */
+ 
+ #include <linux/config.h>
+@@ -13,63 +11,24 @@
+ #include <linux/spinlock.h>
+ #include <asm/uaccess.h>
+ 
+-extern const struct exception_table_entry __start___ex_table[];
+-extern const struct exception_table_entry __stop___ex_table[];
+-
+-static inline unsigned long
+-search_one_table(const struct exception_table_entry *first,
+-		 const struct exception_table_entry *last,
+-		 unsigned long value)
++/* Simple binary search */
++const struct exception_table_entry *
++search_extable(const struct exception_table_entry *first,
++	       const struct exception_table_entry *last,
++	       unsigned long value)
+ {
+-        while (first <= last) {
++	while (first <= last) {
+ 		const struct exception_table_entry *mid;
+ 		long diff;
+ 
+ 		mid = (last - first) / 2 + first;
+ 		diff = mid->insn - value;
+-                if (diff == 0)
+-                        return mid->fixup;
+-                else if (diff < 0)
+-                        first = mid+1;
+-                else
+-                        last = mid-1;
+-        }
+-        return 0;
+-}
+-
+-extern spinlock_t modlist_lock;
+-
+-unsigned long
+-search_exception_table(unsigned long addr)
+-{
+-	struct list_head *i;
+-	unsigned long ret = 0;
+-
+-#ifndef CONFIG_MODULES
+-        addr &= 0x7fffffff;  /* remove amode bit from address */
+-	/* There is only the kernel to search.  */
+-	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
+-	if (ret) ret = ret | PSW_ADDR_AMODE31;
+-	return ret;
+-#else
+-	unsigned long flags;
+-        addr &= 0x7fffffff;  /* remove amode bit from address */
+-
+-	/* The kernel is the last "module" -- no need to treat it special. */
+-	spin_lock_irqsave(&modlist_lock, flags);
+-	list_for_each(i, &extables) {
+-		struct exception_table *ex
+-			= list_entry(i, struct exception_table, list);
+-		if (ex->num_entries == 0)
+-			continue;
+-		ret = search_one_table(ex->entry,
+-				       ex->entry + ex->num_entries - 1, addr);
+-		if (ret) {
+-			ret = ret | PSW_ADDR_AMODE31;
+-			break;
+-		}
++		if (diff == 0)
++			return mid;
++		else if (diff < 0)
++			first = mid+1;
++		else
++			last = mid-1;
+ 	}
+-	spin_unlock_irqrestore(&modlist_lock, flags);
+-	return ret;
+-#endif
++	return NULL;
+ }
+diff -urN linux-2.5.59/arch/s390/mm/fault.c linux-2.5.59-s390/arch/s390/mm/fault.c
+--- linux-2.5.59/arch/s390/mm/fault.c	Fri Jan 17 03:22:28 2003
++++ linux-2.5.59-s390/arch/s390/mm/fault.c	Mon Feb  3 20:49:35 2003
+@@ -25,6 +25,7 @@
+ #include <linux/compatmac.h>
+ #include <linux/init.h>
+ #include <linux/console.h>
++#include <linux/module.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -151,7 +152,7 @@
+         struct vm_area_struct * vma;
+         unsigned long address;
+ 	int user_address;
+-        unsigned long fixup;
++	const struct exception_table_entry *fixup;
+ 	int si_code = SEGV_MAPERR;
+ 
+         tsk = current;
+@@ -267,8 +268,9 @@
+ 
+ no_context:
+         /* Are we prepared to handle this kernel fault?  */
+-        if ((fixup = search_exception_table(regs->psw.addr)) != 0) {
+-                regs->psw.addr = fixup;
++	fixup = search_exception_tables(regs->psw.addr & 0x7fffffff);
++	if (fixup) {
++		regs->psw.addr = fixup->fixup | PSW_ADDR_AMODE31;
+                 return;
+         }
+ 
+diff -urN linux-2.5.59/arch/s390x/kernel/traps.c linux-2.5.59-s390/arch/s390x/kernel/traps.c
+--- linux-2.5.59/arch/s390x/kernel/traps.c	Fri Jan 17 03:22:26 2003
++++ linux-2.5.59-s390/arch/s390x/kernel/traps.c	Mon Feb  3 20:49:35 2003
+@@ -269,9 +269,10 @@
+ 		}
+ #endif
+         } else {
+-                unsigned long fixup = search_exception_table(regs->psw.addr);
++                const struct exception_table_entry *fixup;
++                fixup = search_exception_tables(regs->psw.addr);
+                 if (fixup)
+-                        regs->psw.addr = fixup;
++                        regs->psw.addr = fixup->fixup;
+                 else
+                         die(str, regs, interruption_code);
+         }
+diff -urN linux-2.5.59/arch/s390x/mm/extable.c linux-2.5.59-s390/arch/s390x/mm/extable.c
+--- linux-2.5.59/arch/s390x/mm/extable.c	Fri Jan 17 03:21:50 2003
++++ linux-2.5.59-s390/arch/s390x/mm/extable.c	Mon Feb  3 20:49:35 2003
+@@ -11,58 +11,24 @@
+ #include <linux/spinlock.h>
+ #include <asm/uaccess.h>
+ 
+-extern const struct exception_table_entry __start___ex_table[];
+-extern const struct exception_table_entry __stop___ex_table[];
+-
+-static inline unsigned long
+-search_one_table(const struct exception_table_entry *first,
+-		 const struct exception_table_entry *last,
+-		 unsigned long value)
++/* Simple binary search */
++const struct exception_table_entry *
++search_extable(const struct exception_table_entry *first,
++	       const struct exception_table_entry *last,
++	       unsigned long value)
+ {
+-        while (first <= last) {
++	while (first <= last) {
+ 		const struct exception_table_entry *mid;
+ 		long diff;
+ 
+ 		mid = (last - first) / 2 + first;
+ 		diff = mid->insn - value;
+-                if (diff == 0)
+-                        return mid->fixup;
+-                else if (diff < 0)
+-                        first = mid+1;
+-                else
+-                        last = mid-1;
+-        }
+-        return 0;
+-}
+-
+-extern spinlock_t modlist_lock;
+-
+-unsigned long
+-search_exception_table(unsigned long addr)
+-{
+-	unsigned long ret = 0;
+-	
+-#ifndef CONFIG_MODULES
+-	/* There is only the kernel to search.  */
+-	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
+-	return ret;
+-#else
+-	unsigned long flags;
+-	struct list_head *i;
+-
+-	/* The kernel is the last "module" -- no need to treat it special.  */
+-	spin_lock_irqsave(&modlist_lock, flags);
+-	list_for_each(i, &extables) {
+-		struct exception_table *ex
+-			= list_entry(i, struct exception_table, list);
+-		if (ex->num_entries == 0)
+-			continue;
+-		ret = search_one_table(ex->entry,
+-				       ex->entry + ex->num_entries - 1, addr);
+-		if (ret)
+-			break;
++		if (diff == 0)
++			return mid;
++		else if (diff < 0)
++			first = mid+1;
++		else
++			last = mid-1;
+ 	}
+-	spin_unlock_irqrestore(&modlist_lock, flags);
+-	return ret;
+-#endif
++	return NULL;
+ }
+diff -urN linux-2.5.59/arch/s390x/mm/fault.c linux-2.5.59-s390/arch/s390x/mm/fault.c
+--- linux-2.5.59/arch/s390x/mm/fault.c	Fri Jan 17 03:22:00 2003
++++ linux-2.5.59-s390/arch/s390x/mm/fault.c	Mon Feb  3 20:49:35 2003
+@@ -24,6 +24,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/init.h>
+ #include <linux/console.h>
++#include <linux/module.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -151,7 +152,7 @@
+         struct vm_area_struct * vma;
+         unsigned long address;
+ 	int user_address;
+-        unsigned long fixup;
++	const struct exception_table_entry *fixup;
+ 	int si_code = SEGV_MAPERR;
+ 
+         tsk = current;
+@@ -267,8 +268,9 @@
+ 
+ no_context:
+         /* Are we prepared to handle this kernel fault?  */
+-        if ((fixup = search_exception_table(regs->psw.addr)) != 0) {
+-                regs->psw.addr = fixup;
++	fixup = search_exception_tables(regs->psw.addr);
++	if (fixup) {
++		regs->psw.addr = fixup->fixup;
+                 return;
+         }
+ 
+diff -urN linux-2.5.59/include/asm-s390/uaccess.h linux-2.5.59-s390/include/asm-s390/uaccess.h
+--- linux-2.5.59/include/asm-s390/uaccess.h	Fri Jan 17 03:21:42 2003
++++ linux-2.5.59-s390/include/asm-s390/uaccess.h	Mon Feb  3 20:49:35 2003
+@@ -71,10 +71,6 @@
+         unsigned long insn, fixup;
+ };
+ 
+-/* Returns 0 if exception not found and fixup otherwise.  */
+-extern unsigned long search_exception_table(unsigned long);
+-
+-
+ /*
+  * These are the main single-value transfer routines.  They automatically
+  * use the right size if we just have the right pointer type.
+diff -urN linux-2.5.59/include/asm-s390x/uaccess.h linux-2.5.59-s390/include/asm-s390x/uaccess.h
+--- linux-2.5.59/include/asm-s390x/uaccess.h	Fri Jan 17 03:21:38 2003
++++ linux-2.5.59-s390/include/asm-s390x/uaccess.h	Mon Feb  3 20:49:35 2003
+@@ -71,10 +71,6 @@
+         unsigned long insn, fixup;
+ };
+ 
+-/* Returns 0 if exception not found and fixup otherwise.  */
+-extern unsigned long search_exception_table(unsigned long);
+-
+-
+ /*
+  * These are the main single-value transfer routines.  They automatically
+  * use the right size if we just have the right pointer type.
 
-I've seen it on sharp zaurus, and same flash had bad problems in
-toshiba 4030cdt notebook. Zaurus is PDA but it *does* monitor voltage;
-I can't imagine toshiba having problems with power.
-
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?

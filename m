@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293521AbSCSCSf>; Mon, 18 Mar 2002 21:18:35 -0500
+	id <S293541AbSCSC0R>; Mon, 18 Mar 2002 21:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293527AbSCSCSZ>; Mon, 18 Mar 2002 21:18:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10245 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293521AbSCSCSU>;
-	Mon, 18 Mar 2002 21:18:20 -0500
-Message-ID: <3C969FC5.10504@mandrakesoft.com>
-Date: Mon, 18 Mar 2002 21:17:41 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S293527AbSCSC0H>; Mon, 18 Mar 2002 21:26:07 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:19074 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S293541AbSCSC0B>; Mon, 18 Mar 2002 21:26:01 -0500
+Date: Mon, 18 Mar 2002 21:26:00 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Looking to do userless input 'make *config' .
+Message-ID: <Pine.LNX.4.44.0203182055340.275-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Ed Vance <EdV@macrolink.com>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: PCI drivers - memory mapped vs. I/O ports
-In-Reply-To: <Pine.LNX.3.95.1020318152604.29558A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
 
->On Mon, 18 Mar 2002, Ed Vance wrote:
->
->>If a PCI device can be programmed equally well via I/O port space or memory
->>space, what are the reasons to chose one space over the other when writing
->>the driver?
->>
+	Hello All ,  I have a .config file that has only the needed items
+	defined .  What I am looking to do is have the 'make *config'
+	be in a script that builds a kernel .  I'd like to have all
+	entries that would pop up in a 'make oldconfig' as undefined
+	be defined as 'N' .  I am not looking for this to cross major
+	kernel versions (ie: 2.4 -> 2.5) just to many possible changes in
+	the code .  Does anyone have any pointers ?  Tia ,  JimL
 
->Basically, if you have a choice, it's hands-down to use memory-mapped
->I/O space.
->
-
-Yep, I couldn't agree more.
-
-    Jeff
-
-
-
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

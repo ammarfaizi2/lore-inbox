@@ -1,83 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265879AbUFDSuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265945AbUFDSxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbUFDSuP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265938AbUFDSsh
+	id S265945AbUFDSxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265942AbUFDSxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:48:37 -0400
-Received: from webmail.cs.unm.edu ([64.106.20.39]:54962 "EHLO mail.cs.unm.edu")
-	by vger.kernel.org with ESMTP id S265955AbUFDSrz (ORCPT
+	Fri, 4 Jun 2004 14:53:35 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:12843 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265940AbUFDSxT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:47:55 -0400
-Date: Fri, 4 Jun 2004 12:47:40 -0600 (MDT)
-From: Sharma Sushant <sushant@cs.unm.edu>
-To: Bart Trojanowski <bart@jukie.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: modifying struct sk_buff
-In-Reply-To: <20040604123652.GI29389@jukie.net>
-Message-ID: <Pine.LNX.4.56.0406041233120.6320@chawla.cs.unm.edu>
-References: <40BFCA4C.2000904@cs.unm.edu> <20040604123652.GI29389@jukie.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanner: exiscan *1BWJjB-0004v9-00*vkXk/34LJQg*
-X-Scanner: exiscan *1BWJjB-0004v9-00*vkXk/34LJQg*
+	Fri, 4 Jun 2004 14:53:19 -0400
+Date: Fri, 4 Jun 2004 12:01:46 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+ implementation
+Message-Id: <20040604120146.4d28116a.pj@sgi.com>
+In-Reply-To: <20040604175255.GD21007@holomorphy.com>
+References: <20040603094339.03ddfd42.pj@sgi.com>
+	<20040603101010.4b15734a.pj@sgi.com>
+	<1086313667.29381.897.camel@bach>
+	<40BFD839.7060101@yahoo.com.au>
+	<20040603221854.25d80f5a.pj@sgi.com>
+	<16576.16748.771295.988065@alkaid.it.uu.se>
+	<20040604090314.56d64f4d.pj@sgi.com>
+	<20040604165601.GC21007@holomorphy.com>
+	<20040604102946.1d501953.pj@sgi.com>
+	<20040604175255.GD21007@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+> +void bitmap_to_u32_array(u32 *dst, unsigned long *src, int nwords)
 
-Hi Bart
-thanks for replying.
-I was thinking functions calling the alloc_skb will not
-consider the size of new variable which I will add, thats
-why I thought of adding the size my self while allocating
-space.
+Good.
 
-I am using kernel 2.6.3 and here are few line from skbuff.h
+Assuming that you're signing up to push this baby along ...
 
-> 	/*
->         * This is the control buffer. It is free to use for every
->         * layer. Please put your private variables there. If you
->         * want to keep them across layers you have to do a skb_clone()
->         * first. This is owned by whoever has the skb queued ATM.
->         */
->        uint32_t                skBufId; /* by sushant */
->        char                    cb[48];
+Would it be better to remove the ENDIAN specific ifdefs from
+lib/bitmap.c, and instead add something like the BIT32X() macro I
+described earlier on this thread, in an aside to Mikael Pettersson?
+If that macro were defined right in the ./linux/byteorder/*_endian.h
+files, then endian neutral code could be put in lib/bitmap.c, and
+endian aware code kept in the endian.h files.
 
-skBufId is the variable i added and I want to assign unique value
-to this id whenever alloc_skb is called.
-Do you think it will be fine to modify alloc_skb(..)
-and just assigning a unique value to this new variable which I added
-or will there be some side effects of this.
+Could you extend the cpumask_t API with a corresponding routine?
 
-Thanks
-Sushant
+Mikael - does William's routine look like the makings of something
+that fits your needs?
 
-
-
-
-
-On Fri, 4 Jun 2004, Bart Trojanowski wrote:
-
-> * Sushant Sharma <sushant@cs.unm.edu> [040603 20:24]:
-> > Hi
-> > I want to add a new member (say uint32_t) in the
-> > struct sk_buff{...}
-> > in the file include/linux/skbuff.h.
-> <snip>
-> > Do I need to allocate memory for this member
-> > (  ie add sizeof(_new-member_) to *size* while doing kmalloc()  )
->
-> Hi Sushant,
->
-> I think you are confusing the allocation of 'data' with the allocation
-> of 'skb'.
->
-> If you add the uint32_t to struct sk_buff you don't have to modify
-> alloc_skb.  The skbuff_head_cache is informed what size the sk_buff
-> structure is in skb_init().
->
-> -Bart
->
-> --
-> 				WebSig: http://www.jukie.net/~bart/sig/
->
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

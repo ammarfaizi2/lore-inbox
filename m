@@ -1,48 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267145AbTAVBCW>; Tue, 21 Jan 2003 20:02:22 -0500
+	id <S267155AbTAVBJ5>; Tue, 21 Jan 2003 20:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267155AbTAVBCW>; Tue, 21 Jan 2003 20:02:22 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:18677 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267145AbTAVBCU>;
-	Tue, 21 Jan 2003 20:02:20 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 22 Jan 2003 02:11:26 +0100 (MET)
-Message-Id: <UTC200301220111.h0M1BQg03940.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, James.Bottomley@steeleye.com
-Subject: Re: 3c509.c
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+	id <S267174AbTAVBJ5>; Tue, 21 Jan 2003 20:09:57 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:20194 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S267155AbTAVBJz>;
+	Tue, 21 Jan 2003 20:09:55 -0500
+Date: Wed, 22 Jan 2003 01:19:00 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Linux 2.4 VM Documentation - Take 3
+Message-ID: <Pine.LNX.4.44.0301212359350.2402-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Please Don't do this:
 
-    +#include <linux/mca-legacy.h>
+This is the third draft at a pair of papers aimed at documenting fully how
+the 2.4 VM functions. I have made a large number of additions and
+corrections so I felt another release would not hurt even if I still have
+a few chapters to go. The most notable change is the introduction of a
+chapter on the boot memory allocator. The full list of changes as best as
+I can remember is listed at the end of this mail.
 
-    If you're getting MCA_NOTFOUND undefined, it's because
-    CONFIG_MCA_LEGACY isn't set when mca.h is included
-    (either because it's not in your kernel config, or 
-    possibly because config.h isn't included into the right place
-    in the driver---the latter doesn't look to be the problem
-    for 3c509.c).
+It can be found in the various formats at
 
-Yes, you are right. But.
-(I do not have an MCA machine myself, this was just from
-source inspection. Let me grep a bit more.)
+Understanding the Linux Virtual Memory Manager
+PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/understand.pdf
+HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/
+Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/code.txt
 
-Suppose CONFIG_MCA_LEGACY is not set, and CONFIG_MCA is set.
-Then, as you say, <linux/mca-legacy.h> is not included.
+Code Commentary on the Linux Virtual Memory Manager
+PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/code.pdf
+HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/code
+Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/code.txt
 
-Thus, the only definition of MCA_NOTFOUND is not seen.
+Any and all comments and corrections, especially on the bootmem allocator,
+are welcome. If there is some section that you feel is not covered in
+adequate detail or is omitted entirely, email me and I'll see what can be
+done.
 
-Thus, all files that use it (eexpress.c, smctr.c, madgemc.c,
-3c509.c, at1700.c, 3c523.c, depca.c, 3c527.c, sk_mca.c,
-eicon_mod.c, ibmmca.c, mca_53c9x.c, fd_mcs.c, aha1542.c,
-sim710.c, ps2esdi.c, sb_card.c) will not compile, if I am
-not mistaken.
+>> Fullish list of changes, can't remember them all :-/ <<
 
-If you want to preserve the distinction between CONFIG_MCA and
-CONFIG_MCA_LEGACY, then I suppose you want to replace the former
-by the latter in all of the drivers mentioned?
+o Added a chapter description how the boot memory allocator works
 
-Andries
+o Added an explanation on the difference between mm_users and mm_count
+
+o Fixed the explanation on pages_min, pages_low and pages_high. The
+  language was quite confusing the way it was and open to misinterpretation
+
+o Added sections on exception handling and how it applies to copying
+  to/from userspace. Thanks go to Ingo Oeser for highlighting the
+  importance and clarifying exactly how it worked to me (Thanks Ingo!)
+
+o Large number of grammar and spelling mistakes, thanks to all who sent
+  corrections as I am useless at proof reading this document now, the list
+  of people is too large to list
+
+o Corrected a part of the buddy allocator code commentary where a typo
+  reversed the meaning of __GFP_WAIT
+
+o Fixed a section where it is explained why 64GiB is an impractical
+  amount of memory because of ZONE_NORMAL pressure. I calculated the
+  amount of memory needed for mem_map wrong (Thank you Jean Francois Martinez)
+
+o Fixed some call graphs where the order when traversed depth-first did
+  not match what was in the code due to a bug in gengraph. New release of
+  gengraph is out which works with recent 2.5 kernels and fixes the
+  traversals
+
+o Various other bits and pieces I can't recall
+
+-- 
+Mel Gorman				| "Documentation is like sex: when it is
+MSc Student, University of Limerick	| good, it is very, very good and when
+http://www.csn.ul.ie/~mel		| it is bad, it is better than nothing"
+							-- Dick Brandon
+
+
+
+
+
+

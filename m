@@ -1,124 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUJBW5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267591AbUJBXAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUJBW5r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 18:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267582AbUJBW5r
+	id S267591AbUJBXAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 19:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUJBXAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 18:57:47 -0400
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:47514 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S267588AbUJBW5m
+	Sat, 2 Oct 2004 19:00:25 -0400
+Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:5586 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id S267591AbUJBXAO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 18:57:42 -0400
-Date: Sun, 3 Oct 2004 00:57:34 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: linux-kernel@vger.kernel.org
-Subject: [ACPI?] what we can learn from running kernel with debugging enabled
-Message-ID: <Pine.LNX.4.60.0410030048240.23034@alpha.polcom.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 2 Oct 2004 19:00:14 -0400
+Subject: Re: Sluggishness in 2.6.7 caused by IDE stack
+From: Kenneth Johansson <ken@kenjo.org>
+To: Scott A Crosby <scrosby@cs.rice.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1096121485.2760.5.camel@tiger>
+References: <oydsm964jro.fsf@bert.cs.rice.edu>
+	 <1096121485.2760.5.camel@tiger>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JfgFrPNUM+73cSr9nO9h"
+Date: Sun, 03 Oct 2004 01:00:06 +0200
+Message-Id: <1096758006.3287.7.camel@tiger>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I was going to debug some problem with reiser4 and I compiled kernel with 
-all debuging enabled.
+--=-JfgFrPNUM+73cSr9nO9h
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This is what I got:
-Oct  3 00:26:03 kangur Capability LSM initialized
-Oct  3 00:26:03 kangur CSLIP: code copyright 1989 Regents of the 
-University of California
-Oct  3 00:26:03 kangur PPP generic driver version 2.4.2
-Oct  3 00:26:03 kangur PPP Deflate Compression module registered
-Oct  3 00:26:03 kangur NET: Registered protocol family 8
-Oct  3 00:26:03 kangur NET: Registered protocol family 20
-Oct  3 00:26:03 kangur input: PS/2 Generic Mouse on isa0060/serio1
-Oct  3 00:26:03 kangur Unable to handle kernel paging request at virtual 
-address b06685a0
-Oct  3 00:26:03 kangur printing eip:
-Oct  3 00:26:03 kangur b03ffc7b
-Oct  3 00:26:03 kangur *pde = 006bf027
-Oct  3 00:26:03 kangur *pte = 00668000
-Oct  3 00:26:03 kangur Oops: 0002 [#1]
-Oct  3 00:26:03 kangur PREEMPT DEBUG_PAGEALLOC
-Oct  3 00:26:03 kangur Modules linked in: ac psmouse pppoatm atm 
-ppp_deflate zlib_deflate zlib_inflate ppp_generic slhc capability 
-commoncap unix
-Oct  3 00:26:03 kangur CPU:    0
-Oct  3 00:26:03 kangur EIP:    0060:[<b03ffc7b>]    Not tainted
-Oct  3 00:26:03 kangur EFLAGS: 00010246   (2.6.8.1-cko8)
-Oct  3 00:26:03 kangur EIP is at acpi_bus_register_driver+0xd5/0x16e
-Oct  3 00:26:03 kangur eax: b06685a0   ebx: f0902140   ecx: 000001f2 
-edx: ffffffed
-Oct  3 00:26:03 kangur esi: ed2ad000   edi: f0902280   ebp: ed2adf84 
-esp: ed2adf80
-Oct  3 00:26:03 kangur ds: 007b   es: 007b   ss: 0068
-Oct  3 00:26:03 kangur Process modprobe (pid: 888, threadinfo=ed2ad000 
-task=ed2ac9e0)
-Oct  3 00:26:03 kangur Stack: b059b500 ed2adf8c f08c2032 ed2adfbc b01445e0 
-ed142f54 ed6ded30 ee371d90
-Oct  3 00:26:03 kangur ed2dcd50 ed2dcd70 00000000 ed2adfbc 3aacc008 
-0805b178 41562cbb ed2ad000
-Oct  3 00:26:03 kangur b01058bd 3aacc008 0002f371 0805b178 0805b178 
-41562cbb 0805b178 00000080
-Oct  3 00:26:03 kangur Call Trace:
-Oct  3 00:26:03 kangur [<b010670a>] show_stack+0x7a/0x90
-Oct  3 00:26:03 kangur [<b010688d>] show_registers+0x14d/0x1a0
-Oct  3 00:26:03 kangur [<b0106a79>] die+0xf9/0x250
-Oct  3 00:26:03 kangur [<b011b7e3>] do_page_fault+0x1d3/0x55b
-Oct  3 00:26:03 kangur [<b0106399>] error_code+0x2d/0x38
-Oct  3 00:26:03 kangur [<f08c2032>] init_module+0x32/0x51 [ac]
-Oct  3 00:26:03 kangur [<b01445e0>] sys_init_module+0x1c0/0x390
-Oct  3 00:26:03 kangur [<b01058bd>] sysenter_past_esp+0x52/0x71
-Oct  3 00:26:03 kangur Code: 89 18 81 3d c8 e4 5a b0 3c 4b 24 1d 74 1c 68 
-c8 e4 5a b0 68
-Oct  3 00:26:03 kangur <6>note: modprobe[888] exited with preempt_count 1
-Oct  3 00:26:03 kangur Debug: sleeping function called from invalid 
-context at include/linux/rwsem.h:43
-Oct  3 00:26:03 kangur in_atomic():1, irqs_disabled():0
-Oct  3 00:26:03 kangur [<b0106737>] dump_stack+0x17/0x20
-Oct  3 00:26:03 kangur [<b011fa84>] __might_sleep+0xb4/0xe0
-Oct  3 00:26:03 kangur [<b01273ef>] do_exit+0xaf/0x9a0
-Oct  3 00:26:03 kangur [<b0106bc7>] die+0x247/0x250
-Oct  3 00:26:03 kangur [<b011b7e3>] do_page_fault+0x1d3/0x55b
-Oct  3 00:26:03 kangur [<b0106399>] error_code+0x2d/0x38
-Oct  3 00:26:03 kangur [<f08c2032>] init_module+0x32/0x51 [ac]
-Oct  3 00:26:03 kangur [<b01445e0>] sys_init_module+0x1c0/0x390
-Oct  3 00:26:03 kangur [<b01058bd>] sysenter_past_esp+0x52/0x71
-Oct  3 00:26:03 kangur bad: scheduling while atomic!
-Oct  3 00:26:03 kangur [<b0106737>] dump_stack+0x17/0x20
-Oct  3 00:26:03 kangur [<b04f31f4>] schedule+0x634/0x640
-Oct  3 00:26:03 kangur [<b015b218>] unmap_vmas+0x2a8/0x320
-Oct  3 00:26:03 kangur [<b0160c88>] exit_mmap+0xc8/0x270
-Oct  3 00:26:03 kangur [<b012093d>] mmput+0xad/0x110
-Oct  3 00:26:03 kangur [<b0127514>] do_exit+0x1d4/0x9a0
-Oct  3 00:26:03 kangur [<b0106bc7>] die+0x247/0x250
-Oct  3 00:26:03 kangur [<b011b7e3>] do_page_fault+0x1d3/0x55b
-Oct  3 00:26:03 kangur [<b0106399>] error_code+0x2d/0x38
-Oct  3 00:26:03 kangur [<f08c2032>] init_module+0x32/0x51 [ac]
-Oct  3 00:26:03 kangur [<b01445e0>] sys_init_module+0x1c0/0x390
-Oct  3 00:26:03 kangur [<b01058bd>] sysenter_past_esp+0x52/0x71
-Oct  3 00:26:03 kangur drivers/acpi/scan.c:445: 
-spin_lock(drivers/acpi/scan.c:b05ae4c8) already locked by 
-drivers/acpi/scan.c/445
-Oct  3 00:26:03 kangur ACPI: Power Button (FF) [PWRF]
-Oct  3 00:26:03 kangur ACPI: Sleep Button (CM) [SLPB]
-Oct  3 00:26:03 kangur ACPI: Processor [CPU0] (supports C1, 2 throttling 
-states)
-Oct  3 00:26:03 kangur input: PC Speaker
-Oct  3 00:26:03 kangur inserting floppy driver for 2.6.8.1-cko8
-Oct  3 00:26:03 kangur Floppy drive(s): fd0 is 1.44M
-Oct  3 00:26:03 kangur FDC 0 is a post-1991 82077
-Oct  3 00:26:03 kangur loop: loaded (max 8 devices)
+On Sat, 2004-09-25 at 16:11 +0200, Kenneth Johansson wrote:
+> On Sat, 2004-09-25 at 07:26 -0500, Scott A Crosby wrote:
+> > Much of the CPU time was spent in system mode. I setup a quick
+> > oprofile, which blamed the function task_no_data_intr, but an
+> > opannotate reports confusing results, possibly from interrupts? dmesg
+> > reported nothing interesting.
+> >=20
+> >=20
+> > Scott
+> >=20
+> >=20
+> > *** vmstat output ***
+> >=20
+> > procs -----------memory---------- ---swap-- -----io---- --system-- ----=
+cpu----
+> >  1  1 410496   8520  14224 1253716    0    0  2180    16  409   633 10 =
+43  0 48
+> >  7  1 410496   6920  14236 1255380    0    0  1668    20  589   832  9 =
+18  0 73
+> >  3  0 410496   8264  14232 1253988    0    0  2436    80  334   438 18 =
+82  0  0
+> >  0  1 410496   8384  14244 1253860    0    0  1932     0  464   706 13 =
+35  0 52
+> >  5  1 410496   8056  14264 1253872  328    0  2280     0  717   965 14 =
+20  0 65
+> >  8  1 410496   7352  14268 1254640    0    0  2692     0  351   485 17 =
+83  0  0
+> >  2  2 410496   6968  14264 1255036   32    0  2336     0  332   522 17 =
+83  0  0
+> >  5  0 410496   8568  14276 1253384    0    0  2192    12  464   794 19 =
+33  0 48
+>=20
+> I think you have the same problem as me. The interrupt rate drops under
+> 1000 during use of the DVD and that is strange as the HZ is 1000 and
+> that should be the lowest possible value unless I misunderstood
+> something. =20
+
+I did some more testing and it turns out that I was not using the via
+IDE driver but some generic code. I had the IDE driver as a module and
+it was loaded but it did only drive the two unused ports the generic
+driver had control over the DVD drive. I removed CONFIG_IDE_GENERIC and
+compiled the via driver into the kernel and everything work OK now.=20
+
+I wonder why the generic code blocks interrupts but now I'm not that
+interested in this problem anymore :)=20
 
 
-I am currently using 2.6.8.1-cko8 and can reproduce this problem every 
-time. This message is not displayed when debuging is disabled.
 
-Could somebody look at it?
+--=-JfgFrPNUM+73cSr9nO9h
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-Thanks,
+iD8DBQBBXzL0mDGOmJIy9x8RAjdaAJ97iGctO+ZabZNz7Xl3gOrTA4cfGgCeNxNy
+MzMU69juOgBgzVpWJuqIac4=
+=1zYf
+-----END PGP SIGNATURE-----
 
-Grzegorz Kulewski
+--=-JfgFrPNUM+73cSr9nO9h--
 

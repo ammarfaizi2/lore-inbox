@@ -1,74 +1,402 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129091AbQKWQpO>; Thu, 23 Nov 2000 11:45:14 -0500
+        id <S129091AbQKWRGb>; Thu, 23 Nov 2000 12:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129153AbQKWQpE>; Thu, 23 Nov 2000 11:45:04 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:27145 "EHLO
-        wire.cadcamlab.org") by vger.kernel.org with ESMTP
-        id <S129091AbQKWQo5>; Thu, 23 Nov 2000 11:44:57 -0500
-Date: Thu, 23 Nov 2000 10:14:31 -0600
-To: Andries.Brouwer@cwi.nl, kaos@ocs.com.au
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        rmk@arm.linux.org.uk
-Subject: [PATCH] silly [< >] and other excess
-Message-ID: <20001123101431.T2918@wire.cadcamlab.org>
-In-Reply-To: <UTC200011230224.DAA141466.aeb@aak.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200011230224.DAA141466.aeb@aak.cwi.nl>; from Andries.Brouwer@cwi.nl on Thu, Nov 23, 2000 at 03:24:02AM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+        id <S129153AbQKWRGV>; Thu, 23 Nov 2000 12:06:21 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:59812 "EHLO math.psu.edu")
+        by vger.kernel.org with ESMTP id <S129091AbQKWRGH>;
+        Thu, 23 Nov 2000 12:06:07 -0500
+Date: Thu, 23 Nov 2000 11:36:04 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Tigran Aivazian <tigran@veritas.com>
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <14877.2495.613209.312681@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.GSO.4.21.0011231134250.10872-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  [Alan Cox]
-> > Thats because too many things get put on a line then.
-> > And because we do [<foo>] [<bar>]  not   [<foo>][<bar>] ?
 
-[Andries Brouwer]
-> In the good old times we had foo bar for a total of 8*(8+1) = 72
-> positions. Now we have [<foo>] [<bar>] which takes 8*(8+1+4) = 104
+On Thu, 23 Nov 2000, Neil Brown wrote:
 
-I've got it!  Put multiple addresses within one set of [< >].  ksymoops
-and klogd will require a small adjustment, of course.
+> which enabled ext2_notify_change, however ext2_notify_change has a
+> bug.
+> It sets attributes from iattr->ia_attr_flags even
+> if ATTR_ATTR_FLAG is NOT SET in iattr->ia_valid.
 
-The following show_stack() is 8 addrs per line, 79 columns.  Comments?
+Arrrgh. Could you try that:
 
-Peter
-
---- arch/i386/kernel/traps.c.orig	Mon Nov 13 01:44:02 2000
-+++ arch/i386/kernel/traps.c	Thu Nov 23 10:10:06 2000
-@@ -126,7 +126,6 @@
- 		printk("%08lx ", *stack++);
+diff -urN rc11/fs/buffer.c rc11-ext2/fs/buffer.c
+--- rc11/fs/buffer.c	Mon Nov 20 01:18:59 2000
++++ rc11-ext2/fs/buffer.c	Tue Nov 21 01:14:34 2000
+@@ -1527,6 +1527,15 @@
  	}
- 
--	printk("\nCall Trace: ");
- 	stack = esp;
- 	i = 1;
- 	module_start = VMALLOC_START;
-@@ -144,12 +143,17 @@
- 		if (((addr >= (unsigned long) &_stext) &&
- 		     (addr <= (unsigned long) &_etext)) ||
- 		    ((addr >= module_start) && (addr <= module_end))) {
--			if (i && ((i % 8) == 0))
--				printk("\n       ");
--			printk("[<%08lx>] ", addr);
-+			if (i==1)
-+				printk("\nCall Trace:  [<");
-+			else if ((i % 8)==0)
-+				printk(">]\n    [<");
-+			else
-+				printk(" ");
-+			printk("%08lx", addr);
- 			i++;
- 		}
- 	}
-+	printk(">]\n");
+ 	return 0;
+ out:
++	bh = head;
++	do {
++		if (buffer_new(bh) && !buffer_uptodate(bh)) {
++			memset(bh->b_data, 0, bh->b_size);
++			set_bit(BH_Uptodate, &bh->b_state);
++			mark_buffer_dirty(bh);
++		}
++		bh = bh->b_this_page;
++	} while (bh != head);
+ 	return err;
  }
  
- static void show_registers(struct pt_regs *regs)
+diff -urN rc11/fs/ext2/file.c rc11-ext2/fs/ext2/file.c
+--- rc11/fs/ext2/file.c	Wed Oct  4 03:44:54 2000
++++ rc11-ext2/fs/ext2/file.c	Tue Nov 21 01:14:34 2000
+@@ -25,17 +25,6 @@
+ static loff_t ext2_file_lseek(struct file *, loff_t, int);
+ static int ext2_open_file (struct inode *, struct file *);
+ 
+-#define EXT2_MAX_SIZE(bits)							\
+-	(((EXT2_NDIR_BLOCKS + (1LL << (bits - 2)) + 				\
+-	   (1LL << (bits - 2)) * (1LL << (bits - 2)) + 				\
+-	   (1LL << (bits - 2)) * (1LL << (bits - 2)) * (1LL << (bits - 2))) * 	\
+-	  (1LL << bits)) - 1)
+-
+-static long long ext2_max_sizes[] = {
+-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+-EXT2_MAX_SIZE(10), EXT2_MAX_SIZE(11), EXT2_MAX_SIZE(12), EXT2_MAX_SIZE(13)
+-};
+-
+ /*
+  * Make sure the offset never goes beyond the 32-bit mark..
+  */
+@@ -56,7 +45,7 @@
+ 	if (offset<0)
+ 		return -EINVAL;
+ 	if (((unsigned long long) offset >> 32) != 0) {
+-		if (offset > ext2_max_sizes[EXT2_BLOCK_SIZE_BITS(inode->i_sb)])
++		if (offset >= inode->i_sb->u.ext2_sb.s_max_size)
+ 			return -EINVAL;
+ 	} 
+ 	if (offset != file->f_pos) {
+@@ -110,4 +99,5 @@
+ 
+ struct inode_operations ext2_file_inode_operations = {
+ 	truncate:	ext2_truncate,
++	setattr:	ext2_notify_change,
+ };
+diff -urN rc11/fs/ext2/inode.c rc11-ext2/fs/ext2/inode.c
+--- rc11/fs/ext2/inode.c	Wed Oct  4 03:44:54 2000
++++ rc11-ext2/fs/ext2/inode.c	Thu Nov 23 14:49:14 2000
+@@ -153,11 +153,13 @@
+  *	This function translates the block number into path in that tree -
+  *	return value is the path length and @offsets[n] is the offset of
+  *	pointer to (n+1)th node in the nth one. If @block is out of range
+- *	(negative or too large) warning is printed and zero returned.
++ *	(negative or too large) we return zero. Warning is printed if @block
++ *	is negative - that should never happen. Too large value is OK, it
++ *	just means that ext2_get_block() should return -%EFBIG.
+  *
+  *	Note: function doesn't find node addresses, so no IO is needed. All
+  *	we need to know is the capacity of indirect blocks (taken from the
+- *	inode->i_sb).
++ *	@inode->i_sb).
+  */
+ 
+ /*
+@@ -196,7 +198,7 @@
+ 		offsets[n++] = (i_block >> ptrs_bits) & (ptrs - 1);
+ 		offsets[n++] = i_block & (ptrs - 1);
+ 	} else {
+-		ext2_warning (inode->i_sb, "ext2_block_to_path", "block > big");
++		/* Too large, nothing to do here */
+ 	}
+ 	return n;
+ }
+@@ -216,7 +218,7 @@
+  *	i.e. little-endian 32-bit), chain[i].p contains the address of that
+  *	number (it points into struct inode for i==0 and into the bh->b_data
+  *	for i>0) and chain[i].bh points to the buffer_head of i-th indirect
+- *	block for i>0 and NULL for i==0. In other words, it holds the block
++ *	block for i>0 and %NULL for i==0. In other words, it holds the block
+  *	numbers of the chain, addresses they were taken from (and where we can
+  *	verify that chain did not change) and buffer_heads hosting these
+  *	numbers.
+@@ -230,11 +232,11 @@
+  *	or when it reads all @depth-1 indirect blocks successfully and finds
+  *	the whole chain, all way to the data (returns %NULL, *err == 0).
+  */
+-static inline Indirect *ext2_get_branch(struct inode *inode,
+-					int depth,
+-					int *offsets,
+-					Indirect chain[4],
+-					int *err)
++static Indirect *ext2_get_branch(struct inode *inode,
++				 int depth,
++				 int *offsets,
++				 Indirect chain[4],
++				 int *err)
+ {
+ 	kdev_t dev = inode->i_dev;
+ 	int size = inode->i_sb->s_blocksize;
+@@ -505,7 +507,7 @@
+ 
+ static int ext2_get_block(struct inode *inode, long iblock, struct buffer_head *bh_result, int create)
+ {
+-	int err = -EIO;
++	int err = -EFBIG;
+ 	int offsets[4];
+ 	Indirect chain[4];
+ 	Indirect *partial;
+@@ -880,8 +882,6 @@
+ 	if (!(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+ 	    S_ISLNK(inode->i_mode)))
+ 		return;
+-	if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+-		return;
+ 
+ 	ext2_discard_prealloc(inode);
+ 
+@@ -1188,7 +1188,7 @@
+ 		raw_inode->i_dir_acl = cpu_to_le32(inode->u.ext2_i.i_dir_acl);
+ 	else {
+ 		raw_inode->i_size_high = cpu_to_le32(inode->i_size >> 32);
+-		if (raw_inode->i_size_high) {
++		if (raw_inode->i_size_high || (inode->i_size & (1<<31))) {
+ 			struct super_block *sb = inode->i_sb;
+ 			struct ext2_super_block *es = sb->u.ext2_sb.s_es;
+ 			if (!(es->s_feature_ro_compat & cpu_to_le32(EXT2_FEATURE_RO_COMPAT_LARGE_FILE))) {
+@@ -1235,11 +1235,17 @@
+ 	return ext2_update_inode (inode, 1);
+ }
+ 
++static struct {unsigned attr, flag, ext2} ext2_attr[] = {
++	{ATTR_FLAG_SYNCRONOUS,	S_SYNC,		EXT2_SYNC_FL},
++	{ATTR_FLAG_NOATIME,	S_NOATIME,	EXT2_NOATIME_FL},
++	{ATTR_FLAG_APPEND,	S_APPEND,	EXT2_APPEND_FL},
++	{ATTR_FLAG_IMMUTABLE,	S_IMMUTABLE,	EXT2_IMMUTABLE_FL}
++}
++	
+ int ext2_notify_change(struct dentry *dentry, struct iattr *iattr)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	int		retval;
+-	unsigned int	flags;
+ 	
+ 	retval = -EPERM;
+ 	if (iattr->ia_valid & ATTR_ATTR_FLAG &&
+@@ -1256,36 +1262,27 @@
+ 	if (retval != 0)
+ 		goto out;
+ 
++	if (iattr->ia_valid & ATTR_SIZE) {
++		if (iattr->ia_size > inode->i_sb->u.ext2_sb.s_max_size) {
++			retval = -EFBIG;
++			goto out;
++		}
++	}
++
+ 	inode_setattr(inode, iattr);
+ 	
+-	flags = iattr->ia_attr_flags;
+-	if (flags & ATTR_FLAG_SYNCRONOUS) {
+-		inode->i_flags |= S_SYNC;
+-		inode->u.ext2_i.i_flags |= EXT2_SYNC_FL;
+-	} else {
+-		inode->i_flags &= ~S_SYNC;
+-		inode->u.ext2_i.i_flags &= ~EXT2_SYNC_FL;
+-	}
+-	if (flags & ATTR_FLAG_NOATIME) {
+-		inode->i_flags |= S_NOATIME;
+-		inode->u.ext2_i.i_flags |= EXT2_NOATIME_FL;
+-	} else {
+-		inode->i_flags &= ~S_NOATIME;
+-		inode->u.ext2_i.i_flags &= ~EXT2_NOATIME_FL;
+-	}
+-	if (flags & ATTR_FLAG_APPEND) {
+-		inode->i_flags |= S_APPEND;
+-		inode->u.ext2_i.i_flags |= EXT2_APPEND_FL;
+-	} else {
+-		inode->i_flags &= ~S_APPEND;
+-		inode->u.ext2_i.i_flags &= ~EXT2_APPEND_FL;
+-	}
+-	if (flags & ATTR_FLAG_IMMUTABLE) {
+-		inode->i_flags |= S_IMMUTABLE;
+-		inode->u.ext2_i.i_flags |= EXT2_IMMUTABLE_FL;
+-	} else {
+-		inode->i_flags &= ~S_IMMUTABLE;
+-		inode->u.ext2_i.i_flags &= ~EXT2_IMMUTABLE_FL;
++	if (iattr->ia_valid & ATTR_ATTR_FLAG) {
++		unsigned flags = iattr->ia_attr_flags;
++		int i;
++		for (i=0; i<sizeof(ext2_attr)/sizeof(ext2_attr[0]); i++) {
++			if (flags & ext2_attr[i].attr) {
++				inode->i_flags |= ext2_attr[i].flag;
++				inode->u.ext2_i.i_flags |= ext2_attr[i].ext2;
++			} else {
++				inode->i_flags &= ~ext2_attr[i].flag;
++				inode->u.ext2_i.i_flags &= ~ext2_attr[i].ext2;
++			}
++		}
+ 	}
+ 	mark_inode_dirty(inode);
+ out:
+diff -urN rc11/fs/ext2/super.c rc11-ext2/fs/ext2/super.c
+--- rc11/fs/ext2/super.c	Wed Oct  4 03:44:54 2000
++++ rc11-ext2/fs/ext2/super.c	Tue Nov 21 01:14:34 2000
+@@ -356,6 +356,19 @@
+ 
+ #define log2(n) ffz(~(n))
+ 
++/*
++ * maximal file size.
++ */
++static loff_t ext2_max_size(int bits)
++{
++	loff_t res = EXT2_NDIR_BLOCKS;
++	res += 1LL << (bits-2);
++	res += 1LL << (2*(bits-2));
++	res += 1LL << (3*(bits-2));
++	return res << bits;
++}
++
++
+ struct super_block * ext2_read_super (struct super_block * sb, void * data,
+ 				      int silent)
+ {
+@@ -517,6 +530,7 @@
+ 		log2 (EXT2_ADDR_PER_BLOCK(sb));
+ 	sb->u.ext2_sb.s_desc_per_block_bits =
+ 		log2 (EXT2_DESC_PER_BLOCK(sb));
++	sb->u.ext2_sb.s_max_size = ext2_max_size(sb->s_blocksize_bits);
+ 	if (sb->s_magic != EXT2_SUPER_MAGIC) {
+ 		if (!silent)
+ 			printk ("VFS: Can't find an ext2 filesystem on dev "
+diff -urN rc11/fs/nfsd/vfs.c rc11-ext2/fs/nfsd/vfs.c
+--- rc11/fs/nfsd/vfs.c	Mon Nov 20 01:19:03 2000
++++ rc11-ext2/fs/nfsd/vfs.c	Tue Nov 21 01:14:34 2000
+@@ -23,7 +23,6 @@
+ #include <linux/locks.h>
+ #include <linux/fs.h>
+ #include <linux/major.h>
+-#include <linux/ext2_fs.h>
+ #include <linux/proc_fs.h>
+ #include <linux/stat.h>
+ #include <linux/fcntl.h>
+diff -urN rc11/fs/open.c rc11-ext2/fs/open.c
+--- rc11/fs/open.c	Thu Nov  2 22:38:59 2000
++++ rc11-ext2/fs/open.c	Tue Nov 21 01:14:34 2000
+@@ -102,7 +102,12 @@
+ 		goto out;
+ 	inode = nd.dentry->d_inode;
+ 
+-	error = -EACCES;
++	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
++	error = -EISDIR;
++	if (S_ISDIR(inode->i_mode))
++		goto dput_and_out;
++
++	error = -EINVAL;
+ 	if (!S_ISREG(inode->i_mode))
+ 		goto dput_and_out;
+ 
+@@ -163,7 +168,7 @@
+ 		goto out;
+ 	dentry = file->f_dentry;
+ 	inode = dentry->d_inode;
+-	error = -EACCES;
++	error = -EINVAL;
+ 	if (!S_ISREG(inode->i_mode) || !(file->f_mode & FMODE_WRITE))
+ 		goto out_putf;
+ 	error = -EPERM;
+diff -urN rc11/include/linux/ext2_fs.h rc11-ext2/include/linux/ext2_fs.h
+--- rc11/include/linux/ext2_fs.h	Sat Jul 29 12:08:57 2000
++++ rc11-ext2/include/linux/ext2_fs.h	Tue Nov 21 02:02:01 2000
+@@ -568,6 +568,8 @@
+ extern int ext2_sync_inode (struct inode *);
+ extern void ext2_discard_prealloc (struct inode *);
+ 
++extern int ext2_notify_change (struct dentry *, struct iattr *);
++
+ /* ioctl.c */
+ extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
+ 		       unsigned long);
+diff -urN rc11/include/linux/ext2_fs_sb.h rc11-ext2/include/linux/ext2_fs_sb.h
+--- rc11/include/linux/ext2_fs_sb.h	Wed Oct  4 03:45:06 2000
++++ rc11-ext2/include/linux/ext2_fs_sb.h	Tue Nov 21 01:14:34 2000
+@@ -59,6 +59,7 @@
+ 	int s_feature_compat;
+ 	int s_feature_incompat;
+ 	int s_feature_ro_compat;
++	loff_t s_max_size;
+ };
+ 
+ #endif	/* _LINUX_EXT2_FS_SB */
+diff -urN rc11/kernel/ksyms.c rc11-ext2/kernel/ksyms.c
+--- rc11/kernel/ksyms.c	Mon Nov 20 01:19:12 2000
++++ rc11-ext2/kernel/ksyms.c	Tue Nov 21 01:14:35 2000
+@@ -23,8 +23,6 @@
+ #include <linux/serial.h>
+ #include <linux/locks.h>
+ #include <linux/delay.h>
+-#include <linux/minix_fs.h>
+-#include <linux/ext2_fs.h>
+ #include <linux/random.h>
+ #include <linux/reboot.h>
+ #include <linux/pagemap.h>
+diff -urN rc11/mm/filemap.c rc11-ext2/mm/filemap.c
+--- rc11/mm/filemap.c	Mon Nov 20 01:19:12 2000
++++ rc11-ext2/mm/filemap.c	Tue Nov 21 01:15:04 2000
+@@ -2422,6 +2422,7 @@
+ 	unsigned long	written;
+ 	long		status;
+ 	int		err;
++	unsigned	bytes;
+ 
+ 	cached_page = NULL;
+ 
+@@ -2466,7 +2467,7 @@
+ 	}
+ 
+ 	while (count) {
+-		unsigned long bytes, index, offset;
++		unsigned long index, offset;
+ 		char *kaddr;
+ 
+ 		/*
+@@ -2491,7 +2492,7 @@
+ 
+ 		status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
+ 		if (status)
+-			goto unlock;
++			goto sync_failure;
+ 		kaddr = page_address(page);
+ 		status = copy_from_user(kaddr+offset, buf, bytes);
+ 		flush_dcache_page(page);
+@@ -2516,6 +2517,7 @@
+ 		if (status < 0)
+ 			break;
+ 	}
++done:
+ 	*ppos = pos;
+ 
+ 	if (cached_page)
+@@ -2530,6 +2532,13 @@
+ 	ClearPageUptodate(page);
+ 	kunmap(page);
+ 	goto unlock;
++sync_failure:
++	UnlockPage(page);
++	deactivate_page(page);
++	page_cache_release(page);
++	if (pos + bytes > inode->i_size)
++		vmtruncate(inode, inode->i_size);
++	goto done;
+ }
+ 
+ void __init page_cache_init(unsigned long mempages)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

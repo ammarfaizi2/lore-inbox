@@ -1,226 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUEWI1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUEWIbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUEWI1p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 04:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUEWI1p
+	id S262361AbUEWIbH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 04:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUEWIbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 04:27:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:59540 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262356AbUEWI1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 04:27:37 -0400
-Date: Sun, 23 May 2004 10:27:28 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
-Message-ID: <20040523082728.GH1952@suse.de>
-References: <200405222107.55505.l_allegrucci@despammed.com>
+	Sun, 23 May 2004 04:31:07 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:22538 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262361AbUEWIbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 04:31:00 -0400
+Date: Sun, 23 May 2004 10:29:12 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Christoph Hellwig <hch@alpha.home.local>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Cc: alan@redhat.com, vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: i486 emu in mainline?
+Message-ID: <20040523082912.GA16071@alpha.home.local>
+References: <20040522234059.GA3735@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405222107.55505.l_allegrucci@despammed.com>
+In-Reply-To: <20040522234059.GA3735@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 22 2004, Lorenzo Allegrucci wrote:
-> 
-> I get a 100% reproducible oops mounting an ext3 or reiserfs
-> partition with -o barrier enabled.
-> Hand written oops (for ext3):
-> 
-> hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> hda: drive_cmd: error=0x04 { DriveStatusError }
-> end_request: I/O error, dev hda, sector 84666781
-> ------------[ cut here ]------------
-> kernel BUG at include/linux/blkdev.h:576!
-> invalid operand: 0000 [#1]
-> PREEMPT
-> Modules linked in: lp emu10k1 sound soundcore ac97_codec unix
-> CPU:    0
-> EIP:    0060:[<c02125ae>]    Not tainted VLI
-> EFLAGS: 00010046   (2.6.6-mm5)
-> EIP is at __ide_end_request+0xbe/0x110
-> eax: 00000e7a   ebx: da88636c   ecx: 00000000   edx: da88636c
-> esi: 00000000   edi: c038180c   ebp: 00000008   esp: c0368ec4
-> ds: 007b   es: 007b   ss: 0068
-> Process swapper (pid: 0, threadinfo=c0368000 task=c02d1a40)
-> Stack: 00000001 00000008 da88636c 050be99d 00000000 c02128fc 00000008 c0116718
->        00000000 c036bb01 00000246 00000001 00000000 c038180c 00000286 c0368000
->        dffdfa78 c038180c c0212a79 c02abc65 c0381760 042aa50a 00000051 dffdf951
-> Call Trace:
->  [<c02128fc>] ide_complete_barrier+0xec/0x160
+Hi Christoph,
 
-So here's a complete patch, that both fixes the code bug and adds some
-support for (hopefully) fool proof checking proper flush support in the
-drive. Can you give this a test, please? Post the dmesg ide boot
-messages and whether it works, thanks.
+On Sun, May 23, 2004 at 01:40:59AM +0200, Christoph Hellwig wrote:
+> These days gcc uses i486+ only instruction by default in libstdc++ so
+> most modern distros wouldn't work on i386 cpus anymore.  To make it work
+> again Debian merged Willy Tarreau's patch to trap those and emulate them
+> on real i386 cpus.  The patch is extremely non-invasive and would
+> certainly be usefull for mainline.  Any reason not to include it?
 
-diff -urp -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.6-mm5/drivers/ide/ide-disk.c linux-2.6.6-mm5/drivers/ide/ide-disk.c
---- /opt/kernel/linux-2.6.6-mm5/drivers/ide/ide-disk.c	2004-05-23 09:56:20.098457257 +0200
-+++ linux-2.6.6-mm5/drivers/ide/ide-disk.c	2004-05-23 10:23:36.211541946 +0200
-@@ -1392,13 +1392,6 @@ static int set_nowerr(ide_drive_t *drive
- 	return 0;
- }
- 
--/* check if CACHE FLUSH (EXT) command is supported (bits defined in ATA-6) */
--#define ide_id_has_flush_cache(id)	((id)->cfs_enable_2 & 0x3000)
--
--/* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
--#define ide_id_has_flush_cache_ext(id)	\
--	(((id)->cfs_enable_2 & 0x2400) == 0x2400)
--
- static int write_cache (ide_drive_t *drive, int arg)
- {
- 	ide_task_t args;
-@@ -1597,6 +1590,7 @@ static void idedisk_setup (ide_drive_t *
- {
- 	struct hd_driveid *id = drive->id;
- 	unsigned long long capacity;
-+	int barrier = 0;
- 
- 	idedisk_add_settings(drive);
- 
-@@ -1729,8 +1723,29 @@ static void idedisk_setup (ide_drive_t *
- 
- 	write_cache(drive, 1);
- 
--	blk_queue_ordered(drive->queue, 1);
--	blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
-+	/*
-+	 * decide if we can sanely support flushes and barriers on
-+	 * this drive
-+	 */
-+	if (drive->addressing == 1) {
-+		/*
-+		 * if capacity is over 2^28 sectors, drive must support
-+		 * FLUSH_CACHE_EXT
-+		 */
-+		if (ide_id_has_flush_cache_ext(id))
-+			barrier = 1;
-+		else if (capacity <= (1ULL << 28))
-+			barrier = 1;
-+		else
-+			printk("%s: drive is buggy, no support for FLUSH_CACHE_EXT with lba48\n", drive->name);
-+	} else if (ide_id_has_flush_cache(id))
-+		barrier = 1;
-+
-+	printk("%s: cache flushes %ssupported\n", drive->name, barrier ? "" : "not ");
-+	if (barrier) {
-+		blk_queue_ordered(drive->queue, 1);
-+		blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
-+	}
- 
- #ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
- 	if (drive->using_dma)
-diff -urp -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.6-mm5/drivers/ide/ide-io.c linux-2.6.6-mm5/drivers/ide/ide-io.c
---- /opt/kernel/linux-2.6.6-mm5/drivers/ide/ide-io.c	2004-05-23 09:56:20.100457041 +0200
-+++ linux-2.6.6-mm5/drivers/ide/ide-io.c	2004-05-23 10:22:59.204542947 +0200
-@@ -67,7 +67,7 @@ static void ide_fill_flush_cmd(ide_drive
- 	rq->buffer = buf;
- 	rq->buffer[0] = WIN_FLUSH_CACHE;
- 
--	if (drive->id->cfs_enable_2 & 0x2400)
-+	if (ide_id_has_flush_cache_ext(drive->id))
- 		rq->buffer[0] = WIN_FLUSH_CACHE_EXT;
- }
- 
-@@ -229,7 +229,7 @@ u64 ide_get_error_location(ide_drive_t *
- 	lcyl = args[4];
- 	sect = args[3];
- 
--	if (drive->id->cfs_enable_2 & 0x2400) {
-+	if (ide_id_has_flush_cache_ext(drive->id)) {
- 		low = (hcyl << 16) | (lcyl << 8) | sect;
- 		HWIF(drive)->OUTB(drive->ctl|0x80, IDE_CONTROL_REG);
- 		high = ide_read_24(drive);
-@@ -277,32 +277,48 @@ static void ide_complete_barrier(ide_dri
- 	}
- 
- 	/*
--	 * bummer, flush failed. if it was the pre-flush, fail the barrier.
--	 * if it was the post-flush, complete the succesful part of the request
--	 * and fail the rest
-+	 * we need to end real_rq, but it's not on the queue currently.
-+	 * put it back on the queue, so we don't have to special case
-+	 * anything else for completing it
- 	 */
--	good_sectors = 0;
--	if (blk_barrier_postflush(rq)) {
--		sector = ide_get_error_location(drive, rq->buffer);
--
--		if ((sector >= real_rq->hard_sector) &&
--		    (sector < real_rq->hard_sector + real_rq->hard_nr_sectors))
--			good_sectors = sector - real_rq->hard_sector;
--	} else
--		sector = real_rq->hard_sector;
-+	elv_requeue_request(drive->queue, real_rq);
-+	
-+	/*
-+	 * drive aborted flush command, assume FLUSH_CACHE_* doesn't
-+	 * work and disable barrier support
-+	 */
-+	if (error & ABRT_ERR) {
-+		printk(KERN_ERR "%s: barrier support doesn't work\n", drive->name);
-+		__ide_end_request(drive, real_rq, 0, real_rq->hard_nr_sectors);
-+		blk_queue_ordered(drive->queue, 0);
-+		blk_queue_issue_flush_fn(drive->queue, NULL);
-+	} else {
-+		/*
-+		 * find out what part of the request failed
-+		 */
-+		good_sectors = 0;
-+		if (blk_barrier_postflush(rq)) {
-+			sector = ide_get_error_location(drive, rq->buffer);
- 
--	bad_sectors = real_rq->hard_nr_sectors - good_sectors;
--	if (good_sectors)
--		__ide_end_request(drive, real_rq, 1, good_sectors);
--	if (bad_sectors)
--		__ide_end_request(drive, real_rq, 0, bad_sectors);
-+			if ((sector >= real_rq->hard_sector) &&
-+			    (sector < real_rq->hard_sector + real_rq->hard_nr_sectors))
-+				good_sectors = sector - real_rq->hard_sector;
-+		} else
-+			sector = real_rq->hard_sector;
-+
-+		bad_sectors = real_rq->hard_nr_sectors - good_sectors;
-+		if (good_sectors)
-+			__ide_end_request(drive, real_rq, 1, good_sectors);
-+		if (bad_sectors)
-+			__ide_end_request(drive, real_rq, 0, bad_sectors);
-+
-+		printk(KERN_ERR "%s: failed barrier write: "
-+				"sector=%Lx(good=%d/bad=%d)\n",
-+				drive->name, (unsigned long long)sector,
-+				good_sectors, bad_sectors);
-+	}
- 
- 	drive->doing_barrier = 0;
--
--	printk(KERN_ERR "%s: failed barrier write: "
--			"sector=%Lx(good=%d/bad=%d)\n",
--			drive->name, (unsigned long long)sector,
--			good_sectors, bad_sectors);
- }
- 
- /**
-diff -urp -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.6-mm5/include/linux/ide.h linux-2.6.6-mm5/include/linux/ide.h
---- /opt/kernel/linux-2.6.6-mm5/include/linux/ide.h	2004-05-23 09:56:21.401316264 +0200
-+++ linux-2.6.6-mm5/include/linux/ide.h	2004-05-23 10:09:21.313967868 +0200
-@@ -1716,4 +1716,11 @@ static inline int ata_can_queue(ide_driv
- 
- extern struct bus_type ide_bus_type;
- 
-+/* check if CACHE FLUSH (EXT) command is supported (bits defined in ATA-6) */
-+#define ide_id_has_flush_cache(id)	((id)->cfs_enable_2 & 0x3000)
-+
-+/* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
-+#define ide_id_has_flush_cache_ext(id)	\
-+	(((id)->cfs_enable_2 & 0x2400) == 0x2400)
-+
- #endif /* _IDE_H */
+Well, I have mixed feelings about this because :
 
--- 
-Jens Axboe
+  - I don't know which version they based their port on. The version
+    I published 2 years ago included CMOV emulation, and Denis Vlasenko
+    found several bugs in it which I then fixed. Since the Debian port
+    doesn't include CMOV, I wonder whether it includes those bugs or not
+    (I'll have to diff the patches).
+
+  - The code is ugly in some areas, and someone will kill me if this goes
+    into mainline.
+
+  - There are people (like Alan) who think that this should not go into
+    mainline because this is a distro problem and nothing else. He says
+    that only i386 packages should be installed on an i386 machine. He's
+    perfectly right about this. I found it interesting for people like
+    me who boot kernels on random machines, try to recover hard disk
+    contents or other things using lots of dirty tools, and sometimes
+    get hit by the "illegal instruction" trap. It also allowed me to
+    run a pppd compiled with i586 glibc on my i386 firewall, but obviously
+    this is just the easy way and not the right way to go.
+
+  - I couldn't emulate locks, so this will break on SMP systems, and so
+    will it if you need to access some memory share with an external
+    microcontroller or something like that.
+
+  - I've always wondered if this feature would not be exploitable to
+    access unauthorized information. Eg: code an invalid opcode
+    which would get emulated and references a memory area outside the
+    user space. I put some verify_area() where I thought appropriate,
+    but I might have left some caveats... Morten Welinder once insisted
+    on the fact that each byte should be read once and only once so as
+    to ensure that the user doesn't change the instruction while it is
+    being emulated. I think it's already the case. He also said that I
+    didn't take care of the segment selectors (such as SS) which some
+    programs use perfectly legally (eg Wine). I don't know how to do
+    that.
+
+  - Denis Vlasenko suggested that we print some messages on the console
+    when a program triggers the code, so as not to let the user think that
+    his machine is slow as hell. But for this we would need not to flood the
+    console (eg: once for each prog) but we don't want either to store
+    anything in the task structure about the message having been displayed,
+    so for now there's nothing. In fact, the only message which is displayed
+    (in the most recent version) is about a warning about a LOCK prefix on
+    an SMP kernel. But I didn't find it right here, so I suspect this is
+    based on ancient code.
+
+  - why not include the CMOV emulation while we're at it ? There are so
+    many people using VIA EDEN chips who think it's i686 compatible that
+    they may get hit too. IIRC, the chip only executes CMOV on registers,
+    but very slowly (a few tens of cycles), while register to memory
+    accesses generate a trap.
+
+Other than that, I'm happy that someone found it useful, and happy too that
+someone did the 2.6 port :-)
+
+Regards,
+Willy
 

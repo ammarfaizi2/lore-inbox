@@ -1,92 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293714AbSCAU1U>; Fri, 1 Mar 2002 15:27:20 -0500
+	id <S293732AbSCAUbk>; Fri, 1 Mar 2002 15:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293723AbSCAU1Q>; Fri, 1 Mar 2002 15:27:16 -0500
-Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:59631 "EHLO
-	vaio.greennet") by vger.kernel.org with ESMTP id <S293714AbSCAU05>;
-	Fri, 1 Mar 2002 15:26:57 -0500
-Date: Fri, 1 Mar 2002 15:27:26 -0500 (EST)
-From: Donald Becker <becker@scyld.com>
-To: Patrick Schaaf <bof@bof.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Ben Greear <greearb@candelatech.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org
-Subject: Re: Various 802.1Q VLAN driver patches.
-In-Reply-To: <20020301204400.B24565@oknodo.bof.de>
-Message-ID: <Pine.LNX.4.10.10203011510350.1130-100000@vaio.greennet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293731AbSCAUba>; Fri, 1 Mar 2002 15:31:30 -0500
+Received: from AMontpellier-201-1-1-61.abo.wanadoo.fr ([193.252.31.61]:21511
+	"EHLO awak") by vger.kernel.org with ESMTP id <S293723AbSCAUbM> convert rfc822-to-8bit;
+	Fri, 1 Mar 2002 15:31:12 -0500
+Subject: Re: SSSCA: We're in trouble now
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1015014449.16520.9.camel@unaropia>
+In-Reply-To: <3C7FDAB1.6F687440@randomlogic.com> 
+	<1015014449.16520.9.camel@unaropia>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 01 Mar 2002 21:30:36 +0100
+Message-Id: <1015014637.811.0.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Mar 2002, Patrick Schaaf wrote:
-> On Fri, Mar 01, 2002 at 02:17:22PM -0500, Jeff Garzik wrote:
-> > Ben Greear wrote:
-> > > --- linux-2.4.16/drivers/net/eepro100.c Mon Nov 12 18:47:18 2001
-> > > +++ linux/drivers/net/eepro100.c        Tue Dec 18 11:36:11 2001
-> > > @@ -510,12 +510,12 @@
-> > >   static const char i82557_config_cmd[CONFIG_DATA_SIZE] = {
-> > >          22, 0x08, 0, 0,  0, 0, 0x32, 0x03,  1, /* 1=Use MII  0=Use AUI */
-> > >          0, 0x2E, 0,  0x60, 0,
-> > > -       0xf2, 0x48,   0, 0x40, 0xf2, 0x80,              /* 0x40=Force full-duplex */
-> > > +       0xf2, 0x48,   0, 0x40, 0xfa, 0x80,              /* 0x40=Force full-duplex */
-> > >          0x3f, 0x05, };
-> > >   static const char i82558_config_cmd[CONFIG_DATA_SIZE] = {
-> > >          22, 0x08, 0, 1,  0, 0, 0x22, 0x03,  1, /* 1=Use MII  0=Use AUI */
-> > >          0, 0x2E, 0,  0x60, 0x08, 0x88,
-> > > -       0x68, 0, 0x40, 0xf2, 0x84,              /* Disable FC */
-> > > +       0x68, 0, 0x40, 0xfa, 0x84,              /* Disable FC */
-> > >          0x31, 0x05, };
-> > 
-> > hmmm. hmmm. hmmm.
-> > 
-> > I am sorely tempted to drop this patch, simply because it's changing one
-> > magic number to another.
-
-That's a good reason to object.
-
-> >  One key question I have is, what the fsck does
-> > this patch really do???  If it turns on VLAN [de-]tagging
-> > unconditionally, for example, that's unacceptable.
+le ven 01-03-2002 à 21:27, Shawn Starr a écrit :
+> Trouble or not. We will defeat this garbage. I will not allow any or my
+> (Canada) country to tell me how to control my own systems let alone my
+> own hardware! 
 > 
-> This patch, from all I know using it, does exactly one thing: it permits
-> receiving (and sending) slightly larger frames, for setting the MTU on the
-> base interface to 1504, so the VLAN interfaces themselves can run the
-> normal 1500 byte MTU.
+> Let them pass it, they won't be able to enforce it. I won't let my Linux
+> kernel become 'tainted' by closed binary drivers and I will really
+> actively get involved in defeating such measures in Linux kernel
+> modules.
 
-The patch turns on the reception for larger frames.
-It only works for some chip revisions.  Specifically, the i82557 does
-not document this bit.
+You already use much BIOS with linux today, and tomorrow ACPI will be
+mandatory to use your box. Both are untrusted binary "drivers".
 
-It should have been handled like all of the other interface- and
-chip-specific settings -- modifying a copy of the table, not
-the original static table.
-
-> I have been using the patch to this end on several eepro100 based systems,
-> over the last year, with no surprises.
-
-Have you tried sending slightly oversized non-VLAN frames?
-What about testing with '557, '558 and '559 chips?  
-
-I have a similar objection to the Tulip modification: the change
-just disables the overlength packet protection.  This won't work as you
-expect with all chips.
-
-> I agree that such an array of magic constants is very very undesirable.
-
-The reason for the magic numbers is twofold: I got the documentation only
-with a negotiated NDA, and even with the documentation many of the bits
-have specified-but-undocumented values.  Others bits are fundamentally
-uninteresting modifications of standard Ethernet: disabling preamble,
-extending the IFG1/IFG2 period, changing to linear back-off. 
-
-OTOH, this patch is a case where the setting should be documented.  It is a
-change from the default/recommended value.
-
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
+	Xav
 

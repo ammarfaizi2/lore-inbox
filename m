@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131436AbRAIR6z>; Tue, 9 Jan 2001 12:58:55 -0500
+	id <S131403AbRAIR6z>; Tue, 9 Jan 2001 12:58:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131446AbRAIR6p>; Tue, 9 Jan 2001 12:58:45 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:60387 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S131436AbRAIR6i>;
-	Tue, 9 Jan 2001 12:58:38 -0500
-Date: Tue, 9 Jan 2001 09:58:35 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jt@hpl.hp.com, John Ruttenberg <rutt@chezrutt.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: wavelan has fatal error with 2.4.0 (but worked in 2.4.0-test12)
-Message-ID: <20010109095835.C30225@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20010109094217.A30225@bougret.hpl.hp.com> <E14G2t8-00074Q-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14G2t8-00074Q-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 09, 2001 at 05:48:47PM +0000
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S131436AbRAIR6r>; Tue, 9 Jan 2001 12:58:47 -0500
+Received: from mail.sci.fi ([195.197.53.226]:32176 "EHLO vasta.saunalahti.fi")
+	by vger.kernel.org with ESMTP id <S131403AbRAIR6g>;
+	Tue, 9 Jan 2001 12:58:36 -0500
+Message-ID: <001401c07a65$e9c41040$56dc10c3@tal.org>
+From: "Kaj-Michael Lang" <milang@tal.org>
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+Subject: Raid code panic with kernel compiled for i486
+Date: Tue, 9 Jan 2001 19:59:28 +0200
+Organization: Tal.Org
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 05:48:47PM +0000, Alan Cox wrote:
-> > > It is a bug in the driver.
-> > 
-> > 	Please check again the code and point me the invalid
-> > udelay(). You will realise that there is no delay in the driver that
-> > is longer than 100ms.
-> 
-> The udelay limit is set a lot lower than 100mS. It has to be somewhat lower
-> otherwise you have to do two levels of loops which will throw small udelay
-> timings a fair whack.
+I was testing the 2.4.0 kernel and found out that when a kernel
+compiled for processors under P3 (i486, P2/Celeron) and booting it on a P3
+the kernel
+panics when it's tries to test different RAID5 xor algorithms.
 
-	Sorry, I mixed up my units. All the delays are lower than 100us.
+The panic looks something like this:
 
-> > 	The bug is that udelay() can't be passed a variable but only a
-> > constant. Therefore bug in udelay().
-> 
-> Sounds like a compiler bug.
-> 
-> #define udelay(n) (__builtin_constant_p(n) ? \
-> 	((n) > 20000 ? __bad_udelay() : __const_udelay((n) * 0x10c6ul)) : \
-> 	__udelay(n))
-> 
-> non constants are covered.
+...
+raid5: measuring checksuming speed
+8regs    : 773.430 MB/sec
+32regs    :    562.356 MB/sec
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0259c7d>]
+...
 
-	Therefore, compiler bug. Ouch !
+I've tried with:
+2.4.0,  gcc 2.95.2
+2.4.0-ac4, gcc 2.95.2
+2.4.0 SMP, gcc 2.95.2
+2.4.0 UP, egcs 1.1.2
 
-	Jean
+Kaj-Michael Lang
+milang@tal.org
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

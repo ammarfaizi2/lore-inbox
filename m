@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271120AbUJVCng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271084AbUJUXRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271120AbUJVCng (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 22:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271111AbUJVCl2
+	id S271084AbUJUXRN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271115AbUJUXQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 22:41:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3015 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271170AbUJVBEy (ORCPT
+	Thu, 21 Oct 2004 19:16:00 -0400
+Received: from gprs214-34.eurotel.cz ([160.218.214.34]:44931 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S271079AbUJUXAm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 21:04:54 -0400
-Date: Thu, 21 Oct 2004 18:04:51 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/3][LSM] reduce noise during security_register
-Message-ID: <20041021180451.I2357@build.pdx.osdl.net>
-References: <20041021180345.H2357@build.pdx.osdl.net>
+	Thu, 21 Oct 2004 19:00:42 -0400
+Date: Fri, 22 Oct 2004 01:00:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: Kendall Bennett <KendallB@scitechsoft.com>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041021230027.GA24762@elf.ucw.cz>
+References: <88056F38E9E48644A0F562A38C64FB600328792F@scsmsx403.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041021180345.H2357@build.pdx.osdl.net>; from chrisw@osdl.org on Thu, Oct 21, 2004 at 06:03:45PM -0700
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB600328792F@scsmsx403.amr.corp.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Registering a security module can be a noisy operation, esp. when it
-retries registration with the primary module.  Eliminate some noise, and
-distinguish the return values for register_security so a module can tell
-the difference between failure modes.
+Hi!
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+> >The rest of the code you have above seems superfluous to me as we have 
+> >never needed to do that. Then again we boot the card using the BIOS 
+> >emulator, which is different because it runs within a 
+> >protected machine 
+> >state.
+> >
+> >Have you taken a look at the X.org code? They have code in 
+> >there to POST 
+> >the video card also (either using vm86() or the BIOS emulator).
+> >
+> 
+> I have done some experiments with this video post stuff.
+> I think this should be done using x86 emulator rather than doing 
+> in real mode. The reason being, with an userlevel emulator we can call
+> it at different times during resume. The current real mode videopost
+> does 
 
- security.c |   14 ++++----------
- 1 files changed, 4 insertions(+), 10 deletions(-)
-
---- linus-2.6/security/security.c~verbose	2004-10-21 16:50:30.844353688 -0700
-+++ linus-2.6/security/security.c	2004-10-21 17:00:54.386560864 -0700
-@@ -29,11 +29,8 @@
- static inline int verify (struct security_operations *ops)
- {
- 	/* verify the security_operations structure exists */
--	if (!ops) {
--		printk (KERN_INFO "Passed a NULL security_operations "
--			"pointer, %s failed.\n", __FUNCTION__);
-+	if (!ops)
- 		return -EINVAL;
--	}
- 	security_fixup_ops (ops);
- 	return 0;
- }
-@@ -85,16 +82,13 @@
- int register_security (struct security_operations *ops)
- {
- 	if (verify (ops)) {
--		printk (KERN_INFO "%s could not verify "
-+		printk(KERN_DEBUG "%s could not verify "
- 			"security_operations structure.\n", __FUNCTION__);
- 		return -EINVAL;
- 	}
- 
--	if (security_ops != &dummy_security_ops) {
--		printk (KERN_INFO "There is already a security "
--			"framework initialized, %s failed.\n", __FUNCTION__);
--		return -EINVAL;
--	}
-+	if (security_ops != &dummy_security_ops)
-+		return -EAGAIN;
- 
- 	security_ops = ops;
- 
-
+Actually Ole Rohne has patch that allows you to call real mode any
+time you want.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,96 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317025AbSHHIRB>; Thu, 8 Aug 2002 04:17:01 -0400
+	id <S316587AbSHHINH>; Thu, 8 Aug 2002 04:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317373AbSHHIRB>; Thu, 8 Aug 2002 04:17:01 -0400
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:30924 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S317025AbSHHIRA>; Thu, 8 Aug 2002 04:17:00 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Grant Grundler <grundler@dsl2.external.hp.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: PCI<->PCI bridges, transparent resource fix
-Date: Thu, 8 Aug 2002 10:20:15 +0200
-Message-Id: <20020808082015.20733@smtp.wanadoo.fr>
-In-Reply-To: <20020807200311.A5566@jurassic.park.msu.ru>
-References: <20020807200311.A5566@jurassic.park.msu.ru>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316900AbSHHINH>; Thu, 8 Aug 2002 04:13:07 -0400
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:7821 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id <S316587AbSHHING>; Thu, 8 Aug 2002 04:13:06 -0400
+Date: Thu, 8 Aug 2002 10:16:35 +0200
+From: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oopses on dual Athlon with 2.4.19-ac4 and 2.4.20-pre1-ac1
+Message-ID: <20020808081635.GL23816@os.inf.tu-dresden.de>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <20020807162932.GH23816@os.inf.tu-dresden.de> <1028746623.18156.328.camel@irongate.swansea.linux.org.uk> <20020807180503.GI23816@os.inf.tu-dresden.de> <1028748942.18478.330.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1028748942.18478.330.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Ok. Assume that additional window is 0xf2000000-0xf2ffffff.
->I'd try the following:
->- set the _single_ memory resource of the root bus to 0x80000000-0xf2ffffff;
->- create dummy memory type resource 0xf0000000-0xf1ffffff and "claim" it
->  on the root bus. This will prevent all further allocations in the
->  gap between two MMIO windows.
->I think it should seriously simplify the things.
+On Wed Aug 07, 2002 at 20:35:42 +0100, Alan Cox wrote:
+> On Wed, 2002-08-07 at 19:05, Adam Lackorzynski wrote:
+> > On Wed Aug 07, 2002 at 19:57:03 +0100, Alan Cox wrote:
+> > > On Wed, 2002-08-07 at 17:29, Adam Lackorzynski wrote:
+> > > > I have a dual Athlon here which ooopses after 2 minutes of dnetc when
+> > > > running 2.4.19-ac4 or 2.4.20-pre1-ac1. I cannot reproduce this with
+> > > > 2.4.19 or 2.4.20-pre1. The two Athlons are sitting on a A7M266-D.
+> > > 
+> > > Are you loading the amd76x_pm module for power management ?
+> > 
+> > No, the module wasn't loaded in any of the cases. Only ipv6 and rtc are
+> > loaded.
+> 
+> Can you reproduce it with ACPI disabled ?
 
-Unfortunately that wouldn't work as I actually have 3 host bridges
-on these models, and the windows can be "mixed". One host can have
-0x80000000 to 0x9ffffffff (and one region at 0xfx000000), The next
-one can have 0xa0000000 to 0xaffffffff and another region at
-0xfx000000, etc...
+2.4.20-pre1-ac1 with acpi=off, looks like the other ones:
 
->> Ok, here we need Linus answert. We did have a patch in the PPC tree
->> that was consideing closed resources as really closed instead of
->> transparent, and we were told by Linus that there were non standard
->> bridges and various issues in the x86 world with that, and that those
->> would remain transparent. I don't have pointers at hand, but I think
->> this was dicusssed on lkml several monthes ago.
->
->I recall that. I do agree with Linus, but only about bridges with
->class code 0x60401 (subtractive decoders). The details of operating in
->subtractive decoding mode are beyond the scope of the P2P bridge specs,
->and probably we don't want to know these details either. "Assuming
->transparent" is a sufficient workaround in this case.
+>>EIP; c011831c <schedule+19c/3a0>   <=====
 
-Agreed.
+Code: 8b 4b 54 89 4d f4 8b 72 58 85 c9 75 37 89 73 58 f0 ff 46 14 
+Unable to handle kernel NULL pointer dereference at virtual address 00000028
+c011831c
+*pde = 00000000
+Oops: 0000
+CPU:    1
+EIP:    0010:[<c011831c>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010003
+eax: 0000008c   ebx: ffffffd4   ecx: c03956dc   edx: dd956000
+esi: c0395240   edi: dd95602c   ebp: dd957fa4   esp: dd957f88
+ds: 0018   es: 0018   ss: 0018
+Process dnetc (pid: 338, stackpage=dd957000)
+Stack: dd956000 c03956dc dd95602c 00000001 c011521f dd956000 dd956000 dd957fbc 
+       c011935d dd956000 000000c5 00013880 c0395240 bffff7b4 c0108b6b 00000000 
+       00000001 40025004 000000c5 00013880 bffff7b4 0000009e 0000002b 0000002b 
+Call Trace:    [<c011521f>] [<c011935d>] [<c0108b6b>]
+Code: 8b 4b 54 89 4d f4 8b 72 58 85 c9 75 37 89 73 58 f0 ff 46 14 
 
->Some additional notes. The P2P bridge specification says:
->"The primary use of a subtractive decoding bridge is to connect
-> a laptop system to a docking station and support legacy ISA devices
-> in the docking station."
->
->Indeed, that "transparency" code had been added to fix P2P bridge problems
->on some Dell docking station (reported by Jamal) back in the 2.4.0-test
->times. Unfortunately, lspci output of that machine hasn't been posted
->(or I just missed that). However, I'm sure that the problematic bridge
->did have ProgIf code 1, otherwise that type of machines would have
->problems running Windows, as MS says:
->  "A  bridge  indicates  that  it  performs  subtractive  decode  if  its
->   Programming  Interface bit in the PCI Configuration Register is set to
->   01h.  Not  all  PCI-to-PCI bridges support subtractive decode. Windows
->   will  not  switch  a bridge from positive decode to subtractive decode
->   (or  vice  versa) because there is no standard method defined for this
->   action."
->
->For those who are interested, the entire document (zipped .doc) is
->http://download.microsoft.com/download/whistler/hwdev3/1.0/WXP/EN-US/
->pcibridge-cardbus.exe
->Not in the human readable form, sorry. ;-)
->
->> I'd set all 4 then, thus the bridge would really be seen as forwarding
->> all the regions of the host bridge, whatever they are.
->
->There are only 3, as Grant pointed out. :-)
+>>ebx; ffffffd4 <END_OF_CODE+3fbf6838/????>
+>>ecx; c03956dc <runqueues+e5c/13800>
+>>edx; dd956000 <END_OF_CODE+1d54c864/????>
+>>esi; c0395240 <runqueues+9c0/13800>
+>>edi; dd95602c <END_OF_CODE+1d54c890/????>
+>>ebp; dd957fa4 <END_OF_CODE+1d54e808/????>
+>>esp; dd957f88 <END_OF_CODE+1d54e7ec/????>
 
-Well, I as pointed out, I may actually need all 4 regions of the host ;)
+Trace; c011521f <smp_apic_timer_interrupt+ef/110>
+Trace; c011935d <sys_sched_yield+11d/130>
+Trace; c0108b6b <system_call+33/38>
 
-Anyway, since we agree on copying down the parent regions, and the pci_bus
-stucture holds 4 resource slots, then let's copy them all down.
+Code;  c011831c <schedule+19c/3a0>
+00000000 <_EIP>:
+Code;  c011831c <schedule+19c/3a0>   <=====
+   0:   8b 4b 54                  mov    0x54(%ebx),%ecx   <=====
+Code;  c011831f <schedule+19f/3a0>
+   3:   89 4d f4                  mov    %ecx,0xfffffff4(%ebp)
+Code;  c0118322 <schedule+1a2/3a0>
+   6:   8b 72 58                  mov    0x58(%edx),%esi
+Code;  c0118325 <schedule+1a5/3a0>
+   9:   85 c9                     test   %ecx,%ecx
+Code;  c0118327 <schedule+1a7/3a0>
+   b:   75 37                     jne    44 <_EIP+0x44> c0118360 <schedule+1e0/3
+a0>
+Code;  c0118329 <schedule+1a9/3a0>
+   d:   89 73 58                  mov    %esi,0x58(%ebx)
+Code;  c011832c <schedule+1ac/3a0>
+  10:   f0 ff 46 14               lock incl 0x14(%esi)
 
-I'll write some code about that when I'm back from vacation and we'll
-see what's up. I may end up adding a quirk call inside the
-pci_read_bridge_bases
-functions so that it's behaviour can be easily overriden if we ever meet
-a non-strandard enough bridge to be transparent without having ProgIf code 1
 
-Ben.
-
+Adam
+-- 
+Adam                 adam@os.inf.tu-dresden.de
+  Lackorzynski         http://os.inf.tu-dresden.de/~adam/

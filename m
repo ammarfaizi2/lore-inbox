@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263281AbSKCXKc>; Sun, 3 Nov 2002 18:10:32 -0500
+	id <S263837AbSKCX3V>; Sun, 3 Nov 2002 18:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263342AbSKCXKc>; Sun, 3 Nov 2002 18:10:32 -0500
-Received: from adsl-66-125-65-154.dsl.sntc01.pacbell.net ([66.125.65.154]:46065
-	"EHLO dual.pharr.org") by vger.kernel.org with ESMTP
-	id <S263281AbSKCXKc>; Sun, 3 Nov 2002 18:10:32 -0500
-To: linux-kernel@vger.kernel.org
-Subject: keyboard not recognized with 2.5 kernels
-X-Face: C!.oGaE]n@p)VF9Ss3]f'|<)kRrtpG)^^b^X-3_zhUHp\jBj29jaoTItqWR>mHa+v-{/!jx7OA@!cV0>Fm-b:zEL<`oOXG[BFQ\<q:TwWP@JNZu+VXcD2viySG/R_/|6UDo,W;w^z^NK)F\YM|xjvI[MH,"iQ~mT<g`H6;x8}8j|miQUQ&fw|!V~.N+[#69iY?|ypa*[.{bEm\JDlI<<!}p}xeb7[N-!3nT^i3Rr#M"{a@+k.QZnnuzDcre%C6}qkv$fTsSJ
-From: Matt Pharr <matt@pharr.org>
-Date: Sun, 03 Nov 2002 15:17:04 -0800
-Message-ID: <m2lm4az1jj.fsf@dual.pharr.org>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Honest Recruiter,
- i686-pc-linux)
+	id <S263899AbSKCX3V>; Sun, 3 Nov 2002 18:29:21 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:21777 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP
+	id <S263837AbSKCX3T>; Sun, 3 Nov 2002 18:29:19 -0500
+Date: Sun, 3 Nov 2002 18:35:52 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: <stern@netrider.rowland.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fixes for the ide-tape driver
+In-Reply-To: <20021103140328.GL807@suse.de>
+Message-ID: <Pine.LNX.4.33L2.0211031822200.26264-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 3 Nov 2002, Jens Axboe wrote:
 
-(I've had this problem with both 2.5.39 and 2.5.45; haven't tried any other
-versions.)
+> On Sat, Nov 02 2002, Alan Cox wrote:
+> > Thanks for the 2.5 bits. For the 2.4 tree send them on to Marcelo after
+> > 2.4.20 is out. You might also want to talk to Pete Zaitcev
+> > <zaitcev@redhat.com> as I know he posted some fixes too recently
+>
+> The use of IDETAPE_RQ_CMD looks shady, at best. And idetape_do_request()
+> does a direct switch() on the flags, ugh.
 
-After 2.5 boots, my keyboard doesn't seem to be recognized (it's an
-old-style one plugged into the keyboard port, not a USB keyboard).
-Everything is fine up to the login: prompt, but then any key I hit doesn't
-cause anything to happen (including ctrl-alt-del).
+I agree, absolutely.  Those are the least of this driver's stylistic
+infelicities.  The two things I have found to be most objectionable are:
 
-I have tried booting with "i8042_direct=1" on the kernel command line (as
-suggested in another thread about other keyboard problems), and that didn't
-help, and I have tried plugging in a plain old Dell keyboard instead of the
-Logitech iTouch I've got plugged in now.  Neither of those helped.  I also
-tried building without SMP support, and that didn't change the situation
-either.
+First, the driver is a mish-mash, including code for handling OnStream
+devices along with generic ATAPI devices.  In some places the specialized
+code is set off with regular conditional tests, in others by pre-processor
+conditionals, and in others not at all.  Willem Riede has expressed his
+intention to write a different driver just for the OnStream, which I think
+is a very good idea.
 
-This is on a home-built machine, Asus A7M266-D motherboard, dual athlon
-1900MPs, etc.
+Second, the use of write buffering means that the driver is unable to
+detect and report end-of-media or other write errors until they occur,
+long after returning successfully from the corresponding system call.
+Considering that tape drives are often used for backups, this lack of
+proper error-reporting is not appropriate for such a mission-critical
+application.  (This was a conscious decision on the part of the original
+author of the driver.  There is supposed to be support for compiling it
+without the write buffer, but -- presumably as a result of later changes
+-- it doesn't work.)
 
-I don't think I did anything dumb in the configuration step--I used my
-working 2.4.19 .config file, did a 'make oldconfig', and answered questions
-in conservative ways.  In particular, I do have CONFIG_INPUT_KEYBOARD set
-properly:
+My version of the driver is not perfect.  For example, I know (because I
+have seen it happen) that the driver can hang when encountering a
+faulty-media error.  All I have done is add a more-or-less minimal number
+of changes that suffice to make the driver work okay on my system, and
+hence presumably for other ATAPI systems as well.  It might be nice to
+make larger-scale changes, but I don't have the time or the desire to do
+so.
 
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_INPUT_MOUSE=y
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-# CONFIG_INPUT_UINPUT is not set
-
-Any thoughts about how to debug further?  I fear that I've forgotten
-something obvious, but can't think of anything else to try.
-
-thanks,
--matt
+Alan Stern
 

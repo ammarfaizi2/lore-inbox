@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVCKEQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbVCKELc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVCKEQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 23:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbVCKEM0
+	id S262723AbVCKELc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 23:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVCKEK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 23:12:26 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:23739 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S263189AbVCKEAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 23:00:13 -0500
+	Thu, 10 Mar 2005 23:10:58 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:47759 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S263193AbVCKEAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 23:00:18 -0500
 From: Peter Chubb <peterc@gelato.unsw.edu.au>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Date: Fri, 11 Mar 2005 15:00:06 +1100
+Date: Fri, 11 Mar 2005 15:00:11 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16945.6086.829201.185231@berry.gelato.unsw.EDU.AU>
-Subject: Microstate Accounting for 2.6.11, patch 2/6
+Message-ID: <16945.6091.581225.377464@berry.gelato.unsw.EDU.AU>
+Subject: Microstate Accounting for 2.6.11, patch 3/6
 X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
@@ -25,81 +25,120 @@ X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Microstate Accounting:
-Add hooks into the scheduler to track state changes.
-Arrange for parent process's child times to be updated at process exit. 
 
+Microstate accounting:  
 
- kernel/sched.c |    8 ++++++++
- kernel/exit.c  |    3 +++
+Provide I386-dependent MSA clocks, and Kconfig options.
 
-Index: linux-2.6-ustate/kernel/sched.c
+ arch/i386/Kconfig      |   39 ++++++++++++++++++++++++++++++++++++++-
+ include/asm-i386/msa.h |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 87 insertions(+), 1 deletion(-)
+
+Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
+
+Index: linux-2.6-ustate/arch/i386/Kconfig
 ===================================================================
---- linux-2.6-ustate.orig/kernel/sched.c	2005-03-11 09:59:31.109628035 +1100
-+++ linux-2.6-ustate/kernel/sched.c	2005-03-11 09:59:31.116463921 +1100
-@@ -635,6 +635,7 @@
-  */
- static inline void __activate_task(task_t *p, runqueue_t *rq)
- {
-+	msa_set_timer(p, ONACTIVEQUEUE);
- 	enqueue_task(p, rq->active);
- 	rq->nr_running++;
- }
-@@ -1238,6 +1239,7 @@
- 			if (unlikely(!current->array))
- 				__activate_task(p, rq);
- 			else {
-+				msa_set_timer(p, ONACTIVEQUEUE);
- 				p->prio = current->prio;
- 				list_add_tail(&p->run_list, &current->run_list);
- 				p->array = current->array;
-@@ -2422,6 +2424,7 @@
- 		if (!rq->expired_timestamp)
- 			rq->expired_timestamp = jiffies;
- 		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
-+			msa_next_state(p, ONEXPIREDQUEUE);
- 			enqueue_task(p, rq->expired);
- 			if (p->static_prio < rq->best_expired_prio)
- 				rq->best_expired_prio = p->static_prio;
-@@ -2733,6 +2736,7 @@
- 		array = rq->active;
- 		rq->expired_timestamp = 0;
- 		rq->best_expired_prio = MAX_PRIO;
-+		msa_flip_expired(prev);
- 	} else
- 		schedstat_inc(rq, sched_noswitch);
+--- linux-2.6-ustate.orig/arch/i386/Kconfig	2005-03-11 09:59:38.773632446 +1100
++++ linux-2.6-ustate/arch/i386/Kconfig	2005-03-11 09:59:38.777538666 +1100
+@@ -923,8 +923,45 @@
  
-@@ -2773,6 +2777,8 @@
- 		rq->curr = next;
- 		++*switch_count;
+ 	  If unsure, say Y. Only embedded should say N here.
  
-+		msa_switch(prev, next);
+-endmenu
++config MICROSTATE
++       bool "Microstate accounting"
++       help
++         This option causes the kernel to keep very accurate track of
++	 how long your threads spend on the runqueues, running, or asleep or
++	 stopped.  It will slow down your kernel.
++	 Times are reported in /proc/pid/msa and through a new msa()
++	 system call.
 +
- 		prepare_arch_switch(rq, next);
- 		prev = context_switch(rq, prev, next);
- 		barrier();
-@@ -3693,6 +3699,8 @@
- 	 */
- 	if (rt_task(current))
- 		target = rq->active;
-+	else
-+		msa_next_state(current, ONEXPIREDQUEUE);
++choice 
++       depends on MICROSTATE
++       prompt "Microstate timing source"
++       default MICROSTATE_TSC
++
++config MICROSTATE_PM
++       bool "Use Power-Management timer for microstate timings"
++       depends on X86_PM_TIMER
++       help
++	 If your machine is ACPI enabled and uses power-management, then the 
++	 TSC runs at a variable rate, which will distort the 
++	 microstate measurements.  This timer, although having
++	 slightly more overhead, and a lower resolution (279
++	 nanoseconds or so) will always run at a constant rate.
++
++config MICROSTATE_TSC
++       bool "Use on-chip TSC for microstate timings"
++       depends on X86_TSC
++       help
++         If your machine's clock runs at constant rate, then this timer 
++	 gives you cycle precision in measureing times spent in microstates.
++
++config MICROSTATE_TOD
++       bool "Use time-of-day clock for microstate timings"
++       help
++         If none of the other timers are any good for you, this timer 
++	 will give you micro-second precision.
++endchoice
  
- 	if (current->array->nr_active == 1) {
- 		schedstat_inc(rq, yld_act_empty);
-
-
-Index: linux-2.6-ustate/kernel/exit.c
++endmenu
+ 
+ menu "Power management options (ACPI, APM)"
+ 	depends on !X86_VOYAGER
+Index: linux-2.6-ustate/include/asm-i386/msa.h
 ===================================================================
---- linux-2.6-ustate.orig/kernel/exit.c	2005-03-11 09:59:36.360564796 +1100
-+++ linux-2.6-ustate/kernel/exit.c	2005-03-11 09:59:36.364471017 +1100
-@@ -93,6 +93,9 @@
- 	}
- 
- 	sched_exit(p);
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-ustate/include/asm-i386/msa.h	2005-03-11 09:59:38.779491777 +1100
+@@ -0,0 +1,49 @@
++/************************************************************************
++ * asm-i386/msa.h
++ *
++ * Provide an architecture-specific clock.
++ */
 +
-+	msa_update_parent(p->parent, p);
++#ifndef _ASM_I386_MSA_H
++# define _ASM_I386_MSA_H
 +
- 	write_unlock_irq(&tasklist_lock);
- 	spin_unlock(&p->proc_lock);
- 	proc_pid_flush(proc_dentry);
++# include <linux/config.h>
++
++
++# if defined(CONFIG_MICROSTATE_TSC)
++/*
++ * Use the processor's time-stamp counter as a timesource
++ */
++#  include <asm/msr.h>
++#  include <asm/div64.h>
++
++#  define MSA_NOW(now)  rdtscll(now)
++
++extern unsigned long cpu_khz;
++#  define MSA_TO_NSEC(clk) ({ clk_t _x = ((clk) * 1000000ULL); do_div(_x, cpu_khz); _x; })
++
++# elif defined(CONFIG_MICROSTATE_PM)
++/*
++ * Use the system's monotonic clock as a timesource.
++ * This will only be enabled if the Power Management Timer is enabled.
++ */
++unsigned long long monotonic_clock(void);
++#  define MSA_NOW(now) do { now = monotonic_clock(); } while (0)
++#  define MSA_TO_NSEC(clk) (clk)
++
++# elif defined(CONFIG_MICROSTATE_TOD)
++/*
++ * Fall back to gettimeofday.
++ * This one is incompatible with interrupt-time measurement on some processors.
++ */
++static inline void msa_now(clk_t *nsp) {
++	struct timeval tv;
++	do_gettimeofday(&tv);
++	*nsp = tv.tv_sec * 1000000 + tv.tv_usec;
++}
++#   define MSA_NOW(x) msa_now(&x)
++#   define MSA_TO_NSEC(clk) ((clk) * 1000)
++# endif
++
++
++#endif /* _ASM_I386_MSA_H */
+I386

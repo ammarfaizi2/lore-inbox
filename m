@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131254AbRCUKFN>; Wed, 21 Mar 2001 05:05:13 -0500
+	id <S131275AbRCUKJd>; Wed, 21 Mar 2001 05:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131260AbRCUKFD>; Wed, 21 Mar 2001 05:05:03 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:38605 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131254AbRCUKEq>; Wed, 21 Mar 2001 05:04:46 -0500
-Message-ID: <3AB87CE3.2DB0DA14@uow.edu.au>
-Date: Wed, 21 Mar 2001 21:05:23 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Keith Owens <kaos@ocs.com.au>, nigel@nrg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <22991.985166394@ocs3.ocs-net>,
-		<Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
-		<22991.985166394@ocs3.ocs-net> <15032.30533.638717.696704@pizda.ninka.net>
+	id <S131278AbRCUKJX>; Wed, 21 Mar 2001 05:09:23 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:51724 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131275AbRCUKJJ>;
+	Wed, 21 Mar 2001 05:09:09 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Antwerpen, Oliver" <Antwerpen@netsquare.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to provoke kernel panic 
+In-Reply-To: Your message of "Wed, 21 Mar 2001 10:43:25 BST."
+             <9DD550E9A9B0D411A16700D0B7E38BA4E67E@POL-EML-SRV1> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Mar 2001 21:08:22 +1100
+Message-ID: <23971.985169302@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Keith Owens writes:
->  > Or have I missed something?
-> 
-> Nope, it is a fundamental problem with such kernel pre-emption
-> schemes.  As a result, it would also break our big-reader locks
-> (see include/linux/brlock.h).
-> 
-> Basically, anything which uses smp_processor_id() would need to
-> be holding some lock so as to not get pre-empted.
-> 
+On Wed, 21 Mar 2001 10:43:25 +0100, 
+"Antwerpen, Oliver" <Antwerpen@netsquare.org> wrote:
+>Could someone kindly tell me how to provoke a kernel panic? I need to do so
+>for testing some applications regarding system crash awareness.
 
-It's a problem for uniprocessors as well.
+Create fs/example-module.c
 
-Example:
+#include <linux/config.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
 
-#define current_cpu_data boot_cpu_data
-#define pgd_quicklist (current_cpu_data.pgd_quick)
-
-extern __inline__ void free_pgd_fast(pgd_t *pgd)
+int init_module(void)
 {
-        *(unsigned long *)pgd = (unsigned long) pgd_quicklist;
-        pgd_quicklist = (unsigned long *) pgd;
-        pgtable_cache_size++;
+	printk("module loading\n");
+	panic("test panic\n");
+	return 0;
 }
 
-Preemption could corrupt this list.
+Add "obj-m += example-module.o" to fs/Makefile.
+make modules, insmod fs/example-module.o and watch the bits fly.
 
--

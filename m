@@ -1,47 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUIXV6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269019AbUIXWBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269013AbUIXV6d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 17:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269015AbUIXV6d
+	id S269019AbUIXWBz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 18:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269015AbUIXWBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 17:58:33 -0400
-Received: from mail.gmx.de ([213.165.64.20]:2770 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269013AbUIXV6a (ORCPT
+	Fri, 24 Sep 2004 18:01:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34512 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269019AbUIXWBv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 17:58:30 -0400
-X-Authenticated: #20450766
-Date: Fri, 24 Sep 2004 22:39:12 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-cc: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, bjorn.helgaas@hp.com,
-       acpi-devel@lists.sourceforge.net, kaneshige.kenji@soft.fujitsu.com,
-       akpm@osdl.org, greg@kroah.com, len.brown@intel.com, tony.luck@intel.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [ACPI] [PATCH] PCI IRQ resource deallocation support [2/3]
-In-Reply-To: <4153BEBA.5030202@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.60.0409242236330.7426@poirot.grange>
-References: <414FEBDB.2050201@soft.fujitsu.com> <200409210857.59457.bjorn.helgaas@hp.com>
- <4150D458.3050400@jp.fujitsu.com> <20040924.145229.108814142.t-kochi@bq.jp.nec.com>
- <4153BEBA.5030202@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 24 Sep 2004 18:01:51 -0400
+Date: Fri, 24 Sep 2004 15:05:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Pratt <slpratt@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Simplified Readahead
+Message-Id: <20040924150523.4853465b.akpm@osdl.org>
+In-Reply-To: <41543FE2.5040807@austin.ibm.com>
+References: <4152F46D.1060200@austin.ibm.com>
+	<20040923194216.1f2b7b05.akpm@osdl.org>
+	<41543FE2.5040807@austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Sep 2004, Kenji Kaneshige wrote:
+Steven Pratt <slpratt@austin.ibm.com> wrote:
+>
+> >
+> >The advantage of the current page-at-a-time code is that the readahead code
+> >behaves exactly the same, whether the application is doing 256 4k reads or
+> >one 1M read.  Plus it fits the old pagefault requirement.
+> >  
+> >
+> Yes, but it accomplishes this by possible making the 1M slower.  And I 
+> must admit that I don't know what the "old pagefault requirement" is.  
+> Is that something we still need to worry about?
 
-> Takayoshi Kochi wrote:
-> I'll change my patch to leave dev->irq as it is. And then I'll
-> investigate about defining PCI_UNDEFINED_IRQ.
+The "old pagefault requirement": the code in there used to perform
+readaround at pagefault time as well as readahead at read() time.  Hence it
+had to work well for single-page requests.  That requirement isn't there
+any more but some of the code to support it is still there, perhaps.
 
-Some platforms (arm, arm26, ppc64) define a macro NO_IRQ:
+> >>
+> >>1. pages already in cache
+> >>    
+> >>
+> >
+> >Yes, we need to handle this.  All pages in cache with lots of CPUs
+> >hammering the same file is a common case.
+> >
+> >Maybe not so significant on small x86, but on large power4 with a higher
+> >lock-versus-memcpy cost ratio, that extra locking will hurt.
+> >  
+> >
+> Ok, we have some data from larger machines.  I will collect it all and 
+> summarize separately.
 
-include/asm-arm/irq.h:#define NO_IRQ        ((unsigned int)(-1))
-include/asm-arm26/irq.h:#define NO_IRQ      ((unsigned int)(-1))
-include/asm-ppc64/irq.h:#define NO_IRQ      (-1)
+SDET would be interesting, as well as explicit testing of lots of processes
+reading the same fully-cached file.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+> >>cache we should just immediately turn off readahead.  What is this 
+> >>trigger point?  4 I/Os in a row? 400?
+> >>    
+> >>
+> >
+> >Hard call.
+> >  
+> >
+> I know, but we have to come up with something if we really want to avoid 
+> the double lookup.
 
+As long as readahead gets fully disabled at some stage, we should be OK.
+
+We should probably compare i_size with mapping->nrpages at open() time,
+too.  No point in enabling readahead if it's all cached.  But doing that
+would make performance testing harder, so do it later.
+
+> >
+> >I do think we should skip the I/O for POSIX_FADV_WILLNEED against a
+> >congested queue.  I can't immediately think of a good reason for skipping
+> >the I/O for normal readahead.
+> >  
+> >
+> Can you expand on the POSIX_FADV_WILLNEED.
+
+It's an application-specified readahead hint.  It should ideally be
+asynchronous so the application can get some I/O underway while it's
+crunching on something else.  If the queue is contested then the
+application will accidentally block when launching the readahead, which
+kinda defeats the purpose.
+
+Yes, the application will block when it does the subsequent read() anyway,
+but applications expect to block in read().  Seems saner this way.

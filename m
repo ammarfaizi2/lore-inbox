@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265883AbSKBGon>; Sat, 2 Nov 2002 01:44:43 -0500
+	id <S265885AbSKBGsP>; Sat, 2 Nov 2002 01:48:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265885AbSKBGon>; Sat, 2 Nov 2002 01:44:43 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.228]:44188 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S265883AbSKBGom>; Sat, 2 Nov 2002 01:44:42 -0500
-Date: Sat, 2 Nov 2002 02:43:23 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.45 : net/ipv4/ipconfig.c
-Message-ID: <Pine.LNX.4.44.0211020240540.856-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265886AbSKBGsP>; Sat, 2 Nov 2002 01:48:15 -0500
+Received: from thunk.org ([140.239.227.29]:22427 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S265885AbSKBGsO>;
+	Sat, 2 Nov 2002 01:48:14 -0500
+Date: Sat, 2 Nov 2002 01:54:44 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Cc: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] Fix 2.5-bk build error
+Message-ID: <20021102065444.GA16100@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+	Roman Zippel <zippel@linux-m68k.org>
+References: <E187Agn-0003b9-00@snap.thunk.org> <20021101002419.GA1683@rivenstone.net> <20021101004751.GB1683@rivenstone.net> <20021101010607.GC1683@rivenstone.net> <Pine.LNX.4.44.0211011239290.6949-100000@serv> <20021101172807.GA982@caphernaum.rivenstone.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021101172807.GA982@caphernaum.rivenstone.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  The following patch moves a variable to a place prior to a label (no 
-reinitialization). Please review.
+On Fri, Nov 01, 2002 at 12:28:07PM -0500, Joseph Fannin wrote:
+> > BTW2 in the future above can be simplified into
+> > 
+> > config FS_MBCACHE
+> > 	tristate
+> > 	depends on EXT2_FS_XATTR || EXT3_FS_XATTR
+> > 	default EXT2_FS || EXT3_FS
+>
+>     Okay, here's a patch that does that.  Linus, this fixes a build
+> error in your current -bk tree that happens when one of ext[23] is a
+> module and the other is built-in.  Please apply it.
 
-Regards,
-Frank
+Um, Roman, am I right in understanding that when you say, "in the
+future above can be simplified" means that infrastructure to support
+this construct isn't merged into the 2.5 kernel yet?  
 
---- linux/net/ipv4/ipconfig.c.old	Sat Oct 19 12:08:27 2002
-+++ linux/net/ipv4/ipconfig.c	Fri Nov  1 22:02:27 2002
-@@ -1144,6 +1144,7 @@
- 
- 	DBG(("IP-Config: Entered.\n"));
- #ifdef IPCONFIG_DYNAMIC
-+ int retries = CONF_OPEN_RETRIES;
-  try_try_again:
- #endif
- 	/* Give hardware a chance to settle */
-@@ -1175,8 +1176,6 @@
- 	    ic_first_dev->next) {
- #ifdef IPCONFIG_DYNAMIC
- 	
--		int retries = CONF_OPEN_RETRIES;
--
- 		if (ic_dynamic() < 0) {
- 			ic_close_devs();
- 
+If this is correct, Linus, please don't apply Joseph Fannin's patch
+just yet.
 
+						- Ted

@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265851AbSLIR0T>; Mon, 9 Dec 2002 12:26:19 -0500
+	id <S265844AbSLIRev>; Mon, 9 Dec 2002 12:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbSLIR0T>; Mon, 9 Dec 2002 12:26:19 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:18869 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265851AbSLIR0S>; Mon, 9 Dec 2002 12:26:18 -0500
-Date: Mon, 9 Dec 2002 12:33:56 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: schwidefsky@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux390@de.ibm.com
-Subject: s390 2.4.20 compilation fix
-Message-ID: <20021209123356.A22259@devserv.devel.redhat.com>
+	id <S265865AbSLIRev>; Mon, 9 Dec 2002 12:34:51 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:287 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id <S265844AbSLIReu>;
+	Mon, 9 Dec 2002 12:34:50 -0500
+Date: Mon, 9 Dec 2002 18:42:32 +0100
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ducrot Bruno <poup@poupinou.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: [2.5.50, ACPI] link error
+Message-ID: <20021209174232.GC14882@poup.poupinou.org>
+References: <20021205224019.GH7396@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0212051632120.974-100000@localhost.localdomain> <20021206000618.GB15784@atrey.karlin.mff.cuni.cz> <20021206185702.GE17595@poup.poupinou.org> <20021208194944.GB19604@atrey.karlin.mff.cuni.cz> <20021209102858.GA14882@poup.poupinou.org> <20021209110111.GA18878@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021209110111.GA18878@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm pretty sure you must have it in your tree somewhere, so
-just to show that we've been paying attention, here it is.
+On Mon, Dec 09, 2002 at 12:01:11PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > I think that s4bios is nice to have. Its similar to S3 and easier to
+> > > set up than swsusp... It would be nice to have it.
+> > 
+> > for me:
+> > pros:
+> > -----
+> > 1- it is really really more easier to implement than S4;
+> > 2- we can even have it with 2.4 kernels (it seems that it work without
+> > the need of freezing processes, but I suspect that this statement
+> > is 'wrong' by nature).
+> > 
+> > cons:
+> > -----
+> > 1- it is much slower (especially at save time) than your swsusp;
+> > 2- end users must setup their systems (need to create a suspend partition,
+> > or to keep a vfat partition as the really first one (/dev/hda1));
+> > 3- we use a bios function.  Actually, everything can happen...
+> > 
+> > That why I prefer swsusp at this time, or any other implementation of S4 (I
+> > think about an implementation of S4 via LKCD).
+> 
+> Yes I think swsusp is better (long term), but it might be worth it to
+> have S4bios, too. At least it has nice graphical task bars :-). Can
+> you push the patch, or is it okay for me to try to get it merged?
+> 
 
-diff -ur -X dontdiff linux-2.4.20/drivers/s390/s390io.c linux-2.4.20-s390/drivers/s390/s390io.c
---- linux-2.4.20/drivers/s390/s390io.c	2002-12-06 18:07:11.000000000 -0800
-+++ linux-2.4.20-s390/drivers/s390/s390io.c	2002-12-06 18:10:01.000000000 -0800
-@@ -8607,8 +8607,8 @@
- cio_ignore_proc_write (struct file *file, const char *user_buf,
- 		       size_t user_len, loff_t * offset)
- {
--	char *buffer
--	
-+	char *buffer;
-+
- 	if(user_len > 65536)
- 		user_len = 65536;
- 	
+Ok, ok.  I will try to push the patch.
+
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

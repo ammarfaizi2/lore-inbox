@@ -1,95 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270473AbTHCMvO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 08:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271080AbTHCMvN
+	id S271080AbTHCNQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 09:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271177AbTHCNQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 08:51:13 -0400
-Received: from quake.mweb.co.za ([196.2.45.76]:47773 "EHLO quake.mweb.co.za")
-	by vger.kernel.org with ESMTP id S270473AbTHCMvH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 08:51:07 -0400
-Subject: Re: [2.6] Perl weirdness with ext3 and HTREE
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: From@mail1.tamperd.net, KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <m365lfgpob.fsf@bzzz.home.net>
-References: <1059856625.14962.19.camel@nosferatu.lan>
-	 <m365lfgpob.fsf@bzzz.home.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kxvjMuhr/G6ORbuuuiqa"
-Message-Id: <1059915061.8312.11.camel@nosferatu.lan>
+	Sun, 3 Aug 2003 09:16:37 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10983 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S271080AbTHCNQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 09:16:36 -0400
+Date: Sun, 3 Aug 2003 15:16:30 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.22-pre10: fix circular dependency
+Message-ID: <20030803131630.GW16426@fs.tum.de>
+References: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 03 Aug 2003 14:51:01 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 01, 2003 at 01:19:11PM -0300, Marcelo Tosatti wrote:
+>...
+> Summary of changes from v2.4.22-pre9 to v2.4.22-pre10
+> ============================================
+>...
+> Marc-Christian Petersen:
+>...
+>   o Fix irq handling of IO-APIC edge IRQs on UP
+>...
 
---=-kxvjMuhr/G6ORbuuuiqa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This patch adds for no good reason two #include's to 
+include/asm-i386/hw_irq.h resulting in a circular dependency between 
+headers.
 
-On Sun, 2003-08-03 at 09:34, Alex Tomas wrote:
-> could you send full strace for this?
->=20
+The patch below removes these #include's again.
 
-Complete strace can be found here:
+I've tested the compilation with 2.4.22-pre10.
 
-  http://dev.gentoo.org/~azarah/trace.log.bz2
+cu
+Adrian
 
-> >>>>> Martin Schlemmer (MS) writes:
->=20
->  MS> Hi
->  MS> I have mailed about this previously, but back then it was not
->  MS> really confirmed, so I have let it be at that.
->=20
->  MS> Anyhow, problem is that for some reason 2.5/2.6 ext3 with HTREE
->  MS> support do not like what perl-5.8.0 does during installation.
->  MS> It *seems* like one of the temporary files created during manpage
->  MS> installation do not get unlinked properly, or gets into the
->  MS> hash (this possible?) and cause issues.
->=20
->  MS> It seems to work flawless on 2.4 still.
->=20
->  MS> Also, to be honest, I do not have that much free time these days,
->  MS> so if an interest in helping me/us debug this, it will be appreciate=
-d
->  MS> if some direction in what is needed/suggestions can be given as to w=
-hat
->  MS> is required.  There are a few users that experience this issue, and
->  MS> I am sure that we can get whatever info needed.
->=20
->  MS> A bug on our tracker is here with more (hopefully) complete info:
->=20
->  MS>   http://bugs.gentoo.org/show_bug.cgi?id=3D24991
->=20
->=20
->  MS> Thanks,
->=20
->  MS> --=20
->=20
->  MS> Martin Schlemmer
->=20
->=20
---=20
-
-Martin Schlemmer
-
-
-
-
---=-kxvjMuhr/G6ORbuuuiqa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/LQU1qburzKaJYLYRAhu4AJ9zJOlduvJeFSQGshtxt5Wk3K/9lgCfWctU
-XtCVG+MnIbLrsii+zhQenr8=
-=GT/q
------END PGP SIGNATURE-----
-
---=-kxvjMuhr/G6ORbuuuiqa--
-
+--- linux-2.4.22-pre10-full/include/asm-i386/hw_irq.h.old	2003-08-03 01:34:22.000000000 +0200
++++ linux-2.4.22-pre10-full/include/asm-i386/hw_irq.h	2003-08-03 01:34:57.000000000 +0200
+@@ -13,10 +13,8 @@
+  */
+ 
+ #include <linux/config.h>
+-#include <linux/smp_lock.h>
+ #include <asm/atomic.h>
+ #include <asm/irq.h>
+-#include <asm/current.h>
+ 
+ /*
+  * IDT vectors usable for external interrupt sources start

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278038AbRJIWm1>; Tue, 9 Oct 2001 18:42:27 -0400
+	id <S278041AbRJIWmp>; Tue, 9 Oct 2001 18:42:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278036AbRJIWmP>; Tue, 9 Oct 2001 18:42:15 -0400
-Received: from smtp10.atl.mindspring.net ([207.69.200.246]:31515 "EHLO
-	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
-	id <S278038AbRJIWmB>; Tue, 9 Oct 2001 18:42:01 -0400
+	id <S278040AbRJIWmg>; Tue, 9 Oct 2001 18:42:36 -0400
+Received: from paloma15.e0k.nbg-hannover.de ([62.159.219.15]:16847 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S278037AbRJIWmS>; Tue, 9 Oct 2001 18:42:18 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
-From: Robert Love <rml@tech9.net>
-To: Dan Hollis <goemon@anime.net>
-Cc: David Lang <dlang@diginsite.com>, Timur Tabi <ttabi@interactivesi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0110091528450.18826-100000@anime.net>
-In-Reply-To: <Pine.LNX.4.30.0110091528450.18826-100000@anime.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
-Date: 09 Oct 2001 18:43:01 -0400
-Message-Id: <1002667385.1673.129.camel@phantasy>
-Mime-Version: 1.0
+Date: Wed, 10 Oct 2001 00:41:50 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: "Paul G. Allen" <pgallen@randomlogic.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011009224227Z278037-761+17507@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-09 at 18:30, Dan Hollis wrote:
-> It's palomino core. It means, new SSE instructions, bigger TLB cache,
-> prefetch, and 20% power reduction. All this for maybe 5%-15% performance
-> increase. And a not so nice increase in price tag :-o
+Am Dienstag, 9. Oktober 2001 23:16 schrieb Dieter Nützel:
+> Has anybody some numbers, yet?
+>
+> Thanks,
+> 	Dieter
 
-Oh, you are right.
+Here comes what I've found so far fro single Athlon XP on Linux.
 
-I meant MP vs XP part, sorry.  From what I gather, MP is no different
-from XP, although perhaps "certified for SMP" -- despite costing more
-per MHz.
+http://www.linuxhardware.org/features/01/10/09/1514233.shtml
 
-> Dual 1.2 non-MP is fine for me thanks... plenty fast and cheap.
+Summary and thanks for your fast replies:
 
-Completely Agreed.  I am thinking of getting a dual AMD system for doing
-more kernel work (tackle AMD and SMP).  My main machine is a P3 now.
+All Athlons/Durons except the first SlotA ones (Athlon I; 0,25 µm; no apic; 
+no available boards) support SMP. I know it before from the docs...;-)
 
-	Robert Love
+But "only" the "latest" Athlon MP/XP (Palomino core) and Duron (Morgan core, 
+based on the Palomino core) support it "very" well. This is due to the 
+enhanced TLBs and cache redesign.
+Only difference between Athlon MP vs XP is that the first is "validate" for 
+SMP.
+
+So any dual numbers? I know that Paul G. Allen would upgrade his Tyan Thunder 
+K7 dual 1.4 GHz TB Athlon to an dual Athlon XP.
+
+Greetings,
+	Dieter
 

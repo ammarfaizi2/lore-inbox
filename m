@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285356AbRLGBGj>; Thu, 6 Dec 2001 20:06:39 -0500
+	id <S285357AbRLGBG7>; Thu, 6 Dec 2001 20:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285357AbRLGBGa>; Thu, 6 Dec 2001 20:06:30 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:10624
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S285356AbRLGBGS>; Thu, 6 Dec 2001 20:06:18 -0500
-Date: Thu, 6 Dec 2001 19:57:10 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Rob Landley <landley@trommello.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Stoffel <stoffel@casc.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011206195710.A1949@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Rob Landley <landley@trommello.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	John Stoffel <stoffel@casc.com>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <E16C2HM-0002JR-00@the-village.bc.nu> <20011206180432.IHMU19462.femail37.sdc1.sfba.home.com@there>
-Mime-Version: 1.0
+	id <S285360AbRLGBGu>; Thu, 6 Dec 2001 20:06:50 -0500
+Received: from mercury.Sun.COM ([192.9.25.1]:217 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S285358AbRLGBGq>;
+	Thu, 6 Dec 2001 20:06:46 -0500
+Message-ID: <3C1015EC.5B7316A0@sun.com>
+Date: Thu, 06 Dec 2001 17:05:48 -0800
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12C5_V i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        arjanv@redhat.com, saw@sw-soft.com, sparker@sparker.net
+Subject: Re: [PATCH] eepro100 - need testers
+In-Reply-To: <E16C81m-0003Zm-00@the-village.bc.nu> <3C10011A.A16E5287@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011206180432.IHMU19462.femail37.sdc1.sfba.home.com@there>; from landley@trommello.org on Thu, Dec 06, 2001 at 05:03:12AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@trommello.org>:
-> P.S.  Can we seperate "add new subsystem y prime" and "remove old subsystem 
-> y".  LIke the new and old SCSI error handling, which have been in the tree in 
-> parallel for some time?  Did I hear Eric ever suggest removing the old 
-> configurator for 2.4?  Anybody?
+Jeff Garzik wrote:
+ 
+> This patch got me thinking about net driver ring sizes in general.  When
+> you are talking thousands of packets per second at 100 mbit, a larger
+> ring size than the average 32-64 seems to make sense too.
 
-The whole point of putting the new configurator in would be to be able
-to drop the old one out.
+Well, the math for teh very worst case is something like: 
 
-But that would be strictly Marcelo's call.  It would be up to him to decide
-whether the tradeoff were worth it.
+100,000,000  bits/sec
+/8 
+= 12500000  bytes/sec
+/64  bytes/ping
+= 195312.5  ping/sec
+/100
+= 1953 ping/jiffy
+rounded to 2048
+/2 = 1024 rx buffers per 1/2 jiffie.  
+
+1024 means you can withstand a wire-speed storm while interrupting twice
+per jiffy.
+
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Everything you know is wrong.  But some of it is a useful first approximation.
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com

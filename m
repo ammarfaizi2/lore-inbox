@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUI0Uwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUI0Uyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267368AbUI0Uwe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 16:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUI0Uuh
+	id S267377AbUI0Uyl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 16:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267376AbUI0Uyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:50:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:65189 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267368AbUI0Usm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:48:42 -0400
-Subject: Re: reiserfs and SCSI oops seen in 2.6.9-rc2 with local SCSI disk
-	IO
-From: Chris Mason <mason@suse.com>
-To: David Wysochanski <davidw@netapp.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4154404B.3070705@netapp.com>
-References: <4154372C.7070506@netapp.com>
-	 <20040924151828.GC16153@parcelfarce.linux.theplanet.co.uk>
-	 <4154404B.3070705@netapp.com>
-Content-Type: text/plain
-Date: Mon, 27 Sep 2004 16:44:59 -0400
-Message-Id: <1096317899.19249.40.camel@watt.suse.com>
+	Mon, 27 Sep 2004 16:54:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6920 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267377AbUI0UxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 16:53:11 -0400
+Date: Mon, 27 Sep 2004 21:53:04 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com, dahinds@users.sourceforge.net
+Subject: Re: thinkpad issue --No PCMCIA hotplug activity when onboard nic (e1000) down
+Message-ID: <20040927215304.E26680@flint.arm.linux.org.uk>
+Mail-Followup-To: Dax Kelson <dax@gurulabs.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-net@vger.kernel.org, netdev@oss.sgi.com,
+	dahinds@users.sourceforge.net
+References: <1096317629.4075.65.camel@mentorng.gurulabs.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1096317629.4075.65.camel@mentorng.gurulabs.com>; from dax@gurulabs.com on Mon, Sep 27, 2004 at 02:40:29PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-24 at 11:42 -0400, David Wysochanski wrote:
-> Matthew Wilcox wrote:
-> > On Fri, Sep 24, 2004 at 11:03:08AM -0400, David Wysochanski wrote:
-> >  > I can reproduce this pretty easily with local disk.
-> >  >
-> >  > Here's some details about my setup (attached is the
-> >  > full kernel config):
-> >  > - dell 2650 (dual xeon, hyperthreading disabled)
-> >  > - 1 local SCSI disk (root volume)
-> >  > - 2 local SCSI disks (data), each with 10 partitions
-> >  > of 100MB each, 6 of them reiserfs filesystems, 3 of them
-> >  > ext3, and 3 of them ext2 (total of 20 unique filesystems)
-> >  > - one instance of test program running on each of the
-> >  > 20 filesystems
-> > 
+On Mon, Sep 27, 2004 at 02:40:29PM -0600, Dax Kelson wrote:
+> Myself and a co-worker have two ThinkPads bought a few months apart. The
+> two model numbers are:
+> 
+> 2373-KUU -- T42p 14" LCD
+> 2373-CXU -- T42 15" LCD
+> 
+> Both have the following onboard NIC and cardbus controller
+> 02:01.0 Ethernet controller: Intel Corp. 82540EP Gigabit Ethernet Controller (Mobile) (rev 03)
+> 02:00.0 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
+> 02:00.1 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
 
-Can you reproduce with a smaller test setup?  Say just the 6 reiserfs
-partitions of 100MB each?  Is a mix of filesytems required to trigger
-the bug or can you trigger with reiser alone?
+Can you also provide the output of lspci -n for the above two
+cardbus bridges please?
 
-I'm having a hard time triggering here, but since your oopsen so
-consistently include roughly the same paths in reiserfs, I'd expect this
-isn't a scsi problem.  I've got an aic7892 card, so our test setups are
-at least similar.
-
--chris
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262667AbSI2Pjw>; Sun, 29 Sep 2002 11:39:52 -0400
+	id <S262782AbSI2Pxn>; Sun, 29 Sep 2002 11:53:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262779AbSI2Pjw>; Sun, 29 Sep 2002 11:39:52 -0400
-Received: from host194.steeleye.com ([66.206.164.34]:36625 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S262667AbSI2Pjt>; Sun, 29 Sep 2002 11:39:49 -0400
-Message-Id: <200209291545.g8TFj2v09855@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while 
- doingfiletransfers
-In-Reply-To: Message from "Justin T. Gibbs" <gibbs@scsiguy.com> 
-   of "Sat, 28 Sep 2002 22:00:30 MDT." <1262792704.1033272030@aslan.scsiguy.com> 
+	id <S262783AbSI2Pxn>; Sun, 29 Sep 2002 11:53:43 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:9000 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S262782AbSI2Pxn>; Sun, 29 Sep 2002 11:53:43 -0400
+Subject: Re: v2.6 vs v3.0
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: james <jdickens@ameritech.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020929154516.GE1014@suse.de>
+References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com>
+	 <200209290114.15994.jdickens@ameritech.net>
+	 <1033312735.1326.3.camel@aurora.localdomain>
+	 <20020929154516.GE1014@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033315176.1310.10.camel@aurora.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 29 Sep 2002 11:45:02 -0400
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+X-Mailer: Ximian Evolution 1.1.1 (Preview Release)
+Date: 29 Sep 2002 11:59:36 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gibbs@scsiguy.com said:
-> The delay should be on the order of 500ms.  The turn around time for
-> re-issuing the command is not a sufficient delay. 
+On Sun, 2002-09-29 at 11:45, Jens Axboe wrote:
+> How many accounts of the new block layer corrupting data have you been
+> aware of? Since 2.5.1-preX when bio was introduced, I know of one such
+> bug: floppy, due to the partial completion changes. Hardly critical.
+> 
+> -- 
+> Jens Axboe
 
-That's not what the spec says.  It just says "reissue at a later time".  
-SCSI-2 also implies BUSY is fairly interchangeable with QUEUE FULL.  SAM-3 
-clarifies that BUSY should only be returned if the target doesn't have any 
-pending tasks for the initiator, otherwise TASK SET BUSY (renamed QUEUE FULL) 
-should be returned.
+Sorry Jens, I never meant to imply I had heard of any since that floppy
+bug.  I just understand there were some problems at the beginning. 
+Also, I haven't been able to follow LKM as well as I would have liked
+lately, but a few months ago, in one of the many IDE bash sessions that
+have happened in 2.5.x I read a few people blaiming some of the problems
+on interactions between the new block layer and the IDE layer.
 
-Half a second's delay on BUSY would kill performance for any SCSI-2 device 
-using this return instead of QUEUE FULL.
+Sorry about the worries.  I am just trying to be cautious.  I am
+guessing you are saying that the block layer is now solid?   If this is
+the case, it sure knocks a few of my worries out of the ball park and I
+will be that much closer to trying out 2.5.x myself.
 
-It sounds more like an individual device problem which could be handled in an 
-exception table.  What device is this and why does it require 0.5s backoff?
-
-> Do you run all of your devices with a queue algorithm modifier of 0?
-> If not, then there certainly are guarantees on "effective ordering"
-> even in the simple queue task case.  For example, writes ands reads to
-> the same location must never occur out of order from the viewpoint of
-> the initiator - a sync cache command will only flush the commands that
-> have occurred before it, etc, etc.
-
-I run with the defaults (which are algorithm 0, Qerr 0).  However, what the 
-drive thinks it's doing is not relevant to this discussion.  The question is 
-"does the OS have any ordering expectations?".  The answer for Linux currently 
-is "no".  In future, it may be "yes" and this whole area will have to be 
-revisited, but for now it is "no" and no benefit is gained from being careful 
-to preserve the ordering.
-
-> I've already written one OpenSource SCSI mid-layer, given
-> presentations on how to fix the Linux mid-layer, and try to discuss
-> these issues with Linux developers.  I just don't have the energy to
-> go implement a real solution for Linux only to have it thrown away.
-> Life's too short.  8-)
-
-What can I say? I've always found the life of an open source developer to be a 
-pretty thankless, filled with bug reports, irate complaints about feature 
-breakage and tossed code.  The worst I think is "This code looks fine now why 
-don't you <insert feature requiring a complete re-write of proposed code>".
-
-I can ceratinly sympathise with anyone not wanting to work in this 
-environment.  I just don't see it changing soon.
-
-James
-
+Trever ADams
 

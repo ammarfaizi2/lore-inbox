@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264997AbSKATme>; Fri, 1 Nov 2002 14:42:34 -0500
+	id <S265339AbSKATnY>; Fri, 1 Nov 2002 14:43:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265325AbSKATmd>; Fri, 1 Nov 2002 14:42:33 -0500
-Received: from packet.digeo.com ([12.110.80.53]:61845 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264997AbSKATmc>;
-	Fri, 1 Nov 2002 14:42:32 -0500
-Message-ID: <3DC2DAA0.A46C5085@digeo.com>
-Date: Fri, 01 Nov 2002 11:48:48 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pawel Kot <pkot@bezsensu.pl>, Rusty Russell <rusty@rustcorp.com.au>
-CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-       Anton Altaparmakov <aia21@cantab.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.45: NTFS unresolved symbol
-References: <200211010431.00941.Dieter.Nuetzel@hamburg.de> <Pine.LNX.4.33.0211011318270.5622-100000@urtica.linuxnews.pl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 01 Nov 2002 19:48:48.0248 (UTC) FILETIME=[B1EB6780:01C281DF]
+	id <S265364AbSKATnY>; Fri, 1 Nov 2002 14:43:24 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:9602 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265339AbSKATnX>;
+	Fri, 1 Nov 2002 14:43:23 -0500
+Date: Fri, 1 Nov 2002 19:47:11 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Jos Hulzink'" <josh@stack.nl>, Robert Varga <nite@hq.alert.sk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45 build failed with ACPI turned on
+Message-ID: <20021101194711.GB714@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	'Jos Hulzink' <josh@stack.nl>, Robert Varga <nite@hq.alert.sk>,
+	linux-kernel@vger.kernel.org
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A498@orsmsx119.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A498@orsmsx119.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawel Kot wrote:
-> 
-> On Fri, 1 Nov 2002, Dieter [iso-8859-15] Nützel wrote:
-> 
-> > depmod: *** Unresolved symbols in /lib/modules/2.5.45/kernel/fs/ntfs/ntfs.o
-> > depmod:         page_states__per_cpu
-> > /lib/modules/2.5.45/kernel/fs/ntfs/ntfs.o
-> 
-> Hi, The following patch should fix it:
-> --- kernel/ksyms.c~     Fri Nov  1 13:16:51 2002
-> +++ kernel/ksyms.c      Fri Nov  1 13:16:51 2002
-> @@ -112,6 +112,7 @@
->  EXPORT_SYMBOL(vunmap);
->  EXPORT_SYMBOL(vmalloc_to_page);
->  EXPORT_SYMBOL(remap_page_range);
-> +EXPORT_SYMBOL(page_states__per_cpu);
->  #ifndef CONFIG_DISCONTIGMEM
->  EXPORT_SYMBOL(contig_page_data);
->  EXPORT_SYMBOL(mem_map);
+On Fri, Nov 01, 2002 at 11:37:26AM -0800, Grover, Andrew wrote:
+ > ACPI implements PM but that's not all it implements. Is making CONFIG_PM
+ > true if ACPI or APM are on a viable option? I think that would more
+ > accurately reflect reality.
+ > 
+ > Or can we get rid of CONFIG_PM?
 
-Oh gawd.  Here's what happened..
+I'm not sure of places that do it off the top of my head, but
+CONFIG_PM would save us having to do ugly CONFIG_APM || CONFIG_ACPI
+tests.
 
-We have these magical symbols which describe the offset of
-a member of the per-cpu storage, which need to be exposed
-to modules.  So I added an EXPORT_PER_CPU_SYMBOL() helper:
+		Dave
 
-#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
-#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
-
-Which works OK without module versioning.  But with module versioning,
-genksyms goes looking through source files for "EXPORT_SYMBOL".  Which
-isn't there.
-
-So sigh.  Need to go back to the drawing board on that one.  In
-the meantime, this should work?
-
-
---- 25/mm/page_alloc.c~genksyms-hurts	Fri Nov  1 11:47:42 2002
-+++ 25-akpm/mm/page_alloc.c	Fri Nov  1 11:47:53 2002
-@@ -650,7 +650,7 @@ unsigned int nr_free_highpages (void)
-  * during and after execution of this function.
-  */
- DEFINE_PER_CPU(struct page_state, page_states) = {0};
--EXPORT_PER_CPU_SYMBOL(page_states);
-+EXPORT_SYMBOL(page_states__per_cpu);
- 
- void __get_page_state(struct page_state *ret, int nr)
- {
-
-.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

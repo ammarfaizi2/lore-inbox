@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131048AbQLEX6T>; Tue, 5 Dec 2000 18:58:19 -0500
+	id <S129183AbQLFACj>; Tue, 5 Dec 2000 19:02:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131059AbQLEX6J>; Tue, 5 Dec 2000 18:58:09 -0500
-Received: from [195.171.209.234] ([195.171.209.234]:21267 "EHLO
-	udc7.uttlesford.gov.uk") by vger.kernel.org with ESMTP
-	id <S131048AbQLEX5w>; Tue, 5 Dec 2000 18:57:52 -0500
-DATE: 05 Dec 00 12:22:12 PM
-FROM: bn2bn1@yahoo.com
-Message-ID: <luemZoVANUfnBZ7tnA>
-SUBJECT: -
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S130572AbQLFAC3>; Tue, 5 Dec 2000 19:02:29 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26375 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129183AbQLFACQ>; Tue, 5 Dec 2000 19:02:16 -0500
+Message-ID: <3A2D7AA4.9E7D414F@transmeta.com>
+Date: Tue, 05 Dec 2000 15:30:44 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-pre5 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>, kai@thphy.uni-duesseldorf.de
+Subject: That horrible hack from hell called A20
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Internet's Finest and Most Reliable Bulk Email Provider!
+Okay, here is my latest attempt to find a way to toggle A20M# that
+genuinely works on all machines -- including Olivettis, IBM Aptivas,
+bizarre notebooks, yadda yadda.
 
-Since 1996, TechData has provided bulk email service to thousands of well-satisfied customers. We offer the most competitive prices in the industry, made possible by our high percentage of repeat business. We have the most advanced, direct email technology, employed by only a knowledgeable few in the world. Our expert programmers have made it possible for us to penetrate any email blocking filter in use.
+The bizarre notebooks with broken SMM code are the ones I really worry
+most about... there may very well be NO WAY to support them that actually
+works on all machines, because you don't get any kind of feedback that
+they are broken.
 
-We have over 120 million active email addresses, increasing our list at the rate of half a million to one million a month. We will put your product or service instantly and directly into the hands of millions of prospects! You will have instant, guaranteed results, something no other form of marketing can claim. Our turn around time is a remarkable 24 hours.
+If you have had A20M# problems with any kernel -- recent or not --
+*please* try this patch, against 2.4.0-test12-pre5:
 
-Our email addresses are sorted by country, state and target. Your marketing campaign will speed with pinpoint accuracy to your desired audience!
+	ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/a20-test12-pre5.diff 
 
-Your message can be presented in any language you wish, as plain text if you desire simplicity, or in html with color and graphics.
+--- arch/i386/boot/setup.S.12p5 Tue Dec  5 15:19:10 2000
++++ arch/i386/boot/setup.S      Tue Dec  5 15:22:13 2000
+@@ -636,6 +636,7 @@
+ # First, try the "fast A20 gate".
+ #
+        inb     $0x92,%al
++       movb    %al,%dl
+        orb     $0x02,%al                       # Fast A20 on
+        andb    $0xfe,%al                       # Don't reset CPU!
+        outb    %al,$0x92
+@@ -648,9 +649,17 @@
+ # did the trick and stop its probing at that stage; but subsequent ones
+ # must not do so.
+ #
++       pushw   %dx
+        movb    $0x01,%dl                       # A20-sensitive
+        call    empty_8042
++       popw    %dx
+        jnz     a20_wait                        # A20 already on?
++
++# If A20 is still off, we need to go to the KBC.  Set the
++# "fast A20 gate" to its original value, since some smartass
++# manufacturers have apparently decided to use A20M# as a GPIO!
++       movb    %dl,%al
++       outb    %al,$0x92
+ 
+        movb    $0xD1, %al                      # command write
+        outb    %al, $0x64
 
-Call us for a free consultation at (323)- 851- 8386  [U.S.A.]. We are open 24 hours a day, 7 days a week. No one understands the global market like we do. 
 
-For a limited time, take advantage of our holiday special -- two million general U.S. emails for just $450 per million! We include, at no cost, a bullet proof email address for 30 days, a $400 value!
-
-BULK EMAIL PRICES
-
-   500,000........................$375
-   750,000........................$562
-1,200,000........................$720
-1,600,000..................    ...$960
-3,000,000......................$1,500
-3,000,000+ ...................PLEASE CALL FOR A QUOTE
-
-
-Resellers welcome. We accept Visa, MasterCard and check by FAX.
-
-DON'T WAIT! LET TECHDATA BE YOUR PARTNER!!
-
-
-Under Bill s.1618 TITLE III passed by the 105th U.S. Congress this letter is not considered "spam" as long as we include: 1) contact information and, 2) the way to be removed from future mailings (see below).To Remove Yourself From This List: reply to this email with the email
-address that you would like removed and the word REMOVE in the subject heading.
-
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbTFOR1B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 13:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbTFOR1B
+	id S262431AbTFOR3S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 13:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTFOR3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 13:27:01 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:45317
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S262008AbTFOR04
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 13:26:56 -0400
-Subject: Re: Flaw in the driver-model implementation of attributes
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0306151221190.32270-100000@netrider.rowland.org>
-References: <Pine.LNX.4.44L0.0306151221190.32270-100000@netrider.rowland.org>
-Content-Type: text/plain
-Message-Id: <1055698845.1351.44.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 15 Jun 2003 10:40:45 -0700
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Jun 2003 13:29:18 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:63250 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S262431AbTFOR3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 13:29:16 -0400
+Date: Sun, 15 Jun 2003 18:44:26 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: James Morris <jmorris@intercode.com.au>
+cc: Andrew Morton <akpm@digeo.com>, Christoph Rohland <cr@sap.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove superfluous inode superblock check from shmem_mmap
+In-Reply-To: <Mutt.LNX.4.44.0306160211380.8018-100000@excalibur.intercode.com.au>
+Message-ID: <Pine.LNX.4.44.0306151823070.2176-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-15 at 09:42, Alan Stern wrote:
-> If you're already aware of this, please forgive the intrusion.
-> 
-> There's a general problem in the driver model's implementation of 
-> attribute files, in connection with loadable kernel modules.  The 
-> sysfs_ops structure stores function pointers with no means for identifying 
-> the module that contains the corresponding code.  As a result, it's 
-> possible to call through one of these pointers even after the module has 
-> been unloaded, causing an oops.
-> 
-> It's not hard to provoke this sort of situation.  A user process can
-> open a sysfs device file, for instance, and delay trying to read it until 
-> the module containing the device driver has been removed.  When the read 
-> does occur, it runs into trouble.
+On Mon, 16 Jun 2003, James Morris wrote:
+> This patch against current 2.5 bk removes a (now) unecessary check for an 
+> inode superblock in shmem_mmap().  In the current kernel, all inodes must 
+> be associated with a superblock.
 
-I've seen this oops when a program has its cwd in a /sys directory
-corresponding to a removed (or replaced) module.  I think active
-references to a part of the /sys namespace corresponding to a module
-should just pin the module.  But I haven't looked into it really.
-	
-	J
+Thanks, looks good to me.  I don't believe an inode with NULL i_sb
+could ever have got to shmem_mmap - it's just a check copied over
+from an old generic_file_mmap.
+
+Andrew, please apply: thank you.
+Hugh
+
+diff -purN -X dontdiff bk.pending/mm/shmem.c bk.w1/mm/shmem.c
+--- bk.pending/mm/shmem.c	2003-06-16 00:56:13.000000000 +1000
++++ bk.w1/mm/shmem.c	2003-06-16 02:06:55.142303751 +1000
+@@ -1010,7 +1010,7 @@ static int shmem_mmap(struct file *file,
+ 	struct inode *inode = file->f_dentry->d_inode;
+ 
+ 	ops = &shmem_vm_ops;
+-	if (!inode->i_sb || !S_ISREG(inode->i_mode))
++	if (!S_ISREG(inode->i_mode))
+ 		return -EACCES;
+ 	update_atime(inode);
+ 	vma->vm_ops = ops;
 

@@ -1,99 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273099AbRIIXtG>; Sun, 9 Sep 2001 19:49:06 -0400
+	id <S273105AbRIIXu4>; Sun, 9 Sep 2001 19:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273100AbRIIXsq>; Sun, 9 Sep 2001 19:48:46 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:25864 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S273099AbRIIXsn>; Sun, 9 Sep 2001 19:48:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: linux-2.4.10-pre5
-Date: Mon, 10 Sep 2001 01:56:13 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>
-In-Reply-To: <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>
+	id <S273101AbRIIXuq>; Sun, 9 Sep 2001 19:50:46 -0400
+Received: from arioch.oche.de ([194.94.252.126]:59405 "HELO arioch.oche.de")
+	by vger.kernel.org with SMTP id <S273100AbRIIXu3>;
+	Sun, 9 Sep 2001 19:50:29 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/K7-Opimisation problems
+In-Reply-To: <87g09w70o4.fsf@cymoril.oche.de> <01090915115400.00173@c779218-a>
+	<063301c1397e$0efa6d00$1125a8c0@wednesday>
+	<01090915292502.00173@c779218-a>
+Mail-Copies-To: never
+From: Carsten Leonhardt <leo@arioch.oche.de>
+Date: 10 Sep 2001 01:49:59 +0200
+In-Reply-To: <01090915292502.00173@c779218-a>
+Message-ID: <87iter6i1k.fsf@cymoril.oche.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Copyleft)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010909234859Z16150-26183+677@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 9, 2001 06:28 am, Linus Torvalds wrote:
-> [ start future rambling ]
+Nicholas Knight <tegeran@home.com> writes:
+
+> On Sunday 09 September 2001 03:23 pm, J. Dow wrote:
+> > From: "Nicholas Knight" <tegeran@home.com>
+
+> > > Heat anyone? stepping 4 hasn't seemed to be the problem, at least not
+> > > directly
+> > > What's the tempature difference between your 1Ghz and 1.4Ghz? both
+> > > CPU and system? What kind of cooling do you have?
+
+I sold the 1GHz, so I can't tell anymore.  I have a huge heatsink with
+a Papst-fan. I have to admit that it was sold to me as being good
+enough for 1.33GHz (by the manufacturer himself), but that shouldn't
+be the problem, see below.
+
+(If someone wants to know exactly:
+http://www.tiger-electronics.de/english/cooler2.htm and look at
+PDA38000BC, for a picture look at cooler1.htm SDA38000BC and pretend
+you see the Papst-Fan on the top -- the pages seem to be outdated, the
+invoice says the fan is good for a 1.33GHz Athlon).
+
+> > What about the power supply. If it is at all marginal the power
+> > consumption boost going to 1.4G is likely a killer.
 > 
-> Now, I actually believe that we would eventually be better off by having a
-> real filesystem interface for doing kernel-assisted fsck, backup and
-> de-fragmentation (all just three different sides of the same thing:
-> filesystem administration), but that's a separate issue, and right now we
-> have absolutely no clue about what such an interface would look like. So
-> that's a long-term thing (other OS's have such interfaces, but they tend
-> to be specialized for only a subset of possible filesystems. Think
-> Windows defrag).
-> 
-> That kind of explicit filesystem maintenance interface would make all the
-> remaining issues go away completely, and would at least in theory allow
-> on-line fixing of already mounted filesystems. Assuming a good interface
-> and algorithm for it exists, of course.
+> Well, he didn't mention the amperage outputs, but he said 431W Enermax, 
+> from what I hear Enermax PSU's are good.
 
-A more modest goal, which I'm simply restating from earlier in the thread, 
-would be to achieve a coherent view of a volume at the block level.  This is 
-just a cache coherency problem.  The trouble is, every solution that's been 
-looked at so far has a non-zero cost associated with it for the normal case 
-of no sharing.
+Here's the data from the PSU's label:
 
-*However*.  If we could find a method of implementing the cache coherency so 
-it actually accelerates the common case then it would become an attractive 
-thing to do.
+Model: EG465P-VE
+DC Output: +3.3V: 38A
+           +5V  : 44A
+           +12V : 20A
+           -5V  : 2A
+           -12V : 1A
+           +5Vsb: 2.2A
+     +3.3V & 5V : 220W max
+    total power : 431W
 
-Physically-based readahead might be such a magic bullet.  The structural cost 
-of the cache coherency would be a reverse-lookup hash chain on each page 
-cache page, which we already almost have with the unused buffer hash links.  
-The operational cost would be an extra hash probe for each block read, write, 
-create, or delete.  Against this, physical readahead can sometimes do a 
-better job than logical readahead because it can optimize across files and 
-metadata structures, something that is difficult to do at the logical level.  
-Spending a few extra CPU cycles to buy improved filesystem latency in the 
-common case would be a good trade.
+> Do most people that experience this problem also experience after a 
+> cold-boot where the system had been off for at least 10-15 minutes?
 
-While I'm in here between the [future] brackets, I'll mention a few points
-in favor:
+I just switched the machine off for about 10min, and for good measure,
+jumpered the board to 100MHz FSB, so the CPU runs at 1050MHz (thus
+being well below the spec for the heatsink). It may have gotten a tad
+further in the boot process, but if so, not much. Luckily, it never
+reaches the point where filesystems get mounted rw...
 
-  - Some of the reverse probes can be optimized away, for example, when we
-    find a page in the pagecache we can skip the reverse probe because we
-    know it's not in the physical (aka buffer) cache.  This should be the
-    common case.
+Without the optimisation the machine runs smoothly with steady
+cpu-load generated by a distributed-net client.
+Currently I added a burnK7 and a burnMMX to the load, I'll see if the
+machine is still alive in the morning...
 
-  - Scsi disks, and now some IDE disks, already do physical readahead, but 
-    they typically have far less cache memory than the processor does.  If
-    physical readahead is good, then more must be better ;-)  In any
-    event, moving the physical readahead onto the processor side of the
-    bus reduces latency.
-
-  - Physical readahead and logical readahead could conceivably work
-    together, for example, by using an interface where the vfs provides
-    hints to a physical readahead process, rather than taking on the job
-    of intiating IO itself.
-
-  - There are opportunities to do zero-copy moves from the physical
-    cache to the page cache, by relinking the underlying page instead
-    of copying.
-
-  - This isn't a huge change to the way we already do things.  The
-    interface to the physical cache is simply the existing buffer
-    API.  We repurpose the currently unused hash chain for page cache 
-    buffers, and that's transparent.  The vm scanner has to know a
-    few more rules about freeing buffers.  The actual cache
-    consistency is implemented transparently by the block IO library.
-
-  - If we ever do get to the point of having variable sized page
-    objects the implementation gets simpler.   Not that it's
-    particularly complex as it is.
-
-> [ end future rambling ]
-
---
-Daniel
+leo

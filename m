@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276709AbRJUUUC>; Sun, 21 Oct 2001 16:20:02 -0400
+	id <S276751AbRJUUXw>; Sun, 21 Oct 2001 16:23:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276720AbRJUUTw>; Sun, 21 Oct 2001 16:19:52 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:25356 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S276709AbRJUUTn>; Sun, 21 Oct 2001 16:19:43 -0400
-Date: Sun, 21 Oct 2001 22:20:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Cc: tytso@mit.edu
-Subject: Warning about wssusp & 2.4.12 + ask  ask for help
-Message-ID: <20011021222013.B23174@atrey.karlin.mff.cuni.cz>
+	id <S276750AbRJUUXn>; Sun, 21 Oct 2001 16:23:43 -0400
+Received: from [199.247.156.30] ([199.247.156.30]:26014 "HELO
+	whitehorse.blackwire.com") by vger.kernel.org with SMTP
+	id <S276745AbRJUUXb>; Sun, 21 Oct 2001 16:23:31 -0400
+From: pjordan@whitehorse.blackwire.com
+Date: Sun, 21 Oct 2001 11:08:56 -0700
+To: linux-kernel@vger.kernel.org
+Cc: Peter Jordan <pjordan@whitehorse.blackwire.com>
+Subject: arp-reply, src & dest HW addr. same. Breaks netboot.
+Message-ID: <20011021110856.A14724@panama>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
+I am working with a powermac G4 (65 of 'em to be exact),
+and I am learning in gory detail how they netboot or don't.
 
-I never releasedswsusp for 2.4.10, but it is easy to port. If you prot
-it, be *extremely* carefull. It managed to kill my / directory by
-overwriding inodes <14 with junk. It worked pretty well under 2.4.10.
+When I tell the powermac's Open Firmware to
+boot from boot-device enet:0,bootme,
 
-Now I have corrupted / fs. After 10-or-so-fscks, I got to the state
-when only error is 
+and I want to specify the router address using
+default-gateway-ip=192.168.2.1
 
-Block bitmap differences: +0 +1 ... +32767.
+I am seeing that any time I point this to a linux box, whether it be i386
+or powerpc or 2.4.10 or 2.2.19 that the arp-reply packet
+looks corrupted to me.
 
-But even if I ask to fix it, its back there on next fsck (both on
-2.4.? and 2.2.9), so I suspect fsck bug. fsck is e2fsck 1.18.
+Here is an example:
 
-Is it known bug or is someone willing to chase it? Is it safe to boot
-with this problem going multiuser?
-				Pavel 
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+
+20:23:42.750602 0:30:65:a8:72:16 ff:ff:ff:ff:ff:ff 0806 64: arp who-has 192.168.2.1 tell 0.0.0.0
+                         0001 0800 0604 0001 0030 65a8 7216 0000
+                         0000 0000 0000 0000 c0a8 0201 5555 5555
+                         5555 5555 5555 5555 5555 5555 5555 3254
+                         ff8b
+20:23:42.750641 0:30:65:a6:fa:14 0:30:65:a8:72:16 0806 42: arp reply 192.168.2.1 is-at 0:30:65:a6:fa:14 (0:30:65:a6:fa:14)
+                         0001 0800 0604 0002 0030 65a6 fa14 c0a8
+                         0201 0030 65a6 fa14 c0a8 0201
+
+
+
+Note how in the reply, the linux box at 192.168.2.1 sets
+the mac address for the source and destination fields to be the same.
+
+I think for this reason the Open Firmware sends five arp who-has packets
+and then gives up with the error message "can't get GATEWAY HW address."
+
+What I don't understand is how that packet gets to the OF in the first place.
+The header description of tcpdump -e output looks right, but the contents
+of the arp packet is wrong.  I guess that is 802.2 or 3 or whatever ??
+
+
+Anyway, when I point it to a sun box, the arp reply comes out properly
+with the src and dest set as they should be, and the Open Firmware,
+immediately sends out its DHCP request.
+
+
+I think this is linux kernel related.
+
+Peter
+ps. please CC anyt reply to me

@@ -1,66 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288953AbSBZQFd>; Tue, 26 Feb 2002 11:05:33 -0500
+	id <S290767AbSBZP7w>; Tue, 26 Feb 2002 10:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290823AbSBZQFO>; Tue, 26 Feb 2002 11:05:14 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:48637
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S288953AbSBZQFL>; Tue, 26 Feb 2002 11:05:11 -0500
-Date: Tue, 26 Feb 2002 08:05:44 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-Message-ID: <20020226160544.GD4393@matchmail.com>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <20020225172048.GV20060@matchmail.com> <02022518330103.01161@grumpersII> <a5f7s4$2o1$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S290823AbSBZP7n>; Tue, 26 Feb 2002 10:59:43 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:63134 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S290767AbSBZP7d>; Tue, 26 Feb 2002 10:59:33 -0500
+Date: Tue, 26 Feb 2002 07:30:49 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Erich Focht <focht@ess.nec.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: Mike Kravetz <kravetz@us.ibm.com>, lse-tech@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] NUMA scheduling
+Message-ID: <227195569.1014708639@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.21.0202261028370.2830-100000@sx6.ess.nec.de>
+In-Reply-To: <Pine.LNX.4.21.0202261028370.2830-100000@sx6.ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <a5f7s4$2o1$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 09:53:08PM -0800, H. Peter Anvin wrote:
-> Followup to:  <02022518330103.01161@grumpersII>
-> By author:    Tom Rauschenbach <tom@rauschenbach.mv.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Monday 25 February 2002 12:20, Mike Fedyk wrote:
-> > > On Mon, Feb 25, 2002 at 12:06:29PM -0500, Dan Maas wrote:
-> > > > > but I don't want a Netware filesystem running on Linux, I
-> > > > > want a *native* Linux filesystem (i.e. ext3) that has the
-> > > > > ability to queue deleted files should I configure it to.
-> > > >
-> > > > Rather than implementing this in the filesystem itself, I'd first try
-> > > > writing a libc shim that overrides unlink(). You could copy files to
-> > > > safety, or do anything else you want, before they actually get deleted...
-> > >
-> > > Yep, more portable.
-> > 
-> > But it only works if everything get linked with the new library.
-> > 
-> 
-> What's a lot worse is that the kernel cannot chose to garbage-collect
-> it.  One reason to put undelete in the kernel is that that files in
-> limbo can be reclaimed as the disk space is needed for other users,
-> and you don't risk getting ENOSPC due to the disk being full with
-> ghosts.
+> Well, maybe my description was a little bit misleading. My approach is not
+> balancing much more aggressively, the difference is actually minimal,
+> e.g. for 1ms ticks:
 >
+> Mike's approach:
+> - idle CPU : load_balance()     every 1ms    (only within local node)
+>              balance_cpu_sets() every 2ms    (balance across nodes)
+> - busy CPU : load_balance()     every 250ms
+>              balance_cpu_sets() every 500ms
+> - schedule() : load_balance() if idle        (only within local node)
+>
+> Erich's approach:
+> - idle CPU : load_balance() every 1ms   (first try balancing the local
+>                             node, if already balanced (no CPU exceeds the
+>                             current load by >25%) try to find a remote
+>                             node with larger load than on the current one
+>                             (>25% again)).
+> - busy CPU : load_balance() every 250ms (same comment as above)
+> - schedule() : load_balance() if idle (same comment as above).
 
-True, and it could to tricks like listing space used for undelete as "free"
-in addition to dynamic garbage collection.
+Actually, if I understand what you're doing correctly, what
+you really want is to only shift when the load average on
+the source cpu (the one you're shifting from) has been
+above "limit" for a specified amount of time, rather than
+making the interval when we inspect longer (in order to
+avoid bouncing stuff around unnecessarily).
 
-Though, with a daemon checking the dirs often, or using Daniel's idea of a
-socket between unlink() in glibc and an undelete daemon could work quite
-similairly.
+> So the functional difference is not really that big here, I am also trying
+> to balance locally first. If that fails (no imbalance), I try
+> globally. The factor of 2 in the times is not so relevant, I think, and
+> also I don't consider my approach significantly more aggressive.
 
-Also, there wouldn't be any interaction with filesystem internals, and
-userspace would probably work better with non-posix type filesystems (vfat,
-hfs, etc) too.
+When you say "balance", are you trying to balance the number of
+tasks in each queue, or the % of time each CPU is busy? It would
+seem OK to me to have 100 IO bound tasks on one node, and 4 cpu
+bound tasks on another (substitute "CPU" for "node" above at will).
 
-IOW, there seems to be little gain to having an kernelspace solution.
+In fact, shifting around IO bound tasks will win you far less than
+moving around CPU bound tasks in general.
 
-Mike
+> More significant is the difference in the data used for the balance
+> decision:
+>
+> Mike: calculate load of a particular cpu set in the corresponding
+> load_balance() call.
+>         Advantage: cheap (if spinlocks don't hurt there)
+>         Disadvantage: for busy CPUs it can be really old (250ms)
+>
+> Erich: calculate load when needed, at the load_balance() call, but not
+> more than needed (normally only local node data, global data if needed,
+> all lockless).
+>         Advantage: fresh, lockless
+>         Disadvantage: sometimes slower (when balancing across nodes)
+
+How are you calculating load? Load average? Over what period of time?
+Please forgive my idleness in not going and reading the code ;-)
+
+> As Mike has mainly the cache affinity in mind, it doesn't really matter
+> where a task is scheduled as long as it stays there long enough and the
+> nodes are well balanced. A wrong scheduling decision (based on old
+> data) will be fixed sooner or later (after x*250ms or so).
+
+Not sure I understand that - the wrong decision will cost you two
+moves, blowing not only the cache for your current process, but
+also whoever else's cache you accidentally trampled upon (which
+admittedly might be nothing useful).
+
+>> Presumably exec-time balancing is cheaper, since there are fewer shared
+>> pages to be bounced around between nodes, but less effective if the main
+>> load on the machine is one large daemon app, which just forks a few
+>> copies of itself ... I would have though that'd get sorted out a little
+>> later anyway by the background rebalancing though?
+>
+> OK, thanks. I agree with the first part of your reply. The last sentence
+> is true for Mike's approach but a bit more complicated with the boundary
+> condition of a process having its memory allocated on a particular node...
+
+Ah, now I see why you're doing what you're doing ;-) Maybe we're
+getting into the realm of processes providing hints to the kernel
+at fork time ... I need to think on this one some more ...
+
+Thanks,
+
+Martin.

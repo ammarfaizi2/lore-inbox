@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268098AbTB1TZH>; Fri, 28 Feb 2003 14:25:07 -0500
+	id <S268099AbTB1T02>; Fri, 28 Feb 2003 14:26:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268099AbTB1TZH>; Fri, 28 Feb 2003 14:25:07 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:6353 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268098AbTB1TZH>;
-	Fri, 28 Feb 2003 14:25:07 -0500
-Date: Fri, 28 Feb 2003 11:30:41 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org, akpm@zip.com.au,
-       levon@movementarian.org
-Subject: Re: [PATCH] documentation for basic guide to profiling
-Message-Id: <20030228113041.0d0dd772.rddunlap@osdl.org>
-In-Reply-To: <3E5FA6DF.8070909@us.ibm.com>
-References: <8550000.1046419962@[10.10.2.4]>
-	<20030228093632.7bf053ed.rddunlap@osdl.org>
-	<28510000.1046455878@[10.10.2.4]>
-	<3E5FA6DF.8070909@us.ibm.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S268101AbTB1T02>; Fri, 28 Feb 2003 14:26:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35858 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268099AbTB1T01>; Fri, 28 Feb 2003 14:26:27 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Older bk snapshots not found on www.kernel.org (fwd)
+Date: 28 Feb 2003 11:36:27 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b3odnr$ia3$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0302220158540.16168-100000@cam029208.student.utwente.nl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Feb 2003 10:13:51 -0800
-Dave Hansen <haveblue@us.ibm.com> wrote:
+Followup to:  <Pine.LNX.4.44.0302220158540.16168-100000@cam029208.student.utwente.nl>
+By author:    Martijn Uffing <mp3project@cam029208.student.utwente.nl>
+In newsgroup: linux.dev.kernel
+> 
+> And if the maintainer of www.kernel.org reads this. May I suggest to keep 
+> the bk snaphots of let's say the last 4/5 linus releases. Then people like 
+> me who test the kernel a couple of days after release can start a bug hunt 
+> and test bk snaphots from the past.
+> 
 
-| Martin J. Bligh wrote:
-| >>These:          ^------------v  should be the same value (as you have it).
-| >>                             v
-| >>| +clear		echo 2 > /proc/profile
-| >>man page says to use "readprofile -r".  Doesn't that still work?
-| > 
-| > Dunno. I always have done the above ... have you been using -r with
-| > success? If so, I'll change it.
-| 
-| It's what I've always used.
+Don't ask me -- I don't deal with that (in fact, I *couldn't*, because
+of the asinine BK license.)
 
-Same here (-r).
+	-hpa
 
---
-~Randy
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYApd>; Wed, 24 Jan 2001 19:45:33 -0500
+	id <S135267AbRAYAod>; Wed, 24 Jan 2001 19:44:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135301AbRAYApS>; Wed, 24 Jan 2001 19:45:18 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:6408 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S135276AbRAYApK>; Wed, 24 Jan 2001 19:45:10 -0500
-Date: Wed, 24 Jan 2001 18:45:00 -0600
+	id <S135276AbRAYAoX>; Wed, 24 Jan 2001 19:44:23 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:56380 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S135267AbRAYAoJ>; Wed, 24 Jan 2001 19:44:09 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: "J . A . Magallon" <jamagallon@able.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        "Justin T . Gibbs" <gibbs@scsiguy.com>
-Subject: Re: warning in 2.4.1pre10
-Message-ID: <20010124184500.B6941@cadcamlab.org>
-In-Reply-To: <20010125004454.C930@werewolf.able.es>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pcmcia modules install path 
+In-Reply-To: Your message of "Thu, 25 Jan 2001 00:59:07 BST."
+             <20010125005907.A5811@werewolf.able.es> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010125004454.C930@werewolf.able.es>; from jamagallon@able.es on Thu, Jan 25, 2001 at 12:44:54AM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+Date: Thu, 25 Jan 2001 11:43:57 +1100
+Message-ID: <10418.980383437@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 25 Jan 2001 00:59:07 +0100, 
+"J . A . Magallon" <jamagallon@able.es> wrote:
+>Just a silly question. The pcmcia modules in 2.4.x get installed in
+>/lib/modules/`uname -r`/pcmcia, instead of
+>/lib/modules/`uname -r`/kernel/<whatever>
+>
+>Is there any special reason for that or is just a harmelss buglet ?
 
-[J. A. Magallon]
-> It is harmless, 'cause the last sentence in the funtion is a panic,
-> but it is good to add the 'return 0', just to shut up the compiler.
+Deliberate.  Old versions of pcmcia-cs used a hard coded insmod from
+/lib/modules/`uname -r`/pcmcia.  Newer versions use modprobe and do not
+care where the module is stored.  The pcmcia directory is a migration
+aid and will disappear after kernel 2.4.1.  All entries under pcmcia
+should be symlinks anyway.
 
-The correct fix is __attribute__((noreturn)) in the panic() prototype.
-As it happens, this has already been done....
-
-Peter
-
---- 2.3.99pre4pre2/include/linux/raid/md_k.h~	Thu Feb 24 22:02:59 2000
-+++ 2.3.99pre4pre2/include/linux/raid/md_k.h	Wed Jan 24 18:40:28 2001
-@@ -15,6 +15,8 @@
- #ifndef _MD_K_H
- #define _MD_K_H
- 
-+#include <linux/kernel.h>	// for panic()
-+
- #define MD_RESERVED       0UL
- #define LINEAR            1UL
- #define STRIPED           2UL
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

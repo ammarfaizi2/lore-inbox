@@ -1,39 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131105AbRCGQdB>; Wed, 7 Mar 2001 11:33:01 -0500
+	id <S131115AbRCGQll>; Wed, 7 Mar 2001 11:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131110AbRCGQcw>; Wed, 7 Mar 2001 11:32:52 -0500
-Received: from colorfullife.com ([216.156.138.34]:53003 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S131105AbRCGQcn>;
-	Wed, 7 Mar 2001 11:32:43 -0500
-Message-ID: <004701c0a724$45004240$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: BUG? race between kswapd and ptrace (access_process_vm )
-Date: Wed, 7 Mar 2001 17:32:43 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131111AbRCGQlW>; Wed, 7 Mar 2001 11:41:22 -0500
+Received: from pucc.Princeton.EDU ([128.112.129.99]:49179 "EHLO
+	pucc.Princeton.EDU") by vger.kernel.org with ESMTP
+	id <S131110AbRCGQlJ>; Wed, 7 Mar 2001 11:41:09 -0500
+To: linux-kernel@vger.kernel.org
+From: Neale.Ferguson@softwareAG-usa.com
+Date: Wed, 7 Mar 2001 11:38:54 +0200
+Subject: Problem building m4
+Message-Id: <20010307164111Z131110-407+2258@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is kswapd now running without lock_kernel()?
+When building m4 I get the following:
 
-Then there is a race between swapout and ptrace:
-access_process_vm() accesses the page table entries, only protected with
-the mmap_sem semaphore and lock_kernel().
+cd . && aclocal -I acm4
+aclocal: configure.in: 116: macro `AM_GNU_GETTEXT' not found in library
+make: *** aclocal.m4Ù Error 1
 
-Isn't
-
-    spin_lock(&mm->page_table_lock);
-
-missing in access_one_page() [in linux/kernel/ptrace.c]?
-
---
-    Manfred
+Anyone familiar with this?
 

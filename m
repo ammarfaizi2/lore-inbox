@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266633AbRGEGwe>; Thu, 5 Jul 2001 02:52:34 -0400
+	id <S266639AbRGEHFo>; Thu, 5 Jul 2001 03:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266635AbRGEGwY>; Thu, 5 Jul 2001 02:52:24 -0400
-Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:21133 "EHLO
-	ronald.bitfreak.net") by vger.kernel.org with ESMTP
-	id <S266633AbRGEGwL>; Thu, 5 Jul 2001 02:52:11 -0400
+	id <S266638AbRGEHFY>; Thu, 5 Jul 2001 03:05:24 -0400
+Received: from bcnjfppp.jazztel.es ([212.106.240.79]:17793 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S266637AbRGEHFT>; Thu, 5 Jul 2001 03:05:19 -0400
+Date: Thu, 5 Jul 2001 08:37:29 +0200
+From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+To: Bill Pringlemeir <bpringle@sympatico.ca>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ronald Bultje <rbultje@ronald.bitfreak.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: >128 MB RAM stability problems (again)
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: Chris Siebenmann <cks@utcc.utoronto.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <01Jul4.172916edt.62972@gpu.utcc.utoronto.ca>
-In-Reply-To: <01Jul4.172916edt.62972@gpu.utcc.utoronto.ca>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 05 Jul 2001 10:44:25 +0200
-Message-Id: <994322676.768.0.camel@tux>
+Message-ID: <20010705083729.A2414@ragnar-hojland.com>
+In-Reply-To: <E15HsKg-0001Pk-00@the-village.bc.nu> <m2sngc3w10.fsf@sympatico.ca>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m2sngc3w10.fsf@sympatico.ca>; from bpringle@sympatico.ca on Wed, Jul 04, 2001 at 11:16:43PM -0400
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04 Jul 2001 17:29:12 -0400, Chris Siebenmann wrote:
-> You write:
-> | I'm kind of astounded now, WHY can't linux-2.4.x run on ANY machine in
-> | my house with more than 128 MB RAM?!? Can someone please point out to me
-> | that he's actually running kernel-2.4.x on a machine with more than 128
-> | MB RAM and that he's NOT having severe stability problems?
-> 
->  Me. Two machines. (Both 2.4.5 high -ac kernels.)
-> 
->  I strongly suggest getting memtest86 and running it on all of your
-> problematic machines.
+On Wed, Jul 04, 2001 at 11:16:43PM -0400, Bill Pringlemeir wrote:
+> I also have had problems with a machine that had 128Mb + 64 Mb.  I
+> discovered the following about 2.4.x.  You _should_ have a swap file
+> that is double RAM.  Mixing different SDRAM types is probably a bad
+> thing.  So if you upgraded, then that might be problematic.
 
-I ran memtest tonight on all machines....
-It gave 0 errors on all of them.....
+And here's a counter claim:  At home have 128 + 64, both of different speeds
+and brands.  Of course, to run properly you have to force the pc100 to run at
+66, but other than that they're happy (96MB swap)
 
-So.... this leads to the conclusion that the memory is okay, and that
-something else must be the problem.... Could it still be a failing power
-supply or something? It seems both computers have a 230 W power supply.
-Might be a problem, I guess, I can buy a 400 W thingy if that makes
-sense.
-
-Other solutions I heard:
-- antistatic wrist strap: already have one :-)
-- BIOS fiddling... What exactly should I look for? They are, as far as I
-can see, identical memory sticks, probably both from different
-suppliers, but besides that quite the same....
-- are there different brands of memory of different quality and might
-that be a possible cause of the problems? And if so - what are good
-memory brands and what are the bad ones?
-- I mixed different types of SDRAM... Could be it.... My mainboard
-manual is not really clear about this.... And I have no clue what brand
-of memory I bought... they are all 133 MHz SDRAM sticks, some 64 MB,
-some 128 MB.... MB manual says it can handle all 64/128 MB sticks...
-- <your solution here :-)>
-
-Anyway, thanks for any advice until now and thanks for listening again,
-hope to hear more solutions.
-
---
-Ronald Bultje
-
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."

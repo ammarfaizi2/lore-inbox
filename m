@@ -1,53 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264235AbUKAORM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263635AbUKAOTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbUKAORM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 09:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263888AbUKAORJ
+	id S263635AbUKAOTb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 09:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUKAOTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 09:17:09 -0500
-Received: from cantor.suse.de ([195.135.220.2]:50850 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263519AbUKAOQf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:16:35 -0500
-Date: Mon, 1 Nov 2004 15:16:22 +0100
-From: Olaf Hering <olh@suse.de>
-To: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org
-Subject: [PATCH] atyfb_base.c requires atyfb_cursor()
-Message-ID: <20041101141622.GA14335@suse.de>
+	Mon, 1 Nov 2004 09:19:19 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:56241 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265769AbUKAOSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 09:18:38 -0500
+Subject: Linux 2.6.9-ac6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099314945.18809.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 01 Nov 2004 13:15:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
 
-atyfb_base.c requires atyfb_cursor, but it is only available for linking
-if CONFIG_FB_ATY_CT=y.
-This patch moves the .o file to the CONFIG_FB_ATY rule.
+2.6.9-ac6
+o	Fix problem with -ac5 msdos changes		(Vojtech Pavlik)
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+2.6.9-ac5
+o	Fix oops in and enable IT8212 driver		(me)
+o	Minor delkin driver fix				(Mark Lord)
+o	Fix NFS mount hangs with long FQDN		(Jan Kasprzak)
+	| I've used this version as its clearly correct for 2.6.9 
+	| although it might not be the right future solution
+o	Fix overstrict FAT checks stopping reading of	(Vojtech Pavlik)
+	some devices like Nokia phones
+o	Fix misdetection of some drives as MRW capable	(Peter Osterlund)
+o	Fix promise 20267 hang with very long I/O's	(Krzysztof Chmielewski)
+o	Fix a case where serial break was not sent for	(Paul Fulghum)
+	the right time.
+o	Fix S/390 specific SACF hole			(Martin Schwidefsky)
+o	NVidia ACPI timer override			(Andi Kleen)
+o	Correct VIA PT880 PCI ident (and AGP ident)	(Dave Jones)
+o	Fix EDID/E820 corruption 			(Venkatesh Pallipadi)
+o	Tighten security on TIOCCONS			(od@suse.de)
+o	Fix incorrect __init s that could cause crash	(Randy Dunlap)
 
-diff -purN linux-2.6.10-rc1-bk9.orig/drivers/video/aty/Makefile linux-2.6.10-rc1-bk9-olh/drivers/video/aty/Makefile
---- linux-2.6.10-rc1-bk9.orig/drivers/video/aty/Makefile	2004-08-14 07:36:44.000000000 +0200
-+++ linux-2.6.10-rc1-bk9-olh/drivers/video/aty/Makefile	2004-10-31 21:59:06.965999776 +0100
-@@ -2,9 +2,9 @@ obj-$(CONFIG_FB_ATY) += atyfb.o
- obj-$(CONFIG_FB_ATY128) += aty128fb.o
- obj-$(CONFIG_FB_RADEON) += radeonfb.o
- 
--atyfb-y				:= atyfb_base.o mach64_accel.o
-+atyfb-y				:= atyfb_base.o mach64_accel.o mach64_cursor.o
- atyfb-$(CONFIG_FB_ATY_GX)	+= mach64_gx.o
--atyfb-$(CONFIG_FB_ATY_CT)	+= mach64_ct.o mach64_cursor.o
-+atyfb-$(CONFIG_FB_ATY_CT)	+= mach64_ct.o
- atyfb-objs			:= $(atyfb-y)
- 
- radeonfb-y			:= radeon_base.o radeon_pm.o radeon_monitor.o radeon_accel.o
+2.6.9-ac4
+o	Fix minor DoS bug in visor USB driver		(Greg Kroah-Hartmann)
+o	Delkin cardbus IDE support			(Mark Lord)
+o	Fix SMP hang with IDE unregister		(Mark Lord)
+o	Fix proc file removal with IDE unregister	(Mark Lord)
+o	Fix aic7xxx sleep with locks held and debug	(Luben Tuikov)
+	spew
+o	First take at HPT372N problem fixing		(Alan Cox)
 
--- 
-USB is for mice, FireWire is for men!
+2.6.9-ac3
+o	Fix syncppp/async ppp problems with new hangup	(Paul Fulghum)
+o	Fix broken parport_pc unload			(Andrea Arcangeli)
+o	Security fix for smbfs leak/overrun		(Urban Widmark)
+o	Stop i8xx_tco making some boxes reboot on load	(wim@iguana)
+o	Fix cpia/module tools deadlock			(Peter Pregler)
+o	Fix missing suid_dumpable export		(Alan Cox)
 
-sUse lINUX ag, nÜRNBERG
+2.6.9-ac2
+o	Fix invalid kernel version stupidity		(Adrian Bunk)
+o	Compiler ICE workaround/fixup			(Linus Torvalds)
+o	Fix network DoS bug in 2.6.9			(Herbert Xu)
+	| Suggested by Sami Farin
+o	Flash lights on panic as in 2.4			(Andi Kleen)
+
+2.6.9-ac1
+
+Security Fixes
+o	Set VM_IO on areas that are temporarily		(Alan Cox)
+	marked PageReserved (Serious bug)
+o	Lock ide-proc against driver unload		(Alan Cox)
+	(very low severity)
+
+Bug Fixes
+o	Working IDE locking				(Alan Cox)
+	| And a great deal of review by Bartlomiej
+o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
+	
+Functionality
+o	Allow booting with "irqpoll" or "irqfixup"	(Alan Cox)
+	on systems with broken IRQ tables.
+o	Support for setuid core dumping in some		(Alan Cox)
+	environments (off by default)
+o	Support for drives that don't report geometry
+o	IT8212 support (raid and passthrough)		(Alan Cox)
+o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
+	devices (boot with "all-generic-ide")
+o	Restore PWC driver				(Luc Saillard)
+
+Other
+o	Small pending tty clean-up to moxa		(Alan Cox)
+o	Put VIA Velocity (tm) adapters under gigabit	(VIA)
+

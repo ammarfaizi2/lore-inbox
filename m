@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315343AbSDWVnV>; Tue, 23 Apr 2002 17:43:21 -0400
+	id <S315348AbSDWVvN>; Tue, 23 Apr 2002 17:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315347AbSDWVnU>; Tue, 23 Apr 2002 17:43:20 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:24333 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S315343AbSDWVnT>;
-	Tue, 23 Apr 2002 17:43:19 -0400
-Date: Tue, 23 Apr 2002 23:43:09 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: m.knoblauch@TeraPort.de
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: XFS in the main kernel
-In-Reply-To: <3CC56355.E5086E46@TeraPort.de>
-Message-ID: <Pine.LNX.4.44.0204232330430.4925-100000@Expansa.sns.it>
+	id <S315351AbSDWVvM>; Tue, 23 Apr 2002 17:51:12 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:2256 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S315348AbSDWVvM>; Tue, 23 Apr 2002 17:51:12 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Jason Papadopoulos <jasonp@boo.net>
+Subject: Re: [PATCH] page coloring for 2.4.18 kernel
+Date: Tue, 23 Apr 2002 23:51:00 +0200
+X-Mailer: KMail [version 1.4]
+Cc: Robert Love <rml@tech9.net>, George Anzinger <george@mvista.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200204232351.01415.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Page coloring for 2.4.18+ isn't preempt save?
 
+It gave ~10% speedup for memory intensive apps on my single  1 GHz Athlon II 
+SlotA (0,18µm, L2 512K) but look the system hard from time to time. Nothing 
+in the logs.
 
-On Tue, 23 Apr 2002, Martin Knoblauch wrote:
+I've changed the patch for 2.4.19-pre7 + vm3 + latest rml-O(1) + preempt.
 
-> > Re: XFS in the main kernel
-> >
->  definitely. Unless XFS is in the mainline kernel (marked as
-> experimantal if necessary) it will not get good exposure.
+Thanks,
+	Dieter
 
-XFS needs 2.5, not 2.4, because of a lot of reasons.
-If I do remember well a strong obiection to XFS is that it introduces a
-kernel thread to emulate Irix behavious to talk with pagebuf (a la Irix),
-end to have an interface with VM and Block Device layer.
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 
-This forces some vincles.
-
-It is a lot of time that I do not try XFS, so maybe things changed, but
-XFS has has data block of the same size of memory pages (4 or 8 Kb
-depending on architecture), not that I have some remak about that, but I
-use XFS on Irix on an Origin 2000 with a couple of TB disk space, it is
-another thing in front of Linux ports.
-
-On the other side delayed allocation is quite cool ;)
-
->
->  The most important (only) reason I do not use it (and recommend our
-> customers against using it) is that at the moment it is impossible to
-> track both the kernel and XFS at the same time. This is a shame, because
-> I think that for some application XFS is superior to the other
-> alternatives (can be said about the other alternatives to :-).
-
-Every FS has its strenght points and its weackness.
-
-For example on MC^2 I found reiserFS on LVM to have a really good
-interaction with the way MC^2 works, expecially because
-I have a lot of small|medium sized files, I suppose.
-
-I also tied XFS and JFS on MC^2, and maybe with other file size
-and I/O loads they would be better. I just talk for my systems needs.
-
-(all test were with latest 2.4 kernels, a month ago.
-I cannot risk corruption on this
-storage system, so 2.5 is not for me there :( ).
-
->
-> > That said, it is important to
-> > consider the technical reasons to include XFS in 2.5 or not; if this
-> > inclusion could cause some troubles, if XFS fits the requirements
-> > Linus asks for the inclusion and what impact the inclusion would have on
-> > the kernel (Think to JFS as a good example of an easy inclusion, with low
-> > impact).
-> >
->
->  so, what were the main obstacles again? The VFS layer?
->
-See my previous comments...
-
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de
 

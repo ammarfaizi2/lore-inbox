@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266176AbTIEUfq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbTIEUcf
+	id S262849AbTIEUov (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTIEUot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:32:35 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:52171 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266109AbTIEUb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:31:59 -0400
-Date: Fri, 5 Sep 2003 22:31:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Keyboard stuff (was Re: Fix up power managment in 2.6)
-Message-ID: <20030905203157.GU16859@atrey.karlin.mff.cuni.cz>
-References: <200309050158.36447.rob@landley.net> <200309051457.37241.rob@landley.net> <20030905190649.GP16859@atrey.karlin.mff.cuni.cz> <200309051609.35135.rob@landley.net>
-Mime-Version: 1.0
+	Fri, 5 Sep 2003 16:44:49 -0400
+Received: from web40404.mail.yahoo.com ([66.218.78.101]:29202 "HELO
+	web40404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262849AbTIEUoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 16:44:15 -0400
+Message-ID: <20030905204414.74292.qmail@web40404.mail.yahoo.com>
+Date: Fri, 5 Sep 2003 13:44:14 -0700 (PDT)
+From: Joshua Weage <weage98@yahoo.com>
+Subject: NFS client problems in 2.4.18 to 2.4.20
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309051609.35135.rob@landley.net>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I hope this was not discussed previously, I couldn't find anything
+relevant in the archives.
 
-> > > I was hoping software suspend would avoid having to have IBM firmware
-> > > involved in the suspend process at all (it can boot, it can shut down, I
-> > > just want it to snapshot process state so it comes up with the same
-> > > things up on the desktop as last time).
-> >
-> > Yes software suspend can do that.
-> 
-> Footnote 1: If it worked, which I've never been able to get it to
-> do.
+I am having problems with NFS clients getting stuck after reporting a
+"nfs server not responding message".  The majority of the time the
+mount starts working again when the nfs server load goes down. 
+However, sometimes the mount on one client becomes completely
+unresponsive, but all of the clients still work correctly.  Even after
+letting it set for 2-3+ hours it still doesn't come back up.  I can
+ping the server from the locked client and that works.  If I do a lazy
+unmount and then remount the NFS disk it works again for awhile - but
+tends to lock up again.  A standard umount doesn't work when the client
+is hung.
 
-Try -test3 with ext2 and minimal set of drivers.
+This happens with all RedHat kernel releases 2.4.18 to 2.4.20.
 
-> > > P.S.  I reeeeeeeeeeeeeeeeeally hate it the way the keys on the keyboard
-> > > sometimes have an up event delayed (or miss it entirely) and decide to
-> > > auto-repeat insanely fast.  It happens about twice an hour.  I've seen
-> > > mouse clicks do it as well.  Not a show-stopper, just annoying.
-> >
-> > I guess that *is* showstopper. Unfortunately notebook keyboards tend
-> > to be crappy :-(.
-> 
-> Not on a thinkpad.  I could probably bring down a wild caribou with this 
-> thing, it's designed like a tank.  (Part of the reason I bought it. :)
-> 
-> I tried 2.4 for a bit on it when I was first trying to get it working.  
-> (Largely to assess how much reconfiguration needed to be done, since I'd 
-> swapped in a hard drive from a toshiba and didn't want to have to reinstall.)
-> 
-> The keyboard never had a problem under 2.4, this is a 2.6 problem.
-> It also 
+I have tried tuning the NFS server by going to nfs utils 1.0.3 and by
+increasing nfsd's and the socket buffer sizes.  I have also increased
+the timeout on the clients to 2.0.  One thing that seems to help is to
+enable async mode on the NFS server.  However, I've still seen the same
+client hang with async turned on.
 
-You need to report this to vojtech, I guess.
-									Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Machine Details:
+12x Cluster nodes 2xAMD Athlon MP's, 100 MbEthernet
+1x server 2xPentium III 1.13GHz, Adaptec 39160, Promise RM8000,
+GigEthernet
+1x Cisco 2924-T switch.
+
+I'm running 8 CPU jobs, each cpu occasionally writes 120MB files to the
+NFS disk.  The client lockup always occurs during these file writes.
+The lockups have occured on several of the cluster nodes.
+
+Any suggestions on what could be causing this?
+
+Thanks,
+
+Joshua Weage
+
+
+
+=====
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

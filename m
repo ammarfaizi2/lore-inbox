@@ -1,235 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268772AbTCCUUE>; Mon, 3 Mar 2003 15:20:04 -0500
+	id <S268779AbTCCUYu>; Mon, 3 Mar 2003 15:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268773AbTCCUUE>; Mon, 3 Mar 2003 15:20:04 -0500
-Received: from verein.lst.de ([212.34.181.86]:62729 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S268772AbTCCUTz>;
-	Mon, 3 Mar 2003 15:19:55 -0500
-Date: Mon, 3 Mar 2003 21:30:18 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] d_alloc_anon
-Message-ID: <20030303213018.A20618@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
+	id <S268780AbTCCUYu>; Mon, 3 Mar 2003 15:24:50 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:9088 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S268779AbTCCUYr>;
+	Mon, 3 Mar 2003 15:24:47 -0500
+Date: Mon, 3 Mar 2003 21:35:00 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
+Message-ID: <20030303203500.GA2916@vana.vc.cvut.cz>
+References: <Pine.LNX.4.44.0302200108090.20350-100000@phoenix.infradead.org> <20030220150201.GD13507@codemonkey.org.uk> <20030220182941.GK14445@vana.vc.cvut.cz> <1045787031.2051.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <1045787031.2051.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every filesystem that implements methods to convert from a NFS
-filehandle to a dentry duplicates this code (there are even more out of
-tree). Factor it out in common code. The function d_alloc_anon() is
-already present in 2.5 with the same interface but a slightly different
-implementation.
+On Fri, Feb 21, 2003 at 08:24:17AM +0800, Antonino Daplas wrote:
+> On Fri, 2003-02-21 at 02:29, Petr Vandrovec wrote:
+> > 
+> > I was for five weeks in U.S., so I did not do anything with
+> > matroxfb during that time. I plan to use fillrect and copyrect
+> > from generic code (although it means unnecessary multiply on
+> > generic side, and division in matroxfb, but well, if we gave
+> > up on reasonable speed for fbdev long ago...). But I simply
+> > want loadfont and putcs hooks for character painting. And if 
+> > fbdev maintainer does not want to give me them, well, then 
+> > matroxfb and fbdev are not compatible.
+> 
+> Petr,
+> 
+> I submitted the Tile Blitting patch to James some time ago, it has
+> tilefill, tilecopy and tileblit hooks.  These hooks should eliminate the
+> "multiply in fbcon, divide in driver" bottleneck.
+>
+> It should result in the same behavior as you would expect in the the 2.4
+> API, so you can use text mode with your matroxfb driver.  These same
+> hooks will also help optimize drawing if we need to use fonts like
+> 12x22.
+
+Hi,
+  while waiting on these updates I updated matroxfb a bit
+(ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.5.63.gz),
+so that it now uses fb_* for cfb modes, and putcs/... hooks for
+text mode. I have still dozen of changes in fbcon.c which I have
+to eliminate (mainly logo painting and cursor handling - for now
+I still use revc method, mainly because of I did not make into it yet).
+
+  But main thing is that I'd like to apologize to James - character
+painting is much faster for 8x16 fonts under 2.5.x than it was under 2.4.x,
+8bpp unaccelerated 8x16 under 2.5.x is even faster than accelerated
+under 2.4.x.
+
+  Algorithm for obtaining times was same as described in 
+Documentation/fb/matroxfb.txt, with two differences: (1) hardware is 
+G550 in P4/1.6GHz, and (2) there was 30MBps video stream feed to 
+secondary G550 head of G550 during 2.4.19-pre6 tests, so I made 2.5.x 
+tests twice, once with fbtv running and once without.
+
+  My main concern now is 12x22 font... Accelerator setup
+is so costly for each separate painted character that for 8bpp 
+accelerated version is even slower than unaccelerated one :-(
+(and almost twice as slow when compared with 2.4.x).
+
+  And one (or two...) generic questions: why is not pseudo_palette
+u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
+And why we do not fill this pseudo_palette with
+i * 0x01010101U for 8bpp pseudocolor and i * 0x11111111U for 4bpp
+pseudocolor? This allowed me to remove couple of switches and tests
+from acceleration fastpaths (and from cfb_imageblit and cfb_fillrect,
+but I did not changed these two in my benchmarks below).
+
+						Best regards,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz
 
 
---- 1.22/fs/dcache.c	Thu Jan 23 10:55:22 2003
-+++ edited/fs/dcache.c	Mon Mar  3 19:41:38 2003
-@@ -659,6 +659,53 @@
- }
- 
- /**
-+ * d_alloc_anon - allocate an anonymous dentry
-+ * @inode: inode to allocate the dentry for
-+ *
-+ * This is similar to d_alloc_root.  It is used by filesystems when
-+ * creating a dentry for a given inode, often in the process of 
-+ * mapping a filehandle to a dentry.  The returned dentry may be
-+ * anonymous, or may have a full name (if the inode was already
-+ * in the cache).  The file system may need to make further
-+ * efforts to connect this dentry into the dcache properly.
-+ *
-+ * When called on a directory inode, we must ensure that
-+ * the inode only ever has one dentry.  If a dentry is
-+ * found, that is returned instead of allocating a new one.
-+ *
-+ * On successful return, the reference to the inode has been transferred
-+ * to the dentry.  If %NULL is returned (indicating kmalloc failure),
-+ * the reference on the inode has not been released.
-+ */
-+
-+struct dentry * d_alloc_anon(struct inode *inode)
-+{
-+	struct dentry *dentry;
-+	struct list_head *p;
-+
-+	/* Try to find a dentry.  If possible, get a well-connected one. */
-+	spin_lock(&dcache_lock);
-+	list_for_each(p, &inode->i_dentry) {
-+		dentry = list_entry(p, struct dentry, d_alias);
-+		if (!(dentry->d_flags & DCACHE_NFSD_DISCONNECTED))
-+			goto found;
-+	}
-+	spin_unlock(&dcache_lock);
-+
-+	/* Didn't find dentry.  Create anonymous dcache entry. */
-+	dentry = d_alloc_root(inode);
-+	if (dentry)
-+		dentry->d_flags |= DCACHE_NFSD_DISCONNECTED;
-+	return dentry;
-+
-+found:
-+	dget_locked(dentry);
-+	spin_unlock(&dcache_lock);
-+	iput(inode);
-+	return dentry;
-+}
-+
-+/**
-  * d_alloc_root - allocate root dentry
-  * @root_inode: inode to allocate the root for
-  *
---- 1.13/fs/fat/inode.c	Thu Apr  4 21:31:14 2002
-+++ edited/fs/fat/inode.c	Mon Mar  3 19:40:10 2003
-@@ -430,7 +430,6 @@
- 				int len, int fhtype, int parent)
- {
- 	struct inode *inode = NULL;
--	struct list_head *lp;
- 	struct dentry *result;
- 
- 	if (fhtype != 3)
-@@ -477,33 +476,14 @@
- 	if (!inode)
- 		return ERR_PTR(-ESTALE);
- 
--	
--	/* now to find a dentry.
--	 * If possible, get a well-connected one
--	 *
--	 * Given the way that we found the inode, it *MUST* be
--	 * well-connected, but it is easiest to just copy the
--	 * code.
--	 */
--	spin_lock(&dcache_lock);
--	for (lp = inode->i_dentry.next; lp != &inode->i_dentry ; lp=lp->next) {
--		result = list_entry(lp,struct dentry, d_alias);
--		if (! (result->d_flags & DCACHE_NFSD_DISCONNECTED)) {
--			dget_locked(result);
--			result->d_vfs_flags |= DCACHE_REFERENCED;
--			spin_unlock(&dcache_lock);
--			iput(inode);
--			return result;
--		}
--	}
--	spin_unlock(&dcache_lock);
--	result = d_alloc_root(inode);
-+
-+	result = d_alloc_anon(inode);
- 	if (result == NULL) {
- 		iput(inode);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 	result->d_op = sb->s_root->d_op;
--	result->d_flags |= DCACHE_NFSD_DISCONNECTED;
-+	result->d_vfs_flags |= DCACHE_REFERENCED;
- 	return result;
- 
- 		
---- 1.18/fs/nfsd/nfsfh.c	Mon Dec 16 17:50:09 2002
-+++ edited/fs/nfsd/nfsfh.c	Mon Mar  3 19:40:10 2003
-@@ -135,7 +135,6 @@
- 	 * of 0 means "accept any"
- 	 */
- 	struct inode *inode;
--	struct list_head *lp;
- 	struct dentry *result;
- 	if (ino == 0)
- 		return ERR_PTR(-ESTALE);
-@@ -155,27 +154,14 @@
- 		iput(inode);
- 		return ERR_PTR(-ESTALE);
- 	}
--	/* now to find a dentry.
--	 * If possible, get a well-connected one
--	 */
--	spin_lock(&dcache_lock);
--	for (lp = inode->i_dentry.next; lp != &inode->i_dentry ; lp=lp->next) {
--		result = list_entry(lp,struct dentry, d_alias);
--		if (! (result->d_flags & DCACHE_NFSD_DISCONNECTED)) {
--			dget_locked(result);
--			result->d_vfs_flags |= DCACHE_REFERENCED;
--			spin_unlock(&dcache_lock);
--			iput(inode);
--			return result;
--		}
--	}
--	spin_unlock(&dcache_lock);
--	result = d_alloc_root(inode);
-+
-+
-+	result = d_alloc_anon(inode);
- 	if (result == NULL) {
- 		iput(inode);
- 		return ERR_PTR(-ENOMEM);
- 	}
--	result->d_flags |= DCACHE_NFSD_DISCONNECTED;
-+	result->d_vfs_flags |= DCACHE_REFERENCED;
- 	return result;
- }
- 
---- 1.42/fs/reiserfs/inode.c	Thu Feb 13 07:42:42 2003
-+++ edited/fs/reiserfs/inode.c	Mon Mar  3 19:40:11 2003
-@@ -1249,7 +1249,6 @@
- 				     int len, int fhtype, int parent) {
-     struct cpu_key key ;
-     struct inode *inode = NULL ;
--    struct list_head *lp;
-     struct dentry *result;
- 
-     /* fhtype happens to reflect the number of u32s encoded.
-@@ -1301,27 +1300,12 @@
-     if (!inode)
-         return ERR_PTR(-ESTALE) ;
- 
--    /* now to find a dentry.
--     * If possible, get a well-connected one
--     */
--    spin_lock(&dcache_lock);
--    for (lp = inode->i_dentry.next; lp != &inode->i_dentry ; lp=lp->next) {
--	    result = list_entry(lp,struct dentry, d_alias);
--	    if (! (result->d_flags & DCACHE_NFSD_DISCONNECTED)) {
--		    dget_locked(result);
--		    result->d_vfs_flags |= DCACHE_REFERENCED;
--		    spin_unlock(&dcache_lock);
--		    iput(inode);
--		    return result;
--	    }
--    }
--    spin_unlock(&dcache_lock);
--    result = d_alloc_root(inode);
-+    result = d_alloc_anon(inode);
-     if (result == NULL) {
- 	    iput(inode);
- 	    return ERR_PTR(-ENOMEM);
-     }
--    result->d_flags |= DCACHE_NFSD_DISCONNECTED;
-+    result->d_vfs_flags |= DCACHE_REFERENCED;
-     return result;
- 
- }
---- 1.12/include/linux/dcache.h	Sat Aug  3 18:39:21 2002
-+++ edited/include/linux/dcache.h	Mon Mar  3 19:40:11 2003
-@@ -165,6 +165,7 @@
- 
- /* allocate/de-allocate */
- extern struct dentry * d_alloc(struct dentry *, const struct qstr *);
-+extern struct dentry * d_alloc_anon(struct inode *);
- extern void shrink_dcache_sb(struct super_block *);
- extern void shrink_dcache_parent(struct dentry *);
- extern int d_invalidate(struct dentry *);
---- 1.67/kernel/ksyms.c	Tue Oct  1 14:34:41 2002
-+++ edited/kernel/ksyms.c	Mon Mar  3 19:40:11 2003
-@@ -164,6 +164,7 @@
- EXPORT_SYMBOL(d_move);
- EXPORT_SYMBOL(d_instantiate);
- EXPORT_SYMBOL(d_alloc);
-+EXPORT_SYMBOL(d_alloc_anon);
- EXPORT_SYMBOL(d_lookup);
- EXPORT_SYMBOL(__d_path);
- EXPORT_SYMBOL(mark_buffer_dirty);
+NOACCEL, 8x16
+	2.4.19+fbtv	2.5.63+fbtv	2.5.63
+8bpp	10.02		 6.96		 5.62
+16bpp	20.05		13.25		10.62
+24bpp	30.03		19.05		15.13
+32bpp	45.00		25.74		20.54
+
+ACCEL, 8x16
+	2.4.19+fbtv	2.5.63+fbtv	2.5.63
+8bpp	 7.48		 3.38		 3.00
+16bpp	 7.50		 3.38		 3.01
+24bpp	 7.53		 3.56		 3.53
+32bpp	 8.95		 4.37		 4.33
+
+NOACCEL, 12x22
+	2.4.19+fbtv	2.5.63+fbtv	2.5.63
+8bpp	11.54		13.35		10.93
+16bpp	20.00		22.02		18.03
+24bpp	30.03		35.83		29.53
+32bpp	40.12		44.48		36.75
+
+ACCEL, 12x22
+	2.4.19+fbtv	2.5.63+fbtv	2.5.63
+8bpp	 8.57		14.87		12.90
+16bpp	 8.57		14.93		12.92
+24bpp	 8.56		15.13		13.10
+32bpp	 8.56		15.52		13.76
+
+

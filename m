@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265661AbSJXVXq>; Thu, 24 Oct 2002 17:23:46 -0400
+	id <S265664AbSJXV3y>; Thu, 24 Oct 2002 17:29:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265664AbSJXVXq>; Thu, 24 Oct 2002 17:23:46 -0400
-Received: from packet.digeo.com ([12.110.80.53]:60820 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265661AbSJXVXq>;
-	Thu, 24 Oct 2002 17:23:46 -0400
-Message-ID: <3DB86650.1C48F044@digeo.com>
-Date: Thu, 24 Oct 2002 14:29:52 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: chrisl@vmware.com
-CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       chrisl@gnuchina.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: writepage return value check in vmscan.c
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021024191531.GD1398@vmware.com> <3DB85C1B.62D14184@digeo.com> <20021024212313.GF1398@vmware.com>
+	id <S265666AbSJXV3y>; Thu, 24 Oct 2002 17:29:54 -0400
+Received: from tapu.f00f.org ([66.60.186.129]:45987 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S265664AbSJXV3x>;
+	Thu, 24 Oct 2002 17:29:53 -0400
+Date: Thu, 24 Oct 2002 14:36:06 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ashwin Sawant <sawant_ashwin@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Workqueues and the Nvidia driver
+Message-ID: <20021024213606.GB18547@tapu.f00f.org>
+References: <20021023175255.547.qmail@webmail30.rediffmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2002 21:29:52.0855 (UTC) FILETIME=[7D66FE70:01C27BA4]
+Content-Disposition: inline
+In-Reply-To: <20021023175255.547.qmail@webmail30.rediffmail.com>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chrisl@vmware.com wrote:
-> 
-> > on a 2.4 highmem machine can go into a spin, but it will come back
-> > to life after several minutes.
-> 
-> No, it will not come back to life, at least not after several minutes.
-> And there is not sign it is going to come back to life.
+On Wed, Oct 23, 2002 at 05:52:55PM -0000, Ashwin  Sawant wrote:
 
-A 2.5G machine would, iirc, spin for 3-5 minutes.
+> I have successfully compiled the latest Nvidia driver with kernel
+> 2.5.44 on a heavily modified RH 7.2 (original compiler) box after
+> applying the patch posted to this list previously.
 
-Umm, probably the time would increase somewhat exponentially
-with memory size so yes, you could be in for a very long wait.
+I wrote the initial workqueues patch --- and it was bogus of me to use
+workqueues.
 
--ac kernels have an lru per zone and so would not be bitten
-by this failure.  If indeed you are striking this problem,
-which is described at
-http://mail.nl.linux.org/linux-mm/2002-08/msg00049.html
+I have a patch that uses tasklet instead which works much better; if
+you want this email me off the list (this applies to anyone who wants
+this stuff --- DO NOT clutter l-k with this please).
+
+
+
+  --cw

@@ -1,917 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275885AbTHOJ1w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 05:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275886AbTHOJ1w
+	id S261151AbTHOJkf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 05:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275485AbTHOJkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 05:27:52 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:46605 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S275885AbTHOJ1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 05:27:31 -0400
-X-Envelope-From: roubm9am@barbora.ms.mff.cuni.cz
-Message-ID: <003701c3630f$387a6330$401a71c3@izidor>
-From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: 2.6.0test3mm2 - Synaptics touchpad problem
-Date: Fri, 15 Aug 2003 11:25:47 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0034_01C3631F.F9521CF0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 15 Aug 2003 05:40:35 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:37604 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S261151AbTHOJkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 05:40:32 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Fri, 15 Aug 2003 11:40:30 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Chris Mason <mason@suse.com>
+Cc: marcelo@conectiva.com.br, green@namesys.com, akpm@osdl.org, andrea@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-Id: <20030815114030.26890199.skraw@ithnet.com>
+In-Reply-To: <1060913337.1493.29.camel@tiny.suse.com>
+References: <20030814084518.GA5454@namesys.com>
+	<Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain>
+	<20030814194226.2346dc14.skraw@ithnet.com>
+	<1060913337.1493.29.camel@tiny.suse.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 14 Aug 2003 22:08:58 -0400
+Chris Mason <mason@suse.com> wrote:
 
-------=_NextPart_000_0034_01C3631F.F9521CF0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+> On Thu, 2003-08-14 at 13:42, Stephan von Krawczynski wrote:
+> 
+> > Hello Marcelo,
+> > 
+> > the system is up and running, currently:
+> > 
+> >   7:40pm  up 4 days  2:34,  21 users,  load average: 2.07, 2.10, 2.06
+> > 
+> > there is still the verification issue, today I added another 50 GB to the
+> > data stream, and therefore got additional 3 verification  errors. But this
+> > seems to have no influence on the stability. Box feels ok, reacts
+> > completely normal, no strange output in any logs.
+> 
+> Just to second Oleg's messages so far, the verification issues are still
+> serious, it could be the same kind of memory corruptions that could be
+> causing crashes on reiserfs, just in a different place.
 
-Hi,
-I have got problem runing Synaptics touchpad on kernel 2.6.0test3mm2.
-When previously booted system was windows XP, than the touchpad is working:
-here is part of working dmesg:
+Well, as you expected I have the oops for you happened just this morning:
 
-Console: switching to colour frame buffer device 128x48
-PCI: Enabling device 0000:00:0c.0 (0000 -> 0002)
-Yenta: CardBus bridge found at 0000:00:0c.0 [1558:4201]
-Yenta IRQ list 02d8, PCI irq5
-Socket status: 30000006
-mice: PS/2 mouse device common for all mice
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-Synaptics Touchpad, model: 1
- Firmware: 5.6
- 180 degree mounted touchpad
- Sensor: 18
- new absolute packet format
- Touchpad has extended capability bits
- -> four buttons
- -> multifinger detection
- -> palm detection
-input: Synaptics Synaptics TouchPad on isa0060/serio4
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-NET4: Linux TCP/IP 1.0 for NET4.0
+ksymoops 2.4.8 on i686 2.4.22-rc2.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc2/ (default)
+     -m /boot/System.map-2.4.22-rc2 (default)
 
-But when previous system was linux, the touchpad is not working:
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Console: switching to colour frame buffer device 128x48
-Yenta: CardBus bridge found at 0000:00:0c.0 [1558:4201]
-Yenta IRQ list 02d8, PCI irq5
-Socket status: 30000006
-mice: PS/2 mouse device common for all mice
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-NET4: Linux TCP/IP 1.0 for NET4.0
+NMI Watchdog detected LOCKUP on CPU0, eip c01457c3, registers:
+CPU:    0
+EIP:    0010:[<c01457c3>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00000046
+eax: 00000019   ebx: effc5c7c   ecx: 00000000   edx: effc6c7c
+esi: 00000001   edi: 00000202   ebp: c13956c0   esp: f6ae1e8c
+ds: 0018   es: 0018   ss: 0018
+Process setiathome (pid: 2696, stackpage=f6ae1000)
+Stack: f79ba218 effc5c7c f710eab8 00000008 c02165ea effc5c7c 00000001 ffffffff
+       f79ba298 f79ba218 00000001 00000010 00000001 f710ea00 c0216a0f f710ea00
+       00000001 00000000 00000001 00000001 ffffffff ffffffff 0000001c 00000000
+Call Trace:    [<c02165ea>] [<c0216a0f>] [<c024a47a>] [<c020f6b8>] [<c020f568>]
+  [<c01226da>] [<c0122563>] [<c01222d6>] [<c0109508>] [<c010c048>]
+Code: 75 eb a8 01 0f 44 f1 8b 52 28 39 da 75 ea c6 05 64 5d 30 c0
 
-Its reproduceable. My hardware is Clevo D610S notebook,
-part of my config is here
 
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_PS2_SYNAPTICS=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1400
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1050
-CONFIG_INPUT_EVDEV=y
+>>EIP; c01457c3 <end_buffer_io_async+63/b0>   <=====
 
-I have not tested it with previous versions of kernel
-Thanx for help.
-    Milan Roubal
+>>ebx; effc5c7c <_end+2fbfe61c/38462a00>
+>>edx; effc6c7c <_end+2fbff61c/38462a00>
+>>ebp; c13956c0 <_end+fce060/38462a00>
+>>esp; f6ae1e8c <_end+3671a82c/38462a00>
 
-------=_NextPart_000_0034_01C3631F.F9521CF0
-Content-Type: application/octet-stream;
-	name="touchpad-chodi-config"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="touchpad-chodi-config"
+Trace; c02165ea <__scsi_end_request+ba/250>
+Trace; c0216a0f <scsi_io_completion+15f/430>
+Trace; c024a47a <rw_intr+5a/200>
+Trace; c020f6b8 <scsi_finish_command+98/d0>
+Trace; c020f568 <scsi_bottom_half_handler+c8/f0>
+Trace; c01226da <bh_action+6a/70>
+Trace; c0122563 <tasklet_hi_action+53/a0>
+Trace; c01222d6 <do_softirq+76/e0>
+Trace; c0109508 <do_IRQ+d8/f0>
+Trace; c010c048 <call_do_IRQ+5/d>
 
-CONFIG_BEGIN=3Dn=0A=
-CONFIG_X86=3Dy =0A=
-CONFIG_MMU=3Dy =0A=
-CONFIG_UID16=3Dy =0A=
-CONFIG_GENERIC_ISA_DMA=3Dy =0A=
-CONFIG_EXPERIMENTAL=3Dy =0A=
-CONFIG_SWAP=3Dy =0A=
-CONFIG_SYSVIPC=3Dy =0A=
-CONFIG_BSD_PROCESS_ACCT=3Dy =0A=
-CONFIG_SYSCTL=3Dy =0A=
-CONFIG_LOG_BUF_SHIFT=3D14 =0A=
-CONFIG_IKCONFIG=3Dy =0A=
-CONFIG_IKCONFIG_PROC=3Dy =0A=
-# CONFIG_EMBEDDED is not set =0A=
-CONFIG_KALLSYMS=3Dy =0A=
-CONFIG_FUTEX=3Dy =0A=
-CONFIG_EPOLL=3Dy =0A=
-CONFIG_IOSCHED_NOOP=3Dy =0A=
-CONFIG_IOSCHED_AS=3Dy =0A=
-CONFIG_IOSCHED_DEADLINE=3Dy =0A=
-CONFIG_MODULES=3Dy =0A=
-CONFIG_MODULE_UNLOAD=3Dy =0A=
-CONFIG_MODULE_FORCE_UNLOAD=3Dy =0A=
-CONFIG_OBSOLETE_MODPARM=3Dy =0A=
-# CONFIG_MODVERSIONS is not set =0A=
-CONFIG_KMOD=3Dy =0A=
-CONFIG_X86_PC=3Dy =0A=
-# CONFIG_X86_VOYAGER is not set =0A=
-# CONFIG_X86_NUMAQ is not set =0A=
-# CONFIG_X86_SUMMIT is not set =0A=
-# CONFIG_X86_BIGSMP is not set =0A=
-# CONFIG_X86_VISWS is not set =0A=
-# CONFIG_X86_GENERICARCH is not set =0A=
-# CONFIG_X86_ES7000 is not set =0A=
-# CONFIG_M386 is not set =0A=
-# CONFIG_M486 is not set =0A=
-# CONFIG_M586 is not set =0A=
-# CONFIG_M586TSC is not set =0A=
-# CONFIG_M586MMX is not set =0A=
-# CONFIG_M686 is not set =0A=
-# CONFIG_MPENTIUMII is not set =0A=
-# CONFIG_MPENTIUMIII is not set =0A=
-CONFIG_MPENTIUM4=3Dy =0A=
-# CONFIG_MK6 is not set =0A=
-# CONFIG_MK7 is not set =0A=
-# CONFIG_MK8 is not set =0A=
-# CONFIG_MELAN is not set =0A=
-# CONFIG_MCRUSOE is not set =0A=
-# CONFIG_MWINCHIPC6 is not set =0A=
-# CONFIG_MWINCHIP2 is not set =0A=
-# CONFIG_MWINCHIP3D is not set =0A=
-# CONFIG_MCYRIXIII is not set =0A=
-# CONFIG_MVIAC3_2 is not set =0A=
-CONFIG_X86_GENERIC=3Dy =0A=
-CONFIG_X86_CMPXCHG=3Dy =0A=
-CONFIG_X86_XADD=3Dy =0A=
-CONFIG_X86_L1_CACHE_SHIFT=3D7 =0A=
-CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy =0A=
-CONFIG_X86_WP_WORKS_OK=3Dy =0A=
-CONFIG_X86_INVLPG=3Dy =0A=
-CONFIG_X86_BSWAP=3Dy =0A=
-CONFIG_X86_POPAD_OK=3Dy =0A=
-CONFIG_X86_GOOD_APIC=3Dy =0A=
-CONFIG_X86_INTEL_USERCOPY=3Dy =0A=
-CONFIG_X86_USE_PPRO_CHECKSUM=3Dy =0A=
-# CONFIG_X86_4G is not set =0A=
-# CONFIG_X86_SWITCH_PAGETABLES is not set =0A=
-# CONFIG_X86_4G_VM_LAYOUT is not set =0A=
-# CONFIG_X86_UACCESS_INDIRECT is not set =0A=
-# CONFIG_X86_HIGH_ENTRY is not set =0A=
-# CONFIG_HUGETLB_PAGE is not set =0A=
-# CONFIG_SMP is not set =0A=
-CONFIG_PREEMPT=3Dy =0A=
-CONFIG_X86_UP_APIC=3Dy =0A=
-CONFIG_X86_UP_IOAPIC=3Dy =0A=
-CONFIG_X86_LOCAL_APIC=3Dy =0A=
-CONFIG_X86_IO_APIC=3Dy =0A=
-CONFIG_X86_TSC=3Dy =0A=
-CONFIG_X86_MCE=3Dy =0A=
-CONFIG_X86_MCE_NONFATAL=3Dy =0A=
-CONFIG_X86_MCE_P4THERMAL=3Dy =0A=
-# CONFIG_TOSHIBA is not set =0A=
-# CONFIG_I8K is not set =0A=
-# CONFIG_MICROCODE is not set =0A=
-# CONFIG_X86_MSR is not set =0A=
-# CONFIG_X86_CPUID is not set =0A=
-# CONFIG_EDD is not set =0A=
-# CONFIG_NOHIGHMEM is not set =0A=
-CONFIG_HIGHMEM4G=3Dy =0A=
-# CONFIG_HIGHMEM64G is not set =0A=
-CONFIG_HIGHMEM=3Dy =0A=
-# CONFIG_HIGHPTE is not set =0A=
-# CONFIG_MATH_EMULATION is not set =0A=
-CONFIG_MTRR=3Dy =0A=
-CONFIG_HAVE_DEC_LOCK=3Dy =0A=
-CONFIG_PM=3Dy =0A=
-CONFIG_SOFTWARE_SUSPEND=3Dy =0A=
-CONFIG_ACPI=3Dy =0A=
-# CONFIG_ACPI_HT_ONLY is not set =0A=
-CONFIG_ACPI_BOOT=3Dy =0A=
-CONFIG_ACPI_SLEEP=3Dy =0A=
-CONFIG_ACPI_SLEEP_PROC_FS=3Dy =0A=
-CONFIG_ACPI_AC=3Dy =0A=
-CONFIG_ACPI_BATTERY=3Dy =0A=
-CONFIG_ACPI_BUTTON=3Dy =0A=
-CONFIG_ACPI_FAN=3Dy =0A=
-CONFIG_ACPI_PROCESSOR=3Dy =0A=
-CONFIG_ACPI_THERMAL=3Dy =0A=
-# CONFIG_ACPI_ASUS is not set =0A=
-# CONFIG_ACPI_TOSHIBA is not set =0A=
-CONFIG_ACPI_DEBUG=3Dy =0A=
-CONFIG_ACPI_BUS=3Dy =0A=
-CONFIG_ACPI_INTERPRETER=3Dy =0A=
-CONFIG_ACPI_EC=3Dy =0A=
-CONFIG_ACPI_POWER=3Dy =0A=
-CONFIG_ACPI_PCI=3Dy =0A=
-CONFIG_ACPI_SYSTEM=3Dy =0A=
-# CONFIG_APM is not set =0A=
-CONFIG_CPU_FREQ=3Dy =0A=
-# CONFIG_CPU_FREQ_PROC_INTF is not set =0A=
-# CONFIG_CPU_FREQ_GOV_USERSPACE is not set =0A=
-CONFIG_CPU_FREQ_TABLE=3Dy =0A=
-CONFIG_X86_ACPI_CPUFREQ=3Dy =0A=
-# CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set =0A=
-# CONFIG_X86_POWERNOW_K6 is not set =0A=
-# CONFIG_X86_POWERNOW_K7 is not set =0A=
-# CONFIG_X86_GX_SUSPMOD is not set =0A=
-CONFIG_X86_SPEEDSTEP_ICH=3Dy =0A=
-CONFIG_X86_SPEEDSTEP_CENTRINO=3Dy =0A=
-CONFIG_X86_SPEEDSTEP_LIB=3Dy =0A=
-CONFIG_X86_P4_CLOCKMOD=3Dy =0A=
-# CONFIG_X86_LONGRUN is not set =0A=
-# CONFIG_X86_LONGHAUL is not set =0A=
-CONFIG_PCI=3Dy =0A=
-# CONFIG_PCI_GOBIOS is not set =0A=
-# CONFIG_PCI_GODIRECT is not set =0A=
-CONFIG_PCI_GOANY=3Dy =0A=
-CONFIG_PCI_BIOS=3Dy =0A=
-CONFIG_PCI_DIRECT=3Dy =0A=
-# CONFIG_PCI_LEGACY_PROC is not set =0A=
-CONFIG_PCI_NAMES=3Dy =0A=
-# CONFIG_ISA is not set =0A=
-# CONFIG_MCA is not set =0A=
-# CONFIG_SCx200 is not set =0A=
-CONFIG_HOTPLUG=3Dy =0A=
-CONFIG_PCMCIA=3Dy =0A=
-CONFIG_YENTA=3Dy =0A=
-CONFIG_CARDBUS=3Dy =0A=
-# CONFIG_I82092 is not set =0A=
-# CONFIG_TCIC is not set =0A=
-# CONFIG_HOTPLUG_PCI is not set =0A=
-CONFIG_KCORE_ELF=3Dy =0A=
-# CONFIG_KCORE_AOUT is not set =0A=
-CONFIG_BINFMT_ELF=3Dy =0A=
-CONFIG_BINFMT_AOUT=3Dy =0A=
-CONFIG_BINFMT_MISC=3Dy =0A=
-# CONFIG_FW_LOADER is not set =0A=
-# CONFIG_MTD is not set =0A=
-CONFIG_PARPORT=3Dy =0A=
-CONFIG_PARPORT_PC=3Dy =0A=
-CONFIG_PARPORT_PC_FIFO=3Dy =0A=
-CONFIG_PARPORT_PC_SUPERIO=3Dy =0A=
-# CONFIG_PARPORT_PC_PCMCIA is not set =0A=
-# CONFIG_PARPORT_OTHER is not set =0A=
-# CONFIG_PARPORT_1284 is not set =0A=
-CONFIG_PNP=3Dy =0A=
-CONFIG_PNP_DEBUG=3Dy =0A=
-# CONFIG_ISAPNP is not set =0A=
-# CONFIG_PNPBIOS is not set =0A=
-# CONFIG_BLK_DEV_FD is not set =0A=
-# CONFIG_PARIDE is not set =0A=
-# CONFIG_BLK_CPQ_DA is not set =0A=
-# CONFIG_BLK_CPQ_CISS_DA is not set =0A=
-# CONFIG_BLK_DEV_DAC960 is not set =0A=
-# CONFIG_BLK_DEV_UMEM is not set =0A=
-CONFIG_BLK_DEV_LOOP=3Dy =0A=
-CONFIG_BLK_DEV_CRYPTOLOOP=3Dy =0A=
-# CONFIG_BLK_DEV_NBD is not set =0A=
-CONFIG_BLK_DEV_RAM=3Dy =0A=
-CONFIG_BLK_DEV_RAM_SIZE=3D4096 =0A=
-CONFIG_BLK_DEV_INITRD=3Dy =0A=
-CONFIG_LBD=3Dy =0A=
-CONFIG_IDE=3Dy =0A=
-CONFIG_BLK_DEV_IDE=3Dy =0A=
-# CONFIG_BLK_DEV_HD_IDE is not set =0A=
-CONFIG_BLK_DEV_IDEDISK=3Dy =0A=
-CONFIG_IDEDISK_MULTI_MODE=3Dy =0A=
-# CONFIG_IDEDISK_STROKE is not set =0A=
-# CONFIG_BLK_DEV_IDECS is not set =0A=
-CONFIG_BLK_DEV_IDECD=3Dy =0A=
-# CONFIG_BLK_DEV_IDEFLOPPY is not set =0A=
-CONFIG_BLK_DEV_IDESCSI=3Dy =0A=
-CONFIG_IDE_TASK_IOCTL=3Dy =0A=
-CONFIG_IDE_TASKFILE_IO=3Dy =0A=
-# CONFIG_BLK_DEV_CMD640 is not set =0A=
-# CONFIG_BLK_DEV_IDEPNP is not set =0A=
-CONFIG_BLK_DEV_IDEPCI=3Dy =0A=
-CONFIG_IDEPCI_SHARE_IRQ=3Dy =0A=
-# CONFIG_BLK_DEV_OFFBOARD is not set =0A=
-CONFIG_BLK_DEV_GENERIC=3Dy =0A=
-# CONFIG_BLK_DEV_OPTI621 is not set =0A=
-# CONFIG_BLK_DEV_RZ1000 is not set =0A=
-CONFIG_BLK_DEV_IDEDMA_PCI=3Dy =0A=
-# CONFIG_BLK_DEV_IDE_TCQ is not set =0A=
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set =0A=
-CONFIG_IDEDMA_PCI_AUTO=3Dy =0A=
-CONFIG_IDEDMA_ONLYDISK=3Dy =0A=
-# CONFIG_IDEDMA_PCI_WIP is not set =0A=
-CONFIG_BLK_DEV_ADMA=3Dy =0A=
-# CONFIG_BLK_DEV_AEC62XX is not set =0A=
-# CONFIG_BLK_DEV_ALI15X3 is not set =0A=
-# CONFIG_BLK_DEV_AMD74XX is not set =0A=
-# CONFIG_BLK_DEV_CMD64X is not set =0A=
-# CONFIG_BLK_DEV_TRIFLEX is not set =0A=
-# CONFIG_BLK_DEV_CY82C693 is not set =0A=
-# CONFIG_BLK_DEV_CS5520 is not set =0A=
-# CONFIG_BLK_DEV_CS5530 is not set =0A=
-# CONFIG_BLK_DEV_HPT34X is not set =0A=
-# CONFIG_BLK_DEV_HPT366 is not set =0A=
-# CONFIG_BLK_DEV_SC1200 is not set =0A=
-# CONFIG_BLK_DEV_PIIX is not set =0A=
-# CONFIG_BLK_DEV_NS87415 is not set =0A=
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set =0A=
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set =0A=
-# CONFIG_BLK_DEV_SVWKS is not set =0A=
-# CONFIG_BLK_DEV_SIIMAGE is not set =0A=
-CONFIG_BLK_DEV_SIS5513=3Dy =0A=
-# CONFIG_BLK_DEV_SLC90E66 is not set =0A=
-# CONFIG_BLK_DEV_TRM290 is not set =0A=
-# CONFIG_BLK_DEV_VIA82CXXX is not set =0A=
-CONFIG_BLK_DEV_IDEDMA=3Dy =0A=
-# CONFIG_IDEDMA_IVB is not set =0A=
-CONFIG_IDEDMA_AUTO=3Dy =0A=
-# CONFIG_DMA_NONPCI is not set =0A=
-# CONFIG_BLK_DEV_HD is not set =0A=
-CONFIG_SCSI=3Dy =0A=
-# CONFIG_BLK_DEV_SD is not set =0A=
-# CONFIG_CHR_DEV_ST is not set =0A=
-# CONFIG_CHR_DEV_OSST is not set =0A=
-# CONFIG_BLK_DEV_SR is not set =0A=
-CONFIG_CHR_DEV_SG=3Dy =0A=
-# CONFIG_SCSI_MULTI_LUN is not set =0A=
-CONFIG_SCSI_REPORT_LUNS=3Dy =0A=
-# CONFIG_SCSI_CONSTANTS is not set =0A=
-# CONFIG_SCSI_LOGGING is not set =0A=
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set =0A=
-# CONFIG_SCSI_ACARD is not set =0A=
-# CONFIG_SCSI_AACRAID is not set =0A=
-# CONFIG_SCSI_AIC7XXX is not set =0A=
-# CONFIG_SCSI_AIC7XXX_OLD is not set =0A=
-# CONFIG_SCSI_AIC79XX is not set =0A=
-# CONFIG_SCSI_DPT_I2O is not set =0A=
-# CONFIG_SCSI_ADVANSYS is not set =0A=
-# CONFIG_SCSI_AM53C974 is not set =0A=
-# CONFIG_SCSI_MEGARAID is not set =0A=
-# CONFIG_SCSI_BUSLOGIC is not set =0A=
-# CONFIG_SCSI_CPQFCTS is not set =0A=
-# CONFIG_SCSI_DMX3191D is not set =0A=
-# CONFIG_SCSI_EATA is not set =0A=
-# CONFIG_SCSI_EATA_PIO is not set =0A=
-# CONFIG_SCSI_FUTURE_DOMAIN is not set =0A=
-# CONFIG_SCSI_GDTH is not set =0A=
-# CONFIG_SCSI_IPS is not set =0A=
-# CONFIG_SCSI_INITIO is not set =0A=
-# CONFIG_SCSI_INIA100 is not set =0A=
-# CONFIG_SCSI_PPA is not set =0A=
-# CONFIG_SCSI_IMM is not set =0A=
-# CONFIG_SCSI_SYM53C8XX_2 is not set =0A=
-# CONFIG_SCSI_SYM53C8XX is not set =0A=
-# CONFIG_SCSI_PCI2000 is not set =0A=
-# CONFIG_SCSI_PCI2220I is not set =0A=
-# CONFIG_SCSI_QLOGIC_ISP is not set =0A=
-# CONFIG_SCSI_QLOGIC_FC is not set =0A=
-# CONFIG_SCSI_QLOGIC_1280 is not set =0A=
-# CONFIG_SCSI_DC395x is not set =0A=
-# CONFIG_SCSI_DC390T is not set =0A=
-# CONFIG_SCSI_NSP32 is not set =0A=
-# CONFIG_SCSI_DEBUG is not set =0A=
-# CONFIG_SCSI_FERAL_ISP is not set =0A=
-# CONFIG_PCMCIA_AHA152X is not set =0A=
-# CONFIG_PCMCIA_FDOMAIN is not set =0A=
-# CONFIG_PCMCIA_NINJA_SCSI is not set =0A=
-# CONFIG_PCMCIA_QLOGIC is not set =0A=
-CONFIG_MD=3Dy =0A=
-CONFIG_BLK_DEV_MD=3Dm =0A=
-CONFIG_MD_LINEAR=3Dm =0A=
-CONFIG_MD_RAID0=3Dm =0A=
-CONFIG_MD_RAID1=3Dm =0A=
-CONFIG_MD_RAID5=3Dm =0A=
-CONFIG_MD_MULTIPATH=3Dm =0A=
-CONFIG_BLK_DEV_DM=3Dm =0A=
-# CONFIG_DM_IOCTL_V4 is not set =0A=
-CONFIG_IEEE1394=3Dm =0A=
-CONFIG_IEEE1394_VERBOSEDEBUG=3Dy =0A=
-# CONFIG_IEEE1394_OUI_DB is not set =0A=
-CONFIG_IEEE1394_OHCI1394=3Dm =0A=
-CONFIG_IEEE1394_VIDEO1394=3Dm =0A=
-CONFIG_IEEE1394_SBP2=3Dm =0A=
-# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set =0A=
-CONFIG_IEEE1394_ETH1394=3Dm =0A=
-CONFIG_IEEE1394_DV1394=3Dm =0A=
-CONFIG_IEEE1394_RAWIO=3Dm =0A=
-CONFIG_IEEE1394_CMP=3Dm =0A=
-# CONFIG_IEEE1394_AMDTP is not set =0A=
-# CONFIG_I2O is not set =0A=
-CONFIG_NET=3Dy =0A=
-CONFIG_PACKET=3Dy =0A=
-CONFIG_PACKET_MMAP=3Dy =0A=
-# CONFIG_NETLINK_DEV is not set =0A=
-CONFIG_UNIX=3Dy =0A=
-# CONFIG_NET_KEY is not set =0A=
-CONFIG_INET=3Dy =0A=
-CONFIG_IP_MULTICAST=3Dy =0A=
-# CONFIG_IP_ADVANCED_ROUTER is not set =0A=
-CONFIG_IP_PNP=3Dy =0A=
-CONFIG_IP_PNP_DHCP=3Dy =0A=
-# CONFIG_IP_PNP_BOOTP is not set =0A=
-# CONFIG_IP_PNP_RARP is not set =0A=
-CONFIG_NET_IPIP=3Dy =0A=
-# CONFIG_NET_IPGRE is not set =0A=
-# CONFIG_IP_MROUTE is not set =0A=
-# CONFIG_ARPD is not set =0A=
-# CONFIG_INET_ECN is not set =0A=
-# CONFIG_SYN_COOKIES is not set =0A=
-# CONFIG_INET_AH is not set =0A=
-# CONFIG_INET_ESP is not set =0A=
-# CONFIG_INET_IPCOMP is not set =0A=
-CONFIG_IP_VS=3Dm =0A=
-# CONFIG_IP_VS_DEBUG is not set =0A=
-CONFIG_IP_VS_TAB_BITS=3D12 =0A=
-# CONFIG_IP_VS_PROTO_TCP is not set =0A=
-# CONFIG_IP_VS_PROTO_UDP is not set =0A=
-# CONFIG_IP_VS_PROTO_ESP is not set =0A=
-# CONFIG_IP_VS_PROTO_AH is not set =0A=
-# CONFIG_IP_VS_RR is not set =0A=
-# CONFIG_IP_VS_WRR is not set =0A=
-# CONFIG_IP_VS_LC is not set =0A=
-# CONFIG_IP_VS_WLC is not set =0A=
-# CONFIG_IP_VS_LBLC is not set =0A=
-# CONFIG_IP_VS_LBLCR is not set =0A=
-# CONFIG_IP_VS_DH is not set =0A=
-# CONFIG_IP_VS_SH is not set =0A=
-# CONFIG_IP_VS_SED is not set =0A=
-# CONFIG_IP_VS_NQ is not set =0A=
-# CONFIG_IP_VS_FTP is not set =0A=
-# CONFIG_IPV6 is not set =0A=
-# CONFIG_DECNET is not set =0A=
-# CONFIG_BRIDGE is not set =0A=
-CONFIG_NETFILTER=3Dy =0A=
-CONFIG_NETFILTER_DEBUG=3Dy =0A=
-CONFIG_IP_NF_CONNTRACK=3Dm =0A=
-CONFIG_IP_NF_FTP=3Dm =0A=
-CONFIG_IP_NF_IRC=3Dm =0A=
-CONFIG_IP_NF_TFTP=3Dm =0A=
-CONFIG_IP_NF_AMANDA=3Dm =0A=
-CONFIG_IP_NF_QUEUE=3Dm =0A=
-CONFIG_IP_NF_IPTABLES=3Dm =0A=
-CONFIG_IP_NF_MATCH_LIMIT=3Dm =0A=
-CONFIG_IP_NF_MATCH_MAC=3Dm =0A=
-CONFIG_IP_NF_MATCH_PKTTYPE=3Dm =0A=
-CONFIG_IP_NF_MATCH_MARK=3Dm =0A=
-CONFIG_IP_NF_MATCH_MULTIPORT=3Dm =0A=
-CONFIG_IP_NF_MATCH_TOS=3Dm =0A=
-CONFIG_IP_NF_MATCH_RECENT=3Dm =0A=
-CONFIG_IP_NF_MATCH_ECN=3Dm =0A=
-CONFIG_IP_NF_MATCH_DSCP=3Dm =0A=
-CONFIG_IP_NF_MATCH_AH_ESP=3Dm =0A=
-CONFIG_IP_NF_MATCH_LENGTH=3Dm =0A=
-CONFIG_IP_NF_MATCH_TTL=3Dm =0A=
-CONFIG_IP_NF_MATCH_TCPMSS=3Dm =0A=
-CONFIG_IP_NF_MATCH_HELPER=3Dm =0A=
-CONFIG_IP_NF_MATCH_STATE=3Dm =0A=
-CONFIG_IP_NF_MATCH_CONNTRACK=3Dm =0A=
-CONFIG_IP_NF_MATCH_UNCLEAN=3Dm =0A=
-CONFIG_IP_NF_MATCH_OWNER=3Dm =0A=
-CONFIG_IP_NF_FILTER=3Dm =0A=
-CONFIG_IP_NF_TARGET_REJECT=3Dm =0A=
-CONFIG_IP_NF_TARGET_MIRROR=3Dm =0A=
-CONFIG_IP_NF_NAT=3Dm =0A=
-CONFIG_IP_NF_NAT_NEEDED=3Dy =0A=
-CONFIG_IP_NF_TARGET_MASQUERADE=3Dm =0A=
-CONFIG_IP_NF_TARGET_REDIRECT=3Dm =0A=
-CONFIG_IP_NF_NAT_LOCAL=3Dy =0A=
-CONFIG_IP_NF_NAT_SNMP_BASIC=3Dm =0A=
-CONFIG_IP_NF_NAT_IRC=3Dm =0A=
-CONFIG_IP_NF_NAT_FTP=3Dm =0A=
-CONFIG_IP_NF_NAT_TFTP=3Dm =0A=
-CONFIG_IP_NF_NAT_AMANDA=3Dm =0A=
-CONFIG_IP_NF_MANGLE=3Dm =0A=
-CONFIG_IP_NF_TARGET_TOS=3Dm =0A=
-CONFIG_IP_NF_TARGET_ECN=3Dm =0A=
-CONFIG_IP_NF_TARGET_DSCP=3Dm =0A=
-CONFIG_IP_NF_TARGET_MARK=3Dm =0A=
-CONFIG_IP_NF_TARGET_LOG=3Dm =0A=
-CONFIG_IP_NF_TARGET_ULOG=3Dm =0A=
-CONFIG_IP_NF_TARGET_TCPMSS=3Dm =0A=
-CONFIG_IP_NF_ARPTABLES=3Dm =0A=
-CONFIG_IP_NF_ARPFILTER=3Dm =0A=
-CONFIG_IP_NF_ARP_MANGLE=3Dm =0A=
-# CONFIG_IP_NF_COMPAT_IPCHAINS is not set =0A=
-CONFIG_IP_NF_COMPAT_IPFWADM=3Dm =0A=
-# CONFIG_XFRM_USER is not set =0A=
-CONFIG_IPV6_SCTP__=3Dy =0A=
-CONFIG_IP_SCTP=3Dm =0A=
-# CONFIG_SCTP_ADLER32 is not set =0A=
-# CONFIG_SCTP_DBG_MSG is not set =0A=
-# CONFIG_SCTP_DBG_OBJCNT is not set =0A=
-CONFIG_SCTP_HMAC_NONE=3Dy =0A=
-# CONFIG_SCTP_HMAC_SHA1 is not set =0A=
-# CONFIG_SCTP_HMAC_MD5 is not set =0A=
-# CONFIG_ATM is not set =0A=
-# CONFIG_VLAN_8021Q is not set =0A=
-# CONFIG_LLC is not set =0A=
-# CONFIG_X25 is not set =0A=
-# CONFIG_LAPB is not set =0A=
-# CONFIG_NET_DIVERT is not set =0A=
-# CONFIG_ECONET is not set =0A=
-# CONFIG_WAN_ROUTER is not set =0A=
-# CONFIG_NET_FASTROUTE is not set =0A=
-# CONFIG_NET_HW_FLOWCONTROL is not set =0A=
-# CONFIG_NET_SCHED is not set =0A=
-CONFIG_NET_PKTGEN=3Dm =0A=
-CONFIG_NETDEVICES=3Dy =0A=
-# CONFIG_ARCNET is not set =0A=
-# CONFIG_DUMMY is not set =0A=
-# CONFIG_BONDING is not set =0A=
-# CONFIG_EQUALIZER is not set =0A=
-# CONFIG_TUN is not set =0A=
-# CONFIG_ETHERTAP is not set =0A=
-# CONFIG_NET_SB1000 is not set =0A=
-CONFIG_NET_ETHERNET=3Dy =0A=
-# CONFIG_MII is not set =0A=
-# CONFIG_HAPPYMEAL is not set =0A=
-# CONFIG_SUNGEM is not set =0A=
-# CONFIG_NET_VENDOR_3COM is not set =0A=
-# CONFIG_NET_TULIP is not set =0A=
-# CONFIG_HP100 is not set =0A=
-CONFIG_NET_PCI=3Dy =0A=
-# CONFIG_PCNET32 is not set =0A=
-# CONFIG_AMD8111_ETH is not set =0A=
-# CONFIG_ADAPTEC_STARFIRE is not set =0A=
-# CONFIG_B44 is not set =0A=
-# CONFIG_DGRS is not set =0A=
-# CONFIG_EEPRO100 is not set =0A=
-# CONFIG_E100 is not set =0A=
-# CONFIG_FEALNX is not set =0A=
-# CONFIG_NATSEMI is not set =0A=
-# CONFIG_NE2K_PCI is not set =0A=
-# CONFIG_8139CP is not set =0A=
-CONFIG_8139TOO=3Dy =0A=
-# CONFIG_8139TOO_PIO is not set =0A=
-# CONFIG_8139TOO_TUNE_TWISTER is not set =0A=
-# CONFIG_8139TOO_8129 is not set =0A=
-# CONFIG_8139_OLD_RX_RESET is not set =0A=
-CONFIG_SIS900=3Dy =0A=
-# CONFIG_EPIC100 is not set =0A=
-# CONFIG_SUNDANCE is not set =0A=
-# CONFIG_TLAN is not set =0A=
-# CONFIG_VIA_RHINE is not set =0A=
-# CONFIG_ACENIC is not set =0A=
-# CONFIG_DL2K is not set =0A=
-# CONFIG_E1000 is not set =0A=
-# CONFIG_NS83820 is not set =0A=
-# CONFIG_HAMACHI is not set =0A=
-# CONFIG_YELLOWFIN is not set =0A=
-# CONFIG_R8169 is not set =0A=
-# CONFIG_SK98LIN is not set =0A=
-# CONFIG_TIGON3 is not set =0A=
-# CONFIG_IXGB is not set =0A=
-# CONFIG_FDDI is not set =0A=
-# CONFIG_HIPPI is not set =0A=
-# CONFIG_PLIP is not set =0A=
-CONFIG_PPP=3Dm =0A=
-# CONFIG_PPP_MULTILINK is not set =0A=
-# CONFIG_PPP_FILTER is not set =0A=
-# CONFIG_PPP_ASYNC is not set =0A=
-# CONFIG_PPP_SYNC_TTY is not set =0A=
-# CONFIG_PPP_DEFLATE is not set =0A=
-# CONFIG_PPP_BSDCOMP is not set =0A=
-CONFIG_PPPOE=3Dm =0A=
-# CONFIG_SLIP is not set =0A=
-# CONFIG_NET_RADIO is not set =0A=
-# CONFIG_NET_FC is not set =0A=
-# CONFIG_RCPCI is not set =0A=
-# CONFIG_SHAPER is not set =0A=
-# CONFIG_WAN is not set =0A=
-# CONFIG_NET_PCMCIA is not set =0A=
-# CONFIG_HAMRADIO is not set =0A=
-CONFIG_IRDA=3Dm =0A=
-CONFIG_IRLAN=3Dm =0A=
-# CONFIG_IRNET is not set =0A=
-CONFIG_IRCOMM=3Dm =0A=
-CONFIG_IRDA_ULTRA=3Dy =0A=
-# CONFIG_IRDA_CACHE_LAST_LSAP is not set =0A=
-# CONFIG_IRDA_FAST_RR is not set =0A=
-# CONFIG_IRDA_DEBUG is not set =0A=
-CONFIG_IRTTY_SIR=3Dm =0A=
-# CONFIG_DONGLE is not set =0A=
-# CONFIG_IRTTY_OLD is not set =0A=
-CONFIG_IRPORT_SIR=3Dm =0A=
-# CONFIG_DONGLE_OLD is not set =0A=
-# CONFIG_TOSHIBA_OLD is not set =0A=
-CONFIG_TOSHIBA_FIR=3Dm =0A=
-# CONFIG_VLSI_FIR is not set =0A=
-# CONFIG_ISDN_BOOL is not set =0A=
-# CONFIG_PHONE is not set =0A=
-CONFIG_INPUT=3Dy =0A=
-CONFIG_INPUT_MOUSEDEV=3Dy =0A=
-CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy =0A=
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1400 =0A=
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D1050 =0A=
-# CONFIG_INPUT_JOYDEV is not set =0A=
-# CONFIG_INPUT_TSDEV is not set =0A=
-CONFIG_INPUT_EVDEV=3Dy =0A=
-# CONFIG_INPUT_EVBUG is not set =0A=
-# CONFIG_GAMEPORT is not set =0A=
-CONFIG_SOUND_GAMEPORT=3Dy =0A=
-CONFIG_SERIO=3Dy =0A=
-CONFIG_SERIO_I8042=3Dy =0A=
-# CONFIG_SERIO_SERPORT is not set =0A=
-# CONFIG_SERIO_CT82C710 is not set =0A=
-# CONFIG_SERIO_PARKBD is not set =0A=
-# CONFIG_SERIO_PCIPS2 is not set =0A=
-CONFIG_INPUT_KEYBOARD=3Dy =0A=
-CONFIG_KEYBOARD_ATKBD=3Dy =0A=
-# CONFIG_KEYBOARD_SUNKBD is not set =0A=
-# CONFIG_KEYBOARD_XTKBD is not set =0A=
-# CONFIG_KEYBOARD_NEWTON is not set =0A=
-CONFIG_INPUT_MOUSE=3Dy =0A=
-CONFIG_MOUSE_PS2=3Dy =0A=
-CONFIG_MOUSE_PS2_SYNAPTICS=3Dy =0A=
-# CONFIG_MOUSE_SERIAL is not set =0A=
-# CONFIG_INPUT_JOYSTICK is not set =0A=
-# CONFIG_INPUT_TOUCHSCREEN is not set =0A=
-# CONFIG_INPUT_MISC is not set =0A=
-CONFIG_VT=3Dy =0A=
-CONFIG_VT_CONSOLE=3Dy =0A=
-CONFIG_HW_CONSOLE=3Dy =0A=
-# CONFIG_SERIAL_NONSTANDARD is not set =0A=
-# CONFIG_SERIAL_8250 is not set =0A=
-CONFIG_UNIX98_PTYS=3Dy =0A=
-CONFIG_UNIX98_PTY_COUNT=3D256 =0A=
-# CONFIG_PRINTER is not set =0A=
-# CONFIG_PPDEV is not set =0A=
-# CONFIG_TIPAR is not set =0A=
-# CONFIG_I2C is not set =0A=
-# CONFIG_I2C_SENSOR is not set =0A=
-# CONFIG_BUSMOUSE is not set =0A=
-# CONFIG_QIC02_TAPE is not set =0A=
-# CONFIG_IPMI_HANDLER is not set =0A=
-# CONFIG_WATCHDOG is not set =0A=
-CONFIG_HW_RANDOM=3Dm =0A=
-# CONFIG_NVRAM is not set =0A=
-CONFIG_RTC=3Dm =0A=
-CONFIG_GEN_RTC=3Dm =0A=
-CONFIG_GEN_RTC_X=3Dy =0A=
-# CONFIG_DTLK is not set =0A=
-# CONFIG_R3964 is not set =0A=
-# CONFIG_APPLICOM is not set =0A=
-# CONFIG_SONYPI is not set =0A=
-# CONFIG_FTAPE is not set =0A=
-CONFIG_AGP=3Dy =0A=
-# CONFIG_AGP_ALI is not set =0A=
-# CONFIG_AGP_AMD is not set =0A=
-# CONFIG_AGP_AMD_8151 is not set =0A=
-# CONFIG_AGP_INTEL is not set =0A=
-# CONFIG_AGP_NVIDIA is not set =0A=
-CONFIG_AGP_SIS=3Dy =0A=
-# CONFIG_AGP_SWORKS is not set =0A=
-# CONFIG_AGP_VIA is not set =0A=
-CONFIG_DRM=3Dy =0A=
-# CONFIG_DRM_TDFX is not set =0A=
-# CONFIG_DRM_GAMMA is not set =0A=
-# CONFIG_DRM_R128 is not set =0A=
-# CONFIG_DRM_RADEON is not set =0A=
-# CONFIG_DRM_MGA is not set =0A=
-CONFIG_DRM_SIS=3Dy =0A=
-# CONFIG_SYNCLINK_CS is not set =0A=
-# CONFIG_MWAVE is not set =0A=
-# CONFIG_RAW_DRIVER is not set =0A=
-# CONFIG_HANGCHECK_TIMER is not set =0A=
-# CONFIG_VIDEO_DEV is not set =0A=
-# CONFIG_DVB is not set =0A=
-CONFIG_EXT2_FS=3Dy =0A=
-CONFIG_EXT2_FS_XATTR=3Dy =0A=
-# CONFIG_EXT2_FS_POSIX_ACL is not set =0A=
-# CONFIG_EXT2_FS_SECURITY is not set =0A=
-CONFIG_EXT3_FS=3Dm =0A=
-CONFIG_EXT3_FS_XATTR=3Dy =0A=
-# CONFIG_EXT3_FS_POSIX_ACL is not set =0A=
-# CONFIG_EXT3_FS_SECURITY is not set =0A=
-CONFIG_JBD=3Dm =0A=
-# CONFIG_JBD_DEBUG is not set =0A=
-CONFIG_FS_MBCACHE=3Dy =0A=
-CONFIG_REISERFS_FS=3Dy =0A=
-# CONFIG_REISERFS_CHECK is not set =0A=
-# CONFIG_REISERFS_PROC_INFO is not set =0A=
-# CONFIG_JFS_FS is not set =0A=
-CONFIG_XFS_FS=3Dm =0A=
-# CONFIG_XFS_RT is not set =0A=
-CONFIG_XFS_QUOTA=3Dy =0A=
-CONFIG_XFS_POSIX_ACL=3Dy =0A=
-# CONFIG_MINIX_FS is not set =0A=
-# CONFIG_ROMFS_FS is not set =0A=
-# CONFIG_QUOTA is not set =0A=
-CONFIG_QUOTACTL=3Dy =0A=
-# CONFIG_AUTOFS_FS is not set =0A=
-CONFIG_AUTOFS4_FS=3Dy =0A=
-CONFIG_ISO9660_FS=3Dm =0A=
-CONFIG_JOLIET=3Dy =0A=
-CONFIG_ZISOFS=3Dy =0A=
-CONFIG_ZISOFS_FS=3Dm =0A=
-CONFIG_UDF_FS=3Dm =0A=
-CONFIG_FAT_FS=3Dm =0A=
-# CONFIG_MSDOS_FS is not set =0A=
-CONFIG_VFAT_FS=3Dm =0A=
-CONFIG_NTFS_FS=3Dm =0A=
-# CONFIG_NTFS_DEBUG is not set =0A=
-# CONFIG_NTFS_RW is not set =0A=
-CONFIG_PROC_FS=3Dy =0A=
-# CONFIG_DEVFS_FS is not set =0A=
-CONFIG_DEVPTS_FS=3Dy =0A=
-# CONFIG_DEVPTS_FS_XATTR is not set =0A=
-CONFIG_TMPFS=3Dy =0A=
-CONFIG_RAMFS=3Dy =0A=
-# CONFIG_ADFS_FS is not set =0A=
-# CONFIG_AFFS_FS is not set =0A=
-# CONFIG_HFS_FS is not set =0A=
-# CONFIG_BEFS_FS is not set =0A=
-# CONFIG_BFS_FS is not set =0A=
-# CONFIG_EFS_FS is not set =0A=
-# CONFIG_CRAMFS is not set =0A=
-# CONFIG_VXFS_FS is not set =0A=
-# CONFIG_HPFS_FS is not set =0A=
-# CONFIG_QNX4FS_FS is not set =0A=
-# CONFIG_SYSV_FS is not set =0A=
-# CONFIG_UFS_FS is not set =0A=
-# CONFIG_NFS_FS is not set =0A=
-CONFIG_NFSD=3Dm =0A=
-# CONFIG_NFSD_V3 is not set =0A=
-# CONFIG_NFSD_TCP is not set =0A=
-CONFIG_LOCKD=3Dm =0A=
-CONFIG_EXPORTFS=3Dm =0A=
-CONFIG_SUNRPC=3Dm =0A=
-# CONFIG_SUNRPC_GSS is not set =0A=
-CONFIG_SMB_FS=3Dm =0A=
-CONFIG_SMB_NLS_DEFAULT=3Dy =0A=
-CONFIG_SMB_NLS_REMOTE=3D"cp437" =0A=
-# CONFIG_CIFS is not set =0A=
-# CONFIG_NCP_FS is not set =0A=
-# CONFIG_CODA_FS is not set =0A=
-# CONFIG_INTERMEZZO_FS is not set =0A=
-# CONFIG_AFS_FS is not set =0A=
-# CONFIG_PARTITION_ADVANCED is not set =0A=
-CONFIG_MSDOS_PARTITION=3Dy =0A=
-CONFIG_SMB_NLS=3Dy =0A=
-CONFIG_NLS=3Dy =0A=
-CONFIG_NLS_DEFAULT=3D"iso8859-2" =0A=
-CONFIG_NLS_CODEPAGE_437=3Dm =0A=
-# CONFIG_NLS_CODEPAGE_737 is not set =0A=
-# CONFIG_NLS_CODEPAGE_775 is not set =0A=
-CONFIG_NLS_CODEPAGE_850=3Dm =0A=
-CONFIG_NLS_CODEPAGE_852=3Dm =0A=
-# CONFIG_NLS_CODEPAGE_855 is not set =0A=
-# CONFIG_NLS_CODEPAGE_857 is not set =0A=
-# CONFIG_NLS_CODEPAGE_860 is not set =0A=
-# CONFIG_NLS_CODEPAGE_861 is not set =0A=
-# CONFIG_NLS_CODEPAGE_862 is not set =0A=
-# CONFIG_NLS_CODEPAGE_863 is not set =0A=
-# CONFIG_NLS_CODEPAGE_864 is not set =0A=
-# CONFIG_NLS_CODEPAGE_865 is not set =0A=
-# CONFIG_NLS_CODEPAGE_866 is not set =0A=
-# CONFIG_NLS_CODEPAGE_869 is not set =0A=
-# CONFIG_NLS_CODEPAGE_936 is not set =0A=
-# CONFIG_NLS_CODEPAGE_950 is not set =0A=
-# CONFIG_NLS_CODEPAGE_932 is not set =0A=
-# CONFIG_NLS_CODEPAGE_949 is not set =0A=
-# CONFIG_NLS_CODEPAGE_874 is not set =0A=
-# CONFIG_NLS_ISO8859_8 is not set =0A=
-# CONFIG_NLS_CODEPAGE_1250 is not set =0A=
-# CONFIG_NLS_CODEPAGE_1251 is not set =0A=
-CONFIG_NLS_ISO8859_1=3Dm =0A=
-CONFIG_NLS_ISO8859_2=3Dm =0A=
-# CONFIG_NLS_ISO8859_3 is not set =0A=
-# CONFIG_NLS_ISO8859_4 is not set =0A=
-# CONFIG_NLS_ISO8859_5 is not set =0A=
-# CONFIG_NLS_ISO8859_6 is not set =0A=
-# CONFIG_NLS_ISO8859_7 is not set =0A=
-# CONFIG_NLS_ISO8859_9 is not set =0A=
-# CONFIG_NLS_ISO8859_13 is not set =0A=
-# CONFIG_NLS_ISO8859_14 is not set =0A=
-# CONFIG_NLS_ISO8859_15 is not set =0A=
-# CONFIG_NLS_KOI8_R is not set =0A=
-# CONFIG_NLS_KOI8_U is not set =0A=
-CONFIG_NLS_UTF8=3Dm =0A=
-CONFIG_FB=3Dy =0A=
-# CONFIG_FB_CIRRUS is not set =0A=
-# CONFIG_FB_PM2 is not set =0A=
-# CONFIG_FB_CYBER2000 is not set =0A=
-# CONFIG_FB_ASILIANT is not set =0A=
-# CONFIG_FB_IMSTT is not set =0A=
-# CONFIG_FB_VGA16 is not set =0A=
-CONFIG_FB_VESA=3Dy =0A=
-CONFIG_VIDEO_SELECT=3Dy =0A=
-# CONFIG_FB_HGA is not set =0A=
-# CONFIG_FB_RIVA is not set =0A=
-# CONFIG_FB_MATROX is not set =0A=
-# CONFIG_FB_RADEON is not set =0A=
-# CONFIG_FB_ATY128 is not set =0A=
-# CONFIG_FB_ATY is not set =0A=
-CONFIG_FB_SIS=3Dy =0A=
-CONFIG_FB_SIS_300=3Dy =0A=
-# CONFIG_FB_SIS_315 is not set =0A=
-# CONFIG_FB_NEOMAGIC is not set =0A=
-# CONFIG_FB_3DFX is not set =0A=
-# CONFIG_FB_VOODOO1 is not set =0A=
-# CONFIG_FB_TRIDENT is not set =0A=
-# CONFIG_FB_PM3 is not set =0A=
-# CONFIG_FB_VIRTUAL is not set =0A=
-CONFIG_VGA_CONSOLE=3Dy =0A=
-# CONFIG_MDA_CONSOLE is not set =0A=
-CONFIG_DUMMY_CONSOLE=3Dy =0A=
-CONFIG_FRAMEBUFFER_CONSOLE=3Dy =0A=
-CONFIG_PCI_CONSOLE=3Dy =0A=
-# CONFIG_FONTS is not set =0A=
-CONFIG_FONT_8x8=3Dy =0A=
-CONFIG_FONT_8x16=3Dy =0A=
-CONFIG_LOGO=3Dy =0A=
-CONFIG_LOGO_LINUX_MONO=3Dy =0A=
-CONFIG_LOGO_LINUX_VGA16=3Dy =0A=
-CONFIG_LOGO_LINUX_CLUT224=3Dy =0A=
-CONFIG_SOUND=3Dm =0A=
-CONFIG_SND=3Dm =0A=
-CONFIG_SND_SEQUENCER=3Dm =0A=
-CONFIG_SND_SEQ_DUMMY=3Dm =0A=
-CONFIG_SND_OSSEMUL=3Dy =0A=
-CONFIG_SND_MIXER_OSS=3Dm =0A=
-CONFIG_SND_PCM_OSS=3Dm =0A=
-CONFIG_SND_SEQUENCER_OSS=3Dy =0A=
-CONFIG_SND_RTCTIMER=3Dm =0A=
-# CONFIG_SND_VERBOSE_PRINTK is not set =0A=
-# CONFIG_SND_DEBUG is not set =0A=
-# CONFIG_SND_DUMMY is not set =0A=
-# CONFIG_SND_VIRMIDI is not set =0A=
-# CONFIG_SND_MTPAV is not set =0A=
-# CONFIG_SND_SERIAL_U16550 is not set =0A=
-# CONFIG_SND_MPU401 is not set =0A=
-# CONFIG_SND_ALI5451 is not set =0A=
-# CONFIG_SND_AZT3328 is not set =0A=
-# CONFIG_SND_CS46XX is not set =0A=
-# CONFIG_SND_CS4281 is not set =0A=
-# CONFIG_SND_EMU10K1 is not set =0A=
-# CONFIG_SND_KORG1212 is not set =0A=
-# CONFIG_SND_NM256 is not set =0A=
-# CONFIG_SND_RME32 is not set =0A=
-# CONFIG_SND_RME96 is not set =0A=
-# CONFIG_SND_RME9652 is not set =0A=
-# CONFIG_SND_HDSP is not set =0A=
-# CONFIG_SND_TRIDENT is not set =0A=
-# CONFIG_SND_YMFPCI is not set =0A=
-# CONFIG_SND_ALS4000 is not set =0A=
-# CONFIG_SND_CMIPCI is not set =0A=
-# CONFIG_SND_ENS1370 is not set =0A=
-# CONFIG_SND_ENS1371 is not set =0A=
-# CONFIG_SND_ES1938 is not set =0A=
-# CONFIG_SND_ES1968 is not set =0A=
-# CONFIG_SND_MAESTRO3 is not set =0A=
-# CONFIG_SND_FM801 is not set =0A=
-# CONFIG_SND_ICE1712 is not set =0A=
-# CONFIG_SND_ICE1724 is not set =0A=
-CONFIG_SND_INTEL8X0=3Dm =0A=
-# CONFIG_SND_SONICVIBES is not set =0A=
-# CONFIG_SND_VIA82XX is not set =0A=
-# CONFIG_SND_VX222 is not set =0A=
-# CONFIG_SND_VXPOCKET is not set =0A=
-# CONFIG_SND_VXP440 is not set =0A=
-# CONFIG_SOUND_PRIME is not set =0A=
-# CONFIG_USB is not set =0A=
-# CONFIG_USB_GADGET is not set =0A=
-# CONFIG_BT is not set =0A=
-# CONFIG_PROFILING is not set =0A=
-# CONFIG_DEBUG_KERNEL is not set =0A=
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set =0A=
-# CONFIG_FRAME_POINTER is not set =0A=
-CONFIG_X86_EXTRA_IRQS=3Dy =0A=
-CONFIG_X86_FIND_SMP_CONFIG=3Dy =0A=
-CONFIG_X86_MPPARSE=3Dy =0A=
-# CONFIG_SECURITY is not set =0A=
-CONFIG_CRYPTO=3Dy =0A=
-CONFIG_CRYPTO_HMAC=3Dy =0A=
-CONFIG_CRYPTO_NULL=3Dm =0A=
-CONFIG_CRYPTO_MD4=3Dm =0A=
-CONFIG_CRYPTO_MD5=3Dm =0A=
-CONFIG_CRYPTO_SHA1=3Dm =0A=
-CONFIG_CRYPTO_SHA256=3Dm =0A=
-CONFIG_CRYPTO_SHA512=3Dm =0A=
-CONFIG_CRYPTO_DES=3Dm =0A=
-CONFIG_CRYPTO_BLOWFISH=3Dm =0A=
-CONFIG_CRYPTO_TWOFISH=3Dm =0A=
-CONFIG_CRYPTO_SERPENT=3Dm =0A=
-CONFIG_CRYPTO_AES=3Dm =0A=
-CONFIG_CRYPTO_DEFLATE=3Dm =0A=
-CONFIG_CRYPTO_TEST=3Dm =0A=
-CONFIG_CRC32=3Dy =0A=
-CONFIG_ZLIB_INFLATE=3Dm =0A=
-CONFIG_ZLIB_DEFLATE=3Dm =0A=
-CONFIG_X86_BIOS_REBOOT=3Dy =0A=
-CONFIG_END=3Dn
-------=_NextPart_000_0034_01C3631F.F9521CF0--
+Code;  c01457c3 <end_buffer_io_async+63/b0>
+00000000 <_EIP>:
+Code;  c01457c3 <end_buffer_io_async+63/b0>   <=====
+   0:   75 eb                     jne    ffffffed <_EIP+0xffffffed>   <=====
+Code;  c01457c5 <end_buffer_io_async+65/b0>
+   2:   a8 01                     test   $0x1,%al
+Code;  c01457c7 <end_buffer_io_async+67/b0>
+   4:   0f 44 f1                  cmove  %ecx,%esi
+Code;  c01457ca <end_buffer_io_async+6a/b0>
+   7:   8b 52 28                  mov    0x28(%edx),%edx
+Code;  c01457cd <end_buffer_io_async+6d/b0>
+   a:   39 da                     cmp    %ebx,%edx
+Code;  c01457cf <end_buffer_io_async+6f/b0>
+   c:   75 ea                     jne    fffffff8 <_EIP+0xfffffff8>
+Code;  c01457d1 <end_buffer_io_async+71/b0>
+   e:   c6 05 64 5d 30 c0 00      movb   $0x0,0xc0305d64
 
+
+1 warning issued.  Results may not be reliable.
+
+
+Obviously the problem seems a lot harder to trigger with ext3, but nevertheless
+comes up (this time around 5 days). I will try Chris' suggestions  and see what
+happens. I'll keep you informed.
+
+Regards,
+Stephan

@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbTBERTt>; Wed, 5 Feb 2003 12:19:49 -0500
+	id <S261900AbTBERYW>; Wed, 5 Feb 2003 12:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbTBERTt>; Wed, 5 Feb 2003 12:19:49 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:32696 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S262258AbTBERTr>; Wed, 5 Feb 2003 12:19:47 -0500
-Message-ID: <3E4149CE.30809@nortelnetworks.com>
-Date: Wed, 05 Feb 2003 12:28:46 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nilmoni Deb <ndeb@ece.cmu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Monta Vista software license terms
-References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262190AbTBERYW>; Wed, 5 Feb 2003 12:24:22 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:55508 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S261900AbTBERYV>;
+	Wed, 5 Feb 2003 12:24:21 -0500
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ross Biro <rossb@google.com>
+Cc: alan@redhat.com, Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3E4147A0.4050709@google.com>
+References: <20030202161837.010bed14.skraw@ithnet.com>
+	 <3E3D4C08.2030300@pobox.com> <20030202185205.261a45ce.skraw@ithnet.com>
+	 <3E3D6367.9090907@pobox.com>  <20030205104845.17a0553c.skraw@ithnet.com>
+	 <1044443761.685.44.camel@zion.wanadoo.fr>  <3E414243.4090303@google.com>
+	 <1044465151.685.149.camel@zion.wanadoo.fr>  <3E4147A0.4050709@google.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044466495.684.153.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 05 Feb 2003 18:34:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nilmoni Deb wrote:
+On Wed, 2003-02-05 at 18:19, Ross Biro wrote:
+> Benjamin Herrenschmidt wrote:
+> 
+> >While I agree with you here, I don't think it's what's happening.
+> >	/* clear INTR & ERROR flags */
+> >	hwif->OUTB(dma_stat|6, hwif->dma_status);
+> >
+> >  
+> >
+> You have way to much faith in the hardware.  Promise is especially known 
+> for not keeping to the spec.  I wouldn't trust the interrupt bit to be 
+> valid unless a dma is actually active, i.e. that
+> 
+>                   hwif->OUTB(hwif->INB(dma_base)|1, dma_base);
+> 
+> has actually been written.  
+> 
+> I've actually had a manufacturer tell me that they don't worry about the 
+> spec, just making things work with Windows.
 
-> 	Its the last sentence that is of concern. Does this mean no 3rd
-> party (who is not a customer) can get the GPL source code part of their
-> products ? Seems like a GPL violation of clause 3b in
-> http://www.gnu.org/licenses/gpl.html .
+Ok, so that gives us 2 possibilities. The above problem, which would be
+fixed by locking all around ide_dma_read/write (or rather in the
+_caller_, seems better so we don't have to drop the lock for ATAPI).
 
+And a possible wraparound of waiting_for_dma if 255 IRQs come in from
+whatever device we share the IRQ line with.
 
-I include clause 3 in its entirety below, emphasis mine:
+I beleive both need fixing...
 
-
-
-3.  You may copy and distribute the Program (or a work based on it, 
-under Section 2) in object code or executable form under the terms of 
-Sections 1 and 2 above provided that you also do one of the following:
-                                                 ----------------------
-
-     * a) Accompany it with the complete corresponding machine-readable 
-source code, which must be distributed under the terms of Sections 1 and 
-2 above on a medium customarily used for software interchange; or,
-
-     * b) Accompany it with a written offer, valid for at least three 
-years, to give any third party, for a charge no more than your cost of 
-physically performing source distribution, a complete machine-readable 
-copy of the corresponding source code, to be distributed under the terms 
-of Sections 1 and 2 above on a medium customarily used for software 
-interchange; or,
-
-     * c) Accompany it with the information you received as to the offer 
-to distribute corresponding source code. (This alternative is allowed 
-only for noncommercial distribution and only if you received the program 
-in object code or executable form with such an offer, in accord with 
-Subsection b above.)
-
-
-
-
-Note that you only have to do one of the three.  If you ship source with 
-the product, you're covered.  If you don't ship source, you can ship a 
-written offer for the source.  In this case, the written offer can be 
-redeemed by *any third party*.  Finally, if you're noncommercial you can 
-use the third option.
-
-Chris
-
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Ben.
 

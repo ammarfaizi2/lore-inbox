@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288575AbSAYWjh>; Fri, 25 Jan 2002 17:39:37 -0500
+	id <S288432AbSAYWlr>; Fri, 25 Jan 2002 17:41:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288460AbSAYWj1>; Fri, 25 Jan 2002 17:39:27 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41997 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288432AbSAYWjT>; Fri, 25 Jan 2002 17:39:19 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: patch: sysctl.h (allocating new number)
-Date: 25 Jan 2002 14:38:48 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2smpo$23l$1@cesium.transmeta.com>
-In-Reply-To: <3C51146F.6774.15F75C@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S288579AbSAYWlh>; Fri, 25 Jan 2002 17:41:37 -0500
+Received: from [24.64.71.161] ([24.64.71.161]:61686 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S288432AbSAYWlY>;
+	Fri, 25 Jan 2002 17:41:24 -0500
+Date: Fri, 25 Jan 2002 15:41:00 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        John Levon <movement@marcelothewonderpenguin.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
+Message-ID: <20020125154100.W763@lynx.adilger.int>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	John Levon <movement@marcelothewonderpenguin.com>,
+	linux-kernel@vger.kernel.org, davej@suse.de
+In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com> <20020125204911.A17190@wotan.suse.de> <20020125133814.U763@lynx.adilger.int> <20020125231555.A22583@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020125231555.A22583@wotan.suse.de>; from ak@suse.de on Fri, Jan 25, 2002 at 11:15:55PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3C51146F.6774.15F75C@localhost>
-By author:    "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-In newsgroup: linux.dev.kernel
+On Jan 25, 2002  23:15 +0100, Andi Kleen wrote:
+> On Fri, Jan 25, 2002 at 01:38:14PM -0700, Andreas Dilger wrote:
+> > When calling kmem_cache_destroy() on a non-empty slab we should just
+> > malloc some memory with the old cache name + "_leaked" for the name
+> > pointer.  At least then we have a sane chance of figuring out what caused
+> > the problem, instead of having a bunch of "broken" entries in the table,
+> > and remove the above "broken" check entirely (we will always have a name).
 > 
-> I have implemented sysctl extensions to read/write the ``tick'' and 
-> slew rate of adjtime() (among others) for my new kernel clock model 
-> using nanoseconds (PPSkit-2.0.1). If there's demand to a back-merge to 
-> the main stream sources, plese say what you would like. As the project 
-> was sponsored a little bit recently, I'm willing to donate a few 
-> working hours for that.
-> 
+> I don't like this because it complicates the code too much. 
+> "broken" should be enough to debug it. 
 
-I, for one, would definitely see the clock model merged into the
-mainstream kernel.
+Hmm, then you could just point to a static "broken" name at
+kmem_cache_destroy() time and save yourself the get_user() checks
+for each access to the name.  This would gratuitously overwrite
+the name for non-modular caches that failed to unload, but I doubt
+that such things exist.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

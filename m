@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSHAQjH>; Thu, 1 Aug 2002 12:39:07 -0400
+	id <S315721AbSHAQh6>; Thu, 1 Aug 2002 12:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSHAQjG>; Thu, 1 Aug 2002 12:39:06 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:46045 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S315760AbSHAQjF>; Thu, 1 Aug 2002 12:39:05 -0400
-Message-ID: <3D4964AE.891F9878@nortelnetworks.com>
-Date: Thu, 01 Aug 2002 12:41:18 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@redhat.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for2.5.29)
-References: <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
+	id <S315734AbSHAQh6>; Thu, 1 Aug 2002 12:37:58 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:11789 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S315721AbSHAQh5>;
+	Thu, 1 Aug 2002 12:37:57 -0400
+Date: Thu, 1 Aug 2002 18:41:08 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PANIC] APM bug with -rc4 and -rc5
+Message-ID: <20020801164108.GA20042@alpha.home.local>
+References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva> <20020801121205.GA168@pcw.home.local> <20020801133202.GA200@pcw.home.local> <1028213732.14865.50.camel@irongate.swansea.linux.org.uk> <20020801135623.GA19879@alpha.home.local> <20020801152459.GA19989@alpha.home.local> <1028220826.14865.69.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1028220826.14865.69.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Thu, Aug 01, 2002 at 05:53:46PM +0100, Alan Cox wrote:
+> Very curious indeed because someone else reported that rc3-ac5 works
+> (which has the same vm86 code). In addition the vm86 handler in the
+> kernel isnt actually used for APM. We make 32bit APM calls and the one
+> 16bit case we do is a true return to real mode.
 
-> The only thing that I think makes it less than wonderful is really the
-> fact that we cannot give an accurate measure for it. We can _say_ that
-> what we count in microseconds, but it might turn out that instead of the
-> perfect 1000000 ticks a second ther would really be 983671 ticks.
+well, I saw it wrong. In fact, sometimes the system boots OK if it
+is after a warm boot, and it seems that all the tests I've done with
+"old" vm86 code were done from a warm boot. Now I can confirm that
+from a cold boot, it also panics. And you're right about rc3-ac5,
+since it also works for me.
 
-Would there be any benefit to using processor timestamps (rdtsc and friends) for
-this if they are available?  I don't know the complexities of the interaction
-with power management, that might make it infeasable.
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Still searching...
+Willy

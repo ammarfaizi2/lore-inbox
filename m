@@ -1,66 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbUKVW6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUKVW6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbUKVW6W (ORCPT <rfc822;willy@w.ods.org>);
+	id S261200AbUKVW6W (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 17:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUKVWzf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbUKVW4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 17:55:35 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:58526 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261189AbUKVWwe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 17:52:34 -0500
-Message-ID: <41A25D53.9050909@tmr.com>
-Date: Mon, 22 Nov 2004 16:42:43 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: var args in kernel?
-References: <Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr><Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr> <20041122113328.GQ10340@devserv.devel.redhat.com>
-In-Reply-To: <20041122113328.GQ10340@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Nov 2004 17:56:45 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:10903 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261204AbUKVWv7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 17:51:59 -0500
+Subject: Re: [PATCH] kdump: Fix for boot problems on SMP
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Hariprasad Nellitheertha <hari@in.ibm.com>
+Cc: Akinobu Mita <amgta@yacht.ocn.ne.jp>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       varap@us.ibm.com
+In-Reply-To: <41A20DB5.2050302@in.ibm.com>
+References: <419CACE2.7060408@in.ibm.com>
+	 <20041119153052.21b387ca.akpm@osdl.org>
+	 <1100912759.4987.207.camel@dyn318077bld.beaverton.ibm.com>
+	 <200411201204.37750.amgta@yacht.ocn.ne.jp>  <41A20DB5.2050302@in.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1101162858.4987.231.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Nov 2004 14:34:18 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek wrote:
-> On Mon, Nov 22, 2004 at 12:03:56PM +0100, Jan Engelhardt wrote:
-> 
->>>> What you can't do is e.g.
->>>>  va_list ap;
->>>>  va_start (ap, x);
->>>>  bar (x, ap);
->>>>  bar (x, ap);
->>>>  va_end (ap);
->>
->>In theory, you can't. But the way how GCC (and probably other compilers)
->>implement it, you can. Because "ap" is just a pointer (which fits into a
->>register, if I may add). As such, you can copy it, pass it multiple times, use
->>it multiple times, and whatever you like.
-> 
-> 
-> That's exactly the wrong assumption.
-> On some Linux architectures you can, on others you can't.
-> Architectures where va_list is a char or void pointer include e.g.:
-> i386, sparc*, ppc64, ia64
-> Architectures where va_list is something different, usually struct { ... } va_list[1];
-> or something similar:
-> x86_64, ppc32, alpha, s390, s390x
-> 
-> In the latter case, you obviously can't do va_list dest = src and
-> if you do bar (x, ap); the content of the struct pointed by ap is changed
-> after the call, therefore you can't use it for other routines
-> (as it depends on where exactly the called function stopped with va_arg).
+Hari,
 
-Why can't you do dest=src? Assignment of struct to struct has been a 
-part of C since earliest times. I used it in ~1990 in code which ran on 
-Z80, Multics, M68k, VAX and Cray2, and it worked without any ifdefs (for 
-that, there were "just a few" for other issues like 8 vs. 9 bit char, etc).
+Thanks for the patch and I tried it. 
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+I hacked "sysrq-b" to call panic() to test this.
+So far, my success is limited.
+
+These could be already known and being worked on ..
+Out of few times I tried, I run into following.
+
+1) When panic the system, I get
+Badness in smp_call_function() in arch/i386/kernel/smp.c: 552
+and the system hangs.
+
+2) Machine boots to single user only with 1 CPU. 
+I get following msgs while booting second kernel.
+
+..
+
+Booting processor 1/1 eip 2000
+Stuck ??
+Inquiring remote APIC #1...
+... APIC #1 ID: 01000000
+... APIC #1 VERSION: 00040011
+... APIC #1 SPIV: 000000ff
+CPU #1 not responding - cannot use it.
+Booting processor 1/2 eip 2000
+Stuck ??
+Inquiring remote APIC #2...
+... APIC #2 ID: 02000000
+... APIC #2 VERSION: 00040011
+... APIC #2 SPIV: 000000ff
+CPU #2 not responding - cannot use it.
+Booting processor 1/3 eip 2000
+Stuck ??
+Inquiring remote APIC #3...
+... APIC #3 ID: 03000000
+... APIC #3 VERSION: 00040011
+...
+
+3) When I tried to run gdb on the core file,
+gdb gets killed since there is not enough memory.
+(this is on the second kernel - so this could be okay).
+
+#gdb vmlinux.kexec1 ../core/vmcore.1
+GNU gdb 5.2.1
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you
+are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for
+details.
+This GDB was configured as "i586-suse-linux"...oom-killer:
+gfp_mask=0x1d2
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 4, high 12, batch 2
+cpu 0 cold: low 0, high 4, batch 2
+HighMem per-cpu: empty
+                       
+Free pages:        1116kB (0kB HighMem)
+Active:2222 inactive:3280 dirty:0 writeback:0 unstable:0 free:279
+slab:804 mapped:2275 pagetables:23
+DMA free:292kB min:292kB low:364kB high:436kB active:108kB
+inactive:128kB present:16384kB pages_scanned:544 all_unreclaimable? yes
+protections[]: 0 0 0
+Normal free:824kB min:588kB low:732kB high:880kB active:8780kB
+inactive:12992kB present:32768kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB
+present:0kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+DMA: 1*4kB 0*8kB 0*16kB 1*32kB 0*64kB 0*128kB 1*256kB 0*512kB 0*1024kB
+0*2048kB 0*4096kB = 292kB
+Normal: 44*4kB 7*8kB 1*16kB 0*32kB 3*64kB 1*128kB 1*256kB 0*512kB
+0*1024kB 0*2048kB 0*4096kB = 824kB
+HighMem: empty
+Swap cache: add 23125, delete 19925, find 8355/9281, race 2+1
+Out of Memory: Killed process 4290 (gdb).
+Terminated
+
+FYI.
+
+
+Thanks,
+Badari
+
+On Mon, 2004-11-22 at 08:03, Hariprasad Nellitheertha wrote:
+> Akinobu Mita wrote:
+> > I've forgotten CC-ing.
+> > 
+> > On Saturday 20 November 2004 10:05, Badari Pulavarty wrote:
+> > 
+> > 
+> >>4) Load the second kernel to be booted using
+> >>
+> >>   kexec -p <second-kernel> --args-linux --append="root=<root-dev> dump
+> >>   init 1 memmap=exactmap memmap=640k@0 memmap=32M@16M"
+> >>
+> >>But kexec doesn't seem to like option "-p".
+> >>Even when I removed "-p", its complaining about "--args-linux"
+> 
+> 
+> There is a kexec-tools patch that is required to get the "-p" option
+> working. I had sent it out only to the fastboot mailing list without
+> updating kdump documentation. I will send out an updated documentation
+> patch indicating this requirement (I will host the patch on some site
+> and point to it in the document).
+> 
+> Meanwhile, I am attaching the patch with this note. Kindly try kdump
+> with this. Thanks!
+> 
+> Regards, Hari
+> 
+
 

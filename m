@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272088AbRIEKuz>; Wed, 5 Sep 2001 06:50:55 -0400
+	id <S272094AbRIEK4p>; Wed, 5 Sep 2001 06:56:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272101AbRIEKup>; Wed, 5 Sep 2001 06:50:45 -0400
-Received: from [212.93.134.61] ([212.93.134.61]:43271 "EHLO zebra.sibnet.ro")
-	by vger.kernel.org with ESMTP id <S272094AbRIEKu3>;
-	Wed, 5 Sep 2001 06:50:29 -0400
-Date: Wed, 5 Sep 2001 14:01:52 -0400 (EDT)
-From: <sacx@zebra.sibnet.ro>
-To: Simon Hay <simon@haywired.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Multiple monitors
-In-Reply-To: <3B93CF91.A6D59DA8@haywired.org>
-Message-ID: <Pine.LNX.4.33L2.0109051400160.20601-100000@zebra.sibnet.ro>
+	id <S272099AbRIEK4f>; Wed, 5 Sep 2001 06:56:35 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:65033 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S272094AbRIEK41>; Wed, 5 Sep 2001 06:56:27 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getpeereid() for Linux
+In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de.suse.lists.linux.kernel>
+	<oupae0ax8vq.fsf@pigdrop.muc.suse.de>
+	<tgu1yi2br5.fsf@mercury.rus.uni-stuttgart.de>
+	<20010905124807.A17035@gruyere.muc.suse.de>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 05 Sep 2001 12:56:10 +0200
+In-Reply-To: <20010905124807.A17035@gruyere.muc.suse.de> (Andi Kleen's message of "Wed, 5 Sep 2001 12:48:07 +0200")
+Message-ID: <tgn14929f9.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen <ak@suse.de> writes:
 
-Check the http://ylabs.igreconline.com ... Is a mingetty patch for
-framebuffer .
+> SO_PEERCRED doesn't need any cooperation from the other end (at least 
+> not for SOCK_STREAM) 
 
-Adrian Stanila
+Thanks.  Over here, SO_PEERCRED is documented in socket(7). ;-)
 
-On Mon, 3 Sep 2001, Simon Hay wrote:
+> There is netfilter owner match, but it is a bad hack.
 
-> Hi all,
->
-> Apologies in advance if this is a question that's already been answered
-> somewhere...  I'm looking for a way to install multiple (or rather, two)
-> PCI/AGP cards in a machine and connect a monitor to each one, and use
-> them both *in console mode* - preferably with some nice way to say
-> 'assign virtual console 2 to the first screen, and 5 to the second' -
-> that way you could have one tailing log files, showing 'top', whatever.
-> A quick search of the web/newsgroups turned up various patches that
-> looked ideal, but a closer inspection revealed that they either relied
-> on you having a Hercules mono card, or only applied against kernel
-> <0.99, or both...  I was just wondering if anyone's thought
-> about/written a similar patch for more recent hardware/versions?  I was
-> using a console Linux machine running BB (ASCII art demo -
-> http://aa-project.sourceforge.net/) just to attract attention to our
-> stand today and was thinking it would be really neat to have one machine
-> driving several screens...
->
-> Simon
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I certainly don't want to give a user process the right to add
+netfilter rules dynamically. :-/
 
+> I think you're better off with identd. 
+
+Or some /proc parsing (which is probably what identd does, too).
+
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

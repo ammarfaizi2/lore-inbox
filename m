@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTDSDO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 23:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbTDSDO1
+	id S263347AbTDSEFg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 00:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbTDSEFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 23:14:27 -0400
-Received: from ohsmtp01.ogw.rr.com ([65.24.7.36]:32902 "EHLO
-	ohsmtp01.ogw.rr.com") by vger.kernel.org with ESMTP id S262930AbTDSDO0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 23:14:26 -0400
-Message-ID: <000901c30621$ee8f6c10$0200a8c0@satellite>
-From: "Dave Mehler" <dmehler26@woh.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: i8253 problem solved, rh9 2.5 kernel booting
-Date: Fri, 18 Apr 2003 23:15:29 -0400
+	Sat, 19 Apr 2003 00:05:36 -0400
+Received: from [64.246.18.2] ([64.246.18.2]:11408 "EHLO
+	srv01.imagineitinternet.com") by vger.kernel.org with ESMTP
+	id S263347AbTDSEFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 00:05:35 -0400
+Message-ID: <55958.63.164.145.33.1050728721.squirrel@www.lelpeto.com>
+Date: Sat, 19 Apr 2003 00:05:21 -0500 (CDT)
+Subject: =?iso-8859-1?Q?Quote_of_the_Day,_"Lel_Peto"_updating...?=
+From: <info@lelpeto.com>
+To: linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 1.0.6)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    This message is a brief thanks to everyone who helped me through the
-past week. With much help and many files i have solved the issue:
-on my motherboard an Asus A7A266 i get an error:
-"kernel: i8253 count too high! Resetting.."
-    the suggested fix which did work was to compile a 2.5 kernel on rh9.
-This i did but was unable to boot the system, i had compiled in framebuffer
-console, keyboard, and mouse, and whateve r else was needed, but it hung
-after the mkinitrd image was loaded. The solution was to update the mkinitrd
-as well as procvutils and modutils.
-    Again, thanks to all.
-Dave.
+Quote of the Day, "Lel Peto" updating...
+
+Quote of the Day 
+ "Little fighting took place and there wasn't so much
+  resistance from the Iraqis." 
+ (Kurdistan Democratic Party spokesman Hoshyar Zebari said
+  after US and Kurdish forces allegedly seized control of the
+  Maqlub mountains close to the Iraqi northern city of Mosul
+  Wednesday)
+
+
+
+
 

@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266312AbRGBApL>; Sun, 1 Jul 2001 20:45:11 -0400
+	id <S266317AbRGBAuC>; Sun, 1 Jul 2001 20:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266311AbRGBApC>; Sun, 1 Jul 2001 20:45:02 -0400
-Received: from 35.roland.net ([65.112.177.35]:36876 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S266316AbRGBAoq>;
-	Sun, 1 Jul 2001 20:44:46 -0400
-Message-ID: <007e01c10290$3f0da6d0$bb1cfa18@JimWS>
+	id <S266318AbRGBAtm>; Sun, 1 Jul 2001 20:49:42 -0400
+Received: from 35.roland.net ([65.112.177.35]:39180 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S266317AbRGBAta>;
+	Sun, 1 Jul 2001 20:49:30 -0400
+Message-ID: <009901c10290$e86b5920$bb1cfa18@JimWS>
 From: "Jim Roland" <jroland@roland.net>
-To: "Paul Mundt" <lethal@ChaoticDreams.ORG>, "Ben Ford" <ben@kalifornia.com>
-Cc: "Adam Schrotenboer" <ajschrotenboer@lycosmail.com>,
-        "LKML" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG> <3B3FB754.8040305@kalifornia.com> <20010701171101.A13223@ChaoticDreams.ORG>
+To: "Ben Ford" <ben@kalifornia.com>, "David Schwartz" <davids@webmaster.com>
+Cc: "Marius Nita" <marius@pdx.edu>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMKEMFCDAA.davids@webmaster.com> <3B3FBA4C.60409@kalifornia.com>
 Subject: Re: Uncle Sam Wants YOU!
-Date: Sun, 1 Jul 2001 19:45:09 -0500
+Date: Sun, 1 Jul 2001 19:49:53 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -27,38 +26,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 ----- Original Message -----
-From: "Paul Mundt" <lethal@ChaoticDreams.ORG>
-To: "Ben Ford" <ben@kalifornia.com>
-Cc: "Adam Schrotenboer" <ajschrotenboer@lycosmail.com>; "LKML"
-<linux-kernel@vger.kernel.org>
-Sent: Sunday, July 01, 2001 7:11 PM
+From: "Ben Ford" <ben@kalifornia.com>
+To: "David Schwartz" <davids@webmaster.com>
+Cc: "Marius Nita" <marius@pdx.edu>; <linux-kernel@vger.kernel.org>
+Sent: Sunday, July 01, 2001 7:03 PM
 Subject: Re: Uncle Sam Wants YOU!
 
 
-> On Sun, Jul 01, 2001 at 04:50:44PM -0700, Ben Ford wrote:
-> > Name a single tech company anywhere in the world that doesn't have to
-> > deal with microsoftisms.
+> >
+> >
+> >It's hard to understand the point of such arguments. Surely you shouldn't
+> >be upset at someone for providing you the best option you have, should
+you?
+> >
 >
-> This depends on your definition of dealing with MSisms. If you mean having
-a
-> copy of an MS product physically present at a business location, that's
-> pretty much unavoidable.
+> The point is they aren't offering the best solution!  They are taking
+> away all others!  That is why people dislike the company.
 >
-> If you mean working at a place where you yourself don't have to deal with
-it,
-> it all depends what line of work you're in. If you're some form of
-management
-> person, you might choose to work with Word because everyone else does, but
-> that goes back to it being your decision.
->
-> I can think of a lot of companies, such as WindRiver, QSSL, etc. where
-there
-> may be some level of involvement, but not everyone working in the company
-is
-> forced into things.
 
-What some people don't realize is that Microsoft *DID* do Unix a long time
-ago, they were even into OS/2 Development.  :-)
-
-[snip]
+I don't see them taking RedHat or Slackware away from me!
 

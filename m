@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275757AbRI0E1s>; Thu, 27 Sep 2001 00:27:48 -0400
+	id <S275758AbRI0E32>; Thu, 27 Sep 2001 00:29:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275758AbRI0E1j>; Thu, 27 Sep 2001 00:27:39 -0400
-Received: from hermes.toad.net ([162.33.130.251]:61892 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S275757AbRI0E1X>;
-	Thu, 27 Sep 2001 00:27:23 -0400
-Message-ID: <3BB2AAA5.CDDD6965@yahoo.co.uk>
-Date: Thu, 27 Sep 2001 00:27:17 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac15 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  Re: 2.4.9-ac15 painfully sluggish
+	id <S275759AbRI0E3S>; Thu, 27 Sep 2001 00:29:18 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:49908 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S275758AbRI0E3J>; Thu, 27 Sep 2001 00:29:09 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Wed, 26 Sep 2001 22:29:06 -0600
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: move resume before mounting root [diff against vanilla 2.4.9]
+Message-ID: <20010926222906.J1140@turbolinux.com>
+Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010926101914.A28339@atrey.karlin.mff.cuni.cz> <200109270302.f8R32pl12537@saturn.cs.uml.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200109270302.f8R32pl12537@saturn.cs.uml.edu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know next to nothing about these VM issues, but here's
-another data point:
+On Sep 26, 2001  23:02 -0400, Albert D. Cahalan wrote:
+> That is totally broken, because I may mount the disk in between
+> the suspend and resume. I might even:
+> 
+> 1. boot kernel X
+> 2. suspend kernel X
+> 3. boot kernel Y
+> 4. suspend kernel Y
+> 5. resume kernel X
+> 6. suspend kernel X
+> 7. resume kernel Y
+> 8. suspend kernel Y
+> 9. goto #5
+> 
+> You really have to close the logs and mark the disks clean
+> when you suspend. The problems here are similar the the ones
+> NFS faces. Between the suspend and resume, filesystems may be
+> modified in arbitrary ways.
 
-2.4.9-ac15 was painfully sluggish on my ThinkPad 600,
-Pentium II, 120 MB RAM system just running galeon
-or compiling a kernel.  The disk would begin thrashing
-and continue doing so for many minutes.  Swap usage was
-reported as zero the whole time.
+This is possible with the "write_super_lockfs" interface to the
+journaling filesystems (ext3/reiserfs/XFS).  This is normally
+used for LVM snapshots, but it could also be used for this.
 
-I applied the "2.4.9-ac15-age+launder" patch and things
-improved dramatically.
-
+Cheers, Andreas
 --
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Thomas

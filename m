@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264545AbRFOWXe>; Fri, 15 Jun 2001 18:23:34 -0400
+	id <S264547AbRFOWd4>; Fri, 15 Jun 2001 18:33:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264547AbRFOWXZ>; Fri, 15 Jun 2001 18:23:25 -0400
-Received: from iris.SERVICES.ou.edu ([129.15.2.125]:51595 "EHLO
+	id <S264551AbRFOWdr>; Fri, 15 Jun 2001 18:33:47 -0400
+Received: from iris.SERVICES.ou.edu ([129.15.2.125]:60053 "EHLO
 	iris.services.ou.edu") by vger.kernel.org with ESMTP
-	id <S264545AbRFOWXQ>; Fri, 15 Jun 2001 18:23:16 -0400
-Date: Fri, 15 Jun 2001 17:23:13 -0500 (CDT)
+	id <S264547AbRFOWda>; Fri, 15 Jun 2001 18:33:30 -0400
+Date: Fri, 15 Jun 2001 17:33:27 -0500 (CDT)
 Date-warning: Date header was inserted by iris.services.ou.edu
 From: Hahaha <hahaha@sexyfun.net>
 Subject: Snowhite and the Seven Dwarfs - The REAL story!
-Message-id: <0GEZ00E36SUCK1@iris.services.ou.edu>
+Message-id: <0GEZ00CP7TBG20@iris.services.ou.edu>
 MIME-version: 1.0
-Content-type: MULTIPART/MIXED; BOUNDARY="Boundary_(ID_BXjy/t7IcZ/pNN+BGpWuog)"
+Content-type: MULTIPART/MIXED; BOUNDARY="Boundary_(ID_gGX4X6pcQQ54S4ZpoNrJ1g)"
 To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary_(ID_BXjy/t7IcZ/pNN+BGpWuog)
+--Boundary_(ID_gGX4X6pcQQ54S4ZpoNrJ1g)
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7BIT
 
@@ -28,7 +28,7 @@ polite with Snowhite. When they go out work at mornign, they promissed a
 Dwarfs enter...
 
 
---Boundary_(ID_BXjy/t7IcZ/pNN+BGpWuog)
+--Boundary_(ID_gGX4X6pcQQ54S4ZpoNrJ1g)
 Content-type: application/octet-stream; name=midgets.scr
 Content-disposition: attachment; filename=midgets.scr
 Content-transfer-encoding: base64
@@ -439,4 +439,4 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAA
 
---Boundary_(ID_BXjy/t7IcZ/pNN+BGpWuog)--
+--Boundary_(ID_gGX4X6pcQQ54S4ZpoNrJ1g)--

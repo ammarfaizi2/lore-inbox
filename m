@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbTDJOJV (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 10:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTDJOJV (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 10:09:21 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:7172 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S264045AbTDJOJT (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 10:09:19 -0400
-Subject: ATAPI cdrecord issue 2.5.67
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-2
-Organization: K4 Labs
-Message-Id: <1049983308.888.5.camel@gregs>
+	id S264047AbTDJONE (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 10:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbTDJONE (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 10:13:04 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:32743 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id S264047AbTDJOND (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 10:13:03 -0400
+Subject: Re: [PATCH] New radeonfb fork
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Daniele Venzano <webvenza@libero.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030410084650.GA728@renditai.milesteg.arr>
+References: <1049642954.550.41.camel@zion.wanadoo.fr>
+	 <20030410084650.GA728@renditai.milesteg.arr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049984776.555.90.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 10 Apr 2003 15:01:48 +0100
-Content-Transfer-Encoding: 8bit
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 10 Apr 2003 16:26:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed strange bahavior while truing to record CD using ATAPI on
-2.5.67 kernel:
+On Thu, 2003-04-10 at 10:46, Daniele Venzano wrote:
+> I tried your patch for Radeon framebuffer on kernel 2.4.21-pre7, it
+> works better than before, but still I have some problems:
+> 
+> the cursor is visible only at 8 bit depth, with 16 or 32 bit it just
+> disappears, and at 8 bit it is a big full scale rectangular cursor
+> (no underline).
 
-bash-2.05b$ cdrecord -scanbus dev=ATAPI
-Cdrecord 2.01a07 (i686-pc-linux-gnu) Copyright (C) 1995-2003 Jörg
-Schilling
-scsidev: 'ATAPI'
-devname: 'ATAPI'
-scsibus: -2 target: -2 lun: -2
-Warning: Using ATA Packet interface.
-Warning: The related libscg interface code is in pre alpha.
-Warning: There may be fatal problems.
-Using libscg version 'schily-0.7'
-scsibus0:
-        0,0,0     0) *
-        0,1,0     1) 'ADAPTEC ' 'ACB-5500        ' 'FAKE' NON CCS Disk
-        0,2,0     2) *
-        0,3,0     3) *
-        0,4,0     4) *
-        0,5,0     5) *
-        0,6,0     6) *
-        0,7,0     7) *
+Known problem with fbdev's in 2.4. I have to find out if
+that can be fixed easily, though implementing HW cursor would
+cure it as well...
 
-Well, FAKE non CCS disk ?
-i have on this port Sony CDRW :
+> I couldn't find a way to set the resolution at boot time (I use the
+> driver compiled in), I tried the following, all being ignored:
+> radeonfb:1024x768-8@60
+> radeon:1024x768-8@60
 
-bash-2.05b$ cat /proc/ide/hdd/model
-SONY CD-RW CRX215E1
+That should work (the second one actually), I'll investigate why
+it doesn't. What mode do you get instead ?
 
+Make sure you used "video=", that is you should have on your kernel
+command line video=radeon:1024x768-8@60
 
-2.4.21-pre7 still is able to see this drive and i can record CDs on it.
-2.5.67 failes.
+> I am using an ugly fbset in a random boot script, but it just changes the
+> resolution for the first console. This is probably the biggest problem I
+> saw until now...
 
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 Labs
+Use fbset -a
+
+> Finally dmesg says:
+> 
+> PCI: Found IRQ 11 for device 01:00.0
+> radeonfb: ref_clk=2700, ref_div=12, xclk=20000 from BIOS
+> Console: switching to colour frame buffer device 80x30
+> radeonfb: ATI Radeon 9000 If DDR SGRAM 64 MB
+> radeonfb: DVI port no monitor connected
+> radeonfb: CRT port CRT monitor connected
+>                    ^^^
+> But I have an LCD on the CRT port, I saw some LCD support in radeonfb.c,
+> but perhaps it was only on DVI port.
+
+If it's connected to an analgog VGA output, it is considered as a CRT
+and that's normal, there's nothing "smart" I can do about it. I could
+probably figure out it's a flat panel from the EDID and default to a
+better mode, but complete EDID & DDC management is something I don't
+plan on implementing in 2.4 though I will do it in 2.5/2.6 as soon
+as I get enough time.
+
+Ben.
 

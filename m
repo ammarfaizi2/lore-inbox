@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVCBXNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVCCDmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVCBXNv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVCBXJH
+	id S261302AbVCCDmB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 22:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVCCB5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:09:07 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:26093 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261311AbVCBXGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:06:43 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1109804917.3711.5.camel@desktop.cunningham.myip.net.au>
+	Wed, 2 Mar 2005 20:57:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4037 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261370AbVCCBge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 20:36:34 -0500
+Date: Wed, 2 Mar 2005 18:02:01 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [request for inclusion] Filesystem in Userspace
+Message-ID: <20050302210201.GC4100@logos.cnet>
+References: <E1D6YPJ-0000Jv-00@dorka.pomaz.szeredi.hu> <20050302123123.3d528d05.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 03 Mar 2005 10:08:37 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050302123123.3d528d05.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-My first response is: this is a recipe for great confusion among users.
+Hi, 
 
-I'd far rather see things only make it into your tree when they've been
-thoroughly tested (in -mm and prior to that). Following that strategy,
-your tree could always be relied upon to be stable and -rcs would only
-needed for dealing with the unforeseen interactions between otherwise
-mature patches.
+On Wed, Mar 02, 2005 at 12:31:23PM -0800, Andrew Morton wrote:
+> Miklos Szeredi <miklos@szeredi.hu> wrote:
+> >
+> > Do you have any objections to merging FUSE in mainline kernel?
+> 
+> I was planning on sending FUSE into Linus in a week or two.  That and
+> cpusets are the notable features which are 2.6.12 candidates.
+> 
+> - crashdump seems permanently not-quite-ready
+> 
+> - perfctr works fine, but is rather deadlocked because it is
+>   similar-to-but-different-from ia64's perfmon, and might not be suitable
+>   for ppc64 (although things have gone quiet on the latter front).
 
-Regards,
+I once asked Mikael about using PMC's from kernel-space, he told me it wouldnt
+be too hard to make them usable via kernel-space through perfctr.
 
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+Is perfmon's API useable to kernel users? 
 
-Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
-
-
+That sounds like a good point in favour of a given implementation, no?

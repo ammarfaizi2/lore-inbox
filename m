@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132644AbRDOMw0>; Sun, 15 Apr 2001 08:52:26 -0400
+	id <S132653AbRDONHA>; Sun, 15 Apr 2001 09:07:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132636AbRDOMwQ>; Sun, 15 Apr 2001 08:52:16 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:62984 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S132644AbRDOMwD>; Sun, 15 Apr 2001 08:52:03 -0400
-Date: 15 Apr 2001 11:07:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-cc: kbuild-devel@lists.sourceforge.net
-Message-ID: <7zuzLtMHw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.21.0103261153510.1863-100000@imladris.rielhome.conectiva>
-Subject: Re: [kbuild-devel] Re: CML1 cleanup patch
-X-Mailer: CrossPoint v3.12d.kh5 R/C435
-MIME-Version: 1.0
+	id <S132651AbRDONGv>; Sun, 15 Apr 2001 09:06:51 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:40713 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132636AbRDONGg>;
+	Sun, 15 Apr 2001 09:06:36 -0400
+Date: Sun, 15 Apr 2001 08:05:46 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.1.1, wiuth experimental fast mode
+Message-ID: <20010415080546.A25777@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200104150345.f3F3jxG16241@snark.thyrsus.com> <3AD91B0E.8EAF5049@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <E14hVd6-0007eK-00@mercury.ccil.org> <Pine.LNX.4.21.0103261153510.1863-100000@imladris.rielhome.conectiva>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AD91B0E.8EAF5049@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Apr 14, 2001 at 11:52:46PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Warning: No kernel related stuff inside.
+Jeff Garzik <jgarzik@mandrakesoft.com>:
+> I assume that, eventually there will be no slow mode or fast mode
+> distinction... just a single fast mode.  Right?  :)
 
-riel@conectiva.com.br (Rik van Riel)  wrote on 26.03.01 in <Pine.LNX.4.21.0103261153510.1863-100000@imladris.rielhome.conectiva>:
+That's an interesting question to which I do not yet know the answer.
+I am continuing to speed-tune.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-> On Mon, 26 Mar 2001, John Cowan wrote:
-
-> > In fact this has come up before: in Usenet software, which has to
-> > differentiate between an article and a sub-newsgroup.  An article has
-> > to have an all-numeric name, and It Would Have Been Nice if all
-> > newsgroup names began with non-digits, but then there was
-> > comp.bugs.4bsd.
->
-> What's wrong with using the _file type_ for these things ?
-
-Wrong problem description, really. The problem is not components starting  
-with digits, the problem is all-numeric components as in alt.2600.
-
-And the problem is that this hits a fast path in the classical news spool  
-layout article create path. The code for this assumes that you have  
-articles in the range X to Y, and you just got a new article, so you write  
-a file called /var/spool/news/group/name/Y+1. You really do not want to  
-cope with the possibility of a directory Y+1 existing in that place.
-
-I think there are some other things that also get impacted on their fast  
-path, but this is probably the most important.
-
-And then, it's an ugly user interface: the classical spool layout does  
-assume that you look at that scpool with Unix tools (like find and grep),  
-not only via NNTP and the server.
-
-MfG Kai
+The Constitution is not neutral. It was designed to take the
+government off the backs of the people.
+	-- Justice William O. Douglas 

@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265750AbUFDMEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265764AbUFDMJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265750AbUFDMEp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 08:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265749AbUFDMEo
+	id S265764AbUFDMJd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 08:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbUFDMJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 08:04:44 -0400
-Received: from sendar.prophecy.lu ([213.166.63.242]:16530 "EHLO
-	sendar.prophecy.lu") by vger.kernel.org with ESMTP id S265755AbUFDMEi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 08:04:38 -0400
-Message-ID: <40C06549.2030200@linux.lu>
-Date: Fri, 04 Jun 2004 14:04:25 +0200
-From: Thierry Coutelier <Thierry.Coutelier@linux.lu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en, fr-lu, de-lu
-MIME-Version: 1.0
+	Fri, 4 Jun 2004 08:09:33 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:22935 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265764AbUFDMJ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 08:09:26 -0400
+Date: Fri, 4 Jun 2004 14:09:25 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: Kernel Freeze with 2.4.x
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Propehcy.lu-MailScanner-Information: Please contact the ISP for more information
-X-Propehcy.lu-MailScanner: Found to be clean
-X-Propehcy.lu-MailScanner-SpamCheck: not spam, SpamAssassin (score=0,
-	required 5)
+Subject: Re: Stock IA64 kernel on SGI Altix 350
+Message-ID: <20040604120925.GE20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040603170147.GK10708@fi.muni.cz> <200406031030.36181.jbarnes@engr.sgi.com> <20040603200905.GA27701@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RhVIuFYUg5EX4UVz"
+Content-Disposition: inline
+In-Reply-To: <20040603200905.GA27701@fi.muni.cz>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Greeting,
+--RhVIuFYUg5EX4UVz
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We are using Linux boxes to offer Satellite Internet. We still use RedHat 7.[23]
-The system works using rp-l2tp and/or pptpd with pppd. On the outgoing interface (the
-one that sends traffic to the Satellite we were using CBQ and now we use HTB queuing
-discipline.
+On Thu, 2004-06-03 22:09:06 +0200, Jan Kasprzak <kas@informatics.muni.cz>
+wrote in message <20040603200905.GA27701@fi.muni.cz>:
+[ia64 booting]
+> Dentry cache hash table entries: 2097152 (order: 10, 16777216 bytes)
+> Inode-cache hash table entries: 1048576 (order: 9, 8388608 bytes)
+> Mount-cache hash table entries: 1024 (order: 0, 16384 bytes)
+> Boot processor id 0x0/0x0
+> task migration cache decay timeout: 10 msecs.
+> Mount-cache hash table entries: 1024 (order: 0, 16384 bytes)
+> Boot processor id 0x0/0x0
+> task migration cache decay timeout: 10 msecs.
+> CPU 1: base freq=3D200.000MHz, ITC ratio=3D14/2, ITC freq=3D1400.000MHz+/=
+--1ppm
+> Calibrating delay loop... 16.44 BogoMIPS
 
-The kernels range from 2.4.6 to 2.4.25 with some modifications (tcp_input). We tried
-with the standard kernel with the only change that the dev_alloc_name has been
-changed to support up to 900 names.
+Hihi:) A ~ 55MHz VAX does nothing with about 15 BogoMIPS.
 
-Every few weeks (sometimes 2 days, often 3 weeks and sometime up to 9 weeks) the
-kernel freezes: nothing on screen or serial console except from some VJ decompression
-errors which we have at all times, even the Num-Lock does not respond.
-We tried to enable sysreq keys but those won't work either.
+MfG, JBG*hides now*G
 
-2 days ago we were able to catch the following message (12 hours before a freeze) :
-HTB: dequeue bug (8,12140714,12140714), report it please !
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
-
-The Hardware are Dell PowerEdge with Perc2 or Perc3. We tried with HP servers and
-have the same problem. We tried different firmware releases for the Perc cards and
-still no change.
-
-The NIC cards are mostly Intel EEpro 100. We tried with both drivers Intel and
-community with no better results.
-
-The problem may be happening more often (every 2/3 days) when we simulate a lot of
-ppp connections/disconnections (80 users/minute), but in some cases it hangs even
-without having many users.
-
-The platform we run have between 25 to 200 simultaneous connections. Some have single
-or dual or even quad CPU's. And RAM between 512Mbytes and 4 Gbytes.
-
-We could not detect any parameters that would rise before the freeze (load, memory,
-swap ...)
-
-Could anyone give me some hint as to what to do/test more ?
-Where could the problem be ?
-
-
-Thanks.
-
-- --
-Thierry Coutelier
-No Patents on Software: http://www.linux.lu/epatent
+--RhVIuFYUg5EX4UVz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAwGVJPOfrcNNQX7oRAm9tAKCKXcW/htHDLJgjLKCIjPJbEK4yNwCguJe2
-auyEN1rBK7DZNgZ3iSkD524=
-=oveM
+iD8DBQFAwGZ0Hb1edYOZ4bsRAs69AKCMlr7iwgIuPrN+UEQky1CT/n9pXwCeJjLg
+AkjZs6PacAGJ/O4o7W94w1E=
+=Uxsy
 -----END PGP SIGNATURE-----
+
+--RhVIuFYUg5EX4UVz--

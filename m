@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVBCUEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbVBCUEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbVBCUEe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 15:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbVBCUC0
+	id S262956AbVBCUEf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 15:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbVBCUCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 15:02:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2180 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262925AbVBCTwF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 14:52:05 -0500
-Date: Thu, 3 Feb 2005 11:51:27 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Lorenzo =?ISO-8859-1?B?SGVybuFuZGV6IEdhcmPtYS1IaWVycm8=?= 
-	<lorenzo@gnu.org>
-Cc: linux@horizon.com, mingo@elte.hu, Arjan van de Ven <arjan@infradead.org>,
-       bunk@stusta.de, Chris Wright <chrisw@osdl.org>, davem@redhat.com,
-       Hank Leininger <hlein@progressive-comp.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, Valdis.Kletnieks@vt.edu, spender@grsecurity.net
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Message-ID: <20050203115127.3245951f@dxpl.pdx.osdl.net>
-In-Reply-To: <1107365917.3754.155.camel@localhost.localdomain>
-References: <20050202171702.24523.qmail@science.horizon.com>
-	<1107365917.3754.155.camel@localhost.localdomain>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 3 Feb 2005 15:02:15 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:53404 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263627AbVBCTwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 14:52:03 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [PATCH 2.6] 4/7 replace uml_strdup by kstrdup
+Date: Thu, 3 Feb 2005 20:51:17 +0100
+User-Agent: KMail/1.7.2
+Cc: Paulo Marques <pmarques@grupopie.com>, Pekka Enberg <penberg@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       penberg@cs.helsinki.fi
+References: <1107228511.41fef75f4a296@webmail.grupopie.com> <84144f02050201235257d0ec1c@mail.gmail.com> <4200BFA1.2060808@grupopie.com>
+In-Reply-To: <4200BFA1.2060808@grupopie.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502032051.18191.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Feb 2005 18:38:37 +0100
-Lorenzo Hernández García-Hierro <lorenzo@gnu.org> wrote:
+On Wednesday 02 February 2005 12:55, you wrote:
+> Pekka Enberg wrote:
+> > On Tue,  1 Feb 2005 03:28:31 +0000, pmarques@grupopie.com
+> >
+> > <pmarques@grupopie.com> wrote:
+> >>diff -buprN -X dontdiff
+> >> vanilla-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c
+> >> linux-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c ---
+> >> vanilla-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c      
+> >> 2004-12-24 21:35:40.000000000 +0000 +++
+> >> linux-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c 2005-01-31
+> >> 20:39:08.591154025 +0000
+> >
+> > [snip]
+> >
+> >>-               pri->dev_name = uml_strdup(buffer);
+> >>+               pri->dev_name = kstrdup(buffer);
+> >
+> > Please compile-test before submitting.
+>
+> I'm really sorry about this...
+>
+> I've compiled with an allyesconfig to validate the changes, but that
+> doesn't build the UML parts :(
 
-> El mié, 02-02-2005 a las 17:17 +0000, linux@horizon.com escribió:
-> > There *are* things in OpenBSD, like randomized port assignment (as opposed
-> > to the linear scan in tcp_v4_get_port()) that would be worth emulating.
-> > Maybe worry about that first?
-> > 
+Well, the answer is to do add a "ARCH=um" to the build commands... you could 
+maybe use a "make defconfig ARCH=um" however because UML itself, sometimes, 
+does not build with allyesconfig /allmodconfig...
 
-Recent 2.6 does a more advanced form of port randomization already
-using address hash at connect time.  tcp_v4_get_port is only used for the case
-of applications that explicitly bind to port zero to find a free port.
+However, that said, there are bigger problems for UML.
 
-So the sequence:
-	socket(); connect(); 
-will assign a random port in a manner similar to sequence number creation
+Since of its particular nature, it contains some code which is compiled 
+against userspace headers. For instance cow_user.c (the list includes 
+*_user.c and everything that is explicitly listed in USER_OBJS inside the 
+Makefiles)
 
-The sequence:
-	socket(); bind(); connect();
-assigns a simple linear increasing port value.  It could be randomized, but
-most applications don't bother binding, so the first case is sufficient.
+So, for cow_user.c, when you add <linux/string.h> to cow_user.c, you are 
+actually making it include /usr/include/linux/string.h...
+
+For UML, you should probably add the prototype to a good header inside 
+arch/um/include (those headers are in the searchpath for every file under 
+arch/um) - probably the one which declared uml_strdup. Yes, we have had to 
+duplicate prototypes for many functions... for inlines, we've had to provide 
+in many case a non-inline version.
+
+> Anyway, thanks for pointing this out. I still haven't got feedback
+> regarding the acceptance of these patches. If there is a chance they're
+> accepted, maybe the best thing to do is to post the series again with
+> this correction and the sound patch corrections.
 
 -- 
-Stephen Hemminger	<shemminger@osdl.org>
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+

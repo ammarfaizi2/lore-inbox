@@ -1,106 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268695AbUIXLmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268698AbUIXLoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268695AbUIXLmt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 07:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268696AbUIXLmt
+	id S268698AbUIXLoz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 07:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268701AbUIXLoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 07:42:49 -0400
-Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:26556 "EHLO
-	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
-	id S268695AbUIXLmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 07:42:45 -0400
-Date: Fri, 24 Sep 2004 21:42:06 +1000 (EST)
-From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-X-X-Sender: gc1007@fb07-calculator.math.uni-giessen.de
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: lost memory on a 4GB amd64
-In-Reply-To: <200409241041.08975.andrew@walrond.org>
-Message-Id: <Pine.LNX.4.58.0409242126450.16306@fb07-calculator.math.uni-giessen.de>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
- <Pine.LNX.4.58.0409241856120.16011@fb07-calculator.math.uni-giessen.de>
- <200409241127.38529.rjw@sisk.pl> <200409241041.08975.andrew@walrond.org>
-Organization: University of Giessen * Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
-X-HRZ-JLUG-MailScanner: Found to be clean
+	Fri, 24 Sep 2004 07:44:55 -0400
+Received: from scanner1.mail.elte.hu ([157.181.1.137]:29415 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268698AbUIXLoT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 07:44:19 -0400
+Date: Fri, 24 Sep 2004 13:45:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm3-S5
+Message-ID: <20040924114524.GA4467@elte.hu>
+References: <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <415384E1.2080907@cybsft.com> <415394EE.50106@cybsft.com> <20040924074026.GB17368@elte.hu> <4153FF90.1010209@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4153FF90.1010209@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Sep 2004, Andrew Walrond (AW) wrote:
 
-AW> On Friday 24 Sep 2004 10:27, Rafael J. Wysocki wrote:
-AW> >
-AW> > > AW> cpu1's bank. How are yours arranged?
-AW> > >
-AW> > > my board has only four banks, each of them has a 1GB module sitting.
-AW> > > (page 26 of ftp://ftp.tyan.com/manuals/m_s2875_102.pdf)
-AW> >
-AW> > Which is what makes the difference, I think.  IMO, the problem is that
-AW> > _both_ CPUs use the same memory bank that is physically attached to only
-AW> > one of them which leads to conflicts, apparently (the CPU with memory has
-AW> > also PCI/AGP/whatever attached to it via HyperTransport so I can imagine
-AW> > there may be issues with overlapping address spaces etc.).  I'd bet that
-AW> > there's something wrong either with the BIOS or with the board design
-AW> > itself and I don't think there's anything that the kernel can do about it
-AW> > (usual disclaimer applies).
-AW> >
-AW> > Out of couriosity: have you tried to run the kernel with K8 NUMA enabled?
-AW> >
+* K.R. Foley <kr@cybsft.com> wrote:
 
-yes.
+> Maybe this wasn't the right way to fix the problem? I just looked at
+> the S4 patch and it had the same change in it, but did not exhibit the
+> same problem. Not knowing exactly what I was looking for, I just
+> started looking for obvious changes that might affect dropping tcp
+> connections and this one seemed reasonable. I made the change and the
+> problem went away. Maybe this needs looking at a little closer.
 
-AW> Actually, the block diagram on page 9 of the manual suggests that this is 
-AW> _not_ a NUMA board, since all DIMMS are connected to cpu1. The block diagram 
-AW> for my thunder k8w specifically shows DIMMS associated with individual 
-AW> processors.
-AW> 
-AW> Which suggests that NUMA show be _disabled_ in the kernel config.
+S4 had other problems with softirq processing so i'd not be surprised if
+that magically fixed the problem introduced by this change.
 
-hmm. 
-
-AW> Have you tried it with NUMA disabled? I think I remeber it being on in 
-AW> the .config you sent me.
-
-NUMA was enabled all the time (at least most of the time). I don't know if 
-I ever ran it without NUMA. I'll certainly try that.
-
-Unfortunately, I won't be able to do any reboots during the next one or 
-two weeks since the machine has gone into stable operation tonight. (with 
-some loss of memory for now)
-
-if it is of some interest, that's what dmesg tells about NUMA:
-
-     BIOS-provided physical RAM map:
-      BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-      BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-      BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
-      BIOS-e820: 0000000000100000 - 00000000bfff0000 (usable)
-      BIOS-e820: 00000000bfff0000 - 00000000bffff000 (ACPI data)
-      BIOS-e820: 00000000bffff000 - 00000000c0000000 (ACPI NVS)
-      BIOS-e820: 00000000ff780000 - 0000000100000000 (reserved)
-      BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
-     Scanning NUMA topology in Northbridge 24
-     Number of nodes 2 (10010)
-     Node 0 MemBase 0000000000000000 Limit 000000013fffffff
-     Skipping disabled node 1
-     Using node hash shift of 24
-     Bootmem setup node 0 0000000000000000-000000013fffffff
-     No mptable found.
-     On node 0 totalpages: 1310719
-       DMA zone: 4096 pages, LIFO batch:1
-       Normal zone: 1306623 pages, LIFO batch:16
-       HighMem zone: 0 pages, LIFO batch:1
-
-So actually it looks like the kernel well notices that only one processor
-has access to the memory here.
-
-
-        Sergei
--- 
---------------------------------------------------------------------  -?)
-         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
--------------------------------------------------------------------- _\_V
-Be careful of reading health books, you might die of a misprint.
-                -- Mark Twain
+	Ingo

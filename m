@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316248AbSEQOkm>; Fri, 17 May 2002 10:40:42 -0400
+	id <S316247AbSEQOkn>; Fri, 17 May 2002 10:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316247AbSEQOj6>; Fri, 17 May 2002 10:39:58 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24733 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316252AbSEQOjs>;
-	Fri, 17 May 2002 10:39:48 -0400
-Date: Fri, 17 May 2002 07:26:25 -0700 (PDT)
-Message-Id: <20020517.072625.29433758.davem@redhat.com>
-To: jgarzik@mandrakesoft.com
-Cc: ink@jurassic.park.msu.ru, andrew.grover@intel.com, mochel@osdl.org,
-        Greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: pci segments/domains
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CE514B6.6070302@mandrakesoft.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S316250AbSEQOjw>; Fri, 17 May 2002 10:39:52 -0400
+Received: from 209-6-202-152.c3-0.nwt-ubr1.sbo-nwt.ma.cable.rcn.com ([209.6.202.152]:58866
+	"EHLO chezrutt.dyndns.org") by vger.kernel.org with ESMTP
+	id <S316247AbSEQOjm>; Fri, 17 May 2002 10:39:42 -0400
+From: John Ruttenberg <rutt@chezrutt.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15589.5673.460356.221529@localhost.localdomain>
+Date: Fri, 17 May 2002 10:39:37 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dell Inspiron i8100 with 2 batteries
+In-Reply-To: <E178j9U-0006fz-00@the-village.bc.nu>
+X-Mailer: VM 6.96 under Emacs 20.7.1
+Reply-to: rutt@chezrutt.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@mandrakesoft.com>
-   Date: Fri, 17 May 2002 10:33:26 -0400
+I thought I'd try to figure out that there were two batteries and divide by 2
+or something like that.  Perhaps the bios of this notebook is just broken,
+though.
 
-   My main want is cosmetic -- call a spade a spade, so to speak. 
-    s/sysdata/pci_domain/  But doing so opens the door to increased 
-   flexibility.  Later steps can add common members needed by pci-to-pci 
-   IOMMU tricks which are common to most platforms.
+Alan Cox:
+> > of the batteries is less than 50% (according to the bios), then /proc/apm
+> > shows the battery power level X 2.  If the combined charge of the batteries is
+> > greater than 50%, then /proc/apm shows:
+> > 
+> >     1.16 1.2 0x03 0x01 0xff 0x10 -1% -1 ?
+> > 
+> > I think this is because the bogus calculation it would make would result in a
+> > percentage > 100.
+> > 
+> > I took a quick look at arch/i386/kernel/apm.c but it wasn't obvious what to
+> > do.
+> 
+> The data basically comes from the BIOS as is
 
-Since the name really doesn't matter let's call it struct pci_controller
-since that is what Alpha and Sparc use already :-)
+
+

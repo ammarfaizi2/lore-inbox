@@ -1,65 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbVALCAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVALCAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbVALCAr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 21:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbVALCAq
+	id S263003AbVALCAz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 21:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbVALCAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 21:00:46 -0500
-Received: from colin2.muc.de ([193.149.48.15]:64782 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263001AbVALCA1 (ORCPT
+	Tue, 11 Jan 2005 21:00:55 -0500
+Received: from mail.aei.ca ([206.123.6.14]:6852 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S263000AbVALCAp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 21:00:27 -0500
-Date: 12 Jan 2005 03:00:23 +0100
-Date: Wed, 12 Jan 2005 03:00:23 +0100
-From: Andi Kleen <ak@muc.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: node_online_map patch kills x86_64
-Message-ID: <20050112020023.GB74675@muc.de>
-References: <20050111151656.A24171@build.pdx.osdl.net> <m1d5wb4jni.fsf@muc.de> <20050111163025.T469@build.pdx.osdl.net> <20050112013805.GA74675@muc.de> <20050111175313.E24171@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jan 2005 21:00:45 -0500
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.6.10-ck3
+Date: Tue, 11 Jan 2005 22:03:29 -0500
+User-Agent: KMail/1.7.1
+Cc: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
+References: <41E45F8D.2050204@kolivas.org>
+In-Reply-To: <41E45F8D.2050204@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050111175313.E24171@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200501112203.29532.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> SRAT: PXM 0 -> APIC 0 -> Node 1
-> SRAT: PXM 1 -> APIC 1 -> Node 2
-> SRAT: Node 1 PXM 0 0-9ffff
-> SRAT: Node 1 PXM 0 0-3fffffff
-> SRAT: Node 2 PXM 1 40000000-7fffffff
-> Bootmem setup node 1 0000000000000000-000000003fffffff
-> Bootmem setup node 2 0000000040000000-000000007ff5ffff
-> No mptable found.
-> PANIC: early exception rip ffffffff8078b2e3 error 0 cr2 17c497a67
+On Tuesday 11 January 2005 18:21, Con Kolivas wrote:
+> http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck3/
 
-Can you please test if this patch fixes the problem? 
+Con,
 
-Thanks, 
--Andi
+With cfq adding fair share writing, is the vm-pageout-throttling patch still needed?  Suspect
+that cfq might just handle it...
 
-
-Fix SRAT NUMA parsing
-
-Fix fallout from the recent nodemask_t changes. The node ids assigned 
-in the SRAT parser were off by one.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/arch/x86_64/mm/srat.c
-===================================================================
---- linux.orig/arch/x86_64/mm/srat.c	2005-01-09 18:19:17.%N +0100
-+++ linux/arch/x86_64/mm/srat.c	2005-01-12 02:43:54.%N +0100
-@@ -29,8 +29,8 @@
- 	if (pxm2node[pxm] == 0xff) {
- 		if (num_online_nodes() >= MAX_NUMNODES)
- 			return -1;
--		pxm2node[pxm] = num_online_nodes();
--		node_set_online(num_online_nodes());
-+		pxm2node[pxm] = num_online_nodes() - 1;
-+		node_set_online(pxm2node[pxm]);
- 	}
- 	return pxm2node[pxm];
- }
+Ed Tomlinson

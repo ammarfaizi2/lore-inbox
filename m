@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264985AbSKAMwT>; Fri, 1 Nov 2002 07:52:19 -0500
+	id <S265005AbSKAM6W>; Fri, 1 Nov 2002 07:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbSKAMwT>; Fri, 1 Nov 2002 07:52:19 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25853 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S264985AbSKAMwS>; Fri, 1 Nov 2002 07:52:18 -0500
-Date: Fri, 1 Nov 2002 13:58:41 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Greg Kroah-Hartman <greg@kroah.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.45
-In-Reply-To: <Pine.NEB.4.44.0211011222110.2875-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.NEB.4.44.0211011357330.2875-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265002AbSKAM6W>; Fri, 1 Nov 2002 07:58:22 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:51725 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S265005AbSKAM5s>; Fri, 1 Nov 2002 07:57:48 -0500
+Date: Fri, 1 Nov 2002 08:03:55 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Nikita Shulga <malfet@mipt.sw.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ISOFS question
+Message-ID: <20021101130355.GI1521@phunnypharm.org>
+References: <200211020546.10758.malfet@mipt.sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211020546.10758.malfet@mipt.sw.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Sat, Nov 02, 2002 at 05:46:10AM -0800, Nikita Shulga wrote:
+> Hi!
+> Is it planned(or already impleneted) to support CD with (blocksize != 2^n)? 
+> As far as I know this is the main problem why I can't simply mount VCD? 
+> Thanks in advance,
+> 	Nikita
+> P.S. I'm not a member of list, so plz, CC your answer to me
 
-please ignore this mail, I found the patch that was already sent to l-k...
+Errm, if I know my formats (which I might not) you can't mount a VCD
+because it is just mpeg written to a track, not ISOFS or any sort of FS
+at all.
 
-cu
-Adrian
-
-
-On Fri, 1 Nov 2002, Adrian Bunk wrote:
-
-> On Wed, 30 Oct 2002, Linus Torvalds wrote:
->
-> >...
-> > Summary of changes from v2.5.44 to v2.5.45
-> > ============================================
-> >...
-> > Greg Kroah-Hartman <greg@kroah.com>:
-> >...
-> >   o USB: drivers/net/irda fixups due to USB structure changes
-> >...
->
-> <--  snip  -->
->
-> ...
->   gcc -Wp,-MD,drivers/net/irda/.irda-usb.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-> -DKBUILD_BASENAME=irda_usb   -c -o drivers/net/irda/irda-usb.o
-> drivers/net/irda/irda-usb.c
-> drivers/net/irda/irda-usb.c: In function `irda_usb_probe':
-> drivers/net/irda/irda-usb.c:1490: structure has no member named `bInterfaceNumber'
-> make[3]: *** [drivers/net/irda/irda-usb.o] Error 1
->
-> <--  snip  -->
->
-> cu
-> Adrian
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

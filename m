@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVCRI1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVCRIZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVCRI1A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 03:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVCRI1A
+	id S261496AbVCRIZW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 03:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVCRIXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 03:27:00 -0500
-Received: from ns.suse.de ([195.135.220.2]:47794 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261503AbVCRI0E (ORCPT
+	Fri, 18 Mar 2005 03:23:51 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51935 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261492AbVCRITo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 03:26:04 -0500
-Date: Fri, 18 Mar 2005 09:25:54 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-       Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.11 vs 2.6.10 slowdown on i686
-Message-ID: <20050318082554.GA12536@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Nick Piggin <npiggin@suse.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Andi Kleen <ak@suse.de>
-References: <E1DBtvc-0002c4-00@mta1.cl.cam.ac.uk> <42397A04.2060703@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
-Content-Disposition: inline
-In-Reply-To: <42397A04.2060703@yahoo.com.au>
-X-Operating-System: Linux 2.6.11.1-4-default i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+	Fri, 18 Mar 2005 03:19:44 -0500
+Date: Fri, 18 Mar 2005 00:17:56 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org, Simon Derr <Simon.Derr@bull.net>,
+       Ray Bryant <raybry@sgi.com>, Paul Jackson <pj@sgi.com>
+Message-Id: <20050318081757.31530.88116.sendpatchset@sam.engr.sgi.com>
+Subject: [Patch] cpusets alloc GFP_WAIT sleep fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    Linus - please apply.
 
-Hi Nick,
+The cpuset mems_allowed update code in alloc_pages_current could
+(in theory) put a task to sleep that didn't allow sleeping (did
+not have __GFP_WAIT flag set).  In the rare circumstance that
+the current tasks mems_generation is outofdate compared to the
+tasks cpuset mems_generation, this mems_allowed update code
+needs to grap cpuset_sem, which can sleep.
 
-On Thu, Mar 17, 2005 at 11:37:24PM +1100, Nick Piggin wrote:
-> Ian Pratt wrote:
-> >fork: 166 -> 235  (40% slowdown)
-> >exec: 857 -> 1003 (17% slowdown)
-> >
-> >I'm guessing this is down to the 4 level pagetables. This is rather a
-> >surprise as I thought the compiler would optimise most of these
-> >changes away. Apparently not.=20
->=20
-> There are some changes in the current -bk tree (which are a
-> bit in-flux at the moment) which introduce some optimisations.
->=20
-> They should bring 2-level performance close to par with 2.6.10.
-> If not, complain again :)
+We avoid this by not trying to update mems_allowed here if we
+can't sleep (__GFP_WAIT not set).
 
-Is there a clean patchset that we should look at to test?
+Applies to top of Linus's bk tree (post 2.6.11)
 
-Regards,
---=20
-Kurt Garloff, Director SUSE Labs, Novell Inc.
+Thanks to Ray Bryant <raybry@sgi.com> for noticing this.
 
---W/nzBZO5zC0uMSeA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+===================================================================
+--- 2.6.12-pj.orig/mm/mempolicy.c	2005-03-16 01:16:58.000000000 -0800
++++ 2.6.12-pj/mm/mempolicy.c	2005-03-16 01:32:05.000000000 -0800
+@@ -788,12 +788,16 @@ alloc_page_vma(unsigned gfp, struct vm_a
+  *	Allocate a page from the kernel page pool.  When not in
+  *	interrupt context and apply the current process NUMA policy.
+  *	Returns NULL when no page can be allocated.
++ *
++ *	Don't call cpuset_update_current_mems_allowed() unless
++ *	1) it's ok to take cpuset_sem (can WAIT), and
++ *	2) allocating for current task (not interrupt).
+  */
+ struct page *alloc_pages_current(unsigned gfp, unsigned order)
+ {
+ 	struct mempolicy *pol = current->mempolicy;
+ 
+-	if (!in_interrupt())
++	if ((gfp & __GFP_WAIT) && !in_interrupt())
+ 		cpuset_update_current_mems_allowed();
+ 	if (!pol || in_interrupt())
+ 		pol = &default_policy;
 
-iD8DBQFCOpCSxmLh6hyYd04RAhDQAJ9+SxyXgatmZUr5aYSF668qHqweYACgkWDD
-EYB8uUyQuHUV50nP3DpfMHA=
-=Y4bt
------END PGP SIGNATURE-----
-
---W/nzBZO5zC0uMSeA--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266991AbRGQTum>; Tue, 17 Jul 2001 15:50:42 -0400
+	id <S266996AbRGQUKQ>; Tue, 17 Jul 2001 16:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266994AbRGQTuc>; Tue, 17 Jul 2001 15:50:32 -0400
-Received: from dragonfire3.delta.com ([205.174.22.22]:606 "EHLO
-	satlmsghub03.delta-air.com") by vger.kernel.org with ESMTP
-	id <S266991AbRGQTuW>; Tue, 17 Jul 2001 15:50:22 -0400
-Message-ID: <BDEE1F50C0C6D411BBB600204840D7B40124F17D@satlrccdmrus25.delta-air.com>
-From: "Dominick, David" <David.Dominick@delta.com>
-To: "'John Weber'" <weber@nyc.rr.com>, linux-kernel@vger.kernel.org
-Subject: RE: sound?!?!!?
-Date: Tue, 17 Jul 2001 15:50:19 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
+	id <S267001AbRGQUKH>; Tue, 17 Jul 2001 16:10:07 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:48228 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S266996AbRGQUJ6> convert rfc822-to-8bit; Tue, 17 Jul 2001 16:09:58 -0400
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+  charset="iso-8859-1"
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: "Dominick, David" <David.Dominick@delta.com>, linux-kernel@vger.kernel.org
+Subject: Re: sound?!?!!?
+Date: Tue, 17 Jul 2001 22:08:42 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <BDEE1F50C0C6D411BBB600204840D7B40124F17D@satlrccdmrus25.delta-air.com>
+In-Reply-To: <BDEE1F50C0C6D411BBB600204840D7B40124F17D@satlrccdmrus25.delta-air.com>
+MIME-Version: 1.0
+Message-Id: <01071722084200.03038@Einstein.P-netz>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it is most likely a problem with me, but I have tried everything and I keep
-getting the error that device not found or busy. I get this rather I use the
-kernel modules for this card, or I try alsa's driver pack.
-Is there some configuration step that you did when using the kernel module?
-I had this working a long time ago under the 2.2.x kernel, so I know that
-the sound card works, it also works on my W2k hard drive.
+> it is most likely a problem with me, but I have tried everything and I keep
+> getting the error that device not found or busy. I get this rather I use
 
------Original Message-----
-From: John Weber [mailto:weber@nyc.rr.com]
-Sent: Tuesday, July 17, 2001 3:39 PM
-To: linux-kernel@vger.kernel.org; Dominick, David
-Subject: Re: sound?!?!!?
+Possibly you already tried this, then ignore my ideas:
 
+First idea:
+It might be a stupid idea, as I don´t know your Toshiba but try to change the 
+PnP OS option in the BIOS. (from yes to no or from no to yes)
+If you don´t have success set it back, of course.
 
-Dominick, David wrote:
+Second idea:
+Have you activated ISA PnP in the Kernel?
+/proc/isapnp must exist and the sound module should be loaded after the 
+isaPnP support. 
+If /proc/isapnp exists, what is sndconfig doing?
 
-> I am having problems with the opl3sa2 driver for yamaha sound card on my
-> toshiba running kernel 2.4.6
-> 
-> HELP!!!
-
-I am running kernel 2.4.6 on a toshiba satellite 225CDS and toshiba 
-tecra 8000 (both use OPL3sa2 driver), and sound is working well.  What 
-exactly do you have problems with?  Is this a redhat problem (a problem 
-with sndconfig)?
+Good Luck.

@@ -1,61 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266438AbSKOSka>; Fri, 15 Nov 2002 13:40:30 -0500
+	id <S266464AbSKOSly>; Fri, 15 Nov 2002 13:41:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266443AbSKOSka>; Fri, 15 Nov 2002 13:40:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11026 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266438AbSKOSk3>;
-	Fri, 15 Nov 2002 13:40:29 -0500
-Date: Fri, 15 Nov 2002 18:47:25 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Dead & Dying interfaces
-Message-ID: <20021115184725.H20070@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S266480AbSKOSly>; Fri, 15 Nov 2002 13:41:54 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:61432 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266464AbSKOSlw>; Fri, 15 Nov 2002 13:41:52 -0500
+Subject: Re: Non-blocking lock requests during the grace period
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OFFF0C4F23.C5AA44D6-ON87256C72.0066E60D@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Fri, 15 Nov 2002 10:48:49 -0800
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
+ 11/15/2002 11:49:53
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-We forgot to remove a lot of crap interfaces during 2.5 development.
-Let's start a list now so we don't forget during 2.7.
 
-This list is a combination of interfaces which have gone during 2.5 and
-interfaces that should go during 2.7.  Think of it as a `updating your
-driver/filesystem to sane code' guide.
 
-sleep_on, sleep_on_timeout, interruptible_sleep_on,
-	interruptible_sleep_on_timeout
- -> use wait_event interfaces
 
-flush_page_to_ram
- -> Documentation/cachetlb.txt
+Guess you are right. I was just worried that this code does not become
+active for any other case than the one we were trying to fix.
+We should also return when called from test as it should be non-blocking.
+Then we do have the problem with UNLOCKs so we
+have two choices: either fix the caller or just check for either lock or
+test and block. I rather the last one.
 
-cli, sti, save_flags
- -> Documentation/cli-sti-removal.txt
 
-pcibios_*
- -> Documentation/pci.txt
+Juan
 
-virt_to_bus, bus_to_virt
- -> Documentation/DMA-mapping.txt
 
-check_region
- -> Just use request_region and handle the failure
 
-kmap
- -> Use kmap_atomic instead
 
-task queues
- -> work queues
+|---------+---------------------------->
+|         |           Trond Myklebust  |
+|         |           <trond.myklebust@|
+|         |           fys.uio.no>      |
+|         |                            |
+|         |           11/15/02 09:35 AM|
+|         |           Please respond to|
+|         |           trond.myklebust  |
+|         |                            |
+|---------+---------------------------->
+  >-------------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                         |
+  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                            |
+  |       cc:       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net                                                 |
+  |       Subject:  Re: Non-blocking lock requests during the grace period                                                  |
+  |                                                                                                                         |
+  |                                                                                                                         |
+  >-------------------------------------------------------------------------------------------------------------------------|
 
-lock_kernel
- -> spinlocks
 
-smp_processor_id
- -> get_cpu
 
--- 
-Revolutions do not require corporate support.
+
+     > 2.-I also have this part enclosed in the if(resp->status ==
+     > NLM_LCK_DENIED_GRACE_PERIOD) as follows:
+
+     > if(resp->status == NLM_LCK_DENIED_GRACE_PERIOD) {
+
+     >       blah blah...
+
+     > wait_on_grace:
+     >                          if ((proc == NLMPROC_LOCK) &&
+     >                          !argp->block)
+     >                                      return -EAGAIN
+     > } else {
+
+     >       ....
+     > }
+
+     > This with the intention to be very specific as to when we want
+     > the return -EAGAIN to be called.
+
+The above means that you will still block on a F_GETLK query...
+
+In any case, why would we want to return -EAGAIN in one case where
+argp->block isn't set, and not in another? If there are cases where we
+want to block and where we are not currently setting argp->block (the
+only one I can think of might be NLMPROC_UNLOCK), then we should fix
+the caller.
+
+Cheers,
+  Trond
+
+
+

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274825AbRIZElj>; Wed, 26 Sep 2001 00:41:39 -0400
+	id <S274829AbRIZE7w>; Wed, 26 Sep 2001 00:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274829AbRIZEl3>; Wed, 26 Sep 2001 00:41:29 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:31245 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S274825AbRIZElY>;
-	Wed, 26 Sep 2001 00:41:24 -0400
-Date: Wed, 26 Sep 2001 07:41:42 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Gangadhar Uppala <gangadhar.uppala@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to exchange data between Kernel & User Space
-Message-ID: <20010926074142.E11046@mea-ext.zmailer.org>
-In-Reply-To: <009101c1463e$8410e160$1f33a8c0@ganga.wipro.com>
+	id <S274830AbRIZE7m>; Wed, 26 Sep 2001 00:59:42 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:11723 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S274829AbRIZE7f>; Wed, 26 Sep 2001 00:59:35 -0400
+Date: Wed, 26 Sep 2001 10:34:24 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: davem@redhat.com
+Cc: marcelo@connectiva.com.br, riel@connectiva.com.br,
+        Andrea Arcangeli <andrea@suse.de>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, hawkes@engr.sgi.com
+Subject: Re: Locking comment on shrink_caches()
+Message-ID: <20010926103424.A8893@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <009101c1463e$8410e160$1f33a8c0@ganga.wipro.com>; from gangadhar.uppala@wipro.com on Wed, Sep 26, 2001 at 09:21:25AM +0530
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 09:21:25AM +0530, Gangadhar Uppala wrote:
-> Hi All,
->     Here we are in need of a design decision . The problem is as follows:
-> 
-> We are writing device driver for network adapter, as part of this we need to
-> exchange some information between user and kernel(driver) and vice versa. As
-> i know this can be implemented using IOCTLs. Please suggest an alternative
-> approach for this.
+In article <20010925.132816.52117370.davem@redhat.com> David S. Miller wrote:
+>    From: Rik van Riel <riel@conectiva.com.br>
+>    Date: Tue, 25 Sep 2001 17:24:21 -0300 (BRST)
+>    
+>    Or were you measuring loads which are mostly read-only ?
 
-   Why the system supplied standard set of ioctls isn't enough ?
-   Or is not extendible ?
+> When Kanoj Sarcar was back at SGI testing 32 processor Origin
+> MIPS systems, pagecache_lock was at the top.
 
-   Something very special you need to do ?
-   Is high bandwidth needed at this communication ?
+John Hawkes from SGI had published some AIM7 numbers that showed
+pagecache_lock to be a bottleneck above 4 processors. At 32 processors,
+half the CPU cycles were spent on waiting for pagecache_lock. The
+thread is at -
 
-   For normal network traffic the communication goes via kernel internal
-   packet reception path, but if you want to do something totally different,
-   suggesting alternates needs an idea of what you are aiming at.
+http://marc.theaimsgroup.com/?l=lse-tech&m=98459051027582&w=2
 
-> Please keep a copy for me, because i am not subscriber to this list.
-> 
-> Thanks
-> Gangadhar
-
-/Matti Aarnio
+Thanks
+Dipankar
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

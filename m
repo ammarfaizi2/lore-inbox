@@ -1,98 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317030AbSHaK2M>; Sat, 31 Aug 2002 06:28:12 -0400
+	id <S317169AbSHaKjD>; Sat, 31 Aug 2002 06:39:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317063AbSHaK2M>; Sat, 31 Aug 2002 06:28:12 -0400
-Received: from gtisr.ist.utl.pt ([193.136.138.253]:33426 "EHLO pixie.local")
-	by vger.kernel.org with ESMTP id <S317030AbSHaK2L>;
-	Sat, 31 Aug 2002 06:28:11 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Problems compiling 2.5.32
-Content-Type: text/plain; charset=US-ASCII
-From: Rodrigo Ventura <yoda@isr.ist.utl.pt>
-Date: 31 Aug 2002 11:32:35 +0100
-Message-ID: <lxofbj8gjg.fsf@pixie.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
-MIME-Version: 1.0
+	id <S317355AbSHaKjD>; Sat, 31 Aug 2002 06:39:03 -0400
+Received: from [213.87.11.61] ([213.87.11.61]:8320 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id <S317169AbSHaKjC>;
+	Sat, 31 Aug 2002 06:39:02 -0400
+Date: Sat, 31 Aug 2002 14:42:23 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5.31] transparent PCI-to-PCI bridges
+Message-ID: <20020831144223.A772@localhost.park.msu.ru>
+References: <20020831015716.B926@jurassic.park.msu.ru> <20020830201958.24112@192.168.4.1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020830201958.24112@192.168.4.1>; from benh@kernel.crashing.org on Fri, Aug 30, 2002 at 10:19:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 30, 2002 at 10:19:58PM +0200, Benjamin Herrenschmidt wrote:
+> First, a simple problem: You are showing a possible problem caused
+> by a given PCI host & bridge setup. That's not my point. My point
+> is that I _do_ have setups with N MMIO regions and want the kernel
+> to be able to deal with that.
 
-        I don't know whether these issues are new to you all, but
-anyway, here they go:
+It's just an example. Give me real numbers and addresses and I'll show
+you configuration with _real_ hardware which might work, but won't
+with your approach.
 
+> I'm not introducing any limitation to
+> the code, I want the code to be generic enough to cope with a setup
+> that exist (as the host is configured by my firmware).
 
-Version: 2.5.32 (patched from 2.5.31)
+You won't allow windows of the PCI bridge to overlap multiple ranges decoded
+by the host bridge - it's a serious limitation, I think.
 
-1. Module 8250.o does not compile due to syntax errors, but a little
-   kludge made it work:
+> Also, in your example, if I expose a single memory resource, then I
+> lie since the host bridge in this example would not forward addresses
+> "between" the 2 ranges, thus the kernel would potentially allocate
+> space for unassigned devices in that non-decoded range.
 
---- linux-2.5.31-orig/include/linux/serialP.h   Sat Aug 31 10:56:03 2002
-+++ linux-2.5.31/include/linux/serialP.h        Fri Aug 30 18:12:07 2002
-@@ -24,7 +24,7 @@
- #include <linux/tqueue.h>
- #include <linux/circ_buf.h>
- #include <linux/wait.h>
--#if (LINUX_VERSION_CODE < 0x020300)
-+#if 1 /*(LINUX_VERSION_CODE < 0x020300)*/
- /* Unfortunate, but Linux 2.2 needs async_icount defined here and
-  * it got moved in 2.3 */
- #include <linux/serial.h>
+Nope.  Arch specific pcibios_align_resource is called on every allocation
+and should take care of this - read the code.
 
+> I want my host pci_bus structure to expose what it is really forwarding.
+> That's as simple as that. If your host is configured in a more "sane",
+> way, then good.
 
-2. loop.o cannot be compiled as a module, because it results in:
+Actually, no. Some old alphas have several (8, IIRC) PCI memory windows
+with a 8Mb "hole" in each.
 
-	  loop.o: unresolved symbol balance_dirty_pages
+> Regarding your above example, it just don't happen in real life.
+> First, we have AGP as a separate PCI host domain on pmac ;) Then,
+> the firmware can configures host bridges with large enough regions
+> to deal with what is needed by the card.
 
-   when trying to insmod it.
+Pmac firmware is really cool then. ;-) Video cards with 256M memory
+regions are quite common and 512M ones already exist.
 
-
-3. Strange errors (no such errors with 2.4.x, same config)
-
-PIIX3: IDE controller on PCI bus 00 dev 39
-PIIX3: chipset revision 0
-PIIX3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-hda: Maxtor 91080D5, ATA DISK drive
-hdb: MATSHITA CR-587, ATAPI CD/DVD-ROM drive
-hdc: CR-2801TE, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-blk: queue c03520a4, I/O limit 4095Mb (mask 0xffffffff)
-hda: host protected area => 1
-hda: 21095424 sectors (10801 MB) w/512KiB Cache, CHS=1313/255/63, (U)DMA
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 hda9 >
- hdb:ide-scsi: unsup command: dev 03:40: REQ_CMD REQ_STARTED sector 0, nr/cnr 8/1
-
-end_request: I/O error, dev 03:40, sector 0
-Buffer I/O error on device ide0(3,64), logical block 0
-ide-scsi: unsup command: dev 03:40: REQ_CMD REQ_STARTED sector 1, nr/cnr 7/1
-
-end_request: I/O error, dev 03:40, sector 1
-Buffer I/O error on device ide0(3,64), logical block 1
-ide-scsi: unsup command: dev 03:40: REQ_CMD REQ_STARTED sector 2, nr/cnr 6/1
-
-end_request: I/O error, dev 03:40, sector 2
-Buffer I/O error on device ide0(3,64), logical block 2
-ide-scsi: unsup command: dev 03:40: REQ_CMD REQ_STARTED sector 3, nr/cnr 5/1
-
-[etc, etc, etc]
-
-
-
-        *NOTE* When replying, please CC to me (I'm not subscribed to
-this list). Thank you.
-
-        Cheers,
-
-        Rodrigo Ventura
-
--- 
-
-*** Rodrigo Martins de Matos Ventura <yoda@isr.ist.utl.pt>
-***  Web page: http://www.isr.ist.utl.pt/~yoda
-***   Teaching Assistant and PhD Student at ISR:
-***    Instituto de Sistemas e Robotica, Polo de Lisboa
-***     Instituto Superior Tecnico, Lisboa, PORTUGAL
-*** PGP fingerprint = 0119 AD13 9EEE 264A 3F10  31D3 89B3 C6C4 60C6 4585
+Ivan.

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSGUQgs>; Sun, 21 Jul 2002 12:36:48 -0400
+	id <S316258AbSGUQkA>; Sun, 21 Jul 2002 12:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316258AbSGUQgs>; Sun, 21 Jul 2002 12:36:48 -0400
-Received: from web12906.mail.yahoo.com ([216.136.174.73]:47108 "HELO
-	web12906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S315690AbSGUQgr>; Sun, 21 Jul 2002 12:36:47 -0400
-Message-ID: <20020721163953.48917.qmail@web12906.mail.yahoo.com>
-Date: Sun, 21 Jul 2002 09:39:53 -0700 (PDT)
-From: Tom Walcott <thomaswalcott@yahoo.com>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1027259282.16818.96.camel@irongate.swansea.linux.org.uk>
+	id <S316512AbSGUQkA>; Sun, 21 Jul 2002 12:40:00 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4104 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316258AbSGUQj7>; Sun, 21 Jul 2002 12:39:59 -0400
+Date: Sun, 21 Jul 2002 09:43:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Rohland <cr@sap.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 'select' failure or signal should not update timeout
+In-Reply-To: <u1mug2ii.fsf@sap.com>
+Message-ID: <Pine.LNX.4.44.0207210934180.3794-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sun, 2002-07-21 at 05:42, Tom Walcott wrote:
-> > Can LVM2 currently do everything that EVMS does?
-> > From looking at this, it appears there is a >> > >
-difference. > >
-http://evms.sourceforge.net/comparison.pdf
-> 
-> Include an identical comparison document by the LVM2
-> team and it might
-> be worth looking at in detail 8)
-> 
 
-I have not been able to find anything from them. If
-the LVM2 team has such a document, let them post it.
-Otherwise, they could respond to anything they feel is
-inaccurate.
- 
--Tom
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Health - Feel better, live better
-http://health.yahoo.com
+On 21 Jul 2002, Christoph Rohland wrote:
+>
+> Yes, so everybody really using select assumes it's _at least_ X
+> seconds... So where's the problem?
+
+Have you tried to _do_ this? I doubt you have, since you think it works
+well already.
+
+The fact is, that if you're doing soft-realtime, you end up having to call
+gettimeofday() a lot more than you should. Your timeouts are fundamentally
+"real time" (ie they are _not_ of the type "I should show the next frame
+in 0.0333 seconds" but they are really "I showed frame N at time X, so I
+need to show frame N+1 at time X+0.0333").
+
+The fact that select() and friends do not work with real time, but
+offsets, and is not restartable means that you end up having to do two
+gettimeofday() calls per select in these situations.
+
+In contrast, if you could just rely on absolute time in select(), you
+would be re-startable _and_ you'd not have to do the extra "what time is
+it now, so that I know what timeout I need to use for the next thing"?
+
+> Yes, and probably select is one of the calls you most of the time use
+> because of portability. So IMHO a linuxism isn't worth the effort.
+
+The fact is, the linuxism exists, and breaking it is worse than not
+breaking it.
+
+The number of users is probably small, but they do exist.
+
+		Linus
+

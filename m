@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316370AbSETU4H>; Mon, 20 May 2002 16:56:07 -0400
+	id <S316374AbSETU6j>; Mon, 20 May 2002 16:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316371AbSETU4G>; Mon, 20 May 2002 16:56:06 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:28944 "HELO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with SMTP
-	id <S316369AbSETU4E>; Mon, 20 May 2002 16:56:04 -0400
-Date: Mon, 20 May 2002 22:56:04 +0200 (CEST)
-From: Martin Decky <deckm1am@ss1000.ms.mff.cuni.cz>
-X-X-Sender: <deckm1am@u-pl3>
-To: <linux-kernel@vger.kernel.org>
-Cc: <martin@decky.cz>
-Subject: [PATCH] 2.4.19-pre8 include/asm-i386/bitops.h ffs() bug
-Message-ID: <Pine.LNX.4.33.0205202249280.11776-100000@u-pl3>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316373AbSETU6i>; Mon, 20 May 2002 16:58:38 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:51718 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S316371AbSETU6h>; Mon, 20 May 2002 16:58:37 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: suid bit on directories
+Date: Mon, 20 May 2002 20:58:37 +0000 (UTC)
+Organization: Cistron
+Message-ID: <acbo1t$aoo$1@ncc1701.cistron.net>
+In-Reply-To: <20020520165312.3fb29ba2.michael@hostsharing.net> <200205201928.OAA13328@tomcat.admin.navo.hpc.mil>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1021928317 11032 195.64.65.67 (20 May 2002 20:58:37 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <200205201928.OAA13328@tomcat.admin.navo.hpc.mil>,
+Jesse Pollard  <pollard@tomcat.admin.navo.hpc.mil> wrote:
+>And ANY user can put files into YOUR directory. Even files you don't want
+>there. AND you can't tell who did it.
 
-asm-i386/bitops.h contains assembler definition of ffs() (find first bit
-set), which has wrong operand declaration. The instruction "bsfl" accepts
-only memory or register as its first operand, not a direct value.
+A setuid bit on a directory doesn't mean it syddenly has
+rwxrwxrwx permissions. You still need permission to create the
+file as usual. Try playing with a setgid directory one day.
+It behaves the same.
 
-The bug has stayed unnoticed in the kernel for many months. It expressed
-on my system while compiling Gentoo's 2.4.19-r1 patched kernel with XFS
-included and using GCC 3.1.
+>> Only the owner of the directories can set this flag. There is nothing to
+>> control. 
+>
+>Ah - so I can put files into your directory, and suddenly they are owned
+>by you. Remember that the next time you are convicted of piracy with criminal
+>data in your directory.... (DMCA remember - and saying "Those files are not
+>mine" just doesn't cut it, when obviously they have your uid on them; the
+>best you would work them down to is "contributing to piracy").
 
+It would be stupid to have a setuid directory world writable. You'd
+probably make it group writab;e. Then only people in that group have
+access to create files, so the files aren't anonymous - they were
+created by someone in that group.
 
---- bitops.h	2001-11-22 20:46:18.000000000 +0100
-+++ bitops.h.working	2002-05-20 22:42:45.000000000 +0200
-@@ -347,7 +347,7 @@
- 	__asm__("bsfl %1,%0\n\t"
- 		"jnz 1f\n\t"
- 		"movl $-1,%0\n"
--		"1:" : "=r" (r) : "g" (x));
-+		"1:" : "=r" (r) : "rm" (x));
- 	return r+1;
- }
+>Also remember what happens when a hard link is created in the directory...
+>The file changes ownership.
 
+Adding an extra directory entry for a file doesn't change
+the inode (well, the link count is bumped up by one) in any way.
 
+Mike.
 -- 
-
-    ------------------------------------------------------------------
-    Martin Decky
-     Faculty of Mathematics and Physics,
-     Charles University in Prague,
-     Czech Republic
-
-    deckm1am@ss1000.ms.mff.cuni.cz                     martin@decky.cz
-    http://www.ms.mff.cuni.cz/~deckm1am/           http://www.decky.cz
-    ------------------------------------------------------------------
+"Insanity -- a perfectly rational adjustment to an insane world."
+  - R.D. Lang
 

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbTBGQiN>; Fri, 7 Feb 2003 11:38:13 -0500
+	id <S265982AbTBGQf5>; Fri, 7 Feb 2003 11:35:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266043AbTBGQiM>; Fri, 7 Feb 2003 11:38:12 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.224]:31141 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S266041AbTBGQiM>; Fri, 7 Feb 2003 11:38:12 -0500
-Date: Fri, 7 Feb 2003 11:57:16 -0500 (EST)
+	id <S266010AbTBGQf5>; Fri, 7 Feb 2003 11:35:57 -0500
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.223]:38847 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S265982AbTBGQf4>; Fri, 7 Feb 2003 11:35:56 -0500
+Date: Fri, 7 Feb 2003 11:54:56 -0500 (EST)
 From: Frank Davis <fdavis@si.rr.com>
 X-X-Sender: fdavis@master
 To: linux-kernel@vger.kernel.org
 cc: fdavis@si.rr.com, <trivial@rustcorp.com.au>
-Subject: [PATCH] 2.5.59 : arch/cris/drivers/eeprom.c
-Message-ID: <Pine.LNX.4.44.0302071155150.6917-100000@master>
+Subject: [PATCH] 2.5.59 : drivers/char/generic_serial.c 
+Message-ID: <Pine.LNX.4.44.0302071150580.6917-100000@master>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello all,
-  The following patch addresses buzilla buig # 308 , and removes a 
-unneeded semicolon. Please review for inclusion.
+   The following patch fixes buzilla bug # 307 - a dangling else issue. 
+Please review for inclusion.
 
 Regards,
 Frank
 
---- linux/arch/cris/drivers/eeprom.c.old	2003-01-16 21:22:02.000000000 -0500
-+++ linux/arch/cris/drivers/eeprom.c	2003-02-07 03:17:58.000000000 -0500
-@@ -815,7 +815,7 @@
-       i2c_outbyte( eeprom.select_cmd | 1 );
-     }
+--- linux/drivers/char/generic_serial.c.old	2003-01-16 21:22:13.000000000 -0500
++++ linux/drivers/char/generic_serial.c	2003-02-07 03:22:26.000000000 -0500
+@@ -142,14 +142,14 @@
+  
+ 		/* Can't copy more? break out! */
+ 		if (c <= 0) break;
+-		if (from_user)
++		if (from_user) {
+ 			if (copy_from_user (port->xmit_buf + port->xmit_head, 
+ 					    buf, c)) {
+ 				up (& port->port_write_sem);
+ 				return -EFAULT;
+ 			}
  
--    if(i2c_getack());
-+    if(i2c_getack())
-     {
-       break;
-     }
+-		else
++		}else
+ 			memcpy (port->xmit_buf + port->xmit_head, buf, c);
+ 
+ 		port -> xmit_cnt += c;
+ 
 

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264446AbUADG2U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 01:28:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUADG2T
+	id S264418AbUADHXT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 02:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUADHXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 01:28:19 -0500
-Received: from esperance.ozonline.com.au ([203.23.159.248]:14720 "EHLO
-	ozonline.com.au") by vger.kernel.org with ESMTP id S264410AbUADG2N
+	Sun, 4 Jan 2004 02:23:19 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:64689 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264418AbUADHXR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 01:28:13 -0500
-Date: Sun, 4 Jan 2004 17:31:29 +1100
-From: Davin McCall <davmac@ozonline.com.au>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] fix issues with loading PCI ide drivers as modules
- (linux 2.6.0)
-Message-Id: <20040104173129.60cde487.davmac@ozonline.com.au>
-In-Reply-To: <200401040452.17659.bzolnier@elka.pw.edu.pl>
-References: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
-	<200401040256.57419.bzolnier@elka.pw.edu.pl>
-	<20040104142141.2bf4f230.davmac@ozonline.com.au>
-	<200401040452.17659.bzolnier@elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 4 Jan 2004 02:23:17 -0500
+Date: Sat, 3 Jan 2004 23:23:12 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alex Buell <alex.buell@munted.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inode_cache / dentry_cache not being reclaimed aggressively enough  on low-memory PCs
+Message-ID: <20040104072312.GM1882@matchmail.com>
+Mail-Followup-To: Alex Buell <alex.buell@munted.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0401031128100.2605@slut.local.munted.org.uk> <20040103103023.77bf91b5.jlash@speakeasy.net> <20040103145557.369a12c4.akpm@osdl.org> <Pine.LNX.4.58.0401040014360.4975@slut.local.munted.org.uk> <20040103190543.3b2d917f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040103190543.3b2d917f.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I'm resending this as I forgot to CC: it to the lists.
-
-On Sun, 4 Jan 2004 04:52:17 +0100
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
-
-> > 1) unless "idex=base,ctl,irq" is used, the hwif->chipset is left as
-> > "ide_unknown" (this means for that the hwif can get re-allocated in
-> > setup-pci.c - ide_match_hwif() - and clobbered)
+On Sat, Jan 03, 2004 at 07:05:43PM -0800, Andrew Morton wrote:
+> Alex Buell <alex.buell@munted.org.uk> wrote:
+> >
+> > On Sat, 3 Jan 2004, Andrew Morton wrote:
+> > 
+> > > John Lash <jlash@speakeasy.net> wrote:
+> > > >
+> > > > As it stands, it will maintain as many unused entries as there are used entries.
+> > > >  If this low memory system las a large, stable, number of inuse dentry objects,
+> > > >  the unused entries will match it thereby holding double the memory and possibly
+> > > >  causing the problem you see.
+> > > 
+> > > Yup.   There is a fix in 2.6.1-rc1 for this.
+> > 
+> > Which change would that be? It would be nice to back-port that to 2.4.x if 
+> > that's possible?
 > 
-> Hmm.  What if hwif is freed by a driver?
+> It is not backportable.
+> 
+> You could try increasing `count' in shrink_dcache_memory() and
+> shrink_icache_memory().  Also you should be using 2.4.23 or later because
+> it does have improvements in the memory reclaim area.
 
-I don't think I'm really sure what you're asking. (which driver frees hwif? why is it a problem? I see a "ide_unregister" call, it resets the hwif to default state - this should be fine.
-
-> > What about this is a solution to these problems:
-> >  - set hwif->chipset to "ide_generic" instead of leaving it as
-> > "ide_unknown" (ide-probe.c); - if ide_match_hwif() returns an already
-> > allocated hwif, do not clobber it in ide_hwif_configure() (setup-pci.c)
->
-> This brakes "idex=base..." parameters for PCI chipsets.
-> They shouldn't be needed in this case, but...
-
-As far as i can see "idex=base.." is broken for PCI chipsets anyway- if the detected PCI base doesn't match the forced one, the PCI will be allocated a seperate hwif (ie as a seperate ideX) anyway. So you can't force the base port of a PCI-chipset controller.
-
-Do you mean that, if "idex=base..." is give, and the base is correct for the PCI device, then it should work ok? If so it seems the easiest way to fix it is to introduce another dummy chipset type (lets say "ide_generic_forced") which is set (instead of ide_generic) when "idex=.." is parsed. Then check for this in ide_hwif_configure(). Would also need to modify ide_match_hwif() (so it returns a match for "ide_generic_forced" as well as for "ide_generic") and ide_probe_init() would have to change "ide_generic_force" to "ide_generic" (to handle the case that no PCI chipset took control).
-
-So we handle these situations:
-- idex=... specified and no PCI chipset
-- idex=... specified and PCI chipset present
-- PCI chipset module loaded after ide initialization complete
-
-Does that sound ok? If so I will write another patch.
-
-Davin
+Also, if there are any improvements considered for the 2.4 VM, it should be
+on top of the -aa series.  That's where the latest updates are, and it
+doesn't make sence to work from a base that already has seperate
+improvements available.

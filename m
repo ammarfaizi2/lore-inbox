@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbUBODxn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 22:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbUBODxn
+	id S263927AbUBODzm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 22:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbUBODzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 22:53:43 -0500
-Received: from atari.saturn5.com ([209.237.231.200]:17068 "HELO
-	atari.saturn5.com") by vger.kernel.org with SMTP id S263898AbUBODxm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 22:53:42 -0500
-Date: Sat, 14 Feb 2004 19:53:41 -0800
-From: Steve Simitzis <steve@saturn5.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "Feldman, Scott" <scott.feldman@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: e1000 problems in 2.6.x
-Message-ID: <20040215035341.GF1040@saturn5.com>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229F6F@orsmsx402.jf.intel.com> <20040215023226.GE1040@saturn5.com> <402EE603.8020106@tmr.com>
+	Sat, 14 Feb 2004 22:55:41 -0500
+Received: from hera.kernel.org ([63.209.29.2]:47590 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S263927AbUBODzi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 22:55:38 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: kernel.org finger service
+Date: Sun, 15 Feb 2004 03:55:15 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c0mqj3$cfe$1@terminus.zytor.com>
+References: <20040215001237.GB13839@MAIL.13thfloor.at> <402EBCBA.3070502@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <402EE603.8020106@tmr.com>
-User-Agent: Mutt/1.3.28i
-X-gestalt: heart, barbed wire
-X-Cat: calico
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1076817315 12783 63.209.29.3 (15 Feb 2004 03:55:15 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sun, 15 Feb 2004 03:55:15 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/14/04, Bill Davidsen <davidsen@tmr.com> wrote: 
+Followup to:  <402EBCBA.3070502@pobox.com>
+By author:    Jeff Garzik <jgarzik@pobox.com>
+In newsgroup: linux.dev.kernel
+>
+> Herbert Poetzl wrote:
+> > hmm, probably everybody knows and there is a good 
+> > reason for it, but just for the unlikely case, that 
+> > it did went unnoticed ...
+> > 
+> > the finger services at kernel.org does not return
+> > useful information atm.
+> > 
+> > # finger @kernel.org
+> > [kernel.org]
+> 
+> It's intermittent...
+> 
 
-> 1 - check your cables in case 2.6 is checking (or not) something
-> 2 - set your NIC half to match the switch and see if there's a different 
-> problem.
+The finger service is low priority and shuts down under high load.
 
-rebooting to 2.4.22 results in a perfectly working network connection,
-even with auto-negotiate on both the card and the switch. so i am
-hestitant to blame the cables or the hardware. unless, of course, my
-cables have the ability to detect which OS i'm running. :)
-
-the result is 100% predictable: boot to 2.6.x, network problems. change
-the settings on the device or the switch - network problems. boot
-back to 2.4.22 with auto-negotiate everywhere, perfect connection. alas.
-
+	-hpa
 -- 
-
-steve simitzis : /sim' - i - jees/
-          pala : saturn5 productions
- www.steve.org : 415.282.9979
-  hath the daemon spawn no fire?
-
+PGP public key available - finger hpa@zytor.com
+Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
+Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!

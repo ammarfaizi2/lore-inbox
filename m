@@ -1,47 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267390AbRG2AIU>; Sat, 28 Jul 2001 20:08:20 -0400
+	id <S267384AbRG2ATK>; Sat, 28 Jul 2001 20:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267373AbRG2AIK>; Sat, 28 Jul 2001 20:08:10 -0400
-Received: from pD9E1EFED.dip.t-dialin.net ([217.225.239.237]:7438 "EHLO
-	emma1.emma.line.org") by vger.kernel.org with ESMTP
-	id <S265277AbRG2AIG>; Sat, 28 Jul 2001 20:08:06 -0400
-Date: Sun, 29 Jul 2001 02:08:12 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Lawrence Greenfield <leg+@andrew.cmu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010729020812.D9350@emma1.emma.line.org>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Lawrence Greenfield <leg+@andrew.cmu.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010729011552.B9350@emma1.emma.line.org> <Pine.LNX.4.33L.0107282046560.11893-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0107282046560.11893-100000@imladris.rielhome.conectiva>
-User-Agent: Mutt/1.3.19i
+	id <S267388AbRG2ATB>; Sat, 28 Jul 2001 20:19:01 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47622 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267384AbRG2ASu>; Sat, 28 Jul 2001 20:18:50 -0400
+Subject: make rpm
+To: linux-kernel@vger.kernel.org
+Date: Sun, 29 Jul 2001 01:20:19 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15QeJf-0008O8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, 28 Jul 2001, Rik van Riel wrote:
+I've been meaning to do this one for a while and I now have it working so
+that with my current -ac kernel working tree I can type
 
-> > The standard is only useful if it specifies how to get data safely on
-> > disk - it is quite explicit for fsync(), but you evidently cannot
-> > fsync() a link().
-> 
-> As Linus said, fsync() on the directory.
+	make rpm
 
-Relying on that to work on other operating systems is no better than
-demanding synchronous meta data writes: relying on undocumented
-behaviour.
+and out puts kernel-2.4.7ac3-1.i386.rpm
 
-If we spake about Linux-specific applications, that'd be okay, but we
-speak about portable applications, and the diversity is bigger than
-useful. Speed is not the only problem the OS has to solve.
+All this took was the pieces below.
 
--- 
-Matthias Andree
+Anyone care to knock up a "make dpkg" to go with it ?
+
+Alan
+
+---
+
+#
+# RPM target
+#
+#	If you do a make spec before packing the tarball you can rpm -ta it
+#
+spec:
+ 	. scripts/mkspec >kernel.spec
+
+#
+# 	Build a tar ball , generate an rpm from it and pack the result
+# 	There arw two bits of magic here
+#  	1) The use of /. to avoid tar packing just the symlink
+# 	2) Removing the .dep files as they have source paths in them that
+# 		will become invalid
+#
+rpm:    clean newversion spec
+        find . \( -size 0 -o -name .depend \) -type f -print | xargs rm -f
+        cd $(TOPDIR)/.. ; \
+        ln -s $(TOPDIR) $(KERNELPATH) ; \
+        tar cvfz $(KERNELPATH).tar.gz $(KERNELPATH)/. ; \
+        rpm -ta $(TOPDIR)/../$(KERNELPATH).tar.gz
+
+
+--
+
+scripts/mkspec
+
+
+#!/bin/sh
+#
+#	Output a simple RPM spec file that uses no fancy features requring
+#	RPM v4. This is intended to work with any RPM distro.
+#
+#	The only gothic bit here is redefining install_post to avoid 
+#	stripping the symbols from files in the kernel which we want
+#
+echo "Name: kernel"
+echo "Summary: The Linux Kernel"
+echo "Version: "$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION | sed -e "s/-//"
+echo -n "Release: "
+cat .version
+echo "Copyright: GPL"
+echo "Group: System Environment/Kernel"
+echo "Vendor: The Linux Community"
+echo "URL: http://www.kernel.org"
+echo -n "Source: kernel-$VERSION.$PATCHLEVEL.$SUBLEVEL"
+echo "$EXTRAVERSION.tar.gz" | sed -e "s/-//"
+echo "BuildRoot: /var/tmp/%{name}-%{PACKAGE_VERSION}-root"
+echo "%define __spec_install_post /usr/lib/rpm/brp-compress || :"
+echo ""
+echo "%description"
+echo "The Linux Kernel, the operating system core itself"
+echo ""
+echo "%prep"
+echo "%setup -q"
+echo ""
+echo "%build"
+echo "make oldconfig dep clean bzImage modules"
+echo ""
+echo "%install"
+echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib
+$RPM_BUILD_ROOT/lib/modules'
+echo 'INSTALL_MOD_PATH=$RPM_BUILD_ROOT make modules_install'
+echo 'cp arch/i386/boot/bzImage
+$RPM_BUILD_ROOT'"/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
+echo ""
+echo "%clean"
+echo '#echo -rf $RPM_BUILD_ROOT'
+echo ""
+echo "%files"
+echo '%defattr (-, root, root)'
+echo "%dir /lib/modules"
+echo "/lib/modules/$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
+echo ""

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263031AbTHaWrG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 18:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbTHaWrF
+	id S263024AbTHaWtS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbTHaWtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 18:47:05 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:60868 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263031AbTHaWqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 18:46:09 -0400
-Subject: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Zach, Yoav" <yoav.zach@intel.com>
-Cc: akpm@osdl.org, torvalds@osdl.org,
+	Sun, 31 Aug 2003 18:49:18 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57822
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263024AbTHaWtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 18:49:12 -0400
+Date: Mon, 1 Sep 2003 00:49:38 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pascal Schmidt <der.eremit@email.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
-References: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062369910.12059.1.camel@dhcp23.swansea.linux.org.uk>
+Subject: Re: bandwidth for bkbits.net (good news)
+Message-ID: <20030831224938.GC24409@dualathlon.random>
+References: <20030831025659.GA18767@work.bitmover.com> <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk> <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Sun, 31 Aug 2003 23:45:11 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030831211855.GB12752@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-08-31 at 22:41, Zach, Yoav wrote:
-> The proposed patch solves a problem for interpreters that need to
-> execute a non-readable file, which cannot be read in userland. To handle
+On Sun, Aug 31, 2003 at 02:18:55PM -0700, Larry McVoy wrote:
+> On Sun, Aug 31, 2003 at 07:06:33PM +0200, Andrea Arcangeli wrote:
+> > On Sun, Aug 31, 2003 at 09:48:02AM -0700, Larry McVoy wrote:
+> > > works when we've tried what you said to try isn't very compelling.  I know
+> > > this doesn't work from both theory and practice.
+> > 
+> > Post your configure scripts so we can point you what you did wrong.
+> 
+> They are Cisco configuration, it won't do you much good.  All the traffic
 
-You've added a security hole.
+I don't trust anything but the sourcecode I can read, so please try
+again with linux.
 
-> + 	if (fmt->flags & MISC_FMT_OPEN_BINARY) {
-> +		/* if the binary should be opened on behalf of the
-> +		 * interpreter than keep it open and assign it a
-> descriptor */
-> + 		fd = get_unused_fd ();
-> + 		if (fd < 0) {
+> I'm not sure why you are arguing this, if you have a fat pipe feeding into
 
-At this point your file table might be shared with another thread (see
-binfmt_elf in 2.4 - I dunno if 2.6 has been fixed for this exploit yet).
-You need to unshare the file table before you modify it during the exec.
+you never tried with linux, how can you claim you know it doesn't work
+in practice? The fact is that you never tried it, while we used it all
+the time.
 
-Otherwise it looks fairly sane.
+> a small pipe and you are trying to throttle at far end of the small pipe
+> isn't it obvious that you can't make that work?  It's not the packets we
+> send, it's the packets you send.  And all the flow control stuff is per
 
+it's tcp, it's trivial to rate limit the packets we send, as far as you
+go into established somehow.
+
+Andrea

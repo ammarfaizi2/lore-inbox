@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUIARYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUIARYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267344AbUIARYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 13:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUIAPzR
+	id S267353AbUIARYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 13:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbUIAPyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:55:17 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:2483 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S267353AbUIAPvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:51:47 -0400
-Date: Wed, 1 Sep 2004 16:51:23 +0100
-Message-Id: <200409011551.i81FpNha000690@delerium.codemonkey.org.uk>
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix NULL dereference in OSS v_midi driver
+	Wed, 1 Sep 2004 11:54:54 -0400
+Received: from null.rsn.bth.se ([194.47.142.3]:25050 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S267165AbUIAPw4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:52:56 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Daniel Schmitt <pnambic@unu.nu>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com, tytso@mit.edu
+In-Reply-To: <1093993396.3404.17.camel@krustophenia.net>
+References: <200408282210.03568.pnambic@unu.nu>
+	 <20040828203116.GA29686@elte.hu>
+	 <1093727453.8611.71.camel@krustophenia.net>
+	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>
+	 <1093737080.1385.2.camel@krustophenia.net>
+	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>
+	 <20040830090608.GA25443@elte.hu> <1093934448.5403.4.camel@krustophenia.net>
+	 <20040831065327.GA30631@elte.hu>
+	 <1093993396.3404.17.camel@krustophenia.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Oj0eDTBfwF48FL9nMAsn"
+Message-Id: <1094053973.2282.2.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 01 Sep 2004 17:52:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spotted with the source checker from Coverity.com.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+--=-Oj0eDTBfwF48FL9nMAsn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2004-09-01 at 01:03, Lee Revell wrote:
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/sound/oss/v_midi.c linux-2.6/sound/oss/v_midi.c
---- bk-linus/sound/oss/v_midi.c	2004-06-03 13:40:31.000000000 +0100
-+++ linux-2.6/sound/oss/v_midi.c	2004-06-03 13:43:00.000000000 +0100
-@@ -90,11 +90,12 @@ static void v_midi_close (int dev)
- static int v_midi_out (int dev, unsigned char midi_byte)
- {
- 	vmidi_devc *devc = midi_devs[dev]->devc;
--	vmidi_devc *pdevc = midi_devs[devc->pair_mididev]->devc;
-+	vmidi_devc *pdevc;
- 
- 	if (devc == NULL)
--		return -(ENXIO);
-+		return -ENXIO;
- 
-+	pdevc = midi_devs[devc->pair_mididev]->devc;
- 	if (pdevc->input_opened > 0){
- 		if (MIDIbuf_avail(pdevc->my_mididev) > 500)
- 			return 0;
+Hi Lee
+
+> This solves the problem with the random driver.  The worst latencies I
+> am seeing are in netif_receive_skb().  With netdev_max_backlog set to 8,
+> the worst is about 160 usecs:
+
+I'm a bit curious... have you tried these tests with ip_conntrack
+enabled?
+
+--=20
+/Martin
+
+--=-Oj0eDTBfwF48FL9nMAsn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBNfBVWm2vlfa207ERAqJkAKCcf2x+cRcK5eaZgpK8tWdqmkGi1gCgtdNU
+GDLeKPsDkbLGJZLTGoNg1T0=
+=FLhO
+-----END PGP SIGNATURE-----
+
+--=-Oj0eDTBfwF48FL9nMAsn--

@@ -1,79 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293119AbSBWLjs>; Sat, 23 Feb 2002 06:39:48 -0500
+	id <S293125AbSBWMLQ>; Sat, 23 Feb 2002 07:11:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293121AbSBWLjj>; Sat, 23 Feb 2002 06:39:39 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:24326 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S293119AbSBWLjg>;
-	Sat, 23 Feb 2002 06:39:36 -0500
-Date: Sat, 23 Feb 2002 04:38:15 -0700
-From: yodaiken@fsmlabs.com
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] only irq-safe atomic ops
-Message-ID: <20020223043815.B29874@hq.fsmlabs.com>
-In-Reply-To: <3C773C02.93C7753E@zip.com.au>, <1014444810.1003.53.camel@phantasy> <3C773C02.93C7753E@zip.com.au> <1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C774AC8.5E0848A2@zip.com.au>; from akpm@zip.com.au on Fri, Feb 22, 2002 at 11:54:48PM -0800
-Organization: FSM Labs
+	id <S293126AbSBWMLH>; Sat, 23 Feb 2002 07:11:07 -0500
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:18444 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S293125AbSBWMKv>;
+	Sat, 23 Feb 2002 07:10:51 -0500
+Message-ID: <3C7786FE.6828F4BF@yahoo.com>
+Date: Sat, 23 Feb 2002 07:11:42 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.20 i586)
+MIME-Version: 1.0
+To: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] binfmt_elf as module
+Content-Type: text/plain; charset=us-ascii; name="ksyms"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="ksyms"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 11:54:48PM -0800, Andrew Morton wrote:
-> Robert Love wrote:
-> > Thinking about it, you are probably going to be doing this:
-> > 
-> >         ++counter[smp_processor_id()];
-> > 
-> > and that is not preempt-safe since the whole operation certainly is not
-> > atomic.  The current CPU could change between calculating it and
-> > referencing the array.
-> 
-> yup.  It'd probably work - the compiler should calculate the address and
-> do a non-buslocked but IRQ-atomic increment on it.  But no way can we
-> rely on that happening.
-> 
-> >  But, that wouldn't matter as long as you only
-> > cared about the sum of the counters.
-> 
-> If the compiler produced code equivalent to
-> 
-> 	counter[smp_processor_id()] = counter[smp_processor_id()] + 1;
-> 
-> then the counter would get trashed - a context switch could cause CPUB
-> to write CPUA's counter (+1) onto CPUB's counter.  It's quite possibly
-> illegal for the compiler to evaluate the array subscript twice in this
-> manner.  Dunno.
-> 
-> If the compiler produced code equivalent to:
-> 
-> 	const int cpu = smp_processor_id();
-> 	counter[cpu] = counter[cpu] + 1;
-> 
-> (which is much more likely) then a context switch would result
-> in CPUB writing CPUA's updated counter onto CPUA's counter.  Which
-> will work a lot more often, until CPUA happens to be updating its
-> counter at the same time.
 
-So without preemption in the kernel
-	maybe 4 instructions: calculate cpuid, inc; all local no cache ping
-	code is easy to read and understand.
+Someone reported binfmt_elf.o wouldn't load because of unresolved symbols,
+but didn't report the symbols that were missing (I seem to have deleted 
+the original mail.)
 
-with preemption in the kernel
-	a design problem. a slippery synchronization issue that 
-	involves the characteristic preemption error - code that works
-	most of the time.
+Turns out it is empty_zero_page and get_user_pages that are missing.
+Probably been broken for ages, as binfmt_elf is compiled in for 99.9% 
+of folks of course.
+
+Patch for i386 against 2.4.17 follows.  Other arch may also still be broken,
+depending on their definition of ZERO_PAGE and whether or not it uses 
+empty_zero_page.
+
+Paul.
+
+--- mm/Makefile~	Tue Nov  6 19:14:49 2001
++++ mm/Makefile	Sat Feb 23 06:30:04 2002
+@@ -9,7 +9,7 @@
+ 
+ O_TARGET := mm.o
+ 
+-export-objs := shmem.o filemap.o
++export-objs := shmem.o filemap.o memory.o
+ 
+ obj-y	 := memory.o mmap.o filemap.o mprotect.o mlock.o mremap.o \
+ 	    vmalloc.o slab.o bootmem.o swap.o vmscan.o page_io.o \
+--- arch/i386/kernel/i386_ksyms.c~	Sat Feb  2 06:43:30 2002
++++ arch/i386/kernel/i386_ksyms.c	Sat Feb 23 06:23:33 2002
+@@ -71,6 +71,7 @@
+ EXPORT_SYMBOL(get_cmos_time);
+ EXPORT_SYMBOL(apm_info);
+ EXPORT_SYMBOL(gdt);
++EXPORT_SYMBOL(empty_zero_page);
+ 
+ #ifdef CONFIG_DEBUG_IOVIRT
+ EXPORT_SYMBOL(__io_virt_debug);
+--- mm/memory.c~	Sat Feb  2 06:51:18 2002
++++ mm/memory.c	Sat Feb 23 06:28:36 2002
+@@ -44,6 +44,7 @@
+ #include <linux/iobuf.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
++#include <linux/module.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+@@ -499,6 +500,8 @@
+ 	} while(len);
+ 	return i;
+ }
++
++EXPORT_SYMBOL(get_user_pages);
+ 
+ /*
+  * Force in an entire range of pages from the current process's user VA,
 
 
-
-
-	
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
 

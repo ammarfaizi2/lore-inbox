@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268048AbUJCScI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUJCSeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268048AbUJCScI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 14:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUJCSaQ
+	id S268064AbUJCSeP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 14:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUJCSeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 14:30:16 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:60971 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S268048AbUJCS23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 14:28:29 -0400
-Date: Sun, 3 Oct 2004 19:28:10 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH 6/6] vmtrunc: bug if page_mapped
-In-Reply-To: <Pine.LNX.4.44.0410031914480.2739-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0410031927240.2755-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 3 Oct 2004 14:34:15 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:32385 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268064AbUJCSdv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 14:33:51 -0400
+Message-ID: <9e473391041003113351c6e237@mail.gmail.com>
+Date: Sun, 3 Oct 2004 14:33:48 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.6.9-rc3-mm1, bk-pci patch, USB hubs
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If unmap_mapping_range (and mapping->truncate_count) are doing their
-jobs right, truncate_complete_page should never find the page mapped:
-add BUG_ON for our immediate testing, but this patch should probably
-not go to mainline - a mapped page here is not a catastrophe.
+These changes make the USB hub module fail to load. I get a trap in
+kmem_cache_alloc called from uhci_alloc_urb_private. Reverting them
+fixes it.
 
-Unsigned-off-by: Hugh Dickins <hugh@veritas.com>
----
+diff -Nru a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+--- a/drivers/usb/host/ehci-hcd.c       2004-10-03 14:22:49 -04:00
++++ b/drivers/usb/host/ehci-hcd.c       2004-10-03 14:22:49 -04:00
+@@ -1092,7 +1092,7 @@
+                sizeof (struct ehci_qh), sizeof (struct ehci_qtd),
+                sizeof (struct ehci_itd), sizeof (struct ehci_sitd));
 
- mm/truncate.c |    1 +
- 1 files changed, 1 insertion(+)
+-       return pci_module_init (&ehci_pci_driver);
++       return pci_register_driver (&ehci_pci_driver);
+ }
+ module_init (init);
 
---- trunc5/mm/truncate.c	2004-10-02 18:22:29.000000000 +0100
-+++ trunc6/mm/truncate.c	2004-10-03 16:37:39.677144808 +0100
-@@ -45,6 +45,7 @@ static inline void truncate_partial_page
- static void
- truncate_complete_page(struct address_space *mapping, struct page *page)
- {
-+	BUG_ON(page_mapped(page));
- 	if (page->mapping != mapping)
- 		return;
- 
+diff -Nru a/drivers/usb/host/ohci-pci.c b/drivers/usb/host/ohci-pci.c
+--- a/drivers/usb/host/ohci-pci.c       2004-10-03 14:22:49 -04:00
++++ b/drivers/usb/host/ohci-pci.c       2004-10-03 14:22:49 -04:00
+@@ -279,7 +279,7 @@
 
+        pr_debug ("%s: block sizes: ed %Zd td %Zd\n", hcd_name,
+                sizeof (struct ed), sizeof (struct td));
+-       return pci_module_init (&ohci_pci_driver);
++       return pci_register_driver (&ohci_pci_driver);
+ }
+ module_init (ohci_hcd_pci_init);
+
+diff -Nru a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
+--- a/drivers/usb/host/uhci-hcd.c       2004-10-03 14:22:49 -04:00
++++ b/drivers/usb/host/uhci-hcd.c       2004-10-03 14:22:49 -04:00
+@@ -2534,7 +2534,7 @@
+        if (!uhci_up_cachep)
+                goto up_failed;
+
+-       retval = pci_module_init(&uhci_pci_driver);
++       retval = pci_register_driver(&uhci_pci_driver);
+        if (retval)
+                goto init_failed;
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

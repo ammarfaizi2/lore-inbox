@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263903AbTLOSxs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 13:53:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTLOSxs
+	id S263886AbTLOTYR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 14:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbTLOTYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 13:53:48 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:32954 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263903AbTLOSxI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 13:53:08 -0500
-Date: Tue, 16 Dec 2003 07:22:28 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: Suspend not working with SATA:
-In-reply-to: <3FDDD0B0.60807@pobox.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Witold Krecicki <adasi@kernel.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1071512548.14229.88.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <200312151600.53372.adasi@kernel.pl> <3FDDD0B0.60807@pobox.com>
+	Mon, 15 Dec 2003 14:24:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41661 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263886AbTLOTYQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 14:24:16 -0500
+Date: Mon, 15 Dec 2003 14:23:37 -0500
+From: Alan Cox <alan@redhat.com>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: arjanv@redhat.com, Gabriel Paubert <paubert@iram.es>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
+Subject: Re: PCI Express support for 2.4 kernel
+Message-ID: <20031215192337.GA18811@devserv.devel.redhat.com>
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es> <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FDDBDFE.5020707@intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> It looks confusing. On my test system (don't ask details, I am not 
+> alowed to share this info), I see
+> video controller with 256Mb BAR. Does it mean this controller will not 
+> work as well?
 
-Set PF_IOTHREAD on the task's flags instead. That will allow it to run
-during suspending.
+The 256Mb BAR turns up in a variety of graphic cards, and 512Mb in a few.
+The kernel maps just enough memory for the frame buffer + cache. There isn't
+enough space to map it all. User space apps may well have the 512Mb mapped 
+into their address space, but that isnt the kernel one
 
-Regards,
+> There is alternative solution, for each transaction to ioremap/unmap 
+> corresponded page.
+> I don't like it, it involves huge overhead.
 
-Nigel
+ioremap means you can't use pci_exp_* from an interrupt so kmap is probably
+needed. It is overhead but the design of the 386 left us with that problem on
+x86 platforms and it isnt going to go away. On ia64/x86_64 etc its a non issue
 
-On Tue, 2003-12-16 at 04:18, Jeff Garzik wrote:
-> Witold Krecicki wrote:
-> > Stopping tasks: 
-> > ==================================================================
-> >  stopping tasks failed (2 tasks remaining)
-> > Restarting tasks...<6> Strange, katad-1 not stopped
-> >  Strange, katad-2 not stopped
-> >  done
-> 
-> 
-> Both Pavel Machek and I posted test patches to address this... 
-> basically, because of the design of swsusp, you must copy-n-paste the 
-> following code into every single kernel thread:
-> 
->                          if (current->flags & PF_FREEZE)
->                                  refrigerator(PF_IOTHREAD);
-> 
-> But I consider suspend untested at best... for reboot and suspend the 
-> driver should issue flush-cache and other things beyond simply freezing 
-> the kernel thread.  Further, suspending will suck if the kernel thread 
-> itself is the one doing I/O on behalf of the driver.  This occurs if the 
-> transfer mode is PIO rather than DMA.
-> 
-> 	Jeff
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
 

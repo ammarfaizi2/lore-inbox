@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272385AbTHNOrj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 10:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272388AbTHNOri
+	id S272388AbTHNOtV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 10:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272393AbTHNOtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 10:47:38 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:61382 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272385AbTHNOrh
+	Thu, 14 Aug 2003 10:49:21 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:45020 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S272388AbTHNOtT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 10:47:37 -0400
-Date: Thu, 14 Aug 2003 07:47:11 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Eli Carter <eli.carter@inet.com>
-Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-       davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
-Message-ID: <20030814144711.GA5926@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Eli Carter <eli.carter@inet.com>, Larry McVoy <lm@bitmover.com>,
-	Jeff Garzik <jgarzik@pobox.com>, davej@redhat.com,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	dri-devel@lists.sourceforge.net
-References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com> <3F3B9AF8.4060904@inet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Aug 2003 10:49:19 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3-mm2, and my no audio whine, updated
+Date: Thu, 14 Aug 2003 10:49:18 -0400
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F3B9AF8.4060904@inet.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Message-Id: <200308141049.18442.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.62.221] at Thu, 14 Aug 2003 09:49:18 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 09:21:44AM -0500, Eli Carter wrote:
-> >That ought to be balanced with "don't screw up the revision history, people
-> >use it".  It's one thing to reformat code that is unreadable, for the most
-> >part this code didn't come close to unreadable.
-> 
-> Devil's advocate:
-> Then perhaps the (revision control) tool is getting in the way of doing 
-> the job and should be fixed?  :)
-> Perhaps being able to flag a changeset as a 'formatting change', and 
-> have the option to hide it or make it 'transparent' in some fashion? 
-> Hmm... "Annotate only the changes that relate to feature X."...
-> Oh, and a complete AI with that if you don't mind. ;)
-> 
-> But you've probably already thought about all this...
+Greetings;
 
-Indeed I have.  And there is a reason that we have a policy at BitMover
-where "formatting changes" are prohibited and we make people redo their
-changesets until they get them right.
+I guess we can forget about parts of my "no audio" whine.  It turns 
+out there are alsa options in the "make menuconfig" that somehow are 
+not in "make xconfig".  Hint...
 
-In other words, you are welcome to write a revision control system
-which can look through the formatting changes and give you the semantic
-knowledge that you want.  We'd love to see how it is done and then do
-it in BitKeeper :)
+I turned on what I thought was the right stuff, and was greeted by the 
+drum solo when I started kde just now.  So at least kde can make 
+noises now.
+
+However, xawtv and gnomeradio are still mute, gnomeradio complaining 
+about not being able to access /dev/radio, and xawtv silently exiting 
+after the launch timeout.  Do I need to relink those devices in /dev?  
+If so, what to, or to what as the case may be?
+
+Also, FYI, I had to turn the APIC stuff completely off in the .config 
+in order to get rid of that "I found it & turned it on" message in 
+dmesg.  It was ignoreing, or reporting no such option when noapic or 
+pci=noapic was appended to the kernel arguments line in grub.conf.
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

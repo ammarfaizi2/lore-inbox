@@ -1,69 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318775AbSHLRtF>; Mon, 12 Aug 2002 13:49:05 -0400
+	id <S318766AbSHLR4e>; Mon, 12 Aug 2002 13:56:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318776AbSHLRtF>; Mon, 12 Aug 2002 13:49:05 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:58025 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S318775AbSHLRtD>; Mon, 12 Aug 2002 13:49:03 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0BFB80E7@orsmsx108.jf.intel.com>
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "'daniel sheltraw'" <l5gibson@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: RE: kernel to user-space communication
-Date: Mon, 12 Aug 2002 10:52:45 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318767AbSHLR4e>; Mon, 12 Aug 2002 13:56:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:42910 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318766AbSHLR4d>;
+	Mon, 12 Aug 2002 13:56:33 -0400
+Date: Mon, 12 Aug 2002 10:46:48 -0700 (PDT)
+Message-Id: <20020812.104648.51931717.davem@redhat.com>
+To: ohrn@chl.chalmers.se
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sungem 0.97 driver doesn't work with "Sun GigabitEthernet/P
+ 2.0" card.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0208121524060.17083-100000@feline.chl.chalmers.se>
+References: <Pine.LNX.4.44.0208121524060.17083-100000@feline.chl.chalmers.se>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are a couple of techniques one can use.
-First, you can set up a piece of memory that is shared
-between the kernel and the user process and when the 
-interrupt occurs, set a flag in memory. The user process
-can poll the memory to see if an interrupt happened.
+   From: Fredrik Ohrn <ohrn@chl.chalmers.se>
+   Date: Mon, 12 Aug 2002 15:53:11 +0200 (CEST)
 
-Coarse, you might not want to waist CPU polling all day,
-so you could use signals (like SIGUSR1) to block, and have the 
-kernel send the signal when the interrupt occurs. Only problem
-with signals is that they are not stackable.
+   gem: SW reset is ghetto.
 
-Another technique is to implement the concept of a wait object,
-you write a simple driver that manages these. The user process
-does an ioctl to the wait object driver when it wants to wait for 
-an interrupt. The ioctl sleeps if the interrupt has not occurred.
-The kernel then calls wakeup when the interrupt 
-happens and the ioctl completes. 
-We implemented a mechanism like this for InfiniBand,
-which allows user level I/O to the hardware and we needed a way to
-signal I/O completions (interrupts) to the user process. 
-If you are interested
-in an example, take a look at the early reference InfiniBand code
-at http://sourceforge.net/projects/infiniband.
+If you get this message you won't get a working card at all.
 
------Original Message-----
-From: daniel sheltraw [mailto:l5gibson@hotmail.com]
-Sent: Monday, August 12, 2002 8:40 AM
-To: linux-kernel@vger.kernel.org
-Subject: kernel to user-space communication
-
-
-Hello Kernel
-
-Is there a way to comminicate to a user-space program that an
-interrupt has occurred in a kernel module?
-
-Thanks,
-Daniel Sheltraw
-
-
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Most likely the BIOS isn't assigning resources to the card
+correctly.  Some x86 guru would need to look at PCI config
+space dumps to figure out what might be going wrong.

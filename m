@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbTJPIrH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 04:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbTJPIrH
+	id S262760AbTJPIta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 04:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbTJPIt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 04:47:07 -0400
-Received: from [203.199.54.175] ([203.199.54.175]:55304 "EHLO
-	MailRelay.lntinfotech.com") by vger.kernel.org with ESMTP
-	id S262753AbTJPIrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 04:47:05 -0400
-From: "Suresh Subramanian" <Suresh.Subramanian@lntinfotech.com>
-Subject: Problems in Device Driver Development
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
-Message-ID: <OF7B0779CA.CA76EC51-ON65256DC1.002FABA8@lntinfotech.com>
-Date: Thu, 16 Oct 2003 14:15:42 +0530
-MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on BANGALORE/LNTINFOTECH(Release 5.0.9 |November 16, 2001) at
- 10/16/2003 02:15:43 PM,
-	Itemize by SMTP Server on MailRelay/LNTINFOTECH(Release 5.0.12  |February
- 13, 2003) at 10/16/2003 02:30:34 PM,
-	Serialize by Router on MailRelay/LNTINFOTECH(Release 5.0.12  |February 13, 2003) at
- 10/16/2003 02:30:50 PM,
-	Serialize complete at 10/16/2003 02:30:50 PM
-Content-type: text/plain; charset=us-ascii
+	Thu, 16 Oct 2003 04:49:29 -0400
+Received: from mail.actcom.co.il ([192.114.47.15]:56276 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262760AbTJPItO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 04:49:14 -0400
+Date: Thu, 16 Oct 2003 10:44:05 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [PCM OSS] via82xx soundcard Oops
+Message-ID: <20031016084404.GR5017@actcom.co.il>
+References: <20031016083103.GA25472@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tqN4RWvJTb9VNux/"
+Content-Disposition: inline
+In-Reply-To: <20031016083103.GA25472@outpost.ds9a.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
 
-Me and my friends face the following problems while developing Device
-Drivers.
-Let me confess that we are all amateur programmers. I hope that i get a
-reply for this from atleast one of the many people out there.
+--tqN4RWvJTb9VNux/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-1.   We are not able to use copy_to_user() a chunk of memory from 'write'
-function of the device driver. The pointer in the user space is passed to
-the kernel space through the 'ioctl' function of the device driver.
+On Thu, Oct 16, 2003 at 10:31:03AM +0200, bert hubert wrote:
 
-2.    We are not able to send a signal using kill_fasync() from within a
-kernel thread, to an user space process. The problem we face when we do
-this is that we get an OOPS message. I tried hard to decode this message,
-but in vain. So we came to the conclusion that i cannot send a signal from
-within the kernel thread using kill_fasync to a process that is running in
-the user space. Am i right in my conclusion, if not what should i do to
-make it possible.
+> Via82xx soundcard, on running wavesurfer
+> (http://www.speech.kth.se/wavesurfer/download.html - excellent), I often =
+get
+> an oops in snd_pcm_format_set_silence, especially with short segments of
+> sound:
+
+Fixed in ALSA CVS and in Linus's bitkeeper tree. Will show up in
+-test8.=20
+
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
 
-3.   Similar to problem numbered 2, we face same problems in doing with
-'tasklets'.
+--tqN4RWvJTb9VNux/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Thank you.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQE/jlpUKRs727/VN8sRAoptAJ9MT3bLWHTJpOaVb/IeGGzByJbIEQCgrsNd
+0dNayyHa7Nsq1OBFPB/GE+o=
+=vB93
+-----END PGP SIGNATURE-----
+
+--tqN4RWvJTb9VNux/--

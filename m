@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUDASY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 13:24:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbUDASY3
+	id S263030AbUDASYe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 13:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263031AbUDASYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 13:24:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6345 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263028AbUDASYZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 13:24:25 -0500
-Message-ID: <406C5E4B.4020505@pobox.com>
-Date: Thu, 01 Apr 2004 13:24:11 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Andries Brouwer <aebr@win.tue.nl>, Andre Hedrick <andre@linux-ide.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Lionel Bergeret <lbergeret@swing.be>, JunHyeok Heo <jhheo@idis.co.kr>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Bogus LBA48 drives
-References: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be> <Pine.LNX.4.10.10403300821520.11654-100000@master.linux-ide.org> <20040331183410.GA3796@pclin040.win.tue.nl> <406B14C1.8000708@pobox.com> <Pine.GSO.4.58.0404010933190.12148@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0404010933190.12148@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Apr 2004 13:24:34 -0500
+Received: from gprs212-143.eurotel.cz ([160.218.212.143]:640 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263030AbUDASYa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 13:24:30 -0500
+Date: Thu, 1 Apr 2004 20:24:17 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: perex@suse.cz, Tjeerd.Mulder@fujitsu-siemens.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: via82xx cmd line parsing is evil [was Re: Sound on newer arima notebook...]
+Message-ID: <20040401182417.GA216@elf.ucw.cz>
+References: <20040331145206.GA384@elf.ucw.cz> <s5h7jx1xdel.wl@alsa2.suse.de> <20040401080954.GA464@elf.ucw.cz> <s5hr7v8w1gr.wl@alsa2.suse.de> <20040401082905.GE224@elf.ucw.cz> <s5hptasw0t8.wl@alsa2.suse.de> <20040401090452.GF224@elf.ucw.cz> <s5hlllgvz2s.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hlllgvz2s.wl@alsa2.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> On Wed, 31 Mar 2004, Jeff Garzik wrote:
+Hi!
+
+> >  static int joystick[SNDRV_CARDS];
+> >  #endif
+> >  static int ac97_clock[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 48000};
+> > -static int ac97_quirk[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = AC97_TUNE_DEFAULT};
+> > -static int dxs_support[SNDRV_CARDS];
+> > +static int ac97_quirk[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 1};
+> > +static int dxs_support[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 1};
 > 
->>Andries Brouwer wrote:
->>
->>>Hmm. I read in my copy of ATA7:
->>>
->>> 6.16.55 Words (103:100): Maximum user LBA for 48-bit Address feature set
->>> Words (103:100) contain a value that is one greater than the maximum LBA
->>> in user accessable space when the 48-bit Addressing feature set is supported.
->>> The maximum value that shall be placed in this field is 0000FFFFFFFFFFFFh.
->>> Support of these words is mandatory if the 48-bit Address feature set is supported.
->>>
->>>Do you read differently?
->>
->>The errata is, one needs to check that field for zero, and use the other
->>one if so...
-> 
-> 
-> Which is not sufficient for `my' drives, since I get disk errors if I just use
-> the other capacity field and don't disable LBA48 completely.
-> 
-> I'll check the ATA specs myself, if I find some time...
+> i suppose that ac97_quirk=1 and dxs_support=1 work fine with your
+> machine?
+> (i don't want to change defaults for all devices yet :)
 
-If it's reporting the "48-bit feature set supported" but doesn't really 
-support it, I'd vote for broken drive :)  Maybe check for a firmware 
-update on the manufacturer's web site?
+ac97_quirk=1 helps (*) here. dxs_support=1 makes it sounds worse than
+usual.
+									Pavel
 
-	Jeff
-
-
-
-
+(*): Vol + PCM now controls output to headphones. Thats certainly better
+than output controlled by PCM + PCM2. I *still* can't make it play on
+internal speakers...
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

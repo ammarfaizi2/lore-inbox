@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261848AbSIXXYU>; Tue, 24 Sep 2002 19:24:20 -0400
+	id <S261786AbSIXXiv>; Tue, 24 Sep 2002 19:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261849AbSIXXYU>; Tue, 24 Sep 2002 19:24:20 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:29754 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S261848AbSIXXYT>; Tue, 24 Sep 2002 19:24:19 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0A5389E2@orsmsx108.jf.intel.com>
-From: "Rhoads, Rob" <rob.rhoads@intel.com>
-To: "'Greg KH'" <greg@kroah.com>, "Rhoads, Rob" <rob.rhoads@intel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [ANNOUNCE] Linux Hardened Device Drivers Project
-Date: Tue, 24 Sep 2002 16:29:23 -0700
+	id <S261857AbSIXXiu>; Tue, 24 Sep 2002 19:38:50 -0400
+Received: from mta03bw.bigpond.com ([139.134.6.86]:14311 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261786AbSIXXiu>; Tue, 24 Sep 2002 19:38:50 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: alternate event logging proposal
+Date: Wed, 25 Sep 2002 09:37:20 +1000
+User-Agent: KMail/1.4.5
+Cc: Tim Hockin <thockin@sun.com>, Chris Friesen <cfriesen@nortelnetworks.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       cgl_discussion mailing list <cgl_discussion@osdl.org>,
+       evlog mailing list <evlog-developers@lists.sourceforge.net>
+References: <20020924073051.363D92C1A7@lists.samba.org> <200209250832.35068.bhards@bigpond.net.au> <3D90F5D3.4070504@pobox.com>
+In-Reply-To: <3D90F5D3.4070504@pobox.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209250937.20887.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Greg KH [mailto:greg@kroah.com]
-> On Tue, Sep 24, 2002 at 02:46:35PM -0700, Rhoads, Rob wrote:
-> > 
-> > First throw away any idea of a spec. That was a bad idea. :)
-> > 
-> > Next, turn the first section, "Stability & Reliability" of our 
-> > original doc into a "Driver Hardening HOWTO". It would be a 
-> > list of characteristics that all good drivers should have, 
-> > packed with examples to back it up. 
-> 
-> Sounds very good.  I recommend that it be written in DocBook and added
-> to the Documentation/DocBook directory of the kernel tree.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Agreed. :-)
-
-> 
-> > BTW, by no means did I or anyone involved on this project, ever 
-> > mean to imply that the current drivers in the kernel are "bad". 
-> > Rather, I'd like to capture a list of the best practices and 
-> > document them. In any event our current list needs to be 
-> > strengthened with concrete examples. My thinking is that we 
-> > should work with the Kernel Janitor project. This is where 
-> > Intel can probably really help out.
-> 
-> Great, the janitor project can really use extra people to help out.  I
-> suggest that you read over their TODO list again and pick up 
-> the pieces
-> from there that are missing from your "Driver Hardening HOWTO".
-
-I will do.
-
-[snip]
-
-> 
-> It would be wonderful if there were some good FI tools that were
-> available for our use.  It can only help to make better drivers.
-> 
-> Thank you for your response, and for listening to the community.
-> 
-> greg k-h
+On Wed, 25 Sep 2002 09:31, Jeff Garzik wrote:
+> Brad Hards wrote:
+> > I liked the /sbin/hotplug arrangement (aka call_usermode_helper). In
+> > fact, my plan was to add the call_usermode_helper call to the
+> > netif_carrier_[on,off] functions. Unfortuantely, I've been to too many of
+> > Rusty's talks, and know that calling a function that is only safe in user
+> > context is unlikely to be a good idea in netif_carrier_[on,off], which
+> > are more than likely running in interrupt context.
 >
+> You really want something where a userspace app can sleep on an fd, to
+> be awakened when link changes (or some other interesting event occurs)
+Maybe - I've been thinking of a "hotplug" daemon, that can take notifications 
+from the kernel _and_ from other userspace apps. The integrated solution 
+somehow needs to incorporate device hotplugging (eg USB, PCI), network device 
+events (netlink), userspace reconfiguration (eg X colour depth and 
+resolution) and maybe network infrastructure (external to the machine, 
+probably SLPv2 or similar), and reconfigure kernel and applications to match.
 
--RobR
+Brad
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Aust. Tickets booked.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD4DBQE9kPcwW6pHgIdAuOMRAoaDAJ9PnK962eJCuKdobU64SfY/2SRemQCYxSUS
+CfTiTN9hOq+gfldzcgDzCQ==
+=bDjx
+-----END PGP SIGNATURE-----
+

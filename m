@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263278AbUJ2A7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263198AbUJ2Amq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263278AbUJ2A7G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbUJ2A6N
+	id S263198AbUJ2Amq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUJ2Aki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:58:13 -0400
-Received: from smtp3.akamai.com ([63.116.109.25]:23037 "EHLO smtp3.akamai.com")
-	by vger.kernel.org with ESMTP id S263255AbUJ2Azx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:55:53 -0400
-Message-ID: <41819514.C25D7A51@akamai.com>
-Date: Thu, 28 Oct 2004 17:55:48 -0700
-From: Prasanna Meda <pmeda@akamai.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, davem@redhat.com
-Subject: Re: rcv_wnd = init_cwnd*mss
-References: <DB2C167D8FFDEA45B8FC0B1B75E3EE154A3B08@usca1ex-priv1.sanmateo.corp.akamai.com> <20041028165658.753eee50.davem@davemloft.net>
+	Thu, 28 Oct 2004 20:40:38 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:46086 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263227AbUJ2AXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:23:42 -0400
+Date: Fri, 29 Oct 2004 02:23:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/wan/n2.c: remove an unused function
+Message-ID: <20041029002306.GS29142@stusta.de>
+References: <20041028230822.GZ3207@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20041028230822.GZ3207@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+[ this time without the problems due to a digital signature... ]
 
-> On Wed, 27 Oct 2004 23:15:48 -0700
-> "Meda, Prasanna" <pmeda@akamai.com> wrote:
->
-> > Thanks, still it is unclear to me why are we
-> > downsizing the advertised window(rcv_wnd) to cwnd?
-> > To defeat disobeying sender, or something like below?
->
-> There is never any reason to advertise a receive window
-> larger than the initial congestion window of the sender
-> could ever be.
->
-> Setting it properly like this also makes sure that we do
-> receive window update events at just the right place as
-> the sender starts sending us the initial data frames.
-
-That makes sense!
-
-But are we coping with cwnd increase on sender?
-Looks rcv rwnd s updated by only 1 pkt at time.
+The patch below removes an unused function from drivers/net/wan/n2.c
 
 
-Thanks,
-Prasanna.
+diffstat output:
+ drivers/net/wan/n2.c |    5 -----
+ 1 files changed, 5 deletions(-)
 
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm1-full/drivers/net/wan/n2.c.old	2004-10-28 23:20:08.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/net/wan/n2.c	2004-10-28 23:20:30.000000000 +0200
+@@ -159,11 +159,6 @@
+ }
+ 
+ 
+-static __inline__ void close_windows(card_t *card)
+-{
+-	outb(inb(card->io + N2_PCR) & ~PCR_ENWIN, card->io + N2_PCR);
+-}
+-
+ 
+ #include "hd6457x.c"
+ 

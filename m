@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbUJ1RuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbUJ1Rtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbUJ1RuA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1Rt5
+	id S262210AbUJ1Rtm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1Rtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:49:57 -0400
-Received: from alog0418.analogic.com ([208.224.222.194]:6272 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263016AbUJ1RtZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:49:25 -0400
-Date: Thu, 28 Oct 2004 13:46:56 -0400 (EDT)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Phy Prabab <phyprabab@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Help understanding memory layout
-In-Reply-To: <20041028172125.67969.qmail@web51808.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.61.0410281332160.14514@chaos.analogic.com>
-References: <20041028172125.67969.qmail@web51808.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 28 Oct 2004 13:49:42 -0400
+Received: from mail.skule.net ([216.235.14.165]:36030 "EHLO mail.skule.net")
+	by vger.kernel.org with ESMTP id S263015AbUJ1RtG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 13:49:06 -0400
+Date: Thu, 28 Oct 2004 13:48:38 -0400
+From: Mark Frazer <mark@mjfrazer.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits - "@" question
+Message-ID: <20041028174838.GA794@mjfrazer.org>
+References: <200410230426.i9N4Qd9k004757@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+In-Reply-To: <200410230426.i9N4Qd9k004757@work.bitmover.com>
+X-Message-Flag: Outlook not so good.
+Organization: Detectable, well, not really
+X-Fry: They're great! They're like sex except I'm having them.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004, Phy Prabab wrote:
 
-> Hello,
->
-> I need some help understanding memory layout of
-> applications within memory under linux.  I am using
-> the command "pmap" to understand where all the
-> elements of my application are laying and found that I
-> just do not understand how and why it is layed out in
-> a particular fashion.  Is there documentation that
-> could help me understand memory management under
-> Linux?
->
-> Thank you for your time.
-> Phy
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Larry McVoy <lm@bitmover.com> [04/10/23 01:31]:
+> The web pages on bkbits.net contain email addresses.  This is probably
+> about a 4 year too late question but would it help reduce spam if we
+> did something like  s/@/ (at) / for all those addresses?
 
-You can look in /proc/PID/maps to see where memory-mapped
-stuff exists. PID is the process-ID number.
+Hi Larry:  I've used this for a while to add email addresses to my web
+pages and I get almost no spam any more, < 10 per month!
 
-You can also use printf("%p\n", function); to get the
-offset of any function in your code. Using this same
-method, you can also print the offset of anything that
-can be labeled in your code.
+[mjfrazer@pacific depictII]$ html-encode mark@mjfrazer.rog
+&#109;&#97;&#114;&#107;&#64;&#109;&#106;&#102;&#114;&#97;&#122;&#101;&#114;&#46;&#114;&#111;&#103;
+[mjfrazer@pacific depictII]$ 
 
-These offsets are only useful for mental
-masturbation. If your application needs to know
-the layout of its code and data it is severely
-broken and needs to be fixed. All data elements
-are accessible using conventional language methods
-such as pointers, array elements, and structure
-members.
+I've attached the source.
 
+> What are all of you doing to filter spam?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+I use bogofilter, but only get about 10 per month anyways.
+
+cheers
+-mark
+-- 
+People said I was dumb but I proved them! - Fry
+
+--UugvWAfsgieZRqgk
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="html-encode.c"
+
+#include <stdio.h>
+#include <unistd.h>
+
+int usage (char *err) {
+	if (err) printf ("%s\n", err);
+	printf ("Usage: html-encode [-v] <string> <string> <string>\n");
+	return 1;
+}
+
+int main (int argc, char **argv)
+{
+	int i, j, verbose = 0;
+
+	while ((i = getopt (argc, argv, "v")) > -1) {
+		switch (i) {
+			case 'v': verbose = 1; break;
+			default: return usage (0);
+		}
+	}
+	if (argc - optind < 1)
+		usage ("Nothing to do");
+
+	for (i = optind; i < argc; i++) {
+		if (verbose) printf ("%s: ", argv[i]);
+		for (j = 0; j < strlen (argv[i]); j++) {
+			printf ("&#%d;", argv[i][j]);
+		}
+		printf ("\n");
+	}
+
+	return 0;
+}
+
+--UugvWAfsgieZRqgk--

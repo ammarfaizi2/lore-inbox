@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129144AbRBCDym>; Fri, 2 Feb 2001 22:54:42 -0500
+	id <S129256AbRBCEBO>; Fri, 2 Feb 2001 23:01:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129814AbRBCDyc>; Fri, 2 Feb 2001 22:54:32 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:3321 "EHLO
+	id <S129550AbRBCEBF>; Fri, 2 Feb 2001 23:01:05 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:4089 "EHLO
 	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129144AbRBCDyS>; Fri, 2 Feb 2001 22:54:18 -0500
+	id <S129256AbRBCEAx>; Fri, 2 Feb 2001 23:00:53 -0500
 From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200102030353.f133rt002211@webber.adilger.net>
-Subject: Re: A buglet with LVM-0.9.1
-In-Reply-To: <3A7A1519.E140A726@toyota.com> from J Sloan at "Feb 1, 2001 06:02:01
- pm"
-To: J Sloan <jjs@toyota.com>
-Date: Fri, 2 Feb 2001 20:53:54 -0700 (MST)
-CC: Linux kernel <linux-kernel@vger.kernel.org>
+Message-Id: <200102030359.f133xrM02216@webber.adilger.net>
+Subject: Re: Reasons to honor readonly mount requests
+In-Reply-To: <3A7B7F8C.67C2B603@commerceflow.com> from Jeffrey Keller at "Feb
+ 2, 2001 07:48:28 pm"
+To: Jeffrey Keller <jeff@commerceflow.com>
+Date: Fri, 2 Feb 2001 20:59:53 -0700 (MST)
+CC: sct@redhat.com, linux-kernel@vger.kernel.org
 X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan writes:
-> I discovered that lvm seems to have a problem
-> with compaq raid controllers - the partitions
-> don't have the normal names like /dev/sda1,
-> but instead names like /dev/ida/c0d0p1 -
+Jeff writes:
+> I understand that both ext3fs and
+> reiserfs will try to fix corrupt filesystems (or at least filesystems
+> with unprocessed log entries) in-place even if they're mounted
+> read-only.  Clearly, virtual replay means more work, but -- just for
+> fun -- here are some cases in which it might matter:
 > 
-> lvm seems to works OK, but lvmdiskscan freaks...
+> 1. You want the disk image untouched for forensic analysis or data
+>    recovery.
+> 2. You don't trust the disk to do writes properly.
+> 3. You don't trust the driver to do writes properly.
+> 4. You want to test a newer or unstable FS implementation w/ option to
+>    go back to the older one.
+
+Excluding the root fs (which probably isn't involved in these sorts of
+things anyways), you can always turn off the "RECOVERY" flag on the
+filesystem and mount ext3 as ext2, which will not do any recovery.
+
+> 5. You're sharing the disk via:
+>         VMWare (multiple OS instances on 1 computer)
+>         passive backplane (multiple computers on 1 bus)
+>         PCI bridge (multiple computers w/ connected buses)
+>         SCSI/FC/FireWire (multiple computers sharing device)
 > 
-> lvmdiskscan -- filling directory cache...
-> lvmdiskscan -- walking through all found disks / partitions
-> lvmdiskscan -- /dev/ida/c0d0p1  [    1000.06 MB] free whole disk
-> lvmdiskscan -- no valid disks / partitions found
-> lvmdiskscan -- please check your disk device special files!
+> The merit of #5 is reduced but not quite obviated by the fact that
+> it's generally unsafe to share a disk if even one party is writing to it.
 
-LVM _should_ take care of such devices as well, because there are several
-block devices which don't live directly in /dev, especially with devfs.
-According to "lvm_dir_cache.c", it should already check /dev/ida for disks.
-
-If it doesn't work for you, this is a bug.  It would be useful if you ran
-"lvmdiskscan -d" and "cat /proc/partitions" and sent the output to
-linux-lvm@sistina.com
+Very true.  Any changes made by the writer will not be noticed by the
+reader if it has already cached those pages.  Best to use a cluster
+filesystem in all of these cases.
 
 Cheers, Andreas
 -- 

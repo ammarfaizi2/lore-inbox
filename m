@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUGGFjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264913AbUGGFlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264909AbUGGFjp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 01:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUGGFjp
+	id S264913AbUGGFlI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 01:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264914AbUGGFlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 01:39:45 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:61038 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264909AbUGGFjo
+	Wed, 7 Jul 2004 01:41:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22403 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264913AbUGGFks
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 01:39:44 -0400
-Subject: Re: [PATCH] fix tcp_default_win_scale.
-From: Redeeman <lkml@metanurb.dk>
-To: bert hubert <ahu@ds9a.nl>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040706232538.GA8054@outpost.ds9a.nl>
-References: <32886.63.170.215.71.1088564087.squirrel@www.osdl.org>
-	 <20040629222751.392f0a82.davem@redhat.com>
-	 <20040630152750.2d01ca51@dell_ss3.pdx.osdl.net>
-	 <20040630153049.3ca25b76.davem@redhat.com>
-	 <20040701133738.301b9e46@dell_ss3.pdx.osdl.net>
-	 <20040701140406.62dfbc2a.davem@redhat.com>
-	 <20040702013225.GA24707@conectiva.com.br>
-	 <20040706093503.GA8147@outpost.ds9a.nl>
-	 <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
-	 <1089155965.15544.9.camel@localhost>
-	 <20040706232538.GA8054@outpost.ds9a.nl>
-Content-Type: text/plain
-Date: Wed, 07 Jul 2004 07:39:42 +0200
-Message-Id: <1089178782.10677.0.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
+	Wed, 7 Jul 2004 01:40:48 -0400
+Message-ID: <40EB8CCF.3080804@pobox.com>
+Date: Wed, 07 Jul 2004 01:40:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andre Hedrick <andre@linux-ide.org>,
+       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ide errors in 7-rc1-mm1 and later
+References: <20040610164135.GA2230@bounceswoosh.org> <Pine.LNX.4.10.10406260118220.19080-100000@master.linux-ide.org> <20040628181835.GA14632@bounceswoosh.org> <20040702082930.GN1114@suse.de>
+In-Reply-To: <20040702082930.GN1114@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-damn, just tested this patch, it does not fix my issues. i wish there
-were a way to just get it like it was on 2.6.5
+Jens Axboe wrote:
+> On Mon, Jun 28 2004, Eric D. Mudama wrote:
+> 
+>>On Sat, Jun 26 at  1:31, Andre Hedrick wrote:
+>>
+>>>Eric,
+>>>
+>>>There is no need for a new opcode.
+>>>The behavior is simple and trivial to support.
+>>>
+>>>If standard flush_cache/ext were to behave just like standard data_in
+>>>taskfile register setup, yet use a non_data command state machine it would
+>>>be done.
+>>>
+>>>Special case would be deal with LBA Zero and this would have to behave
+>>>like a complete device flush.  Since flushing sector zero is not generally
+>>>done ... well this would go into a design debate and it is not my issue
+>>>nor my desire to enter one today.
+>>>
+>>>28-bit would support max 256 sectors
+>>>48-bit would support max 65536 sectors
+>>>
+>>>Anyone could write this simple proposal to T13 for SATA and T10 for SAS.
+>>
+>>True, that would work just as well.
+>>
+>>But as you mention, it isn't necessarilly what people want or think
+>>they want or could actually use...
+> 
+> 
+> It would work, but it's still a lot nicer to not have to issue an extra
+> command to flush the range.
 
-On Wed, 2004-07-07 at 01:25 +0200, bert hubert wrote:
-> On Wed, Jul 07, 2004 at 01:19:25AM +0200, Redeeman wrote:
-> 
-> > so this should fix the issues? can you also tell me why this suddenly happend? that would make me a real happy man
-> 
-> It appears older linux kernels would announce window scaling capability, but
-> not in fact scale their windows themselves, thus hiding the problem.
-> 
+
+True, but you also have to think about which is easier for drive vendors 
+to implement (without screwing up the implementation :)), and which is 
+more likely get through T13...
+
+	Jeff
+
 

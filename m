@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbTEUO4a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 10:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTEUO4a
+	id S262148AbTEUPC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 11:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTEUPC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 10:56:30 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:59529 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262144AbTEUO43
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 10:56:29 -0400
-Date: Wed, 21 May 2003 08:05:55 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-cc: lse-tech@lists.sourceforge.net, kaos@ocs.com.au,
-       James.Bottomley@steeleye.com, mort@wildopensource.com,
-       davidm@napali.hpl.hp.com, jun.nakajima@intel.com, tomita@cinet.co.jp
-Subject: Re: [Lse-tech] cpu-2.5.69-bk14-1
-Message-ID: <11120000.1053529553@[10.10.2.4]>
-In-Reply-To: <20030520170331.GK29926@holomorphy.com>
-References: <20030520170331.GK29926@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 21 May 2003 11:02:57 -0400
+Received: from h2.prohosting.com.ua ([217.106.231.81]:35305 "EHLO
+	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
+	id S262148AbTEUPC4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 11:02:56 -0400
+From: Artemio <artemio@artemio.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: HELP: kernel won't boot from /dev/sdb1
+Date: Wed, 21 May 2003 18:11:22 +0300
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
+Message-Id: <200305211811.22994.artemio@artemio.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - artemio.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Extended cpumasks for larger systems. Now featuring bigsmp, Summit,
-> and Voyager updates in addition to PC-compatible, NUMA-Q, and SN2
-> bits from SGI.
+Hello all!
 
-Can you remove the random cleanups from this, and just leave the actual
-patch please? Things like:
+I've just installed RH 7.3 on a machine with all-SCSI discs. I had to load 
+"linux dd" with Adaptec AIC 79xx driver floppy installed, but that's ok. 
+The / is mounted from /dev/sdb1. 
 
- static inline int apic_id_registered(void)
- {
--       return (1);
-+       return 1;
- }
- 
-... have sweet FA to do with this. If you want to do that, it's a separate
-patch.
+So, I got a clean 2.4.20 kernel, added AIC 79xx driver sources to the kernel 
+source tree, configured and compiled and installed it (of course, I didn't 
+forget about the modules).
 
-M.
+In lilo, I said "root=/dev/sdb1" just as for the original 2.4.18-3 RedHat 
+kernel which boots ok.
+
+When I boot the new kernel, I get:
+VFS: Cannot open root device at "811" or "08:11"
+
+>From SCSI-howto I got that 08:11 stands for /dev/sda11. Why would /dev/sdb1 be 
+converted to 08:11 instead of 08:17 (again, corresponding to SCSI-howto)?
+
+Would I be able to boot the kernel if I say "root=817"?
+
+I will try tommorow when I get to that machine, but mabe you have some 
+suggestions...
+
+
+
+Thank you very much for reading all this.
+
+Good luck!
+
+
+
+
+Artemio.
 

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136582AbREEAj7>; Fri, 4 May 2001 20:39:59 -0400
+	id <S136579AbREEAwu>; Fri, 4 May 2001 20:52:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136583AbREEAjt>; Fri, 4 May 2001 20:39:49 -0400
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:53386 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S136582AbREEAjm>; Fri, 4 May 2001 20:39:42 -0400
-Date: Fri, 4 May 2001 17:39:35 -0700 (PDT)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: How to debug a 2.4.4 tulip problem?
-Message-ID: <Pine.LNX.4.33.0105041659020.21153-100000@mf1.private>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136583AbREEAwk>; Fri, 4 May 2001 20:52:40 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:9235 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S136579AbREEAwd>;
+	Fri, 4 May 2001 20:52:33 -0400
+Date: Fri, 4 May 2001 20:53:12 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.4.0, aka "brutality and heuristics"
+Message-ID: <20010504205312.A27435@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-Hello,
+Release 1.4.0: Fri May  4 18:18:15 EDT 2001
+	* Ugly hack for recovery from inconsistent configurations.
 
-I'm having a small intermittent problem with the tulip driver in linux
-2.4.4, and I'm looking for some guidance on how to debug it.
+We've spent a lot of time and effort recently arguing about elaborate
+recovery algorithms for the extremely unusual case that the CML2
+configurator loads a configuration that has become invalid because of
+a constraint added to the rulebase since the configuration was
+written.  (Mere addition of new symbols doesn't trigger this.)
 
-What happens is that on one of my boxes the card ocasionally gets wedged.
-That is, network traffic gets painfully slow, e.g. pinging another host on
-the same segment causes each ping to take (almost exactly) 1 second,
-rather than the usual 200 usecs or so.  Executing ifup/ifdown unwedges the
-card.
+The general problem is theoretically hard and for practical purposes
+insoluble, so I've have implemented a suggestion by Dave Wagner and
+John Stoffel.  CML2 will now try to recover fom a load-time
+inconsistency by smashing all the non-frozen symbols in the violated
+constraint to the value N (and notifying the user that it's doing so).
+This is ugly, but will handle most cases.  In the few it doesn't
+handle, the bindings loaded from the file will be backed out as a
+unit.  In any case the user will be left in a running configurator.
 
-Some relevant details about this box:
- eth0: Lite-On 82c168 PNIC rev 32 at 0xb800, 00:C0:F0:2D:3D:8A, IRQ 17.
- MSI-6321 motherboard (VIA Apollo Pro)
+Sigh...now, I hope, we can get back to solving problems that I don't
+expect to be so rare they're lost in the statistical noise.  It's not
+good to get so obsessed about finding clever solutions to corner cases
+that one loses sight of the larger issues.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Now I have a similar box that I think does not show the problem (not 100%
-sure).  It has:
- eth0: Lite-On 82c168 PNIC rev 33 at 0xe800, 00:A0:CC:3F:33:32, IRQ 18.
- Tekram P6B40D-A5 motherboard (Intel 440BX)
-
-As a wild guess, it seems like when the card is wedged, some interrupt is
-getting lost, so that the transmit or send doesn't occur until a timer
-times out.  Perhaps there is a bug in rev 32 of this card that is not in
-rev 33.
-
-What information should I gather when the card is wedged to aid in
-debugging?  Is 'lspci -xxx' enough?  Any suggestions would be welcome.
-
-Cheers,
-Wayne
-
+The prestige of government has undoubtedly been lowered considerably
+by the Prohibition law. For nothing is more destructive of respect for
+the government and the law of the land than passing laws which cannot
+be enforced. It is an open secret that the dangerous increase of crime
+in this country is closely connected with this.
+	-- Albert Einstein, "My First Impression of the U.S.A.", 1921

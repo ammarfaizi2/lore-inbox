@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVA1JQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVA1JcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVA1JQq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 04:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVA1JQq
+	id S261238AbVA1JcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 04:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVA1JcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 04:16:46 -0500
-Received: from xs4all.vs19.net ([213.84.236.198]:49214 "EHLO xs4all.vs19.net")
-	by vger.kernel.org with ESMTP id S261241AbVA1JPK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 04:15:10 -0500
-Date: Fri, 28 Jan 2005 10:14:58 +0100
-From: Jasper Spaans <jasper@vs19.net>
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ajgrothe@yahoo.com, bunk@stusta.de
-Subject: Re: crypto algoritms failing?
-Message-ID: <20050128091458.GA4075@spaans.vs19.net>
-References: <20050128004755.GA6676@spaans.vs19.net> <Xine.LNX.4.44.0501272023080.7174-100000@thoron.boston.redhat.com>
+	Fri, 28 Jan 2005 04:32:25 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23824 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261238AbVA1JcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 04:32:18 -0500
+Date: Fri, 28 Jan 2005 09:32:06 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Phil Oester <kernel@linuxace.com>
+Cc: Robert Olsson <Robert.Olsson@data.slu.se>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-ID: <20050128093206.C9486@flint.arm.linux.org.uk>
+Mail-Followup-To: Phil Oester <kernel@linuxace.com>,
+	Robert Olsson <Robert.Olsson@data.slu.se>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, alexn@dsv.su.se,
+	kas@fi.muni.cz, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <20050123200315.A25351@flint.arm.linux.org.uk> <20050124114853.A16971@flint.arm.linux.org.uk> <20050125193207.B30094@flint.arm.linux.org.uk> <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127183745.GA13365@linuxace.com> <20050127192504.D3036@flint.arm.linux.org.uk> <20050127204012.GA14518@linuxace.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0501272023080.7174-100000@thoron.boston.redhat.com>
-X-Copyright: Copyright 2005 Jasper Spaans, unauthorised distribution prohibited
-User-Agent: Mutt/1.5.6+20040907i
-X-Broken-Reverse-DNS: no host name found for IP address 192.168.0.7
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050127204012.GA14518@linuxace.com>; from kernel@linuxace.com on Thu, Jan 27, 2005 at 12:40:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 27, 2005 at 12:40:12PM -0800, Phil Oester wrote:
+> Vanilla 2.6.10, though I've been seeing these problems since 2.6.8 or
+> earlier.
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Right.  For me:
 
-On Thu, Jan 27, 2005 at 08:43:18PM -0500, James Morris wrote:
+- 2.6.9-rc3 (installed 8th Oct) died with dst cache overflow on 29th November
+- 2.6.10-rc2 (booted 29th Nov) died with the same on 19th January
+- 2.6.11-rc1 (booted 19th Jan) appears to have the same problem, but
+  it hasn't died yet.
 
-> Looks like a cleanup broke the test vectors:
-> http://linux.bkbits.net:8080/linux-2.5/gnupatch@41ad5cd9EXGuUhmmotTFBIZdI=
-kTm0A
->=20
-> Patch below, please apply.
+> Netfilter running on all boxes, some utilizing SNAT, others
+> not -- none using MASQ.
 
-That fixes it, thanks.
+IPv4 filter targets: ACCEPT, DROP, REJECT, LOG
+	using: state, limit & protocol
 
---=20
-Jasper Spaans                                       http://jsp.vs19.net/
- 10:13:13 up 10208 days,  2:00, 0 users, load average: 6.00 6.00 6.12
+IPv4 nat targets: DNAT, MASQ
+	using: protocol
 
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+IPv4 mangle targets: ACCEPT, MARK
+	using: protocol
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+IPv6 filter targets: ACCEPT, DROP
+	using: protocol
 
-iD8DBQFB+gKSN+t4ZIsVDPgRAuzGAJ0ZUtedQov+KF4ZmPYlkZrrv4xPMACg5CXw
-UULNXppYchzM4hrUwhplHm0=
-=lE9l
------END PGP SIGNATURE-----
+IPv6 mangle targets: none
 
---AhhlLboLdkugWU4S--
+(protocol == at least one rule matching tcp, icmp or udp packets)
+
+IPv6 configured native on internal interface, tun6to4 for external IPv6
+communication.
+
+IPv4 and IPv6 forwarding enabled.
+IPv4 rpfilter, proxyarp, syncookies enabled.
+IPv4 proxy delay on internal interface set to '1'.
+
+> These boxes are all running the quagga OSPF daemon, but those that
+> are lightly loaded are not exhibiting these problems.
+
+Running zebra (for ipv6 route advertisment on the local network only.)
+
+Network traffic-wise, 2.6.11-rc1 has this on its public facing
+interface(s) in 8.5 days.
+
+4: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    RX: bytes  packets  errors  dropped overrun mcast
+    667468541  2603373  0       0       0       0
+    TX: bytes  packets  errors  dropped carrier collsns
+    1245774764 2777605  0       0       1       2252
+
+5: tun6to4@NONE: <NOARP,UP> mtu 1480 qdisc noqueue
+    RX: bytes  packets  errors  dropped overrun mcast
+    19130536   84034    0       0       0       0
+    TX: bytes  packets  errors  dropped carrier collsns
+    10436749   91589    0       0       0       0
+
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

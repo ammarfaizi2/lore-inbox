@@ -1,64 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269187AbRHBWUc>; Thu, 2 Aug 2001 18:20:32 -0400
+	id <S269184AbRHBWUW>; Thu, 2 Aug 2001 18:20:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269185AbRHBWUW>; Thu, 2 Aug 2001 18:20:22 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:28668 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S269187AbRHBWUJ>; Thu, 2 Aug 2001 18:20:09 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200108022218.f72MIm8v028137@webber.adilger.int>
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-In-Reply-To: <20010802204710.B18742@emma1.emma.line.org> "from Matthias Andree
- at Aug 2, 2001 08:47:10 pm"
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Date: Thu, 2 Aug 2001 16:18:48 -0600 (MDT)
-CC: Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S269188AbRHBWUN>; Thu, 2 Aug 2001 18:20:13 -0400
+Received: from unthought.net ([212.97.129.24]:63170 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S269184AbRHBWUE>;
+	Thu, 2 Aug 2001 18:20:04 -0400
+Date: Fri, 3 Aug 2001 00:20:12 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ongoing 2.4 VM suckage
+Message-ID: <20010803002012.F7650@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	"Jeffrey W. Baker" <jwbaker@acm.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010802234434.E7650@unthought.net> <Pine.LNX.4.33.0108021448400.21298-100000@heat.gghcwest.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0108021448400.21298-100000@heat.gghcwest.com>; from jwbaker@acm.org on Thu, Aug 02, 2001 at 02:52:11PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthais Andree writes:
-> fsync()ing the dir is not the minimal work possible, if e. g. temporary
-> files are open that don't need their names synched. Fsync()ing the
-> directory syncs also these temporary file NAMES that other processes may
-> have open (but that they unlink rather than fsync()).
+On Thu, Aug 02, 2001 at 02:52:11PM -0700, Jeffrey W. Baker wrote:
+> On Thu, 2 Aug 2001, Jakob Østergaard wrote:
 > 
-> Assume:
+> > You fill up mem and you fill up swap, and you complain the box is
+> > acting funny ??
 > 
-> open -> asynchronous, but filename synched on fsync()
-> rename/link/unlink(/symlink) -> synchronous
+> The kernel should save whatever memory it needs to do its work.  It isn't
+> my problem, from userland, to worry that I take the last page in the
+> machine.  If the kernel needs pages to operate efficiently, it had better
+> reserve them and not just hand them out until it locks up.
+
+Sure, I agree,  to an extent.
+
+If I start 50 CPU-bound jobs on my one-processor machine, I don't want the
+kernel to tell me "no, you probably didn't mean to do that, I'll kill 40 of
+your jobs so the others will go faster".    Same with resource usage - it's not
+the kernel's job to implement that kind of policy - you have ulimits for
+limiting your users, and if it's your own machine you should have enough
+knowledge to know that deliberately using up every resource in the machine is
+going to cause a resource shortage.
+
+It is possible that there is a real problem and the kernel doesn't operate
+efficiently in your case - I won't argue with that.   But you cannot expect
+your system to perform very well if you use up all resources - maybe if you 
+hit a real bug in your case, and if someone fixes it, the kernel will operate
+efficiently under those circumstances - but userspace will *not* operate
+very well if you want the OOM killer to regularly kill "production" jobs etc.
+
+At least, you must be doing another kind of production that what I'm used to
+  :)
+
 > 
-> This way, you never need to fsync() the directory, so you never sync()
-> entries of temporary files. You never lose important files (because the
-> application uses fsync() and the OS synchs rename/link etc.).
+> > This is a clear case of "Doctor it hurts when I ..."  - Don't do it !
+> >
+> > I'm interested in hearing how you would accomplish graceful
+> > performance degradation in a situation where you have used up any
+> > possible resource on the machine.  Transparent process back-tracking ?
+> > What ?
+> 
+> Gosh, here's an idea: if there is no memory left and someone malloc()s
+> some more, have malloc() fail?
 
-Do you read what you are writing?  How can a "synchronous" operation for
-rename/link/unlink/symlink NOT also write out "temporary" files in the
-same directory?  How does calling fsync() on the directory IF YOU REQUIRE
-SYNCHRONOUS DIRECTORY OPERATIONS differ from making the specific operations
-synchronous from within the kernel???
+Actually, having malloc() fail is not that simple  :)
 
-The only difference I can see is that making these specific operations
-ALWAYS be synchronous hurts the common case when they can be async (see
-Solaris UFS vs. Linux benchmark elsewhere in this thread), while requiring
-an fsync() on the directory == only synchronous operation when it is
-actually needed, and no "extra" performance hit.
+> Kill the process that required the memory?
 
-The only slight point of contention is if you have very large directories
-which span several filesystem blocks, in which case it _would_ be possible
-to write out some blocks synchronously, while leaving other blocks dirty.
-In practise however, you will either only be modifying a small number of
-blocks (at the end of the directory) because an MTA usually only creates
-files and doesn't delete them, and the actual speed of syncing several
-blocks at one time is not noticably different than syncing only one.
+Yes, you're perfectly right here.  If there's a critical shortage the OOM
+killer should strike.
 
-Cheers, Andreas
+However - it should only strike the offending process (detecting that is hard
+enough).  And it should not be possible for an attacker or untrusted user to
+cause the OOM killer to kill anything but his own jobs.
+
+> I can't believe the attitude I am hearing.  Userland processes should be
+> able to go around doing whaever the fuck they want and the box should stay
+> alive.
+
+No offense was intended.
+
+But if this things were really so simple, they would have been in the kernel
+for ages.
+
+I'm tempted to say:  Well your ideals seem to correlate well with the general
+ideals of the LKML wrt. VM and OOM - it'd be great if you could post a patch to
+fix it all properly     :)
+
+We all want:  Perfect performance in both normal and resource-starved cases,
+an OOM killer that strikes fairly when necessary and only when necessary,  a
+userspace that's not just fool-proof but "very fool-proof", etc. etc.
+
+
+>  Currently, if a userland process runs amok, the kernel goes into
+> self-fucking mode for the rest of the week.
+
+We know.
+
+What is your suggestion for tackling this problem ?
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270867AbTHGAPK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 20:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271751AbTHGAPK
+	id S272578AbTHGAXb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 20:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272379AbTHGAXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 20:15:10 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:64013 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S270867AbTHGAPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 20:15:07 -0400
-Message-ID: <3F319D0E.30307@techsource.com>
-Date: Wed, 06 Aug 2003 20:27:58 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Wed, 6 Aug 2003 20:23:31 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:58556 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S272578AbTHGAX3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 20:23:29 -0400
+Message-ID: <3F319CD5.7060706@pacbell.net>
+Date: Wed, 06 Aug 2003 17:27:01 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Nick Piggin <piggin@cyberone.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] O13int for interactivity
-References: <200308050207.18096.kernel@kolivas.org> <3F2F87DA.7040103@cyberone.com.au> <3F31741F.30200@techsource.com> <200308070733.38135.kernel@kolivas.org>
+To: Daniel Blueman <daniel.blueman@gmx.net>
+CC: linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [2.6.0-test2-bk5] OHCI USB printing causing
+ system lockup...
+References: <19853.1060209099@www44.gmx.net>
+In-Reply-To: <19853.1060209099@www44.gmx.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Con Kolivas wrote:
->>For this, I reiterate my suggestion to intentionally over-shoot the
->>mark.  If you do it right, a process will run an inappropriate length of
->>time only every other time slice until the oscillation dies down.
+Daniel Blueman wrote:
+> When printing a test page on an Epson C62 through an unpowered USB 1.1 hub,
+> the printer printed part of the page, then stopped.
 > 
-> 
-> Your thoughts are fine, and to some degree I do what you're proscribing, but I 
-> take into account the behaviour of real processes in the real world and their 
-> effect on scheduling fairness.
+> The 'error -110' messages were being sent to the syslogs, and after pulling
+> the connector to the USB hub, the system locked up.
 
-And I know you know a lot more about how real processes behave than I 
-do.  I'm not saying (or thinking) anything negative about you.  I'm just 
-trying to throw random thoughts into the mix just in case some small 
-part of what I say is useful inspiration for someone else such as yourself.
+So it seems like there are two errors:
 
-It is probably the case that the idea I suggest is BS and makes no real 
-difference or makes it worse anyhow.  :)
+  - timeouts during printing, reported recently on UHCI too;
+
+  - the usb_buffer_free() oops from printer cleanup, likewise.
+
+Seems more related to the printer driver than to OHCI ...
+
+- Dave
 

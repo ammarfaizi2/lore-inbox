@@ -1,69 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbUEPIa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263375AbUEPIgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbUEPIa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 04:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUEPIa3
+	id S263375AbUEPIgF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 04:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbUEPIgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 04:30:29 -0400
-Received: from outmx018.isp.belgacom.be ([195.238.2.117]:6805 "EHLO
-	outmx018.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S263365AbUEPIa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 04:30:27 -0400
-Subject: [PATCH 2.6.6-mm2] i8042 debug broken
+	Sun, 16 May 2004 04:36:05 -0400
+Received: from outmx012.isp.belgacom.be ([195.238.3.70]:22998 "EHLO
+	outmx012.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S263375AbUEPIfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 04:35:53 -0400
+Subject: [BUG 2.6.6-mm2] no keyboard on AMD
 From: FabF <Fabian.Frederick@skynet.be>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-hfr0u29ZJLKt2wCrOMEf"
-Message-Id: <1084532991.8303.2.camel@bluerhyme.real3>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1084533319.8303.6.camel@bluerhyme.real3>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 14 May 2004 13:09:51 +0200
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx018.isp.belgacom.be)
+Date: Fri, 14 May 2004 13:15:19 +0200
+Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx012.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
 
---=-hfr0u29ZJLKt2wCrOMEf
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	Here's my i8042 output with debug activated against 2.6.6-mm2 with
+i8042 debug patch applied (result : no keyboard available).
 
-Hi,
 
-	i8042 handle_data debug was broken -trying to display unknown
-irq-.Here's a quick fix.
+<6>mice: PS/2 mouse device common for all mice
+<7>drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 65 <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: a5 <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: a7 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 74 <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: a8 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 54 <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: 0f <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: a9 <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: a4 -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: 5b <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: a5 <- i8042 (return) [0]
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [0]
+<6>serio: i8042 AUX port at 0x60,0x64 irq 12
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [0]
+<7>drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [0]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [2]
+<7>drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, ) [3]
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [3]
+<7>drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [3]
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [3]
+<7>drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [3]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [3]
+<7>drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [3]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [5]
+<7>drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, ) [6]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [6]
+<7>drivers/input/serio/i8042.c: f6 -> i8042 (parameter) [6]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [9]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [9]
+<7>drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [9]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [11]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [11]
+<7>drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [11]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [13]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [13]
+<7>drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [13]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [15]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [15]
+<7>drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [15]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [18]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [18]
+<7>drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [18]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [20]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [20]
+<7>drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [20]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [22]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [22]
+<7>drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [22]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [24]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [24]
+<7>drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [24]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [27]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [27]
+<7>drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [27]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [29]
+<7>drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, ) [30]
+<7>drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, ) [31]
+<7>drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, aux, ) [32]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [32]
+<7>drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [32]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [34]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [34]
+<7>drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [34]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [36]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [36]
+<7>drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [36]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [38]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [38]
+<7>drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [38]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [41]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [41]
+<7>drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [41]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [43]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [43]
+<7>drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [43]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [45]
+<7>drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, ) [46]
+<7>drivers/input/serio/i8042.c: 03 <- i8042 (interrupt, aux, ) [47]
+<7>drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, aux, ) [48]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [48]
+<7>drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [48]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [50]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [50]
+<7>drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [50]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [52]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [52]
+<7>drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [52]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [55]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [55]
+<7>drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [55]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [57]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [57]
+<7>drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [57]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [59]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [59]
+<7>drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [59]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [61]
+<7>drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, ) [62]
+<7>drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, ) [63]
+<7>drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, aux, ) [64]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [64]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [64]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [66]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [66]
+<7>drivers/input/serio/i8042.c: c8 -> i8042 (parameter) [66]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [69]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [69]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [69]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [71]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [71]
+<7>drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [71]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [73]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [73]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [73]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [75]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [75]
+<7>drivers/input/serio/i8042.c: 50 -> i8042 (parameter) [75]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [78]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [78]
+<7>drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [78]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [80]
+<7>drivers/input/serio/i8042.c: 03 <- i8042 (interrupt, aux, ) [81]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [81]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [81]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [83]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [83]
+<7>drivers/input/serio/i8042.c: c8 -> i8042 (parameter) [83]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [85]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [85]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [85]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [88]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [88]
+<7>drivers/input/serio/i8042.c: c8 -> i8042 (parameter) [88]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [90]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [90]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [90]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [92]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [92]
+<7>drivers/input/serio/i8042.c: 50 -> i8042 (parameter) [92]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [94]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [94]
+<7>drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [94]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [97]
+<7>drivers/input/serio/i8042.c: 03 <- i8042 (interrupt, aux, ) [98]
+<6>input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [98]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [98]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [100]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [100]
+<7>drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [100]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [102]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [102]
+<7>drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [102]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [105]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [105]
+<7>drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [105]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [107]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [107]
+<7>drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [107]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [109]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [109]
+<7>drivers/input/serio/i8042.c: ea -> i8042 (parameter) [109]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [111]
+<7>drivers/input/serio/i8042.c: d4 -> i8042 (command) [111]
+<7>drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [111]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, ) [113]
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [113]
+<7>drivers/input/serio/i8042.c: 46 -> i8042 (parameter) [113]
+<6>serio: i8042 KBD port at 0x60,0x64 irq 1
+<7>drivers/input/serio/i8042.c: 60 -> i8042 (command) [113]
+<7>drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [113]
+<7>drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [113]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, ) [116]
+<7>drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, ) [117]
+<7>drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, ) [119]
+<7>drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [119]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, ) [122]
+<7>drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [122]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, ) [125]
+<7>drivers/input/serio/i8042.c: f3 -> i8042 (kbd-data) [125]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, ) [128]
+<7>drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [128]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, ) [131]
+<7>drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [131]
+<7>drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, ) [134]
+<6>input: AT Translated Set 2 keyboard on isa0060/serio0
+
 
 Regards,
 FabF
-
---=-hfr0u29ZJLKt2wCrOMEf
-Content-Disposition: attachment; filename=i80421.diff
-Content-Type: text/x-patch; name=i80421.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-diff -Naur orig/drivers/input/serio/i8042.c edited/drivers/input/serio/i8042.c
---- orig/drivers/input/serio/i8042.c	2004-05-14 12:40:49.000000000 +0200
-+++ edited/drivers/input/serio/i8042.c	2004-05-14 12:56:48.000000000 +0200
-@@ -420,16 +420,16 @@
- 				data = 0xfe;
- 			} else dfl = 0;
- 
--			dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
--				data, (str >> 6), irq,
-+			dbg("%02x <- i8042 (interrupt, aux%d, %s%s)",
-+				data, (str >> 6), 
- 				dfl & SERIO_PARITY ? ", bad parity" : "",
- 				dfl & SERIO_TIMEOUT ? ", timeout" : "");
- 
- 			serio_interrupt(i8042_mux_port + ((str >> 6) & 3), data, dfl, NULL);
- 		} else {
- 
--			dbg("%02x <- i8042 (interrupt, %s, %d%s%s)",
--				data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq,
-+			dbg("%02x <- i8042 (interrupt, %s, %s%s)",
-+				data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd",
- 				dfl & SERIO_PARITY ? ", bad parity" : "",
- 				dfl & SERIO_TIMEOUT ? ", timeout" : "");
- 
-
---=-hfr0u29ZJLKt2wCrOMEf--
 

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273349AbRINJ0U>; Fri, 14 Sep 2001 05:26:20 -0400
+	id <S271989AbRINJak>; Fri, 14 Sep 2001 05:30:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273347AbRINJ0A>; Fri, 14 Sep 2001 05:26:00 -0400
-Received: from [211.48.62.161] ([211.48.62.161]:19891 "EHLO relay1.kornet.net")
-	by vger.kernel.org with ESMTP id <S271989AbRINJZ4>;
-	Fri, 14 Sep 2001 05:25:56 -0400
-Date: Fri, 14 Sep 2001 18:26:15 +0900
-From: Jeff Lightfoot <jeffml@pobox.com>
-To: Roberto Jung Drebes <drebes@inf.ufrgs.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
-Message-Id: <20010914182615.50f72943.jeffml@pobox.com>
-In-Reply-To: <Pine.GSO.4.21.0109140523060.3130-100000@jacui>
-In-Reply-To: <Pine.GSO.4.21.0109140430540.2204-100000@jacui>
-	<Pine.GSO.4.21.0109140523060.3130-100000@jacui>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
+	id <S273350AbRINJab>; Fri, 14 Sep 2001 05:30:31 -0400
+Received: from web13304.mail.yahoo.com ([216.136.175.40]:34578 "HELO
+	web13304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S271989AbRINJaU>; Fri, 14 Sep 2001 05:30:20 -0400
+Message-ID: <20010914093042.81198.qmail@web13304.mail.yahoo.com>
+Date: Fri, 14 Sep 2001 11:30:42 +0200 (CEST)
+From: =?iso-8859-1?q?seb=20per?= <personseb@yahoo.fr>
+Subject: lilo pb
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Sep 2001 05:27:49 -0300 (EST)
-Roberto Jung Drebes <drebes@inf.ufrgs.br> wrote:
+Hi,
 
-> I tested here and it seems that bit 7 is responsible. Here is the diff
-> to pci-pc.c:
+I have tried to upgrade kernel 2.4.9 from 2.4.3mdk
+The first time things went well but I had forgotten
+few drivers.
 
-[snip patch]
+So I compile a new one but when I reboot I get the
+following message EBDA is too big
 
-I tried it with my IWill 266 Plus and Althon 1.4G
+Anybody could help me??
 
-Things now boot up normally with Athlon Optimizations turned on.
+I have seek over gooogle within success.
 
-Before this, those same optimizations would produce oops galore on
-system startup.
+If somebody know How could I must do to solve
+the problem could he CC me
+(sebastien.person@insa-rouen.fr ) the naswer because
+I'm not anymore subscribe to the list
 
-Let me know if you want more system info.
+Thanks
 
--- 
-Jeff Lightfoot   --    jeffml at pobox.com   --   http://thefoots.com/
-    "How can I sing like a girl and not be stigmatized by the rest of
-    the world?" -- TMBG
+sebastien person
+
+___________________________________________________________
+Do You Yahoo!? -- Un e-mail gratuit @yahoo.fr !
+Yahoo! Courrier : http://fr.mail.yahoo.com

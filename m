@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265767AbSLNAFm>; Fri, 13 Dec 2002 19:05:42 -0500
+	id <S265895AbSLNAIn>; Fri, 13 Dec 2002 19:08:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265770AbSLNAFm>; Fri, 13 Dec 2002 19:05:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32776 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265767AbSLNAFm>; Fri, 13 Dec 2002 19:05:42 -0500
-Date: Fri, 13 Dec 2002 16:14:29 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: James Simmons <jsimmons@infradead.org>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BK fbdev] Yet again more fbdev updates.
-In-Reply-To: <Pine.LNX.4.44.0212132355040.19622-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.44.0212131611490.6750-100000@home.transmeta.com>
+	id <S266271AbSLNAIn>; Fri, 13 Dec 2002 19:08:43 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:16409
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265895AbSLNAIm>; Fri, 13 Dec 2002 19:08:42 -0500
+Date: Fri, 13 Dec 2002 19:18:54 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Valdis.Kletnieks@vt.edu
+cc: Dave Jones <davej@codemonkey.org.uk>,
+       Petr Konecny <pekon@informatics.muni.cz>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions) 
+In-Reply-To: <200212131846.gBDIk527008838@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.50.0212131903180.16106-100000@montezuma.mastecende.com>
+References: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu>
+ <200212131633.gBDGX0617899@anxur.fi.muni.cz> <200212131718.gBDHIw27008173@turing-police.cc.vt.edu>
+            <20021213173656.GC1633@suse.de> <200212131846.gBDIk527008838@turing-police.cc.vt.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 Dec 2002 Valdis.Kletnieks@vt.edu wrote:
 
-
-On Sat, 14 Dec 2002, James Simmons wrote:
+> On Fri, 13 Dec 2002 17:36:56 GMT, Dave Jones said:
 >
-> Calling scrup is out of place. It is only called by lf() and csi_M() in
-> the vt.c. lf() is used in vt_console_print but it is called before
-> set_cursor(). Also vgacon_cursor doesn't call vgacon_scroll. It can call
-> vgacon_scrolldelta. Now scrup does call vgacon_scroll. It looks like The
-> code jumped from the middle of vt_console_print to scrup. Do you get the
-> same error all the time? Also do you have Preemptible Kernel turned on?
+> > It's my understanding that pci_enable_device() *must* be called
+> > before we fiddle with dev->resource, dev->irq and the like.
+>
+> OK.. it looks like the problem only hits if it's a PCMCIA card *with an
+> onboard ROM*.
 
-This is UP, and not preemptible. And the backtrace may be corrupt, because
-when the page fault happens, it will actually page fault _again_ as part
-of trying to print out the oops, so the whole thing scrolls largely off
-the screen..
+Hmm i just saw this thread, which card is the non working one?;
 
-I only see this on one of my laptops, and even there it seems to be
-timing-dependent or something (I think it only happens when I press a key,
-and because the backtrace isn't trustworthy ..)
+The computer is still running 2.5.50
 
-		Linus
+02:00.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 41)
+        Subsystem: CNet Technology Inc: Unknown device 401a
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (5000ns min, 10000ns max)
+        Interrupt: pin A routed to IRQ 9
+        Region 0: I/O ports at 1c00 [size=128]
+        Region 1: Memory at 10800000 (32-bit, non-prefetchable) [size=1K]
+        Expansion ROM at 10400000 [size=256K]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME+
+
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+# PCMCIA/CardBus support
+CONFIG_PCMCIA=y
+CONFIG_PCMCIA_XIRCOM=y
+# CONFIG_PCMCIA_XIRTULIP is not set
+# PCMCIA network device support
+CONFIG_NET_PCMCIA=y
+# CONFIG_PCMCIA_XIRC2PS is not set
+
+--
+function.linuxpower.ca
 

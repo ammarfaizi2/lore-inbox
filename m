@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTHFNvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 09:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTHFNvM
+	id S262273AbTHFNwG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 09:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTHFNwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 09:51:12 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:7305 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262254AbTHFNvJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 09:51:09 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 6 Aug 2003 15:51:06 +0200 (MEST)
-Message-Id: <UTC200308061351.h76Dp6413498.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, jgarzik@pobox.com
-Subject: Re: Add identify decoding 4/4
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
+	Wed, 6 Aug 2003 09:52:06 -0400
+Received: from chaos.sr.unh.edu ([132.177.249.105]:53189 "EHLO
+	chaos.sr.unh.edu") by vger.kernel.org with ESMTP id S262273AbTHFNwB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 09:52:01 -0400
+Date: Wed, 6 Aug 2003 09:51:49 -0400 (EDT)
+From: Kai Germaschewski <kai.germaschewski@unh.edu>
+X-X-Sender: kai@chaos.sr.unh.edu
+To: Andy Winton <andreww@bemac.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiple symbols same address in vmlinux map file? huh?
+In-Reply-To: <1060177192.2866.11.camel@pussy.bemac.com>
+Message-ID: <Pine.LNX.4.44.0308060949200.10203-100000@chaos.sr.unh.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Andries.Brouwer@cwi.nl wrote:
-	> Here a somewhat uneven commented ide_identify.h.
-	> This is part of a larger patch, but suffices for now.
+On 6 Aug 2003, Andy Winton wrote:
 
-	Do you really want to stick that long function in a header?
+> c0305a78 d emergency_lock
+> c0305a78 d emergency_pages
+> 
+> c0303100 d i8259A_irq_type
+> c0303100 D i8259A_lock
+> 
+> c0386628 B jiffies
+> c0386628 B jiffies_64
 
-	Stick it in ide-lib.c, that's a better place for it, IMO...
+For most of those, the explanation would be that you have zero-sized 
+symbols, for example a spinlock_t expands to an empty struct on an UP 
+build.
 
-No. <linux/ide-identify.h> contains a lot of 1-line static inline
-functions, just readable names for current magic bit checks,
-and one big function ide_dump_identify_info() that is included as
+jiffies / jiffies_64 is a special case used to access the same variable as 
+a 32 vs 64 bit quantity. (see arch/*/vmlinux.lds*)
 
-#ifdef IDE_IDENTIFY_DEBUG
-static void
-ide_dump_identify_info(const struct hd_driveid *id, const char *name)
-{
-...
-}
-#endif
+--Kai
 
-Thus, ide-floppy.c and ide-tape.c and isd200.c can do
 
-#if IDEFLOPPY_DEBUG_INFO
-#define IDE_IDENTIFY_DEBUG
-#include <linux/ide-identify.h>
-#endif
 
-and get this big function, but only when their local debugging option
-is set. We would not want to see it in the binary if there were no users.
-
-Andries

@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317599AbSG2ToF>; Mon, 29 Jul 2002 15:44:05 -0400
+	id <S317604AbSG2TpM>; Mon, 29 Jul 2002 15:45:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317602AbSG2ToF>; Mon, 29 Jul 2002 15:44:05 -0400
-Received: from virtmail.zianet.com ([216.234.192.37]:48102 "HELO zianet.com")
-	by vger.kernel.org with SMTP id <S317599AbSG2ToE>;
-	Mon, 29 Jul 2002 15:44:04 -0400
-Message-ID: <3D459E09.9030200@zianet.com>
-Date: Mon, 29 Jul 2002 13:56:57 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020723
-X-Accept-Language: en-us, en
+	id <S317605AbSG2TpL>; Mon, 29 Jul 2002 15:45:11 -0400
+Received: from agate.roonetworks.com ([12.44.168.40]:48546 "EHLO
+	h216.ofc.roonetworks.com") by vger.kernel.org with ESMTP
+	id <S317604AbSG2TpL>; Mon, 29 Jul 2002 15:45:11 -0400
+From: Remco Treffkorn <remco@rvt.com>
+Reply-To: remco@rvt.com
+To: Dan Malek <dan@embeddededge.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
+Date: Mon, 29 Jul 2002 12:46:42 -0700
+User-Agent: KMail/1.4.5
+Cc: Tom Rini <trini@kernel.crashing.org>, Russell King <rmk@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+References: <20020729174341.GA12964@opus.bloom.county> <20020729181352.27999@192.168.4.1> <3D4592D3.50505@embeddededge.com>
+In-Reply-To: <3D4592D3.50505@embeddededge.com>
 MIME-Version: 1.0
-To: scorpionlab@ieg.com.br
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IO-APIC in SMP dual Athlon XP1800
-References: <200207291612.38473.scorpionlab@ieg.com.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200207291246.43134.remco@rvt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well I'll probably tell you what just about everyone else here will.
-If you use XP procs on a MP system you are on your own.  If you
-lucky they will work, if you aren't they won't.  It appears that you
-are not lucky.  
-
-Steve
-
-Scorpion wrote:
-
->Hi follows,
->I'm getting in troubles with a A7M266-D motherboard with two
->Athlon XP 1800 cpus (yes, XP not MP!).
->Following the screen shot of my problem:
->^-------cut here---------^
->EIP:    0010:[<c0111686>]    Not tainted
->EFLAGS: 00011046
-><4>CPU:    1
-><4>CPU:    1
->EIP:    0010:[<c0111686>]    Not tainted
->EFLAGS:  00011046
-> `u!wisuu`m aeesess 7eg111eg
-> printing eip:
-> printing eip:
->*pde = 11111010
->Stuck ??
->CPU #1 not responding - cannot use it.
->Error: only one processor found.
->ENABLING IO-APIC IRQs
->Setting 2 in the phys_id_present_map
->...changing IO-APIC physical APIC ID to 2 ... ok.
->init IO_APIC IRQs
-> IO-APIC (apicid-pin) 2-10, 2-11, 2-12, 2-13, 2-16, 2-17, 2-20, 2-21, 2-22, 
->2-23 not connected.
->..TIMER: vector=0x31 pin1=2 pin2=0
->^-----cut here-----^
->
->After spend some times put printk's in kernel source like "Reach this point!"
->I was trying disable IO_APIC in .config file but some link erros ocurred. 
->Has any way to turn IO_APIC disable? Or its extreme necessary?
->
->Thanks,
->Ricardo.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
+On Monday 29 July 2002 12:09, Dan Malek wrote:
+...
+> or a mix of both.  The problems to solve are drivers fighting over minor
+> device numbers and assumptions about the system console.
 >
 
+Drivers need not fight about minor numbers. That can be simply handled:
 
+int get_new_serial_minor()
+{
+    static int minor;
 
+    return minor++;
+}
+
+Any serial driver can call this when it initializes a new uart.
+Hot pluggable drivers have to hang on to their minors, and
+re-use.
+
+-- 
+Remco Treffkorn (RT445)
+HAM DC2XT
+remco@rvt.com   (831) 685-1201

@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVCYVEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVCYVJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbVCYVEX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 16:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVCYVEX
+	id S261275AbVCYVJf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 16:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVCYVJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 16:04:23 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9226 "EHLO
+	Fri, 25 Mar 2005 16:09:35 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54536 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261804AbVCYVEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 16:04:08 -0500
-Date: Fri, 25 Mar 2005 21:03:57 +0000
+	id S261275AbVCYVJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 16:09:33 -0500
+Date: Fri, 25 Mar 2005 21:07:43 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paul Mundt <lethal@linux-sh.org>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driver core: Separate platform device name from platform device number
-Message-ID: <20050325210357.D12715@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Kyle Moffett <mrmacman_g4@mac.com>, Greg KH <greg@kroah.com>,
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Morton <akpm@osdl.org>, Miles Lane <miles.lane@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: OOPS running "ls -l /sys/class/i2c-adapter/*"-- 2.6.12-rc1-mm2
+Message-ID: <20050325210743.E12715@flint.arm.linux.org.uk>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Andrew Morton <akpm@osdl.org>, Miles Lane <miles.lane@gmail.com>,
 	linux-kernel@vger.kernel.org
-References: <1110414879646@kroah.com> <11104148792069@kroah.com> <20050325180136.GA4192@linux-sh.org> <20050325181014.GA13436@kroah.com> <20050325183534.GB4192@linux-sh.org> <5c0804da3486a6e735a46220d73c9637@mac.com> <20050325195826.GC4192@linux-sh.org> <20050325202508.A12715@flint.arm.linux.org.uk> <20050325205603.GD4192@linux-sh.org>
+References: <20050324044114.5aa5b166.akpm@osdl.org> <a44ae5cd05032420122cd610bd@mail.gmail.com> <20050324202215.663bd8a9.akpm@osdl.org> <20050325073846.A18596@flint.arm.linux.org.uk> <1111784022.23430.1.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050325205603.GD4192@linux-sh.org>; from lethal@linux-sh.org on Fri, Mar 25, 2005 at 10:56:03PM +0200
+In-Reply-To: <1111784022.23430.1.camel@mindpipe>; from rlrevell@joe-job.com on Fri, Mar 25, 2005 at 03:53:42PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 10:56:03PM +0200, Paul Mundt wrote:
-> On Fri, Mar 25, 2005 at 08:25:08PM +0000, Russell King wrote:
-> > Eh?  How do you end up with "/sys/devices/platform/foobar0.0" for the
-> > former case?  It has an ID of "-1", and not zero.  Your idea doesn't
-> > make any sense.
-> > 
-> Yes, I missed the -1 part, so Kyle is correct.
+On Fri, Mar 25, 2005 at 03:53:42PM -0500, Lee Revell wrote:
+> On Fri, 2005-03-25 at 07:38 +0000, Russell King wrote:
+> > Users need to be re-educated _not_ to use ksymoops.
 > 
-> It would be trivial to treat them both as foobar0 and have the
-> registration succeed for whoever gets it first, but I could see that this
-> would be problematic in the serial8250 case. On the other hand, this is
-> then serial8250's problem.
+> How about changing the fscking docs to not tell users to use it?
 
-Thank you for ignoring the other case of i82385 to justify your point
-of view of it being just a single driver problem.
+Would be useful.  The "fscking" problem is that no one actually owns the
+documents, so there's no central focus to keep them up to date.
 
-Maybe you can work out a patch to fix up this mess?
+Maybe we need a docfsck? 8)
+
+I certainly don't have authority to tell x86 people not to use ksymoops.
+Therefore, I think my suggested change (which up until recently I thought
+was an ARM only problem) should be done by someone else.
 
 -- 
 Russell King

@@ -1,76 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264410AbTIITZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTIITYF
+	id S264358AbTIITVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTIITUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:24:05 -0400
-Received: from lightning.hereintown.net ([141.157.132.3]:55472 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id S264389AbTIITW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:22:59 -0400
-Subject: Re: Panic when finishing raidreconf on 2.4.0-test4 with preempt
-From: Chris Meadors <clubneon@hereintown.net>
-To: Jakob Oestergaard <jakob@unthought.net>
+	Tue, 9 Sep 2003 15:20:06 -0400
+Received: from pluvier.ens-lyon.fr ([140.77.167.5]:61879 "EHLO
+	mailhost.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S264346AbTIITTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 15:19:20 -0400
+Date: Mon, 8 Sep 2003 17:28:00 +0200
+From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
+To: =?iso-8859-1?Q?S=E9bastien?= Hinderer 
+	<Sebastien.Hinderer@libertysurf.fr>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030909181131.GB9079@unthought.net>
-References: <1062883950.1341.26.camel@clubneon.clubneon.com>
-	 <20030909181131.GB9079@unthought.net>
-Content-Type: text/plain
-Message-Id: <1063135290.1119.32.camel@clubneon.priv.hereintown.net>
+Subject: Re: PROBLEM: Impossible to read files from a CD-Rom
+Message-ID: <20030908152800.GA5224@bouh.famille.thibault.fr>
+Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
+Mail-Followup-To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
+	=?iso-8859-1?Q?S=E9bastien?= Hinderer <Sebastien.Hinderer@libertysurf.fr>,
+	linux-kernel@vger.kernel.org
+References: <20030818163520.GA413@galois>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 09 Sep 2003 15:21:31 -0400
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19wo4o-0001TE-P3*y5UwhWHfA1A*
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030818163520.GA413@galois>
+User-Agent: Mutt/1.4i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-09 at 14:11, Jakob Oestergaard wrote:
+Hi,
 
-> raidreconf does no "funny business" with the kernel, so I think this
-> points to either:
-> *) a bug which mkraid can trigger as well
-> *) an API change combined with missing error handling, which raidreconf
->    now triggers (by calling the old API)
-> *) a more general kernel bug - there is a *massive* VM load when
->    raidreconf does its magic, perhaps calling mkraid after beating
->    the VM half way to death can trigger the same error?
+On Mon 18 aug 2003 18:35:22 GMT, Sébastien Hinderer wrote:
+> I'm using a vanila linux-2.6.0-test3.
+> When I try to use a CD-Rom, the mount is successful, so are the calls to
+> ls.
+> However, as soon as I try to read a file, I get a lot of messages such as :
 > 
-> raidreconf, upon complete reconfiguration, will set up the new
-> superblock for you array, mark it as "unclean", and add the disks one by
-> one.  Once all disks are added, the kernel should start calculating
-> parity information (because raidreconf does not do this during the
-> conversion, and hence marks the newly set up array as unclean in order
-> to have the kernel do this dirty work).
-> 
-> There should be nothing special about this, compared to normal mkraid
-> and raidhotadd usage - except raidreconf is probably a lot more likely
-> to trigger races.
-> 
-> Ah, fingerpointing  ;)
-> 
-> (/me sits back, confident that his code is perfect and the kernel alone
->  is to blame)
+> hdc: rw=0, want=505092, limit=31544
+> Buffer I/O error on device hdc, logical block 126272
+> attempt to access beyond end of device
 
-I'll mess around this evening a bit if I get a chance.  I really wasn't
-in the mood to see this error again (losing five years worth of data can
-do that to a person, but I've come to terms (with my own arrogance and
-stupidity, along with the data loss (just old e-mails and pictures, but
-stuff that is nice to hold onto anyway)) and pre-ordered Plextor's new
-DVD burner). But that does leave me with a few blank drives that I can
-beat on all anyone needs.
+We dug a little bit this Monday with Sebastien, and found out some
+troubles: the call to set_capacity at the end of cdrom_read_toc() writes a
+strange value, which is not always the same, even for the same reinserted
+CD-ROM, seemingly because it came from cdrom_get_last_written():
 
-I'll be putting -test5 on first.  I had planned on disabling the
-preempt, but since that was reported in the oops, I'll leave it on.
+cdrom_get_last_written() calls cdrom_get_disc_info(), then
+cdrom_get_track_info() and uses the track_start and track_size to
+compute the limit of the disk. The trouble seems to come from the fact
+that in cdrom_get_track_info(), the info size is got from the drive, but
+no check is done to ensure that it will fill up the whole
+track_information structure, which is not reset to 0 either, so that
+random values remain:
 
-I initially ran my mkraid under 2.4.20, but I'll see how it does with
-2.6.0-test5.  I'll mkraid on a 4 drive RAID5 setup, and see if it
-completes.  Then raidreconf it to 5 drives.  I'll scribble down the oops
-this time too, if I see it again.
+(linux-2.6.0-test4/drivers/cdrom/cdrom.c:2214)
+	if ((ret = cdo->generic_packet(cdi, &cgc)))
+		return ret;
+	
+	cgc.buflen = be16_to_cpu(ti->track_information_length) +
+		     sizeof(ti->track_information_length);
 
-Anything else anyone wants me to try?  Or other data to fill in blanks?
+	if (cgc.buflen > sizeof(track_information))
+		cgc.buflen = sizeof(track_information);
 
--- 
-Chris
+	cgc.cmd[8] = cgc.buflen;
+	return cdo->generic_packet(cdi, &cgc);
 
+The solution would be to return an error if 
+cgc.buflen != sizeof(track_information) after the truncation to
+sizeof(track_information), so that cdrom_get_last_written() will
+correctly fail, and make cdrom_read_toc() use cdrom_read_capacity()
+instead, which gives the correct answer.
+
+The same remark applies to cdrom_get_disc_info().
+
+Regards,
+Samuel Thibault

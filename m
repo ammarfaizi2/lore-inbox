@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284186AbSABVRZ>; Wed, 2 Jan 2002 16:17:25 -0500
+	id <S284218AbSABVSE>; Wed, 2 Jan 2002 16:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284301AbSABVRR>; Wed, 2 Jan 2002 16:17:17 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:35865 "EHLO
-	apone.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S284186AbSABVPt>; Wed, 2 Jan 2002 16:15:49 -0500
-Date: Wed, 2 Jan 2002 16:23:49 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: Dave Jones <davej@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102162349.A957@apone.devel.redhat.com>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16LsU0-0005RB-00@the-village.bc.nu> <Pine.LNX.4.33.0201022200070.427-100000@Appserv.suse.de>
-Mime-Version: 1.0
+	id <S284258AbSABVR5>; Wed, 2 Jan 2002 16:17:57 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:11022 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S284302AbSABVRo>;
+	Wed, 2 Jan 2002 16:17:44 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200201022117.g02LHUV425569@saturn.cs.uml.edu>
+Subject: Re: system.map
+To: kaos@ocs.com.au (Keith Owens)
+Date: Wed, 2 Jan 2002 16:17:30 -0500 (EST)
+Cc: timothy.covell@ashavan.org, adriankok2000@yahoo.com.hk (adrian kok),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <9391.1010004875@ocs3.intra.ocs.com.au> from "Keith Owens" at Jan 03, 2002 07:54:35 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201022200070.427-100000@Appserv.suse.de>; from davej@suse.de on Wed, Jan 02, 2002 at 10:00:52PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones (davej@suse.de) said: 
-> > You can make an educated guess. However it is at best an educated guess.
-> > The DMI tables will tell you what PCI and ISA slots are present (but
-> > tend to be unreliable on older boxes).
+Keith Owens writes:
+
+> Current versions of ps look for System.map in
+>
+>       $PS_SYSTEM_MAP
+>       /boot/System.map-`uname -r`
+>       /boot/System.map
+>       /lib/modules/`uname -r`/System.map
+>       /usr/src/linux/System.map
+>       /System.map
+>
+> Copy System.map to /lib/modules/`uname -r`/System.map after make
+> modules_install, remove any old map files from /boot and / and you
+> don't need any symlink or bootloader tricks.
 > 
-> And newer ones. I've seen 'Full length ISA slot' reported on a laptop
-> for eg.
+> The 2.5 kernel build asks if you want to install System.map and
+> .config.  If you say yes then the default location for these files in
+> 2.5 is /lib/modules/`uname -r`/{System.map,.config}.
 
-I have an ia64 here that, according to dmidecode, has a
-32bit NUBUS slot in it. AFAIK, that's not the case. ;)
+That's not a nice place. Besides the fact that System.map is
+neither library nor module, /lib/modules is less likely to
+exist than /boot is. It's a wee bit slower too.
 
-Bill
+The System.map file contains info related only to the main kernel
+image, and nothing related to modules. So this is better:
+
+/boot/System.map-2.4.18-pre1
+/boot/vmlinuz-2.4.18-pre1
+/boot/bzImage-2.4.18-pre1
+/boot/config-2.4.18-pre1
+
+(losing the foul '.' on the .config file)

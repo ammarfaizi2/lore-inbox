@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265432AbVBFF6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265511AbVBFGI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265432AbVBFF6w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 00:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264856AbVBFF6w
+	id S265511AbVBFGI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 01:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVBFGI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 00:58:52 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:12240 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268530AbVBFF6r (ORCPT
+	Sun, 6 Feb 2005 01:08:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9941 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265511AbVBFGIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 00:58:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=j6T3NcQ1NLNXtm39b+g1XTmcW/TXr1XQzBZ76DWlh10ItOIbHCrAeD2Fo9LuwSHihyKv02b5FBHuPGiTRVBCTQLUcdlaYWP3mBLGPoDlpf4vKLHB7qsOuztfbQxTvC09cNohhe7BKUaR4BWGqg87r9w0x6XWUmE3sM5SN4IpZzw=
-Message-ID: <9e4733910502052158491b5ce3@mail.gmail.com>
-Date: Sun, 6 Feb 2005 00:58:46 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Dave Jones <davej@redhat.com>, Jon Smirl <jonsmirl@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>
+	Sun, 6 Feb 2005 01:08:47 -0500
+Date: Sun, 6 Feb 2005 01:08:40 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Intel AGP support attaching to wrong PCI IDs
-In-Reply-To: <20050206040526.GA2908@redhat.com>
+Message-ID: <20050206060839.GA19330@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910502051745c25d6f@mail.gmail.com> <20050206040526.GA2908@redhat.com> <9e4733910502052158491b5ce3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e4733910502051745c25d6f@mail.gmail.com>
-	 <20050206040526.GA2908@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910502052158491b5ce3@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Feb 2005 23:05:26 -0500, Dave Jones <davej@redhat.com> wrote:
-> Take a peek at 'lspci -vv' output. You'll notice that the AGP
-> capabilities are attached to the host bridge.
+On Sun, Feb 06, 2005 at 12:58:46AM -0500, Jon Smirl wrote:
+ > On Sat, 5 Feb 2005 23:05:26 -0500, Dave Jones <davej@redhat.com> wrote:
+ > > Take a peek at 'lspci -vv' output. You'll notice that the AGP
+ > > capabilities are attached to the host bridge.
+ > 
+ > I see that now, why is it on the host bridge instead of the AGP
+ > bridge? 
 
-I see that now, why is it on the host bridge instead of the AGP
-bridge? So that means if we add drivers for the host bridges we have
-to add the code to the AGP drivers. It also implies that we have to
-load them.
+Not sure. Maybe its partly due to the host bridge having all the
+smarts to deal with the memory controller.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+ > So that means if we add drivers for the host bridges we have
+ > to add the code to the AGP drivers. It also implies that we have to
+ > load them.
+
+Why exactly are you trying to write host bridge drivers anyway ?
+Confused.
+
+If there's a sensible reason for such drivers, we could at some
+stage have the bridge drivers check for AGP capabilities, and
+if found, start up the initialisation of the relevant AGP chipset
+driver. (and then rip out the whole PCI detection stuff in agpgart).
+This is quite a lot of work though, so unless there's a really
+compelling reason, I don't think its worth doing.
+
+Another way forward (somewhat hacky in one sense, but a lot cleaner in another)
+would be to change the PCI code so that it'll load and init
+multiple drivers that claim to support the same PCI ID.
+This may cause issues for some other drivers however where
+we have an old and a new driver with ID overlap.
+
+So,.. what are you up to?
+
+		Dave
+

@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265913AbUGECZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265902AbUGECcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265913AbUGECZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 22:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUGECZ2
+	id S265902AbUGECcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 22:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUGECcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 22:25:28 -0400
-Received: from gaia.sbss.com.au ([203.16.207.1]:62000 "EHLO
-	trantor.sbss.com.au") by vger.kernel.org with ESMTP id S265913AbUGECZ1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 22:25:27 -0400
-Content-class: urn:content-classes:message
-Subject: [PATCH] 2.4.26 fix PROMISC/bridging in TLAN driver
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Date: Mon, 5 Jul 2004 12:25:27 +1000
-Content-Transfer-Encoding: 8BIT
-Message-ID: <AEC6C66638C05B468B556EA548C1A77D2500D2@trantor>
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.4.26 fix PROMISC/bridging in TLAN driver
-Thread-Index: AcRiN1E1vJHwXSzMQdSQnI33XWx6vg==
-From: "James Harper" <JamesH@bendigoit.com.au>
-To: <linux-kernel@vger.kernel.org>
-Cc: <chessman@tux.org>
+	Sun, 4 Jul 2004 22:32:23 -0400
+Received: from dsl081-240-014.sfo1.dsl.speakeasy.net ([64.81.240.14]:12929
+	"EHLO tumblerings.org") by vger.kernel.org with ESMTP
+	id S265902AbUGECcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 22:32:17 -0400
+Date: Sun, 4 Jul 2004 19:32:13 -0700
+From: Zack Brown <zbrown@tumblerings.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems getting SMP to work with vanilla 2.4.26
+Message-ID: <20040705023213.GA1557@tumblerings.org>
+References: <20040704020543.GA1776@tumblerings.org> <20040704141336.GA18851@logos.cnet> <20040704181438.GB3816@tumblerings.org> <20040705002305.GA20847@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040705002305.GA20847@logos.cnet>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been a problem for me for ages. When using bridging, the driver
-is switched into promiscuous mode before the link init is complete. The
-init complete routine then resets the promisc bit on the card so the
-kernel still thinks the card is in promiscuous mode but the card isn't.
-doh.
+Hi,
 
-I think this bug only shows up in bridging when the bridge is started at
-boot time (or something else that sets promisc at the same time the card
-was started). If promisc is enabled later it works.
+On Sun, Jul 04, 2004 at 09:23:05PM -0300, Marcelo Tosatti wrote:
+> On Sun, Jul 04, 2004 at 11:14:38AM -0700, Zack Brown wrote:
+> > Hi Marcelo, folks,
+> > 
+> > On Sun, Jul 04, 2004 at 11:13:36AM -0300, Marcelo Tosatti wrote:
+> > > On Sat, Jul 03, 2004 at 07:05:43PM -0700, Zack Brown wrote:
+> > > > Hi folks,
+> > > > 
+> > > > When booting vanilla 2.4.26 with SMP enabled, I get a lockup before the
+> > > > boot sequence is completed. The same kernel with SMP disabled boots and runs
+> > > > just fine. Both CPUs are detected by the system at bootup, before lilo takes
+> > > > over. Here's the error as I wrote it down from the screen, followed by the
+> > > > .config file:
+> > > 
+> > > I can't help much really. Tried CONFIG_ACPI_BOOT=n ? 
+> > > 
+> > I did a 'make dep' and 'make bzImage', and got the following error. It
+> > looks like the kernel really wants that option enabled.
+> 
+> Hi Zack, 
+> 
+> Silly me, its not possible to compile SMP image without CONFIG_ACPI_BOOT (a lot of
+> SMP detection code is linked to basic ACPI infrastructure).
+> 
+> Can you please try the nolapic/noapic boot options? They should disable the APIC, and
+> if APIC is the "root" of your crashes, we will find out that way.
+> 
+> Sorry for the noise.
 
-Here's a trivial (and hopefully correct) patch that works for me. It
-just calls the promisc/multicast setup routine after init.
+It turns out I tried 2.6.6 and got it working. Thanks for the help though!
 
-James
+I'm assuming the 2.4 thing is probably just a configuration problem at my
+end, and not an actual kernel bug. If you think it might be a real bug,
+I'm happy to keep trying other stuff to root it out.
 
+Many thanks!
+Zack
 
---- linux/drivers/net/tlan.c    2004-07-05 12:10:31.000000000 +1000
-+++ linux-2.4.26-xen0/drivers/net/tlan.c        2004-07-05
-11:43:48.000000000 +1000
-@@ -2378,6 +2378,7 @@
-                TLan_SetTimer( dev, (10*HZ), TLAN_TIMER_FINISH_RESET );
-                return;
-        }
-+       TLan_SetMulticastList(dev);
-
- } /* TLan_FinishReset */
-
+-- 
+Zack Brown

@@ -1,161 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290817AbSARUxS>; Fri, 18 Jan 2002 15:53:18 -0500
+	id <S290819AbSARUyI>; Fri, 18 Jan 2002 15:54:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290818AbSARUxM>; Fri, 18 Jan 2002 15:53:12 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:48855 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290817AbSARUxE>; Fri, 18 Jan 2002 15:53:04 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+	id <S290818AbSARUx7>; Fri, 18 Jan 2002 15:53:59 -0500
+Received: from [208.29.163.248] ([208.29.163.248]:12025 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S290819AbSARUxp>; Fri, 18 Jan 2002 15:53:45 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Fri, 18 Jan 2002 12:52:42 -0800 (PST)
+Subject: Re: Tulip driver bug in 2.4.17 (fwd)
+In-Reply-To: <3C48774E.2020708@candelatech.com>
+Message-ID: <Pine.LNX.4.40.0201181251310.27656-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFFBBD700A.BEBAFED6-ON85256B44.00724FEA@raleigh.ibm.com>
-From: "Kent E Yoder" <yoder1@us.ibm.com>
-Date: Fri, 18 Jan 2002 14:52:47 -0600
-X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 01/18/2002 03:52:48 PM,
-	Serialize complete at 01/18/2002 03:52:48 PM
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2) Fixed.
+On Fri, 18 Jan 2002, Ben Greear wrote:
 
-3) Yeah, this was bad...  Fixed.
+> It might also be interesting to see if the working driver still works
+> if you forward port it into 2.4.17....
+>
 
-4, 6, 7, 9 & 10) These fall into the category of hardware workaround.  The 
-lanstreamer hardware is essentially broken (with respect to its hardware 
-specification) and these were a few of the things which made it work. 
+I copied the drivers/net directory from 2.4.4 (tulip driver 0.4.14e) and
+it results in the same lockup on 2.4.17 as the new driver.
 
-  For #6, the udelay(1) had more to do with the following write() than 
-with spin_lock().  When that delay was not there, the write failed 
-randomly. The same with the udelay(10) at the end of the interrupt 
-function...
+what can I do to turn on more logging here?
 
-  For #7, 9 & 10, zeroing out interrupts in the interrupt function and in 
-the xmit function and the delay have no software function at all, but it 
-made the hardware happy.  Without these, the card would lock up the box 
-under heavy load.
+David Lang
 
-5 & 11) Nope, I had not read Doc/networking/netdevices.txt, so I have a 
-question.  What does being inside rtnl_lock() imply other than the sleep 
-issues? 
-
-  The calls to cli() and save_flags() were wrong from the beginning.  They 
-were imported by the last maintainer since this driver is a modified 
-version of the olympic token ring driver.  The current spin_lock() and 
-spin_unlock() calls protect the srb_queued variable.  If we were to set it 
-to one and then get interrupted before we actually write() to the srb, the 
-interrupt function will try to service whatever junk happens to be in the 
-srb.  If going into the interrupt function is covered by rtnl_lock(), this 
-would be covered, but I guess its not (?)....
-
-8) Yeah, we didn't see any problems with this in test (probably due to 
-lanstreamer's fairly low bandwidth), but you are right.  Fixed.
-
-12) Fixed.
-
-13)  Hmm..  Guess I'll need to learn about that... eventually :^).  Fixed, 
-for now...
-
-
-
-Kent <yoder1@us.ibm.com>
-
-
-
-
-Kent E Yoder wrote:
-> This patch fixes several bugs and works around known hardware problems
-> which conspired to lock up the system randomly.  Its somewhat large,
-> therefore available at:
-
-http://oss.software.ibm.com/developer/opensource/linux/patches/tr/lanstreamer-0.5.1.patch.gz
-> 
-> * Interrupt function rearranged
-> * PCI Configuration changed
-> * Tx descriptors had to be reduced to 1 (!)
-> * Send/Receive operations are nearly serialized
-
-
-
-Marcelo, please do not apply this patch...
-
-
-
-Sorry for the delay, review:
-
-1) (in code, not in your patch) prefer kernel-standard types like u32 or
-u16 to __u32 and __u16
-
-2) poor formatting:
-
-> +#if STREAMER_IOCTL
-> +        dev->do_ioctl = &streamer_ioctl;
-> +#else
->                         dev->do_ioctl = NULL;
-> +#endif
-
-3) I don't like this playing around with magic numbers.  pci_set_master
-and pci_enable_device and pci_disable_device twiddle PCI_COMMAND bits,
-too.  Use constants from pci.h make it clear what bits you are clearing,
-and what bits you are setting.
-
-> +       pci_write_config_byte (pdev, PCI_CACHE_LINE_SIZE, cls);
-> +       pci_read_config_word (pdev, PCI_COMMAND, &pcr);
-> +
-> +       /* Turn off Fast B2B enable */
-> +       pcr &= 0xfdff;
-> +       /* Turn on SERR# enable and others */
-> +       pcr |= 0x0157;
-> +
-> +       pci_write_config_word (pdev, PCI_COMMAND, pcr);
-> +       pci_read_config_word (pdev, PCI_COMMAND, &pcr);
-
-4) Your code appears to -always- set cache line size to zero.  Is that a
-hardware bug?  Look at acenic.c to see a better example of setting PCI
-cache line size.
-
-5) what is the purpose of the spin_lock in streamer_open, if open is
-serialized?  it worries me that the previous streamer_open code disabled
-interrupts and the new one does not, but replaces with a non-irq-saving
-lock that appears superfluous.
-
-6) udelay(1) after brand new spin_lock in streamer_interrupt is
-suspicious
-
-7) disabling interrupts by zeroing NIC intr mask, in interrupt handler,
-is general not needed.  why was this added?  interrupt handlers are not
-re-entered so this is not a worry.
-
-8) the while loop in the interrupt looks like it could go on for quite a
-while under heavy load, starving out a lot of other kernel code.  it
-needs a work limit at the very least...
-
-9) disabling interrupts at the beginning of each TX is wrong.  you
-probably want spin_lock_irqsave at critical parts of the xmit.
-
-10) udelay(100) is likely wrong and a sign of a race (perhaps #9, above,
-fixes this)
-
-11) replacing save_flags/cli with normal spin_lock in streamer_close is
-suspicious and likely wrong.  See issue #5 about streamer_open
-serialization.  Have you read Documentation/networking/netdevices.txt ?
-
-12) formatting of streamer_ioctl is grossly different from the rest of
-the code
-
-13) SIOCDEVPRIVATE ioctls are going away in 2.5.  (you can implement
-include/linux/ethtool.h SIOCETHTOOL interface for lot of the
-functionality, though)
-
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
-
-
-
+> Ben
+>
+>
+> >
+> > the failure is not at all traffic related, I have these boxes in
+> > production (only useing 3 of the 4 ports) with no problems at all, but on
+> > a box not connected to any network I can lock it up by just issuing an
+> > ifconfig.
+> >
+> > it's possible that it's a PCI problem (if so can we back off the timing to
+> > what worked?), but I would expect the problem to be more variable if that
+> > was the case.
+> >
+> > David Lang
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+>
+>
+> --
+> Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+> President of Candela Technologies Inc      http://www.candelatech.com
+> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+>
+>

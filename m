@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265905AbUAEUKx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:10:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265907AbUAEUKx
+	id S265311AbUAEUDn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:03:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbUAEUDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:10:53 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40654 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265905AbUAEUKv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:10:51 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Frederik Deweerdt <frederik.deweerdt@laposte.net>
-Subject: Re: Possibly wrong BIO usage in ide_multwrite
-Date: Mon, 5 Jan 2004 21:13:35 +0100
-User-Agent: KMail/1.5.4
-References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401051712.41695.bzolnier@elka.pw.edu.pl> <1073331448.3761.12.camel@silenus.home>
-In-Reply-To: <1073331448.3761.12.camel@silenus.home>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jan 2004 15:03:43 -0500
+Received: from marcet.info ([213.60.139.160]:20116 "EHLO mail.marcet.info")
+	by vger.kernel.org with ESMTP id S265311AbUAEUDg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 15:03:36 -0500
+Date: Mon, 5 Jan 2004 21:03:33 +0100
+From: Javier Marcet <lists@marcet.info>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org, usb-storage@one-eyed-alien.net,
+       linux-usb-users@lists.sourceforge.net
+Subject: Re: usb-storage && iRIVER flash player problem
+Message-ID: <20040105200333.GA11318@hiroshi>
+Reply-To: Javier Marcet <javier@marcet.info>
+References: <20040105125948.GA9257@hiroshi> <20040105190204.GA4547@one-eyed-alien.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
 Content-Disposition: inline
-Message-Id: <200401052113.35828.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040105190204.GA4547@one-eyed-alien.net>
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Gentoo GNU/Linux 1.4 / 2.6.1-rc1-mm1 i686 AMD Athlon(TM) XP 2000+ AuthenticAMD
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 of January 2004 20:37, Frederik Deweerdt wrote:
-> On Mon, 2004-01-05 at 17:12, Bartlomiej Zolnierkiewicz wrote:
-> > - hangs during reading /proc/ide/<cdrom>/identify on some drives
-> >   (workaround is now known thanks to debugging done by Andi+BenH+Andre)
->
-> could you explain about this workaround? i've searched the archives
-> without finding anything.
 
-Because it was discovered recently and it is not the proper fix. :-)
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
- drivers/ide/ide-taskfile.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+* Matthew Dharm <mdharm-kernel@one-eyed-alien.net> [040105 20:02]:
 
-diff -puN drivers/ide/ide-taskfile.c~ide-tf-identify-fix drivers/ide/ide-taskfile.c
---- linux-2.6.1-rc1/drivers/ide/ide-taskfile.c~ide-tf-identify-fix	2004-01-04 16:35:53.094766576 +0100
-+++ linux-2.6.1-rc1-root/drivers/ide/ide-taskfile.c	2004-01-04 16:45:03.240131768 +0100
-@@ -797,9 +797,12 @@ check_status:
- 	if (!OK_STAT(stat, good_stat, BAD_R_STAT)) {
- 		if (stat & (ERR_STAT | DRQ_STAT))
- 			return DRIVER(drive)->error(drive, __FUNCTION__, stat);
--		/* BUSY_STAT: No data yet, so wait for another IRQ. */
--		ide_set_handler(drive, &task_in_intr, WAIT_WORSTCASE, NULL);
--		return ide_started;
-+		/* Workaround for some ATAPI drives which set only BSY bit. */
-+		if (drive->media != ide_cdrom) {
-+			/* BUSY_STAT: No data yet, so wait for another IRQ. */
-+			ide_set_handler(drive, &task_in_intr, WAIT_WORSTCASE, NULL);
-+			return ide_started;
-+		}
- 	}
+>It looks like your device is choking over the ALLOW_MEDIUM_REMOVAL command
+>-- I've never seen a device broken in this particular way before.
+
+>If you edit drivers/scsi/sd.c to remove the sending of that command (it's
+>normally used to lock the media-eject button on devices that support it),
+>we should be able to test this theory.  If this is the case, then we may
+>need to modify the SCSI layer to only send that command if the RMB bit is
+>set.
+
+That did it, with this fix I have no problems. fdisk still reports
+mangled partitions, parted OTOH reports one partition filling the whole
+device. I can mount either /dev/sda or /dev/sda4 and get the same
+correct results.
+
+Thanks a lot :) You've made me happy for the coming days ;)
+Until your message I was messing around with unusual_devs.h to no
+avail...
+
+
+-- 
+Javier Marcet <javier@marcet.info>
+
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="usb-storage_ifpdev_fix.patch"
+
+--- linux/drivers/scsi/scsi_ioctl.c.orig	2004-01-01 09:12:20.000000000 +0100
++++ linux/drivers/scsi/scsi_ioctl.c	2004-01-05 20:42:03.979349544 +0100
+@@ -156,7 +156,7 @@
+ 	if (!sdev->removable || !sdev->lockable)
+ 	       return 0;
  
- 	/*
+-	scsi_cmd[0] = ALLOW_MEDIUM_REMOVAL;
++	scsi_cmd[0] = 0;
+ 	scsi_cmd[1] = 0;
+ 	scsi_cmd[2] = 0;
+ 	scsi_cmd[3] = 0;
 
-_
-
+--/04w6evG8XlLl3ft--

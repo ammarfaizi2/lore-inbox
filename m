@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278522AbRKFHTR>; Tue, 6 Nov 2001 02:19:17 -0500
+	id <S278604AbRKFHWr>; Tue, 6 Nov 2001 02:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278566AbRKFHTH>; Tue, 6 Nov 2001 02:19:07 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40380 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S278522AbRKFHTE>; Tue, 6 Nov 2001 02:19:04 -0500
-Date: Tue, 6 Nov 2001 00:19:01 -0700
-Message-Id: <200111060719.fA67J1j21018@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: alain@linux.lu, Linus Torvalds <torvalds@transmeta.com>,
+	id <S278579AbRKFHWh>; Tue, 6 Nov 2001 02:22:37 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9165 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278604AbRKFHWc>;
+	Tue, 6 Nov 2001 02:22:32 -0500
+Date: Tue, 6 Nov 2001 02:22:30 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: alain@linux.lu, Linus Torvalds <torvalds@transmeta.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: Poor floppy performance in kernel 2.4.10 
-In-Reply-To: <Pine.GSO.4.21.0110271407570.21545-100000@weyl.math.psu.edu>
-In-Reply-To: <200110271800.f9RI0M803440@hitchhiker.org.lu>
-	<Pine.GSO.4.21.0110271407570.21545-100000@weyl.math.psu.edu>
+In-Reply-To: <200111060719.fA67J1j21018@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0111060220250.27713-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> On Sat, 27 Oct 2001, Alain Knaff wrote:
-> > Good. But then, what's the point of devfs=only ? I assumed this was
+
+
+On Tue, 6 Nov 2001, Richard Gooch wrote:
+
+> IIRC that I've told you this already. Here it is again: devfs=only
+> serves as a way of enforcing that the devfs entry->driver ops
+> connection is the only way of accessing a driver. It deliberately
+> breaks the fallback to major-table-lookup.
 > 
-> Ask Richard.  Maybe you will be able to get a straight answer.  I
-> hadn't...
+> And it actually works now. It doesn't require massive 2.5 changes.
+> When I boot with devfs=only (which is always), my system still works.
 
-IIRC that I've told you this already. Here it is again: devfs=only
-serves as a way of enforcing that the devfs entry->driver ops
-connection is the only way of accessing a driver. It deliberately
-breaks the fallback to major-table-lookup.
+Try rmmod while blkdev_get() (from mount(2) or swapon(2)) sleeps on ->bd_sem.
+And think what happens with value of ->bd_op.
 
-And it actually works now. It doesn't require massive 2.5 changes.
-When I boot with devfs=only (which is always), my system still works.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

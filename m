@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262517AbREUWXJ>; Mon, 21 May 2001 18:23:09 -0400
+	id <S262519AbREUW1I>; Mon, 21 May 2001 18:27:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262511AbREUWW6>; Mon, 21 May 2001 18:22:58 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:14589 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262515AbREUWWn>;
-	Mon, 21 May 2001 18:22:43 -0400
-Date: Mon, 21 May 2001 18:22:41 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <Pine.LNX.4.31.0105211503560.10331-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105211814130.12245-100000@weyl.math.psu.edu>
+	id <S262518AbREUW06>; Mon, 21 May 2001 18:26:58 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:43786 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262513AbREUW0q>; Mon, 21 May 2001 18:26:46 -0400
+Date: Tue, 22 May 2001 00:26:47 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Jan Hudec <bulb@ucw.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: question: permission checking for network filesystem
+In-Reply-To: <20010521153246.A9454@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.3.96.1010521233913.27071A-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Agree, but it will improve behavior. Or speed, rather. Otherwise open would
+> take 3(!) roundtrips (instead of two - now lookup can't be get rid of) -
+> lookup, permission and open. The protocol can do all three in one request.
+> The problem is I can't tell the 3 calls from VFS belong together.
 
+You can write lookup so that it always succeeds and returns dummy inode
+without sending anything and do all the work in open & inode operations.
 
-On Mon, 21 May 2001, Linus Torvalds wrote:
-
-> It shouldn't be impossible to do the same thing to ioctl numbers. Nastier,
-> yes. No question about it. But we don't necessarily have to redesign the
-> whole approach - we only want to re-design the internal kernel interfaces.
+> > > Could anyone see a solution other than adding a flags to open mode (say
+> > > O_EXEC and O_EXEC_LIB), that would be added to the dentry_open in open_exec
+> > > and sys_uselib? I don't like the idea of pathing vfs for this.
+> > 
+> > Send always 'open for read' and ignore 'open for execute'.
 > 
-> That, in turn, might be as simple as changing the ioctl incoming arguments
-> of <cmd,arg> into a structure like <type,cmd,inbuf,inlen,outbuf,outlen>.
+> Won't work for many reasons. Correct error code is one (could be removed by
+> pre-checking permission),
 
-drivers/net/ppp_generic.c:
-ppp_set_compress(struct ppp *ppp, unsigned long arg)
-{
-        int err;
-        struct compressor *cp;
-        struct ppp_option_data data;
-        void *state;
-        unsigned char ccp_option[CCP_MAX_OPTION_LENGTH];
-#ifdef CONFIG_KMOD
-        char modname[32];
-#endif
+> exclusivity of write versus execute is the other
+> (can't be workaround).
 
-        err = -EFAULT;
-        if (copy_from_user(&data, (void *) arg, sizeof(data))
-            || (data.length <= CCP_MAX_OPTION_LENGTH
-                && copy_from_user(ccp_option, data.ptr, data.length)))
-                goto out;
+MAP_DENYWRITE is used for this. If somebody is mapping file with
+MAP_DENYWRITE, lock it on server. Write locking does not depend on exec,
+and it is bad to expect that it may be used only in exec. 
 
-And that's far from being uncommon. They _do_ follow pointers. Some - more
-than once.
+Mikulas
 
-We _will_ have to support ioctls for long. No questions about that. And
-there is no magic trick that would work for all of them, simply because
-many are too disgusting to be left alive. Let's clean the groups that can
-be cleaned and see what's left.
 

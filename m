@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLPKkM>; Sat, 16 Dec 2000 05:40:12 -0500
+	id <S131516AbQLPLDf>; Sat, 16 Dec 2000 06:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131539AbQLPKkC>; Sat, 16 Dec 2000 05:40:02 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:44294 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129345AbQLPKjw>;
-	Sat, 16 Dec 2000 05:39:52 -0500
-Message-ID: <002d01c06747$d5aeb730$f0f0e23e@enode>
-From: "Jens Müller"  <jens@unfaehig.de>
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0012160521580.2805-100000@hafnium.nkbj.dk>
-Subject: Re: Unable to boot 2.4.0-test12 (0224 AX:0212 BX:BC00 CX:5101 DX:000.)
-Date: Sat, 16 Dec 2000 11:06:18 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Return-Path: jens@unfaehig.de
-X-MDRcpt-To: linux-kernel@vger.kernel.org
+	id <S131565AbQLPLD0>; Sat, 16 Dec 2000 06:03:26 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:42002 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S131516AbQLPLDP>;
+	Sat, 16 Dec 2000 06:03:15 -0500
+Date: Sat, 16 Dec 2000 11:32:44 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200012161032.LAA16091@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test13-pre2, unresolved symbols
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
------ Original Message -----
-From: "Niels Kristian Bech Jensen" <nkbj@image.dk>
-To: "infernix" <infernix@infernix.nl>
-Cc: "Linux kernel developer's mailing list"
-<linux-kernel@vger.kernel.org>
-Sent: Saturday, December 16, 2000 5:22 AM
-Subject: Re: Unable to boot 2.4.0-test12 (0224 AX:0212 BX:BC00 CX:5101
-DX:000.)
-
-
-> I've seen this a few times too. It's normally caused by a bad floppy.
-> Try another floppy.
-
-Or try booting from harddisk...
-
-Jens
-
-
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_wake_up_task
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_killall_tasks
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_init_task
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol nlmclnt_proc
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_shutdown_client
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpciod_up
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_new_task
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpciod_down
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol lockd_down
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_wake_up_status
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_clnt_sigmask
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpcauth_releasecred
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol lockd_up
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_proc_unregister
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol xdr_encode_array
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol nfs_debug
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_create_client
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_sleep_on
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpcauth_lookupcred
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_clnt_sigunmask
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_call_setup
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_call_sync
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol xprt_destroy
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_execute
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol rpc_proc_register
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol xdr_zero_iovec
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o: unresolved symbol xprt_create_proto
+Using /lib/modules/2.4.0-test13-pre2/kernel/fs/nfs/nfs.o
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol nlmsvc_ops
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol lockd_down
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol rpc_garbage_args
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol xdr_decode_string
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_exit_thread
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_proc_unregister
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol nlmsvc_invalidate_client
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol lockd_up
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol xdr_encode_array
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_makesock
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_destroy
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_create_thread
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_recv
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_process
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol xdr_one
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_create
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol nfsd_debug
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_proc_register
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol svc_proc_read
+/lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o: unresolved symbol rpc_system_err
+Using /lib/modules/2.4.0-test13-pre2/kernel/fs/nfsd/nfsd.o
+---------
+Regards
+		Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

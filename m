@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265532AbUALOd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 09:33:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265550AbUALOd2
+	id S266330AbUALOat (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 09:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266355AbUALOat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 09:33:28 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:64645 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S265532AbUALOd0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 09:33:26 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
-Date: Mon, 12 Jan 2004 20:02:14 +0530
-User-Agent: KMail/1.5
-Cc: George Anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       jim.houston@comcast.net, discuss@x86-64.org, ak@suse.de,
-       shivaram.upadhyayula@wipro.com, lkml <linux-kernel@vger.kernel.org>
-References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401101611.53510.amitkale@emsyssoft.com> <20040110181402.GA2250@elf.ucw.cz>
-In-Reply-To: <20040110181402.GA2250@elf.ucw.cz>
+	Mon, 12 Jan 2004 09:30:49 -0500
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:19803 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266330AbUALOar convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 09:30:47 -0500
+From: Murilo Pontes <murilo_pontes@yahoo.com.br>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel 2.6.1
+Date: Mon, 12 Jan 2004 11:30:56 +0000
+User-Agent: KMail/1.5.94
+References: <200401111545.59290.murilo_pontes@yahoo.com.br> <20040111235025.GA832@ucw.cz>
+In-Reply-To: <20040111235025.GA832@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200401122001.14997.amitkale@emsyssoft.com>
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401121130.56427.murilo_pontes@yahoo.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixed. Thanks.
+Hi,
 
-On Saturday 10 Jan 2004 11:44 pm, Pavel Machek wrote:
-> Hi!
->
-> > I have released kgdb 2.0.1 for kernel 2.6.1:
-> > http://kgdb.sourceforge.net/linux-2.6.1-kgdb-2.0.1.tar.bz2
-> >
-> > It doesn't contain any assert stuff. I have split it into multiple parts
-> > to make a merge easier. Please let me know if you want me to further
-> > split them or if you want something to be changed. The README file from
-> > this tarball is pasted below.
-> >
-> > Here is two possible starting points:
-> > 1. SMP stuff -> Replace my old smp and nmi handling code.
-> > 2. Early boot -> Change 8250.patch to make configuration of serial port
-> > either through config options or through command line.
-> >
-> > I'll attempt reading your patch and merging as much stuff as possible.
-> > Thanks.
->
-> I'm getting error:
->
->   CC      kernel/kgdbstub.o
-> kernel/kgdbstub.c: In function `kgdb_handle_exception':
-> kernel/kgdbstub.c:646: error: `thref' undeclared (first use in this
-> function)
-> kernel/kgdbstub.c:646: error: (Each undeclared identifier is reported
-> only once
-> kernel/kgdbstub.c:646: error: for each function it appears in.)
-> kernel/kgdbstub.c:677: error: `thread' undeclared (first use in this
-> function)
-> make[1]: *** [kernel/kgdbstub.o] Error 1
-> make: *** [kernel] Error 2
-> 44.97user 3.71system 59.51 (0m59.514s) elapsed 81.81%CPU
->
-> I enabled  KGDB_THREAD and problem went away.
->
-> 								Pavel
+I try your patch:
+> diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+> --- a/drivers/char/keyboard.c   Sun Jan 11 19:42:55 2004
+> +++ b/drivers/char/keyboard.c   Sun Jan 11 19:42:55 2004
+> @@ -941,8 +941,8 @@
+>          32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+>          48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+>          64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+> -        80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
+> -       284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
+> +        80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
+> +       284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
+>         367,288,302,304,350, 89,334,326,116,377,109,111,126,347,348,349,
+>         360,261,262,263,298,376,100,101,321,316,373,286,289,102,351,355,
+>         103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
+but key not work!
 
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+I try showkey program under console-framebuffer and under xterm-console, 
+output in both modes:
+keycode  53 release
 
+If key is read on console-framebuffer, why it not printed in screen?
+
+
+Thanks,
+Murilo Pontes

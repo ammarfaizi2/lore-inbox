@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266558AbUBLTeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 14:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUBLTeH
+	id S266562AbUBLTi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 14:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUBLTi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 14:34:07 -0500
-Received: from buserror-extern.convergence.de ([212.84.236.66]:29574 "EHLO
-	heck") by vger.kernel.org with ESMTP id S266558AbUBLTbp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 14:31:45 -0500
-Date: Thu, 12 Feb 2004 20:31:38 +0100
-From: Johannes Stezenbach <js@convergence.de>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] bogus __KERNEL_SYSCALLS__ usage
-Message-ID: <20040212193137.GE28768@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <20040212162856.GU12634@redhat.com>
+	Thu, 12 Feb 2004 14:38:58 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:39445 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266562AbUBLTiz (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 14:38:55 -0500
+Message-Id: <200402121938.i1CJcpVb002430@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Konstantin Kudin <konstantin_kudin@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange boot with multiple identical disks 
+In-Reply-To: Your message of "Thu, 12 Feb 2004 11:28:48 PST."
+             <20040212192848.29083.qmail@web21204.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040212192848.29083.qmail@web21204.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040212162856.GU12634@redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/signed; boundary="==_Exmh_-1607311684P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 12 Feb 2004 14:38:51 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> I just did a mini-audit of users of __KERNEL_SYSCALLS and turned
-> up a bunch of uglies. The patch below is the easy ones
-> (nothing to fix, they were defining it and including unistd.h for no reason).
-> The remainders will need more work.
-...
-> 	drivers/media/dvb/frontends/tda1004x.c:#define __KERNEL_SYSCALLS__
-> 	drivers/media/dvb/frontends/sp887x.c:#define __KERNEL_SYSCALLS__
-> 	drivers/media/dvb/frontends/alps_tdlb7.c:#define __KERNEL_SYSCALLS__
+--==_Exmh_-1607311684P
+Content-Type: text/plain; charset=us-ascii
+
+On Thu, 12 Feb 2004 11:28:48 PST, Konstantin Kudin <konstantin_kudin@yahoo.com>  said:
+
+>  Now I am trying to add the failing one as /hdc, and
+> boot. Linux starts to display all kinds of weird
+> messages, and thinks that / partition was shut down
+> uncleanly. I just hit "reset". Then I disable /hdc via
+> the boot option hdc=noprobe, and things boot fine. If
+> I try to disable raid via raid=noautodetect, the bunch
+> of errors still appears and the boot is no go. Done
+> this several times, without /hdc things are fine, with
+> - all kinds of issues.
 > 
-> Joy joy. Implementing their own firmware loaders by directly
-> reading files into kernel space. Icky.
+>  What is the problem for linux to boot on /hda when
+> /hdc is detected and has almost identical setup? 
 
-Old code, implemented before request_firmware() existed.
+Sometimes, the LABEL= support is your enemy.  You probably have
+multiple partitions with the same LABEL=, and your /etc/fstab is
+picking up the "wrong" ones.  Try giving partition names instead.
 
-The problem is that the current dvb_i2c stuff has no direct access
-to a sysfs struct device, which is necessary for request_firmware().
-Possible solutions have briefly been discussed on the linux-dvb list,
-one of them ditching dvb_i2c in favor of the kernel i2c subsystem.
+--==_Exmh_-1607311684P
+Content-Type: application/pgp-signature
 
-So please be patient, work is under way. See also
-Documentation/dvb/firmware.txt.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFAK9ZLcC3lWbTT17ARAsy1AKCGEk1B1n5y5tPRvNc2PVTJg0lQUQCfSyxQ
+QwnkcpEP7nf0yeBfznZ66bA=
+=FOjm
+-----END PGP SIGNATURE-----
 
-Johannes
+--==_Exmh_-1607311684P--

@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287253AbSAGWEC>; Mon, 7 Jan 2002 17:04:02 -0500
+	id <S287255AbSAGWFM>; Mon, 7 Jan 2002 17:05:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287244AbSAGWDw>; Mon, 7 Jan 2002 17:03:52 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:7183 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S287235AbSAGWDm>; Mon, 7 Jan 2002 17:03:42 -0500
-Date: Mon, 7 Jan 2002 22:03:36 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
-In-Reply-To: <Pine.LNX.4.33.0201071223450.6942-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0201072144110.8813-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287244AbSAGWEz>; Mon, 7 Jan 2002 17:04:55 -0500
+Received: from cj44686-b.reston1.va.home.com ([24.18.166.90]:61704 "EHLO
+	cj44686-b.reston1.va.home.com") by vger.kernel.org with ESMTP
+	id <S287235AbSAGWEm>; Mon, 7 Jan 2002 17:04:42 -0500
+Date: Mon, 7 Jan 2002 17:28:32 -0500
+From: Tim Hollebeek <tim@hollebeek.com>
+To: jtv <jtv@xs4all.nl>
+Cc: Bernard Dautrevaux <Dautrevaux@microprocess.com>,
+        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+        velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020107172832.A1728@cj44686-b.reston1.va.home.com>
+Reply-To: tim@hollebeek.com
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E402@IIS000> <20020107224907.D8157@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20020107224907.D8157@xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, Linus Torvalds wrote:
 
-> >  * It leaks.  How were you going to refcount the kernel
-> >    portions?  Could they be attached to the VM mapping?
-> >    Would a lockfs be too expensive?
->
-> Yes, I was going to just attach to the vma,
+> Nothing's taking the pointer's address, so the compiler _will_ be able 
+> to prove that (in a sensible universe) no other thread, interrupt, 
+> kernel code or Angered Rain God will be able to find our pointer--much 
+> less change it.
 
-Wouldn't that have to be an address_space, so separate maps
-of the same object will use the same count?  Or (not unlikely)
-am I misunderstanding the way these structures are laid out?
+You're not allowed to be that smart wrt volatile.  If the programmer
+says the value might change unpredictably and should not be optimized,
+then It Is So and the compiler must respect that even if it determines
+It Cannot Possibly Happen.
 
-> along with potentially also require a flag at mmap time (MAP_SEMAPHORE
-> - some other unixes have something like it already) to tell the OS
-> about the consistency issues that might come up on some architectures
-> (on x86 it would be a no-op).
-
-OK.
-
-> >  * It doesn't have a timeout.  Is there something like a
-> >    down_timeout() available?
->
-> Not as-is, but all the kernel infrastructure should be there in
-> theory.
-
-OK, thanks.
-
-> >  * I don't do the:
-> >
-> > 	if (kfs->user_address != fs)
-> > 		goto bad_sem;
-> >
-> >    because it doesn't seem to add anything, and prevents
-> >    putting these locks in a non-fixed file or SysV SHM
-> >    map.
->
-> Fair enough. I think I suggested that just as another sanity check,
-> and because some architectures _will_ require address issues (not
-> necessarily total equality, but at least "modulo X equality").
-
-Should being in the same place in the same page (though
-possibly at a different address) should suffice for all
-architectures?
-
-Matthew.
-
+-Tim

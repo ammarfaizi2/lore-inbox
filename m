@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268146AbUHXSLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268154AbUHXSPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268146AbUHXSLR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 14:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268147AbUHXSLR
+	id S268154AbUHXSPX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 14:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268156AbUHXSPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 14:11:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38818 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268146AbUHXSLP
+	Tue, 24 Aug 2004 14:15:23 -0400
+Received: from proxy.hsp-law.de ([62.48.88.110]:58502 "EHLO gjba.hsp-law.de")
+	by vger.kernel.org with ESMTP id S268154AbUHXSPU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 14:11:15 -0400
-Message-ID: <412B84B8.1060600@pobox.com>
-Date: Tue, 24 Aug 2004 14:11:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 24 Aug 2004 14:15:20 -0400
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ralf Gerbig <rge-news@quengel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ACPI interrupt routing
+References: <m0isb9ispy.fsf@test3.hsp-law.de>
+	<200408241047.54796.bjorn.helgaas@hp.com>
+From: Ralf Gerbig <rge@hsp-law.de>
+Date: Tue, 24 Aug 2004 20:15:16 +0200
+In-Reply-To: <200408241047.54796.bjorn.helgaas@hp.com> (Bjorn Helgaas's
+ message of "Tue, 24 Aug 2004 10:47:54 -0600")
+Message-ID: <m0vff8pfm3.fsf@test3.hsp-law.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: hmh@debian.org
-Subject: rng-tools updated
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Bjorn,
 
-Just posted version 2 of rng-tools at 
-http://sourceforge.net/projects/gkernel/
+* Bjorn Helgaas:
 
-This release fixes a problem related to 2.6.x kernels.
+>> ACPI: PCI interrupt 0000:01:06.1[A] -> GSI 18 (level, high) -> IRQ 18 
+>> bt878(0): Bt878 (rev 17) at 01:06.1, irq: 10, <==================================== 
+ 
+> Can you try this patch, please?  The bt878 driver has the classic problem 
+> of looking at pci_dev->irq before pci_enable_device(). 
 
-rng-tools is currently for users of hardware random number generators 
-(RNGs), and the included daemon rngd fill the kernel entropy pool from 
-userspace with the results of the output.
+yep, gets assigned IRQ 18 and works.
 
-Future directions include:
-* support for VIA 'xcrypt' instruction in userspace, avoiding the need 
-for a kernel driver
-* multithreaded daemon
-* additional entropy sources besides the dedicated h/w RNG
+Thanks,
 
-
+Ralf
+-- 
+Ralf Gerbig			// P:     Linus Torvalds
+Dr. Heinz Schäfer & Partner	//-S:     Buried alive in diapers
+				//+S:     Buried alive in reporters
+				   patch-2.2.4

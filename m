@@ -1,39 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbUKPMnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbUKPMrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbUKPMnW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 07:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbUKPMnW
+	id S261964AbUKPMrA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 07:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbUKPMrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 07:43:22 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:28167 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261963AbUKPMnU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 07:43:20 -0500
-Date: Tue, 16 Nov 2004 12:42:01 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: "Li, Shaohua" <shaohua.li@intel.com>
-Cc: Nickolai Zeldovich <kolya@MIT.EDU>, linux-kernel@vger.kernel.org,
-       csapuntz@stanford.edu, hiroit@mcn.ne.jp
-Subject: RE: [patch] Fix GDT re-load on ACPI resume
-In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305758EF0BA@pdsmsx402.ccr.corp.intel.com>
-Message-ID: <Pine.LNX.4.58L.0411161237020.17411@blysk.ds.pg.gda.pl>
-References: <16A54BF5D6E14E4D916CE26C9AD305758EF0BA@pdsmsx402.ccr.corp.intel.com>
+	Tue, 16 Nov 2004 07:47:00 -0500
+Received: from web52601.mail.yahoo.com ([206.190.39.139]:59553 "HELO
+	web52601.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261964AbUKPMq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 07:46:57 -0500
+Message-ID: <20041116124656.82075.qmail@web52601.mail.yahoo.com>
+Date: Tue, 16 Nov 2004 23:46:56 +1100 (EST)
+From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Subject: [BUG] Kernel disables DMA on RICOH CD-R/RW
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004, Li, Shaohua wrote:
+As of 2.6.9-rc4 (I have verified this to be case all
+the way up to 2.6.10-rc2), kernel displays this
+message:
 
-> There is a patch from hiroit@mcn.ne.jp to fix the GDT issue. You can try
-> it.
-> Please cc 'acpi-devel@lists.sourceforge.net' for suspend/resume issue.
+Uniform Multi-Platform E-IDE driver Revision:
+7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes;
+override with idebus=xx
+VP_IDE: IDE controller at PCI slot 0000:00:0f.1
+ACPI: PCI interrupt 0000:00:0f.1[A] -> GSI 20 (level,
+low) -> IRQ 20
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt8237 (rev 00) IDE UDMA133 controller on
+pci0000:00:0f.1
+    ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings:
+hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings:
+hdc:DMA, hdd:DMA
+Probing IDE interface ide0...
+hda: ST3120026A, ATA DISK drive
+Using anticipatory io scheduler
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: Pioneer DVD-ROM ATAPIModel DVD-113 0113, ATAPI
+CD/DVD-ROM drive
+hdd: RICOH CD-R/RW MP7083A, ATAPI CD/DVD-ROM drive
+hdd: Disabling (U)DMA for RICOH CD-R/RW MP7083A
+(blacklisted)
 
- What is the "gdt body must be addressable from real mode" requirement
-about?  GDT is addressed by the CPU using a linear address as obtained
-from GDTR (bypassing segmentation, for obvious reasons) and is accessible
-regardless of its placement within the 32-bit linear address space in all
-CPU modes.  As its a linear address it only undergoes translation at the
-page level, if enabled.  The same applies to IDT.
+The kernel disables DMA on the CD-R/RW (/dev/hdd) and
+of course it would not let me enable it manually
+either. Up until 2.6.9-rc3 the drive worked in DMA
+mode just fine.
 
-  Maciej
+(I have been using this drive for more than 4 years. I
+have used it under 2.2.x, 2.4.x, >=2.5.50 in DMA mode
+just fine. Although I have changed everything else in
+the computer in those long years: CPU, M/B, RAM, HDD
+etc., save this great CD-R/RW drive, which has been
+working fine.)
+
+So the question is: why?
+(And what can I do to enable DMA again?)
+
+Thank you.
+Hari.
+
+PS: Please cc me on reply, since I am not subscribed
+to LKML.
+
+
+Find local movie times and trailers on Yahoo! Movies.
+http://au.movies.yahoo.com

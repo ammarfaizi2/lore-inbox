@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270580AbRHIUMa>; Thu, 9 Aug 2001 16:12:30 -0400
+	id <S270584AbRHIU0n>; Thu, 9 Aug 2001 16:26:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270578AbRHIUMU>; Thu, 9 Aug 2001 16:12:20 -0400
-Received: from mail2.citistreetonline.com ([209.191.12.26]:9353 "EHLO
-	rstc12ce1.rsd.citistreet.org") by vger.kernel.org with ESMTP
-	id <S270579AbRHIUMI>; Thu, 9 Aug 2001 16:12:08 -0400
-Subject: 2.4.7-ac3 and above
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.07a  May 14, 2001
-Message-ID: <OF30645D34.4F93389F-ON85256AA3.006ECC48@rsd.citistreet.org>
-From: jbearce@citistreetonline.com
-Date: Thu, 9 Aug 2001 16:10:53 -0400
-X-MIMETrack: Serialize by Router on NotesExt01/RSD/CitiStreet(Release 5.0.8 |June 18, 2001) at
- 08/09/2001 04:12:11 PM
+	id <S270581AbRHIU0d>; Thu, 9 Aug 2001 16:26:33 -0400
+Received: from [216.101.162.242] ([216.101.162.242]:4224 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S270578AbRHIU0S>;
+	Thu, 9 Aug 2001 16:26:18 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15218.61869.424038.30544@pizda.ninka.net>
+Date: Thu, 9 Aug 2001 13:25:17 -0700 (PDT)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: johannes@erdfelt.com (Johannes Erdfelt), linux-kernel@vger.kernel.org
+Subject: Re: struct page to 36 (or 64) bit bus address?
+In-Reply-To: <E15UvLO-0007tH-00@the-village.bc.nu>
+In-Reply-To: <20010809151022.C1575@sventech.com>
+	<E15UvLO-0007tH-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been experiencing random lockups with 2.4.7-ac3 and up and can't seem
-to pin it down to anything.  The problem doesn't seem to be load related,
-although it might be disk-related. I can't accurately reproduce the problem
-but it seems to be about once a day with -ac8 through -ac10, -ac4 through
--ac7 were much more frequent.
 
-I'm running on a Dell Precision 420 Workstation dual 933Mhz, 2 IDE HD with
-and without DMA enabled.  The only thing I've recently change in my kernel
-configs, is the use of raid0 to tie the 2 drives together.  I don't see any
-abnormal messages in any logs.  I've got a few test machines at my desk
-that are the same hardware, but with SCSI drives and no raid0 and I'm
-seeing the same problem about once a day.
+Alan Cox writes:
+ > > Obviously the more portable way across architectures is using the PCI
+ > > DMA API but when will the implementation be fixed so I can use it to
+ > > exploit the full potential of this device?
+ > 
+ > 2.5 I believe, ping the peacefrog and ask <DaveM@redhat.com>
 
-I'm running XFree 4.1 with DRI enabled, but haven't had a chance to try to
-reproduce the problem in a console environment.  I completely lose
-connectivity to my machine (both locally and over the network). I'm
-stumped.  The one Compaq server I'm running -ac10 on at the moment is
-running fine, with no X, but there's no load on the machine.  It's also a
-933 Dual Processor machine.
+That's the current plan.  There may be a 2.4.x backport, but no
+promises.  It all depends upon how straightforward the changes
+are.
 
-I'm basically running the latest and greatest Debian (Sid) packages.  I
-don't expect anyone to have an answer for me, but what kind of information
-can I provide that may be useful.
+Note, if you use the "bttv method" (ie. virt_to_bus) your driver will
+then fail to compile on several platforms.
 
-
-
-
+Later,
+David S. Miller
+davem@redhat.com

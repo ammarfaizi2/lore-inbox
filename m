@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVCNWS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVCNWE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVCNWS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCNWPJ
+	id S262017AbVCNWE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVCNWDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:15:09 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:458 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262029AbVCNWO1 (ORCPT
+	Mon, 14 Mar 2005 17:03:23 -0500
+Received: from imap.gmx.net ([213.165.64.20]:11954 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261967AbVCNWA1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:14:27 -0500
-Date: Mon, 14 Mar 2005 23:14:21 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: inconsistent kallsyms data [2.6.11-mm2]
-Message-ID: <20050314221421.GA13378@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Paulo Marques <pmarques@grupopie.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050308033846.0c4f8245.akpm@osdl.org> <20050308192900.GA16882@isilmar.linta.de> <20050308123554.669dd725.akpm@osdl.org> <20050308204521.GA17969@isilmar.linta.de> <422EF2B0.7070304@grupopie.com> <422F59A3.9010209@grupopie.com> <423039A6.5010301@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <423039A6.5010301@grupopie.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Mar 2005 17:00:27 -0500
+X-Authenticated: #20450766
+Date: Mon, 14 Mar 2005 22:33:02 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: 20050217125028.GK21077@m.safari.iki.fi
+cc: linux-kernel@vger.kernel.org
+Subject: [lockup] no NMI (was Re: [OOPS] 2.6.10, ReiserFS errors, preempt)
+In-Reply-To: <Pine.LNX.4.60.0502172211510.6851@poirot.grange>
+Message-ID: <Pine.LNX.4.60.0503142228160.2354@poirot.grange>
+References: <20050217134623.GA2236@linux.ensimag.fr>
+ <Pine.LNX.4.60.0502172211510.6851@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 12:12:22PM +0000, Paulo Marques wrote:
-> Paulo Marques wrote:
-> >[...]
-> >A simple and robust way is to do the sampling on a list of symbols 
-> >sorted by symbol name. This way, even if the symbol positions that are 
-> >given to scripts/kallsyms change, the symbols sampled will be the same.
-> >
-> >I'll do the patch to do this and send it ASAP.
+On Thu, 17 Feb 2005, Guennadi Liakhovetski wrote:
+
+> Hello
 > 
-> Ok, here it is.
+> On Thu, 17 Feb 2005 castet.matthieu@free.fr wrote:
 > 
-> Dominik can you try the attached patch and see if it solves the problem?
+> > > I believe there's unresolved memory corruption bug in bttv...
+> > yes I think so, other have also similar problem :
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110820804010204&w=2
+> > http://marc.theaimsgroup.com/?t=110531543900002&r=1&w=2
+> > http://www.ussg.iu.edu/hypermail/linux/kernel/0412.3/0881.html
+> 
+> Ahh... /me stops the memory test after 18 hours without a single error, 
+> pulls the card out of my desktop and inserts it back into the experimantal 
+> machine. Unfortunately, unlike in other posts you quoted above, I cannot 
+> reproduce my Oops. Is anybody working on this?
 
-It does not solve the problem: 
+Well, I did remove the tv-card - and today got a hard lockup. It's a VIA 
+A7VI-VM motherboard with a 900MHz Duron, lapic explicitely re-enabled on 
+the command-line:
 
- ~/local/kernel/linux-2.6.11-mm2 $ patch -p1 < ~/kallpatch 
-patching file scripts/kallsyms.c
- ~/local/kernel/linux-2.6.11-mm2 $ make
-  CHK     include/linux/version.h
-  HOSTCC  scripts/kallsyms
-make[1]: »arch/i386/kernel/asm-offsets.s« ist bereits aktualisiert.
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  CC [M]  arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.o
-  KSYM    .tmp_kallsyms1.S
-  AS      .tmp_kallsyms1.o
-  LD      .tmp_vmlinux2
-  KSYM    .tmp_kallsyms2.S
-  AS      .tmp_kallsyms2.o
-  LD      vmlinux
-  SYSMAP  System.map
-  SYSMAP  .tmp_System.map
-Inconsistent kallsyms data
-Try setting CONFIG_KALLSYMS_EXTRA_PASS
-make: *** [vmlinux] Fehler 1
+Kernel command line: BOOT_IMAGE=2.6.10 ro root=308 3 lapic nmi_watchdog=2 
+console=tty1 console=ttyS0,38400
 
+/proc/interrupts:
 
-Will test the other patch floating around in just a moment.
+NMI:         59
 
-Thanks,
-	Dominik
+and still it didn't trigger. Why? Going to get 2.6.11.latest now... Was 
+2.6.10.
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289580AbSA2LnH>; Tue, 29 Jan 2002 06:43:07 -0500
+	id <S289549AbSA2LnI>; Tue, 29 Jan 2002 06:43:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289549AbSA2Llu>; Tue, 29 Jan 2002 06:41:50 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:52239 "HELO
+	id <S289559AbSA2LmU>; Tue, 29 Jan 2002 06:42:20 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:53263 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289568AbSA2Lkp>; Tue, 29 Jan 2002 06:40:45 -0500
-Date: Mon, 28 Jan 2002 20:49:25 +0300
-Message-Id: <200201281749.g0SHnP723120@bitshadow.namesys.com>
+	id <S289571AbSA2Lkq>; Tue, 29 Jan 2002 06:40:46 -0500
+Date: Mon, 28 Jan 2002 20:50:52 +0300
+Message-Id: <200201281750.g0SHoq923148@bitshadow.namesys.com>
 From: Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com
 CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS 2.5 Update Patch Set 15 of 25
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 19 of 25
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -21,10 +21,8 @@ This set of patches of which this is one will update ReiserFS in 2.5
 to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
 uuid support plus fix the kdev_t compilation failure.
 
-15-long_symlinks_fix.diff
-    Symlink-body length check was made against an incorrect value, allowing for
-    too long nodes to be inserted into tree. This might lead to obscure 
-    warnings in some cases.
+19-big-endian-const.diff
+    Suppress compilation warnings on big endian platform.
 
 
 The other patches in this set are:
@@ -174,15 +172,30 @@ The other patches in this set are:
 
 
 
---- linux-2.5.3-pre3/fs/reiserfs/namei.c.orig	Wed Jan 23 20:19:07 2002
-+++ linux-2.5.3-pre3/fs/reiserfs/namei.c	Wed Jan 23 20:20:58 2002
-@@ -875,7 +875,7 @@
-     }
+--- linux-2.5.3-pre4/include/linux/reiserfs_fs.h.orig	Thu Jan 24 12:56:56 2002
++++ linux-2.5.3-pre4/include/linux/reiserfs_fs.h	Thu Jan 24 13:03:25 2002
+@@ -369,9 +369,9 @@
+     __u64 linear;
+ } __attribute__ ((__packed__)) offset_v2_esafe_overlay;
  
-     item_len = ROUND_UP (strlen (symname));
--    if (item_len > MAX_ITEM_LEN (dir->i_sb->s_blocksize)) {
-+    if (item_len > MAX_DIRECT_ITEM_LEN (dir->i_sb->s_blocksize)) {
- 	iput(inode) ;
- 	return -ENAMETOOLONG;
-     }
+-static inline __u16 offset_v2_k_type( struct offset_v2 *v2 )
++static inline __u16 offset_v2_k_type( const struct offset_v2 *v2 )
+ {
+-    offset_v2_esafe_overlay tmp = *(offset_v2_esafe_overlay *)v2;
++    offset_v2_esafe_overlay tmp = *(const offset_v2_esafe_overlay *)v2;
+     tmp.linear = le64_to_cpu( tmp.linear );
+     return tmp.offset_v2.k_type;
+ }
+@@ -384,9 +384,9 @@
+     tmp->linear = le64_to_cpu(tmp->linear);
+ }
+  
+-static inline loff_t offset_v2_k_offset( struct offset_v2 *v2 )
++static inline loff_t offset_v2_k_offset( const struct offset_v2 *v2 )
+ {
+-    offset_v2_esafe_overlay tmp = *(offset_v2_esafe_overlay *)v2;
++    offset_v2_esafe_overlay tmp = *(const offset_v2_esafe_overlay *)v2;
+     tmp.linear = le64_to_cpu( tmp.linear );
+     return tmp.offset_v2.k_offset;
+ }
 

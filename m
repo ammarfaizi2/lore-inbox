@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUIQEhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUIQEsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268105AbUIQEhw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 00:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268322AbUIQEhw
+	id S268183AbUIQEsi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 00:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268322AbUIQEsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 00:37:52 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:50818 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268105AbUIQEhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 00:37:48 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Shawn Starr <shawn.starr@rogers.com>
-Subject: Re: [INPUT] mousedev touchpad functionality additions for inclusion into 2.6.9?
-Date: Thu, 16 Sep 2004 23:37:43 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408170349.44626.shawn.starr@rogers.com> <200408170801.00068.dtor_core@ameritech.net> <200409162149.14849.shawn.starr@rogers.com>
-In-Reply-To: <200409162149.14849.shawn.starr@rogers.com>
-MIME-Version: 1.0
+	Fri, 17 Sep 2004 00:48:38 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:25682 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268183AbUIQEsg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 00:48:36 -0400
+Date: Fri, 17 Sep 2004 06:49:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Thayne Harbaugh <tharbaugh@lnxi.com>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, klibc@zytor.com
+Subject: Re: [PATCH] gen_init_cpio uses external file list
+Message-ID: <20040917044959.GA8338@mars.ravnborg.org>
+Mail-Followup-To: Thayne Harbaugh <tharbaugh@lnxi.com>,
+	akpm@digeo.com, linux-kernel@vger.kernel.org, klibc@zytor.com
+References: <1095372672.19900.72.camel@tubarao>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409162337.44524.dtor_core@ameritech.net>
+In-Reply-To: <1095372672.19900.72.camel@tubarao>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 September 2004 08:49 pm, Shawn Starr wrote:
-> Any change of this going into mainline? I'm using this with 2.6.9-rc2-bk2 with 
-> no issues.
->
+On Thu, Sep 16, 2004 at 04:11:12PM -0600, Thayne Harbaugh wrote:
+> 
+> This patch makes gen_init_cpio generate the initramfs_data.cpio from a
+> file which contains a list of entries: file, dir, nod.  I swapped the
+> order of filename/location for the file arguments so that it would be
+> more uniform with the dir and nod tyes.
 
-It has just been merged.
+Comments already given on klibc list by others, but repeated for lkml readers.
 
--- 
-Dmitry
+Helper programs like this shall be compatible with at least solaris & cygwin.
+Therefore the linux only stuff needs to be avoided.
+
+ +	char name[PATH_MAX + 1];
+> +	unsigned int mode;
+> +	uid_t uid;
+> +	gid_t gid;
+> +	int rc = -1;
+> +
+> +	if (4 != sscanf(line, "%" str(PATH_MAX) "s %o %d %d", name, &mode, &uid, &gid)) {
+> +		fprintf(stderr, "Unrecognized dir format '%s'", line);
+> +		goto fail;
+
+Do we know that uid_t and gid_t equals an int here?
+Use an int in the sscanf and do explicit type conversion later.
+
+
+> +	while (-1 != getline(&line, &line_sz, cpio_list)) {
+> +		int type_idx;
+
+fgets() please.
+
+	Sam

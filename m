@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319072AbSIJIEK>; Tue, 10 Sep 2002 04:04:10 -0400
+	id <S319077AbSIJIQj>; Tue, 10 Sep 2002 04:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319077AbSIJIEK>; Tue, 10 Sep 2002 04:04:10 -0400
-Received: from tamqfl1-ar8-4-46-216-017.tamqfl1.dsl-verizon.net ([4.46.216.17]:62990
-	"HELO MailUser") by vger.kernel.org with SMTP id <S319072AbSIJIEI>;
-	Tue, 10 Sep 2002 04:04:08 -0400
-Reply-To: cranfordlines.claimscenter@verizon.net
-From: "Steve Kelly" <Cranfordlines.claimscenter@verizon.net>
-To: "" <linux-kernel@vger.kernel.org>
-Subject: What happened with your forms processing idea?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Tue, 10 Sep 2002 03:54:42 -0400
-Message-Id: <20020910080408Z319072-685+45670@vger.kernel.org>
+	id <S319080AbSIJIQj>; Tue, 10 Sep 2002 04:16:39 -0400
+Received: from tnt-2-5.pops.easynet.fr ([212.180.33.5]:50170 "HELO
+	hubert.heliogroup.fr") by vger.kernel.org with SMTP
+	id <S319077AbSIJIQi>; Tue, 10 Sep 2002 04:16:38 -0400
+From: Hubert Tonneau <hubert.tonneau@pliant.cx>
+To: linux-kernel@vger.kernel.org
+Subject: User land kernel configuration/profiling model proposal
+Date: Tue, 10 Sep 2002 08:19:45 GMT
+X-Mailer: Pliant 76
+Message-Id: <20020910081638Z319077-685+45673@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are struggling with the decisions related to wether or not to
-          go ahead with our plans to purchase an OCR and forms
-          scanning solution.
+The external view of the kernel configuration status would be a set of global
+entries such as:
+/network/device/eth0/ip=10.11.12.13
+/network/device/eth0/mask=255.255.255.0
+...
 
-          An outside consultant mentioned that he had heard that not to
-          long ago you folks were considering implementing OCR
-          technology to reduce data entry costs and improve efficiency.
-          If you could let us know if you did move forward with any
-          plans in that direction it would be of great help to us.
+Each open handle also has such a private tree, and each process also.
 
- 
-           May I  ask
-          what initialy prompted you to consider OCR? Did you decide it
-          could help your compamy? What software did you go with?
-          Would you recomend we take a look at it?
+Now, only three kernel functions are required to provide overall kernel
+configuration and profiling:
 
-          At present we are still planning to continue our research until
-          we decide which OCR system best suits our needs, then
-          implement it quickly.
-          If you are just starting to consider this
-          technology feel free to stay in touch.
+int kernel_configure(int handle,const char *buffer,int length);
 
- We will let you know what
-          we decide on and if it works for us.
-          If you cannot advise on this please forward this E-mail to the
-          proper individual in your company who might be able to help with
-          this.
+  the buffer is assumed to be filled with a SET OF lines.
+  'handle' is zero if accessing the kernel global tree instead of a handle
+  specific one.
+
+int kernel_query(int handle,const char *path,int path_length,char *buffer,int buffer_length);
+
+  asks the kernel to fill the buffer with one line per entry,
+  selecting only entries starting by 'path'
+
+int open_process(int pid);
+
+  returns a handle to the process enabling to access process related
+  informations.
 
 
-          Thanks,
-          Steve
+This model covers all at once the features from:
+. /proc
+. ioctl
+. all specific user land tools
+
+The problem with /proc filesystem is that it does not allow to access all
+a subtree at once, so in order to provide a set of consistent informations,
+they have to be provided as a single file, with the parsing related
+nightmare.
+
+The problem with ioctl is that using numbers is too much efficiency
+with a too high lack of flexibility drawback, and once again, configuring
+will often need several datas, so a structure with the versioning related
+problems.
+
+What's also very interesting with this model is that you can now have
+a single tool for configuring all the kernel instead of multiple
+'ifconfig' 'raidhotadd' and others.
+
+Last point, it's also very valuable for providing feedback to developpers:
+when one fails to compile the kernel, he can provide his .config file.
+Now, when one computer bahaves stangely, he could provide a dump of
+he's runtime configuration.
+
+
+What's left as an exercise to readers is how this could fit in the Linux
+kernel code :-)
+

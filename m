@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266397AbUHNKzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUHNLEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266397AbUHNKzz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 06:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUHNKzz
+	id S266449AbUHNLEs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 07:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbUHNLEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 06:55:55 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:50948 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266397AbUHNKzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 06:55:54 -0400
-Date: Sat, 14 Aug 2004 11:55:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>
-Subject: Re: Linux v2.6.8 - Oops on NFSv3
-Message-ID: <20040814115548.A19527@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@osdl.org>, Willy Tarreau <willy@w.ods.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org>; from torvalds@osdl.org on Sat, Aug 14, 2004 at 03:49:00AM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 14 Aug 2004 07:04:48 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:23729 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S266449AbUHNLEr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 07:04:47 -0400
+Message-ID: <411DF183.1040906@rtr.ca>
+Date: Sat, 14 Aug 2004 07:03:31 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: age huisman <ahuisman@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux SATA RAID FAQ
+References: <411B0F45.8070500@pobox.com> <20040812113413.GA19252@alpha.home.local> <411D5D70.9070909@clanhk.org> <411D8444.9030403@rtr.ca> <cfkc03$ejo$1@news.cistron.nl>
+In-Reply-To: <cfkc03$ejo$1@news.cistron.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 14, 2004 at 03:49:00AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sat, 14 Aug 2004, Linus Torvalds wrote:
-> > 
-> > Andrew, since I'm gone in another hour, how about you try to make a
-> > 2.6.8.1 with this, since this is clearly a good reason for one?
-> 
-> Ahh. Jeff posted the right one, obviously. Pushed to BK.
-> 
-> I'll make a 2.6.8.1 myself, to make it usable for people with NFS.
+age huisman wrote:
+> TCQ ?   What about NCQ?  :-)
 
-Cane we make this 2.6.9 to avoid breaking all kinds of scripts expecting
-three-digit kernel versions?
+Both kinds of SATA command-queuing will be included.\,
+whatever the name/abbreviation.
 
+hdparm support as well (a first for SATA/SCSI).
+
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

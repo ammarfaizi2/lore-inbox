@@ -1,55 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUFQMct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUFQMhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266474AbUFQMct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 08:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUFQMcs
+	id S266469AbUFQMhb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 08:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUFQMhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 08:32:48 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:12772 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266474AbUFQMb0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 08:31:26 -0400
-Date: Thu, 17 Jun 2004 14:32:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Takao Indoh <indou.takao@soft.fujitsu.com>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
-Cc: Dave Anderson <anderson@redhat.com>, Jeff Moyer <jmoyer@redhat.com>
-Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
-Message-ID: <20040617123239.GA24647@elte.hu>
-References: <20040527210447.GA2029@elte.hu> <C7C4545F11DFBEindou.takao@soft.fujitsu.com> <20040617121356.GA24338@elte.hu> <20040617121847.GA30894@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040617121847.GA30894@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 17 Jun 2004 08:37:31 -0400
+Received: from p10068181.pureserver.de ([217.160.75.209]:12812 "EHLO
+	www.kuix.de") by vger.kernel.org with ESMTP id S266469AbUFQMhY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 08:37:24 -0400
+Message-ID: <40D1909F.4090408@kuix.de>
+Date: Thu, 17 Jun 2004 14:37:51 +0200
+From: Kai Engert <kaie@kuix.de>
+Reply-To: kai.engert@gmx.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>, "Nemosoft Unv." <webcam@smcc.demon.nl>
+Subject: Re: small patch: enable pwc usb camera driver
+References: <40C466FB.1040309@kuix.de> <20040607202036.GA6185@kroah.com> <200406080027.04577@smcc.demon.nl> <20040607223919.GA9172@kroah.com>
+In-Reply-To: <20040607223919.GA9172@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------020502010302080400000305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020502010302080400000305
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+Greg KH wrote:
+> On Tue, Jun 08, 2004 at 12:27:04AM +0200, Nemosoft Unv. wrote:
+>> ... 
+>>Don't use this. It will BUG() your kernel hard, because of a double free(). 
 
-> Btw, now that we got you in the loop, any chance to see a forward-port
-> of netdump to 2.6?  I think diskdump and netdump could share a lot of
-> infrastructure, and given we already have the net polling hooks adding
-> netdump shouldn't be that much work anymore.
+I confirm, if you disconnect the device / unload the driver, it doesn't 
+take long and the kernel reports an exception. My fault, sorry.
 
-i think a forward port of netdump might already exist - Jeff, Dave?
+> ... I'll wait for someone to send another patch fixing this one ...
 
-i agree that netdump and diskdump should be merged. (Red Hat is involved
-in the diskdump project too so this is an ultimate goal even though the
-patches are divergent.) Basically diskdumping is another IO transport -
-the format, userspace tools and much of the non-IO kernel mechanism is
-shared. Diskdumping is more complex on the driver level and it also
-needs to be more careful because it writes to media so it verifies
-various assumptions by reading on-disk sectors before writing to the
-area.
+I'm attaching a new patch:
 
-	Ingo
+- revert video device release code to original no-op,
+   using correct function signature.
+
+With this patch applied to 2.6.7, I am able to connect/disconnect the 
+camera, load/unload the driver 20 times and everything still works fine.
+
+No warnings during compilation (which was the original reason to mark 
+the driver broken, IIUC).
+
+Thanks and Regards,
+Kai
+
+--------------020502010302080400000305
+Content-Type: text/plain;
+ name="pwcdiff3"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pwcdiff3"
+
+diff -ruw org-267/drivers/usb/media/pwc-if.c linux-2.6.7/drivers/usb/media/pwc-if.c
+--- org-267/drivers/usb/media/pwc-if.c	2004-06-16 07:19:44.000000000 +0200
++++ linux-2.6.7/drivers/usb/media/pwc-if.c	2004-06-17 13:49:58.268336544 +0200
+@@ -129,6 +129,7 @@
+ 
+ static int pwc_video_open(struct inode *inode, struct file *file);
+ static int pwc_video_close(struct inode *inode, struct file *file);
++static void pwc_video_release(struct video_device *);
+ static ssize_t pwc_video_read(struct file *file, char *buf,
+ 			  size_t count, loff_t *ppos);
+ static unsigned int pwc_video_poll(struct file *file, poll_table *wait);
+@@ -1120,6 +1121,12 @@
+ 	return 0;
+ }
+ 
++static void pwc_video_release(struct video_device *vfd)
++{
++	/* Do nothing to prevent a double free */
++	Trace(TRACE_OPEN, "pwc_video_release() called.\n");
++}
++
+ /*
+  *	FIXME: what about two parallel reads ????
+  *      ANSWER: Not supported. You can't open the device more than once,
+@@ -1848,7 +1855,7 @@
+ 		}
+ 	}
+ 
+-	pdev->vdev.release = video_device_release;
++	pdev->vdev.release = pwc_video_release;
+ 	i = video_register_device(&pdev->vdev, VFL_TYPE_GRABBER, video_nr);
+ 	if (i < 0) {
+ 		Err("Failed to register as video device (%d).\n", i);
+
+--------------020502010302080400000305--

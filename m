@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264156AbSIQNG3>; Tue, 17 Sep 2002 09:06:29 -0400
+	id <S261476AbSIQOF5>; Tue, 17 Sep 2002 10:05:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264157AbSIQNG3>; Tue, 17 Sep 2002 09:06:29 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1974 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264156AbSIQNG2>;
-	Tue, 17 Sep 2002 09:06:28 -0400
-Date: Tue, 17 Sep 2002 09:11:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Anton Altaparmakov <aia21@cantab.net>
-cc: ptb@it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: route inode->block_device in 2.5?
-In-Reply-To: <5.1.0.14.2.20020917132943.00b239e0@pop.cus.cam.ac.uk>
-Message-ID: <Pine.GSO.4.21.0209170845020.1645-100000@weyl.math.psu.edu>
+	id <S262012AbSIQOF5>; Tue, 17 Sep 2002 10:05:57 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.200]:45053 "EHLO
+	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S261476AbSIQOF4>; Tue, 17 Sep 2002 10:05:56 -0400
+Message-ID: <3D872806.8050907@boich.de>
+Date: Tue, 17 Sep 2002 15:03:02 +0200
+From: Martin Kreiner <martin@boich.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: RAM disk image with offset after kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
+
+i'am currently working on a thin-client solution for IBM's 2x00.
+with modified bios they are able to load an uncompressed kernel. i would 
+like to append a RAM disk image as described in 
+../Documentation/ramdisk.txt but rdev can't handle this magic any more?:
+
+---snip
+./arch/i386/kernel/setup.c:#define RAMDISK_IMAGE_START_MASK     0x07FF
+./arch/i386/kernel/setup.c:#define RAMDISK_PROMPT_FLAG          0x8000
+./arch/i386/kernel/setup.c:#define RAMDISK_LOAD_FLAG            0x4000
+
+...
+
+The usage of the word (two bytes) that "rdev -r" sets in the kernel image
+has changed. The low 11 bits (0 -> 10) specify an offset (in 1 k blocks)
+of up to 2 MB (2^11) of where to find the RAM disk (this used to be the
+size). Bit 14 indicates that a RAM disk is to be loaded, and bit 15
+indicates whether a prompt/wait sequence is to be given before trying
+to read the RAM disk.
+
+...
+
+Use "rdev" to set the boot device, RAM disk offset, prompt flag, etc.
+For prompt_ramdisk=1, load_ramdisk=1, ramdisk_start=400, one would
+have 2^15 + 2^14 + 400 = 49552.
+
+        rdev /dev/fd0 /dev/fd0
+        rdev -r /dev/fd0 49552
+--snap
+
+so i tried :
+
+dd if=my_ramdisk_image of=vmlinux bs=1k seek=my_kernel_size+some_space
+
+and changed in ../arch/i386/kernel/setup.c:
+
+-    char c = ' ', *to = command_line, *from = COMMAND_LINE
++    char c = ' ', *to = command_line, *from = strcat(COMMAND_LINE , " 
+ramdisk_start=my_kernel_size+some_space");
+
+but in ../init/do_mount.c:
+
+if (ext2sb->s_magic == cpu_to_le16(EXT2_SUPER_MAGIC)
+
+failed, so at boot i get:
+
+RAMDISK: Couldn't find valid RAM disk image starting at 
+my_kernel_size+some_space
+
+what's wrong? Superblock?
 
 
-On Tue, 17 Sep 2002, Anton Altaparmakov wrote:
+TIA,
 
-> At 17:22 12/09/02, Peter T. Breuer wrote:
-> >Is there a pointer chain by which one can get to the struct
-> >block_device of the underlying block device from an inode?
-> 
-> struct inode->i_sb (== struct super_block)->s_bdev (== struct block_device).
-
-... is meaningful only for local filesystems that happen to live on a
-single block device and even that only if said local filesystems want
-to use the helper functions that expect ->s_bdev to be there.
-
-IOW, upper layers have no business using that field - it's for the
-filesystem-specific code and helper functions such code decides to
-call.
-
-There might be such thing as underlying block device of a <foofs> inode.
-There is no such thing as underlying block device of an inode.  For
-quite a few filesystems it simply makes no sense.  For some it does
-and for many of them ->i_sb->s_bdev indeed would give you that, but
-that's it - it _is_ fs-dependent and there is no guarantee that
-e.g. minixfs in 2.6.4-pre2 won't change leaving ->s_bdev NULL and
-storing pointer to block device elsewhere (at which point it will
-have to switch from sb_bread() and friends to something else).
-
-The point being, VFS doesn't know, doesn't care and shouldn't presume
-anything about private details of fs implementation.  Notice that
-VFS != "all stuff in fs/*.c" - the latter includes a pile of library
-functions intended for use by filesystem code.  That stuff obviously
-can make whatever assumptions about fs internals it wants - the callers
-know what data structures they have and can decide what can be called.
+martin kreiner
 

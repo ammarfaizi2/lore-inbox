@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbTJNJEN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 05:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTJNJEN
+	id S262268AbTJNJIP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 05:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTJNJIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 05:04:13 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:30696 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262285AbTJNJEJ
+	Tue, 14 Oct 2003 05:08:15 -0400
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:36265 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S262268AbTJNJIM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 05:04:09 -0400
-Message-ID: <3F8BBC08.6030901@namesys.com>
-Date: Tue, 14 Oct 2003 13:04:08 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Tue, 14 Oct 2003 05:08:12 -0400
+Date: Tue, 14 Oct 2003 04:08:09 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: zipa24@suomi24.fi
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: SiI 3112 SATA problem with nForce2
+In-Reply-To: <3F78555B0000EE1A@webmail-fi2.sol.no1.asap-asp.net>
+Message-ID: <Pine.GSO.4.21.0310140402000.3234-100000@dirac.phys.uwm.edu>
 MIME-Version: 1.0
-To: Wes Janzen <superchkn@sbcglobal.net>
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Norman Diamond <ndiamond@wta.att.ne.jp>,
-       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens
- to them?
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net>
-In-Reply-To: <3F8BA037.9000705@sbcglobal.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wes Janzen wrote:
+> Has anyone tried to use SiI 3112 SATA controller (as in Asus A7N8X
+> board) with Maxtor discs?
+> 
+> I'm using it with Maxtor 6Y160M0 and recent kernel (mostly 2.6.0-test5-mm4
+> but I did try 2.6.0-test7, too) but I have problem if I torture with high
+> I/O load the whole computer hangs. Sometimes it is as little has running
+> "hdparm -t" on the disc but once I copied >50GB from /dev/zero to it
+> without problems.
 
->
->>
->>
->> You have to do the math on the LBA sector numbers (subtract the
->> partition start, divide by two).
->> Also, you can use the "badblocks" program.  
->>
-> I think he's using reiserfs on the partition, which ASFAIK doesn't 
-> support marking bad sectors without some work.  I tend to agree with 
-> namesys when they suggest just getting a new drive if it has used up 
-> all of its extra sectors.  In my experience (admittedly limited), any 
-> drive which runs out of extra sectors starts to go bad in a hurry.
->
-> -Wes-
->
->>             Roger.  
->>
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-I think the problem is that many users don't know how to trigger the bad 
-sector remapping for the case where the drive can still remap, using 
-writes to the bad blocks, and probably our faq needs updating.
+===cut
 
-nikita, can you do that?
+> smartctl output (the weird Error log entries happened during some of the
+> hangs)
 
--- 
-Hans
+===cut
 
+> 199 UDMA_CRC_Error_Count    0x0008   199   198   000    Old_age   Offline
+>      -       3
+
+This can be caused by cabling problems (CRC errors)
+
+> When the command that caused the error occurred, the device was in an unknown
+> state.
+> 
+>   After command completion occurred, registers were:
+>   ER ST SC SN CL CH DH
+>   -- -- -- -- -- -- --
+>   84 51 00 dc ed 95 e0
+===cut
+ 
+>   Commands leading to the command that caused the error were:
+>   CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name
+>   -- -- -- -- -- -- -- --   ---------  --------------------
+>   25 00 08 dc ed 95 e0 00  120262.720  READ DMA EXT
+
+The Error Register (ER) values 0x84=10000100 indicates a UDMA CRC error
+and command abort.  Again, this *could* be a cabling problem.
+
+Bruce
+
+PS: please don't include kernel config files -- see lkml FAQ.
 

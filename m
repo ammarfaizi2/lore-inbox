@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266369AbSKUHFU>; Thu, 21 Nov 2002 02:05:20 -0500
+	id <S266379AbSKUHKE>; Thu, 21 Nov 2002 02:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266377AbSKUHFU>; Thu, 21 Nov 2002 02:05:20 -0500
-Received: from miranda.axis.se ([193.13.178.2]:39110 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S266369AbSKUHFT>;
-	Thu, 21 Nov 2002 02:05:19 -0500
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE3ED@mailse01.axis.se>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'jffs-dev@axis.com'" <jffs-dev@axis.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH]  d_delete in jffs causes oops (2.5.48)
-Date: Thu, 21 Nov 2002 08:12:19 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266384AbSKUHKE>; Thu, 21 Nov 2002 02:10:04 -0500
+Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:10903 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id <S266379AbSKUHKD>; Thu, 21 Nov 2002 02:10:03 -0500
+Subject: [PATCH] Get 2.5.48 UML to compile with CONFIG_NFSD=y
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: linux-kernel@vger.kernel.org
+Cc: jdike@karaya.com
+Content-Type: multipart/mixed; boundary="=-xUKFmJiKDCfJtmyDTm5w"
+Organization: 
+Message-Id: <1037863030.13803.5.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 20 Nov 2002 23:17:10 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jffs_remove calls d_delete(dentry). vfs_unlink then tries to access dentry->d_inode->i_sem
-and calls d_delete(dentry). 
 
-Suggested patch:
+--=-xUKFmJiKDCfJtmyDTm5w
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
---- inode-v23.c	20 Nov 2002 11:57:45 -0000	1.4
-+++ inode-v23.c	20 Nov 2002 19:45:07 -0000
-@@ -1063,8 +1063,6 @@
- 	inode->i_ctime = dir->i_ctime;
- 	mark_inode_dirty(inode);
+There's a typo in the user-mode-linux syscall table that causes a
+compilation failure with the NFS server enabled.  The attached patch
+applies to BK-current and fixes the problem.
+
+	<b
+
+--=-xUKFmJiKDCfJtmyDTm5w
+Content-Disposition: attachment; filename=2.5.48-um-nfsd.patch
+Content-Type: text/plain; name=2.5.48-um-nfsd.patch; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+==== //depot/linux-2.5-bos/arch/um/kernel/sys_call_table.c#1 - /export/bos/p4/linux-2.5-bos/arch/um/kernel/sys_call_table.c ====
+Index: linux-2.5-bos/arch/um/kernel/sys_call_table.c
+--- linux-2.5-bos/arch/um/kernel/sys_call_table.c.~1~	Wed Nov 20 21:45:28 2002
++++ linux-2.5-bos/arch/um/kernel/sys_call_table.c	Wed Nov 20 21:45:28 2002
+@@ -238,7 +238,7 @@
+ extern syscall_handler_t sys_remap_file_pages;
  
--	d_delete(dentry);	/* This also frees the inode */
--
- 	result = 0;
- jffs_remove_end:
- 	return result;
+ #if CONFIG_NFSD
+-#define NFSSERVCTL sys_nfsserctl
++#define NFSSERVCTL sys_nfsservctl
+ #else
+ #define NFSSERVCTL sys_ni_syscall
+ #endif
+End of Patch.
 
-Can the JFFS guys verify that this doesn't cause a memory leak?
+--=-xUKFmJiKDCfJtmyDTm5w--
 
-/Mikael

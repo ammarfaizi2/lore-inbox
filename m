@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312676AbSDFRhn>; Sat, 6 Apr 2002 12:37:43 -0500
+	id <S312675AbSDFRjh>; Sat, 6 Apr 2002 12:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312675AbSDFRhm>; Sat, 6 Apr 2002 12:37:42 -0500
-Received: from gumby.it.wmich.edu ([141.218.23.21]:17073 "EHLO
-	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
-	id <S312644AbSDFRhk>; Sat, 6 Apr 2002 12:37:40 -0500
-Subject: Re: Linux 2.4.19pre5-ac3 swsusp panic
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org, swsusp@lister.fornax.hu
-In-Reply-To: <200204060109.g36199g10373@devserv.devel.redhat.com>
-Content-Type: text/plain
+	id <S312644AbSDFRjg>; Sat, 6 Apr 2002 12:39:36 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18192 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312687AbSDFRjR>; Sat, 6 Apr 2002 12:39:17 -0500
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+To: fletch@aracnet.com (Martin J. Bligh)
+Date: Sat, 6 Apr 2002 18:56:35 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1650399759.1018005181@[10.10.2.3]> from "Martin J. Bligh" at Apr 05, 2002 11:13:01 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 06 Apr 2002 12:37:27 -0500
-Message-Id: <1018114652.7477.2.camel@psuedomode>
-Mime-Version: 1.0
+Message-Id: <E16tuQV-0002Lt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On WOLK 3.2 i use swsusp and it works just fine on my P4 system.  With
-the ac kernel i get a panic whenever i try to suspend.  I tried
-including the couple lines that i patched in WOLK 3.2's swsusp mentioned
-in the swsusp mailing list and still it panics.  Perhaps it's due to the
-Taskfile stuff i compiled with, i'll try it without that stuff next. 
+> What's to stop me rebooting by having machine_restart load
+> the first sector of the first disk (as the BIOS does), where
+> the LILO code should be, and just jumping to it?
 
+In theory nothing
 
-wish i could take a screenshot of the panic
+> 1. Are there tables that are created by the BIOS that we 
+> destroy during Linux runtime? mps tables spring to mind - 
+> I can't see where we preserve them ...
 
+They should be in E820 reserved pages anyway and we do keep them and the
+EBDA safe. You will however have blown away ACPI pages marked as disposable
+
+> 2. Things that are reset by reboot that we don't reset during
+> normal kernel boot?
+
+Possibly. I wouldnt like to hand control back to the BIOS but the kernel
+ought to be ok with itself.
+
+Alan

@@ -1,34 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVCMVse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVCMVsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVCMVse (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 16:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVCMVsd
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 16:48:33 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5541 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261467AbVCMVsb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261382AbVCMVsb (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 13 Mar 2005 16:48:31 -0500
-Date: Sun, 13 Mar 2005 13:48:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, jkenisto@us.ibm.com,
-       PRASANNA@in.ibm.com
-Subject: Re: [PATCH] x86-64 kprobes: handle %RIP-relative addressing mode
-Message-Id: <20050313134802.28d59568.akpm@osdl.org>
-In-Reply-To: <200503130954.j2D9sgjB028594@magilla.sf.frob.com>
-References: <200503130954.j2D9sgjB028594@magilla.sf.frob.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVCMVsb
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Mar 2005 16:48:31 -0500
+Received: from gate.crashing.org ([63.228.1.57]:3979 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261382AbVCMVsa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 16:48:30 -0500
+Subject: Re: 2.6.11-mm3: machine check on sleep, PowerBook5.4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Sean Neakums <sneakums@zork.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <6uzmx75xiv.fsf@zork.zork.net>
+References: <20050312034222.12a264c4.akpm@osdl.org>
+	 <6upsy37o0v.fsf@zork.zork.net> <1110717016.5787.143.camel@gaston>
+	 <1110717351.5787.146.camel@gaston>  <6uzmx75xiv.fsf@zork.zork.net>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 08:47:31 +1100
+Message-Id: <1110750451.5787.152.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath <roland@redhat.com> wrote:
->
-> +	area = __get_vm_area(0, VM_ALLOC, MODULES_END, 0ULL - PAGE_SIZE);
+On Sun, 2005-03-13 at 16:19 +0000, Sean Neakums wrote:
+> Both patches give me a successful sleep, although I had to alter the
+> second to not #if 0 core99_ata100_enable -- there's another call to
+> that function in pmac_feature.c's set_initial_features().
+> 
+> I will try to gather some power numbers.
 
-The longlong here seems wrong?  If this is to mean "the top of the address
-space minus a page" then unsigned long is the appropriate type.
+Thanks.
+
+Ben.
+
 

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266483AbUA2Wy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 17:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUA2Wv4
+	id S266476AbUA2Wqv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 17:46:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUA2Wqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 17:51:56 -0500
-Received: from mail.kroah.org ([65.200.24.183]:4767 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266483AbUA2WuQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 17:50:16 -0500
-Date: Thu, 29 Jan 2004 14:46:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci_get_slot()
-Message-ID: <20040129224602.GB9906@kroah.com>
-References: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk> <20031218002444.GI6258@kroah.com> <20031218200031.GK15674@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031218200031.GK15674@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 Jan 2004 17:46:51 -0500
+Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:53167 "EHLO
+	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S266476AbUA2Wqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 17:46:50 -0500
+Message-ID: <01c501c3e6b9$67225f70$0700000a@irrosa>
+From: "Curt Hartung" <curt@northarc.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Raw devices broken in 2.6.1?
+Date: Thu, 29 Jan 2004 17:44:01 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 08:00:31PM +0000, Matthew Wilcox wrote:
-> On Wed, Dec 17, 2003 at 04:24:44PM -0800, Greg KH wrote:
-> > I've applied the pci portions of this patch to my trees and will send it
-> > on after 2.6.0 is out.
-> 
-> James Bottomley found a bug in it; could you also apply:
+New to the list, checked the FAQ and nothing on this. I'm using raw devices
+for a large database application (highwinds-software) and under 2.4 it runs
+fine, but under 2.6 I get: Program terminated with signal 25, File size
+limit exceeded. (SIGXFSZ) As soon as it tries to grow the raw device pase 2G
+(might be 4G, I'll go back and check)
 
-Thanks, I've applied this too.
+ulimit reports: file size (blocks)          unlimited
+but running the process as root and setrlimit RLIMIT_FSIZE to RLIM_INFINITY
+just to be sure yields the same result.
 
-greg k-h
+I can easily provide a short test program to trigger it, the call I'm using
+is pwrite64(...);
+
+-Curt
+

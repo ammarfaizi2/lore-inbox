@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265488AbTLHRhW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 12:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbTLHRhW
+	id S265463AbTLHRcN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 12:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbTLHRcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 12:37:22 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:60290
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S265488AbTLHRhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 12:37:21 -0500
-Date: Mon, 8 Dec 2003 12:36:20 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: bill davidsen <davidsen@tmr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP broken on Dell PowerEdge 4100/200 under 2.6.0-testxx?
-In-Reply-To: <br26a9$f6j$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.58.0312081224480.5919@montezuma.fsmlabs.com>
-References: <3350.192.168.1.3.1070677965.squirrel@www.coesta.com>
- <20031206043757.GJ8039@holomorphy.com> <1070686126.1166.0.camel@chevrolet.hybel>
- <20031206045409.GK8039@holomorphy.com> <br26a9$f6j$1@gatekeeper.tmr.com>
+	Mon, 8 Dec 2003 12:32:13 -0500
+Received: from tantale.fifi.org ([216.27.190.146]:58761 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S265463AbTLHRcL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 12:32:11 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [NFS client] NFS locks not released on abnormal process termination
+References: <20031208033933.16136.qmail@web20024.mail.yahoo.com>
+	<shszne3risb.fsf@charged.uio.no>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 08 Dec 2003 09:32:05 -0800
+In-Reply-To: <shszne3risb.fsf@charged.uio.no>
+Message-ID: <877k17rzai.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Dec 2003, bill davidsen wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-> I think the most confusing thing about this was the choice of
-> "noirqbalance" as an option to mean "do balance irqs." I'm not sure that
-> the default to put all irqs on a single CPU is optimal in any case, but
-> the naming is particularly bad.
+> >>>>> " " == Kenny Simpson <theonetruekenny@yahoo.com> writes:
+> 
+>      > So, this patch has not found its way into any kernel yet?  Is
+>      > there anyone actively persuing this bug?
+> 
+> Feel free. There are only so many hours in a day, and right now
+> mine are pretty much overbooked with NFSv4 stuff...
 
-Actually, noirqbalance means no in kernel irq balancer. ia32 SMP systems
-before P4 tend to RR interrupt handling via hardware by utilising an APIC
-bus arbitration scheme. P4 doesn't, one reason being the missing
-Arbitration ID register and the usage of a bus cycle to determine which
-processor should handle the interrupt depending on the status of the Task
-Priority Register on each local apic (processor). So in essence we should
-be using the TPR to do interrupt balancing decisions with P4/Xeon. So all
-noirqbalance will do is disable in kernel balancer.
+Please note that this fix only mitigates the bug: it can still occur,
+but much less frequently. Before this patch, nfsd would loose track of
+the lock (see the enclosed program at the beginning of the thread)
+after a few (<5) kills. With the patch, it takes sometimes as many as
+300~500 kills before the bugs manifests itself.
+
+Trond, do you think I should push the patch to Marcelo, or should I
+wait for a better fix? I don't think Marcelo would accept a partial
+fix. I would try to fix it myself, but I have no clue on the inner
+workings of lockd/nfsd.
+
+Phil.

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVAJB2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVAJCLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVAJB2O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 20:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVAJB2O
+	id S262048AbVAJCLS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 21:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVAJCLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 20:28:14 -0500
-Received: from mproxy.gmail.com ([216.239.56.248]:37075 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262041AbVAJB2H (ORCPT
+	Sun, 9 Jan 2005 21:11:18 -0500
+Received: from rain.plan9.de ([193.108.181.162]:60317 "EHLO rain.plan9.de")
+	by vger.kernel.org with ESMTP id S262048AbVAJCLP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 20:28:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bieR3IW0nxerZzMjuSrVImB6jMECo0tOyVVw37b5ElzzomZO1Wb8KZYIH0CEVknWFufEUBkPUF9PF/FJ9Y+OqQ/+7iVM3zA9iPbS+UulVyu1E7+kAqiIHg4CKN64jy2WzOvE6g0FyOEG+tQ/MsSOdfOCOAqQ+iXAoDqVOJ17UAI=
-Message-ID: <21d7e99705010917281c6634b8@mail.gmail.com>
-Date: Mon, 10 Jan 2005 12:28:06 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: John Richard Moser <nigelenki@comcast.net>
-Subject: Re: starting with 2.7
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, znmeb@cesmail.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41E1CCB7.4030302@comcast.net>
+	Sun, 9 Jan 2005 21:11:15 -0500
+Date: Mon, 10 Jan 2005 03:11:09 +0100
+From: Marc Lehmann <linux-kernel@plan9.de>
+To: linux-kernel@vger.kernel.org
+Subject: sockets stuck in FIN_WAIT2 and CLOSE_WAIT state in 2.6.10
+Message-ID: <20050110021108.GA9758@schmorp.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-	 <41DD9968.7070004@comcast.net>
-	 <1105045853.17176.273.camel@localhost.localdomain>
-	 <1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net>
-	 <1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net>
-	 <1105278618.12054.37.camel@localhost.localdomain>
-	 <41E1CCB7.4030302@comcast.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-PGP: "1024D/DA743396 1999-01-26 Marc Alexander Lehmann <schmorp@schmorp.de>
+       Key fingerprint = 475A FE9B D1D4 039E 01AC  C217 A1E8 0270 DA74 3396"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And what 3rd party hardware vendor wants to waste their resources by
-> repeting smaller versions of the one-time cost of driver writing over
-> and over to accomodate linux, when they can't even accomodate all
-> versions due to special patches some people have?  So far there's been a
-> rediculous but visible trend of hardware vendors to hold their source
-> closed.
+After upgrading to linux-2.6.10 (on 2004-12-26), my rsh processes start to
+hang despite the server side having closed the connection.
 
-I do wonder would open source kernel drivers to work with a closed
-source user space application be accepted into the mainline kernel...
-say for example Nvidia or VMware GPL'ed their lower layer kernel
-interfaces but kept their userspace (X driver and VMware) closed
-source which is perfectly acceptable from a license point of view..
-would Linus/Andrew accept the nvidia lowlevel into the kernel, if not
-then it would be idealogical not licensing issues which would make the
-argument for having a stable module interface better :-)
+Inspection showed that one of the two rsh processes exited:
 
-It would be interesting to find out .. and you are right there is
-little point in arguing this at this stage, closed source drivers are
-evil.
+   16011 ?        SN     0:00      0     6  1717   600  0.0 rsh ruth cd xmltv && ./upd
+   16012 ?        ZN     0:00      0     0     0     0  0.0 [rsh] <defunct>
 
-Dave.
+lsof shows both sockets:
+
+   rsh     16011 root    3u  IPv4 6454542          TCP doom:1014->ruth:shell (FIN_WAIT2)
+   rsh     16011 root    5u  IPv4 6454545          TCP doom:1013->ruth:1023 (CLOSE_WAIT)
+
+and the remaining rsh process hangs in select on the FIN_WAIT2 socket:
+
+   select(6, [3], NULL, NULL, NULL
+
+Some of the hung processes are stuck for 14 days now.
+
+I did not have the same problem with 2.6.10-rc1, or 2.6.8.1, which I used
+before.
+
+This is on a x86 SMP kernel using Debian GNU/Linux. If this problem is
+already known, my apologies, I couldn't access a kernel list archive. If
+you want more info, feel free to contact me.
+
+-- 
+                The choice of a
+      -----==-     _GNU_
+      ----==-- _       generation     Marc Lehmann
+      ---==---(_)__  __ ____  __      pcg@goof.com
+      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
+      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319233AbSIKRIk>; Wed, 11 Sep 2002 13:08:40 -0400
+	id <S319234AbSIKRKj>; Wed, 11 Sep 2002 13:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319234AbSIKRIj>; Wed, 11 Sep 2002 13:08:39 -0400
-Received: from christpuncher.kingsmeadefarm.com ([209.216.78.83]:31940 "HELO
-	the-grudge.myip.org") by vger.kernel.org with SMTP
-	id <S319233AbSIKRIg>; Wed, 11 Sep 2002 13:08:36 -0400
-Message-ID: <1031764404.3d7f79b473f0b@webmail>
-Date: Wed, 11 Sep 2002 13:13:24 -0400
-From: Joe Kellner <jdk@kingsmeadefarm.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [OT] Re: XFS?
-References: <p73wupuq34l.fsf@oldwotan.suse.de> <200209101518.31538.nleroy@cs.wisc.edu> <20020911084327.GF6085@pegasys.ws> <200209110820.36925.nleroy@cs.wisc.edu> <3D7F789F.2030103@namesys.com>
-In-Reply-To: <3D7F789F.2030103@namesys.com>
+	id <S319235AbSIKRKj>; Wed, 11 Sep 2002 13:10:39 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:22419 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S319234AbSIKRKi>; Wed, 11 Sep 2002 13:10:38 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 11 Sep 2002 10:20:28 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: jdow <jdow@earthlink.net>
+cc: Xuan Baldauf <xuan--lkml@baldauf.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Heuristic readahead for filesystems
+In-Reply-To: <0b1701c259b5$16d6be40$1125a8c0@wednesday>
+Message-ID: <Pine.LNX.4.44.0209111011330.1576-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 192.168.1.7
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Hans Reiser <reiser@namesys.com>:
+On Wed, 11 Sep 2002, jdow wrote:
+
+> Davide, when was the patent on readahead taken out? It has either expired
+> or I can prove prior art I did myself on the old StarDrive and HardFrame
+> controllers for the Amiga made by Microbotics, Inc.
+
+I'm definitely not a patent attorney :) but since there's the tendency to
+patent almost everything in big corporations ( my Co. gives $ 2K for each
+patent filed, plus another $ 1K if it's approved ) I bet that there's a
+patent pending somewhere about this. Even if someone have prior art about
+hw prefecting, imho there's the possibility to patent a software ( kernel
+) based version of the art. I also do not think M$ to be so dumb to adopt
+a technique that is described inside a someone else owned patent in US.
+But again, i'm not a patent attorney ...
 
 
 
-> I think you'll really like v4, it is a complete rewrite from scratch, 
-> and far better in every way.  :)
-> 
-> Hans
-> 
+
+- Davide
 
 
-But will it un-delete my customers files that they accidently deleted and they
-want me to get back? :)
 
--------------------------------------------------
-sent via KingsMeade secure webmail http://www.kingsmeadefarm.com

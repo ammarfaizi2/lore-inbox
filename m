@@ -1,94 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261558AbSJAK6o>; Tue, 1 Oct 2002 06:58:44 -0400
+	id <S261560AbSJALIj>; Tue, 1 Oct 2002 07:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261560AbSJAK6o>; Tue, 1 Oct 2002 06:58:44 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:28137 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261558AbSJAK6m>;
-	Tue, 1 Oct 2002 06:58:42 -0400
-Date: Tue, 1 Oct 2002 12:06:28 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-Subject: Re: CPU/cache detection wrong
-Message-ID: <20021001110628.GA17865@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alexander Hoogerhuis <alexh@ihatent.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	marcelo@conectiva.com.br
-References: <m3hegaxpp0.fsf@lapper.ihatent.com> <1033403655.16933.20.camel@irongate.swansea.linux.org.uk> <m3wup3bcgb.fsf@lapper.ihatent.com> <20020930221536.GA6987@suse.de> <m3smzqipzd.fsf@lapper.ihatent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3smzqipzd.fsf@lapper.ihatent.com>
-User-Agent: Mutt/1.4i
+	id <S261563AbSJALIj>; Tue, 1 Oct 2002 07:08:39 -0400
+Received: from mta04bw.bigpond.com ([139.134.6.87]:10231 "EHLO
+	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261560AbSJALIi>; Tue, 1 Oct 2002 07:08:38 -0400
+Message-ID: <08e001c2693b$8e64e8c0$41368490@archaic>
+From: "David McIlwraith" <quack@bigpond.net.au>
+To: "Martin Diehl" <lists@mdiehl.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.21.0210010523290.485-100000@notebook.diehl.home>
+Subject: Re: calling context when writing to tty_driver
+Date: Tue, 1 Oct 2002 21:13:22 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3663.0
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3663.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 09:21:26AM +0200, Alexander Hoogerhuis wrote:
- > Dave Jones <davej@codemonkey.org.uk> writes:
- > 
- > > On Mon, Sep 30, 2002 at 07:43:16PM +0200, Alexander Hoogerhuis wrote:
- > > 
- > >  > PU: Before vendor init, caps: 3febf9ff 00000000 00000000, vendor = 0
- > >  > Cache info byte: 50
- > > 
- > > Instruction TLB (ignored)
- > > 
- > >  > Cache info byte: 5B
- > > 
- > > Data TLB (ignored)
- > > 
- > >  > Cache info byte: 66
- > > 
- > > 8K L1 data cache
- > >  
- > >  > Cache info byte: 00
- > >  > Cache info byte: 00
- > >  > Cache info byte: 00
- > >  > Cache info byte: 00
- > >  > Cache info byte: 00
- > >  > Cache info byte: 00
- > >  > Cache info byte: 00
- > >  > Cache info byte: 00
- > > 
- > > Null
- > >  
- > >  > Cache info byte: 40
- > > 
- > > No 3rd level cache.
- > > 
- > >  > Cache info byte: 70
- > > 
- > > 12K-uops trace cache
- > > 
- > >  > Cache info byte: 7B
- > > 
- > > 512K L2 cache
- > > 
- > >  > Cache info byte: 00
- > > 
- > > Null.
- > >  
- > >  > CPU: L1 I cache: 0K, L1 D cache: 8K
- > >  > CPU: L2 cache: 512K
- > > 
- > 
- > Here we go:
- > 
- > CPU: Trace cache: 12K uops, L1 D cache: 8K
- > CPU: L2 cache: 512K
- > 
- > But my BIOS still say I should have 8Kb/8Kb I/D L1 cache... oh
- > well. I'm sure Alan Cox would just write it up as marketing, since
- > thats about how reliable a BIOS is :)
+Semaphores may sleep - therefore, they cannot be used from a 'non-sleep'
+context.
 
-Hmm, can a P4 have a trace cache AND an L1 I cache ?
-I thought they were exclusive, which is why the code
-doesn't take this into account. Easily fixed if so though..
+Sincerely,
+David McIlwraith quack@bigpond.net.au
 
-		Dave
+----- Original Message -----
+From: "Martin Diehl" <lists@mdiehl.de>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Greg KH" <greg@kroah.com>
+Sent: Tuesday, October 01, 2002 8:37 PM
+Subject: calling context when writing to tty_driver
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+
+>
+> Hi,
+>
+> just hitting another "sleeping on semaphore from illegal context" issue
+> with 2.5.39. Happened on down() in either usbserial->write_room() or
+> usbserial->write(), when invoked from bh context.
+>
+> Some grepping reveals no documentation of calling context requirements
+> for those driver calls and existing serial code seems to be happy with bh
+> context. Therefore I'm wondering whether it is permitted to call from
+> don't-sleep context?
+>
+> Since write_room() is usually called immediately before write()'ing stuff
+> to the driver it would be a good idea to keep them both callable from bh,
+> IMHO. For example tty_ldisc->write_wakeup() might probably want to issue
+> write_room() followed by write().
+>
+> Currently, usbserial calls write_wakeup() from bh (on OUT urb completion)
+> but needs process context for write_room() and write(). My impression is
+> the whole point of write_room() is to find out how many data can be
+> accepted by the write() - if write() would be allowed to sleep it could
+> just block to deal with any amount of data.
+>
+> TIA for any insight.
+>
+> Martin
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

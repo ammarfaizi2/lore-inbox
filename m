@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274085AbRIXRl6>; Mon, 24 Sep 2001 13:41:58 -0400
+	id <S274082AbRIXRlQ>; Mon, 24 Sep 2001 13:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274083AbRIXRl1>; Mon, 24 Sep 2001 13:41:27 -0400
-Received: from t2.redhat.com ([199.183.24.243]:4335 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S274081AbRIXRlW>; Mon, 24 Sep 2001 13:41:22 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010924114037.A7561@codepoet.org> 
-In-Reply-To: <20010924114037.A7561@codepoet.org>  <20010924002854.A25226@codepoet.org> <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <16995.1001284442@redhat.com> <32737.1001314127@redhat.com> 
-To: andersen@codepoet.org
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10 
-Mime-Version: 1.0
+	id <S274081AbRIXRlG>; Mon, 24 Sep 2001 13:41:06 -0400
+Received: from thor.lineo.com ([204.246.147.11]:2015 "EHLO thor.lineo.com")
+	by vger.kernel.org with ESMTP id <S274084AbRIXRkt>;
+	Mon, 24 Sep 2001 13:40:49 -0400
+Message-ID: <3BAF706E.E0DFA0AA@lineo.com>
+Date: Mon, 24 Sep 2001 11:42:06 -0600
+From: Tim Bird <tbird@lineo.com>
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Binary only module question
+In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com>
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 24 Sep 2001 18:41:46 +0100
-Message-ID: <26785.1001353306@redhat.com>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
+> I'm composing a list of all existing binary only modules,
 
-andersen@codepoet.org said:
->  This seems to fix it, but I'm not certain this is correct? Should /
-> on jffs2 have neither inode nor dirent added?
+Will the list be available somewhere?
 
-inode for / is fine, although unnecessary. dirent you mustn't have.
+I'm working on a tool that (among other things) indicates
+what is "accepted practice" for loadable modules that
+are binary.  I seem to recall Linus saying, some years
+ago, something about the the fact that the module must
+not be fundamental to basic kernel operation.  I can't remember
+the exact details of the quote (if anyone has it, I'd 
+appreciate a reference to it), but I thought the general
+spirit was that add-on's are OK, but basic functionality
+(like the scheduler, memory management, driver
+*systems* (not drivers themselves), etc.) were off limits for
+being binary modules.
 
---
-dwmw2
+I'm assuming that if a module is currently known, and there
+does not appear to be great backlash against it, that it 
+is accepted practice.  Also, I assume that modules that
+perform essentially the same functionality as these would
+also be acceptable (from a community standpoint - the
+legal standpoint is a different matter).  Basically, I'm
+infering a kind of community precendence from existing
+known binary modules?
 
+Am I way off?
 
+(And yes, I know that given a choice, the community
+vastly prefers an open source module over a binary module)
+
+____________________________________________________________
+Tim Bird                                  Lineo, Inc.
+Senior VP, Research                       390 South 400 West
+tbird@lineo.com                           Lindon, UT 84042

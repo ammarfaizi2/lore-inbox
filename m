@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132468AbRDGCKg>; Fri, 6 Apr 2001 22:10:36 -0400
+	id <S132405AbRDGCx5>; Fri, 6 Apr 2001 22:53:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132405AbRDGCKZ>; Fri, 6 Apr 2001 22:10:25 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:58637 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S132389AbRDGCKN>;
-	Fri, 6 Apr 2001 22:10:13 -0400
-Date: Fri, 6 Apr 2001 22:09:32 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-To: Bill Geissler <billgeissler@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: How do I compile properly after changing tcp_input.c etc?
-In-Reply-To: <20010407015400.5497.qmail@web13702.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.30.0104062207070.18094-100000@localhost>
+	id <S132472AbRDGCxs>; Fri, 6 Apr 2001 22:53:48 -0400
+Received: from harrier.mail.pas.earthlink.net ([207.217.121.12]:22439 "EHLO
+	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S132405AbRDGCx3> convert rfc822-to-8bit; Fri, 6 Apr 2001 22:53:29 -0400
+Message-ID: <3ACE8139.A2BF2468@mcn.net>
+Date: Fri, 06 Apr 2001 20:53:45 -0600
+From: TimO <hairballmt@mcn.net>
+Organization: Don't you mean Disorganization!?
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ernte23@gmx.de
+CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at page_alloc.c:75! / exit.c
+In-Reply-To: <200104050925.f359PEe71114@saturn.cs.uml.edu> <3ACCBF2D.BA0F2037@gmx.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ernte23@gmx.de wrote:
+> 
+> "Albert D. Cahalan" wrote:
+> >
+> > > I'm running the 2.4.3 kernel and my system always (!) crashes when I try
+> > > to generate the "Linux kernel poster" from lgp.linuxcare.com.au. After
+> > > working for one hour, the kernel printed this message:
+> >
+> > I'd guess you have a heat problem. Check for dust, a slow fan,
+> > an overclocked CPU, memory chips with airflow blocked by cables,
+> > motherboard chips that are too hot to touch...
+> 
+> none of the above, but the CPU (Athlon) temperature is at ~65 °C. Is
+> this ok?
+> 
+> thanks,
+> Felix
+> 
 
-On Fri, 6 Apr 2001, Bill Geissler wrote:
+Hmmm, my (BIOS)default is to shut down at 56 C.  Normally runs between
+40 and 42 C.  This is with a 750 Mhz Athlon.  Nothing in the docs says
+what is acceptable.  Maybe check out the AMD web page.
 
-> I need to modify the tcp_input.c and tcp_output.c code
-> for a thesis, and want to make sure that I don't mess
-> things up when I recompile the code.
->
-> What do I need to do to properly recompile the tcp
-> functions with my modifications?
-
-As long as you don't change the way the API is presented you need only to
-run 'make bzImage' (or whatever you used before) from the root of a
-preconfigued tree.
-
-If you modify some functions or structures you may need to run 'make
-mrproper' (cleans out all versioning info and configuration) and then run
-your usual 'make ____'.
-
-> Any info would be appreciated.
-
-Cheers,
-Bart.
-
-
-
--- 
-	WebSig: http://www.jukie.net/~bart/sig/
-
-
+===============
+-- Tim

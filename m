@@ -1,30 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268977AbTBWVbM>; Sun, 23 Feb 2003 16:31:12 -0500
+	id <S268979AbTBWVeo>; Sun, 23 Feb 2003 16:34:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268982AbTBWVbM>; Sun, 23 Feb 2003 16:31:12 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:65430 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S268977AbTBWVbK>;
-	Sun, 23 Feb 2003 16:31:10 -0500
-Subject: High load with 2.5.x
-From: Stian Jordet <liste@jordet.nu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046036480.29501.5.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 23 Feb 2003 22:41:21 +0100
-Content-Transfer-Encoding: 7bit
+	id <S268980AbTBWVeo>; Sun, 23 Feb 2003 16:34:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4361 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268979AbTBWVen> convert rfc822-to-8bit; Sun, 23 Feb 2003 16:34:43 -0500
+Date: Sun, 23 Feb 2003 13:41:45 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <1046031687.2140.32.camel@bip.localdomain.fake>
+Message-ID: <Pine.LNX.4.44.0302231337390.1534-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h1NLiLF04013
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the last 2.5.x kernels experienced a high load while idle. 1.00
-mostly. I have dual cpu, and it isn't really bothering me. But I do not
-experience this with 2.4.x kernels. I do not remember when this started,
-but since noone else complains, I just want to ask how can I find out
-what is making my load so high?
 
-Regards,
-Stian
+On 23 Feb 2003, Xavier Bestel wrote:
+> Le dim 23/02/2003 à 20:17, Linus Torvalds a écrit :
+> 
+> > And the baroque instruction encoding on the x86 is actually a _good_
+> > thing: it's a rather dense encoding, which means that you win on icache. 
+> > It's a bit hard to decode, but who cares? Existing chips do well at
+> > decoding, and thanks to the icache win they tend to perform better - and
+> > they load faster too (which is important - you can make your CPU have
+> > big caches, but _nothing_ saves you from the cold-cache costs). 
+> 
+> Next step: hardware gzip ?
+
+Not gzip, no. It needs to be a random-access compression with reasonably
+small blocks, not something designed for streaming. Which makes it harder
+to do right and efficiently.
+
+But ARM has Thumb (not the same thing, but same idea), and at least some 
+PPC chips have a page-based compressor - IBM calls it "CodePack" in case 
+you want to google for it.
+
+				Linus
 

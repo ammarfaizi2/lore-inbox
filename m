@@ -1,74 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269092AbUJESNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269148AbUJESPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269092AbUJESNB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269113AbUJESNB
+	id S269148AbUJESPF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269135AbUJESPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:13:01 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:2067 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S269092AbUJESM4
+	Tue, 5 Oct 2004 14:15:04 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:58475 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S269148AbUJESOO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:12:56 -0400
-From: "Johnson, Richard" <rjohnson@analogic.com>
-Reply-To: "Johnson, Richard" <rjohnson@analogic.com>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 5 Oct 2004 14:17:01 -0400 (EDT)
-Subject: Linux-2.6.5-1.358 and Fedora
-Message-ID: <Pine.LNX.4.53.0410051413520.3024@quark.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Oct 2004 14:14:14 -0400
+Date: Tue, 5 Oct 2004 13:13:39 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Paul Bristow <paul@paulbristow.net>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       alan@redhat.com
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] idefloppy suppress media not present errors
+Message-ID: <20041005181339.GA9479@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul, Bartlomiej, Alan:
+
+Below is a patch to suppress printing uninformative errors from
+ide-floppy.c in response to commands to floppy drives in which no
+media is present.
+
+Without this patch, commands sent to ide-floppy devices without media
+inserted cause error messages on the console (KERN_ERR level) such as:
+
+ide-floppy: ide: I/O error, pc = 0 key = 2, asc = 3a asq = 0
+ide-floppy: ide: I/O error, pc = 1b key = 2, asc = 3a asq = 0
+ide-floppy: ide: I/O error, pc = 23 key = 2, asc = 3a asq = 0
+ide-floppy: ide: I/O error, pc = 1e key = 2, asc = 3a asq = 0
+ide-floppy: ide: I/O error, pc = 1e key = 2, asc = 3a asq = 0
+
+Dell's Virtual Floppy (system management presents to the local system
+an IDE floppy device, which is actually a floppy device in a remote
+system connected over an IP link) exhibits this also, when connecting
+to a remote floppy drive with no media present.
+
+Please review and apply.
+
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
 
-In order to use Linux version 2.6.x, I installed the
-stuff that came with the "Red Hat Fedora(tm) Linux 2"
-book. I even bought a new hard disk so that it wouldn't
-break anything I have on my other disks.
-
-It installed, but I needed to set up a module development
-environment so I attempted to compile the kernel with
-the provided files.
-
-First I copied a .config file from /usr/src/linux-2.6.5-1.358/configs
-that came with the other software. Then I did:
-
-make oldconfig
-make bzImage
-make modules
-make modules_install
-
-This seemed to go alright. Then I entered:
-
-make install
-
-This had some warning about module versions, but it seemed to work.
-
-Then I re-booted. Naturally nothing worked. This stuff is getting more
-like W$ every day.
-
-
-The following hand-copied error messages exist and the root-file
-system fails to be found because all the modules fail to install.
-
-
-aic7xxx: version magic '2.6.5-1.358 SMP 686 REGPARM 4KSTACKS gcc-3.3`
-             should be '2.6.5-1.358 SMP 686 REGPARM 4KSTACKS gcc-3.3`
-
-
-All the modules that get installed by initrd have the same kind
-of error message where "version magic" claims that it doesn't
-compare with something that looks okay to the eye.
-
-Also, the repair provisions don't have any capability of
-copying back the contents of /lib/modules/  in any usable
-way. I had to reinstall everything from scratch, just like
-Windows. Nice work.
-
-
-
-Richard B. Johnson
-Project Engineer
-Analogic Corporation
-Penguin : Linux version 2.2.15 on an i586 machine (330.14 BogoMips).
+===== ide-floppy.c 1.40 vs edited =====
+--- 1.40/drivers/ide/ide-floppy.c	2004-08-12 19:03:53 -05:00
++++ edited/ide-floppy.c	2004-10-05 11:13:59 -05:00
+@@ -989,6 +989,20 @@
+ 	return ide_started;
+ }
+ 
++/**
++ * idefloppy_should_report_error()
++ *
++ * Supresses error messages resulting from Medium not present
++ */
++static inline int idefloppy_should_report_error(idefloppy_floppy_t *floppy)
++{
++	if (floppy->sense_key == 0x02 &&
++	    floppy->asc       == 0x3a &&
++	    floppy->ascq      == 0x00)
++		return 0;
++	return 1;
++}
++
+ /*
+  *	Issue a packet command
+  */
+@@ -1021,12 +1035,13 @@
+ 		 */
+ 		if (!test_bit(PC_ABORT, &pc->flags)) {
+ 			if (!test_bit(PC_SUPPRESS_ERROR, &pc->flags)) {
+-				printk(KERN_ERR "ide-floppy: %s: I/O error, "
+-						"pc = %2x, key = %2x, "
+-						"asc = %2x, ascq = %2x\n",
+-						drive->name, pc->c[0],
+-						floppy->sense_key,
+-						floppy->asc, floppy->ascq);
++				if (idefloppy_should_report_error(floppy))
++					printk(KERN_ERR "ide-floppy: %s: I/O error, "
++					       "pc = %2x, key = %2x, "
++					       "asc = %2x, ascq = %2x\n",
++					       drive->name, pc->c[0],
++					       floppy->sense_key,
++					       floppy->asc, floppy->ascq);
+ 			}
+ 			/* Giving up */
+ 			pc->error = IDEFLOPPY_ERROR_GENERAL;
+@@ -1242,11 +1257,13 @@
+ 			rq->nr_sectors, rq->current_nr_sectors);
+ 
+ 	if (rq->errors >= ERROR_MAX) {
+-		if (floppy->failed_pc != NULL)
+-			printk(KERN_ERR "ide-floppy: %s: I/O error, pc = %2x,"
+-					" key = %2x, asc = %2x, ascq = %2x\n",
+-				drive->name, floppy->failed_pc->c[0],
+-				floppy->sense_key, floppy->asc, floppy->ascq);
++		if (floppy->failed_pc != NULL) {
++			if (idefloppy_should_report_error(floppy))
++				printk(KERN_ERR "ide-floppy: %s: I/O error, pc = %2x,"
++				       " key = %2x, asc = %2x, ascq = %2x\n",
++				       drive->name, floppy->failed_pc->c[0],
++				       floppy->sense_key, floppy->asc, floppy->ascq);
++		}
+ 		else
+ 			printk(KERN_ERR "ide-floppy: %s: I/O error\n",
+ 				drive->name);

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133061AbRDUXqI>; Sat, 21 Apr 2001 19:46:08 -0400
+	id <S133062AbRDUXrK>; Sat, 21 Apr 2001 19:47:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133062AbRDUXp7>; Sat, 21 Apr 2001 19:45:59 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:24075 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S133061AbRDUXps>;
-	Sat, 21 Apr 2001 19:45:48 -0400
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
+	id <S133063AbRDUXqu>; Sat, 21 Apr 2001 19:46:50 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:9476 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S133062AbRDUXqn>;
+	Sat, 21 Apr 2001 19:46:43 -0400
+Date: Sat, 21 Apr 2001 19:47:06 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
 Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <20010421114942.A26415@thyrsus.com> <9bsd33$peb$1@forge.intermeta.de>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 22 Apr 2001 01:45:40 +0200
-In-Reply-To: "Henning P. Schmiedehausen"'s message of "Sat, 21 Apr 2001 16:38:59 +0000 (UTC)"
-Message-ID: <d3itjx24wr.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+Message-ID: <20010421194706.A14896@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010421114942.A26415@thyrsus.com> <E14r6V4-0004XB-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14r6V4-0004XB-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Apr 22, 2001 at 12:09:05AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Henning" == Henning P Schmiedehausen <mailgate@mail.hometree.net> writes:
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> It scales perfectly.
 
-Henning> "Eric S. Raymond" <esr@thyrsus.com> writes:
->> Here is an example map block for my kxref.py tool:
+I must say, in the most respectful way possible, "bullshit!"
 
->> # %Map # T: CONFIG_ namespace cross-reference generator/analyzer #
->> P: Eric S. Raymond <esr@thyrsus.com> # M: esr@thyrsus.com # L:
->> kbuild-devel@kbuild.sourceforge.net # W:
->> http://www.tuxedo.org/~esr/cml2 # D: Sat Apr 21 11:41:52 EDT 2001 #
->> S: Maintained
+Alan, if MAINTAINERS scaled perfectly I wouldn't have had to spend three months
+just trying to figure out who was reponsible for each of the [Cc]onfig.in
+files.  And even with that amount of effort mostly failing.
 
->> Comments are solicited.
+You only think the present attribution system scales well because your
+position is, shall we say, *privileged*.  Maintainers come to you; you
+don't normally have to try to track them down.  Me, I *know* that Andreas 
+Dilger identified a real problem, because I've barked my fscking shins on it.
+In two separate contexts now.
 
-Henning> Hi Eric,
+(There's a related rant I'm not ready to utter yet about how lkml's
+social machinery is very poorly adapted to solving problems that cross
+boundaries between different hackers' personal fiefdoms.)
 
-Henning> please not. If you really want to redo this, please use a
-Henning> simple XML markup.  Let's not introduce another kind of
-Henning> markup if there is already a well distributed and working.
+I'm an unusually stubborn and persistent person, as you have cause to
+know.  I really wonder how much good work we've lost because people less 
+stubborn than me simply gave up on the friction costs of trying to identify
+the responsible person(s) for the bits they wanted to change.
 
-Henning> What's wrong with:
+Andreas saw the problem, and he also saw the solution. It's to make
+the structure of the attribution system match the structure of the
+code -- and of the social machine that surrounds the code.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-DON'T! go there, please!
-
-A) This sucks to write and maintain, B) it sucks for people bringing
-up Linux on a minimum system or new architecture because they don't
-want to have to install 217 XML and other tools to just be able to
-configure and build a basic kernel.
-
-Jes
+No one is bound to obey an unconstitutional law and no courts are bound
+to enforce it.  
+	-- 16 Am. Jur. Sec. 177 late 2d, Sec 256

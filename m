@@ -1,66 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265967AbUBJQK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 11:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265969AbUBJQK0
+	id S265944AbUBJQAG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 11:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUBJQAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 11:10:26 -0500
-Received: from f19.mail.ru ([194.67.57.49]:49670 "EHLO f19.mail.ru")
-	by vger.kernel.org with ESMTP id S265967AbUBJQKU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 11:10:20 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Mike Bell=?koi8-r?Q?=22=20?= <kernel@mikebell.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.204.70.139]
-Date: Tue, 10 Feb 2004 19:10:16 +0300
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1AqaSm-000BKQ-00.arvidjaar-mail-ru@f19.mail.ru>
+	Tue, 10 Feb 2004 11:00:06 -0500
+Received: from [193.16.218.66] ([193.16.218.66]:7893 "EHLO
+	msa31a.ms.sapientia.ro") by vger.kernel.org with ESMTP
+	id S265944AbUBJQAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 11:00:00 -0500
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: msa31a.ms.sapientia.ro
+Message-ID: <4028FFD6.2060006@ms.sapientia.ro>
+Date: Tue, 10 Feb 2004 17:59:18 +0200
+From: Budai Laszlo <lbudai@ms.sapientia.ro>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Cannot mount root device
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+I get into trouble when I try to compile a new kernel on a 
+Fujitsu-Siemens B120 computer with Fedora Core 1. The problem was the 
+same with Redhat Linux 9 too.
+
+So, I'm doing make mrproper, make menuconfig (select the options I 
+need), make, make bzImage, make modules, make modules_install, make 
+install. I got no errors during the compile.
+When I reboot the machine with the new kernel I get the following message:
+
+VFS: Cannot open root device "sda3" or unknown-block (0,0)
+Please append a correct "root=" option
+Kernel panic: VFS: unable to mount root fs on unknown-block (0,0)
+
+the same problem is happening if I try a binary kernel downloaded from 
+rawhide.
+
+what can be done?
+
+Thank you,
+Laszlo
 
 
+my lilo.conf looks like:
 
-> I completely agree. But who would volunteer to spend their time fixing
-> devfs if no one said they wanted devfs, if all evidence says everyone is
-> happy with udev? I just wanted to get out that I'm not, I think devfs
-> (as a concept, not neccessarily the implementation in the kernel right
-> now) has merits udev does not and never will possess, and to see if anyone
-> else agrees.
+prompt
+timeout=50
+default=linux
+boot=/dev/sda
+map=/boot/map
+install=/boot/boot.b
+linear
 
-I am not happy with udev as it is currently; I am not happy with devfs crashing; I will continue to do what I can as time permits.
+image=/boot/vmlinuz-2.6.2
+         label=linux-2.6.2
+         initrd=/boot/initrd-2.6.2.img
+         read-only
+         append="root=/dev/sda3"
 
-I do not neccessarily need devfs - but udev lacks two features I need and I do not see any way to add them without creatign the same sort of problems as devfs has.
+image=/boot/vmlinuz-2.4.22-1.2115.nptl
+         label=linux
+         initrd=/boot/initrd-2.4.22-1.2115.nptl.img
+         read-only
+         append="rhgb root=LABEL=/"
 
->> Devfs can do this, but it is not necessarily a good thing.
->> I tried it - and it only works if someone tries to look up
->> a particluar name, such as /dev/dsp.  It doesn't work when someone
->> does a "ls /dev" to see what devices is there.
->> A "ls /dev/dsp*" didn't find the multiple soundcards for which
->> modules weren't yet loaded.
->
-
-no way. this requires far deeper devfs integration that is currently available. there was code that did it for removable media; it was removed during 2.5 series. fixing bugs in devfs is one thing; reintegrating it into kernel is another.
-
-basically devfs in 2.6 is reduced to
-
-mknod from within drivers
-devfsd notification on lookup
-
-> Nor would you want it to... Although, it might be handy for something
-> like a SCSI controller. An opendir() in its directory would trigger the
-> kernel to see what's attached to it. Postponing the probing of every LUN
-> until someone goes looking could speed up boot times quite a bit.
-
-I must admit I never used devfs names myself so it proved rather useless to me even in 2.4 times.
-
--andrey
+image=/boot/vmlinuz-2.6.1-1.65
+         label=2.6.1-1.65
+         initrd=/boot/initrd-2.6.1-1.65.img
+         read-only
+         append="rhgb root=LABEL=/"
 

@@ -1,38 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTJAIsV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 04:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTJAIsV
+	id S262029AbTJAIlL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 04:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTJAIlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 04:48:21 -0400
-Received: from hal-3.inet.it ([213.92.5.22]:58546 "EHLO hal-3.inet.it")
-	by vger.kernel.org with ESMTP id S262040AbTJAIsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 04:48:18 -0400
-From: "brigittoume@katamail.com" <brigittoume@katamail.com>
-To: brigittoume@katamail.com
-X-wmSenderIP: 193.220.188.202
-Subject: From  Brigitte.
-Date: Wed, 01 Oct 2003 08:47:20 +0000
-X-Mailer: Katamail
+	Wed, 1 Oct 2003 04:41:11 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:40072 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262029AbTJAIlH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 04:41:07 -0400
+Date: Wed, 1 Oct 2003 14:16:39 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.0-test6-mm1] aio ref count in io_submit_one
+Message-ID: <20031001084639.GA4188@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1064596018.1950.10.camel@ibm-c.pdx.osdl.net> <1064620762.2115.29.camel@ibm-c.pdx.osdl.net> <20030929040935.GA3637@in.ibm.com> <20030929131057.GA4630@in.ibm.com> <1064876358.23108.41.camel@ibm-c.pdx.osdl.net> <20030930040020.GA3435@in.ibm.com> <1064964169.1922.16.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-Message-ID: <193.220.188.202+991wojJ2ll3JAEB4@hal-3.inet.it>
+Content-Disposition: inline
+In-Reply-To: <1064964169.1922.16.camel@ibm-c.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                 REQUEST FOR HELP.
+On Tue, Sep 30, 2003 at 04:22:49PM -0700, Daniel McNeil wrote:
+> Andrew and Suparna,
+> 
+> Here is a patch to hold an extra reference count on the AIO request iocb
+> while it is being submitted and then drop it ref before returning.
+> This prevents the race I was seeing with AIO O_DIRECT tests on ext3
+> where the aio_complete() was freeing the iocb while it was still
+> be referenced by the AIO submit code path.  I've run this on my
+> 2-proc box with CONFIG_DEBUG_PAGEALLOC on and I no longer hit
+> the oops.  The other option is to change the AIO code to never
+> reference the iocb after it has been submitted, but that seems more
+> error prone.  This patch is a very small change. I am surprised we have
+> not seen this race before. 
+> 
+> Thoughts?
+> 
+> Daniel
+> 
+> 
 
-I do not want you to see this mail as a disturbance for it is really a call from an aggrieved one. My name is Brigitte Oume, from the Dioula tribe of Odienne in the northern part of Cote d`ivoire. My family happened to be a polygamous as well as multi-religious one.I cannot say that my father is a true Christian because out of the five wives he married, it is only my mother that is a Christian, others are Moslems, and I grew up with my mother.
+> --- linux-2.6.0-test6-mm1/fs/aio.c	2003-09-30 14:47:51.000000000 -0700
+> +++ linux-2.6.0-test6-mm1.aio/fs/aio.c	2003-09-30 16:03:08.702783397 -0700
+> @@ -1490,7 +1490,14 @@ int io_submit_one(struct kioctx *ctx, st
+>  		goto out_put_req;
+>  
+>  	spin_lock_irq(&ctx->ctx_lock);
+> +	/*
+> +	 * Hold an extra reference while submitting the i/o.
+> +	 * This prevents races between the aio code path referencing the
+> +	 * req (after submitting it) and aio_complete() freeing the req.
+> +	 */
+> +	req->ki_users++;		/* grab extra reference */
+>  	ret = aio_run_iocb(req);
+> +	(void)__aio_put_req(ctx, req);	/* drop the extra reference */	
 
-My father is Moussa Oume, a big time transporter and also a dealer in precious stones from Odienne in the northern part of Cote d`ivoire.He was abducted from the house and was later found dead earlier this year. I believe it is the government forces that killed him because there is this belief that it is the rich Dioulas that are sponsoring the rebel forces in Cote d`ivoire. The silent killing of the Dioulas is still in progress.
+I haven't looked very closely, but am just wondering why you ignore 
+the return value of __aio_put_req here - are you sure there is no 
+potential memory leakage (could be missing a put_ioctx) as a result ? 
 
-Let me not stress you so much and go straight to why I am looking for help. After the death of my father, my elder brothers seized everything that belonged to my father saying that my mother is a Christian and as such that I have no inheritance in my fathers wealth and properties.But as God would have it, it happens that my father made a depsit of five million eight hundred thousand United states Dollars($5,800,000:00)in a finance house here in Abidjan and I am the next of kin.So, when this was discovered, my own very brothers started threatning to eliminate me but I succeeded in moving to a nearby town of Bassam with my mother as well as the documents of the deposit.
 
-We went to the finance house to claim the money only to find out that I cannot be able to do that because there was provision that I must attain the age of 25 before I will be able to withdraw it whereas I am only 19 this year.So, that is our problem . We are now looking for a reliable outsider who is honest that is going to help us to claim and transfer this money out of Cote d`ivoire where we will once again enjoy peace and I would also be able to go back to school.
+>  	spin_unlock_irq(&ctx->ctx_lock);
+>  
+>  	if (-EIOCBRETRY == ret)
 
-Please if the almighty God touches your heart to help us do not hesitate to reach us through our email address.
+Although this isn't a problem with retry-based AIO (where we always
+call aio_complete() from the calling routine, so should never see
+the iocb going away underneath us), if we do add the ref count 
+increment, we should probably try to do it for both the initial
+submission and subsequent retries --- just in case we have code
+(in future) that uses a combination of retries and aio completion
+from interrupt context.
 
-May the almighty God bless you even as we wait your favourable reply.
+Regards
+Suparna
 
-Brigitte Oume and mother.
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
+

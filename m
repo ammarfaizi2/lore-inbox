@@ -1,92 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270321AbTHLMlC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 08:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270322AbTHLMlB
+	id S270319AbTHLMqH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 08:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270283AbTHLMqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 08:41:01 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:32195 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id S270321AbTHLMk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 08:40:58 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: Martin Schlemmer <azarah@gentoo.org>
-Subject: Re: 2.6.0-test3+sk98lin driver with hardware bug make eth unusable
-Date: Tue, 12 Aug 2003 14:40:50 +0200
-User-Agent: KMail/1.5.3
-Cc: Mirko Lindner <mlindner@syskonnect.de>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200308121301.43873.gallir@uib.es> <1060689676.13254.172.camel@workshop.saharacpt.lan>
-In-Reply-To: <1060689676.13254.172.camel@workshop.saharacpt.lan>
+	Tue, 12 Aug 2003 08:46:07 -0400
+Received: from front1.chartermi.net ([24.213.60.123]:35999 "EHLO
+	front1.chartermi.net") by vger.kernel.org with ESMTP
+	id S270325AbTHLMp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 08:45:58 -0400
+Message-ID: <3F38E183.80108@quark.didntduck.org>
+Date: Tue, 12 Aug 2003 08:45:55 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308121440.50395.gallir@uib.es>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] move EISA_bus to eisa-bus.c
+Content-Type: multipart/mixed;
+ boundary="------------050702080208080000000707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 August 2003 14:01, Martin Schlemmer shaped the electrons to 
-shout:
-> On Tue, 2003-08-12 at 13:01, Ricardo Galli wrote:
-> > I've already reported this problem to syskonnect few weeks ago (without
-> > success as I see).
-> >
-> > There is a ASIC bug in several popular motherboards (including ASUS ones)
-> > related to TX hardware checksum.
-> >
-> > For packets smaller that 56 bytes (payload), as UDP dns queries, the asic
-> > generates a bad checksum making the drivers unusable for "normal"
-> > Internet usage:
->
-> <snip>
->
-> > The only solution is to comment out
-> >  #define USE_SK_TX_CHECKSUM
-> > in skge.c
->
-> Known issue.
->
-> Mirko will have a look as soon as he have time.
+This is a multi-part message in MIME format.
+--------------050702080208080000000707
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thanks, I just sent a Kconfig patch as a workaround:
+Move EISA_bus from individual arches to eisa-bus.c.
 
-http://lkml.org/lkml/2003/8/12/83
+--
+				Brian Gerst
 
-BTW, I'm testing it in a ASUS P4800 Deluxe motherboard, which has the asic 
-bug:
+--------------050702080208080000000707
+Content-Type: text/plain;
+ name="EISA_bus-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="EISA_bus-1"
 
-gallir@antoli:~$ lspci
-00:00.0 Host bridge: Intel Corp.: Unknown device 2578 (rev 02)
-00:01.0 PCI bridge: Intel Corp.: Unknown device 2579 (rev 02)
-00:1d.0 USB Controller: Intel Corp.: Unknown device 24d2 (rev 02)
-00:1d.1 USB Controller: Intel Corp.: Unknown device 24d4 (rev 02)
-00:1d.2 USB Controller: Intel Corp.: Unknown device 24d7 (rev 02)
-00:1d.3 USB Controller: Intel Corp.: Unknown device 24de (rev 02)
-00:1d.7 USB Controller: Intel Corp.: Unknown device 24dd (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev c2)
-00:1f.0 ISA bridge: Intel Corp.: Unknown device 24d0 (rev 02)
-00:1f.1 IDE interface: Intel Corp.: Unknown device 24db (rev 02)
-00:1f.2 IDE interface: Intel Corp.: Unknown device 24d1 (rev 02)
-00:1f.3 SMBus: Intel Corp.: Unknown device 24d3 (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp.: Unknown device 24d5 (rev 02)
-01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4200] 
-(rev a3)
-02:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller 
-(rev 80)
-02:05.0 Ethernet controller: 3Com Corporation: Unknown device 1700 (rev 12)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-02:0c.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-02:0c.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
-07)
-02:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 
-78)
+diff -urN linux-2.6.0-test3-bk/arch/i386/kernel/i386_ksyms.c linux/arch/i386/kernel/i386_ksyms.c
+--- linux-2.6.0-test3-bk/arch/i386/kernel/i386_ksyms.c	2003-07-27 13:11:42.000000000 -0400
++++ linux/arch/i386/kernel/i386_ksyms.c	2003-08-12 07:58:01.268653760 -0400
+@@ -62,9 +62,6 @@
+ 
+ /* platform dependent support */
+ EXPORT_SYMBOL(boot_cpu_data);
+-#ifdef CONFIG_EISA
+-EXPORT_SYMBOL(EISA_bus);
+-#endif
+ EXPORT_SYMBOL(MCA_bus);
+ #ifdef CONFIG_DISCONTIGMEM
+ EXPORT_SYMBOL(node_data);
+diff -urN linux-2.6.0-test3-bk/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
+--- linux-2.6.0-test3-bk/arch/i386/kernel/traps.c	2003-07-27 12:57:49.000000000 -0400
++++ linux/arch/i386/kernel/traps.c	2003-08-12 07:58:01.273653000 -0400
+@@ -829,11 +829,6 @@
+ 	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
+ }
+ 
+-
+-#ifdef CONFIG_EISA
+-int EISA_bus;
+-#endif
+-
+ void __init trap_init(void)
+ {
+ #ifdef CONFIG_EISA
+diff -urN linux-2.6.0-test3-bk/arch/mips/kernel/mips_ksyms.c linux/arch/mips/kernel/mips_ksyms.c
+--- linux-2.6.0-test3-bk/arch/mips/kernel/mips_ksyms.c	2003-08-09 02:49:56.000000000 -0400
++++ linux/arch/mips/kernel/mips_ksyms.c	2003-08-12 07:58:01.285651176 -0400
+@@ -43,10 +43,6 @@
+ 
+ EXPORT_SYMBOL(mips_machtype);
+ 
+-#ifdef CONFIG_EISA
+-EXPORT_SYMBOL(EISA_bus);
+-#endif
+-
+ /*
+  * String functions
+  */
+diff -urN linux-2.6.0-test3-bk/arch/mips/kernel/setup.c linux/arch/mips/kernel/setup.c
+--- linux-2.6.0-test3-bk/arch/mips/kernel/setup.c	2003-08-09 02:49:56.000000000 -0400
++++ linux/arch/mips/kernel/setup.c	2003-08-12 07:58:01.291650264 -0400
+@@ -44,15 +44,6 @@
+ struct screen_info screen_info;
+ #endif
+ 
+-/*
+- * Set if box has EISA slots.
+- */
+-#ifdef CONFIG_EISA
+-int EISA_bus;
+-
+-EXPORT_SYMBOL(EISA_bus);
+-#endif
+-
+ #if defined(CONFIG_BLK_DEV_FD) || defined(CONFIG_BLK_DEV_FD_MODULE)
+ extern struct fd_ops no_fd_ops;
+ struct fd_ops *fd_ops;
+diff -urN linux-2.6.0-test3-bk/arch/parisc/kernel/parisc_ksyms.c linux/arch/parisc/kernel/parisc_ksyms.c
+--- linux-2.6.0-test3-bk/arch/parisc/kernel/parisc_ksyms.c	2003-07-27 13:11:56.000000000 -0400
++++ linux/arch/parisc/kernel/parisc_ksyms.c	2003-08-12 07:58:01.301648744 -0400
+@@ -41,9 +41,6 @@
+ #include <asm/processor.h>
+ EXPORT_SYMBOL(kernel_thread);
+ EXPORT_SYMBOL(boot_cpu_data);
+-#ifdef CONFIG_EISA
+-EXPORT_SYMBOL(EISA_bus);
+-#endif
+ 
+ #include <linux/pm.h>
+ EXPORT_SYMBOL(pm_power_off);
+diff -urN linux-2.6.0-test3-bk/arch/parisc/kernel/setup.c linux/arch/parisc/kernel/setup.c
+--- linux-2.6.0-test3-bk/arch/parisc/kernel/setup.c	2003-07-27 13:10:24.000000000 -0400
++++ linux/arch/parisc/kernel/setup.c	2003-08-12 07:58:01.306647984 -0400
+@@ -52,10 +52,6 @@
+ struct proc_dir_entry * proc_runway_root = NULL;
+ struct proc_dir_entry * proc_gsc_root = NULL;
+ 
+-#ifdef CONFIG_EISA
+-int EISA_bus;	/* This has to go somewhere in architecture specific code. */
+-#endif
+-
+ void __init setup_cmdline(char **cmdline_p)
+ {
+ 	extern unsigned int boot_args[];
+diff -urN linux-2.6.0-test3-bk/drivers/eisa/eisa-bus.c linux/drivers/eisa/eisa-bus.c
+--- linux-2.6.0-test3-bk/drivers/eisa/eisa-bus.c	2003-07-27 12:59:37.000000000 -0400
++++ linux/drivers/eisa/eisa-bus.c	2003-08-12 07:58:01.317646312 -0400
+@@ -15,6 +15,12 @@
+ #include <linux/slab.h>
+ #include <linux/ioport.h>
+ #include <asm/io.h>
++#include <asm/processor.h> /* for EISA_bus define */
++
++#ifndef EISA_bus
++int EISA_bus;
++EXPORT_SYMBOL(EISA_bus);
++#endif
+ 
+ #define SLOT_ADDRESS(r,n) (r->bus_base_addr + (0x1000 * n))
+ 
 
+--------------050702080208080000000707--
 
-Cheers,
-
--- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/

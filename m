@@ -1,55 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSFZCjW>; Tue, 25 Jun 2002 22:39:22 -0400
+	id <S316309AbSFZCsQ>; Tue, 25 Jun 2002 22:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSFZCjV>; Tue, 25 Jun 2002 22:39:21 -0400
-Received: from mta05ps.bigpond.com ([144.135.25.137]:59087 "EHLO
-	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S316289AbSFZCjU>; Tue, 25 Jun 2002 22:39:20 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Tom Rini <trini@kernel.crashing.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/RFC 2.4.19-rc1] Fix dependancies on keybdev.o
-Date: Wed, 26 Jun 2002 12:36:24 +1000
-User-Agent: KMail/1.4.5
-References: <20020625160644.GP3489@opus.bloom.county>
-In-Reply-To: <20020625160644.GP3489@opus.bloom.county>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S316322AbSFZCsP>; Tue, 25 Jun 2002 22:48:15 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:58128 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S316309AbSFZCsO>; Tue, 25 Jun 2002 22:48:14 -0400
+Date: Tue, 25 Jun 2002 19:48:06 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Austin Gonyou <austin@digitalroadkill.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Urgent, Please respond - Re: max_scsi_luns and 2.4.19-pre10.
+Message-ID: <20020625194806.C26789@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Austin Gonyou <austin@digitalroadkill.net>,
+	linux-kernel@vger.kernel.org
+References: <1025052385.19462.5.camel@UberGeek> <1025056235.19779.4.camel@UberGeek>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200206261236.24247.bhards@bigpond.net.au>
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1025056235.19779.4.camel@UberGeek>; from austin@digitalroadkill.net on Tue, Jun 25, 2002 at 08:50:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jun 2002 02:06, Tom Rini wrote:
-> Right now drivers/input/keybdev.o depends on drivers/char/keyboard.o for
-> handle_scancode, keyboard_tasklet and kbd_ledfunc.  However, compiling
-> drivers/char/keyboard.o isn't quite straight forward, as we have:
-> ifndef CONFIG_SUN_KEYBOARD
->   obj-$(CONFIG_VT) += keyboard.o $(KEYMAP) $(KEYBD)
-> else
->   obj-$(CONFIG_PCI) += keyboard.o $(KEYMAP)
-> endif
-> in drivers/char/Makefile
->
-> To attempt to work around this, I've come up with the following patch
-> for drivers/input/Config.in.  Comments?
-Here is a bit of arch/i386/config.in:
-<extract>
-# input before char - char/joystick depends on it. As does USB.
-#
-source drivers/input/Config.in
-source drivers/char/Config.in
-</extract>
+I'm no expert on this bit but look in
+drivers/scsi/scsi_scan.c for CONFIG_SCSI_MULTI_LUN 
 
-So it will still crap out, because CONFIG_VT and CONFIG_SUN_KEYBOARD won't be 
-set early enough.
+#ifdef CONFIG_SCSI_MULTI_LUN
+static int max_scsi_luns = 8;
+#else
+static int max_scsi_luns = 1;
+#endif
 
-Three possible options, none of them especially good:
-1. Do various munging of config and make setup and try to cover this.
-2. Move keyboard handling code to input subsystem
-3. Do wholesale backport of input subsystem from 2.5
+This is the variable you seem to want.
 
-Brad
+Note to SCSI maintainers.  a quick vi `grep -l CONFIG_SCSI_MULTI_LUN`
+here reveals lots of hardcoded values of 8.  It seems to me
+that perhaps a CONFIG_SCSI_MAX_LUN to replace
+CONFIG_SCSI_MULTI_LUN would be in order.
+
+I know Alan and others are planning to do major cleanup of
+the scsi subsystem (hopefully after IDE stablizes?)
+
+
+
+On Tue, Jun 25, 2002 at 08:50:35PM -0500, Austin Gonyou wrote:
+> I'm really really sorry for asking such a seemingly stupid question, but
+> I'm having a very severe issue here and I can't seem to figure out the
+> fix. 
+> 
+> If someone could exchange emails with me for a few mins I'd be very
+> grateful. I see that I have max_scsi_luns in my System.map, but I cannot
+> see luns > 8(0-7) with 2.4.19-pre10. The same driver set works with the
+> default RH installed kernel(2.4.9). So it leads me to believe that
+> putting max_scsi_luns=128 (or even 16) in grub.conf isn't being
+> effective. 
+> 
+> Please help.
+> 
+> On Tue, 2002-06-25 at 19:46, Austin Gonyou wrote:
+> > This originally was asking for help regarding QLA2200's, but I've since
+> > discovered it's a kernel param problem that I'm not sure how to solve.
+> > 
+> > Using a default RH kernel (from SGI XFS installer) and passing
+> > max_scsi_luns=128 in grub, and for scsi_mod, it seems to work. 
+> > 
+> > But when I compile my own kernels, none of that stuff is modular, it's
+> > all built in. I though that passing max_scsi_luns at boot time would
+> > make the scsi subsystem just work with > 8 luns, but so far that doesn't
+> > appear to be the case. 
+> > 
+> > 
+> > Can someone please tell me where I've gone wrong? I'm so deep into this,
+> > I can't tell which way is up. 
+> > 
+> > TIA
+> > -- 
+> > Austin Gonyou <austin@digitalroadkill.net>
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> -- 
+> Austin Gonyou <austin@digitalroadkill.net>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

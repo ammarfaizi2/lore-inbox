@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130571AbRAISjV>; Tue, 9 Jan 2001 13:39:21 -0500
+	id <S131471AbRAISkV>; Tue, 9 Jan 2001 13:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131372AbRAISjF>; Tue, 9 Jan 2001 13:39:05 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:27660 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131230AbRAISiu>;
-	Tue, 9 Jan 2001 13:38:50 -0500
-Date: Tue, 9 Jan 2001 19:38:28 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
-        Christoph Hellwig <hch@caldera.de>,
-        "David S. Miller" <davem@redhat.com>, <riel@conectiva.com.br>,
-        <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010109183808.A12128@suse.de>
-Message-ID: <Pine.LNX.4.30.0101091935461.7155-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131474AbRAISkC>; Tue, 9 Jan 2001 13:40:02 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:32506 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S131471AbRAISj6>; Tue, 9 Jan 2001 13:39:58 -0500
+Date: Tue, 9 Jan 2001 14:33:29 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] n_r3964: restore_flags on failure
+Message-ID: <20010109143328.B21057@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Tue, 9 Jan 2001, Jens Axboe wrote:
+	Please consider applying.
 
-> > > ever seen, this is why i quoted it - the talk was about block-IO
-> > > performance, and Stephen said that our block IO sucks. It used to suck,
-> > > but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
-> >
-> > Thats fine. Get me 128K-512K chunks nicely streaming into my raid controller
-> > and I'll be a happy man
->
-> No problem, apply blk-13B and you'll get 512K chunks for SCSI and RAID.
+- Arnaldo
 
-i cannot agree more - Jens' patch did wonders to IO performance here. It
-fixes a long-standing bug in the Linux block-IO-scheduler that caused very
-suboptimal requests being issued to lowlevel drivers once the request
-queue gets full. I think this patch is a clear candidate for 2.4.x
-inclusion.
-
-	Ingo
-
+--- linux-2.4.0-ac4/drivers/char/n_r3964.c	Tue Dec 19 11:25:34 2000
++++ linux-2.4.0-ac4.acme/drivers/char/n_r3964.c	Tue Jan  9 14:23:07 2001
+@@ -988,8 +988,10 @@
+ 
+       pMsg = kmalloc(sizeof(struct r3964_message), GFP_KERNEL);
+       TRACE_M("add_msg - kmalloc %x",(int)pMsg);
+-      if(pMsg==NULL)
++      if(pMsg==NULL) {
++      	 restore_flags(flags);
+          return;
++      }
+ 
+       pMsg->msg_id = msg_id;
+       pMsg->arg    = arg;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

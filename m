@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266323AbUA3Aie (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 19:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUA3Aid
+	id S266297AbUA3Ah3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 19:37:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUA3Ah3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 19:38:33 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:3746 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id S266323AbUA3AiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 19:38:01 -0500
-Message-ID: <4019A736.3060300@oracle.com>
-Date: Fri, 30 Jan 2004 01:37:10 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: Matt Domsch <Matt_Domsch@dell.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-acpi <linux-acpi@intel.com>
-Subject: Re: 2.6.2-rc2-bk1 oopses on boot (ACPI patch)
-References: <BF1FE1855350A0479097B3A0D2A80EE0020AE8AD@hdsmsx402.hd.intel.com> <1075419074.2497.203.camel@dhcppc4>
-In-Reply-To: <1075419074.2497.203.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 29 Jan 2004 19:37:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12683 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266297AbUA3Ah2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 19:37:28 -0500
+Date: Thu, 29 Jan 2004 16:38:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Curt Hartung" <curt@northarc.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Raw devices broken in 2.6.1?
+Message-Id: <20040129163852.4028c689.akpm@osdl.org>
+In-Reply-To: <01c501c3e6b9$67225f70$0700000a@irrosa>
+References: <01c501c3e6b9$67225f70$0700000a@irrosa>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-White-List-Member: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
-> Alessandro,
-> Looks like you've identifed a regression, probably in ACPI.
+"Curt Hartung" <curt@northarc.com> wrote:
+>
+> New to the list, checked the FAQ and nothing on this. I'm using raw devices
+> for a large database application (highwinds-software) and under 2.4 it runs
+> fine, but under 2.6 I get: Program terminated with signal 25, File size
+> limit exceeded. (SIGXFSZ) As soon as it tries to grow the raw device pase 2G
+> (might be 4G, I'll go back and check)
 > 
-> Please test the 1st patch attached to this bug report
-> http://bugzilla.kernel.org/show_bug.cgi?id=1766
+> ulimit reports: file size (blocks)          unlimited
+> but running the process as root and setrlimit RLIMIT_FSIZE to RLIM_INFINITY
+> just to be sure yields the same result.
 
-The patch you mention fixes my problem - tested over 2.6.2-rc2-bk3.
+Possibly whatever version of 2.4 you're using forgot to check for
+O_LARGEFILE.  But the code looks to be OK.
 
-> If it doesn't address the problem, please file an additional bug report
-> per below.
+> I can easily provide a short test program to trigger it, the call I'm using
+> is pwrite64(...);
 
-Thanks for the instructions, I really appreciate.
-
-
-Keep up the great work ! Ciao,
-
---alessandro
-
-  "Two rivers run too deep
-   The seasons change and so do I"
-       (U2, "Indian Summer Sky")
-
+Yes, please.

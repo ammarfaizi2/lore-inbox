@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271235AbTGWT2z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271237AbTGWT1y
+	id S271239AbTGWTgt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 15:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271241AbTGWTgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:27:54 -0400
-Received: from quechua.inka.de ([193.197.184.2]:13217 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S271235AbTGWT0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 15:26:23 -0400
-Subject: Re: kernel bug in socketpair()
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030723100043.18d5b025.davem@redhat.com>
-References: <200307231428.KAA15254@raptor.research.att.com>
-	 <20030723074615.25eea776.davem@redhat.com>
-	 <200307231656.MAA69129@raptor.research.att.com>
-	 <20030723100043.18d5b025.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1058989300.12715.62.camel@simulacron>
+	Wed, 23 Jul 2003 15:36:41 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32773 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S271239AbTGWTgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 15:36:18 -0400
+Date: Wed, 23 Jul 2003 20:51:22 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Dave Lawrence <dgl@integrinautics.com>, linux-kernel@vger.kernel.org
+Subject: Re: compact flash IDE hot-swap summary please
+Message-ID: <20030723205122.B439@flint.arm.linux.org.uk>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
+	Dave Lawrence <dgl@integrinautics.com>,
+	linux-kernel@vger.kernel.org
+References: <3F1ECFDD.D561D861@integrinautics.com> <Pine.LNX.4.10.10307231211060.13376-100000@master.linux-ide.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 23 Jul 2003 21:41:40 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.10.10307231211060.13376-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Jul 23, 2003 at 12:12:47PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mit, 2003-07-23 at 19:00, David S. Miller wrote:
-> If we're talking about the current process, there is no use in using
-> /proc/*/fd/N to open a file descriptor in the first place, you can
-> simply call open(N,...)
+On Wed, Jul 23, 2003 at 12:12:47PM -0700, Andre Hedrick wrote:
+> You never remove the "TrueIDE" from the cable so the bridge chip saves
+> you.  Go try it with standard media and you will see different.
 
-maybe you can use open on /proc/fd/*/N to open a file
-already deleted from the filesystem? That might be useful.
+There is no IDE interface on the Zaurus.  It connects to the PCMCIA
+interface.
 
-Andreas
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

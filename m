@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281561AbRKPV7C>; Fri, 16 Nov 2001 16:59:02 -0500
+	id <S281570AbRKPWCc>; Fri, 16 Nov 2001 17:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281566AbRKPV6w>; Fri, 16 Nov 2001 16:58:52 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:38556 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S281561AbRKPV6g>;
-	Fri, 16 Nov 2001 16:58:36 -0500
-Message-ID: <3BF58C31.4050402@stesmi.com>
-Date: Fri, 16 Nov 2001 22:59:13 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S281586AbRKPWCN>; Fri, 16 Nov 2001 17:02:13 -0500
+Received: from ns.suse.de ([213.95.15.193]:27411 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281580AbRKPWCI>;
+	Fri, 16 Nov 2001 17:02:08 -0500
+Date: Fri, 16 Nov 2001 23:02:03 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Dan Hollis <goemon@anime.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] AMD SMP capability sanity checking.
-In-Reply-To: <Pine.LNX.4.30.0111162219170.22827-100000@Appserv.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.30.0111161344020.5635-100000@anime.net>
+Message-ID: <Pine.LNX.4.30.0111162256310.22827-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 16 Nov 2001, Dan Hollis wrote:
 
-<snip description of code that checks for valid AMD SMP capable CPUs>
+> > Any "But my system is fine in SMP and isn't in the list" whinges won't
+> > get it added to the list.
+> Presumably you will add the same for intel chips (eg celerons).
 
-Would you mind writing what each of these actually is?
+As Intel never announced they were capable either, by rights they
+should also get tainted imo. For now I'm working on getting the
+Athlons sorted out though. There's enough different models of those
+to keep me busy at the moment.
 
-Athlon 661 doesn't tell me much, neither does Duron 671.
+regards,
+Dave.
 
-That's just an example, which is which?
-
-// Stefan
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

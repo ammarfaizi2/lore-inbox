@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbTEKQWv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 12:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTEKQWv
+	id S261754AbTEKQtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 12:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbTEKQtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 12:22:51 -0400
-Received: from siaag2af.compuserve.com ([149.174.40.136]:55204 "EHLO
-	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
-	id S261753AbTEKQWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 12:22:50 -0400
-Date: Sun, 11 May 2003 12:32:46 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
-To: "arjanv@redhat.com" <arjanv@redhat.com>
-Cc: Ahmed Masud <masud@googgun.com>, Yoav Weiss <ml-lkml@unpatched.org>,
-       Terje Eggestad <terje.eggestad@scali.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <200305111234_MC3-1-3865-CD21@compuserve.com>
+	Sun, 11 May 2003 12:49:09 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:49878 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261754AbTEKQtI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 12:49:08 -0400
+Date: Sun, 11 May 2003 07:47:31 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bug on shutdown from 68-mm4
+Message-ID: <12530000.1052664451@[10.10.2.4]>
+In-Reply-To: <20030510231120.580243be.akpm@digeo.com>
+References: <8570000.1052623548@[10.10.2.4]><20030510224421.3347ea78.akpm@digeo.com><8880000.1052624174@[10.10.2.4]> <20030510231120.580243be.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arjanv wrote:
-
-> examle: pseudocode for the unlink syscall
+>> >> Sorry if this is old news, haven't been paying attention for a week.
+>> >>  Bug on shutdown (just after it says "Power Down") from 68-mm4.
+>> >>  (the NUMA-Q).
+>> > 
+>> > Random guess: is it related to CONFIG_KEXEC?
+>> 
+>> Don't think so - I don't have that enabled. Config file is attatched.
 > 
-> long your_wrapped_syscall(char *userfilename)
-> {
->     char kernelpointer[something];
->     copy_from_user(kernelpointer, usefilename, ...);
->     audit_log(kernelpointer);
->     return original_syscall(userfilename);
-> }
+> It doesn't matter - the kexec patch tends to futz with stuff like that
+> regardless of CONFIG_KEXEC.
+> 
+> It doesn't happen here.  Could you please retest without the kexec
+> patch applied?
 
+Yup, backing out kexec fixes it.
 
-  That code has another hole that nobody else has mentioned
-yet: I can fill the audit log by trying to delete nonexistent files,
-and if accused of trying to mount a DOS attack on the audit trail
-I can reasonably claim that it was all an accident...
-
-  How about:
-
-long wrapped_unlink(char *userfilename)
-{
-        char name1[len], name2[len];
-        long ret;
-
-        copy_from_user(name1, userfilename, ...);
-        ret = original_unlink(userfilename);
-        copy_from_user(name2, userfilename, ...);
-
-        if (strncmp(name1, name2, len))
-                audit_log(name1, name2, UNLINK_NAME_CHANGED);
-        if (ret == 0 && AUDIT_SUCCESS)
-                audit_log(name1, name2, UNLINK_SUCCEEDED);
-        if (ret == -EPERM && AUDIT_FAILURE)
-                audit_log(name1, name2, UNLINK_FAILED);
-
-        return ret;
-}

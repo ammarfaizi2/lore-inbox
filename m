@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVBYL52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVBYL7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbVBYL52 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 06:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVBYL52
+	id S262683AbVBYL7c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 06:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbVBYL7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 06:57:28 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:8078 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262682AbVBYL4b (ORCPT
+	Fri, 25 Feb 2005 06:59:32 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:58521 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262683AbVBYL7T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 06:56:31 -0500
-Message-Id: <200502250055.j1P0tShW006447@laptop11.inf.utfsm.cl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Stuart MacDonald <stuartm@connecttech.com>,
-       "'Greg Folkert'" <greg@gregfolkert.net>,
-       "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: Re: Greg's Decree! (was Re: Linus' decrees?) 
-In-Reply-To: Message from "Randy.Dunlap" <rddunlap@osdl.org> 
-   of "Thu, 24 Feb 2005 14:40:09 -0800." <421E57C9.3090308@osdl.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 24 Feb 2005 21:55:28 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 25 Feb 2005 08:55:39 -0300 (CLST)
+	Fri, 25 Feb 2005 06:59:19 -0500
+Message-ID: <49984.195.126.66.126.1109332744.squirrel@housecafe.dyndns.org>
+In-Reply-To: <20050225063609.GA21244@pegasos>
+References: <20041206185416.GE7153@smtp.west.cox.net>
+    <Pine.SOC.4.61.0502221031230.6097@math.ut.ee>
+    <20050224074728.GA31434@pegasos>
+    <Pine.SOC.4.61.0502241746450.21289@math.ut.ee>
+    <20050224160657.GB11197@pegasos> <421E7033.1030600@g-house.de>
+    <20050225063609.GA21244@pegasos>
+Date: Fri, 25 Feb 2005 12:59:04 +0100 (CET)
+Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII 
+     Utah) PCI IRQ map
+From: "Christian" <evil@g-house.de>
+To: "Sven Luther" <sven.luther@wanadoo.fr>
+Cc: "Christian Kujau" <evil@g-house.de>,
+       "Tom Rini" <trini@kernel.crashing.org>, "Meelis Roos" <mroos@linux.ee>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org, "Sven Hartge" <hartge@ds9.gnuu.de>
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> said:
-> Stuart MacDonald wrote:
+On Fri, February 25, 2005 7:36, Sven Luther said:
+> So, now, we need to find out what the problems where, i think it is
+> something that went in between 2.6.8 and 2.6.10, and leigh said he had
+> some ideas.
 
-[...]
+may i ask what patches were applied to a vanilla 2.6.8 kernel to build the
+2.6.8-d-i then?
 
-> > So what I'm wondering is, is there a location on the net where Linus'
-> > statements about how the kernel is to be are collected? ie, Where the
-> > above statements could all be found, with cites.
-> > 
-> > I'm thinking there's probably other info about the standard way of
-> > doing things in regards to the kernel (all aspects thereof) that Linus
-> > has put forth that might be handy for me to know, and I'm hoping that
-> > there's a handy dandy collection that I can peruse.
-> > 
-> > I guess what I'm looking for is a collection of linux kernel policies.
-> > Is there such a collection?
-
-> Not that I know of, but it would be nice, esp. for newcomers.
-
-I'd vote for Documentation/Policies
+thanks,
+Christian.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+make bzImage, not war
+

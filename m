@@ -1,91 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265985AbUEUVNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265969AbUEUVQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265985AbUEUVNk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 17:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUEUVNk
+	id S265969AbUEUVQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 17:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266000AbUEUVQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 17:13:40 -0400
-Received: from [213.171.41.46] ([213.171.41.46]:6916 "EHLO
-	kaamos.homelinux.net") by vger.kernel.org with ESMTP
-	id S265985AbUEUVNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 17:13:36 -0400
-From: Alexey Kopytov <alexeyk@mysql.com>
-Organization: MySQL AB
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Random file I/O regressions in 2.6 [patch+results]
-Date: Sat, 22 May 2004 01:13:30 +0400
-User-Agent: KMail/1.6.2
-Cc: linuxram@us.ibm.com, nickpiggin@yahoo.com.au, peter@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-References: <200405022357.59415.alexeyk@mysql.com> <200405200506.03006.alexeyk@mysql.com> <20040520145902.27647dee.akpm@osdl.org>
-In-Reply-To: <20040520145902.27647dee.akpm@osdl.org>
+	Fri, 21 May 2004 17:16:16 -0400
+Received: from outbound.mailhop.org ([63.208.196.171]:20747 "EHLO
+	outbound.mailhop.org") by vger.kernel.org with ESMTP
+	id S265969AbUEUVQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 17:16:13 -0400
+Message-ID: <40AE719B.7060500@gilfillan.org>
+Date: Fri, 21 May 2004 16:16:11 -0500
+From: Perry Gilfillan <perrye@gilfillan.org>
+Reply-To: perrye@gilfillan.org
+Organization: Duck Tape Anonymous
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: kernel <linux-kernel@vger.kernel.org>, v4l <video4linux-list@redhat.com>
+Subject: [V3TV] Now running on the 2.6.6 kernel !!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405220113.31136.alexeyk@mysql.com>
+X-Mail-Handler: MailHop Outbound by DynDNS.org
+X-Originating-IP: 68.12.215.56
+X-Report-Abuse-To: abuse@dyndns.org (see http://www.mailhop.org/outbound/abuse.html for abuse reporting information)
+X-MHO-User: perrygilfillan
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 May 2004 01:59, Andrew Morton wrote:
->The patches in Linus's tree improve sysbench significantly here.  It's a
->256MB 2-way with IDE disks, writeback caching enabled:
->
->sysbench --num-threads=16 --test=fileio --file-total-size=2G
-> --file-test-mode=rndrw run
->
->2.4.27-pre2, ext2:
->
->	Time spent for test:  61.0240s
->		0.06s user 6.03s system 4% cpu 2:05.95 total
->	Time spent for test:  60.8456s
->		0.11s user 5.49s system 4% cpu 2:04.94 total
->
->2.6.6-bk, AS, ext2:
->
->	Time spent for test:  62.5316s
->		0.05s user 5.27s system 4% cpu 2:01.28 total
->	Time spent for test:  62.7401s
->		0.04s user 5.17s system 4% cpu 2:00.50 total
+Hello,
 
-I ran the tests with a configuration as close to yours as possible. Here are 
-the results for mem=256M, 2G total file size (ext3):
+It's taken me six months, but I've got the V3TV driver running on the
+2.6 kernel :)
 
-2.4.25:
-       Time spent for test:  79.4146s
-                0.20user 16.08system 3:20.29elapsed 8%CPU
-       Time spent for test:  78.9797s
-                0.11user 15.84system 3:19.76elapsed 7%CPU 
+The radio device uses the V4L2 api, while the video device is still
+V4L1.  ( The radio presented a smaller problem set )
 
-2.6.6-bk, AS:
-       Time spent for test:  81.2208s
-                0.13user 17.97system 3:13.30elapsed 9%CPU
-       Time spent for test:  82.5538s
-                0.14user 18.00system 3:14.88elapsed 9%CPU
+Please visit the v3tv-v4l2 page linked below.
 
-This correlates very well your results. But when I returned back to my 
-original configuration (mem=640M, 3G total file size), I got the following:
+Thanks,
 
-2.4.25:
-       Time spent for test:  77.5377s
+Perry
+-----
+Gilfillan Family: http://www.gilfillan.org/
 
-2.6.6-bk, AS:
-       Time spent for test:  83.1929s
+Projects:
+	http://v3tv.sourceforge.net/
+   V3TV:		http://www.gilfillan.org/v3tv/
+   VPX3224:	http://www.gilfillan.org/vpx3224/
+   V3TV-V4L2:	http://www.gilfillan.org/v3tv-v4l2/
+   snd-tvmixer:	http://www.gilfillan.org/ALSA/
 
-It seems like the smaller file size just hides the regression, but I have to 
-run some more tests to ensure this.
-  
 
->I don't know why you're still seeing significant discrepancies.
->
->What sort of disk+controller system are you using?  If scsi, what is the
->tag queue depth set to?  Is writeback caching enabled on the disk?
 
-It's IDE disk without TCQ support with writeback caching enabled.
 
--- 
-Alexey Kopytov, Software Developer
-MySQL AB, www.mysql.com
-
-Are you MySQL certified?  www.mysql.com/certification

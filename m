@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262910AbREWAGV>; Tue, 22 May 2001 20:06:21 -0400
+	id <S262909AbREWAHV>; Tue, 22 May 2001 20:07:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262915AbREWAGB>; Tue, 22 May 2001 20:06:01 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34066 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262912AbREWAFw>; Tue, 22 May 2001 20:05:52 -0400
-Message-ID: <3B0AFEC8.CDBF6C92@transmeta.com>
-Date: Tue, 22 May 2001 17:05:28 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S262912AbREWAHO>; Tue, 22 May 2001 20:07:14 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:31395 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262909AbREWAG5>;
+	Tue, 22 May 2001 20:06:57 -0400
+Message-ID: <3B0AFEFE.1198871C@mandrakesoft.com>
+Date: Tue, 22 May 2001 20:06:22 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Martin Knoblauch <martin.knoblauch@teraport.de>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <3B0A28C0.2FFFC935@TeraPort.de> <3B0A3794.15BDF9D6@TeraPort.de> <3B0A99E7.467CE534@transmeta.com> <3B0AFCFB.CAE7A145@teraport.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <Pine.GSO.4.21.0105221909001.17373-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Knoblauch wrote:
-> >
-> > If so, then that's their problem.  We're not here to solve the problem of
-> > stupid system administrators.
-> >
-> 
->  They may not be stupid, just mislead :-( When Intel created the "cpuid"
-> Feature some way along the P3 line, they gave a stupid reason for it and
-> created a big public uproar. As silly as I think that was (on both
-> sides), the term "cpuid" is tainted. Some people just fear it like hell.
-> Anyway.
-> 
+Alexander Viro wrote:
+> Do we really want a separate queue for each partition? I'd rather have
+> disk_struct created when driver sees the disk and list of partitions
+> (possibly represented by struct block_device) anchored in disk_struct
+> and populated by grok_partitions().
 
-Ummm... CPUID has been around since the P5, and even if you have one with
-the serial-number feature, Linux disables it. 
+Alan recently straightened me out with "EVMS/LVM is partitions done
+right"
 
-> > > - you would need a utility with root permission to analyze the cpuid
-> > > info. The
-> > >   cahce info does not seem to be there in clear ascii.
-> >
-> > Bullsh*t.  /dev/cpu/%d/cpuid is supposed to be mode 444 (world readable.)
-> >
-> 
->  Thanks you :-) In any case, on my system (Suse 7.1) the files are mode
-> 400.
-> 
+so... why not implement partitions as simply doing block remaps to the
+lower level device?  That's what EVMS/LVM/md are doing already.
 
-It's pointless since you can execute CPUID directly in user space.  The
-device is there just to support CPU selection in a multiprocessor system.
-
-	-hpa
+-- 
+Jeff Garzik      | "Are you the police?"
+Building 1024    | "No, ma'am.  We're musicians."
+MandrakeSoft     |

@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129352AbQLQIps>; Sun, 17 Dec 2000 03:45:48 -0500
+	id <S129401AbQLQIpt>; Sun, 17 Dec 2000 03:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbQLQIpj>; Sun, 17 Dec 2000 03:45:39 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:23300 "EHLO
+	id <S129408AbQLQIpi>; Sun, 17 Dec 2000 03:45:38 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:23556 "EHLO
 	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129352AbQLQIpZ>; Sun, 17 Dec 2000 03:45:25 -0500
+	id <S129401AbQLQIp0>; Sun, 17 Dec 2000 03:45:26 -0500
 From: Rusty Russell <rusty@linuxcare.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback) 
-In-Reply-To: Your message of "Thu, 14 Dec 2000 12:23:19 -0800."
-             <200012142023.MAA12823@pizda.ninka.net> 
-Date: Sat, 16 Dec 2000 00:12:31 +1100
-Message-Id: <E146uf1-0000Dq-00@halfway>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: NFS: set_bit on an 'int' variable OK for 64-bit? 
+In-Reply-To: Your message of "Mon, 11 Dec 2000 17:08:45 BST."
+             <E145WRS-0008A3-00@the-village.bc.nu> 
+Date: Fri, 15 Dec 2000 16:47:26 +1100
+Message-Id: <E146niI-00009W-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200012142023.MAA12823@pizda.ninka.net> you write:
->    Date: Thu, 14 Dec 2000 15:35:48 -0500 (EST)
->    From: "Mohammad A. Haque" <mhaque@haque.net>
+In message <E145WRS-0008A3-00@the-village.bc.nu> you write:
+> > since test11, the NFS code uses the set_bit and related routines
+> > to manipulate the wb_flags member of the nfs_page struct (nfs_page.h).
+> > Unfortunately, wb_flags has still data type 'int'.
 > 
->    I'll be trying in a few hours.
+> NFS is wrong. Rusty did a complete audit of the code and I've been feeding
+> some stuff to Linus. That one may have been missed
+
+Yes, didn't grep the headers.  Hmm... that's the only one in
+include/linux/*.h though.
+
+> > What do you suggest we should do?   Fix nfs_page to use a 'long'
+> > variable, or change our bitops macros to use ints?
 > 
-> Meanwhile for people wanting the crashes to be fixed, please
-> apply this patch.
-> 
-> This was _always_ broken, and really what netfilter is doing
-> should have never worked.  The only theory I have right now
-> is that people using netfilter never had IP fragments timeout.
-> :-)
+> Fix NFS
 
-Ick, we've previously had issues with using the defrag routine from
-PRE_ROUTING (Andi fixed the `called without bh disabled' problem). 8(
-
-Good news is that it's all done from one place:
-
-net/ipv4/ip_conntrack_core.c:910:ip_ct_gather_frags(struct sk_buff *skb)
-
-You can fix it to obey the rules there, rather than hacking fragment
-code.
+Yep, it's trivial.
 
 Cheers,
-Rusty.
+Rusty. 
 --
 Hacking time.
+
+--- working-2.4.0-test12/include/linux/nfs_page.h.~1~	Thu Dec 14 14:20:28 2000
++++ working-2.4.0-test12/include/linux/nfs_page.h	Fri Dec 15 16:46:09 2000
+@@ -31,10 +31,10 @@
+ 	struct page		*wb_page;	/* page to read in/write out */
+ 	wait_queue_head_t	wb_wait;	/* wait queue */
+ 	unsigned long		wb_timeout;	/* when to read/write/commit */
++	unsigned long		wb_flags;	/* long req'd for set_bit */
+ 	unsigned int		wb_offset,	/* Offset of read/write */
+ 				wb_bytes,	/* Length of request */
+-				wb_count,	/* reference count */
+-				wb_flags;
++				wb_count;	/* reference count */
+ 	struct nfs_writeverf	wb_verf;	/* Commit cookie */
+ };
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

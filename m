@@ -1,209 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284728AbRLJV3u>; Mon, 10 Dec 2001 16:29:50 -0500
+	id <S284727AbRLJVaA>; Mon, 10 Dec 2001 16:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284711AbRLJV3i>; Mon, 10 Dec 2001 16:29:38 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:42500 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284704AbRLJV3S>; Mon, 10 Dec 2001 16:29:18 -0500
-Date: Mon, 10 Dec 2001 18:12:53 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Linux 2.4.17-pre8
-Message-ID: <Pine.LNX.4.21.0112101807381.25397-100000@freak.distro.conectiva>
+	id <S284711AbRLJV3u>; Mon, 10 Dec 2001 16:29:50 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55053 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284704AbRLJV3l>; Mon, 10 Dec 2001 16:29:41 -0500
+Subject: Re: [PATCH] 2.4.17-pre7: fdomain_16x0_release undeclared
+To: marcelo@conectiva.com.br (Marcelo Tosatti)
+Date: Mon, 10 Dec 2001 21:38:43 +0000 (GMT)
+Cc: proski@gnu.org (Pavel Roskin), linux-kernel@vger.kernel.org,
+        alan@redhat.com (Alan Cox)
+In-Reply-To: <Pine.LNX.4.21.0112101800380.25397-100000@freak.distro.conectiva> from "Marcelo Tosatti" at Dec 10, 2001 06:01:03 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16DY8J-0003Z7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Another partly related problem is a warning in fdomain.c:
+> > 
+> > fdomain.c: In function `fdomain_16x0_release':
+> > fdomain.c:2045: warning: control reaches end of non-void function
+> > 
+> > I wonder if the patches that introduce warnings should be allowed in the 
+> > stable branch?  Anyway, comparing with other SCSI drivers I see that 0 
+> > should be returned and scsi_unregister(shpnt) should be called before 
+> > that.
 
-Hi, 
+All the drivers I looked at return 1 and don't call scsi_unregister(shpnt).
+Inspecting the core code shows that 
 
-Here goes pre8: The next one is going to be -rc1 so please don't send me
-any more updates and only bugfixes now.
+	1.	The return code is ignored (see I did test it worked 8))
+	2.	scsi_unregister() is done by the core code for us
 
-Updates will be queued for 2.4.18-pre1.
+So I believe it simply needs a 
 
+	return 1 
 
-pre8:
-
-- ext3 quota fix 				(Neil Brown)
-- Add __devexit_p() to ISDN driver		(Kai Germaschewski)
-- Declare missing function on fdomain.h		(Eyal Lebedinsky)
-- Add Sony Vaio PCG-Z600NE to broken APM 
-  reporting blacklist				(Kai Germaschewski)
-- ns83820 driver update				(Benjamin LaHaise)
-- pas16 driver cleanup				(Alan Cox)
-- disable console flush on secondary CPUs on
-  IA64						(Andrew Morton)
-- fix typo on parport's ChangeLog		(Tim Waugh)
-- fix use count for multiple queued requests on 
-  closed fd					(Douglas Gilbert)
-- Check return value of get_user() on 
-  set_vesa_blanking				(Jeff Garzik)
-- Remove asm/segment.h include from nbd 	(Jeff Garzik)
-- Guard sysrq.h against multiple inclusion 	(Jeff Garzik)
-- Minor PCI skeleton changes			(Jeff Garzik)
-- Add via rhine MMIO to Configure.help		(Jeff Garzik)
-- Jeff Garzik is not the via82cxxx driver 
-  maintainer anymore: "No time, no hardware".	(Jeff Garzik)
-- Remove old tulip documentation		(Jeff Garzik)
-- Avoid direct IO's "misunderstanding" of which 
-  block device it should use			(Masanori Goto)
-- Remove mcheck_init() call from processor
-  dependant code and put it in unified codepath	(Dave Jones)
-- Netfilter bugfixes				(Harald Welte)
-
-
-pre7:
-
-- More USB updates				(Greg KH)
-- Add missing checks on shmat()			(Christoph Rohland)
-- ymfpci update					(Pete Zaitcev)
-- Add aacraid driver 				(Alan Cox)
-- Actually apply some of the Alan's changes
-  which were on pre6 changelog.			(silly me)
-- Clean up t128 SCSI driver			(Alan Cox)
-- Clean up dtc SCSI driver			(Alan Cox) 
-- Undo lcall patch from -pre6			(me)
-- More ISDN updates				(Kai Germaschewski)
-
-pre6:
-
-- ISDN fixes					(Kai Germaschewski)
-- Eicon driver updates				(Kai Germaschewski)
-- ymfpci update					(Pete Zaitcev)
-- Fix multithread coredump deadlock		(Manfred Spraul)
-- Support /dev/kmem access to vmalloc space	(Marc Boucher)
-- ext3 fixes/enhancements			(Andrew Morton)	
-- Add IT8172G driver to Config.in/Makefile	(Giacomo Catenazzi)
-- Configure.help update				(Eric S. Raymond)
-- Create __devexit_p() function and use that on 
-  drivers which need it to make it possible to 
-  use newer binutils				(Keith Owens) 
-- Make PCMCIA compile without PCI support	(Paul Mackerras)
-- Use copy_user_highpage instead copy_highpage
-  on COW path.					(David S. Miller)
-- Cacheline align some more performance
-  critical spinlocks				(Anton Blanchard)
-- sonypi driver update				(Michael C.B. Ashley/Bob Donnelly)
-- direct render for some SiS cards		(Torsten Duwe/Alan Cox)
-- full handling of the NFSv3 'jukebox' feature  (Trond Myklebust)
-- NFS performance improvements			(Trond Myklebust)
-- More parport fixes				(Tim Waugh)
-- Fix lots of core NCR5380 bugs			(Alan Cox)
-- NCR5380/PAS driver update			(Alan Cox)
-- Add aacraid to the SCSI list			(Alan Cox)
-- fdomain driver fixes				(Alan Cox)
-
-pre5:
-
-- 8139too fixes					(Andreas Dilger)
-- sym53c8xx_2 update				(Gerard Roudier)
-- loopback deadlock bugfix			(Jan Kara)
-- Yet another devfs update			(Richard Gooch)	
-- Enable K7 SSE					(John Clemens)
-- Make grab_cache_page return NULL instead 
-  ERR_PTR: callers expect NULL on failure	(Christoph Hellwig)
-- Make ide-{disk-floppy} compile without 
-  PROCFS support				(Robert Love)
-- Another ymfpci update				(Pete Zaitcev)
-- indent NCR5380.{c,h}, g_NCR5380.{c,h}, plus 
-  NCR5380 fix					(Alan Cox)
-- SPARC32/64 update				(David S. Miller)
-- Fix atyfb warnings				(David S. Miller)
-- Make bootmem init code correctly align 
-  bootmem data					(David S. Miller)
-- Networking updates				(David S. Miller)
-- Fix scanning luns > 7 on SCSI-3 devices 	(Michael Clark)
-- Add sparse lun hint for Chaparral G8324 
-	Fibre-SCSI controller			(Michael Clark)
-- Really apply sg changes			(me)
-- Parport updates				(Tim Waugh)
-- ReiserFS updates				(Vladimir V. Saveliev)
-- Make AGP code scan all kinds of devices:
-  they are not always video ones		(Alan Cox)
-- EXPORT_NO_SYMBOLS in floppy.c			(Alan Cox)
-- Pentium IV Hyperthreading support		(Alan Cox)
-
-pre4:
-
-- Added missing tcp_diag.c and tcp_diag.h	(me)
-
-pre3:
-
-- Enable ppro errata workaround                 (Dave Jones)
-- Update tmpfs documentation                    (Christoph Rohland)
-- Fritz!PCIv2 ISDN card support                 (Kai Germaschewski)
-- Really apply ymfpci changes                   (Pete Zaitcev)
-- USB update                                    (Greg KH)
-- Adds detection of more eepro100 cards         (Troy A. Griffitts)
-- Make ftruncate64() compliant with SuS         (Andrew Morton)
-- ATI64 fb driver update                        (Geert Uytterhoeven)
-- Coda fixes                                    (Jan Harkes)
-- devfs update                                  (Richard Gooch)
-- Fix ad1848 breakage in -pre2                  (Alan Cox)
-- Network updates                               (David S. Miller)
-- Add cramfs locking                            (Christoph Hellwig)
-- Move locking of page_table_lock on expand_stack
-  before accessing any vma field                (Manfred Spraul)
-- Make time monotonous with gettimeofday        (Andi Kleen)
-- Add MODULE_LICENSE(GPL) to ide-tape.c         (Mikael Pettersson)
-- Minor cs46xx ioctl fix                        (Thomas Woller)
-
-pre2:
-
-- Remove userland header from bonding driver	(David S. Miller)
-- Create a SLAB for page tables on i386		(Christoph Hellwig)
-- Unregister devices at shaper unload time	(David S. Miller)
-- Remove several unused variables from various
-  places in the kernel				(David S. Miller)
-- Fix slab code to not blindly trust cc_data():
-  it may be not valid on some platforms		(David S. Miller)
-- Fix RTC driver bug				(David S. Miller)
-- SPARC 32/64 update				(David S. Miller)
-- W9966 V4L driver update			(Jakob Jemi)
-- ad1848 driver fixes				(Alan Cox/Daniel T. Cobra)
-- PCMCIA update					(David Hinds)
-- Fix PCMCIA problem with multiple PCI busses 	(Paul Mackerras)
-- Correctly free per-process signal struct	(Dave McCracken)
-- IA64 PAL/signal headers cleanup		(Nathan Myers)
-- ymfpci driver cleanup 			(Pete Zaitcev)
-- Change NLS "licenses" to be "GPL/BSD" instead 
-  only BSD.					(Robert Love)
-- Fix serial module use count			(Russell King)
-- Update sg to 3.1.22				(Douglas Gilbert)
-- ieee1394 update				(Ben Collins)
-- ReiserFS fixes				(Nikita Danilov)
-- Update ACPI documentantion			(Patrick Mochel)
-- Smarter atime update				(Andrew Morton)
-- Correctly mark ext2 sb as dirty and sync it	(Andrew Morton) 
-- IrDA update					(Jean Tourrilhes)
-- Count locked buffers at
-  balance_dirty_state(): Helps interactivity under
-  heavy IO workloads				(Andrew Morton)
-- USB update					(Greg KH)
-- ide-scsi locking fix                          (Christoph Hellwig)
-
-pre1:
-
-- Change USB maintainer 			(Greg Kroah-Hartman)
-- Speeling fix for rd.c				(From Ralf Baechle's tree)
-- Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
-- Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
-- Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
-- Remove crap character from Configure.help	(Niels Kristian Bech Jensen)
-- Backout erroneous change to lookup_exec_domain (Christoph Hellwig)
-- Update osst sound driver to 1.65		(Willem Riede)
-- Fix i810 sound driver problems		(Andris Pavenis)
-- Add AF_LLC define in network headers		(Arnaldo Carvalho de Melo)
-- block_size cleanup on some SCSI drivers	(Erik Andersen)
-- Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
-  modules
-- Add ->show_options() to super_ops and 
-  implement NFS method				(Alexander Viro)
-- Updated i8k driver				(Massimo Dal Zoto)
-- devfs update  				(Richard Gooch)
-
-
+on the end

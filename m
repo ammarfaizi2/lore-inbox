@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbUKCJ75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUKCKHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbUKCJ75 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 04:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUKCJ75
+	id S261505AbUKCKHp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 05:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbUKCKHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 04:59:57 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:48803 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261494AbUKCJ7y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 04:59:54 -0500
-Date: Wed, 3 Nov 2004 11:00:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
-Message-ID: <20041103100053.GA32680@elte.hu>
-References: <OF9F489E60.B8B3EA93-ON86256F40.007C1401-86256F40.007C1430@raytheon.com> <20041103083900.GA27211@elte.hu> <20041103084217.GA27404@elte.hu>
+	Wed, 3 Nov 2004 05:07:45 -0500
+Received: from deliver.epitech.net ([163.5.0.25]:63066 "HELO
+	ideliver.epitech.net") by vger.kernel.org with SMTP id S261505AbUKCKHl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 05:07:41 -0500
+Date: Wed, 3 Nov 2004 11:07:29 +0100
+From: Marc Bevand <bevand_m@epita.fr>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [rc4-amd64] RC4 optimized for AMD64
+Message-ID: <20041103100729.GA4664@iah.epita.fr>
+References: <cm4moc$c7t$1@sea.gmane.org> <Pine.LNX.4.61.0411011233203.8483@twinlark.arctic.org> <200411020854.21629.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0411021049510.6586@twinlark.arctic.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041103084217.GA27404@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.61.0411021049510.6586@twinlark.arctic.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dean gaudet wrote:
+| 
+| [...]
+| you're asking about spending one byte?  one byte extra for code which 
+| could perform better on more CPUs?
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Guys, this does not matter _for now_, because AFAIK nobody has
+benchmarked this code on an EM64T P4 CPU.
 
-> > yeah, this is yet another networking deadlock, nicely detected and
-> > logged. Since the deadlock locks up ksoftirqd, timer handling (also
-> > driven by ksoftirqd) wont work - i think this explains the followup
-> > symptoms you got.
-> 
-> the patch below should fix this deadlock but there might be others
-> around ...
+Obviously, if 'sub $1,X' is proved to be faster than 'dec' on the
+Intel CPU, then I will change the code (since both instructions are
+equivalent on AMD CPUs).
 
-the patch doesnt work. Working on a better solution.
-
-	Ingo
+-- 
+Marc Bevand                          http://www.epita.fr/~bevand_m
+Computer Science School EPITA - System, Network and Security Dept.

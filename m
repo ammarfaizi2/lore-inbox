@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbTDLXMm (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 19:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbTDLXMm (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 19:12:42 -0400
-Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:14048
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S261897AbTDLXMk (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 19:12:40 -0400
-Date: Sat, 12 Apr 2003 16:24:25 -0700
-To: J Sloan <joe@tmsusa.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Bug: slab corruption in 2.5.67-mm1
-Message-ID: <20030412232425.GA24920@triplehelix.org>
-References: <3E988DA2.4080600@tmsusa.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-In-Reply-To: <3E988DA2.4080600@tmsusa.com>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	id S261632AbTDLXME (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 19:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbTDLXME (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 19:12:04 -0400
+Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:2833 "EHLO
+	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S261632AbTDLXMD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 19:12:03 -0400
+Message-ID: <3E98A050.2090005@torque.net>
+Date: Sun, 13 Apr 2003 09:25:04 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, jim_jim33@hotmail.com
+Subject: Re: USB Mass Storage Device
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jim Bean wrote:
+ > The following USB Mass Storage device is found during bootup:
+ >
+ > scsi0 : SCSI emulation for USB
+ > Mass Storage devices
+ >   Vendor: SOYO      Model: USB Storage-SMC   Rev: 0214
+ >   Type:   Direct-Access                      ANSI SCSI revision: 02
+ > Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+ >
+ > Is it a CompactFlash reader that plugs directly into a USB1 header
+ > on my motherboard.
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ > /sys/bus/scsi/devices/0:0:0:0/* contains information regarding
+ > the device, however there is nothing
+ > /dev/scsi/host0/bus0/target0/lun0 for me to mount, regardless
+ > of whether there is a card in the drive or not.  I have
+ > hotplug enables, and inserting a card in the drive does not
+ > generate any new messages under dmesg (although verbosity
+ > stuff is not enabled).  Is this device not yet supported,
+ > or am I missing something that I need to enable?
 
-On Sat, Apr 12, 2003 at 03:05:22PM -0700, J Sloan wrote:
-> I had run 2.5.67-mm1 for some days and for
-> the most part it ran well in it's duties as dns,
-> squid, vpn/firewall and postfix server, with
-> the only oddity being the ide messages which
-> I reported earlier.
+Jim,
+Have a look in /var/log/messages for errors coming from the
+sd driver (e.g. it could be stuck on a READ CAPACITY or MODE
+SENSE command). Other than that it could be a problem with
+devfs. You could make a temporary device node (e.g.
+'cd /root; mknod my_sda b 8 0') then try fdisk on my_sda.
 
-You're insane running a -mm kernel on a production machine, IMHO.
-They're good for desktop use but in my experience anything that needs to
-stay up for more than a few days should at LEAST use one of the
-stability-oriented patches like -mjb or -osdl, if not the vanilla
-kernel.
+Doug Gilbert
 
-2.5-mm typically goes nuts with such errors as you described after a
-few days of uptime, as far as I've seen and noticed. These bugs will
-probably eventually be fixed, but at this time, it's still unstable.
-
-I wouldn't run anything above 2.4.20 on a box that does what you
-describe..
-
-Regards
-Josh
-
---=20
-New PGP public key: 0x27AFC3EE
-
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+mKApT2bz5yevw+4RAuBbAJ0SmPm9Gu7twn3l1+I9cAduB3/c4wCcD96F
-4qqrn2X6Z73EKJUyKwVz9dY=
-=6O4o
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267433AbTBDTT5>; Tue, 4 Feb 2003 14:19:57 -0500
+	id <S267425AbTBDTQj>; Tue, 4 Feb 2003 14:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267436AbTBDTT5>; Tue, 4 Feb 2003 14:19:57 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:7428 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267433AbTBDTT4>;
-	Tue, 4 Feb 2003 14:19:56 -0500
-Date: Tue, 4 Feb 2003 20:28:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: Compactflash cards dying?
-Message-ID: <20030204192853.GA614@elf.ucw.cz>
-References: <20030202223009.GA344@elf.ucw.cz> <20030203073028.B4C2920BD9@dungeon.inka.de> <20030203125449.GB480@elf.ucw.cz> <1044313953.28406.44.camel@imladris.demon.co.uk> <20030204112406.GB737@atrey.karlin.mff.cuni.cz> <1044358231.3291.10.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1044358231.3291.10.camel@passion.cambridge.redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	id <S267426AbTBDTQj>; Tue, 4 Feb 2003 14:16:39 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:44015 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267425AbTBDTQi>; Tue, 4 Feb 2003 14:16:38 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A152@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@perex.cz>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: RE: PnP model
+Date: Tue, 4 Feb 2003 11:25:42 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> From: Adam Belay [mailto:ambx1@neo.rr.com] 
+> In many cases, Auto configuration can be better then manual 
+> configuration.
+> 1.) The auto configuration engine in my patch is able to 
+> resolve almost any
+> resource conflict and provides the greatest chance for all 
+> devices to have
+> resources allocated.
+> 2.) Certainly some driver developers would like to manually 
+> set resources
+> but many may prefer the option to auto config.
 
-> > Well, if their translation layer at least *worked*, I'd be happy with
-> > it.
-> 
-> Would you? You fill up your FAT or EXT2 file system, then delete all
-> your files. There are lots and lots of sectors with now-unused data.
-> 
-> Then start filling it up again. 
-> 
-> To accommodate your writes, the underlying translation layer is busily
-> garbage-collecting all those blocks which are _unused_, copying them
-> from one part of the flash to another to collect 'fresh' copies of data
-> together while reclaiming space from 'obsoleted' copies of changed
-> sectors.
-> 
-> Or you manage to find a vendor who sells reliable cards, hence decide
-> it's actually usable for real medium-term storage and start using
-> EXT3
+I think the people who want to manually configure their device's
+resources need to step up and justify why this is really necessary.
 
-Well, I've got old 20-mb PCMCIA, and that worked for me for >2
-years. Now I've apacer 256MB CF, and it died within a *month*. I
-returned it and the "new" one died within *week*. Ouch.
+If someone is manually configuring something, that means the automatic
+config *failed*. Why did it fail? It should never fail. Manual config is
+only giving the user to opportunity to get something wrong.
 
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Regards -- Andy

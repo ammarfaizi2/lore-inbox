@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275263AbTHSAgq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 20:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275262AbTHSAgq
+	id S275262AbTHSAhv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 20:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275266AbTHSAhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 20:36:46 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:19585 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275252AbTHSAgn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 20:36:43 -0400
-Date: Tue, 19 Aug 2003 01:36:33 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Valdis.Kletnieks@vt.edu, kernel@theoesters.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [PATCH] Ratelimit SO_BSDCOMPAT warnings
-Message-ID: <20030819003633.GC11081@mail.jlokier.co.uk>
-References: <20030818150605.A23957@ns1.theoesters.com> <200308182215.h7IMFecc013449@turing-police.cc.vt.edu> <20030818154800.21ae818e.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030818154800.21ae818e.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 18 Aug 2003 20:37:50 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:32269 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S275262AbTHSAhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 20:37:47 -0400
+Date: Tue, 19 Aug 2003 10:37:19 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Valdis.Kletnieks@vt.edu
+cc: Phil Oester <kernel@theoesters.com>, <linux-kernel@vger.kernel.org>,
+       <linux-net@vger.kernel.org>
+Subject: Re: [PATCH] Ratelimit SO_BSDCOMPAT warnings 
+In-Reply-To: <200308182215.h7IMFecc013449@turing-police.cc.vt.edu>
+Message-ID: <Mutt.LNX.4.44.0308191036110.8095-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> I see no reason to apply this, just fix your apps and the
-> warning will stop.  There's only a handful of programs
-> that trigger this at all.
+On Mon, 18 Aug 2003 Valdis.Kletnieks@vt.edu wrote:
 
-Unfortunately Red Hat's BIND is among the more prominent. :-/
+> If so, why are we bothering at all?  Once *per process* I could see, but
+> once per boot?
 
--- Jamie
+Once per process is too complicated, and an aggregate of people reporting 
+the message should lead to all of the major apps being fixed.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+

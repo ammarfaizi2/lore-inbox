@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbUJYOsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbUJYOsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbUJYOsa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 10:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUJYOsX
+	id S261870AbUJYOsc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 10:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUJYOr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 10:48:23 -0400
-Received: from ip22-176.tor.istop.com ([66.11.176.22]:47016 "EHLO
-	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261818AbUJYOmP convert rfc822-to-8bit
+	Mon, 25 Oct 2004 10:47:28 -0400
+Received: from ip22-176.tor.istop.com ([66.11.176.22]:39848 "EHLO
+	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261833AbUJYOjx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:42:15 -0400
+	Mon, 25 Oct 2004 10:39:53 -0400
 Cc: raven@themaw.net
-Subject: [PATCH 7/28] AFS: Update AFS to use new expiry interface
-In-Reply-To: <1098715291724@sun.com>
+Subject: [PATCH 2/28] VFS: mnt_fslink -> mnt_expire
+In-Reply-To: <10987151403173@sun.com>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Mon, 25 Oct 2004 10:42:01 -0400
-Message-Id: <10987153211852@sun.com>
-References: <1098715291724@sun.com>
+Date: Mon, 25 Oct 2004 10:39:30 -0400
+Message-Id: <10987151702831@sun.com>
+References: <10987151403173@sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
@@ -24,108 +24,123 @@ From: Mike Waychison <michael.waychison@sun.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update kAFS to use the new mountpoint expire infrastructure.
+This patch renames vfsmount->mnt_fslink to something a little more
+descriptive: vfsmount->mnt_expire.
 
 Signed-off-by: Mike Waychison <michael.waychison@sun.com>
 ---
 
- cmservice.c |    5 -----
- mntpt.c     |   34 +++++++---------------------------
- super.c     |    2 --
- 3 files changed, 7 insertions(+), 34 deletions(-)
+ fs/namespace.c        |   24 ++++++++++++------------
+ include/linux/mount.h |    2 +-
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
-Index: linux-2.6.9-quilt/fs/afs/mntpt.c
+Index: linux-2.6.9-quilt/include/linux/mount.h
 ===================================================================
---- linux-2.6.9-quilt.orig/fs/afs/mntpt.c	2004-08-14 01:36:17.000000000 -0400
-+++ linux-2.6.9-quilt/fs/afs/mntpt.c	2004-10-22 17:17:36.477918656 -0400
-@@ -43,16 +43,6 @@ struct inode_operations afs_mntpt_inode_
- 	.getattr	= afs_inode_getattr,
+--- linux-2.6.9-quilt.orig/include/linux/mount.h	2004-08-14 01:36:14.000000000 -0400
++++ linux-2.6.9-quilt/include/linux/mount.h	2004-10-22 17:17:33.460377392 -0400
+@@ -32,7 +32,7 @@ struct vfsmount
+ 	int mnt_expiry_mark;		/* true if marked for expiry */
+ 	char *mnt_devname;		/* Name of device e.g. /dev/dsk/hda1 */
+ 	struct list_head mnt_list;
+-	struct list_head mnt_fslink;	/* link in fs-specific expiry list */
++	struct list_head mnt_expire;	/* link in fs-specific expiry list */
+ 	struct namespace *mnt_namespace; /* containing namespace */
  };
  
--static LIST_HEAD(afs_vfsmounts);
--
--static void afs_mntpt_expiry_timed_out(struct afs_timer *timer);
--
--struct afs_timer_ops afs_mntpt_expiry_timer_ops = {
--	.timed_out	= afs_mntpt_expiry_timed_out,
--};
--
--struct afs_timer afs_mntpt_expiry_timer;
--
- unsigned long afs_mntpt_expiry_timeout = 20;
- 
- /*****************************************************************************/
-@@ -252,9 +242,15 @@ static int afs_mntpt_follow_link(struct 
- 
- 	newnd = *nd;
- 	newnd.dentry = dentry;
--	err = do_add_mount(newmnt, &newnd, 0, &afs_vfsmounts);
-+	err = do_graft_mount(newmnt, &newnd);
- 
- 	if (!err) {
-+		/*
-+		 * We currently don't test to see if we were able to set 
-+		 * expiry.
-+		 */
-+		mnt_expire(newmnt, afs_mntpt_expiry_timeout);
-+
- 		path_release(nd);
- 		mntget(newmnt);
- 		nd->mnt = newmnt;
-@@ -265,19 +261,3 @@ static int afs_mntpt_follow_link(struct 
- 	kleave(" = %d", err);
- 	return err;
- } /* end afs_mntpt_follow_link() */
--
--/*****************************************************************************/
--/*
-- * handle mountpoint expiry timer going off
-- */
--static void afs_mntpt_expiry_timed_out(struct afs_timer *timer)
--{
--	kenter("");
--
--	mark_mounts_for_expiry(&afs_vfsmounts);
--
--	afs_kafstimod_add_timer(&afs_mntpt_expiry_timer,
--				afs_mntpt_expiry_timeout * HZ);
--
--	kleave("");
--} /* end afs_mntpt_expiry_timed_out() */
-Index: linux-2.6.9-quilt/fs/afs/cmservice.c
+Index: linux-2.6.9-quilt/fs/namespace.c
 ===================================================================
---- linux-2.6.9-quilt.orig/fs/afs/cmservice.c	2004-08-14 01:36:57.000000000 -0400
-+++ linux-2.6.9-quilt/fs/afs/cmservice.c	2004-10-22 17:17:36.478918504 -0400
-@@ -306,9 +306,6 @@ int afscm_start(void)
- 		ret = rxrpc_add_service(afs_transport, &AFSCM_service);
- 		if (ret < 0)
- 			goto kill;
--
--		afs_kafstimod_add_timer(&afs_mntpt_expiry_timer,
--					afs_mntpt_expiry_timeout * HZ);
+--- linux-2.6.9-quilt.orig/fs/namespace.c	2004-10-22 17:17:32.921459320 -0400
++++ linux-2.6.9-quilt/fs/namespace.c	2004-10-22 17:17:33.461377240 -0400
+@@ -60,7 +60,7 @@ struct vfsmount *alloc_vfsmnt(const char
+ 		INIT_LIST_HEAD(&mnt->mnt_child);
+ 		INIT_LIST_HEAD(&mnt->mnt_mounts);
+ 		INIT_LIST_HEAD(&mnt->mnt_list);
+-		INIT_LIST_HEAD(&mnt->mnt_fslink);
++		INIT_LIST_HEAD(&mnt->mnt_expire);
+ 		if (name) {
+ 			int size = strlen(name)+1;
+ 			char *newname = kmalloc(size, GFP_KERNEL);
+@@ -166,8 +166,8 @@ clone_mnt(struct vfsmount *old, struct d
+ 		/* stick the duplicate mount on the same expiry list
+ 		 * as the original if that was on one */
+ 		spin_lock(&vfsmount_lock);
+-		if (!list_empty(&old->mnt_fslink))
+-			list_add(&mnt->mnt_fslink, &old->mnt_fslink);
++		if (!list_empty(&old->mnt_expire))
++			list_add(&mnt->mnt_expire, &old->mnt_expire);
+ 		spin_unlock(&vfsmount_lock);
+ 	}
+ 	return mnt;
+@@ -351,7 +351,7 @@ static void umount_tree(struct vfsmount 
+ 	while (!list_empty(&kill)) {
+ 		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
+ 		list_del_init(&mnt->mnt_list);
+-		list_del_init(&mnt->mnt_fslink);
++		list_del_init(&mnt->mnt_expire);
+ 		if (mnt->mnt_parent == mnt) {
+ 			spin_unlock(&vfsmount_lock);
+ 		} else {
+@@ -644,7 +644,7 @@ static int do_loopback(struct nameidata 
+ 	if (mnt) {
+ 		/* stop bind mounts from expiring */
+ 		spin_lock(&vfsmount_lock);
+-		list_del_init(&mnt->mnt_fslink);
++		list_del_init(&mnt->mnt_expire);
+ 		spin_unlock(&vfsmount_lock);
+ 
+ 		err = graft_tree(mnt, nd);
+@@ -743,7 +743,7 @@ static int do_move_mount(struct nameidat
+ 
+ 	/* if the mount is moved, it should no longer be expire
+ 	 * automatically */
+-	list_del_init(&old_nd.mnt->mnt_fslink);
++	list_del_init(&old_nd.mnt->mnt_expire);
+ out2:
+ 	spin_unlock(&vfsmount_lock);
+ out1:
+@@ -812,7 +812,7 @@ int do_add_mount(struct vfsmount *newmnt
+ 	if (err == 0 && fslist) {
+ 		/* add to the specified expiration list */
+ 		spin_lock(&vfsmount_lock);
+-		list_add_tail(&newmnt->mnt_fslink, fslist);
++		list_add_tail(&newmnt->mnt_expire, fslist);
+ 		spin_unlock(&vfsmount_lock);
  	}
  
- 	afscm_usage++;
-@@ -389,8 +386,6 @@ void afscm_stop(void)
- 			spin_lock(&kafscmd_attention_lock);
+@@ -846,13 +846,13 @@ void mark_mounts_for_expiry(struct list_
+ 	 * - still marked for expiry (marked on the last call here; marks are
+ 	 *   cleared by mntput())
+ 	 */
+-	list_for_each_entry_safe(mnt, next, mounts, mnt_fslink) {
++	list_for_each_entry_safe(mnt, next, mounts, mnt_expire) {
+ 		if (!xchg(&mnt->mnt_expiry_mark, 1) ||
+ 		    atomic_read(&mnt->mnt_count) != 1)
+ 			continue;
+ 
+ 		mntget(mnt);
+-		list_move(&mnt->mnt_fslink, &graveyard);
++		list_move(&mnt->mnt_expire, &graveyard);
+ 	}
+ 
+ 	/*
+@@ -862,8 +862,8 @@ void mark_mounts_for_expiry(struct list_
+ 	 * - dispose of the corpse
+ 	 */
+ 	while (!list_empty(&graveyard)) {
+-		mnt = list_entry(graveyard.next, struct vfsmount, mnt_fslink);
+-		list_del_init(&mnt->mnt_fslink);
++		mnt = list_entry(graveyard.next, struct vfsmount, mnt_expire);
++		list_del_init(&mnt->mnt_expire);
+ 
+ 		/* don't do anything if the namespace is dead - all the
+ 		 * vfsmounts from it are going away anyway */
+@@ -913,7 +913,7 @@ void mark_mounts_for_expiry(struct list_
+ 			/* someone brought it back to life whilst we didn't
+ 			 * have any locks held so return it to the expiration
+ 			 * list */
+-			list_add_tail(&mnt->mnt_fslink, mounts);
++			list_add_tail(&mnt->mnt_expire, mounts);
+ 			spin_unlock(&vfsmount_lock);
  		}
- 		spin_unlock(&kafscmd_attention_lock);
--
--		afs_kafstimod_del_timer(&afs_mntpt_expiry_timer);
- 	}
- 
- 	up_write(&afscm_sem);
-Index: linux-2.6.9-quilt/fs/afs/super.c
-===================================================================
---- linux-2.6.9-quilt.orig/fs/afs/super.c	2004-08-14 01:36:56.000000000 -0400
-+++ linux-2.6.9-quilt/fs/afs/super.c	2004-10-22 17:17:36.478918504 -0400
-@@ -78,8 +78,6 @@ int __init afs_fs_init(void)
- 
- 	_enter("");
- 
--	afs_timer_init(&afs_mntpt_expiry_timer, &afs_mntpt_expiry_timer_ops);
--
- 	/* create ourselves an inode cache */
- 	atomic_set(&afs_count_active_inodes, 0);
  
 

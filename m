@@ -1,98 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267633AbTAXKyV>; Fri, 24 Jan 2003 05:54:21 -0500
+	id <S267635AbTAXLHE>; Fri, 24 Jan 2003 06:07:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267635AbTAXKyU>; Fri, 24 Jan 2003 05:54:20 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:49637 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S267633AbTAXKyT>;
-	Fri, 24 Jan 2003 05:54:19 -0500
-Date: Fri, 24 Jan 2003 11:03:28 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+	id <S267636AbTAXLHE>; Fri, 24 Jan 2003 06:07:04 -0500
+Received: from packet.digeo.com ([12.110.80.53]:53958 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267635AbTAXLHD>;
+	Fri, 24 Jan 2003 06:07:03 -0500
+Date: Fri, 24 Jan 2003 03:16:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: 2.5.59-mm5
-Message-ID: <946253340.1043406208@[192.168.100.5]>
-In-Reply-To: <20030123195044.47c51d39.akpm@digeo.com>
+Message-Id: <20030124031632.7e28055f.akpm@digeo.com>
+In-Reply-To: <946253340.1043406208@[192.168.100.5]>
 References: <20030123195044.47c51d39.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	<946253340.1043406208@[192.168.100.5]>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 24 Jan 2003 11:16:08.0087 (UTC) FILETIME=[FE225270:01C2C399]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Bligh - linux-kernel <linux-kernel@alex.org.uk> wrote:
+>
+> 
+> 
+> --On 23 January 2003 19:50 -0800 Andrew Morton <akpm@digeo.com> wrote:
+> 
+> >   So what anticipatory scheduling does is very simple: if an application
+> >   has performed a read, do *nothing at all* for a few milliseconds.  Just
+> >   return to userspace (or to the filesystem) in the expectation that the
+> >   application or filesystem will quickly submit another read which is
+> >   closeby.
+> 
+> I'm sure this is a really dumb question, as I've never played
+> with this subsystem, in which case I apologize in advance.
+> 
+> Why not follow (by default) the old system where you put the reads
+> effectively at the back of the queue. Then rather than doing nothing
+> for a few milliseconds, you carry on with doing the writes. However,
+> promote the reads to the front of the queue when you have a "good
+> lump" of them.
+
+That is the problem.  Reads do not come in "lumps".  They are dependent. 
+Consider the case of reading a file:
+
+1: Read the directory.
+
+   This is a single read, and we cannot do anything until it has
+   completed.
+
+2: The directory told us where the inode is.  Go read the inode.
+
+   This is a single read, and we cannot do anything until it has
+   completed.
+
+3: Go read the first 12 blocks of the file and the first indirect.
 
 
---On 23 January 2003 19:50 -0800 Andrew Morton <akpm@digeo.com> wrote:
+   This is a single read, and we cannot do anything until it has
+   completed.
 
->   So what anticipatory scheduling does is very simple: if an application
->   has performed a read, do *nothing at all* for a few milliseconds.  Just
->   return to userspace (or to the filesystem) in the expectation that the
->   application or filesystem will quickly submit another read which is
->   closeby.
+The above process can take up to three trips through the request queue.
 
-I'm sure this is a really dumb question, as I've never played
-with this subsystem, in which case I apologize in advance.
 
-Why not follow (by default) the old system where you put the reads
-effectively at the back of the queue. Then rather than doing nothing
-for a few milliseconds, you carry on with doing the writes. However,
-promote the reads to the front of the queue when you have a "good
-lump" of them. If you get further reads while you are processing
-a lump of them, put them behind the lump. Switch back to the putting
-reads at the end when we have done "a few lumps worth" of
-reads, or exhausted the reads at the start of the queue (or
-perhaps are short of memory).
+In this very common scenario, the only way we'll ever get "lumps" of reads is
+if some other processes come in and happen to want to read nearby sectors. 
+In the best case, the size of the lump is proportional to the number of
+processes which are concurrently trying to read something.  This just doesn't
+happen enough to be significant or interesting.
 
-IE (with a "lump" = 20) and "a few" = 3.
+But writes are completely different.  There is no dependency between them and
+at any point in time we know where on-disk a lot of writes will be placed. 
+We don't know that for reads, which is why we need to twiddle thumbs until the
+application or filesystem makes up its mind.
 
-W0 W1 W2 ... W50 W51
 
-[Read arrives, we process some writes]
-
-W5 ... W50 W51 R0
-
-[More reads arrive, more writes processed]
-
-W10 ... W50 W51 R0 R1 R2 .. R7
-
-[Haven't got a big enough lump, but a
-write arrives]
-
-W12 W13... W50 W51 W52 R0 R1 R2 .. R7
-
-[More reads arrive, more writes processed]
-
-W14 W15 ... W50 W51 W52 R0 R1 R2 .. R7 R8 R9.. R19
-
-[Another read arrives, after 4 more writes have
-been processed, and we move the lump to the
-front]
-
-R0 R1 R2 .. R7 R8 R9.. R19 R20 W18 W19 ... W50 W51 W52
-
-[Some reads are processed, and some more arrive, which
-we insert into our lump at the front]
-
-R0 R1 R2 .. R7 R8 R9.. R19 R20 R21 R22 W18 W19 ... W50 W51 W52
-
-Then either if the reads are processed at the front of
-the queue faster than they arrive, and the "lump" disappears,
-or if we've processed 3 x 20 = 60 reads, we revert to
-sticking reads back at the end.
-
-All this does is lump between 20 and 60 reads together.
-
-The advantage being that you don't "do nothing" for a few
-milliseconds, and can attract larger lumps, than by
-waiting without incurring additional latency.
-
-Now of course you have the ordering problem (in that I've
-assumed you can insert things into the queue at will),
-but you have that anyway.
-
---
-Alex Bligh

@@ -1,201 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274814AbTHFCvV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 22:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274826AbTHFCvV
+	id S274863AbTHFC5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 22:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274833AbTHFCzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 22:51:21 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:19841 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S274814AbTHFCsD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 22:48:03 -0400
-Date: Tue, 5 Aug 2003 22:16:20 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Updates for 2.6.0-test2
-Message-ID: <20030805221620.GE13275@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20030805221415.GB13275@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Aug 2003 22:55:00 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:37255 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S274836AbTHFCx6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 22:53:58 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: 2.5/2.6 NVidia (was Re: 2.4 vs 2.6 ver#
+Date: Tue, 5 Aug 2003 22:53:57 -0400
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200308051041.08078.gene.heskett@verizon.net> <200308051807.00179.gene.heskett@verizon.net> <200308060208.h7628w5m002801@turing-police.cc.vt.edu>
+In-Reply-To: <200308060208.h7628w5m002801@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030805221415.GB13275@neo.rr.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308052253.57257.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.12.168] at Tue, 5 Aug 2003 21:53:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# --------------------------------------------
-# 03/08/05	ambx1@neo.rr.com	1.1110
-# [SOUND] Remove __(dev)initdata from all pnp sound drivers
-# 
-# This patch is needed in order to avoid a potential oops.  It is
-# similiar to the changes made to pci.
-# 
-# --------------------------------------------
-#
-diff -Nru a/sound/isa/ad1816a/ad1816a.c b/sound/isa/ad1816a/ad1816a.c
---- a/sound/isa/ad1816a/ad1816a.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/ad1816a/ad1816a.c	Tue Aug  5 21:24:50 2003
-@@ -93,7 +93,7 @@
- 	struct pnp_dev *devmpu;
- };
+On Tuesday 05 August 2003 22:08, Valdis.Kletnieks@vt.edu wrote:
+>On Tue, 05 Aug 2003 18:07:00 EDT, you said:
+>> Now, the factory nvidia drivers will not build for 2.6, so I don't
+>> have any X.  Whats the status of the kernel versions vis-a-vis
+>> running a gforce2 MMX 32 megger?
+>
+>(Sorry for replying to the list, but let's get this into the
+> archives in case people actually search before asking... (yeah
+> right ;))
+>
+>I'm running the NVidia 4496 drivers right now on 2.6.0-test2-mm4.
+>
+>Do the following (can be done on a 2.4 kernel if needed)
+>
+>1) Get the 4496 drivers from NVidia
+
+check
+
+>2) './NVIDIA-Linux-x86-1.0-4496-pkg2.run --extract-only'
+
+check
+
+>3) Go to www.minion.de and get the patch:
+> NVIDIA_kernel-1.0-4496-2.5.diff
+
+check
  
--static struct pnp_card_device_id snd_ad1816a_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_ad1816a_pnpids[] = {
- 	/* Analog Devices AD1815 */
- 	{ .id = "ADS7150", .devs = { { .id = "ADS7150" }, { .id = "ADS7151" } } },
- 	/* Analog Devices AD1816A - added by Kenneth Platz <kxp@atl.hp.com> */
-diff -Nru a/sound/isa/als100.c b/sound/isa/als100.c
---- a/sound/isa/als100.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/als100.c	Tue Aug  5 21:24:50 2003
-@@ -98,7 +98,7 @@
- 	struct pnp_dev *devopl;
- };
- 
--static struct pnp_card_device_id snd_als100_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_als100_pnpids[] = {
- 	/* ALS100 - PRO16PNP */
- 	{ .id = "ALS0001", .devs = { { "@@@0001" }, { "@X@0001" }, { "@H@0001" } } },
- 	/* ALS110 - MF1000 - Digimate 3D Sound */
-diff -Nru a/sound/isa/azt2320.c b/sound/isa/azt2320.c
---- a/sound/isa/azt2320.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/azt2320.c	Tue Aug  5 21:24:50 2003
-@@ -109,7 +109,7 @@
- 	struct pnp_dev *devmpu;
- };
- 
--static struct pnp_card_device_id snd_azt2320_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_azt2320_pnpids[] = {
- 	/* PRO16V */
- 	{ .id = "AZT1008", .devs = { { "AZT1008" }, { "AZT2001" }, } },
- 	/* Aztech Sound Galaxy 16 */
-diff -Nru a/sound/isa/cmi8330.c b/sound/isa/cmi8330.c
---- a/sound/isa/cmi8330.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/cmi8330.c	Tue Aug  5 21:24:50 2003
-@@ -172,7 +172,7 @@
- 
- #ifdef CONFIG_PNP
- 
--static struct pnp_card_device_id snd_cmi8330_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_cmi8330_pnpids[] = {
- 	{ .id = "CMI0001", .devs = { { "@@@0001" }, { "@X@0001" } } },
- 	{ .id = "" }
- };
-diff -Nru a/sound/isa/cs423x/cs4236.c b/sound/isa/cs423x/cs4236.c
---- a/sound/isa/cs423x/cs4236.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/cs423x/cs4236.c	Tue Aug  5 21:24:50 2003
-@@ -174,7 +174,7 @@
- 
- 
- #ifdef CS4232
--static struct pnp_card_device_id snd_cs423x_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_cs423x_pnpids[] = {
- 	/* Philips PCA70PS */
- 	{ .id = "CSC0d32", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPb006" } } },
- 	/* TerraTec Maestro 32/96 (CS4232) */
-@@ -193,7 +193,7 @@
- 	{ .id = "" }	/* end */
- };
- #else /* CS4236 */
--static struct pnp_card_device_id snd_cs423x_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_cs423x_pnpids[] = {
- 	/* Intel Marlin Spike Motherboard - CS4235 */
- 	{ .id = "CSC0225", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" } } },
- 	/* Intel Marlin Spike Motherboard (#2) - CS4235 */
-diff -Nru a/sound/isa/dt019x.c b/sound/isa/dt019x.c
---- a/sound/isa/dt019x.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/dt019x.c	Tue Aug  5 21:24:50 2003
-@@ -88,7 +88,7 @@
- 	struct pnp_dev *devopl;
- };
- 
--static struct pnp_card_device_id snd_dt019x_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_dt019x_pnpids[] = {
- 	/* DT197A30 */
- 	{ .id = "RWB1688", .devs = { { "@@@0001" }, { "@X@0001" }, { "@H@0001" }, } },
- 	/* DT0196 / ALS-007 */
-diff -Nru a/sound/isa/es18xx.c b/sound/isa/es18xx.c
---- a/sound/isa/es18xx.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/es18xx.c	Tue Aug  5 21:24:50 2003
-@@ -1940,7 +1940,7 @@
- 
- #ifdef CONFIG_PNP
- 
--static struct pnp_card_device_id snd_audiodrive_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_audiodrive_pnpids[] = {
- 	/* ESS 1868 (integrated on Compaq dual P-Pro motherboard and Genius 18PnP 3D) */
- 	{ .id = "ESS1868", .devs = { { "ESS1868" }, { "ESS0000" } } },
- 	/* ESS 1868 (integrated on Maxisound Cards) */
-diff -Nru a/sound/isa/gus/interwave.c b/sound/isa/gus/interwave.c
---- a/sound/isa/gus/interwave.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/gus/interwave.c	Tue Aug  5 21:24:50 2003
-@@ -138,7 +138,7 @@
- 
- #ifdef CONFIG_PNP
- 
--static struct pnp_card_device_id snd_interwave_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_interwave_pnpids[] = {
- #ifndef SNDRV_STB
- 	/* Gravis UltraSound Plug & Play */
- 	{ .id = "GRV0001", .devs = { { .id = "GRV0000" } } },
-diff -Nru a/sound/isa/opl3sa2.c b/sound/isa/opl3sa2.c
---- a/sound/isa/opl3sa2.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/opl3sa2.c	Tue Aug  5 21:24:50 2003
-@@ -161,7 +161,7 @@
- 
- #ifdef CONFIG_PNP
- 
--static struct pnp_card_device_id snd_opl3sa2_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_opl3sa2_pnpids[] = {
- 	/* Yamaha YMF719E-S (Genius Sound Maker 3DX) */
- 	{ .id = "YMH0020", .devs = { { "YMH0021" } } },
- 	/* Yamaha OPL3-SA3 (integrated on Intel's Pentium II AL440LX motherboard) */
-diff -Nru a/sound/isa/sb/es968.c b/sound/isa/sb/es968.c
---- a/sound/isa/sb/es968.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/sb/es968.c	Tue Aug  5 21:24:50 2003
-@@ -69,7 +69,7 @@
- 	struct pnp_dev *dev;
- };
- 
--static struct pnp_card_device_id snd_es968_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_es968_pnpids[] = {
- 	{ .id = "ESS0968", .devs = { { "@@@0968" }, } },
- 	{ .id = "", } /* end */
- };
-diff -Nru a/sound/isa/sb/sb16.c b/sound/isa/sb/sb16.c
---- a/sound/isa/sb/sb16.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/sb/sb16.c	Tue Aug  5 21:24:50 2003
-@@ -157,7 +157,7 @@
- 
- static snd_card_t *snd_sb16_legacy[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
- 
--static struct pnp_card_device_id snd_sb16_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_sb16_pnpids[] = {
- #ifndef SNDRV_SBAWE
- 	/* Sound Blaster 16 PnP */
- 	{ .id = "CTL0024", .devs = { { "CTL0031" } } },
-diff -Nru a/sound/isa/sscape.c b/sound/isa/sscape.c
---- a/sound/isa/sscape.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/sscape.c	Tue Aug  5 21:24:50 2003
-@@ -78,7 +78,7 @@
- MODULE_PARM_SYNTAX(dma, SNDRV_DMA8_DESC);
-   
- #ifdef CONFIG_PNP
--static struct pnp_card_device_id sscape_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id sscape_pnpids[] = {
- 	{ .id = "ENS3081", .devs = { { "ENS0000" } } },
- 	{ .id = "" }	/* end */
- };
-diff -Nru a/sound/isa/wavefront/wavefront.c b/sound/isa/wavefront/wavefront.c
---- a/sound/isa/wavefront/wavefront.c	Tue Aug  5 21:24:50 2003
-+++ b/sound/isa/wavefront/wavefront.c	Tue Aug  5 21:24:50 2003
-@@ -102,7 +102,7 @@
- 
- #ifdef CONFIG_PNP
- 
--static struct pnp_card_device_id snd_wavefront_pnpids[] __devinitdata = {
-+static struct pnp_card_device_id snd_wavefront_pnpids[] = {
- 	/* Tropez */
- 	{ .id = "CSC7532", .devs = { { "CSC0000" }, { "CSC0010" }, { "PnPb006" }, { "CSC0004" } } },
- 	/* Tropez+ */
+>4) cd NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv
+
+check
+
+>5)  patch -p1 < NVIDIA_kernel-1.0-4496-2.5.diff
+
+check
+
+>6) cp Makefile.kbuild Makefile
+
+check
+
+>Now *as root*, while running the 2.6 kernel you want support for:
+>(either single-user or runlevel 3 (No X) are OK here - reboot if
+> needed)
+>
+>7) cd NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv   if you're not
+> there already.
+
+check, in the script
+
+> 8) make     this will build the nvidia.ko, copy to
+> /lib/modules, and insmod it for you.
+
+check, in the script
+
+> 9) cd ../../..      back to
+> the 4496-pgk2 directory
+
+check, in the script
+
+>10) 'make install' to put the /usr/lib parts in place.
+
+check, its rather verbose, even complained about something but I 
+didn't capture it :(
+
+>11) Start X in the usual manner - you've probably got an XFconfig
+> file with the right NVidia pieces in it already (or you'd not be
+> asking ;)
+
+check.  Just one problem, went to black screen about the time the NV 
+logo should have popped up, and locked the machine up tight, had to 
+use the hardware reset button.
+
+Here is the script:
+--------
+#!/bin/bash
+cd usr/src/nv
+make
+cd ../../..
+make install
+--------
+which is executed from within that *4496-pkg2 directory
+
+Next time I'll redirect the output of the makes to a scratch file, but 
+thats tommorrow now.
+>Hope this helps...
+>You should be ready to go at that point (note that you will need to
+> do (7) and (8) each time you do a 'make modules_install', but 9/10
+> only need doing if/when you upgrade from 4496 to a new version.
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

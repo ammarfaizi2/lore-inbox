@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264385AbRFHW5A>; Fri, 8 Jun 2001 18:57:00 -0400
+	id <S264397AbRFHXEA>; Fri, 8 Jun 2001 19:04:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264393AbRFHW4u>; Fri, 8 Jun 2001 18:56:50 -0400
-Received: from blount.mail.mindspring.net ([207.69.200.226]:35096 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S264385AbRFHW4j>; Fri, 8 Jun 2001 18:56:39 -0400
-Subject: Re: Is Kernel2.2 is SMP versioned by default?
-From: Robert Love <rml@ufl.edu>
-To: jalaja devi <jala_74@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010608145848.8371.qmail@web13707.mail.yahoo.com>
-In-Reply-To: <20010608145848.8371.qmail@web13707.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 08 Jun 2001 18:56:39 -0400
-Message-Id: <992041001.9209.0.camel@phantasy>
-Mime-Version: 1.0
+	id <S264398AbRFHXDu>; Fri, 8 Jun 2001 19:03:50 -0400
+Received: from waste.org ([209.173.204.2]:61760 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S264397AbRFHXDc>;
+	Fri, 8 Jun 2001 19:03:32 -0400
+Date: Fri, 8 Jun 2001 18:06:00 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux kernel headers violate RFC2553
+In-Reply-To: <9frh99$7bi$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0106081753350.16106-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Jun 2001 07:58:48 -0700, jalaja devi wrote:
-> Hi,
-> Could anyone plz tell me whether the kernel - 2.2.14
-> is SMP or NON-SMP by default?
-> To make it SMP versioned, Do I need to add some flags
-> in the kernel header files and re-compile to kernel?
+On 8 Jun 2001, Linus Torvalds wrote:
 
-i actually think it may be SMP (for whatever odd reason).
-you need to configure and compile the kernel, anyhow.
-select from one of:
+> The basic issue is that the kernel will _refuse_ to follow the
+> "namespace of the day" rules of C89, C99, POSIX, BSD, SuS, GNU .. the
+> list goes on. The kernel headers are not meant to be used in user space,
+> and will not have the strict namespace rules that a lot of standards
+> spend so much time playing with.
 
-make config (text)
-make menuconfig (curses)
-make xconfig (Tk)
+Add something like this to linux/config.h in 2.5?
 
-and make sure SMP is enabled, as well as support for the rest of your
-hardware and the features you want.
+#if !defined(__KERNEL__) || !defined(__KERNEL_ME_HARDER__)
+#warning "Using kernel headers in userspace apps is unsupported."
+#warning "Don't come crying to us when it breaks."
+#endif
 
-then: make dep clean bzImage modules
-
-see the Kernel Compile HOWTO
-
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

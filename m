@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135396AbRDVWdL>; Sun, 22 Apr 2001 18:33:11 -0400
+	id <S135426AbRDVWrX>; Sun, 22 Apr 2001 18:47:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136305AbRDVWdB>; Sun, 22 Apr 2001 18:33:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4879 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135399AbRDVWcw>;
-	Sun, 22 Apr 2001 18:32:52 -0400
-Date: Sun, 22 Apr 2001 23:32:47 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: linux-kernel@vger.kernel.org
-Cc: Oliver.Neukum@lrz.uni-muenchen.de
-Subject: Re: question on atomic_t
-Message-ID: <20010422233247.A18464@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S135432AbRDVWrN>; Sun, 22 Apr 2001 18:47:13 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:45842 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S135426AbRDVWrD>; Sun, 22 Apr 2001 18:47:03 -0400
+Date: Sun, 22 Apr 2001 15:46:52 -0700 (PDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.3-ac12
+In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.32.0104221545490.7501-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> can I assume that a member of a structure of type atomic_t is 0 after
-> using memset to zero on the structure ?
+	Hello Alan ,  To whom is this attributed ?  Tia ,  JimL
 
-You must not do this.  use atomic_init instead.  on parisc, the locked value
-of a spinlock is 0, so no more updates to that atomic value would ever work.
+On Sun, 22 Apr 2001, Alan Cox wrote:
+> o	Hopefully fix bugtraq reported netfilter ftp
+> 	flaw
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 
--- 
-Revolutions do not require corporate support.

@@ -1,63 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263210AbTJKDnk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 23:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTJKDnk
+	id S261648AbTJKEUl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 00:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTJKEUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 23:43:40 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:7561 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263210AbTJKDnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 23:43:39 -0400
-Subject: 2.6.0-test7 build failure: !CONFIG_PCI
-From: Len Brown <len.brown@intel.com>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Cc: acpi-devel@lists.sourceforge.net
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE001126CB1@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE001126CB1@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065843784.4112.49.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Oct 2003 23:43:05 -0400
+	Sat, 11 Oct 2003 00:20:41 -0400
+Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:10 "HELO
+	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S261648AbTJKEUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 00:20:39 -0400
+X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
+Message-ID: <1065846029.5630.13.camel@iguana.domsch.com>
+From: Matt_Domsch@Dell.com
+To: jamie@shareable.org, Michael_E_Brown@Dell.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.4] EDD 4-byte MBR disk signature for the
+ bootdi sk
+Date: Fri, 10 Oct 2003 23:20:23 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 13995A864738250-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anybody build X86 without CONFIG_PCI?
+On Fri, 2003-10-10 at 15:28, Jamie Lokier wrote:
+> Matt Domsch wrote:
+> > it isn't important exactly what value is used, as long as only 
+> > the boot disk has it, and your code knows what to look for.
+> 
+> How can you be sure what's on other disks the code doesn't know about
+> at the time it writes to the boot disk?
 
-Build fails if CONFIG_BLK_DEV_CMD640 is set:
+If we rely on only a int13 tool to write the signature, you're
+absolutely right.  Here I was corrected by Michael E. Brown on how we
+actually use this - entirely from within Linux which can see all
+connected disks.
 
-drivers/built-in.o(.init.text+0x59df): In function `ide_setup':
-: undefined reference to `cmd640_vlb'
-drivers/built-in.o(.init.text+0x5aef): In function `probe_for_hwifs':
-: undefined reference to `ide_probe_for_cmd640x'
-make: *** [.tmp_vmlinux1] Error 1
+Here is our algorithm:
+        1) look up number in /proc/bios/disk80_sig
+        2) scan /dev for this sig
+        3) iff *only* one disk with this sig found, that is the bios
+boot disk, we are done, use this disk
+        4) if multiple disks with this sig found, then write unique sig
+to *only* the drives with duplicate signatures, reboot, goto step 1.
 
-The problem is that these variables are defined in
-drivers/ide/pci/cmd640.c, which is protected by CONFIG_PCI; but they're
-used when CONFIG_BLK_DEV_CMD640, which doesn't require CONFIG_PCI.
 
----
-More interesting (to me) is that it also fails if CONFIG_ACPI is set:
+> If we encourage its use, so that it's basically assumed to work and
+> boot processes use it by default
 
-drivers/built-in.o(.init.text+0x825): In function `acpi_bus_init':
-: undefined reference to `eisa_set_level_irq'
+EDD/disksig is not a "use by all boot processes by default", it's really
+a "used by OS installers", not a normal boot runtime thing.  Starting
+from a blank system,  you use the EDD/disksig information to determine
+which disk should get the boot loader and your /boot or / file systems,
+and then if you want, other file systems.  On subsequent boots, the
+information is collected, but isn't necessarily used.  File system
+labels and/or file system UUIDs, once they exist, provide the needed
+uniqueness to mount your file systems appropriately.
 
-drivers/acpi/bus.c:
+> then people will be upset if things
+> like adding another disk to a system just to read data off it cause
+> the boot process to get confused.
 
-#ifdef CONFIG_X86
-        /* Ensure the SCI is set to level-triggered, active-low */
-        if (acpi_ioapic)
-                mp_config_ioapic_for_sci(acpi_fadt.sci_int);
-        else
-                eisa_set_level_irq(acpi_fadt.sci_int);
-#endif
+Indeed, adding disks between when you've guaranteed you've got a unique
+signature on each disk, and when you make use of this information (in
+your OS installer) would be bad - you may break the uniqueness
+guarantee.  But I suggest that is unlikely, since the information should
+really only be used by the OS installer, and most folks don't change
+their hardware config mid-install.
 
-Should we not be calling eisa_set_level_irq()?
+Thanks,
+Matt
 
-thanks,
--Len
-
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

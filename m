@@ -1,83 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbUKDNBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbUKDNIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUKDNBf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 08:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbUKDNBe
+	id S262209AbUKDNIT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 08:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbUKDNIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 08:01:34 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:16902 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262194AbUKDNBL
+	Thu, 4 Nov 2004 08:08:19 -0500
+Received: from zone3.gcu-squad.org ([217.19.50.74]:62473 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S262209AbUKDNIQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 08:01:11 -0500
-Subject: Re: is killing zombies possible w/o a reboot?
-From: Ian Campbell <icampbell@arcom.com>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org, Jan Knutar <jk-lkml@sci.fi>,
-       Tom Felker <tfelker2@uiuc.edu>
-In-Reply-To: <200411040739.01699.gene.heskett@verizon.net>
-References: <200411030751.39578.gene.heskett@verizon.net>
-	 <200411040657.10322.gene.heskett@verizon.net>
-	 <200411041412.42493.jk-lkml@sci.fi>
-	 <200411040739.01699.gene.heskett@verizon.net>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Date: Thu, 04 Nov 2004 13:01:06 +0000
-Message-Id: <1099573266.2856.40.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Nov 2004 13:01:55.0375 (UTC) FILETIME=[75EB1BF0:01C4C26E]
+	Thu, 4 Nov 2004 08:08:16 -0500
+Date: Thu, 4 Nov 2004 14:02:36 +0100 (CET)
+To: degger@fhm.edu
+Subject: Re: dmi_scan on x86_64
+X-IlohaMail-Blah: khali@gcu.info
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <eGbz1eL6.1099573353.4166380.khali@gcu.info>
+In-Reply-To: <1214282D-2E5B-11D9-BF00-000A958E35DC@fhm.edu>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "LKML" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 07:39 -0500, Gene Heskett wrote:
-> On Thursday 04 November 2004 07:12, Jan Knutar wrote:
-> >On Thursday 04 November 2004 13:57, Gene Heskett wrote:
-> >> I'e had that turned on since forever Jan, but usually, when its
-> >> hung someplace, its well and truely hung, and hardware reset
-> >> button time.
-> >
-> >Are you saying that these zombies (or tasks stuck in state D) also
-> > make sysrq-T hang, and not list all tasks?
-> 
-> I thought I'd test it right now while the system is runnng normally, 
-> but I got only a beep from the console, so I went to 
-> Documentation/sysrq.txt to make sure I was doing it right, and it is 
-> _not_ working right now.  But it is compiled in according to a make 
-> xconfig, or a grep of the .config.
 
-It can also be enabled/disabled at runtime, Documentation/sysrq.txt says
-that the default now is on (but that it used to default to off). Perhaps
-it is getting turned off somewhere in your boot scripts etc. 
+On 4/11/2004, Daniel Egger wrote:
 
-You can check with
+> The sensors conf for the S2875 provided by Tyan only displays
+> 3 FAN RPM values while the board has at least 4. At the moment I'm
+> using 3 fans with tacho signal but can only determine 2 values, the
+> third value is constantly 0.
 
-$ cat /proc/sys/kernel/sysrq
-1
+The (admittedly limited) documentation [1] I have for the S2875 states
+that only 3 of the 6 fan headers have their tachometer pin wired. This
+matches the W83627HF hardware monitoring chip capabilities, which is why
+I see no evidence of any kind of multiplexing on that board.
 
-> The keyboard is a cheap ($24) M$ with a few extra buttons that don't 
-> do anything along the top.  And getting a bit creaky in its old age, 
-> a lot like me, but I'm about 68 years older than the keyboard :)
+> Also the setup puzzles me a bit; why would Tyan pack several SMBus
+> setups into a single motherboard but only connect devices to one
+> of them. Actually sensors-detect claims that there is one
+> unrecognized client on the "unused" SMBus.
 
-Documentation/sysrq.txt also says:
+Not all SMBus clients are hardware monitoring chips. The fact that
+sensors-detect didn't recognize it would even suggest that your unknown
+chip isn't. What you see may be about anything, including
+pseudo-clients used for the SMBus protocol itself.
 
-*  How do I use the magic SysRq key?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-On x86   - You press the key combo 'ALT-SysRq-<command key>'. Note - Some
-           keyboards may not have a key labeled 'SysRq'. The 'SysRq' key is
-           also known as the 'Print Screen' key. Also some keyboards cannot
-           handle so many keys being pressed at the same time, so you might
-           have better luck with "press Alt", "press SysRq", "release Alt",
-           "press <command key>", release everything.
+Feel free to submit a dump (using i2cdump) of that unknown chip if you
+want me to comment on it.
 
-Perhaps your keyboard is one of those that can't cope with all those
-keys?
+As a side note, Tyan actually has a long history of embedding more than
+one hardware monitoring chip in their high-end server boards. This makes
+full sense when the board has plenty of fan headers and supports several
+CPU. The S4882 for example has 6 hardware monitoring chips, and this is
+one reason why the SMBus had to be multiplexed (4 of these chips use the
+same address).
 
-Ian.
+[1] ftp://ftp.tyan.com/datasheets/d_s2875_120.pdf
 
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
-
+Jean

@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264303AbUASAje (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 19:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbUASAje
+	id S264308AbUASAla (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 19:41:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264311AbUASAla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 19:39:34 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:45446 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S264303AbUASAjc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 19:39:32 -0500
-Date: Mon, 19 Jan 2004 13:44:54 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: Is this too ugly to merge?
-In-reply-to: <20040113114913.GB269@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074473094.2361.104.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-nMmVEmKOXusSZtQOyK0p";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1073609923.2003.10.camel@laptop-linux>
- <20040113114913.GB269@elf.ucw.cz>
+	Sun, 18 Jan 2004 19:41:30 -0500
+Received: from are.twiddle.net ([64.81.246.98]:27793 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S264308AbUASAl3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 19:41:29 -0500
+Date: Sun, 18 Jan 2004 16:41:16 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, jh@suse.cz,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add noinline attribute
+Message-ID: <20040119004116.GA32149@twiddle.net>
+Mail-Followup-To: Andi Kleen <ak@colin2.muc.de>,
+	Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+	Andrew Morton <akpm@osdl.org>, jh@suse.cz,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040114083114.GA1784@averell> <Pine.LNX.4.58.0401141519260.4500@evo.osdl.org> <20040115074834.GA38796@colin2.muc.de> <Pine.LNX.4.58.0401151448200.2597@evo.osdl.org> <20040116101345.GA96037@colin2.muc.de> <20040118204700.GA31601@twiddle.net> <20040118205800.GA68521@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040118205800.GA68521@colin2.muc.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 18, 2004 at 09:58:00PM +0100, Andi Kleen wrote:
+> Hmpf. Would an extable_compare() function in an asm-*/ file work ? 
 
---=-nMmVEmKOXusSZtQOyK0p
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I'd need a swap function too, since the data itself must change
+when it gets moved.
 
-Hi.
 
-I'll take the following approach: I'm pretty sure that I've tried
-suspending userspace before kernel threads before, and still ran into
-possible deadlocks. Nevertheless, I'll set that up and then bang really
-hard on it using Michael's test scripts, and let you know the results.
-If and when we see that this approach won't cut the mustard, we can come
-back to considering this approach. Sound okay?
-
-By the way, the macros are not an alternative to the SIGSTOP-like
-method. They're used with it, to ensure it works without deadlocking.
-
-Regards,
-
-Nigel
-
-On Wed, 2004-01-14 at 00:49, Pavel Machek wrote:
-> Okay, I can now remember (and agree to) that we need to suspend
-> userspace first, and only then suspend kernelspace. Bug I don't see
-> why we can't suspend userspace using old, SIGSTOP-like, method.
-
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-nMmVEmKOXusSZtQOyK0p
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBACyiGVfpQGcyBBWkRAgyPAJ9ILf64RvvZcVbeZA1fCJjQLnS7twCgpSA2
-81K/6WkSvWsfM8fTfNvfBWk=
-=k9Su
------END PGP SIGNATURE-----
-
---=-nMmVEmKOXusSZtQOyK0p--
-
+r~

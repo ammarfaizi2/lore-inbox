@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUDOMwf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 08:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUDOMwf
+	id S263001AbUDOM5M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 08:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUDOM5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 08:52:35 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:44207
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263003AbUDOMwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 08:52:33 -0400
-Date: Thu, 15 Apr 2004 14:52:37 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-Message-ID: <20040415125237.GA2150@dualathlon.random>
-References: <35840000.1082010202@[10.10.2.4]> <Pine.LNX.4.44.0404151122190.6954-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404151122190.6954-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 15 Apr 2004 08:57:12 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:59839 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S263001AbUDOM5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 08:57:10 -0400
+Message-ID: <407E86A5.70700@vision.ee>
+Date: Thu, 15 Apr 2004 15:57:09 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040321)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: poor sata performance on 2.6
+References: <200404150236.05894.kos@supportwizard.com> <407E35E0.3080902@vision.ee> <200404151440.23858.kos@supportwizard.com> <200404151537.38739.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200404151537.38739.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 11:26:09AM +0100, Hugh Dickins wrote:
-> On Wed, 14 Apr 2004, Martin J. Bligh wrote:
-> > 
-> > FYI, even without prio-tree, I get a 12% boost from converting i_shared_sem
-> > into a spinlock. I'll try doing the same on top of prio-tree next.
-> 
-> Good news, though not a surprise.
-> 
-> Any ideas how we might handle latency from vmtruncate (and
-> try_to_unmap) if using prio_tree with i_shared_lock spinlock?
+Denis Vlasenko wrote:
 
-we'd need to break the loop after need_resched returns 1 (and then the
-second time we'd just screw the latency and go ahead).  I also wanted to
-make it a spinlock again like in 2.4, the semaphore probably generates
-overscheduling. OTOH the spinlock saved some cpu in slightly different
-workloads with big truncates (plus it made the cond_resched trivial w/o
-requiring loop break) and I agree with Andrew about that, Martin isn't
-benchmarking the other side, the one that made Andrew to change it to a
-semaphore.
+>27 Mb/s is not 'very' bad for 80Gb drive.
+>
+>Can you verify that drive indeed is able to do better
+>(quick test under Windows is in order)? It would be silly
+>to try to hunt down problem which do not exist.
+>
+>If problem does exist, try 2.4 kernels.
+>  
+>
+This drive really _can_ do _much_ better. At least order of two. In my 
+case - order of three.
+
+Lenar
+

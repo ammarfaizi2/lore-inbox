@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTEZBAP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 21:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbTEZBAP
+	id S263834AbTEZA6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 20:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTEZA6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 21:00:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61452 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263857AbTEZBAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 21:00:10 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-Date: 26 May 2003 01:13:05 GMT
-Organization: Transmeta Corp
-Message-ID: <1053911585.367899@palladium.transmeta.com>
-References: <20030525112150.3994df9b.l.s.r@web.de> <3ED0FC58.D1F04381@gmx.de> <20030525210509.09429aaa.l.s.r@web.de>
-X-Trace: palladium.transmeta.com 1053911585 29038 127.0.0.1 (26 May 2003 01:13:05 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 26 May 2003 01:13:05 GMT
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: torvalds@penguin.transmeta.com (Linus Torvalds)
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	Sun, 25 May 2003 20:58:40 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:37507
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S263834AbTEZA6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 20:58:38 -0400
+Date: Sun, 25 May 2003 21:00:28 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] xirc2ps_cs irq return fix
+In-Reply-To: <3ED16351.7060904@pobox.com>
+Message-ID: <Pine.LNX.4.50.0305252051570.28320-100000@montezuma.mastecende.com>
+References: <200305252318.h4PNIPX4026812@hera.kernel.org> <3ED16351.7060904@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030525210509.09429aaa.l.s.r@web.de>,
-René Scharfe  <l.s.r@web.de> wrote:
->
->Anyway, I corrected this. Patch below contains a "BSD-compatible" version,
->and also a strlcat().
+On Sun, 25 May 2003, Jeff Garzik wrote:
 
-Ok, I did my own versions, since (a) I had already started and your
-patches wouldn't apply, and (b) I hate adding a zillion lines of extra
-copyright notices for a 5-line function and (c) I think your patch had
-EXPORT_SYMBOL wrong.
+> As I mentioned in the thread, this piece of code is obviously wrong.
+> 
+> Think about how scalable this fix is??  Do you really want to crap up 
+> all pcmcia drivers with this silly -- and wrong -- check?
 
-In particular, if any architecture ever decides to roll their own
-version of strlcpy/strlcat, the EXPORT_SYMBOL() in ksyms.c would be the
-wrong thing to do. 
+My interpretation of it is the PCMCIA controller was triggering interrupts 
+on exit and the link handler for the card was still installed even after 
+the netdevice was down.
 
-The current BK tree has my totally untested versions of these functions
-("Famous last words: 'how hard can it be?'"), along with what I think
-is the proper way to export them.
+> IIRC the pcmcia layer or new irqreturn_t was blamed for the problem. 
+> Come on.  Linux mantra is -against- papering over bugs.
 
-			Linus
+I have to take responsibility for that little mess :(
+
+	Zwane
+-- 
+function.linuxpower.ca

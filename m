@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287907AbSAHF2Y>; Tue, 8 Jan 2002 00:28:24 -0500
+	id <S287909AbSAHF2E>; Tue, 8 Jan 2002 00:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287908AbSAHF2P>; Tue, 8 Jan 2002 00:28:15 -0500
-Received: from cti06.citenet.net ([206.123.38.70]:8460 "EHLO cti06.citenet.net")
-	by vger.kernel.org with ESMTP id <S287907AbSAHF2C>;
-	Tue, 8 Jan 2002 00:28:02 -0500
-From: Jacques Gelinas <jack@solucorp.qc.ca>
-Date: Mon, 7 Jan 2002 22:45:25 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: re: Whizzy New Feature: Paged segmented memory
-X-mailer: tlmpmail 0.1
-Message-ID: <20020107224525.8a899969dbcd@remtk.solucorp.qc.ca>
+	id <S287908AbSAHF1y>; Tue, 8 Jan 2002 00:27:54 -0500
+Received: from [202.54.26.202] ([202.54.26.202]:18595 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S287907AbSAHF1o>;
+	Tue, 8 Jan 2002 00:27:44 -0500
+X-Lotus-FromDomain: HSS
+From: alad@hss.hns.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <65256B3B.001DEEA2.00@sandesh.hss.hns.com>
+Date: Tue, 8 Jan 2002 10:51:24 +0530
+Subject: [PATCH] locked page handling in shrink_cache() : revised
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002 14:14:30 -0500, Marcin Tustin wrote
->
-> 	Any comments on how useful it would be to have paged, segmented,
-> memory support for Pentium? I was thinking that by having separate
-> segments for text, stack, and heap, buffer overrun exploits would be
-> eliminated (I'm aware that this would require GCC patching as well).
-> 	Obviously, I'm thinking that I (and any similar fools I could rope
-> in) would try this (Probably delivering for a kernel at least a year out
-> of date by the time we had a patch).
-
-Another solution would be to have two stacks. One for variable (auto data)
-and one for program execution (call). Beside cache effect, this would provide
-mostly the same performance as we get now. Just wondering if someone had
-toyed with this idea.
 
 
----------------------------------------------------------
-Jacques Gelinas <jack@solucorp.qc.ca>
-vserver: run general purpose virtual servers on one box, full speed!
-http://www.solucorp.qc.ca/miscprj/s_context.hc
+
+Whenever the shrink_cache wakes up after a laundered page in unlocked, it should
+move that page to the end of inactive list so that
+the page can be freed immediately and shrink_cache dosen't have to wait for
+complete list scan before freeing this page.
+
+The patch is created against standard redhat 7.1 distribution 2.4.16 kernel.
+Let me know if I need to create it for a different kernel release.
+
+regards
+Amol
+
+
+--- vmscan_orig.c   Mon Jan  7 11:47:43 2002
++++ vmscan.c   Mon Jan  7 11:49:07 2002
+@@ -387,6 +387,8 @@
+                    wait_on_page(page);
+                    page_cache_release(page);
+                    spin_lock(&pagemap_lru_lock);
++                   list_del(&page->lru);
++                   list_add(&page->lru,inactive_list.prev);
+               }
+               continue;
+          }
+
+
+
+

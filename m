@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266646AbUBGGkP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 01:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUBGGkP
+	id S266510AbUBGGhf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 01:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266646AbUBGGhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 01:40:15 -0500
-Received: from mxsf30.cluster1.charter.net ([209.225.28.230]:60690 "EHLO
-	mxsf30.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S266646AbUBGGkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 01:40:08 -0500
-Date: Sat, 7 Feb 2004 01:39:06 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-Message-ID: <20040207063906.GA2188@forming>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org> <4022B55B.1090309@wanadoo.es> <20040205154059.6649dd74.akpm@osdl.org> <Pine.LNX.4.55.0402070021210.12260@jurand.ds.pg.gda.pl> <20040207035018.33ce01dc.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040207035018.33ce01dc.ak@suse.de>
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.6.3-rc1 i686
-X-Uptime: 01:33:22 up 4 min,  3 users,  load average: 2.09, 1.10, 0.45
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Josh McKinney <forming@charter.net>
+	Sat, 7 Feb 2004 01:37:35 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:16038 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266510AbUBGGhd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 01:37:33 -0500
+Message-ID: <402487A5.4030806@cyberone.com.au>
+Date: Sat, 07 Feb 2004 17:37:25 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
+ X  (fwd)
+References: <51080000.1075936626@flay.suse.lists.linux.kernel><64260000.1075941399@flay.suse.lists.linux.kernel><Pine.LNX.4.58.0402041639420.2086@home.osdl.org.suse.lists.linux.kernel><20040204165620.3d608798.akpm@osdl.org.suse.lists.linux.kernel><Pine.LNX.4.58.0402041719300.2086@home.osdl.org.suse.lists.linux.kernel><1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com.suse.lists.linux.kernel><Pine.LNX.4.58.0402041800320.2086@home.osdl.org.suse.lists.linux.kernel><98220000.1076051821@[10.10.2.4].suse.lists.linux.kernel><1076061476.27855.1144.camel@nighthawk.suse.lists.linux.kernel> <5450000.1076082574@[10.10.2.4].suse.lists.linux.kernel><1076088169.29478.2928.camel@nighthawk.suse.lists.linux.kernel><218650000.1076097590@flay.suse.lists.linux.kernel><Pine.LNX.4.58.0402061215030.30672@home.osdl.org.suse.lists.linux.kernel><220850000.1076102320@flay.suse.lists.linux.kernel> <p738yjflf38.fsf@verdi.suse.de> <14230000.1076129379@[10.10.2.4]>
+In-Reply-To: <14230000.1076129379@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Sat, Feb 07, 2004 at 03:50:18AM +0100, Andi Kleen wrote:
-> On Sat, 7 Feb 2004 00:33:04 +0100 (CET)
-> "Maciej W. Rozycki" <macro@ds2.pg.gda.pl> wrote:
-> 
-> 
-> >  That's not the right fix.  There's a bug in Linux's ACPI IRQ setup as
-> > I've discovered by comparing the code to the spec.  Here's a patch I sent
-> > in December both to the LKML and the ACPI maintainer.  The feedback from
-> > the list was positive, but the maintainer didn't bother to comment.
-> 
-> Thanks. I added the patch to the x86-64 sources and it indeed seems to fix
-> the Nforce3.
-> 
-
-I tried the patch against 2.6.3-rc1 and it doesn't seem to fix
-anything, timer is still on XT-PIC.  This is on a A7N8X Deluxe rev2,
-nforce2.
-
-           CPU0       
-  0:     524366          XT-PIC  timer
-  1:       1727    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  8:          1    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 14:        913    IO-APIC-edge  ide0
- 15:      22792    IO-APIC-edge  ide1
- 19:      23559   IO-APIC-level  nvidia
- 20:      52452   IO-APIC-level  ohci_hcd, eth0
- 21:          0   IO-APIC-level  ehci_hcd, NVidia nForce2
- 22:        354   IO-APIC-level  ohci_hcd
-NMI:          0 
-LOC:     524223 
-ERR:          0
-MIS:          0
 
 
--- 
-Josh McKinney		     |	Webmaster: http://joshandangie.org
---------------------------------------------------------------------------
-                             | They that can give up essential liberty
-Linux, the choice       -o)  | to obtain a little temporary safety deserve 
-of the GNU generation    /\  | neither liberty or safety. 
-                        _\_v |                          -Benjamin Franklin
+Martin J. Bligh wrote:
+
+>--Andi Kleen <ak@suse.de> wrote (on Saturday, February 07, 2004 04:54:03 +0100):
+>
+>
+>>"Martin J. Bligh" <mbligh@aracnet.com> writes:
+>> 
+>>
+>>>If we really want to do good testing, we should make a fake NUMA config
+>>>that can run a 4x SMP box as fake NUMA, with half the memory in each
+>>>"node" and half the processors ... but I never got around to coding that ;-)
+>>>
+>>I have such a patch for x86-64 if anybody is interested in that.
+>>
+>>x86-64 low level NUMA is quite different from IA32 NUMA though so it 
+>>would be a bit difficult to port.
+>>
+>
+>Not quite sure what you mean ... I was driving at pretending an SMP box
+>was NUMA ... but the x86_64 is already NUMA ... are you grouping nodes
+>together into single nodes with 2 cpus each?
+>
+>What might be intriguing is to use Nick's domains stuff to create a heirarchy
+>for the scheduler where we have 1 cpu nodes and 2 cpu nodes above that, but
+>still keep the normal NUMA stuff flat for mem allocation. What might be 
+>interesting is a heirarchy where if this is the HT connections of cpu layouts:
+>
+>1 --- 2
+>|     |
+>|     | 
+>|     |
+>3 --- 4
+>
+>then domains of (1,2,3) (2,3,4) (1,3,4) (1 2 4), with a view to restricting
+>the "double hop" traffic as much as possible. But I'm not sure the domains
+>code copes with multiple overlapping domains - Nick?
+>
+>
+
+Yes it can do ring topologies like this. I'm pretty sure it can do
+just about any sort of topology although this is one that I sat
+down and drew when designing it.
+
+You can technically restrict a double hop, but after you move, say,
+clockwise once, you might just as easily be moved clockwise again.
+The only way to restrict this is with some kind of home domain thing.
+

@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266140AbUAVANN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 19:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266144AbUAVANN
+	id S264283AbUAVAF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 19:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUAVAF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 19:13:13 -0500
-Received: from gprs148-45.eurotel.cz ([160.218.148.45]:13440 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266140AbUAVANM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 19:13:12 -0500
-Date: Thu, 22 Jan 2004 01:12:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: Bart Samwel <bart@samwel.tk>, Timothy Miller <miller@techsource.com>,
-       Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Redundancy eliminating file systems, breaking MD5, donating money to OSDL
-Message-ID: <20040122001259.GA300@elf.ucw.cz>
-References: <4008480F.70206@techsource.com> <200401162037.i0GKbgWY005453@turing-police.cc.vt.edu> <4008509B.2060707@techsource.com> <200401171415.31645.bart@samwel.tk> <20040120192114.GA30755@citd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jan 2004 19:05:27 -0500
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:7629 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264283AbUAVAFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 19:05:18 -0500
+From: Christian Unger <chakkerz@optusnet.com.au>
+Reply-To: chakkerz@optusnet.com.au
+Organization: naiv.sourceforge.net
+To: Paul Misner <paul@misner.org>
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Date: Thu, 22 Jan 2004 11:05:12 +1100
+User-Agent: KMail/1.5.4
+References: <200401221012.17121.chakkerz@optusnet.com.au> <200401211744.04064.paul@misner.org>
+In-Reply-To: <200401211744.04064.paul@misner.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040120192114.GA30755@citd.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200401221105.12148.chakkerz@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+About module-init-tools ... dunno ... never heard of it, I'm on Slackware 9.1 
+so ... dunno ... Not sure. But like you say, if i could not initalize modules 
+the nvidia module should be the least of my worries, plus everything loads in 
+2.4.22
 
-> There is one fundemental braino in the discussion.
-> 
-> Only HALF the bits are for preventing "accidental" collisions. (The
-> "birthday" thing). The rest is for preventing to "brute force" an input
-> that produces the same MD5.(*)
-> 
-> So MD5 has only 2**64 Bits against accidental collsions
-> Btw. I already had (a/the) MD5 collision(*2) in my life.
-> 
-> So you'd need SHA256 or SHA512 to be "really sure(tm)".
-> 
-> 
-> 
-> *: AFAIR i read this in the specs of SHA1 (160 bits). So i guess this is
-> also true for MD5.
-> 
-> *2: I had a direcory of about 1,5 Million images and "md5sum"med them to
-> eliminate doubles. The Log-file, at one point, had the same md5sum as
-> one of the pictures.
+>
+> What messages do you get about what is going wrong?  What happens when you
+> so a modprobe nvidia?  What does your log file from XFree show?
+on make install i get:
+FATAL: Error inserting nvidia (/lib/modules/2.6.1/kernel/drivers/video/
+nvidia.ko): Invalid module format
 
-Do you have a copy? I believe *many* people would like to see that
-one.
-								Pavel
+That's the same thing that modprobe nvidia gets. 
+I'll check the nv thing out.
+
+One interesting error / warning i get during boot is this (from /var/log/
+syslog) :
+Jan 22 10:43:08 stormcrow kernel: nvidia: version magic '2.6.1 preempt K7 
+gcc-3.2' should be '2.6.1 preempt K7 gcc-3.3'
+Jan 22 10:46:15 stormcrow kernel: nvidia: version magic '2.6.1 preempt K7 
+gcc-3.2' should be '2.6.1 preempt K7 gcc-3.3'
+
+Not sure what to make of this. I know that 4496 had issues with the gcc 
+version i was running a while backed, and i had to hack the installer script 
+to ignore that (though i'm sure there is a switch for this stuff ... i was 
+over reading at that point).
+
+As for the XFree log ... i don't have that one ...
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+with kind regards,
+  Christian Unger
+
+"You don't need eyes to see, you need vision" (Faithless - Reverence)
+
+  Mobile:            0402 268904
+  Internet:          http://naiv.sourceforge.net
+  NAIV Status:
+     Stable       Testing       Development
+      0.2.3r2      0.3.0         0.3.1 - File Handling
+
+"May there be mercy on man and machine for their sins" (Animatrix)
+

@@ -1,47 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbUJYUYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbUJYUYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbUJYUYU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 16:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUJYUXz
+	id S261278AbUJYUYV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 16:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUJYUXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 16:23:55 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:38751 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261275AbUJYUL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 16:11:29 -0400
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [patch 07/10] uml: kbuild - add even more cleaning
-Date: Mon, 25 Oct 2004 22:11:22 +0200
-User-Agent: KMail/1.6.1
-Cc: Chris Wedgwood <cw@f00f.org>, akpm@osdl.org, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-References: <20041012001759.317908695@zion.localdomain> <20041025084308.GA19935@taniwha.stupidest.org>
-In-Reply-To: <20041025084308.GA19935@taniwha.stupidest.org>
+	Mon, 25 Oct 2004 16:23:50 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261278AbUJYUL5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 16:11:57 -0400
+Date: Mon, 25 Oct 2004 16:11:17 -0400 (EDT)
+From: linux-os <root@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Andi Kleen <ak@suse.de>
+cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org
+Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
+ kernels
+In-Reply-To: <p73u0sik2fa.fsf@verdi.suse.de>
+Message-ID: <Pine.LNX.4.61.0410251553400.3949@chaos.analogic.com>
+References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
+ <p73u0sik2fa.fsf@verdi.suse.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410252211.22562.blaisorblade_spam@yahoo.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 October 2004 10:43, Chris Wedgwood wrote:
-> On Tue, Oct 12, 2004 at 02:17:59AM +0200, blaisorblade_spam@yahoo.it wrote:
-> >  MRPROPER_FILES += $(SYMLINK_HEADERS) $(ARCH_SYMLINKS) \
-> > -	$(addprefix $(ARCH_DIR)/kernel/,$(KERN_SYMLINKS))
-> > +	$(addprefix $(ARCH_DIR)/kernel/,$(KERN_SYMLINKS)) $(ARCH_DIR)/os
->
-> these sorts of rules don't work when doing "make O=build ARCH=um ..."
-Yes, they do as much as they can.  Kbuild cd's to the objtree before doing 
-anything. Specifying $(objtree) is not needed. Specifying $(obj) probably 
-does not even work in the ARCH Makefile.
+On Mon, 25 Oct 2004, Andi Kleen wrote:
 
-That said, O=<whatever> is highly broken; it seems that Gerd Knorr was able to 
-build the tree with O=, but actually some files are still created in the 
-source tree, while they should not. This is a problem and would require 
-various changes.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+> Corey Minyard <minyard@acm.org> writes:
+>
+>> I had a customer on x86 notice that sometimes offset 0xf in the CMOS
+>> RAM was getting set to invalid values.  Their BIOS used this for
+>> information about how to boot, and this caused the BIOS to lock up.
+>>
+>> They traced it down to the following code in arch/kernel/traps.c (now
+>> in include/asm-i386/mach-default/mach_traps.c):
+>>
+>>     outb(0x8f, 0x70);
+>>     inb(0x71);              /* dummy */
+>>     outb(0x0f, 0x70);
+>>     inb(0x71);              /* dummy */
+>
+> Just use a different dummy register, like 0x80 which is normally used
+> for delaying IO (I think that is what the dummy access does)
+>
+> But I'm pretty sure this NMI handling is incorrect anyways, its
+> use of bits doesn't match what the datasheets say of modern x86
+> chipsets say. Perhaps it would be best to just get rid of
+> that legacy register twiddling completely.
+>
+> I will also remove it from x86-64.
+>
+> -Andi
+
+Normally the offset of the CMOS RAM is left an an unused
+offset so that the bus-crash that occurs at power-down
+doesn't corrupt the CMOS register contents. After CMOS
+access, the offset should be left at either 0 (the seconds-
+tick) or at 0x7f. In the case of 0x00, the seconds can
+get corrupted at shutdown (it still ticks, but it could
+glitch to a maximum of 59 seconds off). In the case
+of 0x7f, there shouldn't be anything there. Higher offsets
+could alias with some board decodes.
+
+Offset 0x0f is really bad because it stores the reason
+for a shutdown.
+
+One should never use the write-offset-address/read-value
+sequence of the CMOS as some kind of timer. You don't
+even know the bus that accesses it! I could be inside
+a super-I/O chip (fast) or external on the "local" bus
+running at 18 MHz (slow), you just don't know and you
+would need to use the "rtc_lock" spin-lock so that somebody
+doesn't access the chip between the time you set the
+offset and read or write the result.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
+                  98.36% of all statistics are fiction.

@@ -1,35 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265484AbUEZL2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265486AbUEZL23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265484AbUEZL2T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 07:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265486AbUEZL2S
+	id S265486AbUEZL23 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 07:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUEZL23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 07:28:18 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:12401 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265484AbUEZL2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 07:28:17 -0400
-Message-ID: <40B47F47.20504@yahoo.com.au>
-Date: Wed, 26 May 2004 21:28:07 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-CC: mingo@elte.hu, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
-References: <1085568719.2666.53.camel@imp.csi.cam.ac.uk> <1085569838.2666.60.camel@imp.csi.cam.ac.uk>
-In-Reply-To: <1085569838.2666.60.camel@imp.csi.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 May 2004 07:28:29 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46246 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265486AbUEZL21 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 07:28:27 -0400
+Date: Wed, 26 May 2004 13:27:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: torvalds@osdl.org, Ashok Raj <ashok.raj@intel.com>,
+       nickpiggin@yahoo.com.au, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [CPU Hotplug PATCH] Restore Idle task's priority during CPU_DEAD notification
+Message-ID: <20040526112726.GA8499@elte.hu>
+References: <A28EFEDC5416054BA1026D892753E9AF059A50EC@orsmsx404.amr.corp.intel.com> <1085537205.2639.61.camel@bach> <20040526061613.GA18314@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040526061613.GA18314@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
 
->The kernel shows a warning about the number of siblings being 2 but only
->1 being detected.  Perhaps this is the cause of the problem.  Even if
+* Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-Probably this is the cause of the problem.
+> @@ -3569,6 +3569,7 @@ static int migration_call(struct notifie
+>  		rq = task_rq_lock(rq->idle, &flags);
+>  		deactivate_task(rq->idle, rq);
+>  		__setscheduler(rq->idle, SCHED_NORMAL, MAX_PRIO);
+> +		rq->idle->prio = MAX_PRIO;
+>  		task_rq_unlock(rq, &flags);
+>   		BUG_ON(rq->nr_running != 0);
 
-What is the exact message?
+Looks good. A small nit: while your patch creates a perfectly correct
+idle thread too, i'd prefer the modified variant below. The
+__setscheduler() call is (technically) incorrect because in the
+SCHED_NORMAL case the prio should be zero. So it's a bit cleaner to set
+up the static priority to MAX_PRIO and then revert the policy to
+SCHED_NORMAL via __setscheduler(). Ok?
+
+	Ingo
+
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/kernel/sched.c.orig	
++++ linux/kernel/sched.c	
+@@ -3566,7 +3566,8 @@ static int migration_call(struct notifie
+ 		/* Idle task back to normal (off runqueue, low prio) */
+ 		rq = task_rq_lock(rq->idle, &flags);
+ 		deactivate_task(rq->idle, rq);
+-		__setscheduler(rq->idle, SCHED_NORMAL, MAX_PRIO);
++		rq->idle->static_prio = MAX_PRIO;
++		__setscheduler(rq->idle, SCHED_NORMAL, 0);
+ 		task_rq_unlock(rq, &flags);
+  		BUG_ON(rq->nr_running != 0);
+ 

@@ -1,122 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131628AbQLMQ5o>; Wed, 13 Dec 2000 11:57:44 -0500
+	id <S131459AbQLMROa>; Wed, 13 Dec 2000 12:14:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131785AbQLMQ5e>; Wed, 13 Dec 2000 11:57:34 -0500
-Received: from acct2.voicenet.com ([207.103.26.205]:52710 "HELO voicenet.com")
-	by vger.kernel.org with SMTP id <S131628AbQLMQ5U>;
-	Wed, 13 Dec 2000 11:57:20 -0500
-Message-ID: <3A37A34D.9010000@voicefx.com>
-Date: Wed, 13 Dec 2000 11:26:53 -0500
-From: "John O'Donnell" <johnod@voicefx.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i686; en-US; m18) Gecko/20001130
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
-Subject: Re: via82cxxx_audio - bad latency
-In-Reply-To: <Pine.LNX.4.30.0012130244140.1326-100000@fogarty.jakma.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S131664AbQLMROT>; Wed, 13 Dec 2000 12:14:19 -0500
+Received: from dhcp07.ncipher.com ([195.224.55.237]:8178 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S131459AbQLMROP>; Wed, 13 Dec 2000 12:14:15 -0500
+From: David Howells <dhowells@redhat.com>
+To: Christoph Rohland <cr@sap.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH,preliminary] cleanup shm handling 
+In-Reply-To: Message from Christoph Rohland <cr@sap.com> 
+   of "13 Dec 2000 14:52:23 +0100." <qwwvgsoig2w.fsf@sap.com> 
+Date: Wed, 13 Dec 2000 16:43:25 +0000
+Message-ID: <23640.976725805@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma wrote:
 
-> hi,
+> There will be a 
 > 
-> i think somethings gone wrong with via82cxxx_audio. Playing anything
-> through it seems to cause massive latency in apps like xmms, esd,
-> asmixer, etc.. anything to do with playing or mixer levels suddenly
-> takes a minute or more to respond.
+> struct file *shmem_file_setup(char * name, loff_t size)
 > 
-> It didn't always do this, and when it started happening i assumed it
-> was either something bad in esd or xmms (which i tend to upgrade a
-> lot). However it still happens when esd is disabled. eg, i use mpg123
-> to play an mp3 file, and asmixer doesn't change the volume till a
-> minute or two after i moused it.
+> which gives you an open sruct file to an unlinked file of size
+> size. You can then do
 > 
-> if i SIGSTOP mpg123, asmixer immediately becomes responsive again and
-> implements the pending volume change, as soon i SIGCONT mpg123,
-> asmixer becomes very unresponsive again.
+> down(&current->mm->mmap_sem);
+> user_addr = (void *) do_mmap (file, addr, size, prot, flags, 0);
+> up(&current->mm->mmap_sem);
 > 
-> same thing with esd, if i STOP mpg123, other apps like esd and
-> non-esd mixers become responsive, soon as i start playing again they
-> go unresponsive.
-> 
-> same thing with playing from esd applications, everything inlcuding
-> the playing app itself (eg xmms) is unresponsive, if i STOP it, the
-> mixers instantly become responsive, soon as i CONT the playing app
-> everything is "dead" again.
-> 
-> kernel is test12-final. AMD K7, Asus K7M board
-> 
-> [root@fogarty /root]# lspci -vv -s 00:04.5
-> 00:04.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686
-> [Apollo Super AC97/Audio] (rev 21)
-> 	Subsystem: Asustek Computer, Inc.: Unknown device 800d
-> 	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
-> 
->> TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 
-> 	Interrupt: pin C routed to IRQ 10
-> 	Region 0: I/O ports at d400 [size=256]
-> 	Region 1: I/O ports at d000 [size=4]
-> 	Region 2: I/O ports at cc00 [size=4]
-> 	Capabilities: [c0] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> [root@fogarty /root]# cat /proc/interrupts
->            CPU0
->   0:    1064556          XT-PIC  timer
->   1:      18405          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   3:     904332          XT-PIC  eth0
->   8:          1          XT-PIC  rtc
->  10:      75896          XT-PIC  BusLogic BT-958, via82cxxx
->  12:     278174          XT-PIC  PS/2 Mouse
->  14:       3258          XT-PIC  ide0
->  15:     387918          XT-PIC  ide1
-> NMI:          0
-> ERR:          0
-> 
-> the via is sharing an interrupt, though normally the buslogic is not
-> being used. (the interrupt sharing has been there a lot longer than
-> this problem)
-> 
-> i don't have the /proc/driver/via.... files that the docs mention.
-> 
-> regards,
+> with that struct file. You can look at shmget/shmat in ipc/shm.c. They
+> use the same procedure form kernel space. 
 
-Oh my, I am SO glad someone else noticed this!  I was not going to say 
-anything because I thought _I_ was crazy.  I burnt out my CPU yesterday 
-in a nasty experiment (don't ask!) and had to go out and buy a new 
-MB/CPU.  I bought the ASUS CUV4X with sound.  Lo and behold it has the 
-VIA VT82C686A audio.  I get my new system running just great, load this 
-driver, then go do my favorite pastime:  Frag in Unreal Tournament for 
-Linux!  Man was the sound delayed!  I tried 4 Front's driver too with 
-the same results which made me think that this setup really sucked!
+Looks interesting.
 
-I am all set to put a Creative 128 in the system and I stumbled onto
-this message.  :-)
-Johnny O
+There looks to be a logical mapping between CreateFileMapping() + MEM_SHARED
+and your shmem_file_setup(), as long as anonymously named sections are catered
+for (not difficult).
 
--- 
-<SomeLamer> what's the difference between chattr and chmod?
-<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
-	-- Seen on #linux on irc
-=== Never ask a geek why, just nod your head and slowly back away.===
-+==============================+====================================+
-| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
-| Voice FX Corporation (a subsidiary of Student Advantage)          |
-| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
-| Suite 610                    |           www.voicefx.com          |
-| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
-+==============================+====================================+
+There also looks to be a logical mapping between MapViewOfFile() and how you
+propose do_mmap() should be used.
 
+At the moment, I have to do most of do_mmap for myself when
+implementing CreateFileMapping() with SEC_IMAGE as a parameter since I need to
+change the VMA ops table. But that only applies to where a file-backed PE
+Image (EXE/DLL) is being mapped.
+
+I'm not sure how shared sections in PE Images are handled on all versions of
+Windows (ie: whether they are actually shared), but I image I could adapt your
+mechanism for that too. I'd probably just have to create a SHMEM file and load
+the backing data into it, and then use the SHMEM as the file to attach to the
+VMA for that section (and then it's someone else's problem as far as swapping
+is concerned).
+
+If you want a look at what I've done, then you can find it at:
+
+   ftp://infradead.org/pub/people/dwh/wineservmod-20001213.tar.bz2
+
+It will hopefully be in CVS on winehq soon as well.
+
+Look at the files called wineservmod/section* these implement the setting up
+of VMAs in the current processes address space (though don't actually do the
+page-in as yet).
+
+David
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

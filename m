@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVBWXwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVBXALm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVBWXwA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 18:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVBWXuf
+	id S261658AbVBXALm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 19:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVBXAKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 18:50:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57561 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261709AbVBWXj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 18:39:59 -0500
-Message-ID: <421D143E.5080903@pobox.com>
-Date: Wed, 23 Feb 2005 18:39:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Wed, 23 Feb 2005 19:10:39 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:40817 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261665AbVBWXxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 18:53:34 -0500
+Date: Wed, 23 Feb 2005 17:52:25 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
+In-reply-to: <3Be7p-1pY-43@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <421D1739.9090500@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <mlord@pobox.com>
-CC: Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11+ sata_qstor] libata: sata_qstor cosmetic fixes
-References: <421CE018.5030007@pobox.com> <200502232345.23666.adobriyan@mail.ru> <421D1113.9030502@pobox.com>
-In-Reply-To: <421D1113.9030502@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <3Bbj7-7lG-17@gated-at.bofh.it> <3BbMe-7FP-39@gated-at.bofh.it>
+ <3BdkS-GS-21@gated-at.bofh.it> <3BdNW-1bH-29@gated-at.bofh.it>
+ <3Be7p-1pY-43@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Minor patch for new 2.6.xx sata_qstor driver attached,
-> as per Alexey's fine-toothed comb!  :)
+Alan Kilian wrote:
+> 	Maybe that's it.
 > 
-> Signed-off-by: Mark Lord <mlord@pobox.com>
+> 	I ask the card which interrupt line it was given at boot-time:
+> 
+> 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE,
+> 	                     &softp->interrupt_line);
+> 
+> 	Then I request an IRQ:
+> 
+> 	request_irq(softp->interrupt_line, sseintr, 
+>                     SA_INTERRUPT, "sse", softp);
 
-Cool, I'll throw this into libata-2.6 soonish.
+Yeah, that's wrong. Should be request_irq(dev->irq, ... )
 
-	Jeff
+PCI_INTERRUPT_LINE is assigned by the BIOS and has nothing to do with 
+the routing used in APIC mode. That's why it works with noapic mode 
+since then the routing is the same as the BIOS assumed.
 
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
 

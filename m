@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129084AbRDNQX4>; Sat, 14 Apr 2001 12:23:56 -0400
+	id <S132220AbRDNQfh>; Sat, 14 Apr 2001 12:35:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132220AbRDNQXr>; Sat, 14 Apr 2001 12:23:47 -0400
-Received: from dystopia.lab43.org ([209.217.122.210]:49363 "EHLO
-	dystopia.lab43.org") by vger.kernel.org with ESMTP
-	id <S129084AbRDNQXg>; Sat, 14 Apr 2001 12:23:36 -0400
-Date: Sat, 14 Apr 2001 12:21:34 -0400 (EDT)
-From: Rod Stewart <stewart@dystopia.lab43.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 8139too: defunct threads
-In-Reply-To: <002e01c0c4eb$5854b940$5517fea9@local>
-Message-ID: <Pine.LNX.4.33.0104141219450.11838-100000@dystopia.lab43.org>
+	id <S132482AbRDNQfR>; Sat, 14 Apr 2001 12:35:17 -0400
+Received: from proxyd.rim.net ([206.51.26.194]:64420 "HELO mhs99ykf.rim.net")
+	by vger.kernel.org with SMTP id <S132220AbRDNQfE>;
+	Sat, 14 Apr 2001 12:35:04 -0400
+Message-ID: <A9FD1B186B99D4119BCC00D0B75B4D8107F45B05@xch01ykf.rim.net>
+From: Aaron Lunansky <alunansky@rim.net>
+To: "'arthur-p@home.com'" <arthur-p@home.com>,
+        "'axboe@suse.de'" <axboe@suse.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'jgarzik@mandrakesoft.com'" <jgarzik@mandrakesoft.com>
+Subject: Re: loop problems continue in 2.4.3
+Date: Sat, 14 Apr 2001 12:31:49 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If you're intent on making it oops why not write a script to mount/unmount
+it repeatedly?
 
-On Sat, 14 Apr 2001, Manfred Spraul wrote:
 
-> >> Ah. Of course. All (or most) kernel initialisation is
-> >> done by PID 1. Search for "kernel_thread" in init/main.c
-> >>
-> >> So it seems that in your setup, process 1 is not reaping
-> >> children, which is why this hasn't been reported before.
-> >> Is there something unusual about your setup?
+Regards,
+Aaron
+
+
+-----Original Message-----
+From: Arthur Pedyczak <arthur-p@home.com>
+To: Jens Axboe <axboe@suse.de>
+CC: Linux kernel list <linux-kernel@vger.kernel.org>; Jeff Garzik
+<jgarzik@mandrakesoft.com>
+Sent: Sat Apr 14 08:46:49 2001
+Subject: Re: loop problems continue in 2.4.3
+
+On Sat, 14 Apr 2001, Jens Axboe wrote:
+
+[ SNIP..................]
+> > =====================
+> > Apr 13 20:50:03 cs865114-a kernel: Unable to handle kernel paging
+request at virtual address 7e92bfd7
 >
-> > I found the difference which causes this. If I build my kernel with
-> > IP_PNP (IP: kernel level autoconfiguration) support I get a defunt
-> > thread for each 8139too device. If I don't build with IP_PNP
-> > support I don't get any, defunct ethernet threads.
+> Please disable syslog decoding (it sucks) and feed it through ksymoops
+> instead.
 >
-> Does init(8) reap children that died before it was spawned? I assume
-> that the defunct tasks were there _before_ init was spawned.
+> In other words, reproduce and dmesg | ksymoops instead.
 >
-> Perhaps init() [in linux/init/main.c] should reap all defunct tasks
-> before the execve("/sbin/init").
 >
-> I've attached an untested patch, could you try it?
+I tried to reproduce the error this morning and couldn't. Same kernel
+(2.4.3), same setup, same iso file. It mounted/unmounted 10 times with no
+problem. DOn't know what to think.
 
-Yes, that fixes my problem.  No more defunct eth? processes when IP_PNP is
-compiled in.  With the fix you said to the patch; replacing curtask with
-current.
+Arthur
 
-Thanks,
--Rms
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

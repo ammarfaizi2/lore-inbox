@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316503AbSGLRv7>; Fri, 12 Jul 2002 13:51:59 -0400
+	id <S316750AbSGLRz3>; Fri, 12 Jul 2002 13:55:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316739AbSGLRv6>; Fri, 12 Jul 2002 13:51:58 -0400
-Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:34437 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316503AbSGLRv5>; Fri, 12 Jul 2002 13:51:57 -0400
-Date: Fri, 12 Jul 2002 11:53:22 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Dawson Engler <engler@csl.stanford.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <mc@cs.stanford.edu>
-Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8
-In-Reply-To: <Pine.LNX.4.44.0207121934420.8911-100000@serv>
-Message-ID: <Pine.LNX.4.44.0207121151180.3421-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316751AbSGLRz2>; Fri, 12 Jul 2002 13:55:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:24081 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316750AbSGLRz1>;
+	Fri, 12 Jul 2002 13:55:27 -0400
+Date: Fri, 12 Jul 2002 19:58:15 +0200
+From: Dave Jones <davej@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: Daniel Phillips <phillips@arcor.de>, Jesse Barnes <jbarnes@sgi.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: spinlock assertion macros
+Message-ID: <20020712195815.F16956@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Robert Love <rml@tech9.net>, Daniel Phillips <phillips@arcor.de>,
+	Jesse Barnes <jbarnes@sgi.com>,
+	kernel-janitor-discuss <kernel-janitor-discuss@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17SWXm-0002BL-00@starship> <20020711180326.GH709072@sgi.com> <E17SjRh-0002VI-00@starship> <20020712140751.A14671@suse.de> <1026496182.1352.385.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1026496182.1352.385.camel@sinai>; from rml@tech9.net on Fri, Jul 12, 2002 at 10:49:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jul 12, 2002 at 10:49:42AM -0700, Robert Love wrote:
 
-On Fri, 12 Jul 2002, Roman Zippel wrote:
-> Please drop this patch, it's impossible to hit this problem and I have a
-> better patch for this.
+ > > When I came up with the idea[1] I envisioned some linked-lists frobbing,
+ > > but in more recent times, we can now check the preempt_count for a
+ > > quick-n-dirty implementation (without the additional info of which locks
+ > > we hold, lock-taker, etc).
+ > 
+ > Neat idea.  I have seen some other good similar ideas: check
+ > preempt_count on schedule(), check preempt_count in usleep/msleep
+ > (Arjan's idea), and check preempt_count in wakeup/context switch/etc.
+ > code...
 
-You mean
+Sounds sensible. I'd like to see more self-checking bits added for
+preemption. It may be the only way we ever pin down some of the
+outstanding "don't make any sense" bugs.
 
-static inline int affs_rmdir(struct inode *dir, struct dentry *dentry)
-{
-	int res;
-	lock_kernel();
-	res = affs_remove_header(dentry);
-	unlock_kernel();
-	return res;
-}
+        Dave
 
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

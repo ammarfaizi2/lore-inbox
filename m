@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266434AbSKOQng>; Fri, 15 Nov 2002 11:43:36 -0500
+	id <S266453AbSKOQ6u>; Fri, 15 Nov 2002 11:58:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266456AbSKOQng>; Fri, 15 Nov 2002 11:43:36 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:43653 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266438AbSKOQmx>;
-	Fri, 15 Nov 2002 11:42:53 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-From: Jon Tollefson <kniht@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, mailing-lists@digitaleric.net,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <443345337.1037346264@[10.10.2.3]>
-References: <1037373320.19987.23.camel@irongate.swansea.linux.org.uk> 
-	<443345337.1037346264@[10.10.2.3]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 15 Nov 2002 10:49:36 -0600
-Message-Id: <1037378977.6872.113.camel@skynet.rchland.ibm.com>
+	id <S266456AbSKOQ6u>; Fri, 15 Nov 2002 11:58:50 -0500
+Received: from opengfs.tovarcom.com ([65.67.58.21]:52618 "HELO
+	escalade.vistahp.com") by vger.kernel.org with SMTP
+	id <S266453AbSKOQ6s>; Fri, 15 Nov 2002 11:58:48 -0500
+Message-ID: <20021115170836.14228.qmail@escalade.vistahp.com>
+References: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
+In-Reply-To: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
+From: "Brian Jackson" <brian-kernel-list@mdrx.com>
+To: alan@cotse.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD IO error
+Date: Fri, 15 Nov 2002 11:08:36 -0600
 Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-15 at 09:44, Martin J. Bligh wrote:
-> > On Fri, 2002-11-15 at 02:53, Eric Northup wrote:
-> >> Would this be an appropriate use of the "version" tag in Bugzilla?  Currently 
-> >> the only choice is "2.5", but if that were renamed to "2.5-linus", then the 
-> >> other heavily used patchsets could be monitored while making it easy for 
-> >> people who only want to see bugs in Linus' tree.
-> > 
-> > That works for me. Create a 2.5-ac product that is assigned to me. I can
-> > then reassign them all to DaveM as appropriate
-> 
-> Right - that makes sense ... I'll let Jon figure out the best way
-> to acheive this inside bugzilla - Eric's suggestion of version would
-> be nicer, but require some significant mods to bugzilla, I think.
-> Failing that, your suggestion of a new product-type thing would be
-> pretty easy to implement.
-> 
-> M.
-> 
-> 
+Alan Willis writes: 
 
-What if we create a top level category called Patches(or something) and
-have a components under that for each tree, patch set.  So anything
-thats not from Linus' tree could be put into one of these components.
-The natural owner for each of these components would be the maintainer
-of the named tree/patch.  Perhaps that is what you are suggesting above
-and I have misread it?
+> 
+>   I've been getting these messages since about 2.5.45.  I can't mount any
+> cds at all.  Elvtune (util-linux-2.11r) also fails on /dev/hda which I'm
+> running on, and /dev/hdc, my cdrom. 
+> 
+> Any further info needed?
 
-Jon
+Distribution
+IDE controller/motherboard
+a few more lines before and after the error from dmesg 
 
 
+> 
+> -alan 
+> 
+> end_request: I/O error, dev hdc, sector 0
+> hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.12
+> end_request: I/O error, dev hdc, sector 0 
+> 
+> # hdparm /dev/hdc 
+> 
+> /dev/hdc:
+>  HDIO_GET_MULTCOUNT failed: Inappropriate ioctl for device
+>  IO_support   =  0 (default 16-bit)
+>  unmaskirq    =  0 (off)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  1 (on)
+>  readahead    = 256 (on)
+>  HDIO_GETGEO failed: Inappropriate ioctl for device 
+> 
+>  
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+ 

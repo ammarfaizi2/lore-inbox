@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130609AbRBAP2G>; Thu, 1 Feb 2001 10:28:06 -0500
+	id <S130657AbRBAPb0>; Thu, 1 Feb 2001 10:31:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130611AbRBAP14>; Thu, 1 Feb 2001 10:27:56 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:51215 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S130609AbRBAP1s>; Thu, 1 Feb 2001 10:27:48 -0500
-Date: Thu, 1 Feb 2001 15:27:37 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Serious reproducible 2.4.x kernel hang
-In-Reply-To: <20010201144052.B27009@sable.ox.ac.uk>
-Message-ID: <Pine.LNX.4.30.0102011524590.30077-100000@ferret.lmh.ox.ac.uk>
+	id <S130691AbRBAPbR>; Thu, 1 Feb 2001 10:31:17 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39438 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130658AbRBAPa6>; Thu, 1 Feb 2001 10:30:58 -0500
+Subject: Re: 2.4.1 DAC960 driver bug or what's going on?
+To: silviu@delrom.ro (Silviu Marin-Caea)
+Date: Thu, 1 Feb 2001 15:31:44 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010201171928.3e8e964c.silviu@delrom.ro> from "Silviu Marin-Caea" at Feb 01, 2001 05:19:28 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14OLi6-0004So-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> PCI: Found IRQ 11 for device 00:0d.1
+> PCI: The same IRQ used for device 00:07.2
 
-On Thu, 1 Feb 2001, Malcolm Beattie wrote:
+That bit is fine
 
-> Chris Evans writes:
-> > I've just managed to reproduce this personally on 2.4.0. I've had a report
-> > that 2.4.1 is also affected. Both myself and the other person who
-> > reproduced this have SMP i686 machines, which may or may not be relevant.
-> >
-> > To reproduce, all you need to do is get my vsftpd ftp server:
-> > ftp://ferret.lmh.ox.ac.uk/pub/linux/vsftpd-0.0.9.tar.gz
->
-> I got this just before lunch too. I was trying out 2.4.1 + zerocopy
-> (with netfilter configured off, see the sendfile/zerocopy thread for
+> DAC960: ***** DAC960 RAID Driver version 2.4.9 of 7 September 2000 *****
+> DAC960: Copyright 1998-2000 by Leonard N. Zubkoff <lnz@dandelion.com>
+> Kernel panic: DAC960: Logical Drive Block Size 0 not supported
+> 
+> I really don't know what the other device on IRQ 11 would be, since
+> there are no other add-in cards than video and RAID controller.
 
-[...]
+That IMHO isnt the problem
 
-I reproduced with 2.4.1.
+> Same thing happened on an EPoX mainboard, before I tried the controller
+> with this hardware.  No matter what IRQ Mylex gets, linux says there's
+> another device using it.  What would be that device?  PS/2 mouse
+> controller, perhaps?  Why does it stick to Mylex?
 
-> Looking at the kernel's EIP every so often to see what was going
-> showed remove_wait_queue, add_wait_queue, skb_recv_datagram and
-> wait_for_packet mostly. Random thought: if vsftpd did a sendfile and
-> then exited, becoming a zombie, could there be a problem with
-> tearing down a sendfile mapping? I'm off to read some code.
-
-I get it simply doing CTRL-C at the ftp logon prompt. No sendfile has been
-used at this point. Trying to distill a test case...
-
-Cheers
-Chris
-
+Which compiler out of curiosity
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

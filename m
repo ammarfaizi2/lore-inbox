@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137022AbREKCCI>; Thu, 10 May 2001 22:02:08 -0400
+	id <S137026AbREKCSO>; Thu, 10 May 2001 22:18:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137023AbREKCB6>; Thu, 10 May 2001 22:01:58 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:5076 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S137022AbREKCBl>; Thu, 10 May 2001 22:01:41 -0400
-Mime-Version: 1.0
-Message-Id: <p0510030eb720f425344e@[10.128.7.49]>
-In-Reply-To: <Pine.GSO.4.21.0105102001000.3943-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0105102001000.3943-100000@weyl.math.psu.edu>
-Date: Thu, 10 May 2001 19:01:16 -0700
-To: Alexander Viro <viro@math.psu.edu>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: Not a typewriter
+	id <S137027AbREKCSE>; Thu, 10 May 2001 22:18:04 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61188 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S137026AbREKCRt>; Thu, 10 May 2001 22:17:49 -0400
+Subject: Re: lp486e.c for 2.4
+To: Andries.Brouwer@cwi.nl
+Date: Fri, 11 May 2001 10:34:03 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+In-Reply-To: <UTC200105102113.XAA26240.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at May 10, 2001 11:13:18 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14y9JD-0002Dj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 8:07 PM -0400 2001-05-10, Alexander Viro wrote:
->On Thu, 10 May 2001, Jonathan Lundell wrote:
->
->>  ENOTTY is used by several non-serial devices (or file systems) to
->>  object to an unrecognized ioctl command. There's also ENOIOCTLCMD
->>  (apparently supposed to be a non-user errno, but i don't see where it
->>  gets changed to something else) and EINVAL. I'm not sure what the
->>  rationale is for choosing among them; perhaps someone would elucidate?
->
->ENOIOCTLCMD is something I've never met in the kernel. Normal reaction
->to unrecognized ioctl() is ENOTTY, for a lot of reasons, starting with
->the fact that ioctls are last-ditch API to be used when you just can't
->think of better one and historically TTY had the earliest (and largest)
->infestation. IOW, "not a tty" used to mean "WTF are you using ioctls here?"
->OTOH, EINVAL is a catch-all thing for "something is wrong with arguments".
+> Now that on-board ethernet on the lp486e (also known as
+> lpe486 and as elp486 and as PWS and as `Reuters') works
+> out of the box under 2.2.19, people started asking about 2.4.
+> A patch is found at
+>  ftp.XX.kernel.org/.../kernel/people/aeb/lp486e.c-for-2.4.4
+> It works (has gotten all of two minutes testing).
+> Comments are welcome.
 
-That's pretty much what I would have said a couple of hours ago 
-before grepping the kernel. Try it, though. ENOTTY is rarely used. 
-ENOIOCTLCMD is all over the damned place, though its comment in 
-errno.h warns that a user shouldn't see it. And if you browse a bunch 
-of random ioctl handlers, you'll see EINVAL used for a bad command 
-much more often than ENOTTY.
+Thanks. Unfortunately my lp486e committed suicide today, of the blue smoke
+escaping bad smell ex powersupply variety [which btw is why folks got mail
+timeouts]
 
-FWIW, the comment in errno.h under Solaris 2.6 is "Inappropriate 
-ioctl for device". I believe that's the POSIX interpretation.
--- 
-/Jonathan Lundell.
+I'll merge that soon
+
+Alan
+

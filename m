@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275852AbRJGOIA>; Sun, 7 Oct 2001 10:08:00 -0400
+	id <S276370AbRJGOLk>; Sun, 7 Oct 2001 10:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276329AbRJGOHy>; Sun, 7 Oct 2001 10:07:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37125 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275852AbRJGOHl>; Sun, 7 Oct 2001 10:07:41 -0400
-Subject: Re: %u-order allocation failed
-To: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka)
-Date: Sun, 7 Oct 2001 15:12:37 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), riel@conectiva.com.br (Rik van Riel),
-        kszysiu@main.braxis.co.uk (Krzysztof Rusocki), linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1011007141040.1764A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Oct 07, 2001 02:28:17 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qEfV-0005td-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S276377AbRJGOLa>; Sun, 7 Oct 2001 10:11:30 -0400
+Received: from ns.caldera.de ([212.34.180.1]:61853 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S276370AbRJGOLR>;
+	Sun, 7 Oct 2001 10:11:17 -0400
+Date: Sun, 7 Oct 2001 16:11:04 +0200
+Message-Id: <200110071411.f97EB4o26001@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: <pcg@goof.com ( Marc A. Lehmann )>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: zisofs doesn't compile in 2.4.10-ac7
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20011007154324.A4991@schmorp.de>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes - you can run out of vmalloc space. But you run out of it only when
-> you create too many processes (8192), load too many modules etc. If
-> someone needs to put such heavy load on linux, we can expect that he is
-> not a luser and he knows how to increase size of vmalloc space.
+In article <20011007154324.A4991@schmorp.de> you wrote:
+> In file included from uncompress.c:21:
+> /localvol/usr/src/linux-2.4/include/linux/zlib_fs.h:34:19: zconf.h: No such file or directory
+>
+> but the only zconf.h file is in /opt/include (and shouldn't be used anyways).
+>
+> (just another datapoint on why linux should be tested on distributions
+> that do NOT put everything into /usr/include ;)
 
-Not just that - you get fragmentation of it which leads you back to the
-same situation as kmalloc except that with the guard pages you fragment the
-address space more.
+It should be tested with the following patch instead:
 
-Alan
+--- linux/Makefile~	Wed Oct  3 15:31:07 2001
++++ linux/Makefile	Sun Oct  7 17:04:39 2001
+@@ -94,7 +94,8 @@
+ # standard CFLAGS
+ #
+ 
+-CPPFLAGS := -D__KERNEL__ -I$(HPATH)
++GCCINC := $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/\1include/gp')
++CPPFLAGS := -D__KERNEL__ -nostdinc -I$(HPATH) -I$(GCCINC)
+ 
+ CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
+ 	  -fomit-frame-pointer -fno-strict-aliasing -fno-common
+
+

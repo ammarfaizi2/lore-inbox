@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTJCGoX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 02:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbTJCGoX
+	id S263586AbTJCGxC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 02:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbTJCGxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 02:44:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39837 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263578AbTJCGoO convert rfc822-to-8bit
+	Fri, 3 Oct 2003 02:53:02 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:54476 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S263586AbTJCGw7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 02:44:14 -0400
-Date: Thu, 2 Oct 2003 23:39:45 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at arch/sparc64/kernel/module.c:207 (2.6.0-test6)
-Message-Id: <20031002233945.6bd985f9.davem@redhat.com>
-In-Reply-To: <1065113449.7140.18.camel@kusturica>
-References: <1065113449.7140.18.camel@kusturica>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 3 Oct 2003 02:52:59 -0400
+Date: Fri, 3 Oct 2003 09:52:58 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: Jamie Lokier <jamie@shareable.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: idt change in a running kernel? what locking?
+In-Reply-To: <20031003063411.GF15691@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0310030945050.10930@hosting.rdsbv.ro>
+References: <Pine.LNX.4.58.0310030850110.10930@hosting.rdsbv.ro>
+ <20031003063411.GF15691@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02 Oct 2003 18:50:49 +0200
-Magosányi Árpád <mag@bunuel.tii.matav.hu> wrote:
+On Fri, 3 Oct 2003, Jamie Lokier wrote:
 
-> Loading modules...
->    iptable_filter
-> kernel BUG at arch/sparc64/kernel/module.c:207!
+> Catalin BOIE wrote:
+> > What may happen if I modify idt on a running kernel?
+> > It's lock_kernel enough?
+>
+> lock_kernel won't help at all.  It doesn't disable interrupts.
+>
+> It's more likely, you want to use get_cpu()/put_cpu() to prevent the
+> current kernel thread from being pre-empted to a different CPU.
+get_cpu locks the thread on a CPU until put_cpu?
 
-Most modules do not trigger this, because I am loading all kinds
-of modules on sparc64 successfully.
+> > Of course that the new location contain a valid idt table.
+>
+> If the new table has the same entries as the old one for all
+> interrupts which are enabled it should be fine.  "lidt" is an atomic
+> operation with respect to interrupts.
+Great.
 
-Is it only the iptable module that triggers this?
+> If you are intending to change idt on all CPUs, you'll need something
+> more complicated.
 
-If many modules do this for you, I rather suspect your build
-environment.
+Hm. I realized that on a SMP it's a little hard to do it.
+How can I change that on all cpus?
+There is something to use that i can force my code to run on a specific
+cpu?
+
+>
+> -- Jamie
+
+Thank you very much, Jamie!
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

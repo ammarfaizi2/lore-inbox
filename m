@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbUCYTJY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263556AbUCYTJY
+	id S263554AbUCYTHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 14:07:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263565AbUCYTHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:09:24 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:55199 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263578AbUCYTJJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:09:09 -0500
-Date: Thu, 25 Mar 2004 20:09:45 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, piggin@cyberone.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Message-ID: <20040325190944.GB12383@elte.hu>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de>
+	Thu, 25 Mar 2004 14:07:24 -0500
+Received: from mail.shareable.org ([81.29.64.88]:27793 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263554AbUCYTHT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 14:07:19 -0500
+Date: Thu, 25 Mar 2004 19:07:18 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: arch/i386/Kconfig: CONFIG_IRQBALANCE Description
+Message-ID: <20040325190718.GD11236@mail.shareable.org>
+References: <1079996577.6595.19.camel@bach> <16480.28882.388997.71072@gargle.gargle.HOWL> <c3qa94$qhi$1@news.cistron.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040325154011.GB30175@wotan.suse.de>
+In-Reply-To: <c3qa94$qhi$1@news.cistron.nl>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miquel van Smoorenburg wrote:
+> Is that real SMP, or hyperthreading? If it's hyperthreading, then
+> it makes sense that the IRQs are not balanced.
 
-* Andi Kleen <ak@suse.de> wrote:
+That's unfair to the two tasks which might be running on each virtual
+CPU: one of the tasks is interrupted often.
 
-> It doesn't do load balance in wake_up_forked_process() and is
-> relatively non aggressive in balancing later. This leads to the
-> multithreaded OpenMP STREAM running its childs first on the same node
-> as the original process and allocating memory there. [...]
+> In fact I have a server on which the IRQ balancing code does
+> balance over the 2 virtual CPUs by accident (still have to debug
+> what goes wrong and file a proper bug report) and as a result
+> performance sucked until I turned it off.
 
-i believe the fix we want is to pre-balance the context at fork() time. 
-I've implemented this (which is basically just a reuse of
-sched_balance_exec() in fork.c, and the related namespace cleanups), 
-could you give it a go:
+What caused the suckage?  Obviously there's a small time spend doing
+the work of rebalancing, but there is no cache hit from moving an
+interrupt between virtual CPUs, unlike with SMP, so why did that make
+performance suck?
 
-  http://redhat.com/~mingo/scheduler-patches/sched-2.6.5-rc2-mm2-A5
-
-another solution would be to add SD_BALANCE_FORK.
-
-also, the best place to do fork() blancing is not at
-wake_up_forked_process() time, but prior doing the MM copy. This patch
-does it there. At wakeup time we've already copied all the pagetables
-and created tons of dirty cachelines.
-
-	Ingo
+-- Jamie

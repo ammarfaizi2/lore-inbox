@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUG1VRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUG1VTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbUG1VRY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUG1VRY
+	id S264113AbUG1VTo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 17:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbUG1VTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:17:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62406 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263943AbUG1VRH (ORCPT
+	Wed, 28 Jul 2004 17:19:44 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:18121 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264113AbUG1VTj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:17:07 -0400
-Date: Wed, 28 Jul 2004 14:20:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ncunningham@linuxmail.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Per kthread freezer flags
-Message-Id: <20040728142026.79860177.akpm@osdl.org>
-In-Reply-To: <1090999301.8316.12.camel@laptop.cunninghams>
-References: <1090999301.8316.12.camel@laptop.cunninghams>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 28 Jul 2004 17:19:39 -0400
+Subject: [PATCH] Create cpu_sibling_map for PPC64
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1091049554.19459.33.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 28 Jul 2004 14:19:15 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@linuxmail.org> wrote:
->
-> At the moment, all kthreads have PF_NOFREEZE set, meaning that they're
-> not refrigerated during a suspend. This isn't right for some threads.
-> They should be frozen while suspending. The attached patch implements
-> per-kthread freezer flags. It does this by adding a new parameter to the
-> create_workqueue call and its siblings. The new parameter contains the
-> process flags relevant to suspending to be set. At the moment, this only
-> means PF_FREEZE, but when I send the freezer improvements, a
-> PF_SYNCTHREAD flag will also be valid here. The new parameter is passed
-> down through the calls and applied (after masking invalid bits) once the
-> thread is created.
-> 
-> Pavel has seen the code and requested that I send it.
-> 
-> Regards,
-> 
-> Nigel
-> 
-> diff -ruN linux-2.6.8-rc1-mm1/drivers/acpi/osl.c linux-2.6.8-rc1-mm1-kthread_refrigerator/drivers/acpi/osl.c
-> --- linux-2.6.8-rc1-mm1/drivers/acpi/osl.c	2004-07-28 16:37:46.000000000 +1000
-> +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/drivers/acpi/osl.c	2004-07-28 16:43:48.000000000 +1000
-> @@ -81,7 +81,7 @@
->  		return AE_NULL_ENTRY;
->  	}
->  #endif
-> -	kacpid_wq = create_singlethread_workqueue("kacpid");
-> +	kacpid_wq = create_singlethread_workqueue("kacpid", 0);
+In light of some proposed changes in the sched_domains code, I coded up
+this little ditty that simply creates and populates a cpu_sibling_map
+for PPC64 machines.  The patch just checks the CPU flags to determine if
+the CPU supports SMT (aka Hyper-Threading aka Multi-Threading aka ...)
+and fills in a mask of the siblings for each CPU in the system.  This
+should allow us to build sched_domains for PPC64 with generic code in
+kernel/sched.c for the SMT systems.  SMT is becoming more popular and is
+turning up in more and more architectures.  I don't think it will be too
+long until this feature is supported by most arches...
 
-hm.  In some ways I'd prefer to see new
-create_singlethread_workqueue_freezer(char *) or whatever, rather than
-adding an extra argument.  That's neater, smaller code and
-forward-compatible.
+[mcd@arrakis source]$ diffstat
+~/linux/patches/ppc64-cpu_sibling_map.patch
+ arch/ppc64/kernel/smp.c |    7 +++++++
+ include/asm-ppc64/smp.h |    1 +
+ 2 files changed, 8 insertions(+)
 
-But then again, the advantage of breaking the build for unconverted code is
-that it makes people think about what their threads should be doing, so
-let's go your way.
+Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 
-The one concern I'd have is that $RANDOM_KERNEL_DEVELOPER probably doesn't
-have a clue whether or not his kernel thread should be setting PF_NOFREEZE.
-What are the guidelines here?
+-Matt
 
-wrt your "Add missing refrigerator support" patch: I'll suck that up, but
-be aware that there's a big i2o patch in -mm which basically rips out the
-driver which you just fixed up.  Perhaps you can send Markus Lidel
-<Markus.Lidel@shadowconnect.com> and I a fix for that version of the driver
-sometime?
+
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.8-rc2-mm1/arch/ppc64/kernel/smp.c linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/arch/ppc64/kernel/smp.c
+--- linux-2.6.8-rc2-mm1/arch/ppc64/kernel/smp.c	2004-07-28 10:50:29.000000000 -0700
++++ linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/arch/ppc64/kernel/smp.c	2004-07-28 12:02:38.000000000 -0700
+@@ -64,6 +64,7 @@ cpumask_t cpu_possible_map = CPU_MASK_NO
+ cpumask_t cpu_online_map = CPU_MASK_NONE;
+ cpumask_t cpu_available_map = CPU_MASK_NONE;
+ cpumask_t cpu_present_at_boot = CPU_MASK_NONE;
++cpumask_t cpu_sibling_map[NR_CPUS] = { [0 .. NR_CPUS-1] = CPU_MASK_NONE };
+ 
+ EXPORT_SYMBOL(cpu_online_map);
+ EXPORT_SYMBOL(cpu_possible_map);
+@@ -870,6 +871,12 @@ void __init smp_prepare_cpus(unsigned in
+ 	for_each_cpu(cpu)
+ 		if (cpu != boot_cpuid)
+ 			smp_create_idle(cpu);
++
++	for_each_cpu(cpu) {
++		cpu_set(cpu, cpu_sibling_map[cpu]);
++		if (cur_cpu_spec->cpu_features & CPU_FTR_SMT)
++			cpu_set(cpu ^ 0x1, cpu_sibling_map[cpu]);
++	}
+ }
+ 
+ void __devinit smp_prepare_boot_cpu(void)
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.8-rc2-mm1/include/asm-ppc64/smp.h linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/include/asm-ppc64/smp.h
+--- linux-2.6.8-rc2-mm1/include/asm-ppc64/smp.h	2004-07-28 10:50:50.000000000 -0700
++++ linux-2.6.8-rc2-mm1+ppc64-cpu_sibling_map/include/asm-ppc64/smp.h	2004-07-28 12:02:38.000000000 -0700
+@@ -49,6 +49,7 @@ extern cpumask_t cpu_present_at_boot;
+ extern cpumask_t cpu_online_map;
+ extern cpumask_t cpu_possible_map;
+ extern cpumask_t cpu_available_map;
++extern cpumask_t cpu_sibling_map[NR_CPUS];
+ 
+ #define cpu_present_at_boot(cpu) cpu_isset(cpu, cpu_present_at_boot)
+ #define cpu_available(cpu)       cpu_isset(cpu, cpu_available_map) 
+
 

@@ -1,51 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286824AbRLVQ5Y>; Sat, 22 Dec 2001 11:57:24 -0500
+	id <S286825AbRLVQ5Y>; Sat, 22 Dec 2001 11:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286825AbRLVQ5P>; Sat, 22 Dec 2001 11:57:15 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:13062 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S286824AbRLVQ46>;
-	Sat, 22 Dec 2001 11:56:58 -0500
-Message-ID: <XFMail.20011222175451.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S286826AbRLVQ5P>; Sat, 22 Dec 2001 11:57:15 -0500
+Received: from ldap.elis.rug.ac.be ([157.193.67.1]:62891 "EHLO
+	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
+	id <S286825AbRLVQ5B>; Sat, 22 Dec 2001 11:57:01 -0500
+Date: Sat, 22 Dec 2001 17:56:55 +0100 (CET)
+From: Frank Cornelis <fcorneli@elis.rug.ac.be>
+To: <linux-kernel@vger.kernel.org>
+Subject: earlyclobber
+Message-ID: <Pine.LNX.4.33.0112221752150.6586-100000@trappist.elis.rug.ac.be>
 MIME-Version: 1.0
-In-Reply-To: <20011222165020Z286821-18284+6166@vger.kernel.org>
-Date: Sat, 22 Dec 2001 17:54:51 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Andreas Kinzler <akinzler@gmx.de>
-Subject: RE: Injecting packets into the kernel
-Cc: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can use a raw socket:
+Hi,
 
-socket(AF_INET,SOCK_RAW,IPPROTO_RAW);
+I think that in the file include/asm-i386/uaccess.h in some macro's the 
+ecx register should be marked as an "earlyclobber" operand since it is 
+one. Patch follows.
 
-On 22-Dec-2001 Andreas Kinzler wrote:
-> I am trying to fix a problem in diald (demand dialing tool). The problem is
-> that
-> somewhen you need to resubmit IP packets to the kernel that were buffered
-> while the
-> link (PPP in most cases) was down. However, a bit of debugging showed that
-> the method
-> used in diald does not work. You cannot submit to ppp0 directly because of
-> masq/forwaring
-> issues. Can somebody give me some hints how to submit packets from a user
-> mode programm.
-> 
-> Andreas
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Frank.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+--- linux-2.4.17/include/asm-i386/uaccess.h	Sat Dec 22 09:35:17 2001
++++ linux/include/asm-i386/uaccess.h	Sat Dec 22 17:32:14 2001
+@@ -151,7 +151,7 @@
+ ({							\
+ 	long __pu_err = -EFAULT;					\
+ 	__typeof__(*(ptr)) *__pu_addr = (ptr);		\
+-	if (access_ok(VERIFY_WRITE,__pu_addr,size))	\
++	if (access_ok(VERIFY_WRITE,__pu_addr,(size)))	\
+ 		__put_user_size((x),__pu_addr,(size),__pu_err);	\
+ 	__pu_err;					\
+ })							
+@@ -337,7 +337,7 @@
+ 			"	.align 4\n"			\
+ 			"	.long 0b,2b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+@@ -356,7 +356,7 @@
+ 			"	.long 0b,3b\n"			\
+ 			"	.long 1b,4b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+@@ -375,7 +375,7 @@
+ 			"	.long 0b,3b\n"			\
+ 			"	.long 1b,4b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+@@ -397,7 +397,7 @@
+ 			"	.long 1b,5b\n"			\
+ 			"	.long 2b,6b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+@@ -427,7 +427,7 @@
+ 			"	.align 4\n"			\
+ 			"	.long 0b,2b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+@@ -459,7 +459,7 @@
+ 			"	.long 0b,3b\n"			\
+ 			"	.long 1b,4b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+@@ -491,7 +491,7 @@
+ 			"	.long 0b,3b\n"			\
+ 			"	.long 1b,4b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+@@ -533,7 +533,7 @@
+ 			"	.long 1b,5b\n"			\
+ 			"	.long 2b,6b\n"			\
+ 			".previous"				\
+-			: "=c"(size), "=&S" (__d0), "=&D" (__d1)\
++			: "=&c"(size), "=&S" (__d0), "=&D" (__d1)\
+ 			: "1"(from), "2"(to), "0"(size/4)	\
+ 			: "memory");				\
+ 		break;						\
+

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265549AbUA0Q25 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 11:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265578AbUA0Q25
+	id S265633AbUA0QjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 11:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUA0QjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 11:28:57 -0500
-Received: from gw-nl6.philips.com ([161.85.127.52]:51188 "EHLO
-	gw-nl6.philips.com") by vger.kernel.org with ESMTP id S265549AbUA0Q2A
+	Tue, 27 Jan 2004 11:39:18 -0500
+Received: from CPE0080c6f0a1ca-CM014280009361.cpe.net.cable.rogers.com ([24.157.199.55]:10500
+	"EHLO stargazer") by vger.kernel.org with ESMTP id S265633AbUA0QjQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 11:28:00 -0500
-Message-ID: <40169236.2050606@basmevissen.nl>
-Date: Tue, 27 Jan 2004 17:30:46 +0100
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Cc: rmps@joel.ist.utl.pt, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: RFC: Trailing blanks in source files
-References: <Pine.LNX.4.58.0401271544120.27260@joel.ist.utl.pt> <20040128.011537.81631272.yoshfuji@linux-ipv6.org>
-In-Reply-To: <20040128.011537.81631272.yoshfuji@linux-ipv6.org>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 27 Jan 2004 11:39:16 -0500
+Date: Tue, 27 Jan 2004 11:41:54 -0500
+From: Glenn Wurster <gwurster@scs.carleton.ca>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Glenn Wurster <gwurster@scs.carleton.ca>, Alan Cox <alan@redhat.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org
+Subject: Re: [PATCH] ide-dma.c, ide.c, ide.h, kernel 2.4.24
+Message-ID: <20040127164154.GB1024@desktop>
+References: <20040123183245.GB853@desktop> <200401240045.56966.bzolnier@elka.pw.edu.pl> <20040127055206.GA690@electric.ath.cx> <200401271614.40542.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401271614.40542.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YOSHIFUJI Hideaki / ???? wrote:
-> In article <Pine.LNX.4.58.0401271544120.27260@joel.ist.utl.pt> (at Tue, 27 Jan 2004 15:44:56 +0000 (WET)), Rui Saraiva <rmps@joel.ist.utl.pt> says:
-> 
-> 
->>	It seems that many files [1] in the Linux source have lines with
->>trailing blank (space and tab) characters and some even have formfeed
->>characters. Obviously these blank characters aren't necessary.
-> 
-> 
-> I do not like to change this if it is done blindly.
-> 
 
-Agree. But if you compile a allconfigyes kernel before and after and 
-they appear to be binary equal, we know we are pretty safe :-)
+> Doh.  I overlooked one place.
+> IMO this check needs to be added only to two places.
 
+True, I added the check three times to emphasise the three different
+calls which could potentially OOPS (at least upon initial
+observation).  It could be optimized into 2 checks.
 
-Regards,
+> Did you test this patch?
 
-Bas.
+Yes.
 
+> I've seen this and decided that it is not needed.
+> 
+> If we try to program drives to DMA on non-DMA host
+> something is going wrong and it is better to just OOPS.
+
+This makes sense.  Did you want to update the patch for those proposed
+changes (You're more familiar with the code than I - I'm reluctant to
+play too much with code unless I understand what it is doing)?  I'd be
+willing to test an updated patch.
+
+> I suspect that this is caused by unfinished handling of simplex
+> devices in setup-pci.c (simplex host - one DMA engine but two
+> channels).
+
+I'm really not familiar with the complexities behind DMA
+programming, especially when it comes to simplex devices so I'm
+probably not in much of a position to finish up handling of simplex
+devices.
+
+Glenn.

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317803AbSGKJo0>; Thu, 11 Jul 2002 05:44:26 -0400
+	id <S317804AbSGKJwN>; Thu, 11 Jul 2002 05:52:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317805AbSGKJoZ>; Thu, 11 Jul 2002 05:44:25 -0400
-Received: from users-vst.linvision.com ([62.58.92.114]:45955 "EHLO
+	id <S317806AbSGKJwM>; Thu, 11 Jul 2002 05:52:12 -0400
+Received: from users-vst.linvision.com ([62.58.92.114]:2948 "EHLO
 	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S317803AbSGKJoY>; Thu, 11 Jul 2002 05:44:24 -0400
-Message-Id: <200207110946.LAA08800@cave.bitwizard.nl>
-Subject: Re: [STATUS 2.5]  July 10, 2002
-In-Reply-To: <E17SOg4-0007oM-00@the-village.bc.nu> from Alan Cox at "Jul 10,
- 2002 10:07:12 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 11 Jul 2002 11:46:10 +0200 (MEST)
-CC: Cort Dougan <cort@fsmlabs.com>, Robert Love <rml@tech9.net>,
-       Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org
+	id <S317804AbSGKJwK>; Thu, 11 Jul 2002 05:52:10 -0400
+Message-Id: <200207110954.LAA08806@cave.bitwizard.nl>
+Subject: Re: [PATCH] 2.4 IDE core for 2.5
+In-Reply-To: <20020709200711.GA13401@win.tue.nl> from Andries Brouwer at "Jul
+ 9, 2002 10:07:11 pm"
+To: Andries Brouwer <aebr@win.tue.nl>
+Date: Thu, 11 Jul 2002 11:54:03 +0200 (MEST)
+CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
 From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
 X-notice: Read http://www.bitwizard.nl/cou.html for the licence to my Emailaddr.
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
@@ -23,33 +23,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-(I missed part of this thread. I hope I correcltly deduced that you
-guys are talking about the improved disk troughput when increasing the
-HZ clock rate ... )
-
-
-Alan Cox wrote:
-> > Why was the rate incremented to maintain interactive performance?  Wasn't
-> > that the whole idea of the pre-empt work?  Does the burden of pre-empt
-> > actually require this?
+Andries Brouwer wrote:
+> On Tue, Jul 09, 2002 at 12:22:49PM +0200, Jens Axboe wrote:
 > 
-> Bizarrely in many cases it increases throughput
+> > I've forward ported the 2.4 IDE core to 2.5.25.
+> 
+> Very good!
 
-IMHO, This is a hint that there is something not quite right with the
-scheduler.
+Ehmm. We have had "old IDE support" in the kernel for "ages".  We have
+two aic7xxx driver, two rtl8139 drivers, two, or more ncr53c8xx drivers. 
 
-This effect has been reported here a couple of times. 
+So why in the case of IDE has the "new IDE" driver not been forked and
+implemented under a new "name" such that those working on other stuff
+can chose to use the "old reliable" driver while others daring to test
+the new advanced rewrite can do so?
 
-If increasing the timer rate improves disk throughput that means that
-the disk-reading process is not scheduled immediately following the
-disk interrupt, but is somehow left waiting until the next timer
-tick....
-
-It should be scheduled "immediately" even if there is another
-cpu-eating process: the scheduling heuristics should help there... 
-
-				Roger. 
+			Roger. 
 
 -- 
 ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **

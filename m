@@ -1,89 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbTGFNJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 09:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTGFNJQ
+	id S262318AbTGFNjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 09:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTGFNjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 09:09:16 -0400
-Received: from imf.math.ku.dk ([130.225.103.32]:54924 "EHLO imf.math.ku.dk")
-	by vger.kernel.org with ESMTP id S262257AbTGFNJO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 09:09:14 -0400
-Date: Sun, 6 Jul 2003 15:23:45 +0200 (CEST)
-From: Peter Berg Larsen <pebl@math.ku.dk>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
-In-Reply-To: <200307060223.15730.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.40.0307061435030.21749-100000@shannon.math.ku.dk>
+	Sun, 6 Jul 2003 09:39:09 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:8900 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262318AbTGFNjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 09:39:06 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: 2.5.74-mm1
+Date: Sun, 6 Jul 2003 15:54:48 +0200
+User-Agent: KMail/1.5.2
+Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+References: <20030703023714.55d13934.akpm@osdl.org> <200307060414.34827.phillips@arcor.de> <Pine.LNX.4.55.0307051918310.4599@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.55.0307051918310.4599@bigblue.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307061554.48126.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 6 Jul 2003, Dmitry Torokhov wrote:
-
-
-> -		psmouse_process_packet(psmouse, regs);
-> -		psmouse->pktcnt = 0;
-> +
-> +	if (psmouse->pktcnt == 1 && psmouse->packet[0] == PSMOUSE_RET_BAT) {
-> +		serio_rescan(serio);
->  		goto out;
->  	}
+On Sunday 06 July 2003 04:21, Davide Libenzi wrote:
+> On Sun, 6 Jul 2003, Daniel Phillips wrote:
+> > On Sunday 06 July 2003 03:28, Jamie Lokier wrote:
+> > > Your last point is most important.  At the moment, a SCHED_RR process
+> > > with a bug will basically lock up the machine, which is totally
+> > > inappropriate for a user app.
+> >
+> > How does the lockup come about?  As defined, a single SCHED_RR process
+> > could lock up only its own slice of CPU, as far as I can see.
 >
-> -	if (psmouse->pktcnt == 1 && psmouse->type == PSMOUSE_SYNAPTICS) {
-> +	if (psmouse->type == PSMOUSE_SYNAPTICS) {
+> They're de-queued and re-queue in the active array w/out having dynamic
+> priority adjustment (like POSIX states). This means that any task with
+> lower priority will starve if the RR task will not release the CPU.
 
+OK, I see, I didn't pay close enough attention to the "it will be put at the 
+end of the list _for its priority_" part.
 
-Why did you move the rescan up above the synaptics test? if the synaptics
-is out of sync, any byte can be recieved.
+So SCHED_RR is broken by design, too bad.  Now, how would SCHED_RR_NOTBROKEN 
+work?
 
+Regards,
 
-> +static int synaptics_pt_write(struct serio *port, unsigned char c)
-> +{
-> +	struct psmouse *parent = port->driver;
-> +	char client_cmd = 0x28; // indicates that we want pass-through port
-
-Could client_cmd be renamed to f.ex. rate_param?
-
-
-> +		if (child->init_done) {
-> +			serio_interrupt(ptport, packet[1], 0, NULL);
-> +			if (child->type >= PSMOUSE_GENPS)
-> +				serio_interrupt(ptport, packet[2], 0, NULL);
-> +			serio_interrupt(ptport, packet[4], 0, NULL);
-> +			serio_interrupt(ptport, packet[5], 0, NULL);
-
-The 4th protocol byte from a guest is the 3rd byte in the encapsulated
-packet from the pad. So I would move "if (..." last.
-
-There might be a (de)multiplexing problem here. The button information
-(pressed/released) in byte 0 and 3 is lost, and are not repeated in the
-guest protocol.
-
-
-> +	port->type = SERIO_PS_PSTHRU;
-> +	port->name = "Synaptics pass-through";
-> +	port->phys = "synaptics-pt/serio0";
-> +	port->write = synaptics_pt_write;
-> +	port->open = synaptics_pt_open;
-> +	port->close = synaptics_pt_close;
-> +	port->driver = psmouse;
-> +
-> +	printk(KERN_INFO "serio: %s port at %s\n", port->name, psmouse->phys);
-> +	serio_register_slave_port(port);
-> +
-> +	return 0;
-> +}
-> +
-
-Bit 2 in the pads second mode byte must be set if the guest uses a 4 bytes
-protocol. So you need to check which protocol is negotiated on the slave
-port.
-
-
-Peter
-
+Daniel
 

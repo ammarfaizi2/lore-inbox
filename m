@@ -1,104 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUH3KbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUH3Kbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUH3KbW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 06:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267626AbUH3KbW
+	id S267238AbUH3Kbt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 06:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267626AbUH3Kbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 06:31:22 -0400
-Received: from open.hands.com ([195.224.53.39]:46311 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S267563AbUH3Kas (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 06:30:48 -0400
-Date: Mon, 30 Aug 2004 11:42:02 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: fireflier firewall userspace program doing userspace packet filtering
-Message-ID: <20040830104202.GG3712@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+	Mon, 30 Aug 2004 06:31:49 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:47276 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S267238AbUH3Kbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 06:31:46 -0400
+Message-ID: <4133020F.1060306@grupopie.com>
+Date: Mon, 30 Aug 2004 11:31:43 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Albert Cahalan <albert@users.sf.net>
+Cc: Roger Luethi <rl@hellgate.ch>, William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
+References: <20040827122412.GA20052@k3.hellgate.ch>	 <20040827162308.GP2793@holomorphy.com>	 <20040828194546.GA25523@k3.hellgate.ch>	 <20040828195647.GP5492@holomorphy.com>	 <20040828201435.GB25523@k3.hellgate.ch>	 <20040829160542.GF5492@holomorphy.com>	 <20040829170247.GA9841@k3.hellgate.ch>	 <20040829172022.GL5492@holomorphy.com>	 <20040829175245.GA32117@k3.hellgate.ch>	 <20040829181627.GR5492@holomorphy.com>	 <20040829190050.GA31641@k3.hellgate.ch> <1093810645.434.6859.camel@cube>
+In-Reply-To: <1093810645.434.6859.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.37; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, this message is probably directed at catching rusty's attention
-(hi rusty) but anyone who is able to help, assistance much appreciated.
-please reply cc as i ain't subscribing to lkml!
+Albert Cahalan wrote:
+>...
+> 
+> This is crummy. It's done for wchan, since that is so horribly
+> expensive, but I'm not liking the larger race condition window.
+> Remember that PIDs get reused. There isn't a generation counter
+> or UUID that can be checked.
 
-background:
+I just wanted to call your attention to the kallsyms speedup patch that 
+is now on the -mm tree.
 
-	i find only _one_ firewall program [in debian] that
-	is capable of doing firewall on-demand "popup" rule
-	creation and packet filtering, it's called "fireflier".
+It should improve wchan speed. My benchmarks for kallsyms_lookup (the 
+function that was responsible for the wchan time) went from 1340us to 0.5us.
 
-	this also the _only_ program that i know of that also
-	does user-space packet filtering.
-
-	in other words, not only can fireflier allow you to
-	create rules as-and-when packets come in or out (and
-	they are queued/blocked until they are "approved")
-	but also it allows you to create firewall rules on a
-	PER-PROGRAM basis.
-
-	which is very cool, and i don't see _any_ other firewall
-	program doing that - for linux.
-
-
-[if anyone knows of any such MATURE AND STABLE userspace firewall
- programs with the same capability as fireflier please do let me know
- because the questions stop]
-
-
-with that background in mind, here is the problem:
-
-	fireflier's "per-program" userspace packet filtering
-	is very basic: it contains NO state-based filtering.
-	none.  zip.  nada.
-
-	therefore, when a program dies, the "pid" of the
-	program, which is part of the rule, becomes lost,
-	such that FIN ACK and RST packets get thrown to the
-	queue... and consequently to the user, because you can
-	be certain that there will not have been a RST or FIN
-	ACK firewall rule created!!!
-
-with the background and the problem in mind, here is the question:
-
-	is it possible to leverage - and i mean without cut/pasting
-	large parts of kernel-space code into fireflier-in-userspace -
-	the EXISTING kernel's iptables functionality in some way,
-	such that per-program packet filtering may be performed?
-
-i don't actually care whether code is moved into kernel (100 lines),
-i don't care if code is added in userspace (100 lines).  what i am
-looking for is a QUICK way to, say... leverage an existing API
-in the kernel, add one extra field (a pid) to the kernel as a hack,
-add a callback and a void* to the ip tracking structures as an
-"extra packet check" as a hack, that sort of thing, where the userspace
-callback gets its original void* plus the packet handed to it.
-
-the last thing i want is to cut/paste several man-years of code
-from the kernel to user-space - things like ip_conntrack.
-
-
-ultimate aim:
-
-	to be able to "enhance" existing iptables firewall rule
-	checking rather than to be backed into a corner of "replacing"
-	existing functionality.... just because of one extra check
-	[the pid]
-
-l.
+So maybe this is enough not to make wchan a special case anymore...
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Paulo Marques - www.grupopie.com
 
+To err is human, but to really foul things up requires a computer.
+Farmers' Almanac, 1978

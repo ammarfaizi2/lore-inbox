@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278578AbRJXP3d>; Wed, 24 Oct 2001 11:29:33 -0400
+	id <S278572AbRJXPbd>; Wed, 24 Oct 2001 11:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278572AbRJXP3X>; Wed, 24 Oct 2001 11:29:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19850 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278568AbRJXP3J>;
-	Wed, 24 Oct 2001 11:29:09 -0400
-Date: Wed, 24 Oct 2001 08:29:25 -0700 (PDT)
-Message-Id: <20011024.082925.68578636.davem@redhat.com>
-To: baggins@sith.mimuw.edu.pl
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: acenic breakage in 2.4.13-pre
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011024164533.C15474@sith.mimuw.edu.pl>
-In-Reply-To: <20011024164533.C15474@sith.mimuw.edu.pl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S278583AbRJXPbY>; Wed, 24 Oct 2001 11:31:24 -0400
+Received: from defiant.coinet.com ([204.245.234.17]:10504 "HELO
+	defiant.coinet.com") by vger.kernel.org with SMTP
+	id <S278572AbRJXPbI>; Wed, 24 Oct 2001 11:31:08 -0400
+Date: Wed, 24 Oct 2001 08:31:41 -0700
+From: Gary Mart <gmart@coinet.com>
+To: linux-kernel@vger.kernel.org
+Subject: missing RealTek 8129/8139 (not 8019/8029!) support
+Message-ID: <20011024083141.A10635@defiant.coinet.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-   Date: Wed, 24 Oct 2001 16:45:33 +0200
-   
-   Speaking of acenic - it's broken in 2.4.13-pre. I have 3c985 and all I
-   get with 2.4.13-pre is "Firmware NOT running!". After I backed the
-   changes from -pre patch it started and works fine. Maybe the problem is
-   I have it in 32bit PCI slot?
+Sirs:
 
-Do you have CONFIG_HIGHMEM enabled?  If so, please try with
-it turned off.
+"RealTek 8129/8139 (not 8019/8029!) support"
+seems to be missing from 'make menuconfig' in linux-2.2.19.tar.bz2.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+And CONFIG_RTL8139 was not in the .config file.  However, when I
+added CONFIG_RTL8139=m by hand to .config the module was built.
+
+I checked on an earlier kernel and the RealTek support option
+appears right before the "Other ISA cards" option.
+
+Gary Mart
+gmart@coinet.com

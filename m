@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315460AbSEOODH>; Wed, 15 May 2002 10:03:07 -0400
+	id <S315799AbSEOODe>; Wed, 15 May 2002 10:03:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315799AbSEOODG>; Wed, 15 May 2002 10:03:06 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:23305 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id <S315460AbSEOODG>;
-	Wed, 15 May 2002 10:03:06 -0400
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Adaptec Aic7xxx driver & 2.4.19pre8aa2
-In-Reply-To: <20020515130328.GA19698@spylog.ru>
-User-Agent: tin/1.5.12-20020227 ("Toxicity") (UNIX) (Linux/2.4.18 (i586))
-Message-Id: <E177zMw-0000ml-00@roos.tartu-labor>
-Date: Wed, 15 May 2002 17:03:06 +0300
+	id <S315842AbSEOODd>; Wed, 15 May 2002 10:03:33 -0400
+Received: from zeke.inet.com ([199.171.211.198]:64702 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S315799AbSEOODc>;
+	Wed, 15 May 2002 10:03:32 -0400
+From: "Jordan Breeding" <jordan.breeding@inet.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Cc: "Jordan Breeding" <jordan.breeding@inet.com>,
+        "Jordan Breeding" <jordan.breeding@attbi.com>
+Subject: Problem with nmi watchdog
+Date: Wed, 15 May 2002 09:01:58 -0500
+Message-ID: <HAEOIKGLLLDPLCHFOMMOAECNCAAA.jordan.breeding@inet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have had similar problems with integrated AIC7850 on Digital Celebris GL 5133
-ST. 2.4.19-pre7 and pre8 only tested so far, no earlier kernels tested at all.
+Hello,
 
-Selecting old adaptec scsi deriver works like a charm.
+  I have a Tyan Thunder K7 (S2462UNG) which does not like using the nmi
+watchdog automatically.  If I boot up nmi_watchdog=1 then the machine show
+no interrupt in the nmi columns of /proc/interrupts.  While checking the
+boot log I see the message about CPU#0 being stuck.  This is made more
+interesting by the fact that if I boot using nmi_watchdog=2 then everything
+works fine.  Why will the automatic detection using nmi_watchdog=1 not work
+(my current kernel is 2.5.15-dj1)?  Thanks.
 
-AN> aic7xxx_dev_reset returns 0x2002
+Jordan Breeding
 
-I had 0x2008 here IIRC. Did not capture the output because this was about the
-root partition and I had no serial cable at home. Will capture it with serial
-console today.
-
--- 
-Meelis Roos (mroos@linux.ee)

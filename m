@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267633AbRG2JrG>; Sun, 29 Jul 2001 05:47:06 -0400
+	id <S267776AbRG2KA2>; Sun, 29 Jul 2001 06:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267584AbRG2Jq4>; Sun, 29 Jul 2001 05:46:56 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:29703 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S267633AbRG2Jqp>; Sun, 29 Jul 2001 05:46:45 -0400
-Date: Sun, 29 Jul 2001 11:46:40 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Steve Snyder <swsnyder@home.com>
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: What does "Neighbour table overflow" message indicate?
-Message-ID: <20010729114640.A5359@ping.be>
-In-Reply-To: <01072820231401.01125@mercury.snydernet.lan> <01072820534802.01125@mercury.snydernet.lan> <20010729135728.B3282@weta.f00f.org> <01072821151103.01125@mercury.snydernet.lan>
+	id <S267809AbRG2KAS>; Sun, 29 Jul 2001 06:00:18 -0400
+Received: from weta.f00f.org ([203.167.249.89]:14726 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S267776AbRG2KAF>;
+	Sun, 29 Jul 2001 06:00:05 -0400
+Date: Sun, 29 Jul 2001 22:00:41 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Matthew Gardiner <kiwiunixman@yahoo.co.nz>,
+        "Philip R. Auld" <pauld@egenera.com>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
+Message-ID: <20010729220041.A3694@weta.f00f.org>
+In-Reply-To: <no.id> <E15QZSA-00083U-00@the-village.bc.nu> <200107290705.f6T756j02316@mobilix.ras.ucalgary.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <01072821151103.01125@mercury.snydernet.lan>
+Content-Disposition: inline
+In-Reply-To: <200107290705.f6T756j02316@mobilix.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, Jul 28, 2001 at 09:15:11PM -0500, Steve Snyder wrote:
-> 
-> Further snooping shows the error msg text in file inux/net/ipv4/route.c:
-> 
->     if (net_ratelimit())
->         printk("Neighbour table overflow.\n");
-> 
-> The reference to "net_ratelimit" make me wonder if it is related to 
-> iptables.  I am using iptable, and have since kernel 2.4.1, but I've seen 
-> these messages before.  Hmmm.
+On Sun, Jul 29, 2001 at 03:05:06AM -0400, Richard Gooch wrote:
 
-net_ratelimit() is there to only log something every 5 seconds,
-so your logs don't get flooded.  It should be used for every
-printk that has to do with net.
+    Yeah, I'd rather see all source open. But that's an ideal world. In
+    the meantime, many people want $$$. One of the great things about
+    Linux is that it is open and allows different funding models. The
+    success of Linux is due to the openness, not some cool technological
+    feature.
 
-See core/utils.c
+People all need to appreciate sometimes vendors cannot released open
+source drivers even if they wanted too.  Sometimes vendors have the
+ability to released binary only drivers which are derived in part from
+source-code which they license --- but cannot share.
+
+This is also the case for various SCSI cards and such like, firmware
+is provided binary-only because the source for the firmware isn't
+something that can be distributed.
 
 
-Kurt
 
+  --cw

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265962AbUFOVPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265960AbUFOVRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265962AbUFOVPP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 17:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUFOVPP
+	id S265960AbUFOVRo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 17:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265969AbUFOVRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 17:15:15 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:45102 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265962AbUFOVPK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 17:15:10 -0400
-Date: Tue, 15 Jun 2004 23:24:24 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
-Subject: Re: [PATCH 0/5] kbuild
-Message-ID: <20040615212424.GA4040@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Tue, 15 Jun 2004 17:17:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9479 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265960AbUFOVRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 17:17:38 -0400
+Date: Tue, 15 Jun 2004 22:17:34 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 1/5] kbuild: default kernel image
+Message-ID: <20040615221734.J7666@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org> <20040615190951.C7666@flint.arm.linux.org.uk> <20040615191418.GD2310@mars.ravnborg.org> <20040615204616.E7666@flint.arm.linux.org.uk> <20040615205557.GK2310@mars.ravnborg.org> <20040615205958.GG14528@smtp.west.cox.net>
+	Linus Torvalds <torvalds@osdl.org>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204405.GB15243@mars.ravnborg.org> <20040614220549.L14403@flint.arm.linux.org.uk> <20040615044020.GC16664@mars.ravnborg.org> <20040615093807.A1164@flint.arm.linux.org.uk> <20040615085952.GA19197@infradead.org> <20040615210739.GM2310@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040615205958.GG14528@smtp.west.cox.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040615210739.GM2310@mars.ravnborg.org>; from sam@ravnborg.org on Tue, Jun 15, 2004 at 11:07:39PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 01:59:58PM -0700, Tom Rini wrote:
-> On Tue, Jun 15, 2004 at 10:55:57PM +0200, Sam Ravnborg wrote:
-> > On Tue, Jun 15, 2004 at 08:46:16PM +0100, Russell King wrote:
-> > > That leaves uImage which I've discussed already in a previous mail,
-> > > and various other targets which I've historically said I won't merge
-> > > (as I detailed in a previous mail - srec, gzipped vmlinux, gzipped
-> > > Image, etc.)
-> > For arm it looks simple, but for ppc the commandline to mkuboot.sh
-> > varies depending on configuration.
-> 
-> No it doesn't.  CONFIG_SHELL doesn't count :)
+On Tue, Jun 15, 2004 at 11:07:39PM +0200, Sam Ravnborg wrote:
+> Better make life easier - but in a nice and structured way.
 
-It was the other way around.
+Life /was/ easy when there was just zImage and Image on ARM.  All you
+had to do was decide whether you wanted a compressed or uncompressed
+binary image of the kernel, where compressed images were the normal.
 
->From arm:
+And this is the way I'd preferred it to stay since we have a nice
+sane structured idea of what we provide without any major "what
+file format do I need" problems.
 
-      cmd_uimage = $(CONFIG_SHELL) $(MKIMAGE) -A arm -O linux -T kernel \
-                   -C none -a $(ZRELADDR) -e $(ZRELADDR) \
-                   -n 'Linux-$(KERNELRELEASE)' -d $< $@
+The problem starts happening when boot loaders think they can dictate
+to the kernel what format they want the kernel to be in - at that
+point the number of kernel image formats and methods to boot the
+kernel increases and everything gets a lot more complex.
 
-And ZRELADDR varies with configuration, ~20 different values.
+This is the whole basis of my argument.  We shouldn't make it easy
+for people to extend this stupid idea that the boot loader defines
+the format which the kernel shall be in.  It's the _wrong_ idea.
 
-	Sam
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264095AbUEXHZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264108AbUEXH2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbUEXHZT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUEXHZS
+	id S264108AbUEXH2t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbUEXH2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 03:25:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65188 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264095AbUEXHY6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 03:24:58 -0400
-Date: Mon, 24 May 2004 09:24:49 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+	Mon, 24 May 2004 03:28:39 -0400
+Received: from web90003.mail.scd.yahoo.com ([66.218.94.61]:56212 "HELO
+	web90003.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S264108AbUEXH1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 03:27:06 -0400
+Message-ID: <20040524072705.16212.qmail@web90003.mail.scd.yahoo.com>
+Date: Mon, 24 May 2004 00:27:05 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
 Subject: Re: 4g/4g for 2.6.6
-Message-ID: <20040524072449.GA2067@devserv.devel.redhat.com>
-References: <1085382314.2780.6.camel@laptop.fenrus.com> <20040524071126.92368.qmail@web90009.mail.scd.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
-Content-Disposition: inline
-In-Reply-To: <20040524071126.92368.qmail@web90009.mail.scd.yahoo.com>
-User-Agent: Mutt/1.4.1i
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040524072449.GA2067@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thats great!  Do you include a change file to see what
+other patches have been applied?
 
---VS++wcV0S1rZb1Fb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thank you very much for your help.
+Phy
 
-On Mon, May 24, 2004 at 12:11:26AM -0700, Phy Prabab wrote:
-> Is this source, or precompiled targeting just RH
-> setups?
+--- Arjan van de Ven <arjanv@redhat.com> wrote:
+> On Mon, May 24, 2004 at 12:11:26AM -0700, Phy Prabab
+> wrote:
+> > Is this source, or precompiled targeting just RH
+> > setups?
+> 
+> it's both actually.
+> 
 
-it's both actually.
+> ATTACHMENT part 2 application/pgp-signature 
 
---VS++wcV0S1rZb1Fb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFAsaNBxULwo51rQBIRAgvNAJ9JF16oD7b8EPAHG2WUTnahrqj8+QCgo3wj
-GIB9G8RPayaEEv8xH2+eBCQ=
-=mAc8
------END PGP SIGNATURE-----
-
---VS++wcV0S1rZb1Fb--
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Domains – Claim yours for only $14.70/year
+http://smallbusiness.promotions.yahoo.com/offer 

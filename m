@@ -1,88 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUIGOTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUIGOT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268080AbUIGOTu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUIGOTu
+	id S268086AbUIGOT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268089AbUIGOT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:19:50 -0400
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:21986 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S268080AbUIGOTp convert rfc822-to-8bit (ORCPT
+	Tue, 7 Sep 2004 10:19:59 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:53720 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S268086AbUIGOTx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:19:45 -0400
-Subject: Re: [PATCH 4/4] copyfile: copyfile
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Steve French <smfltc@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org>
-References: <20040907120908.GB26630@wohnheim.fh-wedel.de>
-	 <20040907121118.GA27297@wohnheim.fh-wedel.de>
-	 <20040907121235.GB27297@wohnheim.fh-wedel.de>
-	 <20040907121520.GC27297@wohnheim.fh-wedel.de>
-	 <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Organization: University of Cambridge Computing Service, UK
-Message-Id: <1094566775.25420.13.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 07 Sep 2004 15:19:36 +0100
-Content-Transfer-Encoding: 8BIT
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Tue, 7 Sep 2004 10:19:53 -0400
+Message-ID: <413DC38F.5000000@cs.aau.dk>
+Date: Tue, 07 Sep 2004 16:19:59 +0200
+From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040619)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: umbrella-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
+References: <41385FA5.806@cs.aau.dk> <1094220870.7975.19.camel@localhost.localdomain>            <4138CE6F.10501@cs.aau.dk> <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
+In-Reply-To: <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-07 at 15:06, Linus Torvalds wrote:
-> On Tue, 7 Sep 2004, Jörn Engel wrote:
-> >
-> > Again, the syscall itself may be a stupid idea, but Steve indicated
-> > interest for cifs.  I'll hide behind his back and let him fight for
-> > it. ;)
+Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 03 Sep 2004 22:05:03 +0200, =?UTF-8?B?S3Jpc3RpYW4gU8O4cmVuc2Vu?= said:
 > 
-> Well, this isn't useful for cifs.
 > 
-> For cifs to be able to use it, the "copyfile()" interface needs to
-> basically just be a pathname operation (ie a "dir->i_op->copy()"), not a
-> "struct file" operation.  It's more like the VFS "->rename()" or "->link"
-> operations, in other words. And it should return -EXDEV the same way
-> rename returns EXDEV if the files aren't on the same filesystem.
+>>Also simple bufferoverflows in suid-root programs may be avoided. The 
+>>simple way would to set the restriction "no fork", and thus if an 
+>>attacker tries to fork a (root) shell, this would be denied.
+> 
+> 
+> All this does is stop fork().  I'm not sure, but most shellcodes I've seen
+> don't bother forking, they just execve() a shell....
+I think you totally misunderstood the thing...
 
-Indeed.  A pathname based operation would be useful for any fs with
-"added features".  For example, on NTFS it could be used to preserve
-named streams and extended attributes which would otherwise be lost. 
-Mind you, the current NTFS driver cannot create files yet so it will be
-a while until such a "copyfile()" is useful there...
+Umbrella is a scheme that allow the user to restrict the capabilities of
+a process within his own processes. Preventing the process to fork is
+ONE thing that can be restricted but they might be plenty of others.
 
-> Then you could (and should) make a "generic_file_copy()" function that
-> takes that pathname format, and then uses sendfile() to do the copy for
-> regular disk-based filesystems.
-> 
-> I think you should be able to copy the "sys_link()" code for almost all of 
-> the top-level stuff. The only real difference being
-> 
-> -	error = dir->i_op->link(old_dentry, dir, new_dentry);
-> +	error = dir->i_op->copy(old_dentry, dir, new_dentry);
-> 
-> or something.
-> 
-> And no, I don't know how to handle interruptability. I think the right
-> answer may be that filesystems that don't support this as a "native op"  
-> and can't do it quickly should just return an error, and then users can
-> copy their multi-gigabyte files by hand, like they used to.
-> 
-> So if we do this, we do this _right_. We also make sure that we error out 
-> "too much" rather than "too little", so that people don't start depending 
-> on behaviour that we don't want them to depend on. 
+The idea is that each process originating from this process will inherit
+from this restriction (and possibly have some more) and can NEVER been
+granted to restore this capability again.
 
-Best regards,
+Now, this has a direct application to restrict the harm that can cause a
+buffer-overflow, but nobody said that it would stop them...
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+> Papering over *that* one by restricting fchmod just means the exploit needs to
+> append a line to /etc/passwd, or create a trojan inetd.conf or crontab entry,
+> or any of the other myriad ways a program can leave a backdoor (there's a
+> *reason* SELinux ends up with all those rules - this isn't an easy task)...
+> 
+> Remember - just papering over the fact that most shellcodes just execve() a
+> shell doesn't fix the fundemental problem, which is that the attacker is able
+> to run code of his choosing as root.
+Right. Now who wants to volunteered to find a simple and yet efficient
+solution to this problem? :-)
 
+
+KS.

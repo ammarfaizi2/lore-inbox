@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289849AbSAWNR3>; Wed, 23 Jan 2002 08:17:29 -0500
+	id <S289853AbSAWNTj>; Wed, 23 Jan 2002 08:19:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289844AbSAWNRT>; Wed, 23 Jan 2002 08:17:19 -0500
-Received: from [202.54.26.202] ([202.54.26.202]:44192 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S289849AbSAWNRM>;
-	Wed, 23 Jan 2002 08:17:12 -0500
-X-Lotus-FromDomain: HSS
-From: gspujar@hss.hns.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <65256B4A.0048D8DF.00@sandesh.hss.hns.com>
-Date: Wed, 23 Jan 2002 18:49:29 +0530
-Subject: linux kernel source
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S289850AbSAWNT3>; Wed, 23 Jan 2002 08:19:29 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:43460 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S289853AbSAWNTQ>; Wed, 23 Jan 2002 08:19:16 -0500
+Date: Wed, 23 Jan 2002 14:19:06 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@hades.uni-trier.de
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Timothy Covell <timothy.covell@ashavan.org>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Dave Jones <davej@suse.de>,
+        Andreas Jaeger <aj@suse.de>, Martin Peters <mpet@bigfoot.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+In-Reply-To: <20020123125545.A5882@suse.cz>
+Message-ID: <Pine.LNX.4.40.0201231411240.31513-100000@hades.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Jan 2002, Vojtech Pavlik wrote:
+> Won't ACPI idle do that well enough?
 
+yes ... and no!
+first: my patch is useless, if you don't activate acpi idle calls ...
+second: the idle calls will not save power on an athlon/duron/athlon xp ,
+unless a specific bit in the chipset is set, which will cause the chipset
+to disconnect the frontside bus of the cpu ... and this is what the patch
+does: it sets only the bit in the northbridge of the kt133/kx133 and
+kt266/266a chipset ... -> now the acpi idle calls will bring power saving
+and lesser temperature
+the patch inserts a pci_quirk function which sets the bit in the
+northbridge ... (at the boot-prompt you have to pass the comment
+amd_disconnect=yes to use this function ...)
 
+daniel
 
-Hi,
-Where can I get the source code for "init" process on internet ?
-and  the entire kernel source code.
-
-Any pointers ?
-
-Thanks
--Girish
-
-
-"DISCLAIMER: This message is proprietary to Hughes Software Systems Limited
-(HSS) and is intended solely for the use of the individual  to whom it is
-addressed. It may contain  privileged or confidential information  and should
-not be circulated or used for any purpose other than for what it is intended. If
-you have received this message in error, please notify the originator
-immediately. If you are not the intended recipient, you are notified that you
-are strictly prohibited from using, copying, altering, or disclosing the
-contents of this message. HSS accepts no responsibility for loss or damage
-arising from the use of the information transmitted by this email including
-damage from virus."
-
-
-
-
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
 

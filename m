@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbUFJTPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUFJTPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbUFJTPN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 15:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUFJTPN
+	id S262538AbUFJTPE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 15:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUFJTPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 15:15:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31640 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262451AbUFJTOB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 15:14:01 -0400
-Date: Thu, 10 Jun 2004 20:14:00 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Greg KH <greg@kroah.com>
-Cc: sensors@stimpy.netroedge.com,
-       "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Finding user/kernel pointer bugs [no html]
-Message-ID: <20040610191359.GJ12308@parcelfarce.linux.theplanet.co.uk>
-References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu> <20040610044903.GE12308@parcelfarce.linux.theplanet.co.uk> <20040610165821.GB32577@kroah.com> <20040610191004.GA1661@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040610191004.GA1661@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 10 Jun 2004 15:15:04 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:752 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262538AbUFJTNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 15:13:40 -0400
+Date: Thu, 10 Jun 2004 15:07:12 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Serial ATA (SATA) on Linux status report (2.6.x mainstream plan
+ for AHCI and iswraid??)
+In-Reply-To: <40C8A5F6.3030002@pobox.com>
+Message-ID: <Pine.GSO.4.33.0406101452220.14297-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10, 2004 at 12:10:04PM -0700, Greg KH wrote:
-> @@ -170,8 +170,11 @@
->  static int DIV_TO_REG(int val)
->  {
->  	int answer = 0;
-> -	while ((val >>= 1))
-> +	val >>= 1;
-> +	while (val) {
->  		answer++;
-> +		val >>= 1;
-> +	}
->  	return answer;
+On Thu, 10 Jun 2004, Jeff Garzik wrote:
+>Have you tried Carl-Daniel's raiddetect?  2.6 does not include
+>ataraid-based drivers, preferred a Device Mapper (DM) approach instead.
 
-That's less readable than the original...
+Have you looked at it lately?  It's a nice start but far from finished.
+It will not build an array or tell you how to build one yourself.  (Yet)
+And it's completely userland (part of udev) so it's a complicated
+initrd-required path.
 
-> -		data_ptrs = (u8 **) kmalloc(rdwr_arg.nmsgs * sizeof(u8 *),
-> -					    GFP_KERNEL);
-> +		data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
+If you can read code (lkml... I'll assume everyone can), the header files
+provide the on-disk metadata, so you can figure out the appropriate dm table
+and/or mdadm config to get the job done.  For example:
+  mdadm --build /dev/md/d0 --chunk=16 --level=0 --raid-devices=4 /dev/sd[abcd]
+or a dm-table:
+  0 1250327228 striped 4 32 /dev/sda 0 /dev/sdb 0 /dev/sdc 0 /dev/sdd 0
+works for me (4x160G SATA drives on a SI3114 in raid0 mode.)  The same
+md setup can be done via the kernel cmdline to boot into the array.
+However, there aren't any code pieces in the kernel for reading any of
+the various ataraid metadata formats and setting things up. (again, /yet/)
 
-While we are at it, what's the type of ->nmsgs?
+--Ricky
+
+PS: Only the "dm" version is 100% safe.  /dev/md/d0 exposes the entire
+    disk, metadata sectors included.
+
+

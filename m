@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130142AbRBBVvV>; Fri, 2 Feb 2001 16:51:21 -0500
+	id <S129057AbRBBVwb>; Fri, 2 Feb 2001 16:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130245AbRBBVvM>; Fri, 2 Feb 2001 16:51:12 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:51205 "EHLO devel.uklinux.net")
-	by vger.kernel.org with ESMTP id <S130142AbRBBVvA>;
-	Fri, 2 Feb 2001 16:51:00 -0500
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Fri, 2 Feb 2001 21:51:04 +0000 (GMT)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        linux-kernel@vger.kernel.org
+	id <S130013AbRBBVwL>; Fri, 2 Feb 2001 16:52:11 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47624 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129057AbRBBVwD>; Fri, 2 Feb 2001 16:52:03 -0500
 Subject: Re: Every Make option ends in error.
-In-Reply-To: <Pine.LNX.3.95.1010202160531.692A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0102022146300.31978-100000@localhost.localdomain>
+To: ken@kenmoffat.uklinux.net (Ken Moffat)
+Date: Fri, 2 Feb 2001 21:53:01 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0102022052090.31663-100000@localhost.localdomain> from "Ken Moffat" at Feb 02, 2001 08:59:37 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Oo8f-0007FD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dick, and Mark, thanks. It's compiling nicely now. We learn by experience.
-Cheers, Ken
+>  Copied a plain 2.4.0 tree to a new directory, patched it to 2.4.1 without
+> any errors. Then I realised it had all the object files from my last
+> compile, so I thought "make mrproper" was called for. It did a little,
+> then
 
-> Not to worry. In your new Linux directory tree do:
-> 
-> cd include
-> mv asm /tmp	# or /usr/src, someplace temporary.
-> 
-> cd ..		# Back to Linux
-> cp .config ..	# Save your configuration
-> make mrproper	# Make like a distribution
-> cp ../.config . # Restore configuration
-> make oldconfig	# Re-do configuration
-> make dep	# Re-do dependencies
-> make bzImage	# Doit toit
-> 
-> After everything works, recursively delete the saved 'asm'
-> directory that was moved outside the kernel tree.
-> 
+You copied the link and turned it into its contents
 
+> rm: include/asm: is a directory
+> make: *** [mrproper] Error 1
+
+do rm -rf include/asm and then rerun the makes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

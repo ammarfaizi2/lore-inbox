@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUHTQYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUHTQ1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267508AbUHTQYh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 12:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268319AbUHTQYh
+	id S263736AbUHTQ1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 12:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268319AbUHTQY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 12:24:37 -0400
-Received: from pop.gmx.net ([213.165.64.20]:40083 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267508AbUHTQYa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 12:24:30 -0400
-X-Authenticated: #438326
-From: Michael Geithe <warpy@gmx.de>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: 2.6.8.1-mm2 (nvidia breakage)
-Date: Fri, 20 Aug 2004 18:24:32 +0200
-User-Agent: KMail/1.7
-References: <20040819092654.27bb9adf.akpm@osdl.org> <20040819225848.GE1263@hygelac> <200408200953.11440.bjorn.helgaas@hp.com>
-In-Reply-To: <200408200953.11440.bjorn.helgaas@hp.com>
-Cc: linux-kernel@vger.kernel.org, Terence Ripperda <tripperda@nvidia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 12:24:57 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:5390 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S268314AbUHTQYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 12:24:34 -0400
+Date: Fri, 20 Aug 2004 18:23:31 +0200
+From: "'DervishD'" <disposable1@telefonica.net>
+To: Robert White <rwhite@casabyte.com>
+Cc: "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'Linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: setproctitle
+Message-ID: <20040820162331.GB1238@DervishD>
+Mail-Followup-To: Robert White <rwhite@casabyte.com>,
+	'William Lee Irwin III' <wli@holomorphy.com>,
+	'Linux-kernel' <linux-kernel@vger.kernel.org>
+References: <20040818085850.GW11200@holomorphy.com> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAvgXAGuUD20CaadqFIQ1OWQEAAAAA@casabyte.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200408201824.33004.warpy@gmx.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAvgXAGuUD20CaadqFIQ1OWQEAAAAA@casabyte.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 August 2004 17:53, you wrote:
+    Hi Robert :)
 
-> I didn't see any oops there.
+ * Robert White <rwhite@casabyte.com> dixit:
+> > The command-line arguments are being fetched from the process address
+> > space, i.e. simply editing argv[] in userspace will have the desired
+> > effect. Though this code is butt ugly.
+[...]
+> Can the entirety of arg[] be moved to a newly allocated region, if
+> so how?  (e.g. wouldn't I have to have access to overwrite
+> mm->arg_start etc?
 
-Hi Bjorn,
+    That was one of the problems I was having: overwriting the memory
+you already have is easy, but moving... I mean, you realloc and move
+the memory but the kernel doesn't notice it, am I wrong?
+ 
+> I'd prefer a setthreadtitle(char * new_title) such that the
+> individual threads in a process (including the master thread, and
+> so setproctitle() function is covered) could be re-titled to
+> declare their purposes.  It would make debugging and logging a lot
+> easier and/or more meaningful sometimes. 8-)
 
-i searched my logs and found that.
+    Exactly ;)
+ 
+> I'd be willing to work on this if there is interest.
 
-Aug 20 18:03:53 stargate kernel: irq 16: nobody cared!
-Aug 20 18:03:53 stargate kernel:  [<c0106520>] __report_bad_irq+0x24/0x7b
-Aug 20 18:03:53 stargate kernel:  [<c01065f9>] note_interrupt+0x64/0x88
-Aug 20 18:03:53 stargate kernel:  [<c010694d>] do_IRQ+0x1af/0x1fb
-Aug 20 18:03:53 stargate kernel:  [<c0104890>] common_interrupt+0x18/0x20
-Aug 20 18:03:53 stargate kernel: handlers:
-Aug 20 18:03:53 stargate kernel: [<f9a11145>] (usb_hcd_irq+0x0/0x5d [usbcore])
-Aug 20 18:03:53 stargate kernel: [<f9a11145>] (usb_hcd_irq+0x0/0x5d [usbcore])
-Aug 20 18:03:53 stargate kernel: Disabling IRQ #16
+    I'm VERY interested, but the problem is that in any case I won't
+be able to use that in my programs since portability is sometimes an
+issue :( Not all OS are able of such things. The problem, in the end,
+is that changing the name of the process is not a standard thing...
 
+    Thanks for your help :)
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-Michael Geithe
-
--
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267761AbTBRMJO>; Tue, 18 Feb 2003 07:09:14 -0500
+	id <S267785AbTBRMPi>; Tue, 18 Feb 2003 07:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267762AbTBRMJN>; Tue, 18 Feb 2003 07:09:13 -0500
-Received: from [199.203.178.211] ([199.203.178.211]:28496 "EHLO
-	exchange.store-age.com") by vger.kernel.org with ESMTP
-	id <S267761AbTBRMJN> convert rfc822-to-8bit; Tue, 18 Feb 2003 07:09:13 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	id <S267786AbTBRMPi>; Tue, 18 Feb 2003 07:15:38 -0500
+Received: from radium.jvb.tudelft.nl ([130.161.82.13]:44738 "EHLO
+	radium.jvb.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S267785AbTBRMPg>; Tue, 18 Feb 2003 07:15:36 -0500
+Date: Tue, 18 Feb 2003 13:25:40 +0100 (CET)
+From: Robbert Kouprie <robbert@radium.jvb.tudelft.nl>
+To: sim@netnation.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-pre4] IDE hangs box after timeout
+Message-ID: <Pine.LNX.4.44.0302181257260.16107-100000@radium.jvb.tudelft.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Possible bug in ext3 versus filter drivers in 2.4.18-3, 2.4.18-14 and 2.4.20.
-Date: Tue, 18 Feb 2003 14:17:28 +0200
-Message-ID: <AE0DC697C2336C4A9767AE031CE4B344134FCE@exchange.store-age.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Possible bug in ext3 versus filter drivers in 2.4.18-3, 2.4.18-14 and 2.4.20.
-Thread-Index: AcLXR7RGd+52c7NBRAaawKL5QYRRaw==
-From: "Alexander Sandler" <ASandler@store-age.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Ohad Levin" <OLevin@store-age.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Razor-id: 11abbec2dad9fbe60580e158a4580e2768df271d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list.
 
-I am working on a filter driver. 
+Hi,
 
-In my driver, I am monitoring whether requests I redirected to other driver were successful or not. To do so, I am replacing b_end_io and b_private fields in buffer header. This way, instead of calling the default completion routine, system is calling my completion routine, which used to, among the other things, recover original b_end_io and b_private fields from value I placed in b_private when mapped the request and call original b_end_io with appropriate uptodate value. 
+Simon Kirby wrote:
 
-The problem with ext3 is that it is accessing b_private field in locked buffer headers. It is treating b_private field I placed in buffer header, as journal header. As a result, I am getting multiple segmentation faults in different places and you can imagine what else. 
+> I don't think this happened on older kernels (< 2.4.18ish), but it may
+> have happened on 2.4.20 (though I have other problems with 2.4.20 on
+> this box that makes testing more difficult -- it tends to Oops fairly
+> often).
 
-The problem starts somewhere in ext3_new_block() in fs/ext3/balloc.c. In the begging it's obtaining buffer header and eventually it's calling __ext3_journal_get_undo_access() in  include/linux/ext3_jbd.h. From there, it goes to journal_get_undo_access() in fs/jbd/transaction.c, then to journal_add_journal_head() in fs/jbd/journal.c and so on. Journal header is obtained in line stating "jh = bh2jh(bh);" in journal_add_journal_head().
+I encountered the same problem on a system with just one PDC20269, 2
+drives attached to it, and 2 drives attached onboard. This system has an
+Enermax 430W power supply, and I would think this was enough for a pentium
+3, 3 PCI cards and 4 disks.
 
-I see two possible fixes. First, we can make sure filter drivers do not change b_private field in buffer header. It seems to be quite odd solution since as far as I understood, this is what b_private filed is there for (among the other things of course). Other option is to make sure that ext3_new_block() won't access locked buffer headers. This seems to be more reasonable. 
-I am afraid I am not really an expert in file systems in general and in ext3 in particularly, so I don't know what exactly to do. Perhaps someone can fix this thing or guide me how to do so.
+Kernels older than 2.4.18 don't have LBA48 support, so would restrict the
+20269 in its use. I also encountered the problem with kernel 2.4.17 +
+Andre Hedrick's IDE patch, though. Also with 2.4.18/19 and various 2.4.20
+-pre and -ac versions upto 2.4.20-rc1-ac4. Testing 2.4.21-pre4-ac4 now.
 
-Finally, I found this thing in 2.4.18-3 (RH 7.3). I checked 2.4.18-14 (RH 8.0) and 2.4.20. It seems that the problem is there for all three versions of kernel.
+> I had to use a number of power splitters which are, of course, cheap
+> and thus unreliable, and occasionally a few drives will fall off of
+> the bus.
 
-Thank you.
+I don't use power splitters as this power supply has enough connectors.
 
-Alexandr Sandler.
+> hda: dma_timer_expiry: dma status == 0x21
+> hda: timeout waiting for DMA
+> hda: timeout waiting for DMA
+> hda: (__ide_dma_test_irq) called while not waiting
+
+I see the exact same message.
+
+> ...followed by a complete lockup where sysreq does not appear to work.
+
+For me, the system also locks up completely when there's two disks
+connected to the 20269, one on each channel (Note it's always a drive on
+the 20269 which drops dead). When you make sure there's only *one* disk
+connected to the 20269 (one disk in total, not one on each channel), and
+this disk drops dead, then it's just the disk and controller being dead,
+and the system continues to run. I imagine the 20269 will lock up the PCI
+bus when >1 drives connected to it and one of the drives drops dead.
+
+I'm not sure if we should call this a kernel bug though.
+
+> ( Yes, a new power supply is on order. :) )
+
+I hope this will solve the problem for you. For me it didn't :(
+
+Regards,
+- Robbert Kouprie
+

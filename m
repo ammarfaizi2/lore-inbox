@@ -1,116 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVCMMgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVCMMk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVCMMgu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 07:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVCMMgu
+	id S261193AbVCMMk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 07:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVCMMk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 07:36:50 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25479 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261186AbVCMMgp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 07:36:45 -0500
-Subject: Re: 2.6.11-mm3: machine check on sleep, PowerBook5.4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Sean Neakums <sneakums@zork.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110717016.5787.143.camel@gaston>
-References: <20050312034222.12a264c4.akpm@osdl.org>
-	 <6upsy37o0v.fsf@zork.zork.net>  <1110717016.5787.143.camel@gaston>
-Content-Type: text/plain
-Date: Sun, 13 Mar 2005 23:35:51 +1100
-Message-Id: <1110717351.5787.146.camel@gaston>
+	Sun, 13 Mar 2005 07:40:29 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:35983 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261193AbVCMMkX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 07:40:23 -0500
+Date: Sun, 13 Mar 2005 13:43:34 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: John Cherry <cherry@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Gerd Knorr <kraxel@bytesex.org>
+Message-ID: <20050313124333.GA26569@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	John Cherry <cherry@osdl.org>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Gerd Knorr <kraxel@bytesex.org>
+References: <200503130508.j2D58jTQ014587@ibm-f.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503130508.j2D58jTQ014587@ibm-f.pdx.osdl.net>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: 217.86.187.3
+Subject: Re: IA32 (2.6.11 - 2005-03-12.16.00) - 56 New warnings
+X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-13 at 23:30 +1100, Benjamin Herrenschmidt wrote:
-> On Sun, 2005-03-13 at 12:01 +0000, Sean Neakums wrote:
-> > Machine check in kernel mode.
-> > Caused by (from SRR1=149030): Transfer error ack signal
-> > Oops: machine check, sig: 7 [#1]
-> > TASK = etc. 'pmud' etc.
-> > (for registers and such, see:
-> >  http://flynn.zork.net/~sneakums/pmac-machine-check-on-sleep-2611mm3.jpeg )
-> > Call trace:
-> >  pmac_ide_pci_suspend
-> >  pci_device_suspend
-> >  suspend_device
-> >  device_suspend
-> >  0xc03dd894
-> >  0xc03dddb8
-> >  0xc03de7cc
-> >  do_ioctl
-> >  vfs_ioctl
-> >  sys_ioctl
-> >  ret_from_syscall
-> 
-> Does that fix it ?
+On Sat, Mar 12, 2005 at 09:08:45PM -0800, John Cherry wrote:
+> drivers/media/dvb/frontends/dvb-pll.c:104: warning: (near initialization for `dvb_pll_unknown_1.entries')
+> drivers/media/dvb/frontends/dvb-pll.c:104: warning: excess elements in array initializer
+> drivers/media/dvb/frontends/dvb-pll.c:105: warning: (near initialization for `dvb_pll_unknown_1.entries')
+> drivers/media/dvb/frontends/dvb-pll.c:105: warning: excess elements in array initializer
+[snip]
 
-Oh, and eventually this one too. Closer to what darwin does: doesn't
-disable the ATA/100 cell during sleep. Let me know with both of the
-patches. Best would even be if you could figure out which one gives the
-best power consumption during sleep in fact (if it makes any noticeable
-difference).
+Gerd's original patch had
 
-Index: linux-work/drivers/ide/ppc/pmac.c
-===================================================================
---- linux-work.orig/drivers/ide/ppc/pmac.c	2005-03-13 10:10:58.000000000 +1100
-+++ linux-work/drivers/ide/ppc/pmac.c	2005-03-13 23:29:40.000000000 +1100
-@@ -1208,16 +1208,17 @@
- 	if (pmif->mediabay)
- 		return 0;
- 	
--	/* Disable the bus */
--	ppc_md.feature_call(PMAC_FTR_IDE_ENABLE, pmif->node, pmif->aapl_bus_id, 0);
--
--	/* Kauai has it different */
-+	/* Kauai has bus control FCRs directly here */
- 	if (pmif->kauai_fcr) {
- 		u32 fcr = readl(pmif->kauai_fcr);
- 		fcr &= ~(KAUAI_FCR_UATA_RESET_N | KAUAI_FCR_UATA_ENABLE);
- 		writel(fcr, pmif->kauai_fcr);
- 	}
- 
-+	/* Disable the bus on older machines and the cell on kauai */
-+	ppc_md.feature_call(PMAC_FTR_IDE_ENABLE, pmif->node, pmif->aapl_bus_id,
-+			    0);
-+
- 	return 0;
- }
- 
-Index: linux-work/arch/ppc/platforms/pmac_feature.c
-===================================================================
---- linux-work.orig/arch/ppc/platforms/pmac_feature.c	2005-03-13 18:23:11.000000000 +1100
-+++ linux-work/arch/ppc/platforms/pmac_feature.c	2005-03-13 23:34:18.000000000 +1100
-@@ -830,6 +830,7 @@
- 	return 0;
- }
- 
-+#if 0
- static long __pmac
- core99_ata100_enable(struct device_node* node, long value)
- {
-@@ -859,6 +860,7 @@
- 	}
-     	return 0;
- }
-+#endif
- 
- static long __pmac
- core99_ide_enable(struct device_node* node, long param, long value)
-@@ -876,8 +878,10 @@
- 	    case 2:
- 		return simple_feature_tweak(node, macio_unknown,
- 			KEYLARGO_FCR1, KL1_UIDE_ENABLE, value);
-+#if 0
- 	    case 3:
- 	    	return core99_ata100_enable(node, value);
-+#endif
- 	    default:
- 	    	return -ENODEV;
- 	}
+	struct dvb_pll_desc {
+		char *name;
+		u32  min;
+		u32  max;
+		void (*setbw)(u8 *buf, int bandwidth);
+		int  count;
+		struct {
+			u32 limit;
+			u32 offset;
+			u32 stepsize;
+			u8  cb1;
+			u8  cb2;
+		} entries[];
+	};
 
+while 2.6.11-mm3 changed it into entries[0]. I assume this was made
+for gcc-4.0 compatibility? But the element type for entries is
+fully defined, so it should not be a problem (as long as no one tries to
+created arrays of struct dvb_pll_desc)?
 
+Johannes

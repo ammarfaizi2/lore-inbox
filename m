@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263912AbTEZDH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 23:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263911AbTEZDH0
+	id S263911AbTEZDLh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 23:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTEZDLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 23:07:26 -0400
-Received: from rth.ninka.net ([216.101.162.244]:44931 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263912AbTEZDHZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 23:07:25 -0400
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
-	2.5.30(at least))
-From: "David S. Miller" <davem@redhat.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
-       LW@KARO-electronics.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20030523193458.B4584@flint.arm.linux.org.uk>
-References: <20030523175413.A4584@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.44.0305231821460.1690-100000@localhost.localdomain>
-	 <20030523112926.7c864263.akpm@digeo.com>
-	 <20030523193458.B4584@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	Sun, 25 May 2003 23:11:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52624 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263911AbTEZDLh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 23:11:37 -0400
+Message-ID: <3ED188E6.7010406@pobox.com>
+Date: Sun, 25 May 2003 23:24:22 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: davej@codemonkey.org.uk
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: iphase fix.
+References: <200305150331.h4F3V8fQ000634@deviant.impure.org.uk>
+In-Reply-To: <200305150331.h4F3V8fQ000634@deviant.impure.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053919227.14018.4.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 May 2003 20:20:28 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, it's only by LUCK that I actually read this.
+This patch didn't apply.
 
-Whoever removed me from the CC: list and still wanted me
-to follow up on the conversation needs a good kicking :-)
+I applied all your other patches except the tulip one:  that was just 
+stale defines.  I removed the defines instead of patching them.
 
--- 
-David S. Miller <davem@redhat.com>
+	Jeff
+
+
+

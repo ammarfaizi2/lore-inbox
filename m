@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131466AbQK0QcO>; Mon, 27 Nov 2000 11:32:14 -0500
+        id <S130355AbQK0Qjr>; Mon, 27 Nov 2000 11:39:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131979AbQK0QcH>; Mon, 27 Nov 2000 11:32:07 -0500
-Received: from www.ylenurme.ee ([193.40.6.1]:51704 "EHLO ylenurme.ee")
-        by vger.kernel.org with ESMTP id <S131466AbQK0Qby>;
-        Mon, 27 Nov 2000 11:31:54 -0500
-Date: Mon, 27 Nov 2000 17:58:11 +0200 (GMT-2)
-From: Elmer Joandi <elmer@ylenurme.ee>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Universal debug macros.
-In-Reply-To: <200011271459.PAA18635@cave.bitwizard.nl>
-Message-ID: <Pine.LNX.4.10.10011271747210.13242-100000@yle-server.ylenurme.sise>
+        id <S130897AbQK0Qjh>; Mon, 27 Nov 2000 11:39:37 -0500
+Received: from mel.alcatel.fr ([212.208.74.132]:63018 "EHLO mel.alcatel.fr")
+        by vger.kernel.org with ESMTP id <S130355AbQK0Qja>;
+        Mon, 27 Nov 2000 11:39:30 -0500
+Message-ID: <3A228705.85D818A3@vz.cit.alcatel.fr>
+Date: Mon, 27 Nov 2000 17:08:38 +0100
+From: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
+Organization: xgen@linuxstart.com
+X-Mailer: Mozilla 4.7 [fr] (WinNT; I)
+X-Accept-Language: fr,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Niels Happel <nhappel@planet-interkom.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Possible ISOFS Bug in 2.4.0-test11-pre7
+In-Reply-To: <00112716562000.01054@ws-20>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Niels Happel a écrit :
 
-well, really, look the other side:
+> Hello everybody,
+>
+> first of all: I am new to the linux-kernel list, so I don't know wheather
+> writing here is allowed for everybody or developers only.
+>
+> Anyway, here it is:
+>
+> Hardware (SCSI-only system):
+>
+> Tekram 390 U2W (SYM53C8XX support compiled into the kernel)
+> IBM U2W SCSI disks
+> HP DAT SCSI Streamer
+> Pioneer SCSI DVD
+> Yamaha SCSI CD R/W
+>
+> Using kernel 2.4.0-test10 and earlier everything works fine.
+> Using 2.4.0-test11 with the same kernel configuration an error message
+> occured while accessing one of the mounted SCSI CD-ROMs:
+> "kernel: _isofs_bmap: block < 0"
+> Mounting them works fine, accessing them gives that error message.
+> It can't be an SCSI CD-ROM hardware failure, because the error message
+> occured at both drives (Pioneer and Yamaha) and it doesn't matter which
+> CD-ROM I am using.
+>
 
-We dont make a way to take info away, we just put a lot more into it and
-give the option to take it away if it is not needed.
-
-With this you get your usual amount of debug info plus a way to have lots
-more.
-
-Oh, and one more point: if linux is going to have nonprofessional endusers
-space comparable to MSWin, then you probably do not want to have every bug
-report, because these will be stupid anyway, with or without debug info.
-But if ideological wars stop development in nonsense places, then that
-day wont come anyway.
-
-elmer.
+Same problem with ide-cs + ide-cd modules (IDE - PCMCIA)
+kernel: _isofs_bmap: block < 0"
 
 
 -

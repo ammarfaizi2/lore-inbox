@@ -1,150 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292925AbSBVQqf>; Fri, 22 Feb 2002 11:46:35 -0500
+	id <S292927AbSBVQrf>; Fri, 22 Feb 2002 11:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292928AbSBVQq0>; Fri, 22 Feb 2002 11:46:26 -0500
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:31161 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id <S292925AbSBVQqF>; Fri, 22 Feb 2002 11:46:05 -0500
-Date: Fri, 22 Feb 2002 17:45:58 +0100
-From: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: fernando@quatro.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
-Message-ID: <20020222164558.GE13774@os.inf.tu-dresden.de>
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	fernando@quatro.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de> <051a01c1bb01$70634580$c50016ac@spps.com.br> <20020221211142.0cf0efa4.skraw@ithnet.com> <20020222130246.GD13774@os.inf.tu-dresden.de> <20020222141101.0cc342e1.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="D6z0c4W1rkZNF4Vu"
-Content-Disposition: inline
-In-Reply-To: <20020222141101.0cc342e1.skraw@ithnet.com>
-User-Agent: Mutt/1.3.27i
+	id <S292928AbSBVQrb>; Fri, 22 Feb 2002 11:47:31 -0500
+Received: from hanoi.cronyx.ru ([144.206.181.53]:16901 "EHLO hanoi.cronyx.ru")
+	by vger.kernel.org with ESMTP id <S292927AbSBVQrL>;
+	Fri, 22 Feb 2002 11:47:11 -0500
+Message-ID: <3C76762C.1010606@cronyx.ru>
+Date: Fri, 22 Feb 2002 19:47:40 +0300
+From: Roman Kurakin <rik@cronyx.ru>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: marcelo@conectiva.com.br
+CC: linux-kernel@vger.kernel.org
+Subject: [Fwd: Patch 2.4.18-pre9-SERIAL:Address in use error, mem based cards]
+Content-Type: multipart/mixed;
+ boundary="------------020904090308000700070802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020904090308000700070802
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---D6z0c4W1rkZNF4Vu
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+On Wed, Nov 14, 2001 at 01:02:47PM +0300, Roman Kurakin wrote:
 
-On Fri Feb 22, 2002 at 14:11:01 +0100, Stephan von Krawczynski wrote:
-> > > I compile my kernel (2.4.18-rc2) with the attached config. Please try
-> > > it and tell your results. I can assure you that this machine runs rock
-> > > solid over here for months.
-> > 
-> > No luck here. Hangs during boot (tried with 2.4.18-rc2-ac2).
-> 
-> Please start from a setup as close to mine as possible. That is 2.4.18-rc2.
-> In setup switch MPS 1.4 support to disable and Power Management to disable.
+>>     I have found a bug. It is in support of serial cards which uses 
+>> memory for I/O insted of ports. I made a patch for serial.c and fix
+>> one place, but probably the problem like this one could be somewhere
+>> else.
+>
 
-No luck, even with completely switched off PM. "noapic" works. I
-attached the stripped down config. It mostly hangs while setting up the
-second CPU.
+I've got this fish caught in the my serial driver rewrite - the driver
+always handles the requesting and freeing of the resources.  If it is
+unable to request the resources, then you will receive a suitable error
+when trying to configure two ports.
 
-> > I even updated the BIOS from 1010 to 1014 as well (just in case). What
-> > BIOS version are you running? And at how many MHz are the CPUs?
-> 
-> I use BIOS 1010, 2 x P3 1 GHz and tried RAM from 512MB to 2GB.
-> Currently installed are 2GB being 2 x 1GB registered DIMM.
+Please note that I'm not about to take on maintainence of the current
+serial.c driver, except where I spot obvious bugs.
 
-2x 933, RAM is 960MB.
+I'd recommend that you pass this one to Marcelo to incorporate (only
+after he's got his feet on the ground again. 8))  It looks sensible.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+
+-------- Original Message --------
+Subject: Patch 2.4.18-pre9-SERIAL:Address in use error, mem based cards
+Date: Mon, 11 Feb 2002 12:08:07 +0300
+From: Roman Kurakin <rik@cronyx.ru>
+To: linux-kernel@vger.kernel.org
 
 
 
-Adam
--- 
-Adam                 adam@os.inf.tu-dresden.de
-  Lackorzynski         http://a.home.dhs.org
+Hi,
 
---D6z0c4W1rkZNF4Vu
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename="config.y-only"
+  I have found a bug. It is in support of serial cards which uses memory 
+for I/O
+insted of ports. I made a patch for serial.c and fix one place, but 
+probably the
+problem like this one could be somewhere else.
 
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_NET=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_G_NCR5380_PORT=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_TULIP=y
-CONFIG_NET_RADIO=y
-CONFIG_AIRONET4500_PNP=y
-CONFIG_AIRONET4500_PCI=y
-CONFIG_AIRONET4500_ISA=y
-CONFIG_AIRONET4500_I365=y
-CONFIG_NET_WIRELESS=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_QUOTA=y
-CONFIG_TMPFS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD_V3=y
-CONFIG_LOCKD_V4=y
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_VGA_CONSOLE=y
+Description:
+  If you try to use setserial with such cards you will get "Address in 
+use" (-EADDRINUSE)
 
---D6z0c4W1rkZNF4Vu--
+Best regards,
+                      Kurakin Roman
+
+
+
+--------------020904090308000700070802
+Content-Type: text/plain;
+ name="serial-2.4.18-1.pch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="serial-2.4.18-1.pch"
+
+--- serial.c.orig	Mon Feb 11 11:54:21 2002
++++ serial.c	Mon Feb 11 11:55:44 2002
+@@ -2084,6 +2084,7 @@
+ 	unsigned int		i,change_irq,change_port;
+ 	int 			retval = 0;
+ 	unsigned long		new_port;
++	unsigned long           new_mem;
+ 
+ 	if (copy_from_user(&new_serial,new_info,sizeof(new_serial)))
+ 		return -EFAULT;
+@@ -2094,6 +2095,8 @@
+ 	if (HIGH_BITS_OFFSET)
+ 		new_port += (unsigned long) new_serial.port_high << HIGH_BITS_OFFSET;
+ 
++	new_mem = new_serial.iomem_base;
++
+ 	change_irq = new_serial.irq != state->irq;
+ 	change_port = (new_port != ((int) state->port)) ||
+ 		(new_serial.hub6 != state->hub6);
+@@ -2134,6 +2137,7 @@
+ 		for (i = 0 ; i < NR_PORTS; i++)
+ 			if ((state != &rs_table[i]) &&
+ 			    (rs_table[i].port == new_port) &&
++			    (rs_table[i].iomem_base == new_mem) &&
+ 			    rs_table[i].type)
+ 				return -EADDRINUSE;
+ 	}
+
+
+--------------020904090308000700070802--
+

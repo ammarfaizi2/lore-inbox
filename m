@@ -1,88 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266577AbUGKMz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUGKNCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266577AbUGKMz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 08:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUGKMz6
+	id S266582AbUGKNCq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 09:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266584AbUGKNCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 08:55:58 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:2564 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id S266577AbUGKMzz
+	Sun, 11 Jul 2004 09:02:46 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:61639 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S266582AbUGKNCo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 08:55:55 -0400
-Message-ID: <40F139BA.F1F10B22@tv-sign.ru>
-Date: Sun, 11 Jul 2004 16:59:38 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sun, 11 Jul 2004 09:02:44 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: GCC 3.4 and broken inlining.
+Date: Sun, 11 Jul 2004 15:01:18 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>, aoliva@redhat.com,
+       ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
+References: <2fG2F-4qK-3@gated-at.bofh.it> <20040711013218.414941ce.akpm@osdl.org> <20040711115039.GD4701@fs.tum.de>
+In-Reply-To: <20040711115039.GD4701@fs.tum.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, William Lee Irwin III <wli@holomorphy.com>,
-       David Gibson <david@gibson.dropbear.id.au>
-Subject: [PATCH] hugetlbfs private mappings.
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_hoT8AkSMiJr3HJR";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407111501.21769.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-Hugetlbfs silently coerce private mappings of hugetlb files
-into shared ones. So private writable mapping has MAP_SHARED
-semantics. I think, such mappings should be disallowed.
+--Boundary-02=_hoT8AkSMiJr3HJR
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-First, such behavior allows open hugetlbfs file O_RDONLY, and
-overwrite it via mmap(PROT_READ|PROT_WRITE, MAP_PRIVATE), so
-it is security bug.
+On Sonntag, 11. Juli 2004 13:50, Adrian Bunk wrote:
+> -#if __GNUC_MINOR__ >=3D 1 =A0&& __GNUC_MINOR__ < 4
+> +#if __GNUC_MINOR__ >=3D 1
+> =A0# define inline=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0__inlin=
+e__ __attribute__((always_inline))
+> =A0# define __inline__=A0=A0=A0=A0__inline__ __attribute__((always_inline=
+))
+> =A0# define __inline=A0=A0=A0=A0=A0=A0__inline__ __attribute__((always_in=
+line))
 
-Second, private writable mmap() should fail just because kernel
-does not support this.
+While we're there, shouldn't this really be the following?
 
-I beleive, it is ok to allow private readonly hugetlb mappings,
-sys_mprotect() does not work with hugetlb vmas.
+# define inline=A0=A0=A0=A0=A0=A0=A0  =A0inline   __attribute__((always_inl=
+ine))
+# define __inline__=A0=A0=A0=A0__inline__ __attribute__((always_inline))
+# define __inline=A0=A0=A0=A0=A0=A0__inline   __attribute__((always_inline))
 
-There is another problem. Hugetlb mapping is always prefaulted,
-pages allocated at mmap() time. So even readonly mapping allows
-to enlarge the size of the hugetlbfs file, and steal huge pages
-without appropriative permissions.
+I find it somewhat annoying that the preprocessor expands every "inline"
+to "__inline__ __attribute__((always_inline)) __attribute__((always_inline)=
+)"
+in the current code.
 
-Patch on top of vm_pgoff fixes, see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108938233708584
+	Arnd <><
 
-Oleg.
+--Boundary-02=_hoT8AkSMiJr3HJR
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
---- 2.6.7-mm7/fs/hugetlbfs/inode.c.pgoff	2004-07-11 15:32:09.000000000 +0400
-+++ 2.6.7-mm7/fs/hugetlbfs/inode.c	2004-07-11 16:09:27.000000000 +0400
-@@ -52,6 +52,9 @@ static int hugetlbfs_file_mmap(struct fi
- 	loff_t len, vma_len;
- 	int ret;
- 
-+	if ((vma->vm_flags & (VM_MAYSHARE | VM_WRITE)) == VM_WRITE)
-+		return -EINVAL;
-+
- 	if (vma->vm_pgoff & (HPAGE_SIZE / PAGE_SIZE - 1))
- 		return -EINVAL;
- 
-@@ -70,10 +73,19 @@ static int hugetlbfs_file_mmap(struct fi
- 	file_accessed(file);
- 	vma->vm_flags |= VM_HUGETLB | VM_RESERVED;
- 	vma->vm_ops = &hugetlb_vm_ops;
-+
-+	ret = -ENOMEM;
-+	len = vma_len + ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
-+	if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
-+		goto out;
-+
- 	ret = hugetlb_prefault(mapping, vma);
--	len = vma_len +	((loff_t)vma->vm_pgoff << PAGE_SHIFT);
--	if (ret == 0 && inode->i_size < len)
-+	if (ret)
-+		goto out;
-+
-+	if (inode->i_size < len)
- 		inode->i_size = len;
-+out:
- 	up(&inode->i_sem);
- 
- 	return ret;
+iD8DBQBA8Toh5t5GS2LDRf4RAh+VAJ93Wc0Qv4imBGWxCe1SoubqCR7qQACeN8sv
+2IeyZmX8MLscD7gmrqRMoRI=
+=Sspq
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_hoT8AkSMiJr3HJR--

@@ -1,93 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUGORwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266256AbUGORzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266254AbUGORwW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 13:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUGORwV
+	id S266256AbUGORzb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 13:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUGORza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 13:52:21 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51841 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266254AbUGORwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 13:52:13 -0400
-Subject: Re: kexec on ppc64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "R. Sharada [imap]" <sharada@in.ibm.com>, fastboot@lists.osdl.org,
-       PPC64 External List <linuxppc64-dev@lists.linuxppc.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1089864891.10000.257.camel@nighthawk>
-References: <20040714144514.GA2041@in.ibm.com>
-	 <1089864891.10000.257.camel@nighthawk>
-Content-Type: text/plain
-Message-Id: <1089913838.2484.41.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 15 Jul 2004 13:50:39 -0400
+	Thu, 15 Jul 2004 13:55:30 -0400
+Received: from larry.aptalaska.net ([64.186.96.3]:64684 "EHLO
+	larry.aptalaska.net") by vger.kernel.org with ESMTP id S266256AbUGORzW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 13:55:22 -0400
+Message-ID: <40F6C504.9010403@aptalaska.net>
+Date: Thu, 15 Jul 2004 09:55:16 -0800
+From: Matthew Schumacher <matt.s@aptalaska.net>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tim Bird <tim.bird@am.sony.com>
+CC: linux-kernel@vger.kernel.org, syslinux@zytor.com
+Subject: Re: Possible bug with kernel decompressor.
+References: <40F490B6.6000106@schu.net> <40F5AE63.5010505@am.sony.com>
+In-Reply-To: <40F5AE63.5010505@am.sony.com>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-15 at 00:14, Dave Hansen wrote:
-> taking silly IBM list off the cc...
+Matthew Schumacher wrote:
+ > List,
+ >
+ > I think I found a bug here because I can repeatably get the same kernel
+ > (checked with md5sum) to decompress and to fail with the error:
+ >
+ > invalid compressed format (err=2)
+ >
+ >   --System halted
+ >
+ >
+ > Here is how I can reproduce the problem:
+ >
+ > Boot 2.6.8-rc1
+ > Run md5sum on 2.6.8-rc1 kernel
+ > Turn power off (this is an embedded system with only ramdisk mounted)
+ > Turn power on
+ > Kernel fails to boot with "invalid compressed format (err=2)"
+ > Restart system
+ > Boot 2.4.26
+ > Run md5sum on 2.6.8-rc1 kernel (matches md5sum above)
+ > Shutdown properly
+ > boot 2.6.8-rc1 (works fine)
+ > Run md5sum on 2.6.8-rc1 kernel (matches md5sum above)
+ >
+ > So you see if I don't shutdown properly (which shouldn't be required for
+ > an embedded system using a ramdisk) my kernel won't decompress itself
+ > until I run another kernel and shutdown properly.  I know that the
+ > kernel didn't change so something else must be causing it to fail.
+ >
+ > I call this a bug simply because a power failure could cause someone to
+ > loose the ability to boot their machine.
+ >
+ > Here is the hardware:
+ > Whistle Interjet (486 SBC)
+ > 64MB of memory
+ > IDE disk.
+ > Can reproduce with linux  2.6.5, 2.6.6, 2.6.7, and 2.6.8-rc1
+ > Both kernel images and the initrd image both live on a fat16 partition
+ > and are started with syslinux.  I can reproduce this problem with any
+ > version of syslinux I have tried.
+ >
+ > Please CC me in any replies since I am not on the list.
+ >
+ > Thanks,
+ >
+ > schu
+ >
+ >
+ >
+Tim Bird wrote:
+> If I recall correctly, a number of read errors during the
+> initial kernel loading can result in this error message
+> (which means it is somewhat misleading.)  You may have
+> to add some printks to narrow this down more (in both the
+> 2.4 and 2.6 kernels)
 > 
-> On Wed, 2004-07-14 at 07:45, R Sharada
-> >         - also identify relevant data (that might be required for the
-> > kexec kernel) that could be pushed into the device_tree so that it can
-> > be passed to the new kexec kernel
+> Obviously there's something in the 2.4 code that handles
+> the ungracefully-shutdown machine state better than 2.6.8.
+> Or there might be some other difference between the syslinux
+> boot of the 2.4 kernel and that of the 2.6.8 kernel.
 > 
-> We actually had a similar problem on x86.  The e820 table is presented
-> by the BIOS, and must be saved or reconstructed when you boot into the
-> new kernel.
-> 
-> It would be really cool to have a way of passing the memory layout
-> information to the new kernel that is relatively cross-platform.  That
-> way, we don't get stuck rewriting it for each new arch.
 
-I wouldn't even try to go that way at first. What we need is to pass
-an OF device-tree around on ppc, with all the necessary informations
-stuffed in it as additional properties.
+Sorry, for the long post, I'm more doing this for the archive than 
+anything else so others can google instead of ask.
 
-> For instance, instead of passing the BIOS/firmware structures like LMBs
-> in the device tree or e820 tables to the kexec kernel, you'd pass the
-> Linux concepts like zone_start_pfn and so forth.
+I thought that this might be something with syslinux too, but didn't go 
+down that road because something in the new 2.6 kernel doesn't handle 
+this as gracefully as the 2.4 kernel.
 
-I'd prefer letting the new kernel decide those based on the low level
-firmware info, or you introduce a higher level dependency between the
-"old" and "new" kernels (what if those concepts change between the 2
-kernels ?)
+That said, I thought I would try a different boot loader so I installed 
+grub on the system and it seems to work fine.
 
-> > I would like to solicit inputs, feedback, opinions, changes on this
-> > preliminary idea and planned list of 'things to do'. I would also like
-> > to know the interest to participate in this effort or anything else
-> > related to 'kexec on ppc64'.
-> 
-> While you're ripping apart prom.c, have you thought about getting rid of
-> all of the RELOC() stuff?  I think Ben H. had an evil plan for that,
-> too.
+I should note that this hardware requires the linux mem/memmap= params 
+because of the buggy memory detection in the bios so I was required to 
+use the uppermem command in grub to make it detect the memory and put 
+the initrd image in the right place.
 
-Paulus already removed a bunch, once we manage to completely isolate
-prom_init from the rest of the kernel, it will be easier to "finish" it
-by having prom_init be a totally separate link entity (could even be 32
-bits relocatable code).
+So in the end it looks like it is a syslinux issue loading the initrd 
+image but for some reason the 2.4 kernel seems to be just fine with 
+whatever isn't working right.
 
-> BTW, have you seen any opportunities to replace the arch-specific things
-> like lmb_alloc() with normal bootmem calls?
+I can troubleshoot more if someone wants to track this down, but at this 
+point I have a work around and now it's documented on both lists.
 
-As far as lmb_alloc() is concerned, there are some constraints like beeing
-in RMO for some things, or beeing at the top of the memory for others, that
-aren't quite addressed by bootmem. Again, we are in the firmware env at
-this point, I wouldn't rely on too much linux-specific data structures.
+Thanks,
 
-What we need, as we already discussed for a while with Rusty, is a specific
-allocator for use within prom_init() which properly deals with both OF-side
-allocations (claim the memory) to avoid walking over things like initrd,
-deals with the various constraints we have, and produce a map of allocated
-area as a property for use by the rest of the kernel.
-
-As far as the post-prom-init stage is concerned, we can just turn that map
-into lmb's, or try to get rid of lmb's and turn that into bootmem provided
-we can deal with the various RMO constraints.
-
-Ben.
-
-
+schu

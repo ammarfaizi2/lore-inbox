@@ -1,54 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVAXVFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVAXVHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVAXVFD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:05:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVAXVDp
+	id S261658AbVAXVHe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVAXVFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:03:45 -0500
-Received: from mail.dif.dk ([193.138.115.101]:37061 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261652AbVAXVCk (ORCPT
+	Mon, 24 Jan 2005 16:05:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36252 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261652AbVAXVDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 16:02:40 -0500
-Date: Mon, 24 Jan 2005 22:05:48 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make 'make help' show all *config targets and update
- descriptions slightly.
-Message-ID: <Pine.LNX.4.61.0501242201200.2798@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 Jan 2005 16:03:50 -0500
+Date: Mon, 24 Jan 2005 13:03:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+Subject: Re: 2.6.11-rc2-mm1
+Message-Id: <20050124130313.457f045c.akpm@osdl.org>
+In-Reply-To: <20050124121226.GA29098@infradead.org>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<20050124121226.GA29098@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> > +posix-timers-tidy-up-clock-interfaces-and-consolidate-dispatch-logic.patch
+> 
+>  umm, this adds extreme obsfucation.  Roland, please try to follow normal
+>  Linux style, thanks.
 
-"make help" doesn't show "make randconfig" nor "make config" as options 
-and the description of oldconfig could be better (IMHO). Patch below adds 
-the missing targets to the help and updates the description of oldconfig.
-
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.11-rc2-bk2-orig/scripts/kconfig/Makefile	2004-12-24 22:35:40.000000000 +0100
-+++ linux-2.6.11-rc2-bk2/scripts/kconfig/Makefile	2005-01-24 21:42:21.000000000 +0100
-@@ -49,12 +49,14 @@
- 	$(Q)$< -D arch/$(ARCH)/configs/$@ arch/$(ARCH)/Kconfig
- 
- # Help text used by make help
- help:
--	@echo  '  oldconfig	  - Update current config utilising a line-oriented program'
-+	@echo  '  config	  - Update current config utilising a line-oriented program'
- 	@echo  '  menuconfig	  - Update current config utilising a menu based program'
- 	@echo  '  xconfig	  - Update current config utilising a QT based front-end'
- 	@echo  '  gconfig	  - Update current config utilising a GTK based front-end'
-+	@echo  '  oldconfig	  - Update current config utilising a provided .config as base'
-+	@echo  '  randconfig	  - New config with random answer to all options'
- 	@echo  '  defconfig	  - New config with default answer to all options'
- 	@echo  '  allmodconfig	  - New config selecting modules when possible'
- 	@echo  '  allyesconfig	  - New config where all options are accepted with yes'
- 	@echo  '  allnoconfig	  - New minimal config'
-
-
-
-
+Best cc Roland - not everyone follows linux-kernel.

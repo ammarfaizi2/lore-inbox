@@ -1,95 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbSLTUD3>; Fri, 20 Dec 2002 15:03:29 -0500
+	id <S261686AbSLTUYb>; Fri, 20 Dec 2002 15:24:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261506AbSLTUD3>; Fri, 20 Dec 2002 15:03:29 -0500
-Received: from smtp-03.inode.at ([62.99.194.5]:14038 "EHLO smtp.inode.at")
-	by vger.kernel.org with ESMTP id <S261463AbSLTUD1> convert rfc822-to-8bit;
-	Fri, 20 Dec 2002 15:03:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Patrick Petermair <black666@inode.at>
-Reply-To: black666@inode.at
-To: Vojtech Pavlik <vojtech@suse.cz>, John Reiser <jreiser@BitWagon.com>,
-       AnonimoVeneziano <voloterreno@tin.it>,
-       Roland Quast <rquast@hotshed.com>
-Subject: Re: vt8235 fix, hopefully last variant
-Date: Fri, 20 Dec 2002 21:12:58 +0100
-User-Agent: KMail/1.4.3
-References: <20021219112640.A21164@ucw.cz>
-In-Reply-To: <20021219112640.A21164@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
+	id <S264984AbSLTUYb>; Fri, 20 Dec 2002 15:24:31 -0500
+Received: from packet.digeo.com ([12.110.80.53]:29861 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261686AbSLTUYb>;
+	Fri, 20 Dec 2002 15:24:31 -0500
+Message-ID: <3E037E38.42B8E01F@digeo.com>
+Date: Fri, 20 Dec 2002 12:31:52 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212202112.58475.black666@inode.at>
+To: george anzinger <george@mvista.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH]Timer list init is done AFTER use
+References: <3E02D81F.13A5A59D@mvista.com> <3E02F073.BF57207C@digeo.com> <3E0350CA.6B99F722@mvista.com> <3E0370C1.21909EF5@digeo.com> <3E03772A.D5D85171@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Dec 2002 20:31:52.0345 (UTC) FILETIME=[D4671090:01C2A866]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+george anzinger wrote:
+> 
+> ...
+> > The logical thing is to implement arch_consoles_callable().  Does
+> > this look workable?
+> 
+> I am not sure.  The first question is when does the online
+> bit get set for cpu 0.
 
-Sorry for not replying this week, but I was not at home...now back to 
-business:
+Too late, probably.  We might need an escape clause for the boot
+CPU there.
 
-I tried the last patch, but it didn't work - I got Hunk messages:
+>  The next is that it does inhibit a
+> rather large block of printks.  Is this ok?
 
-starbase:/usr/src/linux-2.4.20# patch -p1 < vt8235-atapi 
-patching file drivers/ide/via82cxxx.c
-Hunk #1 FAILED at 1.
-Hunk #2 FAILED at 141.
-Hunk #3 succeeded at 283 (offset -57 lines).
-2 out of 3 hunks FAILED -- saving rejects to file 
-drivers/ide/via82cxxx.c.rej
-starbase:/usr/src/linux-2.4.20# cat drivers/ide/via82cxxx.c.rej 
-***************
-*** 1,16 ****
-  /*
--  * $Id: via82cxxx.c,v 3.35-ac2 2002/09/111 Alan Exp $
--  *
--  *  Copyright (c) 2000-2001 Vojtech Pavlik
--  *
--  *  Based on the work of:
--  *    Michel Aubry
--  *    Jeff Garzik
--  *    Andre Hedrick
--  */
-- 
-- /*
--  * Version 3.35
-   *
-   * VIA IDE driver for Linux. Supported southbridges:
-   *
---- 1,5 ----
-  /*
-+  * Version 3.36
-   *
-   * VIA IDE driver for Linux. Supported southbridges:
-   *
-***************
-*** 152,158 ****
-        via_print("----------VIA BusMastering IDE Configuration"
-                "----------------");
-  
--       via_print("Driver Version:                     3.35-ac");
-        via_print("South Bridge:                       VIA %s",
-                via_config->name);
-  
---- 141,147 ----
-        via_print("----------VIA BusMastering IDE Configuration"
-                "----------------");
-  
-+       via_print("Driver Version:                     3.36");
-        via_print("South Bridge:                       VIA %s",
-                via_config->name);
-  
-starbase:/usr/src/linux-2.4.20# 
+They get buffered, so the info will come out eventually.  But we do want
+it to come out in a timely manner.
+ 
+> Mind you, I have not tried it yet...
 
-MSI KT3Ultra2, TOSHIBA DVD-ROM SD-M1302
-So far my kernel is running your first patch and it works fine. Would 
-love to get the final patch running too, but I don't know what that 
-messages in via82cxxx.c.rej mean and how to modify the patch so that it 
-works - ah, btw: I tried to apply it to a clean 2.4.20 kernel source.
-
-Thanks so far for your great work.
-
-Patrick
-
-
+I think it's the right approach.  I can take poke at it if you like.

@@ -1,103 +1,250 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268848AbUH3SYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUH3SaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268848AbUH3SYv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268838AbUH3SYX
+	id S265823AbUH3SaN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268657AbUH3S3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:24:23 -0400
-Received: from open.hands.com ([195.224.53.39]:61070 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S268724AbUH3SEP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:04:15 -0400
-Date: Mon, 30 Aug 2004 19:15:20 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: fireflier firewall userspace program doing userspace packet filtering
-Message-ID: <20040830181519.GE8382@lkcl.net>
-References: <20040830104202.GG3712@lkcl.net>
+	Mon, 30 Aug 2004 14:29:36 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:26536 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268834AbUH3SQh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 14:16:37 -0400
+Subject: Re: JFS kernel BUG
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: James Spooner <james@endace.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <001001c48e7d$17c63b60$5440a8c0@zeus>
+References: <001001c48e7d$17c63b60$5440a8c0@zeus>
+Content-Type: text/plain
+Message-Id: <1093877749.20837.26.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040830104202.GG3712@lkcl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 30 Aug 2004 09:55:49 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-regarding this issue, i have done some exploration and found that
-ipt_owner is capable of registering by pid.
-
-therefore, the naive approach considered was to have fireflier
-"vet" rules via its userspace rules dynamically creating per-pid
-_new_ and _real_ rules (based on the template of options specified
-from the corresponding userspace rule) but of course with the
-ipt_owner "pid" set.
-
-this would at first glance solve the "INCOMING" problem which i
-understand the present ipt_owner code to be suffering from.
-
-anyway - this approach is insufficient and fraught with
-difficulties, not least involving purging the queue of existing
-packets that _would_ match the newly created rule, but it's
-too late, they're already in the queue.
-
-etc.
-
-so, what i would like to consider doing is to modify the ipt_owner
-module to include the full pathname of the binary it is supposed to
-vet.
-
-i don't give a rat's monkeybutt about "oo, yuk, that's disgusting
-to do that in the kernel" or "that would _so_ slow network traffic
-down": i don't care: this is going in an selinux system where the
-performance hit of selinux has already been accepted, so a couple
-more percentage performance hit i really don't give a stuff.
-
-
-so, my question, therefore, is:
-
-	what should i record in a modified version of ipt_owner in
-	order to "vet" packets on a per-executable basis?
-
-	should i consider recording the inode of the program's binary?
-
-	should i consider recording the _name_ of the program?
-
-	if i record the inode number, what example code should i examine
-	in order to DoTheRightThing of getting from process-pid to
-	inode/program?
-
-for example, i notice in ipt_owner.c that match_pid() calls
-find_task_by_pid().   okkkaaay... so... and then in fs/proc/base.c's
-proc_exe_link(), i see that get_task_mm() is called to get
-something called an mm_struct.   and theeeennn... dget is called
-on _that_, and _then_ in struct dentry, there's something called
-a d_inode, and _that_ is what i presume contains the inode number
-of the running process (i_ino).
-
-am i along the right lines, or should i be (according to
-proc_exe_link()) hunting down the struct vfsmount argument
-with mntget() instead?  somehow i don't think so, but i haven't
-any point of reference to know in advance.
-
-anyone with experience in the workings of proc and things, your
-input and advice greatly appreciated.
-
-l.
-
-
-On Mon, Aug 30, 2004 at 11:42:02AM +0100, Luke Kenneth Casson Leighton wrote:
-
-> 	is it possible to leverage - and i mean without cut/pasting
-> 	large parts of kernel-space code into fireflier-in-userspace -
-> 	the EXISTING kernel's iptables functionality in some way,
-> 	such that per-program packet filtering may be performed?
-
-> ultimate aim:
+On Mon, 2004-08-30 at 05:35, James Spooner wrote:
+> I've encountered a problem writing large files onto a JFS
+> filesystem under 2.6.8.1.  As follows.  What is interesting
+> is that this bug is triggered as the file reaches the 512GB
+> mark, co-incidence perhaps? :)
 > 
-> 	to be able to "enhance" existing iptables firewall rule
-> 	checking rather than to be backed into a corner of "replacing"
-> 	existing functionality.... just because of one extra check
-> 	[the pid]
+> BUG at fs/jfs/jfs_xtree.c:1701 assert(p->header.nextindex == ((__u16)(2 +
+> 1)))
+
+I've just recently fixed this due to another bug report, but haven't
+merged the patch yet.  Can you test it with this patch please?
+
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
+
+diff -Nurp linux-2.6.9-rc1-mm1/fs/jfs/jfs_xtree.c linux/fs/jfs/jfs_xtree.c
+--- linux-2.6.9-rc1-mm1/fs/jfs/jfs_xtree.c	2004-08-30 09:47:14.245002600 -0500
++++ linux/fs/jfs/jfs_xtree.c	2004-08-30 09:48:29.847509272 -0500
+@@ -1622,7 +1622,6 @@ int xtExtend(tid_t tid,		/* transaction 
+ 	s64 xaddr;
+ 	struct tlock *tlck;
+ 	struct xtlock *xtlck = NULL;
+-	int rootsplit = 0;
+ 
+ 	jfs_info("xtExtend: nxoff:0x%lx nxlen:0x%x", (ulong) xoff, xlen);
+ 
+@@ -1678,8 +1677,6 @@ int xtExtend(tid_t tid,		/* transaction 
+ 	 * The xtSplitUp() will insert the entry and unpin the leaf page.
+ 	 */
+ 	if (nextindex == le16_to_cpu(p->header.maxentry)) {
+-		rootsplit = p->header.flag & BT_ROOT;
+-
+ 		/* xtSpliUp() unpins leaf pages */
+ 		split.mp = mp;
+ 		split.index = index + 1;
+@@ -1691,16 +1688,21 @@ int xtExtend(tid_t tid,		/* transaction 
+ 		if ((rc = xtSplitUp(tid, ip, &split, &btstack)))
+ 			return rc;
+ 
++		/* get back old page */
++		XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
++		if (rc)
++			return rc;
+ 		/*
+ 		 * if leaf root has been split, original root has been
+ 		 * copied to new child page, i.e., original entry now
+ 		 * resides on the new child page;
+ 		 */
+-		if (rootsplit) {
++		if (p->header.flag & BT_INTERNAL) {
+ 			ASSERT(p->header.nextindex ==
+ 			       cpu_to_le16(XTENTRYSTART + 1));
+ 			xad = &p->xad[XTENTRYSTART];
+ 			bn = addressXAD(xad);
++			XT_PUTPAGE(mp);
+ 
+ 			/* get new child page */
+ 			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+@@ -1712,11 +1714,6 @@ int xtExtend(tid_t tid,		/* transaction 
+ 				tlck = txLock(tid, ip, mp, tlckXTREE|tlckGROW);
+ 				xtlck = (struct xtlock *) & tlck->lock;
+ 			}
+-		} else {
+-			/* get back old page */
+-			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+-			if (rc)
+-				return rc;
+ 		}
+ 	}
+ 	/*
+@@ -1790,7 +1787,6 @@ int xtTailgate(tid_t tid,		/* transactio
+ 	struct xtlock *xtlck = 0;
+ 	struct tlock *mtlck;
+ 	struct maplock *pxdlock;
+-	int rootsplit = 0;
+ 
+ /*
+ printf("xtTailgate: nxoff:0x%lx nxlen:0x%x nxaddr:0x%lx\n",
+@@ -1848,8 +1844,6 @@ printf("xtTailgate: xoff:0x%lx xlen:0x%x
+ 	 * The xtSplitUp() will insert the entry and unpin the leaf page.
+ 	 */
+ 	if (nextindex == le16_to_cpu(p->header.maxentry)) {
+-		rootsplit = p->header.flag & BT_ROOT;
+-
+ 		/* xtSpliUp() unpins leaf pages */
+ 		split.mp = mp;
+ 		split.index = index + 1;
+@@ -1861,16 +1855,21 @@ printf("xtTailgate: xoff:0x%lx xlen:0x%x
+ 		if ((rc = xtSplitUp(tid, ip, &split, &btstack)))
+ 			return rc;
+ 
++		/* get back old page */
++		XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
++		if (rc)
++			return rc;
+ 		/*
+ 		 * if leaf root has been split, original root has been
+ 		 * copied to new child page, i.e., original entry now
+ 		 * resides on the new child page;
+ 		 */
+-		if (rootsplit) {
++		if (p->header.flag & BT_INTERNAL) {
+ 			ASSERT(p->header.nextindex ==
+ 			       cpu_to_le16(XTENTRYSTART + 1));
+ 			xad = &p->xad[XTENTRYSTART];
+ 			bn = addressXAD(xad);
++			XT_PUTPAGE(mp);
+ 
+ 			/* get new child page */
+ 			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+@@ -1882,11 +1881,6 @@ printf("xtTailgate: xoff:0x%lx xlen:0x%x
+ 				tlck = txLock(tid, ip, mp, tlckXTREE|tlckGROW);
+ 				xtlck = (struct xtlock *) & tlck->lock;
+ 			}
+-		} else {
+-			/* get back old page */
+-			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+-			if (rc)
+-				return rc;
+ 		}
+ 	}
+ 	/*
+@@ -1976,7 +1970,7 @@ int xtUpdate(tid_t tid, struct inode *ip
+ 	s64 nxaddr, xaddr;
+ 	struct tlock *tlck;
+ 	struct xtlock *xtlck = NULL;
+-	int rootsplit = 0, newpage = 0;
++	int newpage = 0;
+ 
+ 	/* there must exist extent to be tailgated */
+ 	nxoff = offsetXAD(nxad);
+@@ -2183,7 +2177,6 @@ int xtUpdate(tid_t tid, struct inode *ip
+ 
+ 	/* insert nXAD:recorded */
+ 	if (nextindex == le16_to_cpu(p->header.maxentry)) {
+-		rootsplit = p->header.flag & BT_ROOT;
+ 
+ 		/* xtSpliUp() unpins leaf pages */
+ 		split.mp = mp;
+@@ -2196,16 +2189,21 @@ int xtUpdate(tid_t tid, struct inode *ip
+ 		if ((rc = xtSplitUp(tid, ip, &split, &btstack)))
+ 			return rc;
+ 
++		/* get back old page */
++		XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
++		if (rc)
++			return rc;
+ 		/*
+ 		 * if leaf root has been split, original root has been
+ 		 * copied to new child page, i.e., original entry now
+ 		 * resides on the new child page;
+ 		 */
+-		if (rootsplit) {
++		if (p->header.flag & BT_INTERNAL) {
+ 			ASSERT(p->header.nextindex ==
+ 			       cpu_to_le16(XTENTRYSTART + 1));
+ 			xad = &p->xad[XTENTRYSTART];
+ 			bn = addressXAD(xad);
++			XT_PUTPAGE(mp);
+ 
+ 			/* get new child page */
+ 			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+@@ -2218,11 +2216,6 @@ int xtUpdate(tid_t tid, struct inode *ip
+ 				xtlck = (struct xtlock *) & tlck->lock;
+ 			}
+ 		} else {
+-			/* get back old page */
+-			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+-			if (rc)
+-				return rc;
+-
+ 			/* is nXAD on new page ? */
+ 			if (newindex >
+ 			    (le16_to_cpu(p->header.maxentry) >> 1)) {
+@@ -2336,8 +2329,6 @@ int xtUpdate(tid_t tid, struct inode *ip
+ 	xlen = xlen - nxlen;
+ 	xaddr = xaddr + nxlen;
+ 	if (nextindex == le16_to_cpu(p->header.maxentry)) {
+-		rootsplit = p->header.flag & BT_ROOT;
+-
+ /*
+ printf("xtUpdate.updateLeft.split p:0x%p\n", p);
+ */
+@@ -2352,16 +2343,22 @@ printf("xtUpdate.updateLeft.split p:0x%p
+ 		if ((rc = xtSplitUp(tid, ip, &split, &btstack)))
+ 			return rc;
+ 
++		/* get back old page */
++		XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
++		if (rc)
++			return rc;
++
+ 		/*
+ 		 * if leaf root has been split, original root has been
+ 		 * copied to new child page, i.e., original entry now
+ 		 * resides on the new child page;
+ 		 */
+-		if (rootsplit) {
++		if (p->header.flag & BT_INTERNAL) {
+ 			ASSERT(p->header.nextindex ==
+ 			       cpu_to_le16(XTENTRYSTART + 1));
+ 			xad = &p->xad[XTENTRYSTART];
+ 			bn = addressXAD(xad);
++			XT_PUTPAGE(mp);
+ 
+ 			/* get new child page */
+ 			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+@@ -2373,11 +2370,6 @@ printf("xtUpdate.updateLeft.split p:0x%p
+ 				tlck = txLock(tid, ip, mp, tlckXTREE|tlckGROW);
+ 				xtlck = (struct xtlock *) & tlck->lock;
+ 			}
+-		} else {
+-			/* get back old page */
+-			XT_GETPAGE(ip, bn, mp, PSIZE, p, rc);
+-			if (rc)
+-				return rc;
+ 		}
+ 	} else {
+ 		/* if insert into middle, shift right remaining entries */
+
+

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283097AbRLQXhY>; Mon, 17 Dec 2001 18:37:24 -0500
+	id <S283163AbRLQXje>; Mon, 17 Dec 2001 18:39:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283163AbRLQXhO>; Mon, 17 Dec 2001 18:37:14 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:38159 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S283097AbRLQXgy>; Mon, 17 Dec 2001 18:36:54 -0500
-Date: Mon, 17 Dec 2001 15:39:36 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112171516090.1891-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0112171532581.1577-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283204AbRLQXjZ>; Mon, 17 Dec 2001 18:39:25 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:65438 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S283163AbRLQXjJ>;
+	Mon, 17 Dec 2001 18:39:09 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 17 Dec 2001 23:38:52 GMT
+Message-Id: <UTC200112172338.XAA43277.aeb@cwi.nl>
+To: torvalds@transmeta.com
+Subject: Re: [PATCH] kill(-1,sig)
+Cc: Andries.Brouwer@cwi.nl, acahalan@cs.uml.edu, gandalf@wlug.westbo.se,
+        linux-kernel@vger.kernel.org, reality@delusion.de, sim@netnation.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Linus Torvalds wrote:
+Andries:
 
-> So I'm letting the patches fight it out among the people who _do_ care.
->
-> Then, eventually, I'll do something about it, when we have a winner.
->
-> If that isn't "Divide et Impera", I don't know _what_ is. Remember: the
-> romans didn't much care for their subjects. They just wanted the glory,
-> and the taxes.
+  The new POSIX 1003.1-2001 is explicit about what kill(-1,sig)
+  is supposed to do. Maybe we should follow it.
 
-Just like today, everyone I talk to wants glory, and everyone I talk to
-wants to _not_ pay taxes.
+Linus:
+
+  Note that I've reverted the kill(-1...) thing in my personal tree: so far
+  I've gotten a lot of negative feedback, and the change doesn't seem to
+  actually buy us anything except for conformance to a unclearly weasel-
+  worded standards sentence where we could be even more weasely and just say
+  that "self" is a special process from the systems perspective.
 
 
+Well, maybe you are too pessimistic, but I do not disagree
+with your action (since I cannot easily see a better one).
 
-- Davide
+There have been two discussion fragments: firstly people that muttered
+that it is a pity when "kill -9 -1" kills their shell.
+I do not care, especially since we got the reports that that also
+happens on Digital UNIX and on Solaris.
 
+And secondly people that complain that now their shutdown sequence
+is broken. That is more serious: it became difficult for a program
+other than init to handle the shutdown.
+
+"self" is a nice and clean concept; I do not see anything clean
+it could be replaced with.  I wonder what other systems do.
+
+Andries
 

@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbTGIWmh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbTGIWmh
+	id S268687AbTGIWs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268696AbTGIWs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:42:37 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:23961 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S268685AbTGIWl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:41:56 -0400
-Date: Thu, 10 Jul 2003 00:56:40 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+	Wed, 9 Jul 2003 18:48:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61318 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268687AbTGIWrc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 18:47:32 -0400
+Message-ID: <3F0C9EE8.2050005@pobox.com>
+Date: Wed, 09 Jul 2003 19:02:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
 To: "J.A. Magallon" <jamagallon@able.es>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre4
-Message-ID: <20030709225640.GA9325@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: "J.A. Magallon" <jamagallon@able.es>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva> <20030709224856.GC2604@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20030709224856.GC2604@werewolf.able.es>
-User-Agent: Mutt/1.3.28i
+CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] 2.4.22-pre3: P3 and P4 for chekc_gcc
+References: <20030709223355.GA2604@werewolf.able.es>
+In-Reply-To: <20030709223355.GA2604@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 12:48:56AM +0200, J.A. Magallon wrote:
-> 
-> On 07.10, Marcelo Tosatti wrote:
-> > 
-> > Hi,
-> > 
-> > Here goes -pre4. It contains a lot of updates and fixes.
-> > 
-> 
-> Uh ? What the h**l have you diffed ?
-> 
-> Ahhhh, is it reversed ???
+J.A. Magallon wrote:
+> --- linux-2.4.21-bp1/arch/i386/Makefile.orig	2003-06-18 23:40:25.000000000 +0200
+> +++ linux-2.4.21-bp1/arch/i386/Makefile	2003-06-18 23:59:25.000000000 +0200
+> @@ -53,11 +53,11 @@
+>  endif
+>  
+>  ifdef CONFIG_MPENTIUMIII
+> -CFLAGS += -march=i686
+> +CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
+>  endif
+>  
+>  ifdef CONFIG_MPENTIUM4
+> -CFLAGS += -march=i686
+> +CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
+>  endif
 
-nice touch ... I like it! ;)
 
-> ;)
+Looks ok to me (I run this patch locally, and also am the one who 
+submitted the check_gcc patch).
+
+I haven't had any problems at all, but I'm curious if anyone has any 
+negative feedback...  It's rather easy to be conservative and ignore the 
+patch, since -march=i686 should always work.
+
+	Jeff
+
+
+

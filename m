@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263298AbTEIQxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 12:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTEIQxe
+	id S263322AbTEIQ5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTEIQ5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 12:53:34 -0400
-Received: from watch.techsource.com ([209.208.48.130]:7374 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263298AbTEIQxd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 12:53:33 -0400
-Message-ID: <3EBBE10C.4060900@techsource.com>
-Date: Fri, 09 May 2003 13:10:36 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Fri, 9 May 2003 12:57:49 -0400
+Received: from siaab1ab.compuserve.com ([149.174.40.2]:41123 "EHLO
+	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S263322AbTEIQ5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:57:45 -0400
+Date: Fri, 9 May 2003 13:07:13 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: The disappearing sys_call_table export.
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <200305091309_MC3-1-3826-6B65@compuserve.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: A way to shrink process impact on kernel memory usage?
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of the things that's been worked on to reduce kernel memory usage 
-for processes is to shrink the kernel stack from 8k to 4k.  I mean, it's 
-not like you could shrink it to 6k, right?  Well, why not?  Why not 
-allocate an 8k space and put various process-related data structures at 
-the beginning of it?  Sure, a stack overflow could corrupt that data, 
-but a stack overflow would be disasterous anyhow.
+Alan Cox wrote:
 
-I'm sure that, in addition to the memory allocated by kmalloc, some data 
-structures are also allocated to track it so that you can know what to 
-free when you use kfree, right?  Well, combining a few things this way 
-would save a few bytes there too.
+>>   Security-sensitive upper layers like virus scanners and loggers
+>> would want to do it that way.  The upper layer might even just log
+>> the fact that mount happened and then stay out of the way after that.
+>
+> What makes you say that. If the administrator has full priviledges then
+> its kind of irrelevant trying to force anything "for security reasons"
 
-Also, if you're really worried about overflow, or you want a guard page 
-or whatever, then put the data structures at the end and set the initial 
-stack pointer appropriately.
+  Check out the NSA's guide for securing Win2k machines sometime.  They
+go through all kinds of steps to separate auditing and administration
+even though an administrator can get around them and play with the audit
+trail anyway.  It raises the bar and removes the defense of plausible
+deniability if an admin gets caught (he can hardly claim it was an
+'accident' that he granted himself audit privileges and then used them
+to tamper with the audit log.)
 
-Someone complained about a process structure already being too bloated. 
-  Unless it's several K in size already, you can bloat it up all you 
-please this way.
+        1.  Create a new group: Auditors
+        2.  Grant these rights to Auditors:
+                Take ownership of files; Manage auditing
+        3.  Create a new user: Auditor, and put it in these groups:
+                Users; Auditors
+        4.  Log on as Auditor and take ownership of
+                %systemroot%\system32\config\SecEvent.Evt
+        5.  Set permissions on that security logfile:
+                a. System: full control
+                b. Administrators: no access
+                c. Auditors: full control
+        6.  Now log on as an administrator and take away these rights:
+                a. from Administrators: Manage auditing
+                b. from Auditors: Take ownership of files
+        7.  Enable these extra security options:
+                a. crash on audit failure
+                b. clear page file on shutdown
+                c. full privilege auditing
+                d. lots more...
 
-Another advantage is that you could make the datastructures growable. 
-The stack grows down, and the data grows up.  As long as they don't 
-meet, all is well.
+After setting up auditing and ACLs (many pages of directions for that)
+the audit duties are done by unprivileged users and administrators
+cannot see or alter the audit trail.
 
+  Seems like a lot of useless work given that the admins can grant
+themselves any rights they want, doesn't it?

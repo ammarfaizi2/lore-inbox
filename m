@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267568AbUIHQGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268699AbUIHQH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267568AbUIHQGW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 12:06:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268655AbUIHQDU
+	id S268699AbUIHQH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 12:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUIHQHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 12:03:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50576 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268474AbUIHQCr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 12:02:47 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: multi-domain PCI and sysfs
-Date: Wed, 8 Sep 2004 09:02:14 -0700
-User-Agent: KMail/1.7
-Cc: "David S. Miller" <davem@davemloft.net>, willy@debian.org,
-       linux-kernel@vger.kernel.org
-References: <9e4733910409041300139dabe0@mail.gmail.com> <200409072125.41153.jbarnes@engr.sgi.com> <9e47339104090723012190c73a@mail.gmail.com>
-In-Reply-To: <9e47339104090723012190c73a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Sep 2004 12:07:47 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:42415 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268844AbUIHQHI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 12:07:08 -0400
+Date: Wed, 8 Sep 2004 18:02:28 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: Oliver Hunt <oliverhunt@gmail.com>, Hans Reiser <reiser@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>, David Masover <ninja@slaphack.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+Message-ID: <20040908160228.GC2726@thundrix.ch>
+References: <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com> <4699bb7b04090202121119a57b@mail.gmail.com> <4136E756.8020105@hist.no> <4699bb7b0409020245250922f9@mail.gmail.com> <413829DF.8010305@hist.no> <20040905134428.GN26560@thundrix.ch> <413ECFD8.1040808@hist.no>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="E/DnYTRukya0zdZ1"
 Content-Disposition: inline
-Message-Id: <200409080902.14640.jbarnes@engr.sgi.com>
+In-Reply-To: <413ECFD8.1040808@hist.no>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, September 7, 2004 11:01 pm, Jon Smirl wrote:
-> X on GL is going to eliminate all device access from X. Everything
-> will be handled from the OpenGL layer. When everything is finished
-> even the OpenGL layer won't do hardware access either, it will IOCTL
-> the DRM driver to do it. In the final solution the only user of the
-> VGA control should be the secondary card reset program.
 
-Oh right, I forgot.  Anyway, the card reset program needs to get at this stuff 
-somehow.
+--E/DnYTRukya0zdZ1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Where is the PCI segment base address stored in the PCI driver
-> structures? I'm still having trouble with the fact that the PCI driver
-> does not have a clear structure representing a PCI segment.  Shouldn't
-> there be a structure corresponding to a segment?
+Salut,
 
-That would be nice, maybe an extra resource or something?  I haven't looked at 
-the sparc code, but it probably deals with this (sn2 has platform specific 
-functions to get the base address for a bus).
+On Wed, Sep 08, 2004 at 11:24:40AM +0200, Helge Hafting wrote:
+> If you can open a fork/substream/whatever by issuing
+> open("filename/forkname", ...
+> then the old-fashioned open() works with multi-fork files too.
+> An tools based on "open() something, then work with
+> the resulting file descriptor" will work _unchanged_
+> with such a multi-fork fs.
 
-> From what I understand right now the SN2 machine can not have two
-> active VGA cards since it does not have two PCI segments. Without two
-> segments there is no way to tell the legacy addresses apart.
+In my version they'd run unchanged as well.
 
-sn2 does have multiple PCI segments, we just don't export them yet.
+And  BTW,  I wasn't  talking  about introducing  a  new  open at  libc
+level.  I was  talking about  modifying the  open system  call  in the
+kernel and having libc provide compatibility for the old call.
 
-Jesse
+Since  I'm not  sure  how much  breakage it  takes  to make  a file  a
+directory.
+
+			    Tonnerre
+
+
+--E/DnYTRukya0zdZ1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBPy0U/4bL7ovhw40RAhPmAJwK/wFQaiypfxKf3HA+addCeMk8BACfaYuT
+bSqujKHq5azTs7Sqol+gMWc=
+=QBR7
+-----END PGP SIGNATURE-----
+
+--E/DnYTRukya0zdZ1--

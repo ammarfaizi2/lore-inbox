@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSE2QeG>; Wed, 29 May 2002 12:34:06 -0400
+	id <S313508AbSE2QbG>; Wed, 29 May 2002 12:31:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSE2QeF>; Wed, 29 May 2002 12:34:05 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:1934 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313558AbSE2QeE>;
-	Wed, 29 May 2002 12:34:04 -0400
-Date: Wed, 29 May 2002 18:33:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Gerald Champagne <gerald@io.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.18 IDE 73
-Message-ID: <20020529183343.A19610@ucw.cz>
-In-Reply-To: <1022680784.2945.24.camel@wiley> <3CF4D19F.9080402@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313558AbSE2QbF>; Wed, 29 May 2002 12:31:05 -0400
+Received: from faraday.ee.utt.ro ([193.226.10.1]:15375 "EHLO faraday.ee.utt.ro")
+	by vger.kernel.org with ESMTP id <S313508AbSE2QbF>;
+	Wed, 29 May 2002 12:31:05 -0400
+Date: Wed, 29 May 2002 19:30:30 +0300 (EEST)
+From: Sebastian Szonyi <sony@faraday.ee.utt.ro>
+To: Georgi Chorbadzhiyski <gf@unixsol.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18 oopses (filesystem related)
+In-Reply-To: <3CF4DDEE.5070704@unixsol.org>
+Message-ID: <Pine.LNX.4.33.0205291928100.27120-100000@faraday.ee.utt.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 03:03:27PM +0200, Martin Dalecki wrote:
 
-> BTW> The next thing to be gone is simple the fact that we drag
-> around the id information permanently, where infact only
-> some capabilitie fields are sucked out of it and the
-> device identification string is only needed for reporting
-> during boot-up.
 
-Also for black/whitelists. And we're going to need those, though maybe
-the current data in them is not worth much.
+On Wed, 29 May 2002, Georgi Chorbadzhiyski wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> Adding Swap: 265064k swap-space (priority -1)
+> EXT2-fs warning: mounting unchecked fs, running e2fsck is recommended
+> kjournald starting.  Commit interval 5 seconds
+
+
+running e2fsck _is_ recommended
+
+> EXT3-fs warning: mounting fs with errors, running e2fsck is recommended
+
+same
+
+> EXT3 FS 2.4-0.9.17, 10 Jan 2002 on ide0(3,3), internal journal
+> EXT3-fs: mounted filesystem with ordered data mode.
+
+

@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265727AbUGDPXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265740AbUGDPuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265727AbUGDPXz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 11:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUGDPXz
+	id S265740AbUGDPuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 11:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265747AbUGDPuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 11:23:55 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:41937 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265727AbUGDPXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 11:23:53 -0400
-Date: Sun, 4 Jul 2004 16:23:52 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bernd Schubert <bernd-schubert@web.de>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: 2.6.7: sk98lin unload oops
-Message-ID: <20040704152352.GA5243@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bernd Schubert <bernd-schubert@web.de>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <200407041342.18821.bernd-schubert@web.de> <20040704151509.GA5100@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040704151509.GA5100@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 4 Jul 2004 11:50:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29884 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265740AbUGDPum
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 11:50:42 -0400
+Message-ID: <40E82744.3030203@pobox.com>
+Date: Sun, 04 Jul 2004 11:50:28 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Linville <linville@redhat.com>
+CC: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: i810_audio MMIO patch
+References: <200406301956.i5UJu6mp007649@savage.devel.redhat.com>
+In-Reply-To: <200406301956.i5UJu6mp007649@savage.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 04, 2004 at 04:15:09PM +0100, Christoph Hellwig wrote:
-> > Fortunality everything still works fine (I'm running the script over the 
-> > network of the syskonnect cards).
-> > 
-> > This machine has two of those syskonnect cards, on another machine which has 
-> > only one syskonnect card this oops doesn't occur.
+John Linville wrote:
+> Attached is a second patch to account for (most of) Herbert Xu's
+> comments.
 > 
-> As a colleteral damage the following huge patch should fix it, and I need
-> testers for it anyway ;-)
+> I have left-out the part about changing state->card to a
+> local variable where it is used a lot.  Unfortunately, that usage is
+> somewhat pervasive and I would prefer to make those changes in a separate
+> patch -- after I have had a chance to do some testing.
+> 
+> If you'd prefer one patch to account for the original plus these
+> changes, let me know and I'll be happy to provide it.
 
-Actually the problem sits deeper.  sk98line tries to register a procfile with
-the interfacename of the struct net_device.  The patch below (ontop of
-the previous one) makes it work unless you change the interface name manually,
-but as Linux explicitly allows that the interface is fundamentally broken and
-probably should just go away.
+I forwarded this and the main patch to Andrew, for some testing -mm. 
+Then push it upstream.
+
+The main thing you did not address of Herbert's comments was the macro 
+naming, AFAICS.  I don't have a big preference.  If asked, my style 
+preference for this driver would be
+
+ICH_R8
+ICH_R16
+ICH_R32
+ICH_W8
+ICH_W16
+ICH_W32
+
+Short, and bit-size-explicit.
+
+I've always been annoyed that the API function 'readl' represented 32 
+bits :)
+
+	Jeff
 
 
---- drivers/net/sk98lin/skge.c~	2004-07-04 19:15:43.219326648 +0200
-+++ drivers/net/sk98lin/skge.c	2004-07-04 19:18:21.562254864 +0200
-@@ -5119,9 +5119,12 @@
- 	if ((pAC->GIni.GIMacsFound == 2) && pAC->RlmtNets == 2)
- 		have_second_mac = 1;
- 
-+	remove_proc_entry(dev->name, pSkRootDir);
- 	unregister_netdev(dev);
--	if (have_second_mac)
-+	if (have_second_mac) {
-+		remove_proc_entry(pAC->dev[1]->name, pSkRootDir);
- 		unregister_netdev(pAC->dev[1]);
-+	}
- 
- 	SkGeYellowLED(pAC, pAC->IoBase, 0);
- 
+

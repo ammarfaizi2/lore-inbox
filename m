@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283158AbRK2KzC>; Thu, 29 Nov 2001 05:55:02 -0500
+	id <S283159AbRK2LHO>; Thu, 29 Nov 2001 06:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283168AbRK2Kyw>; Thu, 29 Nov 2001 05:54:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39951 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283158AbRK2Kyf>;
-	Thu, 29 Nov 2001 05:54:35 -0500
-Date: Thu, 29 Nov 2001 11:54:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Todd Roy <todd_m_roy@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-Subject: Re: lvm.c compilation errors with 2.5.1-pre2 and pre3
-Message-ID: <20011129115400.B10601@suse.de>
-In-Reply-To: <20011129104936.66773.qmail@web13604.mail.yahoo.com>
+	id <S283168AbRK2LHE>; Thu, 29 Nov 2001 06:07:04 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:62602
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283166AbRK2LG6>; Thu, 29 Nov 2001 06:06:58 -0500
+Date: Thu, 29 Nov 2001 06:00:48 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML 1.9.2 is available
+Message-ID: <20011129060048.A11216@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011129104936.66773.qmail@web13604.mail.yahoo.com>
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 29 2001, Todd Roy wrote:
-> Hi all, I got these errors trying to
-> compile 2.5.1-pre2 and pre3:
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-LVM is currently not in a working state, even though you remove the
-BIO_HASHED bug test.
+Release 1.9.2: Thu Nov 29 05:43:40 EST 2001
+	* Rulebase and help sync with 2.4.17-pre1/2.5.1-pre3.
+	* Rulebase now includes a KERNEL symbol usable in visibilities 
+	  so it can track both sides of the 2.4/2.5 fork.
+	* Search no longer disables suppression of invisible symbols;
+	  they still show up on the results menu, however.
+	* Fix for a bug in the compiler's type deduction for derived symbols.
+	* Attempted fix for a visibility bug reported by Keith Owens.
 
+No bugs pending (assuming the fix for Keith's visibility bug works).
+
+Keith has pointed out a weakness in the language -- there's no way to make
+the default value of a choices menu dependent on the architecture (an issue
+for things like kcore format).  I am meditating on this.
 -- 
-Jens Axboe
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+As the Founding Fathers knew well, a government that does not trust its honest,
+law-abiding, taxpaying citizens with the means of self-defense is not itself
+worthy of trust. Laws disarming honest citizens proclaim that the government
+is the master, not the servant, of the people.
+        -- Jeff Snyder

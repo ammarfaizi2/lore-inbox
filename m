@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263963AbUACUvR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 15:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUACUvR
+	id S263880AbUACUqd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 15:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbUACUqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 15:51:17 -0500
-Received: from mail.kroah.org ([65.200.24.183]:62948 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263963AbUACUvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 15:51:16 -0500
-Date: Sat, 3 Jan 2004 12:51:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Message-ID: <20040103205119.GA10802@kroah.com>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <200401031151.02001.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jan 2004 15:46:33 -0500
+Received: from alhya.freenux.org ([213.41.137.38]:9344 "EHLO moria.freenux.org")
+	by vger.kernel.org with ESMTP id S263880AbUACUqb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 15:46:31 -0500
+From: Mickael Marchand <marchand@kde.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] adaptec 1210sa
+Date: Sat, 3 Jan 2004 21:46:18 +0100
+User-Agent: KMail/1.5.94
+References: <200312220305.29955.marchand@kde.org> <3FF21648.8030604@pobox.com>
+In-Reply-To: <3FF21648.8030604@pobox.com>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       Hugo Mills <hugo-lkml@carfax.org.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200401031151.02001.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401032146.35175.marchand@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 11:51:33AM +0300, Andrey Borzenkov wrote:
-> > You could make a script that just creates 
-> > the device node in /tmp, runs dd on it, and then cleans it all up to
-> > force partition scanning.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hi,
+
+this patch works fine on my box (with a soft raid1 array on top of it)
+
+Cheers,
+Mik
+
+Le Wednesday 31 December 2003 01:20, vous avez écrit :
+> Mickael Marchand wrote:
+> > reading linux-scsi I found a suggestion by Justin to make adaptec's 1210
+> > sa working. I made the corresponding patch for libata, and it actually
+> > works :)
 > >
-> 
-> You miss the point. When should this script be run? There is no event when you 
-> just insert Jaz disk; nor is there any way to trigger revalidation on access 
-> to non-existing device like is the case without udev.
-> 
-> what I aim at - udev needs to provide some extension mechanism to allow 
-> arbitrarily scripts to be run.
+> > it needs  some redesign to only apply to aar1210 (as standard sil3112
+> > does not need it) and I guess some testing before inclusion.
+>
+> Here is the patch I'm applying.  Please test and let me know how it goes.
+>
+> Also, someone please send me a patch for the PCI ids :)
+>
+> 	Jeff
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-It does provide that mechanism.  See the CALLOUT rule.  It can run any
-program or script when a new device is seen by the kernel.
-
-thanks,
-
-greg k-h
+iD8DBQE/9yoeyOYzc4nQ8j0RAlCkAJ9lr1ZIJqa5JTD/R7ELCvtP/Wn5WwCfQqzn
+GEwV9zLRSQLpR8XY7Q4fzgk=
+=w5Ft
+-----END PGP SIGNATURE-----

@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268436AbUJOVHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUJOVJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268436AbUJOVHT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 17:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUJOVHT
+	id S268370AbUJOVJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 17:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUJOVJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 17:07:19 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:52142 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268436AbUJOVHS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 17:07:18 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=E7FxAJ8Gy+tsz1pZ4QUH0rjRYs1HMRAROd7pyoyYqJ6FhMRRwR0yjLtQCtuFWUa8HuNJ2mGIk5j1OzXjUQBJVCc42eH2djMpKMCdYBLvs8/rWpptnjvZZz0A8kBQkMf0wMJsAGnHJqDV0CjxUZTQVnXNjKRwNe+AHhPdwYWoh68
-Message-ID: <9625752b04101514073f6dab24@mail.gmail.com>
-Date: Fri, 15 Oct 2004 14:07:17 -0700
-From: Danny <dannydaemonic@gmail.com>
-Reply-To: Danny <dannydaemonic@gmail.com>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: mm kernel oops with r8169 & named, PREEMPT
-In-Reply-To: <20041015161818.GA2577@electric-eye.fr.zoreil.com>
+	Fri, 15 Oct 2004 17:09:26 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:2978 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268370AbUJOVJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 17:09:21 -0400
+Subject: Re: Fw: signed kernel modules?
+From: Lee Revell <rlrevell@joe-job.com>
+To: root@chaos.analogic.com
+Cc: David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
+       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       David Howells <dhowells@redhat.com>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
+References: <27277.1097702318@redhat.com>
+	 <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
+	 <1097843492.29988.6.camel@weaponx.rchland.ibm.com>
+	 <200410151153.08527.gene.heskett@verizon.net>
+	 <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
+	 <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
+	 <1097860121.13633.358.camel@hades.cambridge.redhat.com>
+	 <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
+Content-Type: text/plain
+Message-Id: <1097873791.5119.10.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 15 Oct 2004 16:56:33 -0400
 Content-Transfer-Encoding: 7bit
-References: <9625752b041012230068619e68@mail.gmail.com>
-	 <9625752b041013091772e26739@mail.gmail.com>
-	 <9625752b04101309182a96fbd2@mail.gmail.com>
-	 <200410131129.05657.jdmason@us.ltcfwd.linux.ibm.com>
-	 <20041013181840.GA30852@electric-eye.fr.zoreil.com>
-	 <9625752b04101313417be4cf90@mail.gmail.com>
-	 <20041013205433.GC30761@electric-eye.fr.zoreil.com>
-	 <9625752b04101314595f72f84a@mail.gmail.com>
-	 <9625752b04101415043a078b93@mail.gmail.com>
-	 <20041015161818.GA2577@electric-eye.fr.zoreil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004 18:18:18 +0200, Francois Romieu wrote:
-> May be try this one first:
+On Fri, 2004-10-15 at 13:35, Richard B. Johnson wrote:
+> You just don't get it. This is policy.
 > 
-> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0410.1/1920.html
+> Script started on Fri 15 Oct 2004 01:13:59 PM EDT
+> # insmod xxx.ko
+> xxx: module license 'BSD' taints kernel.
+> # exit
+> Script done on Fri 15 Oct 2004 01:14:26 PM EDT
 
-Thanks, that appears to have fixed it.  I'm not getting an oops any
-more.  I wish I hadn't assumed so much in my subject line, perhaps
-someone would have found the solution before John Flinchbaugh even
-reported his problem.
+OK, now _this_ is undeniably policy, I would go so far as to call it
+bullshit.  There is a fundamental technical reason to have closed source
+modules taint the kernel, because you cannot debug a closed source
+module.  But come on, a BSD license tainting the kernel?  That is
+zealotry, pure and simple.
 
-Also posting the oops directly instead of linking to it probably
-allows people passing by to look at the oops, increasing the total
-number of eyes.
+Lee 
 
-I have a quick question though, if I'm using the kernel with all the
-debug features turned on, should I still run it through ksymoops?

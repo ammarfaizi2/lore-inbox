@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUKJKz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbUKJLNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUKJKz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 05:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbUKJKz0
+	id S261687AbUKJLNk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 06:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUKJLNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 05:55:26 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:28592 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261682AbUKJKzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 05:55:21 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.10-rc1-mm4: USB storage not working on AMD64
-Date: Wed, 10 Nov 2004 11:54:05 +0100
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-usb-devel@lists.sourceforge.net
-MIME-Version: 1.0
+	Wed, 10 Nov 2004 06:13:39 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23570 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261687AbUKJLNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 06:13:38 -0500
+Date: Wed, 10 Nov 2004 11:13:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: Mangling attributions.
+Message-ID: <20041110111333.A18233@flint.arm.linux.org.uk>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	torvalds@osdl.org
+References: <200411060407.iA647Wx6013692@hera.kernel.org> <1100083318.21273.41.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411101154.05304.rjw@sisk.pl>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1100083318.21273.41.camel@baythorne.infradead.org>; from dwmw2@infradead.org on Wed, Nov 10, 2004 at 10:41:58AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Nov 10, 2004 at 10:41:58AM +0000, David Woodhouse wrote:
+> On Fri, 2004-11-05 at 14:42 +0000, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.2464.1.8, 2004/11/05 14:42:03+00:00, peterc@au.rmk.(none)
+>  ...
+> > 	Patch from Peter Chubb
+> > 	
+> 
+> Russell, please don't mangle the attribution in this way. Please include
+> a correct email address for the submitter of the mail, and in any
+> Signed-Off-By: lines. The idea is that we're supposed to be able to work
+> out who submitted stuff, and how to get in touch with them if we want
+> to.
 
-There seems to be a problem in 2.6.10-rc1-mm4 with either USB storage (eg a 
-pendrive) or hotplug on AMD64 (NForce3 chipset, ohci-hcd, SuSE 9.1).  Namely, 
-if a USB pendrive is inserted into a socket, the kernel does not even detect 
-it.  Here's what appears in dmesg after it's inserted:
+Tough. Shit.  I'm not changing this.  Sorry.
 
-ohci_hcd 0000:00:02.0: wakeup
-
-Other USB devices (eg a mouse) seem to work normally.
-
-Of course such problems do not occur on 2.6.10-rc1.  On 2.6.10-rc1-mm3 I've 
-had this problem only on a dual-Opteron box, but on 2.6.10-rc1-mm4 I see it 
-on a one-processor box either.
-
-Greets,
-RJW
+If you don't agree with my stance on the Data Protection Act, go and find
+someone else to merge patches.
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

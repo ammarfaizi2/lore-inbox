@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVALMbC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVALMdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVALMbC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 07:31:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVALMbC
+	id S261164AbVALMdc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 07:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVALMdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 07:31:02 -0500
-Received: from pop.gmx.de ([213.165.64.20]:10452 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261162AbVALMaz (ORCPT
+	Wed, 12 Jan 2005 07:33:32 -0500
+Received: from mail.enyo.de ([212.9.189.167]:2524 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261164AbVALMd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 07:30:55 -0500
-X-Authenticated: #4512188
-Message-ID: <41E51876.5020703@gmx.de>
-Date: Wed, 12 Jan 2005 13:30:46 +0100
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050107)
-X-Accept-Language: de-DE, de, en-us, en
+	Wed, 12 Jan 2005 07:33:29 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Steve Bergman <steve@rueb.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proper procedure for reporting possible security vulnerabilities?
+References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
+	<41E2F6B3.9060008@rueb.com>
+	<1105457773.15793.28.camel@localhost.localdomain>
+Date: Wed, 12 Jan 2005 13:33:28 +0100
+In-Reply-To: <1105457773.15793.28.camel@localhost.localdomain> (Alan Cox's
+	message of "Tue, 11 Jan 2005 16:10:57 +0000")
+Message-ID: <87k6qiomhz.fsf@deneb.enyo.de>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: krishna <krishna.c@globaledgesoft.com>,
-       lirc <lirc-list-request@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: LIRC for Infra Red port.
-References: <41E510C7.5060100@globaledgesoft.com> <Pine.LNX.4.61.0501121310010.14535@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0501121310010.14535@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE034F12BA9C44DF9F7382E0E"
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE034F12BA9C44DF9F7382E0E
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+* Alan Cox:
 
-Jan Engelhardt schrieb:
->>Hi all,
->>
->>  I am working on LIRC-serial.
->>
->>But in my main board I also have Infra Red Port. I don't want to use the serial
->>port so that it I can use for some other purpose.
->>Does any one know How could I use the IR port instead of Serial port.
+> On Llu, 2005-01-10 at 21:42, Steve Bergman wrote:
+>> handled.  They clam that they sent email to Linus and Andrew and did not 
+>> receive a response for 3 weeks, and that is why they released exploit 
+>> code into the wild.
+>> 
+>> Anyone here have any comments on what I should tell him?
 >
->
-> The BIOS has a switch to reserve COM2 (maybe others) for IR, hopefully.
+> They could have reported them to:
+> 	vendor-sec
 
-Or in other words: You'll loose your serial port either way...
+vendor-sec's reputation apparently has been damaged in some circles as
+the result of the fake e-matters advisory.  Heise Online also
+suggested that the exploit was leaked from vendor-sec ("a natural
+conclusion").
 
-Prakash
+> 	cert
 
---------------enigE034F12BA9C44DF9F7382E0E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+CERT/CC shares vulnerability information with anyone who's paying
+enough money (read the fine print).  Probably that's not what the
+submitters want.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+> 	dfn-cert
 
-iD8DBQFB5Rh8xU2n/+9+t5gRAo8VAJ41SzTm9tjDlR6wCGFgYQ4H48xtgACfW8Sj
-mS3xHe0aB2rxOHWMCkJp6cw=
-=km9O
------END PGP SIGNATURE-----
+DFN-CERT is certainly honored to be included in this list, but they
+can only forward it to security@ at some vendors and probably
+vendor-sec.
 
---------------enigE034F12BA9C44DF9F7382E0E--
+If you get stuck, asking someone who has published kernel
+vulnerabilities previously what to do is also an option.
+
+But in general, there are plenty of options besides trying to contact
+just two kernel developers high up the food chain.  Contacting the
+subsystem maintainer is often a possiblity, too.  Of course, it's no
+good if the subsystem maintainer tells you to post it to a public
+list. 8-/

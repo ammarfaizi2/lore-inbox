@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261828AbSJNE4a>; Mon, 14 Oct 2002 00:56:30 -0400
+	id <S261829AbSJNFg7>; Mon, 14 Oct 2002 01:36:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbSJNE4a>; Mon, 14 Oct 2002 00:56:30 -0400
-Received: from packet.digeo.com ([12.110.80.53]:36521 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261825AbSJNE42>;
-	Mon, 14 Oct 2002 00:56:28 -0400
-Message-ID: <3DAA4FD6.A18DAFE6@digeo.com>
-Date: Sun, 13 Oct 2002 22:02:14 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [patch] remove BKL from inode_setattr
-Content-Type: text/plain; charset=us-ascii
+	id <S261830AbSJNFg7>; Mon, 14 Oct 2002 01:36:59 -0400
+Received: from adsl-63-202-107-149.dsl.lsan03.pacbell.net ([63.202.107.149]:53241
+	"EHLO pavillion") by vger.kernel.org with ESMTP id <S261829AbSJNFg6>;
+	Mon, 14 Oct 2002 01:36:58 -0400
+To: linux-kernel@vger.kernel.org
+From: "Lingerie Airlines" <natasha@ecstaskyair.com>
+Subject: The flight of your life!
+Date: Mon, 14 Oct 2002 22:44:19 -0700
+MIME-Version: 1.0 
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Oct 2002 05:02:14.0899 (UTC) FILETIME=[DCC6FC30:01C2733E]
+Message-Id: <20021014053658Z261829-32597+1136@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi again! 
 
-Since April 05 of this year we've been holding the BKL across the
-vmtruncate call out of inode_setattr().  By accident it seems.
+This is Natasha from Ecstasky Air, the world's first "Lingerie Airline". 
 
-This does not affect unlink().  It affects ftruncate() and open(O_TRUNC).
+I'm surprised we haven't heard from you yet! When you have a chance, I hope you 
+take a look at our latest updates at the link below...there is new video from 
+new Nationally Broadcasted TV shows with some good shots of me and my friends 
+in our 'uniforms'...and now you can BOOK FLIGHTS ONLINE securely and discreetly 
+through PayPal. 
 
-Given that the drop_inode() path does not take the BKL, I would
-suggest that it is safe to assume that the various filesystem's
-truncate code is safe without this additional VFS-level lock_kernel(),
-and that it can be simply removed.
+Travel agents can also offer our flights and get a commission on every ticket 
+sold. With service that beats ANY airline and prices to match, how can anyone 
+stand to miss this? 
 
-Sound sane?
+Please feel free to give Don or me a call anytime at (310) 858-5700 or just click 
+onto our website for more. 
+
+Cheers, 
+
+Natasha 
+
+natasha@ecstaskyair.com 
+http://www.ecstaskyair.com
 
 
---- 2.5.42/fs/attr.c~truncate-bkl	Sun Oct 13 20:04:06 2002
-+++ 2.5.42-akpm/fs/attr.c	Sun Oct 13 22:01:15 2002
-@@ -67,7 +67,6 @@ int inode_setattr(struct inode * inode, 
- 	unsigned int ia_valid = attr->ia_valid;
- 	int error = 0;
- 	
--	lock_kernel();
- 	if (ia_valid & ATTR_SIZE) {
- 		error = vmtruncate(inode, attr->ia_size);
- 		if (error)
-@@ -91,7 +90,6 @@ int inode_setattr(struct inode * inode, 
- 	}
- 	mark_inode_dirty(inode);
- out:
--	unlock_kernel();
- 	return error;
- }
- 
+If you really don't want to hear from us anymore, just click "Reply" and type 
+"unsubscribe in the subject field.
 
-.
+
+--------------------
+
+E-Mail sent using the Free Trial Version of WorldMerge, the fastest
+and easiest way to send personalized e-mail messages. For more
+information visit http://www.coloradosoft.com/worldmrg
+
+71767
+

@@ -1,71 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVATVJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVATVMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVATVJY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 16:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVATVJX
+	id S261950AbVATVMh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 16:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVATVMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 16:09:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53700 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261945AbVATVJR (ORCPT
+	Thu, 20 Jan 2005 16:12:37 -0500
+Received: from main.gmane.org ([80.91.229.2]:43464 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261950AbVATVLP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 16:09:17 -0500
-Date: Thu, 20 Jan 2005 13:08:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, cryst@golden.net,
-       torvalds@osdl.org, Matt_Domsch@dell.com
-Subject: Re: Something very strange on x86_64 2.6.X kernels
-Message-Id: <20050120130848.14a92990.akpm@osdl.org>
-In-Reply-To: <41F01A50.1040109@cosmosbay.com>
-References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
-	<20050120162807.GA3174@stusta.de>
-	<20050120164829.GG450@wotan.suse.de>
-	<41F01A50.1040109@cosmosbay.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 20 Jan 2005 16:11:15 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Alexander Fieroch <Fieroch@web.de>
+Subject: usb storage device bug in kernel module - I/O error
+Date: Thu, 20 Jan 2005 22:10:49 +0100
+Message-ID: <csp6oq$pld$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: de-de, en-us, en
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet <dada1@cosmosbay.com> wrote:
->
-> Hi Andi
-> 
-> I have very strange coredumps happening on a big 64bits program.
-> 
-> Some background :
-> - This program is multi-threaded
-> - Machine is a dual Opteron 248 machine, 12GB ram.
-> - Kernel 2.6.6  (tried 2.6.10 too but problems too)
-> - The program uses hugetlb pages.
-> - The program uses prefetchnta
-> - The program uses about 8GB of ram.
-> 
-> After numerous differents core dumps of this program, and gdb debugging 
-> I found :
-> 
-> Every time the crash occurs when one thread is using some ram located at 
-> virtual address 0xffffe6xx
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-What does "using" mean?  Is the program executing from that location?
+Hello kernel list,
 
-> When examining the core image, the data saved on this page seems correct 
-> (ie countains coherent user data). But one register (%rbx) is usually 
-> corrupted and contains a small value (like 0x3c)
-> 
-> The last instruction using this register is :
-> 	prefetchnta 0x18(,%rbx,4)
-> 
-> 
-> Examining linux sources, I found that 0xffffe000 is 'special' (ia 32 
-> vsyscall) and 0xffffe600 is about sigreturn subsection of this special area.
-> 
-> Is it possible some vm trick just kicks in and corrupts my true 64bits 
-> program ?
-> 
+I don't know if this is the right list for problems with kernel modules
+and bugs - if not please tell me where I can find the kernel development
+mailing list to report this.
 
-Interesting.  IIRC, opterons will very occasionally (and incorrectly) take
-a fault when performing a prefetch against a dud pointer.  The kernel will
-fix that up.  At a guess, I'd say tha the fixup code isn't doing the right
-thing when the faulting EIP is in the vsyscall page.
+So here is my problem:
+I get errors when I try to copy files to my usb harddisk. In the first
+minutes it works fine but then I get following errors for each block to
+write on the disk:
+
+Jan 20 10:07:53 orclex kernel: SCSI error : <1 0 0 0> return code = 0x70000
+Jan 20 10:07:53 orclex kernel: end_request: I/O error, dev sda, sector
+1555604
+Jan 20 10:07:53 orclex kernel: Buffer I/O error on device sda6, logical
+block 190016
+Jan 20 10:07:53 orclex kernel: lost page write due to I/O error on sda6
+Jan 20 10:07:53 orclex kernel: SCSI error : <1 0 0 0> return code = 0x70000
+Jan 20 10:07:53 orclex kernel: end_request: I/O error, dev sda, sector
+1555605
+Jan 20 10:07:53 orclex kernel: Buffer I/O error on device sda6, logical
+block 190017
+Jan 20 10:07:53 orclex kernel: lost page write due to I/O error on sda6
+...
+
+
+I'm using kernel 2.6.10 and the error appears when I load the ehci_hcd
+module for USB 2.0. When I don't use this module (so I can only use usb
+1.1) I get no errors while copying files to the usb harddisk.
+
+I have got an ALi PCI-Card for USB 2.0:
+
+
+0000:00:13.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+(prog-if 10 [OHCI])
+~        Subsystem: ALi Corporation USB 1.1 Controller
+~        Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 10
+~        Memory at e2003000 (32-bit, non-prefetchable) [size=4K]
+~        Capabilities: [60] Power Management version 2
+
+0000:00:13.3 USB Controller: ALi Corporation USB 2.0 Controller (rev 01)
+(prog-if 20 [EHCI])
+~        Subsystem: ALi Corporation USB 2.0 Controller
+~        Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 9
+~        Memory at e2004000 (32-bit, non-prefetchable) [size=256]
+~        Capabilities: [50] Power Management version 2
+~        Capabilities: [58] #0a [2090]
+
+
+Here is an extract of my /var/log/syslog while loading my usb storage
+device:
+
+
+Jan 20 10:02:29 orclex kernel: PCI: Found IRQ 9 for device 0000:00:13.3
+Jan 20 10:02:29 orclex kernel: ehci_hcd 0000:00:13.3: ALi Corporation
+USB 2.0 Controller
+Jan 20 10:02:29 orclex kernel: ehci_hcd 0000:00:13.3: irq 9, pci mem
+0xe2004000
+Jan 20 10:02:29 orclex kernel: ehci_hcd 0000:00:13.3: new USB bus
+registered, assigned bus number 3
+Jan 20 10:02:29 orclex kernel: ehci_hcd 0000:00:13.3: USB 2.0
+initialized, EHCI 1.00, driver 26 Oct 2004
+Jan 20 10:02:29 orclex kernel: hub 3-0:1.0: USB hub found
+Jan 20 10:02:29 orclex kernel: hub 3-0:1.0: 2 ports detected
+Jan 20 10:02:29 orclex kernel: usb 3-2: new high speed USB device using
+ehci_hcd and address 2
+Jan 20 10:02:29 orclex kernel: scsi1 : SCSI emulation for USB Mass
+Storage devices
+Jan 20 10:02:29 orclex kernel: usb-storage: device found at 2
+Jan 20 10:02:29 orclex kernel: usb-storage: waiting for device to settle
+before scanning
+Jan 20 10:02:29 orclex kernel:   Vendor: SAMSUNG   Model: SP1203N
+~    Rev: SN10
+Jan 20 10:02:29 orclex kernel:   Type:   Direct-Access
+~    ANSI SCSI revision: 00
+Jan 20 10:02:29 orclex kernel: SCSI device sda: 234493057 512-byte hdwr
+sectors (120060 MB)
+Jan 20 10:02:29 orclex kernel: sda: assuming drive cache: write through
+Jan 20 10:02:29 orclex kernel: SCSI device sda: 234493057 512-byte hdwr
+sectors (120060 MB)
+Jan 20 10:02:29 orclex kernel: sda: assuming drive cache: write through
+Jan 20 10:02:29 orclex kernel:  sda: sda2 < sda5 sda6 > sda3
+Jan 20 10:02:29 orclex kernel: Attached scsi disk sda at scsi1, channel
+0, id 0, lun 0
+Jan 20 10:02:29 orclex kernel: Attached scsi generic sg0 at scsi1,
+channel 0, id 0, lun 0,  type 0
+Jan 20 10:02:29 orclex kernel: usb-storage: device scan complete
+
+
+Is this a known bug and does any patch exist?
+
+Thanks in advance,
+
+Alexander
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB8B5ZlLqZutoTiOMRAjW2AJ9sejPtLrIyARZ+kr2kxb5qNByS/QCffIL7
+AyLyA0HdsFqhYTvDE3ygz2M=
+=Ds1a
+-----END PGP SIGNATURE-----
+

@@ -1,103 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266191AbSLISrV>; Mon, 9 Dec 2002 13:47:21 -0500
+	id <S265909AbSLIS43>; Mon, 9 Dec 2002 13:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266203AbSLISrV>; Mon, 9 Dec 2002 13:47:21 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:47041 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266191AbSLISrT>;
-	Mon, 9 Dec 2002 13:47:19 -0500
-Subject: Re: [PATCH] aacraid 2.5
-From: Mark Haverkamp <markh@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021207003011.A21628@infradead.org>
-References: <1039189541.6401.8.camel@markh1.pdx.osdl.net>
-	 <20021207003011.A21628@infradead.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039460128.28649.21.camel@markh1.pdx.osdl.net>
+	id <S265936AbSLIS43>; Mon, 9 Dec 2002 13:56:29 -0500
+Received: from users.linvision.com ([62.58.92.114]:15290 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S265909AbSLIS42>; Mon, 9 Dec 2002 13:56:28 -0500
+Date: Mon, 9 Dec 2002 20:03:19 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       "Dr. David Alan Gilbert" <gilbertd@treblig.org>, erik@hensema.xs4all.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: /proc/pci deprecation?
+Message-ID: <20021209200318.A31996@bitwizard.nl>
+References: <997222131F7@vcnet.vc.cvut.cz> <slrnav3qp5.1c2.usenet@bender.home.hensema.net> <20021207131559.GA737@gallifrey> <20021207174658.GD10322@conectiva.com.br>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 09 Dec 2002 10:55:29 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021207174658.GD10322@conectiva.com.br>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 16:30, Christoph Hellwig wrote:
-> On Fri, Dec 06, 2002 at 07:45:42AM -0800, Mark Haverkamp wrote:
-> > +/**
-> > + * 	Convert capacity to cylinders
-> > + *  	accounting for the fact capacity could be a 64 bit value
-> > + *
-> > + */
-> > +static inline u32 cap_to_cyls(sector_t capacity, u32 divisor)
-> > +{
-> > +#ifdef CONFIG_LBD
-> > +	do_div(capacity, divisor);
-> > +#else
-> > +	capacity /= divisor;
-> > +#endif
-> > +	return (u32) capacity;
-> > +}
+On Sat, Dec 07, 2002 at 03:46:58PM -0200, Arnaldo Carvalho de Melo wrote:
+> Em Sat, Dec 07, 2002 at 01:15:59PM +0000, Dr. David Alan Gilbert escreveu:
+> > * Erik Hensema (usenet@hensema.xs4all.nl) wrote:
+> > > 
+> > > Every half-decent installer autodetects all PCI devices. AND had lspci
+> > > installed in the install image.
+> > 
+> > Yes, but wait till you find yourself stuck on a weird embedded board
+> > with a small flash and a serial console and you are trying to debug the
+> > PCI device you've built.
 > 
-> Please use sector_div() instead.  It exists for a reason.
+> In this weird embedded board with small flash it'd be lovely to save one
+> more page (or perhaps more) in the kernel image, no? :-)
 
+Agreed. But -=*if*=- I want to. 
 
-Thanks for finding this.  I have enclosed a change using your
-suggestion.
-
-Mark.
-
-
-===== drivers/scsi/aacraid/aacraid.h 1.3 vs edited =====
---- 1.3/drivers/scsi/aacraid/aacraid.h	Fri Dec  6 00:30:25 2002
-+++ edited/drivers/scsi/aacraid/aacraid.h	Mon Dec  9 08:57:06 2002
-@@ -1369,21 +1369,6 @@
- 	return (struct hw_fib *)addr;
- }
+I would personally prefer to spend the page in the (compressed in flash!)
+kernel image than the nine pages or so for "lspci" (possibly compressed
+as well). 
  
--/**
-- * 	Convert capacity to cylinders
-- *  	accounting for the fact capacity could be a 64 bit value
-- *
-- */
--static inline u32 cap_to_cyls(sector_t capacity, u32 divisor)
--{
--#ifdef CONFIG_LBD
--	do_div(capacity, divisor);
--#else
--	capacity /= divisor;
--#endif
--	return (u32) capacity;
--}
--
- const char *aac_driverinfo(struct Scsi_Host *);
- struct fib *fib_alloc(struct aac_dev *dev);
- int fib_setup(struct aac_dev *dev);
-===== drivers/scsi/aacraid/linit.c 1.7 vs edited =====
---- 1.7/drivers/scsi/aacraid/linit.c	Fri Dec  6 00:26:58 2002
-+++ edited/drivers/scsi/aacraid/linit.c	Mon Dec  9 08:56:43 2002
-@@ -443,7 +443,7 @@
- 		param->sectors = 32;
- 	}
- 
--	param->cylinders = cap_to_cyls(capacity,
-+	param->cylinders = sector_div(capacity,
- 			(param->heads * param->sectors));
- 
- 	/*
-@@ -498,7 +498,7 @@
- 			end_sec = first->end_sector & 0x3f;
- 		}
- 
--		param->cylinders = cap_to_cyls(capacity,
-+		param->cylinders = sector_div(capacity,
- 				(param->heads * param->sectors));
- 
- 		if(num < 4 && end_sec == param->sectors)
-
+	Roger.
 
 -- 
-Mark Haverkamp <markh@osdl.org>
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currently in such an      * 
+* excursion: The stable situation does not include humans. ***************

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136723AbRECKhD>; Thu, 3 May 2001 06:37:03 -0400
+	id <S136727AbRECKiZ>; Thu, 3 May 2001 06:38:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136708AbRECKgx>; Thu, 3 May 2001 06:36:53 -0400
-Received: from femail1.sdc1.sfba.home.com ([24.0.95.81]:26616 "EHLO
-	femail1.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S136727AbRECKgf>; Thu, 3 May 2001 06:36:35 -0400
-Message-ID: <3AF134AE.1B6DBDA8@home.com>
-Date: Thu, 03 May 2001 03:36:30 -0700
-From: Seth Goldberg <bergsoft@home.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tom Leete <tleete@mountain.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Followup to previous post: Atlon/VIA Instabilities
-In-Reply-To: <3AEE9EA0.3752F0C0@home.com> <3AEFEB0E.1C464EA9@mountain.net>
+	id <S136708AbRECKiE>; Thu, 3 May 2001 06:38:04 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:4343 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S136727AbRECKhw>; Thu, 3 May 2001 06:37:52 -0400
+Date: Thu, 3 May 2001 12:37:50 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+Message-ID: <20010503123749.E754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <80BTbB7Hw-B@khms.westfalen.de> <13656.988875876@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <13656.988875876@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, May 03, 2001 at 05:44:36PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tom,
+On Thu, May 03, 2001 at 05:44:36PM +1000, Keith Owens wrote:
+> >2. How do you do it today, and why wouldn't that work?
+> 
+> LD_PRELOAD on a library that overrides gettimeofday().  I can see no
+> reason why that would not continue to work. 
 
-  Nope.  No emulation here. Thanks for trying tho ;).
+Static linkage?
 
- --Seth
+> What would stop working
+> are timewarp modules that intercepted the syscall at the kernel level
+> instead of user space level.
 
-Tom Leete wrote:
-> 
-> Seth Goldberg wrote:
-> >
-> > Hi,
-> >
-> >   So it seems that CONFIG_X86_USE_3DNOW is simply used to
-> > enable access to the routines in mmx.c (the athlon-optimized
-> > routines on CONFIG_K7 kernels), so then it appears that somehow
-> > this is corrupting memory / not behaving as it should (very
-> > technical, right?) :)...
-> >
-> >  --Seth
-> 
-> This is a shot in the dark. Do you have floating-point emulation on
-> (CONFIG_MATH_EMULATION=y)?
-> 
-> Tom
-> 
-> --
-> The Daemons lurk and are dumb. -- Emerson
+That's what the poster talked about ;-)
+
+Think subterfuge (sp?) and friends.
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

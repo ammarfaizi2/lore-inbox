@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRAKAaL>; Wed, 10 Jan 2001 19:30:11 -0500
+	id <S129431AbRAKAaV>; Wed, 10 Jan 2001 19:30:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130431AbRAKAaB>; Wed, 10 Jan 2001 19:30:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40466 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129584AbRAKA3w>; Wed, 10 Jan 2001 19:29:52 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: * 4 converted to << 2 for networking code
-Date: 10 Jan 2001 16:29:27 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <93iup7$6s4$1@cesium.transmeta.com>
-In-Reply-To: <20010110174859.R7498@prosa.it> <3A5C778C.CFB363F3@didntduck.org> <20010110180322.T7498@prosa.it> <20010110161146.A3252@unthought.net>
+	id <S130765AbRAKAaL>; Wed, 10 Jan 2001 19:30:11 -0500
+Received: from innerfire.net ([208.181.73.33]:29715 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S129873AbRAKA36>;
+	Wed, 10 Jan 2001 19:29:58 -0500
+Date: Wed, 10 Jan 2001 16:33:15 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [Announcement] linux-kernel v2.0.39
+In-Reply-To: <3A5CEFB7.18262D97@eyal.emu.id.au>
+Message-ID: <Pine.LNX.4.10.10101101631320.4112-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010110161146.A3252@unthought.net>
-By author:    =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-In newsgroup: linux.dev.kernel
+GCC 2.95 will NOT compile a 2.0 series kernel...
+
+	Gerhard
+
+> # gcc --version
+> 2.95.2
 > 
-> On most processors <<2 is slower than *4.
+> # uname -a
+> Linux eyal 2.4.0-ac3 #1 Sun Jan 7 12:15:50 EST 2001 i686 unknown
+> 
+> # ls -l /lib/libc-*.so
+> -rwxr-xr-x    1 root     root      1057576 Oct 14 05:45
+> /lib/libc-2.1.95.so
+> 
+> --
+> Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 > 
 
-That's a funny statement.  Which processors do you include in "most"?
-That has not been my experience.
+--
+Gerhard Mack
 
-> It's outright stupid to write <<2 when we mean *4 in order to optimize for one out of a
-> gazillion supported architectures - even more so when the compiler
-> for the one CPU where <<2 is faster, will actually generate a shift
-> instead of a multiply as a part of the standard optimization.
-> 
-> One question for the GCC people:  Will gcc change <<2 to *4 on other 
-> architectures ?    If so, then my case is not quite as strong of course.
-> 
+gmack@innerfire.net
 
-gcc should consider the statements equivalent, and generate whichever
-pattern is preferred.  On an i386 that may mean take a pattern such as
+<>< As a computer I find your faith in technology amusing.
 
-	foo = (bar << 2) + quux;
-
-... and generate ...
-
-	lea ecx,[esi*4+ebx]
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136165AbREGO6b>; Mon, 7 May 2001 10:58:31 -0400
+	id <S136170AbREGO6L>; Mon, 7 May 2001 10:58:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136168AbREGO6W>; Mon, 7 May 2001 10:58:22 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:30476 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S136165AbREGO6K>; Mon, 7 May 2001 10:58:10 -0400
-Message-ID: <3AF6B7D0.B63FD27C@didntduck.org>
-Date: Mon, 07 May 2001 10:57:20 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S136168AbREGO6B>; Mon, 7 May 2001 10:58:01 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1033 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136165AbREGO5r>; Mon, 7 May 2001 10:57:47 -0400
+Subject: Re: Crash
+To: cpraveen@cs.iastate.edu (C.Praveen)
+Date: Mon, 7 May 2001 16:01:03 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.HPX.4.31.0105070927560.4184-100000@beast.cs.iastate.edu> from "C.Praveen" at May 07, 2001 09:37:09 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe
-In-Reply-To: <E14wiWH-0003KR-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14wmVW-0003af-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> (The current -ac fix for the double vmalloc races is below. WP test makes it
-> more complex than is nice)
+> Is it possible to screw up the hardware entirely from software? I made
 
-WP test is easy to handle.  Just filter out protection violations and
-only take the vmalloc path if the page was not found.
+In an abstract theoretical sense yes. Accidentally almost impossible.
 
--       if (address >= TASK_SIZE && !(error_code & 4))
-+       if (address >= TASK_SIZE && !(error_code & 5))
+> know is if there is any way to screw the board from software in such a way
+> that power off and power on does not bring it up ?.
 
---
+The only people are ever likely to do is to corrupt the CMOS, which is easily
+cleared.
 
-				Brian Gerst
+> Its a dual pentium-3 machine. The power supply is gone also, the power
+> supply from the crashed machine does not bring up another normal computer,
+> also power supply from normal computer does not bring up crashed computer.
+
+Sounds like a rather more physical layer problem - like a power spike and
+PSU failure.
+
+BTW: Always put a voltmeter on a power supply before you swap it like that
+to test it. You need to check the voltages under load look sane otherwise you
+may end up using a failed PSU to blow up other motherboards which is a
+rather expensive debugging error ;)
+
+Alan
+

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272274AbRIETNx>; Wed, 5 Sep 2001 15:13:53 -0400
+	id <S272269AbRIETLe>; Wed, 5 Sep 2001 15:11:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272277AbRIETNr>; Wed, 5 Sep 2001 15:13:47 -0400
-Received: from host213-123-129-26.in-addr.btopenworld.com ([213.123.129.26]:41220
-	"EHLO ambassador.mathewson.int") by vger.kernel.org with ESMTP
-	id <S272274AbRIETMs>; Wed, 5 Sep 2001 15:12:48 -0400
-Message-Id: <200109051913.f85JD2K01304@ambassador.mathewson.int>
-Subject: [OFFTOPIC] Secure network fileserving Linux <-> Linux
-To: linux-kernel@vger.kernel.org
-From: Joseph Mathewson <joe@mathewson.co.uk>
-Reply-to: joe.mathewson@btinternet.com
-Date: Wed, 05 Sep 2001 20:13:02 +0100
-X-Mailer: TiM infinity-ALPHA6-rc0.8-jjm
-X-TiM-Client: deschutes [192.168.0.202]
-Content-Transfer-Encoding: quoted-printable
+	id <S272274AbRIETLY>; Wed, 5 Sep 2001 15:11:24 -0400
+Received: from ns1.uklinux.net ([212.1.130.11]:65288 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S272268AbRIETLF>;
+	Wed, 5 Sep 2001 15:11:05 -0400
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Wed, 5 Sep 2001 19:47:46 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: linux-kernel@vger.kernel.org
+Subject: PATCH : remove warning in documentation for via_audio
+Message-ID: <Pine.LNX.4.21.0109051945030.20371-100000@pppg_penguin.linux.bogus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry to ask another annoying question so quickly after my SCSI problems,
-but
 
-Does anyone know of/use a secure network filesharing system on a Linux
-network?  We currently have a room of about 10 machines, mostly Linux
-clients (some MacOS X, soon to come Sun and HP-UX boxes) and servers (all
-running Linux).
+Following patch removes a warning when the documentation is built. Applies
+cleanly to 2.4.10-pre4, and with a 4-line offset to 2.4.9-ac6.
 
-For some time now, we've been using NFS for filesharing /home and have been
-extremely concerned about security.  All the clients in theory run the same
-uids/gids, thanks to LDAP, but that doesn't stop someone plugging in an
-unauthorized machine and merrily destroying everyone's home directories.
+diff -urN linux-2.4.7/drivers/sound/via82cxxx_audio.c altered-2.4.7/drivers/sound/via82cxxx_audio.c
+--- linux-2.4.7/drivers/sound/via82cxxx_audio.c	Sat Jul 21 22:47:35 2001
++++ altered-2.4.7/drivers/sound/via82cxxx_audio.c	Thu Aug 23 20:14:57 2001
+@@ -862,6 +862,7 @@
+ 
+ /**
+  *	via_chan_clear - Stop DMA channel operation, and reset pointers
++ *	@card: the chip to accessed
+  *	@chan: Channel to be cleared
+  *
+  *	Call via_chan_stop to halt DMA operations, and then resets
 
-Apparently some work was done to Kerberize various bits of NFS, and Sun
-have a secure(r) implementation in Solaris.
+Ken
+-- 
+         If a six turned out to be nine, I don't mind.
 
-Does anyone know of a free (preferably easy :) way of secure Linux <->
-Linux filesharing?  Apologies if that seems like a flame, maybe I've missed
-the obvious solution.  (Preferably a solution that doesn't involve editing
-/etc/exports to only allow connections from specified IPs, because if
-someone was going to go to the length of destroying our data, they could
-fake that.  Similarly, MAC addresses.)
+         Home page : http://www.kenmoffat.uklinux.net
 
-Joe.
-
-+-------------------------------------------------+
-| Joseph Mathewson <joe@mathewson.co.uk>          |
-+-------------------------------------------------+

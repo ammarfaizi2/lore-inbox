@@ -1,45 +1,264 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317161AbSFBKQe>; Sun, 2 Jun 2002 06:16:34 -0400
+	id <S317162AbSFBKVP>; Sun, 2 Jun 2002 06:21:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317162AbSFBKQd>; Sun, 2 Jun 2002 06:16:33 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:15519 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S317161AbSFBKQd>; Sun, 2 Jun 2002 06:16:33 -0400
-Message-ID: <20020602101628.4230.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Anthony Spinillo" <tspinillo@linuxmail.org>
+	id <S317163AbSFBKVO>; Sun, 2 Jun 2002 06:21:14 -0400
+Received: from harley.unix-ag.uni-siegen.de ([141.99.42.44]:37343 "EHLO
+	harley.unix-ag.uni-siegen.de") by vger.kernel.org with ESMTP
+	id <S317162AbSFBKVL>; Sun, 2 Jun 2002 06:21:11 -0400
+Date: Sun, 2 Jun 2002 12:23:20 +0200
+From: Fionn Behrens <Fionn.Behrens@unix-ag.org>
 To: linux-kernel@vger.kernel.org
-Date: Sun, 02 Jun 2002 18:16:28 +0800
-Subject: Re: INTEL 845G Chipset IDE Quandry
-X-Originating-Ip: 24.49.78.239
-X-Originating-Server: ws4-4.us4.outblaze.com
+Subject: 2.4 vs 2.2 serious lockup (DMA?) problem - need hints
+Message-Id: <20020602122320.63563812.fionn@unix-ag.org>
+Organization: United Fools Of Bugaloo
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sun__2_Jun_2002_12:23:20_+0200_08328e08"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Back to my original problem, will there be a fix before 2010? ;)
+This is a multi-part message in MIME format.
 
-Tony
+--Multipart_Sun__2_Jun_2002_12:23:20_+0200_08328e08
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
 
-Martin Dalecki wrote:
+Dear audience.
 
-> Of year 2010 - remember learning proper C will take him time.
-> Becouse I never ever saw any code contributed by him
-> despite the fact that I'm still open for patches, as
-> I have told him upon request.
-> Once exception was a broken patch which even didn't
-> compile and couldn't solve the problem it was
-> proclaiming to solve.
-> 
-> 
+I have a dual PII SMP system with BX chipset here and since I upgraded to 2.4
+(which was because I needed support for the CMD649 IDE CHIP that is not known
+ in 2.2) I am experiencing frequent hard lockups.
+Although I am not a kernel wizard I have tried turning on and off various
+kernel options (APM being one) and activated spinlock debugging, tried a
+serial console and even LKCD but it seems the machine just gets stuck hard and
+no easy debugging can be done. The probability of lockups can greatly be
+reduced (but not zeroed at all) by turning off DMA on all IDE channels and
+have them run in PIO mode but I suspect this not to be an IDE problem, rather
+a general DMA or PCI transfer issue. Because stuff like the bt878 (TV card)
+video overlay clipping seems to greatly increase the probability of a crash as
+well.
 
+Using a BX board, I would assume to be pretty much on the safe side regarding
+support of the hardware and actually I am - as long as I use a 2.2 kernel.
+With 2.2 the system runs rock solid for weeks and months!
+
+Of course I have long tried obvious stuff like using 100% the same kernel
+compiling options as in 2.2, leaving out the cmd649, swapping slots, retiring
+one CPU and such. It still happens. Unfortunately due to some software
+upgrades and my CMD649 (which I would rather not dump because the card carries
+USB2 and Firewire Controllers as well!) getting back to 2.2 is not my
+preferred option and thats why I am asking you for help.
+
+For your reading pleasure I have appended various system information (bz2).
+>From those files it is obvious that my system is a bit stuffed with extra
+hardware - but all of it is said to be Linux compatible and runs with 2.2.
+I strongly hope the attachments are not considered excessive.
+
+Please CC if possible.
+I am a bit desperate so any suggestions (wierd or not) will be greatly
+appreciated.
+
+With kind regards,
+		Fionn
 -- 
-Get your free email from www.linuxmail.org 
+I believe we have been called by history to lead the world.
+                                                       G.W. Bush, 2002-03-01
+--Multipart_Sun__2_Jun_2002_12:23:20_+0200_08328e08
+Content-Type: application/octet-stream;
+ name="bootlog.txt.bz2"
+Content-Disposition: attachment;
+ filename="bootlog.txt.bz2"
+Content-Transfer-Encoding: base64
 
+QlpoOTFBWSZTWcRHjVEAHtd/gH+0GCBP7///f///+r////BgH373eBx3u7u+fGa3s0S+fcdWmu7Z
+KXzroPSXXV2b3dHRuzbdHfPY76XfPn1ay++973d72dt67jptU3uvtq72uufTdpvZvd3e7nu92bQt
+3nPeqvvbq9cddstSoSSE0ATSejQNCE9TyJ6Jkp7TFT9I9UeoPFGmh6mgeoDQJJACAJomU09INNNN
+BMmpjKGjAgGjQDQ0AGgRoQCDU2koe9IUye1T0xJpoNMj1HqPUADQeoyGgJNSQBJinqp/pqepTeEy
+GVDR6nqNMhk0AG1A0AaaGgESiATJqYmSniamU9pTwkaep5T1Hqep6mRo9TyhiGgZDagCRIIAk2hG
+Eam1Sb1NGnqaNGU0bQhoPUyaAA0AOtOoOZRfpiq1GskKCykIkKEEGESMo7PJ852/P69nzemeuZ1f
+5zPZ0fW2CqqqqrUiB6JM7tsD2UcHTzHw8/CN3950uC52VIZa3yizNROXkJ+7scmKHgcNF0WAS5tL
+Qw1P8p67dS1Lp03dNXU8YxjGPnnTC68GfntWkGNZbExbbFhZZYlgqCMaIaYenH1O06xuktczMCvB
+amgmEVQwplAxayClPyjSSR/Q5CjLgZugsqrzSZmZmYPCIodCnswW7ho6EaiiLBIZZWzaBfRxNi1W
+v8JNgIPYaw3WEHmQhcJtNyQEprXwLt4IbcUB+adgpP1P6MtlIieSP4k9aBpnAMcmXlQa8UyV2ARj
+BIh222RoFUUQkapVIAkCJAihEA+KJ20C1+0id76qIdFTAEwCANj/Bg5JxVioUALEqFQ71gHT/0oh
+YakosF/h5qlzOyrybJq14aeEYyqf0ROevqx/xyd1/fl4n7YYaFe763QN33O6GCG3GkoX9Ho2Z7Mo
+sXGbQwSfWekbNAMQ6PH1T9GgmjKehOKFDigTyrw65rumYQ0Zt2HJfbN3d3d+dXWDlzC9HvoJKHz1
+j4KeFRZ55Onxnjs+Pu7TFs1OUNe+uXLly+TM7YMYT4QjLWVVVVU4TvZyzYYVVVVYYc+nhns5LrMW
+LJ87i/IANB0iQPC5l4JAxWX2o+1+Tuv6qFJMhjYfylB6tFz8hRZITR1qnQ6T+atu6YZl//a7KGZy
+MpkKhQXaIBCiJ0f/JxZ76dCPufJUVgYTsZIaUnRUFChc8fogBCaIWqFH4mG7sMonVPTbtuC72++a
+r+GXb8hvJezkik2exm/dhDwm5FUS9MZsRNzm7VATqENud7y85+N+PXldBk0rPYmTLUw1Dq9P06oO
+MRttKieJZ09LnVRWHoDVj2z9D81WhcB/W2DbiBpSlAO/HHHIGVBFHWyK/Wdbwmao79lwpB8eroDc
+hIty4/KKZtjWpPLu7pqa6Rf6SNib0+YvJlH8Jo1OceTD24v2USR71ZNlZF+Vy1jpcIKGCcjOzjcp
+uRhtltGJ0yHGb+7XfrSfl7HFSqPfP4o5JMUIVu4Bmlo8ovdlvkpWbGIUhIPr8vk6A8xw6PHPdTsx
+brA6Z/x7UQynO4NrspPVgRM82nTwkXSdLcHkxpeTVyJLnZWKxymcORhuxPMZVy1ffJvo5+8gHXt2
+51hG5kqNssri6HnVVJedQemz93ux3xDNi/iM7TlqD8dbonRI/sbc1NDvXfRyOVSW3biNc4fBMKTt
+dxZInZbv+vXdAOOPPfsctC5f86lwDKinK97elQ8FhiKvbpJoTza+aIPk/Tbv2Ztrm7HwwM3f7bIH
+Tmtcc3dwV2t38r9k+Ysjeif6YLa9bMIOFRnaEtl5V7Sr11sKnafJnWUV5Fcr7I1TMLLl5+yGoSmh
+Mxey+/skebujc+vj0od0Lm8X3HO4g3LbwY91ZtRYpjRw0G31dbU2WVUYI66ePbC73YbfmK+Md+mu
+5lB23TdiGj1ReB4Q5FSzUXaauIDAyC5iCbOP4YX1ukQhcWZBaP2FtVW0izR1YLTjCgHxd6oF1kGe
+fKgzMKYR0UxZKSrVZLJZslm2Olg+/u2W5qeqVJZnglCkFfazhewuPfnnvhXw0fnAT39LvIfDAwlr
+LPUIyPgwczcwq1DHGWuIgQKK6rtTKb4l/iwfTIUvQNiFsPJCVMGvmrEqz2tjW/03HrgfEaw26o9D
+Hdc4PK/cj+RX6pLlmV1yIGbSxwGU7QWZ+o0KOk1WVjNEtDuOUg0tS7650eL+pgGthzoaNn1uw6O9
+lW0k/exwfwNf/RfA+TW3P2b4/BZXLJ7069UIrehb1KDSPla/134HWrpIwxOjS1SkgUUBUAgpJARh
+5UIRYBTTA4MJJPBZkeMj5JIy0MqG0Y3f388Ptw7UXtJXWZ8RKfm8gt2mJiS3Hq5kZ9DyQkhfqGc4
+tznC+YLMsno69xvFY0p42d9GU4/ZceJ/tZS2vRnrAXg3rfNJQySPnbkxcGft254TRcwghuveBNBy
+2hKDqFBRTnGq86d/5OdEckaEH66irzIhzc4LCEhRlGl+zpcDMbyHcgQEYMIiSvNS0qp8j753Fd3u
+0SbdzU+ISkKBJvQh1MCOtkvYmErhhQ6pte6dPazkZuzOUwd273HfpngCM/N0YrXzW502X1EUjKR1
+mD4GbVm42zhMhF0lPvmhmwnpBbOi9LKspViwJsNRtRNcpiZ0UkWSrEPOG09T7ZTM2Mtk52asXjPK
+Qbz+Cdi24Llq6adImvK1lbFxUBQrrmpPcQl2OuzTv/ff3raEKJ8PPUTfNdtgQrVHI4HHI5hzGEMN
+LtEaoRVBJcJBp+nhm24xyqnIRF5Dqu7Bdc5C0xtcvyZQ4azjUIDySX6A5oLR4i+H5fj2o+Uoo28E
+tyVPJ3O6bG9sqCCFkQQOd+oM+yOE4cYo/UClmdxfrmau3ff4nVM4jw899GsAOc2NJ2H1xJ7o88Gi
+3Aveym4EdEbSWOhHn9VfnmRYtIIaAXlRSUEiZ7WW08apaNHxs9Lu2+Ne9S7nfvlJhIT6OkomQRT0
+OwHSjUwVcCsAs1YoHGF4wrDHtM7GOh1dXj3R0VFqEMUKKffn7O07LjsbSbYe5tR9GmOzcbatzMR8
+jbIIiOf1cOw8E0tp7F1XMbD3sI3NeMXGgg/01r5ZNs7x5kAfd1ACLuxrl9x30o4pBy09qRQHRCPY
+JJpIGAoRHhArrvzyFHOPCJU9VleTueCsoidhQJqOJMmmPmCf5EUc9In+HXCMKjcXcUd5ix2bs7Pe
+96EYah4499MDBqkqws5ymkIOwKOIk3EIa7W2iLPVGcwtDZj1Ey7s8tsnMsGkIMHS4d6J0hXxa8W9
+TaMe6tDKfu09bSbLJJUZCO5gRXeJyJg+EQMN7hILIM5PYcJLd1sVhWEVlnXfYqtmWkCoCvlLOYQr
+YtcpO1AAKUrnbwOZpVIKuiQVqHONzyg6b4GYPffGsHveawIyh0meMYWJwlCBrsVv3Eitq+wU0Edv
+J+Jj6ZU46qWcwHNVSa9djLGLNhJh8xTHoFerjoZlgtCcuSeA1QghkYptZlle5jjaF7yRTDbd+czv
+LMMPqX2s00rG0Ntrjnlqz0y9Hw+XpobXpmspzl77WLR4AwYkDASNxjlbj0eYrTkPsolm56dOFPN6
+eMvblK5qhmYZipwxCR15G59wztr53pdFLfNO+6nb56W0uqHuNMbYyiHaztdVrcel6pc8sWlw4rOP
+8z6VxUd8rzOcpDpJaorJ9dTPlrJzxMasiPj5C7riZWtX1ef59rhIEKEnYDObJjm9STxToFIo7nZg
+a1WYrbI9FgeJJcRXQSuiTCQ0vDZGDSvZc76Xyb2T32zFKy1hK0FI5QZACE5rSlyYagZEd3fnxgAh
+djTu4kPG+wUvBjfq32sBvO/YJ3LnOKmeaPPKB9+axTRSDPN5c5R9MHLm4KPAAFi/WHojA6uXTnPU
+09CN3W1kNCT9Q71AXj4+3hKr93lrlbrIFkSBx0QaYMv27kBP02IyVYoAQo5RKPwLoeTch/ThuRZg
+kTzT9B+knLG6QxQycGP00ygRTuduDysRAIXI8TIS4kT6gbqnPO3VIEXR8r3MkDdlE/Hw+rp6L5LC
+0NwUjhM5i5hWDxEkLi6F9HbphrxF8pCVFLtqWsJLoDDnFbP+M3Lqvc8ugclPXIbTKAcrh5jY3yFC
+NXcQWvHeoNLVrZFL6cZd5rW0LUMXXwOydpH3kadlsO+OZhdY2Is8vB5hmwudx4SDnEqxl/O6GUuL
+qPpFPvihjidEXVe8IFYdZiwzr5C+8qHr3DPtmT6sDUrc8HCKRyedzPLbjB6jlDTDZZlbrmhROORD
+EZGw3SA2P7ow+1CFWk9RsPuCybqcc8ZJXkjMbg0SBqZ1KbHRFf8v2vhJknZjuTPsM1SbXkN9Kw3F
+X4PWiIA7/rkjTCL8GMsi+Wj0wx58TUeOy5eItumNhBhPD6AlWgwhV3RqkcMIix8IQtk4KsGNZkpg
+pHQ+A5XMirYtPLDUTxiGuxedTHGJ3tlDbY4WhFphva+2ApfK2jNwN/U+tZLDmoZ112n2LFHQwoCY
+6Lxsj9OXHbRpepeSLnEzR7iJs0uJieI4cal/gyi3twrkzq7d+ihwuPRqQ0MEDitgXTLCPrFzIG4x
+4MDKUFLubWdCT9NKwPyxRMLLfwKXZSvjdKnh9WvOzhm3zd39nIAQtbmN78sOkfOvQRnw1JjMqUr0
+mXlzpgTR5JAd/ZCyRu2LVO641uDaEYjgf4PLy9Pyex7Ts8DVSNzRUOUiQDj+tWijfxp7fl9Xb7gy
+Qrt4QGjlZNfdm5hNl/nJoWa79zp8tKQF+tiy1hBILapmpuOiHjw1C6cgtFQJcwq4S7dQGRHhqIN/
+fv4ddLU574AC5jaxbn6rZgUZ88UK2FNN1dfPpX7GWtAtHljAXM1C4wF7RZr6+qfAexm9/LlAkbRy
+1wavGFscmLYy6WMiGuGEE0D1uhcQKLJk0rcoQUMHIDViy4CaHO/KipQrNuMQziQZdxo2Wo2JbfRo
+lnpSkNoyZzUoAqMnjyi8IsXtrhh47oietdXqy5uRJvLBbWhpZZPBUz37udZBrdGkEltcOAOEEQjG
+TfPNECDly9XddiW8KewABFj3CNpe3vuWrCKROxA9n7qML4BjAACBQZm3A1VoTZYIJz6WrgQ8AmGG
+PHdreXL9WPr5Dl7fqrKIII81rT4FpoCt9Fb4GEVNg0zd0xhBWZzwQC3vRXu/Xa2QPAXgurJIH9GF
+Qx8iC4+hm7whHyJXL1P3zZTxe899/Nhykn2K/qrUkHd7sqrZ9ftagelgl5+8YLmvTZ87V50+CDsg
+Qpo8xer5+LQcvRRDWmph4DQjNok5XwrfYR22KwFxRkmAoCktHAs2wALxYAfawW8Yx6/O6vskn9PC
+cgvNZmXyTbFkdBh9IoHIX6fWa+MxLrT32+HgWlEYxgiXLHS6AXTCcGsvct5wLj7TLIupFJzPKKYd
+1lCpnC36HXrFPsPr+uQG4DBFemChqGoTTRRrWsbClIAWE7FY5dFjeq6u6tWrReO+2uaQuTx/Dx8x
+aFpA6lZ3YGDAMIIncZqOr2bdrVECoM+FfSqCa49p7VSoUOySDrWhGjmMFZ9lkwRZpwFhHHESfUDF
+cQe/tIJxyR8K635LKuw7KOgQP9wAhGB8rJb6BoDa+jlXTLipX1vH7tpERrghgNHOUSJJtUR7HK5h
+sjnd2574a3lPui6zpCt2L28zQJFDhaRVoDLKHElzLe80AbZAcjlHNiPO1vSSHuJ7Z4PqCMk+yLQ3
+eS1Ty6At9YkWBDG2tqCet633ExMeLlCoc7q4CPiFc0poOwVuINgBXKCNCDKmRVEV0hqwCwaNBIIH
+X+PicsB/tNT7SwvHxScXo+eI7LC9/Wxwndid+BqR4A4kPpIIVAPPBaMU6XEfrNCkC/Ouz3DnkEPf
+yaoClmPxypuxQKjm1D1pCVXLFYVCXn3/uWP2ZNbwu7s2e2X8bfifnmDF41cyORA/lkhFk+91fLeH
+wiuIyk8qSZPIj+bSTaPhAUj7czX2B+1teA+UYhQ+gLslh7Yh+geXDmuS0wwzDh63I2fsX3ZZf6/g
+4zSXKqx1v00yxG7EuSXMRQ+SCcRoDKeZ2liPqsuzI7eKMbktGCKVUgY0enQkVBcUkx3Sk78GTpw0
+3IwhK+wzJkdsgvJkVWUJTo21whYIa1Um6Vrz6pi5nGWE+Zp38z6NgdzNDOTdwX1W/Bz57ucBEdwa
+918kHBSMgQe4+A29BQPDQqSM7NdDJKY2GKVLRvB2WFls93avN/IFsGa0yfQYtQvhax9j20EM4AQu
+oJd9lE9vDfeKz9yTZ3wpSANv3tsG4pseLjrufZ19k1TyVasahiaBSikvOCZCYGkoHzRXkSvftKfV
+83UzQs1CGcWQpGRwg0rxDFDmseJXdphaiUVg30TLPtgYZZogyLOipCjlDIN8Se2/Wxgy+ZAo2Qho
+MBKC4WVYQZ4yQExOIWqSFVzVD0NLFFYCm7zdHEuC9EZwSmQPPLCSmxDZNkNIzaL3JhO+EiyfYpcL
+CKk5BaqhqUYn4ZfhocIw4rBhSi7+ZN0FlSwTgkuC7ZlGIgy5UFEoaKMLoWqxIUabBhUSQ7ynR46v
+3Bg8Ez2AZLOnGA8yUMNQpxE+xIYUhg+1lDKYJ8qOQfoZIIENLrBFJUy4cJT4ufuoox6Mk4DKQV7D
+jbXwZ5mBOihE6bsLk29zD8HEzEKXYNNhqXRKoiWFcfM+w77Qk5yoItKFEU2MwKoBJChKIwZwVjKY
+ikkRFW0RSfPcOEUYdPVM5ILctizVrFiQSeykZxSS2wRqW+aadj811SYmy7R3uyzAH4K7NubWSexN
+50IqlPq17qzvbejbil5i51pE3HssOOvfbO5NcUbZztgGTiCmmvfg+OjloEYPeJgenzeEHYRXqReS
+dnEpkGlOzbqeZ1tRMbuKVB0xxjSRhAiIShABZBQgAMtXO6HQxN/dQb8zTdESnr52QclFfZ0BfrPP
+rVpOUcfwBgLTcqhU2g4zTL8qOUudtWRDyqcqLMQwcDArgyXxCsatRO0azRcenjOrAM2qgtlqJejt
+bBCBQYDsg1J5UJWUhlXXthv8JdDnZKo5yz3p5C2sKJuRxl0inLHyWUZkbtXgRiB6SA/Fm5Ebzr8J
+cYnOZDv8ZjoSd5opCSA5xkqlXFapSW50LpzBS4++Zpt8p73BEYeOXqaPF8JSxV7m6EXA/zPrDAOL
+JPEDA38kpoF1jw4Bm887BARq0E1StuattqD3tw9cHRv3n4R0c9jac2dpEIWSmQBuogZ38ZZFz3Yl
+WvoGFBSR7WoJpXhbghEI5pXLCKJTDpomF8ENZoXRR2yw0h62UF1dCQlwtUEu8tw0gJfFLnOKe+pp
+FX++Jhi/bpL0udzALfgDTC+5BAFQS+TxFTd1AOEeSLhokQoFfvV6py7kixi84QeGW3cm7450Fvaq
+qhoFpG800JcTLB6/Zbbf+C6j0aBoGvNxJbYjfHdyo5fXicIOcuDqXXBuUF67ZFRoaPQRmWd1OWNI
+C7haVYtl1Oxk6MrZBITzoLHwuCirEZsNSRxZMsIA2gOpgmMLRBaDQjJwrmGunQICxmdHHPmzS8PA
+Ge8yGSc1pSgI03IKBU9hVoQi80Ppc9JkmWmTC1hXSInLajRCuL0npMDIFMN7RIombuX0ezwk2f8D
+0TXmoolfIr6/qKz8WEDICzBCECkJM810TiZbq28aKWJvaEHNKKpag2Cq9FQJDGCKqHx0wfvFh2+3
+C/A7s6qQaSEczHDGwzhGI970+SoRKgSzHLNYixVRW72l6C9SJOqJj1kBqBlVVFx83xYl4mUS5ZwX
+wy9hf5Gsphs2WvNY9V/c7+e6CIUwQgWTBRMcbSJhOCiSrgFjnD8/Tv3tIEgmJicXiqC4GkKmFF5B
+JoqB1Gdm3aniS+KPIwAMDByiQay8xj0WIWQvumbAwZqhFJ6XGIUyS57L6sixZEQW7hKwR+hhsDFL
+C7ZFlYQQ1MiJfQhoWBR0SDNhY+IMahkqINuLclTVXdA6oB6MQOWYZMgqGkHL6NKi6tQurSbahenV
+lfEuGByOwxxk1QhWAlktjddDNgjYhaIkBQYmh2ipMCHVnIyNCWfrmud8Uh4RIUifTI5WzWQUG6ds
++yPLCFRA0PisQ7BNb+ZuZ31QUPxxKS/PCxeozxnEMGamupOhnhOoMPyz09+0zEN84Rqba8QRXOdJ
+AYb067SuEqVIkSqldMKsgIYmR70Spm6WwsLcCK2S+nf8m4t1D3cDULDQ6nof+Zmu1KbX2SFImELK
+Lr+J4E2ZHCN9EPh4cQtAdW5drlEiwgdCMn3eIdWS1Ay3eMo6eaRpcnqsQvRKzyBYrz4zrfBGZA+u
+Z2mW93F7wYc9EtCKVQgiZrCAWSxZ1kOLjelW8FmLy0iwYCoLyUd2MSX2B5n3rN0zHUtmnYoDmqJV
+mOC+nxVCF8DB2RTarQTTSU7YKGwy6skifTxuRbWE2hjBgXEEA2mmnBZpahQLSKhPZnUhZQYMSikZ
+UTHsd6j4W0wrns1zLWo3DGmVCywskrRsgnDXvxhiYEUJdNnqqAFs6DIQ4wQ2JTJfF2V79dvOkom4
+3LUbevHYGSbF9UEJGSgDv1RgSBPdOGMpRWK6w28C707C62FpWkykMExGqEJESIb2XIAj7qNWDdcW
+pvcgSwIcxd1/hSKnvMg+HHQENNhwQmletyCKgOyLrtVeQxp2fcQrNVVGTPceNXVkiTDdD3mybJjx
+V3P0BhvmBAuNvAbwm+YRLnE4Q4LVMt5ytUKSoXQQ6xFJxSHGGTBoxZHfc1wyzgCpmzQwHFQwe/kD
+gW86GrcHMaDEJzN8BZBJhpVsjOxF2WNHAYmgKFQouowhgHQKEwpqdRpgwPURKUQDvJKivAlA0QtP
+O5XSaxJyYXo3l+UK6NLBBLdiZlwuVzQHUTRCMwgxAjDoYqijKBSE5TIDCnKjCVIuIpTHI+W4XNmr
+dGbFmFTg9VHxT5LXIC/pQ6U1BeZnOuoRv81GCe3QPOQqoiyo26qsxkw0LKytCIaAWxhHDJgbgIFU
+C1ZMxu0CogEJ102Dm165zT+AyJjowDHWOGTil4OHdVK0iEUVLAIG3Sj1A5TbL+43yxBYYlnWDRsi
+1tNLqKOmiPWmHZXXWOG2vDUO5VbOtA0CjCITM8ckBE6EwPRJtpyCKdbDDSBKIBoljwyzqjrwDLwe
+Gq6miTS6kPntegsZJPU/Sa7xdAt7jpv5ckc2lGcCV0LUrouJW8O5G9o0dxlAXaXAjJgSsqb3hw32
+i0ZuRVpoaRaCvFJNSrCGG20OFhALCNUsU0ohVrBS8lUBtFgglBxuljQClEy1tpDiGIrdRLy0S79g
+MH15qbCIJMWJKt/MuRw5yaH50a5Zsp8oDZcURKQC9/IXh+49XrhU3hBARngncQ63xop9wPlDCOUQ
+E8OBxfFUNqfc8wolUyS+QDilI4v/xdyRThQkMRHjVEA=
 
-Powered by Outblaze
+--Multipart_Sun__2_Jun_2002_12:23:20_+0200_08328e08
+Content-Type: application/octet-stream;
+ name="dmidecode.txt.bz2"
+Content-Disposition: attachment;
+ filename="dmidecode.txt.bz2"
+Content-Transfer-Encoding: base64
+
+QlpoOTFBWSZTWXixfmsABNRf0MQwQGf/8D/v3+A/79/wBAAAAgAIYAafGgDQAAAAAAZJJoNAZDTQ
+aABiDIBoAAESnqNM2oCNGENGmQaDRpkAaGTBDmmJkyaMJgmJpgEwCGCMCMBzTEyZNGEwTE0wCYBD
+BGBGA5piZMmjCYJiaYBMAhgjAjAFSRBAEaAExGRpGIMQno0TExpNcwkkwokSqVFSqhVSSVESklQp
+UEqiObLDbu38Xf74zHvtvdr+r6WRqtXm7s2nP9oa/lV6tVtKowqjS/NfTy+PCbnWn7jU2ml29+1g
+wEhALa28pTmkBAJRBQhCXjMCIi8Z/Rp1ZGU9aSeJRUpld+/fv37+OI4tfO73V1F1n+3dXYxGrqtD
+0G1j7Iww/h/5qirosqqVVSTKpJb4OK95qUewqKhfJdeUvq9GEwPNjqjBhC6vNayKOqmFQutCw/W8
+9Zskqz1NXgqqsu3t8LoZYIuuhbNe2VdC49d6fJ+74MGKpN+/k59OjaznFnaaNGxg5Y3Zb1GmUm2K
+jzNdod7dqzjCLi6oWZ31iyhSipZW+sJgw26Nnns9ULnTeFni6HG1qbcGTidbntYGUZz4Lu19ORof
+k7jWOPf5Lb9/Bw5IdPl4cKrxVKfP5uwft2SSc5Go6RohohldHSMqwDJlN2WwsFLqQ76yjB8BAUhJ
+SQyqSVR91TaqNBgg7nutPkxx8DbvcMzKm+iyiqjG1kVKKlFRqwVTSvpx0mPJgaWJamai0ceC1Jpw
+x04ovVR+VI0bIzzzzyyqX3P5asM8c891MfBrtt14lxo0WjNZoil/Bje7Qy+WOOKLZaIthgqVDWoc
+17f9dHZ3Hv9iL1e1eye0+68mFRaktha0KeFspdSi5aqYLMIutWFVItFrFV71sVy1MFTft8Dm39n4
+fndjnnbE9v46NEzaCxUlc99Pp9vrRnOpTQoVClKBs8tOn9cTV9hu2YHk1ySWkjWadVvrrhjtb31a
+TBSGh6LyL1jy22SSbo5eJQKWjAfduLOMo3KiayikK8D0Wc7AcF5+z3aG61VTdlsgWMzU8imqLyaM
+WteG/fUwPcwT9OXG8TOkxqGmFVClE/VlbmV648o9JuMo2nM1Tp0yxFCVSKVky2d5tZMiUDSqWFPO
+63I3/16fjxnMT+H8u7+8v0zEXfhHtX6zWX5n1v5kk6eQelx9f9pYf4+3m/x2dLjjicIjMcE2uxoz
+nz9n1KjoXT3tAzBr4STEmy6y5OpgSXW/TJhvShUKMozkFNu882Hx5Fl5WN2JgvGDkvJJSSefVm0U
+0Uysq8ZFPoWUlJVSSYqw7R589UiVgNpkXX8LfjHi5o+hud7vb9VO6cH3xshGlL2B5rI+8jrScUf4
+3UmH0drtdEdtd1RstRFWvyNhN0qZt0Xnv3EaeHe/J2OlR0vRzxrk1JUppGxlg6TGk3uBRKjtb5JF
+VOXvsa3dJJTHWspSmbPKOfyK06xMXS1UqTocUXmlUUwjQyeVrKPtlllH2RYfifE1CL+takMelrkk
+1mRpcciZRZMY+FF2Miemnjc0Kkii+Ln5iuTck5zmHqi617b/BxB9paRMFY9sO1FKUFKHmpSlUne9
+cZPRJHjGgTY3K4YOqRDiPe4HE5rG7z3h0UlSkSqFKFKTja7KDCRixjzsYtCOJgomfYxYpUkXqM3Q
+wQdnbSwrCJrXdNEbks3Uk+OLFJynJleNg0NmdpGCsBhJe8NTQxwilVHi0azlTXDUzy0Mq9VVUqVU
+qVSkUqhkDxm1opGDORLIWmd5dJ2a5JOP6na49LU63dNkbOeRyKSmyLvmP+x0Mssnkg4PIjt4jkr0
+Oph1tcknuJFvSPVQOeRu8f9/+LuSKcKEg8WL81g=
+
+--Multipart_Sun__2_Jun_2002_12:23:20_+0200_08328e08
+Content-Type: application/octet-stream;
+ name="procpci.txt.bz2"
+Content-Disposition: attachment;
+ filename="procpci.txt.bz2"
+Content-Transfer-Encoding: base64
+
+QlpoOTFBWSZTWdgpx1cABVZfgHgQaGf/8j/n/9o/7/9gYAWefUfabYbLWpKi7YlDKoNAaDTQZNNM
+ho0aNDQ0MgyaAY5gTE0GEyZMmRhME00yMTAEMBzAmJoMJkyZMjCYJppkYmAIYBKepI0aKep6oyep
+oyaAAPUGhkAGQAIkhIyajU9ET8STQ0eoDQ9T1DCAaGIBFEhkmpsRT01TJ6npqbJqepo0eo0aD0aj
+R6mR6mFTp9USlAKKnNU3qXkIAMjUVKAVIEEUzEU9Qh7EbJ6wCqLJYKJSSQiRLlS8UOPRHEtkXa9P
+A5yPP9Vi3oywPRrrb2ec8r/nWIHuFaaTojwO9LkEsFIQfiQSwF4BMxHKRLAyHSSYdeXeHW84/QVV
+J1RPLr5AjwHUk7/W2NhB56lADTSLR4+qw5HiLqiZn2ygXmXGThgHpPp7a5xXpE9UfZEwEQwvlkOa
+A30VBYFB6/TiI2e7iJ1nWerFv5beupjXJUzLTFlT5Lq9WHbsO55ivj7ePV9M+j57M778odhrMyJc
+lN++l7EuBMCkNCa4T5q37ZW15g1ZXQ60eANCDbihlkljaAcmbO4lG+RKTQuahW0G2jjnOFZMaSkQ
+JYOCJFSAMoTePbpqXzrZWpteDxV8QZLrlpZU02K3hIaWCXAm2dKLSlKMUYokHBz9GeVuCZmZ5HLZ
+1MrWpcIjxMjnM0tbcBcJmEYM85id7XVru9IAoYDrjSG7oVVVVVFREVVVVVVVVVVVZw/ey8Lk5o0k
+xhwn7891yVTBgkQDgGlnbu4q/sVFxiMd18SlmwwYGY3FKEZOdlsRW8qVnqGlHncW3GwNezlHLK1a
+W6hCtIHi58NLTUvgozOlz28Gi/Zs37NU6LlMEL5Oy9BCcgGAYpqFWYMd5Y2OLtl0z5ImtR1Zeoru
+6Y5YmY1AqRpFyooGkzLh7ICqwIPanZbIH64WCEgQgfhzx7ve5hoh8IC9DsDUyP1wo+Z3Bp3Lfbm0
+iZEVP42NB91yethRcudnZHHry7cACX2UoYZ9q6P5qzjilaxawVAKXahRURTb0VhE9IVEMUARhtnj
+wJ+itueTR+80gZJzAMaiH2Lgs5NHGNg4yvw97+ww7g2BoFVXo9nZ0REpuiISkd0D3QfIPfpCfJX9
+0TwKGF/M7S3zInrDgieG8VyUDkxA2F2QuoUr3q7oiUsJgORbdapgR22q/QrtMCwNgUxpELCT1BJa
+9RmUL3x7lTk/0r+lZg9pdtexETuzbxEwFQ+XbchvCj3EA/1ugXGlfDSJR17rIkVhz3eDr7exXcqZ
+qNBqRPJOH30S1MtTl4VaC/4419OEtF6ZxmZj9Z57tvMAwUYH47yMleEBcHLTmBd4D2B8IFYADjXq
+TySVgwP2WIk1RQGYKJhcG6KJBAtgHzYENXi+BW5tAMItwCC38xkqYRI47i6t5l1gFw3YgF85FCwB
+1Hz9mCr6RJoJAReeR1A5b1esA8z6NhZdyJeUKAd4lwbfabhQ1BqZGZ+hohDHtVK+ZPwgnAAsZqvN
+UwTBZ6BTsYK+3eEMZdKuZlkkjJAkCMY4uRXULDdE2Clb7cniqSJe+BgAU8TqfKqa5qm7bmqaBCju
+2C9AK+XmAcET/xdyRThQkNgpx1c=
+
+--Multipart_Sun__2_Jun_2002_12:23:20_+0200_08328e08--

@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUFQTPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbUFQTQC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUFQTPb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 15:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUFQTPa
+	id S261865AbUFQTQC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 15:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUFQTQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 15:15:30 -0400
-Received: from lakermmtao09.cox.net ([68.230.240.30]:60587 "EHLO
-	lakermmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S261832AbUFQTOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 15:14:44 -0400
-In-Reply-To: <20040617100930.A9108@adam>
-References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com> <87n032xk82.fsf@sanosuke.troilus.org> <20040617100930.A9108@adam>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <96BD7BAE-C092-11D8-8574-000393ACC76E@mac.com>
+	Thu, 17 Jun 2004 15:16:01 -0400
+Received: from meetpoint.leesburg-geeks.org ([66.63.28.250]:65289 "EHLO
+	meetpoint.home") by vger.kernel.org with ESMTP id S261865AbUFQTPQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 15:15:16 -0400
+Message-ID: <40D1EDB7.3030401@leesburg-geeks.org>
+Date: Thu, 17 Jun 2004 15:15:03 -0400
+From: Ken Ryan <linuxryan@leesburg-geeks.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org,
+       pla@morecom.no
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+References: <40D1B110.7020409@leesburg-geeks.org> <40D1C18B.1030907@techsource.com> <40D1D2F0.7080102@namesys.com>
+In-Reply-To: <40D1D2F0.7080102@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: hch@lst.de, greg@kroah.com, linux-kernel@vger.kernel.org,
-       Michael Poole <mdpoole@troilus.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: more files with licenses that aren't GPL-compatible
-Date: Thu, 17 Jun 2004 15:14:43 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 17, 2004, at 13:09, Adam J. Richter wrote:
-> 	I do not believe that when one contributes to Linux that
-> one is promising not to pursue other copyright problems anywhere
-> elsewhere in the code.  If you can point to a court decision or law
-> that says something analogous, I would be interesting in hearing
-> about it.
+Hans Reiser wrote:
 
-If someone distributes _on_their_own_ (site, CDs, whatever) copies
-of Linux with their copyrighted code in it, or contributes copyrighted
-code _that_they_own_, they are giving someone a license to use
-against them.  That is actually one of the difficulties SCO is facing
-right now in court; _they_ distributed copies of Linux _including_ any
-code that they may claim is copyrighted.  Since they have the right to
-license such code, any license that appears to be associated with it
-when they distribute it becomes valid even if it was not before.  If you
-distribute a copy of Linux under the GPL that contains code you
-claim is violating your copyright, then I don't believe you have a leg
-to stand on, legally.
+> Timothy Miller wrote:
+>
+>> Doesn't Reiser4 do wear-leveling for flash?
+>
+>
+> No, we don't.  We do have wandering logs, so it would be feasible to 
+> code, but bitmap blocks and super blocks get written to the same 
+> locations repeatedly.
+>
+> Actually, most compact flash devices DO do wear leveling, from what I 
+> have heard.
 
-> 	I believe the pre-exising condition, if it was pre-existing,
-> of the firmware being present in a few infringing drivers among many
-> non-infringing drivers would not mean that permission was granted
-> to produce a derivative work comingling the few illegal drivers
-> (or even prove prior knowledge of the few illegal drivers).
 
-I'm not sure what you mean here, could you rephrase it?
+The ones I've seen, only sort of.  They'll allocate writes from 
+available erased pages to try to distribute their use, but if you
+have a disk that's, say, 70% read-only data and 30% read-write then the 
+wear-levelling will only happen on that
+30% of the disk.  True wear levelling will actually scrub read-only or 
+rarely-written data, forcing it to get off its
+duff so the flash cells they're sitting on can get some exercise, and 
+give the more worn cells a rest (that scrub
+helps ECC fix soft errors from weak cells too).  True wear-levelling is 
+really hard, and obviously requires
+budgeting extra bandwidth and storage devices for safely shuffling 
+around data that the application has no
+intention of moving (picture losing power in the middle of a scrub).  
+It's not worth it for the consumer CF
+usage model of "take photos until the card is full, then copy them all 
+to the PC and wipe the card clean".
 
-> 	Again, I'm not a lawyer, so please do not use my layman's
-> opinions as legal advice.
+[Yes, I tend to see this from the inside-out: I'm actually an FPGA/ASIC 
+weenie not a kernel hacker.  One of my current
+projects is part of a controller chip for a solid-state storage system 
+with ${bignum} NAND flash chips.  Alas, my specialty
+is video and graphics, so I'm still coming up the learning curve on 
+storage systems].
 
-Same here!
+               ken
 
-Cheers,
-Kyle Moffett
 
 

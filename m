@@ -1,54 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316954AbSE1Vik>; Tue, 28 May 2002 17:38:40 -0400
+	id <S316958AbSE1Vxh>; Tue, 28 May 2002 17:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316959AbSE1Vij>; Tue, 28 May 2002 17:38:39 -0400
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.228]:21680 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S316954AbSE1Vih>; Tue, 28 May 2002 17:38:37 -0400
-Message-ID: <3CF3F776.5@linuxhq.com>
-Date: Tue, 28 May 2002 17:32:38 -0400
-From: John Weber <john.weber@linuxhq.com>
-Organization: Linux Headquarters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: otto.wyss@bluewin.ch,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Release cycle for kernel 2.4.x version
-In-Reply-To: <3CF3F62F.2C9F7B1A@bluewin.ch> <1022625370.4123.142.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316959AbSE1Vxg>; Tue, 28 May 2002 17:53:36 -0400
+Received: from holomorphy.com ([66.224.33.161]:54414 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316958AbSE1Vxf>;
+	Tue, 28 May 2002 17:53:35 -0400
+Date: Tue, 28 May 2002 14:53:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+Message-ID: <20020528215318.GW14918@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Pavel Machek <pavel@suse.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	ACPI mailing list <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20020521222858.GA14737@elf.ucw.cz> <20020527194018.GQ14918@holomorphy.com> <20020528193220.GB189@elf.ucw.cz> <20020528210917.GU14918@holomorphy.com> <20020528211120.GA28189@atrey.karlin.mff.cuni.cz> <20020528212427.GV14918@holomorphy.com> <20020528213408.GE28189@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Tue, 2002-05-28 at 22:27, Otto Wyss wrote:
-> 
->>It's a rather long time since 2.4.18 came out (3 month). And the changelog gets
->>bigger and bigger. Is this normal? What are the reasons for such an interval?
->>Shouldn't there be shorter intervals (about once a month) so less changes get accumulated?
-> 
-> 
-> The IDE changes need to get a lot of testing indeed.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+At some point in the past, I wrote:
+>> Actually, I just thought of something that might be useful in addition,
+>> which is that it would probably only be necessary to search inside of
+>> page_zone(page), do you agree?
 
-Marcelo addresses that directly in his 2.4.19-pre8 release notice.
+On Tue, May 28, 2002 at 11:34:08PM +0200, Pavel Machek wrote:
+> Hey, speeding this up is not a top priority. But.. if we can make it
+> simpler as well ... ;-).
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102038042108794&w=2
+Yeah, system startup/shutdown isn't really something to optimize for
+aside from dodging some worst cases (which is not relevant here).
 
-He also mentions that the rc stage is coming soon.
 
--- 
-  -o)  J o h n   W e b e r
-  /\\ john.weber@linuxhq.com
-_\/v http://www.linuxhq.com/people/weber/
+On Tue, May 28, 2002 at 11:34:08PM +0200, Pavel Machek wrote:
+> #ifdef CONFIG_SOFTWARE_SUSPEND
+> int is_head_of_free_region(struct page *page)
+> {
+>         zone_t *zone = page_zone(page);
+>         unsigned long flags;
+>         int order;
+>         list_t *curr;
+> 
+>         /*
+>          * Should not matter as we need quiescent system for
+>          * suspend anyway, but...
+>          */
+>         spin_lock_irqsave(&zone->lock, flags);
+>         for (order = MAX_ORDER - 1; order >= 0; --order)
+>                 list_for_each(curr, &zone->free_area[order].free_list){
+>                         if (!curr)
+>                                 break;
+>                         if (page == list_entry(curr, struct page,list)) {
+>                                 spin_unlock_irqrestore(&zone->lock,flags);
+>                                 return 1 << order;
+>                         }
+>                 }
+>         spin_unlock_irqrestore(&zone->lock, flags);
+>         return 0;
+> }
+> #endif /* CONFIG_SOFTWARE_SUSPEND */
+> Does that look okay to you?
+> 							Pavel
 
+This looks good, though OTOH if we have a page from a zone we should know
+the zone exists, and then maybe the if (!curr) check isn't needed. If that's
+the case the scary check that almost looks like defensive programming won't
+be needed at all. Also, is it always expected that this will be a free page?
+
+
+Cheers,
+Bill

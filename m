@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263189AbTKPX0n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 18:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTKPX0n
+	id S263205AbTKPXmh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 18:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbTKPXmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 18:26:43 -0500
-Received: from mail.gmx.net ([213.165.64.20]:4236 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263189AbTKPX0l (ORCPT
+	Sun, 16 Nov 2003 18:42:37 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:51619 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263205AbTKPXmg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 18:26:41 -0500
-X-Authenticated: #15936885
-Message-ID: <3FB807A3.8010207@gmx.net>
-Date: Mon, 17 Nov 2003 00:26:27 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
-X-Accept-Language: de, en
+	Sun, 16 Nov 2003 18:42:36 -0500
+From: Andrew Miklas <public@mikl.as>
+Reply-To: public@mikl.as
+To: linux-kernel@vger.kernel.org
+Subject: Userspace DMA
+Date: Sun, 16 Nov 2003 18:42:00 -0500
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: netdev@oss.sgi.com, Andrew Morton <akpm@digeo.com>,
-       Bernhard Rosenkraenzer <bero@arklinux.org>,
-       Andrew de Quincey <adq@lidskialf.net>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: forcedeth: version 0.17 available
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311161842.00253.public@mikl.as>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-
-version 0.17 of forcedeth for Linux 2.4 and 2.6 is available at
-http://www.hailfinger.org/carldani/linux/patches/forcedeth/
-
-Fixes in this release over 0.14:
-*  0.15: 08 Nov 2003: fix smp deadlock with set_multicast_list
-*                     during open.
-*  0.16: 15 Nov 2003: include file cleanup for ppc64, rx buffer
-*                     size increased to 1628 bytes.
-*  0.17: 16 Nov 2003: undo rx buffer size increase. Substract 1
-*                     from the tx length.
-
-Known issues:
-*  Oops during module removal, probably sysfs related. Could a
-   sysfs expert please take a look at the code? Call trace is at
-   http://www.ussg.iu.edu/hypermail/linux/kernel/0311.1/0213.html
-   More traces (roughly the same) available on request.
-*  Some boards give bogus MAC addresses and work only partially.
-   Same problem happens with nvnet on these boards.
-*  Transmit for packets close to MTU size was broken, should be
-   fixed now.
-
-Please test.
+Hi,
 
 
-Regards,
-Carl-Daniel
+Is there an accepted way of doing userspace DMA with Linux?
 
+I've gone over a large number of posts, and all seem to recommend something 
+different, and each method seems to involve certain drawbacks.
+
+What I'd like to do is allow a process to be able to do operations like 
+pci_alloc_consistent and pci_free_consistent.  I'm trying to do this to allow 
+a driver running under the Bochs emulator to interact with its (non-emulated) 
+hardware using DMA.  
+
+I was originally going to do a pci_alloc_consistent and then mmap the space 
+into the emulator's process.  The process would then get the physical address 
+of the memory through an ioctl, or I would leave the physical address at the 
+start of the allocated buffer for the process to later retrieve.
+
+However, it appears that remap_page_range won't work with addresses obtained 
+from pci_alloc_consistent.  I've also read that using the nopage callback can 
+cause issues if the range I need to allocate is greater than one page.
+
+Most of the approaches I've found seem to require that the hardware be capable 
+of scatter-gather DMA (video4linux and bttv, for ex.).  I've also seen one 
+solution that had the driver do a pci_alloc_consistent on a certain ioctl, 
+and then return the physical address of the buffer.  The process would then 
+mmap /dev/mem to access the buffer.  However, someone warned that this method 
+could have coherency issues.
+
+Is there some other method that I should be looking at to accomplish this?
+
+
+
+Thanks,
+
+
+Andrew

@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUJ0Cm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbUJ0CnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbUJ0Cm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUJ0Cmz
+	id S261586AbUJ0CnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 22:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUJ0CnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:42:55 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:10374 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S261582AbUJ0Cme (ORCPT
+	Tue, 26 Oct 2004 22:43:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16553 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261586AbUJ0Cmv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:42:34 -0400
-Date: Wed, 27 Oct 2004 03:41:52 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The naming wars continue...
-In-Reply-To: <clmqqf$g8r$1@terminus.zytor.com>
-Message-ID: <Pine.LNX.4.61.0410270341210.20284@student.dei.uc.pt>
-References: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
- <417D7089.3070208@tmr.com> <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
- <MPG.1be8533f25663a40989703@news.gmane.org> <clmqqf$g8r$1@terminus.zytor.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Tue, 26 Oct 2004 22:42:51 -0400
+Date: Tue, 26 Oct 2004 19:40:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jason Baron <jbaron@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix altsysrq deadlock
+Message-Id: <20041026194043.5f39e140.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0410261311590.12088-100000@dhcp83-105.boston.redhat.com>
+References: <Pine.LNX.4.44.0410261311590.12088-100000@dhcp83-105.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Wed, 27 Oct 2004, H. Peter Anvin wrote:
-
->> Yeah but try fitting that in the extraversion. Maybe we should
->> use -hopstt(hold on patches, stress-test this) for this kind of
->> stuff, and -beo (bring 'em on) for the "early" -rcX ... :)
->>
+Jason Baron <jbaron@redhat.com> wrote:
 >
-> We could even spell them -pre and -rc.
+> 
+> This patch fixes a deadlock in the handle_sysrq function.
+> ...
+>> -	__sysrq_lock_table();
+> +	if(!__sysrq_trylock_table()) {
+> +		if(in_interrupt())
+> +			return;
+> +		else
+> +			__sysrq_lock_table();
+> +	}
+> +
 
-Exactly.
-If 2.4 works so well, why change it in 2.6?
+This is only a partial solution - __sysrq_trylock_table() is exported to
+modules which do who know what with it and they don't know how to handle
+locking failures - they'll just go ahead and do a spin_unlock() of an
+unlocked lock and mayhem will ensue.
 
-Mind Booster Noori
-
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFBfwrymNlq8m+oD34RAlqzAJ4h8s7eS3Jfkz8lvbGvnf35hVN9FgCeJYyQ
-suVxn5dtr7sXQYN9FM/EVHM=
-=9xz9
------END PGP SIGNATURE-----
-
+What we need to do is to move all those inlined functions out of sysrq.h,
+into sysrq.c then withdraw all those exported-to-modules helper functions
+then remove __sysrq_trylock_table() altogether and then use
+spin_lock_irqsave() in the appropriate places.

@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbQKTVqk>; Mon, 20 Nov 2000 16:46:40 -0500
+	id <S129316AbQKTVs7>; Mon, 20 Nov 2000 16:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129170AbQKTVqU>; Mon, 20 Nov 2000 16:46:20 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:29791 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S129136AbQKTVqS>; Mon, 20 Nov 2000 16:46:18 -0500
-Message-ID: <3A199496.2AA8CAFE@kalifornia.com>
-Date: Mon, 20 Nov 2000 13:16:06 -0800
-From: Ben Ford <ben@kalifornia.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S129189AbQKTVst>; Mon, 20 Nov 2000 16:48:49 -0500
+Received: from pC19F09A7.dip.t-dialin.net ([193.159.9.167]:22260 "EHLO
+	mail.linsoft.de") by vger.kernel.org with ESMTP id <S129170AbQKTVsg> convert rfc822-to-8bit;
+	Mon, 20 Nov 2000 16:48:36 -0500
+From: Oliver Poths <oliver.poths@linsoft.de>
+Date: Mon, 20 Nov 2000 21:18:18 GMT
+Message-ID: <20001120.21181800@rock.>
+Subject: kernel 2.4.0-test11 crash (raid-code?) additional information
+To: linux-kernel@vger.kernel.org
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
+X-Priority: 3 (Normal)
 MIME-Version: 1.0
-To: John Jasen <jjasen1@umbc.edu>
-CC: "Charles Turner, Ph.D." <cturner@quark.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-In-Reply-To: <Pine.SGI.4.21L.01.0011201318480.2040834-100000@irix2.gl.umbc.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ya, I also had a system that ran many OS's great, including Linux, Win98,
-Win2k, etc.  However when I went to install NT on it, the CPU overheated
-every time.  Ya, I know, doesn't make sense, but that's how it was.
+Just like the first time after the kernel crashed, i pressed 
+ctrl-alt-del, then another oops-message appeared.
+After that i could only switch the system off. Reboot with the same result 
+--> power off.
+Switching on again (3rd time) --> system boots!!!
+But again the kernel says at ide2, ide3 and ide4: Bios settings: hde:pio.
+Now, when i boot next time the Bios settings will be dma again.
 
--b
-
-
-John Jasen wrote:
-
-> On Mon, 20 Nov 2000, Charles Turner, Ph.D. wrote:
->
-> > (4)   For those who think the hardware is broken; The hardware worked
-> >       for six months using Windows/2000. It has a NT core.
->
-> On this note, I recall a time that I 'appropriated' a workstation for
-> linux.
->
-> It was pulled out of the student labs, where it had worked for 3 months
-> running NT 4.0, but the RH install kept on crashing out.
->
-> I could even reinstall NT 4.0.
->
-> *shrug*
->
-> Eventually traced it down to memory, and had our hardware hacks replace
-> it.
->
-> Sometimes hardware problems can be subtle.
->
-> --
-> -- John E. Jasen (jjasen1@umbc.edu)
-> -- Some elections you just can't buy. For others, there's GORE 2000
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Best regards,
+Oliver Poths
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUH0Q6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUH0Q6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266616AbUH0Q6u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 12:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUH0Q6u
+	id S266615AbUH0Q6x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 12:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUH0Q6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 12:58:50 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:39563 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266616AbUH0Q6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 12:58:48 -0400
-Subject: Re: Summarizing the PWC driver questions/answers
-From: David Woodhouse <dwmw2@infradead.org>
+	Fri, 27 Aug 2004 12:58:53 -0400
+Received: from mail.gmx.de ([213.165.64.20]:63465 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266615AbUH0Q6v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 12:58:51 -0400
+X-Authenticated: #4512188
+Message-ID: <412F684D.7020905@gmx.de>
+Date: Fri, 27 Aug 2004 18:58:53 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20040827162613.GB32244@kroah.com>
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Summarizing the PWC driver questions/answers
 References: <20040827162613.GB32244@kroah.com>
-Content-Type: text/plain
-Message-Id: <1093625925.14552.16180.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 27 Aug 2004 17:58:46 +0100
+In-Reply-To: <20040827162613.GB32244@kroah.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-27 at 09:26 -0700, Greg KH wrote:
-> Q: But you took away my freedom!  Isn't Linux about freedom?
+> Q: You are a fundamentalist turd / jerk / pompous ass /
+>    GNU-freebeer-biased-idiot-fundamentalist fucktard / ignorant slut!
+> A: I've been called worse by better people, get over yourself.
 
-The GPL provides is a very _specific_ kind of freedom. It has its own
-restrictions -- in many ways it's less free than if we were to just
-release our code to the public domain, or under a BSD-style licence.
+This was a good one. ;-)
 
-That is intentional.
-
-> Q: You are keeping companies from wanting to write binary drivers for
->    Linux.
-
-Again, that is intentional. People are free to go use BSD if the GPL is
-not compatible with their desires. Or Windows, perhaps.
-
-People seem to be whining that Linux is released under the GPL instead
-of a BSD licence. Perhaps the users concerned should be gently
-encouraged to go elsewhere?
-
-Linus was _joking_ when he said 'world domination'.
-
--- 
-dwmw2
-
+Prakash

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269951AbUJHNI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269956AbUJHNLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269951AbUJHNI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 09:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269956AbUJHNI0
+	id S269956AbUJHNLR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 09:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269952AbUJHNLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 09:08:26 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17423 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S269951AbUJHNIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 09:08:24 -0400
-Date: Fri, 8 Oct 2004 15:07:52 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] [patch] fix unterminated comment in asm-parisc/som.h
-Message-ID: <20041008130752.GK5227@stusta.de>
-References: <20041008124754.GH5227@stusta.de> <20041008125643.GP16153@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008125643.GP16153@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 8 Oct 2004 09:11:16 -0400
+Received: from [210.102.199.235] ([210.102.199.235]:55049 "HELO cnf.ca")
+	by vger.kernel.org with SMTP id S269956AbUJHNLO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 09:11:14 -0400
+Message-ID: <ddf801c4ad38$29d196c0$12071260@cnf.ca>
+From: "Chester Nance" <chester_nance_tz@restplass.no>
+To: linux-kernel@vger.kernel.org
+Subject: Get  =?ISO-8859-1?Q?=20v=ECagra?= for a great price.
+Date: Fri, 08 Oct 2004 19:10:57 +0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 01:56:43PM +0100, Matthew Wilcox wrote:
-> On Fri, Oct 08, 2004 at 02:47:55PM +0200, Adrian Bunk wrote:
-> > 
-> > The patch below fixes an unterminated comment in 
-> > include/asm-parisc/som.h present in both 2.4 and 2.6 .
-> > 
-> > This bug was found using David A. Wheeler's 'SLOCCount'.
-> 
-> This file has already been deleted as it is unused.
+Hi,
 
-Ah, this also explains why noone noted before...
+We have a new offer for you. Buy cheap Vìagra through our online store.
+- Private online ordering 
+- No prescription required
+- World wide shipping
 
-cu
-Adrian
+Order your drugs offshore and save over 70%!
 
--- 
+Click here: http://zap-internet.com/meds/
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Best regards,
+Donald Cunfingham
+
+
+
+No thanks: http://zap-internet.com/rm.html
 

@@ -1,91 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269318AbRIRMHB>; Tue, 18 Sep 2001 08:07:01 -0400
+	id <S269641AbRIRMJl>; Tue, 18 Sep 2001 08:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269326AbRIRMGl>; Tue, 18 Sep 2001 08:06:41 -0400
-Received: from dialin-145-254-153-165.arcor-ip.net ([145.254.153.165]:25860
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S269318AbRIRMGf>; Tue, 18 Sep 2001 08:06:35 -0400
-Message-ID: <3BA7370C.E5F9460B@loewe-komp.de>
-Date: Tue, 18 Sep 2001 13:59:08 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-ac10 i686)
-X-Accept-Language: de, en
+	id <S269413AbRIRMJb>; Tue, 18 Sep 2001 08:09:31 -0400
+Received: from unamed.infotel.bg ([212.39.68.18]:28934 "EHLO l.himel.bg")
+	by vger.kernel.org with ESMTP id <S269641AbRIRMJT>;
+	Tue, 18 Sep 2001 08:09:19 -0400
+Date: Tue, 18 Sep 2001 15:11:34 +0300 (EEST)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: <ja@l>
+To: Roberto Arcomano <berto@fatamorgana.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] proxy arp bug on shaper device
+Message-ID: <Pine.LNX.4.33.0109181432450.3322-100000@l>
 MIME-Version: 1.0
-To: Sam Varshavchik <mrsam@courier-mta.com>
-CC: Joseph Cheek <joseph@cheek.com>, linux-kernel@vger.kernel.org
-Subject: Re: disregard: Re: ide zip 100 won't mount
-In-Reply-To: <courier.3BA68362.00004D02@ny.email-scan.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Varshavchik wrote:
-> 
-> Joseph Cheek writes:
-> 
-> > hmm, i went into windows *one more time* just to make sure it was still
-> > working, and not a hardware problem.  well... looks like it doesn't work
-> > in windows either.  must be hardware.
-> >
-> > funny thing it shows up in dmesg and in "My Computer", just can't read
-> > from it.
-> 
-> That's pretty much what the sense codes below did indicate - media problem.
-> Try a different disk.
-> 
 
-I had the same problem. The second media works, the first got
-screwed up? I can't reproduce the problem now.
+	Hello,
 
-The media gets destroyed after partitioning and running mke2fs.
-I can't believe it myself - but have no other explanation.
+Roberto Arcomano wrote:
 
-When the media was broken I got:
-<7>VFS: Disk change detected on device ide0(3,64)
-<6> /dev/ide/host0/bus0/target1/lun0:<7>LDM:  DEBUG (ldm.c, 877):
- validate_partition_table: Found basic MS-DOS partition, not a dynamic
-disk.
-<4> p1 p2 p3 p4
-<7>VFS: Disk change detected on device ide0(3,65)
-<6> /dev/ide/host0/bus0/target1/lun0:<7>LDM:  DEBUG (ldm.c, 877):
- validate_partition_table: Found basic MS-DOS partition, not a dynamic
-disk.
-<4> p1 p2 p3 p4
-[and so on with funny device numbers up to 3,93]
+> This patch should correct proxy arp feature in shaper devices forcing kernel
+> checking (before sending ARP REPLY) for "physical" device (i.e. eth0) instead
+> of "shaper" device (i.e. shaper0): in this way we avoid useless ARP REPLY and
+> "IP CONFLICT" messages on client hosts.
 
-cat /proc/partitions
-   3    64      98288 ide/host0/bus0/target1/lun0/disc
-   3    65  272218546 ide/host0/bus0/target1/lun0/part1
-   3    66  269488144 ide/host0/bus0/target1/lun0/part2
-   3    67  699181456 ide/host0/bus0/target1/lun0/part3
-   3    68      10668 ide/host0/bus0/target1/lun0/part4
+	You can also try to stop the ARP for your asymmetric route
+using the per-route ARP flag (patch for 2.4 only):
 
-Note: a new media has NO partition - it's a floppy.
-Now is it possible that the media gets destroyed if the hardware
-tries to seek to illegal positions?
+http://www.linux-vs.org/~julian/
+go to "Solution 2: Per-route ARP flag"
 
+May be you need to add ip rule before reaching table main, i.e.
+to use such commands:
 
-> > Joseph Cheek wrote:
-> >
-> >> i've tried 2.4.7-ac10 and 2.4.9-ac10.  same results.  at boot i get:
-> >>
-> >> Sep 17 11:02:48 seattle kernel: ide-floppy driver 0.97.sv
-> >> Sep 17 11:02:48 seattle kernel: hdd: No disk in drive
-> >> Sep 17 11:02:48 seattle kernel: hdd: 98304kB, 96/64/32 CHS, 4096 kBps,
-> >> 512
-> >> sector size, 2941 rpm
-> >>
-> >> looks good, right?  but i put a disk in and i get:
-> >>
-> >> Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc =  0, key
-> >> =
-> >> 2, asc = 30, ascq =  0
-> >> Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc = 1b, key
-> >> =
-> >> 2, asc = 30, ascq =  0
-> >> Sep 17 14:36:23 seattle kernel: hdd: No disk in drive
-> >>
-> >> not hardware, as it works in windows on the same machine.
+ip rule add prio 100 to shaped_network/24 iif eth0 table 100
+ip route add shaped_network/24 dev shaper0 table 100 noarp
+
+I assume (if I understand your setup correctly) this command will
+drop the ARP probes coming through eth0 and asking for non-local IP
+addresses on shaped networks on shaper device(s). You can put all
+your networks reachable through shaper devices in table 100. All
+other networks on non-shaper devices will be reported from the
+proxy_arp.
+
+	I don't know whether this will work but you can try. At
+least, I don't see a way the other device flags related to ARP
+to work for you: hidden (only in 2.2), arp_filter and rp_filter.
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286250AbRLTNeo>; Thu, 20 Dec 2001 08:34:44 -0500
+	id <S286246AbRLTNgy>; Thu, 20 Dec 2001 08:36:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286251AbRLTNee>; Thu, 20 Dec 2001 08:34:34 -0500
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:19917
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S286250AbRLTNeS>; Thu, 20 Dec 2001 08:34:18 -0500
-Date: Thu, 20 Dec 2001 08:29:26 -0500
-From: Chris Mason <mason@suse.de>
-To: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>
-cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: Lockups with 2.4.14 and 2.4.16
-Message-ID: <1266972704.1008854966@tiny>
-In-Reply-To: <3C1A4BB4.EA8C4B45@zip.com.au>
-In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE>
- <000a01c1829f$75daf7a0$050010ac@FUTURE> <3825380000.1008348567@tiny>
- <3C1A3652.52B989E4@zip.com.au>
- <3845670000.1008352380@tiny>,	<3845670000.1008352380@tiny>; from
- mason@suse.com on Fri, Dec 14, 2001 at 12:53:00PM -0500
- <20011214193217.H2431@athlon.random> <3C1A4BB4.EA8C4B45@zip.com.au>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S286252AbRLTNgp>; Thu, 20 Dec 2001 08:36:45 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:60682 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S286246AbRLTNgf>; Thu, 20 Dec 2001 08:36:35 -0500
+Date: Thu, 20 Dec 2001 13:36:19 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI updates - prefetchable memory regions
+Message-ID: <20011220133618.A30517@flint.arm.linux.org.uk>
+In-Reply-To: <20011218235035.P13126@flint.arm.linux.org.uk> <20011220161331.A5330@jurassic.park.msu.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011220161331.A5330@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, Dec 20, 2001 at 04:13:31PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 20, 2001 at 04:13:31PM +0300, Ivan Kokshaysky wrote:
+> This looks fine, but I don't like the idea of artificial splitting
+> the PCI memory region if we want prefetch support.
 
-Ok, there is another deadlock possible where kswapd goes into a transaction:
+Could you explain this a bit better.  The reason we need to split the
+prefetchable regions from the non-prefetchable regions is that most
+bridges can only cope with one region which is prefetchable.
 
-shrink_dcache_memory->prune_dcache->dput->iput->delete_inode()
+Also, some machines have a limited (sometimes fixed address and size)
+region that can only be used for prefetchable memory.  How do you cater
+for this?
 
-So, I'm changing my new kinoded to run shrink_dcache_memory as well.
-
-ick.
-
--chris
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

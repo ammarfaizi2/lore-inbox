@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319074AbSH1XTa>; Wed, 28 Aug 2002 19:19:30 -0400
+	id <S319075AbSH1XQu>; Wed, 28 Aug 2002 19:16:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319076AbSH1XTa>; Wed, 28 Aug 2002 19:19:30 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:43512 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319074AbSH1XT2>; Wed, 28 Aug 2002 19:19:28 -0400
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dominik Brodowski <devel@brodo.de>, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0208281327140.8978-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.33.0208281327140.8978-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 29 Aug 2002 00:26:18 +0100
-Message-Id: <1030577178.7190.85.camel@irongate.swansea.linux.org.uk>
+	id <S319074AbSH1XQt>; Wed, 28 Aug 2002 19:16:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44553 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319075AbSH1XQq>; Wed, 28 Aug 2002 19:16:46 -0400
+Date: Thu, 29 Aug 2002 00:21:03 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] mysterious tty deadlock
+Message-ID: <20020829002103.B28455@flint.arm.linux.org.uk>
+References: <20020828220114.GA878@holomorphy.com> <3D6D4DD0.1900B894@zip.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D6D4DD0.1900B894@zip.com.au>; from akpm@zip.com.au on Wed, Aug 28, 2002 at 03:25:20PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-28 at 21:29, Linus Torvalds wrote:
-> It's ok to tell the kernel these "long-term" policies. But it has to be 
-> told as a POLICY, not as a random number. Because I can show you a hundred 
-> other cases where the user mode code does _not_have_a_clue_.
+On Wed, Aug 28, 2002 at 03:25:20PM -0700, Andrew Morton wrote:
+> William Lee Irwin III wrote:
+> > 
+> > One such stuck process had the following backtrace:
+> > 
+> > #0  schedule_timeout (timeout=-150765944) at timer.c:864
+> 
+> schedule_timeout is FASTCALL, which confuses gdb's stack crawler
+> somewhat.
+> 
+> > #1  0xc01a28a3 in uart_wait_until_sent (tty=0xf7669000, timeout=2147483647)
+> >     at core.c:1320
+> 
+> Might be a bit racy?
+> 
+> --- 2.5.32/drivers/serial/core.c~serial-race	Wed Aug 28 15:22:22 2002
+> +++ 2.5.32-akpm/drivers/serial/core.c	Wed Aug 28 15:22:26 2002
+> @@ -1315,13 +1315,14 @@ static void uart_wait_until_sent(struct 
+>  	 * 'timeout' / 'expire' give us the maximum amount of time
+>  	 * we wait.
+>  	 */
+> +	set_current_state(TASK_INTERRUPTIBLE);
+>  	while (!port->ops->tx_empty(port)) {
+> -		set_current_state(TASK_INTERRUPTIBLE);
+>  		schedule_timeout(char_time);
+>  		if (signal_pending(current))
+>  			break;
+>  		if (time_after(jiffies, expire))
+>  			break;
+> +		set_current_state(TASK_INTERRUPTIBLE);
+>  	}
+>  	set_current_state(TASK_RUNNING); /* might not be needed */
+>  }
 
-Right and for the one in one hundred that is does I need a policy that
-suits it
+Patch looks good, as far as correctness goes.  However, since char_time
+will be the amount of time for one character, we should never sleep long
+enough for the user to notice this slip-up.
 
-> That's my argument. The kernel should be given a _policy_, not a "this 
-> frequency". Because a frequency is provably not enough, and can be quite 
-> hurtful.
+If people are seeing deadlocks, I agree with wli that there's something
+very wrong elsewhere.
 
-One of the policies I need from the kernel is "run at the frequency I
-told you to run". Its a policy, its not the general case policy. The
-/proc file is that policy.
-
-> And I do not want to get people used to passing in frequencies, when I can 
-> absolutely _prove_ that it's the wrong thing for 99% of all uses.
-
-99% of people should be using something like ACPI. 
-
-cpufreq is cpu speed control not power management policy. I agree
-entirely that most people should not be using echo "500" >/proc/... as a
-power management policy. 
-
-Likewise /dev/hda is not a file system and peopel should not be using dd
-to store there files.
-
-In both cases the ability to do so is sometimes useful and shouldnt be
-excluded.
-
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

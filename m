@@ -1,78 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVBUMKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVBUMfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbVBUMKl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 07:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVBUMKl
+	id S261959AbVBUMfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 07:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBUMfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 07:10:41 -0500
-Received: from ns.suse.de ([195.135.220.2]:57236 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261958AbVBUMKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 07:10:15 -0500
-Date: Mon, 21 Feb 2005 13:10:11 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>, ak@muc.de,
-       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview II
-Message-ID: <20050221121010.GC17667@wotan.suse.de>
-References: <20050215214831.GC7345@wotan.suse.de> <4212C1A9.1050903@sgi.com> <20050217235437.GA31591@wotan.suse.de> <4215A992.80400@sgi.com> <20050218130232.GB13953@wotan.suse.de> <42168FF0.30700@sgi.com> <20050220214922.GA14486@wotan.suse.de> <20050220143023.3d64252b.pj@sgi.com> <20050220223510.GB14486@wotan.suse.de> <42199EE8.9090101@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42199EE8.9090101@sgi.com>
+	Mon, 21 Feb 2005 07:35:11 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:32008 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S261959AbVBUMfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 07:35:02 -0500
+Date: Mon, 21 Feb 2005 20:34:25 +0800 (WST)
+From: raven@themaw.net
+To: Valdis.Kletnieks@vt.edu
+cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>
+Subject: Re: [autofs] automount does not close file descriptors at start 
+In-Reply-To: <200502210527.j1L5RX44032376@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.61.0502212013230.8143@donald.themaw.net>
+References: <20050216125350.GA6031@uio.no>           
+ <Pine.LNX.4.58.0502211244540.9892@wombat.indigo.net.au>
+ <200502210527.j1L5RX44032376@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-100.6, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, REFERENCES, REPLY_WITH_QUOTES,
+	USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 21, 2005 at 02:42:16AM -0600, Ray Bryant wrote:
-> All,
-> 
-> Just an update on the idea of migrating a process without suspending
-> it.
-> 
-> The hard part of the problem here is to make sure that the page_migrate()
-> system call sees all of the pages to migrate.  If the process that is
-> being migrated can still allocate pages, then the page_migrate() call
-> may miss some of the pages.
+On Mon, 21 Feb 2005 Valdis.Kletnieks@vt.edu wrote:
 
-I would do an easy 95% solution:
+> On Mon, 21 Feb 2005 12:57:22 +0800, Ian Kent said:
+>
+>> This is the first time I've heard this and the first time I wrote a Unix
+>> daemon was fifteen years ago.
+>>
+>> As far as I'm concerned redirecting stdin, stdout and stderr to the null
+>> device, then closing it and setting the process to a be the group leader
+>> (as autofs does) should be all that's needed to daemonize a process.
+>>
+>> So are we saying that we don't trust the kernel to reliably duplicate the
+>> state of file handles when we fork?
+>
+> No, you have it 180 degrees off. ;)
 
-When process has default process policy set temporarily a prefered policy
-with the new node
+Perhaps the sentence above should start "So you are saying that ...".
 
-[this won't work with multiple nodes though, so you have to decide on one
-or stop the process if that is unacceptable] 
+I'm arguing that I should'nt have to perform a loop closing file 
+descriptors I haven't opened.
 
-> 
-> One way to solve this problem is to force the process to start allocating
-> pages on the new nodes before calling page_migrate().  There are a couple
-> of subcases:
-> 
-> (1)  For memory mapped files with a non-DEFAULT associated memory policy,
->      one can use mbind() to fixup the memory policy.  (This assumes the
->      Steve Longerbeam patches are applied, as I understand things).
+>
+> We *do* trust the kernel to reliably duplicate the state of file handles.
 
-I would just ignore them.  If user space wants it can handle it,
-but it's probably not worth it.
+This confirms above.
 
-> (1) could be handled as part of the page_migrate() system call --
-> make one pass through the address space searching for mempolicy()
-> data structures, and updating them as necessary.  Then make a second
-> pass through and do the migrations.  Any new allocations will then
-> be done under the new mempolicy, so they won't be missed.  But this
-> still gets us into trouble if the old and new node lists are not
-> disjoint.
+> So if we're about to do the whole double-fork thing and all that, we want to
+> loop around and close all the file descriptors we don't want leaking to
+> the double-forked daemon.  Yes, we do something reasonable with fd 0,1,2 -
+> but we probably also want to do something with that unclosed fd 3 that's still
+> open on /etc/mydaemon.cf, and any other file descriptors we've left dangling
+> in the breeze after initialization.
 
-I wouldn't bother fixing up VMA policies. 
+Now this is a good point.
 
-> This doesn't handle anonymous memory or mapped files associated with
-> the DEFAULT policy.  A way around that would be to add a target cpu_id
+I don`t do a double fork in autofs (inherited code), although, long ago I 
+did.
 
-[...]
+Do we really need to do a double fork to disassociate from the controlling 
+terminal or is a single fork and close etc. enough?
 
-I would set temporarily a prefered policy as mentioned above.
+I notice that "setsid()" should do this but I've not seen it bofore.
+Is that sufficient to do the job instead of the double fork?
 
-That only handles a single node, but you solution is not better.
+And it looks like the automount process I just started still has a tty, 
+grumble ....
 
--Andi
+Ian
+

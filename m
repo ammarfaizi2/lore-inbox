@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268434AbTBYVb1>; Tue, 25 Feb 2003 16:31:27 -0500
+	id <S268443AbTBYVcU>; Tue, 25 Feb 2003 16:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268435AbTBYVb1>; Tue, 25 Feb 2003 16:31:27 -0500
-Received: from holomorphy.com ([66.224.33.161]:54199 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268434AbTBYVbZ>;
-	Tue, 25 Feb 2003 16:31:25 -0500
-Date: Tue, 25 Feb 2003 13:40:43 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cpu-2.5.63-1
-Message-ID: <20030225214043.GG10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-References: <20030225175456.GE10396@holomorphy.com> <20030225133207.2352bb9a.rddunlap@osdl.org>
+	id <S268444AbTBYVcT>; Tue, 25 Feb 2003 16:32:19 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:3224 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S268443AbTBYVcS>;
+	Tue, 25 Feb 2003 16:32:18 -0500
+Date: Tue, 25 Feb 2003 13:42:34 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [PATCH] eliminate warnings in generated module files
+Message-ID: <20030225214234.GC22042@f00f.org>
+References: <20030218184317.A20436@twiddle.net> <20030225050306.F0BF82C19D@lists.samba.org> <20030224235829.A12782@twiddle.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030225133207.2352bb9a.rddunlap@osdl.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030224235829.A12782@twiddle.net>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 01:32:07PM -0800, Randy.Dunlap wrote:
--	if (target_cpu_mask & allowed_mask) {
-+	if (cpus_empty(tmp)) {
-# ?	if (!cpus_empty(tmp)) {
+On Mon, Feb 24, 2003 at 11:58:29PM -0800, Richard Henderson wrote:
 
-Yep, that's a bug.
+> Um, "optional" does not in any way accurately describe attribute
+> used.  In fact, it means almost exactly the opposite.
 
-
-On Tue, Feb 25, 2003 at 01:32:07PM -0800, Randy.Dunlap wrote:
--#define BITS_TO_LONGS(bits) \
--	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
-# keep this and use it.  (but moved from another file)
-+#define DECLARE_BITMAP(name,bits) \
-+	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
-#	unsigned long name[BITS_TO_LONGS(bits)]
-+#define CLEAR_BITMAP(name,bits) \
-+	memset(name, 0, ((bits)+BITS_PER_LONG-1)/8)
-#	memset(name, 0, BITS_TO_LONGS(bits) * (BITS_PER_LONG / 8))
-# This clears all longs in <name>, so that extra code below can disappear.
-
-Header ordering stuff. A wee bit brute-force. All good cleanups.
-You originally spotted the bitmap_fill() typo too.
-
-Looks like time for a cpu-2.5.63-2 with your changes.
+ironically the same could be said for "used" and "unused" ...
 
 
--- wli
+  --cw
+

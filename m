@@ -1,121 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263077AbTFPAVP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 20:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTFPAVP
+	id S263163AbTFPAa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 20:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTFPAa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 20:21:15 -0400
-Received: from RJ089180.user.veloxzone.com.br ([200.141.89.180]:9088 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id S263077AbTFPAVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 20:21:12 -0400
-Date: Sun, 15 Jun 2003 21:34:49 -0300 (BRT)
-From: =?UTF-8?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.21 released
-Message-ID: <Pine.LNX.4.56.0306152053160.160@pervalidus.dyndns.org>
+	Sun, 15 Jun 2003 20:30:56 -0400
+Received: from smtp3.cwidc.net ([154.33.63.113]:25492 "EHLO smtp3.cwidc.net")
+	by vger.kernel.org with ESMTP id S263163AbTFPAax (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 20:30:53 -0400
+Message-ID: <3EED12F3.5010602@tequila.co.jp>
+Date: Mon, 16 Jun 2003 09:44:35 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030528
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: uptime wrong in 2.5.70
+References: <Pine.LNX.4.33.0306131117230.12096-100000@gans.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.33.0306131117230.12096-100000@gans.physik3.uni-rostock.de>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->> with module via-rhine on ECS_L7VTA works for you or not..?
+Tim Schmielau wrote:
 
-> Nope, it doesn't work, but the problem is the IOAPIC not
-> ACPI....
-> It works if I disable the IOAPIC in the BIOS.
+>>I a got a test vmware running with a 2.5.70 and I have sligh "overflow"
+>>with my uptime.
+>>
+>>gentoo root # uptime
+>> 22:29:47 up 14667 days, 19:08,  3 users,  load average: 0.00, 0.00, 0.00
+>
+>
+> Doesn't ring any bell yet. Can you cat /proc/uptime and /proc/stat output?
+> Is this immediately after booting? Reproducable?
 
-I don't use ACPI (should I ?) but have the same problem with my
-ECS K7VTA3 5.0C and the onboard Realtek or a 3Com 3C905CX-TXNM,
-although I had and still have other problems without IO-APIC,
-like modprobe bttv instant freezes when USB 2.0 shared the same
-IRQ. To "solve" I moved the card to another slot.
+gentoo root # cat /proc/uptime
+1267537132.92 278990.27
+gentoo root # cat /proc/stat
+cpu  1542550 0 3915839 27412781 392624
+cpu0 1542550 0 3915839 27412781 392624
+intr 333933393 332637964 7735 0 0 0 0 3 0 2 0 0 0 7417 0 0 16 0 622268
+657988 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ctxt 15529955
+btime 4083180513
+processes 659768
+procs_running 3
+procs_blocked 0
+gentoo root # uptime
+ 16:59:20 up 14670 days, 13:39,  3 users,  load average: 1.22, 1.04, 0.49
 
-The problem is that loading USB without IO-APIC still gives
-instant freezes. I first experienced it with bare.i from
-Slackware 9.0 and SuperRescue 2.1.1, which stop at
+I will reboot the box now and see if it happens again. but as I read in
+other postings to this thread it seams to happen again.
 
-hcd.c:ehci-hcd@00:10:3,VIA Technologies, Inc. USB 2.0
+thought I got anohter mail, from David Schwartz who claims that this is
+because <quote> This is due to a known bug in the Penitum(R) processor,
+which Linux has never claimed to support. </quote>
 
-, and later doing the usual modprobe with 2.4.2{0,1}.
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-I just tested with 2.4.21. With IO-APIC everything worked
-except the ethernet. Testing USB:
+iD8DBQE+7RLyjBz/yQjBxz8RAtLYAJ4rFrLGtCT7UcX3m+oHJSAssJOf9gCfflW7
+b0odmjhcJ7AyZeFMnTwjbag=
+=B6J3
+-----END PGP SIGNATURE-----
 
-# modprobe usbcore
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-
-# modprobe usb-uhci
-usb-uhci.c: $Revision: 1.275 $ time 01:28:00 Jun 14 2003
-usb-uhci.c: High bandwidth mode enabled
-usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 21
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 21
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 2
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: USB UHCI at I/O 0xdc00, IRQ 21
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 3
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
-hub.c: new USB device 00:10.0-1, assigned address 2
-usb.c: USB device 2 (vend/prod 0x46d/0xc20a) is not claimed by any active driver.
-
-# modprobe ehci-hcd
-ehci-hcd 00:10.3: VIA Technologies, Inc. USB 2.0
-ehci-hcd 00:10.3: irq 19, pci mem e2865000
-usb.c: new USB bus registered, assigned bus number 4
-PCI: 00:10.3 PCI cache line size set incorrectly (32 bytes) by BIOS/FW.
-PCI: 00:10.3 PCI cache line size corrected to 64.
-ehci-hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2003-Jan-22
-usb.c: USB disconnect on device 00:10.0-1 address 2
-hub.c: USB hub found
-hub.c: 6 ports detected
-hub.c: new USB device 00:10.0-1, assigned address 3
-usb.c: USB device 3 (vend/prod 0x46d/0xc20a) is not claimed by any active driver.
-
-Without IO-APIC (noapic boot option) modprobe usbcore worked,
-but modprobe usb-uhci freezed after printing
-
-usb-uhci.c: $Revision: 1.275 $ time 01:28:00 Jun 14 2003
-usb-uhci.c: High bandwidth mode enabled
-PCI: Found IRQ 11 for device 00:10:0
-usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 11
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-
-I'm starting to think there's something wrong with the
-motherboard as the BIOS couldn't locate my Sound Blaster Live!
-5.1 in any slot. I think I tried everything, also disabling all
-onboard options, RAID, and FireWire. At the end I just sold it
-and am now using the onboard sound.
-
-USB works on Windows XP Professional SP1 (I could only test a
-game pad) along with the ethernet, and I didn't have to move
-the capture card to get it working there. I moved it to get it
-working on Linux.
-
-I uploaded my 2.4.21 .config, /proc/{ioports,interrupts,pci},
-and the last 4 dmesg just in case someone is interested.
-
-http://www.fredlwm.hpg.com.br/tmp/.config-2.4.21.txt
-http://www.fredlwm.hpg.com.br/tmp/2.4.21-IO-APIC.txt
-http://www.fredlwm.hpg.com.br/tmp/2.4.21-noapic.txt
-
-http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:13:09.txt
-http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:33:45.txt
-http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:44:53.txt
-http://www.fredlwm.hpg.com.br/tmp/dmesg-2003-06-15_17:51:51.txt
-
-BTW, what does noapic do when you enable all APIC options and
-when you don't enable IO-APIC ?

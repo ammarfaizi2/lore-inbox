@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271093AbRHTHUJ>; Mon, 20 Aug 2001 03:20:09 -0400
+	id <S271112AbRHTHlo>; Mon, 20 Aug 2001 03:41:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271098AbRHTHUA>; Mon, 20 Aug 2001 03:20:00 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:7949 "HELO
+	id <S271113AbRHTHle>; Mon, 20 Aug 2001 03:41:34 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:7952 "HELO
 	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S271093AbRHTHTt>; Mon, 20 Aug 2001 03:19:49 -0400
-Message-ID: <3B80B9D0.139E4567@idb.hist.no>
-Date: Mon, 20 Aug 2001 09:18:40 +0200
+	id <S271112AbRHTHl3>; Mon, 20 Aug 2001 03:41:29 -0400
+Message-ID: <3B80BEE3.4C9A0A76@idb.hist.no>
+Date: Mon, 20 Aug 2001 09:40:19 +0200
 From: Helge Hafting <helgehaf@idb.hist.no>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
 X-Accept-Language: no, en
 MIME-Version: 1.0
-To: Jeff Meininger <jeffm@boxybutgood.com>, linux-kernel@vger.kernel.org
-Subject: Re: 'detect' floppy hardware from userland?  ioctl?
-In-Reply-To: <Pine.LNX.4.33.0108171628470.550-100000@mangonel.localdomain>
+To: Oliver Xymoron <oxymoron@waste.org>, Theodore Tso <tytso@mit.edu>,
+        David Wagner <daw@mozart.cs.berkeley.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: /dev/random in 2.4.6
+In-Reply-To: <Pine.LNX.4.30.0108191808350.740-100000@waste.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Meininger wrote:
+Oliver Xymoron wrote:
 > 
-> I'm writing an app that needs to know what floppy drives are connected to
-> the system.  Right now, I'm parsing the output of 'dmesg', but 'dmesg' can
-> fill up so that the part where floppy drives are listed is no longer
-> available.  Is there an ioctl or some other interface for discovering fd0,
-> fd1, etc?
->
+> On Sun, 19 Aug 2001, Theodore Tso wrote:
+> 
+> > The bottom line is it really depends on how paranoid you want to be,
+> > and how much and how closely you want /dev/random to reliably replace
+> > a true hardware random number generator which relies on some physical
+> > process (by measuring quantum noise using a noise diode, or by
+> > measuring radioactive decay).  For most purposes, and against most
+> > adversaries, it's probably acceptable to depend on network interrupts,
+> > even if the entropy estimator may be overestimating things.
+> 
+> Can I propose an add_untrusted_randomness()? This would work identically
+> to add_timer_randomness but would pass batch_entropy_store() 0 as the
+> entropy estimate. The store would then be made to drop 0-entropy elements
+> on the floor if the queue was more than, say, half full. This would let us
+> take advantage of 'potential' entropy sources like network interrupts and
+> strengthen /dev/urandom without weakening /dev/random.
 
-You have got some replies already.  Another way of detection is
-to run devfs, you may do a "ls /dev/floppy" and get
-0, 1, 2, ...
-devfs report exactly the devices you have, not the devices
-you _may_ have.  Note that you don't have to convert
-your system to use devfs if you don't want to - you can
-mount devfs some other place than /dev if all you want
-is detection.
+It seems to me that it'd be better with an
+add_interrupt_timing_randomness() function.
+
+This one should modify the entropy pool, and add no more to the
+entropy count than the internal interrupt timing allow,
+i.e. assume that "the ouside" observed the event that
+trigged the interrupt.   How much is architecture dependent:
+
+A machine with a clock-counter, like a pentium, can add
+a number of bits from the counter, as the timing is
+documented variable.  (There could be several interrupts
+queued up, the interrupt stacks and routines
+may or may not be in level-1 cache)  Even a conservative approach
+assuming a lot of worst cases would end up adding _some_.
+
+A 386 may have to add 0to the count, as it don't have a high-speed
+timer.
+People who have a network-only machine can go for
+something better than 386 though.
 
 Helge Hafting

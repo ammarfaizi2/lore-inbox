@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274897AbTGaVoH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274867AbTGaVm1
+	id S269969AbTGaVyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269736AbTGaVyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:42:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:38617 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S269736AbTGaVmL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:42:11 -0400
-Date: Thu, 31 Jul 2003 14:43:14 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
+	Thu, 31 Jul 2003 17:54:12 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:52732 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S270530AbTGaVyI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 17:54:08 -0400
 Subject: Re: [PATCH] O11int for interactivity
-Message-ID: <20030731214314.GG15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200307301038.49869.kernel@kolivas.org> <1059553792.548.2.camel@teapot.felipe-alfaro.com> <200307301040.38858.m.c.p@wolk-project.de>
+From: Robert Love <rml@tech9.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Szonyi Calin <sony@etc.utt.ro>, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030731213846.GF15452@holomorphy.com>
+References: <200307301038.49869.kernel@kolivas.org>
+	 <200307301055.23950.kernel@kolivas.org>
+	 <200307301108.53904.kernel@kolivas.org>
+	 <23496.194.138.39.55.1059659754.squirrel@webmail.etc.utt.ro>
+	 <20030731213846.GF15452@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1059688907.931.306.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307301040.38858.m.c.p@wolk-project.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-5) 
+Date: 31 Jul 2003 15:01:47 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 10:43:22AM +0200, Marc-Christian Petersen wrote:
-> What makes me even more wondering is that 2.6.0-test1-wli tree does not suck 
-> at all for interactivity where no scheduler changes were made.
+On Thu, 2003-07-31 at 14:38, William Lee Irwin III wrote:
 
-Could you make sure that you're not using 1A? (vanilla 1 and 1B are
-both fine for these purposes).
+> If you could stop both the vmstat and the readprofile loop shortly
+> after the skip (not _too_ shortly, at least 1 second after it) I'd be
+> much obliged.
 
-Also, can I get a before/after of the following during an mp3 skip test?
+Just an FYI, Szonyi, you will need to boot the kernel with profile=n
+where n is some number like 5, in order to use readprofile.
 
-vmstat 1 | tee -a vmstat.log
-
-n=1; while true; do /usr/sbin/readprofile -n -m /boot/System.map-`uname -r` | sort -k 2,2 > profile.log.$n; n=$(( $n + 1 )); sleep 1; done
-
-If you could stop the logging shortly after the skip in the kernel that
-does skip (but not _too_ shortly after, give it at least 1 second) I
-would be much obliged. The "before" picture is most important. An
-"after" picture might also be helpful, but isn't strictly necessary.
-
-Thanks.
+	Robert Love
 
 
--- wli

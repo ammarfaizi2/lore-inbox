@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281773AbRKZPaM>; Mon, 26 Nov 2001 10:30:12 -0500
+	id <S281893AbRKZPjM>; Mon, 26 Nov 2001 10:39:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281778AbRKZPaD>; Mon, 26 Nov 2001 10:30:03 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:23314 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281773AbRKZP3y>; Mon, 26 Nov 2001 10:29:54 -0500
-Date: Mon, 26 Nov 2001 16:29:58 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>
-Cc: "'Ken Brownfield'" <brownfld@irridia.com>,
-        "'linux-mm@kvack.org'" <linux-mm@kvack.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: kupdated high load with heavy disk I/O
-Message-ID: <20011126162958.O14196@athlon.random>
-In-Reply-To: <35F52ABC3317D511A55300D0B73EB8056FCC50@cinshrexc01.shermfin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <35F52ABC3317D511A55300D0B73EB8056FCC50@cinshrexc01.shermfin.com>; from ARechenberg@shermanfinancialgroup.com on Mon, Nov 26, 2001 at 10:08:27AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S281835AbRKZPjC>; Mon, 26 Nov 2001 10:39:02 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:12819 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S281842AbRKZPiw>; Mon, 26 Nov 2001 10:38:52 -0500
+Date: Mon, 26 Nov 2001 07:38:55 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.16-pre1
+In-Reply-To: <vwbshp3fdx.fsf@akrulino.lkpg.cendio.se>
+Message-ID: <Pine.LNX.4.33.0111260730270.17309-100000@shell1.aracnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 10:08:27AM -0500, Rechenberg, Andrew wrote:
-> Ken,
-> 
-> The 2.4.15pre7 kernel seems to have fixed my issue with kupdated and 4GB
-> RAM.  We did some testing over the weekend and the box was still interactive
-> with a load of 7+.  There still seems to be a lot of swapping going on
-> though.  I've read from previous threads that 2.4 uses swap more readily
-> than 2.2 did, but should it use 10% of my swap and have almost 8MB
-> SwapCached?
+On 26 Nov 2001, Martin Persson wrote:
 
-if it only swapouts at a very slow rate over the time and it never
-swapin, then yes it seems sane. You may also give a spin to 2.4.15aa1
-that should swap a bit less.
+> I must say I'm seriously annoyed with the 2.4-tree so far. As far as
+> I'm concerned, 2.4 were obviously released too eary (or maybe the
+> 2.5-tree should have been opened earlier so we wouldn't had this
+> VM-mess in the "stable" release). I'm not so annoyed for my own part
+> (I've mainly stayed on the 2.2 and will stay there until 2.4 looks
+> sane), but for a friend of mine.
 
-Andrea
+[snip]
+
+> I must say that he really tried. He forsaked much of his spare time to
+> learn Linux and he learned a lot rather fast, but when a deadline on
+> one of his projects crept too close and he still didn't have a working
+> computer, he finally despaired and we lost him back to Windows XP.
+
+Yes. I bought an Athlon with top-of-the-line video and sound cards for
+multimedia work. I *still* don't have a Linux driver for either the 3D or
+the sound card, so I'm dual-booting with Windows 2000. Alsa is garbage -- they
+"have a driver" for my sound card but the documentation -- what little there
+is -- is incomprehensible. I even bought the OSS/Linux drivers, but they are
+closed source and the documentation isn't much better. I sent e-mail to the
+vendor who told me RTFM. I haven't even tried to deal with the video issues.
+--
+znmeb@aracnet.com (M. Edward Borasky) http://www.meta-trading-coach.com
+Relax! Run Your Own Brain with Neuro-Semantics!
+
+How to Stop A Folksinger Cold # 4
+"Tie me kangaroo down, sport..."
+Tie your own kangaroo down -- and stop calling me "sport"!
+

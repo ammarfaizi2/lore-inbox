@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUA3QDP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 11:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUA3QDP
+	id S261837AbUA3QZw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 11:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUA3QZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 11:03:15 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:8208 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S261744AbUA3QDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 11:03:13 -0500
-Date: Fri, 30 Jan 2004 17:03:22 +0100 (CET)
-From: Urban Widmark <Urban.Widmark@enlight.net>
-X-X-Sender: puw@cola.local
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] smbfs: Large File Support (3/3) (fwd)
-In-Reply-To: <Pine.LNX.4.58L.0401300904240.1323@logos.cnet>
-Message-ID: <Pine.LNX.4.44.0401301631370.31893-100000@cola.local>
+	Fri, 30 Jan 2004 11:25:52 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:36003 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S261837AbUA3QZt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 11:25:49 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
+Subject: Re: 2.6.2-rc2-mm2
+Date: Fri, 30 Jan 2004 11:25:48 -0500
+User-Agent: KMail/1.6
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <20040130014108.09c964fd.akpm@osdl.org> <20040130111435.GB2505@babylon.d2dc.net>
+In-Reply-To: <20040130111435.GB2505@babylon.d2dc.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401301125.48632.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.53.166] at Fri, 30 Jan 2004 10:25:48 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jan 2004, Marcelo Tosatti wrote:
+On Friday 30 January 2004 06:14, Zephaniah E. Hull wrote:
+>On Fri, Jan 30, 2004 at 01:41:08AM -0800, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.
+>>2-rc2/2.6.2-rc2-mm2/
+>>
+>>
+>> - I added a few late-arriving patches.  Usually this breaks
+>> things.
+>>
+>> - Added a few external development trees (USB, XFS).
+>>
+>> - PNP update
+>
+>This patch contains:
+>--- linux-2.6.2-rc2/./include/linux/sched.h	2004-01-25
+> 20:49:43.000000000 -0800 +++ 25/./include/linux/sched.h	2004-01-29
+> 23:27:45.000000000 -0800 ...
+>--- linux-2.6.2-rc2/include/linux/sched.h	2004-01-25
+> 20:49:43.000000000 -0800 +++ 25/include/linux/sched.h	2004-01-29
+> 23:27:45.000000000 -0800
+>
+>Both of which seem to be the exact same patch.
+>
+>This obviously causes some problems when applying.
 
-> 
-> Urban?
-> 
-> ---------- Forwarded message ----------
-> Date: Wed, 28 Jan 2004 14:21:53 -0500
-> From: Arjan van de Ven <arjanv@redhat.com>
-> To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: [PATCH] smbfs: Large File Support (3/3)
-> 
-> On Wed, 2004-01-28 at 06:05, Linux Kernel Mailing List wrote:
-> 
-> > diff -Nru a/include/linux/smb.h b/include/linux/smb.h
-> > --- a/include/linux/smb.h	Wed Jan 28 04:02:56 2004
-> > +++ b/include/linux/smb.h	Wed Jan 28 04:02:56 2004
-> > @@ -85,7 +85,7 @@
-> >  	uid_t		f_uid;
-> >  	gid_t		f_gid;
-> >  	kdev_t		f_rdev;
-> > -	off_t		f_size;
-> > +	loff_t		f_size;
-> >  	time_t		f_atime;
-> >  	time_t		f_mtime;
-> >  	time_t		f_ctime;
-> 
-> ehhmmmm doesn't this change the userspace ABI incompatibly ???
+Thanks, I took the second copy out and it went ok.
 
-How would userspace get access to a smb_fattr struct?
-(Which ioctl/syscall, etc? Not that they can include the header.)
-
-It is used internally to keep data that you would otherwise find in the
-inode, and data is copied to/from the corresponding inode fields for some
-operations.
-
-What am I missing?
-
-/Urban
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

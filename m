@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129583AbRCCPN1>; Sat, 3 Mar 2001 10:13:27 -0500
+	id <S129534AbRCCPLh>; Sat, 3 Mar 2001 10:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129599AbRCCPNR>; Sat, 3 Mar 2001 10:13:17 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:15574 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129583AbRCCPNG>; Sat, 3 Mar 2001 10:13:06 -0500
-Message-ID: <3AA10A1B.890D3D99@uow.edu.au>
-Date: Sun, 04 Mar 2001 02:13:31 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] pci_release_region and pci_request_region
+	id <S129583AbRCCPL1>; Sat, 3 Mar 2001 10:11:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59409 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129534AbRCCPLG>;
+	Sat, 3 Mar 2001 10:11:06 -0500
+Date: Sat, 3 Mar 2001 16:10:44 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Steven Brooks <umbrook0@cs.umanitoba.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: block loop device hangs
+Message-ID: <20010303161044.F2528@suse.de>
+In-Reply-To: <3AA10876.7050906@cs.umanitoba.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3AA10876.7050906@cs.umanitoba.ca>; from umbrook0@cs.umanitoba.ca on Sat, Mar 03, 2001 at 09:06:30AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.3-pre1 has been uploaded.  The following drivers will
-not work as modules:
+On Sat, Mar 03 2001, Steven Brooks wrote:
+> When mounting a file using the loopback device, the mount program hangs
+> for ever.  Other than that, the system is still usable.
 
-./drivers/net/via-rhine.c
-./drivers/net/yellowfin.c
-./drivers/net/epic100.c
-./drivers/net/8139too.c
-./drivers/net/rcpci45.c
-./drivers/net/sundance.c
+Please read lkml archives before posting, this problem has been
+all over the list for the past two weeks.
 
-Two new functions need to be exported:
+Use the latest 2.4.2-ac or wait for 2.4.3-pre2
 
---- linux-2.4.3-pre1/drivers/pci/pci.c	Sat Mar  3 20:52:24 2001
-+++ linux-akpm/drivers/pci/pci.c	Sun Mar  4 02:01:07 2001
-@@ -1367,6 +1367,8 @@
- EXPORT_SYMBOL(pci_root_buses);
- EXPORT_SYMBOL(pci_enable_device);
- EXPORT_SYMBOL(pci_find_capability);
-+EXPORT_SYMBOL(pci_release_regions);
-+EXPORT_SYMBOL(pci_request_regions);
- EXPORT_SYMBOL(pci_find_class);
- EXPORT_SYMBOL(pci_find_device);
- EXPORT_SYMBOL(pci_find_slot);
+-- 
+Jens Axboe
+

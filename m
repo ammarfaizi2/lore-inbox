@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUDLVEV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUDLVEU
+	id S263107AbUDLVGu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUDLVGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:04:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2998 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263095AbUDLVEP (ORCPT
+	Mon, 12 Apr 2004 17:06:49 -0400
+Received: from imap.gmx.net ([213.165.64.20]:63449 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263107AbUDLVGq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:04:15 -0400
-Date: Mon, 12 Apr 2004 14:06:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Samium Gromoff <deepfire@sic-elvis.zel.ru>
-Cc: linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [2.6.5][MIPS] oneliners somehow not made it into mainline [3/3]
-Message-Id: <20040412140628.4836d778.akpm@osdl.org>
-In-Reply-To: <87hdvpp8km.wl@canopus.ns.zel.ru>
-References: <87k70lp8q8.wl@canopus.ns.zel.ru>
-	<87hdvpp8km.wl@canopus.ns.zel.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 12 Apr 2004 17:06:46 -0400
+X-Authenticated: #11437207
+Date: Tue, 13 Apr 2004 00:06:08 +0200
+From: Tim Blechmann <TimBlechmann@gmx.net>
+To: "Ivica Ico Bukvic" <ico@fuse.net>
+Cc: "'Russell King'" <rmk+lkml@arm.linux.org.uk>, <daniel.ritz@gmx.ch>,
+       "'Thomas Charbonnel'" <thomas@undata.org>, <ccheney@debian.org>,
+       <linux-pcmcia@lists.infradead.org>, <alsa-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion
+ -- FIXED!
+Message-Id: <20040413000608.0489b896@laptop>
+In-Reply-To: <20040412144103.PIXB8029.smtp1.fuse.net@64BitBadass>
+References: <20040412082801.A3972@flint.arm.linux.org.uk>
+	<20040412144103.PIXB8029.smtp1.fuse.net@64BitBadass>
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samium Gromoff <deepfire@sic-elvis.zel.ru> wrote:
->
-> Without this one it fails to run the earlyinitcall stuff, and hence
-> explodes at some point.
-> 
-> diff -urN -X './#cdiff.pattern' ./linux-2.6.5/include/linux/init.h ./mc-2.6.5/include/linux/init.h
-> --- ./linux-2.6.5/include/linux/init.h  2004-04-12 16:07:45.000000000 +0400
-> +++ ./mc-2.6.5/include/linux/init.h     2004-04-12 18:05:28.000000000 +0400
-> @@ -83,6 +83,7 @@
->         static initcall_t __initcall_##fn __attribute_used__ \
->         __attribute__((__section__(".initcall" level ".init"))) = fn
-> 
-> +#define early_initcall(fn)             __define_initcall(".early1",fn)
->  #define core_initcall(fn)              __define_initcall("1",fn)
->  #define postcore_initcall(fn)          __define_initcall("2",fn)
->  #define arch_initcall(fn)              __define_initcall("3",fn)
+hi all,
 
-early_initcall() is a mips-specific thing.  If we add this macro to
-<linux/init.h> then someone will use it in generic code and all the other
-architectures explode.
+i installed windows to check if there is anything happening to the
+cardbus registers when working on a supported system... the cardbus
+registers, beside the pci registers, are the same as on the linux system
+... 
+i haven't been able to play back some sounds, because rme's driver disc
+only contains the win2k driver ...
 
-We need to either make this entirely mips-private, or rework the mips code
-to not use it at all, or justify its introduction and then introduce it for
-all architectures.
+i have no idea, what this might tell us ... it's not a very good feeling
+if someone who seem to have the same problem as yourself finds the
+reason for his problem, but it doesn't seem to be the reason of your
+problem ... anyway, let's hope the best...
+
+cheers...
+
+ Tim                          mailto:TimBlechmann@gmx.de
+                              ICQ: 96771783
+--
+The only people for me are the mad ones, the ones who are mad to live,
+mad to talk, mad to be saved, desirous of everything at the same time,
+the ones who never yawn or say a commonplace thing, but burn, burn,
+burn, like fabulous yellow roman candles exploding like spiders across
+the stars and in the middle you see the blue centerlight pop and
+everybody goes "Awww!"
+                                                          Jack Kerouac
 

@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267930AbUGaKJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUGaKTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267930AbUGaKJP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 06:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267929AbUGaKJP
+	id S267934AbUGaKTq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 06:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267937AbUGaKTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 06:09:15 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:44551 "EHLO
+	Sat, 31 Jul 2004 06:19:46 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:46087 "EHLO
 	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S267932AbUGaKJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 06:09:11 -0400
-Date: Sat, 31 Jul 2004 12:01:23 +0200
+	id S267934AbUGaKTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 06:19:44 -0400
+Date: Sat, 31 Jul 2004 12:11:52 +0200
 From: Willy Tarreau <willy@w.ods.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: greearb@candelatech.com, akpm@osdl.org, alan@redhat.com,
-       jgarzik@redhat.com, linux-kernel@vger.kernel.org
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, greearb@candelatech.com,
+       akpm@osdl.org, alan@redhat.com, jgarzik@redhat.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-Message-ID: <20040731100123.GB25772@alpha.home.local>
-References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <20040731093545.GB16881@gondor.apana.org.au>
+Message-ID: <20040731101152.GG1545@alpha.home.local>
+References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <410B67B1.4080906@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040731093545.GB16881@gondor.apana.org.au>
+In-Reply-To: <410B67B1.4080906@pobox.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 31, 2004 at 07:35:45PM +1000, Herbert Xu wrote:
-> On Sat, Jul 31, 2004 at 10:33:08AM +0200, Willy Tarreau wrote:
-> > 
-> > So several reasons :
-> >   - the change_mtu() function might be called at any time after driver
-> >     initialization. I don't know at all if there are things to do to
+Hi Jeff,
+
+On Sat, Jul 31, 2004 at 05:34:41AM -0400, Jeff Garzik wrote:
+> Willy Tarreau wrote:
+> >  - many (all ?) other drivers already have an MTU parameter, and many
 > 
-> See the sungem.c for a working implementation.
+> s/many/almost none/
 
-Indeed, I remember having read parts of it several times because it was
-very clean. I agree that the first half of the function does the same
-thing as the initialization code. What is more of a problem is the second
-half which resets the card, because inserting resets in the tulip driver
-is not trivial (at least to me). But perhaps it would be acceptable to
-only implement the dev->mtu change when the device is not up.
+Ok, sorry, I've just checked, they are 6. But I incidentely used the feature
+on 2 of them (dl2k and starfire). But more drivers still have the
+'static int mtu=1500' preceeded by a comment stating "allow the user to change
+the mtu". Why is it not a #define then, if nobody can change it anymore ?
 
-> BTW I presume this is for the tulip driver? Does it actually use the
-> mtu parameter for anything? It seems to just store it in dev->mtu and
-> then promptly forgets about it.
+> For VLAN support you definitely want to let the user increase the size 
+> above 1500, and for that you need ->change_mtu
 
-It's for the tulip driver. Now, you're right, it doesn't use dev->mtu at
-all (just noticed now) ! So this is fairly simpler, since I then assume
-that the driver will work up to PKT_BUF_SZ - 14 or 18.
+I agree, but my point was that adding MODULE_PARM was only a one liner and
+would have done the job too. But since everyone prefers a change_mtu(), I'll
+do it.
 
-Ok, I have the hardware, you've convinced me. I'll try it.
+Jeff, do you know the absolute hardware limit on the tulip ? I've seen the
+limitation to PKT_BUF_SZ (1536), but I don't know for example if the
+hardware stores the FCS in the buffer or not, nor if the IP headers risk
+being aligned or not (which would consume 2 more bytes).
+Or does 1536 - 14 (ethernet) - 2 (iphdr alignment) - 4 (FCS) = 1516 seem a
+reasonable conservative higher bound ?
 
 Cheers,
 Willy
-

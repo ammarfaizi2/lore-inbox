@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVAENSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVAENXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbVAENSS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 08:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVAENSS
+	id S262357AbVAENXw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 08:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVAENXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 08:18:18 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14862 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262358AbVAENSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 08:18:09 -0500
-Date: Wed, 5 Jan 2005 13:17:48 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Christoph Hellwig <hch@infradead.org>
-cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] merge *_vm_enough_memory()s into a common helper
-In-Reply-To: <20050105112554.GB31119@infradead.org>
-Message-ID: <Pine.LNX.4.44.0501051311060.2844-100000@localhost.localdomain>
+	Wed, 5 Jan 2005 08:23:51 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:15367 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262357AbVAENXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 08:23:49 -0500
+Message-ID: <41DBEC44.9080104@hist.no>
+Date: Wed, 05 Jan 2005 14:31:48 +0100
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Felipe Alfaro Solana <lkml@mac.com>
+CC: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Adrian Bunk <bunk@stusta.de>, Willy Tarreau <willy@w.ods.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@debian.org>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Rik van Riel <riel@redhat.com>
+Subject: Re: starting with 2.7
+References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org> <20050104054649.GC7048@alpha.home.local> <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk> <9F909072-5E3A-11D9-A816-000D9352858E@mac.com>
+In-Reply-To: <9F909072-5E3A-11D9-A816-000D9352858E@mac.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005, Christoph Hellwig wrote:
-> On Tue, Jan 04, 2005 at 03:48:33PM -0600, Serge E. Hallyn wrote:
-> > The attached patch introduces a __vm_enough_memory function in
-> > security/security.c which is used by cap_vm_enough_memory,
-> > dummy_vm_enough_memory, and selinux_vm_enough_memory.  This has
-> > been discussed on the lsm mailing list.
-> > 
-> > Are there any objections to or comments on this patch?
-> 
-> Maybe this function should go into mm/ ?
+Felipe Alfaro Solana wrote:
 
-My thought exactly: yes, please do move it back into mm/,
-where it started out before security/ came into the picture.
+>
+>  I don't pretend that kernel interfaces stay written in stone, for 
+> ages. What I would like is that, at least, those interfaces were 
+> stable enough, let's say for a few months for a stable kernel series, 
+> so I don't have to keep bothering my propietary VMWare vendor to fix 
+> the problems for me, since the new kernel interface broke VMWare. 
+> Yeah, I know I could decide not to upgrade kernels in last instance, 
+> but that's not always possible.
 
-But where in mm?  I suppose either mm/mmap.c where vm_committed_space
-is still declared, or (that strange ragbag) mm/swap.c where the
-CONFIG_SMP vm_acct_memory is.
+You should definitely bother your proprietary vendor all the time, they 
+will then
+see more clearly that they have to act fast _if_ they want to stay 
+proprietary.
 
-Hugh
+>
+> If kernel interfaces need to be changed for whatever reason, change 
+> them in 2.7, -mm, -ac or whatever tree first, and let the community 
+> know beforehand what those changes will be, and be prepared to adapt. 
+> Meanwhile, try to leave 2.6 as stable as possible.
 
+Do you follow -mm, -ac, and friends closely?  Most changes do happen in 
+-mm first.
+So you have time, all the way up to the next release.  Use that time to 
+bug your
+vendor about the imminent change.  There seems to be weeks between releases
+now, plenty of time for a vendor to stay up-to-date.
+
+Helge Hafting

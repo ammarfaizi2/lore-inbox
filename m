@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264899AbRFTPSY>; Wed, 20 Jun 2001 11:18:24 -0400
+	id <S264901AbRFTPYY>; Wed, 20 Jun 2001 11:24:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264898AbRFTPSO>; Wed, 20 Jun 2001 11:18:14 -0400
-Received: from mm02snlnto.sandia.gov ([132.175.109.21]:3080 "HELO
-	mm02snlnto.sandia.gov") by vger.kernel.org with SMTP
-	id <S264899AbRFTPSE> convert rfc822-to-8bit; Wed, 20 Jun 2001 11:18:04 -0400
-X-Server-Uuid: 7edb479a-fd89-11d2-9a77-0090273cd58c
-From: "Nathan D. Fabian" <ndfabia@sandia.gov>
-Organization: Sandia National Laboratories
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] swapfile.c
-Date: Wed, 20 Jun 2001 09:16:10 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01061918242500.00988@sphinx>
-In-Reply-To: <01061918242500.00988@sphinx>
+	id <S264902AbRFTPYS>; Wed, 20 Jun 2001 11:24:18 -0400
+Received: from copland.udel.edu ([128.175.13.92]:1023 "EHLO copland.udel.edu")
+	by vger.kernel.org with ESMTP id <S264901AbRFTPYC>;
+	Wed, 20 Jun 2001 11:24:02 -0400
+Date: Wed, 20 Jun 2001 10:35:31 -0400 (EDT)
+From: Mike Porter <mike@UDel.Edu>
+To: bert hubert <ahu@ds9a.nl>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+In-Reply-To: <20010619211038.A3704@home.ds9a.nl>
+Message-ID: <Pine.SOL.4.31.0106201027220.17484-100000@copland.udel.edu>
 MIME-Version: 1.0
-Message-ID: <01062009161001.01031@sphinx>
-X-Filter-Version: 1.3 (sass165)
-X-WSS-ID: 172E6123459677-01-01
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 June 2001 06:24 pm, Nathan D. Fabian wrote:
-> The following diff tries to improve on the efficiency of try_to_unuse(). 
-> It removes the potential O(|swap_map|^2) business and makes it linear time.
-> I'm not sure what this means in terms of overall change, but Linus seemed
-> interested in the innefficiency in that code.  Test with caution.
 
-I suppose I should mention that this is against a vanilla 2.4.5 kernel, but 
-should patches cleanly against 2.4.5-ac16.
+> But that foregoes the point that the code is far more complex and harder to
+> make 'obviously correct', a concept that *does* translate well to userspace.
+
+One point is that 'obviously correct' is much harder to 'prove' for
+threads (or processes with shared memory) than you might think.
+With a state machine, you can 'prove' that object accesses won't
+conflict much more easily.  With a threaded or process based model,
+you have to spend considerable time thinking about multiple readers
+and writers and locking.
+
+One metric I use to evaluate program complexity is how big of a
+headache I get when trying to prove something "correct".
+Multi-process or multi-threaded code hurts more than a well written
+state machine.
+
+Mike
 

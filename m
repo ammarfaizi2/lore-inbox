@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270224AbRHRPVn>; Sat, 18 Aug 2001 11:21:43 -0400
+	id <S270227AbRHRPli>; Sat, 18 Aug 2001 11:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270222AbRHRPVc>; Sat, 18 Aug 2001 11:21:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:42757 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S270224AbRHRPVP> convert rfc822-to-8bit;
-	Sat, 18 Aug 2001 11:21:15 -0400
-To: dri-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4.9] ati_pcigart.h ob1 bug
-X-Yow: On the other hand, life can be an endless parade of TRANSSEXUAL
- QUILTING BEES aboard a cruise ship to DISNEYWORLD
- if only we let it!!
-From: Andreas Schwab <schwab@suse.de>
-Date: 18 Aug 2001 17:21:28 +0200
-Message-ID: <je3d6p5r7r.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.105
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S270228AbRHRPl3>; Sat, 18 Aug 2001 11:41:29 -0400
+Received: from runningman.mobilixnet.dk ([212.97.204.27]:52750 "EHLO
+	runningman.mobilixnet.dk") by vger.kernel.org with ESMTP
+	id <S270227AbRHRPlU>; Sat, 18 Aug 2001 11:41:20 -0400
+Date: Sat, 18 Aug 2001 17:41:32 +0200
+From: Eirikur Hjartarson <eiki.hjartarson@wanadoo.dk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8-ac6 panic in schedule
+Message-ID: <20010818174132.A444@pluto.home>
+Reply-To: eiki.hjartarson@wanadoo.dk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think there is an ob1 bug in ati_alloc_pcigart_table: it is reserving
-one page too much beyond the region returned by __get_free_pages.
-Similarily, ati_free_pcigart_table should unreserve one page less.
+Hi,
 
---- linux-2.4.9/drivers/char/drm/ati_pcigart.h	2001/08/18 15:13:16	1.1
-+++ linux-2.4.9/drivers/char/drm/ati_pcigart.h	2001/08/18 15:13:43
-@@ -57,7 +57,7 @@
- 
- 	page = virt_to_page( address );
- 
--	for ( i = 0 ; i <= ATI_PCIGART_TABLE_PAGES ; i++, page++ ) {
-+	for ( i = 0 ; i < ATI_PCIGART_TABLE_PAGES ; i++, page++ ) {
- 		atomic_inc( &page->count );
- 		SetPageReserved( page );
- 	}
-@@ -76,7 +76,7 @@
- 
- 	page = virt_to_page( address );
- 
--	for ( i = 0 ; i <= ATI_PCIGART_TABLE_PAGES ; i++, page++ ) {
-+	for ( i = 0 ; i < ATI_PCIGART_TABLE_PAGES ; i++, page++ ) {
- 		atomic_dec( &page->count );
- 		ClearPageReserved( page );
- 	}
+I just got a kernel panic.  The machine froze so I had to
+hand copy the oops from the screen!
 
-Andreas.
+At the time I was initiating isdn callout ("isdnctrl dial ippp0").
+Otherwise the machine has been stable for a long time.
 
+=========================================================================
+isdn_ppp_xmit: lp->ppp_slot -1
+invalid operand: 0000
+CPU:	0
+EIP:	0010:[<c0111a80>]
+EFLAGS:	00010296
+eax: 00000018 ebx: c166c000 ecx: c1860000 edx: 00000001
+esi: 00000000 edi: c11d57a0 ebp: c166df98 esp: c166df74
+ds: 0000 es: 0018 ss: 0018
+Process named (pid: 296, stackpage=c166d000)
+Stack: c01ed1d6 00000004 c166c000 00000000 c166c000 40640654 c166c000 00000000
+       00000000 c166dfc4 c0105dcb 80004003 00000000 00004003 00000000 c166c000
+       406409ac 400575e8 40640994 c0106d1b 406409ac 00000008 403ee264 406409ac
+Code: 0f 0b 8d 65 f4 5b 5e 5f 5d c3 8d b6 00 00 00 00 8b 45 e8 c1
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+=========================================================================
+
+The output from ksymoops follows.
+
+=========================================================================
+ksymoops 2.4.1 on i686 2.4.8-ac6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.8-ac6/ (default)
+     -m /boot/System.map-2.4.8-ac6 (specified)
+
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0111a80>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010296
+eax: 00000018 ebx: c166c000 ecx: c1860000 edx: 00000001
+esi: 00000000 edi: c11d57a0 ebp: c166df98 esp: c166df74
+ds: 0000 es: 0018 ss: 0018
+Process named (pid: 296, stackpage=c166d000)
+Stack:  c01ed1d6 00000004 c166c000 00000000 c166c000 40640654 c166c000 00000000
+        00000000 c166dfc4 c0105dcb 80004003 00000000 00004003 00000000 c166c000
+        406409ac 400575e8 40640994 c0106d1b 406409ac 00000008 403ee264 406409ac
+Code: 0f 0b 8d 65 f4 5b 5e 5f 5d c3 8d b6 00 00 00 00 8b 45 e8 c1
+
+>>EIP; c0111a80 <schedule+50/3a0>   <=====
+Code;  c0111a80 <schedule+50/3a0>
+00000000 <_EIP>:
+Code;  c0111a80 <schedule+50/3a0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0111a82 <schedule+52/3a0>
+   2:   8d 65 f4                  lea    0xfffffff4(%ebp),%esp
+Code;  c0111a85 <schedule+55/3a0>
+   5:   5b                        pop    %ebx
+Code;  c0111a86 <schedule+56/3a0>
+   6:   5e                        pop    %esi
+Code;  c0111a87 <schedule+57/3a0>
+   7:   5f                        pop    %edi
+Code;  c0111a88 <schedule+58/3a0>
+   8:   5d                        pop    %ebp
+Code;  c0111a89 <schedule+59/3a0>
+   9:   c3                        ret    
+Code;  c0111a8a <schedule+5a/3a0>
+   a:   8d b6 00 00 00 00         lea    0x0(%esi),%esi
+Code;  c0111a90 <schedule+60/3a0>
+  10:   8b 45 e8                  mov    0xffffffe8(%ebp),%eax
+Code;  c0111a93 <schedule+63/3a0>
+  13:   c1 00 00                  roll   $0x0,(%eax)
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+=========================================================================
+
+If I can supply any more information, please let me know.
+
+Regards,
 -- 
-Andreas Schwab                                  "And now for something
-SuSE Labs                                        completely different."
-Andreas.Schwab@suse.de
-SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+Eiki

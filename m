@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264725AbUEEQjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264732AbUEEQuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264725AbUEEQjg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 12:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbUEEQjg
+	id S264732AbUEEQuA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 12:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264733AbUEEQuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 12:39:36 -0400
-Received: from ns.suse.de ([195.135.220.2]:22991 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264725AbUEEQjf (ORCPT
+	Wed, 5 May 2004 12:50:00 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:19996 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264732AbUEEQt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 12:39:35 -0400
-Date: Wed, 5 May 2004 18:39:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] NUMA API for Linux 5/ Add VMA hooks for policy
-Message-ID: <20040505163934.GA14963@wotan.suse.de>
-References: <20040406153322.5d6e986e.ak@suse.de> <20040406153713.52a64a26.ak@suse.de> <20040505090531.51ad5c89.pj@sgi.com>
+	Wed, 5 May 2004 12:49:59 -0400
+Date: Wed, 5 May 2004 09:49:38 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2
+Message-Id: <20040505094938.34510077.pj@sgi.com>
+In-Reply-To: <20040505174009.A5114@infradead.org>
+References: <20040505013135.7689e38d.akpm@osdl.org>
+	<20040505090605.275a0d3a.pj@sgi.com>
+	<20040505174009.A5114@infradead.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040505090531.51ad5c89.pj@sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like you should do something equivalent to adding:
-> 
->   #include <linux/mempolicy.h>
-> 
-> to the files:
-> 
->   arch/ia64/ia32/binfmt_elf32.c
->   arch/ia64/kernel/perfmon.c
->   arch/ia64/mm/init.c
->   kernel/exit.c
-> 
-> The following, based off the numa-api-vma-policy-hooks patch in Andrew's
-> latest 2.6.6-rc3-mm2, includes these additional includes, and builds
-> successfully:
+> That's actually my fault most likely.
 
-This is not needed, because mempolicy.h is included in mm.h, which
-is included at some point by all of these.
-Perhaps you missed a patch? (several of the patches depended on each other) 
+Aha - we just arrived at the same conclusion - must be right ;).
 
--Andi
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

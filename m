@@ -1,124 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTLTU1G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 15:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTLTU1G
+	id S261492AbTLTUw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 15:52:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTLTUw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 15:27:06 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:57801 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261193AbTLTU1A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 15:27:00 -0500
-Date: Sat, 20 Dec 2003 21:26:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/5] 2.6.0 sched migrate comment
-Message-ID: <20031220202611.GB32320@elte.hu>
-References: <3FE46885.2030905@cyberone.com.au> <3FE468BF.9000102@cyberone.com.au> <3FE468F5.7020501@cyberone.com.au>
+	Sat, 20 Dec 2003 15:52:28 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:64202 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S261492AbTLTUw1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 15:52:27 -0500
+Subject: Re: [Fwd: ACPI unbug report]
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: res0g1ta@verizon.net
+In-Reply-To: <3FE4037B.7090907@verizon.net>
+References: <3FE4037B.7090907@verizon.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ue1FihC8y0DdhnU2nKIl"
+Message-Id: <1071953546.1286.52.camel@duergar>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="hQiwHBbRI9kgIhsi"
-Content-Disposition: inline
-In-Reply-To: <3FE468F5.7020501@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 20 Dec 2003 15:52:26 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---hQiwHBbRI9kgIhsi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-Ue1FihC8y0DdhnU2nKIl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Sat, 2003-12-20 at 03:08, RunNHide wrote:
+> Thought I'd forward this on - this is NOT a bug report
+>=20
+> RunNHide
 
-* Nick Piggin <piggin@cyberone.com.au> wrote:
+> From: ' ' <tint14@hotmail.com>
+> To: res0g1ta@verizon.net
+> Subject: ACPI unbug report
+> Date: Sat, 20 Dec 2003 08:05:29 +0000
+>=20
+> I heard that ACPI currently isn't working in 2.6, and it seems to be work=
+ing=20
+> fine for me, so I thought this report might be helpful.
+>=20
 
-> Some comments were lost during minor surgery here...
+Well it may not work for some people, and there are quite a few open
+bugs, but for majority of people with non-broken BIOS and even some that
+are broken, ACPI works just fine.  I don't think this kind of report is
+necessary, just added traffic.
 
-this patch collides with John Hawkes' sched_clock() fix-patch which goes
-in first. Also, the patch does more than just comment fixups. It changes
-the order of tests, where a bug slipped in:
+-sb
 
-+       if (!idle && (delta <= cache_decay_ticks))
+--=-Ue1FihC8y0DdhnU2nKIl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-This will cause the cache-hot test to almost never trigger, which is
-clearly incorrect. The correct test is:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-        if (!idle && (delta <= JIFFIES_TO_NS(cache_decay_ticks)))
+iD8DBQA/5LaKQHy9+2ztQiARAgMEAJ45hHxAysJ0Kw+0ep/H51HhH9whkwCeIZ8w
+Dvyt8x4LCcFcKN+wUDFTnrU=
+=yUOQ
+-----END PGP SIGNATURE-----
 
-anyway, i've fixed it all up (patch attached).
+--=-Ue1FihC8y0DdhnU2nKIl--
 
-	Ingo
-
---hQiwHBbRI9kgIhsi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sched-can-migrate-2.6.0-A1"
-
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -1193,25 +1193,25 @@ static inline void pull_task(runqueue_t 
- }
- 
- /*
-- * Previously:
-- *
-- * #define CAN_MIGRATE_TASK(p,rq,this_cpu)	\
-- *	((!idle || (NS_TO_JIFFIES(now - (p)->timestamp) > \
-- *		cache_decay_ticks)) && !task_running(rq, p) && \
-- *			cpu_isset(this_cpu, (p)->cpus_allowed))
-+ * can_migrate_task - may task p from runqueue rq be migrated to this_cpu?
-  */
--
- static inline int
- can_migrate_task(task_t *tsk, runqueue_t *rq, int this_cpu, int idle)
- {
- 	unsigned long delta = rq->timestamp_last_tick - tsk->timestamp;
- 
--	if (!idle && (delta <= JIFFIES_TO_NS(cache_decay_ticks)))
--		return 0;
-+	/*
-+	 * We do not migrate tasks that are:
-+	 * 1) running (obviously), or
-+	 * 2) cannot be migrated to this CPU due to cpus_allowed, or
-+	 * 3) are cache-hot on their current CPU.
-+	 */
- 	if (task_running(rq, tsk))
- 		return 0;
- 	if (!cpu_isset(this_cpu, tsk->cpus_allowed))
- 		return 0;
-+	if (!idle && (delta <= JIFFIES_TO_NS(cache_decay_ticks)))
-+		return 0;
- 	return 1;
- }
- 
-@@ -1273,13 +1273,6 @@ skip_bitmap:
- skip_queue:
- 	tmp = list_entry(curr, task_t, run_list);
- 
--	/*
--	 * We do not migrate tasks that are:
--	 * 1) running (obviously), or
--	 * 2) cannot be migrated to this CPU due to cpus_allowed, or
--	 * 3) are cache-hot on their current CPU.
--	 */
--
- 	curr = curr->prev;
- 
- 	if (!can_migrate_task(tmp, busiest, this_cpu, idle)) {
-@@ -1289,6 +1282,8 @@ skip_queue:
- 		goto skip_bitmap;
- 	}
- 	pull_task(busiest, array, tmp, this_rq, this_cpu);
-+
-+	/* Only migrate one task if we are idle */
- 	if (!idle && --imbalance) {
- 		if (curr != head)
- 			goto skip_queue;
-
---hQiwHBbRI9kgIhsi--

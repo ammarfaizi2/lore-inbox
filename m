@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276759AbRKSTIH>; Mon, 19 Nov 2001 14:08:07 -0500
+	id <S280627AbRKSTLR>; Mon, 19 Nov 2001 14:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276988AbRKSTH6>; Mon, 19 Nov 2001 14:07:58 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:26335 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S276759AbRKSTHs>; Mon, 19 Nov 2001 14:07:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <jas88@cam.ac.uk>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>,
-        Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: x bit for dirs: misfeature?
-Date: Mon, 19 Nov 2001 19:07:14 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200111191644.fAJGileU019108@pincoya.inf.utfsm.cl> <E165sA9-0006Nv-00@mauve.csi.cam.ac.uk> <01111919395802.07749@nemo>
-In-Reply-To: <01111919395802.07749@nemo>
+	id <S280628AbRKSTLK>; Mon, 19 Nov 2001 14:11:10 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10510 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280627AbRKSTKJ>; Mon, 19 Nov 2001 14:10:09 -0500
+Date: Mon, 19 Nov 2001 11:04:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM-related Oops: 2.4.15pre1
+In-Reply-To: <m1wv0m7i53.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33.0111191057580.8281-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E165tl7-00023G-00@mauve.csi.cam.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 November 2001 7:39 pm, vda wrote:
-> On Monday 19 November 2001 17:24, James A Sutherland wrote:
-> > > > Yes, I see... All I can do is to add workarounds (ok,ok, 'support')
-> > > > to chmod and friends:
-> > > >
-> > > > chmod -R a+R dir  - sets r for files and rx for dirs
-> > >
-> > > X sets x for dirs, leaves files alone.
-> >
-> > Which sounds like exactly the behaviour the original poster wanted,
-> > AFAICS?
+
+On 19 Nov 2001, Eric W. Biederman wrote:
 >
-> Yes, that sounds like the behaviour I want. But X flag does not do that.
-> Sorry.
+> However this case seems to violate code clarity.  If you can have
+> other users testing PG_locked it is non-intuitive that you can still
+> normally assign to page->flags.
 
-Oh? I just checked, and X *does* set the x bit on directories only, leaving 
-files unaffected. What's wrong with that? Does it not do this on your system? 
-Or do you want some other behaviour?
+This is 100% true, and I actually want to fix it.
 
-> James, I don't like flame wars. Lets ask ourself: does this thread have any
-> useful results? Unfortunately, not many.
-> Patches for chmod source would be better. Perhaps I should do that...
+The ugliness is actually a historical remnant - we do it with a simple
+store simply because at the time we add a page to the page cache, we
+historically were the only users of that page. Nobody else could get
+access to it, because it didn't exist on any lists.
 
-Patch it to do what? The current behaviour seems to me to be what you want...
- 
-> Let's refrain from "you're fool... go read manpage" type
-> discussions. Not productive.
+These days, the LRU queue exists before the page is added to the swap
+cache, which means that other people actually _can_ see the page, and the
+historical "initialize page flags" is no longer touching a purely private
+field.
 
-Agreed - if the question were covered in a manpage, I doubt there would be a 
-thread here on LKML about it :)
+> Would it make sense to add a set_bits macro that is a just an
+> assignment except on extremely weird architectures or to work
+> around compiler bugs?  I'm just thinking it would make sense
+> to document that we depend on the compiler not writing some
+> strange intermediate values into the variable.
 
+The thing is, "__add_to_page_cache()" really shouldn't touch the page
+flags AT ALL, not with a "set_bits()" macro, and not with anything else
+either for that matter. It's actually clearing flags that have meaning,
+and the callers these days have to undo some of the work that it does (ie
+see how try_to_swap_out() ends up having to mark the page dirty again,
+only because __add_to_page_cache() cleared the dirty bit that it shouldn't
+know anything at all about).
 
-James.
+So the real fix for this particular case is to move the bit
+setting/clearing into those callers that actually _want_ to set the bits,
+some of which actually do have exclusive access to the page.
+
+That doesn't change the fact that other parts of the kernel still assume
+that the setting of a pointer or status field is atomic, for example, and
+then use the memory barrier macros to force memory ordering (both for gcc
+and for the CPU at runtime).
+
+			Linus
+

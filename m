@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293091AbSCOSpU>; Fri, 15 Mar 2002 13:45:20 -0500
+	id <S293122AbSCOSrM>; Fri, 15 Mar 2002 13:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293122AbSCOSpC>; Fri, 15 Mar 2002 13:45:02 -0500
-Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:19945 "EHLO
-	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S293091AbSCOSor>; Fri, 15 Mar 2002 13:44:47 -0500
-Message-ID: <005401c1cc51$ab6c3fe0$1a02a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "Jeremy Jackson" <jerj@coplanar.net>, <linux-kernel@vger.kernel.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20020315013644.A26891@morpheus> <016401c1cc02$aa51c110$7e0aa8c0@bridge>
+	id <S293109AbSCOSrB>; Fri, 15 Mar 2002 13:47:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51982 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293129AbSCOSqu>; Fri, 15 Mar 2002 13:46:50 -0500
 Subject: Re: unwanted disk access by the kernel?
-Date: Fri, 15 Mar 2002 13:46:06 -0500
+To: dmaas@dcine.com (Dan Maas)
+Date: Fri, 15 Mar 2002 19:02:30 +0000 (GMT)
+Cc: jerj@coplanar.net (Jeremy Jackson), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <005401c1cc51$ab6c3fe0$1a02a8c0@allyourbase> from "Dan Maas" at Mar 15, 2002 01:46:06 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-Id: <E16lwyE-0004N7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You may also want to mount your (root) filesystem(s) with the
-> "noatime" option... check the linux laptops site for other tips.
+> By the way, if I enable 'APM makes CPU idle calls when idle,' I get a
+> constant stream of 'apm_do_idle failed (3)' messages. APM also doesn't seem
+> to be able to power the machine down... This is a Dell Inspiron 7500...
+> Maybe I should try ACPI?
 
-Thanks Jeremy and Alan - mounting the filesystems 'noatime,nodiratime'
-cleared up the last bits of disk activity. (I'm still curious why atime
-updates would be happening even though the system is as idle as I can make
-it without cutting the power... =)
+ACPI is a bit experimental right now but if you want some fun then obviously
+the more people who break the ACPI code the better.
 
-By the way, if I enable 'APM makes CPU idle calls when idle,' I get a
-constant stream of 'apm_do_idle failed (3)' messages. APM also doesn't seem
-to be able to power the machine down... This is a Dell Inspiron 7500...
-Maybe I should try ACPI?
-
-Regards,
-Dan
-
+Alan

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbTKONOt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 08:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTKONOn
+	id S261719AbTKONPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 08:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTKONPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 08:14:43 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:62882 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261692AbTKONOV
+	Sat, 15 Nov 2003 08:15:32 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:23056 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261692AbTKONPJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 08:14:21 -0500
-Message-ID: <3FB626A9.20904@cyberone.com.au>
-Date: Sun, 16 Nov 2003 00:14:17 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Sat, 15 Nov 2003 08:15:09 -0500
+Date: Sat, 15 Nov 2003 08:04:13 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Pascal Schmidt <der.eremit@email.de>
+cc: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <Pine.LNX.4.44.0311131413000.947-100000@neptune.local>
+Message-ID: <Pine.LNX.3.96.1031115080315.2903B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: azarah@nosferatu.za.org
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's scheduler v19
-References: <1065350173.4946.5.camel@pilot.stavtrup-st.dk>	 <3F80DF3C.8010406@cyberone.com.au> <3F81123F.4040609@cyberone.com.au>	 <3F811E02.3060803@cyberone.com.au>  <3F8140CF.9050603@cyberone.com.au>	 <1065612151.4782.4.camel@pilot.stavtrup-st.dk>	 <3F9907EB.7050700@cyberone.com.au>	 <1067175079.664.7.camel@pilot.stavtrup-st.dk>	 <3FB5EE6A.8080801@cyberone.com.au> <1068899953.5033.1.camel@nosferatu.lan>
-In-Reply-To: <1068899953.5033.1.camel@nosferatu.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Nov 2003, Pascal Schmidt wrote:
 
+> On Thu, 13 Nov 2003, Bill Davidsen wrote:
+> 
+> > For a read-only access, I think the size is what's written, while for
+> > writing it's the physical size, I think. Does it need to be as complex as
+> > having the order depend on the access mode? It seems that a size of zero
+> > is correct for a read access to an unwritten media.
+> 
+> Well, there is only one capacity and we cannot tell at the time we
+> fetch the capacity from the drive whether the user will use the disk
+> read-only or read-write.
+> 
+> In any case, cdrom_read_capacity() is the only thing that works on my
+> MO drive, the other methods all fail. So my patch from yesterday changes 
+> the order of things so that read_capacity is used first to get the 
+> capacity, and the other methods are allowed to override it's findings
+> later on.
 
-Martin Schlemmer wrote:
+And that sounds like the correct thing to do.
 
->On Sat, 2003-11-15 at 11:14, Nick Piggin wrote:
->
->
->>Its against mm3 but I can do a patch against Linus' tree.
->>
->>
->
->Would be appreciated, especially if you are going to keep doing
->it against the -mm tree.
->
->
-
-Yep, I've done that for v19a which is what you should be using ;)
-
-The conflict in the trees is the preempt context switch accounting patch
-which seems like it might not it before 2.6.0.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

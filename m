@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317307AbSGIFlq>; Tue, 9 Jul 2002 01:41:46 -0400
+	id <S317308AbSGIGHW>; Tue, 9 Jul 2002 02:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317308AbSGIFlq>; Tue, 9 Jul 2002 01:41:46 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:12814 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317307AbSGIFlp>; Tue, 9 Jul 2002 01:41:45 -0400
-Subject: freezing afer switching from graphical to console
-From: Michael Gruner <stockraser@yahoo.de>
+	id <S317309AbSGIGHV>; Tue, 9 Jul 2002 02:07:21 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:52699 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S317308AbSGIGHU>; Tue, 9 Jul 2002 02:07:20 -0400
+Message-ID: <3D2A7DD9.90503@snapgear.com>
+Date: Tue, 09 Jul 2002 16:08:25 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+Subject: Announce: 2.5.25uc0 patch for mmu-less CPU's
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1026193021.1076.29.camel@highflyer>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Jul 2002 07:38:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-since 2.4.17 I have got a problem: trying to switch from graphical
-screen to console or to stop my X-session my box freezes. The screen
-gets black and nothing more happens. Pressing any keys or trying to
-switch to another console the box does not do anything. Only o cold
-restart brings the box up again.
+Hi All,
 
-Hardware is a MSI6126 with a 440bx chipset. The processor is a 400 MHZ
-Celeron on a MS6905 ppga 370 to slot 1 cpu converter. In former times
-there were 256MB RAM in there but I got a lot of segfaults during
-compiling the kernel. So i removed 128MB and now compiling runs fine.
-So I don't think it might be a hardware failure?!
+I am making a concerted effort (probably in vain :-)
+to keep the uClinux (MMU-less support) up to date with
+the 2.5 series kernels.
 
-Problems had be seen very often with kernel 2.4.18, now with 2.4.19-rc1
-not as often as before. That means: it happens maybe 1 or 2 times a
-week. The box is shutted down every day.
+I am keeping patches at:
 
-Are there any hints for solving this problem?
+   http://www.uclinux.org:/pub/uClinux/uClinux-2.5.x/
 
-best regards,
- Michael
--- 
-Windmuehlenweg 22 07907 Schleiz
-mobil: +491628955029
-e-Mail: Michael.Gruner@fh-hof.de
+The most current is linux-2.5.25uc0.patch. It seems
+to work pretty well (at least on the target boards I
+try it on).
+
+I am mainly working on the ColdFire CPU architecture
+support, since that is the hardware I have at hand.
+
+Regards
+Greg
 
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
 

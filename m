@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbUCDRTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 12:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbUCDRTJ
+	id S262041AbUCDRXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 12:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUCDRXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 12:19:09 -0500
-Received: from 18-165-237-24-mvl.nwc.gci.net ([24.237.165.18]:60341 "EHLO
-	nevaeh-linux.org") by vger.kernel.org with ESMTP id S262037AbUCDRTE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 12:19:04 -0500
-Date: Thu, 4 Mar 2004 08:19:04 -0900 (AKST)
-From: Arthur Corliss <corliss@digitalmages.com>
-X-X-Sender: acorliss@bifrost.nevaeh-linux.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: BSD process accounting with high uids
-Message-ID: <Pine.LNX.4.58.0403040808550.17819@bifrost.nevaeh-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Mar 2004 12:23:16 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:1778 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262041AbUCDRWS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 12:22:18 -0500
+Subject: Re: [ANNOUNCE] kpatchup 0.02 kernel patching script
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040303022444.GA3883@waste.org>
+References: <20040303022444.GA3883@waste.org>
+Content-Type: text/plain
+Message-Id: <1078420922.19701.1362.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Mar 2004 09:22:02 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings:
+On Tue, 2004-03-02 at 18:24, Matt Mackall wrote:
+> This is an alpha release for people to experiment with. Feedback and
+> patches encouraged. Grab your copy today at:
 
-Looking at the archives I see that this has been brought up in the past a few
-times, but no one ever replied or resolved the issue (unless I missed
-something).
+First of all, very nice script.
 
-Problem:  UIDs recorded are typed smaller than the 2.4+ default uid_t size.
+But, it doesn't look like it properly handles empty directories.  I
+tried this command, this morning, and it blew up.  I think it's because
+this directory http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/ is
+empty because of last night's 2.6.4-rc2 release.  I don't grok python
+very well but is the "return p[-1]" there just to cause a fault like
+this?  Would it be better if it just returned a "no version of that
+patch right now" message and exited nicely?
 
-Solution:  A two line patch in include/linux/acct.h which casts ac_uid &
-ac_gid as uid_t/gid_t instead of __u16.
+[dave@nighthawk linux-2.6]$ kpatchup-0.02 2.6-bk
+"Traceback (most recent call last):
+  File "/home/dave/bin/kpatchup-0.02", line 283, in ?
+    b = find_ver(args[0])
+  File "/home/dave/bin/kpatchup-0.02", line 240, in find_ver
+    return v[0](os.path.dirname(v[1]), v[2])
+  File "/home/dave/bin/kpatchup-0.02", line 147, in latest_dir
+    return p[-1]
+IndexError: list index out of range
 
-Now, I have to ask, why hasn't this been done already?  If I submit a patch,
-will anyone consider actually applying this?  Or will I have to continue to
-munge that file myself (and glibc's sys/acct.h) in order to get my tools to
-work they're supposed to?
+I think your script, combined with Rusty's latest-kernel-version could
+make me a very happy person.  
 
-The sources for kernel 2.6.3 also still list uid/gid fields as __u16, BTW.
+-- dave
 
-	--Arthur Corliss
-	  Bolverk's Lair -- http://arthur.corlissfamily.org/
-	  Digital Mages -- http://www.digitalmages.com/
-	  "Live Free or Die, the Only Way to Live" -- NH State Motto

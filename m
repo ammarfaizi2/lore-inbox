@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261445AbREOUXs>; Tue, 15 May 2001 16:23:48 -0400
+	id <S261454AbREOU2s>; Tue, 15 May 2001 16:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261440AbREOUXj>; Tue, 15 May 2001 16:23:39 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:50695 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261439AbREOUXc>; Tue, 15 May 2001 16:23:32 -0400
-From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Message-Id: <200105151910.VAA01031@kufel.dom>
-Subject: Re: Kernel 2.4.4 Compilation Error
-To: kufel!att.net.mx!sancherhec@green.mif.pg.gda.pl (Hector Sanchez
-	Hernandez)
-Date: Tue, 15 May 2001 21:10:42 +0200 (CEST)
-Cc: kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
-In-Reply-To: <3B016488.B709D322@att.net.mx> from "Hector Sanchez Hernandez" at maj 15, 2001 12:16:56 
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S261452AbREOU2a>; Tue, 15 May 2001 16:28:30 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25363 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261451AbREOU1Q>; Tue, 15 May 2001 16:27:16 -0400
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 15 May 2001 21:23:20 +0100 (BST)
+Cc: jsimmons@transvirtual.com (James Simmons),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        neilb@cse.unsw.edu.au (Neil Brown), hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        viro@math.psu.edu
+In-Reply-To: <Pine.LNX.4.21.0105151031320.2112-100000@penguin.transmeta.com> from "Linus Torvalds" at May 15, 2001 10:43:18 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14zlLk-0002yl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I'd tried to make my 2.4.4 kernel. But after I made the "make bzImage"
-> the following error arose:
-> 
-> gcc -D__KERNEL__ -I/Usr/src/linux/2.2.4/include -Wall
-> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
-> -march=i686 -c -o i387.o i387.c
-> {standard input}: Assambler messages:
-> {standard input}:30 Error: no such 386 instruction: `ldmxcsr'
+> And my opinion is that the "hot-plugged" approach works for devices even
+> if they are soldered down - the "plugging" event just always happens
+> before the OS is booted, and people just don't unplug it. So we might as
 
-You need newer binutils.
+This is true on one condition. That you can ask the device what it is,
+what it does and to an extent where it is and how you get to it.
 
-Andrzej
+Right now thyats much of what majors is about -but I still believe this is 
+2.5 stuff
 
+> show up in /dev, and everywhere else it is needed. And the logical
+> extension of such a setup is to consider built-in devices to be plugged in
+> at bootup.
+
+Agreed
+
+> [ The biggest silliness is this "let's try to make the disks appear in the
+>   same order that the BIOS probes them". Now THAT is really stupid, and it
+>   goes on a lot more than I'd ever like to see. ]
+
+RIght - Lilo needs to know but nobody else should except when they need to ask
+eg to find which disk failed

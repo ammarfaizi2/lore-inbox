@@ -1,73 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbUCHKnX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 05:43:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbUCHKnX
+	id S262455AbUCHKtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 05:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbUCHKtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 05:43:23 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:46474 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262458AbUCHKnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 05:43:17 -0500
-Date: Mon, 08 Mar 2004 19:46:45 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: RE: [PATCH] fix PCI interrupt setting for ia64
-In-reply-to: <20040308.182552.55855095.t-kochi@bq.jp.nec.com>
-To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, benjamin.liu@intel.com
-Cc: iod00d@hp.com, kaneshige.kenji@jp.fujitsu.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Message-id: <MDEEKOKJPMPMKGHIFAMAEEDEDGAA.kaneshige.kenji@jp.fujitsu.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Content-type: text/plain;	charset="us-ascii"
-Content-transfer-encoding: 7bit
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Mon, 8 Mar 2004 05:49:32 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:61929 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262455AbUCHKta
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 05:49:30 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Date: Mon, 8 Mar 2004 16:19:16 +0530
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, george@mvista.com,
+       pavel@ucw.cz
+References: <200403081504.30840.amitkale@emsyssoft.com> <200403081545.09916.amitkale@emsyssoft.com> <20040308022602.766be828.akpm@osdl.org>
+In-Reply-To: <20040308022602.766be828.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403081619.16771.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 08 Mar 2004 3:56 pm, Andrew Morton wrote:
+> "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > Here are features that are present only in full kgdb:
+> >  1. Thread support  (aka info threads)
+>
+> argh, disaster.  I discussed this with Tom a week or so ago when it looked
+> like this it was being chopped out and I recall being told that the
+> discussion was referring to something else.
+>
+> Ho-hum, sorry.  Can we please put this back in?
 
-> Kaneshige-san, could you confirm your changes are compatible
-> with probe_irq_on()?
+Err., well this is one of the particularly dirty parts of kgdb. That's why 
+it's been kept away. It takes care of correct thread backtraces in some rare 
+cases.
 
-OK. I'll confirm.
+If you consider it an absolutely must, we can do something so that the dirty 
+part is kept away and info threads almost always works.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Takayoshi Kochi
-> Sent: Monday, March 08, 2004 6:26 PM
-> To: benjamin.liu@intel.com
-> Cc: iod00d@hp.com; kaneshige.kenji@jp.fujitsu.com;
-> linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] fix PCI interrupt setting for ia64
 >
+> >  2. console messages through gdb
 >
-> Hi,
+> hm, it was occasionally handy.  Is there a lot of code involved?
+
+Nope. Code is already in, it's just a matter of adding a config option.
+
 >
-> From: "Liu, Benjamin" <benjamin.liu@intel.com>
-> Subject: RE: [PATCH] fix PCI interrupt setting for ia64
-> Date: Mon, 8 Mar 2004 15:44:16 +0800
+> >  3. Automatic loading of modules in gdb
 >
-> > ISA is legacy to IA64. The configuration script of 2.4.23 has
-> > CONFIG_ISA off explicitly for IA64, 2.6.2 doesn't have this
-> > option for IA64. I just wonder whether the legacy probing
-> > method still exists on IA64.
+> OK.  I think.  What does this feature actually do?
+
+This feature lets gdb hook onto a kernel function to detect loading and 
+unloading of modules and preserves module section information for later use 
+by gdb. At present this is broken for 2.6 kernels. I am working on this.
+
 >
-> I think that's still true for IDE / serial port drivers.
-> Kaneshige-san, could you confirm your changes are compatible
-> with probe_irq_on()?
+> >  4. Support for x86_64
+> >  5. Support for powerpc
 >
-> Itanium-generation machines (such as BigSur) depends on
-> probe_irq_on() for finding serial port IRQ.
+> These are planned, I assume?
+
+Yes. As soon as i386 goes in. x86_64 is already very clean. There was another 
+opinion about whether x86_64 should be the first one to go in!
+
+ppc might need some work.
+
+> >  6. kgdb over ethernet [This isn't ready in the full version as well at
+> > this point of time]
 >
-> ---
-> Takayoshi Kochi <t-kochi@bq.jp.nec.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> OK.  But the version in -mm and -mpm works OK, does it not?  Is there some
+> difference in implementation which causes it to be broken in your tree?
+
+There are some differences. The one in my tree also apparently works to some 
+extent. It's being worked on.
+
+-Amit
 

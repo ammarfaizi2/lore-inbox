@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264424AbTF0Ono (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 10:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTF0Onn
+	id S264407AbTF0OnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTF0OnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 10:43:43 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:22668 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264424AbTF0Oni
+	Fri, 27 Jun 2003 10:43:22 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:64687 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264407AbTF0OnT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 10:43:38 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 27 Jun 2003 07:56:16 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-In-Reply-To: <21740000.1056724453@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com>
-References: <20030626.223002.21926109.davem@redhat.com><18330000.1056692768@[10.10.2.4]>
- <20030626.224739.88478624.davem@redhat.com> <21740000.1056724453@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Jun 2003 10:43:19 -0400
+Date: Fri, 27 Jun 2003 07:57:27 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+Message-ID: <20030627145727.GB18676@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030621135812.GE14404@work.bitmover.com> <20030621190944.GA13396@work.bitmover.com> <20030622002614.GA16225@work.bitmover.com> <20030623053713.GA6715@work.bitmover.com> <20030625013302.GB2525@work.bitmover.com> <20030626231752.E5633@ucw.cz> <20030626212102.GA19056@work.bitmover.com> <1056711200.3174.23.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1056711200.3174.23.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jun 2003, Martin J. Bligh wrote:
+On Fri, Jun 27, 2003 at 11:53:20AM +0100, Alan Cox wrote:
+> On Iau, 2003-06-26 at 22:21, Larry McVoy wrote:
+> > > Eek. Serverworks IDE. I don't think they ever got that bit of their
+> > > chipset right.
+> > 
+> > Hmm.  I could shove in a promise card and put at least the repos on that,
+> > would that be better?
+> 
+> Serverworks OSB4 IDE had a few problems that we now deal with.
+> Serverworks CSB5/CSB6 (Ie anything vaguely current) is great and hasn't
+> had many problems at all.
+> 
+> There are some small updates from Duncan in the 2.4.21 tree but nothing
+> "wrong" has been fixed for quite some time.
 
-> No. If you don't want to participate, that's fine, but I'm not going
-> to prevent other people from doing so.
->
-> If you want me to forward the bugs to any given list, I'll do that.
-> If you want to just tell people to file them to a list, that's fine too.
-> But I won't destroy the generic model just because you don't like it.
-
-A bug tracking system stick you on a bug and makes all this to look like
-real work, that's why maybe David does not like it :) Kidding ;) The good
-of a bug tracking system against the mailing list is that bugs do survive
-in a bug tracking system, while they usually vanish for normal underlooked
-posts. Many ppl posting bugs are not members of the mailing list and they
-are not usually setting up a repost timer if the bug does not get
-answered. I believe that it should be both ways. Posts on the mailing list
-helps main maintainers to lower the load by allowing others to take on
-bugs, while the bug tracking helps unresolved bugs to stick.
-
-
-
-- Davide
-
+Is there a PCI EIDE card that you could suggest that would be ultra stable?
+Or should I just toss this box and go build up another one?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

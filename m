@@ -1,102 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277296AbRJEBeL>; Thu, 4 Oct 2001 21:34:11 -0400
+	id <S277288AbRJEBfN>; Thu, 4 Oct 2001 21:35:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277297AbRJEBeC>; Thu, 4 Oct 2001 21:34:02 -0400
-Received: from dot.cygnus.com ([205.180.230.224]:5124 "EHLO dot.cygnus.com")
-	by vger.kernel.org with ESMTP id <S277296AbRJEBdt>;
-	Thu, 4 Oct 2001 21:33:49 -0400
-Date: Thu, 4 Oct 2001 18:34:15 -0700
-From: Richard Henderson <rth@dot.cygnus.com>
-To: torvalds@transmeta.com, alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: alpha 2.4.11-pre3: delay disabling early boot messages
-Message-ID: <20011004183415.A6357@dot.cygnus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S277298AbRJEBey>; Thu, 4 Oct 2001 21:34:54 -0400
+Received: from femail7.sdc1.sfba.home.com ([24.0.95.87]:61871 "EHLO
+	femail7.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S277297AbRJEBeb>; Thu, 4 Oct 2001 21:34:31 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+Organization: Boundaries Unlimited
+To: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>
+Subject: Re: Ethernet Error Correction
+Date: Thu, 4 Oct 2001 17:34:17 -0400
+X-Mailer: KMail [version 1.2]
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010925223437.A21831@atrey.karlin.mff.cuni.cz> <20011002114801.A19015@atrey.karlin.mff.cuni.cz> <20011002115531.A7176@suse.cz>
+In-Reply-To: <20011002115531.A7176@suse.cz>
+MIME-Version: 1.0
+Message-Id: <01100417341701.02393@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Jay Estabrook:
+On Tuesday 02 October 2001 05:55, Vojtech Pavlik wrote:
+> On Tue, Oct 02, 2001 at 11:48:01AM +0200, Pavel Machek wrote:
+>
+> Well, if you checked all the cables, you'd most likely find the device
+> capable of sending the bad CRC frames. Also, if you use a switch (not ha
+> hub or coax), it won't work at all.
 
-Alpha has this nice way to output console messages via SRM callbacks
-which we can enable immediately on bootup, and so get debugging output
-before console_init.  This patch delays when we turn that off, and so
-narrows the window in which we can't get debug output.
+You can cause a lot of switches to degrate to HUB mode by overloading their 
+arp cache mac address table thingy.  (Fun for packet sniffing when you've got 
+a card that can change its mac address in software.  Send packets originating 
+from a few thousand different mac IDs and watch the switch throw up its hands 
+and go "AAAAAH!".  Sniffing the right init sequence for a pppoe connection 
+with nonstandard authentication can be a bit difficult otherwise, with modern 
+hardware... :)
 
+I haven't tried it on a very wide variety of manufacturer's switches, though. 
+ And I dunno how that relates to CRC behavior...
 
-r~
-
-
-diff -rup 2.4.10-dist/arch/alpha/kernel/irq_alpha.c 2.4.10/arch/alpha/kernel/irq_alpha.c
---- 2.4.10-dist/arch/alpha/kernel/irq_alpha.c	Mon Sep 17 13:16:30 2001
-+++ 2.4.10/arch/alpha/kernel/irq_alpha.c	Thu Oct  4 16:05:16 2001
-@@ -108,11 +108,6 @@ init_IRQ(void)
- 	wrent(entInt, 0);
- 
- 	alpha_mv.init_irq();
--
--	/* If we had wanted SRM console printk echoing early, undo it now. */
--	if (alpha_using_srm && srmcons_output) {
--		unregister_srm_console();
--	}
- }
- 
- /*
-diff -rup 2.4.10-dist/arch/alpha/kernel/setup.c 2.4.10/arch/alpha/kernel/setup.c
---- 2.4.10-dist/arch/alpha/kernel/setup.c	Sun Aug 12 10:38:47 2001
-+++ 2.4.10/arch/alpha/kernel/setup.c	Thu Oct  4 16:05:16 2001
-@@ -63,12 +63,20 @@ unsigned long srm_hae;
- /* Which processor we booted from.  */
- int boot_cpuid;
- 
--/* Using SRM callbacks for initial console output. This works from
--   setup_arch() time through the end of init_IRQ(), as those places
--   are under our control.
--
--   By default, OFF; set it with a bootcommand arg of "srmcons".
--*/
-+/*
-+ * Using SRM callbacks for initial console output. This works from
-+ * setup_arch() time through the end of time_init(), as those places
-+ * are under our (Alpha) control.
-+
-+ * "srmcons" specified in the boot command arguments allows us to
-+ * see kernel messages during the period of time before the true
-+ * console device is "registered" during console_init(). As of this
-+ * version (2.4.10), time_init() is the last Alpha-specific code
-+ * called before console_init(), so we put "unregister" code
-+ * there to prevent schizophrenic console behavior later... ;-}
-+ *
-+ * By default, OFF; set it with a bootcommand arg of "srmcons".
-+ */
- int srmcons_output = 0;
- 
- /* Enforce a memory size limit; useful for testing. By default, none. */
-diff -rup 2.4.10-dist/arch/alpha/kernel/time.c 2.4.10/arch/alpha/kernel/time.c
---- 2.4.10-dist/arch/alpha/kernel/time.c	Sun Aug 12 10:38:48 2001
-+++ 2.4.10/arch/alpha/kernel/time.c	Thu Oct  4 16:05:16 2001
-@@ -332,6 +333,21 @@ time_init(void)
- 	alpha_mv.init_rtc();
- 
- 	do_get_fast_time = do_gettimeofday;
-+
-+	/*
-+	 * If we had wanted SRM console printk echoing early, undo it now.
-+	 *
-+	 * "srmcons" specified in the boot command arguments allows us to
-+	 * see kernel messages during the period of time before the true
-+	 * console device is "registered" during console_init(). As of this
-+	 * version (2.4.10), time_init() is the last Alpha-specific code
-+	 * called before console_init(), so we put this "unregister" code
-+	 * here to prevent schizophrenic console behavior later... ;-}
-+	 */
-+	if (alpha_using_srm && srmcons_output) {
-+		unregister_srm_console();
-+		srmcons_output = 0;
-+	}
- }
- 
- /*
+Rob

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263927AbRGIRgk>; Mon, 9 Jul 2001 13:36:40 -0400
+	id <S264329AbRGIRpL>; Mon, 9 Jul 2001 13:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263960AbRGIRgU>; Mon, 9 Jul 2001 13:36:20 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:5868 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S263927AbRGIRgJ>; Mon, 9 Jul 2001 13:36:09 -0400
-Date: Mon, 9 Jul 2001 18:37:18 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <andrewm@uow.edu.au>, Abraham vd Merwe <abraham@2d3d.co.za>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: msync() bug
-In-Reply-To: <20010709170835.J1594@athlon.random>
-Message-ID: <Pine.LNX.4.21.0107091830090.1429-100000@localhost.localdomain>
+	id <S264345AbRGIRpB>; Mon, 9 Jul 2001 13:45:01 -0400
+Received: from pop.gmx.net ([194.221.183.20]:7117 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S264329AbRGIRov>;
+	Mon, 9 Jul 2001 13:44:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas =?iso-8859-1?q?M=F6ller?= <andreas-moeller@gmx.net>
+To: Felix Braun <Felix.Braun@McGill.ca>
+Subject: Re: Random lockups with kernels 2.4.6-pre8+
+Date: Mon, 9 Jul 2001 19:44:47 +0200
+X-Mailer: KMail [version 1.2.9]
+In-Reply-To: <Pine.LNX.4.33L2.0107080056170.833-100000@eressea.in-berlin.de>
+In-Reply-To: <Pine.LNX.4.33L2.0107080056170.833-100000@eressea.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20010709174456Z264329-720+528@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jul 2001, Andrea Arcangeli wrote:
-> On Tue, Jul 10, 2001 at 12:43:12AM +1000, Andrew Morton wrote:
-> > 
-> > Question:  What happens if a program mmap's a part of /dev/mem
-> > which passes all of these tests?   Couldn't it then pick some
-> 
-> that cannot happen, remap_pte_range only maps invalid pages or reserved
-> pages.
-> 
-> > arbitrary member of mem_map[] which may or may not have
-> > a non-zero ->mapping?
+Am Sonntag, 8. Juli 2001 07:01 schrieb Felix Braun:
+> Hi there,
+>
+> just in case anybody cares: the lockup behaviour that I observed starting
+> mozilla 0.9.2 on kernels 2.4.6-pre8 and 2.4.6-final does not occur on
+> 2.4.6-ac2 (haven't tried with 2.4.7-preX). Appearently, I was the only one
+> experiencing that problem anyway. Ah well, I won't complain now that
+> evertything is working.
 
-Anyone know why mmap() of /dev/mem behaves in this way - solves the
-problem Andrew raises, but surely that could be solved in a better way?
-Seems strange that mmap() cannot give you what read() and write() can.
+I also experienced some lockups under 2.4.6-pre, there was an OOPS under 
+2.4.6-pre3 and some other lockups under newer 2.4.6-pres but without any 
+error message. Each time I was running Mozilla 0.9.1 (respectively Galeon 
+0.11.0). Fortunately, there were no more lockups since 2.4.7-pre (I didn't 
+test 2.4.6 abundant).
 
-Hugh
+>
+> Cheers Felix
+>
 
+	Andreas
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

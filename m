@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271424AbTGQN1A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 09:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271425AbTGQN1A
+	id S271425AbTGQNfx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 09:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271426AbTGQNfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 09:27:00 -0400
-Received: from frink.nuigalway.ie ([140.203.56.30]:64951 "EHLO
-	frink.nuigalway.ie") by vger.kernel.org with ESMTP id S271424AbTGQN04
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 09:26:56 -0400
-From: Rory Browne <robro@compsoc.nuigalway.ie>
-Date: Thu, 17 Jul 2003 14:39:24 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: BK Licence: Protocols and Research
-Message-ID: <20030717133924.GA25455@zion.nuigalway.ie>
-References: <20030717120505.GA22304@zion.nuigalway.ie> <20030717123514.GP833@suse.de>
-Mime-Version: 1.0
+	Thu, 17 Jul 2003 09:35:53 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:7133 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S271425AbTGQNfw (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Thu, 17 Jul 2003 09:35:52 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030717123514.GP833@suse.de>
-User-Agent: Mutt/1.3.28i
-X-URL: http://student.nuigalway.ie
+Content-Transfer-Encoding: 7bit
+Message-ID: <16150.43444.734717.485697@laputa.namesys.com>
+Date: Thu, 17 Jul 2003 17:50:44 +0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: [PATCH] 1/5 VM changes: zone-pressure.patch
+In-Reply-To: <20030709034251.6902c488.akpm@osdl.org>
+References: <16139.54887.932511.717315@laputa.namesys.com>
+	<20030709031203.3971d9b4.akpm@osdl.org>
+	<16139.60502.110693.175421@laputa.namesys.com>
+	<20030709034251.6902c488.akpm@osdl.org>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Sean Neakums <sneakums@zork.net> [030717 13:12]:
-> [snip]
->
-> I suggest you hire an attorney.
+Andrew Morton writes:
+ > Nikita Danilov <Nikita@Namesys.COM> wrote:
+ > >
+ > >  > OK, fixes a bug.
+ > > 
+ > >  What bug?
+ > 
+ > Failing to consider mapped pages on the active list until the scanning
+ > priority gets large.
+ > 
+ > I ran up your five patches on a 256MB box, running `qsbench -m 350'.  It got
+ > all slow then the machine seized up.   I'll poke at it some.
+ > 
 
-That costs lotsa money. Money I can't really afford to pay.
+My understanding of this is following:
 
+1. kswapd/balance_pgdat runs through all priorities, but fails to rise
+zone->free_pages above zone->pages_min. So it exet. Which is strange.
 
-* Jens Axboe <axboe@suse.de> [030717 13:32]:
-> Then keep it away from lkml? Why does everybody think that BK
-> discussions belong here?! News flash: they don't!
->
-I detect a note of anger in that post. Anger leads to hate, and hate
-leads to the dark side. We'd hate to see linux developers lost to the
-dark side. Besides I'm usually fairly sceptical about what I hear on the
-news.
+2. nobody is going to wake it up, because all memory allocators are
+looping indefinitely in that newly introduced do_retry loop inside
+__alloc_pages.
 
-* Alan Cox:
-> > Would previous activity in the area of developing a product which
-> > contains substantially similary features to Bitkeeper preclude users
-> > from
-> > using the Free Bitkeeper software?
+I think either wakeup_kswapd() should be called in __alloc_pages()
+before goto rebalance, or kswapd should loop until it restores all zones
+to the balance (actually, comment before balance_pgdat() says it does),
+or both.
 
-> Hire a lawyer or talk to the company selling it. This list is definitely
-> the wrong place to ask about it. 
-
--> Hire a lawyer: 
-        See reply to Sean Neakums above.
-
--> Talk to Company selling it:
-        Reply would almost certainly be extremely biased.
-
--> Wrong Place:
-        Okay maybe for that small part of the message, but that small
-        part was added for, and only for completeness, but I thought I
-        dealt with the possibility of this being the wrong place at the
-        end of my last post. Having that said thanks to you, and Sean
-        for being polite in your reply.
-
-        Talking about this to the company selling bitkeeper would almost
-        certainly yield biased feedback, and here is where many people
-        have cross-examined the licence from top to bottom, and who've
-        investigated every little nook and crannie of the Licence(and please
-        don't bother telling me you aren't lawyers).
-
-Regards
-
-Rory
+Nikita.

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTFUWTT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 18:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbTFUWTT
+	id S262413AbTFUWbk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 18:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbTFUWbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 18:19:19 -0400
-Received: from modemcable029.129-200-24.mtl.mc.videotron.ca ([24.200.129.29]:4749
-	"EHLO mainframe1.boofer.ca") by vger.kernel.org with ESMTP
-	id S262319AbTFUWTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 18:19:18 -0400
-Message-ID: <3EF4DCEF.7080708@yahoo.ca>
-Date: Sat, 21 Jun 2003 18:32:15 -0400
-From: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030612
-X-Accept-Language: en-ca, fr-ca
+	Sat, 21 Jun 2003 18:31:40 -0400
+Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:27640 "EHLO
+	imf22aec.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262413AbTFUWbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 18:31:39 -0400
+From: "J.C. Wren" <jcwren@jcwren.com>
+Reply-To: jcwren@jcwren.com
+To: linux-kernel@vger.kernel.org
+Subject: Kernel facilities for tracking file accesses
+Date: Sat, 21 Jun 2003 18:45:41 -0400
+User-Agent: KMail/1.5.2
+References: <20030621204615.GA32341@peter.cfs> <3EF4DCEF.7080708@yahoo.ca>
+In-Reply-To: <3EF4DCEF.7080708@yahoo.ca>
 MIME-Version: 1.0
-To: Peter Braam <braam@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.72 as VMware guest doesn't boot
-References: <20030621204615.GA32341@peter.cfs>
-In-Reply-To: <20030621204615.GA32341@peter.cfs>
-X-Enigmail-Version: 0.74.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306211845.41702.jcwren@jcwren.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you compile the VGA Console in the kernel ?
+	Does any facility exist in the 2.4 and up kernels for logging *every* open, 
+read, write, seek, close, etc call?  I'm trying to debug a problem in a 
+package I don't have source to, and I'm trying to prove that it's not 
+applying a configuration path option to files it's opening.  
 
-Joe
+	Ideally, I'd like a kernel module I can load that I can apply a regexp or 
+limited pattern matchng to, and will log a selected group of operations as 
+defined by a bitmask or other configuration option.  I would prefer something 
+that monitors the entire system, rather than trying to sandbox this 
+particular program (it runs as a daemon).
+
+	Do the kernels have facilties for such tracking?
+
+	--John
 

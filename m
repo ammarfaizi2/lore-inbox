@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284813AbRLHUnk>; Sat, 8 Dec 2001 15:43:40 -0500
+	id <S285165AbRLHUmu>; Sat, 8 Dec 2001 15:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285174AbRLHUnb>; Sat, 8 Dec 2001 15:43:31 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:35566 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S284813AbRLHUnU>;
-	Sat, 8 Dec 2001 15:43:20 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 8 Dec 2001 20:43:17 GMT
-Message-Id: <UTC200112082043.UAA254046.aeb@cwi.nl>
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: Would the father of init_mem_lth please stand up
-Cc: linux-kernel@vger.kernel.org
+	id <S284813AbRLHUml>; Sat, 8 Dec 2001 15:42:41 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:52477 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S285165AbRLHUm1>;
+	Sat, 8 Dec 2001 15:42:27 -0500
+Date: Sat, 8 Dec 2001 15:42:18 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix for idiocy in mount_root cleanups.
+In-Reply-To: <Pine.LNX.4.33.0112080957530.16918-100000@athlon.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0112081514540.7302-100000@binet.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-    > Really someone needs slapping across. What kind of code is that
-    > (in 2.5.1-pre6):
 
-    Whoever merged that crap also wants a good kicking. First we have the joke
-    ps/2 merge, now this. Is Linus trying to force someone to take over or is
-    small children combined with a pending christmas really the doom that some
-    folks claim 8)
+On Sat, 8 Dec 2001, Linus Torvalds wrote:
 
-Alan, Alan,
+> "errno" is one of those few _really_ bad stupidities in UNIX. Linux has
+> fixed it, and doesn't use it internally, and never shall. Too bad that
+> user space has to fix up the _correct_ error code returning that the
+> kernel does, and turn it into the "errno" stupidity for backwards
+> compatibility.
+> 
+> (If you care why "errno" is stupid, just think about threading and
+> performance)
 
-Please calm down. Linus is doing a good job, and whenever things
-go slightly wrong someone comes along to point out the flaw.
-Moreover, I can assure you that pending christmas and small children
-really is a very nice time.
-And then, my beautiful code is not at all crap that should not
-have been applied. It fixes a real bug. But there was another bug
-there that it left, namely that the freed pointers should have been
-zeroed, so that nobody can come and use them with random results.
-If nobody else does it, I'll send also that small fix, but maybe
-not today.
+Oh, I know why errno is stupid and normally my reaction would be the
+same.  However, in this case I would prefer to add
 
-Andries
+static int errno;
+
+to do_mounts.c and be done with that.  Reasons:
+
+a) eventually it's going to userland, at which point the issue becomes moot
+(we won't share memory with anybody and don't do signal handlers).
+
+b) within this file we have at most two threads of execution (do_linuxrc()
+and the rest).  mount_root() is called only while do_linuxrc() is either
+not started yet or had already exited.  IOW, even in kernel it's safe.
+
+c) when it's in userland we will be really better off with _syscall5 for
+mount() - we can rewrite it by hands to return the value in sane manner,
+but that means bringing a _lot_ of arch-specific inline assmebler into
+the file.  Which we might have to do anyway, OTOH...
+
+Dunno.  At this stage I'd prefer the patch I've posted + static int errno;
+in do_mounts.c.  Alternatively, we can replace mount() with sys_mount() in
+that place (everything else simply doesn't give a damn for errno) and deal
+with that when we move code to userland.
+

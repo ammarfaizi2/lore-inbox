@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbUL0QBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbUL0QBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbUL0QBp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 11:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUL0QBp
+	id S261918AbUL0QBx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 11:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUL0QBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 11:01:45 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:21714 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261916AbUL0Pyx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 10:54:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=NY0/XZtqm39JBtnLC2aAgRhlH7sBHjl2djkTXOcXypgcLrcObKT4W/JWtGeJVbiCquGW8xWC9uw4wIJ73fk1V7dnhPpQYz3yYlNr4SzydnWkXG71GoPoNkCji0G9hDpMetxIjoxqkEzsqngdzLF+NjDyg82npM3fzaHfHUI+mcU=
-Message-ID: <58cb370e04122707544be6d600@mail.gmail.com>
-Date: Mon, 27 Dec 2004 16:54:50 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Andreas Steinmetz <ast@domdv.de>
-Subject: Re: Linux 2.6.10-ac1
-Cc: Ross Biro <ross.biro@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41D02EEC.4090000@domdv.de>
+	Mon, 27 Dec 2004 11:01:52 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:47268 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261920AbUL0P5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 10:57:37 -0500
+Subject: [BK PATCH] MCA updates for 2.6.10
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 27 Dec 2004 09:57:14 -0600
+Message-Id: <1104163035.5295.15.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-References: <1104103881.16545.2.camel@localhost.localdomain>
-	 <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de>
-	 <58cb370e041226174019e75e23@mail.gmail.com>
-	 <8783be660412270645717b89d1@mail.gmail.com>
-	 <58cb370e0412270738fbc045c@mail.gmail.com> <41D02EEC.4090000@domdv.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Dec 2004 16:49:00 +0100, Andreas Steinmetz <ast@domdv.de> wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > Workaround it if it is possible.  If this is really a unfixable hardware problem
-> > (hard to believe - other OS-es would be also bitten by the issue) shouldn't it
-> > be workaround differently anyway by something like "ide=serialize_all" (which
-> > is much saner from IDE POV than "idex=serialize") ?
-> 
-> Bad. This would neatly kill my raid 5 setup performance wise. Call this
-> idea a big step sideways. Doing a ide2=serialize leaves all three disks
-> running without serialization unless the dvd-rw is used. Just to make it
-> clear:
-> ide0 -> onboard, 1 master (disk)
-> ide1 -> onboard, 1 master (disk)
-> ide2/3 -> pci, 2 master (disk,dvd-rw)
-> Your idea would serialize all ide accesses which would slow down all
-> disks not affected by the problem requiring serialization.
+This is one clean up and one disentangling of the MCA_bus variable
+(which touches quite a lot of files since originally MCA_bus had to be
+defined in processor.h).
 
-Ah, so the problem only affects native PCI IRQs.
-Is it possible that it is a buggy IDE host driver not a generic IDE problem?
+The patch is available from:
+
+bk://linux-voyager.bkbits.net/mca-2.6
+
+The shortlog is:
+
+Adrian Bunk:
+  o i386 mca.c: small cleanups
+
+Matthew Wilcox:
+  o Move MCA_bus to linux/mca.h
+
+And the diffstat:
+
+ arch/i386/kernel/i386_ksyms.c     |    1 -
+ arch/i386/kernel/mca.c            |    7 +++++--
+ arch/i386/kernel/setup.c          |   13 +++++++++++--
+ arch/i386/kernel/time.c           |    5 ++---
+ drivers/serial/8250.c             |    3 +--
+ include/asm-alpha/processor.h     |    6 ------
+ include/asm-arm/processor.h       |    3 ---
+ include/asm-arm26/processor.h     |    3 ---
+ include/asm-h8300/processor.h     |    5 -----
+ include/asm-i386/mca.h            |    3 ---
+ include/asm-i386/processor.h      |    5 -----
+ include/asm-m68knommu/processor.h |    5 -----
+ include/asm-mips/processor.h      |    6 ------
+ include/asm-parisc/processor.h    |    3 ---
+ include/asm-ppc/processor.h       |    6 ------
+ include/asm-ppc64/processor.h     |    6 ------
+ include/asm-sh/processor.h        |    6 ------
+ include/asm-sh64/processor.h      |    6 ------
+ include/asm-sparc/processor.h     |    6 ------
+ include/asm-sparc64/processor.h   |    4 ----
+ include/asm-v850/processor.h      |    7 -------
+ include/asm-x86_64/processor.h    |    6 ------
+ include/linux/mca.h               |   14 +++-----------
+ 23 files changed, 22 insertions(+), 107 deletions(-)
+
+James
+
+

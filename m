@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274219AbRISWJK>; Wed, 19 Sep 2001 18:09:10 -0400
+	id <S274214AbRISWKu>; Wed, 19 Sep 2001 18:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274214AbRISWJE>; Wed, 19 Sep 2001 18:09:04 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:54795 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274215AbRISWIw>;
-	Wed, 19 Sep 2001 18:08:52 -0400
-Message-ID: <XFMail.20010919151147.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
+	id <S274218AbRISWKk>; Wed, 19 Sep 2001 18:10:40 -0400
+Received: from ns.caldera.de ([212.34.180.1]:40646 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S274214AbRISWKc>;
+	Wed, 19 Sep 2001 18:10:32 -0400
+Date: Thu, 20 Sep 2001 00:10:48 +0200
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Peter Wong <wpeter@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Regarding Jens' Zero-Bounce Highmem I/O Patch
+Message-ID: <20010920001048.A11073@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch>, Peter Wong <wpeter@us.ibm.com>,
+	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+In-Reply-To: <OF2D7B8881.082D3FA6-ON85256ACC.0075C7C8@raleigh.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <3BA912EA.F29B5AD9@distributopia.com>
-Date: Wed, 19 Sep 2001 15:11:47 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: "Christopher K. St. John" <cks@distributopia.com>
-Subject: Re: [PATCH] /dev/epoll update ...
-Cc: Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OF2D7B8881.082D3FA6-ON85256ACC.0075C7C8@raleigh.ibm.com>; from wpeter@us.ibm.com on Wed, Sep 19, 2001 at 05:04:59PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 19-Sep-2001 Christopher K. St. John wrote:
-> Davide Libenzi wrote:
->> 
->> >     - check new_socket_fd for readable, writable, and
->> >       error. if any true, then add new event to
->> >       event queue, as if the state had changed.
->> 
->> No it does't check. It's not needed for how it works.
->> 
+On Wed, Sep 19, 2001 at 05:04:59PM -0500, Peter Wong wrote:
+> In order to use Jens' zero-bounce highmem I/O patch against 2.4.6,
+> a small modification for the patch is needed. Simply replace
+> GFP_BUFFER by GFP_NOIO in block-highmem-all-5.gz, which can be obtained
+> at http://www.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.6-pre1/.
 > 
->  Yes, I see that it currently works that way. I'm
-> suggesting that it's a needlessly awkward way to work.
-> It also results in thousands of spurious syscalls a
-> second as servers are forced to double check there
-> isn't i/o to be done.
+> However, there is another problem. For both 2.4.5 and 2.4.6 with
+> Jens' patches, if the kernels are built with 4GB highmem, they
+> boot without problems. But if the kernels are built with 64GB
+> highmem, the kernels hang right after uncompressing Linux. Has
+> anyone seen this problem?
 
-Again :
+block-highmem-all-5 is _very_ _very_ old.
+Please upgrade to a recent kernel and patch and report again.
 
-1)      select()/poll();
-2)      recv()/send();
+I had a system with PAE enabled and 2.4.9ac + some hacked block-highmem
+patch running very well here.  (Probably it still runns :))
 
-vs :
+	Christoph
 
-1)      if (recv()/send() == FAIL)
-2)              ioctl(EP_POLL);
-
-
-When there's no data/tx buffer full these will result in 2 syscalls while
-if data is available/tx buffer ok the first method will result in 2 syscalls
-while the second will never call the ioctl(). 
-It looks very linear to me, with select()/poll() you're asking for a state while
-with /dev/epoll you're asking for a state change.
-
-
-
-
-- Davide
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

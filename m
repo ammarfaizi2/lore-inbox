@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVAGRlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVAGRpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVAGRlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:41:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVAGRkU
+	id S261376AbVAGRpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVAGRoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:40:20 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52097 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261370AbVAGRiU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:38:20 -0500
-Date: Fri, 7 Jan 2005 09:38:21 -0800
+	Fri, 7 Jan 2005 12:44:05 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:50665 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261365AbVAGRn0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 12:43:26 -0500
+Date: Fri, 7 Jan 2005 09:43:29 -0800
 From: Greg KH <greg@kroah.com>
-To: Ikke <ikke.lkml@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kobject_uevent
-Message-ID: <20050107173821.GA15417@kroah.com>
-References: <297f4e01050107065060e0b2ad@mail.gmail.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.10] ehci "hc died" on startup (chip bug workaround)
+Message-ID: <20050107174328.GB28878@kroah.com>
+References: <200501051435.42666.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <297f4e01050107065060e0b2ad@mail.gmail.com>
+In-Reply-To: <200501051435.42666.david-b@pacbell.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 03:50:52PM +0100, Ikke wrote:
-> One of the new features of 2.6.10 (well, AFAIK its new) is the
-> kobject_uevent function set.
-> Currently only some places send out events like this, so I was
-> thinking to add some more.
-> 
-> Question is: how can I test this? Is there any userland program that
-> catches these events and prints some information on them to the
-> screen?
+On Wed, Jan 05, 2005 at 02:35:42PM -0800, David Brownell wrote:
+> We seem to have tracked some annoying board-coupled EHCI startup
+> problems to a chip bug, with a simple workaround.  Please merge.
 
-http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/uevent_listen.c
-should be a good place to start.  It's what I used to verify stuff was
-working properly.
+Hm, I get a reject from this:
+drivers/usb/host/ehci-hcd.c 1.153: 1210 lines
+patching file drivers/usb/host/ehci-hcd.c
+Hunk #1 FAILED at 903.
+1 out of 1 hunk FAILED -- saving rejects to file drivers/usb/host/ehci-hcd.c.rej
 
-Good luck,
+What kernel tree is it against?
+
+thanks,
 
 greg k-h

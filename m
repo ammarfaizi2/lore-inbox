@@ -1,91 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275506AbRIZTJc>; Wed, 26 Sep 2001 15:09:32 -0400
+	id <S275504AbRIZTKC>; Wed, 26 Sep 2001 15:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275505AbRIZTJW>; Wed, 26 Sep 2001 15:09:22 -0400
-Received: from grex.cyberspace.org ([216.93.104.34]:47623 "HELO
-	grex.cyberspace.org") by vger.kernel.org with SMTP
-	id <S275510AbRIZTJJ>; Wed, 26 Sep 2001 15:09:09 -0400
-Date: Wed, 26 Sep 2001 15:09:52 -0400 (EDT)
-From: KVK <kvk@cyberspace.org>
-To: linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com, sct@redhat.com
-Subject: [PATCH] Remove ext2_notify_change()
-Message-ID: <Pine.SUN.3.96.1010926145958.8988A-100000@grex.cyberspace.org>
+	id <S275508AbRIZTJx>; Wed, 26 Sep 2001 15:09:53 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:59151 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S275504AbRIZTJl>; Wed, 26 Sep 2001 15:09:41 -0400
+Message-ID: <3BB22807.FE63AD89@lexus.com>
+Date: Wed, 26 Sep 2001 12:09:59 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Pirk <orion@deathcon.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IP aliasing/Virtual IP's in 2.2.19 or 2.4.10
+In-Reply-To: <Pine.LNX.4.21.0109261152370.7017-100000@mail.pirk.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext2_notify_change() is no longer used by anyone. I think it can be 
-safely removed. Patch against 2.4.10 follows.
+Steve Pirk wrote:
 
-Thanks,
--kvk
-PS. I think there is lot of other dead code in ext2. I happened to 
-notice this while going through vmtruncate().
+> This much I have found so far...
+> In /usr/src/linux-2.2.16/.config :
+> CONFIG_IP_MASQUERADE=y
+> CONFIG_IP_MASQUERADE_ICMP=y
+> CONFIG_IP_MASQUERADE_MOD=y
+> CONFIG_IP_MASQUERADE_IPAUTOFW=m
+> CONFIG_IP_MASQUERADE_IPPORTFW=m
+> CONFIG_IP_MASQUERADE_MFW=m
+>
+> In /usr/src/linux-2.2.19/.config
+> no CONFIG_IP_MASQUERADE lines at all....
+>
+> Would it be save to add them to a 2.2.19 or 2.4.10 .config file?
 
---- vanilla/linux/fs/ext2/inode.c	Mon Sep 24 09:04:50 2001
-+++ linux/fs/ext2/inode.c	Wed Sep 26 11:32:25 2001
-@@ -1164,60 +1164,3 @@
- 	return ext2_update_inode (inode, 1);
- }
- 
--int ext2_notify_change(struct dentry *dentry, struct iattr *iattr)
--{
--	struct inode *inode = dentry->d_inode;
--	int		retval;
--	unsigned int	flags;
--	
--	retval = -EPERM;
--	if (iattr->ia_valid & ATTR_ATTR_FLAG &&
--	    ((!(iattr->ia_attr_flags & ATTR_FLAG_APPEND) !=
--	      !(inode->u.ext2_i.i_flags & EXT2_APPEND_FL)) ||
--	     (!(iattr->ia_attr_flags & ATTR_FLAG_IMMUTABLE) !=
--	      !(inode->u.ext2_i.i_flags & EXT2_IMMUTABLE_FL)))) {
--		if (!capable(CAP_LINUX_IMMUTABLE))
--			goto out;
--	} else if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
--		goto out;
--
--	retval = inode_change_ok(inode, iattr);
--	if (retval != 0)
--		goto out;
--
--	inode_setattr(inode, iattr);
--	
--	flags = iattr->ia_attr_flags;
--	if (flags & ATTR_FLAG_SYNCRONOUS) {
--		inode->i_flags |= S_SYNC;
--		inode->u.ext2_i.i_flags |= EXT2_SYNC_FL;
--	} else {
--		inode->i_flags &= ~S_SYNC;
--		inode->u.ext2_i.i_flags &= ~EXT2_SYNC_FL;
--	}
--	if (flags & ATTR_FLAG_NOATIME) {
--		inode->i_flags |= S_NOATIME;
--		inode->u.ext2_i.i_flags |= EXT2_NOATIME_FL;
--	} else {
--		inode->i_flags &= ~S_NOATIME;
--		inode->u.ext2_i.i_flags &= ~EXT2_NOATIME_FL;
--	}
--	if (flags & ATTR_FLAG_APPEND) {
--		inode->i_flags |= S_APPEND;
--		inode->u.ext2_i.i_flags |= EXT2_APPEND_FL;
--	} else {
--		inode->i_flags &= ~S_APPEND;
--		inode->u.ext2_i.i_flags &= ~EXT2_APPEND_FL;
--	}
--	if (flags & ATTR_FLAG_IMMUTABLE) {
--		inode->i_flags |= S_IMMUTABLE;
--		inode->u.ext2_i.i_flags |= EXT2_IMMUTABLE_FL;
--	} else {
--		inode->i_flags &= ~S_IMMUTABLE;
--		inode->u.ext2_i.i_flags &= ~EXT2_IMMUTABLE_FL;
--	}
--	mark_inode_dirty(inode);
--out:
--	return retval;
--}
--
+bad idea -
+
+>
+> Is aliasing/masquerading enabled by default in kernel versions
+> above 2.2.19?
+
+I think it's a default feature in 2.4.x since I don't
+see a config file option for it and it works fine on
+all my boxen -
+
+Let's check the docs:
+
+Ah, here it is - and it matches my experience -
+
+/usr/src/linux/Documentation/networking/alias.txt:
+-----------------------------------------------------------------------------
+IP-Aliasing:
+============
+
+IP-aliases are additional IP-adresses/masks hooked up to a base
+interface by adding a colon and a string when running ifconfig.
+This string is usually numeric, but this is not a must.
+
+IP-Aliases are avail if CONFIG_INET (`standard' IPv4 networking)
+is configured in the kernel.
+
+
+o Alias creation.
+  Alias creation is done by 'magic' interface naming: eg. to create a
+  200.1.1.1 alias for eth0 ...
+
+    # ifconfig eth0:0 200.1.1.1  etc,etc....
+                   ~~ -> request alias #0 creation (if not yet exists) for eth0
+
+    The corresponding route is also set up by this command.
+    Please note: The route always points to the base interface.
+
+
 

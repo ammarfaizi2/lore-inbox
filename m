@@ -1,70 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317327AbSFLDLw>; Tue, 11 Jun 2002 23:11:52 -0400
+	id <S317324AbSFLD3I>; Tue, 11 Jun 2002 23:29:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317329AbSFLDLv>; Tue, 11 Jun 2002 23:11:51 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:45489 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317327AbSFLDLu>; Tue, 11 Jun 2002 23:11:50 -0400
-Date: Wed, 12 Jun 2002 04:11:37 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] swap 4/4 redundant SwapCache checks
-In-Reply-To: <Pine.LNX.4.21.0206120359270.1036-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0206120409060.1036-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317329AbSFLD3H>; Tue, 11 Jun 2002 23:29:07 -0400
+Received: from 04-195.088.popsite.net ([64.24.84.195]:13952 "EHLO perl")
+	by vger.kernel.org with ESMTP id <S317324AbSFLD3G>;
+	Tue, 11 Jun 2002 23:29:06 -0400
+Date: Wed, 12 Jun 2002 03:29:06 +0000
+To: linux-kernel@vger.kernel.org
+Cc: Cengiz Akinli <cengiz@drtalus.aoe.vt.edu>, xsdg@mangalore.zipworld.com.au
+Subject: Re: computer reboots before "Uncompressing Linux..." with 2.5.19-xfs
+Message-ID: <20020612032906.A27982@216.254.117.126>
+In-Reply-To: <20020612002229.A27386@216.254.117.126> <200206120037.g5C0bFd18677@drtalus.aoe.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+From: xsdg <xsdg@openprojects.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PageSwapCache tests whether mapping is &swapper_space, so it's just
-a waste of time for __free_pages_ok, balance_classzone, rw_swap_page
-and rw_swap_page_nolock to check both mapping and PageSwapCache.  And
-__free_pages_ok just did lru_cache_del if PageLRU, so don't recheck it.
+On Tue, Jun 11, 2002 at 08:37:12PM -0400, Cengiz Akinli wrote:
+> In message <20020612002229.A27386@216.254.117.126>, xsdg writes:
+::snip? SNIP!::
+> The reply was:
+> 
+> >I have a feeling that its the empty_8042 routine in arch/i386/boot/setup.S
+> >that's causing you problems.... without a keyboard attached, some
+> >controllers will hang there, sadly. If you feel brave, take a look in
+> >setup.S around lines 598 (where we enable a20) and 783 (the empty_8042
+> >routine itself)  and see if you can get rid of those calls to empty_8042
+> >or otherwise screw around in there so that it doesn't wait forever to
+> >empty the controller's buffers.
+hrm... the box has a keyboard on it...
 
---- 2.4.19-pre10/mm/page_alloc.c	Tue Jun  4 13:54:19 2002
-+++ linux/mm/page_alloc.c	Tue Jun 11 19:02:30 2002
-@@ -88,12 +88,8 @@
- 		BUG();
- 	if (!VALID_PAGE(page))
- 		BUG();
--	if (PageSwapCache(page))
--		BUG();
- 	if (PageLocked(page))
- 		BUG();
--	if (PageLRU(page))
--		BUG();
- 	if (PageActive(page))
- 		BUG();
- 	page->flags &= ~((1<<PG_referenced) | (1<<PG_dirty));
-@@ -280,8 +276,6 @@
- 					if (page->mapping)
- 						BUG();
- 					if (!VALID_PAGE(page))
--						BUG();
--					if (PageSwapCache(page))
- 						BUG();
- 					if (PageLocked(page))
- 						BUG();
---- 2.4.19-pre10/mm/page_io.c	Tue Jun 11 19:02:30 2002
-+++ linux/mm/page_io.c	Tue Jun 11 19:02:30 2002
-@@ -97,8 +97,6 @@
- 		PAGE_BUG(page);
- 	if (!PageSwapCache(page))
- 		PAGE_BUG(page);
--	if (page->mapping != &swapper_space)
--		PAGE_BUG(page);
- 	if (!rw_swap_page_base(rw, entry, page))
- 		UnlockPage(page);
- }
-@@ -113,8 +111,6 @@
- 	struct page *page = virt_to_page(buf);
- 	
- 	if (!PageLocked(page))
--		PAGE_BUG(page);
--	if (PageSwapCache(page))
- 		PAGE_BUG(page);
- 	if (page->mapping)
- 		PAGE_BUG(page);
+> >1) Compile the kernel, optimized for P-MMX, on another box (PII-350 Deschutes)
+> >   using gcc 2.95.4
+> 
+> Have you tried building for a generic i386 target processor?
+Not yet... will try...
 
+> >2) Recompile bzImage
+> >3) Recompile bzImage
+> 
+> Well, if it didn't work the first time....   :)
+> 
+> >4) Remove framebuffer support.  Remove vid mode selection support.  Optimize
+> >   for Pentium-Classic.  Recompile with everything else the same
+> >5) Recompile on target box (gcc 2.95.4 also) with options the same as after #4
+> 
+> I'm inclined to think none of this ha anything to do with it, because
+> the kernel in which all of these items reside is never booting up...
+> 
+> My problem persisted despite my building a buck-naked 2.4.18 kernel.
+> It had no ANYTHING in it (not even module support) and was just 250K.
+> The results were the same.
+> 
+> I'm betting on a problem with the boot loader or bios incompatibility.
+> My machine has a PhoenixBios (4.06 I think-- I'll check tomorrow).
+> What does your machine have?
+Award BIOS (don't know the version offhand)  I'm using grub 0.91-2...
+
+> Regards,
+> Cengiz
+
+	--xsdg
+-- 
+|---------------------------------------------------|
+| It's not the fall that kills you, it's the        |
+|   landing.                                        |
+|---------------------------------------------------|
+| http://xsdg.hypermart.net   xsdg@openprojects.net |
+|---------------------------------------------------|

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132837AbRDQT3u>; Tue, 17 Apr 2001 15:29:50 -0400
+	id <S132839AbRDQTaA>; Tue, 17 Apr 2001 15:30:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132843AbRDQT3n>; Tue, 17 Apr 2001 15:29:43 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:26632 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132835AbRDQT1e>;
-	Tue, 17 Apr 2001 15:27:34 -0400
-Date: Tue, 17 Apr 2001 16:26:59 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
+	id <S132844AbRDQT3u>; Tue, 17 Apr 2001 15:29:50 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:58892 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S132838AbRDQT2Q>; Tue, 17 Apr 2001 15:28:16 -0400
 To: Dave Zarzycki <dave@zarzycki.org>
-Cc: linux-kernel@vger.kernel.org
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Your response is requested
 In-Reply-To: <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org>
-Message-ID: <Pine.LNX.4.21.0104171626260.14442-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+From: Doug McNaught <doug@wireboard.com>
+Date: 17 Apr 2001 15:28:00 -0400
+In-Reply-To: Dave Zarzycki's message of "Tue, 17 Apr 2001 12:18:48 -0700 (PDT)"
+Message-ID: <m3hezn72db.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Apr 2001, Dave Zarzycki wrote:
+Dave Zarzycki <dave@zarzycki.org> writes:
+
 > On Tue, 17 Apr 2001 J.I.@thor.sbay.org wrote:
 >                     ^^^^^^^^^^^^^^^^^^
 > 
 > Arrggg!!! Mumble... grumble... F*cking spammer using my hostname as the
 > from address for sending spam...
 
-Funny, I saw a  "From: J.I.@conectiva.com.br" ...
+Not true.  The From: address was simply "J.I."; your mailhost tacked
+on your local domain since it was unqualified.
 
-regards,
+Gave me a turn, too, until I figured it out.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+-Doug

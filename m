@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbULFVcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbULFVfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbULFVcI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 16:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbULFVcI
+	id S261662AbULFVfW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 16:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbULFVfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 16:32:08 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:7617 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261660AbULFVb5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 16:31:57 -0500
-Subject: Re: [BUG] null-pointer deref (perhaps reiserfs3)
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sven =?ISO-8859-1?Q?K=F6hler?= <skoehler@upb.de>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-In-Reply-To: <20041206132712.084ac2b3.akpm@osdl.org>
-References: <cp02a6$57j$1@sea.gmane.org> <cp21l0$mve$1@sea.gmane.org>
-	 <cp2265$pmp$1@sea.gmane.org>  <20041206132712.084ac2b3.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 06 Dec 2004 16:34:29 -0500
-Message-Id: <1102368869.8908.1.camel@watt.suse.com>
+	Mon, 6 Dec 2004 16:35:22 -0500
+Received: from 209-128-68-125.bayarea.net ([209.128.68.125]:27796 "EHLO
+	hera.kernel.org") by vger.kernel.org with ESMTP id S261662AbULFVfP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 16:35:15 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [PATCH] aic7xxx large integer
+Date: Mon, 6 Dec 2004 21:35:05 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cp2ja9$i88$1@terminus.zytor.com>
+References: <41B222BE.9020205@sombragris.com> <41B24542.7010803@sombragris.com> <1102208526.6052.87.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1102368905 18697 127.0.0.1 (6 Dec 2004 21:35:05 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 6 Dec 2004 21:35:05 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-06 at 13:27 -0800, Andrew Morton wrote:
-> Sven Köhler <skoehler@upb.de> wrote:
-> >
-> > > dd if=/dev/zero of=image bs=1M count=40
-> > > mkreiserfs -f image
-> > > mount -o loop image /mnt/test
-> > > cp -r /etc/ /mnt/test
-> > > 
-> > > The kernel will Oops, and cp will segfault.
-> > 
-> > Well, this won't make sense to you, if don't tell you, that "cp -r /etc/ 
-> > /mnt/test" copies more, than the reiserfs can take. In other words:
-> > reiserfs crashes if there's no more free diskspace.
-> > 
+Followup to:  <1102208526.6052.87.camel@localhost>
+By author:    Robert Love <rml@novell.com>
+In newsgroup: linux.dev.kernel
+>
+> On Sun, 2004-12-05 at 00:16 +0100, Miguel Angel Flores wrote:
 > 
-> Could you please test 2.6.10-rc3?
+> > I post the patch very quickly :(. The original code finally seems OK. My 
+> > controller is not working with 39 bit addressing, although I can't find 
+> > why the compiler warns. Maybe the length of dma_addr_t type, in the 
+> > 2.6.9 the type of the mask_39bit variable is bus_addr_t.
+> 
+> The compiler warns because you are putting a 64-bit value (an unsigned
+> long long) in a 32-bit value (a u32).
+> 
+> There is definitely a problem on non-highmem compiled kernels, there is
+> no doubt of that.  The concern was that your suggested fix is not right.
+> 
+> Assuming that a 39-bit value is really wanted, the type either needs to
+> be changed to a dma64_addr_t or the value needs to change at
+> compile-time to a suitable 32-bit variant when !CONFIG_HIGHMEM64G.
+> 
+> Without knowing what the driver is doing, I have no idea.
+> 
 
-Anything 2.6.10-rc1 or newer should fix it, I sent him the reiserfs
-small filesystem patch earlier today.
+I suspect that what the driver wants is a mask that is a valid DMA
+address no wider than 39 bits (because that's all the hardware can
+do.)
 
--chris
+If so, I would assume (dma_addr_t)0x7FFFFFFFFFULL is probably the
+right thing; it will be truncated to a 32-bit mask if only 32-bit
+addressing is available.
 
-
-
+	-hpa

@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278871AbRJ1XLH>; Sun, 28 Oct 2001 18:11:07 -0500
+	id <S278867AbRJ1XLR>; Sun, 28 Oct 2001 18:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278868AbRJ1XKr>; Sun, 28 Oct 2001 18:10:47 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:182 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278867AbRJ1XKj>;
-	Sun, 28 Oct 2001 18:10:39 -0500
-Date: Sun, 28 Oct 2001 18:11:12 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@atnf.csiro.au>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org
-Subject: Re: more devfs fun (Piled Higher and Deeper)
-In-Reply-To: <200110282231.f9SMV9U26740@mobilix.atnf.CSIRO.AU>
-Message-ID: <Pine.GSO.4.21.0110281745140.24880-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278868AbRJ1XLH>; Sun, 28 Oct 2001 18:11:07 -0500
+Received: from trillium-hollow.org ([209.180.166.89]:26895 "EHLO
+	trillium-hollow.org") by vger.kernel.org with ESMTP
+	id <S278867AbRJ1XKv>; Sun, 28 Oct 2001 18:10:51 -0500
+To: linux-kernel@vger.kernel.org
+cc: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+Subject: APM disable broken (was -> Re: 8139too on ABIT BP6 causes "eth0: transmit timed out" )
+In-Reply-To: Your message of "Sun, 28 Oct 2001 23:30:12 +0100."
+             <16095.1004308212@nice.ram.loc> 
+Date: Sun, 28 Oct 2001 15:11:27 -0800
+From: erich@uruk.org
+Message-Id: <E15xz5T-0008SA-00@trillium-hollow.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Raphael Manfredi <Raphael_Manfredi@pobox.com> wrote:
 
-On Mon, 29 Oct 2001, Richard Gooch wrote:
+...[recent 2.4-based kernel]...
 
-> Alexander Viro writes:
-> > So far all I see is that beating you hard enough in public can make
-> > you fix the bugs explicitly pointed to you.  That's it.  As far as I
-> > can see you don't read your own code, judging by the fact that every
-> > damn look at fs/devfs/base.c shows a new hole within a couple of
-> > minutes _and_ said holes stay until posted on l-k.  Private mail
-> > doesn't work.  You read it, reply and ignore.  About hundred
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^
-> > kilobytes of evidence available at request.
->
-> You don't get to see the bug reports or questions I respond to which
-> are sent to me privately or on the devfs list (I know you're not
-> subscribed:-). And you seem to have forgotten that I've responded to
-> questions or bug reports *from you* that you send privately to me,
+> but this problem is not specific to that kernel.  I've been having
+> it for a looong time.
+> 
+> Specifically, I get:
+> 
+>  NETDEV WATCHDOG: eth0: transmit timed out
+...
+> and then the machine is dead, network-wise.  I have to reboot (reset).
+> 
+> Note that I am on an ABIT BP6 board, and I do get a lot of APIC errors
+> under heavy network traffic, which is what raises the above.
+> By heavy network traffic, I mean a 7 Mb/s full duplex (it's a 100 Mb/s
+> LAN).
 
-I see what made its way in your code and your changelog.  As far as I
-can see nothing contradicts description above.
- 
-1) You are maintainer of that code.
-2) Couple of minutes of reading through it is enough to find a new hole.
-3) There are dozens of such holes.
-4) They had been there for years.
+I had what looks like exactly this problem with my ABIT BP6 -based machine
+running RH 7.1, and the problem turned out to be the interaction between
+SMP and the APM BIOS, when APM is turned on.  A different network card,
+but the same symptom.  Another symptom I would occasionally see was a
+certain kind of hard-disk hang, but only on the integrated HPT366
+controller.
 
-Conclusion:
+I suggest you try either:
 
-You either can't see that stuff at all or you don't bother to spend even
-minimal time looking for bugs.
+  --  adding the "noapic" line to your kernel command-line (which will
+      lose you some I/O performance since normal interrupts will not be
+      handled APIC-style)
+  --  completely disabling APM from your kernel configuration.  Using
+      "apm=off/disabled" (I can't remember the exact one you're supposed
+      to use here) does not totally disable APM usage.
 
-See the problem with that situation?
 
+This brings me to my other point.  During the Linux kernel startup
+code (in the early assembly), the APM BIOS checking code leaves the
+BIOS in the "connected" state even if the kernel option for disabling
+APM or the SMP forced disable of APM is triggered.
 
+This makes various motherboards (such as the ABIT BP6) unstable.
+
+The Right Thing to do would be to disconnect the APM BIOS if it is
+determined that APM support should be disabled.
+
+I could probably generate a patch to fix this if it looked like it would
+be accepted by the folks maintaining APM support...
+
+--
+    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
+"Reality is truly stranger than fiction; Probably why fiction is so popular"

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265947AbTBTQpk>; Thu, 20 Feb 2003 11:45:40 -0500
+	id <S266043AbTBTQsm>; Thu, 20 Feb 2003 11:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265987AbTBTQpk>; Thu, 20 Feb 2003 11:45:40 -0500
-Received: from crack.them.org ([65.125.64.184]:2788 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S265947AbTBTQpj>;
-	Thu, 20 Feb 2003 11:45:39 -0500
-Date: Thu, 20 Feb 2003 11:55:40 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
-Message-ID: <20030220165540.GA17006@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0302201656030.30000-100000@localhost.localdomain> <b330qj$sri$1@news.cistron.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b330qj$sri$1@news.cistron.nl>
-User-Agent: Mutt/1.5.1i
+	id <S266064AbTBTQsl>; Thu, 20 Feb 2003 11:48:41 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:7614 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266043AbTBTQsj>;
+	Thu, 20 Feb 2003 11:48:39 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: cifs leaks memory like crazy in 2.5.61
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OFEBDD7C2C.B0956D07-ON87256CD3.005C9BC9@us.ibm.com>
+From: Steven French <sfrench@us.ibm.com>
+Date: Thu, 20 Feb 2003 10:56:04 -0600
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
+ 02/20/2003 09:57:22
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 04:47:15PM +0000, Miquel van Smoorenburg wrote:
-> In article <Pine.LNX.4.44.0302201656030.30000-100000@localhost.localdomain>,
-> Ingo Molnar  <mingo@elte.hu> wrote:
-> >the fix for this is two-fold. First, it must be possible for procps to
-> >separate 'threads' from 'processes' without having to go into 16 thousand
-> >directories. I solved this by prefixing 'threads' (ie. non-group-leader
-> >threads) with a dot ('.') character in the /proc listing:
-> 
-> Why not put threads belonging to a thread group into /proc/17072/threads ?
 
-I'm also inclined to think this is a good idea.  We could even choose
-to use /proc/17072/lwp, to match Solaris, but it's probably not worth
-it since the semantics are different.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+
+
+I run three file API tests regularly against it - fsx, the connecathon
+"nfs" tests and iozone and use them as a sort of regression test bucket
+(which unfortunately didn't pick this problem up) - as a result of this I
+will add "ls -R" of a deep directory tree to the list (ls -R of a shallow
+tree doesn't seem to show this problem up) - if there are other useful
+filesystem regression cases that I could automate and run, I would love to
+know about them.
+
+> request to actually test your stuff, before adding more features!
+
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
+

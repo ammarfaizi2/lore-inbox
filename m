@@ -1,81 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUBCPAc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 10:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUBCPAb
+	id S264457AbUBCPGU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 10:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUBCPGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 10:00:31 -0500
-Received: from smtp.dkm.cz ([62.24.64.34]:266 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S261928AbUBCPA3 (ORCPT
+	Tue, 3 Feb 2004 10:06:20 -0500
+Received: from village.ehouse.ru ([193.111.92.18]:17939 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S264457AbUBCPGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 10:00:29 -0500
-Message-ID: <401FB78A.5010902@zvala.cz>
-Date: Tue, 03 Feb 2004 16:00:26 +0100
-From: Tomas Zvala <tomas@zvala.cz>
-User-Agent: Mozilla Thunderbird 0.5a (20031223)
-X-Accept-Language: en-us, en
+	Tue, 3 Feb 2004 10:06:16 -0500
+From: "Alexander Y. Fomichev" <gluk@php4.ru>
+Reply-To: "Alexander Y. Fomichev" <gluk@php4.ru>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Call Trace: page allocation failure - is it normal behaviour?
+Date: Tue, 3 Feb 2004 18:06:15 +0300
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
-References: <20040203131837.GF3967@aurora.fi.muni.cz> <Pine.LNX.4.53.0402030839380.31203@chaos>
-In-Reply-To: <Pine.LNX.4.53.0402030839380.31203@chaos>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402031806.15439.gluk@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I believe he meant to write he umounted it.
-The problem is that there is still some data left in CDRW's cache and it 
-needs to be emptied. That happens when CDRW is ejected and reinserted 
-(that is why windows burning software ie. Nero wants to eject the CDR/RW 
-when it gets written or erased).
-Maybe kernel could flush the buffers/caches or whatever is there when 
-CDROM gets mounted. But im afraid about compatibility with broken drives 
-such as LG.
+Hello,
 
-Tomas Zvala
+I noticed some call trace when testing box under heavy load.
+To create a load following jobs have been running simultaneously.
 
-Richard B. Johnson wrote:
+ ab2 -c 200 -n 10000000 http://192.168.114.239/
+ fsx-linux -l 900000000 fsx-data3
+ dbench 100
 
->On Tue, 3 Feb 2004, Martin [iso-8859-2] Povolný wrote:
->
->  
->
->>I have debian's 2.6.0-686-smp only with PNP BIOS disabled (fails to
->>boot with enabled, as described by other people).
->>
->>I did
->>
->>$ mount /cdrom/
->>$ ls /cdrom/
->>
->>got listing of files and directories on the cdrom
->>then
->>
->>$ cdrecord dev=/dev/hdc -blank=fast -v
->>...
->>Blanking time:   21.570s
->>$ mount /cdrom
->>$ ls /cdrom
->>    
->>
->
->Can you really initialize the CDROM while it's mounted? Although
->the kernel doesn't care, cdrecord should. Suggest that you
->contact the cdrecord author.
->
->Cheers,
->Dick Johnson
->Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
->            Note 96.31% of all statistics are fiction.
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+adt root # w
+ 19:24:32 up 14:58,  6 users,  load average: 90.92, 83.97, 84.28
+
+Some times after dmesg has shown  multiple call traces of two types:
+
+swapper: page allocation failure. order:2, mode:0x20
+Call Trace:
+ [<c014059c>] __alloc_pages+0x30c/0x350
+ [<c0140605>] __get_free_pages+0x25/0x40
+ [<c01435a7>] cache_grow+0xc7/0x310
+ [<c01438fe>] cache_alloc_refill+0x10e/0x2c0
+ [<c0143e01>] __kmalloc+0x71/0x80
+ [<c0266697>] alloc_skb+0x47/0xe0
+ [<c0294e7e>] tcp_fragment+0x5e/0x340
+ [<c02975b8>] tcp_write_wakeup+0xe8/0x280
+ [<c0298870>] tcp_write_timer+0x0/0x130
+ [<c029776d>] tcp_send_probe0+0x1d/0x110
+ [<c0298933>] tcp_write_timer+0xc3/0x130
+ [<c01298f7>] run_timer_softirq+0xe7/0x1d0
+ [<c0124e2a>] do_softirq+0xca/0xd0
+ [<c01162e7>] smp_apic_timer_interrupt+0xd7/0x150
+ [<c0106d90>] default_idle+0x0/0x40
+ [<c0109dea>] apic_timer_interrupt+0x1a/0x20
+ [<c0106d90>] default_idle+0x0/0x40
+ [<c0106dbd>] default_idle+0x2d/0x40
+ [<c0106e47>] cpu_idle+0x37/0x40
+ [<c012111d>] printk+0x17d/0x1d0
+
+ab2: page allocation failure. order:2, mode:0x20
+Call Trace:
+ [<c014059c>] __alloc_pages+0x30c/0x350
+ [<c0140605>] __get_free_pages+0x25/0x40
+ [<c01435a7>] cache_grow+0xc7/0x310
+ [<c01438fe>] cache_alloc_refill+0x10e/0x2c0
+ [<c0143e01>] __kmalloc+0x71/0x80
+ [<c0266697>] alloc_skb+0x47/0xe0
+ [<c0294e7e>] tcp_fragment+0x5e/0x340
+ [<c0294680>] tcp_transmit_skb+0x3e0/0x600
+ [<c02975b8>] tcp_write_wakeup+0xe8/0x280
+ [<c0298870>] tcp_write_timer+0x0/0x130
+ [<c029776d>] tcp_send_probe0+0x1d/0x110
+ [<c0287d45>] __tcp_mem_reclaim+0x25/0x60
+ [<c0298933>] tcp_write_timer+0xc3/0x130
+ [<c01298f7>] run_timer_softirq+0xe7/0x1d0
+ [<c0124e2a>] do_softirq+0xca/0xd0
+ [<c01162e7>] smp_apic_timer_interrupt+0xd7/0x150
+ [<c0109dea>] apic_timer_interrupt+0x1a/0x20
+ [<c0289fc5>] tcp_sendmsg+0x955/0x12b0
+ [<c02acc2d>] inet_sendmsg+0x4d/0x60
+ [<c0262a5d>] sock_aio_write+0xbd/0xe0
+ [<c015b02b>] do_sync_write+0x8b/0xc0
+ [<c0140613>] __get_free_pages+0x33/0x40
+ [<c0287dd4>] tcp_poll+0x34/0x190
+ [<c0262ff9>] sock_poll+0x29/0x40
+ [<c015b15e>] vfs_write+0xfe/0x130
+ [<c015b242>] sys_write+0x42/0x70
+ [<c01093fb>] syscall_call+0x7/0xb
+
+bwt I've noticed no visible harm to system and question ruther is
+whether this behaviour is normal under such circumstances?
+
+dmesg(full):            http://sysadminday.org.ru/call_trace/dmesg
+.config:                http://sysadminday.org.ru/call_trace/config    
+/proc/meminfo:          http://sysadminday.org.ru/call_trace/meminfo
+/proc/cpuinfo:          http://sysadminday.org.ru/call_trace/cpuinfo
+lspsi:                  http://sysadminday.org.ru/call_trace/lspci
+lspci -vvn:             http://sysadminday.org.ru/call_trace/lspci_-vvn                     
+
+-- 
+Best regards.
+        Alexander Y. Fomichev <gluk@php4.ru>
+        Public PGP key: http://sysadminday.org.ru/gluk.asc
+
+-- 
+Best regards.
+        Alexander Y. Fomichev <gluk@php4.ru>
+        Public PGP key: http://sysadminday.org.ru/gluk.asc
+

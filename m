@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUFEP13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUFEPhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUFEP13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 11:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUFEP13
+	id S261610AbUFEPhe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 11:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUFEPhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 11:27:29 -0400
-Received: from relay01.kbs.net.au ([203.220.32.149]:61115 "EHLO
-	relay01.kbs.net.au") by vger.kernel.org with ESMTP id S261668AbUFEP1Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 11:27:16 -0400
-Date: Sun, 6 Jun 2004 1:27:15 +1000
-From: "Pods" <pods@dodo.com.au>
-To: linux-kernel@vger.kernel.org
-Reply-to: "Pods" <pods@dodo.com.au>
-Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address + more?)
-X-Priority: 3
-X-Mailer: Dodo Internet Webmail Server 
-X-Original-IP: 203.221.30.76
-Content-Transfer-Encoding: 7BIT
-X-MSMail-Priority: Medium
-Importance: Medium
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 5 Jun 2004 11:37:33 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:31909 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S261610AbUFEPhc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 11:37:32 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: sboyce@blueyonder.co.uk
+Subject: Re: 2.6.7-rc2-mm1 (nforce2 lockup)
+Date: Sat, 5 Jun 2004 09:37:29 -0600
+User-Agent: KMail/1.6.2
+Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
+References: <A6974D8E5F98D511BB910002A50A6647615FD33E@hdsmsx403.hd.intel.com> <1086385540.2241.322.camel@dhcppc4> <40C1455E.30501@blueyonder.co.uk>
+In-Reply-To: <40C1455E.30501@blueyonder.co.uk>
 MIME-Version: 1.0
-Message-Id: <E1BWd4f-000893-00@mail.kbs.net.au>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406050937.29163.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Run memtest86
-Tried once before, didnt boot... died :( memtest page says this happens on
-some hardware and they're not sure why.
+On Friday 04 June 2004 10:00 pm, Sid Boyce wrote:
+> I just built and successfully booted 2.6.7-rc2-mm2 IOAPIC enabled and 
+> without boot option acpi=off. I guess somewhere IOAPIC was inadvertently 
+> disabled in .config.
 
->> Underclock your system
-its not over clocked :/
+So I guess IOAPIC was enabled in your pre-mm1 builds that worked?
 
->> lower IDE DMA mode and see whether it stops oopsing.
-tried setting dma = off in hdparm, didnt work, still got crashes compiling
-firebird.. infact, it didnt even get passed the ./configure stage :(
+I just want to make sure my patch doesn't add a requirement for
+IOAPIC where it wasn't required before.
 
-Each time (just about, didnt do it once out of 6ish times) i set the dma to
-off (either at boot or runtime) i got a "spurious 8259A interript: IRQ 7"..
-apparantly, iirc that debug message has been taken out of 2.6.6
-
-Please guys, CC me your responces, otherwise i have to look at some
-archives, and reply via webmail... it took 2 firefox crashes (one of which
-brought down X) to just right this message... now im going to take a chance
-and hit the submit
-button
-
-________________________________________________
-
-Message sent using
-Dodo Internet Webmail Server
-
+My assumption is that
+	- 2.6.7-rc2 without IOAPIC fails (I'm not sure you've tried
+		this; I don't think I've seen a report either way)
+	- 2.6.7-rc2 with IOAPIC works
+	- 2.6.7-rc2-mm2 without IOAPIC fails
+	- 2.6.7-rc2-mm2 with IOAPIC works

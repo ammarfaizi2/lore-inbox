@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130299AbRAEBMC>; Thu, 4 Jan 2001 20:12:02 -0500
+	id <S129183AbRAEBQx>; Thu, 4 Jan 2001 20:16:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbRAEBLw>; Thu, 4 Jan 2001 20:11:52 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4612 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130535AbRAEBLl>; Thu, 4 Jan 2001 20:11:41 -0500
-Date: Thu, 4 Jan 2001 17:11:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: And oh, btw..
-In-Reply-To: <Pine.LNX.4.21.0101042050421.1453-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10101041709110.1249-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129370AbRAEBQn>; Thu, 4 Jan 2001 20:16:43 -0500
+Received: from jalon.able.es ([212.97.163.2]:40833 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129183AbRAEBQa>;
+	Thu, 4 Jan 2001 20:16:30 -0500
+Date: Fri, 5 Jan 2001 02:16:23 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: "James H . Cloos Jr ." <cloos@jhcloos.com>
+Cc: "Michael D . Crawford" <crawford@goingware.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to Power off with ACPI/APM?
+Message-ID: <20010105021623.C743@werewolf.able.es>
+In-Reply-To: <3A54DC87.5B861B7@goingware.com> <m37l4akdn5.fsf@austin.jhcloos.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <m37l4akdn5.fsf@austin.jhcloos.com>; from cloos@jhcloos.com on Fri, Jan 05, 2001 at 02:10:06 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 2001.01.05 James H. Cloos Jr. wrote:
+> Michael> APM gives its message first in the boot process, then later
+> Michael> ACPI does.  But ACPI says something like "APM already
+> Michael> present, exiting", so the doc is wrong both ways you read it,
+> Michael> or else ACPI doesn't succeed in the intended behavior to
+> Michael> override APM.
+> 
+> I get th eopposite behavior.  If both are compiled in only ACPI works.
+> (Only tested w/ 2.4.0-test kernels, though.)
+> 
+> Either way you need the userspace daemon running to actually do
+> anything.  Even my notebook's key for toggling full-screen vs
+> un-expanded display on the lcd does nothing unless apmd or acpid
+> as applicable are running....
+> 
 
-On Thu, 4 Jan 2001, Marcelo Tosatti wrote:
->
-> I have 1 patch which has not been answered and I still dont know if you
-> want it only for 2.5.
+How is each of your setups, ie, what is compiled in kernel and what is
+a module ? My guess is:
+- ACPI+APM in kernel: ACPI wins
+- APM in kernel, ACPI module; APM starts, blocks ACPI
+- and so on....
 
-The swap clustering looks ok, but it also looked like something I could
-safely delay until a bit later in the 2.4.x series. Basically, the
-PageDirty handling is new enough that I didn't want to add any other
-wrinkles on top of it, even if they looked clean..
+-- 
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
 
-Life does not end at 2.4.0. Think o fit more as a "no more excuses"
-release.
-
-		Linus
+Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312414AbSEVXaf>; Wed, 22 May 2002 19:30:35 -0400
+	id <S312590AbSEVXcb>; Wed, 22 May 2002 19:32:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312938AbSEVXae>; Wed, 22 May 2002 19:30:34 -0400
-Received: from crack.them.org ([65.125.64.184]:57611 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S312414AbSEVXad>;
-	Wed, 22 May 2002 19:30:33 -0400
-Date: Wed, 22 May 2002 18:29:47 -0500
-From: Daniel Jacobowitz <dmj+@andrew.cmu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mgross@unix-os.sc.intel.com, Pavel Machek <pavel@suse.cz>,
-        "Vamsi Krishna S." <vamsi_krishna@in.ibm.com>,
-        Gross Mark <mark.gross@intel.com>, linux-kernel@vger.kernel.org,
-        r1vamsi@in.ibm.com
-Subject: Re: PATCH Multithreaded core dumps for the 2.5.17 kernel  was ....RE:    PATCH Multithreaded core dump support for the 2.5.14 (aO
-Message-ID: <20020522182947.A16176@crack.them.org>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	mgross@unix-os.sc.intel.com, Pavel Machek <pavel@suse.cz>,
-	"Vamsi Krishna S." <vamsi_krishna@in.ibm.com>,
-	Gross Mark <mark.gross@intel.com>, linux-kernel@vger.kernel.org,
-	r1vamsi@in.ibm.com
-In-Reply-To: <200205222043.g4MKhsw06808@unix-os.sc.intel.com> <E17AeGS-0002wv-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314278AbSEVXca>; Wed, 22 May 2002 19:32:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49678 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312590AbSEVXc2>; Wed, 22 May 2002 19:32:28 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] 2.5.17 /dev/port
+Date: 22 May 2002 16:32:04 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ach9pk$ced$1@cesium.transmeta.com>
+In-Reply-To: <UTC200205222246.g4MMkNL26024.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 11:07:24PM +0100, Alan Cox wrote:
-> > I think that although my tcore_suspend_threads and Pavel's freeze_processes 
-> > have similar results, I don't think using Pavel's approach for the core dump 
-> > is a good idea.
+Followup to:  <UTC200205222246.g4MMkNL26024.aeb@smtp.cwi.nl>
+By author:    Andries.Brouwer@cwi.nl
+In newsgroup: linux.dev.kernel
 > 
-> Migrating a task to a specific processor is also remarkably related. How does
-> it wash out if the suspend thread/freeze process stuff works by migrating
-> all the processes to a CPU that doesnt exist ?
+> In my eyes /dev/port is a rather unimportant corner
+> of the kernel. Removing it does not streamline anything,
+> we hear that it saves 454 bytes. A worthy goal, but..
+> 
+> Today a few things use /dev/port. Some low level mouse,
+> keyboard and console utilities. kbdrate. hwclock.
+> 
+> Is it needed? Hardly - most uses can be replaced by inb()
+> and outb(). But I am not sure why that would be better.
+> And I seem to recall that hwclock on some flavours of Alpha
+> really needed the /dev/port way. But I may be mistaken.
+> 
 
-I was under the impression that this is exactly how Mark was doing it,
-actually.  Issues with semaphores aside...
+On non-Intel platforms, with no dedicated IOIO opcodes, IOIO is
+usually implemented as a specific memory range.  In that case, the
+only way to allow user-space access to it would be to mmap() that
+range... which means iopl() inb() and outb() on those platforms might
+be implemented either as open, readp and writep, respectively, or by
+iopl() being open() followed by mmap().
 
+	-hpa
 -- 
-Daniel Jacobowitz                           Debian GNU/Linux Developer
-Monta Vista Software                              Debian Security Team
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

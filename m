@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285227AbRLVAT5>; Fri, 21 Dec 2001 19:19:57 -0500
+	id <S285402AbRLVAXb>; Fri, 21 Dec 2001 19:23:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285230AbRLVATr>; Fri, 21 Dec 2001 19:19:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46598 "EHLO
+	id <S285403AbRLVAXS>; Fri, 21 Dec 2001 19:23:18 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49414 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285227AbRLVATg>; Fri, 21 Dec 2001 19:19:36 -0500
-Subject: Re: conclusion: arp.c *must* be (still) defective
-To: mail_ker@xarch.tu-graz.ac.at (Alex)
-Date: Sat, 22 Dec 2001 00:29:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10112211952010.6988-100000@xarch.tu-graz.ac.at> from "Alex" at Dec 21, 2001 07:52:36 PM
+	id <S285402AbRLVAXJ>; Fri, 21 Dec 2001 19:23:09 -0500
+Subject: Re: Configure.help editorial policy
+To: bcrl@redhat.com (Benjamin LaHaise)
+Date: Sat, 22 Dec 2001 00:32:54 +0000 (GMT)
+Cc: esr@thyrsus.com (Eric S. Raymond),
+        garfield@irving.iisd.sra.com (David Garfield),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20011221141847.E15926@redhat.com> from "Benjamin LaHaise" at Dec 21, 2001 02:18:47 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16Ha2B-00026Y-00@the-village.bc.nu>
+Message-Id: <E16Ha5u-00027A-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Sounds like you have the card on the wrong port or the IRQ not set in the
-> > BIOS to be routed to ISA
-> 
-> Sir! It's PLUG AND PLAY! Isapnp! I ought not to care about IRQ or Bios?
+> by the MB, everyone talks about MB == 1024*1024...  I'm having a 
+> hard time giving a sympathetic ear to anyone try to change the well 
+> established, and consistent (barring the storage venduhs), standard.
 
-IMHO you have an overdeveloped faith in technology 8)
+If someone sells you 16MB of RAM and it turns out to be 16,000,000 bytes,
+not only would it be appropriate use of units, it would be quite reasonable
+as far as I can see to say it was in accordance with labelling of products.
 
-Things to check
+The world did not begin in 1970, A-Za-z is not English collate order and
+M is 1,000,000. When computing meets the rest of planet earth usages for
+the odd hundred years its hard to see any reason to believe we are "right"
 
-1.	Does tcpdump show anything if you ping the box from another machine
-2.	Is the link light on
-3.	Does the irq count in /proc/interrupts for the card rise
-	appropriately ?
-4.	What does the 3c5x9 diagnostic tool say (http://www.scyld.com)
+Eric using MiB seems the right thing. Its an ugly but appropriate unit, its
+at least recommended as a solution by a standards body. We can either
+redefine SI units ("You cannot change the laws of physics") or find a better
+label. What better than a recommended one others use.
 
-The reason I ask is that Linux 2.2 and on some platforms 2.4 will be relying
-on BIOS IRQ routing where Windows 9x will do the work itself. So I've seen
-precisely these symptoms before
+Alan

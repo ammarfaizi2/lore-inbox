@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273836AbRJTRnD>; Sat, 20 Oct 2001 13:43:03 -0400
+	id <S273854AbRJTRwc>; Sat, 20 Oct 2001 13:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273854AbRJTRmw>; Sat, 20 Oct 2001 13:42:52 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:50706 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S273836AbRJTRme>; Sat, 20 Oct 2001 13:42:34 -0400
-Date: Sat, 20 Oct 2001 13:42:58 -0400 (EDT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-To: Krzysztof Oledzki <ole@ans.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in "raid5: measuring checksumming speed"
-In-Reply-To: <Pine.LNX.4.33.0110201342410.19999-100000@dark.pcgames.pl>
-Message-ID: <Pine.LNX.4.10.10110201337350.7732-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273870AbRJTRwW>; Sat, 20 Oct 2001 13:52:22 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:54532 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273854AbRJTRwO>;
+	Sat, 20 Oct 2001 13:52:14 -0400
+Date: Sat, 20 Oct 2001 15:52:46 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Jan Labanowski <jkl@osc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.12 IEEE1284_PH_DIR_UNKNOWN undeclared in ./drivers/parport/ieee1284_ops.c
+Message-ID: <20011020155245.A1146@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Jan Labanowski <jkl@osc.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0110201316470.16747-100000@arlen.osc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0110201316470.16747-100000@arlen.osc.edu>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> on my two P3 boxes linux chooses pIII_sse but pII_mmx and p5_mmx are
-> reported as faster instructions:
+Em Sat, Oct 20, 2001 at 01:18:54PM -0400, Jan Labanowski escreveu:
+> [1.] One line summary of the problem:
+> 2.4.12: IEEE1284_PH_DIR_UNKNOWN undeclared in ./drivers/parport/ieee1284_ops.c
 
-tail of linux/include/asm-i386/xor.h:
+You must be the 1000th person to post this here 8) Just get the latest
+2.4.13-pre patch, this is fixed there.
 
-| /* We force the use of the SSE xor block because it can write around L2.
-|    We may also be able to load into the L1 only depending on how the cpu
-|    deals with a load to a line that is being prefetched.  */
-| #define XOR_SELECT_TEMPLATE(FASTEST) \
-|         (cpu_has_xmm ? &xor_block_pIII_sse : FASTEST)
-
-this code should probably be generalized to test for K7 feature flags, as well.
-
-
+- Arnaldo

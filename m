@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289298AbSBZXru>; Tue, 26 Feb 2002 18:47:50 -0500
+	id <S289026AbSBZXrv>; Tue, 26 Feb 2002 18:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289026AbSBZXrn>; Tue, 26 Feb 2002 18:47:43 -0500
-Received: from dsl-213-023-039-032.arcor-ip.net ([213.23.39.32]:61837 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289272AbSBZXpQ>;
-	Tue, 26 Feb 2002 18:45:16 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rainer Ellinger <rainer@ellinger.de>
-Subject: Re: Congrats Marcelo,
-Date: Mon, 25 Feb 2002 01:38:39 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Steve Lord <lord@sgi.com>, Andreas Dilger <adilger@turbolabs.com>,
-        "Dennis, Jim" <jdennis@snapserver.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <E16f8Ey-0002qn-00@starship.berlin> <3C7C18EB.4090509@ellinger.de>
-In-Reply-To: <3C7C18EB.4090509@ellinger.de>
+	id <S289631AbSBZXrg>; Tue, 26 Feb 2002 18:47:36 -0500
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:14041 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S289366AbSBZXqm>; Tue, 26 Feb 2002 18:46:42 -0500
+Message-ID: <3C7C1D3B.5050202@drugphish.ch>
+Date: Wed, 27 Feb 2002 00:41:47 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020126
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16f9A7-0002ry-00@starship.berlin>
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.5-dj2
+In-Reply-To: <20020226223406.A26905@suse.de> <3C7C1AF0.3000103@drugphish.ch> <20020227003905.C9189@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 27, 2002 12:23 am, Rainer Ellinger wrote:
-> I think development in 2.5 should focus on including this waiting patches
-> and come to a end and release asap. I think it's more important to catch up 
-> with real world needs and existing patches, than working on new 
-> developments.
+>  Yup. All went well until ALSA arrived with its own version.h
+>  Before then, I had version.h in my diff exclusion list, and everything
+>  'just worked'. Oh well.. I'll add some more magic to autohch.pl[*]
 
-They're both important.  If we focus only on features without evolving the 
-underlying mechanisms we'll quickly end up with Windows.
+Why not include it into /home/davej/.exclude?
 
-Don't even think about asking Linus to stop working on new stuff.
+Regarding ALSA and showing up with their own ``version.h''; what about 
+the others?
 
--- 
-Daniel
+o ../arch/i386/math-emu/version.h
+o ../include/pcmcia/version.h
+o ../include/sound/version.h
+
+Cheers (still waiting for gcc to finish ...),
+Roberto Nibali, ratz
+

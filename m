@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269863AbUIDJqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269858AbUIDJpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269863AbUIDJqC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 05:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269857AbUIDJp4
+	id S269858AbUIDJpc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 05:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269857AbUIDJpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 05:45:56 -0400
-Received: from pengo.systems.pipex.net ([62.241.160.193]:40115 "EHLO
-	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S269854AbUIDJpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 05:45:41 -0400
-Message-ID: <41398EBD.2040900@tungstengraphics.com>
-Date: Sat, 04 Sep 2004 10:45:33 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+	Sat, 4 Sep 2004 05:45:32 -0400
+Received: from giesskaennchen.de ([83.151.18.118]:5800 "EHLO
+	mail.uni-matrix.com") by vger.kernel.org with ESMTP id S269854AbUIDJpR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 05:45:17 -0400
+Message-ID: <41398EA2.3070304@giesskaennchen.de>
+Date: Sat, 04 Sep 2004 11:45:06 +0200
+From: Oliver Antwerpen <olli@giesskaennchen.de>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: New proposed DRM interface design
-References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org>
-In-Reply-To: <20040904102914.B13149@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: Kernel Build error (objdump fails)
+References: <41377705.9060305@giesskaennchen.de> <20040903165100.7bd6d3d6.akpm@osdl.org>
+In-Reply-To: <20040903165100.7bd6d3d6.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-giesskaennchen.de-MailScanner-Information: Die Giesskaennchen verschicken keine Viren!
+X-giesskaennchen.de-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sat, Sep 04, 2004 at 01:51:24AM +0100, Dave Airlie wrote:
+Andrew Morton wrote:
+> Oliver Antwerpen <olli@giesskaennchen.de> wrote:
 > 
->>>Then drm_core would always be bundled with the OS.
->>>
->>>Is there any real advantage to spliting core/library and creating three
->>>interface compatibily problems?
+>>when compiling the linux kernel (I tried 2.6.8, 2.6.8.1, 2.6.9-rc1) I get:
 >>
->>Yes we only have one binary interface, between the core and module, this
->>interface is minimal, so AGP won't go in it... *ALL* the core does is deal
->>with the addition/removal of modules, the idea being that the interface is
->>very minor and new features won't change it...
+>>   CC      arch/i386/kernel/acpi/sleep.o
+>>   AS      arch/i386/kernel/acpi/wakeup.o
+>>   LD      arch/i386/kernel/acpi/built-in.o
+>>arch/i386/kernel/acpi/boot.o: file not recognized: File truncated
+>>make[2]: *** [arch/i386/kernel/acpi/built-in.o] Error 1
+>>make[1]: *** [arch/i386/kernel/acpi] Error 2
+>>make: *** [arch/i386/kernel] Error 2
 > 
 > 
-> Umm, the Linux kernel isn't about minimizing interfaces.  We don't link a
-> copy of scsi helpers into each scsi driver either, or libata into each sata
-> driver.
+> What kernel are you running when performing the build?
+> 
+> There's a bug in 2.6.9-rc1-mm1 which will cause the above.
 
-But regular users don't tend to pull down new scsi or ata drivers in the same 
-way that they do graphics drivers.  Hence the concern of many drm developers 
-to avoid introducing new failure modes in this process.
+Andrew,
 
-People who'd never dream of upgrading their kernel have acquired the habit of 
-pulling down up-to-date video drivers on a weekly or monthly basis.  So, for 
-sanity's sake, the DRI/DRM has been in the business of minimizing exposed 
-interfaces, and for my money, should continue to be in that business.
+You are right, I as running 2.6.9-rc1-mm1. As I found out this night, 
+the bug only occurs under this kernel and only on ext3-Filesystems.
+Thank you!
 
-Keith
+
+Ollfried
+
+

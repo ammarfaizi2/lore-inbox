@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbTJ2Tjm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 14:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTJ2Tjm
+	id S261473AbTJ2UCE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 15:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbTJ2UCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 14:39:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10716 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261492AbTJ2Tjk (ORCPT
+	Wed, 29 Oct 2003 15:02:04 -0500
+Received: from gprs194-254.eurotel.cz ([160.218.194.254]:52867 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261473AbTJ2UCA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 14:39:40 -0500
-Date: Wed, 29 Oct 2003 11:38:50 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: john stultz <johnstul@us.ibm.com>, Joe Korty <joe.korty@ccur.com>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: gettimeofday resolution seriously degraded in test9
-Message-Id: <20031029113850.047282c4.shemminger@osdl.org>
-In-Reply-To: <20031029100745.GA6674@iram.es>
-References: <20031027234447.GA7417@rudolph.ccur.com>
-	<1067300966.1118.378.camel@cog.beaverton.ibm.com>
-	<20031027171738.1f962565.shemminger@osdl.org>
-	<20031028115558.GA20482@iram.es>
-	<20031028102120.01987aa4.shemminger@osdl.org>
-	<20031029100745.GA6674@iram.es>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Wed, 29 Oct 2003 15:02:00 -0500
+Date: Wed, 29 Oct 2003 21:01:41 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: John Bradford <john@grabjohn.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       linux-kernel@vger.kernel.org, nikita@namesys.com,
+       "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: Re: Blockbusting news, results get worse
+Message-ID: <20031029200141.GA1941@elf.ucw.cz>
+References: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com> <3F9D6891.5040300@namesys.com> <3F9D7666.6010504@pobox.com> <200310272003.h9RK32B2001618@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310272003.h9RK32B2001618@81-2-122-30.bradfords.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Oct 2003 11:07:45 +0100
-Gabriel Paubert <paubert@iram.es> wrote:
+Hi!
 
-
-> Consider the following:
+> > >> or put it under heavy write workload and remove
+> > >> power.
+> > >>
+> > > Can you tell us more about what really happens to disk drives when the 
+> > > power is cut while a block is being written?  We engage in a lot of 
+> > > uninformed speculation, and it would be nice if someone who really knows 
+> > > told us....
+> > > 
+> > > Do drives have enough capacitance under normal conditions to finish 
+> > > writing the block?  Does ECC on the drive detect that the block was bad 
+> > > and so we don't need to detect it in the FS?
+> > 
+> > 
+> > Does it really matter to speculate about this?
+> > 
+> > If you don't FLUSH CACHE, you have no guarantees your data is on the 
+> > platter.
 > 
-> - t-2: interrupt A arrives and starts being serviced
-> - t-1: interrupt B arrives but delayed in the APIC
-> - t: timer interrupt arrives (it is delayed too)
-> - t+x1: return from interrupt A
-> - t+x2: interrupt B serviced
-> - gettimeofday for time stamping, the returned value will actually 
->   be frozen at t-1 for HZ=1000 or t-5 for HZ=100, while the actual
->   time is t+something with something maybe up to a few tens of
->   microseconds, instead of t+x2-1 or t+x2-5 which would be 
->   clearly better.
-> - t+x3: timer interrupt, time steps suddenly now (or in
->   the following BH, can't remember) from t-1 to the correct
->   value, creating a fairly large discontinuity.
+> I think that the idea that is floating around is to deliberately ruin
+> the formatting on part of the drive in order to simulate a bad block.
 > 
-> So what I'm asking you is to change the code so that the discontinuities
-> are minimized. That's quite important for some applications; actually
-> in my case the out-of-order gettimeofday don't matter as long as the
-> steps are small because I don't sample fast enough to be affected
-> by them, but getting the timestamp wrong by tens of microseconds is bad 
-> for evaluating the derivatives of the value read from a position encoder, 
-> as needed for servo loops for example.
+> Operation of disk drives immediately after a power failiure has been
+> discussed before, by the way:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=100665153518652&w=2
 
-The suggestion of using time interpolation (like ia64) would make the discontinuities
-smaller, but still relying on fine grain gettimeofday for controlling servo loops
-with NTP running seems risky. Perhaps what you want to use is the monotonic_clock
-which gives better resolution (nanoseconds) and doesn't get hit by NTP. 
+Well, that looks like pure speculation.
 
-A bigger possible change would be for the timer->offset functions to return nanoseconds,
-then the offset adjustment code could smooth it out. It would save a divide.
+BTW I *do* believe that powerfail can make the sector bad. Imagine you
+bump into bad sector during write, and need to reallocate...
 
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

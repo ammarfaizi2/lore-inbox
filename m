@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271278AbRHXNAG>; Fri, 24 Aug 2001 09:00:06 -0400
+	id <S271335AbRHXNDr>; Fri, 24 Aug 2001 09:03:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271283AbRHXM7z>; Fri, 24 Aug 2001 08:59:55 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:43718 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S271278AbRHXM7j>;
-	Fri, 24 Aug 2001 08:59:39 -0400
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-In-Reply-To: <E15a1rW-000MM9-00@f10.mail.ru> <20010823143443.F14302@cpe-24-221-152-185.az.sprintbbd.net>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 24 Aug 2001 14:59:37 +0200
-In-Reply-To: Tom Rini's message of "Thu, 23 Aug 2001 14:34:43 -0700"
-Message-ID: <d3ofp5wr46.fsf@lxplus035.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+	id <S271307AbRHXNDh>; Fri, 24 Aug 2001 09:03:37 -0400
+Received: from t2.redhat.com ([199.183.24.243]:7154 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S271283AbRHXND1>; Fri, 24 Aug 2001 09:03:27 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010823143440.G20693@mindspring.com> 
+In-Reply-To: <20010823143440.G20693@mindspring.com>  <Pine.A41.4.33.0108231150110.64144-100000@dante14.u.washington.edu> 
+To: Tim Walberg <twalberg@mindspring.com>
+Cc: "J. Imlay" <jimlay@u.washington.edu>, linux-kernel@vger.kernel.org
+Subject: Re: macro conflict 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Fri, 24 Aug 2001 14:03:34 +0100
+Message-ID: <14764.998658214@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
 
-Tom> On Fri, Aug 24, 2001 at 01:18:02AM +0400, Samium Gromoff wrote:
->> but imagine the X arch hacker does not like python, and
->> nevertheless needs to port it on arch X.  still fun?
+twalberg@mindspring.com said:
+> There has already been **much** discussion about this, but I think
+> that the bottom line is that the new version is safer and more robust
+> than the old version, and thus is not likely to be changed back. 
 
-Tom> Well I know python is endian-clean.  I'd suspect it's even
-Tom> 32/64bit clean.  So it's not a matter of 'port' but compile.  And
-Tom> Linus has done things which have made lots of kernel hackers
-Tom> scratch their head for a while.  (Jump out of this fire and into
-Tom> the min/max macros in 2.4.9 fire to see what I mean).
+That's a completely separate issue. You can fix it while keeping sane 
+semantics for min() and max().
 
-Again, please try and do real porting work before you make such silly
-statements. Perl is 32/64 little/big-endian clean ... and still it's
-the absolutely worst app to bring up (even X tends to be easier).
+#define real_min(x,y) ({ typeof((x)) _x = (x); typeof((y)) _y = (y); (_x>_y)?_y:_x; })
 
-There is a lot more to this than meets the eye!
+#define min(x,y) ({ if strcmp(STRINGIFY(typeof(x)), STRINGIFY(typeof(y))) BUG(); realmin(x,y) }) 
 
-Jes
+/me wonders if gcc would manage to optimise that.
+--
+dwmw2
+
+

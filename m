@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319457AbSIGI1m>; Sat, 7 Sep 2002 04:27:42 -0400
+	id <S319459AbSIGJBg>; Sat, 7 Sep 2002 05:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319458AbSIGI1m>; Sat, 7 Sep 2002 04:27:42 -0400
-Received: from dsl-213-023-021-052.arcor-ip.net ([213.23.21.52]:8631 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319457AbSIGI1l>;
-	Sat, 7 Sep 2002 04:27:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>, trond.myklebust@fys.uio.no
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-Date: Sat, 7 Sep 2002 10:24:23 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3D77C8B7.1534A2DB@zip.com.au> <15735.52512.886434.46650@charged.uio.no> <3D77D879.7F7A3385@zip.com.au>
-In-Reply-To: <3D77D879.7F7A3385@zip.com.au>
+	id <S319460AbSIGJBg>; Sat, 7 Sep 2002 05:01:36 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:23715 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S319459AbSIGJBf>;
+	Sat, 7 Sep 2002 05:01:35 -0400
+Message-ID: <3D79C195.90004@colorfullife.com>
+Date: Sat, 07 Sep 2002 11:06:29 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17natE-0006OB-00@starship>
+To: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pid_max hang again...
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 September 2002 00:19, Andrew Morton wrote:
-> I'm not sure what semantics we really want for this.  If we were to
-> "invalidate" a mapped page then it would become anonymous, which
-> makes some sense.
+> As Manfred pointed out, pid allocation and inserting it into task
+> list should be atomic. But going by the range of pids available
+> in 2.5.33 (Linux made it 30-bits), it is unlikely that same pid
+> will be given to two processes, since last_pid is protected by
+> single lock. 
+Right now there is quite a lot of code between get_pid and the insertion 
+into the task list: copy mm, files, etc.
 
-There's no need to leave the page mapped, you can easily walk the rmap list
-and remove the references.
+And just before the endless loop in get_pid(), there is only one pid 
+left --> probability of getting the same pid again is high. If you fix 
+the hang, you should fix the atomicity, too.
 
-> If the VM wants to reclaim a page, and it has PG_private set then
-> the vm will run mapping->releasepage() against the page.  The mapping's
-> releasepage must try to clear away whatever is held at ->private.  If
-> that was successful then releasepage() must clear PG_private, decrement
-> page->count and return non-zero.  If the info at ->private is not
-> freeable, releasepage returns zero.  ->releasepage() may not sleep in
-> 2.5.
-> 
-> So.  NFS can put anything it likes at page->private.  If you're not
-> doing that then you don't need a releasepage.  If you are doing that
-> then you must have a releasepage().
+> If last_pid is within PID_MAX and max_pid_cross is set, this
+> pid might have been given to another process. So, goto the
+> corresponding hashlist and check for its existence. If no task
+> with given pid found, then get_pid is free to return pid as the
+> available pid.
 
-Right now, there are no filesystems actually doing anything filesystem
-specific here, are there?  I really wonder if making this field, formerly
-known as buffers, opaque to the vfs is the right idea.
+Doesn't work: find_task_by_pid() only checks task->pid. But the result 
+of get_pid mustn't be in use as a session or tgid value either
 
--- 
-Daniel
+--
+	Manfred
+

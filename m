@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280293AbRJaQiB>; Wed, 31 Oct 2001 11:38:01 -0500
+	id <S280290AbRJaQiV>; Wed, 31 Oct 2001 11:38:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280291AbRJaQhw>; Wed, 31 Oct 2001 11:37:52 -0500
-Received: from mustard.heime.net ([194.234.65.222]:8333 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S280290AbRJaQhh>; Wed, 31 Oct 2001 11:37:37 -0500
-Date: Wed, 31 Oct 2001 17:38:14 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: which cpu?
-Message-ID: <Pine.LNX.4.30.0110311735170.27680-100000@mustard.heime.net>
+	id <S280291AbRJaQiL>; Wed, 31 Oct 2001 11:38:11 -0500
+Received: from sitar.i-cable.com ([210.80.60.11]:9108 "HELO sitar.i-cable.com")
+	by vger.kernel.org with SMTP id <S280290AbRJaQh4>;
+	Wed, 31 Oct 2001 11:37:56 -0500
+Message-ID: <3BB7F3FC.1020909@rcn.com.hk>
+Date: Mon, 01 Oct 2001 12:41:32 +0800
+From: David Chow <davidchow@rcn.com.hk>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-GB; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-gb
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: The old vm variables in /proc/sys/vm/
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Dear all,
 
-which cpu should I compile for, when having a so-called "National SC1200
-32bit, 266MHz, x86-compatible processor with integrated TV video
-processor"?
+I am porting my old code to the new kernels 2.4.12 , I find the a couple 
+of variables including "freepages" in the kernel space are gone... how 
+can I read these values in the kernel space? Also it is missing from 
+/proc/sys/vm as well. Is there a new type of VM adopted in Linux? Thanks.
 
-thanks
+regards,
 
-please cc: to me as I'm not on the list
-
-roy
-
----
-Praktiserende dyslektiker.
-La ikke ortografiske krumspring skygge for
-intensjonen bak denne fremstilling.
+DC
 

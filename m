@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271056AbTGPS4S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271069AbTGPS4R
+	id S271025AbTGPS6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTGPS6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:56:17 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:40965 "EHLO
+	Wed, 16 Jul 2003 14:58:25 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:41477 "EHLO
 	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S271056AbTGPS4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:56:13 -0400
-Date: Wed, 16 Jul 2003 14:59:42 -0400 (EDT)
+	id S271025AbTGPS6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 14:58:24 -0400
+Date: Wed, 16 Jul 2003 15:01:53 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 X-X-Sender: zwane@montezuma.mastecende.com
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's - all needed rpms
- installed)
-In-Reply-To: <1058196612.3353.2.camel@aurora.localdomain>
-Message-ID: <Pine.LNX.4.53.0307160148420.32541@montezuma.mastecende.com>
-References: <1058196612.3353.2.camel@aurora.localdomain>
+To: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
+	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test1-mm1
+In-Reply-To: <1058376099.936.6.camel@debian>
+Message-ID: <Pine.LNX.4.53.0307161501280.32541@montezuma.mastecende.com>
+References: <20030715225608.0d3bff77.akpm@osdl.org> <1058376099.936.6.camel@debian>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jul 2003, Trever L. Adams wrote:
+On Wed, 16 Jul 2003, Ramón Rey [UTF-8] Vicente[UTF-8] ó® ^R wrote:
 
-> OK, I now get past the initialization of the 3c920.  However, now it
-> hangs (sak enabled, sak doesn't work... completely dead) when eth0 tries
-> to come up.  I have IPv6 enabled (the router does 6to4, this isn't the
-> router), I don't believe I have any firewall stuff on this box, it does
-> dhcp for IPv4 address and ntp time.
+> El mi? 16-07-2003 a las 07:56, Andrew Morton escribió:
 > 
-> There was an oops earlier in the boot process.  It seems the sound card
-> (irq 3) did an irq and the kernel wasn't ready to accept so it barfed. 
-> There may have been more to it than that, I will check later today.  I
-> have to get back to my studies for now.
+> > . Another interactivity patch from Con.  Feedback is needed on this
+> >   please - we cannot make much progress on this fairly subjective work
+> >   without lots of people telling us how it is working for them.
+> 
+> Well, my desktop experience with this is good. But the music playing
+> problems (aka mp3/ogg playing problems) still there. Its better, and I
+> feel the problems are near to be solved, but the player still jumps..
 
-Can you capture that message? Perhaps your network card and sound card 
-share an interrupt?
+How fast is your processor?
 
-	Zwane
 -- 
 function.linuxpower.ca

@@ -1,49 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312677AbSCVFtg>; Fri, 22 Mar 2002 00:49:36 -0500
+	id <S312678AbSCVFv4>; Fri, 22 Mar 2002 00:51:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312672AbSCVFt0>; Fri, 22 Mar 2002 00:49:26 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:52157 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S311294AbSCVFtS> convert rfc822-to-8bit; Fri, 22 Mar 2002 00:49:18 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <joeja@mindspring.com>,
-        "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (1003) - Registered Version
-Date: Thu, 21 Mar 2002 21:49:15 -0800
-In-Reply-To: <RELAY2HXrsOZoybKw2N00004110@relay2.softcomca.com>
-Subject: Re: max number of threads on a system
+	id <S312679AbSCVFvq>; Fri, 22 Mar 2002 00:51:46 -0500
+Received: from angband.namesys.com ([212.16.7.85]:37252 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S312678AbSCVFv3>; Fri, 22 Mar 2002 00:51:29 -0500
+Date: Fri, 22 Mar 2002 08:51:28 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops at boot with 2.5.7 and i810 (reiserFS related?)
+Message-ID: <20020322085128.B6792@namesys.com>
+In-Reply-To: <Pine.LNX.4.44.0203211841010.21275-100000@Expansa.sns.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020322054916.AAA14361@shell.webmaster.com@whenever>
+Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 21 Mar 2002 20:05:39 -0500, joeja@mindspring.com wrote:
->What limits the number of threads one can have on a Linux system?
+Hello!
 
-	Common sense, one would hope.
+On Thu, Mar 21, 2002 at 06:41:49PM +0100, Luigi Genoni wrote:
 
->I have a simple program that creates an array of threads and it locks up at
->the creation of somewhere between 250 and 275 threads.
+> It seems that a lot of users had oops mounting reiserFS with 2.5.6, but
+> then a patch fixed that. Now I think this patch is in 2.5.7, (it should),
+> but there are other changes i think to reiserFS code. So i have other
+> oopses.
 
-	If it locks up, that's a bug. I remember older versions of glibc actually 
-had this bug. But it should simply fail to create them.
+reiserfs in 2.5.6-pre3 to 2.5.7 have a bug that prevent it from mounting
+usual filesystems (filesystems with relocated journals still works,
+but I doubt much people use that).
+ 
+> I think this could be a proof of a reiserFS bug.
 
->The program just hangs indefinately unless a Control-C is hit.
->
->How can I increase this number or can I?
+Sure.
 
-	Why increase the number of threads you can create before you trigger a bug? 
-Wouldn't it make more sense to *fix* the bug so that pthread_create returns 
-an error like it's supposed to?
+> If people at namesys need it (maybe they already know this, and have a
+> patch to try), tomorrow i will post the oop mounting
+> reiserFS.
 
-	In any event, don't create so many threads. Create threads only to keep CPUs 
-busy or to pend I/Os that can't be done asynchronously.
+No need for that. See attached patch that I am posting in response to
+any such report (so just looking in archives first might help you faster).
 
-	DS
+Bye,
+    Oleg
 
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="00-jdev_bd_merging_fix.diff"
 
+--- linux-2.5.6/fs/reiserfs/journal.c.orig	Tue Mar 12 15:25:27 2002
++++ linux-2.5.6/fs/reiserfs/journal.c	Tue Mar 12 15:26:47 2002
+@@ -1958,8 +1958,7 @@
+       		SB_ONDISK_JOURNAL_DEVICE( super ) ?
+ 		to_kdev_t(SB_ONDISK_JOURNAL_DEVICE( super )) : super -> s_dev;	
+ 	/* there is no "jdev" option and journal is on separate device */
+-	if( ( !jdev_name || !jdev_name[ 0 ] ) && 
+-	    SB_ONDISK_JOURNAL_DEVICE( super ) ) {
++	if( ( !jdev_name || !jdev_name[ 0 ] ) ) {
+ 		journal -> j_dev_bd = bdget( kdev_t_to_nr( jdev ) );
+ 		if( journal -> j_dev_bd )
+ 			result = blkdev_get( journal -> j_dev_bd, 
+@@ -1974,9 +1973,6 @@
+ 		return result;
+ 	}
+ 
+-	/* no "jdev" option and journal is on the host device */
+-	if( !jdev_name || !jdev_name[ 0 ] )
+-		return 0;
+ 	journal -> j_dev_file = filp_open( jdev_name, 0, 0 );
+ 	if( !IS_ERR( journal -> j_dev_file ) ) {
+ 		struct inode *jdev_inode;
+
+--7AUc2qLy4jB3hD7Z--

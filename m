@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbUDQTTV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 15:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbUDQTTV
+	id S264032AbUDQTWW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 15:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbUDQTWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 15:19:21 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5125 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263927AbUDQTTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 15:19:19 -0400
-Date: Sat, 17 Apr 2004 20:19:14 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marc Singer <elf@buici.com>, linux-kernel@vger.kernel.org
-Subject: Re: NFS and kernel 2.6.x
-Message-ID: <20040417201914.B21974@flint.arm.linux.org.uk>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Marc Singer <elf@buici.com>, linux-kernel@vger.kernel.org
-References: <20040415185355.1674115b.akpm@osdl.org> <1082084048.7141.142.camel@lade.trondhjem.org> <20040416045924.GA4870@linuxace.com> <1082093346.7141.159.camel@lade.trondhjem.org> <pan.2004.04.17.16.44.00.630010@smurf.noris.de> <1082225747.2580.18.camel@lade.trondhjem.org> <20040417183219.GB3856@flea> <1082228313.2580.25.camel@lade.trondhjem.org> <20040417190107.GA4179@flea> <1082228963.2580.34.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1082228963.2580.34.camel@lade.trondhjem.org>; from trond.myklebust@fys.uio.no on Sat, Apr 17, 2004 at 12:09:24PM -0700
+	Sat, 17 Apr 2004 15:22:22 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:1989 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S264032AbUDQTWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 15:22:21 -0400
+Date: Sat, 17 Apr 2004 15:22:44 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Mario Vanoni <vanonim@bluewin.ch>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: IMHO the usability of 2.6
+In-Reply-To: <40817D22.2030107@bluewin.ch>
+Message-ID: <Pine.LNX.4.58.0404171518320.2252@montezuma.fsmlabs.com>
+References: <40817D22.2030107@bluewin.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 12:09:24PM -0700, Trond Myklebust wrote:
-> On Sat, 2004-04-17 at 12:01, Marc Singer wrote:
-> 
-> > I think you are talking about the fstab mount option.  Is there a
-> > kernel command line option for this?  That's what I've been looking
-> > for.  I'm not using an initrd.
-> 
-> No. I'm talking about the built-in parser to enable NFSROOT to pass
-> mount options. As in:
-> 
->    nfsroot=[<server-ip>:]<root-dir>[,<nfs-options>]
-> 
-> See Documentation/nfsroot.txt. Put "tcp" as one of the "<nfs-options>",
-> and your root partition will use TCP instead of UDP.
+On Sat, 17 Apr 2004, Mario Vanoni wrote:
 
-Trond,
+> Tested 2.6.1[-mm#] and 2.6.5[-aa#]:
+> inexplicables crashes, mouse, NFS etc.,
+> on 2-3 of our 8 Linux machines (0.1-6 years old),
+> not usable for production, need five 9 (99.999).
+> I don't have logs, always switched back to 2.4.25.
+>
+> Starting with AT&T UNIX SVR2 (1986, rock solid),
+> later Linux 2.0, then 2.2, then 2.4,
+> 2.4.17 was the 1st veritable stable 2.4 kernel.
+> 2.4.25 had an uptime >=33 days before changing
+> all machines to 2.4.26.  Stable since 1-3 days.
+>
+> Feedback only and
+> kind regards
 
-Can you explain how this works?
+Well, thank you for testing the 2.6 kernel at least, but as far as
+bugreports/feedback, this one is found wanting. There is absolutely
+nothing we can do to help you based on what you have provided and you may
+as well have not posted.
 
-static int __init root_nfs_parse(char *name, char *buf)
-{
-...
-        while ((p = strsep (&name, ",")) != NULL) {
-                int token;
-                if (!*p)
-                        continue;
-                token = match_token(p, tokens, args);
-
-                /* %u tokens only */
-                if (match_int(&args[0], &option))
-                        return 0;
-
-Firstly, as far as I can see, args[] is uninitialised.  If match_token
-doesn't touch args[] then we pass match_int some uninitialised kernel
-memory.
-
-Secondly, we seem to exit if match_int doesn't parse a number.  Not
-all options in "tokens" have a number associated with them, including
-ones like "tcp".
-
-So, given that "tcp" is the only option, I think we'll end up passing
-match_int() some uninitialised memory which may cause a kernel oops.
-If not, it probably won't be a valid number, so we'll ignore the option.
-
-However, it will appear to work as long as the first option has a
-number associated with it (ie, is one of the first 9 options.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+	Zwane

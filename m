@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbUCLPtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 10:49:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUCLPtC
+	id S262227AbUCLPsp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 10:48:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUCLPsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 10:49:02 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:7406 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262220AbUCLPsu (ORCPT
+	Fri, 12 Mar 2004 10:48:45 -0500
+Received: from ns.suse.de ([195.135.220.2]:8161 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262220AbUCLPsf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 10:48:50 -0500
-Subject: Re: 2.6.4-mm1
-From: Len Brown <len.brown@intel.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F4D9F@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F4D9F@hdsmsx402.hd.intel.com>
+	Fri, 12 Mar 2004 10:48:35 -0500
+Subject: Re: [PATCH] lockfs patch for 2.6
+From: Chris Mason <mason@suse.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040312093146.A13678@infradead.org>
+References: <1078867885.25075.1458.camel@watt.suse.com>
+	 <20040312093146.A13678@infradead.org>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1079106515.2168.18.camel@dhcppc4>
+Message-Id: <1079106653.4185.171.camel@watt.suse.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 12 Mar 2004 10:48:35 -0500
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Mar 2004 10:50:53 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-11 at 20:03, Neil Brown wrote:
+On Fri, 2004-03-12 at 04:31, Christoph Hellwig wrote:
 
-> I've seen this before when trying to boot a P4 kernel on a P-classic
-> etc, so I tried compiling with CONFIG_M386, and got lots of compile
-> errors:
+> Can we please rename write_super_lockfs to a sane name?
 > 
-> include/asm/acpi.h: In function `__acpi_acquire_global_lock':
-> include/asm/acpi.h:74: warning: implicit declaration of function
-> `cmpxchg'
+> freeze_fs/thaw_fs sounds like a good name.
 > 
-fixed in latest ACPI patch.
+Sure.
 
-> So I tried the default (CONFIG_M686) and it still doesn't work.
+> This looks ugly.  What about returning the superblock from the freeze
+> routine so you can simply pass it into the thaw routine?
 > 
-> So: where do I look next?
+I like it, will do.
 
-did you try "acpi=off"
-if the system crashed during acpi table parsing, that would happen
-before console output; and acpi=off would skip table parsing.
+> 
+> This looks grossly misnamed again.  And why do you need to have
+> sync_super_locks splitted out?  Calling it on it's own doesn't make much
+> sense.
+> 
 
-thanks,
--Len
+Would you like this better:
+
+device mapper code:
+	fsync_bdev(bdev);
+	s = freeze_fs(bdev);
+	< create snap shot >
+	thaw_fs(bdev, s);
+
+thaw_fs needs the bdev so it can up the bdev mount semaphore.
+
+-chris
 
 

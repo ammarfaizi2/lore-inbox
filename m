@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318165AbSHZRgl>; Mon, 26 Aug 2002 13:36:41 -0400
+	id <S318161AbSHZRf7>; Mon, 26 Aug 2002 13:35:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318169AbSHZRgk>; Mon, 26 Aug 2002 13:36:40 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13060 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318165AbSHZRgW>; Mon, 26 Aug 2002 13:36:22 -0400
-Date: Mon, 26 Aug 2002 10:42:34 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5.31] transparent PCI-to-PCI bridges
-In-Reply-To: <20020826175747.A27952@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.33.0208261038440.15474-100000@penguin.transmeta.com>
+	id <S318165AbSHZRf7>; Mon, 26 Aug 2002 13:35:59 -0400
+Received: from mail2.efi.com ([192.68.228.89]:39177 "HELO
+	fcexgw02.efi.internal") by vger.kernel.org with SMTP
+	id <S318161AbSHZRf6>; Mon, 26 Aug 2002 13:35:58 -0400
+Message-ID: <D9F6B9DABA4CAE4B92850252C52383AB062C7A21@ex-eng-corp>
+From: Frederic Roussel <frederic.roussel@efi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: TUX2 fiulesystem
+Date: Mon, 26 Aug 2002 10:40:09 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 26 Aug 2002, Ivan Kokshaysky wrote:
-> 
-> Ok. Updated patch appended.
+Hi,
 
-Please don't do it like this: I hate code that changes standard PCI data 
-structure meaning (in this case the "class" thing) behind peoples back.. 
-Some other user might well want to look at the original class member, and 
-rewriting it to a magic value just to make the transparency check pass 
-sounds like a bad idea to me.
+Mr Daniel Phillips started the TUX2 filesystem project some time ago.
+The links to `tux2' are either dead or quite old.
 
-So instead, I would suggest that you add a single-bit "transparent" field
-to the PCI structure, and initialize it to "(class & 0xff) == 1" when
-initializing the device data. Then, any fixup can just set the transparent
-bit to 1.
+Does any kernel developer know about the status of that project ?
 
-That would make the code more robust, and more readable in my opionion.
+Maybe yourself, Daniel, care to comment ?
 
-Ok?
+Thanks in advance,
 
-		Linus
-
+--
+Frederic.R.Roussel
+ -o)                                   (o-
+ /\\ Join the penguin force  (o_  (o_  //\
+_\_v  The Linux G3N3R47!0N   (/)_ (/)_ v_/_
+ 

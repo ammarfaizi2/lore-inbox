@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271753AbRICRIF>; Mon, 3 Sep 2001 13:08:05 -0400
+	id <S271754AbRICRJQ>; Mon, 3 Sep 2001 13:09:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271754AbRICRHy>; Mon, 3 Sep 2001 13:07:54 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:56451 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S271753AbRICRHm>;
-	Mon, 3 Sep 2001 13:07:42 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 3 Sep 2001 17:07:28 GMT
-Message-Id: <200109031707.RAA36835@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: [PATCH] cleanup in fs/super.c (do_kern_mount())
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S271756AbRICRJF>; Mon, 3 Sep 2001 13:09:05 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:9225 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S271755AbRICRIy>; Mon, 3 Sep 2001 13:08:54 -0400
+Message-ID: <3B93B95E.F30F1F8B@loewe-komp.de>
+Date: Mon, 03 Sep 2001 19:09:50 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [bug report] NFS and uninterruptable wait states
+In-Reply-To: <m3zo8cp93a.fsf@belphigor.mcnaught.org>  <01090310483100.26387@faldara> <32526.999534512@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> +#define MS_NOUSER    (1<<31)
-
->> a pity to waste a bit
-
-> No, it's not useful for userland ;-) For internal use.
-
-Hmm. Bad style, but acceptable if you never do it again :-)
-
-[I mean: as soon as we start using more than 16 mount flags
-we have the top 16 bits, but only 2^16 - 1 values are available
-since 0xc0ed is a conventional value; now if the bits are
-completely independent then it is strange to forbid one
-particular random combination, and it is cleaner to use
-only 15 bits with 2^15 values. If the top bit is never used
-from user space then it is available for internal purposes.]
-
-Andries
+David Woodhouse wrote:
+> 
+> doug@wireboard.com said:
+> >  NFS does this (wait in D state) by default in order to prevent naive
+> > applications from getting timeout errors that they're not equipped to
+> > handle--the idea being that, if an NFS server goes down, programs
+> > using it will simply freeze and recover once it returns, rather than
+> > getting a timeout error and possibly becoming confused.
+> 
+> Timeouts are a completely separate issue, surely? Applications ought to be
+> able to deal with getting a _signal_ during a system call, whatever happens.
+> 
+> IMO, sleeping in state TASK_UNINTERRUPTIBLE in any situation where you can't
+> prove that the wakeup _will_ happen and will happen _soon_ should be
+> considered a bug - it's almost always just because someone hasn't bothered
+> to implement the cleanup code required for dealing with being interrupted.
+> 
+> /me tries to work out why anyone would ever want filesystem accesses to be
+> uninterruptible.
+> 
+Because historically the 'D' meant "wait on _D_isk" 8-)

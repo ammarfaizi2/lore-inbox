@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265471AbUBJAgV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 19:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbUBJAgP
+	id S265420AbUBIX6v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 18:58:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUBIX4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 19:36:15 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45025 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265471AbUBJAcJ
+	Mon, 9 Feb 2004 18:56:13 -0500
+Received: from mail.kroah.org ([65.200.24.183]:61628 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265433AbUBIXWj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 19:32:09 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Willy Tarreau <willy@w.ods.org>, Athol Mullen <athol@idl.net.au>
-Subject: Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
-Date: Tue, 10 Feb 2004 01:37:32 +0100
-User-Agent: KMail/1.5.3
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1mtPj-7oQ-3@gated-at.bofh.it> <20040208073151.GC29363@alpha.home.local> <200402100110.26513.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200402100110.26513.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402100137.32804.bzolnier@elka.pw.edu.pl>
+	Mon, 9 Feb 2004 18:22:39 -0500
+Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
+In-Reply-To: <107636893939@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 9 Feb 2004 15:22:20 -0800
+Message-Id: <1076368940408@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 of February 2004 01:10, Bartlomiej Zolnierkiewicz wrote:
-> On Sunday 08 of February 2004 08:31, Willy Tarreau wrote:
-> > On Sun, Feb 08, 2004 at 11:45:18AM +1100, Athol Mullen wrote:
-> > > Before I modified eighty_ninty_three(), it returning 0 caused the
-> > > _indicated_ mode to drop to UDMA33.  Check in /proc/ide/piix to see
-> > > what mode the driver tells you.  IIRC (could be wrong), dmesg and
-> > > hdparm both believe it to be in UDMA33 while the init code and
-> > > /proc/ide/piix both showed it as UDMA5.
->
-> So host recognizes 80-wires cable correctly, but drive doesn't.
-> eighty_ninty_three() is for checking _drive_ side.
+ChangeSet 1.1500.11.12, 2004/02/03 16:48:38-08:00, eike-hotplug@sf-tec.de
 
-It is for both host and drive sides.
-I should have read my mail before hitting SEND button. ;-)
+[PATCH] PCI: avoid two returns directly after each other in pcidriver.c
+
+This avoids a return direct before the final return of a function. Better
+only modify the return code and fall through to the final return.
+
+
+ drivers/pci/pci-driver.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	Mon Feb  9 14:59:00 2004
++++ b/drivers/pci/pci-driver.c	Mon Feb  9 14:59:00 2004
+@@ -241,7 +241,7 @@
+ 		error = drv->probe(pci_dev, id);
+ 	if (error >= 0) {
+ 		pci_dev->driver = drv;
+-		return 0;
++		error = 0;
+ 	}
+ 	return error;
+ }
 

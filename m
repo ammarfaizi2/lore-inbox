@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130615AbRCISyA>; Fri, 9 Mar 2001 13:54:00 -0500
+	id <S130621AbRCITEa>; Fri, 9 Mar 2001 14:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130617AbRCISxu>; Fri, 9 Mar 2001 13:53:50 -0500
-Received: from waste.org ([209.173.204.2]:55314 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S130615AbRCISxh>;
-	Fri, 9 Mar 2001 13:53:37 -0500
-Date: Fri, 9 Mar 2001 12:52:45 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: Helge Hafting <helgehaf@idb.hist.no>, Manoj Sontakke <manojs@sasken.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: quicksort for linked list
-In-Reply-To: <200103091152.MAA31645@cave.bitwizard.nl>
-Message-ID: <Pine.LNX.4.30.0103091240130.5548-100000@waste.org>
+	id <S130622AbRCITEU>; Fri, 9 Mar 2001 14:04:20 -0500
+Received: from tux.rsn.hk-r.se ([194.47.143.135]:208 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S130621AbRCITEH>;
+	Fri, 9 Mar 2001 14:04:07 -0500
+Date: Fri, 9 Mar 2001 20:02:33 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: serialconsole broken in 2.4.2-ac16
+Message-ID: <Pine.LNX.4.21.0103092001070.28090-100000@tux.rsn.bth.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Mar 2001, Rogier Wolff wrote:
+Hi
 
-> Quicksort however is an algorithm that is recursive. This means that
-> it can use unbounded amounts of stack -> This is not for the kernel.
+I found out that there has been a namechange in serial.h and here's the
+corresponding changes to serial.c.
 
-It is of course bounded by the input size, but yes, it can use O(n)
-additional memory in the worst case. There's no particular reason this
-memory has to be on the stack - it's just convenient.
+--- linux-2.4.2-ac16.backup/drivers/char/serial.c	Fri Mar  9 16:39:16 2001
++++ linux-2.4.2-ac16/drivers/char/serial.c	Fri Mar  9 19:57:52 2001
+@@ -5494,7 +5494,7 @@
+ 		if (--tmout == 0)
+ 			break;
+ 	} while((status & BOTH_EMPTY) != BOTH_EMPTY);
+-	if (info->flags & ASYNC_NO_FLOW)
++	if (info->flags & ASYNC_CONS_FLOW)
+ 		return;
+ 	tmout = 1000000;
+ 	while (--tmout && ((serial_in(info, UART_MSR) & UART_MSR_CTS) == 0));
+@@ -5663,7 +5663,7 @@
+ 	 */
+ 	state = rs_table + co->index;
+ 	if (doflow == 0)
+-		state->flags |= ASYNC_NO_FLOW;
++		state->flags |= ASYNC_CONS_FLOW;
+ 	info = &async_sercons;
+ 	info->magic = SERIAL_MAGIC;
+ 	info->state = state;
 
-> Isn't it easier to do "insertion sort": Keep the lists sorted, and
-> insert the item at the right place when you get the new item.
+/Martin
 
-Assuming you get your items in sorted order, this is also O(N^2).
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+Linux hackers are funny people: They count the time in patchlevels.
 

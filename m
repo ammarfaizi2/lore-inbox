@@ -1,30 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265713AbTGDCWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 22:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbTGDCWE
+	id S265591AbTGDCVu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 22:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265665AbTGDCTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 22:22:04 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:62679 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S265671AbTGDCR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 22:17:59 -0400
-Date: Thu, 03 Jul 2003 22:32:12 -0400
+	Thu, 3 Jul 2003 22:19:49 -0400
+Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:22715 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S265691AbTGDCSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 22:18:23 -0400
+Date: Thu, 03 Jul 2003 22:32:37 -0400
 From: Jeff Sipek <jeffpc@optonline.net>
-Subject: [PATCH - RFC] [3/5] 64-bit network statistics - architecture specific
- code I.
+Subject: [PATCH - RFC] [5/5] 64-bit network statistics - documentation
 To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
        Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
-Message-id: <200307032232.21455.jeffpc@optonline.net>
+Message-id: <200307032232.45830.jeffpc@optonline.net>
 MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_r1dw2UNqdSrt6f+6lNWrjw)"
+Content-type: multipart/mixed; boundary="Boundary_(ID_FYny75bNLkjZXnh/XElm0A)"
 User-Agent: KMail/1.5.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary_(ID_r1dw2UNqdSrt6f+6lNWrjw)
+--Boundary_(ID_FYny75bNLkjZXnh/XElm0A)
 Content-type: Text/Plain; charset=us-ascii
 Content-transfer-encoding: 7BIT
 Content-disposition: inline
@@ -34,533 +33,119 @@ Content-description: clearsigned data
 Hash: SHA1
 
 64-bit network statistics:
-	Part 3 of 5 - architecture specific code I.
+	Part 5 of 5 - documentation
 
 - -- 
-Trust me, you don't want me doing _anything_ first thing in the morning.
-		- Linus Torvalds
+Only two things are infinite, the universe and human stupidity, and I'm 
+not sure about the former.
+		- Albert Einstein
 
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/BOcxwFP0+seVj/4RApLpAKC4O/Mf0XaX33R6Vj1uMX7cf99tTwCeOFWV
-Y6BE1PGiw83GOEfbvECeR68=
-=wFlU
+iD8DBQE/BOdIwFP0+seVj/4RAq5jAKC5Aa8nif2ipuxbq5tnthmi9XtYuACfYQbb
+gqrGGiaOR6u92+zDISWJxeY=
+=shpM
 -----END PGP SIGNATURE-----
 
---Boundary_(ID_r1dw2UNqdSrt6f+6lNWrjw)
-Content-type: text/x-diff; charset=us-ascii; name=asm_1.diff
+--Boundary_(ID_FYny75bNLkjZXnh/XElm0A)
+Content-type: text/x-diff; charset=us-ascii; name=doc.diff
 Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=asm_1.diff
+Content-disposition: attachment; filename=doc.diff
 
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-alpha/atomic.h linux-2.5.74-nx/include/asm-alpha/atomic.h
---- linux-2.5.74-vanilla/include/asm-alpha/atomic.h	2003-07-02 16:50:11.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-alpha/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -9,6 +9,10 @@
-  * than regular operations.
-  */
- 
-+/*
-+ * Authors:	?:				?
-+ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
-+ */
- 
- /*
-  * Counter is volatile to make sure gcc doesn't try to be clever
-@@ -111,4 +115,33 @@
- #define smp_mb__before_atomic_inc()	smp_mb()
- #define smp_mb__after_atomic_inc()	smp_mb()
- 
-+#include <linux/spinlock.h>
+diff -X dontdiff -Naur linux-2.5.74-vanilla/Documentation/networking/00-INDEX linux-2.5.74-nx/Documentation/networking/00-INDEX
+--- linux-2.5.74-vanilla/Documentation/networking/00-INDEX	2003-07-02 16:53:01.000000000 -0400
++++ linux-2.5.74-nx/Documentation/networking/00-INDEX	2003-07-03 15:10:59.000000000 -0400
+@@ -2,6 +2,8 @@
+ 	- this file
+ 3c505.txt
+ 	- information on the 3Com EtherLink Plus (3c505) driver.
++64bitstats.txt
++	- information about 64bit network statistics
+ 6pack.txt
+ 	- info on the 6pack protocol, an alternative to KISS for AX.25
+ 8139too.txt
+diff -X dontdiff -Naur linux-2.5.74-vanilla/Documentation/networking/64bitstats.txt linux-2.5.74-nx/Documentation/networking/64bitstats.txt
+--- linux-2.5.74-vanilla/Documentation/networking/64bitstats.txt	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.5.74-nx/Documentation/networking/64bitstats.txt	2003-07-03 15:10:59.000000000 -0400
+@@ -0,0 +1,77 @@
++The New API:
++------------
 +
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
-+}
++net_stats_inc(<variable name>, <pointer to statistics struct>)
++	<pointer to statistics struct> -> <variable name> ++;
 +
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
-+}
++net_stats_add(<variable name>, <up to u_int64_t>, <pointer to statistics struct>)
++	<pointer to statistics struct> -> <variable name> += <up to u_int64_t>;
 +
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
++net_stats_set(<variable name>, <up to u_int64_t>, <pointer to statistics struct>)
++	<pointer to statistics struct> -> <variable name> = <up to u_int64_t>;
 +
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
-+	return tmp;
-+}
++net_stats_get(<variable name>, <pointer to statistics struct>)
++	return <pointer to statistics struct> -> <variable name>;
 +
- #endif /* _ALPHA_ATOMIC_H */
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-arm/atomic.h linux-2.5.74-nx/include/asm-arm/atomic.h
---- linux-2.5.74-vanilla/include/asm-arm/atomic.h	2003-07-02 16:41:50.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-arm/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -12,6 +12,7 @@
-  *   13-04-1997	RMK	Made functions atomic!
-  *   07-12-1997	RMK	Upgraded for v2.1.
-  *   26-08-1998	PJB	Added #ifdef __KERNEL__
-+ *   02-07-2003	JS	Added locked_*
-  */
- #ifndef __ASM_ARM_ATOMIC_H
- #define __ASM_ARM_ATOMIC_H
-@@ -109,5 +110,32 @@
- #define smp_mb__before_atomic_inc()	barrier()
- #define smp_mb__after_atomic_inc()	barrier()
- 
-+#include <linux/spinlock.h>
 +
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+}
++Supported Drivers:
++------------------
 +
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+}
++  - 8139too
++  - 8390
++  - dummy
++  - eepro100
++  - loopback
++  - ne2k-pci
++  - pcnet32
 +
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
 +
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
++How To Test:
++------------
 +
-+	return tmp;
-+}
++You want to flood the interface with as many packets/bytes/etc. as possible,
++so, you can either attach it to a very busy network (with a lot of broadcast
++traffic) or you can simulate this traffic using netcat in this fashion:
 +
- #endif
- #endif
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-arm26/atomic.h linux-2.5.74-nx/include/asm-arm26/atomic.h
---- linux-2.5.74-vanilla/include/asm-arm26/atomic.h	2003-07-02 16:46:23.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-arm26/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -12,6 +12,7 @@
-  *   13-04-1997	RMK	Made functions atomic!
-  *   07-12-1997	RMK	Upgraded for v2.1.
-  *   26-08-1998	PJB	Added #ifdef __KERNEL__
-+ *   02-07-2003	JS	Added locked_*
-  *
-  *  FIXME - its probably worth seeing what these compile into...
-  */
-@@ -111,5 +112,32 @@
- #define smp_mb__before_atomic_inc()	barrier()
- #define smp_mb__after_atomic_inc()	barrier()
- 
-+#include <linux/spinlock.h>
++host1$ netcat -l -p port > /dev/null < /dev/zero
++host2$ netcat host1 port > /dev/null < /dev/zero
 +
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+}
++*WARNING* Running these commands will saturate the network, use them only if
++you know what you are doing. I cannot be held responsible for damages caused
++by the usage of these commands.
 +
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+}
 +
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
++Supported Architectures:
++-----------------------
 +
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
++arch		reg. size	addr. space	support
 +
-+	return tmp;
-+}
++asm-alpha
++asm-arm		32 bit		32 bit		X
++asm-arm26	32 bit		26 bit		X
++asm-cris
++asm-h8300
++asm-i386	32 bit		32 bit		X
++asm-ia64	64 bit		64 bit		N
++asm-m68k
++asm-m68knommu
++asm-mips
++asm-mips64
++asm-parisc	64 bit				*1
++asm-ppc
++asm-ppc64
++asm-s390
++asm-sh
++asm-sparc					X
++asm-sparc64	64 bit		64 bit		N
++asm-um
++asm-v850
++asm-x86_64	64 bit		64 bit		N
 +
- #endif
- #endif
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-cris/atomic.h linux-2.5.74-nx/include/asm-cris/atomic.h
---- linux-2.5.74-vanilla/include/asm-cris/atomic.h	2003-07-02 16:49:13.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-cris/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -10,6 +10,11 @@
-  * resource counting etc..
-  */
- 
-+ /*
-+ * Authors:	?:				?
-+ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
-+ */
-+
- /*
-  * Make sure gcc doesn't try to be clever and move things around
-  * on us. We need to use _exactly_ the address the user gave us,
-@@ -145,4 +150,33 @@
- #define smp_mb__before_atomic_inc()    barrier()
- #define smp_mb__after_atomic_inc()     barrier()
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
-+
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
-+	return tmp;
-+}
-+
- #endif
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-h8300/atomic.h linux-2.5.74-nx/include/asm-h8300/atomic.h
---- linux-2.5.74-vanilla/include/asm-h8300/atomic.h	2003-07-02 16:45:53.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-h8300/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -6,6 +6,11 @@
-  * resource counting etc..
-  */
- 
-+/*
-+ * Authors:	?:				?
-+ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
-+ */
-+
- typedef struct { int counter; } atomic_t;
- #define ATOMIC_INIT(i)	{ (i) }
- 
-@@ -104,4 +109,33 @@
- #define atomic_sub_and_test(i,v) (atomic_sub_return((i), (v)) == 0)
- #define atomic_dec_and_test(v) (atomic_sub_return(1, (v)) == 0)
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
-+
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
-+	return tmp;
-+}
-+
- #endif /* __ARCH_H8300_ATOMIC __ */
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-i386/atomic.h linux-2.5.74-nx/include/asm-i386/atomic.h
---- linux-2.5.74-vanilla/include/asm-i386/atomic.h	2003-07-02 16:43:50.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-i386/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -1,7 +1,13 @@
- #ifndef __ARCH_I386_ATOMIC__
- #define __ARCH_I386_ATOMIC__
- 
-+/*
-+ * Authors:	?:				?
-+ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
-+ */
-+
- #include <linux/config.h>
-+#include <linux/types.h>
- 
- /*
-  * Atomic operations that C can't guarantee us.  Useful for
-@@ -201,4 +207,31 @@
- #define smp_mb__before_atomic_inc()	barrier()
- #define smp_mb__after_atomic_inc()	barrier()
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
-+
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+
-+	return tmp;
-+}
-+
- #endif
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-ia64/atomic.h linux-2.5.74-nx/include/asm-ia64/atomic.h
---- linux-2.5.74-vanilla/include/asm-ia64/atomic.h	2003-07-02 16:42:15.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-ia64/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -11,6 +11,7 @@
-  *
-  * Copyright (C) 1998, 1999, 2002 Hewlett-Packard Co
-  *	David Mosberger-Tang <davidm@hpl.hp.com>
-+ * Copyright (C) 2003 Josef "Jeff" Sipek <jeffpc@optonline.net>
-  */
- #include <linux/types.h>
- 
-@@ -107,4 +108,21 @@
- #define smp_mb__before_atomic_inc()	barrier()
- #define smp_mb__after_atomic_inc()	barrier()
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	*a += b;
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	*a = b;
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	return *a;
-+}
-+
- #endif /* _ASM_IA64_ATOMIC_H */
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-m68k/atomic.h linux-2.5.74-nx/include/asm-m68k/atomic.h
---- linux-2.5.74-vanilla/include/asm-m68k/atomic.h	2003-07-02 16:40:29.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-m68k/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -10,6 +10,11 @@
-  * We do not have SMP m68k systems, so we don't have to deal with that.
-  */
- 
-+/*
-+ * Authors:	?:				?
-+ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
-+ */
-+
- typedef struct { int counter; } atomic_t;
- #define ATOMIC_INIT(i)	{ (i) }
- 
-@@ -55,4 +60,33 @@
- #define smp_mb__before_atomic_inc()	barrier()
- #define smp_mb__after_atomic_inc()	barrier()
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
-+
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
-+	return tmp;
-+}
-+
- #endif /* __ARCH_M68K_ATOMIC __ */
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-m68knommu/atomic.h linux-2.5.74-nx/include/asm-m68knommu/atomic.h
---- linux-2.5.74-vanilla/include/asm-m68knommu/atomic.h	2003-07-02 16:46:53.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-m68knommu/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -9,6 +9,11 @@
-  */
- 
- /*
-+ * Authors:	?:				?
-+ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
-+ */
-+
-+/*
-  * We do not have SMP m68k systems, so we don't have to deal with that.
-  */
- 
-@@ -115,4 +120,33 @@
- #define atomic_sub_and_test(i,v) (atomic_sub_return((i), (v)) == 0)
- #define atomic_dec_and_test(v) (atomic_sub_return(1, (v)) == 0)
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
-+
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
-+	return tmp;
-+}
-+
- #endif /* __ARCH_M68KNOMMU_ATOMIC __ */
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-mips/atomic.h linux-2.5.74-nx/include/asm-mips/atomic.h
---- linux-2.5.74-vanilla/include/asm-mips/atomic.h	2003-07-02 16:39:22.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-mips/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -10,6 +10,7 @@
-  * for more details.
-  *
-  * Copyright (C) 1996, 1997, 2000 by Ralf Baechle
-+ * Copyright (C) 2003 by Josef "Jeff" Sipek <jeffpc@optonline.net>
-  */
- #ifndef __ASM_ATOMIC_H
- #define __ASM_ATOMIC_H
-@@ -277,6 +278,35 @@
- #define smp_mb__before_atomic_inc()	smp_mb()
- #define smp_mb__after_atomic_inc()	smp_mb()
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
-+
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
-+	return tmp;
-+}
-+
- #endif /* defined(__KERNEL__) */
- 
- #endif /* __ASM_ATOMIC_H */
-diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-mips64/atomic.h linux-2.5.74-nx/include/asm-mips64/atomic.h
---- linux-2.5.74-vanilla/include/asm-mips64/atomic.h	2003-07-02 16:41:17.000000000 -0400
-+++ linux-2.5.74-nx/include/asm-mips64/atomic.h	2003-07-03 15:11:00.000000000 -0400
-@@ -10,6 +10,7 @@
-  * for more details.
-  *
-  * Copyright (C) 1996, 1997, 1999, 2000 by Ralf Baechle
-+ * Copyright (C) 2003 by Josef "Jeff" Sipek <jeffpc@optonline.net>
-  */
- #ifndef _ASM_ATOMIC_H
- #define _ASM_ATOMIC_H
-@@ -190,6 +191,35 @@
- #define smp_mb__before_atomic_inc()	smp_mb()
- #define smp_mb__after_atomic_inc()	smp_mb()
- 
-+#include <linux/spinlock.h>
-+
-+static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a += b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
-+}
-+
-+static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
-+{
-+	spin_lock(lock);
-+	*a = b;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
-+}
-+
-+static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
-+{
-+	u_int64_t tmp;
-+
-+	spin_lock(lock);
-+	tmp = *a;
-+	spin_unlock(lock);
-+	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
-+	return tmp;
-+}
-+
- #endif /* defined(__KERNEL__) */
- 
- #endif /* _ASM_ATOMIC_H */
++legend:
++--------
++	X  = full net_stats_* support
++	N  = native support
++	*1 - #error in 32-bit environment
++	-  = pseudo-support (using non-atomic instructions)
++	   = no support (doesn't compile)
 
---Boundary_(ID_r1dw2UNqdSrt6f+6lNWrjw)--
+--Boundary_(ID_FYny75bNLkjZXnh/XElm0A)--

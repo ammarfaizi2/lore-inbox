@@ -1,49 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269124AbTGORWx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269140AbTGORWx
+	id S269144AbTGORXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269148AbTGORXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:22:53 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:29707 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S269124AbTGORWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:22:21 -0400
-Date: Tue, 15 Jul 2003 18:38:39 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: ACPI-Devel mailing list <acpi-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, Len Brown <lenb417@yahoo.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: RE: ACPI patches updated (20030714)
-In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255EE8F@orsmsx401.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0307151832520.7904-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 15 Jul 2003 13:23:40 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:3289 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269144AbTGORXT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:23:19 -0400
+Date: Tue, 15 Jul 2003 10:36:08 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Carl Thompson <cet@carlthompson.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems compiling modules outside of tree in 2.6.0test1
+Message-Id: <20030715103608.38bf17f8.rddunlap@osdl.org>
+In-Reply-To: <1058251587.eec14da73ec3b@carlthompson.net>
+References: <1058251587.eec14da73ec3b@carlthompson.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jul 2003, Grover, Andrew wrote:
-> > From: Hugh Dickins [mailto:hugh@veritas.com] 
-> > > Make it so acpismp=force works (reported by Andrew Morton)
-> > 
-> > But we don't want "acpismp=force" to work, it now serves no purpose
-> > but to confuse.  May I push again to Marcelo my patch you acked
-> > before, which removes it completely?  I had been waiting to say it's
-> > in 2.6, but Andrew didn't push it from 2.5-mm into 2.6 - any reason?
-> > 
-> > Whereas we would still like "noht" to work, but it's now beyond me.
-> 
-> That patch was sitting in my bk tree but yeah it's kinda stale. Len
-> Brown was going to completely redo all this stuff, so Hugh if you have a
-> need for your fix in the interim then great feel free to push, but there
-> is a more comprehensive fix also in the works.
+On Mon, 14 Jul 2003 23:46:27 -0700 Carl Thompson <cet@carlthompson.net> wrote:
 
-I've no desperate need to push it, can easily apply the patch to my own
-tree.  It's just that Marcelo is motoring so speedily towards 2.4.22,
-be a shame if that goes out with CONFIG_ACPI_HT_ONLY needing pointless
-"acpismp=force" too.  What's the schedule for Len's rework to Marcelo?
+| [This problem still exists in Linux 2.6.0test1]
+| 
+| I am not on the kernel mailing list so please CC with any responses.  I am
+| new to this kernel / module stuff so if I am doing something obviously
+| wrong please correct me gently!
+| 
+| Hello,
+| 
+|      I have noticed a problem when compiling kernel modules outside of the
+| kernel tree for 2.5(.75).  I am compiling a 3rd party network module for
+| 2.5 and it needs to include "linux/netdevice.h" .  This file includes a
+| bunch of other kernel headers which in turn include more kernel headers.
+| This eventually gets to "asm/irq.h" and on my architechture (i386) this
+| file has the line
+| 
+|    #include "irq_vectors.h"
+| 
+|      The problem is that this "irq_vectors.h" file is not found in the same
+| directory as "irq.h" but in a different directory that is explicitly added
+| to the include path for the kernel in "arch/i386/Makefile" .   This is just
+| fine for kernel compiles using the kernel makefiles, but for stuff outside
+| of the tree it means that "irq_vectors.h" won't be found.  A solution would
+| be to to duplicate the relevant sections of the kernel's architecture
+| specific makefile stuff to calculate and add the include path myself, but
+| this seems unclean and would require me to add more architecture specific
+| voodoo for each architecture to be supported.
+| 
+|      I believe the proper solution would be for the kernel build system to
+| create a symbolic link to "irq_vectors.h" in "asm-i386/" just as "asm/"
+| itself is a symbolic link to "asm-i386/" instead of adding an include path
+| in the architecture specific makefile that breaks out-of-tree compiles.
 
-Hugh
+Are you using the expected style of Makefile?
+See linux/Documentation/modules.txt and
+linux/Documentation/kbuild/makefiles.txt .
 
+For a outside-the-kernel-tree module that I just built, I don't
+have this problem.  I modified this external module to printk()
+the value of NR_IRQS (from irq_vectors.h) with no problems.
+
+Here is my Makefile:
+# makefile for oops_test/dump*.c
+# Randy Dunlap, 2003-03-12
+# usage:
+# cd /path/to/kernel/source && make SUBDIRS=/path/to/source/oops_test/ modules
+
+CONFIG_OOPS_TEST=m
+
+obj-m := dump_test.o
+
+# dump_test-objs := dump_test.o
+
+clean-files := *.o
+
+# fini;
+
+
+
+--
+~Randy
+| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |

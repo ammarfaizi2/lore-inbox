@@ -1,96 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318258AbSIOVWN>; Sun, 15 Sep 2002 17:22:13 -0400
+	id <S318249AbSIOV2R>; Sun, 15 Sep 2002 17:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318266AbSIOVWN>; Sun, 15 Sep 2002 17:22:13 -0400
-Received: from 84e5e703.math.leidenuniv.nl ([132.229.231.3]:57487 "EHLO
-	zada.math.leidenuniv.nl") by vger.kernel.org with ESMTP
-	id <S318258AbSIOVWM>; Sun, 15 Sep 2002 17:22:12 -0400
-Date: Sun, 15 Sep 2002 23:27:06 +0200
-From: Lennert Buytenhek <buytenh@math.leidenuniv.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: bart.de.schuymer@pandora.be, linux-kernel@vger.kernel.org
-Subject: Re: bridge-netfilter patch
-Message-ID: <20020915232706.A21527@math.leidenuniv.nl>
-References: <200209130812.27093.bart.de.schuymer@pandora.be> <20020912.230916.96754743.davem@redhat.com> <20020913144518.A31318@math.leidenuniv.nl> <20020913.112235.27948638.davem@redhat.com>
-Mime-Version: 1.0
+	id <S318266AbSIOV2Q>; Sun, 15 Sep 2002 17:28:16 -0400
+Received: from packet.digeo.com ([12.110.80.53]:49813 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S318249AbSIOV2Q>;
+	Sun, 15 Sep 2002 17:28:16 -0400
+Message-ID: <3D85004E.59A4AE9F@digeo.com>
+Date: Sun, 15 Sep 2002 14:49:02 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org,
+       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+Subject: Re: Revealing benchmarks and new version of contest.
+References: <1032087616.3d846840e6eb1@kolivas.net> <3D84F2D3.2FDB1368@digeo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020913.112235.27948638.davem@redhat.com>; from davem@redhat.com on Fri, Sep 13, 2002 at 11:22:35AM -0700
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Sep 2002 21:33:06.0308 (UTC) FILETIME=[7A995440:01C25CFF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, Sep 13, 2002 at 11:22:35AM -0700, David S. Miller wrote:
-
->    > You need to remove the IPv4 bits, that copy of the MAC has to happen
->    > at a different layer, it does not belong in IPv4.  At best, everyone
->    > shouldn't eat that header copy.
->    
->    What if I make the memcpy conditional on "if (skb->physindev != NULL)"?
+Andrew Morton wrote:
 > 
-> First explain to me why the copy is needed for.
+> ..
+> I'll go see if Jens' deadline-iosched-5 patch fixes it.
 
-This is just to elaborate upon what Bart said earlier.
+Can't tell. It triggers the "IDE-fails-to-deliver-IO-completion"
+lockup which has been lurking around the tree for a couple of months.
 
-In the "L2 switched frame" case, we have a bit of a nasty problem
-with IP fragmentation.  And in the "L3 'switched' frame" case
-(brouted frame), we have an ordering problem with IP fragmentation
-and neighbor resolution.
+#0  io_schedule () at /usr/src/25/include/asm/atomic.h:122
+#1  0xc01305b4 in __lock_page (page=0xc10b6df0) at filemap.c:370
+#2  0xc013164e in read_cache_page (mapping=0xc3e0e244, index=0, filler=0xc01495e0 <blkdev_readpage>, data=0x0)
+    at /usr/src/25/include/linux/pagemap.h:86
+#3  0xc016c352 in read_dev_sector (bdev=0xc3cf7f60, n=0, p=0xc3fcbec4) at check.c:447
+#4  0xc016c764 in msdos_partition (state=0xc3cf6000, bdev=0xc3cf7f60) at msdos.c:397
+#5  0xc016c016 in check_partition (hd=0xc3da6800, bdev=0xc3cf7f60) at check.c:241
+#6  0xc016c134 in register_disk (disk=0xc3da6800, dev={value = 5632}, minors=64, ops=0xc0340cf0, size=120064896) at check.c:381
+#7  0xc0221bb0 in idedisk_attach (drive=0xc03b0230) at ide-disk.c:1710
+#8  0xc021df60 in ata_attach (drive=0xc03b0230) at ide.c:2449
+#9  0xc021ed15 in ide_register_driver (driver=0xc0340de0) at ide.c:3427
+#10 0xc0221bd1 in idedisk_init () at ide-disk.c:1725
+#11 0xc034c8d4 in do_initcalls () at main.c:483
+#12 0xc034c903 in do_basic_setup () at main.c:515
 
-This is what the call stack looks like when we have a purely
-bridged frame (that needs to be netfiltered):
-
-	net_rx_action
-	  -> br_handle_frame
-	    -> PF_BRIDGE/PRE_ROUTING
-	      -> br_handle_frame_finish
-		-> br_forward
-		  -> PF_BRIDGE/FORWARD
-		    -> __br_forward_finish
-		      -> PF_BRIDGE/POST_ROUTING
-			-> dev_queue_xmit
-
-
-This case is easy to see.  With ip_conntrack enabled, packets
-are reassembled in PRE_ROUTING and refragmented in POST_ROUTING.
-This refragmenting messes up the hardware header, so the fragments
-will leave the box with incorrect HW headers.
-
-
-The broute case is a bit harder to see.  If L3 (routed) packets
-are destined for a bridge device, we don't know what subdevice
-(slave port) they will go to until the bridge layer's br_dev_xmit
-has its way.  However, we would like to be able to use the real
-outgoing interface (physoutdev) in FORWARD and POST_ROUTING.
-
-To be able to do this, we postpone calling IPv4/FORWARD and
-IPv4/POST_ROUTING until after PF_BRIDGE/POST_ROUTING has happened,
-because at that point we know physoutdev so we can feed it to
-said IPv4 hooks.
-
-But.  Packet refragmentation normally happens in IPv4/POST_ROUTING.
-We don't want to do it there though, because that would cause the
-eventual call to IPv4/FORWARD and IPv4/POST_ROUTING to see all
-fragments instead of one packet (which goes against the idea of
-conntrack).
-
-So if we postpone FORWARD and POST_ROUTING until after br_dev_xmit,
-we effectively reverse refragmentation and neighbor resolution.
-But refragmentation messes up the hardware header.
-
-
-The 16byte hardware header copy fixes this by copying to each
-fragment the hardware header that was tacked onto or was already
-present on the bigger packet.  It's ugly, I admit.  There's
-currently no better way though.
-
-(And Bart, I chose 16 because 16-byte aligned 16-byte copies
-should be cheaper than 2-byte aligned 14-byte copies, and there
-should be at least 16 bytes before skb->data at this point
-anyway.  That is, if I understood the code correctly.)
-
-
-cheers,
-Lennert
+No quick fix here; this is all going to take some time to
+work through :(

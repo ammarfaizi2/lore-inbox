@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVDAIDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVDAIWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262671AbVDAIDt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 03:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVDAIBk
+	id S261594AbVDAIWp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 03:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVDAIWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 03:01:40 -0500
-Received: from fire.osdl.org ([65.172.181.4]:19383 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262666AbVDAIAk (ORCPT
+	Fri, 1 Apr 2005 03:22:45 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:46248 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261594AbVDAIWm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 03:00:40 -0500
-Date: Thu, 31 Mar 2005 23:59:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
-       jlan@engr.sgi.com, efocht@hpce.nec.com, linuxram@us.ibm.com,
-       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, greg@kroah.com
-Subject: Re: [1/1] CBUS: new very fast (for insert operations) message bus
- based on kenel connector.
-Message-Id: <20050331235927.6d104665.akpm@osdl.org>
-In-Reply-To: <1112341514.9334.103.camel@uganda>
-References: <20050320112336.2b082e27@zanzibar.2ka.mipt.ru>
-	<20050331162758.44aeaf44.akpm@osdl.org>
-	<1112337814.9334.42.camel@uganda>
-	<20050331232625.09057712.akpm@osdl.org>
-	<1112341514.9334.103.camel@uganda>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 1 Apr 2005 03:22:42 -0500
+Subject: Re: connector.c
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050401000215.6d85c477.akpm@osdl.org>
+References: <20050331173026.3de81a05.akpm@osdl.org>
+	 <1112339238.9334.66.camel@uganda> <20050331234213.0c06ba71.akpm@osdl.org>
+	 <1112342595.9334.120.camel@uganda>  <20050401000215.6d85c477.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f0KWH8ch5eFSJ/2G1k0p"
+Organization: MIPT
+Date: Fri, 01 Apr 2005 12:28:54 +0400
+Message-Id: <1112344134.9334.136.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 01 Apr 2005 12:22:16 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
->
-> On Thu, 2005-03-31 at 23:26 -0800, Andrew Morton wrote:
-> > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > >
-> > > > > +static int cbus_event_thread(void *data)
-> > >  > > +{
-> > >  > > +	int i, non_empty = 0, empty = 0;
-> > >  > > +	struct cbus_event_container *c;
-> > >  > > +
-> > >  > > +	daemonize(cbus_name);
-> > >  > > +	allow_signal(SIGTERM);
-> > >  > > +	set_user_nice(current, 19);
-> > >  > 
-> > >  > Please use the kthread api for managing this thread.
-> > >  > 
-> > >  > Is a new kernel thread needed?
-> > > 
-> > >  Logic behind cbus is following: 
-> > >  1. make insert operation return as soon as possible,
-> > >  2. deferring actual message delivering to the safe time
-> > > 
-> > >  That thread does second point.
-> > 
-> > But does it need a new thread rather than using the existing keventd?
-> 
-> Yes, it is much cleaner [especially from performance tuning point] 
-> to use own kernel thread than pospone all work to the queued work.
-> 
 
-Why?  Unless keventd is off doing something else (rare), it should be
-exactly equivalent.  And if keventd _is_ off doing something else then that
-will slow down this kernel thread too, of course.
+--=-f0KWH8ch5eFSJ/2G1k0p
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Plus keventd is thread-per-cpu and quite possibly would be faster.
+On Fri, 2005-04-01 at 00:02 -0800, Andrew Morton wrote:
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >
+> > On Thu, 2005-03-31 at 23:42 -0800, Andrew Morton wrote:
+> >  > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >  > >
+> >  > > > What happens if we expect a reply to our message but userspace n=
+ever sends
+> >  > > > one?  Does the kernel leak memory?  Do other processes hang?
+> >  > >=20
+> >  > > It is only advice, one may easily skip seq/ack initialization.
+> >  > > I could remove it totally from the header, but decided to=20
+> >  > > place it to force people to use more reliable protocols over netli=
+nk
+> >  > > by introducing such overhead.
+> >  >=20
+> >  > hm.  I don't know what that means.
+> >=20
+> >  Messages that are passed between agents must have only id,
+> >  but I decided to force people to use provided seq/ack fields
+> >  to store there some information about message order.
+> >  Neither kernel nor userspace requires that fields to be=20
+> >  somehow initialized.
+>=20
+> Back to my original question.  If the kernel expects a reply from userspa=
+ce
+> to a particular message, and that reply never comes, what happens?
+
+Nothing.
+If reply message will be recived, it will be delivered to the requested=20
+connector user, if reply will not be received just nothing happens.
+
+Not connector, but it's users who may expect reply to theirs messages.
+
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-f0KWH8ch5eFSJ/2G1k0p
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCTQZGIKTPhE+8wY0RAgqgAJ4op5b3kEMAxIlTI/CUZwX8qHfQhQCfQ/D3
+UFuagQ+qM/HG/yM9I/D1UkU=
+=euQs
+-----END PGP SIGNATURE-----
+
+--=-f0KWH8ch5eFSJ/2G1k0p--
+

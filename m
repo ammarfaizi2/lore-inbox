@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263549AbTETNbI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 09:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbTETNbI
+	id S263653AbTETNpY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 09:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263773AbTETNpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 09:31:08 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:58602 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S263549AbTETNbI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 09:31:08 -0400
-Date: Tue, 20 May 2003 15:44:00 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Pawan Deepika <pawan_deepika@yahoo.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux 2.4.18] via-rhine.c
-Message-ID: <20030520134400.GB25041@k3.hellgate.ch>
-Mail-Followup-To: Pawan Deepika <pawan_deepika@yahoo.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030519194317.20999.qmail@web41606.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 May 2003 09:45:24 -0400
+Received: from mail143.mail.bellsouth.net ([205.152.58.103]:54099 "EHLO
+	imf56bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id S263653AbTETNpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 09:45:23 -0400
+From: "J.C. Wren" <jcwren@jcwren.com>
+Reply-To: jcwren@jcwren.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Machin dependent serial port patches
+Date: Tue, 20 May 2003 09:57:14 -0400
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200305192056.00610.jcwren@jcwren.com> <1053432549.30546.5.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1053432549.30546.5.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030519194317.20999.qmail@web41606.mail.yahoo.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.68 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+Message-Id: <200305200957.14569.jcwren@jcwren.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You should ask this kind of questions on the kernelnewbies list.
+	The only prolem with using setserial is my console is one one of these serial 
+port (headless system.  I failed to mention that earlier).  So everything 
+that comes out the console at the wrong rate :(  However, Milton D. Miller 
+suggested looking at early_serial_rgister, which is used on ppc and ia64.  
+That might help.
 
-On Mon, 19 May 2003 12:43:17 -0700, Pawan Deepika wrote:
-> through the source code in via-rhine.c. What I
-> understand till now is that in Memory-mapped devices,
-> I/O operation is performed using
-> read(b/w/l)/write(b/w/l) functions while in IO mapped
-> devices it is done using in/out(b/w/l). Am I right?
+	--John
 
-What you do with inb etc. is called PIO (Programmed I/O).
+On Tuesday 20 May 2003 08:09 am, Alan Cox wrote:
+> On Maw, 2003-05-20 at 01:56, J.C. Wren wrote:
+> > 	One of the things I noticed in the port of 2.5.69 to the 386EX embedded
+> > system is that serial.h appears to not be a mach-xxx positionable file. 
+> > The 386EX board uses standard 8250 type serial ports, but at 3.6864Mhz
+> > instad of 1.8432Mhz.  There appears to be no way to build a patch set
+> > without modifying include/i386/serial.h.  Would this not be better places
+> > in mach-defaults? I'm trying very hard to modify as few files as possible
+> > when building these patch sets.
+>
+> Making asm-i386/serial.h include a mach- file sounds the right thing to
+> do. mach- for x86 is pretty new so a lot of stuff that maybe should be
+> in it, hasnt migrated yet.
+>
+> The counter argument however is that you should be able to use setserial
+> to adjust the baud base so you dont need to change anything 8)
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> But in via-rhine.c I notice use of inb and outb even
-> in memory mapped case(code is shown below)
-> 
-> ------------------------------------------------------
-> #ifdef USE_MEM
-> 530 static void __devinit enable_mmio(long ioaddr, int
-> chip_id)
-> 531 {
-
-It does exactly what the function name says: it uses PIO to flip a bit in
-some register to enable MMIO, which is just a different (and better) way to
-transfer the data.
-
-Roger

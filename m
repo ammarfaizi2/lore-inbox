@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293040AbSBVX1x>; Fri, 22 Feb 2002 18:27:53 -0500
+	id <S293044AbSBVXjs>; Fri, 22 Feb 2002 18:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293043AbSBVX1n>; Fri, 22 Feb 2002 18:27:43 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12043 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293040AbSBVX1a>;
-	Fri, 22 Feb 2002 18:27:30 -0500
-Date: Fri, 22 Feb 2002 20:27:12 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <20020221221842.V1779-100000@gerard>
-Message-ID: <Pine.LNX.4.33L.0202222024500.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S293043AbSBVXjj>; Fri, 22 Feb 2002 18:39:39 -0500
+Received: from codepoet.org ([166.70.14.212]:14315 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S293042AbSBVXjW>;
+	Fri, 22 Feb 2002 18:39:22 -0500
+Date: Fri, 22 Feb 2002 16:39:21 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: "Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Benjamin LaHaise <bcrl@redhat.com>, alan@lxorguk.ukuu.org.uk,
+        egberts@yahoo.com, lkml@secureone.com.au, linux-kernel@vger.kernel.org,
+        ITeX Tech Support <techsupport@itexinc.com>
+Subject: Re: Dlink DSL PCI Card
+Message-ID: <20020222233921.GA524@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Benjamin LaHaise <bcrl@redhat.com>, alan@lxorguk.ukuu.org.uk,
+	egberts@yahoo.com, lkml@secureone.com.au,
+	linux-kernel@vger.kernel.org,
+	ITeX Tech Support <techsupport@itexinc.com>
+In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4E2@iteusa-nt.itexinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4E2@iteusa-nt.itexinc.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Gérard Roudier wrote:
+On Fri Feb 22, 2002 at 03:27:56PM -0800, Dave Rattay [ITeX] wrote:
+> release.  This just doesn't happen with Linux.  I agree that this would
 
-> Thanks for the reply. But my concern is user convenience in _average_
-> here. Basically, I want the 99% of users that cannot afford neither
-> need nor want PCI hotplug to have their system just dead in order to
-> make happy the 1%.
+You have _always_ had access to Linux.  You have had the entire
+OS along with full source code to it for the last 10 years....
+So 6 months of binary only access beats 10 years of full source?
 
-Following this logic, we should just fix the thing for
-laptop users and ignore the few folks who run multiple
-SCSI busses, right ?
+> Now as to specs for the board itself you can check with sales because I
+> am not even sure what our policy is on that and I wish you luck in those
+> regards.
 
-Of course you'll shout bloody murder since you're part
-of the 1% now ;)
+If you were able to release full specs for your DSL PCI Card
+(including specs on DSPs and the microcode needed to drive them),
+I would gladly buy one tomorrow, even without a driver, because I
+would know that even if nobody else cared about that card under
+Linux, I could read the specs myself and fix the driver, or I
+could pay somebody to fix the driver for me.  Without that
+information, the card dies when Dlink loses interest...
 
-I guess we want a solution which works for both situations,
-instead of people discouraging each other from fixing the
-kernel for situations they're not experiencing themselves.
+ -Erik
 
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

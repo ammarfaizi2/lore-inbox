@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262727AbUCOXis (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 18:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbUCOXis
+	id S262678AbUCOXo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 18:44:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUCOXo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 18:38:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21207 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262727AbUCOXio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 18:38:44 -0500
-Date: Mon, 15 Mar 2004 15:40:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kurt Garloff <garloff@suse.de>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: dynamic sched timeslices
-Message-Id: <20040315154042.40c58c5b.akpm@osdl.org>
-In-Reply-To: <20040315230950.GB4452@tpkurt.garloff.de>
-References: <20040315224201.GX4452@tpkurt.garloff.de>
-	<20040315225939.A23686@infradead.org>
-	<20040315230950.GB4452@tpkurt.garloff.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 15 Mar 2004 18:44:27 -0500
+Received: from farley.sventech.com ([69.36.241.87]:28107 "EHLO
+	farley.sventech.com") by vger.kernel.org with ESMTP id S262678AbUCOXo0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 18:44:26 -0500
+Date: Mon, 15 Mar 2004 15:44:25 -0800
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+Message-ID: <20040315234425.GD30801@sventech.com>
+References: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com> <20040315231705.A23888@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040315231705.A23888@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff <garloff@suse.de> wrote:
->
-> > I remember we had a more complete patch to allow tuning the scheduler
-> > through sysctls in -mm once, though.  Questions is why that one wasn't
-> > merged and if the same reasons apply to a 'light' version.
+On Mon, Mar 15, 2004, Christoph Hellwig <hch@infradead.org> wrote:
+> On Mon, Mar 15, 2004 at 02:52:44PM -0800, Woodruff, Robert J wrote:
+> > As I stated above, we are part of the openib.org collaboration and 
+> > will be working on helping develop a stack that is "best of
+> > breed" from all of the available code. Starting from the bottom up, 
+> > we first need to review the various proposals for the 
+> > Access Layer and determine which code base to start with. 
 > 
-> Hmm, I fail to remember unfortunately. Probably it had too many knobs.
-> Andrew?
+> From looking at both codebases starting from scratch sounds like the
+> best idea to me..  
 
-It had a zillion knobs, and was mainly for developers.
+What's fatally wrong with the code that's currently available via
+openib.org?
 
-Your patch didn't come with any subjective or measured testing results.  In
-theory, the scheduler should magically tune itself to the current workload.
-If your patch is indeed necessary then this may point at a bug in the
-current CPU scheduler.
+JE
 
-Please tell us more...

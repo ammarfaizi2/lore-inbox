@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVCIVTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVCIVYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVCIVTt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVCIVTr
+	id S261589AbVCIVYl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVCIVYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:19:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24301 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261552AbVCIVSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:18:48 -0500
-Date: Wed, 9 Mar 2005 21:18:44 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: suparna@in.ibm.com, pbadari@us.ibm.com, daniel@osdl.org,
-       sebastien.dugue@bull.net, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-Message-ID: <20050309211844.GC2076@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com,
-	pbadari@us.ibm.com, daniel@osdl.org, sebastien.dugue@bull.net,
-	linux-aio@kvack.org, linux-kernel@vger.kernel.org
-References: <1110189607.11938.14.camel@frecb000686> <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com> <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com> <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com> <1110324434.6521.23.camel@ibm-c.pdx.osdl.net> <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com> <20050309040757.GY27331@ca-server1.us.oracle.com> <20050309152047.GA4588@in.ibm.com> <20050309115348.2b86b765.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309115348.2b86b765.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+	Wed, 9 Mar 2005 16:24:07 -0500
+Received: from fire.osdl.org ([65.172.181.4]:11474 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261589AbVCIVVj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:21:39 -0500
+Message-ID: <422F68E0.90607@osdl.org>
+Date: Wed, 09 Mar 2005 13:21:36 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, chrisw@osdl.org,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: Linux 2.6.11.2
+References: <20050309083923.GA20461@kroah.com> <20050309210631.GY3163@waste.org>
+In-Reply-To: <20050309210631.GY3163@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 11:53:48AM -0800, Andrew Morton wrote:
-> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> >  If writes/truncates take care of zeroing out the rest of the sector
-> >  on disk, might we still be OK without having to do the bounce buffer
-> >  thing ?
+Matt Mackall wrote:
+> On Wed, Mar 09, 2005 at 12:39:23AM -0800, Greg KH wrote:
 > 
-> We can probably rely on the rest of the sector outside i_size being zeroed
-> anyway.  Because if it contains non-zero gunk then the fs already has a
-> problem, and the user can get at that gunk with an expanding truncate and
-> mmap() anyway.
+>>And to further test this whole -stable system, I've released 2.6.11.2.
+>>It contains one patch, which is already in the -bk tree, and came from
+>>the security team (hence the lack of the longer review cycle).
+>>
+>>It's available now in the normal kernel.org places:
+>>	kernel.org/pub/linux/kernel/v2.6/patch-2.6.11.2.gz
+>>which is a patch against the 2.6.11.1 release.
+> 
+> 
+> Argh! @*#$&!!&! 
 
-	Actually, yeah, even today we rely on block_prepare_write and
-friends to handle that trail zeroing.  That all happens after the sector
-has been read from disk.  So this should be analogous.
+I have to Argh this also (with Matt).
 
-Joel
+
+>>If consensus arrives
+>>that this patch should be against the 2.6.11 tree, it will be done that
+>>way in the future.
+
+It would be much easier on users/testers to have to apply
+only one patch to base (2.6.11 e.g.) to get to 2.6.x.y
+(2.6.11.3 e.g.).  One Patch File.  Not three.
+
+> Consensus arrived back when 2.6.8.1 came out.
+> 
+> Please, folks, there are automated tools that "know" about kernel
+> release numbering and so on. Said tools broke with 2.6.11.1 because it
+> wasn't in the same place that 2.6.8.1 was and now this breaks with all
+> precedent by being an interdiff along a branch.
+> 
+> Fixing it in the future is too #*$%* late because you've now turned it
+> into a special case.
+
 
 -- 
-
-Life's Little Instruction Book #396
-
-	"Never give anyone a fruitcake."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+~Randy

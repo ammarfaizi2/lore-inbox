@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262424AbTCIFti>; Sun, 9 Mar 2003 00:49:38 -0500
+	id <S262426AbTCIGE0>; Sun, 9 Mar 2003 01:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262426AbTCIFti>; Sun, 9 Mar 2003 00:49:38 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:35846 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262424AbTCIFth>; Sun, 9 Mar 2003 00:49:37 -0500
-Date: Sun, 9 Mar 2003 06:54:53 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: Michal Semler <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org, vandrove@vc.cvut.cz
-Subject: Re: very buggy 3DFx framebuffer support!!! :(
-Message-ID: <20030309055453.GA9064@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <E18rmiu-0000ew-00@notas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18rmiu-0000ew-00@notas>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.3i
+	id <S262432AbTCIGE0>; Sun, 9 Mar 2003 01:04:26 -0500
+Received: from ool-43524450.dyn.optonline.net ([67.82.68.80]:42507 "EHLO
+	buggy.badula.org") by vger.kernel.org with ESMTP id <S262426AbTCIGEZ>;
+	Sun, 9 Mar 2003 01:04:25 -0500
+Date: Sun, 9 Mar 2003 01:12:13 -0500
+Message-Id: <200303090612.h296CDV02987@moisil.badula.org>
+From: Ion Badulescu <ionut@badula.org>
+To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: uweigand@de.ibm.com, schwidefsky@de.ibm.com, bk@suse.de,
+       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [NFS] Race in rpc_delete_timer causes crash
+In-Reply-To: <200303082303.AAA22598@faui11.informatik.uni-erlangen.de>
+User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michal Semler <cijoml@volny.cz>
-Date: Sat, Mar 08, 2003 at 11:23:18PM +0100
+On Sun, 9 Mar 2003 00:03:45 +0100 (MET), Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de> wrote:
 > Hello,
 > 
-> I found out very buggy 3DFx framebuffer support :(
-> 
-> when I select nothing when console bootings, I got white background under 
-> Tux, rolling up with black background of text. Then everything under Tux has 
-> black background and white text, but there, where is tux icon everything on 
-> the right side of the icon has still white background
-> 
-> when I select in lilo 
-> append="video=tdfx:1024x768-24@75"
-> 
-> my console gets screws up and I can't see anything under it. X windows but 
-> works.
-> 
-> When I boot computer without append and then call it with fbset -a 
-> 1024x768-75 things are the same ;( and I still can select Xwindows with alt+f7
-> 
-> Please can anybody fix this?
-> 
-> Linux 2.4.20 vanilla, gcc 3.0.4, Debian woody 3.0r1, 3DFx card, P3 733 
-> Coppermine
-> 
-What 3dfx card? Output in log-files? Dmesg-output? output of 'dmesg' ?
+> we're seeing a rare and hard to trigger crash on s390 where rpc_run_timer 
+> calls via an invalid callback pointer.
 
-Jurriaan
+Myself and Jakob Oestergaard have seen the same race, and the tentative 
+fix from Trond was similar to yours. I haven't been able to reproduce 
+the problem after applying that fix.
+
+Perhaps it's time to propagate the patch upstream? Most recent 2.4.x 
+kernels are affected...
+
+> What appears to happen is that rpc_call_sync allocates a struct rpc_task 
+> (with its embedded tk_timer) on the stack, and the timer gets set up 
+> sometime during rpc_execute.  However, the timer actually triggers at
+> a point in time where the original call to rpc_call_sync has already 
+> returned, and the stack space overwritten by other data.  That data is 
+> now interpreted as an rpc_task struct holding a tk_timeout_fn pointer by
+> rpc_run_timer, which causes the Oops (actually, Aieee).
+
+Yup, that's the race all right.
+
+Ion
+
 -- 
-If Big Brother is watching you, stare back, he doesn't like it.
-	Shannon
-GNU/Linux 2.5.63 SMP/ReiserFS 3948 bogomips load av: 0.24 0.37 0.20
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

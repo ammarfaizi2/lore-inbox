@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbQKTQog>; Mon, 20 Nov 2000 11:44:36 -0500
+	id <S129136AbQKTRBA>; Mon, 20 Nov 2000 12:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129248AbQKTQo1>; Mon, 20 Nov 2000 11:44:27 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:34830 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129199AbQKTQn4>; Mon, 20 Nov 2000 11:43:56 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B270A1@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
-Cc: "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>
-Subject: RE: catch 22 - porting net driver from 2.2 to 2.4
-Date: Mon, 20 Nov 2000 08:13:21 -0800
+	id <S129165AbQKTRAv>; Mon, 20 Nov 2000 12:00:51 -0500
+Received: from ds5500.cemr.wvu.edu ([157.182.83.20]:31502 "EHLO
+	ds5500.cemr.wvu.edu") by vger.kernel.org with ESMTP
+	id <S129136AbQKTRAm>; Mon, 20 Nov 2000 12:00:42 -0500
+Date: Mon, 20 Nov 2000 11:30:21 -0500 (EST)
+From: Andrei Smirnov <andrei@ds5500.cemr.wvu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.16 does not compile
+Message-ID: <Pine.ULT.3.96.1001120110905.28412A-100000@ds5500>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried using the kernel thread as demonstrated in your example and again it
-failed (panic - scheduling in interrupt).
-The difference is that your code executes the thread from within dev->open,
-while my code tries to do that from dev->do_ioctl that has spinlocks around
-the entire operation (which apparently sleeps).
-If I comment out the spin_lock/unlock it will succeed, but then I can't be
-sure I don't get any concurrent Tx/Rx/timer which is a bad idea while the
-topology is still being created.
 
-is there any way to do something like firing threads/timers atomically ?
+I have a newly installed RH-7.0 distribution on a Celeron Pentium 400.
+When I tried to compile the kernel I got the following:
 
+1. I ran make xconfig (or make menuconfig) and saved without changing any
+   options - completed OK
 
-	Thanks,
-	Shmulik.
+2. make dep: OK.
 
------Original Message-----
-From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
-Sent: Monday, November 13, 2000 4:26 PM
-To: Hen, Shmulik
-Subject: Re: catch 22 - porting net driver from 2.2 to 2.4
+3. make zImage: produced the following output:
 
 
-"Hen, Shmulik" wrote:
-> 
-> Where can I find info about that ?
-> My first idea was to fire a timer and let the callback routine do the
-work,
-> but I worry about synchronization and about passing the list of items for
-it
-> to handle.
-> What is the accepted way of starting a kernel thread and how do I handle
-> parameters and sync. ?
+kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686 -DUTS_MACHINE='"i386"' -c -o init/version.o i
+nit/version.c
+make -C  kernel
+make[1]: Entering directory `/usr/src/linux-2.2.16/kernel'
+make all_targets
+make[2]: Entering directory `/usr/src/linux-2.2.16/kernel'
+kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -DEXPORT_SYMTAB -c ksyms.c
+In file included from /usr/src/linux/include/linux/modversions.h:50,
+                 from /usr/src/linux/include/linux/module.h:19,
+                 from ksyms.c:14:
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:6: warning: `cpu_data' redefined
+/usr/src/linux/include/asm/processor.h:96: warning: this is the location of the previous definition
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:28: warning: `smp_num_cpus' redefined
+/usr/src/linux/include/linux/smp.h:77: warning: this is the location of the previous definition
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:118: warning: `smp_call_function' redefined
+/usr/src/linux/include/linux/smp.h:83: warning: this is the location of the previous definition
+In file included from /usr/src/linux/include/linux/interrupt.h:51,
+                 from ksyms.c:21:
+/usr/src/linux/include/asm/hardirq.h:23: warning: `synchronize_irq' redefined
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:138: warning: this is the location of the previous definition
+In file included from /usr/src/linux/include/linux/interrupt.h:52,
+                 from ksyms.c:21:
+/usr/src/linux/include/asm/softirq.h:75: warning: `synchronize_bh' redefined
+/usr/src/linux/include/linux/modules/i386_ksyms.ver:142: warning: this is the location of the previous definition
+/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
+In file included from ksyms.c:17:
+/usr/src/linux/include/linux/kernel_stat.h:47: `smp_num_cpus' undeclared (first use in this function)
+/usr/src/linux/include/linux/kernel_stat.h:47: (Each undeclared identifier is reported only once
+/usr/src/linux/include/linux/kernel_stat.h:47: for each function it appears in.)
+make[2]: *** [ksyms.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.2.16/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.2.16/kernel'
+make: *** [_dir_kernel] Error 2
 
-Attached is an example.  My "8139too" ethernet driver uses a kernel
-thread instead of a timer to perform media checking.  It illustrates how
-to start and stop a kernel thread.
+-----------------------------------------------------------------------
+Kernel compilation worked before on RH-6.1 and RH-6.2 and I never changed
+any other soft/hardware features on my computer. I would appreciate any
+comments or a hint where I can find an answer to this problem. 
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+Best regards,
+
+-----------------------------------------------------------------------
+Dr. Andrei Smirnov        Tel:+1(304)293 3111 x2466. Fax:+1(304)2936689
+West Virginia University. Dept. of Mechanical and Aerospace Engineering
+Morgantown WV, 26506-6106             Email: AsmirNo2@wvu.edu
+-----------------------------------------------------------------------
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313661AbSDPMqe>; Tue, 16 Apr 2002 08:46:34 -0400
+	id <S293135AbSDPNEg>; Tue, 16 Apr 2002 09:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313664AbSDPMqd>; Tue, 16 Apr 2002 08:46:33 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:26122 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313661AbSDPMqc>; Tue, 16 Apr 2002 08:46:32 -0400
-Message-ID: <3CBC0E97.4000606@evision-ventures.com>
-Date: Tue, 16 Apr 2002 13:44:23 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S312619AbSDPNEg>; Tue, 16 Apr 2002 09:04:36 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:51074 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S293135AbSDPNEf>; Tue, 16 Apr 2002 09:04:35 -0400
+Date: Tue, 16 Apr 2002 08:42:28 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: BALBIR SINGH <balbir.singh@wipro.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, Olaf Fraczyk <olaf@navi.pl>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Why HZ on i386 is 100 ?
+In-Reply-To: <AAEGIMDAKGCBHLBAACGBEEONCEAA.balbir.singh@wipro.com>
+Message-ID: <Pine.LNX.3.95.1020416083349.18369B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-In-Reply-To: <27670700DF5@vcnet.vc.cvut.cz> <20020416102501.GG17043@suse.de> <3CBC04A5.1040201@evision-ventures.com> <20020416122801.GB1097@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, Apr 16 2002, Martin Dalecki wrote:
-> 
->>Jens Axboe wrote:
->>
->>
->>
->>>yes this looks like a silly problem. the fix should be to have
->>>ata_ar_get() set ATA_AR_RETURN in ar_flags:
->>>
->>>       if (!list_empty(&drive->free_req)) {
->>>               ar = list_ata_entry(drive->free_req.next);
->>>               list_del(&ar->ar_queue);
->>>               ata_ar_init(drive, ar);
->>>               ar->ar_flags |= ATA_AR_RETURN;
->>>       }
->>>
->>>and then only have ata_ar_put() readd it to the list when it is set:
->>>
->>>static inline void ata_ar_put(ide_drive_t *drive, struct ata_request
->>>*ar)
->>>{
->>>       if (ar->ar_flags & ATA_AR_RETURN)
->>>               list_add(&ar->ar_queue, &drive->free_req);
->>>	...
->>>
->>>Then you can also remove the ata_ar_put() conditional in
->>>ide_end_drive_cmd(), just call ata_ar_put() unconditionally.
->>
->>Well something similar is already in IDE 37... I have just
->>invented a flag ATA_AR_STATIC which get's set in ide_raw_taskfile
->>ata_ar_put ich then checking for if (!(ar->ar_flags & ATA_AR_STATIC))...
->>
->>It has the desired effect in practice.
-> 
-> 
-> sure, just used ATA_AR_RETURN since it was there already. I'm not
-> particularly fond of that name though, and ATA_AR_STATIC isn't too good
-> either imo. how about ATA_AR_POOL? with the same semantics as
-> ATA_AR_RETURN, ie return to pool if flag is set.
+On Tue, 16 Apr 2002, BALBIR SINGH wrote:
 
-ATA_AR_POOL sounds good. It indicates where it's comming from and
-where it is going to remain. BTW.> Have you noticed the tactile steps
-forward I did in conversion of ide-cd.c to the new command submission in IDE 37?
-Any suggestions? It isn't really that abvious how to get finally rid
-of struct packt_command... but I think that I'm not far away now.
-The only thing that has to be done is to move the sense data and failed
-command used in ide-cd away from the packet command structure.
-I will not pass it as pointer around but just copy it directly to struct
-ata_devices driver_data field... I think.
+> I remember seeing somewhere unix system VII used to have HZ set to 60
+> for the machines built in the 70's. I wonder if todays pentium iiis and ivs
+> should still use HZ of 100, though their internal clock is in GHz. 
+> 
+
+A different clock goes to the timer chip. It is always:
+
+	CLOCK_TICK_RATE 1193180 Hz
+unless an Elan SC-520 at which time the frequency is:
+	CLOCK_TICK_RATE 1189200 Hz 
+
+(from ../include/asm/timex.h)
+
+> I think somethings in the kernel may be tuned for the value of HZ, these
+> things would be arch specific.
+> 
+> Increasing the HZ on your system should change the scheduling behaviour,
+> it could lead to more aggresive scheduling and could affect the
+> behaviour of the VM subsystem if scheduling happens more frequently. I am
+> just guessing, I do not know.
+> 
+
+It doesn't/can't change scheduling behavior. It changes only the rate
+at which a CPU bound task will get the CPU taken away. It also changes
+the rate it which it gets it back, in a 1:1 ratio, with a net effect
+of nothing-gained/nothing-lost except for preemption overhead.
+
+> Changing though trivial would require a good look at all the code that
+> uses HZ.
+> 
+
+The reference to HZ seems to be correct in all the headers so changing
+it is trivial.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

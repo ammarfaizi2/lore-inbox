@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274272AbRISXd3>; Wed, 19 Sep 2001 19:33:29 -0400
+	id <S274270AbRISXd3>; Wed, 19 Sep 2001 19:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274269AbRISXd1>; Wed, 19 Sep 2001 19:33:27 -0400
-Received: from moline.gci.com ([205.140.80.106]:55307 "EHLO moline.gci.com")
-	by vger.kernel.org with ESMTP id <S274272AbRISXdC>;
-	Wed, 19 Sep 2001 19:33:02 -0400
-Message-ID: <BF9651D8732ED311A61D00105A9CA315061465DF@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Arjan van de Ven <arjanv@redhat.com>,
-        Petr Vandrovec <VANDROVE@vc.cvut.cz>, Dan Hollis <goemon@anime.net>,
-        John Alvord <jalvo@mbay.net>
-Subject: RE: [PATCH] Athlon bug stomper. Pls apply.
-Date: Wed, 19 Sep 2001 15:33:17 -0800
+	id <S274273AbRISXdY>; Wed, 19 Sep 2001 19:33:24 -0400
+Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:21204 "EHLO
+	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S274270AbRISXc3>; Wed, 19 Sep 2001 19:32:29 -0400
+Date: Wed, 19 Sep 2001 19:32:47 -0400 (EDT)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: Dan Hollis <goemon@anime.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <Pine.LNX.4.30.0109191611010.30343-100000@anime.net>
+Message-ID: <Pine.A41.4.21L1.0109191929090.16836-100000@login8.isis.unc.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Hollis continues the line with..
-> On Wed, 19 Sep 2001, John Alvord wrote:
-> > >Until we have a straight answer what the hell this bit 
-> does, its a very
-> > >bad idea to put it into *production kernel*.
-> > Of course the BIOS versions made exactly that change...
-> 
+Agreed. Neither my KT133 (Asus A7V bios 1007) nor my KT133A (MSI
+K7T-Limited bios 2.8) exhibit the OOPS on boot problem. (For the record,
+both have 1 256 pc133 Infineon and 2 128 pc133 Infineons, 1GHz T-bird
+[stepping 02].)
+
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
+
+On Wed, 19 Sep 2001, Dan Hollis wrote:
+
 > 1) We dont know if all "fixed" BIOS versions do it
 > 2) We dont know if all motherboards do it
-> 3) We dont have enough data points to determine if this is a 
-> "real fix" yet.
+> 3) We dont have enough data points to determine if this is a "real fix" yet.
 > 4) We dont know if they do it under all circumstances
 >    (eg do they read SPD and set it in some situations and not others)
 >    It may even be CPU rev specific.
 > 
-> IMHO its *FAR* too premature to be rolling this into 
-> production kernels
+> IMHO its *FAR* too premature to be rolling this into production kernels
 > based on the scant evidence we have so far.
 > 
+> -Dan
 
-You all realize that this ranting about 'not for production kernels' is
-a waste of time and bandwidth, right?
-
-Make it a compile time option.  Simple, Elegant, and you can
-choose to try it or not.  
-
-Of course, now that this can of worms is open, the debate will
-range on whether it's default is Enabled or Disabled.
-
-Sheesh.
-
-(i'd enclose an updated patch, but I deleted the original posting.)

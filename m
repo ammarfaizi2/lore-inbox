@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbUAAWyd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 17:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUAAWyd
+	id S261850AbUAAW6G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 17:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUAAW6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 17:54:33 -0500
-Received: from dp.samba.org ([66.70.73.150]:12754 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261774AbUAAWy2 (ORCPT
+	Thu, 1 Jan 2004 17:58:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51605 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261850AbUAAW57 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 17:54:28 -0500
-Date: Fri, 2 Jan 2004 09:45:27 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: Andrew Morton <akpm@osdl.org>, joneskoo@derbian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: swapper: page allocation failure. order:3, mode:0x20
-Message-ID: <20040101224527.GP28023@krispykreme>
-References: <20040101093553.GA24788@derbian.org> <20040101101541.GJ28023@krispykreme> <20040101022553.2be5f043.akpm@osdl.org> <20040101130147.GM28023@krispykreme> <1072994888.6532.3.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072994888.6532.3.camel@leto.cs.pocnet.net>
-User-Agent: Mutt/1.5.4i
+	Thu, 1 Jan 2004 17:57:59 -0500
+Date: Thu, 1 Jan 2004 14:57:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+cc: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
+       Arjan van de Ven <arjanv@redhat.com>, Jon Smirl <jonsmirl@yahoo.com>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Dri-devel] 2.6 kernel change in nopage
+In-Reply-To: <1072990656.25583.18.camel@laptop-linux>
+Message-ID: <Pine.LNX.4.58.0401011455130.5282@home.osdl.org>
+References: <20031231182148.26486.qmail@web14918.mail.yahoo.com>
+ <1072958618.1603.236.camel@thor.asgaard.local> <1072959055.5717.1.camel@laptop.fenrus.com>
+ <1072959820.1600.252.camel@thor.asgaard.local> <20040101122851.GA13671@devserv.devel.redhat.com>
+ <1072967278.1603.270.camel@thor.asgaard.local> <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
+ <1072990656.25583.18.camel@laptop-linux>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > How does this look?
-> > [...]
-> > +	static unsigned long toks = 10*5*HZ;
-> > +	static unsigned long last_msg; 
-> > +	static int missed;
+
+On Fri, 2 Jan 2004, Nigel Cunningham wrote:
 > 
-> This would mean that all users of printk_ratelimit share this. If
-> printk_ratelimit is bombed by one user other perhaps important messages
-> are also suppressed.
+> Of course there are also advantages to _not_ using the file-per-kernel
+> version scheme.
 
-printk_ratelimit is only to be used for things which we can afford to 
-lose (eg our VM debugging messages). Don't use it on anything important :)
+No there isn't.
 
-Anton
+The thing is, you should keep those "file-per-OS" files as small as 
+possible, and only contain the things that are literally different. 
+Because:
+
+>		 Keeping one set of files means time is not wasted
+> applying the same change to multiple variations
+
+If the files only contain the actual differences, this just isn't an 
+issue. Those files are per-OS _anyway_, so regardless of how you do it 
+(with #ifdef's inside our outside the code etc), you'd have several 
+versions.
+
+And having separate files means that you don't uglify the code for another 
+OS or another version and hide the _real_ issues.
+
+But yes, it assumes that you can cleanly abstract out the differences.
+
+		Linus

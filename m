@@ -1,30 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291689AbSBNPOu>; Thu, 14 Feb 2002 10:14:50 -0500
+	id <S291707AbSBNPTU>; Thu, 14 Feb 2002 10:19:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291702AbSBNPOa>; Thu, 14 Feb 2002 10:14:30 -0500
-Received: from mark.staudinger.net ([207.252.75.224]:24326 "EHLO
-	mark.staudinger.net") by vger.kernel.org with ESMTP
-	id <S291689AbSBNPOT>; Thu, 14 Feb 2002 10:14:19 -0500
-Date: Thu, 14 Feb 2002 10:26:41 -0500 (EST)
-From: Mark Staudinger <mark@staudinger.net>
-Message-Id: <200202141526.g1EFQfjC035904@mark.staudinger.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.12 on Pentium?
+	id <S291712AbSBNPTL>; Thu, 14 Feb 2002 10:19:11 -0500
+Received: from mail.gmx.net ([213.165.64.20]:36492 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S291707AbSBNPS6>;
+	Thu, 14 Feb 2002 10:18:58 -0500
+Date: Thu, 14 Feb 2002 16:22:32 +0100
+From: Sebastian =?ISO-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: reiserfs-list-subscribe@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs Corruption with 2.5.5-pre1
+Message-Id: <20020214162232.5e59193b.sebastian.droege@gmx.de>
+In-Reply-To: <20020214180501.A1755@namesys.com>
+In-Reply-To: <20020214155716.3b810a91.sebastian.droege@gmx.de>
+	<20020214180501.A1755@namesys.com>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.yPuXoNw.O/BT.I"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.yPuXoNw.O/BT.I
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Is there any known problem with running kernel 2.4.12 on a P54/P55 CPU?  I'm
-unable to get a 2.4.12 kernel to boot on a pentium class machine, regardless
-of what I choose for the "Processor Family" support in the config.
+On Thu, 14 Feb 2002 18:05:01 +0300
+Oleg Drokin <green@namesys.com> wrote:
 
-A similar (if not identical) config of kernel 2.4.5 works just fine, even if
-compiled for 686/Celeron processor family.
+> Hello!
+> 
+> On Thu, Feb 14, 2002 at 03:57:16PM +0100, Sebastian Dr?ge wrote:
+> 
+> > after starting GNOME with 2.5.5-pre1 with reiserfs on the root partition I get several funny-named files in ~/.gnome/accels and I can't start some programms anymore... When I reboot into 2.4.17 again everything works right and this files are gone again
+> 
+> Hm. I was not able to run 2.5.5-pre1 with reiserfs support without patch
+> attached at all.
+> 
+> > This only happens with any kernel since 2.5.4-pre* or so and it happens everytime I try to start GNOME under such kernel.
+> 
+> Have you tried to run reiserfsck on your partition after 2.5.4-pre1
+> Run reiserfsck and never use 2.5.4-pre1 or earlier 2.5 kernels.
+Thanks I'll try that
+*bootingfromcdandrunningreiserfsck* ;)
+Bye
+--=.yPuXoNw.O/BT.I
+Content-Type: application/pgp-signature
 
-The machine reboots during the "loading kernel...." phase and before the 
-"Uncompressing kernel" boot message.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-Any ideas?
+iD8DBQE8a9Y6e9FFpVVDScsRAlowAJ9qB/bE22n8FAFu22H//awqDJWN/wCffe7j
+Ubp/+iMLnvBA95VLgZSEqDE=
+=Jxfx
+-----END PGP SIGNATURE-----
 
--Mark
+--=.yPuXoNw.O/BT.I--
+

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264353AbRFLMc0>; Tue, 12 Jun 2001 08:32:26 -0400
+	id <S264363AbRFLMo1>; Tue, 12 Jun 2001 08:44:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264361AbRFLMcP>; Tue, 12 Jun 2001 08:32:15 -0400
-Received: from kosmo.edeal.de ([62.40.13.104]:45072 "EHLO kosmo.edeal.de")
-	by vger.kernel.org with ESMTP id <S264353AbRFLMcG>;
-	Tue, 12 Jun 2001 08:32:06 -0400
-Date: Tue, 12 Jun 2001 14:31:42 +0200
-From: Lukas Schroeder <lukas@edeal.de>
-To: Ben Pfaff <pfaffben@msu.edu>
-Cc: Alan Cox <alan@redhat.com>, Lukas Schroeder <lukas@edeal.de>,
-        zab@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] ess maestro, support for hardware volume control
-Message-ID: <20010612143142.A17450@kosmo.edeal.de>
-In-Reply-To: <200106091931.f59JVw731673@devserv.devel.redhat.com> <87elst2vr2.fsf@pfaffben.user.msu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87elst2vr2.fsf@pfaffben.user.msu.edu>
-User-Agent: Mutt/1.3.18i
+	id <S264366AbRFLMoR>; Tue, 12 Jun 2001 08:44:17 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:42065 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S264363AbRFLMoK>; Tue, 12 Jun 2001 08:44:10 -0400
+Message-ID: <001901c0f33d$1a4c8170$3303a8c0@einstein>
+From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: "Rachel Greenham" <rachel@linuxgrrls.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B2606CF.10003@linuxgrrls.org>
+Subject: Re: VIA KT133A crash *post* 2.4.3-ac6
+Date: Tue, 12 Jun 2001 14:42:06 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> With DMA (UDMA Mode 5) enabled, my machine crashes on kernel versions
+> from 2.4.3-ac7 onwards up to 2.4.5 right up to 2.4.5-ac13. 2.4.3 vanilla
+> and 2.4.3-ac6 are completely stable. -ac7 of course is when a load of
+> VIA fixes were done. :-}
 
-the little patch below (vs. 2.4.5-ac13) fixes a freeze which happens
-when the maestro module was unloaded and a HWV button gets pushed 
-generating the interrupt. so this disables all irqs of that chip 
-on remove...
+I encountered the same problem after 2.4.3-ac6.
+
+> CPU: Athlon 1.33 GHz with 266MHz FSB
+> Mobo: Asus A7V133 with 266MHz FSB, UltraDMA100 (PDC20265 according to
+
+So you put your IBM drive on the promise, right?
+Removing the hard disc from the promise controller and attaching it on the
+VIA-Controller solved my problems. The system is now rock solid. If you do
+so, take care that your root partition moves from hde to hda. Prepare a boot
+disk and pass a parameter like root=/dev/hda to the kernel. After a
+successful boot, modify fstab and lilo.conf and run lilo.
+
+> With DMA disabled, *all* kernels are completely stable.
+
+same for me.
 
 
-regards,
-  lukas
+> With DMA (any setting, but UDMA mode 5 preferred of course) enabled, on
+> kernels 2.4.3-ac7 and onwards, random lockup on disk access within first
+> few minutes of use - sometimes very quickly after boot, sometimes as
+> much as ten minutes later given use. Running bonnie -s 1024 once or
+> twice after boot generally excites it too. :-}. Lockup is pretty severe:
+> machine goes completely unresponsive, Magic SysRq doesn't work. About
+> the only thing that does still work is the flashing VGA cursor. :-)
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---- linux-2.4.5-ac13/drivers/sound/maestro.c    Tue Jun 12 13:41:24 2001
-+++ linux/drivers/sound/maestro.c       Tue Jun 12 14:13:40 2001
-@@ -3575,6 +3575,12 @@
-        struct ess_card *card = pci_get_drvdata(pcidev);
-        int i;
- 
-+       /* turn off all irqs; _especially_ the one for hardware volume
-+          control (bit 6), which locks the machine dead when occurring after
-+          the maestro module was removed.
-+        */
-+       outw(0x0, card->iobase+0x18);
-+
-        /* XXX maybe should force stop bob, but should be all 
-                stopped by _release by now */
-        free_irq(card->irq, card);
-
+sounds absoluty identical to my problem with ASUS A7V133 I reported some
+weeks ago.
 

@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265351AbUADWnO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 17:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbUADWnN
+	id S265306AbUADWhP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 17:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265351AbUADWhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 17:43:13 -0500
-Received: from [193.170.124.123] ([193.170.124.123]:52020 "EHLO 23.cms.ac")
-	by vger.kernel.org with ESMTP id S265351AbUADWnL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 17:43:11 -0500
-Date: Sun, 4 Jan 2004 23:42:59 +0100
-From: JG <jg@cms.ac>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Any hope for HPT372/HPT374 IDE controller?
-In-Reply-To: <S265365AbUADWL5/20040104221159Z+4976@vger.kernel.org>
-References: <S265365AbUADWL5/20040104221159Z+4976@vger.kernel.org>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Gentoo 1.4 ;)
+	Sun, 4 Jan 2004 17:37:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58507 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265306AbUADWhO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 17:37:14 -0500
+Date: Sun, 4 Jan 2004 22:37:10 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Linus Torvalds <torvalds@osdl.org>, Rob Love <rml@ximian.com>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040104223710.GY4176@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0401022033010.10561@home.osdl.org> <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4"
-Message-Id: <20040104224308.BD3941A943A@23.cms.ac>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040104230104.A11439@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Sun, Jan 04, 2004 at 11:01:04PM +0100, Andries Brouwer wrote:
+> A common Unix idiom is testing for the identity
+> of two files by comparing st_ino and st_dev.
+> A broken idiom?
 
-hi, 
+	No, just your usual highly selective reading.  First of all, that
+idiom relies only on different ->s_dev *among* *currently* *mounted*
+*filesystems*.  In part that has anything to do with devices, it means
+only one thing:
 
-> Have any recent improvements been made? Does anyone have one of these controllers actually working correctly?
+	Any two different block devices that are both currently opened by
+	the kernel and are both alive must have different device numbers.
 
-i have two hpt374 controllers (rocketraid 404, both latest bios) in two of my machines.
-i've been using kernel 2.4.19 with the driver v2.1 from highpoint for a long time (with high loads, many disks attached to the controllers) without any problems in both machines (except that some disks died, but that's another thing ;))
-at the moment i'm using kernel 2.6.0 on one server with the integrated driver (because there's no highpoint driver yet) and it is working fine so far, but it didn't get stressed much lately.
-i'm currently testing 2.6.1-rc1-mm1 on the other machine (which i can reboot more often) - also no problems (yet ;)).
-both machines have sis chipsets (sis735 and sis745), if you need more info for debugging/comparing just tell me.
+Note the "are alive" part - we can even allow reuse of device numbers
+as long as we make sure that stat() will fail on filesystems mounted
+from dead ones.
 
-i can remember though that i've had some problems (dunno anymore what problems exactly) with the integrated drivers in the past, hence i was using the one's from highpoint.
-
-JG
-
---Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQE/+Jb7U788cpz6t2kRAp+ZAJ0SBMZK4UkrzRXX62sHYGdbWCVQsgCfYQIY
-gZis/Z+mwmrroTkKQzDq2xU=
-=APyq
------END PGP SIGNATURE-----
-
---Signature=_Sun__4_Jan_2004_23_42_59_+0100_5eh0rpLFQ29=pmb4--
+Now, care to explain how preserving aforementioned common Unix idiom
+is related to your expostulations?

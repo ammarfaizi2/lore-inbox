@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129040AbQKMHA5>; Mon, 13 Nov 2000 02:00:57 -0500
+	id <S129040AbQKMHYW>; Mon, 13 Nov 2000 02:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129178AbQKMHAh>; Mon, 13 Nov 2000 02:00:37 -0500
-Received: from web1104.mail.yahoo.com ([128.11.23.124]:29457 "HELO
-	web1104.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129040AbQKMHAc>; Mon, 13 Nov 2000 02:00:32 -0500
-Message-ID: <20001113070031.14765.qmail@web1104.mail.yahoo.com>
-Date: Mon, 13 Nov 2000 08:00:31 +0100 (CET)
-From: willy tarreau <wtarreau@yahoo.fr>
-Subject: Re: Linux 2.2.18pre21
-To: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Constantine Gavrilov <const-g@xpert.com>
-Cc: willy tarreau <wtarreau@yahoo.fr>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
+	id <S129178AbQKMHYN>; Mon, 13 Nov 2000 02:24:13 -0500
+Received: from ns1.crl.go.jp ([133.243.3.1]:48882 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S129040AbQKMHYC>;
+	Mon, 13 Nov 2000 02:24:02 -0500
+Date: Mon, 13 Nov 2000 16:23:53 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: memory.c:83: bad pmd 0000000000000001
+Message-ID: <Pine.LNX.4.30.0011131606420.16958-100000@holly.crl.go.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, Matti,
-here's a final patch against the bonding patch I
-posted
-on Friday. Could you tell me if it fits your needs ?
-If so, I would repost (offline) the complete one
-against 2.2.18pre21. Anyway, for those curious here,
-it's available at the following URL:
+memory.c:83: bad pmd 0000000000000001
 
-http://www-miaif.lip6.fr/willy/pub/linux-patches/bonding/patch-2.2.18p21-bonding-20001113.gz
+Alpha DP264 UP
 
-Regards,
-Willy
+2.4.0-test10 (not pre)
 
+I never got a bad pmd before.  I booted test10 on Nov 6, and I've gotten
+bad pmd's about once a day (5 so far) since then.  I don't think it's
+hardware.  I was running test10preX (circa Oct 24) for a while, and never
+got it (and various test1-9 before that), so it has to be something in one
+of the later test10pre versions.
 
-___________________________________________________________
-Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
-Yahoo! Messenger : http://fr.messenger.yahoo.com
+It's coming from mm/memory.c:free_one_pmd().
+
+Compiled with gcc 2.95.2 19991024 (release).
+
+Dr. Tom Holroyd
+"I am, as I said, inspired by the biological phenomena in which
+chemical forces are used in repetitious fashion to produce all
+kinds of weird effects (one of which is the author)."
+	-- Richard Feynman, _There's Plenty of Room at the Bottom_
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

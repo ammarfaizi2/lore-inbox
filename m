@@ -1,79 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVA0QsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVA0QuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbVA0QsA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 11:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVA0QsA
+	id S262660AbVA0QuP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 11:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVA0QuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 11:48:00 -0500
-Received: from alog0435.analogic.com ([208.224.222.211]:45440 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262659AbVA0Qrx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 11:47:53 -0500
-Date: Thu, 27 Jan 2005 11:47:08 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Rahul Karnik <deathdruid@gmail.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Flashing BIOS of a PCI IDE card (IT8212F)
-In-Reply-To: <5b64f7f050127081948af7a31@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0501271145340.22577@chaos.analogic.com>
-References: <5b64f7f050127081948af7a31@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 27 Jan 2005 11:50:15 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5385 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262660AbVA0Qta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 11:49:30 -0500
+Date: Thu, 27 Jan 2005 16:49:18 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, alexn@dsv.su.se,
+       kas@fi.muni.cz, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-ID: <20050127164918.C3036@flint.arm.linux.org.uk>
+Mail-Followup-To: Robert Olsson <Robert.Olsson@data.slu.se>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, alexn@dsv.su.se,
+	kas@fi.muni.cz, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <20050123091154.GC16648@suse.de> <20050123011918.295db8e8.akpm@osdl.org> <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org> <20050123200315.A25351@flint.arm.linux.org.uk> <20050124114853.A16971@flint.arm.linux.org.uk> <20050125193207.B30094@flint.arm.linux.org.uk> <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16888.58622.376497.380197@robur.slu.se>; from Robert.Olsson@data.slu.se on Thu, Jan 27, 2005 at 01:56:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jan 2005, Rahul Karnik wrote:
+On Thu, Jan 27, 2005 at 01:56:30PM +0100, Robert Olsson wrote:
+> 
+> Andrew Morton writes:
+>  > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> 
+>  > >  ip_dst_cache        1292   1485    256   15    1
+> 
+>  > I guess we should find a way to make it happen faster.
+>  
+> Here is route DoS attack. Pure routing no NAT no filter.
+> 
+> Start
+> =====
+> ip_dst_cache           5     30    256   15    1 : tunables  120   60    8 : slabdata      2      2      0
+> 
+> After DoS
+> =========
+> ip_dst_cache       66045  76125    256   15    1 : tunables  120   60    8 : slabdata   5075   5075    480
+> 
+> After some GC runs.
+> ==================
+> ip_dst_cache           2     15    256   15    1 : tunables  120   60    8 : slabdata      1      1      0
+> 
+> No problems here. I saw Martin talked about NAT...
 
-> Hello,
->
-> I was just wondering if it is possible to flash the BIOS of a PCI IDE
-> card from within Linux. I have an OEM IT8212 card with a really old
-> BIOS which the vendor does not support with a BIOS flashing tool. ITE
-> Tech's flashing tool appears to work, but it fails to verify that the
-> flash was successful and indeed the ROM is unchanged.
->
-> How is the BIOS on such cards different from the firmware on other
-> cards? Is it possible to use the kernel firmware loader to load a
-> different image at runtime?
->
-> Thanks for the help,
-> Rahul
-> -
+Yes, I can reproduce that same behaviour, where I can artificially
+inflate the DST cache and the GC does run and trims it back down to
+something reasonable.
 
-Simple answer: forget it.
+BUT, over time, my DST cache just increases in size and won't trim back
+down.  Not even by writing to the /proc/sys/net/ipv4/route/flush sysctl
+(which, if I'm reading the code correctly - and would be nice to know
+from those who actually know this stuff - should force an immediate
+flush of the DST cache.)
 
-But... If you know the part number of the flash-RAM,
-it is possible to use one of the flash-RAM writers
-that may exist in your version of the kernel or to
-write your own. Basically you write some unlock codes
-at specified offsets (0x55, 0xaa, etc.), then you
-write a command-code, then some data at its offset.
+For instance, I have (in sequence):
 
-Writing to flash requires erasing it first. Therefore
-if the write fails, you are in deep dodo. Typically
-flash RAM exists in 64k pages. Something as small as
-a BIOS probably uses only one 64k page, but you
-need to know what one inside the chip is actually
-used.
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+581
+ip_dst_cache        1860   1860    256   15    1 : tunables  120   60    0 : slabdata    124    124      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+717
+ip_dst_cache        1995   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+690
+ip_dst_cache        1995   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+696
+ip_dst_cache        1995   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+700
+ip_dst_cache        1995   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+718
+ip_dst_cache        1993   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+653
+ip_dst_cache        1993   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+667
+ip_dst_cache        1956   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+620
+ip_dst_cache        1944   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+623
+ip_dst_cache        1920   1995    256   15    1 : tunables  120   60    0 : slabdata    133    133      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+8
+ip_dst_cache        1380   1980    256   15    1 : tunables  120   60    0 : slabdata    132    132      0
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo
+86
+ip_dst_cache        1375   1875    256   15    1 : tunables  120   60    0 : slabdata    125    125      0
 
-There are other types of flash (micro-wire) that
-are accessed only one bit at a time. There is such
-code in several of the Ethernet Controllers. Although
-writing code to read/erase/write any of these devices
-is not difficult, you need to be able to experiment
-to get it right. Because of different implementation
-details, some flash can only be accessed in 32-bit
-longs, some in 16-bit shorts, etc. Some single-bit
-flash requires you to write an unused bit, with
-some, the extra bit goes on the end, some it
-goes first. Some require 16 bits written backwards,
-etc. Without a spare device to experiment with, you
-are in a world of hurt if your initial guess of
-the implementation details is wrong.
+so obviously the GC does appear to be working - as can be seen from the
+number of entries in /proc/net/rt_cache.  However, the number of objects
+in the slab cache does grow day on day.  About 4 days ago, it was only
+about 600 active objects.  Now it's more than twice that, and it'll
+continue increasing until it hits 8192, where upon it's game over.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+And, here's the above with /proc/net/stat/rt_cache included:
+
+# cat /proc/net/rt_cache|wc -l;grep ip_dst /proc/slabinfo; cat /proc/net/stat/rt_cache
+61
+ip_dst_cache        1340   1680    256   15    1 : tunables  120   60    0 : slabdata    112    112      0
+entries  in_hit in_slow_tot in_no_route in_brd in_martian_dst in_martian_src  out_hit out_slow_tot out_slow_mc  gc_total gc_ignored gc_goal_miss gc_dst_overflow in_hlist_search out_hlist_search
+00000538  005c9f10 0005e163 00000000 00000013 000002e2 00000000 00000005  003102e3 00038f6d 00000000 0007887a 0005286d 00001142 00000000 00138855 0010848d
+
+notice how /proc/net/stat/rt_cache says there's 1336 entries in the
+route cache.  _Where_ are they?  They're not there according to
+/proc/net/rt_cache.
+
+(PS, the formatting of the headings in /proc/net/stat/rt_cache doesn't
+appear to tie up with the formatting of the data which is _really_
+confusing.)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

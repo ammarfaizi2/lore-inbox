@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262532AbTCRQHM>; Tue, 18 Mar 2003 11:07:12 -0500
+	id <S262521AbTCRQFh>; Tue, 18 Mar 2003 11:05:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262539AbTCRQHL>; Tue, 18 Mar 2003 11:07:11 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:22284 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S262532AbTCRQGF>; Tue, 18 Mar 2003 11:06:05 -0500
-Message-Id: <200303181616.h2IGGZUc020594@pincoya.inf.utfsm.cl>
-To: jlnance@unity.ncsu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modutils for 2.5 
-In-reply-to: Your message of "Mon, 17 Mar 2003 14:37:11 EST."
-             <20030317193711.GA28719@ncsu.edu> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Tue, 18 Mar 2003 12:16:35 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S262527AbTCRQFg>; Tue, 18 Mar 2003 11:05:36 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:45202 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S262521AbTCRQFf>;
+	Tue, 18 Mar 2003 11:05:35 -0500
+Date: Tue, 18 Mar 2003 17:16:17 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Patrick Mochel <mochel@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: sysfs.txt spelling
+Message-ID: <Pine.GSO.4.21.0303181715280.17808-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@unity.ncsu.edu said:
-> On Mon, Mar 17, 2003 at 11:01:36AM -0800, Bob Miller wrote:
-> > Yes there is.  Look in:
-> > 
-> > 	ftp.kernel.org://pub/linux/kernel/people/rusty/modules
-> 
-> Any idea if installing this break a redhat-8 kernel upgrade? 
 
-Sure breaks the initrd. You ned to futz around and install the old
-insmod.static into the initrd.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+--- linux-2.5.65/Documentation/filesystems/sysfs.txt.orig	Tue Mar 18 11:26:44 2003
++++ linux-2.5.65/Documentation/filesystems/sysfs.txt	Tue Mar 18 16:24:46 2003
+@@ -60,7 +60,7 @@
+ you publically humiliated and your code rewritten without notice. 
+ 
+ 
+-An attriubte definition is simply:
++An attribute definition is simply:
+ 
+ struct attribute {
+         char                    * name;
+@@ -261,7 +261,7 @@
+ that point to the device's directory under root/.
+ 
+ drivers/ contains a directory for each device driver that is loaded
+-for devices on that particular bus (this assmumes that drivers do not
++for devices on that particular bus (this assumes that drivers do not
+ span multiple bus types).
+ 
+ 
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

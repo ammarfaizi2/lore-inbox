@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUKKCrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbUKKC7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUKKCrO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 21:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbUKKCrO
+	id S262086AbUKKC7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 21:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbUKKC7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 21:47:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17815 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262085AbUKKCrM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 21:47:12 -0500
-Message-ID: <4192D2A0.2060808@pobox.com>
-Date: Wed, 10 Nov 2004 21:46:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Heyse <mhk@designassembly.de>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: new sk98lin driver
-References: <4192C60A.1050205@designassembly.de>
-In-Reply-To: <4192C60A.1050205@designassembly.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 10 Nov 2004 21:59:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42191 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262086AbUKKC7e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 21:59:34 -0500
+Date: Wed, 10 Nov 2004 18:59:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ncunningham@linuxmail.org
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: Broken kunmap calls in rc4-mm1.
+Message-Id: <20041110185925.1c2eb9bf.akpm@osdl.org>
+In-Reply-To: <1100137328.7402.45.camel@desktop.cunninghams>
+References: <1100135825.7402.32.camel@desktop.cunninghams>
+	<20041111012919.GD3217@holomorphy.com>
+	<1100137328.7402.45.camel@desktop.cunninghams>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Heyse wrote:
-> Hi,
+Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+>
+> Remaining culprits are....
 > 
-> there's a new sk98lin driver available from
-> http://www.syskonnect.com/syskonnect/support/driver/zip/linux/install-7_09.tar.bz2 
-> 
-> (now with ethtool support) dated Oct 20. It's not in 2.6.10-rc1, will it 
-> be included in 2.6.10?
+>  Reiser4:
+>  - do_readpage_tail
+>   -reiser4_status_init
+>   -reiser4_status_write
 
-I think Stephen Hemminger volunteered to split up the changes into 
-separate patches.
+obuggerit.  Look, a simple helper is to redefine kmap_atomic() and
+kunmap_atomic() to work on char*'s.  This will spit warnings if someone
+feeds in a page*.  Which would be a lot more useful if we didn't have all
+those infernal __iomem warnings scrolling off the screen but ho hum.
 
-	Jeff
-
-
-
+I'll cook something up.

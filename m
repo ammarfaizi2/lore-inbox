@@ -1,103 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313264AbSDJQBf>; Wed, 10 Apr 2002 12:01:35 -0400
+	id <S313288AbSDJQQ6>; Wed, 10 Apr 2002 12:16:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313268AbSDJQBe>; Wed, 10 Apr 2002 12:01:34 -0400
-Received: from [195.157.147.30] ([195.157.147.30]:49425 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S313264AbSDJQBd>; Wed, 10 Apr 2002 12:01:33 -0400
-Date: Wed, 10 Apr 2002 17:03:41 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Geoffrey Gallaway <geoffeg@sin.sloth.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Update - Ramdisks and tmpfs problems
-Message-ID: <20020410170341.L4493@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Geoffrey Gallaway <geoffeg@sin.sloth.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020409144639.A14678@sin.sloth.org> <20020410102343.A31552@sin.sloth.org> <20020410155242.H4493@dev.sportingbet.com> <20020410110107.A2299@sin.sloth.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313289AbSDJQQ5>; Wed, 10 Apr 2002 12:16:57 -0400
+Received: from mail.sonytel.be ([193.74.243.200]:53214 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S313288AbSDJQQ4>;
+	Wed, 10 Apr 2002 12:16:56 -0400
+Date: Wed, 10 Apr 2002 18:12:43 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Byron Stanoszek <gandalf@winds.org>
+cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        "'davidsen@tmr.com'" <davidsen@tmr.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: RE: Using video memory as system memory
+In-Reply-To: <Pine.LNX.4.44.0204101146050.13516-100000@winds.org>
+Message-ID: <Pine.GSO.4.21.0204101809380.9914-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 11:01:07AM -0400, Geoffrey Gallaway wrote:
-> What kernel version are you using on those smp+multi tmpfs boxes? 
-
-As of this morning, 2.5.7.  Before that 2.4.{17,18,19-pre*ac*} for some months.
-
-
-> What
-> hardware?
-
-Dual pentium III (Katmai) 
-
-sean@henry:~$ lspci
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 02)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 02)
-00:04.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-00:04.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-00:04.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-00:06.0 SCSI storage controller: Adaptec AHA-2940U2/W / 7890
-00:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 04)
-00:09.1 Input device controller: Creative Labs SB Live! (rev 01)
-00:0b.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 05)
-00:0c.0 Ethernet controller: VIA Technologies, Inc. VT86C100A [Rhine 10/100] (rev 06)
-01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01)
-
-All scsi disks.  IDE cd-writer.  More-or-less redhat 7.x distro with most of
-the interesting daemons replaced, and some legacy cruft still intact.
-
-I don't use ACPI or devfs or framebuffer console, not that any of those should
-affect this.
-
-Sean
-
+On Wed, 10 Apr 2002, Byron Stanoszek wrote:
+> On Wed, 10 Apr 2002, Holzrichter, Bruce wrote:
+> > That is a neat idea, though.  The PCI/AGP bus may be a limiting factor for
+> > this as well, correct?  As far as speed, I believe most video cards have
+> > fast memory, vram, or sram, but it's only useful transferring between the
+> > Video GPU, and Video cards memory, as the bus to the video card is the
+> > bottleneck.
 > 
-> Geoffeg
+> Yeah. In fact in some responses the 'slow speed' consideration was so much that
+> they all say I'd be better off writing a block driver and making use of the
+> memory more as a swap device rather than as system RAM.
 > 
-> This one time, at band camp, Sean Hunter wrote:
-> > Just a data point:  I have been using multiple tmpfs bind mounts for some time
-> > on smp without this problem.
-> > 
-> > none on /dev/shm type tmpfs (rw,nosuid,nodev,mode=1777,size=256M)
-> > /dev/shm on /tmp type none (rw,bind)
-> > /dev/shm on /usr/tmp type none (rw,bind)
-> > 
-> > Never had a reboot fail for this reason.
-> > 
-> > Sean
-> > 
-> > 
-> > On Wed, Apr 10, 2002 at 10:23:43AM -0400, Geoffrey Gallaway wrote:
-> > > I finally found the problem, which appears to be a combination of things:
-> > > 
-> > > Multiple tmpfs mounts and SMP.
-> > > 
-> > > I am using a Dual Intel PIII 1Ghz box. When I use a SMP kernel AND do
-> > > multiple tmpfs mounts (mount --bind /dev/shm/etc /etc; mount --bind
-> > > /dev/shm/var /var) the machine goes into a reset loop. HOWEVER, when I use a
-> > > non-SMP kernel and still do multiple tmpfs mounts OR when I use a SMP kernel
-> > > and do only one tmpfs mount, the machine boots fine. Every once in a while
-> > > (1 out of 20 times?) the machine would boot fine with a SMP kernel and
-> > > multiple tmpfs mounts. Is this a timing issue?
-> > > 
-> > > If I can help to nail down this (apparent) bug more, please let me know.
-> > > 
-> > > Thanks,
-> > > Geoffeg
-> > > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Has anyone out there done this yet? I figure I'd ask before reinventing
+> anything.. :)
+
+drivers/block/z2ram.c does this for RAM in the Amiga Zorro II space.
+
+(Why? Because you cannot use Zorro II RAM as system RAM on machines equipped
+ with a Zorro III bus because on those machines Zorro II RAM doesn't support
+ read-modify-write cycles.)
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

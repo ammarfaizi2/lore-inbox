@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271310AbRHTPjj>; Mon, 20 Aug 2001 11:39:39 -0400
+	id <S271307AbRHTPk3>; Mon, 20 Aug 2001 11:40:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271307AbRHTPj3>; Mon, 20 Aug 2001 11:39:29 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:30911 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S271318AbRHTPjT>;
-	Mon, 20 Aug 2001 11:39:19 -0400
-Date: Mon, 20 Aug 2001 10:39:20 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.9 Make thread group id visible in /proc/<pid>/status
-Message-ID: <92830000.998321960@baldur>
-X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
+	id <S271297AbRHTPkU>; Mon, 20 Aug 2001 11:40:20 -0400
+Received: from www.wen-online.de ([212.223.88.39]:54276 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S271283AbRHTPkI>;
+	Mon, 20 Aug 2001 11:40:08 -0400
+Date: Mon, 20 Aug 2001 17:40:04 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8/2.4.9 VM problems
+In-Reply-To: <20010819205452Z16128-32383+429@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33.0108201726330.580-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 19 Aug 2001, Daniel Phillips wrote:
 
-It would be useful in many contexts to be able to see the thread group id. 
-This would make it easier to identify tasks that are part of a 
-multi-threaded process, at least for those that are using pthreads.  This 
-patch adds a TGid field to the status file.  This will not break ps, since 
-ps skips any field in status that it doesn't understand.
+> On August 17, 2001 03:10 pm, Frank Dekervel wrote:
+> > Hello,
+> >
+> > since i upgraded to kernel 2.4.8/2.4.9, i noticed everything became noticably
+> > slower, and the number of swapins/swapouts increased significantly. When i
+> > run 'vmstat 1' i see there is a lot of swap activity constantly when i am
+> > reading my mail in kmail. After a fresh bootup in the evening, i can get
+> > everything I normally need swapped out by running updatedb or ht://dig. When
+> > i do that, my music stops playing for several seconds, and it takes about 3
+> > seconds before my applications repaint when i switch back to X after an
+> > updatedb run.
+> > the last time that happent (and the last time i had problems with VM at all)
+> > was in 2.4.0-testXX so i think something is wrong ...
+> > is it possible new used_once does not work for me (and drop_behind used to
+> > work fine) ?
+> >
+> > My system configuration : athlon 750, 384 meg ram, 128 meg swap, XFree4.1 and
+> > kde2.2.
+>
+> Could you please try this patch against 2.4.9 (patch -p0):
 
-Patch is below.
+Hi Daniel,
 
-Dave McCracken
+I've been having some troubles which also seem to be use_once related.
+(bonnie rewrite test induces large inactive shortage, and some nasty
+IO seizures during write intelligently test. [grab window/wave it and
+watch it not move for couple seconds])
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+I'll give your patch a shot.  In the meantime, below is what I did
+to it here.  I might have busted use_once all to pieces ;-) but it
+cured my problem, so I'll show it anyway.
 
-==========================
+	-Mike
 
---- linux-2.4.9/./fs/proc/array.c	Thu Jul 26 15:42:56 2001
-+++ linux-2.4.9-tgid/./fs/proc/array.c	Mon Aug 20 10:05:18 2001
-@@ -153,11 +153,12 @@
- 		"State:\t%s\n"
- 		"Pid:\t%d\n"
- 		"PPid:\t%d\n"
-+		"TGid:\t%d\n"
- 		"TracerPid:\t%d\n"
- 		"Uid:\t%d\t%d\t%d\t%d\n"
- 		"Gid:\t%d\t%d\t%d\t%d\n",
- 		get_task_state(p),
--		p->pid, p->pid ? p->p_opptr->pid : 0, 0,
-+		p->pid, p->pid ? p->p_opptr->pid : 0, p->tgid, 0,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
- 	read_unlock(&tasklist_lock);	
+
+--- mm/filemap.c.org	Mon Aug 20 17:25:20 2001
++++ mm/filemap.c	Mon Aug 20 17:25:50 2001
+@@ -980,7 +980,7 @@
+ static inline void check_used_once (struct page *page)
+ {
+ 	if (!PageActive(page)) {
+-		if (page->age)
++		if (page->age > PAGE_AGE_START)
+ 			activate_page(page);
+ 		else {
+ 			page->age = PAGE_AGE_START;
 

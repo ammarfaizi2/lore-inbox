@@ -1,233 +1,270 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSLUBU6>; Fri, 20 Dec 2002 20:20:58 -0500
+	id <S261456AbSLUB1o>; Fri, 20 Dec 2002 20:27:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261370AbSLUBU6>; Fri, 20 Dec 2002 20:20:58 -0500
-Received: from sabre.velocet.net ([216.138.209.205]:44550 "HELO
-	sabre.velocet.net") by vger.kernel.org with SMTP id <S261356AbSLUBUz>;
-	Fri, 20 Dec 2002 20:20:55 -0500
-To: Gregory Stark <gsstark@MIT.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with read blocking for a long time on /dev/scd1
-References: <87adj0b3hj.fsf@stark.dyndns.tv>
-In-Reply-To: <87adj0b3hj.fsf@stark.dyndns.tv>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 20 Dec 2002 20:28:58 -0500
-Message-ID: <87n0n09n39.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S261418AbSLUB1o>; Fri, 20 Dec 2002 20:27:44 -0500
+Received: from holomorphy.com ([66.224.33.161]:36808 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261416AbSLUB1h>;
+	Fri, 20 Dec 2002 20:27:37 -0500
+Date: Fri, 20 Dec 2002 17:35:00 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aic7xxx bouncing over 4G
+Message-ID: <20021221013500.GN25000@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>,
+	Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com> <20021221002940.GM25000@holomorphy.com> <190380000.1040432350@aslan.btc.adaptec.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <190380000.1040432350@aslan.btc.adaptec.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, my attribution was removed:
+>> Could you split up the new revisions into a series of reviewable
+>> patches with clearly-defined individual scope and descriptive changelog
+>> entries and post them (in your mail message, not as URL's) please? I
+>> actually use this driver at home, so I'd like to be able to understand
+>> what's going on with it. I suspect various others are of like mind.
 
-Gregory Stark <gsstark@MIT.EDU> writes:
+On Fri, Dec 20, 2002 at 05:59:10PM -0700, Justin T. Gibbs wrote:
+> You can review all of that information by browsing the BK depot at:
+> http://linux-scsi.bkbits.net:8080/scsi-aic7xxx-2.5
+> Since the drivers in 2.4 and 2.5 are almost identical, the changelogs
+> there apply for 2.4.X too.
 
-> I'm having a problem with ogle that seems to be being caused by the scsi or
-> ide-scsi driver. The video playback freezes for a second or randomly,
-> sometimes every few seconds, sometimes not for several minutes. Every such
-> glitch is correlated perfectly with a read syscall reading on /dev/scd1
-> blocking for an inordinate amount of time.
+This is not in a remotely digestible form.
+(1) the entire universe's changesets are mixed together
+(2) PITA, I filter for "gibbs", I see a changelog entry that says this:
+   Changeset details for 1.865.1.4
 
-I forgot to include the details:
+   ChangeSet@1.865.1.4  2002-12-12 13:45:46-07:00  gibbs@adaptec.com
+   all diffs
+   o Kill host template files.
+   o Move readme files into the Documentation SCSI directory
+   o Enable highmem_io
+   o Split out Kconfig files for aic7xxx and aic79xx
+   Host template and large disk changes provided or inspired by:
+           Christoph Hellwig <hch@sgi.com>
 
-$ uname -a
-Linux stark.dyndns.tv 2.4.19 #6 Tue Sep 10 22:08:51 EDT 2002 i686 unknown unknown GNU/Linux
+This is one cset??? These are -very- unrelated changes.
 
-/dev/hdd:
- HDIO_GET_MULTCOUNT failed: Input/output error
- IO_support   =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- BLKRAGET failed: Input/output error
- HDIO_GETGEO failed: Invalid argument
+So I narrow it down to one file inside there:
 
-(that's the same for /dev/hd{a,b,c,d} actually)
+   Changes for drivers/scsi/aic7xxx/aic7xxx_osm.c@1.5
 
-$ cat /proc/scsi/scsi
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: YAMAHA   Model: CRW2100E         Rev: 1.0G
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: LG       Model: DVD-ROM DRD8160B Rev: 1.01
-  Type:   CD-ROM                           ANSI SCSI revision: 02
+   Age Author Annotate Comments
+   9 days gibbs@adaptec.com 1.5
+   Eliminate separate Linux host template files and move
+   all host template entry ponts to one section of the Linux
+   osm.c file.
+   Add support for larger disks under 2.5.X.
+   Enable highmem_io.
+
+So now I have to figure out what you mean by "enable highmem io"
+which is a one-line change in the middle of vast amounts of code
+being shoveled from one file into another.
+
+Moving around back and forth:
+
+   11 days gibbs 1.865.1.2
+   Complete aic7xxx 6.2.22 and aic79xx 1.3.0_ALPHA2 update.
+
+... another nondescript logentry.
+
+   11 days gibbs 1.858.1.2
+   Update to aic7xxx 6.2.22 and aic79xx 1.3.0_ALPHA2
+
+... and another
+
+   8 days gibbs 1.865.1.5
+   Complete the upgrade to aic7xxx 6.2.23 and aic79xx 1.3.0_ALPHA3.
+
+... and another.
+
+How many URL's do you expect me to chase here? Do I have to find
+your *BSD cvs/whatever repo to extract meaningful log entries or are
+even the cvs commit messages there useless?
+
+So off to www.freebsd.org and right there is a very different story:
+
+Revision 1.43, Sat Nov 30 19:30:09 2002 UTC (2 weeks, 6 days ago) by scottl
+Branch: MAIN
+CVS Tags: RELENG_5_0_BP, RELENG_5_0, HEAD
+Changes since 1.42: +44 -7 lines
+
+Bring in many bugfixes and changes obtained from formal testing:
+
+        aic7xxx.c:
+        aic7xxx.h:
+        aic7xxx.reg:
+        aic7xxx.seq:
+                Bring in the protocol violation handler from the U320
+                driver and replace the NO_IDENT sequencer interrupt code
+                with the PROTO_VIOLATION code.  Support for this code
+                required the following changes:
+
+                SEQ_FLAGS:
+                        IDENTIFY_SEEN -> NOT_IDENTIFIED
+                        Added NO_CDB_SENT
+
+                SCB_CONTROL:
+                        TARGET_SCB == STATUS_RCVD for initiator mode
+
+                scb->flags:
+                        Added SCB_TARGET_SCB since we cannot rely on
+                        TARGET_SCB as a target/initiator differentiator
+                        due to it being overloaded in initiator mode to
+                        indicate that status has been received.
+        aic7xxx.seq:
+                Move data fifo CLRCHN to mesgin_rdptrs which is a safer
+                location for doing this operation.  This also saves a
+                sequencer instruction.
+
+        aic7xxx.c:
+        aic7xxx.h:
+                Change ahc/ahd_upate_neg_request() to take a "negotiation
+                type" enum that allows us to negotiate:
+                        o only if the goal and current parameters differ.
+                        o only if the goal is non-async
+                        o always - even if the negotiation will be for async.
+        aic7xxx.seq:
+                Reset the FIFO whenever a short CDB transfer occurs
+                so that the FIFO contents do not corrupt a future CDB
+                transfer retry.
+
+                Add support for catching the various protocol violations
+                handled by ahc_handle_protocol_violation.
+
+                Reformat some comments.
+
+        aic7xxx.c:
+        aic7xxx.h:
+                Just for safety, have the aic7xxx driver probe
+                the stack depth.
+
+        aic7xxx.c:
+        aic7xxx.h:
+                Save and restore stack contents during diagnostics.
+                Some chip variants overwrite stale entries on a
+                stack "pop".
+
+                Don't use 0 to probe the stack depth.  0 is the typical
+                value used to backfill the stack if entries are overwritten
+                on a "pop".
+        aic7xxx.h:
+                Add a missing typedef.
+
+                Collapse SCB flag entries so they are bit contiguous.
+
+                Add AHD_ULTRA2_XFER_PERIOD for narrow fallback calculations
+
+        aic7xxx.c:
+                Don't panic (as a diagnostic to catch bugs) if we decided to
+                force the renegotiation of async even if we believe we are
+                already async.  This should allow us to negotiate async instead
+                of the full user goal rate during startup if bus resets are
+                disabled.
+
+                Add a space to the end of the ahc/ahd_print_devinfo routines
+                so that it behaves as expected by the code that uses it.
+
+                Only force a renegotiation on a selection timeout
+                if the SCB was valid.  Doing otherwise may be dangerous
+                as the connection was not valid for an unknown reason.
+
+                Add additional diagnostic output to ahc_dump_card_state(),
+                and have it use the register pretty printing functions.
+
+                Update ahc_reg_print() to handle a NULL cur_col.
+
+                Add a newline to ahc_dump_card_state() output.
+
+                Bring back "use_ppr".  We need to use_ppr anytime
+                doppr is true or we have non-zero protocol options.
+                The later case was not handled in the recent removal
+                of use_ppr.
+
+                Move a comment and remove a useless clearing of use_ppr.
+
+                Don't disable ENBUSFREE when single stepping on
+                a DT capable controller.  We cannot re-enable unexpected
+                busfree detection, so we must clear BUSFREE on each
+                step instead.
+                Correct the lookup of the SCB ID in ahc_handle_proto_error.
+
+                Remove a diagnostic printf.
+                Remove unecessary restoration of the STACK for older
+                chips.
+
+Approved by:	re (blanket)
+
+Wow! Now that's what I call descriptive.
+
+The changes listed under gibbs there seem to be mostly p4 ID synchs.
+Not sure what to make of those. But I did find this:
+
+
+Revision 1.19, Sat Aug 31 06:46:37 2002 UTC (3 months, 2 weeks ago) by gibbs
+Branch: MAIN
+CVS Tags: RELENG_5_0_BP, RELENG_5_0, HEAD
+Changes since 1.18: +10 -1 lines
+
+If interrupts are disabled on the card, don't bother running
+our interrupt handler.  Our handler was called due to a shared
+interrupt, and the card's interrupts are explicitly disabled
+to prevent entry into our interrupt handler.
+
+The diff is actually this:
+
+===================================================================
+RCS file: /home/ncvs/src/sys/dev/aic7xxx/aic7xxx_inline.h,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -u -p -r1.18 -r1.19
+--- src/sys/dev/aic7xxx/aic7xxx_inline.h	2002/04/24 16:58:51	1.18
++++ src/sys/dev/aic7xxx/aic7xxx_inline.h	2002/08/31 06:46:37	1.19
+@@ -37,9 +37,9 @@
+  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  * POSSIBILITY OF SUCH DAMAGES.
+  *
+- * $Id: //depot/aic7xxx/aic7xxx/aic7xxx_inline.h#33 $
++ * $Id: //depot/aic7xxx/aic7xxx/aic7xxx_inline.h#38 $
+  *
+- * $FreeBSD: /home/ncvs/src/sys/dev/aic7xxx/aic7xxx_inline.h,v 1.18 2002/04/24 16:58:51 gibbs Exp $
++ * $FreeBSD: /home/ncvs/src/sys/dev/aic7xxx/aic7xxx_inline.h,v 1.19 2002/08/31 06:46:37 gibbs Exp $
+  */
  
-$ dmesg
-Linux version 2.4.19 (stark@stark.dyndns.tv) (gcc version 2.95.4 20011002 (Debian prerelease)) #6 Tue Sep 10 22:08:51 EDT 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000000fff0000 (usable)
- BIOS-e820: 000000000fff0000 - 000000000fff3000 (ACPI NVS)
- BIOS-e820: 000000000fff3000 - 0000000010000000 (ACPI data)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-255MB LOWMEM available.
-Advanced speculative caching feature not present
-On node 0 totalpages: 65520
-zone(0): 4096 pages.
-zone(1): 61424 pages.
-zone(2): 0 pages.
-Kernel command line: BOOT_IMAGE=linux-2.4.19 ro root=302 console=ttyS1,9600 console=tty0 hdc=ide-scsi hdd=ide-scsi
-ide_setup: hdc=ide-scsi
-ide_setup: hdd=ide-scsi
-Local APIC disabled by BIOS -- reenabling.
-Found and enabled local APIC!
-Initializing CPU#0
-Detected 551.263 MHz processor.
-Console: colour VGA+ 80x50
-Calibrating delay loop... 1101.00 BogoMIPS
-Memory: 257228k/262080k available (907k kernel code, 4464k reserved, 391k data, 96k init, 0k highmem)
-Dentry cache hash table entries: 32768 (order: 6, 262144 bytes)
-Inode cache hash table entries: 16384 (order: 5, 131072 bytes)
-Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
-Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-CPU: Before vendor init, caps: 0383fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-CPU: After vendor init, caps: 0383fbff 00000000 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
-CPU:             Common caps: 0383fbff 00000000 00000000 00000000
-CPU: Intel Pentium III (Coppermine) stepping 01
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 551.2683 MHz.
-..... host bus clock speed is 100.2305 MHz.
-cpu: 0, clocks: 1002305, slice: 501152
-CPU0<T0:1002304,T1:501152,D:0,S:501152,C:1002305>
-mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-PCI: PCI BIOS revision 2.10 entry at 0xfb2b0, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
-Limiting direct PCI/PCI transfers.
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16)
-Starting kswapd
-pty: 256 Unix98 ptys configured
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-hdb: C/H/S=38322/16/255 from BIOS ignored
-hda: QUANTUM FIREBALL EL7.6A, ATA DISK drive
-hdb: MAXTOR 6L080J4, ATA DISK drive
-hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
-hdd: LG DVD-ROM DRD-8160B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 15032115 sectors (7696 MB) w/418KiB Cache, CHS=935/255/63, UDMA(33)
-hdb: 156355584 sectors (80054 MB) w/1819KiB Cache, CHS=155114/16/63, UDMA(33)
-Partition check:
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
- hdb: hdb1 hdb2 hdb3
-es1371: version v0.30 time 19:34:43 Aug 19 2002
-PCI: Found IRQ 5 for device 00:0b.0
-es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
-es1371: found es1371 rev 8 at io 0x9800 irq 5
-es1371: features: joystick 0x0
-ac97_codec: AC97 Audio codec, id: 0x4352:0x5913 (Cirrus Logic CS4297A rev A)
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 16384)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 96k freed
-Adding Swap: 128484k swap-space (priority -1)
-Real Time Clock Driver v1.10e
-ne2k-pci.c:v1.02 10/19/2000 D. Becker/P. Gortmaker
-  http://www.scyld.com/network/ne2k-pci.html
-PCI: Found IRQ 10 for device 00:09.0
-PCI: Sharing IRQ 10 with 00:07.2
-eth0: RealTek RTL-8029 found at 0x9400, IRQ 10, 00:80:C8:DF:59:9E.
-CSLIP: code copyright 1989 Regents of the University of California
-PPP generic driver version 2.4.2
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: YAMAHA    Model: CRW2100E          Rev: 1.0G
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: LG        Model: DVD-ROM DRD8160B  Rev: 1.01
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 203M
-agpgart: Detected Intel 440BX chipset
-agpgart: AGP aperture is 128M @ 0xe0000000
-[drm] AGP 0.99 on Intel 440BX @ 0xe0000000 128MB
-[drm] Initialized mga 3.0.2 20010321 on minor 0
-Matrox MGA G200/G400/G450/G550 YUV Video interface v2.01 (c) Aaron Holtzman & A'rpi
-mga_vid: Found MGA G400/G450
-mga_vid: MMIO at 0xd0881000 IRQ: 11  framebuffer: 0xEC000000
-mga_vid: OPTION word: 0x50040120  mem: 0x00  SDRAM
-mga_vid: detected RAMSIZE is 16 MB
-syncfb (mga): IRQ disabled in mga_vid.c
-parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,EPP]
-parport0: irq 7 detected
-lp0: using parport0 (polling).
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ DETECT_IRQ SERIAL_PCI ISAPNP enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-Intel PCIC probe: not found.
-Intel PCIC probe: not found.
-Starting AFS cache scan...found 393 non-empty cache files (7%).
-mtrr: 0xec000000,0x2000000 overlaps existing 0xec000000,0x1000000
-mtrr: 0xec000000,0x2000000 overlaps existing 0xec000000,0x1000000
-Adding Swap: 127992k swap-space (priority -2)
-Adding Swap: 131064k swap-space (priority -3)
-Adding Swap: 1048568k swap-space (priority -4)
-
-(The "tainted" is bogus because of openafs, for which I have source. 
- I've tried it without openafs anyways)
-
-$ lsmod
-Module                  Size  Used by    Tainted: PF 
-sr_mod                 12304   0 (autoclean)
-openafs               403712   2
-pcmcia_core            39872   0
-serial                 50884   0 (autoclean)
-isa-pnp                28708   0 (autoclean) [serial]
-parport_pc             25288   1 (autoclean)
-lp                      6432   0 (autoclean)
-parport                25024   1 (autoclean) [parport_pc lp]
-mga_vid                 7800   0
-mga                    98104   3
-agpgart                16552   3
-ide-scsi                7632   0
-scsi_mod               51356   2 [sr_mod ide-scsi]
-pppoe                   6924   2
-pppox                   1128   1 [pppoe]
-ppp_generic            16416   3 [pppoe pppox]
-slhc                    4480   0 [ppp_generic]
-ne2k-pci                4800   1
-8390                    5968   0 [ne2k-pci]
-rtc                     5916   0 (autoclean)
+ #ifndef _AIC7XXX_INLINE_H_
+@@ -494,6 +494,15 @@ ahc_intr(struct ahc_softc *ahc)
+ {
+ 	u_int	intstat;
+ 
++	if ((ahc->pause & INTEN) == 0) {
++		/*
++		 * Our interrupt is not enabled on the chip
++		 * and may be disabled for re-entrancy reasons,
++		 * so just return.  This is likely just a shared
++		 * interrupt.
++		 */
++		return;
++	}
+ 	/*
+ 	 * Instead of directly reading the interrupt status register,
+ 	 * infer the cause of the interrupt by checking our in-core
 
 
--- 
-greg
+This is very much smaller than the individual csets you're pushing
+to Linux, and has a changelog entry with actual content. Is there any
+chance you could send us changes as modular and well-documented as these?
 
+
+Thanks,
+Bill

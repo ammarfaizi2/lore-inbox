@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbTESW1q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263280AbTESW1q
+	id S263025AbTESWbh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTESWbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:27:46 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3783 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262763AbTESW1p (ORCPT
+	Mon, 19 May 2003 18:31:37 -0400
+Received: from holomorphy.com ([66.224.33.161]:39401 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263025AbTESWbg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:27:45 -0400
-Date: Mon, 19 May 2003 15:37:58 -0700 (PDT)
-Message-Id: <20030519.153758.71094061.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: akpm@digeo.com, ak@muc.de, arjanv@redhat.com, johnstul@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: time interpolation hooks
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <16073.5555.158600.61609@napali.hpl.hp.com>
-References: <16069.24454.349874.198470@napali.hpl.hp.com>
-	<1053139080.7308.6.camel@rth.ninka.net>
-	<16073.5555.158600.61609@napali.hpl.hp.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Mon, 19 May 2003 18:31:36 -0400
+Date: Mon, 19 May 2003 15:44:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+Message-ID: <20030519224414.GG8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <1053289316.10127.41.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan> <20030519105152.GD8978@holomorphy.com> <babheo$s9r$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <babheo$s9r$1@cesium.transmeta.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Mon, 19 May 2003 10:34:43 -0700
+Followup to:  <20030519105152.GD8978@holomorphy.com>
+By author:    William Lee Irwin III <wli@holomorphy.com>
+In newsgroup: linux.dev.kernel
+>> IIRC you're supposed to use some sort of sanitized copy, not the things
+>> directly. IMHO the current state of affairs sucks as there is no
+>> standard set of ABI headers, but grabbing them right out of the kernel
+>> is definitely not the way to go.
 
-   >>>>> On 16 May 2003 19:38:01 -0700, "David S. Miller" <davem@redhat.com> said:
-   
-     DaveM> I think Andrew is really suggesting to declare these two
-     DaveM> things in an arch header, so if one needs it to be a function
-     DaveM> pointer one can make it so.
-   
-   I don't think this should be (purely) an arch thing.  It's just as
-   much a driver issue.  For example, HPET will pretty much work the same
-   on x86 and ia64, so being able to have a shared "driver" would be
-   useful.  I agree though that it would be nice if arches that don't
-   care for time-interpolation at all could turn it off completely.
-   In the proposal below, an architecture could achieve that by turning
-   off CONFIG_TIME_INTERPOLATION.
+On Mon, May 19, 2003 at 02:14:00PM -0700, H. Peter Anvin wrote:
+> This "cure" sucks worse than the disease.  Now you're putting it onto
+> everyone who maintains userspace to do the same repetitive task of
+> "sanitizing" this.  Especially for things this trivial, this is a
+> ridiculous concept.
+> For 2.7, getting real exportable ABI headers is so bloody necessary
+> it's not even funny.  However, for 2.5, breaking things randomly is
+> not the way to go.
 
-That's not the issue, if I have only ONE way to do this on my
-platform, I can INLINE this thing and I DO NOT need function
-pointers.
+I would rather have real exportable ABI headers, yes. We don't have
+them and AFAIK sanitized copies are the current policy.
 
-I should have that option.
+
+-- wli

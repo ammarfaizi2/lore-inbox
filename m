@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264456AbUDSNnm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 09:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264457AbUDSNnd
+	id S264448AbUDSNqy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 09:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUDSNhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 09:43:33 -0400
-Received: from ns.suse.de ([195.135.220.2]:48348 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264456AbUDSNlz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 09:41:55 -0400
-Subject: Re: [PATCH 1/3] lockfs - vfs bits
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040417163007.67d23c10.akpm@osdl.org>
-References: <20040417220632.GA2573@lst.de>
-	 <20040417163007.67d23c10.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1082382187.27614.1491.camel@watt.suse.com>
+	Mon, 19 Apr 2004 09:37:13 -0400
+Received: from mail.shareable.org ([81.29.64.88]:14500 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264418AbUDSN3V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 09:29:21 -0400
+Date: Mon, 19 Apr 2004 14:28:36 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Johannes Stezenbach <js@convergence.de>, Eric <eric@cisu.net>,
+       linux-kernel@vger.kernel.org, "Stephan T. Lavavej" <stl@nuwen.net>
+Subject: Re: Process Creation Speed
+Message-ID: <20040419132836.GA14341@mail.shareable.org>
+References: <200404170219.i3H2JYal007333@localhost.localdomain> <200404182115.20922.eric@cisu.net> <20040419030456.GA11717@mail.shareable.org> <200404190043.04358.eric@cisu.net> <20040419094833.GB13007@mail.shareable.org> <20040419120957.GB3764@convergence.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 19 Apr 2004 09:43:08 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040419120957.GB3764@convergence.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-04-17 at 19:30, Andrew Morton wrote:
-> Christoph Hellwig <hch@lst.de> wrote:
-> >
-> >  These are the generic lockfs bits.  Basically it takes the XFS freezing
-> >  statemachine into the VFS.  It's all behind the kernel-doc documented
-> >  freeze_bdev and thaw_bdev interfaces.
+Johannes Stezenbach wrote:
+> > > > None of this answers the question which is relevant to linux-kernel:
+> > > > why does process creation take 7.5ms and fail to scale with CPU
+> > > > internal clock speed over a factor of 4 (600MHz x86 to 2.2GHz x86).
 > 
-> Do we expect to see snapshotting patches for other filesystems arise as a
-> result of this?
+> http://bulk.fefe.de/scalability/ has some benchmarks on the issue.
+> But I guess the numbers depend heavily on the server/CGI software used.
 
-Reiserfs needs this one liner:
+Nice page.  The graphs there show fork() taking 250-350 microseconds,
+which is quite fast.  Where is the 7.5ms complaint coming from?
 
-reiserfs_write_super_lockfs() is supposed to wait for the transaction
-to commit.
-
-Index: linux.t/fs/reiserfs/super.c
-===================================================================
---- linux.t.orig/fs/reiserfs/super.c	2004-04-01 08:54:54.000000000 -0500
-+++ linux.t/fs/reiserfs/super.c	2004-04-01 09:08:45.000000000 -0500
-@@ -88,7 +88,7 @@ static void reiserfs_write_super_lockfs 
-     reiserfs_prepare_for_journal(s, SB_BUFFER_WITH_SB(s), 1);
-     journal_mark_dirty(&th, s, SB_BUFFER_WITH_SB (s));
-     reiserfs_block_writes(&th) ;
--    journal_end(&th, s, 1) ;
-+    journal_end_sync(&th, s, 1) ;
-   }
-   s->s_dirt = 0;
-   reiserfs_write_unlock(s);
-
-
+-- Jamie

@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVAaSxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVAaS4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVAaSxG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 13:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVAaSxG
+	id S261310AbVAaS4h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 13:56:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVAaS4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 13:53:06 -0500
-Received: from mail.joq.us ([67.65.12.105]:14750 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261308AbVAaSw7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 13:52:59 -0500
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] sched - Implement priority and fifo support for
- SCHED_ISO
-References: <41F76746.5050801@kolivas.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Mon, 31 Jan 2005 12:54:21 -0600
-In-Reply-To: <41F76746.5050801@kolivas.org> (Con Kolivas's message of "Wed,
- 26 Jan 2005 20:47:50 +1100")
-Message-ID: <87acqpjuoy.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jan 2005 13:56:37 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:51678 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S261310AbVAaS41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 13:56:27 -0500
+Date: Mon, 31 Jan 2005 13:55:59 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [Watchdog] alim7101_wdt problem on 2.6.10
+In-reply-to: <20050131072708.GA17354@hockin.org>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Emmanuel Fleury <fleury@cs.aau.dk>, linux-kernel@vger.kernel.org
+Message-id: <41FE7F3F.5020809@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <41FDDCA3.7090701@cs.aau.dk> <20050131072708.GA17354@hockin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> While it is not clear what form the final soft real time
-> implementation is, we should complete the partial implementation of
-> SCHED_ISO that is in 2.6.11-rc2-mm1.
+Tim Hockin wrote:
+> On Mon, Jan 31, 2005 at 08:22:11AM +0100, Emmanuel Fleury wrote:
+> 
+>>Jan 30 00:58:21 hermes vmunix: alim7101_wdt: ALi 1543 South-Bridge does
+>>not have the correct revision number (???1001?) - WDT
+>>not set
+>>
+>>What did I do wrong ?
+> 
+> 
+> You used the wrong South Bridge revision.  Seriously, older revisions of
+> M7101 did not have a WDT.  You seem to have an older revision.  Sorry.
+> 
 
-I finally had a chance to try this today.  I applied a slightly
-different patch (2.6.11-rc2-iso3.diff) on top of patch-2.6.11-rc2.  I
-tried to use 2.6.11-rc2-mm2, but could not due to conflicts with other
-scheduler updates.
+FWIW, some of the old cobalt boxes had the old south bridge revision
+with a WDT.  It managed to do resets/wdt off gpio pin 5 though, and
+there is a patch in Alan's 2.6.10-ac tree that handles it.
 
-It is not clear whether the realtime threads are running in the new
-scheduler class.  Checking with schedtool yields odd results.
-(Before, my old schedtool always said "POLICY I: SCHED_ISO".)
+Whether or not it will work with your vaio?  Probably not, though I
+guess it wouldn't hurt to try (modprobe alim7101_wdt use_gpio=1).
 
-[joq@sulphur] jack_test/ $ pst jackd
- 2173  2173 TS       -   0  19   0  0.0 SLs  rt_sigsuspend  jackd
- 2174  2174 ?       21   0  60   0  0.0 SL   -              jackd
- 2175  2175 TS       -   0  23   0  0.0 SL   rt_sigsuspend  jackd
- 2176  2176 TS       -   0  23   0  0.0 SL   -              jackd
- 2177  2177 ?       20   0  59   0  0.0 SL   syscall_call   jackd
- 2178  2178 ?       10   0  49   0  1.7 SL   -              jackd
-[joq@sulphur] jack_test/ $ schedtool 2174 2176 2177 2178
-PID  2174: PRIO  21, POLICY (null)         , NICE  0
-PID  2176: PRIO   0, POLICY N: SCHED_NORMAL, NICE  0
-PID  2177: PRIO  20, POLICY (null)         , NICE  0
-PID  2178: PRIO  10, POLICY (null)         , NICE  0
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-The results of the first run indicate something is badly wrong.  It is
-quite possible that I got confused and messed up the build somehow.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-  http://www.joq.us/jack/benchmarks/sched-iso3/jack_test3-2.6.11-rc2-q1-200501311225.log
-  http://www.joq.us/jack/benchmarks/sched-iso3/jack_test3-2.6.11-rc2-q1-200501311225.png
-
-Loading the realtime-lsm and then running with SCHED_FIFO *does* work
-as expected on this kernel.  I should retry the test with *exactly*
-the expected patch sequence.  What would that be?
--- 
-  joq
+iD8DBQFB/n8/dQs4kOxk3/MRAg/HAJ4x+SdKXwNDsKrtBMS9xLYcYLYVigCdHBTk
+CWSOMh5FZPmfrky713Avd4g=
+=DMs9
+-----END PGP SIGNATURE-----

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLOA7S>; Thu, 14 Dec 2000 19:59:18 -0500
+	id <S129325AbQLOBAS>; Thu, 14 Dec 2000 20:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129325AbQLOA66>; Thu, 14 Dec 2000 19:58:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:39808 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129267AbQLOA6s>;
-	Thu, 14 Dec 2000 19:58:48 -0500
-Date: Thu, 14 Dec 2000 16:11:10 -0800
-Message-Id: <200012150011.QAA12767@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: laforge@gnumonks.org
-CC: ionut@cs.columbia.edu, mhaque@haque.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20001215012000.B6775@coruscant.gnumonks.org> (message from
-	Harald Welte on Fri, 15 Dec 2000 01:20:00 +0100)
-Subject: Re: Netfilter is broken (was Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback))
-In-Reply-To: <Pine.LNX.4.30.0012141204210.27848-100000@age.cs.columbia.edu> <200012141955.LAA08814@pizda.ninka.net> <20001215012000.B6775@coruscant.gnumonks.org>
+	id <S133066AbQLOBAL>; Thu, 14 Dec 2000 20:00:11 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62724 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129325AbQLOA76>; Thu, 14 Dec 2000 19:59:58 -0500
+Subject: Re: Signal 11
+To: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+Date: Fri, 15 Dec 2000 00:32:10 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <91bnhg$vij$1@enterprise.cistron.net> from "Miquel van Smoorenburg" at Dec 15, 2000 12:10:24 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E146inG-0000O0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Fri, 15 Dec 2000 01:20:00 +0100
-   From: Harald Welte <laforge@gnumonks.org>
+> Yes, but 2.96 is also binary incompatible with all non-redhat distro's.
+> And since redhat is _the_ distro that commercial entities use to
+> release software for, this was very arguably a bad move.
 
-   Or is there something wrong with:
+Except you conveniently ignore a few facts
 
-   - packet arrives in net/ipv4/ip_input.c:ip_rcv()
-   - netfilter hook NF_IP_PRE_ROUTING is called
-   - net/ipv4/netfilter/ip_conntrack_core.c:ip_conntrack_in() is called
-   - net/ipv4/netfilter/ip_conntrack_core.c:ip_ct_gather_frags() is called
-   - net/ipv4/ip_input.c:ip_defrag() is called
+o	Someone else moved to 2.95 not RH . In fact some of us felt 2.95 wasnt 
+	fit to ship at the time. 
 
-   Isn't the skb->dev member supposed to still point to the receiving 
-   device?
+o	We tell vendors to build RPMv3 , glibc 2.1.x
 
-No, once you submit the packet to the defrag layer, that SKB
-instance is owned by the defrag layer.
+o	Vendors not being stupid understand that they have a bigger market
+	share if they do that.
 
-One way to do what netfilter wants to do, but legally, is to
-simply skb_clone() the SKB before passing it into the
-defragmentation code.
-
-I'm still deciding whether this is the best fix.
-
-Later,
-David S. Miller
-davem@redhat.com
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbTETADa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbTETADa
+	id S261994AbTETACt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTETACt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:03:30 -0400
-Received: from dp.samba.org ([66.70.73.150]:3984 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262426AbTETAD1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:03:27 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3 
-In-reply-to: Your message of "Mon, 19 May 2003 11:31:51 +0200."
-             <Pine.LNX.4.44.0305191103500.5653-100000@localhost.localdomain> 
-Date: Tue, 20 May 2003 10:04:31 +1000
-Message-Id: <20030520001623.715822C08B@lists.samba.org>
+	Mon, 19 May 2003 20:02:49 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:38131 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261994AbTETACs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 20:02:48 -0400
+Date: Mon, 19 May 2003 17:15:20 -0700
+From: Greg KH <greg@kroah.com>
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: usbserial OOPS in 2.5.69-bk4
+Message-ID: <20030520001520.GA28148@kroah.com>
+References: <1053380614.1141.44.camel@torrey.et.myrio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1053380614.1141.44.camel@torrey.et.myrio.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0305191103500.5653-100000@localhost.localdomain> you write:
-> 
-> the attached patch addresses a futex related SMP scalability problem of
-> glibc. A number of regressions have been reported to the NTPL mailing list
-> when going to many CPUs, for applications that use condition variables and
-> the pthread_cond_broadcast() API call. Using this functionality, testcode
-> shows a slowdown from 0.12 seconds runtime to over 237 seconds (!)  
-> runtime, on 4-CPU systems.
+On Mon, May 19, 2003 at 02:43:34PM -0700, Torrey Hoffman wrote:
+> I got a non-fatal oops while trying to hotsync my Handspring Visor. 
+> My system is still running as I send this email, but the hotsync didn't
+> work.
 
-I gave feedback on this before, but didn't get a response.
+Can you try with the latest -bk tree?  I can successfully sync using it,
+but did have some problems with a few of the older revs.
 
-1) Overload the last futex arg (change from timeval * to void *),
-   don't add YA arg at the end.
+thanks,
 
-2) Use __alignof__(u32) not sizeof(u32).  Sure, they're the same, but
-   you really mean __alignof__ here.
-
-I'm glad you finally put your name at the top of the file...
-
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+greg k-h

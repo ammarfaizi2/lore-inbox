@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261397AbSJIHpY>; Wed, 9 Oct 2002 03:45:24 -0400
+	id <S261398AbSJIHqO>; Wed, 9 Oct 2002 03:46:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbSJIHpY>; Wed, 9 Oct 2002 03:45:24 -0400
-Received: from a200042123172.rev.prima.com.ar ([200.42.123.172]:9734 "EHLO
-	reloco.dhis.org") by vger.kernel.org with ESMTP id <S261397AbSJIHpX>;
-	Wed, 9 Oct 2002 03:45:23 -0400
-Message-ID: <3DA3DFE5.5060507@technisys.com.ar>
-Date: Wed, 09 Oct 2002 04:51:01 -0300
-From: =?ISO-8859-1?Q?Nicol=E1s_Lichtmaier?= <nick@technisys.com.ar>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020915
-X-Accept-Language: es-ar, es, en-us, en
-MIME-Version: 1.0
+	id <S261415AbSJIHqO>; Wed, 9 Oct 2002 03:46:14 -0400
+Received: from blueberrysolutions.com ([195.165.170.195]:38804 "EHLO
+	blueberrysolutions.com") by vger.kernel.org with ESMTP
+	id <S261398AbSJIHqN>; Wed, 9 Oct 2002 03:46:13 -0400
+Date: Wed, 9 Oct 2002 10:51:50 +0300 (EEST)
+From: Tony Glader <Tony.Glader@blueberrysolutions.com>
+X-X-Sender: teg@blueberrysolutions.com
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.41 does not build: 8250.c: icount has incomplete type.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: capable()-function
+Message-ID: <Pine.LNX.4.44.0210091046230.30467-100000@blueberrysolutions.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    gcc -Wp,-MD,drivers/serial/.8250.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DMODULE   -DKBUILD_BASENAME=8250 -DEXPORT_SYMTAB  -c -o
-drivers/serial/8250.o drivers/serial/8250.c
-In file included from drivers/serial/8250.c:34:
-include/linux/serialP.h:50: field `icount' has incomplete type
-make[3]: *** [drivers/serial/8250.o] Error 1
-make[2]: *** [drivers/serial] Error 2
-make[1]: *** [drivers] Error 2
-make[1]: Leaving directory `/home/nick/soft/linux-2.5.41'
-make: *** [stamp-build] Error 2
+Hi!
+
+I was investigating problems with PCMCIA and found that
+capable(CAP_SYS_ADMIN) returns always false in my case. If I'm calling
+capable(CAP_SYS_ADMIN) as root - shouldn't it return true? What could
+cause this? I'm using RH 8.0 and src-rpm of 2.4.18-14 kernel.
+
+-- 
+* Tony Glader 
 

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132545AbRDATxO>; Sun, 1 Apr 2001 15:53:14 -0400
+	id <S129292AbRDAQvm>; Sun, 1 Apr 2001 12:51:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132546AbRDATxD>; Sun, 1 Apr 2001 15:53:03 -0400
-Received: from laurin.munich.netsurf.de ([194.64.166.1]:19136 "EHLO
-	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
-	id <S132545AbRDATw4>; Sun, 1 Apr 2001 15:52:56 -0400
-Date: Sun, 1 Apr 2001 18:41:31 +0200
-To: Jerry Hong <jhong001@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how mmap() works?
-Message-ID: <20010401184131.A2474@storm.local>
-Mail-Followup-To: Jerry Hong <jhong001@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010329221451.27582.qmail@web4303.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010329221451.27582.qmail@web4303.mail.yahoo.com>; from jhong001@yahoo.com on Thu, Mar 29, 2001 at 02:14:51PM -0800
-From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+	id <S129464AbRDAQvY>; Sun, 1 Apr 2001 12:51:24 -0400
+Received: from bobas.nowytarg.top.pl ([212.244.190.69]:13331 "EHLO
+	bobas.nowytarg.top.pl") by vger.kernel.org with ESMTP
+	id <S129292AbRDAQvL>; Sun, 1 Apr 2001 12:51:11 -0400
+From: Daniel Podlejski <underley@witch.underley.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: tmpfs in 2.4.3 and AC
+In-Reply-To: <20010330161837.A1052@werewolf.able.es>
+In-Reply-To: <20010330161837.A1052@werewolf.able.es>
+X-PGP-Fingerprint: 4D 72 53 F8 FE 8C 53 B9  66 AD F6 EA C9 17 CD 82
+X-I-are-no-mensan: Yes
+Message-Id: <20010401152338Z32060-860+97@witch.underley.eu.org>
+Date: Sun, 1 Apr 2001 17:23:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 29, 2001 at 02:14:51PM -0800, Jerry Hong wrote:
-> Hi, 
->   mmap() creates a mmaped memory associated with a
-> physical file. If a process updates the mmaped memory,
-> Linux will updates the file "automatically". If this
-> is the case, why do we need msync()?
+In linux-kernel, jamagallon@able.es wrote:
+: Hi,
+: 
+: tmpfs (or shmfs or whatever name you like) is still different in official
+: series (2.4.3) and in ac series. Its a kick in the ass for multiboot,
+: as offcial 2.4.3 does not recognise 'tmpfs' in fstab:
+: 
+: shmfs  /dev/shm        tmpfs   ...
+: 
+: Any reason, or is because it has been forgotten ?
 
-For the same reason you might need fsync() or fdatasync().  To force
-changes to be written now, without having to munmap() the area, so that
-you have a gurantee that current data is on disk and will not be lost.
+There is no tmpfs in vanilla 2.4.3 kernel.
 
-> If this is not
-> the case, what is the interval between 2 "WRITE" (IO
-> request operation) request to the physical file
-> because it really updates the physical file somehow
-> even without msync().
+I use this start script to mount tmp/shmfs:
 
-Without syncing, Linux writes whenever it thinks it's appropriate, e.g.
-when pages have to be freed (I think also when the bdflush writes back
-data, i.e. every 30 seconds by default).
+#!/bin/sh
+
+[ -d /dev/shm ] || mkdir -p /dev/shm
+
+shmfs_avail=$(grep -qci 'shmfs' /proc/filesystems || true)
+tmpfs_avail=$(grep -qci 'tmpfs' /proc/filesystems || true)
+devshm_mounted=$(grep -qci '/dev/shm' /proc/mounts || true)
+
+[ $devshm_mounted = 0 ] || exit 0
+
+if [ $shmfs_avail = 1 ]
+then
+        echo -ne "Mounting shmfs: "
+        mount none /dev/shm -t shmfs && echo "ok."
+        exit 0
+fi
+
+if [ $tmpfs_avail = 1 ]
+then
+        echo -ne "Mounting tmpfs: "
+        mount tmpfs /dev/shm -t tmpfs && echo "ok."
+fi
+
 
 -- 
- Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
-http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/
+Daniel Podlejski <underley@underley.eu.org>
+   ... On a dark desert highway Cool wind in my hair
+   Warm smell of colitas Rising up through the air ...

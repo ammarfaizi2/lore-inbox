@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269861AbTGOW4l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 18:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269864AbTGOW4l
+	id S269857AbTGOW4f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 18:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269861AbTGOW4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 18:56:41 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:41450 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S269861AbTGOW4i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 18:56:38 -0400
-Date: Tue, 15 Jul 2003 16:15:48 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [More Info] Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's - all
- needed rpms installed)
-In-reply-to: <20030715210240.GA5345@kroah.com>
-To: Greg KH <greg@kroah.com>
-Cc: "Trever L. Adams" <tadams-lists@myrealbox.com>, arjanv@redhat.com,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <3F148B24.8080408@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-References: <1058196612.3353.2.camel@aurora.localdomain>
- <3F12FF53.7060708@pobox.com> <1058210139.5981.6.camel@laptop.fenrus.com>
- <1058217601.4441.1.camel@aurora.localdomain>
- <1058299838.3358.4.camel@aurora.localdomain> <20030715210240.GA5345@kroah.com>
+	Tue, 15 Jul 2003 18:56:35 -0400
+Received: from dub.inr.ac.ru ([193.233.7.105]:55975 "HELO dub.inr.ac.ru")
+	by vger.kernel.org with SMTP id S269857AbTGOW4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 18:56:32 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200307152310.DAA09663@dub.inr.ac.ru>
+Subject: Re: [PATCH] [1/2] kernel error reporting (revised)
+To: akpm@osdl.org (Andrew Morton)
+Date: Wed, 16 Jul 2003 03:10:47 +0400 (MSD)
+Cc: jkenisto@us.ibm.com, jmorris@intercode.com.au, davem@redhat.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com,
+       alan@lxorguk.ukuu.org.uk, rddunlap@osdl.org, kuznet@ms2.inr.ac.ru
+In-Reply-To: <20030715125121.315920a2.akpm@osdl.org> from "Andrew Morton" at  =?ISO-8859-1?Q?=20=E9?=
+	=?ISO-8859-1?Q?=C0=CC?= 15, 2003 12:51:21 
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Hello!
 
-> Hm, but usb_hcd_irq() reports back the proper interrupt return value.  I
-> don't see how this could happen, unless the ehci driver was somehow
-> halted...
-> 
-> David, any ideas?
+> netlink_broadcast() does read_lock(&nl_table_lock).  But nl_table_lock is
+> not an irq-safe lock.
 
-It's getting an IRQ before the driver expects them,
-I suspect.  I think the HCD glue needs a new entry,
-forcing hardware reset before the rest of hcd init.
-Easy/simple to do; and IMO reasonable too.
-
-Of course, it's also strange that leaving ACPI on
-causes problems at this level.  And that it only
-happens for EHCI.
-
-- Dave
+Just as reminder, there are _no_ irq safe locks in net/*. A few of
+local_irq_disable()s are segregated in interface to device drivers.
 
 
+> Possibly netlink_broadcast() can be made callable from hardirq context, but
+> it looks to be non trivial.
+
+Trivial or non-trivial, before all this is highly not desired.
+net/* is better to remain in the form free of knowledge of hardirqs.
+
+Alexey

@@ -1,1041 +1,1421 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbSKOMh5>; Fri, 15 Nov 2002 07:37:57 -0500
+	id <S266297AbSKOMa2>; Fri, 15 Nov 2002 07:30:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265516AbSKOMh5>; Fri, 15 Nov 2002 07:37:57 -0500
-Received: from precia.cinet.co.jp ([210.166.75.133]:50562 "EHLO
+	id <S266308AbSKOMa2>; Fri, 15 Nov 2002 07:30:28 -0500
+Received: from precia.cinet.co.jp ([210.166.75.133]:48514 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S266078AbSKOMhl>; Fri, 15 Nov 2002 07:37:41 -0500
-Message-ID: <3DD4EC24.6FC8E2CC@cinet.co.jp>
-Date: Fri, 15 Nov 2002 21:44:20 +0900
+	id <S266297AbSKOM37>; Fri, 15 Nov 2002 07:29:59 -0500
+Message-ID: <3DD4EA53.F3D7208C@cinet.co.jp>
+Date: Fri, 15 Nov 2002 21:36:35 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.47-ac4-pc98smp i686)
 X-Accept-Language: ja, en
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 CC: LKML <linux-kernel@vger.kernel.org>
-Subject: PC-9800 patch for 2.5.47-ac4: not merged yet (8/15) input
+Subject: PC-9800 patch for 2.5.47-ac4: not merged yet (6/15) IDE
 References: <3DD4E2D5.AEF13F1@cinet.co.jp>
 Content-Type: multipart/mixed;
- boundary="------------E01F79D497821DA275155A8C"
+ boundary="------------F5D0EE3C4010F4F4112D990E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------E01F79D497821DA275155A8C
+--------------F5D0EE3C4010F4F4112D990E
 Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 
-This is for PC-9800's standard keyboard and mouse support.
+This is for onboard IDE I/F support.
 
 diffstat:
- drivers/char/keyboard.c          |    4 
- drivers/input/keyboard/98kbd.c   |  379 +++++++++++++++++++++++++++++++++++++++  drivers/input/keyboard/Kconfig   |   12 +
- drivers/input/keyboard/Makefile  |    1 
- drivers/input/misc/pcspkr.c      |   24 ++
- drivers/input/mouse/98busmouse.c |  201 ++++++++++++++++++++
- drivers/input/mouse/Kconfig      |   12 +
- drivers/input/mouse/Makefile     |    1 
- drivers/input/serio/98kbd-io.c   |  181 ++++++++++++++++++
- drivers/input/serio/Kconfig      |   12 +
- drivers/input/serio/Makefile     |    1 
- include/linux/kbd_kern.h         |    5 
- include/linux/keyboard.h         |    1 
- include/linux/serio.h            |    1 
- 14 files changed, 833 insertions(+), 2 deletions(-)
+ drivers/ide/Kconfig         |    5 
+ drivers/ide/ide-disk.c      |   67 +++
+ drivers/ide/ide-geometry.c  |    2 
+ drivers/ide/ide-probe.c     |   23 -
+ drivers/ide/ide-proc.c      |    3 
+ drivers/ide/ide.c           |   14 
+ drivers/ide/legacy/Makefile |    5 
+ drivers/ide/legacy/hd98.c   |  904 ++++++++++++++++++++++++++++++++++++++++++++  drivers/ide/legacy/pc9800.c |   82 +++
+ include/asm-i386/ide.h      |   18 
+ include/linux/hdreg.h       |   19 
+ include/linux/ide.h         |    2 
+ 12 files changed, 1138 insertions(+), 6 deletions(-)
 
 -- 
 Osamu Tomita
 tomita@cinet.co.jp
---------------E01F79D497821DA275155A8C
+--------------F5D0EE3C4010F4F4112D990E
 Content-Type: text/plain; charset=iso-2022-jp;
- name="input.patch"
+ name="ide.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="input.patch"
+ filename="ide.patch"
 
-diff -urN linux/drivers/input/keyboard/Kconfig linux98/drivers/input/keyboard/Kconfig
---- linux/drivers/input/keyboard/Kconfig	Thu Oct 31 13:23:13 2002
-+++ linux98/drivers/input/keyboard/Kconfig	Thu Oct 31 17:16:37 2002
-@@ -88,3 +88,15 @@
- 	  The module will be called amikbd.o. If you want to compile it as a
- 	  module, say M here and read <file:Documentation/modules.txt>.
+diff -urN linux/drivers/ide/Kconfig linux98/drivers/ide/Kconfig
+--- linux/drivers/ide/Kconfig	Wed Nov 13 09:25:33 2002
++++ linux98/drivers/ide/Kconfig	Wed Nov 13 09:38:27 2002
+@@ -1005,6 +1005,11 @@
  
-+config KEYBOARD_98KBD
-+	tristate "NEC PC-9800 Keyboard support"
-+	depends on PC9800 && INPUT && INPUT_KEYBOARD && SERIO
-+	help
-+	  Say Y here if you want to use the NEC PC-9801/PC-9821 keyboard (or
-+	  compatible) on your system. 
+ 	  If unsure, say N.
+ 
++config BLK_DEV_IDE_PC9800
++	bool
++	depends on PC9800
++	default y
 +
-+	  This driver is also available as a module ( = code which can be
-+	  inserted in and removed from the running kernel whenever you want).
-+	  The module will be called xtkbd.o. If you want to compile it as a
-+	  module, say M here and read <file:Documentation/modules.txt>.
+ ##if [ "$CONFIG_IDE_TASKFILE_IO" = "y" ]; then
+ ##  dep_mbool CONFIG_BLK_DEV_TF_DISK $CONFIG_BLK_DEV_IDEDISK
+ ##else
+diff -urN linux/drivers/ide/ide-disk.c linux98/drivers/ide/ide-disk.c
+--- linux/drivers/ide/ide-disk.c	Thu Nov 14 11:40:11 2002
++++ linux98/drivers/ide/ide-disk.c	Thu Nov 14 11:46:24 2002
+@@ -1604,6 +1604,71 @@
+ 		blk_queue_max_sectors(&drive->queue, 2048);
+ #endif
+ 
++#ifdef CONFIG_PC9800
++	/* XXX - need more checks */
++	if (!drive->nobios && !drive->scsi && !drive->removable) {
++		/* PC-9800's BIOS do pack drive numbers to be continuous,
++		   so extra work is needed here.  */
 +
-diff -urN linux/drivers/input/keyboard/Makefile linux98/drivers/input/keyboard/Makefile
---- linux/drivers/input/keyboard/Makefile	Sat Oct 12 13:21:42 2002
-+++ linux98/drivers/input/keyboard/Makefile	Sun Oct 13 11:27:15 2002
-@@ -10,6 +10,7 @@
- obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
- obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
- obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
-+obj-$(CONFIG_KEYBOARD_98KBD)		+= 98kbd.o
++		/* drive information passed from boot/setup.S */
++		struct drive_info_struct {
++			u16 cyl;
++			u8 sect, head;
++			u16 ssize;
++		} __attribute__ ((packed));
++		extern struct drive_info_struct drive_info[];
++
++		/* this pointer must be advanced only when *DRIVE is
++		   really hard disk. */
++		static struct drive_info_struct *info = drive_info;
++
++		if (info < &drive_info[4] && info->cyl) {
++			drive->cyl  = drive->bios_cyl  = info->cyl;
++			drive->head = drive->bios_head = info->head;
++			drive->sect = drive->bios_sect = info->sect;
++			++info;
++		}
++	}
++
++	/* =PC98 MEMO=
++	   physical capacity =< 65535*8*17 sect. : H/S=8/17 (fixed)
++	   physical capacity > 65535*8*17 sect. : use physical geometry
++	   (65535*8*17 = 8912760 sectors)
++	*/
++	printk("%s: CHS: physical %d/%d/%d, logical %d/%d/%d, BIOS %d/%d/%d\n",
++	       drive->name,
++	       id->cyls,	id->heads,	id->sectors,
++	       id->cur_cyls,	id->cur_heads,	id->cur_sectors,
++	       drive->bios_cyl,	drive->bios_head,drive->bios_sect);
++	if (!drive->cyl || !drive->head || !drive->sect) {
++		drive->cyl     = drive->bios_cyl  = id->cyls;
++		drive->head    = drive->bios_head = id->heads;
++		drive->sect    = drive->bios_sect = id->sectors;
++		printk("%s: not BIOS-supported device.\n",drive->name);
++	}
++	/* calculate drive capacity, and select LBA if possible */
++	init_idedisk_capacity(drive);
++
++	/*
++	 * if possible, give fdisk access to more of the drive,
++	 * by correcting bios_cyls:
++	 */
++	capacity = idedisk_capacity(drive);
++	if (capacity < 8912760 &&
++	   (drive->head != 8 || drive->sect != 17)) {
++		drive->head = drive->bios_head = 8;
++		drive->sect = drive->bios_sect = 17;
++		drive->cyl  = drive->bios_cyl  =
++			capacity / (drive->bios_head * drive->bios_sect);
++		printk("%s: Fixing Geometry :: CHS=%d/%d/%d to CHS=%d/%d/%d\n",
++			   drive->name,
++			   id->cur_cyls,id->cur_heads,id->cur_sectors,
++			   drive->bios_cyl,drive->bios_head,drive->bios_sect);
++		id->cur_cyls    = drive->bios_cyl;
++		id->cur_heads   = drive->bios_head;
++		id->cur_sectors = drive->bios_sect;
++	}
++#else /* !CONFIG_PC9800 */
+ 	/* Extract geometry if we did not already have one for the drive */
+ 	if (!drive->cyl || !drive->head || !drive->sect) {
+ 		drive->cyl     = drive->bios_cyl  = id->cyls;
+@@ -1637,6 +1702,8 @@
+ 	if ((capacity >= (drive->bios_cyl * drive->bios_sect * drive->bios_head)) &&
+ 	    (!drive->forced_geom) && drive->bios_sect && drive->bios_head)
+ 		drive->bios_cyl = (capacity / drive->bios_sect) / drive->bios_head;
++#endif  /* CONFIG_PC9800 */
++
+ 	printk (KERN_INFO "%s: %ld sectors", drive->name, capacity);
  
- # The global Rules.make.
+ 	/* Give size in megabytes (MB), not mebibytes (MiB). */
+diff -urN linux/drivers/ide/ide-geometry.c linux98/drivers/ide/ide-geometry.c
+--- linux/drivers/ide/ide-geometry.c	Sat Oct 19 13:02:28 2002
++++ linux98/drivers/ide/ide-geometry.c	Sat Oct 19 15:08:56 2002
+@@ -6,6 +6,7 @@
+ #include <linux/mc146818rtc.h>
+ #include <asm/io.h>
  
-diff -urN linux/drivers/input/keyboard/98kbd.c linux98/drivers/input/keyboard/98kbd.c
---- linux/drivers/input/keyboard/98kbd.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/input/keyboard/98kbd.c	Thu Nov  7 13:52:11 2002
-@@ -0,0 +1,379 @@
++#ifndef CONFIG_PC9800
+ /*
+  * We query CMOS about hard disks : it could be that we have a SCSI/ESDI/etc
+  * controller that is BIOS compatible with ST-506, and thus showing up in our
+@@ -81,6 +82,7 @@
+ 	}
+ #endif
+ }
++#endif /* !CONFIG_PC9800 */
+ 
+ 
+ extern unsigned long current_capacity (ide_drive_t *);
+diff -urN linux/drivers/ide/ide-probe.c linux98/drivers/ide/ide-probe.c
+--- linux/drivers/ide/ide-probe.c	Wed Nov 13 09:25:33 2002
++++ linux98/drivers/ide/ide-probe.c	Wed Nov 13 09:38:27 2002
+@@ -55,6 +55,11 @@
+ #include <asm/io.h>
+ 
+ /*
++ *  Whether PC-9800 architecture or not.
++ */
++extern int pc98;
++
 +/*
-+ *  drivers/input/keyboard/98kbd.c
+  * CompactFlash cards and their brethern pretend to be removable
+  * hard disks, except:
+  *	(1) they never have a slave unit, and
+@@ -557,7 +562,7 @@
+ 
+ 	if (hwif->mmio == 2)
+ 		return 0;
+-	addr_errs  = hwif_check_region(hwif->io_ports[IDE_DATA_OFFSET], 1);
++	addr_errs  = hwif_check_region(hwif->io_ports[IDE_DATA_OFFSET], pc98 ? 2 : 1);
+ 	for (i = IDE_ERROR_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+ 		addr_errs += hwif_check_region(hwif->io_ports[i], 1);
+ 	if (hwif->io_ports[IDE_CONTROL_OFFSET])
+@@ -606,7 +611,9 @@
+ 	}
+ 
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+-		hwif_request_region(hwif->io_ports[i], 1, hwif->name);
++		hwif_request_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1,
++					hwif->name);
+ }
+ 
+ //EXPORT_SYMBOL(hwif_register);
+@@ -623,7 +630,7 @@
+ 
+ 	if (hwif->noprobe)
+ 		return;
+-#ifdef CONFIG_BLK_DEV_IDE
++#if !defined(CONFIG_PC9800) && defined(CONFIG_BLK_DEV_IDE)
+ 	if (hwif->io_ports[IDE_DATA_OFFSET] == HD_DATA) {
+ 		extern void probe_cmos_for_drives(ide_hwif_t *);
+ 		probe_cmos_for_drives(hwif);
+@@ -634,6 +641,9 @@
+ #if CONFIG_BLK_DEV_PDC4030
+ 	    (hwif->chipset != ide_pdc4030 || hwif->channel == 0) &&
+ #endif /* CONFIG_BLK_DEV_PDC4030 */
++#if CONFIG_BLK_DEV_IDE_PC9800
++	    (hwif->chipset != ide_pc9800 || !hwif->mate->present) &&
++#endif
+ 	    (hwif_check_regions(hwif))) {
+ 		u16 msgout = 0;
+ 		for (unit = 0; unit < MAX_DRIVES; ++unit) {
+@@ -956,7 +966,7 @@
+ 	/* all CPUs; safe now that hwif->hwgroup is set up */
+ 	spin_unlock_irqrestore(&ide_lock, flags);
+ 
+-#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__)
++#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__) && !defined(CONFIG_PC9800)
+ 	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
+ 		hwif->io_ports[IDE_DATA_OFFSET],
+ 		hwif->io_ports[IDE_DATA_OFFSET]+7,
+@@ -966,6 +976,11 @@
+ 		hwif->io_ports[IDE_DATA_OFFSET],
+ 		hwif->io_ports[IDE_DATA_OFFSET]+7,
+ 		hwif->io_ports[IDE_CONTROL_OFFSET], __irq_itoa(hwif->irq));
++#elif defined(CONFIG_PC9800)
++	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
++		hwif->io_ports[IDE_DATA_OFFSET],
++		hwif->io_ports[IDE_DATA_OFFSET]+15,
++		hwif->io_ports[IDE_CONTROL_OFFSET], hwif->irq);
+ #else
+ 	printk("%s at %x on irq 0x%08x", hwif->name,
+ 		hwif->io_ports[IDE_DATA_OFFSET], hwif->irq);
+diff -urN linux/drivers/ide/ide-proc.c linux98/drivers/ide/ide-proc.c
+--- linux/drivers/ide/ide-proc.c	Mon Sep 16 11:18:30 2002
++++ linux98/drivers/ide/ide-proc.c	Mon Sep 16 13:53:42 2002
+@@ -365,6 +365,9 @@
+ 		case ide_cy82c693:	name = "cy82c693";	break;
+ 		case ide_4drives:	name = "4drives";	break;
+ 		case ide_pmac:		name = "mac-io";	break;
++#ifdef CONFIG_PC9800
++		case ide_pc9800:	name = "pc9800";	break;
++#endif
+ 		default:		name = "(unknown)";	break;
+ 	}
+ 	len = sprintf(page, "%s\n", name);
+diff -urN linux/drivers/ide/ide.c linux98/drivers/ide/ide.c
+--- linux/drivers/ide/ide.c	Thu Nov 14 11:40:11 2002
++++ linux98/drivers/ide/ide.c	Thu Nov 14 11:46:24 2002
+@@ -189,6 +189,11 @@
+ static int	ide_intr_lock;
+ #endif /* IDE_ARCH_LOCK */
+ 
++/*
++ *  Whether PC-9800 architecture or not.
++ */
++extern int pc98;
++
+ #ifdef CONFIG_IDEDMA_AUTO
+ int noautodma = 0;
+ #else
+@@ -554,7 +559,8 @@
+ 	}
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
+ 		if (hwif->io_ports[i]) {
+-			hwif_release_region(hwif->io_ports[i], 1);
++			hwif_release_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1);
+ 		}
+ 	}
+ }
+@@ -2019,6 +2025,12 @@
+ 	}
+ #endif /* CONFIG_BLK_DEV_IDEPCI */
+ 
++#ifdef CONFIG_BLK_DEV_IDE_PC9800
++	{
++		extern void ide_probe_for_pc9800(void);
++		ide_probe_for_pc9800();
++	}
++#endif
+ #ifdef CONFIG_ETRAX_IDE
+ 	{
+ 		extern void init_e100_ide(void);
+diff -urN linux/drivers/ide/legacy/Makefile linux98/drivers/ide/legacy/Makefile
+--- linux/drivers/ide/legacy/Makefile	Sat Oct 12 13:21:34 2002
++++ linux98/drivers/ide/legacy/Makefile	Sun Oct 13 11:07:36 2002
+@@ -2,6 +2,7 @@
+ obj-$(CONFIG_BLK_DEV_ALI14XX)		+= ali14xx.o
+ obj-$(CONFIG_BLK_DEV_DTC2278)		+= dtc2278.o
+ obj-$(CONFIG_BLK_DEV_HT6560B)		+= ht6560b.o
++obj-$(CONFIG_BLK_DEV_IDE_PC9800)	+= pc9800.o
+ obj-$(CONFIG_BLK_DEV_PDC4030)		+= pdc4030.o
+ obj-$(CONFIG_BLK_DEV_QD65XX)		+= qd65xx.o
+ obj-$(CONFIG_BLK_DEV_UMC8672)		+= umc8672.o
+@@ -15,7 +16,11 @@
+ obj-$(CONFIG_BLK_DEV_IDECS)		+= ide-cs.o
+ 
+ # Last of all
++ifneq ($(CONFIG_PC9800),y)
+ obj-$(CONFIG_BLK_DEV_HD)		+= hd.o
++else
++obj-$(CONFIG_BLK_DEV_HD)		+= hd98.o
++endif
+ 
+ EXTRA_CFLAGS	:= -Idrivers/ide
+ 
+diff -urN linux/drivers/ide/legacy/hd98.c linux98/drivers/ide/legacy/hd98.c
+--- linux/drivers/ide/legacy/hd98.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/ide/legacy/hd98.c	Sat Oct 26 15:42:09 2002
+@@ -0,0 +1,904 @@
++/*
++ *  Copyright (C) 1991, 1992  Linus Torvalds
 + *
-+ *  PC-9801 keyboard driver for Linux
++ * This is the low-level hd interrupt support. It traverses the
++ * request-list, using interrupts to jump between functions. As
++ * all the functions are called within interrupts, we may not
++ * sleep. Special care is recommended.
 + *
-+ *    Based on atkbd.c and xtkbd.c written by Vojtech Pavlik
++ *  modified by Drew Eckhardt to check nr of hd's from the CMOS.
 + *
-+ *  Copyright (c) 2002 Osamu Tomita
-+ *  Copyright (c) 1999-2001 Vojtech Pavlik
++ *  Thanks to Branko Lankester, lankeste@fwi.uva.nl, who found a bug
++ *  in the early extended-partition checks and added DM partitions
++ *
++ *  IRQ-unmask, drive-id, multiple-mode, support for ">16 heads",
++ *  and general streamlining by Mark Lord.
++ *
++ *  Removed 99% of above. Use Mark's ide driver for those options.
++ *  This is now a lightweight ST-506 driver. (Paul Gortmaker)
++ *
++ *  Modified 1995 Russell King for ARM processor.
++ *
++ *  Bugfix: max_sectors must be <= 255 or the wheels tend to come
++ *  off in a hurry once you queue things up - Paul G. 02/2001
 + */
 +
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or 
-+ * (at your option) any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ * 
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ * 
-+ */
++/* Uncomment the following if you want verbose error reports. */
++/* #define VERBOSE_ERRORS */
 +
-+#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/signal.h>
++#include <linux/sched.h>
++#include <linux/timer.h>
++#include <linux/fs.h>
++#include <linux/kernel.h>
++#include <linux/genhd.h>
 +#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/input.h>
++#include <linux/string.h>
++#include <linux/ioport.h>
++#include <linux/mc146818rtc.h> /* CMOS defines */
 +#include <linux/init.h>
-+#include <linux/serio.h>
++#include <linux/blkpg.h>
++#include <linux/hdreg.h>
++
++#define REALLY_SLOW_IO
++#include <asm/system.h>
++#include <asm/io.h>
++#include <asm/uaccess.h>
++
++#define MAJOR_NR HD_MAJOR
++#define DEVICE_NR(device) (minor(device)>>6)
++#include <linux/blk.h>
++
++#include "io_ports.h"
++
++#ifdef __arm__
++#undef  HD_IRQ
++#endif
++#include <asm/irq.h>
++#ifdef __arm__
++#define HD_IRQ IRQ_HARDDISK
++#endif
++
++/* Hd controller regster ports */
++
++#define HD_DATA		0x640	/* _CTL when writing */
++#define HD_ERROR	0x642	/* see err-bits */
++#define HD_NSECTOR	0x644	/* nr of sectors to read/write */
++#define HD_SECTOR	0x646	/* starting sector */
++#define HD_LCYL		0x648	/* starting cylinder */
++#define HD_HCYL		0x64a	/* high byte of starting cyl */
++#define HD_CURRENT	0x64c	/* 101dhhhh , d=drive, hhhh=head */
++#define HD_STATUS	0x64e	/* see status-bits */
++#define HD_FEATURE	HD_ERROR	/* same io address, read=error, write=feature */
++#define HD_PRECOMP	HD_FEATURE	/* obsolete use of this port - predates IDE */
++#define HD_COMMAND	HD_STATUS	/* same io address, read=status, write=cmd */
++
++#define HD_CMD		0x74c	/* used for resets */
++#define HD_ALTSTATUS	0x74c	/* same as HD_STATUS but doesn't clear irq */
++
++/* Bits of HD_STATUS */
++#define ERR_STAT		0x01
++#define INDEX_STAT		0x02
++#define ECC_STAT		0x04	/* Corrected error */
++#define DRQ_STAT		0x08
++#define SEEK_STAT		0x10
++#define SERVICE_STAT		SEEK_STAT
++#define WRERR_STAT		0x20
++#define READY_STAT		0x40
++#define BUSY_STAT		0x80
++
++/* Bits for HD_ERROR */
++#define MARK_ERR		0x01	/* Bad address mark */
++#define TRK0_ERR		0x02	/* couldn't find track 0 */
++#define ABRT_ERR		0x04	/* Command aborted */
++#define MCR_ERR			0x08	/* media change request */
++#define ID_ERR			0x10	/* ID field not found */
++#define MC_ERR			0x20	/* media changed */
++#define ECC_ERR			0x40	/* Uncorrectable ECC error */
++#define BBD_ERR			0x80	/* pre-EIDE meaning:  block marked bad */
++#define ICRC_ERR		0x80	/* new meaning:  CRC error during transfer */
++
++static spinlock_t hd_lock = SPIN_LOCK_UNLOCKED;
++
++#define TIMEOUT_VALUE	(6*HZ)
++#define	HD_DELAY	0
++
++#define MAX_ERRORS     16	/* Max read/write errors/sector */
++#define RESET_FREQ      8	/* Reset controller every 8th retry */
++#define RECAL_FREQ      4	/* Recalibrate every 4th retry */
++#define MAX_HD		2
++
++#define STAT_OK		(READY_STAT|SEEK_STAT)
++#define OK_STATUS(s)	(((s)&(STAT_OK|(BUSY_STAT|WRERR_STAT|ERR_STAT)))==STAT_OK)
++
++static void recal_intr(void);
++static void bad_rw_intr(void);
++
++static char recalibrate[MAX_HD];
++static char special_op[MAX_HD];
++
++static int reset;
++static int hd_error;
++
++#define SUBSECTOR(block) (CURRENT->current_nr_sectors > 0)
++
++/*
++ *  This struct defines the HD's and their types.
++ */
++struct hd_i_struct {
++	unsigned int head,sect,cyl,wpcom,lzone,ctl;
++};
++	
++#ifdef HD_TYPE
++struct hd_i_struct hd_info[] = { HD_TYPE };
++static int NR_HD = ((sizeof (hd_info))/(sizeof (struct hd_i_struct)));
++#else
++struct hd_i_struct hd_info[MAX_HD];
++static int NR_HD;
++#endif
++
++static struct gendisk *hd_gendisk[MAX_HD];
++
++static struct timer_list device_timer;
++
++#define TIMEOUT_VALUE (6*HZ)
++
++#define SET_TIMER							\
++	do {								\
++		mod_timer(&device_timer, jiffies + TIMEOUT_VALUE);	\
++	} while (0)
++
++static void (*do_hd)(void) = NULL;
++#define SET_HANDLER(x) \
++if ((do_hd = (x)) != NULL) \
++	SET_TIMER; \
++else \
++	del_timer(&device_timer);
++
++
++#if (HD_DELAY > 0)
++unsigned long last_req;
++
++unsigned long read_timer(void)
++{
++        extern spinlock_t i8253_lock;
++	unsigned long t, flags;
++	int i;
++
++	spin_lock_irqsave(&i8253_lock, flags);
++	t = jiffies * 11932;
++    	outb_p(0, PIT_MODE);
++	i = inb_p(PIT_CH0);
++	i |= inb(PIT_CH0) << 8;
++	spin_unlock_irqrestore(&i8253_lock, flags);
++	return(t - i);
++}
++#endif
++
++void __init hd_setup(char *str, int *ints)
++{
++	int hdind = 0;
++
++	if (ints[0] != 3)
++		return;
++	if (hd_info[0].head != 0)
++		hdind=1;
++	hd_info[hdind].head = ints[2];
++	hd_info[hdind].sect = ints[3];
++	hd_info[hdind].cyl = ints[1];
++	hd_info[hdind].wpcom = 0;
++	hd_info[hdind].lzone = ints[1];
++	hd_info[hdind].ctl = (ints[2] > 8 ? 8 : 0);
++	NR_HD = hdind+1;
++}
++
++static void dump_status (const char *msg, unsigned int stat)
++{
++	char devc;
++
++	devc = !blk_queue_empty(QUEUE) ? 'a' + DEVICE_NR(CURRENT->rq_dev) : '?';
++#ifdef VERBOSE_ERRORS
++	printk("hd%c: %s: status=0x%02x { ", devc, msg, stat & 0xff);
++	if (stat & BUSY_STAT)	printk("Busy ");
++	if (stat & READY_STAT)	printk("DriveReady ");
++	if (stat & WRERR_STAT)	printk("WriteFault ");
++	if (stat & SEEK_STAT)	printk("SeekComplete ");
++	if (stat & DRQ_STAT)	printk("DataRequest ");
++	if (stat & ECC_STAT)	printk("CorrectedError ");
++	if (stat & INDEX_STAT)	printk("Index ");
++	if (stat & ERR_STAT)	printk("Error ");
++	printk("}\n");
++	if ((stat & ERR_STAT) == 0) {
++		hd_error = 0;
++	} else {
++		hd_error = inb(HD_ERROR);
++		printk("hd%c: %s: error=0x%02x { ", devc, msg, hd_error & 0xff);
++		if (hd_error & BBD_ERR)		printk("BadSector ");
++		if (hd_error & ECC_ERR)		printk("UncorrectableError ");
++		if (hd_error & ID_ERR)		printk("SectorIdNotFound ");
++		if (hd_error & ABRT_ERR)	printk("DriveStatusError ");
++		if (hd_error & TRK0_ERR)	printk("TrackZeroNotFound ");
++		if (hd_error & MARK_ERR)	printk("AddrMarkNotFound ");
++		printk("}");
++		if (hd_error & (BBD_ERR|ECC_ERR|ID_ERR|MARK_ERR)) {
++			printk(", CHS=%d/%d/%d", (inb(HD_HCYL)<<8) + inb(HD_LCYL),
++				inb(HD_CURRENT) & 0xf, inb(HD_SECTOR));
++			if (!blk_queue_empty(QUEUE))
++				printk(", sector=%ld", CURRENT->sector);
++		}
++		printk("\n");
++	}
++#else
++	printk("hd%c: %s: status=0x%02x.\n", devc, msg, stat & 0xff);
++	if ((stat & ERR_STAT) == 0) {
++		hd_error = 0;
++	} else {
++		hd_error = inb(HD_ERROR);
++		printk("hd%c: %s: error=0x%02x.\n", devc, msg, hd_error & 0xff);
++	}
++#endif
++}
++
++void check_status(void)
++{
++	int i = inb(HD_STATUS);
++
++	if (!OK_STATUS(i)) {
++		dump_status("check_status", i);
++		bad_rw_intr();
++	}
++}
++
++static int controller_busy(void)
++{
++	int retries = 100000;
++	unsigned char status;
++
++	do {
++		status = inb(HD_STATUS);
++	} while ((status & BUSY_STAT) && --retries);
++	return status;
++}
++
++static int status_ok(void)
++{
++	unsigned char status = inb(HD_STATUS);
++
++	if (status & BUSY_STAT)
++		return 1;	/* Ancient, but does it make sense??? */
++	if (status & WRERR_STAT)
++		return 0;
++	if (!(status & READY_STAT))
++		return 0;
++	if (!(status & SEEK_STAT))
++		return 0;
++	return 1;
++}
++
++static int controller_ready(unsigned int drive, unsigned int head)
++{
++	int retry = 100;
++
++	do {
++		if (controller_busy() & BUSY_STAT)
++			return 0;
++		outb(0xA0 | (drive<<4) | head, HD_CURRENT);
++		if (status_ok())
++			return 1;
++	} while (--retry);
++	return 0;
++}
++
++static void hd_out(unsigned int drive,unsigned int nsect,unsigned int sect,
++		unsigned int head,unsigned int cyl,unsigned int cmd,
++		void (*intr_addr)(void))
++{
++	unsigned short port;
++
++#if (HD_DELAY > 0)
++	while (read_timer() - last_req < HD_DELAY)
++		/* nothing */;
++#endif
++	if (reset)
++		return;
++	if (!controller_ready(drive, head)) {
++		reset = 1;
++		return;
++	}
++	SET_HANDLER(intr_addr);
++	outb(hd_info[drive].ctl,HD_CMD);
++	port=HD_DATA + 2;
++	outb(hd_info[drive].wpcom>>2, port); port += 2;
++	outb(nsect, port); port += 2;
++	outb(sect, port); port += 2;
++	outb(cyl, port); port += 2;
++	outb(cyl>>8, port); port += 2;
++	outb(0xA0|(drive<<4)|head, port); port += 2;
++	outb(cmd, port);
++}
++
++static void hd_request (void);
++
++static int drive_busy(void)
++{
++	unsigned int i;
++	unsigned char c;
++
++	for (i = 0; i < 500000 ; i++) {
++		c = inb(HD_STATUS);
++		if ((c & (BUSY_STAT | READY_STAT | SEEK_STAT)) == STAT_OK)
++			return 0;
++	}
++	dump_status("reset timed out", c);
++	return 1;
++}
++
++static void reset_controller(void)
++{
++	int	i;
++
++	outb(4,HD_CMD);
++	for(i = 0; i < 1000; i++) barrier();
++	outb(hd_info[0].ctl & 0x0f,HD_CMD);
++	for(i = 0; i < 1000; i++) barrier();
++	if (drive_busy())
++		printk("hd: controller still busy\n");
++	else if ((hd_error = inb(HD_ERROR)) != 1)
++		printk("hd: controller reset failed: %02x\n",hd_error);
++}
++
++static void reset_hd(void)
++{
++	static int i;
++
++repeat:
++	if (reset) {
++		reset = 0;
++		i = -1;
++		reset_controller();
++	} else {
++		check_status();
++		if (reset)
++			goto repeat;
++	}
++	if (++i < NR_HD) {
++		special_op[i] = recalibrate[i] = 1;
++		hd_out(i,hd_info[i].sect,hd_info[i].sect,hd_info[i].head-1,
++			hd_info[i].cyl,WIN_SPECIFY,&reset_hd);
++		if (reset)
++			goto repeat;
++	} else
++		hd_request();
++}
++
++/*
++ * Ok, don't know what to do with the unexpected interrupts: on some machines
++ * doing a reset and a retry seems to result in an eternal loop. Right now I
++ * ignore it, and just set the timeout.
++ *
++ * On laptops (and "green" PCs), an unexpected interrupt occurs whenever the
++ * drive enters "idle", "standby", or "sleep" mode, so if the status looks
++ * "good", we just ignore the interrupt completely.
++ */
++void unexpected_hd_interrupt(void)
++{
++	unsigned int stat = inb(HD_STATUS);
++
++	if (stat & (BUSY_STAT|DRQ_STAT|ECC_STAT|ERR_STAT)) {
++		dump_status ("unexpected interrupt", stat);
++		SET_TIMER;
++	}
++}
++
++/*
++ * bad_rw_intr() now tries to be a bit smarter and does things
++ * according to the error returned by the controller.
++ * -Mika Liljeberg (liljeber@cs.Helsinki.FI)
++ */
++static void bad_rw_intr(void)
++{
++	int dev;
++
++	if (blk_queue_empty(QUEUE))
++		return;
++	dev = DEVICE_NR(CURRENT->rq_dev);
++	if (++CURRENT->errors >= MAX_ERRORS || (hd_error & BBD_ERR)) {
++		end_request(CURRENT, 0);
++		special_op[dev] = recalibrate[dev] = 1;
++	} else if (CURRENT->errors % RESET_FREQ == 0)
++		reset = 1;
++	else if ((hd_error & TRK0_ERR) || CURRENT->errors % RECAL_FREQ == 0)
++		special_op[dev] = recalibrate[dev] = 1;
++	/* Otherwise just retry */
++}
++
++static inline int wait_DRQ(void)
++{
++	int retries = 100000, stat;
++
++	while (--retries > 0)
++		if ((stat = inb(HD_STATUS)) & DRQ_STAT)
++			return 0;
++	dump_status("wait_DRQ", stat);
++	return -1;
++}
++
++static void read_intr(void)
++{
++	int i, retries = 100000;
++
++	do {
++		i = (unsigned) inb(HD_STATUS);
++		if (i & BUSY_STAT)
++			continue;
++		if (!OK_STATUS(i))
++			break;
++		if (i & DRQ_STAT)
++			goto ok_to_read;
++	} while (--retries > 0);
++	dump_status("read_intr", i);
++	bad_rw_intr();
++	hd_request();
++	return;
++ok_to_read:
++	insw(HD_DATA,CURRENT->buffer,256);
++	CURRENT->sector++;
++	CURRENT->buffer += 512;
++	CURRENT->errors = 0;
++	i = --CURRENT->nr_sectors;
++	--CURRENT->current_nr_sectors;
++#ifdef DEBUG
++	printk("hd%c: read: sector %ld, remaining = %ld, buffer=0x%08lx\n",
++		dev+'a', CURRENT->sector, CURRENT->nr_sectors,
++		(unsigned long) CURRENT->buffer+512);
++#endif
++	if (CURRENT->current_nr_sectors <= 0)
++		end_request(CURRENT, 1);
++	if (i > 0) {
++		SET_HANDLER(&read_intr);
++		return;
++	}
++	(void) inb(HD_STATUS);
++#if (HD_DELAY > 0)
++	last_req = read_timer();
++#endif
++	if (!blk_queue_empty(QUEUE))
++		hd_request();
++	return;
++}
++
++static void write_intr(void)
++{
++	int i;
++	int retries = 100000;
++
++	do {
++		i = (unsigned) inb(HD_STATUS);
++		if (i & BUSY_STAT)
++			continue;
++		if (!OK_STATUS(i))
++			break;
++		if ((CURRENT->nr_sectors <= 1) || (i & DRQ_STAT))
++			goto ok_to_write;
++	} while (--retries > 0);
++	dump_status("write_intr", i);
++	bad_rw_intr();
++	hd_request();
++	return;
++ok_to_write:
++	CURRENT->sector++;
++	i = --CURRENT->nr_sectors;
++	--CURRENT->current_nr_sectors;
++	CURRENT->buffer += 512;
++	if (!i || (CURRENT->bio && !SUBSECTOR(i)))
++		end_request(CURRENT, 1);
++	if (i > 0) {
++		SET_HANDLER(&write_intr);
++		outsw(HD_DATA,CURRENT->buffer,256);
++		local_irq_enable();
++	} else {
++#if (HD_DELAY > 0)
++		last_req = read_timer();
++#endif
++		hd_request();
++	}
++	return;
++}
++
++static void recal_intr(void)
++{
++	check_status();
++#if (HD_DELAY > 0)
++	last_req = read_timer();
++#endif
++	hd_request();
++}
++
++/*
++ * This is another of the error-routines I don't know what to do with. The
++ * best idea seems to just set reset, and start all over again.
++ */
++static void hd_times_out(unsigned long dummy)
++{
++	unsigned int dev;
++
++	do_hd = NULL;
++
++	if (blk_queue_empty(QUEUE))
++		return;
++
++	disable_irq(HD_IRQ);
++	local_irq_enable();
++	reset = 1;
++	dev = DEVICE_NR(CURRENT->rq_dev);
++	printk("hd%c: timeout\n", dev+'a');
++	if (++CURRENT->errors >= MAX_ERRORS) {
++#ifdef DEBUG
++		printk("hd%c: too many errors\n", dev+'a');
++#endif
++		end_request(CURRENT, 0);
++	}
++	local_irq_disable();
++	hd_request();
++	enable_irq(HD_IRQ);
++}
++
++int do_special_op (unsigned int dev)
++{
++	if (recalibrate[dev]) {
++		recalibrate[dev] = 0;
++		hd_out(dev,hd_info[dev].sect,0,0,0,WIN_RESTORE,&recal_intr);
++		return reset;
++	}
++	if (hd_info[dev].head > 16) {
++		printk ("hd%c: cannot handle device with more than 16 heads - giving up\n", dev+'a');
++		end_request(CURRENT, 0);
++	}
++	special_op[dev] = 0;
++	return 1;
++}
++
++/*
++ * The driver enables interrupts as much as possible.  In order to do this,
++ * (a) the device-interrupt is disabled before entering hd_request(),
++ * and (b) the timeout-interrupt is disabled before the sti().
++ *
++ * Interrupts are still masked (by default) whenever we are exchanging
++ * data/cmds with a drive, because some drives seem to have very poor
++ * tolerance for latency during I/O. The IDE driver has support to unmask
++ * interrupts for non-broken hardware, so use that driver if required.
++ */
++static void hd_request(void)
++{
++	unsigned int dev, block, nsect, sec, track, head, cyl;
++
++	if (do_hd)
++		return;
++repeat:
++	del_timer(&device_timer);
++	local_irq_enable();
++
++	if (blk_queue_empty(QUEUE)) {
++		do_hd = NULL;
++		return;
++	}
++
++	if (reset) {
++		local_irq_disable();
++		reset_hd();
++		return;
++	}
++	dev = DEVICE_NR(CURRENT->rq_dev);
++	block = CURRENT->sector;
++	nsect = CURRENT->nr_sectors;
++	if (dev >= NR_HD) {
++		printk("hd: bad disk number: %d\n", dev);
++		end_request(CURRENT, 0);
++		goto repeat;
++	}
++	if (block >= get_capacity(hd_gendisk[dev]) ||
++	    ((block+nsect) > get_capacity(hd_gendisk[dev]))) {
++		printk("%s: bad access: block=%d, count=%d\n",
++			hd_gendisk[dev]->disk_name, block, nsect);
++		end_request(CURRENT, 0);
++		goto repeat;
++	}
++
++	if (special_op[dev]) {
++		if (do_special_op(dev))
++			goto repeat;
++		return;
++	}
++	sec   = block % hd_info[dev].sect + 1;
++	track = block / hd_info[dev].sect;
++	head  = track % hd_info[dev].head;
++	cyl   = track / hd_info[dev].head;
++#ifdef DEBUG
++	printk("hd%c: %sing: CHS=%d/%d/%d, sectors=%d, buffer=0x%08lx\n",
++		dev+'a', (CURRENT->cmd == READ)?"read":"writ",
++		cyl, head, sec, nsect, (unsigned long) CURRENT->buffer);
++#endif
++	if(CURRENT->flags & REQ_CMD) {
++		switch (rq_data_dir(CURRENT)) {
++		case READ:
++			hd_out(dev,nsect,sec,head,cyl,WIN_READ,&read_intr);
++			if (reset)
++				goto repeat;
++			break;
++		case WRITE:
++			hd_out(dev,nsect,sec,head,cyl,WIN_WRITE,&write_intr);
++			if (reset)
++				goto repeat;
++			if (wait_DRQ()) {
++				bad_rw_intr();
++				goto repeat;
++			}
++			outsw(HD_DATA,CURRENT->buffer,256);
++			break;
++		default:
++			printk("unknown hd-command\n");
++			end_request(CURRENT, 0);
++			break;
++		}
++	}
++}
++
++static void do_hd_request (request_queue_t * q)
++{
++	disable_irq(HD_IRQ);
++	hd_request();
++	enable_irq(HD_IRQ);
++}
++
++static int hd_ioctl(struct inode * inode, struct file * file,
++	unsigned int cmd, unsigned long arg)
++{
++	struct hd_geometry *loc = (struct hd_geometry *) arg;
++	int dev;
++
++	if ((!inode) || kdev_none(inode->i_rdev))
++		return -EINVAL;
++	dev = DEVICE_NR(inode->i_rdev);
++	if (dev >= NR_HD)
++		return -EINVAL;
++	switch (cmd) {
++		case HDIO_GETGEO:
++		{
++			struct hd_geometry g; 
++			if (!loc)  return -EINVAL;
++			g.heads = hd_info[dev].head;
++			g.sectors = hd_info[dev].sect;
++			g.cylinders = hd_info[dev].cyl;
++			g.start = get_start_sect(inode->i_bdev);
++			return copy_to_user(loc, &g, sizeof g) ? -EFAULT : 0; 
++		}
++
++		default:
++			return -EINVAL;
++	}
++}
++
++static int hd_open(struct inode * inode, struct file * filp)
++{
++	int target =  DEVICE_NR(inode->i_rdev);
++	if (target >= NR_HD)
++		return -ENODEV;
++	return 0;
++}
++
++/*
++ * Releasing a block device means we sync() it, so that it can safely
++ * be forgotten about...
++ */
++
++extern struct block_device_operations hd_fops;
++
++static void hd_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	void (*handler)(void) = do_hd;
++
++	do_hd = NULL;
++	del_timer(&device_timer);
++	if (!handler)
++		handler = unexpected_hd_interrupt;
++	handler();
++	local_irq_enable();
++}
++
++static struct block_device_operations hd_fops = {
++	.open =		hd_open,
++	.ioctl =	hd_ioctl,
++};
++
++/*
++ * This is the hard disk IRQ description. The SA_INTERRUPT in sa_flags
++ * means we run the IRQ-handler with interrupts disabled:  this is bad for
++ * interrupt latency, but anything else has led to problems on some
++ * machines.
++ *
++ * We enable interrupts in some of the routines after making sure it's
++ * safe.
++ */
++
++static int __init hd_init(void)
++{
++	int drive;
++	if (register_blkdev(MAJOR_NR,"hd",&hd_fops)) {
++		printk("hd: unable to get major %d for hard disk\n",MAJOR_NR);
++		return -1;
++	}
++	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_hd_request, &hd_lock);
++	blk_queue_max_sectors(BLK_DEFAULT_QUEUE(MAJOR_NR), 255);
++	init_timer(&device_timer);
++	device_timer.function = hd_times_out;
++	blk_queue_hardsect_size(QUEUE, 512);
++
++#ifdef __i386__
++	if (!NR_HD) {
++		extern struct drive_info drive_info;
++		unsigned char *BIOS = (unsigned char *) &drive_info;
++		unsigned long flags;
++#ifndef CONFIG_PC9800
++		int cmos_disks;
++#endif
++
++		for (drive=0 ; drive<2 ; drive++) {
++			hd_info[drive].cyl = *(unsigned short *) BIOS;
++			hd_info[drive].head = *(3+BIOS);
++			hd_info[drive].sect = *(2+BIOS);
++			hd_info[drive].wpcom = 0;
++			hd_info[drive].ctl = *(3+BIOS) > 8 ? 8 : 0;
++			hd_info[drive].lzone = *(unsigned short *) BIOS;
++			if (hd_info[drive].cyl && NR_HD == drive)
++				NR_HD++;
++			BIOS += 6;
++		}
++
++	}
++#endif /* __i386__ */
++#ifdef __arm__
++	if (!NR_HD) {
++		/* We don't know anything about the drive.  This means
++		 * that you *MUST* specify the drive parameters to the
++		 * kernel yourself.
++		 */
++		printk("hd: no drives specified - use hd=cyl,head,sectors"
++			" on kernel command line\n");
++	}
++#endif
++	if (!NR_HD)
++		goto out;
++
++	for (drive=0 ; drive < NR_HD ; drive++) {
++		struct gendisk *disk = alloc_disk();
++		if (!disk)
++			goto Enomem;
++		disk->major = MAJOR_NR;
++		disk->first_minor = drive << 6;
++		disk->minor_shift = 6;
++		disk->fops = &hd_fops;
++		sprintf(disk->disk_name, "hd%c", 'a'+drive);
++		hd_gendisk[drive] = disk;
++	}
++	for (drive=0 ; drive < NR_HD ; drive++) {
++		sector_t size = hd_info[drive].head *
++			hd_info[drive].sect * hd_info[drive].cyl;
++		set_capacity(hd_gendisk[drive], size);
++		printk ("%s: %ldMB, CHS=%d/%d/%d\n",
++			hd_gendisk[drive]->disk_name,
++			size / 2048, hd_info[drive].cyl,
++			hd_info[drive].head, hd_info[drive].sect);
++	}
++
++	if (request_irq(HD_IRQ, hd_interrupt, SA_INTERRUPT, "hd", NULL)) {
++		printk("hd: unable to get IRQ%d for the hard disk driver\n",
++			HD_IRQ);
++		goto out1;
++	}
++
++	if (!request_region(HD_DATA, 2, "hd(data)")) {
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		NR_HD = 0;
++		free_irq(HD_IRQ, NULL);
++		return;
++	}
++
++	if (!request_region(HD_DATA + 2, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out2;
++	}
++
++	if (!request_region(HD_DATA + 4, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out3;
++	}
++
++	if (!request_region(HD_DATA + 6, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out4;
++	}
++
++	if (!request_region(HD_DATA + 8, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out5;
++	}
++
++	if (!request_region(HD_DATA + 10, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out6;
++	}
++
++	if (!request_region(HD_DATA + 12, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out7;
++	}
++
++	if (!request_region(HD_CMD, 1, "hd(cmd)"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_CMD);
++		goto out8;
++	}
++
++	if (!request_region(HD_CMD + 2, 1, "hd(cmd)"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_CMD);
++		goto out9;
++	}
++
++	for(drive=0; drive < NR_HD; drive++) {
++		struct hd_i_struct *p = hd_info + drive;
++		set_capacity(hd_gendisk[drive], p->head * p->sect * p->cyl);
++		add_disk(hd_gendisk[drive]);
++	}
++	return 0;
++
++out9:
++	release_region(HD_CMD, 1);
++out8:
++	release_region(HD_DATA + 12, 1);
++out7:
++	release_region(HD_DATA + 10, 1);
++out6:
++	release_region(HD_DATA + 8, 1);
++out5:
++	release_region(HD_DATA + 6, 1);
++out4:
++	release_region(HD_DATA + 4, 1);
++out3:
++	release_region(HD_DATA + 2, 1);
++out2:
++	release_region(HD_DATA, 2);
++	free_irq(HD_IRQ, NULL);
++out1:
++	for (drive = 0; drive < NR_HD; drive++)
++		put_disk(hd_gendisk[drive]);
++	NR_HD = 0;
++out:
++	del_timer(&device_timer);
++	unregister_blkdev(MAJOR_NR,"hd");
++	blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
++	return -1;
++Enomem:
++	while (drive--)
++		put_disk(hd_gendisk[drive]);
++	goto out;
++}
++
++static int parse_hd_setup (char *line) {
++	int ints[6];
++
++	(void) get_options(line, ARRAY_SIZE(ints), ints);
++	hd_setup(NULL, ints);
++
++	return 1;
++}
++__setup("hd=", parse_hd_setup);
++
++module_init(hd_init);
+diff -urN linux/drivers/ide/legacy/pc9800.c linux98/drivers/ide/legacy/pc9800.c
+--- linux/drivers/ide/legacy/pc9800.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/ide/legacy/pc9800.c	Tue Oct  8 17:06:39 2002
+@@ -0,0 +1,82 @@
++/*
++ *  ide_pc9800.c
++ *
++ *  Copyright (C) 1997-2000  Linux/98 project,
++ *			     Kyoto University Microcomputer Club.
++ */
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/ioport.h>
++#include <linux/ide.h>
++#include <linux/init.h>
 +
 +#include <asm/io.h>
 +#include <asm/pc9800.h>
 +
-+MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
-+MODULE_DESCRIPTION("PC-9801 keyboard driver");
-+MODULE_LICENSE("GPL");
++#define PC9800_IDE_BANKSELECT	0x432
 +
-+#define KBD98_KEY	0x7f
-+#define KBD98_RELEASE	0x80
++#define DEBUG
 +
-+static unsigned char kbd98_keycode[256] = {	 
-+	  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 43, 14, 15,
-+	 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 41, 26, 28, 30, 31, 32,
-+	 33, 34, 35, 36, 37, 38, 39, 40, 27, 44, 45, 46, 47, 48, 49, 50,
-+	 51, 52, 53, 12, 57,184,109,104,110,111,103,105,106,108,102,107,
-+	 74, 98, 71, 72, 73, 55, 75, 76, 77, 78, 79, 80, 81,117, 82,124,
-+	 83,185, 87, 88, 85, 89, 90,  0,  0,  0,  0,  0,  0,  0,102,  0,
-+	 99,133, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,  0,  0,  0,  0,
-+	 54, 58, 42, 56, 29
-+};
-+
-+struct jis_kbd_conv {
-+	unsigned char scancode;
-+	struct {
-+		unsigned char shift;
-+		unsigned char keycode;
-+	} emul[2];
-+};
-+
-+static struct jis_kbd_conv kbd98_jis[] = {
-+	{0x02, {{0,   3}, {1,  40}}},
-+	{0x06, {{0,   7}, {1,   8}}},
-+	{0x07, {{0,   8}, {0,  40}}},
-+	{0x08, {{0,   9}, {1,  10}}},
-+	{0x09, {{0,  10}, {1,  11}}},
-+	{0x0a, {{0,  11}, {1, 255}}},
-+	{0x0b, {{0,  12}, {0,  13}}},
-+	{0x0c, {{1,   7}, {0,  41}}},
-+	{0x1a, {{1,   3}, {1,  41}}},
-+	{0x26, {{0,  39}, {1,  13}}},
-+	{0x27, {{1,  39}, {1,   9}}},
-+	{0x33, {{0, 255}, {1,  12}}},
-+	{0xff, {{0, 255}, {1, 255}}}	/* terminater */
-+};
-+
-+#define KBD98_CMD_SETEXKEY	0x1095	/* Enable/Disable Windows, Appli key */
-+#define KBD98_CMD_SETRATE	0x109c	/* Set typematic rate */
-+#define KBD98_CMD_SETLEDS	0x109d	/* Set keyboard leds */
-+#define KBD98_CMD_GETLEDS	0x119d	/* Get keyboard leds */
-+#define KBD98_CMD_GETID		0x019f
-+
-+#define KBD98_RET_ACK		0xfa
-+#define KBD98_RET_NAK		0xfc	/* Command NACK, send the cmd again */
-+
-+#define KBD98_KEY_JIS_EMUL	253
-+#define KBD98_KEY_UNKNOWN	254
-+#define KBD98_KEY_NULL		255
-+
-+static char *kbd98_name = "PC-9801 Keyboard";
-+
-+struct kbd98 {
-+	unsigned char keycode[256];
-+	struct input_dev dev;
-+	struct serio *serio;
-+	char phys[32];
-+	unsigned char cmdbuf[4];
-+	unsigned char cmdcnt;
-+	signed char ack;
-+	unsigned char shift;
-+	struct {
-+		unsigned char scancode;
-+		unsigned char keycode;
-+	} emul;
-+	struct jis_kbd_conv jis[16];
-+};
-+
-+void kbd98_interrupt(struct serio *serio, unsigned char data, unsigned int flags)
++static void
++pc9800_select(ide_drive_t *drive)
 +{
-+	struct kbd98 *kbd98 = serio->private;
-+	unsigned char scancode, keycode;
-+	int press, i;
++#ifdef DEBUG
++	byte old;
 +
-+	switch (data) {
-+		case KBD98_RET_ACK:
-+			kbd98->ack = 1;
-+			return;
-+		case KBD98_RET_NAK:
-+			kbd98->ack = -1;
-+			return;
-+	}
++	/* Too noisy: */
++	/* printk(KERN_DEBUG "pc9800_select(%s)\n", drive->name); */
 +
-+	if (kbd98->cmdcnt) {
-+		kbd98->cmdbuf[--kbd98->cmdcnt] = data;
-+		return;
-+	}
-+
-+	scancode = data & KBD98_KEY;
-+	keycode = kbd98->keycode[scancode];
-+	press = !(data & KBD98_RELEASE);
-+	if (kbd98->emul.scancode != KBD98_KEY_UNKNOWN
-+	    && scancode != kbd98->emul.scancode) {
-+		input_report_key(&kbd98->dev, kbd98->emul.keycode, 0);
-+		kbd98->emul.scancode = KBD98_KEY_UNKNOWN;
-+	}
-+
-+	if (keycode == KEY_RIGHTSHIFT)
-+		kbd98->shift = press;
-+
-+	switch (keycode) {
-+		case KEY_2:
-+		case KEY_6:
-+		case KEY_7:
-+		case KEY_8:
-+		case KEY_9:
-+		case KEY_0:
-+		case KEY_MINUS:
-+		case KEY_EQUAL:
-+		case KEY_GRAVE:
-+		case KEY_SEMICOLON:
-+		case KEY_APOSTROPHE:
-+			/* emulation: JIS keyboard to US101 keyboard */
-+			i = 0;
-+			while (kbd98->jis[i].scancode != 0xff) {
-+				if (scancode == kbd98->jis[i].scancode)
-+					break;
-+				i ++;
-+			}
-+
-+			keycode = kbd98->jis[i].emul[kbd98->shift].keycode;
-+			if (keycode == KBD98_KEY_NULL)
-+				return;
-+
-+			if (press) {
-+				kbd98->emul.scancode = scancode;
-+				kbd98->emul.keycode = keycode;
-+				if (kbd98->jis[i].emul[kbd98->shift].shift
-+								!= kbd98->shift)
-+					input_report_key(&kbd98->dev,
-+							KEY_RIGHTSHIFT,
-+							!(kbd98->shift));
-+			}
-+
-+			input_report_key(&kbd98->dev, keycode, press);
-+			if (!press) {
-+				if (kbd98->jis[i].emul[kbd98->shift].shift
-+								!= kbd98->shift)
-+					input_report_key(&kbd98->dev,
-+							KEY_RIGHTSHIFT,
-+							kbd98->shift);
-+				kbd98->emul.scancode = KBD98_KEY_UNKNOWN;
-+			}
-+
-+			input_sync(&kbd98->dev);
-+			return;
-+
-+		case KBD98_KEY_NULL:
-+			return;
-+
-+		case 0:
-+			printk(KERN_WARNING "kbd98.c: Unknown key (scancode %#x) %s.\n",
-+				data & KBD98_KEY, data & KBD98_RELEASE ? "released" : "pressed");
-+			return;
-+
-+		default:
-+			input_report_key(&kbd98->dev, keycode, press);
-+			input_sync(&kbd98->dev);
-+		}
-+}
-+
-+/*
-+ * kbd98_sendbyte() sends a byte to the keyboard, and waits for
-+ * acknowledge. It doesn't handle resends according to the keyboard
-+ * protocol specs, because if these are needed, the keyboard needs
-+ * replacement anyway, and they only make a mess in the protocol.
-+ */
-+
-+static int kbd98_sendbyte(struct kbd98 *kbd98, unsigned char byte)
-+{
-+	int timeout = 10000; /* 100 msec */
-+	kbd98->ack = 0;
-+
-+	if (serio_write(kbd98->serio, byte))
-+		return -1;
-+
-+	while (!kbd98->ack && timeout--) udelay(10);
-+
-+	return -(kbd98->ack <= 0);
-+}
-+
-+/*
-+ * kbd98_command() sends a command, and its parameters to the keyboard,
-+ * then waits for the response and puts it in the param array.
-+ */
-+
-+static int kbd98_command(struct kbd98 *kbd98, unsigned char *param, int command)
-+{
-+	int timeout = 50000; /* 500 msec */
-+	int send = (command >> 12) & 0xf;
-+	int receive = (command >> 8) & 0xf;
-+	int i;
-+
-+	kbd98->cmdcnt = receive;
-+	
-+	if (command & 0xff)
-+		if (kbd98_sendbyte(kbd98, command & 0xff))
-+			return (kbd98->cmdcnt = 0) - 1;
-+
-+	for (i = 0; i < send; i++)
-+		if (kbd98_sendbyte(kbd98, param[i]))
-+			return (kbd98->cmdcnt = 0) - 1;
-+
-+	while (kbd98->cmdcnt && timeout--) udelay(10);
-+
-+	if (param)
-+		for (i = 0; i < receive; i++)
-+			param[i] = kbd98->cmdbuf[(receive - 1) - i];
-+
-+	if (kbd98->cmdcnt) 
-+		return (kbd98->cmdcnt = 0) - 1;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Event callback from the input module. Events that change the state of
-+ * the hardware are processed here.
-+ */
-+
-+static int kbd98_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
-+{
-+	struct kbd98 *kbd98 = dev->private;
-+	char param[2];
-+
-+	switch (type) {
-+
-+		case EV_LED:
-+
-+			if (__PC9800SCA_TEST_BIT(0x481, 3)) {
-+				/* 98note with Num Lock key */
-+				/* keep Num Lock status     */
-+				*param = 0x60;
-+				if (kbd98_command(kbd98, param,
-+							KBD98_CMD_GETLEDS))
-+					printk(KERN_DEBUG
-+						"kbd98: Get keyboard LED"
-+						" status Error\n");
-+
-+				*param &= 1;
-+			} else {
-+				/* desktop PC-9801 */
-+				*param = 1;	/* Allways set Num Lock */
-+			}
-+
-+			*param |= 0x70
-+			       | (test_bit(LED_CAPSL,   dev->led) ? 4 : 0)
-+			       | (test_bit(LED_KANA,    dev->led) ? 8 : 0);
-+		        kbd98_command(kbd98, param, KBD98_CMD_SETLEDS);
-+
-+			return 0;
-+	}
-+
-+	return -1;
-+}
-+
-+void kbd98_connect(struct serio *serio, struct serio_dev *dev)
-+{
-+	struct kbd98 *kbd98;
-+	int i;
-+
-+	if ((serio->type & SERIO_TYPE) != SERIO_PC9800)
-+		return;
-+
-+	if (!(kbd98 = kmalloc(sizeof(struct kbd98), GFP_KERNEL)))
-+		return;
-+
-+	memset(kbd98, 0, sizeof(struct kbd98));
-+	kbd98->emul.scancode = KBD98_KEY_UNKNOWN;
-+	
-+	kbd98->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_REP);
-+	kbd98->dev.ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_KANA);
-+
-+	kbd98->serio = serio;
-+
-+	init_input_dev(&kbd98->dev);
-+	kbd98->dev.keycode = kbd98->keycode;
-+	kbd98->dev.keycodesize = sizeof(unsigned char);
-+	kbd98->dev.keycodemax = ARRAY_SIZE(kbd98_keycode);
-+	kbd98->dev.event = kbd98_event;
-+	kbd98->dev.private = kbd98;
-+
-+	serio->private = kbd98;
-+
-+	if (serio_open(serio, dev)) {
-+		kfree(kbd98);
-+		return;
-+	}
-+
-+	memcpy(kbd98->jis, kbd98_jis, sizeof(kbd98_jis));
-+	memcpy(kbd98->keycode, kbd98_keycode, sizeof(kbd98->keycode));
-+	for (i = 0; i < 255; i++)
-+		set_bit(kbd98->keycode[i], kbd98->dev.keybit);
-+	clear_bit(0, kbd98->dev.keybit);
-+
-+	sprintf(kbd98->phys, "%s/input0", serio->phys);
-+
-+	kbd98->dev.name = kbd98_name;
-+	kbd98->dev.phys = kbd98->phys;
-+	kbd98->dev.id.bustype = BUS_XTKBD;
-+	kbd98->dev.id.vendor = 0x0002;
-+	kbd98->dev.id.product = 0x0001;
-+	kbd98->dev.id.version = 0x0100;
-+
-+	input_register_device(&kbd98->dev);
-+
-+	printk(KERN_INFO "input: %s on %s\n", kbd98_name, serio->phys);
-+}
-+
-+void kbd98_disconnect(struct serio *serio)
-+{
-+	struct kbd98 *kbd98 = serio->private;
-+	input_unregister_device(&kbd98->dev);
-+	serio_close(serio);
-+	kfree(kbd98);
-+}
-+
-+struct serio_dev kbd98_dev = {
-+	.interrupt =	kbd98_interrupt,
-+	.connect =	kbd98_connect,
-+	.disconnect =	kbd98_disconnect
-+};
-+
-+int __init kbd98_init(void)
-+{
-+	serio_register_device(&kbd98_dev);
-+	return 0;
-+}
-+
-+void __exit kbd98_exit(void)
-+{
-+	serio_unregister_device(&kbd98_dev);
-+}
-+
-+module_init(kbd98_init);
-+module_exit(kbd98_exit);
-diff -urN linux/drivers/input/misc/pcspkr.c linux98/drivers/input/misc/pcspkr.c
---- linux/drivers/input/misc/pcspkr.c	Mon Sep 16 11:18:31 2002
-+++ linux98/drivers/input/misc/pcspkr.c	Mon Sep 16 16:04:05 2002
-@@ -12,6 +12,7 @@
-  * the Free Software Foundation
-  */
- 
-+#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -23,7 +24,11 @@
- MODULE_LICENSE("GPL");
- 
- static char pcspkr_name[] = "PC Speaker";
-+#ifndef CONFIG_PC9800
- static char pcspkr_phys[] = "isa0061/input0";
-+#else
-+static char pcspkr_phys[] = "isa3fdb/input0";
++	outb(0x80, PC9800_IDE_BANKSELECT);
++	old = inb(PC9800_IDE_BANKSELECT);
++	if (old != HWIF(drive)->index)
++		printk(KERN_DEBUG "ide-pc9800: switching bank #%d -> #%d\n",
++			old, HWIF(drive)->index);
 +#endif
- static struct input_dev pcspkr_dev;
++	outb(HWIF(drive)->index, PC9800_IDE_BANKSELECT);
++}
++
++void __init
++ide_probe_for_pc9800(void)
++{
++	byte tmp;
++
++	if (!PC9800_9821_P() /* || !PC9821_IDEIF_DOUBLE_P() */)
++		return;
++
++	if (check_region(PC9800_IDE_BANKSELECT, 1)) {
++		printk(KERN_ERR
++			"ide: bank select port (%#x) is already occupied!\n",
++			PC9800_IDE_BANKSELECT);
++		return;
++	}
++
++	/* Do actual probing. */
++	if ((tmp = inb(PC9800_IDE_BANKSELECT)) == (byte) ~0
++	    || (outb(tmp ^ 1, PC9800_IDE_BANKSELECT),
++		/* Next outb is dummy for reading status. */
++		outb(0x80, PC9800_IDE_BANKSELECT),
++		inb(PC9800_IDE_BANKSELECT) != (tmp ^ 1))) {
++		printk(KERN_INFO
++			"ide: pc9800 type bank selecting port not found\n");
++		return;
++	}
++	/* Restore original value, just in case. */
++	outb(tmp, PC9800_IDE_BANKSELECT);
++
++	request_region(PC9800_IDE_BANKSELECT, 1, "ide0/1 bank");
++
++	/* These ports are probably used by IDE I/F.  */
++	request_region(0x430, 1, "ide");
++	request_region(0x435, 1, "ide");
++
++	if (ide_hwifs[0].io_ports[IDE_DATA_OFFSET] == HD_DATA
++	    && ide_hwifs[1].io_ports[IDE_DATA_OFFSET] == HD_DATA) {
++		ide_hwifs[0].chipset = ide_pc9800;
++		ide_hwifs[0].mate = &ide_hwifs[1];
++		ide_hwifs[0].selectproc = pc9800_select;
++		ide_hwifs[1].chipset = ide_pc9800;
++		ide_hwifs[1].mate = &ide_hwifs[0];
++		ide_hwifs[1].selectproc = pc9800_select;
++	}
++}
+diff -urN linux/include/asm-i386/ide.h linux98/include/asm-i386/ide.h
+--- linux/include/asm-i386/ide.h	Sat Oct 12 13:21:31 2002
++++ linux98/include/asm-i386/ide.h	Sun Oct 13 23:17:54 2002
+@@ -26,6 +26,9 @@
+ static __inline__ int ide_default_irq(ide_ioreg_t base)
+ {
+ 	switch (base) {
++#ifdef CONFIG_PC9800
++		case 0x640: return 9;
++#endif /* CONFIG_PC9800 */
+ 		case 0x1f0: return 14;
+ 		case 0x170: return 15;
+ 		case 0x1e8: return 11;
+@@ -39,7 +42,11 @@
  
- spinlock_t i8253_beep_lock = SPIN_LOCK_UNLOCKED;
-@@ -43,11 +48,16 @@
- 	} 
- 
- 	if (value > 20 && value < 32767)
+ static __inline__ ide_ioreg_t ide_default_io_base(int index)
+ {
 +#ifndef CONFIG_PC9800
- 		count = 1193182 / value;
-+#else
-+		count = CLOCK_TICK_RATE / value;
-+#endif
- 	
- 	spin_lock_irqsave(&i8253_beep_lock, flags);
- 
- 	if (count) {
-+#ifndef CONFIG_PC9800
- 		/* enable counter 2 */
- 		outb_p(inb_p(0x61) | 3, 0x61);
- 		/* set command for counter 2, 2 byte write */
-@@ -55,9 +65,23 @@
- 		/* select desired HZ */
- 		outb_p(count & 0xff, 0x42);
- 		outb((count >> 8) & 0xff, 0x42);
+ 	static unsigned long ata_io_base[MAX_HWIFS] = { 0x1f0, 0x170, 0x1e8, 0x168, 0x1e0, 0x160 };
 +#else /* CONFIG_PC9800 */
-+		outb(0x76, 0x3fdf);
-+		outb(0, 0x5f);
-+		outb(count & 0xff, 0x3fdb);
-+		outb(0, 0x5f);
-+		outb((count >> 8) & 0xff, 0x3fdb);
-+		/* beep on */
-+		outb(6, 0x37);
++	static unsigned long ata_io_base[MAX_HWIFS] = { 0x640, 0x640, 0, 0, 0, 0 };
 +#endif /* !CONFIG_PC9800 */
- 	} else {
- 		/* disable counter 2 */
+ 
+ 	return ata_io_base[index];
+ }
+@@ -48,13 +55,24 @@
+ {
+ 	ide_ioreg_t reg = data_port;
+ 	int i;
++#ifdef CONFIG_PC9800
++	ide_ioreg_t increment = data_port == 0x640 ? 2 : 1;
++#endif
+ 
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
+ 		hw->io_ports[i] = reg;
 +#ifndef CONFIG_PC9800
- 		outb(inb_p(0x61) & 0xFC, 0x61);
+ 		reg += 1;
 +#else
-+		/* beep off */
-+		outb(7, 0x37);
++		reg += increment;
 +#endif
  	}
- 
- 	spin_unlock_irqrestore(&i8253_beep_lock, flags);
-diff -urN linux/drivers/input/mouse/98busmouse.c linux98/drivers/input/mouse/98busmouse.c
---- linux/drivers/input/mouse/98busmouse.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/input/mouse/98busmouse.c	Sat Oct 26 18:36:15 2002
-@@ -0,0 +1,201 @@
-+/*
-+ *
-+ *  Copyright (c) 2002 Osamu Tomita
-+ *
-+ *  Based on the work of:
-+ *	James Banks		Matthew Dillon
-+ *	David Giller		Nathan Laredo
-+ *	Linus Torvalds		Johan Myreen
-+ *	Cliff Matthews		Philip Blundell
-+ *	Russell King		Vojtech Pavlik
-+ */
-+
-+/*
-+ * NEC PC-9801 Bus Mouse Driver for Linux
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or 
-+ * (at your option) any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ * 
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ * 
-+ */
-+
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/ioport.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+
-+MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
-+MODULE_DESCRIPTION("PC-9801 busmouse driver");
-+MODULE_LICENSE("GPL");
-+
-+#define	PC98BM_BASE		0x7fd9
-+#define	PC98BM_DATA_PORT	PC98BM_BASE + 0
-+/*	PC98BM_SIGNATURE_PORT	does not exist */
-+#define	PC98BM_CONTROL_PORT	PC98BM_BASE + 4
-+/*	PC98BM_INTERRUPT_PORT	does not exist */
-+#define	PC98BM_CONFIG_PORT	PC98BM_BASE + 6
-+
-+#define	PC98BM_ENABLE_IRQ	0x00
-+#define	PC98BM_DISABLE_IRQ	0x10
-+#define	PC98BM_READ_X_LOW	0x80
-+#define	PC98BM_READ_X_HIGH	0xa0
-+#define	PC98BM_READ_Y_LOW	0xc0
-+#define	PC98BM_READ_Y_HIGH	0xe0
-+
-+#define PC98BM_DEFAULT_MODE	0x93
-+/*	PC98BM_CONFIG_BYTE	is not used */
-+/*	PC98BM_SIGNATURE_BYTE	is not used */
-+
-+#define PC98BM_TIMER_PORT	0xbfdb
-+#define PC98BM_DEFAULT_TIMER_VAL	0x00
-+
-+#define PC98BM_IRQ		13
-+
-+MODULE_PARM(pc98bm_irq, "i");
-+
-+static int pc98bm_irq = PC98BM_IRQ;
-+static int pc98bm_used = 0;
-+
-+static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+
-+static int pc98bm_open(struct input_dev *dev)
-+{
-+	if (pc98bm_used++)
-+		return 0;
-+	if (request_irq(pc98bm_irq, pc98bm_interrupt, 0, "98busmouse", NULL)) {
-+		pc98bm_used--;
-+		printk(KERN_ERR "98busmouse.c: Can't allocate irq %d\n", pc98bm_irq);
-+		return -EBUSY;
-+	}
-+	outb(PC98BM_ENABLE_IRQ, PC98BM_CONTROL_PORT);
-+	return 0;
-+}
-+
-+static void pc98bm_close(struct input_dev *dev)
-+{
-+	if (--pc98bm_used)
-+		return;
-+	outb(PC98BM_DISABLE_IRQ, PC98BM_CONTROL_PORT);
-+	free_irq(pc98bm_irq, NULL);
-+}
-+
-+static struct input_dev pc98bm_dev = {
-+	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
-+	.keybit = { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
-+	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
-+	.open	= pc98bm_open,
-+	.close	= pc98bm_close,
-+	.name	= "PC-9801 bus mouse",
-+	.phys	= "isa7fd9/input0",
-+	.id	= {
-+		.bustype = BUS_ISA,
-+		.vendor  = 0x0004,
-+		.product = 0x0001,
-+		.version = 0x0100,
-+	},
-+};
-+
-+static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	char dx, dy;
-+	unsigned char buttons;
-+
-+	outb(PC98BM_READ_X_LOW, PC98BM_CONTROL_PORT);
-+	dx = (inb(PC98BM_DATA_PORT) & 0xf);
-+	outb(PC98BM_READ_X_HIGH, PC98BM_CONTROL_PORT);
-+	dx |= (inb(PC98BM_DATA_PORT) & 0xf) << 4;
-+	outb(PC98BM_READ_Y_LOW, PC98BM_CONTROL_PORT);
-+	dy = (inb(PC98BM_DATA_PORT) & 0xf);
-+	outb(PC98BM_READ_Y_HIGH, PC98BM_CONTROL_PORT);
-+	buttons = inb(PC98BM_DATA_PORT);
-+	dy |= (buttons & 0xf) << 4;
-+	buttons = ~buttons >> 5;
-+
-+	input_report_rel(&pc98bm_dev, REL_X, dx);
-+	input_report_rel(&pc98bm_dev, REL_Y, dy);
-+	input_report_key(&pc98bm_dev, BTN_RIGHT,  buttons & 1);
-+	input_report_key(&pc98bm_dev, BTN_MIDDLE, buttons & 2);
-+	input_report_key(&pc98bm_dev, BTN_LEFT,   buttons & 4);
-+	input_sync(&pc98bm_dev);
-+
-+	outb(PC98BM_ENABLE_IRQ, PC98BM_CONTROL_PORT);
-+}
-+
-+#ifndef MODULE
-+static int __init pc98bm_setup(char *str)
-+{
-+        int ints[4];
-+        str = get_options(str, ARRAY_SIZE(ints), ints);
-+        if (ints[0] > 0) pc98bm_irq = ints[1];
-+        return 1;
-+}
-+__setup("pc98bm_irq=", pc98bm_setup);
+ 	if (ctrl_port) {
+ 		hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
++#ifdef CONFIG_PC9800
++	} else if (data_port == 0x640) {
++		hw->io_ports[IDE_CONTROL_OFFSET] = 0x74c;
 +#endif
-+
-+static int __init pc98bm_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i <= 6; i += 2) {
-+		if (!request_region(PC98BM_BASE + i, 1, "98busmouse")) {
-+			printk(KERN_ERR "98busmouse.c: Can't allocate ports at %#x\n", PC98BM_BASE + i);
-+			while (i > 0) {
-+				i -= 2;
-+				release_region(PC98BM_BASE + i, 1);
-+			}
-+
-+			return -EBUSY;
-+		}
-+
-+	}
-+
-+	if (!request_region(PC98BM_TIMER_PORT, 1, "98busmouse")) {
-+		printk(KERN_ERR "98busmouse.c: Can't allocate ports at %#x\n", PC98BM_TIMER_PORT);
-+		for (i = 0; i <= 6; i += 2)
-+			release_region(PC98BM_BASE + i, 1);
-+
-+		return -EBUSY;
-+	}
-+
-+	outb(PC98BM_DEFAULT_MODE, PC98BM_CONFIG_PORT);
-+	outb(PC98BM_DISABLE_IRQ, PC98BM_CONTROL_PORT);
-+
-+	outb(PC98BM_DEFAULT_TIMER_VAL, PC98BM_TIMER_PORT);
-+
-+	input_register_device(&pc98bm_dev);
-+	
-+	printk(KERN_INFO "input: PC-9801 bus mouse at %#x irq %d\n", PC98BM_BASE, pc98bm_irq);
-+
-+	return 0;
-+}
-+
-+static void __exit pc98bm_exit(void)
-+{
-+	int i;
-+
-+	input_unregister_device(&pc98bm_dev);
-+	for (i = 0; i <= 6; i += 2)
-+		release_region(PC98BM_BASE + i, 1);
-+
-+	release_region(PC98BM_TIMER_PORT, 1);
-+}
-+
-+module_init(pc98bm_init);
-+module_exit(pc98bm_exit);
-diff -urN linux/drivers/input/mouse/Kconfig linux98/drivers/input/mouse/Kconfig
---- linux/drivers/input/mouse/Kconfig	Thu Oct 31 13:23:13 2002
-+++ linux98/drivers/input/mouse/Kconfig	Thu Oct 31 17:24:14 2002
-@@ -119,3 +119,15 @@
- 	  The module will be called rpcmouse.o. If you want to compile it as a
- 	  module, say M here and read <file.:Documentation/modules.txt>.
- 
-+config MOUSE_PC9800
-+	tristate "NEC PC-9800 busmouse"
-+	depends on PC9800 && INPUT && INPUT_MOUSE && ISA
-+	help
-+	  Say Y here if you have NEC PC-9801/PC-9821 computer and want its
-+	  native mouse supported.
-+
-+	  This driver is also available as a module ( = code which can be
-+	  inserted in and removed from the running kernel whenever you want).
-+	  The module will be called logibm.o. If you want to compile it as a
-+	  module, say M here and read <file.:Documentation/modules.txt>.
-+
-diff -urN linux/drivers/input/mouse/Makefile linux98/drivers/input/mouse/Makefile
---- linux/drivers/input/mouse/Makefile	Sat Oct 19 13:01:17 2002
-+++ linux98/drivers/input/mouse/Makefile	Thu Oct 31 17:25:12 2002
-@@ -10,6 +10,7 @@
- obj-$(CONFIG_MOUSE_LOGIBM)	+= logibm.o
- obj-$(CONFIG_MOUSE_MAPLE)	+= maplemouse.o
- obj-$(CONFIG_MOUSE_PC110PAD)	+= pc110pad.o
-+obj-$(CONFIG_MOUSE_PC9800)	+= 98busmouse.o
- obj-$(CONFIG_MOUSE_PS2)		+= psmouse.o
- obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
- 
-diff -urN linux/drivers/input/serio/Kconfig linux98/drivers/input/serio/Kconfig
---- linux/drivers/input/serio/Kconfig	Thu Oct 31 13:23:13 2002
-+++ linux98/drivers/input/serio/Kconfig	Thu Oct 31 17:34:00 2002
-@@ -103,3 +103,15 @@
- 	tristate "Intel SA1111 keyboard controller"
- 	depends on SA1111 && SERIO
- 
-+config SERIO_98KBD
-+	tristate "NEC PC-9800 keyboard controller"
-+	depends on PC9800 && SERIO
-+	help
-+	  Say Y here if you have the NEC PC-9801/PC-9821 and want to use its
-+	  standard keyboard connected to its keyboard controller.
-+
-+	  This driver is also available as a module ( = code which can be
-+	  inserted in and removed from the running kernel whenever you want).
-+	  The module will be called rpckbd.o. If you want to compile it as a
-+	  module, say M here and read <file:Documentation/modules.txt>.
-+
-diff -urN linux/drivers/input/serio/Makefile linux98/drivers/input/serio/Makefile
---- linux/drivers/input/serio/Makefile	Sat Oct 19 13:01:09 2002
-+++ linux98/drivers/input/serio/Makefile	Thu Oct 24 15:50:55 2002
-@@ -17,6 +17,7 @@
- obj-$(CONFIG_SERIO_SA1111)	+= sa1111ps2.o
- obj-$(CONFIG_SERIO_AMBAKMI)	+= ambakmi.o
- obj-$(CONFIG_SERIO_Q40KBD)	+= q40kbd.o
-+obj-$(CONFIG_SERIO_98KBD)	+= 98kbd-io.o
- 
- # The global Rules.make.
- 
-diff -urN linux/drivers/input/serio/98kbd-io.c linux98/drivers/input/serio/98kbd-io.c
---- linux/drivers/input/serio/98kbd-io.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/input/serio/98kbd-io.c	Thu Oct 24 16:29:57 2002
-@@ -0,0 +1,181 @@
-+/*
-+ *  NEC PC-9801 keyboard controller driver for Linux
-+ *
-+ *  Copyright (c) 1999-2002 Osamu Tomita <tomita@cinet.co.jp>
-+ *    Based on i8042.c written by Vojtech Pavlik
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <asm/io.h>
-+
-+#include <linux/delay.h>
-+#include <linux/module.h>
-+#include <linux/ioport.h>
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/serio.h>
-+#include <linux/sched.h>
-+
-+MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
-+MODULE_DESCRIPTION("NEC PC-9801 keyboard controller driver");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * Names.
-+ */
-+
-+#define KBD98_PHYS_DESC "isa0041/serio0"
-+
-+/*
-+ * IRQs.
-+ */
-+
-+#define KBD98_IRQ	1
-+
-+/*
-+ * Register numbers.
-+ */
-+
-+#define KBD98_COMMAND_REG	0x43	
-+#define KBD98_STATUS_REG	0x43	
-+#define KBD98_DATA_REG		0x41
-+
-+spinlock_t kbd98io_lock = SPIN_LOCK_UNLOCKED;
-+
-+static struct serio kbd98_port;
-+extern struct pt_regs *kbd_pt_regs;
-+
-+static void kbd98io_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+
-+/*
-+ * kbd98_flush() flushes all data that may be in the keyboard buffers
-+ */
-+
-+static int kbd98_flush(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&kbd98io_lock, flags);
-+
-+	while (inb(KBD98_STATUS_REG) & 0x02) /* RxRDY */
-+		inb(KBD98_DATA_REG);
-+
-+	if (inb(KBD98_STATUS_REG) & 0x38)
-+		printk("98kbd-io: Keyboard error!\n");
-+
-+	spin_unlock_irqrestore(&kbd98io_lock, flags);
-+
-+	return 0;
-+}
-+
-+/*
-+ * kbd98_write() sends a byte out through the keyboard interface.
-+ */
-+
-+static int kbd98_write(struct serio *port, unsigned char c)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&kbd98io_lock, flags);
-+
-+	outb(0, 0x5f);			/* wait */
-+	outb(0x17, KBD98_COMMAND_REG);	/* enable send command */
-+	outb(0, 0x5f);			/* wait */
-+	outb(c, KBD98_DATA_REG);
-+	outb(0, 0x5f);			/* wait */
-+	outb(0x16, KBD98_COMMAND_REG);	/* disable send command */
-+	outb(0, 0x5f);			/* wait */
-+
-+	spin_unlock_irqrestore(&kbd98io_lock, flags);
-+
-+	return 0;
-+}
-+
-+/*
-+ * kbd98_open() is called when a port is open by the higher layer.
-+ * It allocates the interrupt and enables in in the chip.
-+ */
-+
-+static int kbd98_open(struct serio *port)
-+{
-+	kbd98_flush();
-+
-+	if (request_irq(KBD98_IRQ, kbd98io_interrupt, 0, "kbd98", NULL)) {
-+		printk(KERN_ERR "98kbd-io.c: Can't get irq %d for %s, unregistering the port.\n", KBD98_IRQ, "KBD");
-+		serio_unregister_port(port);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+static void kbd98_close(struct serio *port)
-+{
-+	free_irq(KBD98_IRQ, NULL);
-+
-+	kbd98_flush();
-+}
-+
-+/*
-+ * Structures for registering the devices in the serio.c module.
-+ */
-+
-+static struct serio kbd98_port =
-+{
-+	.type =		SERIO_PC9800,
-+	.write =	kbd98_write,
-+	.open =		kbd98_open,
-+	.close =	kbd98_close,
-+	.driver =	NULL,
-+	.name =		"PC-9801 Kbd Port",
-+	.phys =		KBD98_PHYS_DESC,
-+};
-+
-+/*
-+ * kbd98io_interrupt() is the most important function in this driver -
-+ * it handles the interrupts from keyboard, and sends incoming bytes
-+ * to the upper layers.
-+ */
-+
-+static void kbd98io_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	unsigned long flags;
-+	unsigned char data;
-+
-+#ifdef CONFIG_VT
-+	kbd_pt_regs = regs;
-+#endif
-+
-+	spin_lock_irqsave(&kbd98io_lock, flags);
-+
-+	data = inb(KBD98_DATA_REG);
-+	spin_unlock_irqrestore(&kbd98io_lock, flags);
-+	serio_interrupt(&kbd98_port, data, 0);
-+
-+}
-+
-+int __init kbd98io_init(void)
-+{
-+	serio_register_port(&kbd98_port);
-+
-+	printk(KERN_INFO "serio: PC-9801 %s port at %#lx,%#lx irq %d\n",
-+	       "KBD",
-+	       (unsigned long) KBD98_DATA_REG,
-+	       (unsigned long) KBD98_COMMAND_REG,
-+	       KBD98_IRQ);
-+
-+	return 0;
-+}
-+
-+void __exit kbd98io_exit(void)
-+{
-+	serio_unregister_port(&kbd98_port);
-+}
-+
-+module_init(kbd98io_init);
-+module_exit(kbd98io_exit);
-diff -urN linux/drivers/char/keyboard.c linux98/drivers/char/keyboard.c
---- linux/drivers/char/keyboard.c	Sat Oct 19 13:01:49 2002
-+++ linux98/drivers/char/keyboard.c	Sun Oct 27 09:12:29 2002
-@@ -58,7 +58,11 @@
-  * Some laptops take the 789uiojklm,. keys as number pad when NumLock is on.
-  * This seems a good reason to start with NumLock off.
+ 	} else {
+ 		hw->io_ports[IDE_CONTROL_OFFSET] = hw->io_ports[IDE_DATA_OFFSET] + 0x206;
+ 	}
+diff -urN linux/include/linux/hdreg.h linux98/include/linux/hdreg.h
+--- linux/include/linux/hdreg.h	Sat Oct 12 13:22:07 2002
++++ linux98/include/linux/hdreg.h	Sat Oct 12 19:38:02 2002
+@@ -5,11 +5,13 @@
+  * This file contains some defines for the AT-hd-controller.
+  * Various sources.
   */
++#include <linux/config.h>
+ 
+ /* ide.c has its own port definitions in "ide.h" */
+ 
+ #define HD_IRQ		14
+ 
 +#ifndef CONFIG_PC9800
- #define KBD_DEFLEDS 0
-+#else
-+#define KBD_DEFLEDS (1 << VC_NUMLOCK)
-+#endif
- #endif
+ /* Hd controller regs. Ref: IBM AT Bios-listing */
+ #define HD_DATA		0x1f0		/* _CTL when writing */
+ #define HD_ERROR	0x1f1		/* see err-bits */
+@@ -25,6 +27,23 @@
  
- #ifndef KBD_DEFLOCK
-diff -urN linux/include/linux/kbd_kern.h linux98/include/linux/kbd_kern.h
---- linux/include/linux/kbd_kern.h	Sat Oct 19 13:02:28 2002
-+++ linux98/include/linux/kbd_kern.h	Sun Oct 27 10:23:23 2002
-@@ -43,11 +43,12 @@
- #define LED_SHOW_IOCTL 1        /* only change leds upon ioctl */
- #define LED_SHOW_MEM 2          /* `heartbeat': peek into memory */
+ #define HD_CMD		0x3f6		/* used for resets */
+ #define HD_ALTSTATUS	0x3f6		/* same as HD_STATUS but doesn't clear irq */
++#else /* CONFIG_PC9800 */
++/* Hd controller regs. for NEC PC-9800 */
++#define HD_DATA		0x640	/* _CTL when writing */
++#define HD_ERROR	0x642	/* see err-bits */
++#define HD_NSECTOR	0x644	/* nr of sectors to read/write */
++#define HD_SECTOR	0x646	/* starting sector */
++#define HD_LCYL		0x648	/* starting cylinder */
++#define HD_HCYL		0x64a	/* high byte of starting cyl */
++#define HD_CURRENT	0x64c	/* 101dhhhh , d=drive, hhhh=head */
++#define HD_STATUS	0x64e	/* see status-bits */
++#define HD_FEATURE	HD_ERROR	/* same io address, read=error, write=feature */
++#define HD_PRECOMP	HD_FEATURE	/* obsolete use of this port - predates IDE */
++#define HD_COMMAND	HD_STATUS	/* same io address, read=status, write=cmd */
++
++#define HD_CMD		0x74c	/* used for resets */
++#define HD_ALTSTATUS	0x74c	/* same as HD_STATUS but doesn't clear irq */
++#endif /* CONFIG_PC9800 */
  
--	unsigned char ledflagstate:3;	/* flags, not lights */
--	unsigned char default_ledflagstate:3;
-+	unsigned char ledflagstate:4;	/* flags, not lights */
-+	unsigned char default_ledflagstate:4;
- #define VC_SCROLLOCK	0	/* scroll-lock mode */
- #define VC_NUMLOCK	1	/* numeric lock mode */
- #define VC_CAPSLOCK	2	/* capslock mode */
-+#define VC_KANALOCK	3	/* kanalock mode */
+ /* remainder is shared between hd.c, ide.c, ide-cd.c, and the hdparm utility */
  
- 	unsigned char kbdmode:2;	/* one 2-bit value */
- #define VC_XLATE	0	/* translate keycodes using keymap */
-diff -urN linux/include/linux/keyboard.h linux98/include/linux/keyboard.h
---- linux/include/linux/keyboard.h	Sat Oct 19 13:01:13 2002
-+++ linux98/include/linux/keyboard.h	Mon Oct 21 15:59:48 2002
-@@ -9,6 +9,7 @@
- #define KG_ALT		3
- #define KG_ALTGR	1
- #define KG_SHIFTL	4
-+#define KG_KANASHIFT	4
- #define KG_SHIFTR	5
- #define KG_CTRLL	6
- #define KG_CTRLR	7
-diff -urN linux/include/linux/serio.h linux98/include/linux/serio.h
---- linux/include/linux/serio.h	Sat Oct 19 13:01:58 2002
-+++ linux98/include/linux/serio.h	Thu Oct 24 09:39:09 2002
-@@ -97,6 +97,7 @@
- #define SERIO_8042	0x01000000UL
- #define SERIO_RS232	0x02000000UL
- #define SERIO_HIL_MLC	0x03000000UL
-+#define SERIO_PC9800	0x04000000UL
+diff -urN linux/include/linux/ide.h linux98/include/linux/ide.h
+--- linux/include/linux/ide.h	Mon Nov 11 15:46:21 2002
++++ linux98/include/linux/ide.h	Mon Nov 11 16:43:43 2002
+@@ -294,7 +294,7 @@
+ 		ide_qd65xx,	ide_umc8672,	ide_ht6560b,
+ 		ide_pdc4030,	ide_rz1000,	ide_trm290,
+ 		ide_cmd646,	ide_cy82c693,	ide_4drives,
+-		ide_pmac,	ide_etrax100,	ide_acorn
++		ide_pmac,	ide_etrax100,	ide_acorn,	ide_pc9800
+ } hwif_chipset_t;
  
- #define SERIO_PROTO	0xFFUL
- #define SERIO_MSC	0x01
+ typedef struct ide_io_ops_s {
 
---------------E01F79D497821DA275155A8C--
+--------------F5D0EE3C4010F4F4112D990E--
 

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUGYILt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUGYIQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUGYILt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 04:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUGYILt
+	id S263713AbUGYIQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 04:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUGYIQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 04:11:49 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:31749 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S263740AbUGYILp (ORCPT
+	Sun, 25 Jul 2004 04:16:26 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:16133 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S263713AbUGYIQZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 04:11:45 -0400
-Message-ID: <41036B3C.3010105@xss.co.at>
-Date: Sun, 25 Jul 2004 10:11:40 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Sun, 25 Jul 2004 04:16:25 -0400
+From: "Bc. Michal Semler" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: 3C905 and ethtool
+Date: Sun, 25 Jul 2004 10:16:21 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: Benjamin Rutt <rutt.4+news@osu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: clearing filesystem cache for I/O benchmarks
-References: <87vfgeuyf5.fsf@osu.edu>
-In-Reply-To: <87vfgeuyf5.fsf@osu.edu>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407251016.22001.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Hi!
+I wanted to get info about my NIC via ethtool, but it writes:
+# ethtool eth0
+Cannot get device settings: Operation not supported
+# ethtool eth1
+Cannot get device settings: Operation not supported
 
-Benjamin Rutt wrote:
-> How can I purge all of the kernel's filesystem caches, so I can trust
-> that my I/O (read) requests I'm trying to benchmark bypass the kernel
-> filesystem cache?
+00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 
+30)
+01:08.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
 
-Some time ago I was looking for that, too, and found "cfree". Have a
-look at <http://gizmolabs.org/~andrew/andrewweb/project.php?pid=3&tab=0>
+Any possibility to add this support into this driver?
 
-It's a small utility and kernel module for linux-2.4 written by
-Andrew de los Reyes. It allows to clear portions of the buffer cache
-(e.g. for a complete sub-directory). I haven't analyzed it so I can't
-say if it does things correctly, though.
+kernel 2.4.26-vanilla
+Debian Woody
 
-HTH
+Thanks
 
-- - andreas
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBA2s2xJmyeGcXPhERAuaTAKCaxNRjhbzf3G5uL1lsXYg41eF+jQCeP808
-DNcut1YDptMCNsvAeXrt+d8=
-=xPh9
------END PGP SIGNATURE-----
-
+Michal

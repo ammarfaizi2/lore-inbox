@@ -1,66 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUIIXzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUIIX5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbUIIXzd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUIIXzc
+	id S265287AbUIIX5d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUIIX5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:55:32 -0400
-Received: from pxy6allmi.all.mi.charter.com ([24.247.15.57]:39931 "EHLO
-	proxy6-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
-	id S264443AbUIIXza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:55:30 -0400
-Message-ID: <4140ED57.3090704@quark.didntduck.org>
-Date: Thu, 09 Sep 2004 19:55:03 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040809
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-References: <20040909232532.GA13572@taniwha.stupidest.org>
-In-Reply-To: <20040909232532.GA13572@taniwha.stupidest.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Charter-Information: 
-X-Charter-Scan: 
-X-Charter-Score: s
+	Thu, 9 Sep 2004 19:57:32 -0400
+Received: from open.hands.com ([195.224.53.39]:21983 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S265287AbUIIX5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:57:04 -0400
+Date: Fri, 10 Sep 2004 01:08:19 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
+Message-ID: <20040910000819.GA7587@lkcl.net>
+References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net> <20040909212514.GA10892@lkcl.net> <20040909160449.E1924@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040909160449.E1924@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> Right now CONFIG_4KSTACKS implies IRQ-stacks.  Some people though
-> really need 8K stacks and it would be nice to have IRQ-stacks for them
-> too.
-> 
-> This splits the option in two with the intention of removing the
-> IRQ-stacks option completely.
-> 
->  arch/i386/Kconfig.debug        |   13 ++++++++++---
->  arch/i386/defconfig            |    1 -
->  arch/i386/kernel/irq.c         |   14 +++++++-------
->  include/asm-i386/irq.h         |    6 +++---
->  include/asm-i386/module.h      |    6 +++---
->  include/asm-i386/thread_info.h |    6 +++---
->  6 files changed, 26 insertions(+), 20 deletions(-)
-> 
-> Signed-off-by: Chris Wedgwood <cw@f00f.org>
-> 
-> 
-> 
-> diff -Nru a/arch/i386/Kconfig.debug b/arch/i386/Kconfig.debug
-> --- a/arch/i386/Kconfig.debug	2004-09-09 16:06:04 -07:00
-> +++ b/arch/i386/Kconfig.debug	2004-09-09 16:06:04 -07:00
-> @@ -46,14 +46,21 @@
->  	  This results in a large slowdown, but helps to find certain types
->  	  of memory corruptions.
->  
-> -config 4KSTACKS
-> +config I386_4KSTACKS
->  	bool "Use 4Kb for kernel stacks instead of 8Kb"
+On Thu, Sep 09, 2004 at 04:04:49PM -0700, Chris Wright wrote:
 
-What's the point of changing 4KSTACKS to I386_4KSTACKS?  Best to just 
-leave this alone as external code is likely to check it.
+> >  what's the disconnect between the task_list and the sockets (sk_buff)
+> >  that makes that [not knowing which one will be woken up] relevant?
+> 
+> There's nothing stopping the following:  
+> 
+> exec good_proc
+> 	socket()
+> 	fork
+> 	exec bad_proc
+ 
+> Now good_proc and bad_proc are sharing a socket.  Packet comes in
+> destined for that socket.  Rule says it's ok to deliver to socket
+> (because of good_proc).  
 
+> Packet delivered to socket, wakes up waiters
+> (good and bad).  Now, what's stopping the bad_proc from reading from the
+> socket?
+
+ okay.
+
+ i am not so worried about this scenario _because_:
+
+ under an selinux system, you would set up a policy which only
+ allowed the good_proc to exec other_good_procs (with the
+ macro can_exec(good_proc, { other_good_proc1, other_good_proc2 })
+
+
+ consequently, you'd design your firewall rules (in conjunction with
+ your selinux policy) to add _two_ dev+inode-program-enabled firewall rules
+ to cover the same socket, e.g. apache2 (good_proc) and some cgi script
+ helper (other_good_proc) - one for each program:
+
+	 iptables -A INPUT -m tcp --dport=80 -m program --exe=/usr/bin/apache2 -j ACCEPT
+
+ and:
+
+	 iptables -A INPUT -m tcp --dport=80 -m program --exe=/usr/cgi-bin/blahblah -j ACCEPT
+
+ 
+> >  so it's a socket: let's take an example - and i'm assuming for now
+> >  that things like passing file descriptors over unix-domain-sockets
+> >  between processes just ... doesn't happen, okay? :)
+> 
+> These do happen, which is part of the problem ;-)
+ 
+ i would not consider this to be a problem [in an environment where
+ you specify DENY as the default and ALLOW specific instances]
+
+ under such circumstances [file descs passed between programs]...
+ you would end up having to create _two_ program-specific rules, like
+ above.
+
+ one for each of the two programs.
+
+ [this has got to be better than the present situation, where you have
+  to "iptables -A OUTPUT -m tcp --sport=25" and that allows ANY process
+  under the sun to have data escaping on port 25.]
+
+ l.
+
+-- 
 --
-				Brian Gerst
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+

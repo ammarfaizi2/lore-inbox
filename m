@@ -1,57 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbTF0O0o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 10:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTF0O0n
+	id S264372AbTF0OZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTF0OZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 10:26:43 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:6541 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264374AbTF0OZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 10:25:52 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [RFC] My research agenda for 2.7
-Date: Fri, 27 Jun 2003 16:41:06 +0200
+	Fri, 27 Jun 2003 10:25:05 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:4540 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264372AbTF0OY7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 10:24:59 -0400
+From: Con Kolivas <kernel@kolivas.org>
+Date: Sat, 28 Jun 2003 00:41:38 +1000
 User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <200306250111.01498.phillips@arcor.de> <200306270222.27727.phillips@arcor.de> <Pine.LNX.4.53.0306271345330.14677@skynet>
-In-Reply-To: <Pine.LNX.4.53.0306271345330.14677@skynet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200306271641.06771.phillips@arcor.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] O1int patch with contest
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Message-Id: <200306280041.47619.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 June 2003 15:00, Mel Gorman wrote:
-> On Fri, 27 Jun 2003, Daniel Phillips wrote:
-> I was thinking of using slabs because that way there wouldn't be need to
-> scan all of mem_map, just a small number of slabs. I have no basis for
-> this other than hand waving gestures though.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That's the right idea, it's just not necessary to use slab cache to achieve 
-it.  Actually, to handle huge (hardware) pages efficiently, my first instinct 
-is to partition them into their own largish chunks as well, and allocate new 
-chunks as necessary.  To get rid of a chunk (because freespace of that type 
-of chunk has fallen below some threshold) it has to be entirely empty, which 
-can be accomplished using the same move logic as for defragmentation.
+I've had some (off list) requests to see if the interactivity patch I posted 
+shows any differences in contest. To be honest I wasn't sure it would, and 
+this is not quite what I expected. Below is a 2.5.73-mm1 patched with 
+patch-O1int-0306271816 (2.5.73-O1i) compared to 2.5.73-mm1 with contest 
+(http://contest.kolivas.org).
 
-You're right to be worried about intrusion of unmovable pages into regions 
-that are supposed to be defraggable.  It's very easy for some random kernel 
-code to take a use count on a page and hang onto it forever, making the page 
-unmovable.  My hope is that:
 
-  - This doesn't happen much
-  - Code that does that can be cleaned up
-  - Even when it happens it won't hurt much
-  - If all of the above fails, fix the api for the offending code or create
-    a new one
-  - If that fails too, give up.
+no_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   78      93.6    0.0     0.0     1.00
+2.5.73-mm1          1   77      94.8    0.0     0.0     1.00
+cacherun:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   75      97.3    0.0     0.0     0.96
+2.5.73-mm1          1   75      98.7    0.0     0.0     0.97
+process_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   94      78.7    39.0    20.2    1.21
+2.5.73-mm1          2   108     67.6    67.0    29.6    1.40
+ctar_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   86      84.9    0.0     0.0     1.10
+2.5.73-mm1          3   103     74.8    0.0     0.0     1.34
+xtar_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   92      80.4    1.0     3.3     1.18
+2.5.73-mm1          3   113     66.4    2.0     4.4     1.47
+io_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   101     73.3    24.6    12.9    1.29
+2.5.73-mm1          4   127     59.1    39.7    16.5    1.65
+io_other:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   95      78.9    22.7    11.6    1.22
+2.5.73-mm1          2   112     67.9    43.0    19.6    1.45
+read_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   92      80.4    2.7     2.2     1.18
+2.5.73-mm1          2   100     76.0    7.8     7.0     1.30
+list_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   87      86.2    0.0     1.1     1.12
+2.5.73-mm1          2   93      80.6    0.0     7.5     1.21
+mem_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   84      86.9    35.0    1.2     1.08
+2.5.73-mm1          2   114     68.4    54.0    1.8     1.48
+dbench_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.73-O1i          1   222     33.3    2.0     31.5    2.85
+2.5.73-mm1          4   365     20.8    5.0     48.2    4.74
 
-Regards,
+I promise I didn't tune it with contest results in mind. There are still 
+things I want to do to it that may not affect these results.
 
-Daniel
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+/FekF6dfvkL3i1gRAhHUAJwOiLq+u3nEGn9Ym+c5x4JpTqrK1ACfX79F
+WKLTsbtqwXyFpOZ+i+JvgVU=
+=nQk2
+-----END PGP SIGNATURE-----
 

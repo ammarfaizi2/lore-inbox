@@ -1,33 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276686AbRJBVEW>; Tue, 2 Oct 2001 17:04:22 -0400
+	id <S276689AbRJBVGc>; Tue, 2 Oct 2001 17:06:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276687AbRJBVEO>; Tue, 2 Oct 2001 17:04:14 -0400
-Received: from mx7.port.ru ([194.67.57.17]:54459 "EHLO mx7.port.ru")
-	by vger.kernel.org with ESMTP id <S276686AbRJBVEF>;
-	Tue, 2 Oct 2001 17:04:05 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200110030127.f931R0025097@-f>
-Subject: Request for new VM docs
-To: andrea@emind.com
-Date: Wed, 3 Oct 2001 05:26:59 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276693AbRJBVGX>; Tue, 2 Oct 2001 17:06:23 -0400
+Received: from mailc.telia.com ([194.22.190.4]:22233 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S276689AbRJBVGI>;
+	Tue, 2 Oct 2001 17:06:08 -0400
+Message-ID: <3BBA2C54.772BA971@canit.se>
+Date: Tue, 02 Oct 2001 23:06:28 +0200
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: System reset on Kernel 2.4.10
+In-Reply-To: <Pine.LNX.4.33.0110022110070.21544-100000@vela.salleURL.edu>
+	 <3BBA1409.6AAA553D@welho.com> <1091577748.20011002230931@port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-           Hello Andrea, i`m bothering you just to let you know
-     that proper amounts of good documentation never hurts, :)
-        I mean that old VM was pretty good documented so there was a good
-     number of folks who understood it and were able to help to
-     develop it. Now i start to fear that with the current situation
-     some months later folks will start to argue between them of how
-     this VM works... bad perspective...
-           Please Andrea, i think i`m not alone in this praise, 
-     give the community the password to the magic land :-)
+VDA wrote:
 
-regards, Samium Gromoff
+> Tuesday, October 02, 2001, 9:22:49 PM,
+> Mika Liljeberg <Mika.Liljeberg@welho.com> wrote:
+>
+> ML> Carles Pina i Estany wrote:
+> >> The Kernel works fine. But for error I execute /usr/src/linux/vmlinux as
+> >> root user. Then the system is rebooted (without unmounting anything)
+> >>
+> >> Curious.
+>
+> ML> And like a headstrong child, I refused to believe, instead thrusting my
+> ML> finger into the fire.
+> ML> Ouch! Curious indeed.
+>
+> Come on guys, that can't be true! Linux can't fail that miserably!
+> Look:
+>
+> # su user
+> $ ./vmlinux
+> Segmentation fault
+> *** screen went blank, then POST screen appears ***
+>
+> Eh... Oh... So... it actually can.   8-(
+>
+
+I installed reiserfs this weekend so I tried it and yes me to :))
+
+I have another one that happens with stuff that use SDL (loki stuff) but then
+the computer turns off like I had pressed the power button. So  I can use both
+shutdown -h or plaympeg to turn the computer off :)
+
 

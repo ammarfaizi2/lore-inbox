@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVBXRJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVBXRLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbVBXRJE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 12:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVBXRJE
+	id S261833AbVBXRLp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 12:11:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVBXRLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 12:09:04 -0500
-Received: from alog0383.analogic.com ([208.224.222.159]:17280 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262423AbVBXRI1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 12:08:27 -0500
-Date: Thu, 24 Feb 2005 12:07:32 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: folkert@vanheusden.com
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: accept() fails with EINTER
-In-Reply-To: <20050224164620.GD5138@vanheusden.com>
-Message-ID: <Pine.LNX.4.61.0502241156090.17635@chaos.analogic.com>
-References: <Pine.LNX.4.61.0502231009380.5342@chaos.analogic.com>
- <20050224164620.GD5138@vanheusden.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 24 Feb 2005 12:11:45 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:3377 "EHLO smtp3.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261833AbVBXRLe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 12:11:34 -0500
+X-ME-UUID: 20050224171131509.7C5691C0035B@mwinf0306.wanadoo.fr
+Date: Thu, 24 Feb 2005 18:01:50 +0100
+To: Meelis Roos <mroos@linux.ee>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, Tom Rini <trini@kernel.crashing.org>,
+       linuxppc-dev@ozlabs.org, Sven Hartge <hartge@ds9.gnuu.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christian Kujau <evil@g-house.de>
+Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah) PCI IRQ map
+Message-ID: <20050224170150.GA7746@pegasos>
+References: <20041206185416.GE7153@smtp.west.cox.net> <Pine.SOC.4.61.0502221031230.6097@math.ut.ee> <20050224074728.GA31434@pegasos> <Pine.SOC.4.61.0502241746450.21289@math.ut.ee> <20050224160657.GB11197@pegasos> <Pine.SOC.4.61.0502241832510.21289@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.SOC.4.61.0502241832510.21289@math.ut.ee>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Feb 2005 folkert@vanheusden.com wrote:
+On Thu, Feb 24, 2005 at 06:34:03PM +0200, Meelis Roos wrote:
+> >Oh, damn, need to fix my daily builder, should be ok for tomorrow. IN the
+> >meanwhile, you can try :
+> >
+> > http://people.debian.org/~luther/d-i/images/2005-02-23/powerpc/netboot/vmlinuz-prep.initrd
+> 
+> This seems to work fine: onboard scsi is OK, pci nic with de4x5 is OK 
+> too. Haven't got more PCI cards in there currently.
 
->> Trying to run an old server with a new kernel. A connection
->> fails with "interrupted system call" as soon as a client
->> attempts to connect. A trap in the code to continue
->> works, but subsequent send() and recv() calls fail in
->> the same way.
->
-> Weren't you supposed to just 'try again' when receiving EINTR (or
-> EAGAIN)?
->
+Ok, can you now install the 2.6.10-3 package from : 
 
-Absolutely. However it's an old server that used to work with
-2.4.22 and before. I don't want to have to rewrite everything
-and.... Why should send() recv() read() write(), etc. always
-get an EINTR everytime something uses them?  It doesn't happen
-on other systems.
+  http://people.debian.org/~luther/powerpc/2.6.10-3 
 
-I think that something is supposed to be masked OFF that
-isn't being masked OFF
+(you need kernel-image-2.6.10-powerpc and mkvmlinuz), call mkvmlinuz on it (or
+add it to kernel-img.conf as postinst_hook=/usr/sbin/mkvmlinuz).
 
->
-> Folkert van Heusden
->
-> Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
-> +------------------------------------------------------------------+
-> |UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
-> |a try, it brings monitoring logfiles to a different level! See    |
-> |http://vanheusden.com/multitail/features.html for a feature list. |
-> +------------------------------------------= www.unixsoftware.nl =-+
-> Phone: +31-6-41278122, PGP-key: 1F28D8AE
->
+You may probably want also to modify /etc/mkinitrd/mkinitrd:MODULES_DEP to dep
+instead of MOST, or you may hit size problems with your initrd, i would be
+interested in knowing that.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Then just dd your /boot/vmlinuz-2.6.10-powerpc to your prep partition, or
+better yet to a tftp server, and try it out. If the scsi problems are there,
+can you fill a bug report against kernel-source-2.6.10 ? 
+
+Friendly,
+
+Sven Luther
+

@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUH0XyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUH0Xzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266513AbUH0XyN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 19:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUH0XyN
+	id S264502AbUH0Xzj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 19:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbUH0Xzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 19:54:13 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:39645 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S266513AbUH0XyH (ORCPT
+	Fri, 27 Aug 2004 19:55:39 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:33246 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S264502AbUH0Xzd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 19:54:07 -0400
-Date: Sat, 28 Aug 2004 00:54:06 +0100 (IST)
+	Fri, 27 Aug 2004 19:55:33 -0400
+Date: Sat, 28 Aug 2004 00:55:32 +0100 (IST)
 From: Dave Airlie <airlied@linux.ie>
 X-X-Sender: airlied@skynet
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: maintaining DRM and using bitkeeper..
-In-Reply-To: <20040827173807.GB7445@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.58.0408280046220.23054@skynet>
-References: <Pine.LNX.4.58.0408270043170.25111@skynet>
- <20040827173807.GB7445@mars.ravnborg.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: drm fixup 1/2 - missing bus_address assignment
+In-Reply-To: <20040827152110.A31641@infradead.org>
+Message-ID: <Pine.LNX.4.58.0408280054580.23054@skynet>
+References: <Pine.LNX.4.58.0408271510530.32411@skynet> <20040827152110.A31641@infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+> > +			buf->bus_address = virt_to_bus(buf->address);
 >
-> Another thing you should realise is that flag-day patches are NOT welcome.
-> The ongoing effort removing macors are better included in the kernel as 20
-> small steps rather than 1 big patch.
-
-This is my main issue with using bitkeeper vs separate patches, if I check
-the macro conversion into bitkeeper as separate patches each removing a
-couple of inter-related macros (this is my intention... it is what I did
-in the DRM CVS tree) and I ask Linus to pull it from a tree, will it not
-look like one big patch (albeit in a number of changesets...) - so the
-patch itself will look like a flag day but the bk pull will look like a
-set of patches... whereas without bk I send 20 patches to LK in 20 mails
-they are nice and separated out ..
-
+> this iw wrong.  never use virt_to_bus in new code and whenever you see it
+> in old code get rid of it.
 >
-> May I ask why not?
 
-well they are down the patch queue and will take me a bit of time to sort
-out if the patches in front don't make it in ... though I might get to it
-soon..
+Is there an alternative or do I just dump it? I think we only use the
+bus_address for debugging in /proc and I don't think many people actually
+have used it ..
 
 Dave.
 

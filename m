@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263999AbTI2Rte (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263993AbTI2Rs6
+	id S263985AbTI2Rqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTI2Rqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:48:58 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:22191 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263969AbTI2RrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:47:24 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Andrew Morton <akpm@osdl.org>, Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
-Date: Mon, 29 Sep 2003 12:47:17 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20030929155042.53666.qmail@web40910.mail.yahoo.com> <20030929094136.0b4bb026.akpm@osdl.org>
-In-Reply-To: <20030929094136.0b4bb026.akpm@osdl.org>
+	Mon, 29 Sep 2003 13:46:34 -0400
+Received: from [193.138.115.2] ([193.138.115.2]:51210 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S263985AbTI2Rpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:45:31 -0400
+Date: Mon, 29 Sep 2003 19:44:39 +0200 (CEST)
+From: Jesper Juhl <jju@dif.dk>
+To: John Cherry <cherry@osdl.org>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test6 (compile statistics)
+In-Reply-To: <1064853054.914.5.camel@cherrytest.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.56.0309291937350.12255@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+ <1064853054.914.5.camel@cherrytest.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309291247.18164.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 September 2003 11:41 am, Andrew Morton wrote:
-> Bradley Chapman <kakadu_croc@yahoo.com> wrote:
-> > I am experiencing defunct event/0 kernel daemons under
-> > 2.6.0-test6-mm1 with synaptics_drv 0.11.7, Dmitry Torokhov's gpm-1.20
-> > with synaptics support, and XFree86 4.3.0-10. Moving the touchpad in
-> > either X or with gpm causes defunct event/0 processes to be created.
+
+On Mon, 29 Sep 2003, John Cherry wrote:
+
+> Linux 2.6 Compile Statistics (gcc 3.2.2)
+> ----------------------------------------
 >
-> Defunct is odd.  Have you run `dmesg' to see if the kernel oopsed?
+> Warnings/Errors Summary
 >
-> You could try reverting synaptics-reconnect.patch, and then
-> serio-reconnect.patch from
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-tes
->t6/2.6.0-test6-mm1/broken-out
+> Kernel         bzImage    bzImage  modules  bzImage   modules
+>              (defconfig)  (allyes) (allyes) (allmod) (allmod)
+> -----------  -----------  -------- -------- -------- ---------
+> 2.6.0-test6    0w/0e      188w/ 1e  12w/0e   3w/0e    260w/ 2e
+> 2.6.0-test5    0w/0e      205w/ 9e  15w/1e   0w/0e    305w/ 5e
+> 2.6.0-test4    0w/0e      797w/55e  68w/1e   3w/0e   1016w/34e
+> 2.6.0-test3    0w/0e      755w/66e  62w/1e   7w/9e    984w/42e
+> 2.6.0-test2    0w/0e      952w/65e  63w/2e   7w/9e   1201w/43e
+> 2.6.0-test1    0w/0e     1016w/60e  75w/1e   8w/9e   1319w/38e
 >
 
-Input subsystem uses only one kernel thread called kseriod, not eventsX.
-I think it's not synaptics/serio reconnect but other patch you mentioned
-(call_usermodehelper-retval-fix-2.patch)
+I was wondering if there would be any point in doing these builds with
+"allnoconfig" as well?
+Could this possibly flush out some warnings/errors that only occur when
+something is left out?
 
-Dmitry
+
+/Jesper Juhl
+

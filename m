@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbTE3WzH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTE3WzH
+	id S264027AbTE3W6b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTE3W6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:55:07 -0400
-Received: from netmail01.services.quay.plus.net ([212.159.14.219]:18641 "HELO
-	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264002AbTE3WzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:55:06 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Linus Torvalds" <torvalds@transmeta.com>,
-       =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: "Steven Cole" <elenstev@mesatop.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-Date: Sat, 31 May 2003 00:08:32 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAEEGBECAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <Pine.LNX.4.44.0305301431390.2671-100000@home.transmeta.com>
-Importance: Normal
+	Fri, 30 May 2003 18:58:31 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:15548 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264027AbTE3W6a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 18:58:30 -0400
+Date: Fri, 30 May 2003 16:13:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Mark Haverkamp <markh@osdl.org>
+Cc: Pat Mochel <mochel@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pci bridge class code
+Message-ID: <20030530231348.GA22049@kroah.com>
+References: <1054239461.28608.74.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054239461.28608.74.camel@markh1.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+On Thu, May 29, 2003 at 01:17:42PM -0700, Mark Haverkamp wrote:
+> This adds pci-pci bridge driver model class code.  Entries appear in 
+> /sys/class/pci_bridge.
 
- > The motivation for doing the ANSI-fication is just that there
- > is now a sanity checker tool that will complain loudly about
- > bad typing, and since I wrote it and I hate old-style K&R
- > sources, it doesn't parse them. 
+Nice, but I don't see the need for the extra class information, as it
+doesn't really give us anything new, right?  So without the class stuff
+might be nice.
 
-Probably the simplest solution is to make the said tool recognise
-a line like...
+> +MODULE_AUTHOR("Mark Haverkamp");
+> +MODULE_DESCRIPTION("PCI bridge driver");
+> +MODULE_LICENSE("GPL");
 
-	#pragma KandR
+This isn't needed, as you can't build your code as a module with your
+patch.
 
-...and have it abort any file where it finds that line with some
-sort of warning, perhaps along the lines of...
+thanks,
 
-	SanityCheck: Found K&R pragma, ignoring kernel/foobar.c
-
-...or something similar. It would then be simply a case of adding
-the said line near the top of whichever source files are still in
-K&R format.
-
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.484 / Virus Database: 282 - Release Date: 27-May-2003
-
+greg k-h

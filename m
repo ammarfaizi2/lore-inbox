@@ -1,56 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269751AbUINUXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269695AbUINUSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269751AbUINUXv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUINUUH
+	id S269695AbUINUSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269768AbUINUQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:20:07 -0400
-Received: from mail4.speakeasy.net ([216.254.0.204]:41154 "EHLO
-	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S269699AbUINUTV
+	Tue, 14 Sep 2004 16:16:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5530 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269730AbUINUIx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 16:19:21 -0400
-Date: Tue, 14 Sep 2004 13:19:08 -0700
-Message-Id: <200409142019.i8EKJ8HG002560@magilla.sf.frob.com>
-MIME-Version: 1.0
+	Tue, 14 Sep 2004 16:08:53 -0400
+Date: Tue, 14 Sep 2004 15:28:18 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: dm@sangoma.com, ncorbic@sangoma.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4.28-pre3] WANPIPE/SDLA driver gcc-3.4 fixes
+Message-ID: <20040914182818.GB30422@logos.cnet>
+References: <200409121127.i8CBRraH015212@harpo.it.uu.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-X-Fcc: ~/Mail/linus
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: notify_parent (was: Re: Linux 2.6.9-rc2)
-In-Reply-To: Geert Uytterhoeven's message of  Tuesday, 14 September 2004 14:27:59 +0200 <Pine.LNX.4.58.0409141425360.8147@anakin>
-X-Zippy-Says: My uncle Murray conquered Egypt in 53 B.C.  And I can prove it too!!
+Content-Disposition: inline
+In-Reply-To: <200409121127.i8CBRraH015212@harpo.it.uu.se>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 13 Sep 2004, Linus Torvalds wrote:
-> > Roland McGrath:
-> >   o cleanup ptrace stops and remove notify_parent
-> 
-> However, there are still a few users of notify_parent():
+On Sun, Sep 12, 2004 at 01:27:53PM +0200, Mikael Pettersson wrote:
+> This patch fixes gcc-3.4 cast-as-lvalue warnings in the 2.4.28-pre3
+> kernel's WANPIPE/SDLA net drivers. The 2.6 version of the code has
+> not been fixed for gcc-3.4, so the changes are all new.
 
-IIRC all these are old arch-specific signal code that is rampantly wrong in
-semantics compared to what the up-to-date arch's using the generic code do,
-for quite a long time now.  I believe I mentioned this when I posted the
-patch.  All this arch signal code needs to be rewritten to use
-get_signal_to_deliver, and define ptrace_signal_deliver appropriately to
-get its arch-specific work done.  The old style of code that does all the
-central signal dispatch logic itself is hopeless.  Mostly you have a lot of
-old cruft to remove, and the code that needs to be left is much smaller and
-simpler because the complex stuff is in the shared kernel/signal.c.
-
-> You forgot to add `struct rusage _rusage' members to struct siginfo._sigchld
-> for 2 architectures that define HAVE_ARCH_SIGINFO_T.
-
-I didn't forget.  I never claimed to update other arch's.  The arch
-maintainers need to keep up with patches like you are doing with these
-here.  Most other arch maintainers have submitted their updates already.
-You may need to update some copy_*_siginfo functions if your arch's
-have them in compat code as well.
-
-
-
-Thanks,
-Roland
+What about getting them in v2.6?

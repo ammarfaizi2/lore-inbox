@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264138AbUFBVMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUFBVOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264138AbUFBVMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 17:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbUFBVMa
+	id S264183AbUFBVOc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 17:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbUFBVOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 17:12:30 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:57298 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264138AbUFBVM2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 17:12:28 -0400
-Message-ID: <40BE42AF.5050005@austin.ibm.com>
-Date: Wed, 02 Jun 2004 16:12:15 -0500
-From: Nathan Lynch <nathanl@austin.ibm.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Wed, 2 Jun 2004 17:14:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33735 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264184AbUFBVNS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 17:13:18 -0400
+Date: Wed, 2 Jun 2004 14:13:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+In-Reply-To: <20040602205025.GA21555@elte.hu>
+Message-ID: <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
+References: <20040602205025.GA21555@elte.hu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] use c99 struct initializer in hotcpu_notifier
-Content-Type: multipart/mixed;
- boundary="------------060003060209090303060606"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060003060209090303060606
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi-
 
-The hotcpu_notifier macro does not properly record the given priority in 
-the notifier block.  This causes trouble only for callers which specify 
-a non-zero priority, of which there are none (yet).
+On Wed, 2 Jun 2004, Ingo Molnar wrote:
+> 
+> If the NX feature is supported by the CPU then the patched kernel turns
+> on NX and it will enforce userspace executability constraints such as a
+> no-exec stack and no-exec mmap and data areas. This means less chance
+> for stack overflows and buffer-overflows to cause exploits.
 
-Patch is against 2.6.7-rc2; please apply.
+Just out of interest - how many legacy apps are broken by this? I assume 
+it's a non-zero number, but wouldn't mind to be happily surprised.
 
-Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
+And do we have some way of on a per-process basis say "avoid NX because
+this old version of Oracle/flash/whatever-binary-thing doesn't run with
+it"?
 
---------------060003060209090303060606
-Content-Type: text/x-patch;
- name="hotcpu_notifier_c99_initializers.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hotcpu_notifier_c99_initializers.patch"
-
---- linux-2.6.5-7.21/include/linux/cpu.h	2004-05-05 12:40:27.000000000 -0500
-+++ linux-2.6.5-7.21.new/include/linux/cpu.h	2004-05-06 17:45:55.000000000 -0500
-@@ -60,7 +60,8 @@ extern struct semaphore cpucontrol;
- #define unlock_cpu_hotplug()	up(&cpucontrol)
- #define lock_cpu_hotplug_interruptible() down_interruptible(&cpucontrol)
- #define hotcpu_notifier(fn, pri) {				\
--	static struct notifier_block fn##_nb = { fn, pri };	\
-+	static struct notifier_block fn##_nb =			\
-+		{ .notifier_call = fn, .priority = pri };	\
- 	register_cpu_notifier(&fn##_nb);			\
- }
- int cpu_down(unsigned int cpu);
-
---------------060003060209090303060606--
+		Linus

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274815AbTHPPpO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 11:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274820AbTHPPpO
+	id S273909AbTHPPvh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 11:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274788AbTHPPvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 11:45:14 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:14341 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S274815AbTHPPpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 11:45:10 -0400
-Subject: Re: increased verbosity in dmesg
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: gene.heskett@verizon.net
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308161136.01133.gene.heskett@verizon.net>
-References: <200308160438.59489.gene.heskett@verizon.net>
-	 <1061031726.623.3.camel@teapot.felipe-alfaro.com>
-	 <200308161136.01133.gene.heskett@verizon.net>
-Content-Type: text/plain
-Message-Id: <1061048708.624.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 16 Aug 2003 17:45:08 +0200
+	Sat, 16 Aug 2003 11:51:36 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:16092 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S273909AbTHPPvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 11:51:35 -0400
+Date: Sat, 16 Aug 2003 11:50:23 -0400
+From: Chris Heath <chris@heathens.co.nz>
+To: jsimmons@infradead.org
+Subject: Re:FBDEV updates.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: Pine.LNX.4.44.0308142052440.15200-100000@phoenix.infradead.org
+Message-Id: <20030816114422.1E63.CHRIS@heathens.co.nz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.06.02
+X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-16 at 17:36, Gene Heskett wrote:
-> >In 2.6.0-test, the ring bugger size is configurable. Just look for
-> >CONFIG_LOG_BUF_SHIFT. The kernel ring size will be
-> >2^CONFIG_LOG_BUF_SHIFT bytes, so for a CONFIG_LOG_BUF_SHIFT of 14,
-> >you'll 2^14 or 16 KBytes.
-> 
-> Which says that a setting of 15 would get 32k then.
-> I take it this (for an i386 system) is the correct file to edit?
+James,
 
-Yes, a value of 15 means 32KB. However, I don't recommend you setting
-this value too high.
+I am still seeing a lot of cursors being left behind.  It is not a race
+condition or anything -- in the TTY line editor, it happens about 50% of
+the time when you press backspace.
 
-> kernel/ikconfig.h:CONFIG_LOG_BUF_SHIFT=14 \n\
-> Mmmm, that says do not edit, auto-generated, so how about this one?
-> 
-> include/config/log/buf/shift.h
-> 
-> which contains only that single line.  Its now 15 & we'll see.
+What appears to be happening is the cursor is flashing twice as slowly
+as the driver thinks it is, so of course it's wrong half the time when
+it comes to erase the cursor.
 
-No, no, you'll need to edit the ".config" file to reflect the changes.
+The patch below fixes it for me.
+
+Chris
+
+
+--- a/drivers/video/softcursor.c	2003-08-16 11:39:51.000000000 -0400
++++ b/drivers/video/softcursor.c	2003-08-16 11:29:43.000000000 -0400
+@@ -74,6 +74,12 @@
+ 		
+ 	if (info->cursor.image.data)
+ 		info->fbops->fb_imageblit(info, &info->cursor.image);
++
++	if (!info->cursor.enable) {
++		for (i = 0; i < size; i++)
++			dst[i] ^= info->cursor.mask[i]; 
++	}
++
+ 	return 0;
+ }
+ 
 

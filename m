@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131476AbRAKSgl>; Thu, 11 Jan 2001 13:36:41 -0500
+	id <S132138AbRAKSgv>; Thu, 11 Jan 2001 13:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132517AbRAKSgh>; Thu, 11 Jan 2001 13:36:37 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:1289 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S131476AbRAKSgS>;
-	Thu, 11 Jan 2001 13:36:18 -0500
-Message-ID: <3A5DFC64.2969D25E@innominate.de>
-Date: Thu, 11 Jan 2001 19:33:08 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S132650AbRAKSgm>; Thu, 11 Jan 2001 13:36:42 -0500
+Received: from cambot.suite224.net ([209.176.64.2]:9222 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S132138AbRAKSg3>;
+	Thu, 11 Jan 2001 13:36:29 -0500
+Message-ID: <004d01c07bfd$ed6c1640$0100a8c0@pittscomp.com>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: "Burton Windle" <burton@fint.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0101111424290.23870-100000@fint.staticky.com>
+Subject: Re: Compile error: DRM without AGP in 2.4.0
+Date: Thu, 11 Jan 2001 13:40:09 -0500
 MIME-Version: 1.0
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-In-Reply-To: <3A5DF9CC.2F614F2A@Hell.WH8.TU-Dresden.De>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
-> Upon fscking after reboot, I always have errors on a
-> single inode and it's always the same one:
-> 
-> /dev/hdb1: Inode 522901, i_blocks is 64, should be 8. FIXED
-> 
-> Can someone tell me an easy and reliable way of figuring
-> out which file (program) uses said inode? I think that's
-> probably the key to figuring out why the partition is
-> busy on umount.
+OK. I guess I'll try that.
 
-ls -iR | grep 12345
+Is anyone using the r128 drm driver as a module? Or do I have to compile it
+in?
 
---
-Daniel
+
+Matthew
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281189AbRKPPY5>; Fri, 16 Nov 2001 10:24:57 -0500
+	id <S281391AbRKPPrM>; Fri, 16 Nov 2001 10:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281448AbRKPPYr>; Fri, 16 Nov 2001 10:24:47 -0500
-Received: from paloma14.e0k.nbg-hannover.de ([62.159.219.14]:61847 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S281189AbRKPPYj>; Fri, 16 Nov 2001 10:24:39 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: Re: Tuning Linux for high-speed disk subsystems
-Date: Fri, 16 Nov 2001 16:24:24 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0111161249440.17531-100000@mustard.heime.net>
-In-Reply-To: <Pine.LNX.4.30.0111161249440.17531-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20011116152444Z281189-17408+15080@vger.kernel.org>
+	id <S281450AbRKPPrD>; Fri, 16 Nov 2001 10:47:03 -0500
+Received: from netsrvr.ami.com.au ([203.55.31.38]:2568 "EHLO
+	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
+	id <S281391AbRKPPqw>; Fri, 16 Nov 2001 10:46:52 -0500
+Message-Id: <200111152350.fAFNoDI08622@numbat.os2.ami.com.au>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+cc: summer@os2.ami.com.au, Linux kernel <linux-kernel@vger.kernel.org>,
+        summer@numbat.os2.ami.com.au
+Subject: Re: BOOTP and 2.4.14 
+In-Reply-To: Message from Peter =?iso-8859-1?Q?W=E4chtler?= 
+ <pwaechtler@loewe-komp.de>
+   of "Thu, 15 Nov 2001 22:13:55 +0100." <3BF43013.30433D08@loewe-komp.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 16 Nov 2001 07:50:13 +0800
+From: summer@os2.ami.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 16. November 2001 12:51 schrieb Roy Sigurd Karlsbakk:
-> > Our 100 Gig SCSI raid, consisting of 6 15,000 rpm drives on the
-> > motherboard's two SCSI 160 channels gives a full 110MB/sec read and write
-> > with RAID 0. With RAID chunks set to 1MB the write accesses go to
-> > 160MB/sec and read accesses go to 90MB/sec sustained. This system would
-> > make a good motion capture tool. Previous Intel attempts at onboard disk
-> > I/O would give 50MB/sec.
->
-> How much do you think I can get out of 2x6 15k disks - each 6 disks are on
-> their own SCSI-3/160 bus.
+> summer@os2.ami.com.au schrieb:
+> > 
+> > I'm trying to configure a system to boot with root on NFS. I have it
+> > working, but there are problems.
+> > 
+> > The most serious are that the DNS domain name is set wrongly, and NIS
+> > domain's not set at all.
+> > 
+> > The IP address offered and accepted in 192.168.1.20.
+> > 
+> > The DNS domain name being set is 168.1.20, and the host name 192.
+> > 
+> 
+> 
+> Uh, how about to specify a NAME.DOMAIN.COM instead of an 
+> dotted IP. Check your bootp configuration.
 
-As I count your disks may be the double for the best case. I read here on 
-LKML a post that someone claims that W2k deliever 250 MB/s with such a 
-configuration. Linux 2.4 should do the same. Ask the SCSI gurus.
 
-Regards,
-	Dieter
+The IP address being offered does not need to resolve; if I configure 
+it to update my DNS, then at the time it's offered it will not resolve.
+
+Here's the stanza from /etc/dhcpd.conf
+
+                host banana
+                        {
+                                fixed-address 192.168.1.20;
+                                option host-name "banana";
+                        }
+
+
+BUT the stanza's not required at all.
+
+> 
+> > I'm looking at the ipconfig.c source, around line 1324 where I see this
+> > code:
+> >                         case 4:
+> >                                 if ((dp = strchr(ip, '.'))) {
+> >                                         *dp++ = '\0';
+> >                                         strncpy(system_utsname.domainname, dp, __NEW_UTS_LEN);
+> >                                         system_utsname.domainname[__NEW_UTS_LEN] = '\0';
+> >                                 }
+> >                                 strncpy(system_utsname.nodename, ip, __NEW_UTS_LEN);
+> >                                 system_utsname.nodename[__NEW_UTS_LEN] = '\0';
+> >                                 ic_host_name_set = 1;
+> >                                 break;
+> > 
+> > I can see how the dnsdomain name's being set, and it does not look
+> > right to me.
+> > 
+> > If someone can prepare a patch for me, I'll be delighted to test it.
+> >
+> 
 
 -- 
-Dieter Nützel
-Graduate Student, Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+Cheers
+John Summerfield
+
+Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+
+Note: mail delivered to me is deemed to be intended for me, for my 
+disposition.
+
+
+

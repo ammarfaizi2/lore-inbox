@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbTALUz2>; Sun, 12 Jan 2003 15:55:28 -0500
+	id <S267520AbTALVJv>; Sun, 12 Jan 2003 16:09:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267503AbTALUz2>; Sun, 12 Jan 2003 15:55:28 -0500
-Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:22708 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267392AbTALUzV>; Sun, 12 Jan 2003 15:55:21 -0500
-Date: Sun, 12 Jan 2003 16:02:12 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: any chance of 2.6.0-test*?
-In-reply-to: <1042403499.834.91.camel@phantasy>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042405331.1208.109.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
- <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
- <1042403499.834.91.camel@phantasy>
+	id <S267525AbTALVJv>; Sun, 12 Jan 2003 16:09:51 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:52239 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S267520AbTALVJu>; Sun, 12 Jan 2003 16:09:50 -0500
+Date: Sun, 12 Jan 2003 21:18:39 +0000
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: make xconfig broken in bk current
+Message-ID: <20030112211839.GA56253@compsoc.man.ac.uk>
+References: <200301121512.59840.tomlins@cam.org> <20030112203150.GA53199@compsoc.man.ac.uk> <20030112210349.GA14612@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030112210349.GA14612@mars.ravnborg.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18XpVA-000CGN-00*gppITMZzmEc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Love,
+On Sun, Jan 12, 2003 at 10:03:49PM +0100, Sam Ravnborg wrote:
 
-I posted a minor change to the floppy driver which no one commented on
-earlier (probably in wrong form)-- three times now (once in unified diff
-format).. And you might even say that the message you quoted was kernel
-code that I was posting since I posted alternate code to linus' code.
+> I would like to see it stay within the kernel for the following reasons:
+> 1) It works as it is for those who have QT
+> 2) It's more appealing to some people with a grapical frontend
+> 3) If it fails, people can revert back to menuconfig
+> 4) It does not take up much space. ~2 files
+> 
+> The problem seems that some people does not like the QT choice.
+> But only one attemp has been made (that I know of) implementing
+> an alternative graphical frontend. (Romain Lievin - GTK)
+> 
+> I you do not like the QT version - don't use it.
+> If too many people post error - get it fixed.
+> Simple...
 
-As per whether I post more than the developers here, it's only because I
-don't have a job, so I've got more free time than they do.  I can't help
-it.  If they're busier than me, I wouldn't expect them to waste time
-writing conversational messages about the kernel.  
+I do not want it removed because it's a graphical frontend, or because
+it's using Qt. I want it removed because it is an inappropriate package
+to have it in.
 
--Rob
+All else being equal, code should not be in the kernel package. Please
+explain the *advantages* of including it in the same package.
 
-On Sun, 2003-01-12 at 15:31, Robert Love wrote:
-> On Sun, 2003-01-12 at 14:34, Rob Wilkens wrote:
-> 
-> > I'm REALLY opposed to the use of the word "goto" in any code where
-> > it's not needed.  OF course, I'm a linux kernel newbie, so I'm in
-> > no position to comment
-> 
-> We use goto's extensively in the kernel.  They generate fast, tight
-> code.
-> 
-> There is nothing wrong with being a newbie, but there is something wrong
-> with voicing ignorance.  "Learn first, form opinions later".
-> 
-> When you start posting more than most of the developers here, combined,
-> and none of your posts are contributive kernel code, there is a problem.
-> 
-> 	Robert Love
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+moc binary detection is broken, btw if the qt dir guessing is used (a
+bad idea in the first place). That's just an obvious one, there are
+undoubtedly other problems.
 
+Sorry but it's just bizarre having patches for some GUI going through
+lkml
+
+regards
+john
+-- 
+Khendon's Law: If the same point is made twice by the same person,
+the thread is over.

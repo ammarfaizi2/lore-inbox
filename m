@@ -1,87 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTFOS7z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 14:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTFOS7z
+	id S262709AbTFOTC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 15:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTFOTAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 14:59:55 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:51758 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262687AbTFOS7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 14:59:51 -0400
-Date: Sun, 15 Jun 2003 21:10:30 +0200
-Message-Id: <200306151910.h5FJAU0S008580@callisto.of.borg>
+	Sun, 15 Jun 2003 15:00:14 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.20]:43806 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262709AbTFOS7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 14:59:53 -0400
+Date: Sun, 15 Jun 2003 21:10:32 +0200
+Message-Id: <200306151910.h5FJAWWG008604@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Fbdev <linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] fbcon fixes
+Subject: [PATCH] fb_cmap and transparency
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fbcon:
-  - Make PROC_CONSOLE() return -1 when the virtual console does not belong to
-    the specified fbdev. This way we prevent messing with the wrong fb_info[i]
-    later when running fbset from the `wrong' virtual console on multi-headed
-    systems.
-  - Validate the current cursor position before undrawing the cursor in
-    fbcon_cursor(). If we just shrank the frame buffer size, the old cursor
-    position may now lay outside the frame buffer region.
+If a colormap contains no transparency information, fb_set_cmap() calls
+fb_setcolreg() with trans = 0. This causes all CLUT entries to be fully
+transparent on hardware that does have transparency information in the CLUT
+registers.
 
---- linux-2.4.x/drivers/video/fbcon.c.orig	Wed Apr  2 13:26:09 2003
-+++ linux-2.4.x/drivers/video/fbcon.c	Wed Apr  9 15:33:07 2003
-@@ -272,23 +272,22 @@
- int PROC_CONSOLE(const struct fb_info *info)
- {
-         int fgc;
--        
--        if (info->display_fg != NULL)
--                fgc = info->display_fg->vc_num;
--        else
--                return -1;
--                
--        if (!current->tty)
--                return fgc;
--
--        if (current->tty->driver.type != TTY_DRIVER_TYPE_CONSOLE)
--                /* XXX Should report error here? */
--                return fgc;
- 
--        if (MINOR(current->tty->device) < 1)
--                return fgc;
-+	if (info->display_fg == NULL)
-+		return -1;
- 
--        return MINOR(current->tty->device) - 1;
-+        if (!current->tty ||
-+	    current->tty->driver.type != TTY_DRIVER_TYPE_CONSOLE ||
-+	    MINOR(current->tty->device) < 1)
-+		fgc = info->display_fg->vc_num;
-+	else
-+		fgc = MINOR(current->tty->device)-1;
-+
-+	/* Does this virtual console belong to the specified fbdev? */
-+	if (fb_display[fgc].fb_info != info)
-+		return -1;
-+
-+	return fgc;
- }
- 
- 
-@@ -925,8 +924,9 @@
- 	return;
- 
-     cursor_on = 0;
--    if (cursor_drawn)
--        p->dispsw->revc(p, p->cursor_x, real_y(p, p->cursor_y));
-+    if (cursor_drawn && p->cursor_x < conp->vc_cols &&
-+	p->cursor_y < conp->vc_rows)
-+	p->dispsw->revc(p, p->cursor_x, real_y(p, p->cursor_y));
- 
-     p->cursor_x = conp->vc_x;
-     p->cursor_y = y;
+The following patch solves this problem by changing the default transparency
+from 0 (full transparent) to 0xffff (full opaque).
+
+--- linux-2.4.x/drivers/video/fbcmap.c.orig	Mon Mar  5 09:29:30 2001
++++ linux-2.4.x/drivers/video/fbcmap.c	Mon Mar 17 17:39:59 2003
+@@ -271,7 +271,7 @@
+ 	    hred = *red;
+ 	    hgreen = *green;
+ 	    hblue = *blue;
+-	    htransp = transp ? *transp : 0;
++	    htransp = transp ? *transp : 0xffff;
+ 	} else {
+ 	    get_user(hred, red);
+ 	    get_user(hgreen, green);
+@@ -279,7 +279,7 @@
+ 	    if (transp)
+ 		get_user(htransp, transp);
+ 	    else
+-		htransp = 0;
++		htransp = 0xffff;
+ 	}
+ 	red++;
+ 	green++;
 
 Gr{oetje,eeting}s,
 

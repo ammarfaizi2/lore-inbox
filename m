@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbTD2Ffw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 01:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTD2Ffw
+	id S261957AbTD2Fqg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 01:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTD2Fqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 01:35:52 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:26890 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S261956AbTD2Ffv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 01:35:51 -0400
-Message-Id: <200304290538.h3T5cLu16097@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: James@superbug.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Bug in linux kernel when playing DVDs.
-Date: Tue, 29 Apr 2003 08:46:00 +0300
-X-Mailer: KMail [version 1.3.2]
-References: <3EABB532.5000101@superbug.demon.co.uk>
-In-Reply-To: <3EABB532.5000101@superbug.demon.co.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Tue, 29 Apr 2003 01:46:36 -0400
+Received: from [140.239.227.29] ([140.239.227.29]:41398 "EHLO
+	thunker.thunk.org") by vger.kernel.org with ESMTP id S261957AbTD2Fqf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 01:46:35 -0400
+Date: Tue, 29 Apr 2003 01:59:30 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Larry McVoy <lm@bitmover.com>, Matthias Schniedermeyer <ms@citd.de>,
+       Ross Vandegrift <ross@willow.seitz.com>,
+       Chris Adams <cmadams@hiwaay.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030429055930.GA2645@think>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+	Matthias Schniedermeyer <ms@citd.de>,
+	Ross Vandegrift <ross@willow.seitz.com>,
+	Chris Adams <cmadams@hiwaay.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com> <20030427220717.GA24991@willow.seitz.com> <20030427223255.GH23068@work.bitmover.com> <20030428200424.GA9252@citd.de> <20030428201816.GB23581@work.bitmover.com> <1051568160.17370.3.camel@dhcp22.swansea.linux.org.uk> <20030429000904.GA9653@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030429000904.GA9653@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 April 2003 13:47, James Courtier-Dutton wrote:
-> Hello,
->
-> I have found a bug in the linux kernel when it plays DVDs. I use xine
-> (xine.sf.net) for playing DVDs.
-> At some point during the playing there is an error on the DVD. But
-> currently this error is not handled correctly by the linux kernel.
-> This puts the kernel into an uncertain state, causing the kernel to
-> take 100% CPU and fail all future read requests.
-...
-> Apr 26 17:16:24 games kernel: hdd: cdrom_decode_status: error=0x34
-> Apr 26 17:16:24 games kernel: hdd: ATAPI reset complete
-> Apr 26 17:16:25 games kernel: end_request: I/O error, dev 16:40
-> (hdd), sector 7750464
-...
-> DriveReady SeekComplete Error }
-> Apr 26 17:16:59 games kernel: hdd: cdrom_decode_status: error=0x34
-> Apr 26 17:16:59 games kernel: hdd: ATAPI reset complete
-> Apr 26 17:16:59 games kernel: end_request: I/O error, dev 16:40
-> (hdd), sector 7750468
+On Mon, Apr 28, 2003 at 05:09:04PM -0700, Larry McVoy wrote:
+> This constant "I know how the law works and you don't" is no match for
+> "Microsoft has enough money to change the law".  There was this little
+> anti-trust case, maybe you heard of it, it was obvious that they should
+> have lost and they didn't.  How does your opinion, which would clearly
+> have been that they should have lost, reconcile with the fact that they
+> didn't lose?  I don't get it, you apparently see something I don't.
 
-See? Sector # is increasing... Linux retries the read several times,
-then reports EIO to userspace and goes to next sectors. Unfortunately,
-they are bad too, so the loop repeats. Eventually it will pass
-by all bad sectors (if not, it's a bug) but it can take longish
-time.
+Well, there is the question about whether Microsoft would really want
+a law which made it illegal to duplicate the (unpatented) design of a
+competitor's product, given that Microsoft does that *all* the time.
+(Think Lotus 1-2-3 and Excel, just to name one example.)
 
-Apart of making max retry # settable by the user, I don't see how
-this can be made better. Pity. This is common problem on CDs...
---
-vda
+In the business world, engineers purchase competitors' products and
+rip them apart to see what makes them tick *all* *the* *time*.  Ford
+does it GM cars, and Crystler does it to Toyota cars, etc., etc.
+Anything important where they don't want that to happen is patented.  
+
+So I would find it very hard to believe that Microsoft or any other
+corporate lobbiest would try to convince their national legislature to
+pass laws that would prohibit some open source developer from cloning
+and/or reverse-engineering BitKeeper.  After all, that would also
+outlaw a good part of what goes on all the time in the corporate
+world...
+
+						- Ted

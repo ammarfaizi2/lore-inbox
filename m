@@ -1,37 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130485AbQKBLq0>; Thu, 2 Nov 2000 06:46:26 -0500
+	id <S130090AbQKBMFN>; Thu, 2 Nov 2000 07:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130784AbQKBLqR>; Thu, 2 Nov 2000 06:46:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18490 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130485AbQKBLqE>; Thu, 2 Nov 2000 06:46:04 -0500
-Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-To: Wayne.Brown@altec.com
-Date: Thu, 2 Nov 2000 11:46:34 +0000 (GMT)
-Cc: davem@redhat.com (David S. Miller), npsimons@fsmlabs.com, garloff@suse.de,
-        jamagallon@able.es, linux-kernel@vger.kernel.org
-In-Reply-To: <8625698B.00200009.00@smtpnotes.altec.com> from "Wayne.Brown@altec.com" at Nov 01, 2000 11:46:04 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130473AbQKBMFD>; Thu, 2 Nov 2000 07:05:03 -0500
+Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:49469 "EHLO
+	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S130090AbQKBMEx>; Thu, 2 Nov 2000 07:04:53 -0500
+Date: Thu, 2 Nov 2000 12:03:41 +0000 (UTC)
+From: Mo McKinlay <mmckinlay@gnu.org>
+To: linux-kernel@vger.kernel.org
+Subject: ESS device "1998"
+Message-ID: <Pine.LNX.4.21.0011021158250.8426-100000@kyle.altai.org>
+Organization: inter/open Labs
+X-URL: http://www.interopen.org/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13rIpI-0001SY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ppp and setiathome with no problems.  Instead of using two compilers, why not
-> stay with the older version for everything and not use the latest gcc for
-> anything until both the kernel and userland stuff can be compiled with it?
 
-egcs-1.1.2 is a reasonable C compiler. It makes a few errors under register
-pressure and stuff. However its at best 'a C++ subset compiler'. 2.95 is a
-fair bit better.
+I recently obtained an HP Omnibook XE2 laptop. It's a reasonably
+nicely-specced machine, although (unsuprsingly) the hardware isn't too
+well supported with Linux.
 
-Most of these problems are also not the compiler but applications. gcc 2.95 
-broke a lot of asm using code because the apps were wrong. Without the pain
-they would simply never get fixed
+I've given up on the internal modem (I'm 90% sure it's some kind of
+software modem, and I have an external anyway), but I'm trying to get
+some sort of audio to work via the internal sound device.
+
+Here's the output of 'lspci':
+
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge
+(rev 03)
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge
+(rev 03)
+00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 03)
+00:0a.0 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+00:0a.1 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+00:0d.0 Multimedia audio controller: ESS Technology: Unknown device 1998
+00:0d.1 Communication controller: ESS Technology: Unknown device 1999
+01:00.0 VGA compatible controller: Silicon Motion, Inc.: Unknown device
+0710 (rev a3)
+20:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
+20:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03)
+
+I'm currently using 2.2.14 (plus whichever patches RH added for their 6.2
+release), and it doesn't seem to be supported. So.. simple question, does
+anybody know if this 'card' is supported in a more recent kernel, or
+whether there's something in 2.2.14 that works?
+
+[As an aside, from watching Windows boot, it seems to have some sort of
+SoundBlaster compatibility, although it seems to lack MPU401 support or
+emulation - and any attempts to use the Linux soundblaster stuff seems to
+fail miserably :/]
+
+Any hints/clues/etc welcome.
+
+Many thanks,
+
+Mo.
+
+-- 
+Mo McKinlay
+mmckinlay@gnu.org
+-------------------------------------------------------------------------
+GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
+
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

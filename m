@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317338AbSGIINu>; Tue, 9 Jul 2002 04:13:50 -0400
+	id <S317339AbSGIIbu>; Tue, 9 Jul 2002 04:31:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317339AbSGIINt>; Tue, 9 Jul 2002 04:13:49 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:18448 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S317338AbSGIINt>; Tue, 9 Jul 2002 04:13:49 -0400
-Date: Tue, 9 Jul 2002 10:16:15 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
-Subject: Re: direct-to-BIO for O_DIRECT
-Message-ID: <20020709101615.B14399@nightmaster.csn.tu-chemnitz.de>
-References: <3D2A5F34.F38B893F@torque.net> <3D2A6608.7C43EE3@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3D2A6608.7C43EE3@zip.com.au>; from akpm@zip.com.au on Mon, Jul 08, 2002 at 09:26:48PM -0700
+	id <S317340AbSGIIbt>; Tue, 9 Jul 2002 04:31:49 -0400
+Received: from mail.beers.skanska.com ([12.6.159.14]:14414 "EHLO
+	c01gaatlhqxch3.beerscc.net") by vger.kernel.org with ESMTP
+	id <S317339AbSGIIbt> convert rfc822-to-8bit; Tue, 9 Jul 2002 04:31:49 -0400
+Message-ID: <417-2200272982310580@ibm551347c>
+From: "Dejan" <blanka_p@prontomail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SUPER ZARADA PUTEM INTERNETA!
+Date: Tue, 9 Jul 2002 10:23:10 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 09 Jul 2002 08:34:31.0468 (UTC) FILETIME=[724B6EC0:01C22723]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 08, 2002 at 09:26:48PM -0700, Andrew Morton wrote:
-> > > It would be nice if we could just map a set of user pages
-> > > to a scatterlist.
-> > 
-> > After disabling kiobufs in sg I would like such a drop
-> > in replacement.
-> 
-> Ben had lightweight sg structures called `kvecs' and `kveclets'. And
-> library functions to map pages into them.  And code to attach them
-> to BIOs.  So we'll be looking at getting that happening.
+ENGLISH: http://dejan.i8.com/english.html
 
-BIOs are for BLOCK devices we want sth. like this for CHARACTER
-devices.
+Postovani,
 
-I just want sth. along the lines of this:
+Ovu poruku primicete samo jednom i ako vas ova ponuda ne interesuje, ispricavamo se i nadalje Vam necemo slati obavesti.
 
-/* Pin down (COMPLETE!) user pages and put them into a scatter gather list */
-int sg_map_user_pages(struct scatterlist *sgl, const unsigned int nr_pages, 
-		unsigned long uaddr, int rw) {
-	int res, i;
-	struct page *pages[nr_pages];
+U ovoj ponudi nudimo vam mogucnost novog posla u Srbiji i zemljama bivse YU, kao i po celom svetu. te dobre zarade kroz rad na Internetu. 
 
-	down_read(&current->mm->mmap_sem);
-	res = get_user_pages(
-			current,
-			current->mm,
-			uaddr,
-			nr_pages,
-			rw == READ, /* logic is perversed^Wreversed here :-( */
-			0, /* don't force */
-			&pages[0],
-			NULL);
-	up_read(&current->mm->mmap_sem);
+Buduci da se radi o ozbiljnom poslu, od kandidata se ocekuje:
 
-	/* Errors and no page mapped should return here */
-	if (res <= 0) return res;
+- punoletnost, tj. min 18 godina zivota 
+- pristup Internetu 
+- zelja za timskim radom 
+- poznavanje osnova engleskog (nije apsolutni uvjet)
 
-	for (i=1; i < res; i++) {
-		sgl[i].page = pages[i];	
-	}
-	return res;
-}
+Zanima li Vas mogucnost dobre zarade i dobar globalni biznis, upisite svoj mail bez ikakve obaveze na adresi:
+http://dejan.i8.com/
+http://dejan.i8.com/english.html
 
-/* And unmap them... */
-int sg_unmap_user_pages(struct scatterlist *sgl, const unsigned int nr_pages) {
-	int i;
+Nakon Vase prijave kontaktiracemo Vas u roku od 24 sata s detaljnim obavestima.
 
-	for (i=0; i < nr_pages; i++)
-		page_cache_release(sgl[i].page);
+Srdacan pozdrav u nadi daljnje saradnje
 
-	return 0;
-}
+Dejan Milosevic
+-------------------------------------------------------------------
+Imate web stranicu a nito je ne posecuje? Kliknite ovde:
+http://www.nomorehits.com/cgi-bin/start.cgi?referrer=blanka
+**************************************************
+GET 500 UNIQUE VISITORS BONUS JUST FOR JOINING!
+http://www.mcexit.com/start.php?referrer=blanka 
+You will get 35% of all the credits of a level 1 
+referral and 10 % for the levels 2 to 6. 
+--------------------------------------------------------------------
+This is a one time mailing and you will not be contacted again and though it is not necessary to request removal, you may do so by sending an email to:
+mailto:blanka_p@prontomail.com?subject=Please_Remove
 
-Possibly more complicated and less error prone, but you get the
-idea ;-)
 
-Regards
-
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

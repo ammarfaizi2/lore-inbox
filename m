@@ -1,222 +1,309 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbUKSU0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbUKSTuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbUKSU0V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 15:26:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbUKSUY7
+	id S261581AbUKSTuF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 14:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbUKSTsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 15:24:59 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:17367 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261610AbUKSUX0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 15:23:26 -0500
-Message-Id: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-Subject: [PATCH 1/2] pci: Block config access during BIST
-To: greg@kroah.com
-Cc: paulus@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       brking@us.ibm.com
-From: brking@us.ibm.com
-Date: Fri, 19 Nov 2004 14:23:22 -0600
+	Fri, 19 Nov 2004 14:48:16 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:17616 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261567AbUKSTpf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 14:45:35 -0500
+Date: Fri, 19 Nov 2004 11:45:28 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: torvalds@osdl.org, akpm@osdl.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: page fault scalability patch V11 [4/7]: universal cmpxchg for i386
+In-Reply-To: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0411191144500.24095@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain>
+  <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com> 
+ <419D581F.2080302@yahoo.com.au>  <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com>
+  <419D5E09.20805@yahoo.com.au>  <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com>
+ <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Changelog
+        * Make cmpxchg and cmpxchg8b generally available on the i386
+	  platform.
+        * Provide emulation of cmpxchg suitable for uniprocessor if
+	  build and run on 386.
+        * Provide emulation of cmpxchg8b suitable for uniprocessor systems
+	  if build and run on 386 or 486.
+	* Provide an inline function to atomically get a 64 bit value via
+	  cmpxchg8b in an SMP system (courtesy of Nick Piggin)
+	  (important for i386 PAE mode and other places where atomic 64 bit
+	  operations are useful)
 
-Some PCI adapters (eg. ipr scsi adapters) have an exposure today in that 
-they issue BIST to the adapter to reset the card. If, during the time
-it takes to complete BIST, userspace attempts to access PCI config space, 
-the host bus bridge will master abort the access since the ipr adapter 
-does not respond on the PCI bus for a brief period of time when running BIST. 
-On PPC64 hardware, this master abort results in the host PCI bridge
-isolating that PCI device from the rest of the system, making the device
-unusable until Linux is rebooted. This patch is an attempt to close that
-exposure by introducing some blocking code in the PCI code. When blocked,
-writes will be humored and reads will return the cached value. Ben
-Herrenschmidt has also mentioned that he plans to use this in PPC power
-management.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Signed-off-by: Brian King <brking@us.ibm.com>
----
+Index: linux-2.6.9/arch/i386/Kconfig
+===================================================================
+--- linux-2.6.9.orig/arch/i386/Kconfig	2004-11-15 11:13:34.000000000 -0800
++++ linux-2.6.9/arch/i386/Kconfig	2004-11-19 10:02:54.000000000 -0800
+@@ -351,6 +351,11 @@
+ 	depends on !M386
+ 	default y
 
- linux-2.6.10-rc2-bk4-bjking1/drivers/pci/access.c |  104 ++++++++++++++++++++++
- linux-2.6.10-rc2-bk4-bjking1/include/linux/pci.h  |   37 ++-----
- 2 files changed, 115 insertions(+), 26 deletions(-)
-
-diff -puN include/linux/pci.h~pci_block_config_io_during_bist include/linux/pci.h
---- linux-2.6.10-rc2-bk4/include/linux/pci.h~pci_block_config_io_during_bist	2004-11-19 13:31:29.000000000 -0600
-+++ linux-2.6.10-rc2-bk4-bjking1/include/linux/pci.h	2004-11-19 13:31:29.000000000 -0600
-@@ -535,7 +535,8 @@ struct pci_dev {
- 	/* keep track of device state */
- 	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
- 	unsigned int	is_busmaster:1; /* device is busmaster */
--	
-+	unsigned int	block_cfg_access:1;	/* config space access is blocked */
++config X86_CMPXCHG8B
++	bool
++	depends on !M386 && !M486
++	default y
 +
- 	u32		saved_config_space[16]; /* config space saved at suspend time */
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
- 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
-@@ -750,31 +751,12 @@ int pci_bus_read_config_dword (struct pc
- int pci_bus_write_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 val);
- int pci_bus_write_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 val);
- int pci_bus_write_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 val);
--
--static inline int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
--{
--	return pci_bus_read_config_byte (dev->bus, dev->devfn, where, val);
--}
--static inline int pci_read_config_word(struct pci_dev *dev, int where, u16 *val)
--{
--	return pci_bus_read_config_word (dev->bus, dev->devfn, where, val);
--}
--static inline int pci_read_config_dword(struct pci_dev *dev, int where, u32 *val)
--{
--	return pci_bus_read_config_dword (dev->bus, dev->devfn, where, val);
--}
--static inline int pci_write_config_byte(struct pci_dev *dev, int where, u8 val)
--{
--	return pci_bus_write_config_byte (dev->bus, dev->devfn, where, val);
--}
--static inline int pci_write_config_word(struct pci_dev *dev, int where, u16 val)
--{
--	return pci_bus_write_config_word (dev->bus, dev->devfn, where, val);
--}
--static inline int pci_write_config_dword(struct pci_dev *dev, int where, u32 val)
--{
--	return pci_bus_write_config_dword (dev->bus, dev->devfn, where, val);
--}
-+int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val);
-+int pci_read_config_word(struct pci_dev *dev, int where, u16 *val);
-+int pci_read_config_dword(struct pci_dev *dev, int where, u32 *val);
-+int pci_write_config_byte(struct pci_dev *dev, int where, u8 val);
-+int pci_write_config_word(struct pci_dev *dev, int where, u16 val);
-+int pci_write_config_dword(struct pci_dev *dev, int where, u32 val);
- 
- int pci_enable_device(struct pci_dev *dev);
- int pci_enable_device_bars(struct pci_dev *dev, int mask);
-@@ -870,6 +852,9 @@ extern void pci_disable_msix(struct pci_
- extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
- #endif
- 
-+extern int pci_start_bist(struct pci_dev *dev);
-+extern void pci_block_config_access(struct pci_dev *dev);
-+extern void pci_unblock_config_access(struct pci_dev *dev);
- #endif /* CONFIG_PCI */
- 
- /* Include architecture-dependent settings and functions */
-diff -puN drivers/pci/access.c~pci_block_config_io_during_bist drivers/pci/access.c
---- linux-2.6.10-rc2-bk4/drivers/pci/access.c~pci_block_config_io_during_bist	2004-11-19 13:31:29.000000000 -0600
-+++ linux-2.6.10-rc2-bk4-bjking1/drivers/pci/access.c	2004-11-19 14:16:25.000000000 -0600
-@@ -8,6 +8,7 @@
-  */
- 
- static spinlock_t pci_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t access_lock = SPIN_LOCK_UNLOCKED;
- 
+ config X86_XADD
+ 	bool
+ 	depends on !M386
+Index: linux-2.6.9/arch/i386/kernel/cpu/intel.c
+===================================================================
+--- linux-2.6.9.orig/arch/i386/kernel/cpu/intel.c	2004-11-15 11:13:34.000000000 -0800
++++ linux-2.6.9/arch/i386/kernel/cpu/intel.c	2004-11-19 10:38:26.000000000 -0800
+@@ -6,6 +6,7 @@
+ #include <linux/bitops.h>
+ #include <linux/smp.h>
+ #include <linux/thread_info.h>
++#include <linux/module.h>
+
+ #include <asm/processor.h>
+ #include <asm/msr.h>
+@@ -287,5 +288,103 @@
+ 	return 0;
+ }
+
++#ifndef CONFIG_X86_CMPXCHG
++unsigned long cmpxchg_386_u8(volatile void *ptr, u8 old, u8 new)
++{
++	u8 prev;
++	unsigned long flags;
++	/*
++	 * Check if the kernel was compiled for an old cpu but the
++	 * currently running cpu can do cmpxchg after all
++	 * All CPUs except 386 support CMPXCHG
++	 */
++	if (cpu_data->x86 > 3)
++		return __cmpxchg(ptr, old, new, sizeof(u8));
++
++	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
++	local_irq_save(flags);
++	prev = *(u8 *)ptr;
++	if (prev == old)
++		*(u8 *)ptr = new;
++	local_irq_restore(flags);
++	return prev;
++}
++
++EXPORT_SYMBOL(cmpxchg_386_u8);
++
++unsigned long cmpxchg_386_u16(volatile void *ptr, u16 old, u16 new)
++{
++	u16 prev;
++	unsigned long flags;
++	/*
++	 * Check if the kernel was compiled for an old cpu but the
++	 * currently running cpu can do cmpxchg after all
++	 * All CPUs except 386 support CMPXCHG
++	 */
++	if (cpu_data->x86 > 3)
++		return __cmpxchg(ptr, old, new, sizeof(u16));
++
++	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
++	local_irq_save(flags);
++	prev = *(u16 *)ptr;
++	if (prev == old)
++		*(u16 *)ptr = new;
++	local_irq_restore(flags);
++	return prev;
++}
++
++EXPORT_SYMBOL(cmpxchg_386_u16);
++
++unsigned long cmpxchg_386_u32(volatile void *ptr, u32 old, u32 new)
++{
++	u32 prev;
++	unsigned long flags;
++	/*
++	 * Check if the kernel was compiled for an old cpu but the
++	 * currently running cpu can do cmpxchg after all
++	 * All CPUs except 386 support CMPXCHG
++	 */
++	if (cpu_data->x86 > 3)
++		return __cmpxchg(ptr, old, new, sizeof(u32));
++
++	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
++	local_irq_save(flags);
++	prev = *(u32 *)ptr;
++	if (prev == old)
++		*(u32 *)ptr = new;
++	local_irq_restore(flags);
++	return prev;
++}
++
++EXPORT_SYMBOL(cmpxchg_386_u32);
++#endif
++
++#ifndef CONFIG_X86_CMPXCHG8B
++unsigned long long cmpxchg8b_486(volatile unsigned long long *ptr,
++	       unsigned long long old, unsigned long long newv)
++{
++	unsigned long long prev;
++	unsigned long flags;
++
++	/*
++	 * Check if the kernel was compiled for an old cpu but
++	 * we are running really on a cpu capable of cmpxchg8b
++	 */
++
++	if (cpu_has(cpu_data, X86_FEATURE_CX8))
++		return __cmpxchg8b(ptr, old, newv);
++
++	/* Poor mans cmpxchg8b for 386 and 486. Not suitable for SMP */
++	local_irq_save(flags);
++	prev = *ptr;
++	if (prev == old)
++		*ptr = newv;
++	local_irq_restore(flags);
++	return prev;
++}
++
++EXPORT_SYMBOL(cmpxchg8b_486);
++#endif
++
+ // arch_initcall(intel_cpu_init);
+
+Index: linux-2.6.9/include/asm-i386/system.h
+===================================================================
+--- linux-2.6.9.orig/include/asm-i386/system.h	2004-11-15 11:13:38.000000000 -0800
++++ linux-2.6.9/include/asm-i386/system.h	2004-11-19 10:49:46.000000000 -0800
+@@ -149,6 +149,9 @@
+ #define __xg(x) ((struct __xchg_dummy *)(x))
+
+
++#define ll_low(x)	*(((unsigned int*)&(x))+0)
++#define ll_high(x)	*(((unsigned int*)&(x))+1)
++
  /*
-  *  Wrappers for all PCI configuration access functions.  They just check
-@@ -60,3 +61,106 @@ EXPORT_SYMBOL(pci_bus_read_config_dword)
- EXPORT_SYMBOL(pci_bus_write_config_byte);
- EXPORT_SYMBOL(pci_bus_write_config_word);
- EXPORT_SYMBOL(pci_bus_write_config_dword);
-+
-+#define PCI_READ_CONFIG(size,type)	\
-+int pci_read_config_##size	\
-+	(struct pci_dev *dev, int pos, type *val)	\
-+{									\
-+	unsigned long flags;					\
-+	int ret = 0;						\
-+	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+	spin_lock_irqsave(&access_lock, flags);		\
-+	if (!dev->block_cfg_access)				\
-+		ret = pci_bus_read_config_##size(dev->bus, dev->devfn, pos, val);	\
-+	else if (pos < sizeof(dev->saved_config_space))		\
-+		*val = (type)dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])]; \
-+	else								\
-+		*val = -1;						\
-+	spin_unlock_irqrestore(&access_lock, flags);	\
-+	return ret;							\
-+}
-+
-+#define PCI_WRITE_CONFIG(size,type)	\
-+int pci_write_config_##size	\
-+	(struct pci_dev *dev, int pos, type val)	\
-+{							\
-+	unsigned long flags;					\
-+	int ret = 0;						\
-+	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+	spin_lock_irqsave(&access_lock, flags);	\
-+	if (!dev->block_cfg_access)					\
-+		ret = pci_bus_write_config_##size(dev->bus, dev->devfn, pos, val);	\
-+	spin_unlock_irqrestore(&access_lock, flags);	\
-+	return ret;							\
-+}
-+
-+PCI_READ_CONFIG(byte, u8)
-+PCI_READ_CONFIG(word, u16)
-+PCI_READ_CONFIG(dword, u32)
-+PCI_WRITE_CONFIG(byte, u8)
-+PCI_WRITE_CONFIG(word, u16)
-+PCI_WRITE_CONFIG(dword, u32)
-+
-+/**
-+ * pci_block_config_access - Block PCI config reads/writes
-+ * @dev:	pci device struct
-+ *
-+ * This function blocks any PCI config accesses from occurring.
-+ * When blocked, any writes will be humored and reads will return
-+ * the data last saved using pci_save_state for the first 64 bytes
-+ * of config space and return ff's for all other config reads.
-+ *
-+ * Return value:
-+ * 	nothing
-+ **/
-+void pci_block_config_access(struct pci_dev *dev)
+  * The semantics of XCHGCMP8B are a bit strange, this is why
+  * there is a loop and the loading of %%eax and %%edx has to
+@@ -184,8 +187,6 @@
+ {
+ 	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
+ }
+-#define ll_low(x)	*(((unsigned int*)&(x))+0)
+-#define ll_high(x)	*(((unsigned int*)&(x))+1)
+
+ static inline void __set_64bit_var (unsigned long long *ptr,
+ 			 unsigned long long value)
+@@ -203,6 +204,26 @@
+  __set_64bit(ptr, (unsigned int)(value), (unsigned int)((value)>>32ULL) ) : \
+  __set_64bit(ptr, ll_low(value), ll_high(value)) )
+
++static inline unsigned long long __get_64bit(unsigned long long * ptr)
 +{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&access_lock, flags);
-+	dev->block_cfg_access = 1;
-+	spin_unlock_irqrestore(&access_lock, flags);
++	unsigned long long ret;
++	__asm__ __volatile__ (
++		"\n1:\t"
++		"movl (%1), %%eax\n\t"
++		"movl 4(%1), %%edx\n\t"
++		"movl %%eax, %%ebx\n\t"
++		"movl %%edx, %%ecx\n\t"
++		LOCK_PREFIX "cmpxchg8b (%1)\n\t"
++		"jnz 1b"
++		:	"=A"(ret)
++		:	"D"(ptr)
++		:	"ebx", "ecx", "memory");
++	return ret;
 +}
 +
-+/**
-+ * pci_unblock_config_access - Unblock PCI config reads/writes
-+ * @dev:	pci device struct
-+ *
-+ * This function allows PCI config accesses to resume.
-+ *
-+ * Return value:
-+ * 	nothing
-+ **/
-+void pci_unblock_config_access(struct pci_dev *dev)
++#define get_64bit(ptr) __get_64bit(ptr)
++
++
+ /*
+  * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
+  * Note 2: xchg has side effect, so that attribute volatile is necessary,
+@@ -240,7 +261,41 @@
+  */
+
+ #ifdef CONFIG_X86_CMPXCHG
++
+ #define __HAVE_ARCH_CMPXCHG 1
++#define cmpxchg(ptr,o,n)\
++	((__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o), \
++					(unsigned long)(n), sizeof(*(ptr))))
++
++#else
++
++/*
++ * Building a kernel capable running on 80386. It may be necessary to
++ * simulate the cmpxchg on the 80386 CPU. For that purpose we define
++ * a function for each of the sizes we support.
++ */
++
++extern unsigned long cmpxchg_386_u8(volatile void *, u8, u8);
++extern unsigned long cmpxchg_386_u16(volatile void *, u16, u16);
++extern unsigned long cmpxchg_386_u32(volatile void *, u32, u32);
++
++static inline unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
++				      unsigned long new, int size)
 +{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&access_lock, flags);
-+	dev->block_cfg_access = 0;
-+	spin_unlock_irqrestore(&access_lock, flags);
++	switch (size) {
++	case 1:
++		return cmpxchg_386_u8(ptr, old, new);
++	case 2:
++		return cmpxchg_386_u16(ptr, old, new);
++	case 4:
++		return cmpxchg_386_u32(ptr, old, new);
++	}
++	return old;
 +}
 +
-+/**
-+ * pci_start_bist - Start BIST on a PCI device
-+ * @dev:	pci device struct
-+ *
-+ * This function allows a device driver to start BIST
-+ * when PCI config accesses are disabled.
-+ *
-+ * Return value:
-+ * 	nothing
-+ **/
-+int pci_start_bist(struct pci_dev *dev)
++#define cmpxchg(ptr,o,n)\
++	((__typeof__(*(ptr)))cmpxchg_386((ptr), (unsigned long)(o), \
++					(unsigned long)(n), sizeof(*(ptr))))
+ #endif
+
+ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+@@ -270,10 +325,32 @@
+ 	return old;
+ }
+
+-#define cmpxchg(ptr,o,n)\
+-	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+-					(unsigned long)(n),sizeof(*(ptr))))
+-
++static inline unsigned long long __cmpxchg8b(volatile unsigned long long *ptr,
++		unsigned long long old, unsigned long long newv)
 +{
-+	return pci_bus_write_config_byte(dev->bus, dev->devfn, PCI_BIST, PCI_BIST_START);
++	unsigned long long prev;
++	__asm__ __volatile__(
++	LOCK_PREFIX "cmpxchg8b (%4)"
++		: "=A" (prev)
++		: "0" (old), "c" ((unsigned long)(newv >> 32)),
++		  "b" ((unsigned long)(newv & 0xffffffffULL)), "D" (ptr)
++		: "memory");
++	return prev;
 +}
 +
-+EXPORT_SYMBOL(pci_read_config_byte);
-+EXPORT_SYMBOL(pci_read_config_word);
-+EXPORT_SYMBOL(pci_read_config_dword);
-+EXPORT_SYMBOL(pci_write_config_byte);
-+EXPORT_SYMBOL(pci_write_config_word);
-+EXPORT_SYMBOL(pci_write_config_dword);
-+EXPORT_SYMBOL(pci_start_bist);
-+EXPORT_SYMBOL(pci_block_config_access);
-+EXPORT_SYMBOL(pci_unblock_config_access);
-_
++#ifdef CONFIG_X86_CMPXCHG8B
++#define cmpxchg8b __cmpxchg8b
++#else
++/*
++ * Building a kernel capable of running on 80486 and 80386. Both
++ * do not support cmpxchg8b. Call a function that emulates the
++ * instruction if necessary.
++ */
++extern unsigned long long cmpxchg8b_486(volatile unsigned long long *,
++		unsigned long long, unsigned long long);
++#define cmpxchg8b cmpxchg8b_486
++#endif
++
+ #ifdef __KERNEL__
+ struct alt_instr {
+ 	__u8 *instr; 		/* original instruction */
+

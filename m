@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317426AbSG1WxZ>; Sun, 28 Jul 2002 18:53:25 -0400
+	id <S317373AbSG1WuB>; Sun, 28 Jul 2002 18:50:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317463AbSG1WxY>; Sun, 28 Jul 2002 18:53:24 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:20242 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S317426AbSG1WwT>; Sun, 28 Jul 2002 18:52:19 -0400
-Date: Mon, 29 Jul 2002 00:55:26 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Christoph Hellwig <hch@infradead.org>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, <dhowells@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: linux-2.5.29 __downgrade_write() for CONFIG_RWSEM_GENERIC_SPINLOCK
-In-Reply-To: <20020728190851.A14392@infradead.org>
-Message-ID: <Pine.LNX.4.44.0207290048070.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317387AbSG1WuB>; Sun, 28 Jul 2002 18:50:01 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:58904 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S317373AbSG1WuA>; Sun, 28 Jul 2002 18:50:00 -0400
+Date: Sun, 28 Jul 2002 18:42:37 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19rc3aa3
+Message-ID: <20020728164237.GA1201@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+URL:
 
-On Sun, 28 Jul 2002, Christoph Hellwig wrote:
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc3aa3.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc3aa3/
 
-> -static inline struct rw_semaphore *__rwsem_do_wake(struct rw_semaphore *sem)
-> +static inline struct rw_semaphore *__rwsem_do_wake(struct rw_semaphore *sem, int wakewrite)
->  {
->  	struct rwsem_waiter *waiter;
->  	int woken;
-> @@ -56,7 +57,14 @@ static inline struct rw_semaphore *__rws
->
->  	waiter = list_entry(sem->wait_list.next,struct rwsem_waiter,list);
->
-> -	/* try to grant a single write lock if there's a writer at the front of the queue
-> +	if (!wakewrite) {
-> +		if (waiter->flags & RWSEM_WAITING_FOR_WRITE)
-> +			goto out;
-> +		goto dont_wake_writers;
-> +	}
-> +
-> +	/* if we are allowed to wake writers try to grant a single write lock if there's a
-> +	 * writer at the front of the queue
->  	 * - we leave the 'waiting count' incremented to signify potential contention
->  	 */
->  	if (waiter->flags & RWSEM_WAITING_FOR_WRITE) {
+Only in 2.4.19rc3aa2: 00_extraversion-1
+Only in 2.4.19rc3aa3/: 00_extraversion-2
 
-You don't really need that extra argument, testing sem->activity should do
-the same job.
-If you exchange the wakewrite (or sem->activity) test and the
-waiter->flags you can fold it into the next test (this means all the extra
-work would only be done, if we have a writer waiting at the top).
+	Bump extraversion.
 
-bye, Roman
+Only in 2.4.19rc3aa3/: 10_sched-o1-hyperthreading-1
 
+	Add hyperthreading support to o1 scheduler (from Andi).
+
+Only in 2.4.19rc3aa2: 90_module-oops-tracking-1
+Only in 2.4.19rc3aa3/: 90_module-oops-tracking-2
+
+	Move kernel fingerprint into the oops line to use the empty column
+	space in that line (increases reliability if on 80x25 text mode).
+
+Andrea

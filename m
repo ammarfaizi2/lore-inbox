@@ -1,82 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264894AbUEMTy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264856AbUEMTvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbUEMTy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 15:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUEMTyD
+	id S264856AbUEMTvs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 15:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbUEMTsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:54:03 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:21636 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S264524AbUEMTgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:36:38 -0400
-From: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: aic79xx trouble
-Date: Thu, 13 May 2004 21:36:31 +0200
-User-Agent: KMail/1.5.4
-References: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de>
-In-Reply-To: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de>
+	Thu, 13 May 2004 15:48:32 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:11679 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264674AbUEMTqr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 15:46:47 -0400
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_A58oAGonSlg+XU+";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PATCH] ICH6/6300ESB i2c support
+Date: Thu, 13 May 2004 12:46:18 -0700
+Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F5B1C46A@orsmsx410.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] ICH6/6300ESB i2c support
+Thread-Index: AcQ4wLw/sMud7dbmR12ZHMDM3iQK4wAX9fHw
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: "Jean Delvare" <khali@linux-fr.org>, <jdgaston@snoqualmie.dp.intel.com>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 13 May 2004 19:46:19.0032 (UTC) FILETIME=[F5E51980:01C43922]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jean,
 
---Boundary-02=_A58oAGonSlg+XU+
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+The reason I have the renumbering in pci_ids.h and the new device
+support in i2c-i801 in the same patch, is that the new device support is
+dependent on the devices being added to pci_ids.h.  However, if it is
+the consensus that these be two separate patches, I can separate them.
 
-Oh, I forgot the system specifications:
+As far as using the ICHx model name is concerned; I can not use the
+model name "82801xx" until after the product has launched.  I have also
+seen requests to use the ICHx name rather then the model number.  Again,
+if it is the consensus, I can go back after the product launches and
+change all of the #defines, for the device, to use the model number
+rather than the "common" name.
 
-=2D dual opteron on tyan S2882 board
-=2D vanilla linux-2.4.26
+I will look into providing the same patch for the 2.4 kernel.
 
-Also, is acpi relevant? It is enabled in the kernel-configuration and the t=
-he=20
-kernel prints quite a lot of error messages when it parses the dsdt.
+Thank you very much for looking at my patch,
+
+Jason Gaston
 
 
-On Thursday 13 May 2004 21:25, Bernd Schubert wrote:
-> Hello,
->
-> we are just in the process of setting up a new server, which will serve t=
-he
-> data of an IDE/SCSI raid system (transtec 5008). Some partions of this ra=
-id
-> device are also mirrored via drbd to a failover system. During a full
-> resync of all (3) failover partitions *from* the failover server, the
-> main-server first logs many scsi errors and later the access to the
-> raid-partitions completely locks up.
->
-> Below is some relevant dmesg output, I already enabled the verbose option
-> for the aic79xx driver. Should I also enable debugging, if so, which mode?
->
-> Any help is highly appreciated.
->
->
-> Thanks in advance,
-> 	Bernd
->
 
---Boundary-02=_A58oAGonSlg+XU+
-Content-Type: application/pgp-signature
-Content-Description: signature
+-----Original Message-----
+From: Jean Delvare [mailto:khali@linux-fr.org] 
+Sent: Thursday, May 13, 2004 1:05 AM
+To: jdgaston@snoqualmie.dp.intel.com
+Cc: LKML
+Subject: Re: [PATCH] ICH6/6300ESB i2c support
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBAo85ALR5WR6DFumYRAlsQAJ94ORnp1Dm8I/I5hLQbIa05Xi1EkwCgiUXk
-Asr6Dvc4Pwd9y6hnQj58R5s=
-=P73+
------END PGP SIGNATURE-----
+Hi Jason,
 
---Boundary-02=_A58oAGonSlg+XU+--
+A few comments on your patch:
+
+> This patch adds DID support for ICH6 and 6300ESB to i2c-i801.c(SMBus).
+In
+> order to add this support I needed to patch pci_ids.h with the SMBus
+DID's.
+> To keep things orginized I renumbered the ICH6 and ESB entries in
+pci_ids.h. 
+> I then patched the piix IDE and i810 audio drivers to reflect the
+updated
+> #define's.  I also removed an error from irq.c; there was a reference
+to a
+> 6300ESB DID that does not exist.  This patch is against the 2.6.6
+kernel.
+
+To me, there are two different things here and you should split your
+patch accordingly for clarity.  The renumbering of the entries should go
+in a first patch, then the new devices support in i2c-i801 in a second.
+
+I would also suggest that you follow the common habit to name the Intel
+82801 chips after their numerical name (82801AA. 82801BA, etc...) and
+not their nickname (ICH, ICH2...) in both the entries and the comments. 
+Not that it is absolulety better, but that's the way we did so far, so
+why change now?
+
+I would appreciate it if you could submit a similar patch for the 2.4
+version of the i2c-i801 driver as held in the lm_sensors project.
+
+Thanks.
+
+Jean Delvare
+
+
+--
+Jean "Khali" Delvare
+http://khali.linux-fr.org/
+

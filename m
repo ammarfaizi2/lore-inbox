@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267106AbTCFAdt>; Wed, 5 Mar 2003 19:33:49 -0500
+	id <S267123AbTCFAgt>; Wed, 5 Mar 2003 19:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbTCFAdt>; Wed, 5 Mar 2003 19:33:49 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:59614 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267106AbTCFAds>;
-	Wed, 5 Mar 2003 19:33:48 -0500
-Subject: Re: Kernel Boot Speedup
-From: Andy Pfiffer <andyp@osdl.org>
-To: Ro0tSiEgE LKML <lkml@ro0tsiege.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1046909941.1028.1.camel@gandalf.ro0tsiege.org>
-References: <1046909941.1028.1.camel@gandalf.ro0tsiege.org>
+	id <S267368AbTCFAgt>; Wed, 5 Mar 2003 19:36:49 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:54794 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S267123AbTCFAgs>; Wed, 5 Mar 2003 19:36:48 -0500
+Subject: Re: Linux vs Windows temperature anomaly
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: Russell King <rmk@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>,
+       Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E66964E.6050101@wmich.edu>
+References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz>
+	 <p05210507ba8c20241329@[10.2.0.101]>
+	 <3E66842F.9020000@WirelessNetworksInc.com>
+	 <200303061038.44872.kernel@kolivas.org>
+	 <20030305235057.M20511@flint.arm.linux.org.uk> <3E66964E.6050101@wmich.edu>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1046911465.29868.46.camel@andyp.pdx.osdl.net>
+Message-Id: <1046911624.1051.35.camel@aurora.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 05 Mar 2003 16:44:26 -0800
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 05 Mar 2003 19:47:05 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-05 at 16:19, Ro0tSiEgE LKML wrote:
-> What are some things I can change/disable/etc. to cut down the boot time
-> of the kernel (i386) ? I would like to get one to boot in a couple
-> seconds, tops. Is this possible, and how?
+> The behavior you describe is when you increase the power output of a 
+> chip beyond normal specifications (overclocking) then the temperature of 
+> failure is lowered.  eg. A chip that would run normally at 50C now can 
+> only run stable at 45-40.
 
-To get to that kind of boot-up speed, the best way is to never shutdown.
+You are the one mistaken.  Most CPUs don't dissipate a constant amount
+of power as heat.  That depends on what the CPU is doing.  For example,
+even the Athlon without disconnect will cool some when it is 'halt'ed. 
+If a CPU is working more, accomplishing more than it was at another
+time, it will be needing to rid itself of more heat.  Hence, the fact
+that the external temperature becomes the limiting factor (along with
+how good the heat exchange system is [i.e. heat sink/fan]).
 
-On a StrongArm platform I worked on, we managed to put the CPU to sleep
-and the DRAM controller into self-refresh mode and a few other
-housekeeping chores (like checksumming our saved CPU state to be able to
-verify it on resumption), and could spring back to life with the press
-of a power button in about the same amount of time it took for the
-cold-cathode back-light to warm up enough to see the built-in screen.
+I do believe the previous poster was incorrect about the mathematical
+relationship between case and CPU temperatures.  They are NOT a 1:1. 
+However, he is right, they are mathematically related.  Just as the heat
+dissipated and the work done are related.
 
-On a modern laptop, it may be possible, in theory, to accomplish the
-same kind of thing.  The key is to be able to not lose the contents of
-memory.  I'm not well versed on current state-of-the-art
-power-management on commodity x86 platforms, so your mileage may vary.
+You do not need to overclock a CPU to get this kind of a change.  The
+change in the efficiency (memory management, task switching, etc.) of
+how the work is done can cause the CPU to be worked harder... and when
+the CPU is worked harder, so is memory and quite often just about
+everything else.
 
-If you want cold-start boot on a PC, you'll probably need to completely
-skip the BIOS (have a look at LinuxBIOS and/or kexec), skip the probing
-of devices on reboot, and drastically shorten (or run later) any
-user-mode scripts that are invoked.
-
-On the machines that I have measured (p3-800 and p4-1.7Xeon, a
-well-configured kernel, after subtracting out BIOS time and stupid scsi
-reprobing, is up and open for business in about 10 seconds after the
-LILO handoff.  The *system* however, isn't often available for another
-30 or 40 seconds, perhaps longer.
-
-Andy
-
+Trever
+--
+One O.S. to rule them all, One O.S. to find them. One O.S. to bring them
+all and in the darkness bind them.
 

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269163AbUJKSWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267319AbUJKSWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269163AbUJKSWW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 14:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269170AbUJKSWW
+	id S267319AbUJKSWR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 14:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbUJKSWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 14:22:22 -0400
-Received: from gw.pasop.tomt.net ([80.239.42.1]:11909 "EHLO puppen.tomt.net")
-	by vger.kernel.org with ESMTP id S269163AbUJKSWT (ORCPT
+	Mon, 11 Oct 2004 14:22:17 -0400
+Received: from gprs212-86.eurotel.cz ([160.218.212.86]:20608 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267319AbUJKSWQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 14:22:19 -0400
-Message-ID: <416ACF5E.80407@tomt.net>
-Date: Mon, 11 Oct 2004 20:22:22 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>	<416A53D3.9020002@tomt.net> 	<Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org> <1097507381.2029.40.camel@mulgrave>
-In-Reply-To: <1097507381.2029.40.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Oct 2004 14:22:16 -0400
+Date: Mon, 11 Oct 2004 20:21:53 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Olivier Galibert <galibert@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>
+Subject: Re: suspend-to-RAM [was Re: Totally broken PCI PM calls]
+Message-ID: <20041011182153.GC1007@elf.ucw.cz>
+References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org> <20041011145628.GA2672@elf.ucw.cz> <Pine.LNX.4.58.0410110826380.3897@ppc970.osdl.org> <20041011173901.GA66749@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041011173901.GA66749@dspnet.fr.eu.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Mon, 2004-10-11 at 10:02, Linus Torvalds wrote:
->>On Mon, 11 Oct 2004, Andre Tomt wrote:
->>>"[PATCH]: megaraid 2.20.4: Fixes a data corruption bug"
->>
->>I think that one is already in the SCSI BK tree, just not pushed to me. 
->>Perhaps because the tree contains other less important patches that James 
->>doesn't think are worthy yet.. James? Should I just take the small 
->>megaraid patch directly (and leave the compat ioctl cleanups etc to you)?
-> 
-> I have no objections.  However, I was planning on pushing it through the
-> SCSI tree because it's in the new megaraid driver which is experimental
-> at the moment (the old megaraid driver is still in and still
-> selectable).  It's been in -mm for a few days now with no ill effects, I
-> think, but I'm not sure how many megaraid owners have actually tested
-> it.
+H!
 
-I've been running 2.20.3.1 + the data corruption bug fix on megaraids 
-ranging from low-end SATA adapters to the u320scsi ones for a while on a 
-2.6.8 based kernel, nothing have blown up yet. The old 2.20.3.1 without 
-the fix have been holding up too though - however having a known data 
-corruption bug lingering doesn't feel so good :-)
+> > That's the one. suspend-to-disk works, but suspend-to-ram leaves the fam 
+> > going, and does not come back no matter how many times you press the power 
+> > button. You need to kill it (twice) by holding the power button for five 
+> > seconds (which is the "hard-power-off" signal to the southbridge, when 
+> > everything else is locked up).
+> 
+> I had a somewhat equivalent problem with suspend-to-ram (working but
+> no wakeup) which required two patches:
+> - add PWRB and LID0 as wakeup devices[1]
+> - ignore PRWF since it doesn't send acpi events [2]
+> 
+> It was with a 2.6.8-rc2 kernel, so the situation may have changed since then.
+
+Actually on N620c it does not even suspend, so Linus has different
+problem.
+
+								Pavel
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

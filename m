@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265905AbTFSTRr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 15:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbTFSTRr
+	id S265912AbTFSTTl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 15:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265915AbTFSTTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 15:17:47 -0400
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:17300 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S265905AbTFSTRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 15:17:46 -0400
-Date: Thu, 19 Jun 2003 15:31:45 -0400
+	Thu, 19 Jun 2003 15:19:41 -0400
+Received: from relay02.roc.ny.frontiernet.net ([66.133.131.35]:24539 "EHLO
+	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S265912AbTFSTTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 15:19:38 -0400
+Date: Thu, 19 Jun 2003 15:33:37 -0400
 From: Scott McDermott <vaxerdec@frontiernet.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Troll Tech [was RE: Sco vs. IBM]
-Message-ID: <20030619153145.C30001@newbox.localdomain>
-References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com> <03061913583400.25866@tabby> <200306192108.13032.thorstenkoerner@123tkshop.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21 panic on CDRW Mount
+Message-ID: <20030619153337.D30001@newbox.localdomain>
+References: <20030619202143.132f2182.dave@telekon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200306192108.13032.thorstenkoerner@123tkshop.org>; from thorstenkoerner@123tkshop.org on Thu, Jun 19, 2003 at 09:08:11PM +0200
+In-Reply-To: <20030619202143.132f2182.dave@telekon>; from dave.bentham@ntlworld.com on Thu, Jun 19, 2003 at 08:21:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thorsten Körner on Thu 19/06 21:08 +0200:
-> > SCO releases Linux code under GPL...
->
-> Did they ?!? No they didn't
+Dave Bentham on Thu 19/06 20:21 +0100:
+> I've now managed to capture the 'panic' output of 2.4.21.
 
-I recall a fellow named Tigran Aivazian submitting lots of
-kernel patches from an @sco.com address, for one.  And then
-there's Caldera OpenLinux, of course.  I don't think it's
-relevant though...they can submit as much GPLed code as they
-want and still claim a violation of a contract pertaining to
-some other non-GPLed code that was copied into Linux.
+man ksymoops

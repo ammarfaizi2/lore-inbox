@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbTIXGQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 02:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbTIXGQ7
+	id S261190AbTIXG2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 02:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbTIXG2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 02:16:59 -0400
-Received: from cube1.cubit.at ([80.78.231.68]:53941 "EHLO cube1.cubit.at")
-	by vger.kernel.org with ESMTP id S261186AbTIXGQ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 02:16:58 -0400
-Date: Wed, 24 Sep 2003 08:16:57 +0200
-From: Peter-Paul Witta <paul.witta@cubit.at>
-To: linux-kernel@vger.kernel.org
-Subject: strange memleak, alsa driver hickup?
-Message-ID: <20030924061657.GA11738@cube1.cubit.at>
+	Wed, 24 Sep 2003 02:28:25 -0400
+Received: from mail.cybertrails.com ([162.42.150.35]:8943 "EHLO
+	mail13.cybertrails.com") by vger.kernel.org with ESMTP
+	id S261190AbTIXG2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 02:28:24 -0400
+Date: Tue, 23 Sep 2003 23:28:05 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: Matt Heler <lkml@lpbproductions.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Horiffic SPAM
+Message-Id: <20030923232805.011ecd7c.dickson@permanentmail.com>
+In-Reply-To: <200309231153.09298.lkml@lpbproductions.com>
+References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com>
+	<20030923183648.GE1269@velociraptor.random>
+	<200309231153.09298.lkml@lpbproductions.com>
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Tue, 23 Sep 2003 11:53:04 -0700, Matt Heler wrote:
 
-please point me to a FAQ if this is solved...
+> Ive been living in a mail hole theese past few years.. Where does one get this 
+> baesyan algorithm ?? 
 
-I run 2.4.20 (still) and had a strange problem. as of a uptime of 72 days my
-PC got strange. the memory was completely full (as shown by free, top,...)
-even if no user procs ran. i restarted X but probably these leaks have to do
-something with xine (Xv, Framebuffer?).
+Go to google.com and search "bayesian spam filter".  The first two hits
+are Paul Graham's articles that started it all.  There are at least two
+sourceforge.net projects in the first tens hits.
 
-additional to this memleak there was a strange audio problem with my via82xx
-ALSA driver: the more the mem leak grew the worse the sound output got. high
-frequencies where cut out, low frequencies just were not sampled in a good way
--- it just got bad. 
-
-after rebooting everything got ok. 
-
-now, i have seen many memleaks, even in the kernel, but never did i see such
-a sound problem? any hints?
-
-kind regards,
-paul.
-
-
+	-Paul
 

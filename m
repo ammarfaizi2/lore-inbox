@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315746AbSH0MMQ>; Tue, 27 Aug 2002 08:12:16 -0400
+	id <S315758AbSH0Mgn>; Tue, 27 Aug 2002 08:36:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315748AbSH0MMQ>; Tue, 27 Aug 2002 08:12:16 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:20221 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S315746AbSH0MMP>;
-	Tue, 27 Aug 2002 08:12:15 -0400
-Date: Tue, 27 Aug 2002 22:16:18 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Jan Hudec <bulb@cimice.maxinet.cz>
-Cc: bulb@vagabond.cybernet.cz, bulb@cimice.maxinet.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question about leases
-Message-Id: <20020827221618.5c7d0b46.sfr@canb.auug.org.au>
-In-Reply-To: <20020827084244.GA23077@vagabond>
-References: <20020827010616.GB16207@vagabond>
-	<20020827143517.40ba04f7.sfr@canb.auug.org.au>
-	<20020827084244.GA23077@vagabond>
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S315762AbSH0Mgn>; Tue, 27 Aug 2002 08:36:43 -0400
+Received: from h-64-105-35-65.SNVACAID.covad.net ([64.105.35.65]:38303 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S315758AbSH0Mgm>; Tue, 27 Aug 2002 08:36:42 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 27 Aug 2002 05:40:52 -0700
+Message-Id: <200208271240.FAA04753@adam.yggdrasil.com>
+To: kernel@bonin.ca
+Subject: Re: Loop devices under NTFS
+Cc: aia21@cantab.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan,
-
-On Tue, 27 Aug 2002 10:42:44 +0200 Jan Hudec <bulb@cimice.maxinet.cz> wrote:
+At 05:48 27/08/02, Andre Bonin wrote:
+>"mount -o loop -r -t iso9660 /mnt/win_d/Source/Iso/Red\ Hat\ 
+>7.3/valhalla-i386-disc1.iso /mnt/rh7.3/cd1"
 >
-> One more question. Does the siginfo contain information weather is's
-> read or write that the other process attempted? And does it contain the
+>It gives me an error
+>"ioctl: LOOP_SET_FD: Invalid argument"
 
-No, you need to do fcntl(fd, F_GETLEASE) to find out what kind of
-lease you need to set to satisfy the other process i.e. if the other
-process does an open for reading then GETLEASE will return F_RDLCK
-and if they attempt an open for writing the GETLEASE will return F_UNLCK.
+	I believe that NTFS does not provide
+address_space_operations->{prepare,commit}_write for plain files, so
+the version of loop.c in stock 2.5.31 will not work.
 
-> operation type for directory notifications?
+	I posted an update for loop.c that I posted on August 15th:
+( http://marc.theaimsgroup.com/?l=linux-kernel&m=102941520919910&w=2 ).
+That update included a hack (originally conceived by Andrew Morton and
+originally implemented Jari Ruusu) to use file_operations->{read,write}
+for mounting files on file systems that do not provide
+{prepare,commit}_write, although this involves an extra data copy if
+a transformation (such as encryption) is selected.
 
-No, sorry.
+	I submitted the loop.c update to Linus at least a week ago, but
+I have not seen it appear in
+ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/bk-2.5.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Side note:
+
+	There are only a few file systems that provide writable files
+without aops->{prepare,commit}_write.  I think they are just tmpfs,
+ntfs and intermezzo.  If all file systems that provided writable files
+could be expected to provide {prepare,commit}_write, I could eliminate
+the file_ops->{read,write} code from loop.c.  I wish I understood if
+there really is a need for a file system to be able to provide a
+writable random access file (as opposed to /dev/tty) that does not
+have aops->{prepare,commit}_write.  I would be interesting in knowing
+if there is anything preventing implementation of
+{prepare,commit}_wriet in ntfs.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+
+	
+

@@ -1,75 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268672AbUIGWDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUIGWEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268672AbUIGWDb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268685AbUIGWDb
+	id S268685AbUIGWEn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 18:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUIGWEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:03:31 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:65493 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268672AbUIGWDZ (ORCPT
+	Tue, 7 Sep 2004 18:04:43 -0400
+Received: from fire.osdl.org ([65.172.181.4]:17889 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S268685AbUIGWEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:03:25 -0400
-Message-Id: <200409072201.i87M1CaS005935@laptop11.inf.utfsm.cl>
-To: Spam <spam@tnonline.net>
-cc: Hans Reiser <reiser@namesys.com>, Christer Weinigel <christer@weinigel.se>,
-       David Masover <ninja@slaphack.com>, Tonnerre <tonnerre@thundrix.ch>,
-       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4 
-In-Reply-To: Message from Spam <spam@tnonline.net> 
-   of "Tue, 07 Sep 2004 23:29:35 +0200." <2010165891.20040907232935@tnonline.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 07 Sep 2004 18:01:12 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 7 Sep 2004 18:04:14 -0400
+Subject: Re: 2.6.9-rc1-mm4 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1094593625.28147.30.camel@cherrybomb.pdx.osdl.net>
+References: <20040907020831.62390588.akpm@osdl.org>
+	 <1094593625.28147.30.camel@cherrybomb.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1094594331.28052.35.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 07 Sep 2004 14:58:51 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spam <spam@tnonline.net> said:
-> Horst von Brand <vonbrand@inf.utfsm.cl> said:
-> > Hans Reiser <reiser@namesys.com> said:
-> >> Horst von Brand wrote:
-> >> >Hans Reiser <reiser@namesys.com> said:
-> >> >>Horst von Brand wrote:
-> >> >>>Spam <spam@tnonline.net> said:
-> >> >>>>Christer Weinigel <christer@weinigel.se> said:
+The new warning is Makefile related...
 
-[...]
+make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent
+make rule.
 
-> >> >>>>>2. How do we want to expose named streams?
-> >> >>>>>  One suggestion is file-as-directory in some form.
+...and I was using -j3.  I know others have seen this as well.
 
-> >> >>>Which is broken, as it forbids hard links to files.
+John
 
-> >> >>No, it forbids hard links to the directory aspect of the file-directory
-> >> >>duality.
+On Tue, 2004-09-07 at 14:47, John Cherry wrote:
+> Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+> 
+> Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+>                 (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+> --------------- ---------- -------- -------- -------- -------- --------
+> 2.6.9-rc1-mm4     0w/0e     1w/0e    55w/0e    3w/0e   2w/0e     48w/0e
+> 2.6.9-rc1-mm3     0w/0e     0w/0e    55w/13e   3w/0e   1w/0e     49w/1e
+> 2.6.9-rc1-mm2     0w/0e     0w/0e    53w/11e   3w/0e   1w/0e     47w/0e
+> 2.6.9-rc1-mm1     0w/0e     0w/0e    80w/0e    4w/0e   1w/0e     74w/0e
+> 2.6.8.1-mm4       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     73w/0e
+> 2.6.8.1-mm3       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
+> 2.6.8.1-mm2       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
+> 2.6.8.1-mm1       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     74w/0e
+> 2.6.8-rc4-mm1     0w/0e     0w/5e    81w/0e    4w/0e   1w/0e     75w/0e
+> 2.6.8-rc3-mm2     1w/7e     0w/5e    82w/8e    4w/0e   2w/8e     75w/0e
+> 2.6.8-rc3-mm1     0w/0e     1w/5e    81w/9e    4w/0e   1w/0e     75w/0e
+> 2.6.8-rc2-mm2     0w/0e     4w/5e    87w/9e    4w/0e   1w/0e     80w/0e
+> 2.6.8-rc2-mm1     0w/0e     0w/0e    83w/9e    3w/0e   1w/0e     81w/0e
+> 2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
+> 2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
+> 2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
+> 2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
+> 2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
+> 2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
+> 2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
+> 2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
+> 2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
+> 2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
+> 2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
+> 2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
+> 2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
+> 2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
+> 2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
+> 2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
+> 2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
+> 2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
+> 2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
+> 2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
+> 2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
+> 2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
+> 2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
+> 2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
+> 2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
+> 2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
+> 2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
+> 2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
+> 2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
+> 2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
+> 2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
+> 2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
+> 2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
+> 2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
+> 2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+> 2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+> 2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
+> 2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
+> 2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+> 2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+> 2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
+> 2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
+> 2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
+> 2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
+> 2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
+> 2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
+> 2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+> 2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
+> 2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
+> 2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
+> 2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
+> 2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
+> 2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
+> 2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+> 2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+> 2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+> 2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+> 2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+> 2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+> 2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+> 2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+> 2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+> 2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+> 2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+> 2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+> 2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+> 2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+> 2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+> 2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+> 
+> Web page with links to complete details:
+>    http://developer.osdl.org/cherry/compile/
+> 
+> John
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> >> >How do you distinguish a "hard link to the directory personality" from
-> >> >"hard link to the file personality"?
-
-> >> Put in (undoubtedly overly) simple terms, if you can do it to a file you
-> >> can do it to the file personality, but if you currently can only do it
-> >> to a directory and get an error from attempting it to a file then in the
-> >> new scheme doing it to the hard link only gives the same error.
-
-> > Let me sort this out: If it can't be done POSIXly to a directory, it can't
-> > be done in Reiser4 to a file (which really is a directory too). So there
-> > can be exactly _one_ hard link to a file. Way borken.
-
->   But you can make a hard link to a file in reiser4,
-
-IIUC, this isn't safe (you might tie your filesystem into a knot this way,
-as LWN puts it). Sure, you can do it right now (just as I was able to
-create hard links to directories in some propietary Unix way back;
-untangling the resulting mess, complete with segfaulting fsck, was a whole
-world of fun... it just happened rarely enough that it did not matter very
-much); production versions will have to forbid it (or incurr in _huge_
-overheads locking everything in sight, or detecting loops).
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbUAAXNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 18:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUAAXNJ
+	id S261898AbUAAXOo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 18:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUAAXOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 18:13:09 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:42933 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261799AbUAAXM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 18:12:59 -0500
-Subject: Re: swapper: page allocation failure. order:3, mode:0x20
-From: Christophe Saout <christophe@saout.de>
-To: Anton Blanchard <anton@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, joneskoo@derbian.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040101224527.GP28023@krispykreme>
-References: <20040101093553.GA24788@derbian.org>
-	 <20040101101541.GJ28023@krispykreme>
-	 <20040101022553.2be5f043.akpm@osdl.org>
-	 <20040101130147.GM28023@krispykreme>
-	 <1072994888.6532.3.camel@leto.cs.pocnet.net>
-	 <20040101224527.GP28023@krispykreme>
-Content-Type: text/plain
-Message-Id: <1072998783.5199.25.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 02 Jan 2004 00:13:04 +0100
+	Thu, 1 Jan 2004 18:14:43 -0500
+Received: from ms-smtp-03-smtplb.ohiordc.rr.com ([65.24.5.137]:64189 "EHLO
+	ms-smtp-03-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S261898AbUAAXOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 18:14:41 -0500
+From: Rob <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
+To: linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+Date: Thu, 1 Jan 2004 18:14:22 -0500
+User-Agent: KMail/1.5.4
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur>
+In-Reply-To: <1072917113.11003.34.camel@fur>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200401011814.22415.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Do, den 01.01.2004 schrieb Anton Blanchard um 23:45:
+On Wednesday 31 December 2003 07:31 pm, Rob Love wrote:
 
-> > This would mean that all users of printk_ratelimit share this. If
-> > printk_ratelimit is bombed by one user other perhaps important messages
-> > are also suppressed.
-> 
-> printk_ratelimit is only to be used for things which we can afford to 
-> lose (eg our VM debugging messages). Don't use it on anything important :)
+<snip>
+> This is definitely an interesting problem space.
+>
+> I agree wrt just inventing consecutive numbers.  If there was a nice way
+> to trivially generate a random and unique number from some
+> device-inherent information, that would be nice.
+>
+> 	Rob Love
 
-Other implementations would probably be overkill, so I'll agree with
-you. :)
+my first thought was hardware serial numbers, but i'm guessing they mostly 
+don't exist based on the discomfort caused by the pentium 3 serial number in 
+the past. my second thought was raw latency. in the real world, 2 identical 
+devices of any nature are going to respond electrically at different rates. i 
+kind of stole the concept from what i read about the i810 rng... quantum 
+differences can distinguish between 2 of anything, and based on the response 
+time, 'cookies' can be written out to keep them separately ID'd. some devices 
+will get slower over time, e.g. increasing error rates and aging silicon will 
+throw the 'cookie' off, so you'd re-calibrate every so often, like on a 
+reboot. those are rare for some of us ;)
 
-If printk_ratelimit is called too often there is probably something
-wrong going anyway that is worth fixing.
+the big IF: can you measure that with enough precision to at least decrease 
+the probablity of collision? 
 
+-- 
+Rob Couto
+rpc@cafe4111.org
+Rules for computing success:
+1) Attitude is no substitute for competence.
+2) Ease of use is no substitute for power.
+3) Safety matters; use a static-free hammer.
+--
 

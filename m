@@ -1,92 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbUCCGa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 01:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUCCGa6
+	id S262087AbUCCHJB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 02:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUCCHJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 01:30:58 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:21935 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261338AbUCCGa4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 01:30:56 -0500
-Message-ID: <40457B9E.3060706@namesys.com>
-Date: Wed, 03 Mar 2004 09:30:54 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dax Kelson <dax@gurulabs.com>
-CC: Peter Nelson <pnelson@andrew.cmu.edu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@oss.software.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com>	 <4044B787.7080301@andrew.cmu.edu> <1078266793.8582.24.camel@mentor.gurulabs.com>
-In-Reply-To: <1078266793.8582.24.camel@mentor.gurulabs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Mar 2004 02:09:01 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:12301
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262087AbUCCHIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 02:08:54 -0500
+Date: Wed, 3 Mar 2004 08:09:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hugh Dickins <hugh@veritas.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: 230-objrmap fixes for 2.6.3-mjb2
+Message-ID: <20040303070933.GB4922@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately it is a bit more complex, and the truth is less 
-complementary to us than what you write.  Reiser4's CPU usage has come 
-down a lot, but it still consumes more CPU than V3.  It should consume 
-less, and Zam is currently working on making writes more CPU efficient.  
-As soon as I get funding from somewhere and can stop worrying about 
-money, I will do a complete code review, and CPU usage will go way 
-down.  There are always lots of stupid little things that consume a lot 
-of CPU that I find whenever I stop chasing money and review code.
+While merging 230-objrmap in my tree I spotted 2 bugs potentially
+generating random memory corruption and 1 superflous bit that I dropped
+(mostly for documentation reasons, I like strict and in turn self
+documenting). Here below the fixes.
 
-We are shipping because CPU usage is not as important as IO efficiency 
-for a filesystem, and while Reiser4 is not as fast as it will be in 3-6 
-months, it is faster than anything else available so it should be shipped.
+in the first file we needs the page_table_lock while changing the rbtree
+etc... both the page_table_lock and the down_write must be held during
+all writes, so the reader can choose between a down_read or a spin_lock.
 
-Hans
+The second one is a bug in mainline 2.6 too apparently, maybe I'm
+missing something but I don't see how you prevent the vm to swapout a
+reserved region without my fix. A reserved region must not be messed
+from the vm since it's a dma hardware region that we page lazily instead
+of using PG_reserved (or MMIO) + remap_page_range. It's different from
+VM_LOCKED so you can't clear that bit IIRC but that's the same,
+VM_LOCKED == VM_RESERVED in VM terms.  As said I believe you inherit
+this bug from mainline 2.6 (2.4 has always been safe instead).
 
-Dax Kelson wrote:
+The third is a superflous down_read, it's not needed because the
+page_table_lock is held during the call and it seems not to need to drop
+it to schedule (and either we use the spinlock or the semaphore, both
+doesn't make much sense for a reader).
 
->On Tue, 2004-03-02 at 09:34, Peter Nelson wrote:
->  
->
->>Hans Reiser wrote:
->>
->>I'm confused as to why performing a benchmark out of cache as opposed to 
->>on disk would hurt performance?
->>    
->>
->
->My understanding (which could be completely wrong) is that reieserfs v3
->and v4 are algorithmically more complex than ext2 or ext3. Reiserfs
->spends more CPU time to make the eventual ondisk operations more
->efficient/faster.
->
->When operating purely or mostly out of ram, the higher CPU utilization
->of reiserfs hurts performance compared to ext2 and ext3.
->
->When your system I/O utilization exceeds cache size and your disks
->starting getting busy, the CPU time previously invested by reiserfs pays
->big dividends and provides large performance gains versus more
->simplistic filesystems.  
->
->In other words, the CPU penalty paid by reiserfs v3/v4 is more than made
->up for by the resultant more efficient disk operations. Reiserfs trades 
->CPU for disk performance.
->
->In a nutshell, if you have more memory than you know what do to with,
->stick with ext3. If you spend all your time waiting for disk operations
->to complete, go with reiserfs.
->
->Dax Kelson
->Guru Labs
->
->
->
->  
->
+Please double check, thanks.
+
+I'm running some shm swap regression test on this right now and I'll
+leave it running for a day. In a few hours I will proceed starting
+dropping the pte_chain from the page sturcture and then I'll test the
+anon swapout. I will also follow the 6 great-effort anobjrmap posted by
+Hugh against objrmap while doing that, they're quite old (almost 1 year)
+but they still apply cleanly by hand so they're useful.
+
+--- sles-objrmap/mm/mmap.c.~1~	2004-03-03 06:45:38.980596736 +0100
++++ sles-objrmap/mm/mmap.c	2004-03-03 06:53:46.945414808 +0100
+@@ -1284,8 +1284,8 @@ int do_munmap(struct mm_struct *mm, unsi
+ 	/*
+ 	 * Remove the vma's, and unmap the actual pages
+ 	 */
+-	detach_vmas_to_be_unmapped(mm, mpnt, prev, end);
+ 	spin_lock(&mm->page_table_lock);
++	detach_vmas_to_be_unmapped(mm, mpnt, prev, end);
+ 	unmap_region(mm, mpnt, prev, start, end);
+ 	spin_unlock(&mm->page_table_lock);
+ 
+--- sles-objrmap/mm/rmap.c.~1~	2004-03-03 06:45:38.995594456 +0100
++++ sles-objrmap/mm/rmap.c	2004-03-03 07:01:39.200621104 +0100
+@@ -470,7 +470,7 @@ try_to_unmap_obj_one(struct vm_area_stru
+ 	if (!pte)
+ 		goto out;
+ 
+-	if (vma->vm_flags & VM_LOCKED) {
++	if (vma->vm_flags & (VM_LOCKED|VM_RESERVED)) {
+ 		ret =  SWAP_FAIL;
+ 		goto out_unmap;
+ 	}
+--- sles-objrmap/mm/swapfile.c.~1~	2004-03-03 06:45:39.023590200 +0100
++++ sles-objrmap/mm/swapfile.c	2004-03-03 07:03:33.128301464 +0100
+@@ -499,7 +499,6 @@ static int unuse_process(struct mm_struc
+ 	/*
+ 	 * Go through process' page directory.
+ 	 */
+-	down_read(&mm->mmap_sem);
+ 	spin_lock(&mm->page_table_lock);
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		pgd_t * pgd = pgd_offset(mm, vma->vm_start);
+@@ -507,7 +506,6 @@ static int unuse_process(struct mm_struc
+ 			break;
+ 	}
+ 	spin_unlock(&mm->page_table_lock);
+-	up_read(&mm->mmap_sem);
+ 	pte_chain_free(pte_chain);
+ 	return 0;
+ }
 
 
--- 
-Hans
 
-
+About 2.5:1.5 it seems not everybody is happy to lose 512m (and it's not
+Oracle), but before ruling it out I'd like to get some real life number,
+to be sure the performance of 2.0^W4:4 are really close (if not
+"better") than 3:1 as someone said. If we go with 4:4 IMHO at the very
+least the vgettimeofday backport from x86-64 is a must. In the meantime
+I keep going with the rmap removal to fixup the fork  and to get back
+the 128m of normal zone useful on the 32G boxes. Could be also that new
+cpus are a lot better at reloading the tlbs from the pagetables dunno,
+the first numbers I recall about 4:4 predates to 2000 when PII was quite
+optimal.  I'd only like to see an opteron and a xeon dealing with 4:4.

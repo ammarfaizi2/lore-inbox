@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVCABDC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVCABFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVCABDC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 20:03:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVCABBK
+	id S261157AbVCABFU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 20:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVCABFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 20:01:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:6114 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261176AbVCABA2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 20:00:28 -0500
-Date: Mon, 28 Feb 2005 17:00:16 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: <brugolsky@telemetry-investments.com>
-Cc: zaitcev@redhat.com, SteveD@redhat.com, linux-kernel@vger.kernel.org,
-       <torvalds@osdl.org>
-Subject: Re: [PATCH] nfs client O_DIRECT oops
-Message-ID: <20050228170016.0c26a109@localhost.localdomain>
-In-Reply-To: <42236AC6.6000609@RedHat.com>
-References: <42236AC6.6000609@RedHat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 28 Feb 2005 20:05:19 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:52890 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261157AbVCABEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 20:04:15 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [2.6 patch] drivers/usb/gadget/config.c: make a function static
+Date: Mon, 28 Feb 2005 17:02:48 -0800
+User-Agent: KMail/1.7.1
+Cc: Adrian Bunk <bunk@stusta.de>, gregkh@suse.de, linux-kernel@vger.kernel.org
+References: <20050301003428.GZ4021@stusta.de>
+In-Reply-To: <20050301003428.GZ4021@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502281702.48495.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Feb 2005 14:02:30 -0500, Steve Dickson <SteveD@redhat.com> wrote:
+On Monday 28 February 2005 4:34 pm, Adrian Bunk wrote:
+> This patch makes a needlessly global function static.
 
-> Discovered using AKPM's ext3-tools: odwrite -ko 0 16385 foo
+You sent this before, and time hasn't improved it.  This function
+is exported to support composite (multi-function) devices, which
+need to assemble config descriptors in chunks (config + N* function)
+instead of all-at-once (config + single function).
 
-> Signed-off-by: Bill Rugolsky <brugolsky@telemetry-investments.com>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-The root cause of the bug is that the code violates the principle of the
-least surprise, which in this case is: if a function fails, you do not have
-to clean up for that function. Therefore, Bill's fix papers over instead
-of fixing.
-
-This is how I think it should have been fixed:
-
---- linux-2.6.9-5.EL/fs/nfs/direct.c	2004-10-18 14:55:07.000000000 -0700
-+++ linux-2.6.9-5.EL-nfs/fs/nfs/direct.c	2005-02-28 16:48:54.000000000 -0800
-@@ -86,6 +86,8 @@
- 					page_count, (rw == READ), 0,
- 					*pages, NULL);
- 		up_read(&current->mm->mmap_sem);
-+		if (result < 0)
-+			kfree(*pages);
- 	}
- 	return result;
- }
-@@ -211,7 +213,6 @@
- 
-                 page_count = nfs_get_user_pages(READ, user_addr, size, &pages);
-                 if (page_count < 0) {
--                        nfs_free_user_pages(pages, 0, 0);
- 			if (tot_bytes > 0)
- 				break;
-                         return page_count;
-@@ -377,7 +378,6 @@
- 
-                 page_count = nfs_get_user_pages(WRITE, user_addr, size, &pages);
-                 if (page_count < 0) {
--                        nfs_free_user_pages(pages, 0, 0);
- 			if (tot_bytes > 0)
- 				break;
-                         return page_count;
-
-Best wishes,
--- Pete
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  drivers/usb/gadget/config.c |    2 +-
+>  include/linux/usb_gadget.h  |    6 ------
+>  2 files changed, 1 insertion(+), 7 deletions(-)
+> 
+> --- linux-2.6.11-rc4-mm1-full/include/linux/usb_gadget.h.old	2005-02-28 23:15:09.000000000 +0100
+> +++ linux-2.6.11-rc4-mm1-full/include/linux/usb_gadget.h	2005-02-28 23:15:24.000000000 +0100
+> @@ -854,12 +854,6 @@
+>  
+>  /*-------------------------------------------------------------------------*/
+>  
+> -/* utility to simplify managing config descriptors */
+> -
+> -/* write vector of descriptors into buffer */
+> -int usb_descriptor_fillbuf(void *, unsigned,
+> -		const struct usb_descriptor_header **);
+> -
+>  /* build config descriptor from single descriptor vector */
+>  int usb_gadget_config_buf(const struct usb_config_descriptor *config,
+>  	void *buf, unsigned buflen, const struct usb_descriptor_header **desc);
+> --- linux-2.6.11-rc4-mm1-full/drivers/usb/gadget/config.c.old	2005-02-28 23:15:34.000000000 +0100
+> +++ linux-2.6.11-rc4-mm1-full/drivers/usb/gadget/config.c	2005-02-28 23:15:49.000000000 +0100
+> @@ -39,7 +39,7 @@
+>   * as part of configuring a composite device; or in other cases where
+>   * sets of descriptors need to be marshaled.
+>   */
+> -int
+> +static int
+>  usb_descriptor_fillbuf(void *buf, unsigned buflen,
+>  		const struct usb_descriptor_header **src)
+>  {
+> 
+> 
+> 
+>

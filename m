@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVCNQyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVCNQ4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbVCNQyv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVCNQyv
+	id S261609AbVCNQ4l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 11:56:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCNQ4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:54:51 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:2999 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261574AbVCNQys convert rfc822-to-8bit (ORCPT
+	Mon, 14 Mar 2005 11:56:41 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:18583 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261609AbVCNQ4Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:54:48 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 14 Mar 2005 11:56:25 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+Date: Mon, 14 Mar 2005 08:55:18 -0800
+User-Agent: KMail/1.7.2
+Cc: David Lang <david.lang@digitalinsight.com>, Dave Jones <davej@redhat.com>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz>
+In-Reply-To: <20050314083717.GA19337@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
-Date: Mon, 14 Mar 2005 08:54:34 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240803A13E@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
-Thread-Index: AcUohQ1ag2HyJ4UxSUSL1EAMg6yYygAMMuWw
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "David Vrabel" <dvrabel@cantab.net>,
-       "long" <tlnguyen@snoqualmie.dp.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       <greg@kroah.com>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 14 Mar 2005 16:54:33.0642 (UTC) FILETIME=[7F6520A0:01C528B6]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503140855.18446.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Monday, March 14, 2005 3:01 AM David Vrabel wrote:
+On Monday, March 14, 2005 12:37 am, Pavel Machek wrote:
+> Perhaps we could have a rule like
+>
+> "non-experimental driver may only print out one line per actual
+> device?"
+>
+> (and perhaps: dmesg output for boot going okay should fit on one screen).
+>
+> Or perhaps we should have warnings-like regression testing.
+>
+> "New kernel 2.8.17 came: 3 errors, 135 warnings, 1890 lines of dmesg
+> junk".
+>         Pavel
 
->> This patch includes PCIEAER-HOWTO.txt, which describes how the PCI
->> Express Advanced Error Reporting Root driver works.
->>
->> --- linux-2.6.11-rc5/Documentation/PCIEAER-HOWTO.txt
->>
->Could this be placed in a sub-system subdirectory (creating one if
->necessary, e.g., pci/)?  The root of Documentation/ is rather full of
->random files as is.
+We already have the 'quiet' option, but even so, I think the kernel is *way* 
+too verbose.  Someone needs to make a personal crusade out of removing 
+unneeded and unjustified printks from the kernel before it really gets better 
+though...
 
-Most of the HOWTO documents are under Documentation/ directory. I have
-no problem of placing it in a sub-system subdirectory if it is OK with
-Linux community?
-
-Thanks,
-Long
+Jesse

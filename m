@@ -1,88 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132054AbRDPUsO>; Mon, 16 Apr 2001 16:48:14 -0400
+	id <S132053AbRDPUly>; Mon, 16 Apr 2001 16:41:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132056AbRDPUrz>; Mon, 16 Apr 2001 16:47:55 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:57348 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S132054AbRDPUrn>;
-	Mon, 16 Apr 2001 16:47:43 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104162045.f3GKjd4522374@saturn.cs.uml.edu>
-Subject: Re: No 100 HZ timer!
-To: george@mvista.com (george anzinger)
-Date: Mon, 16 Apr 2001 16:45:39 -0400 (EDT)
-Cc: mbs@mc.com (Mark Salisbury), lk@tantalophile.demon.co.uk (Jamie Lokier),
-        greearb@candelatech.com (Ben Greear),
-        vonbrand@sleipnir.valparaiso.cl (Horst von Brand),
-        linux-kernel@vger.kernel.org,
-        high-res-timers-discourse@lists.sourceforge.net
-In-Reply-To: <3ADB45C0.E3F32257@mvista.com> from "george anzinger" at Apr 16, 2001 12:19:28 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132054AbRDPUlp>; Mon, 16 Apr 2001 16:41:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63759 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132053AbRDPUlb>;
+	Mon, 16 Apr 2001 16:41:31 -0400
+Date: Mon, 16 Apr 2001 22:41:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
+Subject: Re: 2.4.3-ac{6,7} LVM hang
+Message-ID: <20010416224102.O9539@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0104161653140.14442-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="b5gNqxB1S1yM7hjW"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0104161653140.14442-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Apr 16, 2001 at 04:55:15PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> CLOCK_10MS a wall clock supporting timers with 10 ms resolution (same as
-> linux today). 
 
-Except on the Alpha, and on some ARM systems, etc.
-The HZ constant varies from 10 to 1200.
+--b5gNqxB1S1yM7hjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> At the same time we will NOT support the following clocks:
+On Mon, Apr 16 2001, Rik van Riel wrote:
+> Hi,
 > 
-> CLOCK_VIRTUAL a clock measuring the elapsed execution time (real or
-> wall) of a given task.  
-...
-> For tick less systems we will need to provide code to collect execution
-> times.  For the ticked system the current method of collection these
-> times will be used.  This project will NOT attempt to improve the
-> resolution of these timers, however, the high speed, high resolution
-> access to the current time will allow others to augment the system in
-> this area.
-...
-> This project will NOT provide higher resolution accounting (i.e. user
-> and system execution times).
+> 2.4.3-ac4 seems to work great on my test box (UP K6-2 with SCSI
+> disk), but 2.4.3-ac6 and 2.4.3-ac7 hang pretty hard when I try
+> to access any of the logical volumes on my test box.
+> 
+> The following changelog entry in Linus' changelog suggests me
+> whom to bother:   ;)
+>  - Jens Axboe: LVM and loop fixes
 
-It is nice to have accurate per-process user/system accounting.
-Since you'd be touching the code anyway...
+Heh :-). I'd categorize the lvm fixes as "obviously right", haven't
+checked why they seem to break for some people. Maybe the minor indexing
+of LVM is broken, in which case attached patch should make it go again
+(and the LVM crew needs to look into that). Also fixes a slight error in
+the IO error path.
 
-> The POSIX interface provides for "absolute" timers relative to a given
-> clock.  When these timers are related to a "wall" clock they will need
-> adjusting when the wall clock time is adjusted.  These adjustments are
-> done for "leap seconds" and the date command.
+-- 
+Jens Axboe
 
-This is a BIG can of worms. You have UTC, TAI, GMT, and a loosely
-defined POSIX time that is none of the above. This is a horrid mess,
-even ignoring gravity and speed. :-)
 
-Can a second be 2 billion nanoseconds?
-Can a nanosecond be twice as long as normal?
-Can a second appear twice, with the nanoseconds getting reset?
-Can a second never appear at all?
-Can you compute times more than 6 months into the future?
-How far does time deviate from solar time? Is this constrained?
+--b5gNqxB1S1yM7hjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=lvm-eout-2
 
-If you deal with leap seconds, you have to have a table of them.
-This table grows with time, with adjustments being made with only
-about 6 months notice. So the user upgrades after a year or two,
-and the installer discovers that the user has been running a
-system that is unaware of the most recent leap second. Arrrgh.
+--- /opt/kernel/linux-2.4.4-pre3/drivers/md/lvm.c	Sun Apr 15 16:24:13 2001
++++ drivers/md/lvm.c	Mon Apr 16 22:40:28 2001
+@@ -1476,7 +1476,7 @@
+  */
+ static int lvm_map(struct buffer_head *bh, int rw)
+ {
+-	int minor = MINOR(bh->b_rdev);
++	int minor = MINOR(bh->b_dev);
+ 	int ret = 0;
+ 	ulong index;
+ 	ulong pe_start;
+@@ -1675,8 +1675,11 @@
+ 			       struct buffer_head *bh)
+ {
+ 	int ret = lvm_map(bh, rw);
+-	if (ret < 0)
++
++	if (ret < 0) {
++		ret = 0;
+ 		buffer_IO_error(bh);
++	}
+ 	return ret;
+ }
+ 
 
-Sure you want to touch this? The Austin group argued over it for
-a very long time and never did find a really good solution.
-Maybe you should just keep the code simple and fast, without any
-concern for clock adjustments.
-
-> In either a ticked or tick less system, it is expected that resolutions
-> higher than 1/HZ will come with some additional overhead.  For this
-> reason, the CLOCK resolution will be used to round up times for each
-> timer.  When the CLOCK provides 1/HZ (or coarser) resolution, the
-> project will attempt to meet or exceed the current systems timer
-> performance.
-
-Within the kernel at least, it would be good to let drivers specify
-desired resolution. Then a near-by value could be selected, perhaps
-with some consideration for event type. (for cache reasons)
-
+--b5gNqxB1S1yM7hjW--

@@ -1,78 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbUAMAp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 19:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUAMAp6
+	id S262686AbUAMA7H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 19:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbUAMA7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 19:45:58 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:20370 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262598AbUAMAp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 19:45:56 -0500
-Subject: Re: [PATCH] Intel Alder IOAPIC fix
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
-References: <1073876117.2549.65.camel@mulgrave> 
-	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
-	<1073948641.4178.76.camel@mulgrave> 
-	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 12 Jan 2004 19:45:50 -0500
-Message-Id: <1073954751.4178.98.camel@mulgrave>
+	Mon, 12 Jan 2004 19:59:07 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41681 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262686AbUAMA7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 19:59:00 -0500
+Date: Tue, 13 Jan 2004 01:58:57 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andreas Haumer <andreas@xss.co.at>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       linux-net@vger.kernel.org
+Subject: [2.4 patch] simplify COMX_PROTO_LAPB dependencies
+Message-ID: <20040113005857.GY9677@fs.tum.de>
+References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet> <3FF2EAB3.1090001@xss.co.at>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FF2EAB3.1090001@xss.co.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, with the patch below (to insert_resource) I know get the IO APIC
-successfully inserted under the reserved fixmap resources:
+On Wed, Dec 31, 2003 at 04:26:43PM +0100, Andreas Haumer wrote:
+> 
+> Hi!
 
-/proc/iomem still looks very odd:
+Hi Andreas!
 
-fec00000-fec08fff : reserved
-  fec01000-fec013ff : 0000:00:0f.0
-fffffc00-ffffffff : 0000:00:0f.0
-  fffffc00-ffffffff : 0000:00:0f.0
-    fffffc00-ffffffff : 0000:00:0f.0
-      fffffc00-ffffffff : 0000:00:0f.0
-        fffffc00-ffffffff : 0000:00:0f.0
-          ffe80000-ffffffff : reserved
+>...
+> Here's a first report:
+>...
+>    - Double (but deactivated) entry in config dialog for
+>...
+>      + "Wan Interfaces" / "Support for LAPB protocol on MultiGate boards"
+>...
 
-unfortunately, because BARs 1-5 cover the same region.
+Thanks for this report.
 
-I also think insert_resource needs to be fixed to insert these resources
-*under* the reserved resource, since it's larger than they are.
+The patch below fixes this issue, and as a side effect it's also a great
+simplification (while remaining semantically equivalent with the
+original dependencies).
 
-I can make these changes and send them to you, if you think this is the
-correct thing to do?
+cu
+Adrian
 
-James
-
-===== kernel/resource.c 1.18 vs edited =====
---- 1.18/kernel/resource.c	Wed Nov 19 01:40:49 2003
-+++ edited/kernel/resource.c	Mon Jan 12 18:34:00 2004
-@@ -318,6 +318,7 @@
- 	struct resource *first, *next;
+--- linux-2.4.25-pre4-full/drivers/net/wan/Config.in.old	2004-01-13 01:48:47.000000000 +0100
++++ linux-2.4.25-pre4-full/drivers/net/wan/Config.in	2004-01-13 01:49:51.000000000 +0100
+@@ -30,12 +30,7 @@
+       dep_tristate '    Support for MixCOM board' CONFIG_COMX_HW_MIXCOM $CONFIG_COMX
+       dep_tristate '    Support for MUNICH based boards: SliceCOM, PCICOM (WelCOM)' CONFIG_COMX_HW_MUNICH $CONFIG_COMX
+       dep_tristate '    Support for HDLC and syncPPP protocols on MultiGate boards' CONFIG_COMX_PROTO_PPP $CONFIG_COMX
+-      if [ "$CONFIG_LAPB" = "y" ]; then
+-	 dep_tristate '    Support for LAPB protocol on MultiGate boards' CONFIG_COMX_PROTO_LAPB $CONFIG_COMX
+-      fi
+-      if [ "$CONFIG_LAPB" = "m" ]; then
+-	 dep_tristate '    Support for LAPB protocol on MultiGate boards' CONFIG_COMX_PROTO_LAPB $CONFIG_LAPB
+-      fi
++      dep_tristate '    Support for LAPB protocol on MultiGate boards' CONFIG_COMX_PROTO_LAPB $CONFIG_LAPB $CONFIG_COMX
+       dep_tristate '    Support for Frame Relay on MultiGate boards' CONFIG_COMX_PROTO_FR $CONFIG_COMX
+    fi
  
- 	write_lock(&resource_lock);
-+ begin:
- 	first = __request_resource(parent, new);
- 	if (!first)
- 		goto out;
-@@ -331,8 +332,10 @@
- 			break;
- 
- 	/* existing resource overlaps end of new resource */
--	if (next->end > new->end)
--		goto out;
-+	if (next->end > new->end) {
-+		parent = next;
-+		goto begin;
-+	}
- 
- 	result = 0;
- 
-

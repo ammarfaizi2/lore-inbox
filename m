@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVCNJy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVCNJ6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbVCNJy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 04:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVCNJy1
+	id S262089AbVCNJ6m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 04:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVCNJ6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 04:54:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:31181 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262099AbVCNJxq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 04:53:46 -0500
-Date: Mon, 14 Mar 2005 01:53:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg Stark <gsstark@MIT.EDU>
-Cc: gsstark@MIT.EDU, s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org,
-       pmcfarland@downeast.net
-Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
-Message-Id: <20050314015321.5e944d84.akpm@osdl.org>
-In-Reply-To: <87u0nevc11.fsf@stark.xeocode.com>
-References: <87u0ng90mo.fsf@stark.xeocode.com>
-	<200503130152.52342.pmcfarland@downeast.net>
-	<874qff89ob.fsf@stark.xeocode.com>
-	<200503140103.55354.s0348365@sms.ed.ac.uk>
-	<87sm2y7uon.fsf@stark.xeocode.com>
-	<20050313200753.20411bdb.akpm@osdl.org>
-	<87br9m7s8h.fsf@stark.xeocode.com>
-	<87zmx66b2b.fsf@stark.xeocode.com>
-	<87u0nevc11.fsf@stark.xeocode.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 14 Mar 2005 04:58:41 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63722 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262096AbVCNJ6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 04:58:07 -0500
+Date: Mon, 14 Mar 2005 10:58:06 +0100
+From: Jan Kara <jack@suse.cz>
+To: Santosh Gupta <Santosh.Gupta@AzaireNet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fsck error on flashcard with ext2 filesystem
+Message-ID: <20050314095806.GA17005@atrey.karlin.mff.cuni.cz>
+References: <C8E1D942CB394746BE5CFEB7D97610E741EA6F@bart.corp.azairenet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C8E1D942CB394746BE5CFEB7D97610E741EA6F@bart.corp.azairenet.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Stark <gsstark@MIT.EDU> wrote:
->
->  > Greg Stark <gsstark@MIT.EDU> writes:
->  > 
->  > > Andrew Morton <akpm@osdl.org> writes:
->  > > 
->  > > > Are you able to narrow it down to something more fine grained than "between
->  > > > 2.6.6 and 2.6.9-rc1"?
->  > > 
->  > > Er, I suppose I would have to build some more kernels. Ugh. Is there a good
->  > > place to start or do I have to just do a binary search?
+  Hello,
+
+> 	Although "sync" doesnt seem to make any difference to fsck output, 
+> "blockdev --flushbufs" fixes the issue. 
 > 
->  Well, I built a slew of kernels but found it on the first reboot.
+> Still wondering why the flushing of buffer behavior is different on a 
+> system with normal harddisk (Redhat 7.2 with 2.4.26 kernel ) as compared
+>  to a system with flashcard (CoreLinux with 2.4.26 kernel) although the 
+> system parameters/daemons are the same. I dont have to do sync or 
+> blockdev --flushbufs on standard system. Any ideas?
+  Hmm, are the kernels really vanilla kernels without any patches?
+Anyway the problem was that on the system with flashcard old data were
+still kept in the cache for userspace (userspace uses cache independent from
+the one filesystem uses), so it could be anything starting by different
+amount of memory and ending at a different timing/command sequence
+whatever...
+
+> I was using fsck with "-n" option which doesnt executes the command, just
+> shows what would be done. I thought it would be harmless.
+  Ok, that won't harm the filesystem but you can still see errors which
+are not on the filesystem (because of the cache issues).
+
+> -----Original Message-----
+> From: Jan Kara [mailto:jack@suse.cz]
+> Sent: Friday, March 11, 2005 6:37 AM
+> To: Santosh Gupta
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: fsck error on flashcard with ext2 filesystem
 > 
->  2.6.7 doesn't work.
 > 
->  I compiled the 2.6.6 drivers for 2.6.10 but they give ENODEV when I load them.
+>   Hello,
+> 
+>   just a reminder for the next time - please keep the lines length under 80
+> characters.
+> 
+> > Detailed Description
+> > -----------------------------
+> > I am using Core Linux system on flashcard. Its another minimal linux
+> > distribution. Root filesystem is cramfs and a rw partition on flash is
+> > ext2. The system is always shutdown properly and initial fsck upon
+> > bootup shows no error. But if I delete a file on flash card and run
+> > fsck, it gives error in fsck. On umount and mounting again (or
+> > reboot), fsck shows no problem. Issuing "sync" command doesnt make any
+> > difference.
+> > Why is the disk not getting updated with filesystem metadata even
+> > after I wait for so long?
+>   Hmm, it may be a cache aliasing issue (anyway doing fsck on a mounted
+> filesystem is asking for a trouble and basically nobody promisses any
+> result). But you may try doing something like:
+>   sync; blockdev --flushbufs
+> 
+> before a fsck.
 > 
 
-Herbert tells me that this might be fixed in 2.6.11.  Did you try that?
+								Honza
+
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

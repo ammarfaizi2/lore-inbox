@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317890AbSGKTmD>; Thu, 11 Jul 2002 15:42:03 -0400
+	id <S317883AbSGKTpq>; Thu, 11 Jul 2002 15:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317891AbSGKTmC>; Thu, 11 Jul 2002 15:42:02 -0400
-Received: from centauri.artland.com.pl ([62.233.164.19]:45443 "EHLO
-	centauri.artland.com.pl") by vger.kernel.org with ESMTP
-	id <S317890AbSGKTmA>; Thu, 11 Jul 2002 15:42:00 -0400
-Date: Thu, 11 Jul 2002 21:23:57 +0200
-To: linux-kernel@vger.kernel.org
-Subject: compilation of floppy as module failure
-Message-ID: <20020711192357.GA3722@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: =?iso-8859-1?Q?Micha=B3_Adamczak?= <pokryfka@druid.if.uj.edu.pl>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S317885AbSGKTpp>; Thu, 11 Jul 2002 15:45:45 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:23308 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317883AbSGKTpn>; Thu, 11 Jul 2002 15:45:43 -0400
+Date: Thu, 11 Jul 2002 21:48:20 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Daniel Phillips <phillips@arcor.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>, Alexander Viro <viro@math.psu.edu>,
+       "David S. Miller" <davem@redhat.com>, <adam@yggdrasil.com>,
+       <R.E.Wolff@bitwizard.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: Rusty's module talk at the Kernel Summit
+In-Reply-To: <E17SigN-0002V1-00@starship>
+Message-ID: <Pine.LNX.4.44.0207112059580.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just wanted to report that in 2.4.19-rc1
-the kernel image does not compile if floppy (CONFIG_BLK_DEV_FD) is 
-to be compiled as a module.
+Hi,
 
-the problem does not exist when the floppy is built in.
+On Thu, 11 Jul 2002, Daniel Phillips wrote:
 
-the listing of the ver_linux:
+> > Please check try_inc_mod_count(). It's already done.
+>
+> It's a good start, but it's not quite right.  Deregister_filesystem has to be
+> the authority on whether the module can be deleted or not, and there's no
+> interface for that at the moment.
 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-PPP                    2.4.1
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.12
+That's right, but the filesystem code shows that this is not strictly
+necessary. In get_fs_type() you can't get access to a filesystem that will
+be removed, either it's first marked deleted or the use count is
+incremented, both are protected by the unload_lock. file_systems_lock now
+takes care that get_fs_type() doesn't see an invalid filesystem/owner
+pointer.
 
--- 
-Michal Adamczak
-pokryfka@druid.if.uj.edu.pl
+> In short, it's close to the truth, but it's not quite there in its current
+> form.  Al said as much himself.
+
+He was talking about a generic interface. I stared now long enough at
+that code, could anyone point me to where exactly is there a race in
+the filesystem code??? IMO it's more complex than necessary (because it
+has to work around the problem that unregister can't fail), but it should
+work.
+BTW this example shows also the limitation of the current module
+interface. It's impossible for a module to control itself, whether it can
+be unloaded or not. All code for this must be outside of this module,
+after __MOD_DEC_USE_COUNT() the module must not be touched anymore (so
+this call can't be inside of a module).
+
+bye, Roman
 

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265251AbUBJU3d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 15:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbUBJU3d
+	id S265620AbUBJUbh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 15:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266039AbUBJUbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 15:29:33 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11025 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265251AbUBJU3c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 15:29:32 -0500
-Message-ID: <40294013.7000202@tmr.com>
-Date: Tue, 10 Feb 2004 15:33:23 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hod McWuff <hod@wuff.dhs.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HT CPU handling - 2.6.2
-References: <1nqw6-5W0-25@gated-at.bofh.it>
-In-Reply-To: <1nqw6-5W0-25@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Feb 2004 15:31:37 -0500
+Received: from smtp.mailix.net ([216.148.213.132]:60284 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S265620AbUBJUbf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 15:31:35 -0500
+Date: Tue, 10 Feb 2004 21:31:26 +0100
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: alsa-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Jaroslav Kysela <perex@suse.cz>
+Message-ID: <20040210203126.GA1305@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
+	alsa-devel@lists.sourceforge.net,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Jaroslav Kysela <perex@suse.cz>
+References: <20040209214622.GA1944@steel.home> <s5h3c9j2tly.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <s5h3c9j2tly.wl@alsa2.suse.de>
+User-Agent: Mutt/1.5.5.1i
+X-SA-Exim-Mail-From: fork0@users.sourceforge.net
+Subject: Re: 2.6.3-rc1: intel8x0 broken
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Report: *  0.5 RCVD_IN_NJABL_DIALUP RBL: NJABL: dialup sender did non-local SMTP
+	*      [80.142.152.191 listed in dnsbl.njabl.org]
+	*  2.5 RCVD_IN_DYNABLOCK RBL: Sent directly from dynamic IP address
+	*      [80.142.152.191 listed in dnsbl.sorbs.net]
+	*  0.1 RCVD_IN_SORBS RBL: SORBS: sender is listed in SORBS
+	*      [80.142.152.191 listed in dnsbl.sorbs.net]
+	*  0.1 RCVD_IN_NJABL RBL: Received via a relay in dnsbl.njabl.org
+	*      [80.142.152.191 listed in dnsbl.njabl.org]
+X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
+X-SA-Exim-Scanned: Yes
+X-uvscan-result: clean (1AqeW0-0005ED-NY)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hod McWuff wrote:
-> I've got a 2.0A GHz P4, advertised as non-hyperthread, that seems to be
-> reporting the presence of a second CPU. It also seems to be disabled by
-> setting bit 7 of its ID. I've tried compiling with support for 130 CPU's
-> and nothing changed. What would have to be done to get this disabled
-> CPU half back online?
+Takashi Iwai, Tue, Feb 10, 2004 10:04:25 +0100:
+> > I have a Gigabyte GA-I8IPE1000 Pro motherboard with a built-in 82801EB
+> > (Intel Corp. 82801EB AC'97 Audio Controller).
+> > 
+> > The thing stopped produce any sound since Linus' last alsa update.
+> > Reverting to the previous state of alsa driver works, of course.
 > 
-> Feb  9 04:45:03 pug ACPI: Local APIC address 0xfee00000
-> Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> Feb  9 04:45:03 pug Processor #0 15:2 APIC version 20
-> Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x02] lapic_id[0x81] disabled)
-> Feb  9 04:45:03 pug Processor #129 invalid (max 16)
-> Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
-> Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x02] dfl dfl lint[0x1])
+> if your ac97 chip is ALC650 or ALC655/658, the attached patch should
+> fix.
+> 
 
-Look in /proc/cpuinfo for number of siblings. If it's one you have no HT 
-capability, the stuff for HT is mostly there but there's no sib to 
-share. Sort of like a Siamese twin who's an only child or some such. You 
-have a funky APIC and not much else.
+ALC658. It did help, of course. Thank you very much.
 
-Don't know if the LAPIC is actually useful.
--- 
-Bill Davidsen, TMR
 

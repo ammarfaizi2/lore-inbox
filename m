@@ -1,249 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266491AbSKORSq>; Fri, 15 Nov 2002 12:18:46 -0500
+	id <S266460AbSKORTc>; Fri, 15 Nov 2002 12:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266489AbSKORSq>; Fri, 15 Nov 2002 12:18:46 -0500
-Received: from mailhost.cotse.com ([216.112.42.58]:5643 "EHLO
-	mailhost.cotse.com") by vger.kernel.org with ESMTP
-	id <S266535AbSKORSl>; Fri, 15 Nov 2002 12:18:41 -0500
-Message-ID: <YWxhbg==.40c4cc41e1d06c3a19c6040fe3f2b3ec@1037380718.cotse.net>
-Date: Fri, 15 Nov 2002 12:18:38 -0500 (EST)
-X-Abuse-To: abuse@cotse.com
-Subject: Re: CD IO error
-From: "Alan Willis" <alan@cotse.net>
-To: <brian-kernel-list@mdrx.com>
-In-Reply-To: <20021115170836.14228.qmail@escalade.vistahp.com>
-References: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
-        <20021115170836.14228.qmail@escalade.vistahp.com>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: alan@cotse.com
-X-Mailer: www.cotse.net
+	id <S266480AbSKORTb>; Fri, 15 Nov 2002 12:19:31 -0500
+Received: from roc-24-169-118-30.rochester.rr.com ([24.169.118.30]:54445 "EHLO
+	death.krwtech.com") by vger.kernel.org with ESMTP
+	id <S266460AbSKORTW>; Fri, 15 Nov 2002 12:19:22 -0500
+Date: Fri, 15 Nov 2002 12:26:10 -0500 (EST)
+From: Ken Witherow <ken@krwtech.com>
+X-X-Sender: ken@death
+Reply-To: Ken Witherow <ken@krwtech.com>
+To: David Crooke <dave@convio.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dual athlon XP 1800 problems
+In-Reply-To: <3DD4CD06.2010009@convio.com>
+Message-ID: <Pine.LNX.4.44.0211151210140.1153-100000@death>
+Organization: KRW Technologies
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_20021115121838_80153"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20021115121838_80153
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+> 1. When I first put it together, it would consistenly run OK for a
+> period of 4-5 minutes, quite precisely - no less than 4, no more than 5
+> and then just lock up HARD - no Ctrl-Alt-Del, no kernel panics, nothing.
+> Once or twice it seemed like it stuttered - as if the load was like
+> 10.00 or higher, the keystroke echo would take 2-3 seconds.
+>
+> 2. First try - I pulled the Tekram (it's ancient and has bootable BIOS)
+> - no difference
+>
+> 3. Tried some BIOS settings (e.g. SMP 1.1 mode) - it DOES NOT like this;
+> any BIOS changes AT ALL (even seemingly harmless ones like Num Lock)
+> appear to mess it up totally, and LILO hangs at "LI" when trying to
+> start. Restored factory defaults.
 
-> Distribution
-> IDE controller/motherboard
-> a few more lines before and after the error from dmesg
+I have a S2460 with dual 1800MPs using BIOS rev 1.04. I had very similar
+problems (random hangs, sometimes after 2 minutes, sometimes after 36
+hours). Here's what I did to solve them:
 
-Duh, my apologies.
+1) Turn off power management in the BIOS. I still have power management
+enabled in linux and all is fine.
 
-Redhat 8.0, running kernel 2.5.47-mm3 at present.
-Intel i810 chipset. Full dmesg is attached.
+2) (this is the most important one) Make sure you have a minimum of a 500
+watt power supply. Each CPU alone is rated for 66 watts of consumption.
 
-Relevant sections below.
+3) I still get random hangs at boot (usually after rebooting linux) and I
+believe this is due to some ACPI problem. A hard reboot (turn the power
+supply off and on) fixes it for me.
 
+4) There are a couple bugs with the 760MP chipset and APICs. To see if
+they're affecting you, add "mem=nopentium noapic" to your kernel
+parameters (I can run fine without them).
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 66MHz system bus speed for PIO modes
-ICH: IDE controller at PCI slot 00:1f.1
-ICH: chipset revision 2
-ICH: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: Maxtor 2B020H1, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: Lite-On LTN486 48x Max, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 39062500 sectors (20000 MB) w/2048KiB Cache, CHS=2431/255/63, UDMA(66)
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-end_request: I/O error, dev hdc, sector 0
-hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-end_request: I/O error, dev hdc, sector 0
+> 4. Then I noticed that the CPU1 heatsink was quite warm (maybe 70C
+> feeling around the thick bit of the aluminium) whereas CPU0 heatsink is
+> just above room temp.
+>
+> 5. Checking the Winbond monitoring in the BIOS** menu, it comes up
+> showing both CPU's at 77C, then as you hit keys it takes proper
+> readings, and claims both CPUs within 1-2 degrees of each other (??). It
+> seems accurate on fan speeds though. Both fans running pretty fast,
+> 5500-6200 RPM.
 
+My BIOS reports the right temps but lm_sensors didn't. I too was getting
+temps in the 75C+ range. To fix lm_sensors, do the following:
 
+echo "2" > /proc/sys/dev/sensors/w83782d-i2c-0-2d/sensor1
+echo "2" > /proc/sys/dev/sensors/w83782d-i2c-0-2d/sensor2
+echo "2" > /proc/sys/dev/sensors/w83782d-i2c-0-2d/sensor3
 
-------=_20021115121838_80153
-Content-Type: application/octet-stream; name="dmesg"
-Content-Disposition: attachment; filename="dmesg"
-Content-Transfer-Encoding: base64
+> 7. Brought it up to single user mode console, to see if it was video
+> card etc. - did some testing of just letting it mostly idle (while true
+> - uptime - sleep 1 - etc.) and locked up 1-2 more times.
 
-TGludXggdmVyc2lvbiAyLjUuNDcgKHJvb3RAYXJpZXMpIChnY2MgdmVyc2lvbiAzLjIgMjAwMjEw
-MTUgKFJlZCBIYXQgTGludXggOC4wIDMuMi0xMCkpICMxIEZyaSBOb3YgMTUgMTA6MDI6MTQgUFNU
-IDIwMDIKVmlkZW8gbW9kZSB0byBiZSB1c2VkIGZvciByZXN0b3JlIGlzIGYwMApCSU9TLXByb3Zp
-ZGVkIHBoeXNpY2FsIFJBTSBtYXA6CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAw
-MDAwMDAwMGEwMDAwICh1c2FibGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwZjAwMDAgLSAwMDAw
-MDAwMDAwMTAwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDEwMDAwMCAtIDAw
-MDAwMDAwMTdlNzcwMDAgKHVzYWJsZSkKIEJJT1MtZTgyMDogMDAwMDAwMDAxN2U3NzAwMCAtIDAw
-MDAwMDAwMTdlNzkwMDAgKEFDUEkgTlZTKQogQklPUy1lODIwOiAwMDAwMDAwMDE3ZTc5MDAwIC0g
-MDAwMDAwMDAxODAwMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmVjMDAwMDAg
-LSAwMDAwMDAwMGZlYzEwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDBmZWUwMDAw
-MCAtIDAwMDAwMDAwZmVlMTAwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMGZmYjAw
-MDAwIC0gMDAwMDAwMDEwMDAwMDAwMCAocmVzZXJ2ZWQpCjM4Mk1CIExPV01FTSBhdmFpbGFibGUu
-CmZvdW5kIFNNUCBNUC10YWJsZSBhdCAwMDBmZTcxMApobSwgcGFnZSAwMDBmZTAwMCByZXNlcnZl
-ZCB0d2ljZS4KaG0sIHBhZ2UgMDAwZmYwMDAgcmVzZXJ2ZWQgdHdpY2UuCmhtLCBwYWdlIDAwMGYw
-MDAwIHJlc2VydmVkIHR3aWNlLgpPbiBub2RlIDAgdG90YWxwYWdlczogOTc5MTEKICBETUEgem9u
-ZTogNDA5NiBwYWdlcywgTElGTyBiYXRjaDoxCiAgTm9ybWFsIHpvbmU6IDkzODE1IHBhZ2VzLCBM
-SUZPIGJhdGNoOjE2CiAgSGlnaE1lbSB6b25lOiAwIHBhZ2VzLCBMSUZPIGJhdGNoOjEKSW50ZWwg
-TXVsdGlQcm9jZXNzb3IgU3BlY2lmaWNhdGlvbiB2MS40CiAgICBWaXJ0dWFsIFdpcmUgY29tcGF0
-aWJpbGl0eSBtb2RlLgpPRU0gSUQ6IERFTEwgICAgIFByb2R1Y3QgSUQ6IERpbSAyMjAwICAgICBB
-UElDIGF0OiAweEZFRTAwMDAwClByb2Nlc3NvciAjMCA2OjExIEFQSUMgdmVyc2lvbiAxNwpJL08g
-QVBJQyAjMSBWZXJzaW9uIDMyIGF0IDB4RkVDMDAwMDAuCkVuYWJsaW5nIEFQSUMgbW9kZTogIEZs
-YXQuICBVc2luZyAxIEkvTyBBUElDcwpQcm9jZXNzb3JzOiAxCkJ1aWxkaW5nIHpvbmVsaXN0IGZv
-ciBub2RlIDogMApLZXJuZWwgY29tbWFuZCBsaW5lOiBybyByb290PS9kZXYvaGRhMSBwcm9maWxl
-PTIgaWRlYnVzPTY2CmlkZV9zZXR1cDogaWRlYnVzPTY2CkluaXRpYWxpemluZyBDUFUjMApEZXRl
-Y3RlZCAxMjk1Ljg1NCBNSHogcHJvY2Vzc29yLgpDb25zb2xlOiBjb2xvdXIgVkdBKyA4MHgyNQpD
-YWxpYnJhdGluZyBkZWxheSBsb29wLi4uIDI1NjQuMDkgQm9nb01JUFMKTWVtb3J5OiAzODA4NzZr
-LzM5MTY0NGsgYXZhaWxhYmxlICgyNDU0ayBrZXJuZWwgY29kZSwgOTk3NmsgcmVzZXJ2ZWQsIDUx
-N2sgZGF0YSwgMzAwayBpbml0LCAwayBoaWdobWVtKQpTZWN1cml0eSBTY2FmZm9sZCB2MS4wLjAg
-aW5pdGlhbGl6ZWQKRGVudHJ5IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogNjU1MzYgKG9yZGVy
-OiA3LCA1MjQyODggYnl0ZXMpCklub2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3Njgg
-KG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpCk1vdW50LWNhY2hlIGhhc2ggdGFibGUgZW50cmllczog
-NTEyIChvcmRlcjogMCwgNDA5NiBieXRlcykKLT4gL2RldgotPiAvZGV2L2NvbnNvbGUKLT4gL3Jv
-b3QKQ1BVOiBCZWZvcmUgdmVuZG9yIGluaXQsIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAw
-MDAwLCB2ZW5kb3IgPSAwCkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksKQ1BV
-OiBMMiBjYWNoZTogMjU2SwpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAwMzgzZmJmZiAw
-MDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6ICAgICBBZnRlciBnZW5lcmljLCBjYXBzOiAw
-MzgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6ICAgICAgICAgICAgIENvbW1v
-biBjYXBzOiAwMzgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApJbnRlbCBtYWNoaW5l
-IGNoZWNrIGFyY2hpdGVjdHVyZSBzdXBwb3J0ZWQuCkludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0
-aW5nIGVuYWJsZWQgb24gQ1BVIzAuCkNQVTogSW50ZWwoUikgQ2VsZXJvbihUTSkgQ1BVICAgICAg
-ICAgICAgICAgIDEzMDBNSHogc3RlcHBpbmcgMDEKRW5hYmxpbmcgZmFzdCBGUFUgc2F2ZSBhbmQg
-cmVzdG9yZS4uLiBkb25lLgpFbmFibGluZyB1bm1hc2tlZCBTSU1EIEZQVSBleGNlcHRpb24gc3Vw
-cG9ydC4uLiBkb25lLgpDaGVja2luZyAnaGx0JyBpbnN0cnVjdGlvbi4uLiBPSy4KUE9TSVggY29u
-Zm9ybWFuY2UgdGVzdGluZyBieSBVTklGSVgKZW5hYmxlZCBFeHRJTlQgb24gQ1BVIzAKRVNSIHZh
-bHVlIGJlZm9yZSBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwCkVTUiB2YWx1ZSBhZnRlciBlbmFi
-bGluZyB2ZWN0b3I6IDAwMDAwMDAwCkVOQUJMSU5HIElPLUFQSUMgSVJRcwpTZXR0aW5nIDEgaW4g
-dGhlIHBoeXNfaWRfcHJlc2VudF9tYXAKLi4uY2hhbmdpbmcgSU8tQVBJQyBwaHlzaWNhbCBBUElD
-IElEIHRvIDEgLi4uIG9rLgppbml0IElPX0FQSUMgSVJRcwogSU8tQVBJQyAoYXBpY2lkLXBpbikg
-MS0wLCAxLTEzLCAxLTIwLCAxLTIxLCAxLTIyLCAxLTIzIG5vdCBjb25uZWN0ZWQuCi4uVElNRVI6
-IHZlY3Rvcj0weDMxIHBpbjE9MiBwaW4yPTAKbnVtYmVyIG9mIE1QIElSUSBzb3VyY2VzOiAzNy4K
-bnVtYmVyIG9mIElPLUFQSUMgIzEgcmVnaXN0ZXJzOiAyNC4KdGVzdGluZyB0aGUgSU8gQVBJQy4u
-Li4uLi4uLi4uLi4uLi4uLi4uLi4uCgpJTyBBUElDICMxLi4uLi4uCi4uLi4gcmVnaXN0ZXIgIzAw
-OiAwMTAwMDAwMAouLi4uLi4uICAgIDogcGh5c2ljYWwgQVBJQyBpZDogMDEKLi4uLi4uLiAgICA6
-IERlbGl2ZXJ5IFR5cGU6IDAKLi4uLi4uLiAgICA6IExUUyAgICAgICAgICA6IDAKLi4uLiByZWdp
-c3RlciAjMDE6IDAwMTcwMDIwCi4uLi4uLi4gICAgIDogbWF4IHJlZGlyZWN0aW9uIGVudHJpZXM6
-IDAwMTcKLi4uLi4uLiAgICAgOiBQUlEgaW1wbGVtZW50ZWQ6IDAKLi4uLi4uLiAgICAgOiBJTyBB
-UElDIHZlcnNpb246IDAwMjAKLi4uLiByZWdpc3RlciAjMDI6IDAwMDAwMDAwCi4uLi4uLi4gICAg
-IDogYXJiaXRyYXRpb246IDAwCi4uLi4gSVJRIHJlZGlyZWN0aW9uIHRhYmxlOgogTlIgTG9nIFBo
-eSBNYXNrIFRyaWcgSVJSIFBvbCBTdGF0IERlc3QgRGVsaSBWZWN0OiAgIAogMDAgMDAwIDAwICAx
-ICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMAogMDEgMDAxIDAxICAwICAgIDAgICAg
-MCAgIDAgICAwICAgIDEgICAgMSAgICAzOQogMDIgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAw
-ICAgIDEgICAgMSAgICAzMQogMDMgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAg
-MSAgICA0MQogMDQgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA0OQog
-MDUgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA1MQogMDYgMDAxIDAx
-ICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA1OQogMDcgMDAxIDAxICAwICAgIDAg
-ICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA2MQogMDggMDAxIDAxICAwICAgIDAgICAgMCAgIDAg
-ICAwICAgIDEgICAgMSAgICA2OQogMDkgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEg
-ICAgMSAgICA3MQogMGEgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA3
-OQogMGIgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA4MQogMGMgMDAx
-IDAxICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA4OQogMGQgMDAwIDAwICAxICAg
-IDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMAogMGUgMDAxIDAxICAwICAgIDAgICAgMCAg
-IDAgICAwICAgIDEgICAgMSAgICA5MQogMGYgMDAxIDAxICAwICAgIDAgICAgMCAgIDAgICAwICAg
-IDEgICAgMSAgICA5OQogMTAgMDAxIDAxICAxICAgIDEgICAgMCAgIDEgICAwICAgIDEgICAgMSAg
-ICBBMQogMTEgMDAxIDAxICAxICAgIDEgICAgMCAgIDEgICAwICAgIDEgICAgMSAgICBBOQogMTIg
-MDAxIDAxICAxICAgIDEgICAgMCAgIDEgICAwICAgIDEgICAgMSAgICBCMQogMTMgMDAxIDAxICAx
-ICAgIDEgICAgMCAgIDEgICAwICAgIDEgICAgMSAgICBCOQogMTQgMDAwIDAwICAxICAgIDAgICAg
-MCAgIDAgICAwICAgIDAgICAgMCAgICAwMAogMTUgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAw
-ICAgIDAgICAgMCAgICAwMAogMTYgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAg
-MCAgICAwMAogMTcgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMApJ
-UlEgdG8gcGluIG1hcHBpbmdzOgpJUlEwIC0+IDA6MgpJUlExIC0+IDA6MQpJUlEzIC0+IDA6MwpJ
-UlE0IC0+IDA6NApJUlE1IC0+IDA6NQpJUlE2IC0+IDA6NgpJUlE3IC0+IDA6NwpJUlE4IC0+IDA6
-OApJUlE5IC0+IDA6OQpJUlExMCAtPiAwOjEwCklSUTExIC0+IDA6MTEKSVJRMTIgLT4gMDoxMgpJ
-UlExNCAtPiAwOjE0CklSUTE1IC0+IDA6MTUKSVJRMTYgLT4gMDoxNgpJUlExNyAtPiAwOjE3CklS
-UTE4IC0+IDA6MTgKSVJRMTkgLT4gMDoxOQouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-Li4uLi4gZG9uZS4KVXNpbmcgbG9jYWwgQVBJQyB0aW1lciBpbnRlcnJ1cHRzLgpjYWxpYnJhdGlu
-ZyBBUElDIHRpbWVyIC4uLgouLi4uLiBDUFUgY2xvY2sgc3BlZWQgaXMgMTI5NS4wODcyIE1Iei4K
-Li4uLi4gaG9zdCBidXMgY2xvY2sgc3BlZWQgaXMgOTkuMDY4MiBNSHouCkxpbnV4IE5FVDQuMCBm
-b3IgTGludXggMi40CkJhc2VkIHVwb24gU3dhbnNlYSBVbml2ZXJzaXR5IENvbXB1dGVyIFNvY2ll
-dHkgTkVUMy4wMzkKSW5pdGlhbGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0Cm10cnI6IHYyLjAgKDIw
-MDIwNTE5KQpQQ0k6IFBDSSBCSU9TIHJldmlzaW9uIDIuMTAgZW50cnkgYXQgMHhmYmVjZSwgbGFz
-dCBidXM9MQpQQ0k6IFVzaW5nIGNvbmZpZ3VyYXRpb24gdHlwZSAxClJlZ2lzdGVyaW5nIHN5c3Rl
-bSBkZXZpY2UgY3B1MAphZGRpbmcgJ0NQVSAwJyB0byBjcHUgY2xhc3MgaW50ZXJmYWNlcwpCSU86
-IHBvb2wgb2YgMjU2IHNldHVwLCAxNEtiICg1NiBieXRlcy9iaW8pCmJpb3ZlYyBwb29sWzBdOiAg
-IDEgYnZlY3M6IDI1NiBlbnRyaWVzICgxMiBieXRlcykKYmlvdmVjIHBvb2xbMV06ICAgNCBidmVj
-czogMjU2IGVudHJpZXMgKDQ4IGJ5dGVzKQpiaW92ZWMgcG9vbFsyXTogIDE2IGJ2ZWNzOiAyNTYg
-ZW50cmllcyAoMTkyIGJ5dGVzKQpiaW92ZWMgcG9vbFszXTogIDY0IGJ2ZWNzOiAyNTYgZW50cmll
-cyAoNzY4IGJ5dGVzKQpiaW92ZWMgcG9vbFs0XTogMTI4IGJ2ZWNzOiAyNTYgZW50cmllcyAoMTUz
-NiBieXRlcykKYmlvdmVjIHBvb2xbNV06IDI1NiBidmVjczogMjU2IGVudHJpZXMgKDMwNzIgYnl0
-ZXMpCmJsb2NrIHJlcXVlc3QgcXVldWVzOgogNTEyIHJlcXVlc3RzIHBlciByZWFkIHF1ZXVlCiA1
-MTIgcmVxdWVzdHMgcGVyIHdyaXRlIHF1ZXVlCiA4IHJlcXVlc3RzIHBlciBiYXRjaAogZW50ZXIg
-Y29uZ2VzdGlvbiBhdCA2MwogZXhpdCBjb25nZXN0aW9uIGF0IDY1ClBDSTogUHJvYmluZyBQQ0kg
-aGFyZHdhcmUKUENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZSAoYnVzIDAwKQpUcmFuc3BhcmVudCBi
-cmlkZ2UgLSBJbnRlbCBDb3JwLiA4MjgwMUFBIFBDSSBCcmlkZ2UKUENJLT5BUElDIElSUSB0cmFu
-c2Zvcm06IChCMCxJMSxQMCkgLT4gMTYKUENJLT5BUElDIElSUSB0cmFuc2Zvcm06IChCMCxJMzEs
-UDMpIC0+IDE5ClBDSS0+QVBJQyBJUlEgdHJhbnNmb3JtOiAoQjAsSTMxLFAxKSAtPiAxNwpQQ0kt
-PkFQSUMgSVJRIHRyYW5zZm9ybTogKEIwLEkzMSxQMSkgLT4gMTcKUENJLT5BUElDIElSUSB0cmFu
-c2Zvcm06IChCMSxJOSxQMCkgLT4gMTgKUmVnaXN0ZXJpbmcgc3lzdGVtIGRldmljZSBwaWMwClJl
-Z2lzdGVyaW5nIHN5c3RlbSBkZXZpY2UgcnRjMApTQkY6IFNpbXBsZSBCb290IEZsYWcgZXh0ZW5z
-aW9uIGZvdW5kIGFuZCBlbmFibGVkLgpTQkY6IFNldHRpbmcgYm9vdCBmbGFncyAweDgwCnNsYWI6
-IHJlYXAgdGltZXIgc3RhcnRlZCBmb3IgY3B1IDAKYWlvX3NldHVwOiBzaXplb2Yoc3RydWN0IHBh
-Z2UpID0gNDAKW2Q3ZTBjMDQwXSBldmVudHBvbGw6IGRyaXZlciBpbnN0YWxsZWQuCkpvdXJuYWxs
-ZWQgQmxvY2sgRGV2aWNlIGRyaXZlciBsb2FkZWQKdWRmOiByZWdpc3RlcmluZyBmaWxlc3lzdGVt
-ClNHSSBYRlMgQ1ZTLTA5LzE1LzAyOjE3IHdpdGggbm8gZGVidWcgZW5hYmxlZApDYXBhYmlsaXR5
-IExTTSBpbml0aWFsaXplZApTZXJpYWw6IDgyNTAvMTY1NTAgZHJpdmVyICRSZXZpc2lvbjogMS45
-MCAkIElSUSBzaGFyaW5nIGRpc2FibGVkCnR0eVMwIGF0IEkvTyAweDNmOCAoaXJxID0gNCkgaXMg
-YSAxNjU1MEEKcHR5OiAyMDQ4IFVuaXg5OCBwdHlzIGNvbmZpZ3VyZWQKUmVhbCBUaW1lIENsb2Nr
-IERyaXZlciB2MS4xMQppODEwX3JuZzogUk5HIG5vdCBkZXRlY3RlZApMaW51eCBhZ3BnYXJ0IGlu
-dGVyZmFjZSB2MC45OSAoYykgSmVmZiBIYXJ0bWFubgphZ3BnYXJ0OiBNYXhpbXVtIG1haW4gbWVt
-b3J5IHRvIHVzZSBmb3IgYWdwIG1lbW9yeTogMzIwTQphZ3BnYXJ0OiBEZXRlY3RlZCBhbiBJbnRl
-bCBpODEwIEUgQ2hpcHNldC4KYWdwZ2FydDogQUdQIGFwZXJ0dXJlIGlzIDY0TSBAIDB4ZjgwMDAw
-MDAKW2RybV0gQUdQIDAuOTkgb24gSW50ZWwgaTgxMCBAIDB4ZjgwMDAwMDAgNjRNQgpbZHJtXSBJ
-bml0aWFsaXplZCBpODEwIDEuMi4xIDIwMDIwMjExIG9uIG1pbm9yIDAKRmxvcHB5IGRyaXZlKHMp
-OiBmZDAgaXMgMS40NE0KRkRDIDAgaXMgYSBOYXRpb25hbCBTZW1pY29uZHVjdG9yIFBDODczMDYK
-bG9vcDogbG9hZGVkIChtYXggOCBkZXZpY2VzKQpkbWZlOiBEYXZpY29tIERNOXh4eCBuZXQgZHJp
-dmVyLCB2ZXJzaW9uIDEuMzYuNCAoMjAwMi0wMS0xNykKZXRoMDogRGF2aWNvbSBETTkxMDIgYXQg
-cGNpMDE6MDkuMCwgMDA6MDg6YTE6MDM6ZWU6YTgsIGlycSAxOC4KVW5pZm9ybSBNdWx0aS1QbGF0
-Zm9ybSBFLUlERSBkcml2ZXIgUmV2aXNpb246IDcuMDBhbHBoYTIKaWRlOiBBc3N1bWluZyA2Nk1I
-eiBzeXN0ZW0gYnVzIHNwZWVkIGZvciBQSU8gbW9kZXMKSUNIOiBJREUgY29udHJvbGxlciBhdCBQ
-Q0kgc2xvdCAwMDoxZi4xCklDSDogY2hpcHNldCByZXZpc2lvbiAyCklDSDogbm90IDEwMCUgbmF0
-aXZlIG1vZGU6IHdpbGwgcHJvYmUgaXJxcyBsYXRlcgogICAgaWRlMDogQk0tRE1BIGF0IDB4ZmZh
-MC0weGZmYTcsIEJJT1Mgc2V0dGluZ3M6IGhkYTpETUEsIGhkYjpwaW8KICAgIGlkZTE6IEJNLURN
-QSBhdCAweGZmYTgtMHhmZmFmLCBCSU9TIHNldHRpbmdzOiBoZGM6RE1BLCBoZGQ6cGlvCmhkYTog
-TWF4dG9yIDJCMDIwSDEsIEFUQSBESVNLIGRyaXZlCmlkZTAgYXQgMHgxZjAtMHgxZjcsMHgzZjYg
-b24gaXJxIDE0CmhkYzogTGl0ZS1PbiBMVE40ODYgNDh4IE1heCwgQVRBUEkgQ0QvRFZELVJPTSBk
-cml2ZQppZGUxIGF0IDB4MTcwLTB4MTc3LDB4Mzc2IG9uIGlycSAxNQpoZGE6IGhvc3QgcHJvdGVj
-dGVkIGFyZWEgPT4gMQpoZGE6IDM5MDYyNTAwIHNlY3RvcnMgKDIwMDAwIE1CKSB3LzIwNDhLaUIg
-Q2FjaGUsIENIUz0yNDMxLzI1NS82MywgVURNQSg2NikKIGhkYTogaGRhMSBoZGEyIGhkYTMgaGRh
-NCA8IGhkYTUgaGRhNiA+CmVuZF9yZXF1ZXN0OiBJL08gZXJyb3IsIGRldiBoZGMsIHNlY3RvciAw
-CmhkYzogQVRBUEkgNDhYIENELVJPTSBkcml2ZSwgMTIwa0IgQ2FjaGUsIFVETUEoMzMpClVuaWZv
-cm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgplbmRfcmVxdWVzdDogSS9PIGVycm9yLCBk
-ZXYgaGRjLCBzZWN0b3IgMApyZWdpc3RlciBpbnRlcmZhY2UgJ21vdXNlJyB3aXRoIGNsYXNzICdp
-bnB1dAptaWNlOiBQUy8yIG1vdXNlIGRldmljZSBjb21tb24gZm9yIGFsbCBtaWNlCmlucHV0OiBJ
-bVBTLzIgR2VuZXJpYyBXaGVlbCBNb3VzZSBvbiBpc2EwMDYwL3NlcmlvMQpzZXJpbzogaTgwNDIg
-QVVYIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMgppbnB1dDogQVQgU2V0IDIga2V5Ym9hcmQgb24g
-aXNhMDA2MC9zZXJpbzAKc2VyaW86IGk4MDQyIEtCRCBwb3J0IGF0IDB4NjAsMHg2NCBpcnEgMQpJ
-bnRlbCA4MTAgKyBBQzk3IEF1ZGlvLCB2ZXJzaW9uIDAuMjEsIDEwOjAwOjE5IE5vdiAxNSAyMDAy
-ClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDoxZi41IHRvIDY0Cmk4MTA6
-IEludGVsIElDSCA4MjgwMUFBIGZvdW5kIGF0IElPIDB4ZGM4MCBhbmQgMHhkODAwLCBJUlEgMTcK
-aTgxMF9hdWRpbzogQXVkaW8gQ29udHJvbGxlciBzdXBwb3J0cyAyIGNoYW5uZWxzLgphYzk3X2Nv
-ZGVjOiBBQzk3IEF1ZGlvIGNvZGVjLCBpZDogMHg0MTQ0OjB4NTM2MCAoQW5hbG9nIERldmljZXMg
-QUQxODg1KQppODEwX2F1ZGlvOiBBQyc5NyBjb2RlYyAwIFVuYWJsZSB0byBtYXAgc3Vycm91bmQg
-REFDJ3MgKG9yIERBQydzIG5vdCBwcmVzZW50KSwgdG90YWwgY2hhbm5lbHMgPSAyCmk4MTBfYXVk
-aW86IHNldHRpbmcgY2xvY2tpbmcgdG8gNDE2NzgKb3Byb2ZpbGU6IHVzaW5nIE5NSSBpbnRlcnJ1
-cHQuCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMApJUDogcm91dGluZyBjYWNoZSBo
-YXNoIHRhYmxlIG9mIDQwOTYgYnVja2V0cywgMzJLYnl0ZXMKVENQOiBIYXNoIHRhYmxlcyBjb25m
-aWd1cmVkIChlc3RhYmxpc2hlZCAzMjc2OCBiaW5kIDY1NTM2KQpORVQ0OiBVbml4IGRvbWFpbiBz
-b2NrZXRzIDEuMC9TTVAgZm9yIExpbnV4IE5FVDQuMC4Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29t
-bWl0IGludGVydmFsIDUgc2Vjb25kcwpFWFQzLWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0aCBv
-cmRlcmVkIGRhdGEgbW9kZS4KVkZTOiBNb3VudGVkIHJvb3QgKGV4dDMgZmlsZXN5c3RlbSkgcmVh
-ZG9ubHkuCkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnk6IDMwMGsgZnJlZWQKRVhUMyBGUyAy
-LjQtMC45LjE2LCAwMiBEZWMgMjAwMSBvbiBpZGUwKDMsMSksIGludGVybmFsIGpvdXJuYWwKQWRk
-aW5nIDEwMjgxNTJrIHN3YXAgb24gL2Rldi9oZGEyLiAgUHJpb3JpdHk6LTEgZXh0ZW50czoxCmZv
-dW5kIHJlaXNlcmZzIGZvcm1hdCAiMy42IiB3aXRoIHN0YW5kYXJkIGpvdXJuYWwKUmVpc2VyZnMg
-am91cm5hbCBwYXJhbXM6IGRldmljZSBpZGUwKDMsNSksIHNpemUgODE5Miwgam91cm5hbCBmaXJz
-dCBibG9jayAxOCwgbWF4IHRyYW5zIGxlbiAxMDI0LCBtYXggYmF0Y2ggOTAwLCBtYXggY29tbWl0
-IGFnZSAzMCwgbWF4IHRyYW5zIGFnZSAzMApyZWlzZXJmczogY2hlY2tpbmcgdHJhbnNhY3Rpb24g
-bG9nIChpZGUwKDMsNSkpIGZvciAoaWRlMCgzLDUpKQpVc2luZyByNSBoYXNoIHRvIHNvcnQgbmFt
-ZXMKa2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcwpFWFQzIEZT
-IDIuNC0wLjkuMTYsIDAyIERlYyAyMDAxIG9uIGlkZTAoMywzKSwgaW50ZXJuYWwgam91cm5hbApF
-WFQzLWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0aCB3cml0ZWJhY2sgZGF0YSBtb2RlLgpmb3Vu
-ZCByZWlzZXJmcyBmb3JtYXQgIjMuNiIgd2l0aCBzdGFuZGFyZCBqb3VybmFsClJlaXNlcmZzIGpv
-dXJuYWwgcGFyYW1zOiBkZXZpY2UgaWRlMCgzLDYpLCBzaXplIDgxOTIsIGpvdXJuYWwgZmlyc3Qg
-YmxvY2sgMTgsIG1heCB0cmFucyBsZW4gMTAyNCwgbWF4IGJhdGNoIDkwMCwgbWF4IGNvbW1pdCBh
-Z2UgMzAsIG1heCB0cmFucyBhZ2UgMzAKcmVpc2VyZnM6IGNoZWNraW5nIHRyYW5zYWN0aW9uIGxv
-ZyAoaWRlMCgzLDYpKSBmb3IgKGlkZTAoMyw2KSkKVXNpbmcgcjUgaGFzaCB0byBzb3J0IG5hbWVz
-Cg==
+I thought it was my video card too... so I went out and spent $90 on a new
+one only to find it does the same thing.
 
-------=_20021115121838_80153--
+> 8. Rebooted again, now it's up and running and appears stable (still 1
+> CPU), so I took it up to full init 5 and it stayed up (and so I'm
+> writing this email :-)  Once or twice seemed to stall again for 1-2
+> seconds (interrupt storm ???) but recovered.
+
+I notice this sometimes too... I chalk it up to some SMP locking
+somewhere. Currently up 6 days, 3:53 with the maximum around 40 days
+(rebooted to upgrade kernel).
+
+> Other observation, possibly unrelated: the unpacking of the kernel seems
+> very slow for an otherwise pretty quick machine - the dots when it says
+> "Loading xxx..." tick at about 1 per second, much like a laptop with
+> PC-66 memory, compared with 4-5 per second for the Pentium III
+> 800/PC-133 motherboard I just hauled out.
+
+When mine hasn't reset right (the aforementioned ACPI lockup), mine does
+this. It was especially prevalent before I upgraded my power supply from
+400 to 550 watts
+
+> ** The temperature sensor driver stuff didn't seem to come with the
+> kernel ??
+
+pick up the lm_sensors package
+
+-- 
+       Ken Witherow <phantoml AT rochester.rr.com>
+           ICQ: 21840670  AIM: phantomlordken
+               http://www.krwtech.com/ken
+
 

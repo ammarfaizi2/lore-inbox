@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268091AbTBWJ2e>; Sun, 23 Feb 2003 04:28:34 -0500
+	id <S268088AbTBWJ0g>; Sun, 23 Feb 2003 04:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268094AbTBWJ2c>; Sun, 23 Feb 2003 04:28:32 -0500
-Received: from mta01bw.bigpond.com ([139.134.6.78]:26613 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S268091AbTBWJ0u>; Sun, 23 Feb 2003 04:26:50 -0500
-Subject: Re: Problem: Palm Tungsten T + kernel 2.4.20 + Tungsten patch
-	applied
-From: Andree Leidenfrost <aleidenf@bigpond.net.au>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: private
-Message-Id: <1045993013.1884.2.camel@aurich.ostfriesland>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 23 Feb 2003 20:36:53 +1100
+	id <S268089AbTBWJ0f>; Sun, 23 Feb 2003 04:26:35 -0500
+Received: from [144.139.35.78] ([144.139.35.78]:1158 "EHLO portal.frood.au")
+	by vger.kernel.org with ESMTP id <S268088AbTBWJ0G>;
+	Sun, 23 Feb 2003 04:26:06 -0500
+Message-ID: <3E58960C.9060900@bigpond.com>
+Date: Sun, 23 Feb 2003 20:36:12 +1100
+From: James Harper <james.harper@bigpond.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: BUG? SA_INTERRUPT and shared IRQs
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg
+i'm having a problem with crashes which i think is to do with shared 
+irq's. i have too many things hanging off my PCI bus... dammit.
 
-I'm an idiot! I thought I had tried this, but obviously I hadn't: Things
-are working fine with /dev/ttyUSB0 instead of /dev/ttyUSB1.
+on IRQ 19 i have:
+wlan0 (prism2 based wireless card running hostap)
+ens1371 (soundcard)
+uhci-hcd (USB driver)
 
-Thanks heaps!
-Andree
+wlan0 and uhci-hcd call request_irq with SA_SHIRQ
+ens1371 calles request_irq with SA_SHIRQ | SA_INTERRUPT
 
-On Sat, 2003-02-22 at 01:43, Greg KH wrote: 
-> On Fri, Feb 21, 2003 at 09:45:12PM +1100, Andree Leidenfrost wrote:
-> > Syncing my m505 works fine, but I'd love to be able to sync my new and
-> > shiny Tungsten T... ;-)
-> 
-> Try using /dev/ttyUSB0 instead of /dev/ttyUSB1, some people have
-> reported that this is necessary.  If this doesn't work, the pilot-link
-> mailing list should be able to help you out.
-> 
-> Good luck,
-> 
-> greg k-h
+the code that calls the interrupt handlers appears to be: 
+(arch/i386/kernel/irq.c)
 
+int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct 
+irqaction * action)
+{
+        int status = 1; /* Force the "do bottom halves" bit */
 
+        if (!(action->flags & SA_INTERRUPT))
+                local_irq_enable();
 
--- 
-Andree Leidenfrost
-Sydney - Australia
+        do {
+                status |= action->flags;
+                action->handler(irq, action->dev_id, regs);
+                action = action->next;
+        } while (action);
+        if (status & SA_SAMPLE_RANDOM)
+                add_interrupt_randomness(irq);
+        local_irq_disable();
+
+        return status;
+}
+
+which looks to me that interrupts are going to get enabled if the 
+_first_ handler in the chain _doesn't_ have SA_INTERRUPT set, which 
+isn't the behaviour i'd expect. a later handler might freak if it makes 
+the assumption that interrupts are disabled (or maybe this doesn't 
+happen)...
+
+i'm not sure what the correct thing to do here is... is it okay to 
+enable or disable interrupts for each handler depending on their own 
+SA_INTERRUPT flag? if that's the case then the patch is trivial...
+
+thanks
+
+James
+
 

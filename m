@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132709AbRDQW7h>; Tue, 17 Apr 2001 18:59:37 -0400
+	id <S132710AbRDQXAr>; Tue, 17 Apr 2001 19:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132710AbRDQW71>; Tue, 17 Apr 2001 18:59:27 -0400
-Received: from relay1.pair.com ([209.68.1.20]:32271 "HELO relay1.pair.com")
-	by vger.kernel.org with SMTP id <S132709AbRDQW7S>;
-	Tue, 17 Apr 2001 18:59:18 -0400
-X-pair-Authenticated: 203.164.4.223
-From: "Manfred Bartz" <md-linux-kernel@logi.cc>
-Message-ID: <20010417225850.15245.qmail@logi.cc>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IP Acounting Idea for 2.5
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446DA39@berkeley.gci.com>
-X-Subversion: anarchy bomb crypto drug explosive fission gun nuclear sex terror
-In-Reply-To: Leif Sawyer's message of "Tue, 17 Apr 2001 13:48:21 -0800"
-Organization: rows-n-columns
-Date: 18 Apr 2001 08:58:49 +1000
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
+	id <S132722AbRDQXAi>; Tue, 17 Apr 2001 19:00:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48146 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132710AbRDQXAY>; Tue, 17 Apr 2001 19:00:24 -0400
+Subject: Re: 2.4.3-ac8 build error with CONFIG_DEBUG_KERNEL not set
+To: scole@lanl.gov
+Date: Wed, 18 Apr 2001 00:02:24 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        elenstev@mesatop.com
+In-Reply-To: <01041716371704.01250@spc2.esa.lanl.gov> from "Steven Cole" at Apr 17, 2001 04:37:17 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14peUM-0003UE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leif Sawyer <lsawyer@gci.com> writes:
+> kernel/kernel.o(__ksymtab+0xca0): undefined reference to `__sysrq_get_key_op'
+> kernel/kernel.o(__ksymtab+0xca8): undefined reference to `__sysrq_put_key_op'
+> make: *** [vmlinux] Error 1
+> 
+> However, with CONFIG_DEBUG_KERNEL and CONFIG_MAGIC_SYSRQ set to y,
+> I got a clean build. 
 
-> > > Jesse Pollard replies:
-
-> > Removing/no-oping the reset code would make the module
-> > SMALLER, and simpler.
-
-> NO.  Don't remove the functionality that is required.  
-
-Please explain where counter reset capability provides any 
-functionality that is not already available without it.
-
-You might want to read RFC2724 ``Traffic Flow Measurement''.
-Search for ``reset''.
-
-Counter resets have always caused problems, that's why mission 
-critical counters never have a reset.  Have you ever seen an
-electricity, gas or water meter with a reset?  The same reasoning
-applies when you have accounting rules that are used to charge
-customers for traffic volume.
-
-> Fix your userspace applications to behave correctly.  If _you_
-> require your userspace applications to not clear counters, then fix
-> the application.
-
-You are confused.  What would you say if a close() by another,
-unrelated application closed all open descriptors for that file,
-including the one you just opened?  Just fix your applications?
-
--- 
-Manfred Bartz
+ac8 has a few build glitches. Im testing ac9 now mostly to squash them before
+everyone mails me 8)

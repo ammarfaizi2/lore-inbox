@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132483AbRDUEow>; Sat, 21 Apr 2001 00:44:52 -0400
+	id <S132488AbRDUFOf>; Sat, 21 Apr 2001 01:14:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132485AbRDUEom>; Sat, 21 Apr 2001 00:44:42 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:30219 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132483AbRDUEo2>;
-	Sat, 21 Apr 2001 00:44:28 -0400
-Date: Sat, 21 Apr 2001 05:42:58 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: Zach Brown <zab@zabbo.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: numbers?
-In-Reply-To: <3AE0A8D2.3CD79B8D@chromium.com>
-Message-ID: <Pine.LNX.4.30.0104210541300.5685-100000@elte.hu>
+	id <S132485AbRDUFOY>; Sat, 21 Apr 2001 01:14:24 -0400
+Received: from ns.hgiga.com ([210.241.239.254]:57359 "HELO hgiga.com")
+	by vger.kernel.org with SMTP id <S132395AbRDUFOK>;
+	Sat, 21 Apr 2001 01:14:10 -0400
+Message-ID: <3AE105A7.78BE590C@hgiga.com>
+Date: Sat, 21 Apr 2001 11:59:36 +0800
+From: Allen <allen@hgiga.com>
+X-Mailer: Mozilla 4.7 [zh_TW] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: zh-TW
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, mec@shout.net
+Subject: make menuconfig error
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+when I use make menuconfig on the /usr/src/linux directory which linux
+was symbolic link to /usr/src/linux-2.4.3 , I can see menu , but  when I
+press space  or enter key will exit menu and show follow message :
 
-On Fri, 20 Apr 2001, Fabio Riccardi wrote:
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-> I agree that comparing different hardware architectures is a tricky
-> business, but you asked me to comment on some of the comparisons that
-> you made...
+ Q> scripts/Menuconfig: MCmenu11: command not found
 
-well, those two systems looked similar enough. (same CPU speed and the
-test is CPU limited in that case.) But i agree that the only sure
-comparison is by testing on the same system.
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
 
-	Ingo
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+
+make: *** [menuconfig] Error 1
+[root@bk linux]#
+
+do you know how to fix it .
+
 

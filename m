@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314051AbSEMOFq>; Mon, 13 May 2002 10:05:46 -0400
+	id <S313767AbSEMOJz>; Mon, 13 May 2002 10:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314052AbSEMOFp>; Mon, 13 May 2002 10:05:45 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:6417 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S314051AbSEMOFo>;
-	Mon, 13 May 2002 10:05:44 -0400
-Message-ID: <3CDFB962.5070600@evision-ventures.com>
-Date: Mon, 13 May 2002 15:02:26 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.15 IDE 62
-In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CDFAEC0.6050403@evision-ventures.com> <20020513134832.GV1106@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313731AbSEMOJy>; Mon, 13 May 2002 10:09:54 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:55022 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S313767AbSEMOJx>; Mon, 13 May 2002 10:09:53 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <qwwu1pw4rkp.fsf@decibel.fi.muni.cz> 
+To: Petr Konecny <pekon@informatics.muni.cz>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, hpa@zytor.com,
+        Corey Minyard <cminyard@mvista.com>, paulus@samba.org
+Subject: Re: zisofs data corruption in 2.4.19-pre7-ac2 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 13 May 2002 15:09:25 +0100
+Message-ID: <11532.1021298965@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Jens Axboe napisa?:
-> On Mon, May 13 2002, Martin Dalecki wrote:
-> 
->>Mon May 13 12:38:11 CEST 2002 ide-clean-62
->>
->>- Add missing locking around ide_do_request in do_ide_request().
-> 
-> 
-> This is broken, do_ide_request() is already called with the request lock
-> held. tq_disk run -> generic_unplug_device (grab lock) ->
-> __generic_unplug_device -> do_ide_request(). You just introduced a
-> deadlock.
-> 
-> This code would have caused hangs or massive corruption immediately if
-> ide_lock wasn't ready held there. Not to mention instant spin_unlock
-> BUG() triggers in queue_command()
-> 
 
-Oops. Indeed I see now that the ide_lock is exported to
-the upper layers above it in ide-probe.c
+pekon@informatics.muni.cz said:
+> I think I discovered an obscure bug in zisofs in 2.4.19-pre7-ac2. It
+> manifests thus: 
 
-blk_init_queue(q, do_ide_request, &ide_lock);
+> $ cat /mnt/cdimage/7x14.pbm 
+> cat: data: Input/output error
+> and the following (single) line gets logged:
+> zisofs: zisofs_inflate returned 3, inode = 47342, index = 0, fpage = 0,
+>   xpage = 0, avail_in = 0, avail_out = 1890, ai = 2024, ao = 4096 
 
-But this is problematic in itself, since it means that
-we are basically serialiazing between *all* requests
-on all channels.
+OK, apply this and both ppp_deflate and zisofs should be happy. 
 
-So I think we should have per channel locks on this level
-right? This is anyway our unit for serialization.
-(I'm just surprised that blk_init_queue() doesn't
-provide queue specific locking and relies on exported
-locks from the drivers...)
+--- lib/zlib_inflate/inflate.c.orig	Mon May 13 14:40:26 2002
++++ lib/zlib_inflate/inflate.c	Mon May 13 14:40:46 2002
+@@ -110,7 +110,7 @@
+ 
+ #undef NEEDBYTE
+ #undef NEXTBYTE
+-#define NEEDBYTE {if(z->avail_in==0)goto empty;r=f;}
++#define NEEDBYTE {if(z->avail_in==0)goto empty;r=trv;}
+ #define NEXTBYTE (z->avail_in--,z->total_in++,*z->next_in++)
+ 
+ int ZEXPORT zlib_inflate(z, f)
+
+
+--
+dwmw2
+
 

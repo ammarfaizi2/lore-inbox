@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbUBWXEG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 18:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbUBWXAo
+	id S262061AbUBWXMY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 18:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbUBWXMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 18:00:44 -0500
-Received: from hera.kernel.org ([63.209.29.2]:5336 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262078AbUBWW4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 17:56:33 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: Intel vs AMD x86-64
-Date: Mon, 23 Feb 2004 22:56:29 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c1e0et$fb7$1@terminus.zytor.com>
-References: <Pine.LNX.4.44.0402231625220.9708-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1077576989 15720 63.209.29.3 (23 Feb 2004 22:56:29 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 23 Feb 2004 22:56:29 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Mon, 23 Feb 2004 18:12:23 -0500
+Received: from mail.convergence.de ([212.84.236.4]:23427 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S262061AbUBWXLk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 18:11:40 -0500
+Message-ID: <403A889F.6080406@convergence.de>
+Date: Tue, 24 Feb 2004 00:11:27 +0100
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Michael Hunold <hunold@linuxtv.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Compilation fix for latest DVB updates (was Re: x86_64 build failure)
+References: <20040223143728.77a76d84.akpm@osdl.org>
+In-Reply-To: <20040223143728.77a76d84.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------080509080002010105020804"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org>
-By author:    Linus Torvalds <torvalds@osdl.org>
-In newsgroup: linux.dev.kernel
->
-> 
-> 
-> On Mon, 23 Feb 2004, Rik van Riel wrote:
-> > On Sat, 21 Feb 2004, Linus Torvalds wrote:
-> > 
-> > > I'm really happy Intel finally got with the program,
-> > 
-> > With the program?  They still don't have an IOMMU ;)
-> 
-> Hmm.. Let's see what their chipsets will look like for this thing. Since
-> they don't have an integrated memory controller, they can't very well do
-> the IOMMU on the CPU, now can they?
-> 
-> So you can't blame them for that.
-> 
+This is a multi-part message in MIME format.
+--------------080509080002010105020804
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-No, it should be in the northbridge.  Note that *most* AGPGARTs work
-as IOMMUs, but not all.  They may not be 64 bits, though.
+On 02/23/04 23:37, Andrew Morton wrote:
 
-	-hpa
+> drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c:32:28: dvb_usb_compat.h: No such file or directory
+
+Rats. My latest test kernel configuration had USB disabled for some 
+unknown reason, so the dvb-ttusb-budget and dvb-ttusb-dec drivers were 
+not compiled at all.
+
+I attached a quick fix: simply remove the offending line of code, it's 
+from our 2.4 USB compatibility layer.
+
+I CCed LKML so others get to know this patch, too.
+
+CU
+Michael.
+
+--------------080509080002010105020804
+Content-Type: text/plain;
+ name="dvb-ttusb-budget-compile-fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dvb-ttusb-budget-compile-fix.diff"
+
+diff -ura linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c linux-2.6.3-hf/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c
+--- linux-2.6.3/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2004-02-24 00:06:29.000000000 +0100
++++ linux-2.6.3-hf/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2004-02-24 00:07:26.000000000 +0100
+@@ -29,7 +29,6 @@
+ #include <linux/dvb/dmx.h>
+ #include <linux/pci.h>
+ 
+-#include "dvb_usb_compat.h"
+ #include "dvb_functions.h"
+ 
+ /*
+
+--------------080509080002010105020804--

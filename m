@@ -1,113 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265204AbTLRPDx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 10:03:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbTLRPDx
+	id S265220AbTLRPJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 10:09:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbTLRPJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 10:03:53 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:36875 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S265204AbTLRPDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 10:03:50 -0500
-Date: Thu, 18 Dec 2003 09:05:06 -0600 (CST)
-From: mikem@beardog.cca.cpqcorp.net
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, mike.miller@hp.com, scott.benesh@hp.com,
-       jgarzik@pobox.com
-Subject: Re: cciss update for 2.4.24-pre1, 2 of 2
-In-Reply-To: <20031218074749.GO2495@suse.de>
-Message-ID: <Pine.LNX.4.58.0312180858550.30641@beardog.cca.cpqcorp.net>
-References: <Pine.LNX.4.58.0312161750290.30010@beardog.cca.cpqcorp.net>
- <20031217225007.GN2495@suse.de> <20031217154919.6ab61960.akpm@osdl.org>
- <20031218074749.GO2495@suse.de>
+	Thu, 18 Dec 2003 10:09:16 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:51654 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265220AbTLRPJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 10:09:03 -0500
+Date: Thu, 18 Dec 2003 10:09:00 -0500 (EST)
+From: Adam K Kirchhoff <adamk@voicenet.com>
+X-X-Sender: adamk@thorn.ashke.com
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0 sbp2 problems.
+Message-ID: <Pine.LNX.4.58.0312181006220.1692@thorn.ashke.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a version of the patch with the flag changed to
-TASK_UNINTERRUPTIBLE. Thanks for the input.
 
-Thanks,
-mikem
-mike.miller@hp.com
--------------------------------------------------------------------------------
-diff -burN lx2424pre1-p01/drivers/block/cciss.c lx2424pre1/drivers/block/cciss.c
---- lx2424pre1-p01/drivers/block/cciss.c	2003-12-16 17:25:50.000000000 -0600
-+++ lx2424pre1/drivers/block/cciss.c	2003-12-16 17:30:41.000000000 -0600
-@@ -2537,8 +2537,8 @@
- static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
- {
- 	ushort subsystem_vendor_id, subsystem_device_id, command;
--	unchar irq = pdev->irq;
--	__u32 board_id;
-+	unchar irq = pdev->irq, ready = 0;
-+	__u32 board_id, scratchpad;
- 	__u64 cfg_offset;
- 	__u32 cfg_base_addr;
- 	__u64 cfg_base_addr_index;
-@@ -2609,6 +2609,21 @@
- 	printk("address 0 = %x\n", c->paddr);
- #endif /* CCISS_DEBUG */
- 	c->vaddr = remap_pci_mem(c->paddr, 200);
-+	/* Wait for the board to become ready.  (PCI hotplug needs this.)
-+	 * We poll for up to 120 secs, once per 100ms. */
-+	for (i=0; i < 1200; i++) {
-+		scratchpad = readl(c->vaddr + SA5_SCRATCHPAD_OFFSET);
-+		if (scratchpad == 0xffff0000) {
-+			ready = 1;
-+			break;
-+		}
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout(HZ / 10); /* wait 100ms */
-+	}
-+	if (!ready) {
-+		printk(KERN_WARNING "cciss: Board not ready.  Timed out.\n");
-+		return -1;
-+	}
+Hello all,
 
- 	/* get the address index number */
- 	cfg_base_addr = readl(c->vaddr + SA5_CTCFG_OFFSET);
-diff -burN lx2424pre1-p01/drivers/block/cciss.h lx2424pre1/drivers/block/cciss.h
---- lx2424pre1-p01/drivers/block/cciss.h	2003-11-28 12:26:19.000000000 -0600
-+++ lx2424pre1/drivers/block/cciss.h	2003-12-16 17:30:41.000000000 -0600
-@@ -137,6 +137,7 @@
- #define SA5_REPLY_INTR_MASK_OFFSET	0x34
- #define SA5_REPLY_PORT_OFFSET		0x44
- #define SA5_INTR_STATUS		0x30
-+#define SA5_SCRATCHPAD_OFFSET	0xB0
+	I agave 2.6.0 a shot this morning and have run into a slight
+problem:  it refuses to work with my firewire harddrive.
 
- #define SA5_CTCFG_OFFSET	0xB4
- #define SA5_CTMEM_OFFSET	0xB8
--------------------------------------------------------------------------------
-On Thu, 18 Dec 2003, Jens Axboe wrote:
+	This is the relevent dmesg output:
 
-> On Wed, Dec 17 2003, Andrew Morton wrote:
-> > Jens Axboe <axboe@suse.de> wrote:
-> > >
-> > > > +	for (i=0; i < 1200; i++) {
-> > > > +		scratchpad = readl(c->vaddr + SA5_SCRATCHPAD_OFFSET);
-> > > > +		if (scratchpad == 0xffff0000) {
-> > > > +			ready = 1;
-> > > > +			break;
-> > > > +		}
-> > > > +		set_current_state(TASK_INTERRUPTIBLE);
-> > > > +		schedule_timeout(HZ / 10); /* wait 100ms */
-> > > > +	}
-> > > > +	if (!ready) {
-> > > > +		printk(KERN_WARNING "cciss: Board not ready.  Timed out.\n");
-> > > > +		return -1;
-> > > > +	}
-> > >
-> > > Fine as well, aren't you happy you changed this to schedule_timeout()
-> > > instead of busy looping? :)
-> >
-> > It will still be a busy loop if this task has a signal pending.
-> > TASK_UNINTERRUPTIBLE may be more appropriate...
->
-> Agreed, that would be better.
->
-> --
-> Jens Axboe
->
+ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
+ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[11]  MMIO=[ffafe000-ffafe7ff]  Max
+Packet=[2048]
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[0001080037017e7b]
+ieee1394: Node added: ID:BUS[0-01:1023]  GUID[0006ca0e0400880a]
+ieee1394: unsolicited response packet received - no tlabel match
+ieee1394: The root node is not cycle master capable; selecting a new root
+node and resetting...
+ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+ieee1394: unsolicited response packet received - no tlabel match
+sbp2: $Rev: 1034 $ Ben Collins <bcollins@debian.org>
+scsi1 : SCSI emulation for IEEE-1394 SBP-2 Devices
+ieee1394: sbp2: Logged into SBP-2 device
+ieee1394: sbp2: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+  Vendor: WDC WD12  Model: 00JB-00CRA1       Rev:
+  Type:   Direct-Access                      ANSI SCSI revision: 06
+SCSI device sdb: 234441648 512-byte hdwr sectors (120034 MB)
+sdb: asking for cache data failed
+sdb: assuming drive cache: write through
+ sdb:<3>ieee1394: sbp2: aborting sbp2 command
+0x28 00 00 00 00 00 00 00 08 00
+ieee1394: sbp2: aborting sbp2 command
+0x00 00 00 00 00 00
+ieee1394: sbp2: reset requested
+ieee1394: sbp2: Generating sbp2 fetch agent reset
+ieee1394: sbp2: aborting sbp2 command
+0x00 00 00 00 00 00
+ieee1394: sbp2: reset requested
+ieee1394: sbp2: Generating sbp2 fetch agent reset
+ieee1394: sbp2: aborting sbp2 command
+0x00 00 00 00 00 00
+ieee1394: sbp2: reset requested
+ieee1394: sbp2: Generating sbp2 fetch agent reset
+ieee1394: sbp2: aborting sbp2 command
+0x00 00 00 00 00 00
+scsi: Device offlined - not ready after error recovery: host 1 channel 0
+id 0 lun 0
+SCSI error : <1 0 0 0> return code = 0x6050000
+end_request: I/O error, dev sdb, sector 0
+Buffer I/O error on device sdb, logical block 0
+scsi1 (0:0): rejecting I/O to offline device
+Buffer I/O error on device sdb, logical block 0
+ unable to read partition table
+Attached scsi disk sdb at scsi1, channel 0, id 0, lun 0
+Attached scsi generic sg1 at scsi1, channel 0, id 0, lun 0,  type 0
+
+This drive works fine with 2.4.21.  Please let me know if there's any more
+information that's needed, or if there's something I can do to help
+troubleshoot this problem.
+
+Adam
+
+

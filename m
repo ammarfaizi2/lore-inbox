@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287161AbSABXAy>; Wed, 2 Jan 2002 18:00:54 -0500
+	id <S287158AbSABXAO>; Wed, 2 Jan 2002 18:00:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287155AbSABXAf>; Wed, 2 Jan 2002 18:00:35 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:47100 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S287160AbSABXAX>; Wed, 2 Jan 2002 18:00:23 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200201022239.OAA21717@atrus.synopsys.com> 
-In-Reply-To: <200201022239.OAA21717@atrus.synopsys.com> 
-To: Joe Buck <jbuck@synopsys.COM>
-Cc: VANDROVE@vc.cvut.cz (Petr Vandrovec), pkoning@equallogic.com (Paul Koning),
-        trini@kernel.crashing.org, velco@fadata.bg,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix 
-Mime-Version: 1.0
+	id <S287155AbSABXAE>; Wed, 2 Jan 2002 18:00:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5903 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287158AbSABW76>; Wed, 2 Jan 2002 17:59:58 -0500
+Subject: Re: ISA slot detection on PCI systems?
+To: esr@thyrsus.com
+Date: Wed, 2 Jan 2002 23:09:49 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20020102173419.A21165@thyrsus.com> from "Eric S. Raymond" at Jan 02, 2002 05:34:19 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 02 Jan 2002 22:59:39 +0000
-Message-ID: <23060.1010012379@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16LuW5-0005w3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> What?  Perhaps we're talking at cross-prorposes here.  What I'm proposing
+> is that /proc/dmi should be a world-readable /proc file with the property
+> that 
+> 	cat /proc/dmi
+> 
+> gives you a DMI report.  No root privileges or SUID programs needed.
+> Surely that would be an improvement on having to run Arjan's dmidecode as
+> root or requiring it to be SUID.
 
-jbuck@synopsys.COM said:
-> > An ICE, while it's not quite what was expected and it'll probably get
-> > fixed, is nonetheless a perfectly valid implementation of 'undefined 
-> > behaviour'.
+Of course it isnt. cat /proc/dmi executes kernel mode code which is totally
+priviledged. /sbin/dmidecode executes slightly priviledged code which will
+core dump not crash the box if it misparses the mapped table.
 
->  Not for GCC it isn't.  Our standards say that a compiler crash, for
-> any input whatsoever, no matter how invalid (even if you feed in line
-> noise), is a bug.  Other than that we shouldn't make promises, though
-> the old gcc1 behavior of trying to launch a game of rogue or hack when
-> encountering a #pragma was cute.
-
-True - sorry, I forgot where this was crossposted. I didn't mean to imply
-that GCC folks would _accept_ an ICE and not fix it - just that strictly
-speaking, it is a perfectly valid response, as is the unintended observed
-behaviour of the output code which actually started this thread.
-
---
-dwmw2
-
-
+Also you might want to restrict or lie about DMI access. It may include serial
+numbers or other info considered private.

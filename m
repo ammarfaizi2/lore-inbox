@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278485AbRJPBdp>; Mon, 15 Oct 2001 21:33:45 -0400
+	id <S278490AbRJPBqr>; Mon, 15 Oct 2001 21:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278487AbRJPBdg>; Mon, 15 Oct 2001 21:33:36 -0400
-Received: from linux.ee.tku.edu.tw ([163.13.132.68]:32777 "HELO
-	linux.ee.tku.edu.tw") by vger.kernel.org with SMTP
-	id <S278485AbRJPBdb>; Mon, 15 Oct 2001 21:33:31 -0400
-Date: Tue, 16 Oct 2001 17:52:12 +0800 (CST)
-From: Gian-Yan Xu <kids@linux.ee.tku.edu.tw>
-To: Monty Vanderbilt <mvb@amazon.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: ptrace bug
-In-Reply-To: <ALEMKFGKCDJNAGAJHLLLOEEFCEAA.mvb@amazon.com>
-Message-ID: <Pine.LNX.4.21.0110161739320.12579-100000@linux.ee.tku.edu.tw>
+	id <S278489AbRJPBqi>; Mon, 15 Oct 2001 21:46:38 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:62441 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S278488AbRJPBq1>; Mon, 15 Oct 2001 21:46:27 -0400
+Date: Mon, 15 Oct 2001 18:46:51 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: Dan Hollis <goemon@anime.net>
+cc: Timur Tabi <ttabi@interactivesi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
+In-Reply-To: <Pine.LNX.4.30.0110091504520.18431-100000@anime.net>
+Message-ID: <Pine.LNX.4.33.0110151843120.7302-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Oct 2001, Monty Vanderbilt wrote:
+On Tue, 9 Oct 2001, Dan Hollis wrote:
 
-> I don't think the problem is what you identified.
-> arch/i386/kernel/ptrace.c:getreg() takes the extra FS,GS offsets into
-> account and performs special handling for them. I suspect this is because
-> they are not stable per-thread registers and not saved into the register
-> structure on an interrupt or system call.
+> Your impression is wrong, all socketed athlons can SMP, and the new
+> palomino core durons can too (not sure about older durons).
 
-Before the reply, I dont examin getreg() carefully. But now, I still
-believe the bug is exist. see the blow (ptrace.c case PTRACE_GETREGS):
+as also is yours; all athlons and durons, including the slot versions of
+these processors, are SMP compatible. however, amd only officially
+supports running smp combinations with the athlon mp chips.
 
-    for ( i = 0; i < FRAME_SIZE*sizeof(long); i += sizeof(long) ) {
-            __put_user(getreg(child, i),(unsigned long *) data);
-            data += sizeof(long);
-    }
+IIRC, all AMD chips (P6x86 and up) are SMP compatible, however the older
+chips (P6x86) are OpenAPIC standard versus the current APIC standard (i
+forget the name).
 
-when i = FS*sizeof(long), the getreg() return child->thread.fs,
-and the value will be copy into *data of user-space, but
-*data is point to orig_eax of struct pt_regs.
+hope this helps
 
-So, when i = ORIG_EAX*sizeof(long), even getreg() adjust his regno,
-that let us get accurate registers, but it copy value into wrong member of
-struct pt_regs ( the *data is point to xcs member, not orig_eax member,
-because the line: data += sizeof(long); never be adjust)
-
-If we dont modify struct pt_regs, maybe we should fix the ptrace.c?
-
-> 
-> ptrace.c:getreg() ...
-> 	switch (regno >> 2) {
-> 		case FS:
-> 			retval = child->thread.fs;
-> 			break;
-> 		case GS:
-> 			retval = child->thread.gs;
-> 			break;
-> 		case DS:
-> 		case ES:
-> 		case SS:
-> 		case CS:
-> 			retval = 0xffff;
-> 			/* fall through */
-> 		default:
-> 			if (regno > GS*4)				// *** Adusts for missing FS,GS fields *** //
-> 				regno -= 2*4;
-> 			regno = regno - sizeof(struct pt_regs);
-> 			retval &= get_stack_long(child, regno);
-> 	}
-> 
-
--- 
-Best regards,
-Gian-Yan Xu.
-
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 

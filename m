@@ -1,39 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266152AbUBCVc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 16:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUBCVc5
+	id S266118AbUBCVnS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 16:43:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUBCVnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 16:32:57 -0500
-Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:47378 "HELO
-	signalmarketing.com") by vger.kernel.org with SMTP id S266152AbUBCVct convert rfc822-to-8bit
+	Tue, 3 Feb 2004 16:43:18 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:27528 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S266118AbUBCVnI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 16:32:49 -0500
-Date: Tue, 3 Feb 2004 15:33:24 -0600 (CST)
-From: Derek Foreman <manmower@signalmarketing.com>
-X-X-Sender: manmower@uberdeity
-To: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
-cc: LINUX KERNEL MAILING LIST <linux-kernel@vger.kernel.org>, akpm@digeo.com
-Subject: Re: Bug in mm series
-In-Reply-To: <401F7D9B.3000706@wanadoo.es>
-Message-ID: <Pine.LNX.4.58.0402031530510.438@uberdeity>
-References: <401F7D9B.3000706@wanadoo.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 3 Feb 2004 16:43:08 -0500
+Subject: Re: [ANNOUNCE] udev 016 release
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040203201359.GB19476@kroah.com>
+References: <20040203201359.GB19476@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5JZnkWaiNPTzpRO7gEOX"
+Message-Id: <1075844602.7473.75.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 03 Feb 2004 23:43:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Feb 2004, [ISO-8859-1] Luis Miguel García wrote:
 
-> When I try to boot with latest mm series (such as actual rc3-mm1 or
-> rc2-mm2), my nforce ethernet device doesn't works. It worked in the past
-> with the forcedeth reverse engineered driver but now it keeps for 30 or
-> more seconds halted (at boot) and then the network device dosn't run.
->
-> Here is the dmesg of rc3-mm1. Do you want for me to test something? Thanks!
->
-> P.S.:   The ACPI related messages are larger that in rc3.
+--=-5JZnkWaiNPTzpRO7gEOX
+Content-Type: multipart/mixed; boundary="=-purk3Hj7Dv0tYFEC+vh9"
 
-My e100 on an nforce2 won't work in rc3-mm1.
-The "acpi=off" boot parameter makes it go.
+
+--=-purk3Hj7Dv0tYFEC+vh9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2004-02-03 at 22:13, Greg KH wrote:
+
+Once again, patch to make logging a config option.
+
+Reason for this (since you asked for it =3D):
+- In our setup it is easy (although still annoying) .. just
+edit the ebuild, add logging support (or remove it) and rebuild.
+For say a binary distro, having the logging is useful for debugging
+some times, but its more a once of, or rare thing, as you do not
+add or change config files every day.  Sure, we can have logging
+by default, but many do not want ~300 lines of extra debugging in
+their logs is not pleasant, and they will complain.  Rebuilding
+the package for that binary package (given the users it is targeted
+to) is usually not within most users grasp.
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-purk3Hj7Dv0tYFEC+vh9
+Content-Disposition: attachment; filename=udev-016-logging-config-option.patch
+Content-Type: text/x-patch; name=udev-016-logging-config-option.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXByTiB1ZGV2LTAxNi9NYWtlZmlsZSB1ZGV2LTAxNi5sb2dnaW5nL01ha2VmaWxlDQot
+LS0gdWRldi0wMTYvTWFrZWZpbGUJMjAwNC0wMi0wMyAyMjo1NTozMC4yMDE4NTE3NzYgKzAyMDAN
+CisrKyB1ZGV2LTAxNi5sb2dnaW5nL01ha2VmaWxlCTIwMDQtMDItMDMgMjM6MDM6NTUuODY5OTc4
+NTM2ICswMjAwDQpAQCAtMjM5LDYgKzIzOSw3IEBAIHVkZXZfdmVyc2lvbi5oOg0KIAlAZWNobyBc
+I2RlZmluZSBVREVWX0NPTkZJR19GSUxFCVwiJChjb25maWdkaXIpXHVkZXYuY29uZlwiID4+ICRA
+DQogCUBlY2hvIFwjZGVmaW5lIFVERVZfUlVMRVNfRklMRQlcIiQoY29uZmlnZGlyKVx1ZGV2LnJ1
+bGVzXCIgPj4gJEANCiAJQGVjaG8gXCNkZWZpbmUgVURFVl9QRVJNSVNTSU9OX0ZJTEUJXCIkKGNv
+bmZpZ2RpcilcdWRldi5wZXJtaXNzaW9uc1wiID4+ICRADQorCUBlY2hvIFwjZGVmaW5lIFVERVZf
+TE9HX0RFRkFVTFQgXCJ5ZXNcIiA+PiAkQA0KIAlAZWNobyBcI2RlZmluZSBVREVWX0JJTgkJXCIk
+KERFU1RESVIpJChzYmluZGlyKS91ZGV2XCIgPj4gJEANCiAJQGVjaG8gXCNkZWZpbmUgVURFVkRf
+QklOCVwiJChERVNURElSKSQoc2JpbmRpcikvdWRldmRcIiA+PiAkQA0KIAlAZWNobyBcI2RlZmlu
+ZSBVREVWRF9TT0NLCVwiJCh1ZGV2ZGlyKS9cLnVkZXZkLnNvY2tcIiA+PiAkQA0KZGlmZiAtdXBy
+TiB1ZGV2LTAxNi9ldGMvdWRldi91ZGV2LmNvbmYuaW4gdWRldi0wMTYubG9nZ2luZy9ldGMvdWRl
+di91ZGV2LmNvbmYuaW4NCi0tLSB1ZGV2LTAxNi9ldGMvdWRldi91ZGV2LmNvbmYuaW4JMjAwNC0w
+Mi0wMyAyMjo1ODozNC45Mzk3NjczNDQgKzAyMDANCisrKyB1ZGV2LTAxNi5sb2dnaW5nL2V0Yy91
+ZGV2L3VkZXYuY29uZi5pbgkyMDA0LTAyLTAzIDIyOjU2OjQ2LjUzNTI0NzMzNiArMDIwMA0KQEAg
+LTI5LDMgKzI5LDYgQEAgZGVmYXVsdF9vd25lcj0icm9vdCINCiAjICAgICAgICAgICAgICAgICBl
+eHBsaWNpdCBtYXRjaCBpbiB0aGUgcGVybWlzc2lvbnMgZmlsZQ0KIGRlZmF1bHRfZ3JvdXA9InJv
+b3QiDQogDQorIyB1ZGV2X2xvZyAtIHNldCB0byAieWVzIiBpZiB5b3Ugd2FudCBsb2dnaW5nLCBl
+bHNlICJubyINCit1ZGV2X2xvZz0ieWVzIg0KKw0KZGlmZiAtdXByTiB1ZGV2LTAxNi9sb2dnaW5n
+LmggdWRldi0wMTYubG9nZ2luZy9sb2dnaW5nLmgNCi0tLSB1ZGV2LTAxNi9sb2dnaW5nLmgJMjAw
+NC0wMi0wMiAxMTozNDo0OS4wMDAwMDAwMDAgKzAyMDANCisrKyB1ZGV2LTAxNi5sb2dnaW5nL2xv
+Z2dpbmcuaAkyMDA0LTAyLTAzIDIzOjA0OjUxLjIwNDU2NjQwMCArMDIwMA0KQEAgLTMzLDYgKzMz
+LDkgQEANCiAjaW5jbHVkZSA8c3RkYXJnLmg+DQogI2luY2x1ZGUgPHN5c2xvZy5oPg0KIA0KKyNp
+bmNsdWRlICJ1ZGV2LmgiDQorI2luY2x1ZGUgInVkZXZfdmVyc2lvbi5oIg0KKw0KICN1bmRlZiBp
+bmZvDQogI2RlZmluZSBpbmZvKGZvcm1hdCwgYXJnLi4uKQkJCQkJCQkJXA0KIAlkbyB7CQkJCQkJ
+CQkJCVwNCkBAIC02Miw2ICs2NSw5IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBsb2dfbWVzc2FnZSAo
+aW50IGxldmUNCiB7DQogCXZhX2xpc3QJYXJnczsNCiANCisJaWYgKDAgIT0gc3RybmNtcCh1ZGV2
+X2xvZ19zdHIsIFVERVZfTE9HX0RFRkFVTFQsIEJPT0xfU0laRSkpDQorCQlyZXR1cm47DQorDQog
+CXZhX3N0YXJ0KGFyZ3MsIGZvcm1hdCk7DQogCXZzeXNsb2cobGV2ZWwsIGZvcm1hdCwgYXJncyk7
+DQogCXZhX2VuZChhcmdzKTsNCmRpZmYgLXVwck4gdWRldi0wMTYvdWRldi5oIHVkZXYtMDE2Lmxv
+Z2dpbmcvdWRldi5oDQotLS0gdWRldi0wMTYvdWRldi5oCTIwMDQtMDEtMjYgMjI6MjQ6NDIuMDAw
+MDAwMDAwICswMjAwDQorKysgdWRldi0wMTYubG9nZ2luZy91ZGV2LmgJMjAwNC0wMi0wMyAyMzow
+MzoyNS42ODI1Njc3MjAgKzAyMDANCkBAIC0zMiw2ICszMiw4IEBADQogI2RlZmluZSBPV05FUl9T
+SVpFCTMwDQogI2RlZmluZSBHUk9VUF9TSVpFCTMwDQogI2RlZmluZSBNT0RFX1NJWkUJOA0KKyNk
+ZWZpbmUgQk9PTF9TSVpFCTUJLyogJ3llcycsICdubycgYW5kIHBvc3NpYmx5ICd0cnVlJyBvciAn
+ZmFsc2UnDQorCQkJCSAgIGluIGZ1dHVyZSAqLw0KIA0KIHN0cnVjdCB1ZGV2aWNlIHsNCiAJY2hh
+ciBuYW1lW05BTUVfU0laRV07DQpAQCAtNzIsNSArNzQsNiBAQCBleHRlcm4gY2hhciB1ZGV2X3J1
+bGVzX2ZpbGVuYW1lW1BBVEhfTUFYDQogZXh0ZXJuIGNoYXIgZGVmYXVsdF9tb2RlX3N0cltNT0RF
+X1NJWkVdOw0KIGV4dGVybiBjaGFyIGRlZmF1bHRfb3duZXJfc3RyW09XTkVSX1NJWkVdOw0KIGV4
+dGVybiBjaGFyIGRlZmF1bHRfZ3JvdXBfc3RyW0dST1VQX1NJWkVdOw0KK2V4dGVybiBjaGFyIHVk
+ZXZfbG9nX3N0cltCT09MX1NJWkVdOw0KIA0KICNlbmRpZg0KZGlmZiAtdXByTiB1ZGV2LTAxNi91
+ZGV2X2NvbmZpZy5jIHVkZXYtMDE2LmxvZ2dpbmcvdWRldl9jb25maWcuYw0KLS0tIHVkZXYtMDE2
+L3VkZXZfY29uZmlnLmMJMjAwNC0wMi0wMyAyMzowMDo0MC40Mzg2ODg2MDggKzAyMDANCisrKyB1
+ZGV2LTAxNi5sb2dnaW5nL3VkZXZfY29uZmlnLmMJMjAwNC0wMi0wMyAyMjo1Njo0Ni42NDkyMzAw
+MDggKzAyMDANCkBAIC00OCw2ICs0OCw3IEBAIGNoYXIgdWRldl9jb25maWdfZmlsZW5hbWVbUEFU
+SF9NQVgrTkFNRV8NCiBjaGFyIGRlZmF1bHRfbW9kZV9zdHJbTU9ERV9TSVpFXTsNCiBjaGFyIGRl
+ZmF1bHRfb3duZXJfc3RyW09XTkVSX1NJWkVdOw0KIGNoYXIgZGVmYXVsdF9ncm91cF9zdHJbR1JP
+VVBfU0laRV07DQorY2hhciB1ZGV2X2xvZ19zdHJbQk9PTF9TSVpFXTsNCiANCiANCiBzdGF0aWMg
+dm9pZCBpbml0X3ZhcmlhYmxlcyh2b2lkKQ0KQEAgLTYwLDYgKzYxLDcgQEAgc3RhdGljIHZvaWQg
+aW5pdF92YXJpYWJsZXModm9pZCkNCiAJc3RyZmllbGRjcHkodWRldl9jb25maWdfZmlsZW5hbWUs
+IFVERVZfQ09ORklHX0ZJTEUpOw0KIAlzdHJmaWVsZGNweSh1ZGV2X3J1bGVzX2ZpbGVuYW1lLCBV
+REVWX1JVTEVTX0ZJTEUpOw0KIAlzdHJmaWVsZGNweSh1ZGV2X3Blcm1pc3Npb25zX2ZpbGVuYW1l
+LCBVREVWX1BFUk1JU1NJT05fRklMRSk7DQorCXN0cmZpZWxkY3B5KHVkZXZfbG9nX3N0ciwgVURF
+Vl9MT0dfREVGQVVMVCk7DQogfQ0KIA0KICNkZWZpbmUgc2V0X3ZhcihfbmFtZSwgX3ZhcikJCQkJ
+XA0KQEAgLTE1Niw2ICsxNTgsNyBAQCBzdGF0aWMgaW50IHBhcnNlX2NvbmZpZ19maWxlKHZvaWQp
+DQogCQlzZXRfdmFyKCJkZWZhdWx0X21vZGUiLCBkZWZhdWx0X21vZGVfc3RyKTsNCiAJCXNldF92
+YXIoImRlZmF1bHRfb3duZXIiLCBkZWZhdWx0X293bmVyX3N0cik7DQogCQlzZXRfdmFyKCJkZWZh
+dWx0X2dyb3VwIiwgZGVmYXVsdF9ncm91cF9zdHIpOw0KKwkJc2V0X3ZhcigidWRldl9sb2ciLCB1
+ZGV2X2xvZ19zdHIpOw0KIAl9DQogCWRiZ19wYXJzZSgiJXM6JWQ6JVpkOiBlcnJvciBwYXJzaW5n
+ICclcyciLCB1ZGV2X2NvbmZpZ19maWxlbmFtZSwNCiAJCSAgbGluZW5vLCB0ZW1wIC0gbGluZSwg
+dGVtcCk7DQpAQCAtMTkxLDYgKzE5NCw3IEBAIHN0YXRpYyB2b2lkIGdldF9kaXJzKHZvaWQpDQog
+CWRiZ19wYXJzZSgidWRldl9kYl9maWxlbmFtZSA9ICVzIiwgdWRldl9kYl9maWxlbmFtZSk7DQog
+CWRiZ19wYXJzZSgidWRldl9ydWxlc19maWxlbmFtZSA9ICVzIiwgdWRldl9ydWxlc19maWxlbmFt
+ZSk7DQogCWRiZ19wYXJzZSgidWRldl9wZXJtaXNzaW9uc19maWxlbmFtZSA9ICVzIiwgdWRldl9w
+ZXJtaXNzaW9uc19maWxlbmFtZSk7DQorCWRiZ19wYXJzZSgidWRldl9sb2dfc3RyID0gJXMiLCB1
+ZGV2X2xvZ19zdHIpOw0KIAlwYXJzZV9jb25maWdfZmlsZSgpOw0KIA0KIAlkYmdfcGFyc2UoInVk
+ZXZfcm9vdCA9ICVzIiwgdWRldl9yb290KTsNCkBAIC0xOTgsNiArMjAyLDcgQEAgc3RhdGljIHZv
+aWQgZ2V0X2RpcnModm9pZCkNCiAJZGJnX3BhcnNlKCJ1ZGV2X2RiX2ZpbGVuYW1lID0gJXMiLCB1
+ZGV2X2RiX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2X3J1bGVzX2ZpbGVuYW1lID0gJXMi
+LCB1ZGV2X3J1bGVzX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2X3Blcm1pc3Npb25zX2Zp
+bGVuYW1lID0gJXMiLCB1ZGV2X3Blcm1pc3Npb25zX2ZpbGVuYW1lKTsNCisJZGJnX3BhcnNlKCJ1
+ZGV2X2xvZ19zdHIgPSAlcyIsIHVkZXZfbG9nX3N0cik7DQogfQ0KIA0KIHZvaWQgdWRldl9pbml0
+X2NvbmZpZyh2b2lkKQ0K
+
+--=-purk3Hj7Dv0tYFEC+vh9--
+
+--=-5JZnkWaiNPTzpRO7gEOX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAIBX6qburzKaJYLYRAk6WAJ9tWwxKln9eF3+NBRSf17CkbenCWgCfeGit
+hdE4G6J2tbpJ3fAVSRsNIp0=
+=3PFe
+-----END PGP SIGNATURE-----
+
+--=-5JZnkWaiNPTzpRO7gEOX--
+

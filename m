@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270634AbRIAMZO>; Sat, 1 Sep 2001 08:25:14 -0400
+	id <S270495AbRIAMcz>; Sat, 1 Sep 2001 08:32:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270495AbRIAMYy>; Sat, 1 Sep 2001 08:24:54 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1932 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S270619AbRIAMYe>;
-	Sat, 1 Sep 2001 08:24:34 -0400
-Date: Sat, 01 Sep 2001 05:24:46 -0700 (PDT)
-Message-Id: <20010901.052446.09954324.davem@redhat.com>
-To: paulus@samba.org
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, davidm@hpl.hp.com
-Subject: Re: [PATCH] avoid unnecessary cache flushes
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15248.51929.355711.574565@cargo.ozlabs.ibm.com>
-In-Reply-To: <15248.40412.665276.271570@cargo.ozlabs.ibm.com>
-	<20010901.015536.61333988.davem@redhat.com>
-	<15248.51929.355711.574565@cargo.ozlabs.ibm.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S270619AbRIAMcp>; Sat, 1 Sep 2001 08:32:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54032 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270495AbRIAMcg>; Sat, 1 Sep 2001 08:32:36 -0400
+Subject: Re: Adaptec ASR2100s support?
+To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
+Date: Sat, 1 Sep 2001 13:35:56 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0109011422400.7322-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Sep 01, 2001 02:23:49 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15dA0C-0004uH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Does any of you know if there's support for the Adaptec ASR2100s
+> controller? It seems to be an old DPT chipset, although I don't know the
+> exact values of anything.
 
-Ok, it looks fine to me now.
+DPT wrote drivers and after some cycles of them cleaning them up they are in
+the 2.4.9-ac kernel and targetted for Linus tree.
 
-Later,
-David S. Miller
-davem@redhat.com
+Alan

@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268495AbTGTVjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268564AbTGTVjx
+	id S268684AbTGTVl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268685AbTGTVl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:39:53 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:61188
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S268495AbTGTVjw
+	Sun, 20 Jul 2003 17:41:56 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:2433 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S268684AbTGTVk7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:39:52 -0400
-Subject: Re: [2.6.0-test1-mm2] unable to mount root fs on unknown-block(0,0)
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Florian Huber <florian.huber@mnet-online.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030720125547.11466aa4.florian.huber@mnet-online.de>
-References: <20030720125547.11466aa4.florian.huber@mnet-online.de>
-Content-Type: text/plain
-Message-Id: <1058738091.5980.63.camel@localhost.localdomain>
+	Sun, 20 Jul 2003 17:40:59 -0400
+Date: Sun, 20 Jul 2003 22:55:45 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SiI3112 lost interrupts
+Message-ID: <20030720215545.GD1247@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+References: <20030720203758.GB1247@carfax.org.uk> <Pine.LNX.4.10.10307201348530.29430-100000@master.linux-ide.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 20 Jul 2003 14:54:52 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x4pBfXISqBoDm8sr"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10307201348530.29430-100000@master.linux-ide.org>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nick: darksatanic
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-07-20 at 03:55, Florian Huber wrote:
-> Hello ML,
-> I can't boot my 2.6.0-test1-mm2 kernel (+GCC 3.3). The kernel panics
-> at bootime:
+
+--x4pBfXISqBoDm8sr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sun, Jul 20, 2003 at 01:51:36PM -0700, Andre Hedrick wrote:
 > 
-> VFS: Cannot open root device "hda3" or unknown-block(0,0)
-> Please append a correct "root=" boot option
-> Kernel Panic: VFS: Unable to mount root fs on unknown-block(0,0)
+> Well I just now got it refixed (for two environments) and discussing with
+> SiI how to address this in a final solution.
 
-I'm getting the same thing, with an ext3 root.  It seems that something
-odd is happening in init/do_mounts.c, since from the message it looks
-like ROOT_DEV isn't being initialized.  However the mm2 patch doesn't
-seem to change anything significant-looking in this directory (just some
-headers).  
+   That's good to know what's happening with these drivers, and that
+there's a fix on the way. Thank you.
 
-Hm, on closer inspection, it resolves the device name by mounting sysfs,
-rummaging around to see if the device exists and gets its device number
-(0301 for hda1) and initializes ROOT_DEV from that.  I wonder if there's
-a sysfs/block device breakage which makes the partitions not appear in
-sysfs?  Setting root=0303 (in your case) might helps things along.
+   Are you able & willing to give an estimated timescale for the
+public release of the solution?
 
-	J
+   Thanks,
+   Hugo.
 
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+           --- There are three mistaiks in this sentance. ---            
+
+--x4pBfXISqBoDm8sr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/Gw/hssJ7whwzWGARAnj1AKCnZQVbS8qztOZpUQbweDTfjX8VvACfWZhn
+pC1Eq4mFm8eYBNCBErpuQ5Q=
+=rshR
+-----END PGP SIGNATURE-----
+
+--x4pBfXISqBoDm8sr--

@@ -1,57 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUHQO3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUHQOeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268263AbUHQO3u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHQO2N
+	id S268253AbUHQOeM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 10:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268268AbUHQOeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:28:13 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:27778 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S268266AbUHQOXW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 10:23:22 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Date: Tue, 17 Aug 2004 16:23:18 +0200
+	Tue, 17 Aug 2004 10:34:12 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:34178 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268253AbUHQObs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 10:31:48 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
+Date: Tue, 17 Aug 2004 16:30:07 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20040815151346.GA13761@devserv.devel.redhat.com> <200408171512.26568.bzolnier@elka.pw.edu.pl> <20040817140533.GB2019@devserv.devel.redhat.com>
+In-Reply-To: <20040817140533.GB2019@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Hang after "BIOS data check successful" with DVI
-Cc: Shaun Jackman <sjackman@telus.net>, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <EB9C984875@vcnet.vc.cvut.cz>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408171630.07979.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Aug 04 at 9:51, Zwane Mwaikambo wrote:
-> On Tue, 17 Aug 2004, Petr Vandrovec wrote:
-> 
-> > On 16 Aug 04 at 16:55, Shaun Jackman wrote:
-> > > When I have a DVI display plugged into my Matrox G550 video card the
-> > > boot process hangs at "BIOS data check successful". I am running Linux
-> > > kernel 2.6.6. This problem does not affect Linux kernel 2.4.26. If I
-> > > boot without the DVI display plugged in, I can plug it in after the
-> > > boot process and the display works.
+On Tuesday 17 August 2004 16:05, Alan Cox wrote:
+> > > +
+> > > +	hwif->chipset = ide_unknown;
 > >
-> > Try disabling CONFIG_VIDEO_SELECT and/or comment out call to store_edid
-> > in arch/i386/boot/video.S. Also which bootloader you use? From
-> > quick glance at bootloaders, grub1 seems to set %sp to 0x9000, while
-> > LILO to 0x0800. And I think that 2048 byte stack (plus something already
-> > allocated by loader) might be too small for DDC call, as MGA BIOS first
-> > creates EDID copy on stack...
-> 
-> Urgh, this bug is still around :(
-> 
-> http://bugme.osdl.org/show_bug.cgi?id=1458
+> > this breaks (half-working) HDIO_SCAN_HWIF ioctl
+> > and can change ordering of IDE devices in some situations
+> > - many host drivers look at hwif->chipset during init
+>
+> The existing code didn't allow reuse of the hwif. It leaked it forever
+> each time because the chipset was left randomly set to pci. ide_unknown is
+> used by the scanning code in various places to mean "reusable". It has no
+> impact on ordering I can see because you don't hotplug ide until after
+> the boot sequence is complete. Once you do hotplug well the order is
 
-Yes, it looks like this very same problem. From looking at G400 BIOS
-it would need 380 bytes plus whatever PCI BIOS services need - and PCI
-BIOS system calls are specced to fit into 1024 bytes on stack. G550 BIOS
-seems to need 200 bytes plus whatever PCI BIOS services need. So
-LILO's 2KB should be sufficient - and indeed I do not see problem
-with G550 & LILO (Debian's 22.5.9) here, with both DVI and analog cables 
-connected in.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    
+Also ide_unregister_hwif() still can be called on rare circumstances during 
+boot sequence - see ide_register_hw() mail - it needs fixing first.
 
+> already intriguing although it will preserve the pre setup legacy
+> interfaces.
+
+You forgot about the sad fact that most host drivers can be modular
+thanks to prematuraly making them modular in 2.4. :/
+
+ide_match_hwif() checks for hwif->chipset - ordering will not be the same
+i.e. you load driver for some IDE PCI controller which doesn't have drives 
+attached to it, unload it, load some other driver - hwifs will be reused - 
+some sequence in 2.4 will possibly leave you with different ordering because 
+hwif->chipset will stay as ide_pci not ide_unknown
+
+There are other much more crazy scenerios when you consider using 
+HDIO_SCAN_HWIF nad HDIO_UNREGISTER_HWIF ioctls. ;)
+
+> > >  		kfree(setting);
+> > >  	return -1;
+> > > @@ -1058,7 +1282,7 @@
+> > >  EXPORT_SYMBOL(ide_add_setting);
+> >
+> > this breaks locking for IDE device drivers which also call
+> > ide_add_setting() but they are not holding ide_setting_sem
+>
+> No. Follow the locking. You have to move that locking outwards and I
+> already did so. Remember ata_attach is only safe under the setting sem.
+> The attach methods should always have ben called under setting_sem but
+> were not. Now they are so they in turn call the setting functions safely.
+
+Yep, you are right.
+
+> > > -			ide_unregister(arg);
+> > > -			return 0;
+> > > +			if(arg > MAX_HWIFS || arg < 0)
+> > > +				return -EINVAL;
+> > > +			if(ide_hwifs[arg].pci_dev)
+> > > +				return -EINVAL;
+> >
+> > Why this change?  It prohibits all IDE PCI drivers and ide-cs
+> > from using HDIO_UNREGISTER_HWIF ioctl (which is half-working for IDE PCI
+> > because next call to HDIO_SCAN_HWIF will clear hwif out due to hwif->hold
+> > == 0 but it is not the case for ide-cs).
+>
+> It's unsafe for the PCI case. Its also unsafe for every other case. Thats
+> why I have a fixme tagged on it 8)
+>
+> > I hate HDIO_SCAN_HWIF and HDIO_UNREGISTER_HWIF and I still think we
+> > should remove them - I waited with such changes for 2.7 but this plan
+> > failed becuase there won't be 2.7 soon. :/
+>
+> Once you have drive and controller hot plug you don't need them. Until then
+
+Yep, please tell me how are you going to support drive hot plug?
+
+> some laptop users rely on them. I'd prefer to ignore the issue (its a
+> privileged code path) until the hotplug is there, or patch it up by
+> allowing unregister only of SCAN_HWIF added hwifs ?
+
+I prefer short deprecation -> removal -> forgetting about them. :)

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263136AbTJJVZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 17:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbTJJVZs
+	id S263154AbTJJV2X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 17:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbTJJV2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 17:25:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60124 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263136AbTJJVZr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 17:25:47 -0400
-Date: Fri, 10 Oct 2003 14:16:46 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: netdev@oss.sgi.com
-Subject: patches for PROC_FS=n (2.6.0-test7)
-Message-Id: <20031010141646.779f10bb.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 10 Oct 2003 17:28:23 -0400
+Received: from marlin.dnsvelocity.com ([64.21.80.21]:31139 "EHLO
+	marlin.dnsvelocity.com") by vger.kernel.org with ESMTP
+	id S263154AbTJJV2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 17:28:18 -0400
+Subject: kernel developers:two openings
+From: hotjobs <hotjobs@secureallinc.com>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org, hotjobs@secureallinc.com
+Content-Type: text/plain
+Organization: SecureaAll
+Message-Id: <1065821197.1612.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 10 Oct 2003 14:26:42 -0700
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - marlin.dnsvelocity.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - secureallinc.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+US-CA-San-Jose, CA-Senior Linux Kernel Engineer
 
-drivers/char/toshiba.c and
-net/atm/clip.c don't build if PROC_FS=n.
+SecureAll Inc., headquartered in the Silicon Valley, California, is a
+well-funded start-up in the Enterprise Information Security domain. It
+is well recognized that enterprises are on the average 6 months behind
+on applying security patches.During this period, despite employing
+firewalls and intrusion detection systems, enterprises are vulnerable to
+exploits leveraging the un-patched weaknesses.It is also acknowledged
+that patch management is an imperfect science and does not take away the
+risk of applying patches without adequate testing. SecureAll offers 
+a solution that is truly radical and solves the above problems in an
+elegant fashion. The foundation of the company is based on a patented
+breakthrough technology that takes network-based enterprise security to
+the next level. We are currently looking to fill two full-time regular
+positions in our San Jose, CA facility both requiring extensive
+experience with Linux Kernel programming.  
 
-Patches for them are available at:
 
-http://developer.osdl.org/rddunlap/patches/toshiba_inline_260t7.patch
-http://developer.osdl.org/rddunlap/patches/atmprocfs_260t7.patch
+Sr. Linux Kernel Development Engineer (2 Positions):
 
-There are several other drivers/protocols that don't build
-with PROC_FS=n, like arlan, siimage, ipx, llc, and bluetooth.
+Senior software engineers with 5-10 years of experience in the design,
+implementation,and ongoing development of the Kernels. At least 1 year
+experience with Linux Kernel.Kernel Software development and debugging
+experience preferably in Linux environment.A very strong understanding
+of TCP/IP protocol stack. Development with the stack is a plus.
+Development with Linux 2.6 is a plus Good Understanding of memory
+management, SMP, clustering issues is a plus Experience with the
+hardening of kernel and various protocol stacks for security is a plus
+Experience with design and architecture of mid- to large-sized software
+projects.
 
---
-~Randy
+To Apply for this job, please send a word/text resume to
+hotjobs@secureallinc.com with the position title in the subject line.
+
+

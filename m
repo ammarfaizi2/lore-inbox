@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267647AbTAHQ7P>; Wed, 8 Jan 2003 11:59:15 -0500
+	id <S267613AbTAHRF7>; Wed, 8 Jan 2003 12:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbTAHQ7P>; Wed, 8 Jan 2003 11:59:15 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:13070 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267647AbTAHQ7O>; Wed, 8 Jan 2003 11:59:14 -0500
-Subject: Re: [Linux-fbdev-devel] rotation.
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-In-Reply-To: <Pine.LNX.4.44.0301072240530.17129-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0301072240530.17129-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1042044916.1003.144.camel@localhost.localdomain>
+	id <S267614AbTAHRF7>; Wed, 8 Jan 2003 12:05:59 -0500
+Received: from 200-206-134-238.async.com.br ([200.206.134.238]:64393 "EHLO
+	anthem.async.com.br") by vger.kernel.org with ESMTP
+	id <S267613AbTAHRF6>; Wed, 8 Jan 2003 12:05:58 -0500
+Date: Wed, 8 Jan 2003 15:14:24 -0200
+From: Christian Reis <kiko@async.com.br>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: /var/lib/nfs/sm/ files
+Message-ID: <20030108151424.N2628@blackjesus.async.com.br>
+References: <20030107132743.E2628@blackjesus.async.com.br> <shsn0mcj3x8.fsf@charged.uio.no> <20030108095050.C22321@blackjesus.async.com.br> <200301081346.10335.trond.myklebust@fys.uio.no>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Jan 2003 00:56:11 +0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200301081346.10335.trond.myklebust@fys.uio.no>; from trond.myklebust@fys.uio.no on Wed, Jan 08, 2003 at 01:46:10PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-08 at 06:44, James Simmons wrote:
+On Wed, Jan 08, 2003 at 01:46:10PM +0100, Trond Myklebust wrote:
+> >     - Why do most entries' mtime get updated periodically, but a few of
+> >       the entries go stale with time?
 > 
-> I'm about to implement rotation which is needed for devices like the ipaq. 
-> The question is do we flip the xres and yres values depending on the 
-> rotation or do we just alter the data that will be drawn to make the 
-> screen appear to rotate. How does hardware rotate view the x and y axis?
-> Are they rotated or does just the data get rotated? 
+> The file should get deleted every time the client releases all locks and 
+> successfully manages to notify the server that it is stopping monitoring.
+
+Aha, this makes a lot of sense. Then the leftover files I am getting are
+probably a product of:
+
+syslog:Jan  7 08:35:47 canario rpc.statd[101]: Received erroneous SM_UNMON request from canario for 192.168.99.4
+syslog:Jan  7 09:09:37 canario rpc.statd[101]: Received erroneous SM_UNMON request from canario for 192.168.99.4
+syslog:Jan  7 18:23:15 canario rpc.statd[101]: Received erroneous SM_UNMON request from canario for 192.168.99.4
+
+It seems that rpc.statd itself isn't liking the request it's getting and
+never forwards it to the server. I used to think these were harmless,
+but now I wonder why would this be happening?
+
+> >     - Why do some of the stale entries get left over even after the
+> >       workstations have halted (these ones present the nfs hang issue)?
 > 
+> 
+> As I've told you before: 'stale' entries, as you call them, indicate that the 
 
-If the graphics card has hardware support for rotation, then there is
-nothing to be done.  It's the job of the driver if it wants to rotate
-the display or not.  This is similar to video overlay mirroring.  What
-the user app sees is the framebuffer in "normal" orientation, but what
-gets displayed is mirrored.
+(Sorry, I am apparently clueless when it gets to these details.)
 
-However, as Geert mentioned, if you want to support rotation
-generically, then you have to do it in the fbcon level.  The driver need
-not know if the display is rotated or not.  All it needs to do is fill a
-region with color, color expand a bitmap and move blocks of data, and
-optionally 'pan' the window.  Fbcon will pass the correct (ie, oriented)
-information for the driver.
+> rpc.statd never managed to notify the server that it should stop monitoring. 
+> It indicates either the server or the client crashed before the POSIX locks 
+> held by the client got released, or possibly that the rpc.statd processes 
+> crashed (or got 'kill -9' ed).
 
-This will not be too processor intensive as long as some data is
-prepared beforehand, like a rotated fontdata.
+But at least it seems that nobody has crashed - statd is running along
+fine. Both server and clients run the same versions of the daemon, and
+the fact that we get repeated messages (without restarting anybody)
+should indicate that it is in fact running. 
 
-The main difficulty with this approach is how do you tell the console to
-rotate the display?  We cannot use fbset because the changes will not be
-visible to fbcon. 
-
-I submitted a patch before (see fbdev archives for "Console Rotation"
-thread) that rotates the console this way.  I had vga16fb, vesafb, and
-i810fb rotate the display without any driver code change. Display
-panning was also supported.
-
-However, because we use mmap to expose the framebuffer memory, we will
-not be able to completely support rotation for user applications.  They
-have to do it on their own.
-
-
-Tony
-
-
-
+Take care,
+--
+Christian Reis, Senior Engineer, Async Open Source, Brazil.
+http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

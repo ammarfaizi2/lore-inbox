@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267879AbUH0VMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267773AbUH0VNC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267879AbUH0VMx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 17:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUH0VMH
+	id S267773AbUH0VNC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 17:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267793AbUH0VIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 17:12:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27279 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267657AbUH0UvK
+	Fri, 27 Aug 2004 17:08:42 -0400
+Received: from email-out2.iomega.com ([147.178.1.83]:24474 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S267726AbUH0VDf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 16:51:10 -0400
-Message-ID: <412F9EB4.4020206@pobox.com>
-Date: Fri, 27 Aug 2004 16:51:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Peck <coderman@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: faster via/centaur hw rng throughput patch for 2.6.8.1
-References: <4ef5fec604082711523b3935f9@mail.gmail.com> <412F87D8.6020009@pobox.com> <4ef5fec604082713307d1b312@mail.gmail.com>
-In-Reply-To: <4ef5fec604082713307d1b312@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 27 Aug 2004 17:03:35 -0400
+Subject: Re: [usb-storage] drivers/block/ub.c #6
+From: Pat LaVarre <p.lavarre@ieee.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org,
+       jgarzik@redhat.com
+In-Reply-To: <20040730035120.30abd121@lembas.zaitcev.lan>
+References: <20040730035120.30abd121@lembas.zaitcev.lan>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093640531.8006.68.camel@patlinux.iomegacorp.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Aug 2004 15:02:12 -0600
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Aug 2004 21:03:29.0872 (UTC) FILETIME=[4DE0B500:01
+	C48C79]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:31.99031 C:20 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Peck wrote:
-> On Fri, 27 Aug 2004 15:13:28 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>Honestly I would rather just remove the VIA support from the kernel
->>completely:  it belongs in the userspace rngd
-> 
-> 
-> this sounds like a better solution to me as well.  is there anything
-> that uses /dev/hwrandom which might be affected?
+Pete Z:
 
-I'll answer the question that your question raises :)
+> Date: 30 Jul 2004 04:51:20 -0600
+> ...
+> I wish this could be somehow limited to flash keys,
 
-I don't want to remove VIA support from hw_random the instant that 
-support is added to rngd.
+I see a 3X drop in thruput, ouch, when I substitute ub.ko for
+usb-storage.ko.
 
-Rather, that would be the first step in phasing VIA RNG support out of 
-the kernel.  The second step would be printing a one-time warning, 
-noting the VIA support is deprecated, and that we will not be adding any 
-code it.  The third step, probably when 2.7 opens, is to then remove the 
-VIA support from hw_random.
+Specifically I get 0.5 GB/min from ub.ko, as contrasted with 1.5 GB/min
+from usb-storage.ko, in the outside 1 GiB of a particular disc, in three
+or more consistent consecutive samples from each.
 
+I knew how to patch to allow bytes/LBA != 512 only because of your
+recent answers in [usb-storage].  I took my samples from
+linux-2.6.9-rc1-bk2, modprobe'ing .ko built with and without
+CONFIG_BLK_DEV_UB.  
 
->>I've been meaning to do this for a while, wanna volunteer?  ;-)
-> 
-> 
-> i can poke at it; be careful what you wish for!
+> I did not ask LANANA for a major.
+> next ...
+> add ioctls to burn CDs, and ...
 
-hehe :)
+Yes please.
 
-	Jeff
+Even DVD-RAM need the ioctl's to pass thru SCSI, for everything
+vendor-specific that lies beyond generic read and write.
 
+> dynamic ... udev ...
+> ufi.c ... refactoring ...
+
+Pat LaVarre
 
 

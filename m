@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266037AbUBJRx1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S266144AbUBJRx1 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 10 Feb 2004 12:53:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266030AbUBJRDm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266010AbUBJRua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:03:42 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:50960 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S266028AbUBJRB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:01:28 -0500
-Date: Tue, 10 Feb 2004 17:02:40 +0000
-From: Joe Thornber <thornber@redhat.com>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [Patch 9/10] dm: Remove redundant spin lock in dec_pending()
-Message-ID: <20040210170240.GO27507@reti>
-References: <20040210163548.GC27507@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040210163548.GC27507@reti>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 10 Feb 2004 12:50:30 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:30477 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266097AbUBJRt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:49:56 -0500
+Date: Tue, 10 Feb 2004 17:49:52 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Greg KH <greg@kroah.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Newest fbdev patch to go mainline.
+In-Reply-To: <20040210173551.GC27779@kroah.com>
+Message-ID: <Pine.LNX.4.44.0402101747450.6600-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove redundant spin lock in dec_pending()
---- diff/drivers/md/dm.c	2004-02-10 16:11:50.000000000 +0000
-+++ source/drivers/md/dm.c	2004-02-10 16:12:10.000000000 +0000
-@@ -217,14 +217,8 @@
-  */
- static inline void dec_pending(struct dm_io *io, int error)
- {
--	static spinlock_t _uptodate_lock = SPIN_LOCK_UNLOCKED;
--	unsigned long flags;
--
--	if (error) {
--		spin_lock_irqsave(&_uptodate_lock, flags);
-+	if (error)
- 		io->error = error;
--		spin_unlock_irqrestore(&_uptodate_lock, flags);
--	}
- 
- 	if (atomic_dec_and_test(&io->io_count)) {
- 		if (atomic_dec_and_test(&io->md->pending))
+
+
+Thats coming :-) The problem only showes itself with modular drivers 
+correct. So I will submit patches for those first. I just wanted to polish 
+off a few really tiny patches fist.
+
+On Tue, 10 Feb 2004, Greg KH wrote:
+
+> On Tue, Feb 10, 2004 at 06:36:03AM +0000, James Simmons wrote:
+> > 
+> > First step to incorporate the new cursor api. It s abig patch so I broke 
+> > it into pieces. Give it a try.
+> 
+> How about fixing up the problem in the in-kernel version of fb that Al
+> Viro and I pointed out?
+> 
+> thanks,
+> 
+> greg k-h
+> 
+

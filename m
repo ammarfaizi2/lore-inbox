@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUI0VFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUI0VGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbUI0VFU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 17:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUI0VDz
+	id S267378AbUI0VGV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 17:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUI0VFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 17:03:55 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:60565 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267381AbUI0VCB (ORCPT
+	Mon, 27 Sep 2004 17:05:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47016 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267378AbUI0VD5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 17:02:01 -0400
-Subject: 2.6.9-rc2-mm4 PPC fixes ?
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096318541.3628.440.camel@dyn318077bld.beaverton.ibm.com>
+	Mon, 27 Sep 2004 17:03:57 -0400
+Date: Mon, 27 Sep 2004 14:03:53 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: Patch for comment: setuid core dumps
+Message-ID: <20040927140353.Z1973@build.pdx.osdl.net>
+References: <20040927202616.GA22228@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Sep 2004 13:55:41 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040927202616.GA22228@devserv.devel.redhat.com>; from alan@redhat.com on Mon, Sep 27, 2004 at 04:26:16PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton,
+* Alan Cox (alan@redhat.com) wrote:
+>  
+> +suid_dumpable:
+> +
+> +This value can be used to query and set the core dump mode for setuid
+> +or otherwise protected/tainted binaries. The modes are
+> +
+> +0 - (default) - traditional behaviour. Any process which has changed
+> +	privilege levels or is execute only will not be dumped
+> +1 - (debug) - all processes dump core when possible. The core dump is
+> +	owned by the current user and no security is applied. This is
+> +	intended for system debugging situations only.
 
-Any fixes to make PPC64 work on 2.6.9-rc2-mm4 ?
-I get following compile errors. Please let me know.
+This looks alright, since it keeps 0 and 1 with same meaning (for any
+user of prctl).
 
-Thanks,
-Badari
+> +2 - (suidsafe) - any binary which normally not be dumped is dumped
+> +	readable by root only. This allows the end user to remove
+> +	such a dump but not access it directly. For security reasons
+> +	core dumps in this mode will not overwrite one another or 
+> +	other files. This mode is appropriate when adminstrators are
+> +	attempting to debug problems in a normal environment.
+> +
 
-arch/ppc64/kernel/pSeries_pci.o(.text+0x708): In function
-`.pcibios_fixup_bus':
-: multiple definition of `.pcibios_fixup_bus'
-arch/ppc64/kernel/pci.o(.text+0x544): first defined here
-ld: Warning: size of symbol `.pcibios_fixup_bus' changed from 456 in
-arch/ppc64/kernel/pci.o to 464 in arch/ppc64/kernel/pSeries_pci.o
-arch/ppc64/kernel/pSeries_pci.o(.opd+0x0): In function
-`pcibios_fixup_device_resources':
-: multiple definition of `pcibios_fixup_device_resources'
-arch/ppc64/kernel/pci.o(.opd+0xa8): first defined here
-arch/ppc64/kernel/pSeries_pci.o(*ABS*+0xe894883f): In function
-`__crc_pcibios_fixup_device_resources':
-pSeries_pci.c: multiple definition of
-`__crc_pcibios_fixup_device_resources'
-arch/ppc64/kernel/pSeries_pci.o(*ABS*+0xe2e88e3e): In function
-`__crc_pcibios_fixup_bus':
-pSeries_pci.c: multiple definition of `__crc_pcibios_fixup_bus'
-arch/ppc64/kernel/pSeries_pci.o(.text+0x0): In function
-`.pcibios_fixup_device_resources':
-: multiple definition of `.pcibios_fixup_device_resources'
-arch/ppc64/kernel/pci.o(.text+0x188): first defined here
-arch/ppc64/kernel/pSeries_pci.o(.opd+0xa8): In function
-`pcibios_fixup_bus':
-: multiple definition of `pcibios_fixup_bus'
-arch/ppc64/kernel/pci.o(.opd+0x150): first defined here
-make[1]: *** [arch/ppc64/kernel/built-in.o] Error 1
-make: *** [arch/ppc64/kernel] Error 2
-make: *** Waiting for unfinished jobs....
-make: *** wait: No child processes.  Stop.
+But, in general, did you double check how this plays with /proc
+(task_dumpable) and ptrace_attach type stuff?  That seems sketchy.
 
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

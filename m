@@ -1,169 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289243AbSCLXbl>; Tue, 12 Mar 2002 18:31:41 -0500
+	id <S289239AbSCLXgv>; Tue, 12 Mar 2002 18:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289239AbSCLXbb>; Tue, 12 Mar 2002 18:31:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2312 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289272AbSCLXbT>;
-	Tue, 12 Mar 2002 18:31:19 -0500
-Date: Tue, 12 Mar 2002 23:31:17 +0000
-From: wli@holomorphy.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: wli@parcelfarce.linux.theplanet.co.uk,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-        phillips@bonn-fries.net
-Subject: Re: 2.4.19pre2aa1
-Message-ID: <20020312233117.E14628@holomorphy.com>
-Mail-Followup-To: wli@holomorphy.com, Andrea Arcangeli <andrea@suse.de>,
-	wli@parcelfarce.linux.theplanet.co.uk,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-	phillips@bonn-fries.net
-In-Reply-To: <20020312041958.C687@holomorphy.com> <20020312070645.X10413@dualathlon.random> <20020312112900.A14628@holomorphy.com> <20020312135605.P25226@dualathlon.random> <20020312141439.C14628@holomorphy.com> <20020312160430.W25226@dualathlon.random>
+	id <S289272AbSCLXgc>; Tue, 12 Mar 2002 18:36:32 -0500
+Received: from [217.79.102.244] ([217.79.102.244]:14333 "EHLO
+	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
+	id <S289239AbSCLXgZ>; Tue, 12 Mar 2002 18:36:25 -0500
+Subject: Re: Dropped packets on SUN GEM
+From: Beezly <beezly@beezly.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020312.151443.03370128.davem@redhat.com>
+In-Reply-To: <1015974664.2652.10.camel@monkey> 
+	<20020312.151443.03370128.davem@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-I8iSL7lMhzQeh1pdBays"
+X-Mailer: Evolution/1.0.2 
+Date: 12 Mar 2002 23:36:21 +0000
+Message-Id: <1015976181.2652.30.camel@monkey>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020312160430.W25226@dualathlon.random>; from andrea@suse.de on Tue, Mar 12, 2002 at 04:04:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 02:14:39PM +0000, wli@holomorphy.com wrote:
->> The assumption here is then that the input distribution is uniform.
 
-On Tue, Mar 12, 2002 at 04:04:30PM +0100, Andrea Arcangeli wrote:
-> Yes.
+--=-I8iSL7lMhzQeh1pdBays
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This is a much stronger assertion than random. Random variables
-may have distributions concentrated on low-dimensional surfaces
-(or even singleton points!) which is a case that should be excluded.
-Various other distributions are probably not what you want either.
+Hi David,
 
-To be clear, I am not operating under the assumption that the input
-distribution is uniform (or anything in particular).
+On Tue, 2002-03-12 at 23:14, David S. Miller wrote:
+> What I believe happens is that when the RX overflow condition occurs,
+> there will be some packets that will be corrupted as a result.
 
+Yep, I expected that, but wouldn't this only be packets which had
+*already* entered the RX buffer? These packets are being transmitted at
+a rate of one every .1/.2 seconds, so I guess it's unlikely that all
+these packets have entered the RX buffer and been zapped. OTOH - I'm
+just stabbing away wildly in the dark so I most likely wrong ;)
 
-At some point in the past, I wrote:
->> This is a fairly crude statistic but one that I'm collecting. The
->> hashtable profiling is something I've been treating as a userspace
->> issue with the state dumps done by mmapping /dev/kmem, and in fact,
+> I find it really odd that you can reproduce this condition so readily.
+> Does it happen under normal usage or do you have to issue a ping flood
+> or some other packet intensive job to trigger the problem?  Also, are
+> you getting Pause enabled on the link consistently?
 
-On Tue, Mar 12, 2002 at 04:04:30PM +0100, Andrea Arcangeli wrote:
-> I'm not sure if the collisions will be frequent enough to show up in
-> kmem. I think collisions in this hash should never happen except in very
-> unlikely cases (one collision every few seconds would be ok for
-> example). So I guess we'd better use a synchronous method to count the
-> number of collisions with proper kernel code for that. 
+I'm not getting the Pause enabled message *at all*. The other host is
+100Mbit (I've not got another gigabit host to test against yet).
 
-That is pretty easy to do.
+If I stop doing the ping I notice that I loose TCP/IP connectivity for a
+while, but it usually comes back after a period of time (sorry to be so
+vague, but I haven't been able to tell how long it takes to come back
+exactly).
 
+Interestingly, whilst writing this e-mail, I've been running a ping with
+a 1 second interval and no options (so we end up with 84 bytes in the
+packet). It did the same thing, but took a lot longer than 14 packets to
+recover... (FYI: 195.195.14.1 is across an ADSL link from me -
+explaining the high rtt :) )
 
-At some point in the past, I wrote:
->> I have some small reservations about these assertions.
->> (1) the scheduling storms are direct results of collisions in the hash
->> 	tables, which are direct consequences of the hash function quality.
+64 bytes from 195.195.14.1: icmp_seq=3D258 ttl=3D239 time=3D33.0 ms
+64 bytes from 195.195.14.1: icmp_seq=3D259 ttl=3D239 time=3D32.4 ms
+64 bytes from 195.195.14.1: icmp_seq=3D260 ttl=3D239 time=3D63.1 ms
+64 bytes from 195.195.14.1: icmp_seq=3D261 ttl=3D239 time=3D32.3 ms
+64 bytes from 195.195.14.1: icmp_seq=3D262 ttl=3D239 time=3D33.2 ms
+64 bytes from 195.195.14.1: icmp_seq=3D263 ttl=3D239 time=3D33.8 ms
+64 bytes from 195.195.14.1: icmp_seq=3D264 ttl=3D239 time=3D33.4 ms
+>From 10.0.0.12 icmp_seq=3D309 Destination Host Unreachable
+>From 10.0.0.12 icmp_seq=3D310 Destination Host Unreachable
+>From 10.0.0.12 icmp_seq=3D311 Destination Host Unreachable
+>From 10.0.0.12 icmp_seq=3D313 Destination Host Unreachable
+>From 10.0.0.12 icmp_seq=3D314 Destination Host Unreachable
+<snip>
+>From 10.0.0.12 icmp_seq=3D370 Destination Host Unreachable
+>From 10.0.0.12 icmp_seq=3D371 Destination Host Unreachable
+>From 10.0.0.12 icmp_seq=3D373 Destination Host Unreachable
+>From 10.0.0.12 icmp_seq=3D374 Destination Host Unreachable
+64 bytes from 195.195.14.1: icmp_seq=3D375 ttl=3D239 time=3D1036 ms
+64 bytes from 195.195.14.1: icmp_seq=3D376 ttl=3D239 time=3D38.2 ms
+64 bytes from 195.195.14.1: icmp_seq=3D377 ttl=3D239 time=3D29.4 ms
+64 bytes from 195.195.14.1: icmp_seq=3D378 ttl=3D239 time=3D32.1 ms
 
-On Tue, Mar 12, 2002 at 04:04:30PM +0100, Andrea Arcangeli wrote:
-> you mean in _the_ hash table (wait_table hash table). Collisions in all
-> other hash tables in the kernel doesn't lead to scheduling storms of
-> course.
+So I had another brainstorm, perhaps this is related to the amount of
+data transfer /rather/ than packets.
 
-There is more than one wait_table, one per node or per zone.
+If I do ping -i .1 10.0.0.15 (i.e. an 84 byte packet), I get the
+following very interesting results.
 
-
-At some point in the past, I wrote:
->> 	OTOH increasing table size is one method of collision reduction,
->> 	albeit one I would like extremely strict control over, and one
->> 	that should not truly be considered until the load is high
->> 	(.e.g. 0.75 or thereabouts)
-
-On Tue, Mar 12, 2002 at 04:04:30PM +0100, Andrea Arcangeli wrote:
-> yes, however strict control over 52k on a 256G machine when spending
-> some more minor ram would reduce a lot the probability of collisions
-> looked a bit excessive. I'm all for spending ram _if_ it pays off
-> singificantly.
-
-Also, there are already too many boot-time allocations proportional to
-memory. At the very least consider setting a hard constant upper bound
-with some small constant of proportionality to PID_MAX.
-
-If I may wander (further?) off-topic and stand on the soapbox for a moment:
-I personally believe this is serious enough various actions should be
-taken so that we don't die a death by a thousand "every mickey mouse
-hash table in the kernel allocating 0.5% of RAM at boot time" cuts.
-Note that we are already in such dire straits that sufficiently large
-physical memory sizes on 36-bit physically-addressed 32-bit machines
-alone will experience consumption of the entire kernel virtual address
-space by various boot-time allocations. This is a bug.
-
-The lower bound of 256 looks intriguing; if it's needed then it should
-be done, but if it is needed it begins to raise the question of whether
-this fragment of physical memory is worthwhile or should be ignored. On
-i386 this would be a fragment of size 1MB or smaller packaged into a
-pgdat or zone. There is also an open question as to how much overhead
-introducing nodes with tiny amounts of memory like this creates. I
-think there may be a reason why they're commonly ignored. I suspect the
-real issue here may be that contention for memory doesn't decrease with
-the shrinking size of a region of physical memory either.
+64 bytes from 10.0.0.15: icmp_seq=3D298 ttl=3D255 time=3D0.223 ms
+64 bytes from 10.0.0.15: icmp_seq=3D299 ttl=3D255 time=3D0.209 ms
+64 bytes from 10.0.0.15: icmp_seq=3D300 ttl=3D255 time=3D0.233 ms
+64 bytes from 10.0.0.15: icmp_seq=3D301 ttl=3D255 time=3D0.210 ms
+64 bytes from 10.0.0.15: icmp_seq=3D302 ttl=3D255 time=3D0.220 ms
+64 bytes from 10.0.0.15: icmp_seq=3D303 ttl=3D255 time=3D0.208 ms
+64 bytes from 10.0.0.15: icmp_seq=3D304 ttl=3D255 time=3D0.213 ms
+64 bytes from 10.0.0.15: icmp_seq=3D630 ttl=3D255 time=3D0.214 ms
+64 bytes from 10.0.0.15: icmp_seq=3D631 ttl=3D255 time=3D0.212 ms
+64 bytes from 10.0.0.15: icmp_seq=3D632 ttl=3D255 time=3D0.202 ms
+64 bytes from 10.0.0.15: icmp_seq=3D633 ttl=3D255 time=3D0.201 ms
 
 
-At some point in the past, I wrote:
->> (2) page_address() has been seen to cause small regressions on
->> 	architectures where the additional memory reference in comparison
+i.e. it takes the card 325 packets to recover, yet with 1500 byte
+packets... I get,=20
 
-On Tue, Mar 12, 2002 at 04:04:30PM +0100, Andrea Arcangeli wrote:
-> That's a minor global regression, but linear without corner cases, 
-> and the additional ram available to userspace may make more difference
-> as well depending on the workload and the size of the ram.
+1480 bytes from 10.0.0.15: icmp_seq=3D499 ttl=3D255 time=3D0.558 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D500 ttl=3D255 time=3D0.561 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D501 ttl=3D255 time=3D0.550 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D502 ttl=3D255 time=3D0.557 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D503 ttl=3D255 time=3D0.547 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D518 ttl=3D255 time=3D0.566 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D519 ttl=3D255 time=3D0.551 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D520 ttl=3D255 time=3D0.552 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D521 ttl=3D255 time=3D0.552 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D522 ttl=3D255 time=3D0.548 ms
 
-True, and (aside from how I would phrase it) this is my rationale for
-not taking immediate action. For architectures where the interaction of
-the address calculation arithmetic, arithmetic feature sets, and
-numerical properties of structure sizes and so on are particularly
-unfortunate around this code (I believe SPARC is one example and there
-may be others), something will have to be done whether it's using a
-different computation or just using the memory.
+14 packets missing.
 
+325*84  =3D 27300
+14*1500 =3D 21000
 
-At some point in the past, I wrote:
->> (5) Last, but not least, the /dev/random argument is bogus. Mass
->> 	readings of pseudorandom number generators do not make for	
->> 	necessarily uniformly distributed trials or samples. By and
->> 	large the methods by which pseudorandom number generators are
->> 	judged (and rightly so) are various kinds of statistical relations
->> 	between some (fixed for the duration of the trial) number of
->> 	successively generated numbers. For instance, groups of N (where
->> 	N is small and fixed for the duration of the trial) consecutively
->> 	generated numbers should not lie within the same hyperplane for
->> 	some applications. These have no relation to the properties
->> 	which would cause a distribution of a set of numbers which is
->> 	measured as a snapshot in time to pass a test for uniformity.
+Are these number relevant?
 
-On Tue, Mar 12, 2002 at 04:04:30PM +0100, Andrea Arcangeli wrote:
-> /dev/random is not a pseudorandom number generator. /dev/urandom is.
-
-Right right. Random number generation is a different problem regardless.
+Beezly
 
 
-At some point in the past, I wrote:
->> Otherwise we appear to be largely in agreement.
+--=-I8iSL7lMhzQeh1pdBays
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-On Tue, Mar 12, 2002 at 04:04:30PM +0100, Andrea Arcangeli wrote:
-> Yes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-We're getting down to details too minor to bother with.
+iD8DBQA8jpD1Xu4ZFsMQjPgRAufrAKDLQosjBXsTkQKOwdGn+y+W6KXLyACgxXak
+8gLaHu/4pwBNo4ifwwLhkco=
+=AxD9
+-----END PGP SIGNATURE-----
 
-Enough for now? Shall we meet with benchmarks next time?
-
-
-Cheers,
-Bill
-
-P.S.:	Note that I do maintain my code. If you do have demonstrable
-	improvements or even cleanups I will review them and endorse
-	them if they pass my review. These changes did not. Also,
-	these changes to the hashing scheme were not separated out
-	from the rest of the VM patch, so the usual "break this up
-	into a separate patch please" applies.
+--=-I8iSL7lMhzQeh1pdBays--

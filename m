@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbTIYTne (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 15:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTIYTne
+	id S261188AbTIYTiq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 15:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTIYTiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 15:43:34 -0400
-Received: from mcomail03.maxtor.com ([134.6.76.14]:64014 "EHLO
-	mcomail03.maxtor.com") by vger.kernel.org with ESMTP
-	id S261837AbTIYTnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 15:43:32 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C105CDB177@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'ebiederm@xmission.com'" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: andrea@kernel.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
-Subject: RE: log-buf-len dynamic
-Date: Thu, 25 Sep 2003 13:43:29 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 25 Sep 2003 15:38:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:65434 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261188AbTIYTip (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 15:38:45 -0400
+Date: Thu, 25 Sep 2003 12:38:37 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, miltonm@realtime.net,
+       rusty@rustcorp.com.au, Omen.Wild@Dartmouth.EDU,
+       linux-kernel@vger.kernel.org
+Subject: Re: call_usermodehelper does not report exit status?
+Message-ID: <20030925123837.E18118@osdlab.pdx.osdl.net>
+References: <20030919124213.7fc93067.akpm@osdl.org> <200309201855.h8KItHuf000466@sullivan.realtime.net> <20030925114150.A18074@osdlab.pdx.osdl.net> <20030925120536.1252e756.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030925120536.1252e756.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 25, 2003 at 12:05:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: ebiederm@xmission.com [mailto:ebiederm@xmission.com]
-> Subject: Re: log-buf-len dynamic
->
-> I expressed it badly.  But the kernel using BK both introduces people
-> to BK, and it validates BK as a useful tool.  Especially as the kernel
-> tends to embody many of the best practices in the community.
+* Andrew Morton (akpm@osdl.org) wrote:
+> Chris Wright <chrisw@osdl.org> wrote:
+> >
+> > Anything wrong with just setting a SIG_DFL handler?
+> 
+> Seems that any time we make a change here it looks fine, tests out fine,
+> and explodes messily three weeks later.
 
-Personally I fail to see the problem with this.  BK must be (I assume) a
-useful tool to someone, or it wouldn't exist.
+Heh.  Care to try it? ;-)
 
-> I am pretty certain I could write up something that got the core of
-> the repository right in a month or two.
-
-I've only been following LKML for about 4 months, and this must be the 5th
-or
-6th time I've seen someone post an email with this jist to it.  If it only
-took a month or two, I am sure someone would have posted an announcement
-about their new tool in the time I've been on the list.
-
---eric
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbSKXWBO>; Sun, 24 Nov 2002 17:01:14 -0500
+	id <S261733AbSKXWdB>; Sun, 24 Nov 2002 17:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbSKXWBO>; Sun, 24 Nov 2002 17:01:14 -0500
-Received: from [203.199.93.15] ([203.199.93.15]:21515 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S261724AbSKXWBN>; Sun, 24 Nov 2002 17:01:13 -0500
-From: "arun4linux" <arun4linux@indiatimes.com>
-Message-Id: <200211242202.DAA10643@WS0005.indiatimes.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "arun4linux" <arun4linux@indiatimes.com>
-Subject: GUI based kernel Debugger
-Date: Mon, 25 Nov 2002 03:27:26 +0530
-X-URL: http://indiatimes.com
+	id <S261855AbSKXWdB>; Sun, 24 Nov 2002 17:33:01 -0500
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:33659 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261733AbSKXWdB>; Sun, 24 Nov 2002 17:33:01 -0500
+Date: Sun, 24 Nov 2002 23:40:06 +0100
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: clock skew when writing cd (ide-scsi)
+Message-ID: <20021124224006.GA26326@grobbebol.xs4all.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I did check google on this but so far I didn't find a reason or fix yet.
 
-  I need some info on GUI based kernel debuggers.
+using 2.4.18 (or previous), I always see on both my older BP6 as well as
+the current system that there is a clock skew.
 
-  I'd like to know whether any GUI based kernel debugger available? preferablly free ware one :-)
+if I burn 6 or 7 cd's the total system time is approx one hour behind.
 
-  Anybody tried cygwin on windows to debug linux target machine?  
+there are no messages in the logs that could hint me what the problem
+is.
 
-Warm Regards
+anyone an idea ?
 
-Arun
-
-
-
-
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-
- Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
-
-Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
 

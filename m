@@ -1,71 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270637AbTGNNxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270434AbTGNNvd
+	id S270091AbTGNN7b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270086AbTGNN7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:51:33 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:59890 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S270676AbTGNNvR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 09:51:17 -0400
-Subject: Re: 2.5 'what to expect'
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: philipwyett@dsl.pipex.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058186233.2561.9.camel@rh9>
-References: <20030711140219.GB16433@suse.de>
-	 <20030714083058.GC3706@pern.dea.icai.upco.es>
-	 <20030714114144.GB5187@suse.de> <1058184785.5981.0.camel@laptop.fenrus.com>
-	 <1058186233.2561.9.camel@rh9>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aLhjXoFs9WzfTR82gzLe"
-Organization: Red Hat, Inc.
-Message-Id: <1058191558.6024.2.camel@laptop.fenrus.com>
+	Mon, 14 Jul 2003 09:59:31 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:61956 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S270091AbTGNN5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:57:38 -0400
+Subject: Re: 2.6.0-test1: Hang during boot on Intel D865PERL motherboard
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Paul Nasrat <pauln@truemesh.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030714110335.GQ28359@raq465.uk2net.com>
+References: <20030714110311.6059.qmail@linuxmail.org>
+	 <20030714110335.GQ28359@raq465.uk2net.com>
+Content-Type: text/plain
+Message-Id: <1058191943.588.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 14 Jul 2003 16:05:58 +0200
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 14 Jul 2003 16:12:23 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-07-14 at 13:03, Paul Nasrat wrote:
+> On Mon, Jul 14, 2003 at 12:03:11PM +0100, Felipe Alfaro Solana wrote:
+> > Hi,
+> > 
+> > I've compiled linux-2.6.0-test1 kernel with the attached "config" file. When trying to boot the kernel, it hangs on "Uncompress Linux kernel...OK". The system is:
+> 
+> You only have the dummy console selected ensuring you have:
+> 
+> CONFIG_CONSOLE_VGA=y
+> 
+> Should display things to screen.
 
---=-aLhjXoFs9WzfTR82gzLe
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yeah! I'm stupid... I forgot to check that. Thanks :-)
 
-On Mon, 2003-07-14 at 14:37, Philip Wyett wrote:
-> On Mon, 2003-07-14 at 13:13, Arjan van de Ven wrote:
-> > On Mon, 2003-07-14 at 13:41, Dave Jones wrote:
-> >=20
-> > > I've no objection to taking "heres links to packages for xxx distro"
-> > > texts if people want to write them, but I don't have the time, nor
-> > > knowledge to add these for every distro out there.
-> >=20
-> > RHL9 rpms are at
-> >=20
-> > http://people.redhat.com/arjanv/2.5/
->=20
-> Hi,
->=20
-> I wouldn't personally say these 2.5 kernel RPM's you are building are
-> for RHL 9 systems, well not stock systems at any rate. Unless of course
-> you are advocating --nodeps installing them?
-
-the plan is to put the requires helper packages up as well but the
-buildsystem isn't currently on friendly terms with me ;(
-to be there asap.
-
-
---=-aLhjXoFs9WzfTR82gzLe
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/ErjGxULwo51rQBIRArhAAJ9xM2Khl53iX2gotzytyOlhJBYrCgCgnC7Z
-3/yUxRxgDavJiMQ69jF1+5k=
-=64a4
------END PGP SIGNATURE-----
-
---=-aLhjXoFs9WzfTR82gzLe--

@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290718AbSA3W6k>; Wed, 30 Jan 2002 17:58:40 -0500
+	id <S290731AbSA3XBX>; Wed, 30 Jan 2002 18:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290722AbSA3W6b>; Wed, 30 Jan 2002 17:58:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33543 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290718AbSA3W6Z>; Wed, 30 Jan 2002 17:58:25 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-To: andersen@codepoet.org
-Date: Wed, 30 Jan 2002 23:06:04 +0000 (GMT)
-Cc: greg@kroah.com (Greg KH), linux-kernel@vger.kernel.org
-In-Reply-To: <20020130211422.GA22705@codepoet.org> from "Erik Andersen" at Jan 30, 2002 02:14:22 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290728AbSA3XBN>; Wed, 30 Jan 2002 18:01:13 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:41736 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S290731AbSA3XAz>; Wed, 30 Jan 2002 18:00:55 -0500
+Date: Wed, 30 Jan 2002 15:00:27 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Karl <ktatgenhorst@earthlink.net>
+cc: Robert Love <rml@tech9.net>, Alex Khripin <akhripin@mit.edu>,
+        linux-kernel@vger.kernel.org
+Subject: RE: BKL in tty code?
+In-Reply-To: <NDBBJHDEALBBOIDJGBNNIEHCCCAA.ktatgenhorst@earthlink.net>
+Message-ID: <Pine.LNX.4.10.10201301459170.7609-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16W3no-0000Jv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> bravery.  That pile of dung does not need a "small-stuff"
-> maintainer.  It needs to be forcefully ejected and replaced with
-> extreme prejudice.  It is amazing that ancient stuff works as
-> well as it does...
 
-A lot of the apparently really ugly drivers turned out to be very good code
-hiding under 10 years of history and core code changes and
-assumptions. See the NCR5380 stuff I've now all done (in 2.4.18pre) - dont 
-use 2.5.* NCR5380 it'll probably corrupt your system if it doesn't just die
-or hang - Linus apparently merged untested stuff to the old broken driver.
+>    Is there a specific maintainer for the TTY code. This is the part of the
+> kernel which I am most interested in. I have many TTYs in a mid size (100
+> user Unix network) and could get to do some testing if anyone is writing
+> patches for this system. I would also be willing to do minor review of code
+> for spelling and such. I would _really_ like to get involved with this
+> specific system.
 
-Alan
+Thedore Tyso was originally the maintainer but he seems to have
+disappeared from the face of the earth. For the past year I have been
+working on a totally rewrite of the tty/console system. 
+

@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267589AbUIPV5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267708AbUIPWCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267589AbUIPV5N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 17:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIPV5N
+	id S267708AbUIPWCi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 18:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267831AbUIPWCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 17:57:13 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:962 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267589AbUIPV5K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 17:57:10 -0400
-Date: Thu, 16 Sep 2004 14:54:11 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: len.brown@intel.com
-cc: linux-kernel@vger.kernel.org, greg@kroah.com, hannal@us.ibm.com
-Subject: [PATCH 2.6.9-rc1-mm5 acpi.c] Changed pci_find_device to pci_get_device
-Message-ID: <8240000.1095371651@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Sep 2004 18:02:38 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:36327 "EHLO
+	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
+	id S267708AbUIPWCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 18:02:34 -0400
+Subject: Re: [PATCH] Suspend2 merge: New exports.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040916143322.GB32352@kroah.com>
+References: <1095333619.3327.189.camel@laptop.cunninghams>
+	 <20040916143322.GB32352@kroah.com>
+Content-Type: text/plain
+Message-Id: <1095372242.5897.10.camel@laptop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 17 Sep 2004 08:04:03 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Another simple patch to complete the /i386 conversion to pci_get_device.
-I was able to compile and boot this patch to verify it didn't break anything
-(on my T22).
+On Fri, 2004-09-17 at 00:33, Greg KH wrote:
+> On Thu, Sep 16, 2004 at 09:20:19PM +1000, Nigel Cunningham wrote:
+> > 
+> > This patch adds exports for functions used by suspend2. Needed, of
+> > course, when suspend is compiled as modules.
+> 
+> Why even allow suspend as a module?  It seems like a pretty core chunk
+> of code that should be present all the time.
 
-Thanks.
+It only needs to be loaded when you're suspending/resuming, so it's not
+really core. Building it as modules also allows upgrading (at least
+sometimes) without rebooting. Finally, my version of suspend is a lot
+bigger than the implementation in the kernel at the moment because it
+includes many more features.
 
-Hanna Linder
-IBM Linux Technology Center
+[...]
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-----
+> Why this change?  buffer_busy() is not exported now.
 
-diff -Nrup linux-2.6.9-rc1-mm5/arch/i386/pci/acpi.c linux-2.6.9-rc1-mm5patch/arch/i386/pci/acpi.c
---- linux-2.6.9-rc1-mm5/arch/i386/pci/acpi.c	2004-09-14 16:25:34.000000000 -0700
-+++ linux-2.6.9-rc1-mm5patch/arch/i386/pci/acpi.c	2004-09-15 16:17:06.000000000 -0700
-@@ -41,7 +41,7 @@ static int __init pci_acpi_init(void)
- 		printk(KERN_INFO "** was specified.  If this was required to make a driver work,\n");
- 		printk(KERN_INFO "** please email the output of \"lspci\" to bjorn.helgaas@hp.com\n");
- 		printk(KERN_INFO "** so I can fix the driver.\n");
--		while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
-+		while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
- 			acpi_pci_irq_enable(dev);
- 	} else {
- 		printk(KERN_INFO "** PCI interrupts are no longer routed automatically.  If this\n");
+You're right. It's a holdover from 2.4 that I missed cleaning.
+
+> > -#ifdef CONFIG_COMPAT
+> >  EXPORT_SYMBOL(sys_ioctl);
+> > -#endif
+> 
+> What ioctls does suspend2 call?  That seems very strange.
+
+The console driver. People objected to direct usage of console functions
+and suggested I use /dev/console for doing output. That's what I'm doing
+now, although I do still have some direct usage to seek to get rid of.
+(I'm not claiming my code is finished and perfect!)
+
+> Why is the include needed here just to export a symbol (nevermind the
+> fact that we should never export tainted in the first place.)
+
+They're unrelated, actually. There used to be a couple of lines in here
+that stopped us syncing if we oops part way through suspending. With
+recent changes, it's no longer necessary. The fact that the include
+isn't needed anymore wasn't noticed.
+
+As to exporting tainted, I thought about this on the way to bed last
+night, after another email. As I said previously, I was exporting it so
+I could set a tainted flag when we've suspended, to save driver authors
+headaches. It never occurred to me - as it has now - that this also
+allows unscrupulous people to turn off flags. I don't think tainting is
+necessary any more, so I'll happily drop this.
+
+Regards,
+
+Nigel
+
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

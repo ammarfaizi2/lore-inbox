@@ -1,72 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264880AbRFYQxr>; Mon, 25 Jun 2001 12:53:47 -0400
+	id <S264885AbRFYQ6r>; Mon, 25 Jun 2001 12:58:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264889AbRFYQxh>; Mon, 25 Jun 2001 12:53:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:18306 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264880AbRFYQxb>; Mon, 25 Jun 2001 12:53:31 -0400
-Date: Mon, 25 Jun 2001 12:52:59 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Timur Tabi <ttabi@interactivesi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Making a module 2.4 compatible
-In-Reply-To: <SjK-9.A.sEE.jd2N7@dinero.interactivesi.com>
-Message-ID: <Pine.LNX.3.95.1010625123838.9515A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264886AbRFYQ6h>; Mon, 25 Jun 2001 12:58:37 -0400
+Received: from H77.C223.tor.velocet.net ([216.138.223.77]:5124 "EHLO
+	node0.opengeometry.ca") by vger.kernel.org with ESMTP
+	id <S264885AbRFYQ60>; Mon, 25 Jun 2001 12:58:26 -0400
+Date: Mon, 25 Jun 2001 12:54:18 -0400
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bug in 3c905 driver.
+Message-ID: <20010625125418.A587@node0.opengeometry.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3B378830.579A6DD@evision.ag>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B378830.579A6DD@evision.ag>; from dalecki@evision.ag on Mon, Jun 25, 2001 at 08:51:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001, Timur Tabi wrote:
-
-> ** Reply to message from James Lamanna <jlamanna@its.caltech.edu> on Sat, 23
-> Jun 2001 22:10:58 -0700
+On Mon, Jun 25, 2001 at 08:51:28PM +0200, Martin Dalecki wrote:
+> Just a note...
 > 
-> 
-> > It would be nice to have it working under 2.4, so is there someplace
-> > that outlines some of the major things that would have changed so I can
-> > update the module accordingly?
-> 
-> Unfortunately, no.  But if it turns out I'm wrong, please let me know what you
-> find.
-> 
+> This card get's detected twofold by the plain 2.4.5 kernel.
+> It get's listed twice under both lspci and during the kernel boot
+> sequence on a HP LHr3 system.
 
-As a start:
+I get only one message, I have 3c905CX and 2.4.5 kernel.  Maybe you have
+2 cards inside? ;-)
 
-wait_queue_head_t	Now defined.
-You can do '#if !defined(...)` and make code changes backwards compatible.
-
-
-Macro, THIS_MODULE	is now the first member of struct file_operations.
-
-
-Include <linux/init.h>	__init data type for one-time initialization code
-			or data.
-This is new, hense not backwards compatible.
-
-
-Explicit initialization of spin-locks, SPIN_LOCK_UNLOCKED and/or
-			spin_lock_init(spinlock_t *);
-If you fix this, it's backwards compatible.
-
-
-ioremap() and friends is now required even for low memory stuff.
-You can no longer access this with a simple pointer, you must
-use readl()/writel(), etc., for proper defererence. If you fix
-this, it's backwards compatible.
-
-
-These changes should get your module to compile (or nearly so).
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+8 CPUs cluster, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Sc.

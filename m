@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264604AbUASM5I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 07:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUASM5I
+	id S264893AbUASNM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 08:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbUASNM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 07:57:08 -0500
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:34779 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S264604AbUASM5G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 07:57:06 -0500
-Subject: Re: PROBLEM: ISDN CAPI (avm b1pci) doesn't work, occasionally
-	freezes Kernel (2.6.1)
-From: fcp <fcp@pop.co.za>
-To: "Georg C. F. Greve" <greve@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3r7xwqjue.fsf@reason.gnu-hamburg>
-References: <200401181746.i0IHkO2G002776@reason.gnu-hamburg>
-	 <1074468927.2722.2.camel@server>  <m3r7xwqjue.fsf@reason.gnu-hamburg>
+	Mon, 19 Jan 2004 08:12:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60550 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264893AbUASNMZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 08:12:25 -0500
+Subject: Re: filesystem bug?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: tsuchiya@labs.fujitsu.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <400B8CD4.8000503@labs.fujitsu.com>
+References: <4007537F.4070609@labs.fujitsu.com>
+	 <1074256175.4006.24.camel@sisko.scot.redhat.com>
+	 <400B8CD4.8000503@labs.fujitsu.com>
 Content-Type: text/plain
-Message-Id: <1074531587.1833.5.camel@server>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 19 Jan 2004 14:59:48 -0200
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1074517928.3694.22.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Jan 2004 13:12:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-19 at 09:05, Georg C. F. Greve wrote:
->  || On Sun, 18 Jan 2004 21:35:27 -0200
->  || fcp <fcp@pop.co.za> wrote: 
-> 
->  f> I had similar problems. Running RH9, 2.6.1, W6692 pci card. Spent
->  f> quite some time chasing this and in the end installed mISDN beta
->  f> and it worked the first time. No nonsense. Hope this helps
-> 
-> Thanks.
-> 
-> I wonder. If it is a known problem that ISDN doesn't work for multiple
-> cards in 2.6.1: Are there plans to incorporate mISDN officially?
-> 
-> Regards,
-> Georg
+Hi,
 
-Don't know but you could ask Fritz at isdn4linux.de.  
+On Mon, 2004-01-19 at 07:52, Tsuchiya Yoshihiro wrote:
 
-He advised me this morning that the latest i4l cvs branch kernel26
-version (old isdn system) fixes the problems we are having with the
-2.6.1 kernel. Haven't had a chance to test this yet.
+> >OK.  Under exactly what circumstances have you seen this in the past, as
+> >opposed to the other problem?  I have not been able to reproduce this
+> >one so far.
+
+> Other than 2.4.20-28.9, since they have been running for three days,
+> they seems nice at this point.
+> 
+> What exactly is the race condition between read_inode() and
+> clear_inode() you have
+> mentioned?
+
+This one:
+
+http://linux.bkbits.net:8080/linux-2.4/patch@1.1136.67.1
+
+Cheers,
+ Stephen
 

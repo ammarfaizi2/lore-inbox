@@ -1,464 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbTGEWvn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 18:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbTGEWvn
+	id S266547AbTGEXMT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 19:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266548AbTGEXMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 18:51:43 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:21006 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S266539AbTGEWvZ (ORCPT
+	Sat, 5 Jul 2003 19:12:19 -0400
+Received: from [65.37.126.18] ([65.37.126.18]:16283 "EHLO the-penguin.otak.com")
+	by vger.kernel.org with ESMTP id S266547AbTGEXMP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 18:51:25 -0400
-Message-ID: <001701c3434a$4877d680$0601a8c0@CPHTG9AWS400>
-From: "Peter Hoeg" <peter@hoeg.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.73/4 - Problems loading modules
-Date: Sun, 6 Jul 2003 01:07:54 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0014_01C3435B.07C546C0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sat, 5 Jul 2003 19:12:15 -0400
+Date: Sat, 5 Jul 2003 16:26:47 -0700
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kernel oops, netstat -a
+Message-ID: <20030705232647.GA22714@the-penguin.otak.com>
+Mail-Followup-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.5.74 on an i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi I got a oops from netstat -a today, seems innocuous, and repeatable.
+Happens on both stock 2.5.74, 2.5.74-mm1. 
+
+ksymoops 2.4.8 on i686 2.5.74.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.74/ (default)
+     -m /boot/System.map-2.5.74 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Unable to handle kernel paging request at virtual address 3ddcd9ae
+c0138480
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0138480>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010016
+eax: 00140000   ebx: e9b9cd00   ecx: e7b23cc0   edx: 3ddcd9ae
+esi: 00000100   edi: 00000206   ebp: da345600   esp: cc91bf50
+ds: 007b   es: 007b   ss: 0068
+Stack: 00000000 00000001 e9b9cd00 e7b23cc0 c952cdd0 c01651b5 00000100 e7b23cc0 
+       e7b23cc0 efff0740 c952cdd0 c014b2d9 c952cdd0 e7b23cc0 e7b23cc0 e69b8c80 
+       00000000 cc91a000 c0149acd e7b23cc0 e69b8c80 e7b23cc0 08060130 08060130 
+Call Trace:
+ [<c01651b5>] seq_release_private+0x25/0x48
+ [<c014b2d9>] __fput+0xd9/0xe0
+ [<c0149acd>] filp_close+0x4d/0x80
+ [<c0149b50>] sys_close+0x50/0x60
+ [<c010a88b>] syscall_call+0x7/0xb
+Code: 8b 1a 8b 03 3b 43 04 73 18 89 74 83 10 ff 03 57 9d 8b 5c 24 
+
+
+>>EIP; c0138480 <kfree+30/70>   <=====
+
+>>ebx; e9b9cd00 <acqseq_lock.5+29823e38/3fc85138>
+>>ecx; e7b23cc0 <acqseq_lock.5+277aadf8/3fc85138>
+>>ebp; da345600 <acqseq_lock.5+19fcc738/3fc85138>
+>>esp; cc91bf50 <acqseq_lock.5+c5a3088/3fc85138>
+
+Trace; c01651b5 <seq_release_private+25/48>
+Trace; c014b2d9 <__fput+d9/e0>
+Trace; c0149acd <filp_close+4d/80>
+Trace; c0149b50 <sys_close+50/60>
+Trace; c010a88b <syscall_call+7/b>
+
+Code;  c0138480 <kfree+30/70>
+00000000 <_EIP>:
+Code;  c0138480 <kfree+30/70>   <=====
+   0:   8b 1a                     mov    (%edx),%ebx   <=====
+Code;  c0138482 <kfree+32/70>
+   2:   8b 03                     mov    (%ebx),%eax
+Code;  c0138484 <kfree+34/70>
+   4:   3b 43 04                  cmp    0x4(%ebx),%eax
+Code;  c0138487 <kfree+37/70>
+   7:   73 18                     jae    21 <_EIP+0x21>
+Code;  c0138489 <kfree+39/70>
+   9:   89 74 83 10               mov    %esi,0x10(%ebx,%eax,4)
+Code;  c013848d <kfree+3d/70>
+   d:   ff 03                     incl   (%ebx)
+Code;  c013848f <kfree+3f/70>
+   f:   57                        push   %edi
+Code;  c0138490 <kfree+40/70>
+  10:   9d                        popf   
+Code;  c0138491 <kfree+41/70>
+  11:   8b 5c 24 00               mov    0x0(%esp,1),%ebx
+
+
+1 warning and 1 error issued.  Results may not be reliable.
+
+
+-- 
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://the-penguin.otak.com/~lawrence/
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - - 
 
-------=_NextPart_000_0014_01C3435B.07C546C0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Machine: IBM Thinkpad X30
-Kernel: 2.5.73 and .74
-Distribution: Debian - sarge
-module-init-tools: 0.9.13-pre-1
-attached: .config
-
-The problem is that a number of different modules hang when trying to load:
-parport_pc, snd-intel8x0, ehci-usb (hardware is not even present!!),
-uhci-usb, etc etc. A 'ps aux' will show that the modprobe process is 'D'. It
-cannot be killed with kill -9 and the module can not be unloaded (in use).
-
-Now, the really weird part is, that if I boot Debian using VMWare 4.0 under
-XP, there are no problems at all!! And this is the same kernel, same
-distribution - same everything (vmware can work directly off a partition, so
-it is really the exact same installation it is using).
-
-Am aware that this may necessarily not be 100% kernel related (since it
-works under vmware) and could be some kind of hardware problem, but would
-appreciate if anybody could provide some info on this.
-
-I do not subscribe to linux-kernel, so please CC me in.
-
-Thanks in advance,
-peter
-
-------=_NextPart_000_0014_01C3435B.07C546C0
-Content-Type: text/plain;
-	name="config.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="config.txt"
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-CONFIG_EXPERIMENTAL=y
-
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_EDD=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-
-CONFIG_PM=y
-
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_TABLE=y
-
-CONFIG_X86_SPEEDSTEP_ICH=y
-CONFIG_X86_SPEEDSTEP_LIB=y
-
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_HOTPLUG=y
-
-CONFIG_PCMCIA=y
-CONFIG_YENTA=m
-CONFIG_CARDBUS=y
-CONFIG_PCMCIA_PROBE=y
-
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-
-CONFIG_IDE=y
-
-CONFIG_BLK_DEV_IDE=y
-
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_IDE_TASKFILE_IO=y
-
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-
-CONFIG_SCSI=m
-
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-
-CONFIG_MD=y
-CONFIG_BLK_DEV_DM=y
-
-CONFIG_I2O=m
-CONFIG_I2O_PCI=m
-CONFIG_I2O_BLOCK=m
-CONFIG_I2O_SCSI=m
-CONFIG_I2O_PROC=m
-
-CONFIG_NET=y
-
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_INET_IPCOMP=y
-CONFIG_IPV6=m
-CONFIG_IPV6_PRIVACY=y
-CONFIG_INET6_AH=m
-CONFIG_INET6_ESP=m
-CONFIG_INET6_IPCOMP=m
-CONFIG_XFRM_USER=y
-
-CONFIG_IPV6_SCTP__=m
-CONFIG_IP_SCTP=m
-CONFIG_SCTP_HMAC_NONE=y
-
-CONFIG_NETDEVICES=y
-
-CONFIG_DUMMY=m
-CONFIG_TUN=m
-
-CONFIG_NET_ETHERNET=y
-
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-CONFIG_EEPRO100=m
-CONFIG_E100=m
-
-CONFIG_NET_RADIO=y
-
-CONFIG_HERMES=m
-
-CONFIG_PCMCIA_HERMES=m
-CONFIG_NET_WIRELESS=y
-
-CONFIG_IRDA=m
-
-CONFIG_IRLAN=m
-CONFIG_IRCOMM=m
-CONFIG_IRDA_ULTRA=y
-
-CONFIG_IRDA_CACHE_LAST_LSAP=y
-CONFIG_IRDA_FAST_RR=y
-
-CONFIG_IRTTY_SIR=m
-
-CONFIG_IRPORT_SIR=m
-
-CONFIG_NSC_FIR=m
-CONFIG_WINBOND_FIR=m
-CONFIG_TOSHIBA_FIR=m
-CONFIG_SMC_IRCC_FIR=m
-CONFIG_ALI_FIR=m
-CONFIG_VLSI_FIR=m
-
-CONFIG_INPUT=y
-
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_PCIPS2=m
-
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_ACPI=y
-
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_PHILIPSPAR=m
-CONFIG_I2C_ELV=m
-CONFIG_I2C_VELLEMAN=m
-CONFIG_SCx200_ACB=m
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_CHARDEV=m
-
-CONFIG_I2C_ISA=m
-CONFIG_I2C_PIIX4=m
-
-CONFIG_HW_RANDOM=m
-CONFIG_NVRAM=m
-CONFIG_RTC=m
-CONFIG_GEN_RTC=m
-CONFIG_GEN_RTC_X=y
-
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=m
-CONFIG_DRM=y
-CONFIG_DRM_I810=m
-CONFIG_DRM_I830=m
-
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT2_FS_SECURITY=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_EXT3_FS_SECURITY=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_XFS_FS=y
-CONFIG_XFS_QUOTA=y
-CONFIG_XFS_POSIX_ACL=y
-CONFIG_QUOTACTL=y
-CONFIG_AUTOFS4_FS=y
-
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=y
-
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_NTFS_FS=m
-
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_SUNRPC=m
-CONFIG_SUNRPC_GSS=m
-CONFIG_RPCSEC_GSS_KRB5=m
-CONFIG_SMB_FS=m
-CONFIG_CIFS=m
-
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_LDM_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=m
-
-CONFIG_FB=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-
-CONFIG_SOUND=y
-
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-
-CONFIG_SND_INTEL8X0=m
-
-CONFIG_USB=m
-
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-
-CONFIG_USB_UHCI_HCD=m
-
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DATAFAB=y
-CONFIG_USB_STORAGE_FREECOM=y
-CONFIG_USB_STORAGE_ISD200=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_STORAGE_SDDR09=y
-CONFIG_USB_STORAGE_SDDR55=y
-CONFIG_USB_STORAGE_JUMPSHOT=y
-
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-CONFIG_SECURITY=y
-CONFIG_SECURITY_CAPABILITIES=y
-
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=m
-CONFIG_CRYPTO_MD4=m
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_SERPENT=m
-CONFIG_CRYPTO_AES=m
-CONFIG_CRYPTO_DEFLATE=y
-
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
-
-------=_NextPart_000_0014_01C3435B.07C546C0--
 

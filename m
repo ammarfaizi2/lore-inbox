@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbRGOKDy>; Sun, 15 Jul 2001 06:03:54 -0400
+	id <S266016AbRGOKNf>; Sun, 15 Jul 2001 06:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266013AbRGOKDn>; Sun, 15 Jul 2001 06:03:43 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:5248 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266006AbRGOKD3>;
-	Sun, 15 Jul 2001 06:03:29 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15185.27251.356109.500135@pizda.ninka.net>
-Date: Sun, 15 Jul 2001 03:03:31 -0700 (PDT)
-To: "George Bonser" <george@gator.com>
+	id <S266040AbRGOKN0>; Sun, 15 Jul 2001 06:13:26 -0400
+Received: from beasley.gator.com ([63.197.87.202]:55051 "EHLO
+	beasley.gator.com") by vger.kernel.org with ESMTP
+	id <S266016AbRGOKNJ>; Sun, 15 Jul 2001 06:13:09 -0400
+From: "George Bonser" <george@gator.com>
+To: "David S. Miller" <davem@redhat.com>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux default IP ttl
-In-Reply-To: <CHEKKPICCNOGICGMDODJIEEIDKAA.george@gator.com>
-In-Reply-To: <CHEKKPICCNOGICGMDODJIEEIDKAA.george@gator.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Subject: RE: [PATCH] Linux default IP ttl
+Date: Sun, 15 Jul 2001 03:17:37 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJKEEKDKAA.george@gator.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <15185.27251.356109.500135@pizda.ninka.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Why are there 64 friggin hops between machine in your server farm?
+> That is what I want to know.  It makes no sense, even over today's
+> internet, to have more than 64 hops between two sites.
+>
+> Later,
+> David S. Miller
+> davem@redhat.com
 
-George Bonser writes:
- > This has reduced considerably the number of ICMP messages where a packet has
- > expired
- > in transit from my server farms. Looks like there are a lot of clients out
- > there running
- > (apparently) modern Microsoft OS versions with networks having a lot of hops
- > (more than 64).
+I have NO idea and feel the same way. Some of the clients might be buried in
+some net inside India or China or the US some other place with some goofy
+internal net .. I dunno.  All I know is that MicroSquish set their default
+TTL to 128 and there APPEAR to be people reaching me that are more than 64
+hops away that are in fact reachable when I increase the TTL.
 
-Why are there 64 friggin hops between machine in your server farm?
-That is what I want to know.  It makes no sense, even over today's
-internet, to have more than 64 hops between two sites.
 
-Later,
-David S. Miller
-davem@redhat.com

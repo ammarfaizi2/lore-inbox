@@ -1,311 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262881AbTC0Ez6>; Wed, 26 Mar 2003 23:55:58 -0500
+	id <S262882AbTC0FJs>; Thu, 27 Mar 2003 00:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbTC0Ez6>; Wed, 26 Mar 2003 23:55:58 -0500
-Received: from dp.samba.org ([66.70.73.150]:37076 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262881AbTC0Ezv>;
-	Wed, 26 Mar 2003 23:55:51 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: [PATCH] MODULE_AUTHOR etc. support
-Date: Thu, 27 Mar 2003 16:05:03 +1100
-Message-Id: <20030327050705.83DC12C056@lists.samba.org>
+	id <S262886AbTC0FJs>; Thu, 27 Mar 2003 00:09:48 -0500
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:19857 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP
+	id <S262882AbTC0FJr>; Thu, 27 Mar 2003 00:09:47 -0500
+Date: Wed, 26 Mar 2003 22:20:54 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Ptrace hole / Linux 2.2.25
+In-Reply-To: <3E82107F.1060204@zytor.com>
+Message-ID: <Pine.LNX.4.44.0303262211360.14154-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, 26 Mar 2003, H. Peter Anvin wrote:
 
-	This patch puts MODULE_AUTHOR and MODULE_DESCRIPTION back in
-the .modinfo section.  It also uses it to store the vermagic and the
-license, which were previously in their own magic sections.
+> Dave Jones wrote:
+> > On Thu, Mar 27, 2003 at 08:47:27AM +0100, Pavel Machek wrote:
+> > 
+> >  > > and have it wget patches from k.o, verify signatures and auto-apply them,
+> >  > > which removes the "admin didnt even know there were patches
+> >  > > that needed to be applied" possibility.
+> >  > 
+> >  > That looks like ugly can of worms to me.
+> >  > "what kernel do you have?"
+> >  > "2.4.25 and it did two downloads; I was
+> >  > compiling it on the friday night"
+> > 
+> > So make one of the patches change extra-version to -errataN or the like.
+> > 
+> 
+> Basically what we're talking about now is someone to maintain an "errata
+> tree" -- someone to maintain sub-point releases (2.4.25.1, .2, etc.) and
+> to decide what those are.
 
-Linus, please apply.
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I agree with this format vs. the ep* format as it would be far easier to
+find the latest cumulative errata patch...  Wouldn't the sub-point release
+be a part of the errata patch?  I think it might get out of hand if there
+are too many different bits to deal with, the errata tree and sub-point
+release being seperate I mean..  IE if someone grabs the errata patches they
+should then be running the most secure and stable version of the current
+kernel available...  This also prevents having multiple trees around that
+require sync, as there would be no errata patches required for a kernel with
+no urgent patch releases (either bugfix or security related).  2.4.25 would
+basically be 2.4.25.0 and until someone finds a show stopping problem there
+wouldn't be the need for any additional patches...
 
-Name: Restore modinfo section
-Author: Rusty Russell
-Status: Tested on 2.5.66-bk2
-Depends: Module/extable-list.patch.gz
+Regards
+James Bourne
 
-D: Restores .modinfo section, and uses it to store license and vermagic.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26668-linux-2.5.66-bk2/include/linux/module.h .26668-linux-2.5.66-bk2.updated/include/linux/module.h
---- .26668-linux-2.5.66-bk2/include/linux/module.h	2003-03-27 15:20:11.000000000 +1100
-+++ .26668-linux-2.5.66-bk2.updated/include/linux/module.h	2003-03-27 15:20:26.000000000 +1100
-@@ -20,10 +20,7 @@
- #include <asm/module.h>
- 
- /* Not Yet Implemented */
--#define MODULE_AUTHOR(name)
--#define MODULE_DESCRIPTION(desc)
- #define MODULE_SUPPORTED_DEVICE(name)
--#define MODULE_PARM_DESC(var,desc)
- #define print_modules()
- 
- /* v850 toolchain uses a `_' prefix for all user symbols */
-@@ -58,12 +55,11 @@ search_extable(const struct exception_ta
- 	       unsigned long value);
- 
- #ifdef MODULE
--#define ___module_cat(a,b) a ## b
-+#define ___module_cat(a,b) __mod_ ## a ## b
- #define __module_cat(a,b) ___module_cat(a,b)
--/* For userspace: you can also call me... */
--#define MODULE_ALIAS(alias)					\
--	static const char __module_cat(__alias_,__LINE__)[]	\
--		__attribute__((section(".modinfo"),unused)) = "alias=" alias
-+#define __MODULE_INFO(tag, name, info)					  \
-+static const char __module_cat(name,__LINE__)[]				  \
-+  __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
- 
- #define MODULE_GENERIC_TABLE(gtype,name)			\
- extern const struct gtype##_id __mod_##gtype##_table		\
-@@ -71,6 +67,21 @@ extern const struct gtype##_id __mod_##g
- 
- #define THIS_MODULE (&__this_module)
- 
-+#else  /* !MODULE */
-+
-+#define MODULE_GENERIC_TABLE(gtype,name)
-+#define __MODULE_INFO(tag, name, info)
-+#define THIS_MODULE ((struct module *)0)
-+#define MOD_INC_USE_COUNT	do { } while (0)
-+#define MOD_DEC_USE_COUNT	do { } while (0)
-+#endif
-+
-+/* Generic info of form tag = "info" */
-+#define MODULE_INFO(tag, info) __MODULE_INFO(tag, tag, info)
-+
-+/* For userspace: you can also call me... */
-+#define MODULE_ALIAS(_alias) MODULE_INFO(alias, _alias)
-+
- /*
-  * The following license idents are currently accepted as indicating free
-  * software modules
-@@ -97,17 +108,18 @@ extern const struct gtype##_id __mod_##g
-  * 2.	So the community can ignore bug reports including proprietary modules
-  * 3.	So vendors can do likewise based on their own policies
-  */
--#define MODULE_LICENSE(license)					\
--	static const char __module_license[]			\
--		__attribute__((section(".init.license"), unused)) = license
-+#define MODULE_LICENSE(_license) MODULE_INFO(license, _license)
- 
--#else  /* !MODULE */
-+/* Author, ideally of form NAME <EMAIL>[, NAME <EMAIL>]*[ and NAME <EMAIL>] */
-+#define MODULE_AUTHOR(_author) MODULE_INFO(author, _author)
-+  
-+/* What your module does. */
-+#define MODULE_DESCRIPTION(_description) MODULE_INFO(description, _description)
- 
--#define MODULE_ALIAS(alias)
--#define MODULE_GENERIC_TABLE(gtype,name)
--#define THIS_MODULE ((struct module *)0)
--#define MODULE_LICENSE(license)
--#endif
-+/* One for each parameter, describing how to use it.  Some files do
-+   multiple of these per line, so can't just use MODULE_INFO. */
-+#define MODULE_PARM_DESC(_parm, desc) \
-+	__MODULE_INFO(parm, _parm, #_parm ":" desc)
- 
- #define MODULE_DEVICE_TABLE(type,name)		\
-   MODULE_GENERIC_TABLE(type##_device,name)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26668-linux-2.5.66-bk2/kernel/module.c .26668-linux-2.5.66-bk2.updated/kernel/module.c
---- .26668-linux-2.5.66-bk2/kernel/module.c	2003-03-27 15:20:11.000000000 +1100
-+++ .26668-linux-2.5.66-bk2.updated/kernel/module.c	2003-03-27 15:20:12.000000000 +1100
-@@ -914,12 +914,12 @@ EXPORT_SYMBOL_GPL(__symbol_get);
- /* Change all symbols so that sh_value encodes the pointer directly. */
- static int simplify_symbols(Elf_Shdr *sechdrs,
- 			    unsigned int symindex,
--			    unsigned int strindex,
-+			    const char *strtab,
- 			    unsigned int versindex,
- 			    struct module *mod)
- {
- 	Elf_Sym *sym = (void *)sechdrs[symindex].sh_addr;
--	const char *strtab = (char *)sechdrs[strindex].sh_addr;
-+	
- 	unsigned int i, n = sechdrs[symindex].sh_size / sizeof(Elf_Sym);
- 	int ret = 0;
- 
-@@ -1038,13 +1038,9 @@ static inline int license_is_gpl_compati
- 		|| strcmp(license, "Dual MPL/GPL") == 0);
- }
- 
--static void set_license(struct module *mod, Elf_Shdr *sechdrs, int licenseidx)
-+static void set_license(struct module *mod, const char *license)
- {
--	char *license;
--
--	if (licenseidx) 
--		license = (char *)sechdrs[licenseidx].sh_addr;
--	else
-+	if (!license)
- 		license = "unspecified";
- 
- 	mod->license_gplok = license_is_gpl_compatible(license);
-@@ -1055,6 +1051,40 @@ static void set_license(struct module *m
- 	}
- }
- 
-+/* Parse tag=value strings from .modinfo section */
-+static char *next_string(char *string, unsigned long *secsize)
-+{
-+	/* Skip non-zero chars */
-+	while (string[0]) {
-+		string++;
-+		if ((*secsize)-- <= 1)
-+			return NULL;
-+	}
-+
-+	/* Skip any zero padding. */
-+	while (!string[0]) {
-+		string++;
-+		if ((*secsize)-- <= 1)
-+			return NULL;
-+	}
-+	return string;
-+}
-+
-+static char *get_modinfo(Elf_Shdr *sechdrs,
-+			 unsigned int info,
-+			 const char *tag)
-+{
-+	char *p;
-+	unsigned int taglen = strlen(tag);
-+	unsigned long size = sechdrs[info].sh_size;
-+
-+	for (p = (char *)sechdrs[info].sh_addr; p; p = next_string(p, &size)) {
-+		if (strncmp(p, tag, taglen) == 0 && p[taglen] == '=')
-+			return p + taglen + 1;
-+	}
-+	return NULL;
-+}
-+
- /* Allocate and load the module: note that size of section 0 is always
-    zero, and we rely on this for optional sections. */
- static struct module *load_module(void *umod,
-@@ -1063,9 +1093,9 @@ static struct module *load_module(void *
- {
- 	Elf_Ehdr *hdr;
- 	Elf_Shdr *sechdrs;
--	char *secstrings, *args;
--	unsigned int i, symindex, exportindex, strindex, setupindex, exindex,
--		modindex, obsparmindex, licenseindex, gplindex, vmagindex,
-+	char *secstrings, *args, *modmagic, *strtab = NULL;
-+	unsigned int i, symindex = 0, strindex = 0, setupindex, exindex,
-+		exportindex, modindex, obsparmindex, infoindex, gplindex,
- 		crcindex, gplcrcindex, versindex;
- 	long arglen;
- 	struct module *mod;
-@@ -1099,6 +1129,7 @@ static struct module *load_module(void *
- 	/* Convenience variables */
- 	sechdrs = (void *)hdr + hdr->e_shoff;
- 	secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
-+	sechdrs[0].sh_addr = 0;
- 
- 	/* And these should exist, but gcc whinges if we don't init them */
- 	symindex = strindex = 0;
-@@ -1112,6 +1143,7 @@ static struct module *load_module(void *
- 		if (sechdrs[i].sh_type == SHT_SYMTAB) {
- 			symindex = i;
- 			strindex = sechdrs[i].sh_link;
-+			strtab = (char *)hdr + sechdrs[strindex].sh_offset;
- 		}
- #ifndef CONFIG_MODULE_UNLOAD
- 		/* Don't load .exit sections */
-@@ -1120,12 +1152,6 @@ static struct module *load_module(void *
- #endif
- 	}
- 
--#ifdef CONFIG_KALLSYMS
--	/* Keep symbol and string tables for decoding later. */
--	sechdrs[symindex].sh_flags |= SHF_ALLOC;
--	sechdrs[strindex].sh_flags |= SHF_ALLOC;
--#endif
--
- 	modindex = find_sec(hdr, sechdrs, secstrings,
- 			    ".gnu.linkonce.this_module");
- 	if (!modindex) {
-@@ -1143,9 +1169,16 @@ static struct module *load_module(void *
- 	setupindex = find_sec(hdr, sechdrs, secstrings, "__param");
- 	exindex = find_sec(hdr, sechdrs, secstrings, "__ex_table");
- 	obsparmindex = find_sec(hdr, sechdrs, secstrings, "__obsparm");
--	licenseindex = find_sec(hdr, sechdrs, secstrings, ".init.license");
--	vmagindex = find_sec(hdr, sechdrs, secstrings, "__vermagic");
- 	versindex = find_sec(hdr, sechdrs, secstrings, "__versions");
-+	infoindex = find_sec(hdr, sechdrs, secstrings, ".modinfo");
-+
-+	/* Don't keep modinfo section */
-+	sechdrs[infoindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
-+#ifdef CONFIG_KALLSYMS
-+	/* Keep symbol and string tables for decoding later. */
-+	sechdrs[symindex].sh_flags |= SHF_ALLOC;
-+	sechdrs[strindex].sh_flags |= SHF_ALLOC;
-+#endif
- 
- 	/* Check module struct version now, before we try to use module. */
- 	if (!check_modstruct_version(sechdrs, versindex, mod)) {
-@@ -1153,14 +1186,15 @@ static struct module *load_module(void *
- 		goto free_hdr;
- 	}
- 
-+	modmagic = get_modinfo(sechdrs, infoindex, "vermagic");
- 	/* This is allowed: modprobe --force will invalidate it. */
--	if (!vmagindex) {
-+	if (!modmagic) {
- 		tainted |= TAINT_FORCED_MODULE;
- 		printk(KERN_WARNING "%s: no version magic, tainting kernel.\n",
- 		       mod->name);
--	} else if (!same_magic((char *)sechdrs[vmagindex].sh_addr, vermagic)) {
-+	} else if (!same_magic(modmagic, vermagic)) {
- 		printk(KERN_ERR "%s: version magic '%s' should be '%s'\n",
--		       mod->name, (char*)sechdrs[vmagindex].sh_addr, vermagic);
-+		       mod->name, modmagic, vermagic);
- 		err = -ENOEXEC;
- 		goto free_hdr;
- 	}
-@@ -1240,11 +1274,11 @@ static struct module *load_module(void *
- 	/* Now we've moved module, initialize linked lists, etc. */
- 	module_unload_init(mod);
- 
--	/* Set up license info based on contents of section */
--	set_license(mod, sechdrs, licenseindex);
-+	/* Set up license info based on the info section */
-+	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
- 
- 	/* Fix up syms, so that st_value is a pointer to location. */
--	err = simplify_symbols(sechdrs, symindex, strindex, versindex, mod);
-+	err = simplify_symbols(sechdrs, symindex, strtab, versindex, mod);
- 	if (err < 0)
- 		goto cleanup;
- 
-@@ -1274,8 +1308,7 @@ static struct module *load_module(void *
- 	for (i = 1; i < hdr->e_shnum; i++) {
- 		const char *strtab = (char *)sechdrs[strindex].sh_addr;
- 		if (sechdrs[i].sh_type == SHT_REL)
--			err = apply_relocate(sechdrs, strtab, symindex, i,
--					     mod);
-+			err = apply_relocate(sechdrs, strtab, symindex, i,mod);
- 		else if (sechdrs[i].sh_type == SHT_RELA)
- 			err = apply_relocate_add(sechdrs, strtab, symindex, i,
- 						 mod);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26668-linux-2.5.66-bk2/scripts/modpost.c .26668-linux-2.5.66-bk2.updated/scripts/modpost.c
---- .26668-linux-2.5.66-bk2/scripts/modpost.c	2003-03-18 12:21:42.000000000 +1100
-+++ .26668-linux-2.5.66-bk2.updated/scripts/modpost.c	2003-03-27 15:20:12.000000000 +1100
-@@ -398,9 +398,7 @@ add_header(struct buffer *b)
- 	buf_printf(b, "#include <linux/vermagic.h>\n");
- 	buf_printf(b, "#include <linux/compiler.h>\n");
- 	buf_printf(b, "\n");
--	buf_printf(b, "const char vermagic[]\n");
--	buf_printf(b, "__attribute__((section(\"__vermagic\"))) =\n");
--	buf_printf(b, "VERMAGIC_STRING;\n");
-+	buf_printf(b, "MODULE_INFO(vermagic, VERMAGIC_STRING);\n");
- }
- 
- /* Record CRCs for unresolved symbols */
+> 
+> The other option would be to have it called something like
+> 2.4.25-ep36-ep42-ep96 if errata patches 36, 42 and 96 were applied.
+> 
+> I think sub-point releases are better, since it at least cuts down the
+> number of possible combinations.
+> 
+> 	-hpa
+> 
+> 
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
+

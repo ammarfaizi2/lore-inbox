@@ -1,88 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTEVPTy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:19:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTEVPTy
+	id S261960AbTEVPXN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTEVPXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:19:54 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:25604 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261959AbTEVPTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:19:34 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: "Oliver Pitzeier" <o.pitzeier@uptime.at>,
-       "'Sven Krohlas'" <darkshadow@web.de>, <marcelo@conectiva.com.br>,
-       <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Date: Thu, 22 May 2003 17:31:00 +0200
-User-Agent: KMail/1.5.1
-Cc: <linux-kernel@vger.kernel.org>
-References: <004a01c32075$7e2a7500$020b10ac@pitzeier.priv.at>
-In-Reply-To: <004a01c32075$7e2a7500$020b10ac@pitzeier.priv.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 22 May 2003 11:23:13 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:38859 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S261960AbTEVPXG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 11:23:06 -0400
+Date: Thu, 22 May 2003 17:36:00 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sysfs variable size files, lost dget, ...
+Message-ID: <20030522153600.GA15982@ranty.ddts.net>
+Reply-To: ranty@debian.org
+References: <20030521145817.GA15960@ranty.ddts.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
 Content-Disposition: inline
-Message-Id: <200305221731.00900.m.c.p@wolk-project.de>
+In-Reply-To: <20030521145817.GA15960@ranty.ddts.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 May 2003 17:19, Oliver Pitzeier wrote:
 
-http://people.freebsd.org/~gibbs/linux/SRC/
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-nothing more to say.
+On Wed, May 21, 2003 at 04:58:17PM +0200, Manuel Estrada Sainz wrote:
+>  Hi,
+> 
+>  While working on request_firmware() interface, I found some trouble
+>  with sysfs and Greg said that you are the one to send this patches:
+> 
+>   - sysfs-bin-flexible-size.diff:
+> 	Make dynamically sized files possible.  And return the right
+> 	value on successful write.
+> 
+>   - sysfs-bin-lost-dget.diff:
+> 	I was having trouble when calling request_firmware() from a work
+> 	queue, and after a little investigations it seams that this dget
+> 	got lost along the way. Adding it back fixed the issue.
+> 	Or am I causing a dentry leak now?
+> 
+>   - sysfs-bin-header.diff:
+> 	I guess that I am the first user of sysfs's binary interface :-)
+> 
+>  Thanks
+> 
+>  	Manuel
 
-> Sven Krohlas <darkshadow@web.de> wrote:
-> > > Here goes release canditate 2. The aic7xxx problems should be fixed.
-> >
-> > I've still got the same stability problems as with rc1.
-> > I booted rc2 and it was working fine for two or three hours.
-> > Then I thought "Hey, while I go to work I could rip and
-> > encode a CD". Well, so did I, and just as it started to rip
-> > the 2nd track (and to encode the first one with oggenc) the
-> > system froze. Sound stopped playing, the mouse froze, nothing
-> > worked.
->
-> You didn't see a kernel panic as well? I'm asking, because I have the same
-> problems with one of my machines...
->
-> When was this problem introduced? Does 2.4.19, or 2.4.20 work well?
->
-> > As before I found nothing in the logs.
->
-> Me too. The system freezes completly. I believed it's a problem with the
-> temperature at our server housing location, but it seems it is not (mounted
-> additional fans during the night and now the system is dead again).
->
-> [ ... ]
->
-> > My system is a AMD K6-2+, Asus P5A, SB AWE 64 ISA PnP (I used
-> > Alsa 0.9.2, but in rc1 I also had problems without it),
-> > nVidia TNT, two cheap network cards and a few disks.
->
-> My one is a Dual-P III 1GHz... I have no USB, Sound or that stuff
-> enabled... It's also a SCSI-only system if this does matter...
->
-> Best regards,
->  Oliver
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ You can ignore those patches, the dynamic size stuff would fail badly
+ when handling more than PAGE_SIZE data :-(
+
+ Updated patches attached.
+
+ Thanks
+
+ 	Manuel
+
 
 -- 
-Kind regards
-        Marc-Christian Petersen
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.
 
-http://sourceforge.net/projects/wolk
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="sysfs-bin-flexible-size.diff"
 
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+diff --exclude=CVS -urN linux-2.5.orig/fs/sysfs/bin.c linux-2.5.mine/fs/sysfs/bin.c
+--- linux-2.5.orig/fs/sysfs/bin.c	2003-05-17 20:44:03.000000000 +0200
++++ linux-2.5.mine/fs/sysfs/bin.c	2003-05-22 16:52:42.000000000 +0200
+@@ -30,10 +30,15 @@
+ 	loff_t offs = *off;
+ 	int ret;
+ 
+-	if (offs > size)
+-		return 0;
+-	if (offs + count > size)
+-		count = size - offs;
++	if (count > PAGE_SIZE)
++		count = PAGE_SIZE;
++
++	if (size) {
++		if (offs > size)
++			return 0;
++		if (offs + count > size)
++			count = size - offs;
++	}
+ 
+ 	ret = fill_read(dentry, buffer, offs, count);
+ 	if (ret < 0) 
+@@ -41,7 +46,7 @@
+ 	count = ret;
+ 
+ 	ret = -EFAULT;
+-	if (copy_to_user(userbuf, buffer + offs, count) != 0)
++	if (copy_to_user(userbuf, buffer, count) != 0)
+ 		goto Done;
+ 
+ 	*off = offs + count;
+@@ -69,19 +74,23 @@
+ 	loff_t offs = *off;
+ 	int ret;
+ 
+-	if (offs > size)
+-		return 0;
+-	if (offs + count > size)
+-		count = size - offs;
++	if (count > PAGE_SIZE)
++		count = PAGE_SIZE;
++	if (size) {
++		if (offs > size)
++			return 0;
++		if (offs + count > size)
++			count = size - offs;
++	}
+ 
+ 	ret = -EFAULT;
+-	if (copy_from_user(buffer + offs, userbuf, count))
++	if (copy_from_user(buffer, userbuf, count))
+ 		goto Done;
+ 
+ 	count = flush_write(dentry, buffer, offs, count);
+ 	if (count > 0)
+ 		*off = offs + count;
+-	ret = 0;
++	ret = count;
+  Done:
+ 	return ret;
+ }
+@@ -102,7 +111,7 @@
+ 		goto Done;
+ 
+ 	error = -ENOMEM;
+-	file->private_data = kmalloc(attr->size, GFP_KERNEL);
++	file->private_data = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!file->private_data)
+ 		goto Done;
+ 
 
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="sysfs-bin-header.diff"
 
+diff --exclude=CVS -urN linux-2.5.orig/include/linux/sysfs.h linux-2.5.mine/include/linux/sysfs.h
+--- linux-2.5.orig/include/linux/sysfs.h	2003-05-21 17:38:39.000000000 +0200
++++ linux-2.5.mine/include/linux/sysfs.h	2003-05-21 10:22:08.000000000 +0200
+@@ -23,6 +23,9 @@
+ 	ssize_t (*write)(struct kobject *, char *, loff_t, size_t);
+ };
+ 
++int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr);
++int sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr);
++
+ struct sysfs_ops {
+ 	ssize_t	(*show)(struct kobject *, struct attribute *,char *);
+ 	ssize_t	(*store)(struct kobject *,struct attribute *,const char *, size_t);
+
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="sysfs-bin-lost-dget.diff"
+
+diff --exclude=CVS -urN linux-2.5.orig/fs/sysfs/inode.c linux-2.5.mine/fs/sysfs/inode.c
+--- linux-2.5.orig/fs/sysfs/inode.c	2003-05-17 20:44:03.000000000 +0200
++++ linux-2.5.mine/fs/sysfs/inode.c	2003-05-22 16:53:59.000000000 +0200
+@@ -60,9 +60,10 @@
+  Proceed:
+ 	if (init)
+ 		error = init(inode);
+-	if (!error)
++	if (!error) {
+ 		d_instantiate(dentry, inode);
+-	else
++		dget(dentry); /* Extra count - pin the dentry in core */
++	} else
+ 		iput(inode);
+  Done:
+ 	return error;
+
+--vkogqOf2sHV7VnPd--

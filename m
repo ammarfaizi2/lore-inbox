@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271713AbTGRGJu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 02:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271720AbTGRGJu
+	id S271712AbTGRGOw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 02:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271719AbTGRGOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 02:09:50 -0400
-Received: from mail.convergence.de ([212.84.236.4]:9182 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S271713AbTGRGJs
+	Fri, 18 Jul 2003 02:14:52 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:36262 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S271712AbTGRGOt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 02:09:48 -0400
-Message-ID: <3F1792AA.70704@convergence.de>
-Date: Fri, 18 Jul 2003 08:24:42 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030715
-X-Accept-Language: en-us, en
+	Fri, 18 Jul 2003 02:14:49 -0400
+Date: Fri, 18 Jul 2003 09:24:23 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: libata driver update posted
+In-Reply-To: <3F1711C8.6040207@pobox.com>
+Message-ID: <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>
+References: <3F1711C8.6040207@pobox.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] Add two drivers for USB based DVB-T adapters
-References: <10582891731946@convergence.de> <20030715212005.GA5458@kroah.com>
-In-Reply-To: <20030715212005.GA5458@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Greg,
+> Next update will add several host drivers, now that the libata API is
+> settling down.
 
->>+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
->>+static void *ttusb_probe(struct usb_device *udev, unsigned int ifnum,
->>+		  const struct usb_device_id *id)
->>+{
+Sii3112A is/will be supported?
+Thanks!
 
-> Ick, you don't really want to try to support all of the USB changes in
-> the same driver, now do you?  Why not just live with two different
-> drivers.
+>
+>
+> 2.4.21-based patch:
+> ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.21-libata4.patch.bz2
+>
+> 2.4.21-based BitKeeper repo:
+> bk://kernel.bkbits.net/jgarzik/atascsi-2.4
+>
+> 2.6.0-test1-based patch:
+> ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test1-libata1.patch.bz2
+>
+> 2.6.0-test1-based BitKeeper repo:
+> bk://kernel.bkbits.net/jgarzik/atascsi-2.5
+> (yes, "2.5" is not a typo, I haven't changed the name to 2.6 yet)
+>
+>
+> Remove the ".??" if the file has not appeared on your favorite
+> kernel.org mirror yet.
+>
+>
+> Changes:
+> * beginnings of pluggable timing configuration
+> * beginnings of cable detection
+> * much improved ATA device probing
+> * a bunch of internal improvements and cleanups (too many to list)
+> * additional of DocBook documentation
+> * many bug fixes
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Because I'm the poor guy that has to test it with 2.4 and 2.5 and who's 
-submitting the patches. 8-)
-
-The author is mainly working with 2.4, I'm trying to compile it and test 
-it for 2.5.
-
-> The ALSA people eventually gave up trying to do this... :)
-
-I agree, I'll separate the stuff now that it has gone into Linus' tree.
-
->>+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,69))
->>+#undef devfs_remove
->>+#define devfs_remove(x)	devfs_unregister(ttusb->stc_devfs_handle);
->>+#endif
->>+#if 0
->>+	devfs_remove(TTUSB_BUDGET_NAME);
->>+#endif
-
-> You end up with crud like this because of trying to support old kernels.
-> Why do you care about kernels prior to 2.5.69?  If so, your USB kernel
-> checks are wrong, as 2.5.0 didn't have those API changes :)
-
-I already wrote Linus that I'll remove this compatibility crap with the 
-next patchset.
-
-> thanks,
-> greg k-h
-
-Thanks for your feedback!
-
-CU
-Michael.
-
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

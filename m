@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbUCLKL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 05:11:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUCLKL0
+	id S261531AbUCLKNY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 05:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbUCLKNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 05:11:26 -0500
-Received: from shark.pro-futura.com ([161.58.178.219]:5041 "EHLO
-	shark.pro-futura.com") by vger.kernel.org with ESMTP
-	id S261748AbUCLKLT convert rfc822-to-8bit (ORCPT
+	Fri, 12 Mar 2004 05:13:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22674 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261531AbUCLKM7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 05:11:19 -0500
-From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
-Organization: Croadria Internet usluge
-To: "Yury V. Umanets" <umka@namesys.com>
-Subject: Re: About Replaceable OOM Killer
-Date: Fri, 12 Mar 2004 11:15:12 +0100
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, "Guo, Min" <min.guo@intel.com>,
-       cgl_discussion@lists.osdl.org
-References: <3ACA40606221794F80A5670F0AF15F84035F1DD5@PDSMSX403.ccr.corp.intel.com> <200403011141.26724.tvrtko@croadria.com> <1078403388.3025.33.camel@firefly>
-In-Reply-To: <1078403388.3025.33.camel@firefly>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403121115.12518.tvrtko@croadria.com>
+	Fri, 12 Mar 2004 05:12:59 -0500
+Subject: Re: 2.6.4-mm1: unknown symbols cauased by
+	remove-more-KERNEL_SYSCALLS.patch
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, bunk@fs.tum.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040312014809.4f2b280e.akpm@osdl.org>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+	 <200403121014.40889.arnd@arndb.de> <20040312012942.5fd30052.akpm@osdl.org>
+	 <200403121035.02977.arnd@arndb.de>  <20040312014809.4f2b280e.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OXOIujCleHbFePy0mNTK"
+Organization: Red Hat, Inc.
+Message-Id: <1079086310.4445.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 12 Mar 2004 11:11:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 March 2004 13:29, Yury V. Umanets wrote:
-> IMHO problem with OOM killer is that it always will do wrong choice. So,
-> it should be either plugin based or allow to configure it and this
-> means, that it will become more complex and buggy. Does not it mean,
-> that OOM killer should be moved to user space?
->
-> How about to export OOM event to user space? It might be done in manner
-> like hotplug script is used.
 
-No, I don't think userspace is a good idea.
+--=-OXOIujCleHbFePy0mNTK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On the other hand... I have updated the MOOM patch in sync with 2.4.25, you 
-can get it at http://linux.ursulin.net or from LKML.
+On Fri, 2004-03-12 at 10:48, Andrew Morton wrote:
+> Arnd Bergmann <arnd@arndb.de> wrote:
 
-Any comments, bug reports, etc are welcomed!
+> But then the removal of KERNEL_SYSCALLS becomes hostage to those drivers,
+> and nobody is working on them.   It'll never happen.
 
--- 
-Best regards,
-Tvrtko A. Ur¹ulin, Linux admin 
---
-Croadria Internet usluge <http://www.croadria.com>
-- Web hosting (Linux & Windows), E-commerce
+CONFIG_BROKEN ??
+
+--=-OXOIujCleHbFePy0mNTK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAUYzmxULwo51rQBIRAlJKAJ9FX2HNrEjZ74O89Hqj7MqJfTw94wCdElWr
+V6FTKCRYe7eN/sd+lCKl/0k=
+=flvs
+-----END PGP SIGNATURE-----
+
+--=-OXOIujCleHbFePy0mNTK--
+

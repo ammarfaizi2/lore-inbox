@@ -1,45 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315857AbSEMGxu>; Mon, 13 May 2002 02:53:50 -0400
+	id <S315858AbSEMGyD>; Mon, 13 May 2002 02:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315858AbSEMGxt>; Mon, 13 May 2002 02:53:49 -0400
-Received: from matav-4.matav.hu ([145.236.252.35]:15891 "EHLO
-	Forman.fw.matav.hu") by vger.kernel.org with ESMTP
-	id <S315857AbSEMGxt>; Mon, 13 May 2002 02:53:49 -0400
-Date: Mon, 13 May 2002 08:51:29 +0200 (CEST)
-From: Narancs v1 <narancs@narancs.tii.matav.hu>
-X-X-Sender: narancs@helka
-To: linux-kernel@vger.kernel.org
-Subject: net/ipv4/conf/* config order
-Message-ID: <Pine.LNX.4.44.0205130845570.2881-100000@helka>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315859AbSEMGyD>; Mon, 13 May 2002 02:54:03 -0400
+Received: from violet.setuza.cz ([194.149.118.97]:34566 "EHLO violet.setuza.cz")
+	by vger.kernel.org with ESMTP id <S315858AbSEMGyB>;
+	Mon, 13 May 2002 02:54:01 -0400
+Subject: Re: Reiserfs has killed my root FS!?!
+From: Frank Schaefer <frank.schafer@setuza.cz>
+To: Becki Minich <bminich@earthlink.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CDEDEA5.2020002@earthlink.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 13 May 2002 08:54:02 +0200
+Message-Id: <1021272842.254.2.camel@ADMIN>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+On Sun, 2002-05-12 at 23:29, Becki Minich wrote:
+> Firstly, I haven't subscribed to this list since 2.3 so please also copy 
+> me on repsonses.
+> Secondly, I am e-mailing from my Mother's place as it IS Mother's Day 
+> AND my home PC will no longer boot Linux (my primary OS), so please send 
+> responses to johnnyo@mindspring.com
+> TIA :-)
+> 
+> Now the problem.
+> I use reiserfs on all my filesystems.  I have noticed some minor 
+> corruption of files in the past when I didnt shut down Linux properly 
+> (lockups, etc).  I experiment alot with my computer.
+> 
+> Anyway lately I was havin a problem that required frequent reboots.  Now 
+> I believe my root filesystem is corrupted?!?  Linux 2.4.18 boots till it 
+> gets to
+> 
+> reiserfs: checking transaction log (device 08:12)
+> attempt to access beyond end of device
+> 08:12: rw=0 want=268574776 limit=8747392
+> vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat 
+> data of [1 2 0x0 SD]
+> Using r5 hash to sort names
+> Reiserfs version 3.6.25
+> VFS: Mounted root (reiserfs filesystem) readonly.
+> Warning: unable to mount devfs, err: -5
+> Freeing unused kernel memory: 224k freed
+> Warning: unable to open an initial console.
+> Kernel panic: No init found.
+> 
+> If someone can get me to the point where I can just get to read my 
+> filesystem read-only, so I get get all my data off of it, I would be 
+> EXTREMELY GRATEFUL!  I have some very important data on that FS.  I went 
+> to the reiserfs web site to discover I'd get charged $25 for asking for 
+> help, so unless someone convinces me otherwise, I will be converting to 
+> EXT3 when this disaster is over...
+> 
+> Slackware Linux 8.1b2
+> Linux 2.4.18
+> ReiserFS 3.6.25
+> GLIBC 2.2.5
+> GCC 2.95.3
 
-sysctl -a|grep source
-net/ipv4/conf/eth2/accept_source_route = 1
-net/ipv4/conf/eth1/accept_source_route = 1
-net/ipv4/conf/eth0/accept_source_route = 1
-net/ipv4/conf/lo/accept_source_route = 1
-net/ipv4/conf/default/accept_source_route = 1
-net/ipv4/conf/all/accept_source_route = 0
+Hi John,
 
-so does it mean, that source routed packets are all dropped in all
-interfaces, or does it mean that all accepted?
+you have root mounted read-only, and devfs enabled. I think you get into
+trouble because of devfs. Without the devices you can't get the console
+and thus you can't do anything with the computer. Furtheron init will
+try to create the .initctl pipe in /dev, which is due to the not mounted
+devfs in a directory of the READ-ONLY root.
 
-Yes, I want to disable it, and some other parameters, too, so shall I set
-all of them respectively to 0 or 'all' = 0 will do the task?
+My guess: Your flesystem is readable and (mostly) correct. As some
+others before me mentioned -- we don't know what you did of course.
 
-thanks!
+My hint: Take your recovery floppies to get into your host. For the case
+you don't have some, take the installation floppies from some distro.
 
-linux 2.4.18
-
--------------------------
-Narancs v1
-IT Security Administrator
-Warning: This is a really short .sig! Vigyazat: ez egy nagyon rovid szig!
-
+Best wishes
+Frank
 

@@ -1,82 +1,404 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbUJYNXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbUJYNYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbUJYNXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 09:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUJYNXI
+	id S261798AbUJYNYD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 09:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUJYNYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 09:23:08 -0400
-Received: from kone17.procontrol.vip.fi ([212.149.71.178]:60118 "EHLO
-	danu.procontrol.fi") by vger.kernel.org with ESMTP id S261795AbUJYNWd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 09:22:33 -0400
-In-Reply-To: <20041025123722.GA5107@thunk.org>
-References: <431547F9-2624-11D9-8AC3-000393CC2E90@iki.fi> <20041025123722.GA5107@thunk.org>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-12-144261182"
-Message-Id: <E933728A-2688-11D9-8AC3-000393CC2E90@iki.fi>
+	Mon, 25 Oct 2004 09:24:02 -0400
+Received: from pop.gmx.de ([213.165.64.20]:32913 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261799AbUJYNXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 09:23:03 -0400
+X-Authenticated: #4399952
+Date: Mon, 25 Oct 2004 15:39:40 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041025153940.1de340b4@mango.fruits.de>
+In-Reply-To: <20041025121210.GA6555@elte.hu>
+References: <20041019124605.GA28896@elte.hu>
+	<20041019180059.GA23113@elte.hu>
+	<20041020094508.GA29080@elte.hu>
+	<20041021132717.GA29153@elte.hu>
+	<20041022133551.GA6954@elte.hu>
+	<20041022155048.GA16240@elte.hu>
+	<20041022175633.GA1864@elte.hu>
+	<20041025104023.GA1960@elte.hu>
+	<417CDE90.6040201@cybsft.com>
+	<20041025111046.GA3630@elte.hu>
+	<20041025121210.GA6555@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Timo Sirainen <tss@iki.fi>
-Subject: Re: readdir loses renamed files
-Date: Mon, 25 Oct 2004 16:22:25 +0300
-To: "Theodore Ts'o" <tytso@mit.edu>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Oct 2004 14:12:10 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
---Apple-Mail-12-144261182
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+> i think i found the bug - now selinux boots fine. I've uploaded -V0.1
+> with the fix included. This fix could solve a number of other complaints
+> as well.
 
-On 25.10.2004, at 15:37, Theodore Ts'o wrote:
+some more:
 
-> This is not a bug; the POSIX specification explicitly allows this
-> behavior.  If a filename is renamed during a readdir() session of a
-> directory, it is undefined where that neither, either, or both of the
-> new and old filenames will be returned.
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
-BTW. Would be nice if this was mentioned in readdir(3) manual page. 
-UNIX98 specs also didn't mention rename specifically, and I don't know 
-of other freely available specs.
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
-> And that's because there's no good way to do this without trashing the
-> performance of the system, especially when most applications don't
-> care.  (Do you really want your entire system running significantly
-> slower, penalizing all other applications on your system, just because
-> of one stupid/badly-written application?)  In order to do this, the
-> kernel would have to atomically snapshot the directory --- even one
-> which might be several megabytes in length, and store a copy of it in
-> memory, while the application calls readdir().  Several processes
-> could perform a denial-of-service attack by starting to call
-> readdir(), and then stopping.  This would end up locking up huge
-> amounts of non-pageable system memory, and cause the system to come
-> down in a hurry.
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
-That would be a generic kernel solution for it, but it's not what I'm 
-asking.
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
-Only thing needed not to lose the files would be that renamed files 
-appeared always at the end of the readdir() list, or at the same 
-location where the original file was. But apparently that's not how 
-filesystems nowadays implement it, and probably not very simple to 
-change to work that way.
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
---Apple-Mail-12-144261182
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (Darwin)
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
-iD8DBQFBfP4RyUhSUUBViskRAlYnAJ9vqrITze9HKTHr8RWDGO4nj7ftJACgpmrm
-8frr+RFC44KOty4h3Q1S4PY=
-=S4Tj
------END PGP SIGNATURE-----
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 
---Apple-Mail-12-144261182--
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
+
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
+
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
+
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
+
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
+
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
+
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
+
+mozilla-bin/753: BUG in futex_wait at kernel/futex.c:542
+ [<c0132962>] futex_wait+0x192/0x1a0 (12)
+ [<c01ef27b>] __up_write+0x13b/0x320 (84)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (16)
+ [<c02b9880>] down_write+0xd0/0x2b0 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c02b9880>] down_write+0xd0/0x2b0 (4)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (8)
+ [<c01ef27b>] __up_write+0x13b/0x320 (8)
+ [<c0131788>] check_preempt_timing+0x58/0x290 (8)
+ [<c0131c55>] sub_preempt_count+0x65/0xd0 (4)
+ [<c01ef27b>] __up_write+0x13b/0x320 (4)
+ [<c0115f60>] default_wake_function+0x0/0x20 (72)
+ [<c0115f60>] default_wake_function+0x0/0x20 (32)
+ [<c0132c17>] do_futex+0x47/0xa0 (40)
+ [<c0132d60>] sys_futex+0xf0/0x100 (40)
+ [<c010617b>] syscall_call+0x7/0xb (68)
+preempt count: 00000001
+. 1-level deep critical section nesting:
+.. entry 1: print_traces+0x17/0x90 [<c0131fc7>] / (dump_stack+0x23/0x30 [<c0106733>])
 

@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbUEPHEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263295AbUEPHif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbUEPHEh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 03:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUEPHEh
+	id S263295AbUEPHif (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 03:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUEPHif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 03:04:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41657 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263309AbUEPHEe (ORCPT
+	Sun, 16 May 2004 03:38:35 -0400
+Received: from smtp2.att.ne.jp ([165.76.15.138]:13798 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S263295AbUEPHid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 03:04:34 -0400
-Date: Sun, 16 May 2004 00:04:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kara <jack@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, lukasz@wsisiz.edu.pl,
-       j.borsboom@erasmusmc.nl, crosser@average.org, torvalds@osdl.org
-Subject: Re: [PATCH] Quota fix 2
-Message-Id: <20040516000401.506d8456.akpm@osdl.org>
-In-Reply-To: <20040515192824.GB21471@atrey.karlin.mff.cuni.cz>
-References: <20040515192824.GB21471@atrey.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 16 May 2004 03:38:33 -0400
+Message-ID: <035e01c43b18$69ede9f0$b7ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@despammed.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kill off PC9800
+Date: Sun, 16 May 2004 16:35:19 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara <jack@ucw.cz> wrote:
+Andrew Morton wrote:
+> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+> >
+> >  PC9800 sub-arch is incomplete, hackish (at least in IDE), maintainers
+> >  don't reply to emails and haven't touched it in awhile.
 >
->   another fix for quota code - it fixes the problem with recursion into
->  filesystem when inode of quota file needs a page + some other allocation
->  problems.
+> And the hardware is obsolete, isn't it?  Does anyone know when they were
+> last manufactured, and how popular they are?
 
-It makes sense.
+Of course they aren't popular any more, but the last ones were still
+respectably powerful and can run stuff like Windows 2000 Server.
 
-> I hope I got the GFP mask setting right..
+When were PowerPC, MIPS (other than embedded), and Alpha chips last
+manufactured, and how popular are they?
 
-nope!  Here's a fix against your patch.
-
-
-
-
----
-
- 25-akpm/fs/dquot.c |   11 ++++++++++-
- 1 files changed, 10 insertions(+), 1 deletion(-)
-
-diff -puN fs/dquot.c~quota-recursion-fix-fix fs/dquot.c
---- 25/fs/dquot.c~quota-recursion-fix-fix	2004-05-15 23:58:31.365278768 -0700
-+++ 25-akpm/fs/dquot.c	2004-05-16 00:02:52.667554784 -0700
-@@ -1372,7 +1372,16 @@ static int vfs_quota_on_file(struct file
- 	 * into filesystem when allocating page for quota inode */
- 	down_write(&dqopt->dqptr_sem);
- 	inode->i_flags |= S_NOQUOTA | S_NOATIME;
--	clear_bit(ffs(__GFP_FS), &inode->i_mapping->flags);
-+
-+	/*
-+	 * We write to quota files deep within filesystem code.  We don't want
-+	 * the VFS to reenter filesystem code when it tries to allocate a
-+	 * pagecache page for the quota file write.  So clear __GFP_FS in
-+	 * the quota file's allocation flags.
-+	 */
-+	mapping_set_gfp_mask(inode->i_mapping,
-+		mapping_gfp_mask(inode->i_mapping) & ~__GFP_FS);
-+
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
- 		to_drop[cnt] = inode->i_dquot[cnt];
- 		inode->i_dquot[cnt] = NODQUOT;
-
-_
+[By the way the above commendts do not reflect my personal opinion.  A few
+years ago a friend got one free.  It wasn't one of the last and repectably
+powerful ones, it had a 486 and 10MB of RAM.  It was amazingly hard to get
+Windows 95 installed onto it, because I had no experience with the
+architecture (other than having read a few things such as hard disk
+partitions being DOS letters A, B, and then presumably E and upwards, and it
+turned out that this wasn't true when booting from a floppy, and the PC98
+version of Windows 95 confused itself too when doing its normal reboots from
+the hard disk part way through installation...).  After being installed,
+Windows 95 ran impressively well in 10MB of RAM.  The GUI responded to mouse
+clicks immediately, none of the sluggishness normally associated with X11
+Windows and XP Windows.  Even opening a document in WordPad came up without
+waiting.  However, the installation process was so painful that I told my
+friend my opinion of his computer.  Even when he got it free, it was worth
+less than he paid for it.]
 

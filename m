@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317380AbSGYGmO>; Thu, 25 Jul 2002 02:42:14 -0400
+	id <S317392AbSGYGti>; Thu, 25 Jul 2002 02:49:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317392AbSGYGmO>; Thu, 25 Jul 2002 02:42:14 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:56586 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S317380AbSGYGmN>;
-	Thu, 25 Jul 2002 02:42:13 -0400
-Date: Fri, 26 Jul 2002 08:47:48 +0200
-From: Nico Schottelius <nico-mutt@schottelius.org>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Diego Calleja <diegocg@teleline.es>, nicos-mutt@pcsystems.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.5.27 floppy driver
-Message-ID: <20020726064748.GA795@schottelius.org>
-References: <20020724193513.4bc2bd9e.diegocg@teleline.es> <Pine.LNX.4.44.0207241143070.3347-100000@hawkeye.luckynet.adm>
+	id <S317470AbSGYGti>; Thu, 25 Jul 2002 02:49:38 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:13811 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317392AbSGYGth>; Thu, 25 Jul 2002 02:49:37 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Thu, 25 Jul 2002 00:51:09 -0600
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Header files and the kernel ABI
+Message-ID: <20020725065109.GO574@clusterfs.com>
+Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
+	linux-kernel@vger.kernel.org
+References: <aho5ql$9ja$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207241143070.3347-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.5.27
+In-Reply-To: <aho5ql$9ja$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jul 24, 2002  23:28 -0700, H. Peter Anvin wrote:
+> It seems to me that a reasonable solution for how to do this is not
+> for user space to use kernel headers, but for user space and the
+> kernel to share a set of common ABI description files[1].  These files
+> should be highly stylized, and only describe things visible to user
+> space.  Furthermore, if they introduce types, they should use the
+> already-established __kernel_ namespace, and of course __s* and __u*
+> could be used for specific types.
+> 
+> I would like to propose that these files be set up in the #include
+> namespace as <linux/abi/*>, with <linux/abi/arch/*> for any
+> architecture-specific support files (I do believe, however, that those
+> files should only be included by files in the linux/abi/ root.  This
+> probably would be a symlink to ../asm/abi in the kernel sources,
+> unless we change the kernel include layout.)  The linux/ namespace is
+> universally reserved for the kernel, and unlike <abi/*> I don't know
+> of any potential conflicts.  I was considered <kabi/*>, but it seems
+> cleaner to use existing namespace.
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I had thought on this briefly in the past, and my take would be for these
+ABI definition files to live directly in /usr/include/linux for user space
+(just as glibc puts its own sanitized copy of the kernel headers there)
+and the appropriate ABI headers are included as needed from the kernel.
 
-Thunder from the hill [Wed, Jul 24, 2002 at 11:43:35AM -0600]:
-> > The latest vfs updates i've found are the ones in the 2.5.22
-> > changelog...
->=20
-> Yes, the floppy driver is broken for quite a while now. It's a well-known=
-=20
-> problem.
+The kernel side would be something like <linux/scsi.h> includes
+<linux/abi/scsi.h> or whatever, but in the future this can be included
+directly as needed throughout the kernel.  The existing kernel
+<linux/*.h> headers would also have extra kernel-specific data in them.
 
-I am wondering that I can't use it in .27, if vfs changes were in .22 and .=
-24
-worked, too.
+The same could be done with the user-space headers, but I think that
+is missing the point that the linux/abi/*.h headers should define _all_
+of the abi, so we may as well just use that directly.
 
-Nico
+Essentially "all" this would mean is that we take the existing headers,
+remove everything which is inside #ifdef __KERNEL__ (and all of the
+other kernel-specific non-abi headers that are included) and we are
+done.  The kernel header now holds only things that were inside the
+#ifdef __KERNEL__ (or should have been), and #include <linux/abi/foo.h>.
 
---=20
-Changing mail address: please forget all known @pcsustems.de addresses.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---HlL+5n6rz5pIUxbD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9QPCUtnlUggLJsX0RAs/vAKCS1Xbxq9gscdJ0nxE7fqeGul3y0QCgos+X
-A3mssgEBKHw168aopGPZ0fo=
-=J663
------END PGP SIGNATURE-----
-
---HlL+5n6rz5pIUxbD--

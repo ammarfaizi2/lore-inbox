@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267430AbSKQBpa>; Sat, 16 Nov 2002 20:45:30 -0500
+	id <S267432AbSKQBls>; Sat, 16 Nov 2002 20:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbSKQBpa>; Sat, 16 Nov 2002 20:45:30 -0500
-Received: from packet.digeo.com ([12.110.80.53]:16803 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267430AbSKQBpa>;
-	Sat, 16 Nov 2002 20:45:30 -0500
-Message-ID: <3DD6F655.4214A594@digeo.com>
-Date: Sat, 16 Nov 2002 17:52:21 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S267433AbSKQBlr>; Sat, 16 Nov 2002 20:41:47 -0500
+Received: from mx11.dmz.fedex.com ([199.81.193.118]:19471 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S267432AbSKQBlr>; Sat, 16 Nov 2002 20:41:47 -0500
+Date: Sun, 17 Nov 2002 09:47:02 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Jeff Chua <jchua@fedex.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: VFAT mount (bug or feature?
+In-Reply-To: <20021116201944.GA1456@win.tue.nl>
+Message-ID: <Pine.LNX.4.44.0211170944020.432-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-To: Justin A <ja6447@albany.edu>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, ambx1@neo.rr.com
-Subject: Re: pnpbios oops on boot w/ 2.5.47
-References: <200211161700.29653.ja6447@albany.edu> <3DD6C1DC.44966373@digeo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Nov 2002 01:52:21.0996 (UTC) FILETIME=[F81F72C0:01C28DDB]
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/17/2002
+ 09:48:37 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/17/2002
+ 09:48:40 AM,
+	Serialize complete at 11/17/2002 09:48:40 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Justin A wrote:
-> >
-> > Hi :)
-> >
-> > I tried to "port" kmsgdump to 2.5.47 and for some reason, it worked.
-> >
-> > Attached is the full dmesg
-> >
-> > Alan: I ran dmidecode under 2.4.19 which said simply "PNP BIOS present"
-> >
-> > This is a thinkpad 760e, really old..I don't even think I need pnpbios support
-> > for anything.  2.5.47/2.5.47-ac5 boot with pnpbios turned off, so I think you
-> > just need to add this to your blacklist?
-> >
-> 
-> The BUG in slab indicates that something overran the end of a kmalloced
-> buffer.  That'll be either pnp_bios_get_dev_node() or node_set_resources()
-> ran off the end of `node'.
+On Sat, 16 Nov 2002, Andries Brouwer wrote:
 
-err...
+> > drwxr--r--   40 root     root         4096 Jan  1  1970 /dos
+> >
+> > Any patch for 2.4.20-rcx?
+>
+> Hm. Why do you think this is wrong? Didnt you ask for it?
 
-        node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+No, I didn't ask for it.
 
-max_node_size appears to never be initialised.
+But, 2.4.20-rc2 seems ok.
+
+'mount -o umask=022' now works under 2.4.20-rc2.
+
+Thanks,
+Jeff.
+

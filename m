@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270483AbTGSCyf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 22:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTGSCyf
+	id S270485AbTGSC7C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 22:59:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270486AbTGSC7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 22:54:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28387 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270483AbTGSCyd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 22:54:33 -0400
-Date: Fri, 18 Jul 2003 20:09:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] General filesystem cache
-In-Reply-To: <23055.1058538289@warthog.warthog>
-Message-ID: <Pine.LNX.4.44.0307182000300.6370-100000@home.osdl.org>
+	Fri, 18 Jul 2003 22:59:02 -0400
+Received: from smtp-node1.eclipse.net.uk ([212.104.129.76]:12808 "EHLO
+	smtp1.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S270485AbTGSC7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 22:59:00 -0400
+From: Ian Hastie <ianh@iahastie.clara.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: More 2.6.0-test1-ac2 issues / nvidia kernel module
+Date: Sat, 19 Jul 2003 04:13:54 +0100
+User-Agent: KMail/1.5.2
+References: <20030718154918.GA27176@charite.de>
+In-Reply-To: <20030718154918.GA27176@charite.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307190413.56193.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 18 Jul 2003 16:49, Ralf Hildebrandt wrote:
+> Yes, please: nvidia taints the kernel - so flame at your will - but
+> this is a more general question regarding module loading:
+>
+> If I load the nvidia kernel module like this:
+>
+> % modprobe nvidia NVreg_Mobile=2  NVreg_SoftEDIDs=0
+>
+> and start kdm afterwards, it works as in 2.4 -- I get a two screen
+> setup with one screen on my laptop TFT and one on my external TFT
+> screen.
+>
+> If I use this /etc/modules.conf:
 
-On Fri, 18 Jul 2003, David Howells wrote:
-> 
-> Here's a patch to add a quasi-filesystem ("CacheFS") that turns a block device
-> into a general cache for any other filesystem that cares to make use of its
-> facilities.
-> 
-> This is primarily intended for use with my AFS filesystem, but I've designed
-> it such that it needs to know nothing about the filesystem it's backing, and
-> so it may also be useful for NFS, SMB and ISO9660 for example.
+And that's the problem.  The new modprobe uses /etc/modprobe.conf rather than 
+/etc/modules.conf.  In Debian you now need to put the component files into 
+/etc/modprobe.d instead of /etc/modutils.  However the syntax appears to be 
+mostly the same so the configuration files you already have should still 
+work.
 
-Ok. Sounds good. In fact, it's something I've wanted for a while, since 
-it's also potentially the solution to performance-critical things like 
-virtual filesystems based on revision control logic etc (traditionally 
-done with fake NFS servers).
-
-I did a very very quick scan, and didn't see anything that raised my 
-hackles. But it's late in the 2.6.x game, and as a result I'm not going to 
-apply it until I get a lot of feedback from actual users too.
-
-		Linus
+-- 
+Ian.
 

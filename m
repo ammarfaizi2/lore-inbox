@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262566AbSJGS2X>; Mon, 7 Oct 2002 14:28:23 -0400
+	id <S263152AbSJGSYH>; Mon, 7 Oct 2002 14:24:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262565AbSJGS2N>; Mon, 7 Oct 2002 14:28:13 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:5892 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263153AbSJGSYV>;
-	Mon, 7 Oct 2002 14:24:21 -0400
-Date: Sun, 6 Oct 2002 23:06:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: John Tyner <jtyner@cs.ucr.edu>
-Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org, greg@kroah.com,
-       kraxel@bytesex.org
-Subject: Re: Vicam/3com homeconnect usb camera driver
-Message-ID: <20021006210629.GB387@elf.ucw.cz>
-References: <Pine.LNX.4.30.0210032047510.15999-400000@hill.cs.ucr.edu>
+	id <S263153AbSJGSYH>; Mon, 7 Oct 2002 14:24:07 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1796 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263152AbSJGSYD>;
+	Mon, 7 Oct 2002 14:24:03 -0400
+Date: Mon, 7 Oct 2002 01:15:12 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nicolas Pitre <nico@cam.org>, Ulrich Drepper <drepper@redhat.com>,
+       Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+Message-ID: <20021007011512.B6352@elf.ucw.cz>
+References: <3D9F3C5C.1050708@redhat.com> <Pine.LNX.4.44.0210051533310.5197-100000@xanadu.home> <20021005125412.E11375@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0210032047510.15999-400000@hill.cs.ucr.edu>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021005125412.E11375@work.bitmover.com>
+User-Agent: Mutt/1.3.23i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Attached is a driver for the 3Com HomeConnect USB Camera. The code is
-> based somewhat on the vicam driver in the kernel (which crashes my
-> computer hard) and also relies heavily on the information obtained by
-> the guys doing the reverse engineering and kernel driver work at
-> homeconnectusb.sourceforge.net. The fact that this driver works speaks
-> very highly of them.
+> > > I have never looked closer at bk than I had to be able to check out the
+> > > latest sources.  I'm not doing any development with it and I'm not
+> > > checking in anything using bk.
+> > 
+> > What about Larry making available a special version of BK that would only be
+> > able to perform checkouts?  
+> > 
+> > This special version could have a less controversial license, even be GPL
+> > with source.  This only to provide a tool to extract data out of public BK
+> > repositories (like Linus' kernel repository) for people who don't intend or
+> > aren't willing to actually use the real value of the full fledged BK.
 > 
-> The driver gets the "It Works for Me" approval, but can definitely use
-> some wider testing and review. Please test, review, and comment.
-> 
-> The code is for for 2.4.19, and I'll port it forward to 2.5 if it
-> seems like it would be useful.
+> You can do this today.  rsync a BK tree and use GNU CSSC to check out
+> the sources.  We maintained SCCS compat for exactly that reason.
+> You've had the ability to ignore the BKL since day one if you aren't
+> running the BK binaries.
 
-How is this different from 3comhc.c from sourceforge?
+Would someone write nice HOWTO do this?
 
-Anyway, this is *good stuff* (tm), as old vicam.c is not too
-functional (to say at least). Basically anything is better than old
-vicam.c
+And where's guarantee that you are not migrating BK to proprietary
+format to cut this off once someone writes the HOWTO?
 								Pavel
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+When do you have heart between your knees?

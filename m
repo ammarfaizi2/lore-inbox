@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbRD0U2q>; Fri, 27 Apr 2001 16:28:46 -0400
+	id <S136208AbRD0Uci>; Fri, 27 Apr 2001 16:32:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136208AbRD0U2g>; Fri, 27 Apr 2001 16:28:36 -0400
-Received: from www.wen-online.de ([212.223.88.39]:25350 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131158AbRD0U23>;
-	Fri, 27 Apr 2001 16:28:29 -0400
-Date: Fri, 27 Apr 2001 22:28:06 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Nigel Gamble <nigel@nrg.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: #define HZ 1024 -- negative effects?
-In-Reply-To: <Pine.LNX.4.05.10104271221540.3283-100000@cosmic.nrg.org>
-Message-ID: <Pine.LNX.4.33.0104272225120.354-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136211AbRD0Uc2>; Fri, 27 Apr 2001 16:32:28 -0400
+Received: from irc.penguinhosting.net ([206.152.182.152]:44951 "HELO
+	zeus.penguinhosting.net") by vger.kernel.org with SMTP
+	id <S136208AbRD0UcX>; Fri, 27 Apr 2001 16:32:23 -0400
+Date: Fri, 27 Apr 2001 20:32:20 +0000
+From: Ian Gulliver <ian@penguinhosting.net>
+To: linux-kernel@vger.kernel.org
+Subject: ReiserFS oops/panic/uninterruptable sleeps in -ac
+Message-ID: <20010427203220.A10517@penguinhosting.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux zeus.penguinhosting.net 2.4.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Apr 2001, Nigel Gamble wrote:
+I have an SMP PenIII that had been running 2.4.1-ac18 for 65
+days.  Its /home partition was a newly created (first used on
+that kernel) ResierFS 3.6.x partition.  For no obvious reason,
+two days ago, processes started going into uninterruptable
+sleeps, reportedly in "down" in the kernel.  
 
-> > What about SCHED_YIELD and allocating during vm stress times?
+We rebooted into 2.4.3-ac14, and suddenly we had oops and
+eventually panics when accessing certain parts of /home.
+(just an "ls" could spawn an oops, and an "ls -l" could
+spawn a panic).  This is a production box, so unfortunately
+writing down the oops/panic info was the lowest priority
+on my list and it didn't happen.
 
-snip
+We tried a reiserfsck with the newest reiserfsutils with
+both --rebuild-sb and --rebuild-tree, and neither worked.
 
-> A well-written GUI should not be using SCHED_YIELD.  If it is
+Finally, as a last resort before returning to ext2, we tried
+2.4.3 stock kernel.  Magically, everything worked fine.
+We have yet to see any instability, and we can't make any
+processes stick, even under load.
 
-I was refering to the gui (or other tasks) allocating memory during
-vm stress periods, and running into the yield in __alloc_pages()..
-not a voluntary yield.
+This seems to be a bug somewhere in the ac patch, possibly
+related to SMP.  If anyone could figure it out, it'd really
+be nice to fix this before the bug makes it way into the
+stock kernels.
 
-	-Mike
-
+Ian Gulliver
+Penguin Hosting
+http://www.penguinhosting.net/

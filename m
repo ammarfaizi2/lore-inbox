@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266588AbUGKNQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUGKNiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266588AbUGKNQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 09:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUGKNQ0
+	id S266591AbUGKNiu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 09:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266592AbUGKNiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 09:16:26 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:56716 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S266588AbUGKNQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 09:16:24 -0400
-Message-ID: <40F13D96.10501@t-online.de>
-Date: Sun, 11 Jul 2004 15:16:06 +0200
-From: "Harald Dunkel" <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040709
-X-Accept-Language: en-us, en
+	Sun, 11 Jul 2004 09:38:50 -0400
+Received: from zero.aec.at ([193.170.194.10]:3082 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266591AbUGKNit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 09:38:49 -0400
+To: Matthew Wilcox <willy@debian.org>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+References: <2giKE-67F-1@gated-at.bofh.it> <2gIc8-6pd-29@gated-at.bofh.it>
+	<2gJ8a-72b-11@gated-at.bofh.it> <2gJhY-776-21@gated-at.bofh.it>
+	<2gJrv-7kp-5@gated-at.bofh.it> <2gLD2-qn-3@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 11 Jul 2004 15:38:44 +0200
+In-Reply-To: <2gLD2-qn-3@gated-at.bofh.it> (Matthew Wilcox's message of
+ "Sun, 11 Jul 2004 14:30:09 +0200")
+Message-ID: <m3wu1a8xzv.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7, amd64: PS/2 Mouse detection doesn't work
-References: <40F0E586.4040000@t-online.de> <20040711084208.GA1322@ucw.cz>
-In-Reply-To: <20040711084208.GA1322@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: SyJhwvZe8eCTG8Rv4o8KJcrYu7f0z4sT9sB+XiWxCwk5xI+tP5xNrO
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Sun, Jul 11, 2004 at 09:00:22AM +0200, Harald Dunkel wrote:
-> 
->>
->>Usually I wouldn't care, but I can go mad if the 4th mouse
->>button doesn't work :-).
->>
->>Any idea?
-> 
->  
-> Build the USB drivers into the kernel, or use the attached patch.
-> If it helps, please tell me.
-> 
-> 
+Matthew Wilcox <willy@debian.org> writes:
 
-I tried the patch: Seems to work. After a power cycle the
-mouse was detected as
+> On Sun, Jul 11, 2004 at 03:02:25AM -0700, Andrew Morton wrote:
+>> Apropos of nothing much, CONFIG_X86 would be preferreed here, but x86_64
+>> defines that too.
+>
+> IMO, x86-64 should stop defining CONFIG_X86.  It's far more common
+> to say "X86 && !X86_64" than it is to say X86.  How about defining
+> CONFIG_X86_COMMON and migrating usage of X86 to X86_COMMON?
 
-Jul 11 15:09:29 r101 kernel: input: PS2++ Logitech Mouse on isa0060/serio1
-Jul 11 15:09:29 r101 kernel: mice: PS/2 mouse device common for all mice
+Definitely not in 2.6 because it has far too much potential to 
+add subtle bugs, and that is not appropiate for a stable release. 
+In 2.7 maybe.
 
-as expected.
+Buy I would prefer to just add an truly i386 specific define 
+like Andrew proposed.
 
+-Andi
 
-Many thanx
-
-Harri

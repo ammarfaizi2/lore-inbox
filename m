@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbULJIjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbULJInY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbULJIjt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 03:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbULJIjt
+	id S261729AbULJInY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 03:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbULJInY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 03:39:49 -0500
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:50312 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261723AbULJIjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 03:39:47 -0500
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
-Date: Fri, 10 Dec 2004 03:39:45 -0500
-User-Agent: KMail/1.7.1
-Cc: Kay Sievers <kay.sievers@vrfy.org>
+	Fri, 10 Dec 2004 03:43:24 -0500
+Received: from zone4.gcu-squad.org ([213.91.10.50]:27333 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261729AbULJInT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 03:43:19 -0500
+Date: Fri, 10 Dec 2004 09:42:21 +0100 (CET)
+To: sensors@Stimpy.netroedge.com
+Subject: Re: checksum in (i2c) eeprom driver
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <SFhEWFpz.1102668141.6379450.khali@localhost>
+In-Reply-To: <41B8ED64.9020805@verizon.net>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Deepak Saxena" <dsaxena@plexity.net>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412100339.46246.shawn.starr@rogers.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Lee Revell <rlrevell <at> joe-job.com> writes:
-> 
-> > 
-> > On Wed, 2004-12-01 at 13:31 -0500, Shawn Starr wrote:
-> > > While I have seen this feature in XP, It would be nice to have such 
-> > > functionality in Linux. Does anyone know if this is being worked on 
-> > > somewhere?
-> > 
-> > What is it?  What does it do?  How does it work?  Got a link?
-> 
-> It's a motion detector on the motherboard.
-> 
-> Here is an IBM whitepaper:
->   ftp://ftp.software.ibm.com/pc/pccbbs/mobiles_pdf/aps2mst.pdf
-> 
-> Kay
 
-Where can we find it on the motherboard or probe for it safely?
+On 2004-12-10, Mark Studebaker wrote:
 
-Shawn.
+> IMHO the eeprom driver is more of a demonstration driver than one of
+> great and obvious value, so achieving consensus on the value of
+> sub-features (checksum, Vaio) is difficult, and performace concerns are
+> secondary.
+
+This has certainly been true when the driver was first written and then
+maintained as a driver of the lm_sensors project, and was only used for
+memory module EEPROMs. However, we now start seeing more different
+natures of EEPROMs (proprietary on laptops, ethernet devices to name
+only two of them) for which the eeprom driver can be useful. Remember
+that a number of people even asked for write support in the driver (and
+this might as well happen in the future).
+
+> So I don't see any value removing the code. If you want to make it
+> super-clean shouldn't the Vaio stuff come out too?
+> But I'm sure you'll disagree...
+
+I would be happy to remove all Vaio stuff if there were no security
+concern in doing so. Unfortunately it happens that Vaio EEPROMs contain
+passwords in a very lightly encoded form and I thought that we didn't
+want every user of the system to be able to read it. If there is a
+better way to achieve the same goal, I'd gladly hear about it. I can
+also get rid of the test altogether if a majority of people think it's
+not necessary to hide the machine password from users - after all, only
+a limited number of machines are Vaio laptops, of which a limited number
+actually have a system password set, of which a limited number have more
+than one user, of which a limited number have untrusted users.
+
+The value of removing the code is, unsurprisingly, to reduce the amount
+of code to maintain and the amount of memory used by the driver when
+loaded. I am also trying to comply with the kernel rules about what
+belongs to the kernel-space and what belongs to the user-space.
+
+Thanks,
+--
+Jean Delvare

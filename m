@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUITALd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUITASH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265098AbUITALd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 20:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUITALd
+	id S265093AbUITASH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 20:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbUITASH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 20:11:33 -0400
-Received: from gate.crashing.org ([63.228.1.57]:36796 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265098AbUITALR (ORCPT
+	Sun, 19 Sep 2004 20:18:07 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:43679 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S265093AbUITASE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 20:11:17 -0400
-Subject: Re: Design for setting video modes, ownership of sysfs attributes
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Keith Packard <keithp@keithp.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e47339104091909465c9a483f@mail.gmail.com>
-References: <9e47339104091811431fb44254@mail.gmail.com>
-	 <1095569137.6580.23.camel@gaston>
-	 <9e47339104091909465c9a483f@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1095639002.23182.24.camel@gaston>
+	Sun, 19 Sep 2004 20:18:04 -0400
+Message-ID: <35fb2e590409191718430b0d47@mail.gmail.com>
+Date: Mon, 20 Sep 2004 01:18:04 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Max Michaels <mmichaels@rightmedia.com>
+Subject: Re: 2.6.8-r1 mem issues
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0FC82FC6709BE34CB9118EE0E252FD2307994E70@ehost007.exch005intermedia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 20 Sep 2004 10:10:02 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <0FC82FC6709BE34CB9118EE0E252FD2307994E70@ehost007.exch005intermedia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-20 at 02:46, Jon Smirl wrote:
+On Sun, 19 Sep 2004 16:20:48 -0700, Max Michaels
+<mmichaels@rightmedia.com> wrote:
 
-> This is going to require some more thought. Mode setting needs two
-> things, a description of the mode timings and a location of the scan
-> out buffer.  With multiple heads you can't just assume that the buffer
-> starts at zero.  There also the problem of the buffer increasing in
-> size and needing to be moved since it won't fit where it is.
-> 
-> Keith, how should this work for X? We have to make sure all DRI users
-> of the buffer are halted, get a new location for the buffer, set the
-> mode, free the old buffer, notify all of the DRI clients that their
-> target has been wiped and has a new size.
-> 
-> I was wanting to switch mode setting into an atomic operation where
-> you passed in both the mode timings and buffer location.
+> This is my first post, so please be forgiving of any faux-pas. I am
+> having issues with 2.6.8-r1 with memory being eaten by the kernel.
 
-It's more than just a problem of buffer allocation. I doubt some of the
-engine operations can go undisturbed accross a mode switch (the driver
-currently resets the 2D engine for example). So there is some state loss
-and the need to stop rendering pipes before and restart them after.
+[ I've not yet gone through your .config ]
 
-With DRI, that means OpenGL users... not simple.
+Could you describe the hardware and any devices that you're using -
+looks like you're avoiding modules but it would be helpful to see an
+attached dmesg output and lspci -v or similar.
 
-Ben.
+Cheers,
 
-
+Jon.

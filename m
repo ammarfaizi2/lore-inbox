@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265289AbUBKU2z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 15:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266106AbUBKU2y
+	id S266194AbUBKUjf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 15:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266192AbUBKUjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 15:28:54 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:41140 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S265289AbUBKU2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 15:28:53 -0500
-Date: Wed, 11 Feb 2004 15:28:51 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Jon Burgess <lkml@jburgess.uklinux.net>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved
- writes
-In-Reply-To: <402A7CA0.9040409@jburgess.uklinux.net>
-Message-ID: <Pine.LNX.4.44.0402111528140.23220-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.44.0402111528142.23220@chimarrao.boston.redhat.com>
+	Wed, 11 Feb 2004 15:39:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59108 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266189AbUBKUjd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 15:39:33 -0500
+Date: Wed, 11 Feb 2004 12:39:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: jamie@shareable.org, viro@math.psu.edu, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: open-scale-2.6.2-A0
+Message-Id: <20040211123914.7372625d.akpm@osdl.org>
+In-Reply-To: <20040211122753.GA15129@elte.hu>
+References: <20040211115828.GA13868@elte.hu>
+	<20040211122031.GC15127@mail.shareable.org>
+	<20040211122753.GA15129@elte.hu>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Feb 2004, Jon Burgess wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> * Jamie Lokier <jamie@shareable.org> wrote:
+> 
+> > Ingo Molnar wrote:
+> > > i've attached an obvious scalability improvement for write()s. We in
+> > > essence used a system-global lock for every open(WRITE) - argh!
+> > 
+> > I wonder if the "rip the second arsehole" is there for a reason.
+> 
+> these days i dont think the comment is justified.
 
-> Write speed in MB/s using an ext2 filesystem for 1 and 2 streams:
-> Num streams:     1      2
-> linux-2.4.22   10.47  6.98
-> linux-2.6.2     9.71  0.34
+It was kinda funny though.
 
-> During the disk light is on solid and it really slows any other disk 
-> access. It looks like the disk is continuously seeking backwards and 
-> forwards, perhaps re-writing the meta data.
+> > Does this scalability improvement make any measured difference in any
+> > conceivable application, or is it just making struct inode larger?
+> 
+> i've not added any new lock, i'm merely reusing the existing ->i_lock. 
+> So there's no data or code bloat whatsoever.
 
-Just for fun, could you also try measuring how long it takes
-to read back the files in question ?
-
-Both individually and in parallel...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+yes, that's why I called it i_lock and not i_blocks_lock.  i_lock's mandate
+is "an innermost lock for protecting stuff in the inode".  This is an
+appropriate use of it.
 

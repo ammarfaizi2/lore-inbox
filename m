@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130121AbQLHKa2>; Fri, 8 Dec 2000 05:30:28 -0500
+	id <S130460AbQLHLqo>; Fri, 8 Dec 2000 06:46:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131501AbQLHKaS>; Fri, 8 Dec 2000 05:30:18 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47049 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130121AbQLHKaA>;
-	Fri, 8 Dec 2000 05:30:00 -0500
-Date: Fri, 8 Dec 2000 04:58:11 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [found?] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
-In-Reply-To: <18239.976266451@redhat.com>
-Message-ID: <Pine.GSO.4.21.0012080410180.24770-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131501AbQLHLqf>; Fri, 8 Dec 2000 06:46:35 -0500
+Received: from www.inreko.ee ([195.222.18.2]:64224 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S130460AbQLHLqU>;
+	Fri, 8 Dec 2000 06:46:20 -0500
+Date: Fri, 8 Dec 2000 13:25:53 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Andries.Brouwer@cwi.nl, aeb@veritas.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
+Message-ID: <20001208132553.C5744@l-t.ee>
+In-Reply-To: <UTC200012080235.DAA157231.aeb@aak.cwi.nl> <Pine.GSO.4.21.0012072156420.22281-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0012072156420.22281-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Dec 07, 2000 at 09:59:18PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I'm doing some massive grepping (basically, audit of page locking),
-but nothing relevant so far. There was some catch (aside of documenting
-the thing and finding several completely unrelated buglets):
-	* ramfs_writepage() doesn't UnlockPage(). Deadlock.
-	* udf_adinicb_writepage() does extra UnlockPage().
-I don't see the fsckup in loop.c, though. On the read path it uses
-do_generic_read_file() and on the write it's essentially the simplified
-variant of generic_file_write(). Hell knows... It looks like we are
-getting dirty buffer inheriting end_buffer_io_async from the previous
-life.
+On Thu, Dec 07, 2000 at 09:59:18PM -0500, Alexander Viro wrote:
+> On Fri, 8 Dec 2000 Andries.Brouwer@cwi.nl wrote:
+> > > BTW, could we finally lose mpx(2)?
+> > 
+> > Maybe we lost it - I find sys_mpx only in a comment in arch/arm/kernel/calls.S
+> 
+> Sure, but man2/mpx.2 is alive and well...
 
-	Oh, damn it. Indeed. Look: 
+manpages-dev 1.31-1 of debian:
 
-generic_file_write() or lo_send():
-lock_page()
-->prepare_write()	sets sync ->b_end_io
-->commit_write()	puts them on the dirty list
-UnlockPage()		releases the page lock
-... requests are sent to driver
+$ ll /usr/share/man/man2/mpx.2.gz
+... /usr/share/man/man2/mpx.2.gz -> unimplemented.2.gz
 
-page_launder():
-TryLockPage()		succeeds
-block_write_full_page()
-	... goes through the bh'es and sets ->b_end_io to end_buffer_io_async()
-	at that point the last remaining request completes. It calls
-	->b_end_io(), aka. end_buffer_io_async(). And does UnlockPage().
+$ man 2 mpx
 
-	In the meanwhile, we call ll_rw_block(). Requests are sent again.
-	When _they_ complete we get the second UnlockPage()
+NAME
+       afs_syscall,  break,  ftime,  gtty, lock, mpx, phys, prof,
+       profil, stty, ulimit - unimplemented system calls
 
-Now, I might miss some obvious reason why it could never happen. Moreover,
-the real problem may be completely different - the race above is not too wide.
-
-However, I'ld really like to hear why the scenario above is impossible. BTW,
-the race isn't even that narrow - if ->prepare_write() didn't cover the
-whole page we've got a get_block() to call and there's a plenty of time when
-shit can hit the fan - it's a blocking operation, after all.
-
-Comments?
-							Cheers,
-								Al
+-- 
+marko
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

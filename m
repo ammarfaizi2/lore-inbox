@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbUKIUet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbUKIUlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbUKIUet (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 15:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUKIUer
+	id S261667AbUKIUlA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 15:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUKIUlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 15:34:47 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30336 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261666AbUKIUec (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 15:34:32 -0500
-Date: Wed, 10 Nov 2004 07:34:17 +1100 (EST)
-From: Mark Goodwin <markgw@sgi.com>
-X-X-Sender: markgw@woolami.melbourne.sgi.com
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: Erich Focht <efocht@hpce.nec.com>, Jack Steiner <steiner@sgi.com>,
-       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, linux-ia64@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Externalize SLIT table
-In-Reply-To: <1100029381.3980.12.camel@arrakis>
-Message-ID: <Pine.LNX.4.61.0411100722070.14545@woolami.melbourne.sgi.com>
-References: <20041103205655.GA5084@sgi.com>  <20041104.105908.18574694.t-kochi@bq.jp.nec.com>
-  <20041104141337.GA18445@sgi.com>  <200411041631.42627.efocht@hpce.nec.com>
- <1100029381.3980.12.camel@arrakis>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 9 Nov 2004 15:41:00 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22503 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261667AbUKIUkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 15:40:55 -0500
+Message-Id: <200411092040.iA9KeqEi001410@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Olaf Titz <olaf@bigred.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ? 
+In-Reply-To: Your message of "Tue, 09 Nov 2004 21:10:30 +0100."
+             <E1CRcJy-0001fF-00@bigred.inka.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net> <E1CRGZd-0002ss-00@bigred.inka.de> <87is8frjkv.fsf@bytesex.org>
+            <E1CRcJy-0001fF-00@bigred.inka.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_527492828P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 09 Nov 2004 15:40:52 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_527492828P
+Content-Type: text/plain; charset=us-ascii
 
-On Tue, 9 Nov 2004, Matthew Dobson wrote:
-> ...
-> I don't think we should export the *exact same* node distance information
-> through the CPUs, though.
+On Tue, 09 Nov 2004 21:10:30 +0100, Olaf Titz said:
 
-We should still export cpu distances though because the distance between
-cpus on the same node may not be equal. e.g. consider a node with multiple
-cpu sockets, each socket with a hyperthreaded (or dual core) cpu.
+> The symptom is different (the picture has vertical stripes, as if
+> pixels get re-ordered in each horizontal line).
 
-Once again however, it depends on the definition of distance. For nodes,
-we've established it's the ACPI SLIT (relative distance to memory). For
-cpus, should it be distance to memory? Distance to cache? Registers? Or
-what?
+Hmm.. somebody got confused for a 24-bit color (8/8/8) about whether
+it takes 24 bits or 32 to store it?
 
--- Mark
+--==_Exmh_527492828P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBkStUcC3lWbTT17ARAln/AJ9U34mN5MBHoFB0l+AOoR0nm+6iBQCcCEAn
+N2OC/slf8vqwLfot2cQYPYE=
+=MwgV
+-----END PGP SIGNATURE-----
+
+--==_Exmh_527492828P--

@@ -1,94 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131199AbRAUUuS>; Sun, 21 Jan 2001 15:50:18 -0500
+	id <S129401AbRAUVHs>; Sun, 21 Jan 2001 16:07:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130138AbRAUUuI>; Sun, 21 Jan 2001 15:50:08 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:30989 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129780AbRAUUtx>; Sun, 21 Jan 2001 15:49:53 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Otto Meier" <gf435@gmx.net>, Holger Kiehl <Holger.Kiehl@dwd.de>,
-        Hans Reiser <reiser@namesys.com>, edward@namesys.com,
-        Ed Tomlinson <tomlins@cam.org>,
-        Nils Rennebarth <nils@ipe.uni-stuttgart.de>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        David Willmore <n0ymv@callsign.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 22 Jan 2001 07:47:42 +1100 (EST)
+	id <S129532AbRAUVHi>; Sun, 21 Jan 2001 16:07:38 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:19729 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129401AbRAUVHX>; Sun, 21 Jan 2001 16:07:23 -0500
+Date: Sun, 21 Jan 2001 16:07:11 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Urban Widmark <urban@teststation.com>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: more via-rhine problems.
+In-Reply-To: <Pine.LNX.4.30.0101211909030.11993-100000@cola.teststation.com>
+Message-ID: <Pine.LNX.4.32.0101211602440.7610-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14955.19182.663691.194031@notabene.cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: [PATCH] - filesystem corruption on soft RAID5 in 2.4.0+
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 21 Jan 2001, Urban Widmark wrote:
 
-There have been assorted reports of filesystem corruption on raid5 in
-2.4.0, and I have finally got a patch - see below.
-I don't know if it addresses everybody's problems, but it fixed a very
-really problem that is very reproducable.
+>> I now believe that it is indeed caused by booting to windows 98
+>> (by accident).  ;o)
+>
+>Don't do that then :)
 
-The problem is that parity can be calculated wrongly when doing a
-read-modify-write update cycle.  If you have a fully functional, you
-wont notice this problem as the parity block is never used to return
-data.  But if you have a degraded array, you will get corruption very
-quickly.
-So I think this will solve the reported corruption with ext2fs, as I
-think they were mostly on degradred arrays.  I have no idea whether it
-will address the reiserfs problems as I don't think anybody reporting
-those problems described their array.
-
-In any case, please apply, and let me know of any further problems.
+That is a completely sane solution indeed.  ;o)  Unfortunately, I
+have to do so occasionally.  Not often thankfully.  ;o)
 
 
---- ./drivers/md/raid5.c	2001/01/21 04:01:57	1.1
-+++ ./drivers/md/raid5.c	2001/01/21 20:36:05	1.2
-@@ -714,6 +714,11 @@
- 		break;
- 	}
- 	spin_unlock_irq(&conf->device_lock);
-+	if (count>1) {
-+		xor_block(count, bh_ptr);
-+		count = 1;
-+	}
-+	
- 	for (i = disks; i--;)
- 		if (chosen[i]) {
- 			struct buffer_head *bh = sh->bh_cache[i];
+>> Doesn't matter if a driver is installed in win or not as I've
+>> tried both.  Just booting win at all causes the card to go
+>> berzerk next boot.  Must be something missing from the card init
+>> code that should be resetting something on the card at init time,
+>> but which is set by default on power on.
+>
+>I can't reproduce this, but I only have a 1106:3043 (DFE-530TX revA1) and
+>tested this on a rather old P133.
+
+00:07.3 Class 0600: 1106:3050 (rev 30)
+        Flags: medium devsel
+
+00:12.0 Class 0200: 1106:3065 (rev 42)
+        Subsystem: 1186:1400
+        Flags: bus master, medium devsel, latency 32, IRQ 10
+        I/O ports at e800
+        Memory at e7000000 (32-bit, non-prefetchable)
+        Expansion ROM at e6000000 [disabled]
+        Capabilities: [40] Power Management version 2
 
 
- From my notes for this patch:
+>I tested 2.2.19pre and not 2.2.18+becker1.08, the biggest difference is
+>the detection code so maybe that could be worth trying. 2.4 is again a
+>little bit different ...
+>
+>You could try playing with bios settings. And dumping register contents
+>from a working and non-working setup, for example:
+>
+>% via-diag -aaeemm
+>  (ftp://ftp.scyld.com/pub/diag/via-diag.c)
 
-   For the read-modify-write cycle, we need to calculate the xor of a
-   bunch of old blocks and bunch of new versions of those blocks.  The
-   old and new blocks occupy the same buffer space, and because xoring
-   is delayed until we have lots of buffers, it could get delayed too
-   much and parity doesn't get calculated until after data had been
-   over-written.
-
-   This patch flushes any pending xor's before copying over old buffers.
+I'll do that if I find time...
 
 
-Everybody running raid5 on 2.4.0 or 2.4.1-pre really should apply this
-patch, and then arrange the get parity checked and corrected on their
-array.
-There currently isn't a clean way to correct parity.
-One way would be to shut down to single user, remount all filesystems
-readonly, or un mount them, and the pull the plug.
-On reboot, raid will rebuild parity, but the filesystems should be
-clean.
-An alternate it so rerun mkraid giving exactly the write configuration.
-This doesn't require pulling the plug, but if you get the config file
-wrong, you could loose your data.
+>% lspci -vvxxx -d 1106:3065
+>
+>Maybe CONFIG_PCI_QUIRKS helps?
 
-NeilBrown
+2 root@asdf:/home/mharris# grep CONFIG_PCI_QUIRKS /boot/K6-2.2.18-1NSRI
+CONFIG_PCI_QUIRKS=y
+
+Already there.  ;o)
+
+
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+VMS is a text-only adventure game. If you win you can use unix.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

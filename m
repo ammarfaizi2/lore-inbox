@@ -1,48 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129193AbQKHQqM>; Wed, 8 Nov 2000 11:46:12 -0500
+	id <S129116AbQKHQyM>; Wed, 8 Nov 2000 11:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129248AbQKHQqC>; Wed, 8 Nov 2000 11:46:02 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:6407 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129193AbQKHQp5>;
-	Wed, 8 Nov 2000 11:45:57 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011081645.TAA17955@ms2.inr.ac.ru>
-Subject: Re: [patch] NE2000
-To: morton@nortelnetworks.com (Andrew Morton)
-Date: Wed, 8 Nov 2000 19:45:26 +0300 (MSK)
-Cc: andrewm@uow.edu.au, linux-kernel@vger.kernel.org
-In-Reply-To: <3A07319B.7E2BD403@asiapacificm01.nt.com> from "Andrew Morton" at Nov 6, 0 10:32:59 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S129103AbQKHQxx>; Wed, 8 Nov 2000 11:53:53 -0500
+Received: from www.inreko.ee ([195.222.18.2]:35772 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S129061AbQKHQxo>;
+	Wed, 8 Nov 2000 11:53:44 -0500
+Date: Wed, 8 Nov 2000 19:02:02 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: "Theodore Y. Ts'o" <tytso@mit.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ext2 cpu<->le32 thinkos? (-test10)
+Message-ID: <20001108190201.A4637@l-t.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> > In any case, Andrew, where is the race, when we enter in sleeping state?
-> > Wakeup is not lost, it is just not required when we are not going
-> > to schedule and force task to running state.
-> 
-> 	set_current_state(TASK_INTERRUPTIBLE);
-> 	add_wait_queue(...);
-> 	/* window here */
-> 	set_current_state(TASK_INTERRUPTIBLE);
-> 	schedule();
-> 
-> If there's a wakeup by another CPU (or this CPU in an interrupt) in
-> that window, current->state will get switched to TASK_RUNNING.
-> 
-> Then it's immediately overwritten and we go to sleep.  Lost wakeup.
+Reading ext2 code I found some inconsistencies
+in endianess handling, could anyone comment
+on this?
 
-Look into code yet. It looks sort of different. Again:
+Also there is a unnecessary RDONLY check.
 
-> > Wakeup is not lost, it is just not required when we are not going
-> > to schedule and force task to running state.
+I understand that it happens to work anyway
+but they confuse understanding.
 
-So that it is right not depening on anything.
+Or am I missing something?
 
-Alexey
+-- 
+marko
+
+
+
+diff -urNX /home/marko/misc/diff-exclude fs/ext2.orig/ialloc.c fs/ext2/ialloc.c
+--- fs/ext2.orig/ialloc.c	Fri Oct  6 22:49:00 2000
++++ fs/ext2/ialloc.c	Wed Nov  8 10:09:23 2000
+@@ -399,11 +399,6 @@
+ 			ext2_error (sb, "ext2_new_inode",
+ 				    "Free inodes count corrupted in group %d",
+ 				    i);
+-			if (sb->s_flags & MS_RDONLY) {
+-				unlock_super (sb);
+-				iput (inode);
+-				return NULL;
+-			}
+ 			gdp->bg_free_inodes_count = 0;
+ 			mark_buffer_dirty(bh2);
+ 		}
+diff -urNX /home/marko/misc/diff-exclude fs/ext2.orig/namei.c fs/ext2/namei.c
+--- fs/ext2.orig/namei.c	Wed Nov  1 20:31:30 2000
++++ fs/ext2/namei.c	Wed Nov  8 13:46:20 2000
+@@ -242,7 +242,7 @@
+ 
+ 				de = (struct ext2_dir_entry_2 *) bh->b_data;
+ 				de->inode = 0;
+-				de->rec_len = le16_to_cpu(sb->s_blocksize);
++				de->rec_len = cpu_to_le16(sb->s_blocksize);
+ 				dir->i_size = offset + sb->s_blocksize;
+ 				dir->u.ext2_i.i_flags &= ~EXT2_BTREE_FL;
+ 				mark_inode_dirty(dir);
+@@ -750,7 +750,7 @@
+ 		if (retval)
+ 			goto end_rename;
+ 	} else {
+-		new_de->inode = le32_to_cpu(old_inode->i_ino);
++		new_de->inode = cpu_to_le32(old_inode->i_ino);
+ 		if (EXT2_HAS_INCOMPAT_FEATURE(new_dir->i_sb,
+ 					      EXT2_FEATURE_INCOMPAT_FILETYPE))
+ 			new_de->file_type = old_de->file_type;
+@@ -785,7 +785,7 @@
+ 	old_dir->u.ext2_i.i_flags &= ~EXT2_BTREE_FL;
+ 	mark_inode_dirty(old_dir);
+ 	if (dir_bh) {
+-		PARENT_INO(dir_bh->b_data) = le32_to_cpu(new_dir->i_ino);
++		PARENT_INO(dir_bh->b_data) = cpu_to_le32(new_dir->i_ino);
+ 		mark_buffer_dirty(dir_bh);
+ 		old_dir->i_nlink--;
+ 		mark_inode_dirty(old_dir);
+diff -urNX /home/marko/misc/diff-exclude fs/ext2.orig/super.c fs/ext2/super.c
+--- fs/ext2.orig/super.c	Fri Oct  6 22:49:00 2000
++++ fs/ext2/super.c	Wed Nov  8 10:08:22 2000
+@@ -101,7 +101,7 @@
+ 	int i;
+ 
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+-		sb->u.ext2_sb.s_es->s_state = le16_to_cpu(sb->u.ext2_sb.s_mount_state);
++		sb->u.ext2_sb.s_es->s_state = cpu_to_le16(sb->u.ext2_sb.s_mount_state);
+ 		mark_buffer_dirty(sb->u.ext2_sb.s_sbh);
+ 	}
+ 	db_count = sb->u.ext2_sb.s_db_per_group;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

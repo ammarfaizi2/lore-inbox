@@ -1,121 +1,150 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131308AbRAMS0T>; Sat, 13 Jan 2001 13:26:19 -0500
+	id <S130660AbRAMS03>; Sat, 13 Jan 2001 13:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131222AbRAMS0F>; Sat, 13 Jan 2001 13:26:05 -0500
+	id <S131312AbRAMS0O>; Sat, 13 Jan 2001 13:26:14 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:59872 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131317AbRAMSZt>;
-	Sat, 13 Jan 2001 13:25:49 -0500
-Date: Sat, 13 Jan 2001 15:35:22 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 ate my filesystem on rw-mount
-Message-ID: <20010113153522.A1495@suse.cz>
-In-Reply-To: <20010112204932.B2740@suse.cz> <Pine.LNX.4.30.0101130854180.9152-100000@svea.tellus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101130854180.9152-100000@svea.tellus>; from tori@tellus.mine.nu on Sat, Jan 13, 2001 at 09:12:27AM +0100
+	by vger.kernel.org with ESMTP id <S131308AbRAMSZs>;
+	Sat, 13 Jan 2001 13:25:48 -0500
+Date: Sat, 13 Jan 2001 16:30:18 +0100 (CET)
+From: Tilmann Bitterberg <tilmann@bitterberg.de>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] [240-ac8] loop device hangs and sync does not return
+Message-ID: <Pine.LNX.4.21.0101131529250.702-100000@nixon.whitehouse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2001 at 09:12:27AM +0100, Tobias Ringstrom wrote:
+I know there is something about loop device hangs in the 2.4
+TODO list and I don't know if that is supposed to be fixed.
 
-> > Wow. Ok, I'm maintaining the 2.4.0 VIA driver, so I'd like to know more
-> > about this:
-> >
-> > 1) What's the ISA bridge revision?
-> 
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8501 (rev 02)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8501
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 1b)
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
-> 00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 0e)
-> 00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 20)
-> 00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 [Apollo Super AC97/Audio] (rev 21)
-> 00:0a.0 Ethernet controller: VIA Technologies, Inc. VT86C100A [Rhine 10/100] (rev 06)
-> 01:00.0 VGA compatible controller: Trident Microsystems CyberBlade/i7 (rev 5b)
+If this BUG is known, please appreciate
 
-Ok, your IDE chip is a vt82c686a/ce.
+[1.] One line summary of the problem:    
+[240-ac8] loop device hangs and sync does not return any more
 
-> > 2) What's in /proc/ide/via?
-> 
-> It's not there since I disabled the VIA driver.
+[2.] Full description of the problem/report:
+When I copy data to a ext2 filesystem mounted via loop0 the 'cp'
+command stops after a while. The system is not dead but very
+unusuable and I can't reboot because 'sync' is not working.
+I am in single user mode on a 2way Pentium 166 w/o mmx SMP
+system. 2.2.X is stable. The loop dev is compiled as a module.
 
-Ok. Could you send me this file when you boot with fs r-o?
+I tried with 'noapic', 'maxcpus=1' and combination of both. I
+have not tried a UP kernel. Same happens with 2.4.0-prerelease.
+Copying (a lot of) data between "normal" mounted filesystems
+works fine.
 
-> > 3) What says hdparm -i on your devices?
-> 
-> /dev/hda:
-> 
->  Model=SAMSUNG VG34323A (4.32GB), FwRev=GQ200, SerialNo=dW1921060033c8
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=14896/9/63, TrkSize=32256, SectSize=512, ECCbytes=21
->  BuffType=DualPortCache, BuffSize=496kB, MaxMultSect=16, MultSect=off
->  CurCHS=14896/9/63, CurSects=-531627904, LBA=yes, LBAsects=8446032
->  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: sdma0 sdma1 sdma2 *mdma0 mdma1 mdma2 udma0 udma1 *udma2
+[3.] Keywords (i.e., modules, networking, kernel):
+loop device, sync, module, SMP. 
 
-Looks good, too. An UDMA33 drive.
+[4.] Kernel version (from /proc/version):
+Linux version 2.4.0-ac8 (tibit@nixon.whitehouse.de)
+(gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) 
+#7 SMP Sat Jan 13 14:05:38 CET 2001
 
-> > 4) If you mount your filesystem read-only, does it read garbage?
-> 
-> Now here's a strange part, or possibly a crusial clue.  When I booted a
-> 2.4.0 kernel (from floppy using the excellent syslinux) with "ro
-> init=/bin/sh", I could access the filesystem just fine.  I could even
-> remount the root filesystem rw, and there were no problems.  But I did not
-> write anything to the disk, since I was convinced that the problem was
-> gone (this was the second try).  After this I rebooted with
-> ctrl-alt-delete, forgetting how bad an idea that is with init=/bin/sh,
-> booted up the RH7 2.2.16 kernel, and fsck was run with no errors.
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+not available
+     
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+  dd if=/dev/zero of=file bs=1M count=500
+  mke2fs file
+  mount -o loop=/dev/loop0 file /mnt/loop
+  cd $_
+  cp -av /bin/ /etc/ /sbin/ .
+  mkdir usr && cp -av /usr/bin usr/
 
-So far no problem. Rebooting with c-a-d with fs r-o is OK.
+[7.] Environment
+[7.1.] Software (add the output of the ver_linux script here)
+Kernel modules         2.4.1
+Gnu C                  egcs-2.91.66
+Gnu Make               3.77
+Binutils               2.10.0.18
+Linux C Library        2.1.2
+Dynamic linker         ldd (GNU libc) 2.1.2
+Procps                 2.0.6
+Mount                  2.10r
+Net-tools              1.53
+Console-tools          1999.03.02
+Sh-utils               2.0
+Modules Loaded         loop 3c59x sb sb_lib uart401 sound soundcore
 
-> Now I
-> though all was well, rebooted from floppy again, but without the init=
-> part, and poof, it hang.
+[7.2.] Processor information (from /proc/cpuinfo):
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 5
+model		: 2
+model name	: Pentium 75 - 200
+stepping	: 12
+cpu MHz		: 167.048
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: yes
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr mce cx8 apic
+bogomips	: 333.41
 
-Where? It could be a different reason than IDE setup ...
+processor	: 1
+... (same)
 
-> More interesting may be that I had to turn the computer off and on again
-> to get BIOS to find the hard drive. Repeated long reset button presses
-> did not help.  It is possible that it hung during BIOS hd detection - I
-> wish I could remember.
+[7.3.] Module information (from /proc/modules):
+loop                    7808   0 (unused)
+3c59x                  24672   1 (autoclean)
+sb                      7712   0 (autoclean)
+sb_lib                 36192   0 (autoclean) [sb]
+uart401                 6640   0 (autoclean) [sb_lib]
+sound                  63024   0 (autoclean) [sb_lib uart401]
+soundcore               4208   5 (autoclean) [sb_lib sound]
 
-I fear this isn't much of a clue, sorry.
+[7.4.] Loaded driver and hardware information
+I am on an SCSI only system with aic7xxx and 2 4Gig IBM UW disk.
 
-> I suspect that I could have hung the drive with init=/bin/sh if I would
-> have done some reading and writing to the device, besides ls.
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0220-022f : soundblaster
+02f8-02ff : serial(auto)
+0330-0333 : MPU-401 UART
+03c0-03df : vga+
+  03c0-03df : matrox
+03f8-03ff : serial(auto)
+0cf8-0cff : PCI conf1
+6000-60ff : Adaptec AIC-7880U
+  6000-60fe : aic7xxx
+6400-647f : 3Com Corporation 3c905B 100BaseTX [Cyclone]
+  6400-647f : eth0
+f000-f00f : Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
 
-Please try it. Best mke2fs your swap partition and try reading & writing
-to that. You can mkswap it back after you finish.
+[X.] Other notes, patches, fixes, workarounds:
+For what it's worth:
+Data is copied from sda1 to sdb1 where the loop device is
+located
 
-> I think I can spend some more time today trying it out some more.
+I have a lot of NMI interrupts, nearly twice as much as from the
+timer. Same is true for LOC.
+Sometimes I even have some ERR but usually not more than 10.
 
-Please do. 'lspci -vvxxx' data for the case without a driver, with 2.4.0
-driver and with 3.11 driver would help me find the problem.
+When using sysrq to do an emergency sync and a killall I get:
+(from memory)
+NMI Watchdog detected LOOKUP on CPU0
+and the calltrace (resolved)
+do_exit    do_signal    do_pollfd   signal_return
 
-Make sure you *don't* have any hdparm -d1 or hdparm -X66 or similar
-stuff in your init scripts.
+Thanks in advance
+Tilmann
 
-> I will
-> also try your 3.11 driver, which seems to be an enormous cleanup.
-
-the 2.1e driver is an enormous cleanup of the original driver from the
-2.2 kernels. the 3.11 is an enormous cleanup of 2.1e, yes.
-
-> Btw, do
-> you have a home page for the VIA driver?  A CVS perhaps?  If not, please
-> consider using sourceforge or something similar.
-
-No, not yet, but working on that.
-
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

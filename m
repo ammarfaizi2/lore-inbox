@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317424AbSGZJUg>; Fri, 26 Jul 2002 05:20:36 -0400
+	id <S317635AbSGZJRj>; Fri, 26 Jul 2002 05:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317429AbSGZJUf>; Fri, 26 Jul 2002 05:20:35 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22173 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317424AbSGZJUf>; Fri, 26 Jul 2002 05:20:35 -0400
-Date: Fri, 26 Jul 2002 14:53:44 +0530
-From: Kiran <geekazoid@phreaker.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Patch 2.5.25: Ensure xtime_lock and timerlist_lock are on difft cachelines
-Message-ID: <20020726145344.A18568@phreaker.net>
-References: <20020726125605.A2822@phreaker.net> <20020726080211.3E71E4824@lists.samba.org>
+	id <S317638AbSGZJRj>; Fri, 26 Jul 2002 05:17:39 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1408 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317635AbSGZJRi>;
+	Fri, 26 Jul 2002 05:17:38 -0400
+Date: Fri, 26 Jul 2002 02:06:42 +0200
+From: Pavel Machek <pavel@elf.ucw.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: EFAULT vs. SIGSEGV [was Re: close return value]
+Message-ID: <20020726000642.GA512@elf.ucw.cz>
+References: <8765zazv5r.fsf@CERT.Uni-Stuttgart.DE> <Pine.LNX.4.44.0207200936160.2342-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020726080211.3E71E4824@lists.samba.org>; from rusty@rustcorp.com.au on Fri, Jul 26, 2002 at 05:56:19PM +1000
+In-Reply-To: <Pine.LNX.4.44.0207200936160.2342-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 26, 2002 at 05:56:19PM +1000, Rusty Russell wrote:
-> In message <20020726125605.A2822@phreaker.net> you write:
-> > This patch was not meant to be a definitive fix for do_gettimeofday.
-> > I thought having diffrent locks  on the same cacheline was bad. Atleast, 
-> > I don't think there'd be any negative performance impact due to my patch.  
-> > Pls correct me if I am wrong. 
+Hi!
+
+> > Returning an error and still doing the operation is slightly awkward.
+> > Are there any other syscalls which do similar things?
 > 
-> Did you ever wonder why we don't declare spinlock to be ____cacheline_aligned?
+> mmap(MAP_FIXED) may have already unmapped any underlying old area if an
+> error occurs.
+> 
+> And EFAULT may have strange behaviour for left-over stuff. If I remember
+> correctly, at some point, for example, EFAULT on a write to a TCP socket
+> (if the fault happened in the middle) would still send out the full-sized
+> packet zero-padded, because not doing so would have screwed up the state
+> machine.
+> 
+> (But EFAULT is a special case in general, it's documented to be undefined
+> behaviour).
 
-Yep...and for long enough...(I think..)..or there'd have been an RFC 
-or a stupid question to lkml sometime from me :)
+SOme time ago you said you'd agree to doing SIGSEGV in addition to
+segfault. What about following patch? It should make difference
+between VSYSCALL and normal syscall smaller...
 
-> While it's probably justified in this case, you pay for it in a slight
-> increase in size...
->
+								Pavel
 
-I thought you were of the opinion that "memory is cheap" ;-)
+--- clean.2.5/arch/i386/mm/fault.c	Thu Jul 25 22:21:08 2002
++++ linux/arch/i386/mm/fault.c	Thu Jul 25 22:21:24 2002
+@@ -305,6 +305,15 @@
+ no_context:
+ 	/* Are we prepared to handle this kernel fault?  */
+ 	if ((fixup = search_exception_table(regs->eip)) != 0) {
++		tsk->thread.cr2 = address;
++		tsk->thread.error_code = error_code;
++		tsk->thread.trap_no = 14;
++		info.si_signo = SIGSEGV;
++		info.si_errno = 0;
++		/* info.si_code has been set above */
++		info.si_addr = (void *)address;
++		force_sig_info(SIGSEGV, &info, tsk);
++
+ 		regs->eip = fixup;
+ 		return;
+ 	}
 
--Kiran
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

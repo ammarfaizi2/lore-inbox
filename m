@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263454AbTJ0STj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 13:19:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTJ0STj
+	id S263456AbTJ0SVp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 13:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTJ0SVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 13:19:39 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:3513 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263454AbTJ0STG (ORCPT
+	Mon, 27 Oct 2003 13:21:45 -0500
+Received: from vic20.blipp.com ([217.75.101.38]:10896 "EHLO vic20.blipp.com")
+	by vger.kernel.org with ESMTP id S263456AbTJ0SVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 13:19:06 -0500
-Date: Mon, 27 Oct 2003 13:17:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Bob Johnson <livewire@gentoo.org>
-Cc: Shaun Savage <savages@savages.net>, linux-kernel@vger.kernel.org,
-       edt@aei.ca, nuno.silva@vgertech.com
-Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
-Message-ID: <20031027181738.GB5335@gtf.org>
-References: <3F9D402F.9050509@savages.net> <200310271308.53135.livewire@gentoo.org>
+	Mon, 27 Oct 2003 13:21:42 -0500
+Date: Mon, 27 Oct 2003 19:21:41 +0100
+From: Patrik Wallstrom <pawal@blipp.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test9
+Message-ID: <20031027182141.GH32168@vic20.blipp.com>
+References: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org> <20031026120521.GD32168@vic20.blipp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200310271308.53135.livewire@gentoo.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20031026120521.GD32168@vic20.blipp.com>
+Organization: Foodfight Stockholm
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 27, 2003 at 01:08:46PM -0500, Bob Johnson wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Sun, 26 Oct 2003, Patrik Wallstrom wrote:
+
+> On Sat, 25 Oct 2003, Linus Torvalds wrote:
 > 
-> The Sata driver worked well on my siimage, but lost around 30%-40% performance
-> according to tiobench.
+> > Jeff Garzik:
+> >   o [libata] Merge Serial ATA core, and drivers for
+> >   o [libata] Integrate Serial ATA driver into kernel tree
+> 
+> I am happy to see these in the kernel now, but I have yet to get them
+> working on my KT6 Delta KT600 motherboard with the VT8237 SATA
+> southbridge controller or even the Promise controller.
+> 
+> These are the devices:
+> 
+>   Bus  0, device  13, function  0:
+>     RAID bus controller: PCI device 105a:3373 (Promise Technology, )
+>     (rev 2).
+>       IRQ 19.
+>       Master Capable.  Latency=96.  Min Gnt=4.Max Lat=18.
+>       I/O at 0xec00 [0xec3f].
+>       I/O at 0xe800 [0xe80f].
+>       I/O at 0xe400 [0xe47f].
+>       Non-prefetchable 32 bit memory at 0xdffdb000 [0xdffdbfff].
+>       Non-prefetchable 32 bit memory at 0xdffa0000 [0xdffbffff].
+> 
 
-This is to be expected -- I use a "sledgehammer fix" for the Maxtor and
-Seagate errata -- each transfer is limited to 15 sectors.
+This patch worked for the Promise-controller:
+http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/2.6.0-test9-promise20378.patch
 
-When I get a chance to clean up the SiI driver, the performance will
-indeed increase by a large amount.
-
-For now, for Silicon Image, I recommend using the
-drivers/ide/pci/siimage.c -- assuming it works for you, of course.
-
-The libata Silicon Image driver is marked with CONFIG_BROKEN because it
-is fairly easy to lock it up (I need ack some more interrupts).
-
-	Jeff
-
-
-
+-- 
+patrik_wallstrom->foodfight->pawal@blipp.com->+46-733173956
+                `-> http://www.gnuheter.com/

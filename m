@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311251AbSCLPns>; Tue, 12 Mar 2002 10:43:48 -0500
+	id <S311257AbSCLPzc>; Tue, 12 Mar 2002 10:55:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311253AbSCLPnj>; Tue, 12 Mar 2002 10:43:39 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:59656 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S311248AbSCLPnY>; Tue, 12 Mar 2002 10:43:24 -0500
-Message-Id: <200203121545.g2CFjLI27269@aslan.scsiguy.com>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx: Slow negotiation? 
-In-Reply-To: Your message of "Tue, 12 Mar 2002 15:20:24 GMT."
-             <Pine.LNX.4.33.0203121519250.18363-100000@sphinx.mythic-beasts.com> 
-Date: Tue, 12 Mar 2002 08:45:21 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S311256AbSCLPzV>; Tue, 12 Mar 2002 10:55:21 -0500
+Received: from [212.3.242.3] ([212.3.242.3]:1033 "HELO mail.i4gate.net")
+	by vger.kernel.org with SMTP id <S311257AbSCLPzK>;
+	Tue, 12 Mar 2002 10:55:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre3
+Date: Tue, 12 Mar 2002 16:49:28 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva> <3C8D380A.166A7895@eyal.emu.id.au>
+In-Reply-To: <3C8D380A.166A7895@eyal.emu.id.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020312155517Z311257-889+121199@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Some MB manufacturers using the aic7895 screwed up the initialation of
->> the serial eeprom while they were assembling their boards.  The old
->> driver tries to work around this, but the work-around means converting
->> one of the lower sync rates into meaning "full speed". I decided that
->> just wasn't safe to put in the new driver.
+Marcelo Tosatti wrote:
+> Hi,
 >
->Is a warning printk() possible?
+> Here goes -pre3, with the new IDE code. It has been stable enough time in
 
-The printk would fire every time you chose to use this particular
-negotiation rate.
+Compiles fine here. Is there any way how we should notice that these new 
+structures are being used? (proc interface/ ... whatever)
 
---
-Justin
+DK

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSBDSKI>; Mon, 4 Feb 2002 13:10:08 -0500
+	id <S274862AbSBDSMI>; Mon, 4 Feb 2002 13:12:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289172AbSBDSJ6>; Mon, 4 Feb 2002 13:09:58 -0500
-Received: from erasmus.jurri.net ([62.236.96.196]:16529 "EHLO
-	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
-	id <S289167AbSBDSJx>; Mon, 4 Feb 2002 13:09:53 -0500
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <E16XmNc-0007fq-00@the-village.bc.nu>
-	<3C5EBE97.EFF9BC68@uni-mb.si>
-From: Samuli Suonpaa <suonpaa@iki.fi>
-Date: Mon, 04 Feb 2002 20:09:43 +0200
-In-Reply-To: <3C5EBE97.EFF9BC68@uni-mb.si> (David Balazic's message of "Mon,
- 04 Feb 2002 18:02:15 +0100")
-Message-ID: <877kptce54.fsf@puck.erasmus.jurri.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S284138AbSBDSL7>; Mon, 4 Feb 2002 13:11:59 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:40884 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S274862AbSBDSLw>;
+	Mon, 4 Feb 2002 13:11:52 -0500
+Date: Mon, 4 Feb 2002 19:11:50 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Generic HDLC patch for 2.5.3
+Message-ID: <20020204191150.A11131@fafner.intra.cogenit.fr>
+In-Reply-To: <20020202190242.C1740@havoc.gtf.org> <E16XAnc-00010K-00@the-village.bc.nu> <20020202200332.A3740@havoc.gtf.org> <20020203181302.C12963@fafner.intra.cogenit.fr> <20020203124614.A10139@havoc.gtf.org> <20020203230652.D12963@fafner.intra.cogenit.fr> <m3g04h5rpn.fsf@defiant.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3g04h5rpn.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Mon, Feb 04, 2002 at 01:58:28PM +0100
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Balazic <david.balazic@uni-mb.si> writes:
-> Alan Cox wrote:
->> Use the vendor supplied kernels ?
-> Yes, I am using them.
-> Now back to my question, how do I found out if option X is set or not ?
+Krzysztof Halasa <khc@pm.waw.pl> :
+> Francois Romieu <romieu@cogenit.fr> writes:
+[...]
+> > +typedef struct {
+> > +	unsigned short encoding;
+> > +	unsigned short parity;
+> > +} raw_proto;
+> 
+> This isn't for "raw" protocol. It's for raw _HDLC_ (or "just" HDLC),
+> so I think a better name is still hdlc_proto.
 
-It depends on the vendor. All Debian kernel-packages have kernel's
-config-file in /boot. Which is nice.
-
-Suonpää...
+hdlc with address and command unspecified looks "raw" to me.
+-> raw_hdlc ?
+ 
+-- 
+Ueimor

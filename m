@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSGVK7d>; Mon, 22 Jul 2002 06:59:33 -0400
+	id <S315619AbSGVDS7>; Sun, 21 Jul 2002 23:18:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316739AbSGVK7c>; Mon, 22 Jul 2002 06:59:32 -0400
-Received: from mikrolahti.fi ([195.237.35.128]:21253 "EHLO pleco.mikrolahti.fi")
-	by vger.kernel.org with ESMTP id <S316728AbSGVK7a>;
-	Mon, 22 Jul 2002 06:59:30 -0400
-Date: Mon, 22 Jul 2002 14:02:37 +0300
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: still troubles with an Alpha-kernel
-Message-ID: <20020722110237.GA12719@pleco.mikrolahti.fi>
-References: <20020722073941.GA10979@pleco.mikrolahti.fi> <Pine.LNX.4.44.0207220439220.3309-100000@hawkeye.luckynet.adm>
+	id <S315599AbSGVDS7>; Sun, 21 Jul 2002 23:18:59 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:45839 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S315593AbSGVDS6>;
+	Sun, 21 Jul 2002 23:18:58 -0400
+Date: Mon, 22 Jul 2002 11:24:10 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: error when build linux-2.5.27
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0207220439220.3309-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.3.28i
-From: samppa@pleco.mikrolahti.fi (Sami Louko)
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200207221126411.SM00792@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 04:40:23AM -0600, Thunder from the hill wrote:
-> Hi,
-> 
-> On Mon, 22 Jul 2002, Sami Louko wrote:
-> > -r--------    1 root     root         4.0T heinä  22 10:38 /proc/kcore
-> > 
-> > The core shows a bit huge :-/ Four terabytes... huh.
-> 
-> Mine (2.4.19-rc2-aa1) is 2 Giga, exactly the RAM size, here...
 
-I wasn't able to compile 2.4.19-rc1-aa2, i should to try compile the
-same kernel you have.
-I would like to know is it possible to manually fix the size of kcore,
-because i do have 512MB mem, not 4080GB, anybody doesn't have that much. =)
+when i build linux-2.5.27,i met some problem. the error message is as this:
 
-I just notified, an errormessage that shows at boot-time, got it from log,
+linux-kernelmake[1]: Entering directory `/usr/src/linux-2.5.27/arch/i386/kernel'
+  gcc -Wp,-MD,./.entry.o.d -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux-2.5.27/i
+nclude -nostdinc -iwithprefix include  -traditional  -c -o entry.o entry.S
+/usr/lib/gcc-lib/i386-redhat-linux/2.96/tradcpp0: Usage: /usr/lib/gcc-lib/i386-r
+edhat-linux/2.96/tradcpp0 [switches] input output
+make[1]: *** [entry.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.5.27/arch/i386/kernel'
+make: *** [arch/i386/kernel] Error 2
 
-	Jul 22 09:07:55 mikrolahti kernel: Error seeking in /dev/kmem
+so how to solve the problem?
+please cc. thanks.
 
-What may be wrong??!
+chuanbo zheng
+zhengcb@netpower.com.cn
 
---sl

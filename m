@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263056AbTFOXop (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 19:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTFOXop
+	id S263062AbTFOX6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 19:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTFOX6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 19:44:45 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:22757 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S263056AbTFOXoo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 19:44:44 -0400
-Subject: 2.5.71-mm1 and ACPI (Re: Broken USB, sound in 2.5.70-mmX series)
-From: Michel Alexandre Salim <mas118@york.ac.uk>
-To: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200306132247.17696.oliver@neukum.org>
-References: <1055436599.6845.7.camel@bushido>
-	 <200306122110.10207.oliver@neukum.org> <1055512702.6143.17.camel@bushido>
-	 <200306132247.17696.oliver@neukum.org>
-Content-Type: text/plain
-Organization: University of York
-Message-Id: <1055721510.6880.4.camel@bushido>
+	Sun, 15 Jun 2003 19:58:16 -0400
+Received: from snoopy.pacific.net.au ([61.8.0.36]:45289 "EHLO
+	snoopy.pacific.net.au") by vger.kernel.org with ESMTP
+	id S263062AbTFOX6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 19:58:15 -0400
+Date: Mon, 16 Jun 2003 10:11:41 +1000
+From: CaT <cat@zip.com.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
+Subject: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend
+Message-ID: <20030616001141.GA364@zip.com.au>
+References: <20030613033703.GA526@zip.com.au> <20030615183111.GD315@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 16 Jun 2003 00:58:30 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030615183111.GD315@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-13 at 21:47, Oliver Neukum wrote:
-> > > > > Do you see irqs for USB if you boot with acpi?
-> > > >
-> > > > Everything's on IRQ 9. That's why sound is broken as well it seems -
-> > > > IRQ sharing does not work as well as it should.
-> > >
-> > > Did you try using pci= on the command line?
-> >
-> > Err.. no. What should I set pci= to?
+On Sun, Jun 15, 2003 at 08:31:11PM +0200, Pavel Machek wrote:
+> >  stopping tasks failed (2 tasks remaining)
+> > Suspend failed: Not all processes stopped!
+> > Restarting tasks...<6> Strange, rpciod not stopped
 > 
-> pci=biosirq
-> 
-> 	HTH
-Alas, it does not help :(. I tried 2.5.71-mm1 too, since there has been
-ACPI updates - still the same, but I just realised my problem might be
-related to the conspicuous drop in size of the initrd image created by
-mkinitrd (on Red Hat 9):
+> This should fix it... Someone please test it.
 
-2.4.20: 143K
-2.5.69-mm8: 288K
-2.5.70/1-mmX: 84K
+I didn't have any actual nfs mounts at the time but I tried it
+with an otherwise similar system. It went through, got to freeing
+memory, showed me a bunch of fullstops being drawn and then went
+into an endless BUG loop. All I could pick out (after many a moment
+of staring) was 'schedule in atmoic'.
 
-It turns out that the 'insmod' binary is much smaller (down from 300+K
-to 100+K), but that should not matter, since modules still load
-properly?
+I'll do a proper test with a console cable present in a few days. I
+can't atm cos I'm not on the same network and don't have a 2nd 
+computer to hook up the null-modem cable to.
 
-Bizarre... anyone else has 2.5.70 and above working on a Centrino
-notebook on a Red Hat system? 2.5.71 has a sweet Enhanced SpeedStep
-module that finally detects Centrino, now if only I could get it working
-properly...
+Pre-empt is on btw.
 
-Thanks,
-
-Michel
-
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

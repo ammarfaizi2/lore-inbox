@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUAXXPs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 18:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUAXXPs
+	id S263290AbUAXXZp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 18:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbUAXXZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 18:15:48 -0500
-Received: from ozlabs.org ([203.10.76.45]:64994 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263101AbUAXXPq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 18:15:46 -0500
-MIME-Version: 1.0
+	Sat, 24 Jan 2004 18:25:45 -0500
+Received: from smtp.everyone.net ([216.200.145.17]:47093 "EHLO
+	rmta03.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S263290AbUAXXZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 18:25:42 -0500
+Date: Sat, 24 Jan 2004 18:25:33 -0500
+From: "Kevin O'Connor" <kevin@koconnor.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       David Ford <david+hb@blue-labs.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to public posts
+Message-ID: <20040124232533.GA7294@arizona.localdomain>
+References: <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com> <20040121213027.GN23765@srv-lnx2600.matchmail.com> <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain> <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org> <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com> <20040124201437.GA7133@arizona.localdomain> <Pine.LNX.4.58.0401241307490.10144@home.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16402.64412.577682.141249@cargo.ozlabs.ibm.com>
-Date: Sun, 25 Jan 2004 10:11:24 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: [PATCH] [2.4] forcedeth network driver
-In-Reply-To: <20040124224635.GA3448@ucw.cz>
-References: <4012BF44.9@colorfullife.com>
-	<4012D3C6.1050805@pobox.com>
-	<20040124220545.GA3246@ucw.cz>
-	<4012F2B7.3080800@gmx.net>
-	<20040124224635.GA3448@ucw.cz>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401241307490.10144@home.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik writes:
+On Sat, Jan 24, 2004 at 01:12:34PM -0800, Linus Torvalds wrote:
+> 
+> On Sat, 24 Jan 2004, Kevin O'Connor wrote:
+> > 
+> > A good Bayesian spam filter isn't nearly as susceptible to random words as
+> > some people think.  Words that are likely to be spam (along with words that
+> > are frequently "ham") are given _exponentially_ more weight than other
+> > words.
+> 
+> Especially if the "random words" in the spam end up being weighted by real
+> frequency, you just _cannot_ use single-word bayes filters on it. Or if 
+> you do, you'll eventually have those words either being neutral, or (worst 
+> of all cases) you'll have real mail be marked as spam after having 
+> aggressively trained the filter for the spams.
 
-> Well, my memory may be tricking me (I'm not really sure about this), but
-> I remember there was supposed to be a PPC64 northbridge with a HT link,
-> made exactly for the purpose of connecting an nForce southrbridge to it.
-> But it definitely is not in production yet.
+A "random" word will not occur frequently enough in spam messages (when
+measured over a large sample of spam) to become a "spam" token or to
+adversely effect it becoming a "ham" token.  (If it did, then it would be a
+good indicator of "spam", and spammers wouldn't be using it in their
+"random" word blocks.)  Also, the algorithms in the filter make sure that
+words don't become spam tokens just because one receives more spam than ham
+(ie. you can't train the filter to over aggressively catch spam).
 
-The U3 northbridge in the Apple G5 powermac has a HT link coming out
-of it, which connects via an AMD PCI-X tunnel chip to an Apple K2
-southbridge.  I have never heard of anyone using (or planning to use)
-an nForce southbridge on a PPC64 system though.
+Don't get me wrong - I agree that multi-word bayes filters can be more
+precise.  But, I don't see them as being significantly different from
+single word filters -- they're susceptible to the same "attack" you outline
+above (with blocks of random sentences) -- and they will have larger
+dictionaries and require more training time.
 
-Regards,
-Paul.
+> It might not be that big of a deal especially if you have a fairly narrow 
+> scope of emails in your ham-list, but people who get mail from varied 
+> sources _will_ get screwed by this, one way or the other.
+
+A lot of testing has been done on these filters (see for example
+http://spambayes.sourceforge.net/background.html) with a very large email
+corpus.  If you haven't looked at bayes filters recently, or have only been
+looking at the simplistic ones, then I think you might have better luck
+trying again.
+
+-Kevin
+
+-- 
+ ---------------------------------------------------------------------
+ | Kevin O'Connor                  "BTW, IMHO we need a FAQ for      |
+ | kevin@koconnor.net               'IMHO', 'FAQ', 'BTW', etc. !"    |
+ ---------------------------------------------------------------------

@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVBBUTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVBBUTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262466AbVBBUTI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVBBULT
+	id S262667AbVBBUTH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVBBULj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 15:11:19 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:30852 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262309AbVBBTqi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:46:38 -0500
-Subject: [PATCH 1/4] Fix MUX mode disabling.
-In-Reply-To: <20050202194622.GA3794@ucw.cz>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Wed, 2 Feb 2005 20:46:53 +0100
-Message-Id: <11073736133233@twilight.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Wed, 2 Feb 2005 15:11:39 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:27780 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262450AbVBBTqJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:46:09 -0500
+Date: Wed, 2 Feb 2005 20:46:22 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org, vojtech@ucw.cz
+Subject: [bk-patches] [resend] Needed input fixes for 2.6.11
+Message-ID: <20050202194622.GA3794@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
+Hi!
+
+I pretty much screwed up in the last update you merged for 2.6.11,
+making USB input devices rather annoying to use. These four patches fix
+the damage made:
+
+1) The MUX mode disabling had a bug that caused it to not work at
+   all.
+
+2) MSC_SCAN events backpropagating into hid-input.c caused a flood
+   of 'event field not found' messages in the syslog.
+
+3) USB keyboad LEDs stopped working due to a fix for Logitech mouse
+   fake LEDs.
+
+4) The fourth patch is a documentation update from Andries Brouwer.
+
+Please include these before the final 2.6.11, or drop the last input
+update.
+
+As usual, they're available at:
+
 	bk://kernel.bkbits.net/vojtech/for-linus
 
-===================================================================
+as well as in the following mails of this thread.
 
-ChangeSet@1.1977.1.1, 2005-01-28 21:11:52+01:00, vojtech@silver.ucw.cz
-  input: Fix MUX mode disabling.
-  
-  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
-
-
- i8042.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-===================================================================
-
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	2005-02-02 20:29:55 +01:00
-+++ b/drivers/input/serio/i8042.c	2005-02-02 20:29:55 +01:00
-@@ -482,7 +482,7 @@
- 	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0x0f)
- 		return -1;
- 	param = mode ? 0x56 : 0xf6;
--	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa9)
-+	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != (mode ? 0xa9 : 0x09))
- 		return -1;
- 	param = mode ? 0xa4 : 0xa5;
- 	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param == (mode ? 0x5b : 0x5a))
-@@ -787,7 +787,8 @@
-  * Disable MUX mode if present.
-  */
- 
--	i8042_set_mux_mode(0, NULL);
-+	if (i8042_mux_present)
-+		i8042_set_mux_mode(0, NULL);
- 
- /*
-  * Restore the original control register setting.
-
+Thanks,
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

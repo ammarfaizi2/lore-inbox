@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUHXUII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268092AbUHXUHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267565AbUHXUII (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267795AbUHXUII
+	id S268092AbUHXUHc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUHXUHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:08:08 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:7889 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S267565AbUHXUIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:08:01 -0400
-Date: Tue, 24 Aug 2004 22:07:50 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Matt Mackall <mpm@selenic.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc1
-In-Reply-To: <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.53.0408242202450.7152@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
- <20040824184245.GE5414@waste.org> <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Aug 2004 16:07:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47802 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268262AbUHXUHU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:07:20 -0400
+Date: Tue, 24 Aug 2004 13:05:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: page allocation failure
+Message-Id: <20040824130531.3cbb03d1.akpm@osdl.org>
+In-Reply-To: <200408242205.20571.dominik.karall@gmx.net>
+References: <200408242205.20571.dominik.karall@gmx.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004, Linus Torvalds wrote:
+Dominik Karall <dominik.karall@gmx.net> wrote:
+>
+> is this a kernel bug, or smbd failure? I think it could be caused by kernel 
+>  and less memory. Cause the machine is running with 56MB ram. But IMHO I think 
+>  the kernel shouldn't handle it this way. Running 2.6.8-rc4-mm1.
 
-> Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
-> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
-> any ordering wrt the bugfixes), so either interdiffs or whole new full 
-> diffs are totally "logical". We just have to chose one way or the other, 
-> and I don't actually much care.
-> 
-> Any reason for your preference? 
+It's networking trying to allocate eight physically-contiguous pages with
+GFP_ATOMIC.  Can you say "snowball's chance in hell"?
 
-I'd also vote for the x.y.z.2 to be based on x.y.z, because it's 
-consistent with common practice. Currently all patches that I know of
-that have an EXTRAVERSION are based on the corresponding kernels with
-empty EXTRAVERSION. Be it -pre, -rc, -mm, -ac or whatever.
+Probably we should kill off those noisy printk's, or make them dependent on
+some debugging option.  But we keep on finding quite serious cases, such as
+this one.
 
-Tim
+Sure, networking will recover from memory allocation failures - presumably
+by dropping a packet.  But if it's doing frequent atomic 3-order allocations
+then it will end up dropping a *lot* of packets, and performance will suffer.

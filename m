@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbTJBBA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 21:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbTJBBA5
+	id S262709AbTJBBDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 21:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTJBBDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 21:00:57 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:26379 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263036AbTJBBA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 21:00:56 -0400
-Date: Thu, 2 Oct 2003 02:00:54 +0100
-From: John Levon <levon@movementarian.org>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-Message-ID: <20031002010054.GA13639@compsoc.man.ac.uk>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <16250.38688.152166.875893@gargle.gargle.HOWL> <20031001115248.GC23819@compsoc.man.ac.uk> <blfd05$ipr$1@gatekeeper.tmr.com>
+	Wed, 1 Oct 2003 21:03:16 -0400
+Received: from main.gmane.org ([80.91.224.249]:42667 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262709AbTJBBDP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 21:03:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: Re: [ACPI] p2b-ds blacklisted?
+Date: Thu, 02 Oct 2003 03:02:15 +0200
+Message-ID: <blftgg$9ui$1@sea.gmane.org>
+References: <blen4v$a42$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <blfd05$ipr$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1A4rpv-0008fC-Ee*qW4d75zk10w*
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: de, en
+In-Reply-To: <blen4v$a42$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 08:21:25PM +0000, bill davidsen wrote:
+> I would like to try what happens if i remove the board from the 
+> blacklist.
 
-> finger on it. In any case, I think the OP was noting that it was a
-> fairly impactful (is that a word?) change not to get a line in the
-> changelog. That's directed to whoever actually prepares the CL, not the
+So that was what i just did. I removed the board from the blacklist, 
+recompiled the kernel and booted.
+The kernel started and there were some issues with the interrupt 
+routing. I don't remember the exact messages but i could post a dmesg if 
+you like.
+With "pci=noapci" the computer hang upon loading the kernel module for 
+the SCSI controller. I remember that to be an issue too when i had 
+windows2k installed on that box but i could "fix" that by changing the 
+IRC setting in the BIOS. Changing those settings didn't help Linux to boot.
 
-It did get in the changelog (it's automated). It just didn't get sent
-for public review at all.
+At first sight ACPI (without pci=noacpi) seemed to work but pressing the 
+power button didn't generate any events although the power button was 
+detected properly during boot.
 
-john
--- 
-Khendon's Law:
-If the same point is made twice by the same person, the thread is over.
+After all i think i know why P2B-S and -DS are blacklisted. The board 
+with on-board SCSI controller are messed up somehow.
+
+I haven't tried to install BIOS 1014beta3 yet. BIOS 1014beta2 is 
+currently installed but i guess the update won't solve anything.
+
+With acpi=ht it works for now, but doesn't acpi=ht imply pci=noacpi?
+
+

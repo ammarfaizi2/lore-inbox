@@ -1,56 +1,106 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317072AbSFKO3N>; Tue, 11 Jun 2002 10:29:13 -0400
+	id <S317078AbSFKObe>; Tue, 11 Jun 2002 10:31:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317068AbSFKO3M>; Tue, 11 Jun 2002 10:29:12 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:47876 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S317066AbSFKO3L>; Tue, 11 Jun 2002 10:29:11 -0400
-Message-Id: <200206111429.g5BET8K02052@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Jens Axboe <axboe@suse.de>
-cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Proposed changes to generic blk tag for use in SCSI (1/3) 
-In-Reply-To: Message from Jens Axboe <axboe@suse.de> 
-   of "Tue, 11 Jun 2002 07:50:14 +0200." <20020611055014.GA1117@suse.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 11 Jun 2002 10:29:08 -0400
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S317077AbSFKObd>; Tue, 11 Jun 2002 10:31:33 -0400
+Received: from adsl-63-205-245-1.dsl.snfc21.pacbell.net ([63.205.245.1]:60891
+	"EHLO amboise.dolphin") by vger.kernel.org with ESMTP
+	id <S317078AbSFKOba>; Tue, 11 Jun 2002 10:31:30 -0400
+Date: Tue, 11 Jun 2002 07:31:32 -0700 (PDT)
+From: Francois Gouget <fgouget@free.fr>
+X-X-Sender: fgouget@amboise.dolphin
+To: linux-kernel@vger.kernel.org
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+Message-ID: <Pine.LNX.4.43.0206110712290.7449-100000@amboise.dolphin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-axboe@suse.de said:
-> Ehm it's already there, one could argue that it's pretty core
-> functionality for this type of stuff :-). It's called
-> blk_queue_get_tag(q, tag), and it's in blkdev.h. However, I agree that
-> we should just move it into ll_rw_blk.c. That gets better documented
-> as well. Could you redo that part? 
 
-I guessed it must be.  I grepped the IDE tree looking for anything with `get' 
-or `find' in it, but came up empty.  It's actually called 
-blk_queue_tag_request(), which is why I didn't find it.
+This looks like a bad idea. The reason is that the VFAT driver is the
+wrong abstraction layer to support the '.lnk' files:
 
-Do you want me to keep this name if I move it?
+ * on Windows if you open("foo.lnk") you get the .lnk file, not the file
+it 'links' to. On Linux you would get the file it points to instead
+which is a different behavior.
 
-axboe@suse.de said:
-> I completely agree with this, blk_queue_start_tag() should not need to
-> know about these things so just checking if the request is already
-> marked tagged is fine with me. But please make that a warning, like 
+ * Windows supports .lnk files on FAT, VFAT, NTFS, ISO9660, etc. So if
+such support is added in the Linux kernel, it should be added to all of
+the above filesystems. And then, there is no reason not to add it to
+ext2, NFS, etc!
 
-Actually, I think it should be a BUG().  By the time a tagged request comes in 
-to blk_queue_start_tag, we must already have corrupted the lists since we use 
-the same list element (req->queuelist) to queue on both the tag queue and the 
-request queue.
+Other issues:
 
-> And also _please_ fix the comment about REQ_CMD and not just the code,
-> it's doesn't stand anymore. 
+ * what happens if a Unix program tries to create a file called
+'foo.lnk' that is not a .lnk file? I could create a text file called
+'mylinks.lnk' to store bookmark stuff for instance.
 
-Will do...I didn't see much point altering the comment in the prototype until 
-there was agreement that it was OK to do it this way.
+ * there is no such thing as a dead .lnk file. If the specified path is
+not found, Windows will use the file date, file size and whatnot to try
+to find where the target went. Is it planned to add any such support
+planned?
 
-James
+ * it has been mentionned that this makes it possible to extract source
+tarballs that contain symlinks on a VFAT filesystem. While this sounds
+cool I am not sure it is so useful.
+   - for VFAT one could use the UMSDOS filesystem to do the same thing,
+     and get many other features at the same time (at least while in
+     Linux)
+   - again, if it is useful on VFAT, then it would be useful for CD+RW
+     filesystems (UDF?) (e.g. for archival), on NTFS (assuming write is
+     well supported one day, etc.
+   - if you switch back to Windows, no compiler is going to be able to
+     use the '.lnk' files. That's because no compilers that I know of
+     uses shell32.dll to read source files. So this would only work
+     while on the Linux side and maybe in cygwin too.
 
+
+This would also hurt Wine as:
+
+ * it would prevent wine from reading the information in the '.lnk'
+file... at least for 'supported' '.lnk' files
+
+ * it's not entirely clear to me what is done with unsupported '.lnk'
+files. Are they just dead symlinks (again !=windows) or can one read
+their contents? In the first case Wine is dead in the water again, and
+in the latter case we'll have to play games to know which kind we got.
+
+ * it was suggested to implement a hack to let Wine access the '.lnk'
+data. Why implement a hack which is going to be Linux specific when
+doing nothing works just fine and on any Unix system? Plus this is going
+to require Linux specific code in Wine if it is to be supported.
+
+ * making it an option does not help Wine at all, especially if it is a
+default one. Then we have to keep telling users that they have to modify
+their fstab if they want Wine to work.
+
+
+The right level to implement symlink support is:
+
+ * in Wine. Of course! There we know what the drive mappings are, we
+have access to the registry and can even use the native shell library.
+
+ * in an LD_PRELOAD library. Then they would work for all filesystems,
+be selectable on a per-user or even per-process basis. Of course it
+would most likely not work with Wine (ld_preload libraries seldom do)
+but we can at least easily disable such libraries using a wrapper
+script.
+
+ * as an option in the KDE/Gnome file browsers and related file access
+methods. That's the layer which seems closest to the Windows shell
+'layer'.
+
+
+This looks like it could be the next 'unhide' thing. See:
+
+ * isofs unhide option:  troubles with Wine
+   http://www.uwsg.indiana.edu/hypermail/linux/kernel/0205.3/0267.html
+   http://www.uwsg.indiana.edu/hypermail/linux/kernel/0206.0/0411.html
+   http://www.uwsg.indiana.edu/hypermail/linux/kernel/0206.1/0246.html
+
+
+--
+Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
+                Linux: It is now safe to turn on your computer.
 

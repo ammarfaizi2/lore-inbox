@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283694AbRK3QF5>; Fri, 30 Nov 2001 11:05:57 -0500
+	id <S283691AbRK3QRH>; Fri, 30 Nov 2001 11:17:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283698AbRK3QFs>; Fri, 30 Nov 2001 11:05:48 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13574 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S283694AbRK3QFe> convert rfc822-to-8bit; Fri, 30 Nov 2001 11:05:34 -0500
-Date: Fri, 30 Nov 2001 12:48:05 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-Cc: Linux <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: 2 small patches against 2.4.15-pre6 (sym2 + email change)
- (fwd)
-In-Reply-To: <20011127191808.S2714-300000@gerard>
-Message-ID: <Pine.LNX.4.21.0111301246050.17450-100000@freak.distro.conectiva>
+	id <S283696AbRK3QQr>; Fri, 30 Nov 2001 11:16:47 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S283691AbRK3QQi>; Fri, 30 Nov 2001 11:16:38 -0500
+Date: Fri, 30 Nov 2001 11:16:35 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jessica Blank <jessica@twu.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Slow start -- Linux vs. NT -- it's time to acknowledge the problem!
+In-Reply-To: <Pine.LNX.4.40.0111301002110.3351-100000@twu.net>
+Message-ID: <Pine.LNX.3.95.1011130111428.536A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 30 Nov 2001, Jessica Blank wrote:
 
-
-On Tue, 27 Nov 2001, Gérard Roudier wrote:
-
+> Sooo... having the Windows-type person remove NetBEUI and Windows
+> filesharing (SMB) would fix this if this is indeed the cause of problems?
 > 
-> Hi Marcelo,
 
-Hi,
+Just turn OFF NetBEUI. Enable TCP/IP and NETBIOS (only). Everybody
+can "share" as usual. No negative impact upon anybody.
 
-Sorry for the delay, I saved this mail to my pending list... :) 
+Cheers,
 
-> 
-> I didn't see these patches applied by previous kernel maintainer, neither
-> received any ack nor nack about from. You may let me know if something
-> gets wrong with them. Btw, I have another one after those ones.
-> 
-> Note that I am used of the "no news means bad news" when patches for linux
-> development are in concern, but I guess that I am not the only guy who
-> will be glad if usual good practice of "no news means good news" would
-> also apply there. Let me hope that this will be changed as it has been
-> with 2.0 and 2.2 kernel maintainance. :)
-> 
-> By the way, I missed the postings that made you the maintainer of 2.4
-> kernel neither saw any comments from Alan about. I am sure that you will
-> do the best you can and will do a very good work, but I feel a bit
-> frustrated not to know the reasons of this decision. If you can point me
-> to the corresponding articles, I will be very interested in.
+Dick Johnson
 
-Well, basically, it seems Alan got tired of maintenance... :) 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-You can take a look at Alan's diary for more stuff.
-
-> Thanks to people who tried, did or are doing Linux kernel maintainance as
-> I think that maintainance is a very important process at least as
-> important as development (I want to write a lot more, in fact...).
-> 
-> Good luck and TIA.
-
-About the two patches you mention, can you please send me them ?
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

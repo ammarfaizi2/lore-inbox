@@ -1,94 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUEVNbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUEVNch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUEVNbX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 09:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUEVNbX
+	id S261252AbUEVNch (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 09:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUEVNch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 09:31:23 -0400
-Received: from 213-229-38-18.static.adsl-line.inode.at ([213.229.38.18]:18340
-	"HELO home.winischhofer.net") by vger.kernel.org with SMTP
-	id S261234AbUEVNbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 09:31:09 -0400
-Message-ID: <40AF55AF.2020506@winischhofer.net>
-Date: Sat, 22 May 2004 15:29:19 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Sat, 22 May 2004 09:32:37 -0400
+Received: from smtp-out2.xs4all.nl ([194.109.24.12]:3852 "EHLO
+	smtp-out2.xs4all.nl") by vger.kernel.org with ESMTP id S261252AbUEVNc3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 09:32:29 -0400
+Date: Sat, 22 May 2004 15:32:13 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.local
+To: Martin Schaffner <schaffner@gmx.li>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: hfsplus bugs in linux-2.6.5
+In-Reply-To: <FD7764A6-AB9F-11D8-853B-0003931E0B62@gmx.li>
+Message-ID: <Pine.LNX.4.58.0405221505100.10292@scrub.local>
+References: <Pine.LNX.4.44.0405170100430.766-100000@serv.local>
+ <FD7764A6-AB9F-11D8-853B-0003931E0B62@gmx.li>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl number 0xF3
-References: <40AF42B3.8060107@winischhofer.net> <1085228451.14486.0.camel@laptop.fenrus.com> <40AF4A13.4020005@winischhofer.net> <20040522125108.GB4589@devserv.devel.redhat.com>
-In-Reply-To: <20040522125108.GB4589@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Sat, May 22, 2004 at 02:39:47PM +0200, Thomas Winischhofer wrote:
+Hi,
+
+On Sat, 22 May 2004, Martin Schaffner wrote:
+
+> I still wasn't able to reproduce it on another partition than my Mac OS 
+> X root partition. :-(
 > 
->>I intend using them for controlling SiS hardware specific settings like 
->>switching output devices, checking modes against output devices, 
->>repositioning TV output, scaling TV output, changing gamma correction, 
->>tuning video parameters, and the like.
+> The symptoms are as follows: Whenever I try to write a sufficently 
+> large file (always larger than 512k), or try to read a sufficiently 
+> large file (say a 4 MB file) with any program, I get:
 > 
+>    HFS+-fs: request for non-existent node 1929183232 in B*Tree
+
+It seems you have a very fragmented volume and it goes wrong when the 
+driver tries to access the extent file. I tested this with HFS, but it 
+seems not all fixes made it to the HFS+ driver.
+Fix is below.
+
+> In the past, hpfsck (from ftp.penguinppc.org/users/hasi/) would report 
+> lots of cases of:
 > 
-> That doesn't in principle sound SiS specific. Sure the implementation will
-> be but the interface?
+>    Backpointers in Node 239 index 70 out of order (0x1001e982 >= 
+> 0x1002298e)
 
-Don't get me wrong.. did you ever write a driver for graphics hardware? 
-Different graphics cards have widely different features and 
-restrictions, for example what output devices are supported and which 
-output devices can be "mapped" to what CRT controller, what modes are 
-supported on what output device if it's mapped to what CRT controller, 
-whether the CRTCs really are independant or of they need "cooperation" 
-in specific modes (because one of the CRTCs is crippled like in my case) 
-etc etc etc.
+hpfsck has quite some problems with large volumes and last time I checked 
+this was usually a bug in hpfsck.
 
-Not that this would be much of an excuse, but not even the Windows folks 
-have a unique interface for vendor specific things, like setting up dual 
-head, video mirroring, etc. IMHO a generic interface will 1) force 
-restrictions to supported features, 2) be bloated with stuff that will 
-require a ton of checks and thereby lead to a requirement of smart 
-userland applications that from the beginning will need to know about 
-the specific hardware and its features - again.
+bye, Roman
 
-What we are talking here are no essential things. What I want is simply 
-a few ioctls for mostly (but, granted, not exclusively) very hardware 
-specific things (at least as regards the possible arguments to the 
-various ioctls).
-
->>And rest assured, they will be 32/64 bit safe. Not sure what you mean by 
->>"ioctl interface" here but have a look at the Matrox framebuffer driver 
->>which uses some 'n' ioctls for similar stuff (which in that way do not 
->>apply to the SiS hardware which is why I can't reuse them).
-> 
-> 
-> Ok this is exactly the point I was trying to make. Would it be possible to
-> have the "new" ioctl interface be such that they CAN be used by both matrox
-> and Sis ?
-
-The framebuffer drivers are - I am trying to say this nicely - a chaos 
-as regards custom implementations for ioctls and extensions to the 
-standard fb ioctls. I do not intend to wait until all the 
-maintainers/authors agree on a unique interface which they haven't been 
-able to in years.
-
-These ioctls I intend to implement (and partly already have implemented) 
-are nothing userland will need to know much about. They are going to be 
-used by stuff like DirectFB (which needs a driver for specific hardware 
-anyway), my config tool and the X driver (in order to restore the 
-hardware state properly, including changes done during the X server 
-session while switching back to another VT).
-
-Is 64 out of, what's that, 65536 too much to ask? Well, I could live 
-with 32 as well...
-
-Thomas
-
--- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          http://www.winischhofer.net/
-twini AT xfree86 DOT org
+Index: fs/hfsplus/brec.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.6/fs/hfsplus/brec.c,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 brec.c
+--- a/fs/hfsplus/brec.c	11 Mar 2004 18:33:35 -0000	1.1.1.1
++++ b/fs/hfsplus/brec.c	22 May 2004 12:10:18 -0000
+@@ -33,7 +33,7 @@ u16 hfs_brec_keylen(struct hfs_bnode *no
+ 
+ 	if ((node->type == HFS_NODE_INDEX) &&
+ 	   !(node->tree->attributes & HFS_TREE_VARIDXKEYS)) {
+-		retval = node->tree->max_key_len;
++		retval = node->tree->max_key_len + 2;
+ 	} else {
+ 		recoff = hfs_bnode_read_u16(node, node->tree->node_size - (rec + 1) * 2);
+ 		if (!recoff)
+@@ -144,7 +144,7 @@ skip:
+ 		if (tree->attributes & HFS_TREE_VARIDXKEYS)
+ 			key_len = be16_to_cpu(fd->search_key->key_len) + 2;
+ 		else {
+-			fd->search_key->key_len = tree->max_key_len;
++			fd->search_key->key_len = be16_to_cpu(tree->max_key_len);
+ 			key_len = tree->max_key_len + 2;
+ 		}
+ 		goto again;

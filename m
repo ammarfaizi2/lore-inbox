@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUDYNPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbUDYNOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUDYNPh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 09:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUDYNPg
+	id S262602AbUDYNOH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 09:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUDYNOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 09:15:36 -0400
-Received: from mx.laposte.net ([81.255.54.11]:32203 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S262009AbUDYNPa (ORCPT
+	Sun, 25 Apr 2004 09:14:07 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:7657 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262602AbUDYNOD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 09:15:30 -0400
-Subject: Re: Update on problems creating iteraid driver disk
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Development discussions related to Fedora Core 
-	<fedora-devel-list@redhat.com>
-Cc: Paul Gear <paul@gear.dyndns.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-In-Reply-To: <408BB31D.9020903@gear.dyndns.org>
-References: <408B270C.1050201@gear.dyndns.org>
-	 <1082890181.24757.12.camel@m64.net81-64-154.noos.fr>
-	 <408BAB8E.1080904@gear.dyndns.org>
-	 <1082896776.25494.11.camel@m64.net81-64-154.noos.fr>
-	 <408BB31D.9020903@gear.dyndns.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sIaK65Gu8rjIgnkGXlTK"
-Organization: Adresse personelle
-Message-Id: <1082898911.25714.5.camel@m64.net81-64-154.noos.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 (1.5.7-2) 
-Date: Sun, 25 Apr 2004 15:15:11 +0200
+	Sun, 25 Apr 2004 09:14:03 -0400
+Date: Sun, 25 Apr 2004 15:13:33 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] vesafb and *fb
+In-Reply-To: <Pine.LNX.4.44.0404240031030.5826-100000@phoenix.infradead.org>
+Message-ID: <Pine.GSO.4.58.0404251511320.13613@waterleaf.sonytel.be>
+References: <Pine.LNX.4.44.0404240031030.5826-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 24 Apr 2004, James Simmons wrote:
+> I don't know why it is that way. I would think it should fail at this
+> point. Anyone know why this is?
 
---=-sIaK65Gu8rjIgnkGXlTK
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+I searched through my mailing list archives of lkml and fbdev in 2001, but
+couldn't find who submitted the original patch. I guess it came from Alan.
 
-Le dim, 25/04/2004 =C3=A0 22:46 +1000, Paul Gear a =C3=A9crit :
-> Nicolas Mailhot wrote:
+Anyway, if this really is a problem for some people, we can always add a
+`video=vesafb:force' flag for the unhappy few.
 
-> > I should know, I got a few lines myself into the kernel, and it was
-> > grunt work only me was interested in. Kudos to all the kernel
-> > maintainers who listened to me at the time.
->=20
-> Got any suggestions as to who i should send patches to, then?  :-)
+> > Yesterday I noticed on a box at work that if you compile in both vesafb and
+> > atyfb (the box has an ATI 3D RAGE PRO), you get both fb0 (atyfb) and fb1
+> > (vesafb). That's not supposed to happen.
+> >
+> > Vesafb did print that the frame buffer was already in use, but it just
+> > continued, cfr. this code:
+> >
+> >     if (!request_mem_region(vesafb_fix.smem_start, vesafb_fix.smem_len, "vesafb")) {
+> > 	    printk(KERN_WARNING
+> > 		   "vesafb: abort, cannot reserve video memory at 0x%lx\n",
+> > 		    vesafb_fix.smem_start);
+> > 	    /* We cannot make this fatal. Sometimes this comes from magic
+> > 	       spaces our resource handlers simply don't know about */
+> >     }
+> >
+> > That was on plain 2.6.5. But to my surprise the latest 2.4 behaves the same.
+> > This seems to have been changed in 2.4.15.
+> > Does anyone know why this was changed?
 
-The obvious contact is Bartlomiej Zolnierkiewic the 2.6 ide maintainer.
+Gr{oetje,eeting}s,
 
-> This still doesn't solve the problem of getting FC1 driver disks made,
-> though. =20
+						Geert
 
-Well, it might have solved the FC2 driver disk problem had you worked on
-it a month ago. It's getting a bit late for it now however :(. But you
-can still try - the test releases are still following closely the
-kernel.org progress.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Cheers,
-
---=20
-Nicolas Mailhot
-
---=-sIaK65Gu8rjIgnkGXlTK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAi7nfI2bVKDsp8g0RAoa1AKDKdUxWHH0X98VPYfQbX0ZVz5dI8ACghIs5
-tvRnLHEemMquTkjwvOzxKIg=
-=DlUf
------END PGP SIGNATURE-----
-
---=-sIaK65Gu8rjIgnkGXlTK--
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

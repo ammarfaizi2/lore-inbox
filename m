@@ -1,57 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbUBTOAi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 09:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbUBTOA3
+	id S261207AbUBTOLH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 09:11:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUBTOLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 09:00:29 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:45964 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261205AbUBTN6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 08:58:39 -0500
-Date: Fri, 20 Feb 2004 21:58:30 +0800
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>,
-       "Nick Bartos" <spam99@2thebatcave.com>
-Subject: Re: recommended "stable" compiler?
-Cc: "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
-References: <58930.192.168.1.12.1077278393.squirrel@mail.2thebatcave.com> <1077283178.798.2.camel@teapot.felipe-alfaro.com>
-From: "Michael Frank" <mhf@linuxmail.org>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr3n83soj4evsfm@smtp.pacific.net.th>
-In-Reply-To: <1077283178.798.2.camel@teapot.felipe-alfaro.com>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+	Fri, 20 Feb 2004 09:11:06 -0500
+Received: from D71a0.d.pppool.de ([80.184.113.160]:61890 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S261207AbUBTOKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 09:10:42 -0500
+In-Reply-To: <20040125230753.A20686@electric-eye.fr.zoreil.com>
+References: <1075059124.13750.38.camel@sonja> <20040125230753.A20686@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-10-187666238"
+Message-Id: <F8A4CD84-639D-11D8-8BA0-000A9597297C@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: netdev@oss.sgi.com,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: [PATCH] Re: rtl8169 problem and 2.4.23
+Date: Fri, 20 Feb 2004 13:11:53 +0100
+To: Francois Romieu <romieu@fr.zoreil.com>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Feb 2004 14:19:39 +0100, Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
 
-> On Fri, 2004-02-20 at 12:59, Nick Bartos wrote:
->> What is the recommended stable compiler for compiling the latest 2.4.x
->> kernel?
->
-> I'm no kernel guru, but I have been compiling 2.5/2.6 kernels for a long
-> time with gcc 3.3 with no problems at all. I had problems with gcc 3.2
-> in the past, miscompiling the ymfpci driver.
->
+--Apple-Mail-10-187666238
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-I am linux newbie, but have done 100's of kernel compiles the past 2 years.
+On Jan 25, 2004, at 11:07 pm, Francois Romieu wrote:
 
-AFAIK, 2.95.3 is still the official compiler and still supported.
+> Try the patch above. If it compiles, it should fix the stats and you 
+> get a
+> bugfix as an extra.
 
-2.95.3 without framepointers compiling kernels for 686 has never failed me
-with 2.4 and 2.6 and I still use it exclusively for kernels.
+Sorry for the delay. I've not had the chance to recompile the kernel
+for my fileserver and restart it, yet. But in the meantime I've received
+another card with RTL8169S and tried it in a different machine.
 
-3.2.2 made me lots of trouble with kernels - crashing within minutes.
+The current driver in 2.4.24 and 2.6.3 will lock up the box in almost
+no time when under load (not a real kernel lockup but a soft one because
+the machine is running over NFS and the driver seems to lose packets
+and then rejects to transfer more). Your patch fixes this problem and 
+the
+counter issue for both 2.4.24 and 2.6.3, so it probably should go in 
+ASAP.
 
-Using RH 3.2.5 and Gentoo 3.2.3 for other compiles (whole system except kernel
-in case of gentoo). No problems seen.
+However there's another thing bugging me: abysmal performance. In both
+a switched and a direct environment the best I could get using netio
+was 10MB/s send and 21MB/s receive, using NFS I get just under 10MB/s,
+this is slower than with a 8139 el cheapo 100Mbit card.
 
-Have not tried 3.3 but by what I have read it is OK.
+The netio results are illogical anyway because the other side is the
+fileserver, which has the same card, so if one end receives 21MB/s the
+other end has to send equally as fast, no? :) The CPU utilization was
+almost zero on server and client (both Athlon XP).
 
-In any case keep your trusted old workhorse 2.95 around when trying something new...
+Servus,
+       Daniel
 
-Regards
-Michael
+--Apple-Mail-10-187666238
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQDX5ijBkNMiD99JrAQJVGAf/eRBGDLzhkGOwtxJj/s++N9yQqZjbiQhU
+A/D7aIYg/rNuV6/egaxjDsImhluSq8LZEjVr7YAKq9tYBNsmY+ENdazxexCzdDdF
+PxoQ7T4ZhXNa0b3mPhQmFlCGXcUeQcomoT3Ux8+N8jZ58UaUOWzp7BJxXf/40aHW
+hQuG4z2zK3khM3Aakr6MJZY7iJzwXDnalm8UzKZ2A5qXReXKizu/rCJx91PX0AYK
+V+jb4I34cTfSa4Og1s6yFosO7ea2P/yVPMx2d0JV79ypwMsGATTJD9vfV7Iz2OJM
++P5UbwXx5mkyg42HrfZoU8ZMN3ZHrR+9T1uVJQ/BANQyWcdse+DvPw==
+=NlSC
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-10-187666238--
+

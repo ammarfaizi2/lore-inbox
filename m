@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSLJJEZ>; Tue, 10 Dec 2002 04:04:25 -0500
+	id <S263039AbSLJJMW>; Tue, 10 Dec 2002 04:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263313AbSLJJEZ>; Tue, 10 Dec 2002 04:04:25 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:34986 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262780AbSLJJEZ>; Tue, 10 Dec 2002 04:04:25 -0500
-Date: Tue, 10 Dec 2002 10:11:10 +0100
-To: James Simmons <jsimmons@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: [BK fbdev] Yet again more fbdev updates.
-Message-ID: <20021210091110.GA1393@iliana>
-References: <20021209233749.A8008@infradead.org> <Pine.LNX.4.33.0212091651540.2360-100000@maxwell.earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0212091651540.2360-100000@maxwell.earthlink.net>
-User-Agent: Mutt/1.4i
-From: Sven Luther <luther@dpt-info.u-strasbg.fr>
+	id <S263313AbSLJJMW>; Tue, 10 Dec 2002 04:12:22 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:37382 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S263039AbSLJJMU> convert rfc822-to-8bit;
+	Tue, 10 Dec 2002 04:12:20 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5.51] missing config-help
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Tue, 10 Dec 2002 10:02:36 +0100
+Message-ID: <87n0nemekz.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 09, 2002 at 05:04:27PM -0800, James Simmons wrote:
-> 
-> > Linus,
-> >
-> > any chance you could pull James' updates?  He has been sending fbdev updates
-> > that fix known issues with many drivers for a long time but I can't even
-> > remember when you merged it the last time.  Most fbdev drivers are pretty
-> > unusable in mainline without his fixes.
-> >
-> > James,
-> >
-> > could you please provide diffstat output, bk changes -L output and a
-> > unified diff for review of the actual changes?
-> 
-> Diff against latest BK 2.5.50 tree is at
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-Err, could you send also a diff against the 2.5.50 on kernel.org ?
+When using "make oldconfig" moving from 2.5.50 I get:
 
-Friendly,
+> Framebuffer Console support (FRAMEBUFFER_CONSOLE) [N/m/y] (NEW) ?
+>
+> Sorry, no help available for this option yet.
 
-Sven Luther
+Jochen
+
+-- 
+Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

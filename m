@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293236AbSBWWmn>; Sat, 23 Feb 2002 17:42:43 -0500
+	id <S293245AbSBWWmn>; Sat, 23 Feb 2002 17:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293245AbSBWWmd>; Sat, 23 Feb 2002 17:42:33 -0500
-Received: from jalon.able.es ([212.97.163.2]:39904 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S293243AbSBWWmY>;
-	Sat, 23 Feb 2002 17:42:24 -0500
-Date: Sat, 23 Feb 2002 23:42:17 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: rwhron@earthlink.net
-Subject: [PATCHSET] Linux 2.4.18-rc4-jam1
-Message-ID: <20020223234217.C2023@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.1
+	id <S293243AbSBWWme>; Sat, 23 Feb 2002 17:42:34 -0500
+Received: from varenorn.icemark.net ([212.40.16.200]:4003 "EHLO
+	varenorn.internal.icemark.net") by vger.kernel.org with ESMTP
+	id <S293236AbSBWWmY>; Sat, 23 Feb 2002 17:42:24 -0500
+Date: Sat, 23 Feb 2002 23:39:38 +0100 (CET)
+From: Benedikt Heinen <beh@icemark.net>
+X-X-Sender: beh@berenium.icemark.ch
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Thomas Hood <jdthood@mail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17: oops in kapm-idled?   (on IBM Thinkpad A30P [2653-66U])
+In-Reply-To: <E16eQAU-0003de-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202232337300.1435-100000@berenium.icemark.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> > I can't switch off all individual devices in the notebook, but if I
+> > use the prism2 driver from linux-wlan.com, I can't get the full
+> > performance out of it - but just something like ~20kb/s throughput
+> > in ftp  (Win2K gets more than 500kb/s)...
+> What happens if you use the in kernel pcmcia, and the in kernel prism
+> chipset drivers ?
 
-Version for rc4 is out (easy...):
+The in-kernel prism driver doesn't seem to work with the built-in
+wireless lan. But - from what I understand from the Configure.help,
+this is what I'd expect - to me it looks like, linux will support
+prism2 in either PCMCIA or PLX.
+>From the linux-wlan-ng driver, I need to compile "Prism2.5 native
+PCI" to get a driver that will recognize the card...
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.18-rc4-jam1/
 
-Aout reported floppy hangs: I have checked that it hangs even with
-plain 2.4.17, and so have done other people, so I think it is not
-an irqrate-A1 or sched-O1 problem.
+    Benedikt
 
-Nobody uses floppy with 2.4.17 ?
-Common patterns ?
+  BEAUTY, n.  The power by which a woman charms a lover and terrifies a
+    husband.
+			(Ambrose Bierce, The Devil's Dictionary)
 
-Enjoy...
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-rc4-jam1 #1 SMP Sat Feb 23 16:25:56 CET 2002 i686

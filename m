@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129108AbRBCVQO>; Sat, 3 Feb 2001 16:16:14 -0500
+	id <S129225AbRBCVSn>; Sat, 3 Feb 2001 16:18:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129225AbRBCVQE>; Sat, 3 Feb 2001 16:16:04 -0500
-Received: from jalon.able.es ([212.97.163.2]:39159 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129108AbRBCVPx>;
-	Sat, 3 Feb 2001 16:15:53 -0500
-Date: Sat, 3 Feb 2001 21:46:14 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: "H . Peter Anvin" <hpa@transmeta.com>
-Cc: Christoph Rohland <cr@sap.com>, "J . A . Magallon" <jamagallon@able.es>,
-        "H . Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] tmpfs for 2.4.1
-Message-ID: <20010203214614.D923@werewolf.able.es>
-In-Reply-To: <20010123205315.A4662@werewolf.able.es> <m3lmrqrspv.fsf@linux.local> <95csna$vb6$1@cesium.transmeta.com> <m3puh1que4.fsf@linux.local> <20010202215254.C2498@werewolf.able.es> <3A7B1EDC.DA2588BA@transmeta.com> <m3d7d0pwnr.fsf@linux.local> <3A7C69AB.9C7603A8@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A7C69AB.9C7603A8@transmeta.com>; from hpa@transmeta.com on Sat, Feb 03, 2001 at 21:27:23 +0100
-X-Mailer: Balsa 1.1.0
+	id <S130576AbRBCVSe>; Sat, 3 Feb 2001 16:18:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3080 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129225AbRBCVSY>;
+	Sat, 3 Feb 2001 16:18:24 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102032112.f13LC8M19104@flint.arm.linux.org.uk>
+Subject: Re: [BUG?] ISA-PnP and 3c509 NIC won't work together
+To: rosenfel@informatik.hu-berlin.de (Viktor Rosenfeld)
+Date: Sat, 3 Feb 2001 21:12:08 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A7C45E4.15C470A3@informatik.hu-berlin.de> from "Viktor Rosenfeld" at Feb 03, 2001 06:54:44 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Viktor Rosenfeld writes:
+> With ISA-PnP compiled in, and 3c509 support compiled as module:
+> # modprobe 3c509
+> /lib/modules/2.4.1/kernel/drivers/net/3c509.o: invalid parameter parm_io
+> /lib/modules/2.4.1/kernel/drivers/net/3c509.o: insmod
+> /lib/modules/2.4.1/kernel/drivers/net/3c509.o failed
+> /lib/modules/2.4.1/kernel/drivers/net/3c509.o: insmod 3c509 failed
 
-On 02.03 H. Peter Anvin wrote:
-> Christoph Rohland wrote:
-> > 
-> > "H. Peter Anvin" <hpa@transmeta.com> writes:
-> > 
-> > > > Mmmmmm, does this mean that mounting /dev/shm is no more needed ?
-> > > > One step more towards easy 2.2 <-> 2.4 switching...
-> > 
-> > Yes, it is no longer needed. You will need for POSIX shm, but there
-> > are not a lot of program out there using it.
-> > 
-> 
-> Do you need it for POSIX shm or not... if so, I would say you do need it
-> (even if it's going to take some time until POSIX shm becomes widely
-> used.)
-> 
+Silly question, but shouldn't you fix this "invalid parameter parm_io"
+error first?
 
-There was a post recently (that now I can't find), that said the shm
-management was done with an interal fs. Was that Posix or sysv shm ?
+iirc, insmod won't insert modules when you have parameters for missing
+symbols.
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-ac2 #1 SMP Sat Feb 3 10:45:59 CET 2001 i686
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

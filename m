@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265190AbTATBRX>; Sun, 19 Jan 2003 20:17:23 -0500
+	id <S267027AbTATBZy>; Sun, 19 Jan 2003 20:25:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265198AbTATBRX>; Sun, 19 Jan 2003 20:17:23 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:28544 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S265190AbTATBRV>;
-	Sun, 19 Jan 2003 20:17:21 -0500
-Subject: Re: problems with nfs-server in 2.5 bk as of 030115
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15915.20185.976523.595180@charged.uio.no>
-References: <1043012373.7986.94.camel@tux.rsn.bth.se>
-	 <15915.8496.899499.957528@charged.uio.no>
-	 <1043016608.727.0.camel@tux.rsn.bth.se>
-	 <15915.13242.291976.585239@charged.uio.no>
-	 <1043021842.679.1.camel@tux.rsn.bth.se>
-	 <15915.18967.933150.49658@charged.uio.no>
-	 <1043025455.657.1.camel@tux.rsn.bth.se>
-	 <15915.20185.976523.595180@charged.uio.no>
-Content-Type: text/plain
+	id <S267673AbTATBZy>; Sun, 19 Jan 2003 20:25:54 -0500
+Received: from mons.uio.no ([129.240.130.14]:30606 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S267027AbTATBZx>;
+	Sun, 19 Jan 2003 20:25:53 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043025984.657.5.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 20 Jan 2003 02:26:24 +0100
+Message-ID: <15915.21051.365166.964932@charged.uio.no>
+Date: Mon, 20 Jan 2003 02:34:51 +0100
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: problems with nfs-server in 2.5 bk as of 030115
+In-Reply-To: <1043012373.7986.94.camel@tux.rsn.bth.se>
+References: <1043012373.7986.94.camel@tux.rsn.bth.se>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-20 at 02:20, Trond Myklebust wrote:
-> >>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
-> 
->      > Do you have working nfs-server?
-> 
-> Yes (and I see no messages such as the ones you describe)...
+>>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
 
-Can it have anything to do with my .config?
-Anything I should try diffrently?
+     > I've mounted the rpc_pipefs filesystem and the directory
+     > portmap/clntcfac0540 is created. It's empty but created.  It
+     > gets created with 500 as permissions.
 
--- 
-/Martin
+Ah... Can this be the same problem as before? Try this...
 
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+Cheers,
+  Trond
+
+--- linux-2.5.59-00-fix/net/sunrpc/rpc_pipe.c.orig	2003-01-14 16:29:23.000000000 +0100
++++ linux-2.5.59-00-fix/net/sunrpc/rpc_pipe.c	2003-01-20 02:30:38.000000000 +0100
+@@ -549,7 +549,7 @@
+ {
+ 	struct inode *inode;
+ 
+-	inode = rpc_get_inode(dir->i_sb, S_IFDIR | S_IRUSR | S_IXUSR);
++	inode = rpc_get_inode(dir->i_sb, S_IFDIR | S_IRUGO | S_IXUGO);
+ 	if (!inode)
+ 		goto out_err;
+ 	inode->i_ino = iunique(dir->i_sb, 100);

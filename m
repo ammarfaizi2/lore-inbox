@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbTCaTHq>; Mon, 31 Mar 2003 14:07:46 -0500
+	id <S261809AbTCaTYY>; Mon, 31 Mar 2003 14:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261853AbTCaTHp>; Mon, 31 Mar 2003 14:07:45 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39179 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261851AbTCaTHm>; Mon, 31 Mar 2003 14:07:42 -0500
-Date: Mon, 31 Mar 2003 14:14:20 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jeremy Jackson <jerj@coplanar.net>
-cc: Ron House <house@usq.edu.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: hdparm and removable IDE?
-In-Reply-To: <1048860279.1615.13.camel@contact.skynet.coplanar.net>
-Message-ID: <Pine.LNX.3.96.1030331140112.32749A-100000@gatekeeper.tmr.com>
+	id <S261811AbTCaTYX>; Mon, 31 Mar 2003 14:24:23 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:6248 "EHLO
+	dyn9-47-17-83.beaverton.ibm.com") by vger.kernel.org with ESMTP
+	id <S261809AbTCaTYS>; Mon, 31 Mar 2003 14:24:18 -0500
+Message-ID: <3E88920A.BB8987D3@us.ibm.com>
+Date: Mon, 31 Mar 2003 11:07:55 -0800
+From: Janet Morgan <janetmor@us.ibm.com>
+Reply-To: janetmor@us.ibm.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, akpm@digeo.com,
+       suparna@in.ibm.com, linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 2/2] Retry based aio read - filesystem read changes
+References: <20030305144754.A1600@in.ibm.com> <20030305150026.B1627@in.ibm.com> <20030305024254.7f154afc.akpm@digeo.com> <20030305174452.A1882@in.ibm.com> <3E8889B4.FB716506@us.ibm.com> <20030331191123.GB13178@holomorphy.com> <20030331141629.I20730@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Mar 2003, Jeremy Jackson wrote:
+Benjamin LaHaise wrote:
 
-> On Thu, 2003-03-27 at 22:21, Ron House wrote:
-> > Bill Davidsen wrote:
+> On Mon, Mar 31, 2003 at 11:11:23AM -0800, William Lee Irwin III wrote:
+> > Can you tell whether these are due to hash collisions or contention on
+> > the same page?
+>
+> No, they're most likely waiting for io to complete.
+>
+> To clean this up I've got a patch to move from aio_read/write with all the
+> parameters to a single parameter based rw-specific iocb.  That makes the
+> retry for read and write more ameniable to sharing common logic akin to the
+> wtd_ ops, which we need at the very least for the semaphore operations.
+>
+>                 -ben
+>
 
-> > > There was a bunch of discussion of this, possibly on this list, and I
-> > > believe that the whole cable has to be unregistered or some such. I've
-> > > done it with only one drive on a cable, and it seemed to work. On the
-> > > other hand I was only playing.
-> 
-> Yes, the whole cable.  You don't put more than one IDE device on one
-> cable, do you?  IDE TCQ may help performance in those cases (how will
-> IDE bus to disconnect/*reconnect*?) But hot swap will always affect both
-> cables.
+Can you post the patch you're referring to?
 
-Boy I hope that's a typo... I hope you meant both devices on a cable and
-not really both cables on a controller.
+Thanks,
+-Janet
 
-And as for more than one device on a cable, I wouldn't expect hot swap to
-work, but sure I have have a ZIP drive on a cable with a 2nd CD-ROM drive,
-I use ZIP about as often as my cat farts Channel No5, I don't tie up a
-cable for something which may go a year between uses. Don't use the
-standby 16x CD more than a few times a year, either.
-
-The removable drive I did get working was on its own old controller. And
-it worked fine, I copied a fair number of old 420MB drives to CD after
-they came out of machines which might have had something useful. Just in
-case I ever think of something worth a treasure hunt. The drives were
-wiped and used for a software RAID proof of concept project.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

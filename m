@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265806AbSLXUTZ>; Tue, 24 Dec 2002 15:19:25 -0500
+	id <S265815AbSLXUS7>; Tue, 24 Dec 2002 15:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265816AbSLXUTZ>; Tue, 24 Dec 2002 15:19:25 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:35989 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S265806AbSLXUTY>;
-	Tue, 24 Dec 2002 15:19:24 -0500
-Date: Tue, 24 Dec 2002 21:31:11 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	id <S265806AbSLXUS7>; Tue, 24 Dec 2002 15:18:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21000 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265815AbSLXUS7>; Tue, 24 Dec 2002 15:18:59 -0500
+Date: Tue, 24 Dec 2002 12:27:50 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
        Ulrich Drepper <drepper@redhat.com>, <bart@etpmod.phys.tue.nl>,
        <davej@codemonkey.org.uk>, <hpa@transmeta.com>,
-       <terje.eggestad@scali.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
+       <terje.eggestad@scali.com>, <matti.aarnio@zmailer.org>,
        <hugh@veritas.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.4.44.0212241126020.1219-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212242127190.6603-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0212242116290.6603-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0212241225100.1219-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 24 Dec 2002, Linus Torvalds wrote:
 
-> I realized that there is really no reason to use __KERNEL_DS for this,
-> and that as far as the kernel is concerned, the only thing that matters
-> is that it's a flat 32-bit segment. So we might as well make the kernel
-> always load ES/DS with __USER_DS instead, which has the advantage that
-> we can avoid one set of segment loads for the "sysenter/sysexit" case.
+On Tue, 24 Dec 2002, Ingo Molnar wrote:
+>
+> this reminds me of another related matter that is not fixed yet, which bug
+> caused XFree86 to crash if it was linked against the new libpthreads - in
+> vm86 mode we did not save/restore %gs [and %fs] properly, which breaks
+> new-style threading. The attached patch is against the 2.4 backport of the
+> threading stuff, i'll do a 2.5 patch after christmas eve :-)
 
-this basically hardcodes flat segment layout on x86. If anything (Wine?)
-modifies the default segments, it can wrap syscalls by saving/restoring
-the modified %ds and %es selectors explicitly.
+Actually, pretty much nothing has changed in vm86 handling, so the patch
+should work fine as-is on 2.5.x too.
 
-	Ingo
+		Linus
 

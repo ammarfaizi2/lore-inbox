@@ -1,104 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268711AbUJEAXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268717AbUJEAad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268711AbUJEAXh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 20:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268717AbUJEAXg
+	id S268717AbUJEAad (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 20:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUJEAad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 20:23:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7851 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268711AbUJEAXc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 20:23:32 -0400
-Date: Mon, 4 Oct 2004 17:23:17 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: vojtech@suse.cz
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: usblp BKL removal
-Message-ID: <20041004172317.372bc9a9@lembas.zaitcev.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs119.1 (GTK+ 2.4.7; i386-redhat-linux-gnu)
+	Mon, 4 Oct 2004 20:30:33 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:45193 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268717AbUJEAab
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 20:30:31 -0400
+Date: Tue, 5 Oct 2004 02:28:14 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH 2.6.9-rc3] Fix 'htmldocs' and friends with O=
+Message-ID: <20041005002814.GA32087@thundrix.ch>
+References: <20041004233958.GD32692@smtp.west.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Content-Disposition: inline
+In-Reply-To: <20041004233958.GD32692@smtp.west.cox.net>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Vojtech,
 
-the appended patch is not in yet, what gives? I sent it to Marcelo with
-an understanding that it would be in Linus tree any day now. It was a couple
-of months ago. It's not just BKL witchhunt either. I remember that it fixed
-an oops, although I do not remember the precise scenario by now (it had
-something to do with a race between ->release and ->disconnect).
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- Pete
+Salut,
 
---- linux-2.6.9-rc3-mm2/drivers/usb/class/usblp.c	2004-10-04 16:59:42.849589554 -0700
-+++ linux-2.6.9-rc3-mm2-usblp/drivers/usb/class/usblp.c	2004-10-04 17:15:42.983282509 -0700
-@@ -222,6 +222,7 @@
- 
- /* forward reference to make our lives easier */
- static struct usb_driver usblp_driver;
-+static DECLARE_MUTEX(usblp_sem);	/* locks the existence of usblp's */
- 
- /*
-  * Functions for usblp control messages.
-@@ -343,7 +344,7 @@
- 	if (minor < 0)
- 		return -ENODEV;
- 
--	lock_kernel();
-+	down (&usblp_sem);
- 
- 	retval = -ENODEV;
- 	intf = usb_find_interface(&usblp_driver, minor);
-@@ -389,7 +390,7 @@
- 		}
- 	}
- out:
--	unlock_kernel();
-+	up (&usblp_sem);
- 	return retval;
- }
- 
-@@ -415,13 +416,13 @@
- {
- 	struct usblp *usblp = file->private_data;
- 
--	down (&usblp->sem);
-+	down (&usblp_sem);
- 	usblp->used = 0;
- 	if (usblp->present) {
- 		usblp_unlink_urbs(usblp);
--		up(&usblp->sem);
- 	} else 		/* finish cleanup from disconnect */
- 		usblp_cleanup (usblp);
-+	up (&usblp_sem);
- 	return 0;
- }
- 
-@@ -1149,8 +1150,8 @@
- 		BUG ();
- 	}
- 
-+	down (&usblp_sem);
- 	down (&usblp->sem);
--	lock_kernel();
- 	usblp->present = 0;
- 	usb_set_intfdata (intf, NULL);
- 
-@@ -1159,12 +1160,11 @@
- 			usblp->writebuf, usblp->writeurb->transfer_dma);
- 	usb_buffer_free (usblp->dev, USBLP_BUF_SIZE,
- 			usblp->readbuf, usblp->readurb->transfer_dma);
-+	up (&usblp->sem);
- 
- 	if (!usblp->used)
- 		usblp_cleanup (usblp);
--	else 	/* cleanup later, on release */
--		up (&usblp->sem);
--	unlock_kernel();
-+	up (&usblp_sem);
- }
- 
- static struct usb_device_id usblp_ids [] = {
+On Mon, Oct 04, 2004 at 04:39:58PM -0700, Tom Rini wrote:
+> --- linux-2.6.9-rc3.orig/scripts/kernel-doc
+> +++ linux-2.6.9-rc3/scripts/kernel-doc
+> @@ -1531,7 +1531,7 @@ sub process_state3_type($$) {=20
+>  }
+> =20
+>  sub process_file($) {
+> -    my ($file) =3D @_;
+> +    my ($file) =3D "$ENV{'SRCTREE'}@_";
+>      my $identifier;
+>      my $func;
+>      my $initial_section_counter =3D $section_counter;
+
+=46rom performance/memory footprint standpoint it might be better to use
+the dot operator here for concatenation.
+
+			Tonnerre
+
+--GvXjxJ+pjyke8COw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBYeqd/4bL7ovhw40RAuzAAJ0QGqJbm7hGnxea3nVmbIZAFWaKtgCeOOP4
+7DaSLlubTcEYN1//kdnu0ls=
+=D7B5
+-----END PGP SIGNATURE-----
+
+--GvXjxJ+pjyke8COw--

@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282805AbRLGL4W>; Fri, 7 Dec 2001 06:56:22 -0500
+	id <S282838AbRLGMNh>; Fri, 7 Dec 2001 07:13:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285465AbRLGL4N>; Fri, 7 Dec 2001 06:56:13 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:10252 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S282805AbRLGLzw>;
-	Fri, 7 Dec 2001 06:55:52 -0500
-Date: Fri, 7 Dec 2001 12:55:30 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: m.luca@iname.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.17-pre5
-Message-Id: <20011207125530.40a13b87.skraw@ithnet.com>
-In-Reply-To: <23818.1007696586@kao2.melbourne.sgi.com>
-In-Reply-To: <200112070012.BAA24810@webserver.ithnet.com>
-	<23818.1007696586@kao2.melbourne.sgi.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S282839AbRLGMN2>; Fri, 7 Dec 2001 07:13:28 -0500
+Received: from atm42.mobile.de ([212.12.52.53]:61194 "EHLO ATM42.mobile.de")
+	by vger.kernel.org with ESMTP id <S282838AbRLGMNK> convert rfc822-to-8bit;
+	Fri, 7 Dec 2001 07:13:10 -0500
+Subject: Re: 2.5.1-pre6 compilation errors
+From: Falk Stern <f.stern@mobile.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.NEB.4.43.0112071237020.726-100000@mimas.fachschaften.tu-muenchen.de>
+In-Reply-To: <Pine.NEB.4.43.0112071237020.726-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 07 Dec 2001 12:59:57 +0100
+Message-Id: <1007726397.16834.2.camel@ridcully>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Dec 2001 14:43:06 +1100
-Keith Owens <kaos@ocs.com.au> wrote:
-
-> On Fri, 07 Dec 2001 01:12:53 +0100, 
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
-> >BTW, for the further ongoing of this patch, I ran into the question if
-> >                                                                      
-> >MODULE_PARM(type, "1-(16)i");                                         
-> >                                                                      
-> >would be a valid statement. I guess not. But if not, could some kind  
-> >soul please explain to me how to get rid of the braces "(" ")" given  
-> >in definitions from CONFIG stuff.                                     
-> >                                                                      
-> >E.g.:                                                                 
-> >                                                                      
-> >CONFIG_ME_BEING_DUMB (16)                                             
+On Fri, 2001-12-07 at 12:40, Adrian Bunk wrote:
+> On 7 Dec 2001, Falk Stern wrote:
+> > Just tried to compile a vanilla 2.5.1-pre6 and got following errors:
+> > (while doing "make dep clean bzImage modules modules_install" )
+> >...
+> > drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
+> > in discarded section .text.exit'
+> > drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in
+> > discarded section .text.exit'
+> > make: *** [vmlinux] Error 1
+> >...
+> > # ld -V
+> > GNU ld version 2.11.92.0.12.3 20011121 Debian/GNU Linux
+> >...
 > 
-> Don't do that.  CONFIG numbers are expected to be plain numbers, not
-> expressions, e.g. CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16, not (16).
-> Given the fragility of CML1 I would not be surprised if (16) broke some
-> of the shell scripts.
+> this is a known bug in the kernel that shows up with the latest binutils
+> packages in Debian unstable. As a workaround you can downgrade your
+> binutils to the 2.11.92.0.10-4 package in Debian testing (you can
+> download it from [1] if don't have it any more).
 
-Huh!!
+ok, "apt-get install binutils=2.11.92.0.10-4" did the job.
 
-There is a problem: I made a (really small) patch to Config.in saying:
+Thanks a lot
 
-   int  '  Maximum number of cards supported by HiSax' CONFIG_HISAX_MAX_CARDS 8
+Falk
 
-If I check this in the source, it gives me CONFIG_HISAX_MAX_CARDS as (8)
+-- 
+Mit freundlichen Grüßen
+Ihr mobile.de Team
 
-Can you check this out please. It doesn't look like I could do anything against
-this.
-How do you make your CONFIG-definitions come back without "()" ?
+Falk Stern
+Technik - Systemadministration
 
-Regards,
-Stephan
+mobile.de GmbH
+Bueschstr. 7 - D-20354 Hamburg
+Tel.: +49 (0) 40/879 77-414
+Fax:  +49 (0) 40/43 18 23-55
+Web: http://www.mobile.de
+

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265919AbUATC6L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 21:58:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265169AbUATAAg
+	id S265366AbUATCcR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 21:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUATC2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 19:00:36 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13996 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264961AbUASX74 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 18:59:56 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.1
-In-Reply-To: <10745567592337@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 19 Jan 2004 15:59:20 -0800
-Message-Id: <10745567602050@kroah.com>
+	Mon, 19 Jan 2004 21:28:55 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:36560 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265338AbUATCZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 21:25:29 -0500
+Date: Mon, 19 Jan 2004 18:24:52 -0800
+To: Jack Steiner <steiner@sgi.com>
+Cc: mbligh@aracnet.com, jes@trained-monkey.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] increse MAX_NR_MEMBLKS to same as MAX_NUMNODES on NUMA
+Message-ID: <20040120022452.GA27294@sgi.com>
+Mail-Followup-To: Jack Steiner <steiner@sgi.com>, mbligh@aracnet.com,
+	jes@trained-monkey.org, linux-kernel@vger.kernel.org
+References: <E1AiZ5h-00043I-00@jaguar.mkp.net> <4990000.1074542883@[10.10.2.4]> <20040119224535.GA12728@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040119224535.GA12728@sgi.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1474.98.6, 2004/01/14 11:13:34-08:00, khali@linux-fr.org
+On Mon, Jan 19, 2004 at 04:45:35PM -0600, Jack Steiner wrote:
+> On Mon, Jan 19, 2004 at 12:08:04PM -0800, Martin J. Bligh wrote:
+> > > Since we now support # of CPUs > BITS_PER_LONG with cpumask_t it would
+> > > be nice to be able to support more than BITS_PER_LONG memory blocks.
+> > 
+> > Nothing uses them. We're probably better off just removing them altogether.
+> 
+> I dont understand.
+> node_memblk[] is used on IA64 in arch/ia64/mm/discontig.c (& other places too).
 
-[PATCH] I2C: saa7146.h doesn't need i2c.h
+I think Martin is referring to the memblk_*line() functions and the fact
+that memblks are exported via sysfs to userspace.  That API hasn't
+proven very useful so far since it's really waiting for memory hot
+add/remove.  Of course, we'll still need structures to support that for
+the low level arch specific discontig code, so any patch that killed
+memblks in sysfs and elsewhere would have to take that into account...
+(In particular, node_memblk[] is filled out by the ACPI SRAT parsing
+code and use for discontig init and physical->node id conversion.)
 
-
- drivers/media/video/saa7146.h |    1 -
- 1 files changed, 1 deletion(-)
-
-
-diff -Nru a/drivers/media/video/saa7146.h b/drivers/media/video/saa7146.h
---- a/drivers/media/video/saa7146.h	Mon Jan 19 15:32:24 2004
-+++ b/drivers/media/video/saa7146.h	Mon Jan 19 15:32:24 2004
-@@ -25,7 +25,6 @@
- #include <linux/types.h>
- #include <linux/wait.h>
- 
--#include <linux/i2c.h>
- #include <linux/videodev.h>
- 
- #ifndef O_NONCAP  
-
+Jesse

@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265007AbUFVQIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUFVQMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265007AbUFVQIm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 12:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbUFVQIM
+	id S264911AbUFVQMK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 12:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUFVP3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 12:08:12 -0400
-Received: from s1-p135.svorka.net ([194.19.72.135]:13956 "EHLO
-	mandrake.eldiablo.tk") by vger.kernel.org with ESMTP
-	id S264973AbUFVQFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 12:05:38 -0400
-Message-ID: <40D858D0.6080803@svorka.net>
-Date: Tue, 22 Jun 2004 18:05:36 +0200
-From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
-Reply-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040612)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: What Schedulers give best performance?]
-References: <40D851BA.1050305@svorka.net>
-In-Reply-To: <40D851BA.1050305@svorka.net>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 22 Jun 2004 11:29:13 -0400
+Received: from holomorphy.com ([207.189.100.168]:40067 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264896AbUFVPRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 11:17:35 -0400
+To: linux-kernel@vger.kernel.org
+From: William Lee Irwin III <wli@holomorphy.com>
+Subject: [profile]: [12/23] ppc64 profiling cleanups
+Message-ID: <0406220817.YaIbJb2a2aYaIbZaJbKb3a1a0aZaXa0aIb0aLbIbLbKbZa4aYa5aYaWaXa4a4aHb15250@holomorphy.com>
+In-Reply-To: <0406220817.3a5aKbLb3aXa0aYa0aKb4aMbYaIbKbIb3aMb0aLbLbJbKb1aYaJbKbXa5a3a0a5a15250@holomorphy.com>
+CC: rddunlap@osdl.org
+Date: Tue, 22 Jun 2004 08:17:09 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Espen Fjellvær Olsen wrote:
+Convert ppc64 to use profiling_on() and profile_tick().
 
-> In the recent past, there has been released many new types of both 
-> disk and cpu schedulers, i wonder wich of them i should use to get best
-> performance on my desktop system?
-> Nickshed v30g, or maybe staircase 7.1, or spa, hudra, hybrid and so on,
-> those are all quite new IO schedulers.
-> Also there has been som new releases of the CFQ cpu scheduler, and som
-> addons to this, cfq-ionice and so on.
->
-> What scheduler combination do you use?
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-It should be the other way round, don't know why i called CFQ an cpu 
-scheduler and nickshed a disk scheduler.
-Must have had an hard day at work ;)
+Index: prof-2.6.7/arch/ppc64/kernel/time.c
+===================================================================
+--- prof-2.6.7.orig/arch/ppc64/kernel/time.c	2004-06-15 22:20:03.000000000 -0700
++++ prof-2.6.7/arch/ppc64/kernel/time.c	2004-06-22 07:25:53.213073552 -0700
+@@ -112,36 +112,16 @@
+  */
+ static inline void ppc64_do_profile(struct pt_regs *regs)
+ {
+-	unsigned long nip;
+ 	extern unsigned long prof_cpu_mask;
+ 
+ 	profile_hook(regs);
+ 
+-	if (user_mode(regs))
+-		return;
+-
+-	if (!prof_buffer)
+-		return;
+-
+-	nip = instruction_pointer(regs);
+-
+ 	/*
+ 	 * Only measure the CPUs specified by /proc/irq/prof_cpu_mask.
+ 	 * (default is all CPUs.)
+ 	 */
+-	if (!((1<<smp_processor_id()) & prof_cpu_mask))
+-		return;
+-
+-	nip -= (unsigned long)_stext;
+-	nip >>= prof_shift;
+-	/*
+-	 * Don't ignore out-of-bounds EIP values silently,
+-	 * put them into the last histogram slot, so if
+-	 * present, they will show up as a sharp peak.
+-	 */
+-	if (nip > prof_len-1)
+-		nip = prof_len-1;
+-	atomic_inc((atomic_t *)&prof_buffer[nip]);
++	if (!user_mode(regs) && ((1<<smp_processor_id()) & prof_cpu_mask))
++		profile_tick(instruction_pointer(regs));
+ }
+ 
+ static __inline__ void timer_check_rtc(void)

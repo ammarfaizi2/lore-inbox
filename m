@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317415AbSIELOA>; Thu, 5 Sep 2002 07:14:00 -0400
+	id <S317458AbSIEL1I>; Thu, 5 Sep 2002 07:27:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317422AbSIELOA>; Thu, 5 Sep 2002 07:14:00 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:145 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S317415AbSIELN7>; Thu, 5 Sep 2002 07:13:59 -0400
-Date: Thu, 5 Sep 2002 12:17:17 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: Hirokazu Takahashi <taka@valinux.co.jp>, hpa@zytor.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: TCP Segmentation Offloading (TSO)
-Message-ID: <20020905121717.A15540@kushida.apsleyroad.org>
-References: <20020905.111326.68164898.taka@valinux.co.jp> <Pine.LNX.4.33.0209051219000.21098-100000@gra-lx1.iram.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0209051219000.21098-100000@gra-lx1.iram.es>; from paubert@iram.es on Thu, Sep 05, 2002 at 12:28:23PM +0200
+	id <S317462AbSIEL1I>; Thu, 5 Sep 2002 07:27:08 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:49536 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317458AbSIEL1H>; Thu, 5 Sep 2002 07:27:07 -0400
+Date: Thu, 5 Sep 2002 07:33:12 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Hell.Surfers@cwctv.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: problem:linux can not see contents of two vfat folders.
+In-Reply-To: <061a81222020592DTVMAIL6@smtp.cwctv.net>
+Message-ID: <Pine.LNX.3.95.1020905072426.4693A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
-> Now that is grossly inefficient ;-) since you can save one instruction by
-> moving roll after adcl (hand edited partial patch hunk, won't apply):
+On Thu, 5 Sep 2002 Hell.Surfers@cwctv.net wrote:
 
-Yes but is it _faster_? :-)
+> My new redmond linux amethyst edition cannot read the contents of
+> the windows and program files folders, there are no errors on the
+> fat 32 partition with 16 KBsectors, the partition is just over
+> 14 gig and is primary, so is the other ext3 partition, i use os
+> selector, and have noidea why they appear empty, other folders have
+> their contents visible, im using kernel 2.4.12 with kde 2.2.2 .
+> Thanks for any help you can offer.
+> 
+> 
 
-I've been doing some PPro assembly lately, and I'm reminded that
-sometimes inserting instructions can reduce the timing by up to 8 cycles
-or so.
+Under Unix/Linux, we use some sort of end-of-line indicator embedded
+into text so all the characters don't pile up on the right-hand side
+of the screen. Of course, Windows doesn't bother, which  is why
+you need the 14 Gb just to hold all the white-space in a text file.
 
--- Jamie
+Also, there is no such thing as a "folder" in any Operating System.
+Folder-like icons are display artifacts. Perhaps you mean "directory"?
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

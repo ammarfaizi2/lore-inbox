@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbTK1KrY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 05:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTK1KrY
+	id S262116AbTK1Kyk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 05:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTK1Kyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 05:47:24 -0500
-Received: from main.gmane.org ([80.91.224.249]:19879 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262114AbTK1KrW (ORCPT
+	Fri, 28 Nov 2003 05:54:40 -0500
+Received: from mail.skjellin.no ([80.239.42.67]:65195 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S262116AbTK1Kyj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 05:47:22 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+	Fri, 28 Nov 2003 05:54:39 -0500
 Subject: Re: Strange behavior observed w.r.t 'su' command
-Date: Fri, 28 Nov 2003 11:47:20 +0100
-Message-ID: <yw1x65h43h3b.fsf@kth.se>
-References: <3FC707B6.1070704@mailandnews.com> <jeoeuw7pf7.fsf@sykes.suse.de>
+From: Andre Tomt <lkml@tomt.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031128105750.GA5777@cambrant.com>
+References: <3FC707B6.1070704@mailandnews.com> <yw1xekvs3lbt.fsf@kth.se>
+	 <20031128105750.GA5777@cambrant.com>
+Content-Type: text/plain
+Message-Id: <1070016863.29981.28.camel@slurv.pasop.tomt.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:7CGs1Sg1TBF141h/5tD+Ig1iP9Y=
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 28 Nov 2003 11:54:23 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab <schwab@suse.de> writes:
+On Fri, 2003-11-28 at 11:57, Tim Cambrant wrote:
+> On Fri, Nov 28, 2003 at 10:15:50AM +0100, M?ns Rullg?rd wrote:
+> > I can't reproduce it on Slackware running 2.6.0-test10.  It's probably
+> > a redhat thing.
+> 
+> This problem also appears on Gentoo 1.4 running 2.6.0-test11. I don't
+> know about the rest of the environment, but it's definately not just
+> a RedHat thing. Could it have something to do with some library-version
+> or something?
 
->> hi, i am not sure if this is a kernel problem or an 'su' related issue,
->> but this is what  i have observed. Tried on 2.4.20-8 ( RH 9.0 kernel ) and
->> latest 2.6.0-test11.
->>
->> - log in as any normal user. ( on Console.).
->> - su - root
->> - from root prompt, run 'ps' and check the pid of 'su'.
->> - kill -9 <pid of su>
->> After the kill command, strangely my keyboard switches to unbuffered mode
->> ( a key press is processed immediately ). Also, i alternate between the
->> root prompt and the normal user prompt.
->> Every key press switches from root prompt to normal user prompt and vice
->> versa. Typing 'whoami' at the respective prompts displays 'normal user'
->> and 'root' for the respective prompts.
->
-> Nothing unusual, you just have two shells competing with each other on the
-> terminal.  Don't use kill -9 unless you know what you are doing.
+For whatever it's worth, I can't reproduce this on a Debian Sid system
+with kernel version 2.4.23-rc1. I guess RH/Gentoo isn't killing off the
+forked shell when su dies brutally, leaving the root shell and the user
+shell fighting for the terminal.
 
-It appears that my su exec()s the shell, whereas the redhat and gentoo
-su fork() and exec().
-
--- 
-Måns Rullgård
-mru@kth.se
 

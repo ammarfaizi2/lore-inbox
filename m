@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275270AbTHGKJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 06:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275273AbTHGKJ6
+	id S275287AbTHGKQH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 06:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275289AbTHGKQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 06:09:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35018 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S275270AbTHGKJR (ORCPT
+	Thu, 7 Aug 2003 06:16:07 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:8936 "EHLO dns.toxicfilms.tv")
+	by vger.kernel.org with ESMTP id S275287AbTHGKQD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 06:09:17 -0400
-Date: Thu, 7 Aug 2003 12:09:03 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: cb-lkml@fish.zetnet.co.uk, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Disk priority dependend on nice level...
-Message-ID: <20030807100903.GH858@suse.de>
-References: <20030806232810.GA1623@elf.ucw.cz> <20030807055754.GP7982@suse.de> <20030807100104.GA166@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030807100104.GA166@elf.ucw.cz>
+	Thu, 7 Aug 2003 06:16:03 -0400
+Date: Thu, 7 Aug 2003 12:16:01 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+Subject: [OT] Re: Euro-English
+In-Reply-To: <20030806231403.GF1380@pegasys.ws>
+Message-ID: <Pine.LNX.4.51.0308071159280.32494@dns.toxicfilms.tv>
+References: <20030805233308.GD928@matchmail.com> <200308052014.31133.gene.heskett@verizon.net>
+ <Pine.LNX.4.51.0308061115400.16005@dns.toxicfilms.tv> <20030806231403.GF1380@pegasys.ws>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07 2003, Pavel Machek wrote:
-> Hi!
-> 
-> > > I ported `subj` to 2.6.0-test2. I do not yet have idea if it works,
-> > > but it compiles ;-).
-> > 
-> > This wont do much, you might as well forget it. Disk priorities is far
-> > more work than you appear to think :)
-> 
-> This was not my patch, I only ported it.
-> 
-> I'm not heading for "perfect" disk priorities (not now :-), but having
-> something with at least measurable effect would be nice.
-> 
-> For a start "niced processes get starved during I/O" should do the
-> trick. (And it would help my lingvistics workloads).
+> > And people who know english and bad english tend to use bad english.
+>
+> As you have just done ;)
+>
+> I also disagree.  Many in Europe speak English much better
+> than those born to it.
+Yes, but try going skiing to the Alps. Checkout French, Austrian, Italian
+side glaciers. And try to get any response more correct than "we pipl buys
+tickets, ski lift not works", and so on.
 
-Well it just cannot work in any sort of useful way like this, I think
-the patch is pretty useless...
+Ask "do you speak english?", and get "no".
 
--- 
-Jens Axboe
+Maybe I am exagerating, but decent english was hard to find during my
+trips. I was better off using german.
 
+When I once heard a Swiss and an Italian agree that bad english
+rules I felt daunted. I am certainly no top-flight english speaker, but
+that amazed me. I also realize that in around universities people tend to
+know english better. But my view on using english to talk to people i meet
+is that I'd better use it
+
+Disclaimer:
+My opinions are my hamster's opinions, so blame him as the source of all
+evil and take all of this with a grain of salt :-)
+
+Regards,
+Maciej

@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbTDKSIj (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDKSIj (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:08:39 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:5133 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261312AbTDKSIi (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 14:08:38 -0400
-Date: Fri, 11 Apr 2003 19:20:18 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [FBDEV updates] Newest framebuffer fixes.
-In-Reply-To: <20030411033426.GA13930@triplehelix.org>
-Message-ID: <Pine.LNX.4.44.0304111919470.26995-100000@phoenix.infradead.org>
+	id S261364AbTDKSEI (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbTDKSEI (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:04:08 -0400
+Received: from smtp.terra.es ([213.4.129.129]:28378 "EHLO tfsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S261364AbTDKSDD convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 14:03:03 -0400
+From: LPOEZDOMINGUEZ <LPOEZDOMINGUEZ@teleline.es>
+To: linux-kernel@vger.kernel.org
+Message-ID: <10a3a11878.1187810a3a@teleline.es>
+Date: Fri, 11 Apr 2003 20:14:42 +0200
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Language: es
+Subject: problema
+X-Accept-Language: es
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> The kernel is still building, I will see what happens...
-> 
-> On 2.5.67-mm1 without the fbdev.diff, the computer would boot and not go
-> into fb mode at all. It would just hang there. So I'm trying this now.
-> Hope it works :)
-
-I applied those patches. Does it work now?
+Este es el mensaje que me da al instalar Red Hat 8.0.
+¿Qué tengo que hacer?
+Gracias
+ 
+(Mi ordenador es un AMD Athlon XP 2200)
 
 

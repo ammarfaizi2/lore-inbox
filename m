@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311848AbSCTRJy>; Wed, 20 Mar 2002 12:09:54 -0500
+	id <S311862AbSCTRSE>; Wed, 20 Mar 2002 12:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311844AbSCTRJe>; Wed, 20 Mar 2002 12:09:34 -0500
-Received: from 208-59-250-172.c3-0.smr-ubr1.sbo-smr.ma.cable.rcn.com ([208.59.250.172]:51072
-	"EHLO bradm.net") by vger.kernel.org with ESMTP id <S311843AbSCTRJW>;
-	Wed, 20 Mar 2002 12:09:22 -0500
-Date: Wed, 20 Mar 2002 12:08:39 -0500
-From: Bradley McLean <brad@bradm.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bradley McLean <bradlist@bradm.net>, linux-kernel@vger.kernel.org
-Subject: Re: Hard hang on 3Ware7850, Dual AthlonMP, Tyan2462
-Message-ID: <20020320120839.A7530@nia.bradm.net>
-In-Reply-To: <20020320111840.A7078@nia.bradm.net> <E16njGB-0002ku-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S311863AbSCTRRz>; Wed, 20 Mar 2002 12:17:55 -0500
+Received: from inti.inf.utfsm.cl ([146.83.198.3]:59812 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S311862AbSCTRRk>;
+	Wed, 20 Mar 2002 12:17:40 -0500
+Date: Wed, 20 Mar 2002 12:17:13 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+Message-Id: <200203201617.g2KGHDkZ009635@tigger.valparaiso.cl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.19-pre3-ac3 compile failure
+Cc: Alan.Cox@linux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) [020320 11:34]:
-> 
-> Ok thats the fourth report of this 3ware + 2462 SMP only breakage
-> 
-> > Anyone with suggestions, or test cases?
-> 
-> Apparently if you swap the Tyan for something like the ASUS dual athlon
-> board it works. Dunno if its hardware, bios or software.
-
-Thanks, Alan.  Anybody out there with the ASUS dual board who can send
-me your bootlog (I'm primarily interested in the processor and APIC init
-sections, digging for clues by comparing).
-
--Brad
-
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  -DKBUILD_BASENAME=pppoe  -c -o pppoe.o pppoe.c
+pppoe.c: In function `pppoe_flush_dev':
+pppoe.c:282: `PPPOX_ZOMBIE' undeclared (first use in this function)
+pppoe.c:282: (Each undeclared identifier is reported only once
+pppoe.c:282: for each function it appears in.)
+pppoe.c: In function `pppoe_disc_rcv':
+pppoe.c:446: `PPPOX_ZOMBIE' undeclared (first use in this function)
+pppoe.c: In function `pppoe_ioctl':
+pppoe.c:730: `PPPOX_ZOMBIE' undeclared (first use in this function)
+make[2]: *** [pppoe.o] Error 1

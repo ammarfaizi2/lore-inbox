@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266339AbUHGIgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUHGIir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266339AbUHGIgX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 04:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUHGIgX
+	id S266345AbUHGIir (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 04:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUHGIir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 04:36:23 -0400
-Received: from holomorphy.com ([207.189.100.168]:6099 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266339AbUHGIgT (ORCPT
+	Sat, 7 Aug 2004 04:38:47 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:56795 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266345AbUHGIip (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 04:36:19 -0400
-Date: Sat, 7 Aug 2004 01:36:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       "Seth, Rohit" <rohit.seth@intel.com>
-Subject: Re: Hugetlb demanding paging for -mm tree
-Message-ID: <20040807083613.GZ17188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	"Seth, Rohit" <rohit.seth@intel.com>
-References: <20040805133637.GG14358@holomorphy.com> <200408051340.i75De0Y26517@unix-os.sc.intel.com>
+	Sat, 7 Aug 2004 04:38:45 -0400
+Date: Sat, 7 Aug 2004 10:38:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Stefan Meyknecht <sm0407@nurfuerspam.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
+Message-ID: <20040807083835.GA24860@suse.de>
+References: <200408061833.30751.sm0407@nurfuerspam.de> <20040806220654.5e857bed.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408051340.i75De0Y26517@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040806220654.5e857bed.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 06:39:59AM -0700, Chen, Kenneth W wrote:
-> +static void scrub_one_pmd(pmd_t * pmd)
-> +{
-> +	struct page *page;
-> +
-> +	if (pmd && !pmd_none(*pmd) && !pmd_huge(*pmd)) {
-> +		page = pmd_page(*pmd);
-> +		pmd_clear(pmd);
-> +		dec_page_state(nr_page_table_pages);
-> +		page_cache_release(page);
-> +	}
-> +}
+On Fri, Aug 06 2004, Andrew Morton wrote:
+> Stefan Meyknecht <sm0407@nurfuerspam.de> wrote:
+> >
+> > [PATCH] cdrom: MO-drive open write fix
+> > 
+> > Allow mounting mo-drives readwrite.
+> > 
+> > Please apply.
+> > 
+> > Stefan
+> > 
+> > 
+> > --- linux/drivers/cdrom/cdrom.c.orig	2004-08-06 18:04:16.269803330 +0200
+> > +++ linux/drivers/cdrom/cdrom.c	2004-08-06 18:04:33.570828588 +0200
+> > @@ -899,7 +899,7 @@ int cdrom_open(struct cdrom_device_info 
+> >  			ret = -EROFS;
+> >  			if (cdrom_open_write(cdi))
+> >  				goto err;
+> > -			if (!CDROM_CAN(CDC_RAM))
+> > +			if (!CDROM_CAN(CDC_RAM) && !CDROM_CAN(CDC_MO_DRIVE))
+> >  				goto err;
+> >  			ret = 0;
+> >  		}
+> 
+> I forwarded this to Jens last time you sent it and he said "Not really,
+> CDC_RAM is an umbrella that should already cover these devices.  I'll reply
+> to him."
+> 
+> So...  could you describe the actual bug which you're seeing - maybe
+> there's some different fix which we need.
 
-This is needed because we're only freeing pagetables at pgd granularity
-at munmap() -time. It makes more sense to refine it to pmd granularity
-instead of this cleanup pass, as it's a memory leak beyond just hugetlb
-data structure corruption.
+Sorry, guess I forgot to reply on linux-kernel. What I mean is that MO
+drives should just have CDC_RAM set - it doesn't denote a specific
+device type, rather just the ability to work like a hard drive. If you
+could look into why that isn't set for your mo device and send a patch
+for that, it would be much better.
 
-I wonder why this bugfix was rolled into the demand paging patch instead
-of shipped separately. And for that matter, this fix applies to mainline.
+Jens
 
-
-On Thu, Aug 05, 2004 at 06:39:59AM -0700, Chen, Kenneth W wrote:
-> +int
-> +handle_hugetlb_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
-> +	unsigned long addr, int write_access)
-> +{
-> +	hugepte_t *pte;
-> +	struct page *page;
-> +	struct address_space *mapping;
-> +	int idx, ret;
-
-Well, to go along with the general theme of this, using a hugepte_t
-type and macros in generic code trivially defined to normal pte bits
-for other arches could easily consolidate this fault handler with the
-others. Of course, this much consolidation makes some rather limiting
-assumptions that will either prevent other improvements or have to be
-partially undone for other improvements.
-
-
--- wli

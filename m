@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSE2UhR>; Wed, 29 May 2002 16:37:17 -0400
+	id <S315463AbSE2UiG>; Wed, 29 May 2002 16:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315463AbSE2UhQ>; Wed, 29 May 2002 16:37:16 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:51593 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S313898AbSE2UhP>; Wed, 29 May 2002 16:37:15 -0400
-Date: Wed, 29 May 2002 15:37:15 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Frank Davis <fdavis@si.rr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.19 : 'make dep' error
-In-Reply-To: <Pine.LNX.4.33.0205291611040.8639-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0205291528160.9971-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315468AbSE2UiE>; Wed, 29 May 2002 16:38:04 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58266
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S315463AbSE2UiB>; Wed, 29 May 2002 16:38:01 -0400
+Date: Wed, 29 May 2002 13:37:58 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Missing include in drivers/base/bus.c and drivers/pci/pci-driver.c
+Message-ID: <20020529203758.GT5997@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 May 2002, Frank Davis wrote:
+drivers/base/bus.c and drivers/pci/pci-driver.c both have functions
+which are marked with __init, but didn't include <linux/init.h> directly.
+The following fixes that (and allows 2.5.19 to compile on PPC32).
 
-> make[1]: Entering directory `/usr/src/linux/scripts'
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o split-include split-include.c
-> In file included from /usr/include/linux/errno.h:4,
->                  from /usr/include/bits/errno.h:25,
->                  from /usr/include/errno.h:36,
->                  from split-include.c:26:
-> /usr/include/asm/errno.h:4:31: asm-generic/errno.h: No such file or directory
-> make[1]: *** [split-include] Error 1
-> make[1]: Leaving directory `/usr/src/linux/scripts'
-> make: *** [scripts/mkdep] Error 2
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
-Uh-oh, your system doesn't build user space applications (that's not even 
-kernel specific). I suppose you have a symlink from /usr/include/asm
-to /usr/src/linux/include/asm? Ask google why that is not a good idea - 
-well, actually, you have the answer right there ;-)
-
-The kernel asm-i386/errno.h was changed to just include
-asm-generic/errno.h in 2.5.19. Unfortunately, due to the symlink, your
-userspace includes the kernel asm/errno.h, which now points to the (for 
-userspace non existing) asm-generic/errno.h - bad luck.
-
-So fix your setup to not use symlinks, or, at least, put an older kernel 
-back into /usr/src/linux and compile the new kernels elsewhere.
-
---Kai
-
-
+===== drivers/base/bus.c 1.4 vs edited =====
+--- 1.4/drivers/base/bus.c	Tue May 28 11:35:01 2002
++++ edited/drivers/base/bus.c	Wed May 29 13:30:05 2002
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/stat.h>
++#include <linux/init.h>
+ #include "base.h"
+ 
+ static LIST_HEAD(bus_driver_list);
+===== drivers/pci/pci-driver.c 1.5 vs edited =====
+--- 1.5/drivers/pci/pci-driver.c	Tue May 28 18:02:33 2002
++++ edited/drivers/pci/pci-driver.c	Wed May 29 13:32:06 2002
+@@ -5,6 +5,7 @@
+ 
+ #include <linux/pci.h>
+ #include <linux/module.h>
++#include <linux/init.h>
+ 
+ /*
+  *  Registration of PCI drivers and handling of hot-pluggable devices.

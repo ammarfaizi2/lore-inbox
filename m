@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264882AbUD2QvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264883AbUD2QxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264882AbUD2QvT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 12:51:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUD2QvT
+	id S264883AbUD2QxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 12:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUD2QxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 12:51:19 -0400
-Received: from pirx.hexapodia.org ([65.103.12.242]:2662 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S264882AbUD2QvR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 12:51:17 -0400
-Date: Thu, 29 Apr 2004 11:51:16 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marc Singer <elf@buici.com>, riel@redhat.com, brettspamacct@fastclick.com,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org
+	Thu, 29 Apr 2004 12:53:15 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:31971 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264883AbUD2QxN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 12:53:13 -0400
+Date: Thu, 29 Apr 2004 09:50:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, paulus@samba.org,
+       brettspamacct@fastclick.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <20040429165116.GA24033@hexapodia.org>
-References: <20040428180038.73a38683.akpm@osdl.org> <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com> <20040428185720.07a3da4d.akpm@osdl.org> <20040429022944.GA24000@buici.com> <20040428193541.1e2cf489.akpm@osdl.org> <20040429031059.GA26060@buici.com> <20040428201924.719dfb68.akpm@osdl.org>
-Mime-Version: 1.0
+Message-ID: <51560000.1083257450@flay>
+In-Reply-To: <20040428194039.4b1f5d40.akpm@osdl.org>
+References: <409021D3.4060305@fastclick.com><20040428170106.122fd94e.akpm@osdl.org><409047E6.5000505@pobox.com><40905127.3000001@fastclick.com><20040428180038.73a38683.akpm@osdl.org><16528.23219.17557.608276@cargo.ozlabs.ibm.com><20040428185342.0f61ed48.akpm@osdl.org> <20040428194039.4b1f5d40.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040428201924.719dfb68.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 08:19:24PM -0700, Andrew Morton wrote:
-> What you discuss above is just an implementation detail.  Forget it.  What
-> are the requirements?  Thus far I've seen
+>>  I suspect rsync is taking two passes across the source files for its
+>>  checksumming thing.  If so, this will defeat the pagecache use-once logic. 
+>>  The kernel sees the second touch of the pages and assumes that there will
+>>  be a third touch.
 > 
-> a) updatedb causes cache reclaim
+> OK, a bit of fiddling does indicate that if a file is present on both
+> client and server, and is modified on the client, the rsync client will
+> indeed touch the pagecache pages twice.  Does this describe the files which
+> you're copying at all?
 > 
-> b) updatedb causes swapout
+> One thing you could do is to run `watch -n1 cat /proc/meminfo'.  Cause lots
+> of memory to be freed up then do the copy.  Monitor the size of the active
+> and inactive lists.  If the active list is growing then we know that rsync
+> is touching pages twice.
 > 
-> c) prefer that openoffice/mozilla not get paged out when there's heavy
->    pagecache demand.
-> 
-> For a) we don't really have a solution.  Some have been proposed but they
-> could have serious downsides.
-> 
-> For b) and c) we can tune the pageout-vs-cache reclaim tendency with
-> /proc/sys/vm/swappiness, only nobody seems to know that.
-> 
-> What else is there?
+> That would be an unfortunate special-case.
 
-What I want is for purely sequential workloads which far exceed cache
-size (dd, updatedb, tar czf /backup/home.nightly.tar.gz /home) to avoid
-thrashing my entire desktop out of memory.  I DON'T CARE if the tar
-completed in 45 minutes rather than 80.  (It wouldn't, anyways, because
-it only needs about 5 MB of cache to get every bit of the speedup it was
-going to get.)  But the additional latency when I un-xlock in the
-morning is annoying, and there is no benefit.
+Personally, I think that the use-twice logic is a bit of a hack that mostly
+works. If we moved to a method where we kept an eye on which pages are 
+associated with which address_space (for mapped pages) or which process
+(for anonymous pages) we'd have a much better shot at stopping any one
+process / file from monopolizing the whole of system memory. 
 
-For a more useful example, ideally I *should not be able to tell* that
-"dd if=/hde1 of=/hdf1" is running. [1]  There is *no* benefit to cacheing
-more than about 2 pages, under this workload.  But with current kernels,
-IME, that workload results in a gargantuan buffer cache and lots of
-swapout of apps I was using 3 minutes ago.  I've taken to walking away
-for some coffee, coming back when it's done, and "sudo swapoff
-/dev/hda3; sudo swapon -a" to avoid the latency that is so annoying when
-trying to use bloaty apps.
+We'd also be able to favour memory for files that are still open over ones 
+that have been closed, and recognize linear access scan patterns per file,
+and reclaim more agressively from the overscanned areas, and favour higher
+prio tasks over lower prio ones (including, but not limited to interactive).
 
-[1] obviously I'll see some slowdown due to interrupts and PCI
-    bandwidth; that's not what I'm railing against, here.
+Global LRU (even with the tweaks it has in Linux) doesn't seem optimal.
 
--andy
+M.
+

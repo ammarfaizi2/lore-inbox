@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270913AbRHNWpH>; Tue, 14 Aug 2001 18:45:07 -0400
+	id <S270911AbRHNWmr>; Tue, 14 Aug 2001 18:42:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270912AbRHNWo5>; Tue, 14 Aug 2001 18:44:57 -0400
-Received: from mailb.telia.com ([194.22.194.6]:14854 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S270907AbRHNWov>;
-	Tue, 14 Aug 2001 18:44:51 -0400
-Message-Id: <200108142242.AAA22621@mailb.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: linux-usb-users@lists.sourceforge.net,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Report: Sony Handycam USB and Linux 2.4.9-pre2
-Date: Wed, 15 Aug 2001 00:37:50 +0200
-X-Mailer: KMail [version 1.2.3]
-In-Reply-To: <200108141108.f7EB8v612177@mailgate3.cinetic.de>
-In-Reply-To: <200108141108.f7EB8v612177@mailgate3.cinetic.de>
-Cc: "Klaus Mueller" <klmuell@web.de>
+	id <S270907AbRHNWmi>; Tue, 14 Aug 2001 18:42:38 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:18959 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S270909AbRHNWmY>;
+	Tue, 14 Aug 2001 18:42:24 -0400
+Date: Tue, 14 Aug 2001 23:42:30 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Per Jessen <per@computer.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Who do I post to?
+In-Reply-To: <3B790F670002119D@mta2n.bluewin.ch> (added by postmaster@bluewin.ch)
+Message-ID: <Pine.LNX.4.33.0108142335500.21167-100000@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Per.
 
-[Note: I am not subscribed to linux-usb-users, please cc:]
+ > PS: is it customary to copy posters on a posting to lkml ? I
+ > don't mind, but just to avoid flames.
 
-I have a Sony PC110E that has been working with a small patch since 2.4.0
-But with 2.4.9-pre2 it does not work anymore...
+There are arguments both ways, as follows:
 
-2.4.7 + my patch
-		works
+FOR:	Since the person whose email you're replying to may not be
+	on the list, you should always reply to the sender as well
+	as to the list.
 
-2.4.8
-		has lots of new USB stuff (not tested by me, compilation problems)
+FOR:	The person you're replying to probably gets a lot of emails
+	each day, and ignores any not specifically to them, so if
+	you don't include their name in the To line, they'll never
+	read it.
 
-2.4.9-pre2
-		identifies the device correctly - no patch needed
-		(similar patch in unusual-devices)
-		but is not able to open it "unknown partition table" reported from
-		enabled LDM ... (I enabled it in an attempt to enable everything)
+NOPE:	Anybody who can't be bothered to subscribe to a list they
+	post a question on obviously isn't interested in the reply.
 
-I have usb-debug outputs from both - I will try to look into them myself but 
-if anyone is interested...
+Personally, I decide based on the content of the email - if it's a
+general comment, I'll send it "list only", but if it's something that
+I feel the original sender will want to comment on, I include them in
+the list as well.
 
-/RogerL
+However, one thing I don't do is to blindly reply to everybody the
+sender sent it to. If it was originally sent to lists I'm not on,
+that's their bad luck, coz they get stripped from the reply list.
+Ditto anybody who appears not to be directly concerned with the
+comments I'm making.
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+Best wishes from Riley.
 
-
-*******************************************
-Patch prepared by: roger.larsson@norran.net
- 
---- linux/drivers/usb/storage/unusual_devs.h.orig       Mon May 14 23:32:36 
-2001+++ linux/drivers/usb/storage/unusual_devs.h    Mon May 14 23:32:46 2001
-@@ -138,6 +138,12 @@
-                US_SC_UFI, US_PR_CB, NULL,
-                US_FL_SINGLE_LUN | US_FL_START_STOP ),
- 
-+UNUSUAL_DEV(  0x054c, 0x002e, 0x0210, 0x0310,
-+               "Sony",
-+               "DSR-PC110E",
-+               US_SC_SCSI, US_PR_CB, NULL,
-+               US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
-+
- UNUSUAL_DEV(  0x057b, 0x0000, 0x0000, 0x0299,
-                "Y-E Data",
-                "Flashbuster-U",

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266953AbUBMMQK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 07:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266955AbUBMMQJ
+	id S266949AbUBMMNV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 07:13:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266953AbUBMMNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 07:16:09 -0500
-Received: from columba.eur.3com.com ([161.71.171.238]:53448 "EHLO
-	columba.eur.3com.com") by vger.kernel.org with ESMTP
-	id S266953AbUBMMQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 07:16:08 -0500
-Message-ID: <402CBFEF.9050209@jburgess.uklinux.net>
-Date: Fri, 13 Feb 2004 12:15:43 +0000
-From: Jon Burgess <lkml@jburgess.uklinux.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-gb, en-us, en
-MIME-Version: 1.0
-To: Michael Frank <mhf@linuxmail.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved
- writes
-References: <Pine.LNX.4.44.0402111528140.23220-100000@chimarrao.boston.redhat.com> <200402120502.39300.mhf@linuxmail.org>
-In-Reply-To: <200402120502.39300.mhf@linuxmail.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Feb 2004 07:13:21 -0500
+Received: from main.gmane.org ([80.91.224.249]:42119 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266949AbUBMMNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 07:13:05 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Date: Fri, 13 Feb 2004 13:13:01 +0100
+Message-ID: <yw1xptcjrxde.fsf@kth.se>
+References: <200402130615.10608.mhf@linuxmail.org> <XFMail.20040213095802.pochini@shiny.it>
+ <20040213124232.B2871@pclin040.win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:INsN8x6TQx+JAKlXc5GKyAcltjI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Frank wrote:
+Andries Brouwer <aebr@win.tue.nl> writes:
 
->Could you please boot with scheduler=deadline to compare apples with apples.
->  
+> On Fri, Feb 13, 2004 at 09:58:02AM +0100, Giuliano Pochini wrote:
 >
-The schedular did not make a significant difference, both returned 
-0.34MB/s for the worst case.
+>>> +The limit on the length of lines is 80 columns and this is a hard limit.
+>> 
+>> Well, I think this requirement is a bit silly IMHO. How many of us
+>> do usually code in a 80x25 terminal screen nowadays ?
+>
+> I do. (That is, 80xN with N in 24..60 or so.)
 
-    Jon
+So do I.  I like to be able to fit a few xterms or emacsen side by
+side on the screen.  I can't do that if I make them too wide.
+
+-- 
+Måns Rullgård
+mru@kth.se
 

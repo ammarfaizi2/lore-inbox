@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270288AbUJTJBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270173AbUJTJbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270288AbUJTJBc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 05:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270138AbUJTI4n
+	id S270173AbUJTJbA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 05:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270121AbUJTJ1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 04:56:43 -0400
-Received: from gate.crashing.org ([63.228.1.57]:37790 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S270067AbUJTIzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 04:55:17 -0400
-Subject: Re: New consolidate irqs vs . probe_irq_*()
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Anton Blanchard <anton@samba.org>,
+	Wed, 20 Oct 2004 05:27:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35847 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270262AbUJTJBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 05:01:16 -0400
+Date: Wed, 20 Oct 2004 10:01:03 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Anton Blanchard <anton@samba.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
        Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20041020084838.GA25798@elte.hu>
-References: <16758.3807.954319.110353@cargo.ozlabs.ibm.com>
-	 <20041020083358.GB23396@elte.hu> <1098261745.6263.9.camel@gaston>
-	 <20041020084838.GA25798@elte.hu>
-Content-Type: text/plain
-Message-Id: <1098262403.6278.16.camel@gaston>
+Subject: Re: New consolidate irqs vs . probe_irq_*()
+Message-ID: <20041020100103.G1047@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Anton Blanchard <anton@samba.org>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	Christoph Hellwig <hch@infradead.org>
+References: <16758.3807.954319.110353@cargo.ozlabs.ibm.com> <20041020083358.GB23396@elte.hu> <1098261745.6263.9.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 18:53:24 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1098261745.6263.9.camel@gaston>; from benh@kernel.crashing.org on Wed, Oct 20, 2004 at 06:42:26PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 18:48, Ingo Molnar wrote:
+On Wed, Oct 20, 2004 at 06:42:26PM +1000, Benjamin Herrenschmidt wrote:
+> I really don't want to mess with that racy mecanism that makes sense for
+> ISA only afaik, and it seems some drivers are trying to use it now that
+> it's there (/me looks toward yenta_socket) and I'm afraid of the
+> consequences since I cannot see how that thing can work properly in the
+> first place ;)
 
-> yeah. I've put it into a separate autoprobe.c file specifically for that
-> reason, you can exclude it in the Makefile and can provide your own
-> architecture version. Or should we make the no-autoprobing choice
-> generic perhaps?
+yenta_socket has always used it.  Its rather fundamental to the way
+that the PCMCIA core has worked for the last I don't know how many
+years.
 
-I like this later option... How may archs actually had autoprobing
-implemented and actually used ?
+Nothing new.  Maybe something in PPC64 land broke recently?
 
-Well, I'll do some grep'ing around tonight as I do the NO_IRQ stuff
-and see what makes more sense. I don't think an arch that didn't have
-autoprobing needs it now, besides, it's not exactly a reliable
-mecanism...
-
-Ben.
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

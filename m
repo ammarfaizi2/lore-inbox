@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130671AbQKVVYW>; Wed, 22 Nov 2000 16:24:22 -0500
+        id <S129392AbQKVVaM>; Wed, 22 Nov 2000 16:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131006AbQKVVYL>; Wed, 22 Nov 2000 16:24:11 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:11282 "HELO
-        dfmail.f-secure.com") by vger.kernel.org with SMTP
-        id <S130671AbQKVVYG>; Wed, 22 Nov 2000 16:24:06 -0500
-Date: Wed, 22 Nov 2000 22:05:02 +0100 (MET)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [PATCH] Reserved root VM + OOM killer
-In-Reply-To: <Pine.LNX.4.21.0011221839160.12459-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0011222158260.14122-100000@fs129-190.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S130671AbQKVVaC>; Wed, 22 Nov 2000 16:30:02 -0500
+Received: from d14144.dtk.chello.nl ([213.46.14.144]:8328 "EHLO
+        amadeus.home.nl") by vger.kernel.org with ESMTP id <S129392AbQKVV34>;
+        Wed, 22 Nov 2000 16:29:56 -0500
+Message-Id: <m13ygzS-000OZ3C@amadeus.home.nl>
+Date: Wed, 22 Nov 2000 21:59:38 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: law@sgi.com (LA Walsh)
+Subject: Re: include conventions /usr/include/linux/sys ?
+cc: linux-kernel@vger.kernel.org
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHOEKLCJAA.law@sgi.com>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <NBBBJGOOMDFADJDGDCPHOEKLCJAA.law@sgi.com> you wrote:
+> Linus has mentioned a desire to move kernel internal interfaces into
+> a separate kernel include directory.  In creating some code, I'm wondering
+> what the name of this should/will be.  Does it follow that convention
+> would point toward a linux/sys directory?
 
-On Wed, 22 Nov 2000, Rik van Riel wrote:
+I would vote for
 
-> On Wed, 22 Nov 2000, Szabolcs Szakacsits wrote:
->
-> >    - OOM killing takes place only in do_page_fault() [no two places in
-> >         the kernel for process killing]
->
-> ... disable OOM killing for non-x86 architectures.
-> This doesn't seem like a smart move ;)
->
-> > diff -urw linux-2.2.18pre21/arch/i386/mm/Makefile linux/arch/i386/mm/Makefile
-> > --- linux-2.2.18pre21/arch/i386/mm/Makefile	Fri Nov  1 04:56:43 1996
-                          ^^^^^^^^^
-As I wrote, the OOM killer changes are x86 only at present. Other
-arch's still use the default OOM killing defined in arch/*/mm/fault.c.
+include/linux		-	 exported interfaces
+include/kernel		-	 kernel internal interfaces
+include/asm		- 	 kernel internal/archspecific interfaces
 
-	Szaka
-
+Greetings,
+   Arjan van de Ven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

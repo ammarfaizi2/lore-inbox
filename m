@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276095AbRI1OzI>; Fri, 28 Sep 2001 10:55:08 -0400
+	id <S276097AbRI1O7U>; Fri, 28 Sep 2001 10:59:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276090AbRI1Oyy>; Fri, 28 Sep 2001 10:54:54 -0400
-Received: from [217.6.75.131] ([217.6.75.131]:55532 "EHLO
-	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
-	id <S276094AbRI1OyJ>; Fri, 28 Sep 2001 10:54:09 -0400
-Message-ID: <3BB4912A.414B809A@internetwork-ag.de>
-Date: Fri, 28 Sep 2001 17:03:06 +0200
-From: Till Immanuel Patzschke <tip@internetwork-ag.de>
-Reply-To: tip@prs.de
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S276099AbRI1O7J>; Fri, 28 Sep 2001 10:59:09 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2567 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276097AbRI1O7D>; Fri, 28 Sep 2001 10:59:03 -0400
+Subject: Re: DMA problem (?) w/2.4.6-xfs and ServerWorks OSB4 Chipset
+To: timm@fnal.gov (Steven Timm)
+Date: Fri, 28 Sep 2001 16:04:15 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0109280929030.30363-100000@snowball.fnal.gov> from "Steven Timm" at Sep 28, 2001 09:53:21 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [BUG]: 2.4.10 lockup using ppp on SMP
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15mzBY-0007JX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> serverworks.c which was in the 2.4.6-ac series now propagated
+> into Linus' tree (and eventually into the RedHat tree?)  Also,
+> are the later 2.4.7 and higher -ac patches significantly
+> different from that which was found in the 2.4.6-ac patches?
 
-2.4.10 (and all its 2.4.x predecessors) lock up in ppp_destroy_interface. Thanks
-to the kdb I got the two tracebacks below - the all_ppp_lock interferes with
-some other (socket?!) lock...
-Any help is VERY much appreciated!
-Thanks
+Most vendor are -ac based. The IDE changes in Linus tree match the 
+Andre code with my fixes for the Dell cable detect. The -ac tree contains
+an additional trap for the seagate problem we are chasing but is otherwise
+the same
 
-Immanuel
+> Just tell me what you think your latest and greatest patch is that
+> you would want to see tested and I'll be glad to give it a test on this
+> cluster.
 
-output from kdb:
+The extra trap in the -ac tree may be useful as it should trigger on the
+seagate problem. If you can pull a box out of service I have a test set from
+an RH customer with this problem that replicates the UDMA problem remarkably
+reliably and rapidly for them (but not on serverworks own tests so its
+not a simple problem). It would be useful to know if the seagate problem is
+replicable and shows up the same way on your boxen
 
-    EBP       EIP         Function(args)
-           0xc02ed78a stext_lock+0x4bce
-                               kernel .text.lock 0xc02e8bbc 0xc02e8bbc 0xc02f20e
+Info on the precise seagate drives, and pci data on the machines would be
+very useful too so I can compare it to the other case and also pass it on
+to serverworks.
 
-0
-0xf63edf3c 0xc0205698 ppp_destroy_interface+0x38 (0xf63f1800)
-                               kernel .text 0xc0100000 0xc0205660 0xc0205b28
-0xf63edf94 0xc02018f0 ppp_ioctl+0x2e8 (0xf6c34100, 0xf64025e0, 0x4004743c, 0x22)
-
-                               kernel .text 0xc0100000 0xc0201608 0xc0202304
-0xf63edfbc 0xc0154e39 sys_ioctl+0x239 (0x4, 0x4004743c, 0x22, 0xbffff6e4, 0x804d
-
-f40)
-                               kernel .text 0xc0100000 0xc0154c00 0xc0154ed0
-           0xc01076ef system_call+0x33
-                               kernel .text 0xc0100000 0xc01076bc 0xc01076f4
-[0]kdb> cpu 1
-
-Entering kdb (current=0xf61a0000, pid 525) on processor 1 due to cpu switch
-[1]kdb> bt
-    EBP       EIP         Function(args)
-           0xc02eeae0 stext_lock+0x5f24
-                               kernel .text.lock 0xc02e8bbc 0xc02e8bbc 0xc02f20e
-
-0
-0xf61a1f94 0xc0276157 sock_ioctl+0xe3 (0xf61da760, 0xf61a2da0, 0x8914, 0xbffff42
-
-c)
-                               kernel .text 0xc0100000 0xc0276074 0xc0276170
-0xf61a1fbc 0xc0154e39 sys_ioctl+0x239 (0x5, 0x8914, 0xbffff42c, 0x4, 0xbffff44c)
-
-                               kernel .text 0xc0100000 0xc0154c00 0xc0154ed0
-           0xc01076ef system_call+0x33
-                               kernel .text 0xc0100000 0xc01076bc 0xc01076f4
-
-
---
-Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
-interNetwork AG                         Phone:  +49-(0)611-1731-121
-Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
-D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
-
-
-
+Alan

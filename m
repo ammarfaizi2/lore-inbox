@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271762AbRHURrj>; Tue, 21 Aug 2001 13:47:39 -0400
+	id <S271764AbRHURsj>; Tue, 21 Aug 2001 13:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271764AbRHURrV>; Tue, 21 Aug 2001 13:47:21 -0400
-Received: from are.twiddle.net ([64.81.246.98]:64424 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S271762AbRHURq7>;
-	Tue, 21 Aug 2001 13:46:59 -0400
-Date: Tue, 21 Aug 2001 10:47:04 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] /proc/ksyms change for IA64
-Message-ID: <20010821104704.A6190@twiddle.net>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010818182756.A29533@twiddle.net> <31011.998376800@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271765AbRHURsb>; Tue, 21 Aug 2001 13:48:31 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:57832 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271764AbRHURsS>;
+	Tue, 21 Aug 2001 13:48:18 -0400
+Date: Tue, 21 Aug 2001 18:48:26 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: cfs+linux-kernel@cowlabs.com, "'Marco Colombo'" <marco@esi.it>,
+        "'Alex Bligh - linux-kernel'" <linux-kernel@alex.org.uk>
+Cc: "'David Wagner'" <daw@mozart.cs.berkeley.edu>,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: RE: /dev/random in 2.4.6
+Message-ID: <2348880141.998419706@[10.132.112.53]>
+In-Reply-To: <000801c12a63$9c9d54d0$0a90a5c7@cowlabs.com>
+In-Reply-To: <000801c12a63$9c9d54d0$0a90a5c7@cowlabs.com>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <31011.998376800@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Aug 21, 2001 at 04:53:20PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 21, 2001 at 04:53:20PM +1000, Keith Owens wrote:
-> ... but why bother when bfd already does it for me?
+> I dunno about you, but I want good random for session keys too!  You can
+> still capture network traffic and decrypt at your leisure if you can
+> determine what the "random" number was used in making the session key.
 
-How about bfd is a bloated monstrosity.  Right now libobj is
-just over 10k; you'll be looking at a _minimum_ of 150k to
-pull in only the linking code from libbfd.a.
+That's why the pool is hashed before use. Modulo the seeding issue,
+there is an implicit assumption in this argument that EITHER the
+hash is breakable, OR we might as well scrap the entropy stuff entirely
+and never block and speed up lots of applications that occasionally
+block as a biproduct. The position that the hash is unbreakable
+and never will be breakable, BUT we still need to block, is only
+tenable in the context of initial seeding (AFAICS).
 
-How about bfd is an unmaintainable nightmare?  If you've not
-spent the last couple of years working on bfd, save your
-sanity and don't start.
-
-It would take only a day or three to fix up libobj to cross
-compile.  If you don't want to do it, let someone else.
-
-
-r~
+--
+Alex Bligh

@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272588AbRIPRfZ>; Sun, 16 Sep 2001 13:35:25 -0400
+	id <S272620AbRIPRhf>; Sun, 16 Sep 2001 13:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272590AbRIPRfP>; Sun, 16 Sep 2001 13:35:15 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:24331 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S272588AbRIPRe5>;
-	Sun, 16 Sep 2001 13:34:57 -0400
-Date: Sun, 16 Sep 2001 14:34:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christoph Hellwig <hch@caldera.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10pre7aa1
-In-Reply-To: <20010916192316.A13248@athlon.random>
-Message-ID: <Pine.LNX.4.33L.0109161433530.9536-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272590AbRIPRhZ>; Sun, 16 Sep 2001 13:37:25 -0400
+Received: from law2-f141.hotmail.com ([216.32.181.141]:27404 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S272620AbRIPRhR>;
+	Sun, 16 Sep 2001 13:37:17 -0400
+X-Originating-IP: [212.198.0.96]
+From: "james bond" <difda@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: fils_ubu@noos.fr
+Subject: parse error on compiling a 2.4.9 kernel
+Date: Sun, 16 Sep 2001 17:37:35 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW2-F141I1wvaKHY5U00005080@hotmail.com>
+X-OriginalArrivalTime: 16 Sep 2001 17:37:35.0756 (UTC) FILETIME=[45C534C0:01C13ED6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Sep 2001, Andrea Arcangeli wrote:
+so hello all , and thank's for leeding me to format my windobe :)
+the problem is verry simple
+when i configure my kernel i select ntfs support and then i launch a 
+compiling process "make dep , make clean , make bzImage "
+and then i have this message :
 
-> However the issue with keventd and the fact we can get away with a
-> single per-cpu counter increase in the scheduler fast path made us to
-> think it's cleaner to just spend such cycle for each schedule rather
-> than having yet another 8k per cpu wasted and longer taskslists (a
-> local cpu increase is cheaper than a conditional jump).
+----------------------------------------------------------------------
 
-So why don't we put the test+branch inside keventd ?
+unistr.c: In function `ntfs_collate_names':
+unistr.c:99: warning: implicit declaration of function `min'
+unistr.c:99: parse error before `unsigned'
+unistr.c:99: parse error before `)'
+unistr.c:97: warning: `c1' might be used uninitialized in this function
+unistr.c: At top level:
+unistr.c:118: parse error before `if'
+unistr.c:123: warning: type defaults to `int' in declaration of `c1'
+unistr.c:123: `name1' undeclared here (not in a function)
+unistr.c:123: warning: data definition has no type or storage class
+unistr.c:124: parse error before `if'
+make[3]: *** [unistr.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.9/fs/ntfs'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.9/fs/ntfs'
+make[1]: *** [_subdir_ntfs] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.9/fs'
+make: *** [_dir_fs] Error 2
 
-wakeup_krcud(void)
-{
-	krcud_wanted = 1;
-	wakeup(&keventd);
-}
 
-cheers,
+----------------------------------------------------------------------
+when i désélect ntfs every thing is ok ,
+i m using a slack 8.0
+and have gcc version 2.95.3 20010315 (release)
+i think that there is no need of any cat /proc/cpuinfo
 
-Rik
--- 
-IA64: a worthy successor to i860.
+now i m using a linux 2.4.7 and every thing is ok
+thank's for answering
+sorry for my poor english
 
-http://www.surriel.com/		http://distro.conectiva.com/
+electonicaly yours
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+
+
+----------------------------------------------------------------------
+i have a dream , that one day every computer gona be under linux
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

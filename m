@@ -1,42 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbULBNQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbULBNUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbULBNQS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 08:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbULBNNt
+	id S261608AbULBNUn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 08:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbULBNUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 08:13:49 -0500
-Received: from alog0328.analogic.com ([208.224.222.104]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261613AbULBNNb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 08:13:31 -0500
-Date: Thu, 2 Dec 2004 08:13:18 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Dave Dillow <dave@thedillows.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: keyboard timeout
-In-Reply-To: <1101942309.6166.16.camel@dillow.idleaire.com>
-Message-ID: <Pine.LNX.4.61.0412020812330.11342@chaos.analogic.com>
-References: <Pine.LNX.4.61.0412011721090.8835@chaos.analogic.com>
- <1101942309.6166.16.camel@dillow.idleaire.com>
+	Thu, 2 Dec 2004 08:20:43 -0500
+Received: from smtp2.netcabo.pt ([212.113.174.29]:62096 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S261608AbULBNUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 08:20:32 -0500
+Message-ID: <46166.195.245.190.94.1101993536.squirrel@195.245.190.94>
+In-Reply-To: <20041202140612.4c07bca8@mango.fruits.de>
+References: <20041201160632.GA3018@elte.hu> <20041201162034.GA8098@elte.hu>
+    <33059.192.168.1.5.1101927565.squirrel@192.168.1.5>
+    <20041201212925.GA23410@elte.hu> <20041201213023.GA23470@elte.hu>
+    <32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
+    <20041201220916.GA24992@elte.hu>
+    <20041201234355.0dac74cf@mango.fruits.de>
+    <20041202084040.GC7585@elte.hu>
+    <20041202132218.02ea2c48@mango.fruits.de>
+    <20041202122931.GA25357@elte.hu>
+    <20041202140612.4c07bca8@mango.fruits.de>
+Date: Thu, 2 Dec 2004 13:18:56 -0000 (WET)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Florian Schmidt" <mista.tapas@gmx.net>
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Lee Revell" <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, "Bill Huey" <bhuey@lnxw.com>,
+       "Adam Heath" <doogie@debian.org>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
+       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
+       "Esben Nielsen" <simlo@phys.au.dk>, "Andrew Morton" <akpm@osdl.org>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 02 Dec 2004 13:20:31.0281 (UTC) FILETIME=[B29DDA10:01C4D871]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Dec 2004, Dave Dillow wrote:
-
-> On Wed, 2004-12-01 at 17:29, linux-os wrote:
->> If Linux 2.6.9 is booted on a 40 MHz `486 with the standard
->> ISA clock of 14.3 MHz (yes that's the standard), the kernel
->> will complain about a keyboard timeout for every key touched!
+Florian Schmidt wrote:
 >
-> Umm, no.
+> Ingo Molnar wrote:
 >
-Bullshit. Read my post to Alan. Learn something.
+>> it's very likely not the simple jack_test client. I've attached the
+>> trace in question. Here are the tasks that were running:
+>>
+>>  gkrellm
+>>    IRQ 0
+>>   IRQ 14
+>>    IRQ 5
+>>    jackd
+>>  kblockd
+>>   korgac
+>> ksoftirq
+>> qjackctl
+>>   qsynth
+>>        X
+>>     xmms
+>>
+>> the trace doesnt show what task jackd was waiting on, and it would be
+>> hard to establish it, the tracepoint would have to 'discover' all other
+>> holders of the pipe fd, which is quite complex.
+>
+> I'm not knowledgable enough to read the trace, but what was for example
+> the last thing qsynth was doing? Did it go to sleep? I suppose this was
+> Rui's 9 qsynth's test, right?
+>
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+No, it wasn't my old 8 fluidsynths test. It was just one normal desktop
+work session. At the time, IIRC, the only jack clients that were running
+were:
+
+    qjackctl (obviously :)
+    qsynth   (3 fluidsynth engines, many soundfonts loaded).
+    xmms     (via xmms-jack output plugin)
+
+By just taking xmms out from the graph, I can run my desktop environment
+(KDE 3.2) for hours without a single XRUN or noticeable delay. And just
+before RT-V0.9.31-19 had arrived, that was just a dream ;)
+
+Bye.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+
+

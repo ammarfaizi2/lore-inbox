@@ -1,56 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269064AbRHHTz0>; Wed, 8 Aug 2001 15:55:26 -0400
+	id <S269154AbRHHUA4>; Wed, 8 Aug 2001 16:00:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269018AbRHHTzQ>; Wed, 8 Aug 2001 15:55:16 -0400
-Received: from femail30.sdc1.sfba.home.com ([24.254.60.20]:35005 "EHLO
-	femail30.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S268913AbRHHTzB>; Wed, 8 Aug 2001 15:55:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Mike Jadon <mikej@umem.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI NVRAM Memory Card
-Date: Wed, 8 Aug 2001 12:54:48 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
-In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
+	id <S269018AbRHHUAq>; Wed, 8 Aug 2001 16:00:46 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:22675 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S269115AbRHHUAa>;
+	Wed, 8 Aug 2001 16:00:30 -0400
+Importance: Normal
+Subject: Re: [RFC][PATCH] Scalable Scheduling
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFF2ABD376.4C6290F7-ON85256AA2.006DAFE3@pok.ibm.com>
+From: "Hubertus Franke" <frankeh@us.ibm.com>
+Date: Wed, 8 Aug 2001 16:02:12 -0400
+X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 08/08/2001 04:00:35 PM
 MIME-Version: 1.0
-Message-Id: <01080812544800.00591@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 August 2001 12:30 pm, Mike Jadon wrote:
-> My company has released a PCI NVRAM memory card but we haven't
-> developed a Linux driver for it yet.  We want the driver to be open to
-> developers to build upon.  Is there a specific path we should follow
-> with this being our goal?  In researching Linux driver development I
-> have come across "GPL" or "LGPL".  Where do you recommend we go to find
-> out more about this development process?
+
+Obviously not. Take a look at the presentation from Ottawa Linux Symposium.
+We ran this on 2-way for various applications from kernel builds to TPC-H
+apps
+and it actually slightly improved performance.
+It has detailed overviews of lock contention and wait times.
+
+start at http://lse.sourceforge.net/scheduling/ols2001/img41.htm if you are
+lazy, but
+the MQ description really is a good overview and describes some of the data
+structures
+
+At 2-ways we see it at worst to be a wash for the benchmarks we used.
+
+
+Hubertus Franke
+Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+, OS-PIC (Chair)
+email: frankeh@us.ibm.com
+(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+
+
+
+Victor Yodaiken <yodaiken@fsmlabs.com> on 08/08/2001 03:51:43 PM
+
+To:   Hubertus Franke/Watson/IBM@IBMUS
+cc:   Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
+Subject:  Re: [RFC][PATCH] Scalable Scheduling
+
+
+
+On Wed, Aug 08, 2001 at 03:40:00PM -0400, Hubertus Franke wrote:
 >
+> We did not modify the UP code at all. There will be NO effects (positive
+> nor negative) what so ever.
 
-The LGPL is primarily ment for libraries so that non-GPL compatible 
-products can link to a library (like glibc) without being GPL'd 
-themselves, for a linux driver, I'm not sure this would make much sense, 
-and licensing might get complex when trying to intigrate it with the 
-kernel, I don't know for sure.
-you can find a copy of the LGPL here:
-http://www.fsf.org/copyleft/lesser.html
-as well as reasons to not use it, here
-http://www.fsf.org/licenses/why-not-lgpl.html
+Cool. So the obvious next question is
+     How does it compare on a dual to the current Linux scheduler?
 
-the GPL-specific FAQ is here:
-http://www.fsf.org/licenses/gpl-faq.html
-and the GPL itself is avalible here:
-http://www.fsf.org/licenses/gpl.html
+Obviously:
+     Performance sucks on two processors but scales well
 
-this is a list of various software Licenses, GPL compatible Free licenses 
-are at the top, GPL-incompatible Free licenses are below that
-http://www.fsf.org/licenses/license-list.html
+would not be a good thing.
 
-> Thanks and my apologies for using a technical forum for this question,
-> but wanted to go to the right source.
+
+>
+> Hubertus Franke
+> Enterprise Linux Group (Mgr),  Linux Technology Center (Member
+Scalability)
+> , OS-PIC (Chair)
+> email: frankeh@us.ibm.com
+> (w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
 >
 >
-> Mike
+>
+> Victor Yodaiken <yodaiken@fsmlabs.com> on 08/08/2001 03:27:55 PM
+>
+> To:   Mike Kravetz <mkravetz@sequent.com>
+> cc:   Linus Torvalds <torvalds@transmeta.com>, Hubertus
+>       Franke/Watson/IBM@IBMUS, linux-kernel@vger.kernel.org
+> Subject:  Re: [RFC][PATCH] Scalable Scheduling
+>
+>
+>
+> On Wed, Aug 08, 2001 at 11:28:00AM -0700, Mike Kravetz wrote:
+> > One challenge will be maintaining the same level of performance
+> > for UP as in the current code.  The current code has #ifdefs to
+>
+> How does the "current code" compare to the current Linux UP code?
+>
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

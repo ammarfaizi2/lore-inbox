@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263331AbTH1BiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 21:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTH1BiZ
+	id S262937AbTH1Buo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 21:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTH1Buo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 21:38:25 -0400
-Received: from minuspol.k-net.dtu.dk ([130.225.71.251]:24325 "EHLO
-	minuspol.k-net.dk") by vger.kernel.org with ESMTP id S263331AbTH1BiY
+	Wed, 27 Aug 2003 21:50:44 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:25222 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262937AbTH1Bun
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 21:38:24 -0400
-Message-ID: <3F4D5D0E.2030405@q.nospam.kampsax.k-net.dk>
-Date: Thu, 28 Aug 2003 03:38:22 +0200
-From: =?ISO-8859-1?Q?Dennis_J=F8rgensen?= 
-	<postmaster@q.nospam.kampsax.k-net.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030618
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [Patch] Wrong warning of invalid icmp to broadcast
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 27 Aug 2003 21:50:43 -0400
+Date: Thu, 28 Aug 2003 02:50:27 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Timo Sirainen <tss@iki.fi>
+Cc: root@chaos.analogic.com, Martin Konold <martin.konold@erfrakon.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Lockless file reading
+Message-ID: <20030828015027.GA4715@mail.jlokier.co.uk>
+References: <Pine.LNX.4.53.0308270925550.278@chaos> <A43789CE-D89E-11D7-9D97-000393CC2E90@iki.fi> <20030827233903.GB3759@mail.jlokier.co.uk> <1062031942.1454.147.camel@hurina>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062031942.1454.147.camel@hurina>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Timo Sirainen wrote:
+> 	checksum[0]++;
+> 	xor = buf[0] ^ checksum[0];
 
-On 2.6.0-test4 I see this warning in my logs:
+Your algorithm isn't going to work if the new value of xor is the same
+as the old value of xor.
 
-192.38.215.157 sent an invalid ICMP type 11, code 0 error to a 
-broadcast: 192.38.215.255 on eth0
+> 	do {
+> 		memcpy(copy, buf, size*2);
+> 	} while (!verify(copy, size));
+> 	memcpy(data, copy, size);
 
-The ip is wrong, since it's the ip of my own machine. The following 
-patch fixes it (so the ip reported is the same as 2.4.20 reports).
+It isn't safe because the memcpy() can read writes done on another
+processor out of order, and xor does not always change.
 
-If I should send this somewhere else, please tell me.
+You can read some of the newly written bytes in both the buf[] and
+checksum[] halves of the buffer, while reading some of the previous
+bytes in each half.  If the set of new bytes in the first half matches
+the set in the second half well enough (i.e. the two sets match for
+bytes which aredifferent between the old and new data blocks), and the
+xor values are the same between the old and new data blocks, then your
+test will accept a mix of old and new data bytes.
 
-
-Regards
-
-  Dennis Jørgensen
-  I'm not on the list, please CC: me.
-
-
---- linux-2.6.0-test4.org/net/ipv4/icmp.c       2003-08-28 
-01:13:59.000000000 +0200
-+++ linux-2.6.0-test4/net/ipv4/icmp.c   2003-08-28 02:12:56.000000000 +0200
-@@ -661,7 +661,7 @@
-                        printk(KERN_WARNING "%u.%u.%u.%u sent an invalid 
-ICMP "
-                                            "type %u, code %u "
-                                            "error to a broadcast: 
-%u.%u.%u.%u on %s\n",
--                              NIPQUAD(iph->saddr),
-+                              NIPQUAD(skb->nh.iph->saddr),
-                               icmph->type, icmph->code,
-                               NIPQUAD(iph->daddr),
-                               skb->dev->name);
-
+-- Jamie

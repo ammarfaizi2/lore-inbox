@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317388AbSGITrF>; Tue, 9 Jul 2002 15:47:05 -0400
+	id <S313419AbSGITtS>; Tue, 9 Jul 2002 15:49:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317389AbSGITrE>; Tue, 9 Jul 2002 15:47:04 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:5082 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317388AbSGITrD>;
-	Tue, 9 Jul 2002 15:47:03 -0400
-Date: Wed, 10 Jul 2002 21:46:30 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: oleg@tv-sign.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling,
- SCHED_BATCH
-In-Reply-To: <Pine.LNX.4.44.0207102134010.16481-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0207102143400.16734-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317390AbSGITtR>; Tue, 9 Jul 2002 15:49:17 -0400
+Received: from velli.mail.jippii.net ([195.197.172.114]:55730 "HELO
+	velli.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S313419AbSGITsY>; Tue, 9 Jul 2002 15:48:24 -0400
+Date: Tue, 9 Jul 2002 22:54:37 +0300
+From: Anssi Saari <as@sci.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ATAPI + cdwriter problem
+Message-ID: <20020709195437.GA1834@sci.fi>
+References: <000901c226ac$dec99b20$0501a8c0@Stev.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000901c226ac$dec99b20$0501a8c0@Stev.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
-> > have policy == SCHED_BATCH.
+On Mon, Jul 08, 2002 at 07:25:42PM +0100, James Stevenson wrote:
+> Hi
 > 
-> yep. And even if they do they should be aware of the consequences.
-
-well, there's one security consequence here - module loading
-(request_module()), which spawns a kernel thread must not run as
-SCHED_BATCH. I think the right solution for that path is to set the policy
-to SCHED_OTHER upon entry, and restore it to the previous one afterwards -
-this way the helper thread has SCHED_OTHER priority.
-
-	Ingo
+> i have  bunch of messages like these and a hung cd writer
+ 
+I had a similar experience when trying my CD writer on pdc20265 and a
+cmd649 based board. Sometimes a write goes fine, sometimes that error
+comes up and you get a coaster. Writer is an LG GCE-8160B.  It works
+fine on the VIA 686b however, except for certain speed related issues
+(audio writes at > 8x make system unresponsive, data writes ok, more
+in http://marc.theaimsgroup.com/?l=linux-kernel&m=101826880719379&w=2).
 

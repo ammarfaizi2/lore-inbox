@@ -1,91 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265278AbTLaWrl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 17:47:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbTLaWrl
+	id S265275AbTLaWzq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 17:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbTLaWzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 17:47:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39563 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265278AbTLaWri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 17:47:38 -0500
-Subject: [PATCH linux-2.6.1-rc1-mm1] dio_isize.patch
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>, janetmor@us.ibm.com,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1072910061.712.67.camel@ibm-c.pdx.osdl.net>
-References: <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
-	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
-	 <1071624314.1826.12.camel@ibm-c.pdx.osdl.net>
-	 <20031216180319.6d9670e4.akpm@osdl.org> <20031231091828.GA4012@in.ibm.com>
-	 <20031231013521.79920efd.akpm@osdl.org> <20031231095503.GA4069@in.ibm.com>
-	 <20031231015913.34fc0176.akpm@osdl.org> <20031231100949.GA4099@in.ibm.com>
-	 <20031231021042.5975de04.akpm@osdl.org> <20031231104801.GB4099@in.ibm.com>
-	 <20031231025309.6bc8ca20.akpm@osdl.org>
-	 <20031231025410.699a3317.akpm@osdl.org>
-	 <20031231031736.0416808f.akpm@osdl.org>
-	 <1072910061.712.67.camel@ibm-c.pdx.osdl.net>
-Content-Type: multipart/mixed; boundary="=-ZAJY5ej3rPB4sj3k278e"
-Organization: 
-Message-Id: <1072910844.712.80.camel@ibm-c.pdx.osdl.net>
+	Wed, 31 Dec 2003 17:55:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33770 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265275AbTLaWzo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 17:55:44 -0500
+Date: Wed, 31 Dec 2003 22:55:36 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Rob Love <rml@ximian.com>
+Cc: Nathan Conrad <lk@bungled.net>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20031231225536.GP4176@parcelfarce.linux.theplanet.co.uk>
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local> <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur> <20031231220107.GC11032@bungled.net> <1072909218.11003.24.camel@fur>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 Dec 2003 14:47:24 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072909218.11003.24.camel@fur>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 31, 2003 at 05:20:18PM -0500, Rob Love wrote:
+> On Wed, 2003-12-31 at 17:01, Nathan Conrad wrote:
+> 
+> > One thing that I'm confused about with respect to device files is how
+> > kernel arguments are supposed to work. Now, we _seem_ to have a
+> > mish-mash of different ways to tell the kernel which device to open as
+> > a console, which device to use as a suspend device, etc.... Now, all
+> > of the device names are being migrated to userland. How is the kernel
+> > supposed to determine which device to use when it is told use
+> > /dev/hda3 or /dev/ide/host0/something/part3 as the suspend partition?
+> > The kernel no longer knows to which device this string this device is
+> > connected.
+> 
+> Uh, Unix systems (Linux included) do not use the filename of the device
+> node at all.  Those are just names for you, the user.
+> 
+> The kernel uses the device number to understand what device user-space
+> is trying to access.  The kernel associates the device with a device
+> number.  Normally that number is static, and known a priori, so we just
+> create a huge /dev directory with all possible devices and their
+> assigned numbers (you can see these numbers with ls -la).
+> 
+> But if the kernel _tells_ user-space what the device number is, for each
+> device as it is created, we do not need a static /dev directory.  We can
+> assemble the directory on the fly and device numbers really no longer
+> matter.  This is what udev does.
 
---=-ZAJY5ej3rPB4sj3k278e
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I think you've missed a point here.  There are several places where kernel
+deals with device identification.
+	a) when normal pathname lookup results in a device node on filesystem.
+That's the regular way.
+	b) when we create a new device node; device number is passed to
+->mknod() and new device node is created.  Also a normal codepath.
+	c) when late-boot code mounts the final root.  It used to be black
+magic, but these days it's done by regular syscalls.  Namely, we parse the
+"device name" (most of the work is done by lookups in sysfs), do mknod(2)
+and mount(2).  It's still done from the kernel mode, but it could be moved
+to userland.  Should be, actually.
+	d) when kernel deals with resume/suspend stuff.  Currently - black
+magic.  Should be moved to early userland (same parser as for final root
+name + mknod on rootfs + open() to get the device in question).
+	e) in several pathological syscalls we pass device number to
+identify a device.  ustat(2) and its ilk - bad API that can't die.
+	f) /dev/raw passes device number to bind raw device to block device.
+Bad API; we probably ought to replace it with saner one at some point.
+	g) RAID setup - mix of both pathologies; should be done in userland
+and interfaces are in bad need of cleanup.
+	h) nfsd uses device number as a substitute for export ID if said
+ID is not given explicitly.  That, BTW, is a big problem for crackpipe
+dreams about random device numbers - export ID _must_ be stable across
+reboots.
+	i) mtdblk parses "device name" on boot; should be take to early
+userland, same as RAID et.al.
 
-This patch samples i_size before dropping the i_sem.
-The i_size could change by a racing write and we could
-return uninitialized data.
-
-re-diffed against 2.6.1-rc1-mm1.
-
-Daniel
-
---=-ZAJY5ej3rPB4sj3k278e
-Content-Disposition: attachment; filename=linux-2.6.1-rc1-mm1.dio_isize.patch
-Content-Type: text/plain; name=linux-2.6.1-rc1-mm1.dio_isize.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.1-rc1-mm1/fs/direct-io.c	2003-12-31 10:52:45.940193469 -0800
-+++ linux-2.6.1-rc1-mm1.dio_isize/fs/direct-io.c	2003-12-31 13:56:06.836825169 -0800
-@@ -882,6 +882,7 @@ direct_io_worker(int rw, struct kiocb *i
- 	int ret = 0;
- 	int ret2;
- 	size_t bytes;
-+	loff_t i_size;
- 
- 	dio->bio = NULL;
- 	dio->inode = inode;
-@@ -982,7 +983,12 @@ direct_io_worker(int rw, struct kiocb *i
- 	 * All block lookups have been performed. For READ requests
- 	 * we can let i_sem go now that its achieved its purpose
- 	 * of protecting us from looking up uninitialized blocks.
-+	 * 
-+	 * We also need sample i_size before we release i_sem to prevent
-+	 * a racing write from changing i_size causing us to return
-+	 * uninitialized data.
- 	 */
-+	i_size = i_size_read(inode);
- 	if ((rw == READ) && dio->needs_locking)
- 		up(&dio->inode->i_sem);
- 
-@@ -1026,7 +1032,6 @@ direct_io_worker(int rw, struct kiocb *i
- 		if (ret == 0)
- 			ret = dio->page_errors;
- 		if (ret == 0 && dio->result) {
--			loff_t i_size = i_size_read(inode);
- 
- 			ret = dio->result;
- 			/*
-
---=-ZAJY5ej3rPB4sj3k278e--
-
+	Eventually name_to_dev_t() should be gone from kernel mode
+completely - all callers should be shifted to early userland.  But
+that will take a lot of work - currently we have a big mess in that
+area.

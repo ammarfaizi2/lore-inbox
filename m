@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUJBPch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUJBPbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUJBPch (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 11:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUJBPcg
+	id S266721AbUJBPbg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 11:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUJBPbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 11:32:36 -0400
-Received: from wang.choosehosting.com ([212.42.1.230]:39325 "EHLO
-	wang.choosehosting.com") by vger.kernel.org with ESMTP
-	id S266854AbUJBPcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 11:32:24 -0400
-From: Thomas Stewart <thomas@stewarts.org.uk>
-To: Greg KH <greg@kroah.com>
-Subject: Re: udev remove event not sent untill the device is closed
-Date: Sat, 2 Oct 2004 16:31:31 +0100
-User-Agent: KMail/1.6.2
-References: <200409272252.36016.thomas@stewarts.org.uk> <20041001175312.GB14015@kroah.com>
-In-Reply-To: <20041001175312.GB14015@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-X-PGP-Key: http://www.stewarts.org.uk/public-key.asc
-MIME-Version: 1.0
+	Sat, 2 Oct 2004 11:31:36 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24016 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266721AbUJBPbX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 11:31:23 -0400
+Date: Sat, 2 Oct 2004 17:30:53 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  allow CONFIG_NET=n on ppc64
+Message-ID: <20041002153053.GA2643@suse.de>
+References: <20040929200158.GA16366@suse.de> <20040929201524.GA14615@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410021631.31688.thomas@stewarts.org.uk>
-X-Scanner: Exiscan on wang.choosehosting.com at 2004-10-02 16:32:17
-X-Spam-Score: -1.0
-X-Spam-Bars: -
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040929201524.GA14615@wotan.suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 October 2004 18:53, you wrote:
-> On Mon, Sep 27, 2004 at 10:52:36PM +0100, Thomas Stewart wrote:
-> > However, if I attach the device, open it with say a "cat /dev/ttyUSB0"
-> > and then remove the device. No tty events get sent untill I kill the cat.
->
-> This is because the tty device remains until the last userspace process
-> releases the device.  You might want to trigger your script off of the
-> removal of the USB device instead.
+ On Wed, Sep 29, Andi Kleen wrote:
 
-I tried that method instead and it works. Now that I think about it more it 
-does make more sense.
+> On Wed, Sep 29, 2004 at 10:01:58PM +0200, Olaf Hering wrote:
+> > 
+> > The attached minimal config does not compile on ppc64.
+> > I was able to boot the resulting binary with this patch.
 
-For anyone else doing something similar this is what I ended up with 
-http://www.stewarts.org.uk/stuff/ttyUSB.hotplug not exactly elegant but it 
-works.
+> Right fix is to declare compat_sys_socketcall as as cond_syscall() 
+> in sys.c
 
-Thanks
+ok.
+
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+diff -purNX /suse/olh/kernel/kernel_exclude.txt linux-2.6.9-rc3-bk2/include/net/sock.h linux-2.6.9-rc3-bk2.nonet/include/net/sock.h
+--- linux-2.6.9-rc3-bk2/include/net/sock.h	2004-09-30 05:05:21.000000000 +0200
++++ linux-2.6.9-rc3-bk2.nonet/include/net/sock.h	2004-10-02 17:24:23.666152810 +0200
+@@ -1336,6 +1336,13 @@ static inline void sock_valbool_flag(str
+ extern __u32 sysctl_wmem_max;
+ extern __u32 sysctl_rmem_max;
+ 
++#ifdef CONFIG_NET
+ int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
++#else
++static inline int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++{
++	return -ENODEV;
++}
++#endif
+ 
+ #endif	/* _SOCK_H */
+diff -purNX /suse/olh/kernel/kernel_exclude.txt linux-2.6.9-rc3-bk2/kernel/sys.c linux-2.6.9-rc3-bk2.nonet/kernel/sys.c
+--- linux-2.6.9-rc3-bk2/kernel/sys.c	2004-09-30 05:03:55.000000000 +0200
++++ linux-2.6.9-rc3-bk2.nonet/kernel/sys.c	2004-10-02 17:05:49.589116448 +0200
+@@ -282,6 +282,7 @@ cond_syscall(compat_set_mempolicy)
+ cond_syscall(sys_pciconfig_read)
+ cond_syscall(sys_pciconfig_write)
+ cond_syscall(sys_pciconfig_iobase)
++cond_syscall(compat_sys_socketcall)
+ 
+ static int set_one_prio(struct task_struct *p, int niceval, int error)
+ {
+
 -- 
-Tom
+USB is for mice, FireWire is for men!
 
-PGP Fingerprint [DCCD 7DCB A74A 3E3B 60D5  DF4C FC1D 1ECA 68A7 0C48]
-PGP Publickey   [http://www.stewarts.org.uk/public-key.asc]
-PGP ID  [0x68A70C48]
+sUse lINUX ag, nÜRNBERG

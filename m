@@ -1,82 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314085AbSHBNxA>; Fri, 2 Aug 2002 09:53:00 -0400
+	id <S314548AbSHBNzA>; Fri, 2 Aug 2002 09:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314149AbSHBNxA>; Fri, 2 Aug 2002 09:53:00 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:5061 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S314085AbSHBNwz>; Fri, 2 Aug 2002 09:52:55 -0400
-Date: Fri, 2 Aug 2002 09:56:20 -0400
-To: Stephen Lord <lord@sgi.com>
-Cc: Alexander Viro <viro@math.psu.edu>, "Peter J. Braam" <braam@clusterfs.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BIG files & file systems
-Message-ID: <20020802135620.GA29534@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Stephen Lord <lord@sgi.com>,
-	Alexander Viro <viro@math.psu.edu>,
-	"Peter J. Braam" <braam@clusterfs.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu> <Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu> <20020801035119.GA21769@ravel.coda.cs.cmu.edu> <1028246981.11223.56.camel@snafu>
+	id <S314551AbSHBNy7>; Fri, 2 Aug 2002 09:54:59 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:46748 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S314548AbSHBNy5>;
+	Fri, 2 Aug 2002 09:54:57 -0400
+Subject: Re: A new ide warning message
+From: Steve Lord <lord@sgi.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: martin@dalecki.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020802124139.GR3010@suse.de>
+References: <1028288066.1123.5.camel@laptop.americas.sgi.com>
+	<20020802114713.GD1055@suse.de> <3D4A7178.7050307@evision.ag>
+	<1028289940.1123.19.camel@laptop.americas.sgi.com>
+	<3D4A771A.9020308@evision.ag> <20020802123055.GQ3010@suse.de>
+	<3D4A7BBE.90104@evision.ag>  <20020802124139.GR3010@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 02 Aug 2002 08:50:55 -0500
+Message-Id: <1028296255.30192.9.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028246981.11223.56.camel@snafu>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 07:09:37PM -0500, Stephen Lord wrote:
-> On Wed, 2002-07-31 at 22:51, Jan Harkes wrote:
-> > On Wed, Jul 31, 2002 at 05:13:46PM -0400, Alexander Viro wrote:
-> > > You _do_ need unique ->st_ino from stat(2), though - otherwise tar(1)
-> > > and friends will break in all sorts of amusing ways.  And there's
-> > > nothing kernel can do about that - applications expect 32bit st_ino
-> > > (compare them as 32bit values, etc.)
-> > 
-> > Which is why "tar and friends" are to different extents already broken
-> > on various filesystems like Coda, NFS, NTFS, ReiserFS, and probably XFS.
-> > (i.e. anything that currently uses iget5_locked instead of iget to grab
-> > the inode).
+On Fri, 2002-08-02 at 07:41, Jens Axboe wrote:
 > 
-> Why are they broken? In the case of XFS at least you still get a unique
-> and stable inode number back - and it fits in 32 bits too.
+> Yeah it's a request for data, what else could it be? That's the only
+> place where we call blk_rq_map_sg().
+> 
+> Stephen, please provoke with this patch applied. I hope it works, it's
+> untested :-)
+> 
 
-I was simply assuming that any filesystem that is using iget5 and
-doesn't use the simpler iget helper has some reason why it cannot find
-an inode given just the 32-bit ino_t.
+Consider it provoked, I added a trace to the submit_bio call in XFS
+as well, dumping sector number, bio length in bytes and number of
+vector elements submitted:
 
-This is definitely true for Coda, we have 96-bit file identifiers.
-Actually my development tree currently uses 128-bit, it is aware of
-multiple administrative realms and distinguishes between objects with
-FID 0x7f000001.0x1.0x1 in different administrative domains. There is a
-hash-function that tries to map these large FIDs into the 32-bit ino_t
-space with as few collisions as possible.
+submit_bio(READ, sector 0x414870, len 65536 vec_len 16
+submit_bio(READ, sector 0x4148f0, len 65536 vec_len 16
+pcidma: build 2 segments, supplied 1/16, sectors 128/8
+bio 0: phys 1, hw 16
+segment 0: phys 69599232, size 4096
+segment 1: phys 69603328, size 4096
+segment 2: phys 69607424, size 4096
+segment 3: phys 69611520, size 4096
+segment 4: phys 69615616, size 4096
+segment 5: phys 69619712, size 4096
+segment 6: phys 69623808, size 4096
+segment 7: phys 69627904, size 4096
+segment 8: phys 69632000, size 4096
+segment 9: phys 69636096, size 4096
+segment 10: phys 69640192, size 4096
+segment 11: phys 69644288, size 4096
+segment 12: phys 69648384, size 4096
+segment 13: phys 69652480, size 4096
+segment 14: phys 69656576, size 4096
+segment 15: phys 69660672, size 4096
+pcidma: build 2 segments, supplied 1/16, sectors 128/8
+bio 0: phys 1, hw 16
+segment 0: phys 69664768, size 4096
+segment 1: phys 69668864, size 4096
+segment 2: phys 69672960, size 4096
+segment 3: phys 69677056, size 4096
+segment 4: phys 69681152, size 4096
+segment 5: phys 69685248, size 4096
+segment 6: phys 69689344, size 4096
+segment 7: phys 69693440, size 4096
+segment 8: phys 69697536, size 4096
+segment 9: phys 69701632, size 4096
+segment 10: phys 69705728, size 4096
+segment 11: phys 69709824, size 4096
+segment 12: phys 69713920, size 4096
+segment 13: phys 69718016, size 4096
+segment 14: phys 69722112, size 4096
+segment 15: phys 69726208, size 4096
 
-NFS has a >32-bit filehandle. ReiserFS might have unique inodes, but
-seems to need access to the directory to find them. So I don't quickly
-see how it would guarantee uniqueness. NTFS actually doesn't seem to use
-iget5 yet, but it has multiple streams per object which would probably
-end up using the same ino_t.
+And so on.....
 
-I haven't looked at XFS, but as all in-tree filesystems that use
-iget5_locked have potential ino_t collisions, So I was assuming XFS
-would fit in the same category.
+The bio size being used is based purely on the BIO_MAX_SECTORS
+constant, same code as ll_rw_kio. Looks like the direct I/O
+path uses similar math.
 
-Userspace applications should either have an option to ignore hardlinks.
-Very large filesystems either don't care because there is plenty of
-space, don't support them across boundaries that are not visible to the
-application, or could be dealing with them them automatically (COW
-links). Besides, if I really have a trillion files, I don't want 'tar
-and friends' to try to keep track of all those inode numbers (and device
-numbers) in memory.
+Steve
 
-The other solution is that applications can actually use more of the
-information from the inode to avoid confusion, like st_nlink and
-st_mtime, which are useful when the filesystem is still mounted rw as
-well. And to make it even better, st_uid, st_gid, st_size, st_blocks and
-st_ctime, and a MD5/SHA checksum. Although this obviously would become
-even worse for the trillion file backup case.
+-- 
 
-Jan
-
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

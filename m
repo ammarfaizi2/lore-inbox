@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTK0VOI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 16:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbTK0VOI
+	id S261270AbTK0V72 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 16:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTK0V71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 16:14:08 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:59640 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id S261262AbTK0VOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 16:14:05 -0500
-Date: Thu, 27 Nov 2003 16:14:00 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6]: IPv6: strcpy -> strlcpy
-Message-ID: <20031127211400.GD1560@Master>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031127194602.A25015@flint.arm.linux.org.uk> <20031128.045413.133305490.yoshfuji@linux-ipv6.org> <20031127200041.B25015@flint.arm.linux.org.uk> <20031128.054724.116712136.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 Nov 2003 16:59:27 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:26053 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261270AbTK0V71
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 16:59:27 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Vladimir Lazarenko <vlad@lazarenko.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9/10 speedtouch glitch
+Date: Thu, 27 Nov 2003 21:43:05 +0100
+User-Agent: KMail/1.5.4
+References: <200311272023.56413.vlad@lazarenko.net>
+In-Reply-To: <200311272023.56413.vlad@lazarenko.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031128.054724.116712136.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200311272143.05662.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 28, 2003 at 05:47:24AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> In article <20031127200041.B25015@flint.arm.linux.org.uk> (at Thu, 27 Nov 2003 20:00:41 +0000), Russell King <rmk+lkml@arm.linux.org.uk> says:
-> 
-> > The thing that worries me is that an incorrect strlcpy() conversion
-> > gives the impression that someone has thought about buffer underruns
-> > as well as overruns, and, unless someone /has/ actually thought about
-> > it, there could well still be a security problem lurking there.
-> 
-> Hmm, what do you actually mean by "buffer underruns?"
-> 
-> (If I'm correct) do you suggest that we should zero-out rest of 
-> destination buffer?
-> 
-> if so, we may want to have a function, say strlcpy0(), like this:
-> 
-> size_t strlcpy0(char *dst, const char *src, size_t maxlen)
-> {
->   size_t len = strlcpy(dst, src, maxlen);
->   if (maxlen && len < maxlen - 1)
->     memset(dst + len + 1, 0, maxlen - len - 1);
->   return len;
-> }
-> 
+> Dunno if this has been mentioned already, but I have an interesting glitch
+> with speedtouch DSL modem. When i compile the driver as module, it says
+> registered driver speedtouch, but can not access the device.
+>
+> However, when i compile the driver in, everything works smoothly and
+> nicely. If you need some more testing/information do not hesitate to
+> contact me.
 
-size_t strlcpy0(char *dst, const char *src, size_t maxlen)
-{
-  memset(dst, 0, maxlen);
-  size_t len = strlcpy(dst, src, maxlen);
-  return len;
-}
+Try the latest hotplug scripts.
 
--- 
-Murray J. Root
+I hope this helps,
 
+Duncan.

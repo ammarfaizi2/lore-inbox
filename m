@@ -1,72 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266300AbUAVSF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 13:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUAVSFw
+	id S266461AbUAVW7F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 17:59:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266464AbUAVW7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 13:05:52 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:53445 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266300AbUAVSFm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 13:05:42 -0500
-Date: Fri, 23 Jan 2004 07:08:25 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: swusp acpi
-In-reply-to: <20040122102655.GC200@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael Frank <mhf@linuxmail.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074794904.12773.72.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-tf0uDABmF7eBIREhSEM5";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <200401211143.51585.tuxakka@yahoo.co.uk>
- <20040122003212.GC300@elf.ucw.cz> <1074735908.1405.85.camel@laptop-linux>
- <20040122101555.GA200@elf.ucw.cz>
- <20040122102254.A17786@flint.arm.linux.org.uk>
- <20040122102655.GC200@elf.ucw.cz>
+	Thu, 22 Jan 2004 17:59:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37031 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266461AbUAVW67 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 17:58:59 -0500
+Date: Thu, 22 Jan 2004 14:58:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: jw schultz <jw@pegasys.ws>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to
+ public posts
+In-Reply-To: <20040122221802.GD12666@pegasys.ws>
+Message-ID: <Pine.LNX.4.58.0401221441500.2998@home.osdl.org>
+References: <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
+ <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com>
+ <20040121213027.GN23765@srv-lnx2600.matchmail.com>
+ <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain>
+ <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org>
+ <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com> <40101B1E.3030908@blue-labs.org>
+ <20040122221802.GD12666@pegasys.ws>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-tf0uDABmF7eBIREhSEM5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Hi.
+On Thu, 22 Jan 2004, jw schultz wrote:
+> 
+> Beyes is the wrong aproach for those random words from the
+> dictionary blocks.
 
-Michael Frank has done a patch giving 2.4 PM support for serial ports
-(my serial console now works flawlessly). Perhaps it could be ported to
-2.6 and the driver model...
+Bayes is not wrong per se, but doing bayes on pure word statistics is
+wrong. It always was. People knew how it could be broken. The current rash
+of spams is just the obvious way to do it.
 
-Nigel
+> Those i've seen seem to be a long string of words all longer
+> than 4 characters.  A rule that gave a score of based on the
+> number of consecutive words longer than some number or
+> characters would catch those fairly easily.  If i get
+> annoyed enough i may figure out how to write such a rule.
 
-On Thu, 2004-01-22 at 23:26, Pavel Machek wrote:
-> Hi!
->=20
-> > > Not only serial console... Noone wrote serial port support.
-> >=20
-> > Incorrect.  I never merged the changes because it's rather too hacky.
->=20
-> Who wrote them? Do you have that patch somewhere?
-> 								Pavel
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
+Don't. That's easily broken too, as you realized yourself.
 
---=-tf0uDABmF7eBIREhSEM5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> What we need is a bounty on these scum.  $1000 fine per
+> reported recipient with half going to the reporter would be
+> nice.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+What you should aim for, and which should be much harder to break, is to 
+realize that random words that make no sense give a really unlikely 
+score when you build up a markov chain of them.
 
-iD8DBQBAEBGYVfpQGcyBBWkRArKWAJ9Y+ICgNvg5oTWB+GliXyEnQ0A+OQCfcduA
-KSRKc2IChZpuCad5AJd+sFE=
-=Jy9t
------END PGP SIGNATURE-----
+So to avoid the random words problem, do Bayes on the _chain_ of words
+instead.
 
---=-tf0uDABmF7eBIREhSEM5--
+Now, you can try to overcome this by spamming with something that makes
+"sense" from the markov chain standpoint, but by then that spam is going
+to be hilarious. Once I start getting spams that are generated by markov
+generators and read like "real" email, I might stop filtering them, just
+because they are bound to be a lot of fun to read.
 
+Have you played with Markov chains? What happens is that you don't just
+build up a list of words and their likelihood of being spam or ham, you
+build up a list of word _combinations_ and the likelihood of one
+particular word following another one.
+
+That's how a lot of the "random phrase" generators on the web work.
+
+They can be absolutely hilarious, exactly because the sentences they
+generate actually _almost_ make sense. Sometimes you get an almost 
+readable story, but one that reads like somebody having a bad trip and his 
+reality just shifted 90 degrees. (Usually the best stories come if the 
+training material is coherent, which email sadly usually isn't).
+
+Do a google search for "Mark V Shaney", and you should get some idea
+about this.
+
+		Linus

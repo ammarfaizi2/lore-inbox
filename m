@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290448AbSBKU7V>; Mon, 11 Feb 2002 15:59:21 -0500
+	id <S290377AbSBKU6l>; Mon, 11 Feb 2002 15:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290445AbSBKU7M>; Mon, 11 Feb 2002 15:59:12 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:22038 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290421AbSBKU66>; Mon, 11 Feb 2002 15:58:58 -0500
-Date: Mon, 11 Feb 2002 15:57:49 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200202112057.g1BKvnE03302@devserv.devel.redhat.com>
-To: jh@sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: driver location for platform-specific drivers
-In-Reply-To: <mailman.1013455503.17805.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1013455503.17805.linux-kernel2news@redhat.com>
+	id <S290421AbSBKU6b>; Mon, 11 Feb 2002 15:58:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59398 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S290377AbSBKU60>; Mon, 11 Feb 2002 15:58:26 -0500
+Date: Mon, 11 Feb 2002 15:57:22 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Francois Romieu <romieu@cogenit.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with mke2fs on huge RAID-partition
+In-Reply-To: <20020211195710.A12859@fafner.intra.cogenit.fr>
+Message-ID: <Pine.LNX.3.96.1020211155518.1149A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For SGI's upcoming Linux platform (nicknamed Scalable Node, or SN),
-> we have some platform specific device drivers.  Where should these go?
+On Mon, 11 Feb 2002, Francois Romieu wrote:
 
->     1) Integrate in drivers/*.
+> Bill Davidsen <davidsen@tmr.com> :
+> [hdparm]
+> > NOTE: wrong options will hose your data! WHich is why I don't tell you
+> > what to use, just look at -m -c (I use 3), -d and -X34. Again, it may bite
+> > you, have backups.
+> 
+> The kernel did itself the job through the "autotune" option of ide.
+> /proc/ide/{hda/hdg}/settings differ only in:
 
-I'd do this, unless you have dozens of them.
-E.g. drivers/net/sunhme.c.
+> It can be fast: it does during raid rebuild.
+> May be the machine simply dislikes me.
 
->     2) Company (sgi) directory.
+What's your stripe size? I have that "this works for me" feeling, although
+I'd like to know why the drives didn't autotune just the same way, and
+that might tell someone what's up.
 
-That's nonsense, IMHO.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
->     3) New platform directory.
->        Create a platform directory for SN, probably drivers/sn.
->        There is precedence for this with the drivers/macintosh
->        and drivers/s390.
-
-I think this is only done if API is different. Often these
-directories cannot be processed by a build process on other
-architectures, so they are kept outside to have Makefiles smaller.
-See also drivers/sbus, which could be called "drivers/sun" just
-as well. But really, it's separate because of sparc_alloc_io().
-
-I appreciate a lot that drivers/acpi is so easy to exclude
-from builds - it breaks on anything but Intel stuff.
-
->     4) New architecture directory.
->        Another suggestion is to create an architecture directory,
->        in this case drivers/ia64/{char,net,etc.}/.
-
-See #3. The ia64 uses standard APIs.
-
-> I'm happy with whatever you'll accept.
-
-Yeah, lessee what penguins say, and also I think DaveM may
-lend some good expirience here.
-
--- Pete

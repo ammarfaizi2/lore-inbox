@@ -1,129 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267579AbSLMBVy>; Thu, 12 Dec 2002 20:21:54 -0500
+	id <S267583AbSLMBWh>; Thu, 12 Dec 2002 20:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267580AbSLMBVx>; Thu, 12 Dec 2002 20:21:53 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:56202 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S267579AbSLMBVu>;
-	Thu, 12 Dec 2002 20:21:50 -0500
-Date: Fri, 13 Dec 2002 12:29:04 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: jim.houston@attbi.com
-Cc: md@Linux.IT, julie.n.fleischer@intel.com, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: 2.5.51 nanosleep fails
-Message-Id: <20021213122904.5e3208bf.sfr@canb.auug.org.au>
-In-Reply-To: <200212122227.gBCMRkT10652@linux.local>
-References: <200212122227.gBCMRkT10652@linux.local>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267584AbSLMBWh>; Thu, 12 Dec 2002 20:22:37 -0500
+Received: from host217-39-30-89.in-addr.btopenworld.com ([217.39.30.89]:40576
+	"EHLO dstc.edu.au") by vger.kernel.org with ESMTP
+	id <S267583AbSLMBWa>; Thu, 12 Dec 2002 20:22:30 -0500
+Message-Id: <200212130130.BAA19271@tereshkova.dstc.edu.au>
+To: linux-kernel@vger.kernel.org
+X-face: -[YGaR`*}M3pOPceHtP0Bb{\f!h4e?n{mXfI@DMKL-:8
+Subject: [PANIC] 2.5.51: probably NFS-related
+Date: Fri, 13 Dec 2002 01:30:19 +0000
+From: Ted Phelps <phelps@dstc.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
 
-On Thu, 12 Dec 2002 17:27:46 -0500 Jim Houston <jim.houston@attbi.com> wrote:
->
-> The problem is that nanosleep didn't check for the NULL pointer
-> case and always tries to copy out the remaining time.  The attached
-> patch will fix this problem.
+Hello,
 
-Equivalent fix for the compatibility layer ...
+I generated the following panic on an NFS server machine (i586,
+linux-2.5.51, SCSI HDD, Adaptec 29160 Host Adapter) whilst mounting
+and unmounting an network filesystem on a client machine
+(sparc-sun-solaris-2.8).  The backtrace doesn't seem to indicate
+anything NFS-specific, but I'm inclined to suspect the NFS code due to
+timing and previous troubles with NFSv3 between these machines.
 
-Not compiled, not tested (I need to get a 64 bit machine ...)
+Here's what I was doing on the client:
 
-Obviously correct (hopefully) :-)
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+$ mount -o proto=udp,vers=2 192.168.0.1:/mnt/src /mnt/src
+$ ls /mnt/src/bigdir
+$ umount /mnt/src
 
-diff -ruN 2.5.51/kernel/compat.c 2.5.51-ns/kernel/compat.c
---- 2.5.51/kernel/compat.c	2002-12-10 15:10:41.000000000 +1100
-+++ 2.5.51-ns/kernel/compat.c	2002-12-13 12:12:00.000000000 +1100
-@@ -21,8 +21,7 @@
- static long compat_nanosleep_restart(struct restart_block *restart)
- {
- 	unsigned long expire = restart->arg0, now = jiffies;
--	struct timespec *rmtp = (struct timespec *) restart->arg1;
--	long ret;
-+	struct compat_timespec *rmtp;
- 
- 	/* Did it expire while we handled signals? */
- 	if (!time_after(expire, now))
-@@ -30,22 +29,22 @@
- 
- 	current->state = TASK_INTERRUPTIBLE;
- 	expire = schedule_timeout(expire - now);
-+	if (expire == 0)
-+		return 0;
- 
--	ret = 0;
--	if (expire) {
-+	rmtp = (struct compat_timespec *)restart->arg1;
-+	if (rmtp) {
- 		struct compat_timespec ct;
- 		struct timespec t;
- 
- 		jiffies_to_timespec(expire, &t);
- 		ct.tv_sec = t.tv_sec;
- 		ct.tv_nsec = t.tv_nsec;
--
--		ret = -ERESTART_RESTARTBLOCK;
- 		if (copy_to_user(rmtp, &ct, sizeof(ct)))
--			ret = -EFAULT;
--		/* The 'restart' block is already filled in */
-+			return -EFAULT;
- 	}
--	return ret;
-+	/* The 'restart' block is already filled in */
-+	return -ERESTART_RESTARTBLOCK;
- }
- 
- asmlinkage long compat_sys_nanosleep(struct compat_timespec *rqtp,
-@@ -53,8 +52,8 @@
- {
- 	struct compat_timespec ct;
- 	struct timespec t;
-+	struct restart_block *restart;
- 	unsigned long expire;
--	s32 ret;
- 
- 	if (copy_from_user(&ct, rqtp, sizeof(ct)))
- 		return -EFAULT;
-@@ -67,25 +66,21 @@
- 	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
- 	current->state = TASK_INTERRUPTIBLE;
- 	expire = schedule_timeout(expire);
-+	if (expire == 0)
-+		return 0;
- 
--	ret = 0;
--	if (expire) {
--		struct restart_block *restart;
--
-+	if (rmtp) {
- 		jiffies_to_timespec(expire, &t);
- 		ct.tv_sec = t.tv_sec;
- 		ct.tv_nsec = t.tv_nsec;
--
- 		if (copy_to_user(rmtp, &ct, sizeof(ct)))
- 			return -EFAULT;
--
--		restart = &current_thread_info()->restart_block;
--		restart->fn = compat_nanosleep_restart;
--		restart->arg0 = jiffies + expire;
--		restart->arg1 = (unsigned long) rmtp;
--		ret = -ERESTART_RESTARTBLOCK;
- 	}
--	return ret;
-+	restart = &current_thread_info()->restart_block;
-+	restart->fn = compat_nanosleep_restart;
-+	restart->arg0 = jiffies + expire;
-+	restart->arg1 = (unsigned long) rmtp;
-+	return -ERESTART_RESTARTBLOCK;
- }
- 
- /*
+$ mount -o proto=tcp,vers=2 192.168.0.1:/mnt/src /mnt/src
+$ ls /mnt/src/bigdir
+$ umount /mnt/src
+
+$ mount -o proto=tcp,vers=3 192.168.0.1:/mnt/src /mnt/src
+$ ls /mnt/src/bigdir
+<<BOOM>>
+
+/mnt/src/bigdir has 143 files in it, over 2K worth of filenames.
+
+
+I have been unable to use with NFSv3 (UDP or TCP) to mount partitions
+on the Solaris machine when the server is running 2.5.50 or 2.5.51.
+The filesystem mounts, but listing /mnt/src/bigdir usually generates
+the following error:
+
+NFS readdirplus failed for server 192.168.0.1: error 2 (RPC: Can't decode result)
+
+I can provide tcpdump output if that helps...
+
+Thanks,
+-Ted
+
+
+ksymoops 2.4.8 on i586 2.4.19.  Options used
+     -v /scratch/build/linux/linux-2.5.51/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.5.51/kernel (specified)
+     -m /boot/System.map-2.5.51 (specified)
+
+No modules in ksyms, skipping objects
+Unable to handle kernel paging request at virtual address 2c6b6369
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c012e3c1>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010012
+eax: 6e6e6f43   ebx: c74ea020   ecx: c74ea0e0   edx: 2c6b6369
+esi: c13e7460   edi: 00000000   ebp: c0375ef0   esp: c0375ed4
+ds: 0068   es: 0068   ss: 0068
+Stack: c13e746c c13e747c 00000008 c1337010 c13e7460 c1337000 00000008 c0375f2c 
+       c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+       c0374000 c1337010 c13e74c8 c03dba9c c012dc60 00000000 c0375f34 c012dc68 
+Call Trace:
+ [<c012e609>] cache_reap+0x1a9/0x270
+ [<c012dc60>] reap_timer_fnc+0x0/0x30
+ [<c012dc68>] reap_timer_fnc+0x8/0x30
+ [<c011d553>] __run_timers+0x83/0x170
+ [<c01197e9>] do_softirq+0xa9/0xb0
+ [<c010a835>] do_IRQ+0x125/0x150
+ [<c0107130>] default_idle+0x0/0x40
+ [<c0109418>] common_interrupt+0x18/0x20
+ [<c0107130>] default_idle+0x0/0x40
+ [<c0107158>] default_idle+0x28/0x40
+ [<c01071dd>] cpu_idle+0x2d/0x40
+ [<c0105000>] _stext+0x0/0x30
+Code: 89 02 89 50 04 8b 43 0c 31 d2 29 c1 89 c8 f7 76 30 89 c1 8b 
+
+
+>>EIP; c012e3c1 <__free_block+61/100>   <=====
+
+>>ebp; c0375ef0 <init_thread_union+1ef0/2000>
+>>esp; c0375ed4 <init_thread_union+1ed4/2000>
+
+Trace; c012e609 <cache_reap+1a9/270>
+Trace; c012dc60 <reap_timer_fnc+0/30>
+Trace; c012dc68 <reap_timer_fnc+8/30>
+Trace; c011d553 <__run_timers+83/170>
+Trace; c01197e9 <do_softirq+a9/b0>
+Trace; c010a835 <do_IRQ+125/150>
+Trace; c0107130 <default_idle+0/40>
+Trace; c0109418 <common_interrupt+18/20>
+Trace; c0107130 <default_idle+0/40>
+Trace; c0107158 <default_idle+28/40>
+Trace; c01071dd <cpu_idle+2d/40>
+Trace; c0105000 <_stext+0/0>
+
+Code;  c012e3c1 <__free_block+61/100>
+00000000 <_EIP>:
+Code;  c012e3c1 <__free_block+61/100>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012e3c3 <__free_block+63/100>
+   2:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  c012e3c6 <__free_block+66/100>
+   5:   8b 43 0c                  mov    0xc(%ebx),%eax
+Code;  c012e3c9 <__free_block+69/100>
+   8:   31 d2                     xor    %edx,%edx
+Code;  c012e3cb <__free_block+6b/100>
+   a:   29 c1                     sub    %eax,%ecx
+Code;  c012e3cd <__free_block+6d/100>
+   c:   89 c8                     mov    %ecx,%eax
+Code;  c012e3cf <__free_block+6f/100>
+   e:   f7 76 30                  divl   0x30(%esi)
+Code;  c012e3d2 <__free_block+72/100>
+  11:   89 c1                     mov    %eax,%ecx
+Code;  c012e3d4 <__free_block+74/100>
+  13:   8b 00                     mov    (%eax),%eax
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+       c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c0374000 
+      c012e609 c13e7460 c1337010 00000008 c1331f8c c0374000 c0374000 c037400

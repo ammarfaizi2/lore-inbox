@@ -1,95 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268594AbUJKBpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268602AbUJKCDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268594AbUJKBpH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 21:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268602AbUJKBpG
+	id S268602AbUJKCDL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 22:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268609AbUJKCDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 21:45:06 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:53252 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268594AbUJKBo7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 21:44:59 -0400
-Date: Mon, 11 Oct 2004 02:44:54 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: =?ISO-8859-1?Q?S=E9rgio?= Monteiro Basto <sergiomb@netcabo.pt>
-Cc: Linus Torvalds <torvalds@osdl.org>, Len Brown <len.brown@intel.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: [BKPATCH] LAPIC fix for 2.6
-In-Reply-To: <1097443183.26647.31.camel@darkstar>
-Message-ID: <Pine.LNX.4.58L.0410110132170.4217@blysk.ds.pg.gda.pl>
-References: <1097429707.30734.21.camel@d845pe>  <Pine.LNX.4.58.0410101044200.3897@ppc970.osdl.org>
-  <Pine.LNX.4.58L.0410102000160.4217@blysk.ds.pg.gda.pl> <1097443183.26647.31.camel@darkstar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Sun, 10 Oct 2004 22:03:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:21977 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268602AbUJKCDG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 22:03:06 -0400
+Date: Mon, 11 Oct 2004 12:02:48 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Aaron Peterson <aaron@alpete.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum block dev size / filesystem size
+Message-ID: <20041011120248.F4948977@wobbly.melbourne.sgi.com>
+References: <1097180361.491.25.camel@main> <1097177960.31547.132.camel@localhost.localdomain> <1097244833.491.31.camel@main>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1097244833.491.31.camel@main>; from aaron@alpete.com on Fri, Oct 08, 2004 at 10:13:53AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Oct 2004, [ISO-8859-1] Sérgio Monteiro Basto wrote:
+On Fri, Oct 08, 2004 at 10:13:53AM -0400, Aaron Peterson wrote:
+> On Thu, 2004-10-07 at 15:39, Alan Cox wrote:
+> > On Iau, 2004-10-07 at 21:19, Aaron Peterson wrote:
+> > > I work for a company with a 15 TB SAN.  All opinions about the
+> > > disadvantages of creating really large filesystems aside, I'm trying to
+> > > find out what is the maximum filesystem size we can allocate on our SAN
+> > > that a linux box (x86) can really use.
+> > 
+> > For 2.4.x 1Tb (2Tb works for some devices but its a bit variable)
+> > 
+> > > What I can't seem to find anywhere is whether the 2 TB block device
+> > > limit has improved/grown with 2.6 kernels (on x86 hardware).  Perhaps
+> > > I've looked in the wrong places, but I haven't found anything.
+> > 
+> > 2.6 fixed this problem although it appears not for some specialist
+> > cases. Last time I checked LVM logical volumes over 2Tb were reported
+> > problematic.
+> 
+> I've read that the other main difficulty besides block device size
+> limits is problems with the ext2 management tools themselves.  So, how
+> would you rate my chances of using a 2.6 kernel with XFS (and xfs
+> management tools of course) with a 5 TB filesystem?  Probably not a well
+> tested scenerio to say the least...
 
-> The problem is: trying enable some local apic's (for example on via
-> mother boards on my laptop), cause many problem, like hang on boot (with
-> ACPI), hang on Fn-F3 (video switch), power-off fails, etc. and no one
-> knows how resolved the problem.  
+Assuming the device driver(s) you pick are happy with 64 bit sector
+numbers, you should expect this to work (iow, you should not have
+any trouble from XFS itself).  SGI ships 2.4 product with specific
+supported drivers and the LBD patch (both 32 and 64 bit boxen) in
+order to use large devices.
 
- Ah, laptops seem to be inherently insane...  Your symptoms suggest your 
-firmware/BIOS is buggy, doing probably something under the OS, which 
-cannot be controlled and without taking proper care of the state of 
-hardware.  That's the infamous SMM code.
+cheers.
 
- How about only disabling the APIC if power-management is in use?  And 
-announcing it so that a user sees the APIC has been kept deliberately 
-disabled, as opposed to be unable to be enabled?  Like below -- for ACPI 
-only, as I assume APM gives no trouble or the change would have been 
-proposed much earlier.  Untested.
-
-> So keep it disable if BIOS vendors say so, can be reasonable idea.
-
- BIOS vendors usually say so, because they have no clue, or in other 
-words, they do not really mean to say anything with this.  They just don't 
-enable the APIC as they see no use for it, but the same can be true of 
-plenty of other hardware that has no use for the firmware.
-
- I don't like the idea of "punishing" good hardware, because something 
-behaves ill out there.
-
-  Maciej
-
-patch-mips-2.6.9-rc2-20040920-lapic-0
-diff -up --recursive --new-file linux-mips-2.6.9-rc2-20040920.macro/arch/i386/kernel/acpi/boot.c linux-mips-2.6.9-rc2-20040920/arch/i386/kernel/acpi/boot.c
---- linux-mips-2.6.9-rc2-20040920.macro/arch/i386/kernel/acpi/boot.c	2004-08-25 03:57:43.000000000 +0000
-+++ linux-mips-2.6.9-rc2-20040920/arch/i386/kernel/acpi/boot.c	2004-10-11 01:42:34.000000000 +0000
-@@ -835,6 +835,19 @@ acpi_boot_init (void)
- 	}
- 
- 	/*
-+	 * Don't override BIOS and enable the local APIC
-+	 * unless "lapic" specified.
-+	 */
-+	if (!acpi_disabled && enable_local_apic == 0) {
-+		printk(KERN_NOTICE PREFIX
-+		       "Local APIC won't be reenabled, "
-+		       "because of frequent BIOS bugs\n");
-+		printk(KERN_NOTICE PREFIX
-+		       "You can enable it with \"lapic\"\n");
-+		enable_local_apic = -1;
-+	}
-+
-+	/*
- 	 * set sci_int and PM timer address
- 	 */
- 	acpi_table_parse(ACPI_FADT, acpi_parse_fadt);
-diff -up --recursive --new-file linux-mips-2.6.9-rc2-20040920.macro/arch/i386/kernel/apic.c linux-mips-2.6.9-rc2-20040920/arch/i386/kernel/apic.c
---- linux-mips-2.6.9-rc2-20040920.macro/arch/i386/kernel/apic.c	2004-09-20 03:57:43.000000000 +0000
-+++ linux-mips-2.6.9-rc2-20040920/arch/i386/kernel/apic.c	2004-10-11 01:37:13.000000000 +0000
-@@ -667,7 +667,7 @@ static int __init detect_init_APIC (void
- 	u32 h, l, features;
- 	extern void get_cpu_vendor(struct cpuinfo_x86*);
- 
--	/* Disabled by DMI scan or kernel option? */
-+	/* Disabled by DMI scan, ACPI or kernel option? */
- 	if (enable_local_apic < 0)
- 		return -1;
- 
+-- 
+Nathan

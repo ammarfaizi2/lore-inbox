@@ -1,89 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263060AbSJGOGR>; Mon, 7 Oct 2002 10:06:17 -0400
+	id <S263063AbSJGOGj>; Mon, 7 Oct 2002 10:06:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263062AbSJGOGR>; Mon, 7 Oct 2002 10:06:17 -0400
-Received: from bohnice.netroute.lam.cz ([212.71.169.62]:50429 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id <S263060AbSJGOGQ>; Mon, 7 Oct 2002 10:06:16 -0400
-Date: Mon, 7 Oct 2002 16:11:22 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
-Message-ID: <20021007141122.GA14423@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	Oliver Neukum <oliver@neukum.name>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <1281002684.1033892373@[10.10.2.3]> <3DA140ED.6512D1A1@aitel.hist.no> <m17yUp7-006fgcC@Mail.ZEDAT.FU-Berlin.DE>
-Mime-Version: 1.0
+	id <S263064AbSJGOGj>; Mon, 7 Oct 2002 10:06:39 -0400
+Received: from 62-190-203-7.pdu.pipex.net ([62.190.203.7]:3080 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S263063AbSJGOGg>; Mon, 7 Oct 2002 10:06:36 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210071417.g97EHDjG006197@darkstar.example.net>
+Subject: Re: 2.5.X breaks PS/2 mouse
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Mon, 7 Oct 2002 15:17:13 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021007144250.A626@ucw.cz> from "Vojtech Pavlik" at Oct 07, 2002 02:42:50 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m17yUp7-006fgcC@Mail.ZEDAT.FU-Berlin.DE>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 11:18:44AM +0200, Oliver Neukum wrote:
-> On Monday 07 October 2002 10:08, Helge Hafting wrote:
-> > "Martin J. Bligh" wrote:
-> > > > Then there's the issue of application startup. There's not enough
-> > > > read ahead. This is especially sad, as the order of page faults is
-> > > > at least partially predictable.
-> > >
-> > > Is the problem really, fundamentally a lack of readahead in the
-> > > kernel? Or is it that your application is huge bloated pig?
-> >
-> > Often the latter.  People getting interested in linux
-> > seems to believe that openoffice is the msoffice replacement,
-> > and that _is_ a huge bloated pig.  It needs 50M to start
-> > the text editor - and lots of _cpu_.  It takes a long time
-> > to start on a 266MHz machine even when the disk io
-> > is avoided by the pagecahce.
+> > > > Pressing the left button, then the right button, (this is complete, and follows the above immediately):
+> > > > 
+> > > > i8042.c: 01 <- i8042 (interrupt, aux, 12) [230409]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [230410]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [230411]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [230548]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [230552]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [230554]
+> > > > i8042.c: 02 <- i8042 (interrupt, aux, 12) [231505]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [231506]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [231507]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [231694]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [231695]
+> > > > i8042.c: 00 <- i8042 (interrupt, aux, 12) [231696]
+> > > > 
+> > > > So, it definitely seems to be sending data to the port...  Strange...
+> > > 
+> > > It must work. I'm really wondering why it doesn't. What happens when you
+> > > load the 'evbug' module?
+> > 
+> > I can't very easily - the kernel on the machine doesn't have kernel module
+> > support enabled, and with 4MB RAM, it's really painfully slow to work with
+> > if I use a kernel with modules enabled.  If there is no other way to debug
+> > it, I can try, but it's a last resort :-)
 > 
-> OpenOffice _is_ an important application, whether we like it or not.
+> Do you have 'evdev' (Event interface) compiled in? It'd be a replacement
+> for evbug ...
+
+I didn't, but I've compiled a new kernel with it in.  Unfortunately, it doesn't seem to do anything useful :-(.
+
+cat /dev/input/eventX | hexdump
+
+returns nothing, not even for keyboard events, which makes me think I've gone wrong somewhere :-/
+
+> > Something that occurred to me, and I could be totally wrong here, but
+> > is it possible that the trackball is being detected as a "generic
+> > mouse" when it isn't one?
 > 
-> How does one measure and profile application startup other than with
-> a stopwatch ? I'd like to gather some objective data on this.
-
-Add some debuging output to the program (mainly at the very begining of
-main) and then launch it with simple program that will note time right
-before it forks and then wait for the application to output something
-(which should be the debuging write at the start od main) and note time
-it returned from select.
-
-> > A snappy desktop is trivial with 2.5, even with a slow machine.
-> > Just stay away from gnome and kde, use a ugly fast
+> Most likely (95%) it behaves a generic ps/2 mouse. After all, it seems
+> to send generic ps/2 data. Why the data isn't getting through, is the
+> question.
 > 
-> A desktop machine needs to run a desktop enviroment. Only a window manager is 
-> not enough.
-
-Please, could someone explain to me, what is desktop enviroment in
-addition to window manager and horde of libraries for UI and IPC.
-
-(No, panel is not important thing and even if it were, it's a simple
-fast application, providing it's implemented sanely (I mean, gnome panel
-is currently buggy))
-
-> > window manager like icewm or twm (and possibly lots
-> > of others I haven't even heard about.)
-> > X itself is snappy enough, particularly with increased
-> > priority.
-> > Take some care when selecting apps (yes - there is choice!)
-> > and the desktop is just fine.  Openoffice is a nice
-> > package of programs, but there are replacements for most
-> > of them if speed is an issue.  If the machine is powerful
-> > enough to run ms software snappy then speed probably
-> > isn't such a big issue though.
+> > I tried connecting the generic mouse, disconnecting it, and then
+> > connecting the trackball, and saw in dmesg that some kind of handshake
+> > was going on.  This was completely different for mouse and trackball.
+> > Would it be any use to post this output?
 > 
-> KDE and friends _are_ not quite optimised for speed. That however doesn't 
-> mean that the kernel should not make an effort to allow them to run as fast 
-> as they can.
+> If it was different, then definitely!
 
-No, it does not.
+Sorry, I was wrong, I think I pressed a mouse button whilst connecting it and mis-read the info.  The init is exactly the same.
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+However, the data sent from each one seems to be very different, (I've re-formatted this a bit to save space, but it's from the dmesg output):
+
+mouse
+
+ Left button - 09 00 00 08 00 00
+Right button - 0a 00 00 08 00 00
+
+trackball
+
+ Left button - 01 00 00 00 00 00
+Right button - 02 00 00 00 00 00
+
+> > If the evbug module is the only way to go, I'll try it, but it'll
+> > probably take me the rest of the day, (seriously) :-).
+> 
+> Let's try other ways before that.
+
+Good idea :-)
+
+John.

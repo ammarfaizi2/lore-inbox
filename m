@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130423AbQJ0NIk>; Fri, 27 Oct 2000 09:08:40 -0400
+	id <S130460AbQJ0NGa>; Fri, 27 Oct 2000 09:06:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130550AbQJ0NIa>; Fri, 27 Oct 2000 09:08:30 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:15634 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130548AbQJ0NI1>;
-	Fri, 27 Oct 2000 09:08:27 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: <kernel@kvack.org>
-Date: Fri, 27 Oct 2000 15:05:53 MET-1
+	id <S130457AbQJ0NGU>; Fri, 27 Oct 2000 09:06:20 -0400
+Received: from ns.dce.bg ([212.50.14.242]:9993 "HELO home.dce.bg")
+	by vger.kernel.org with SMTP id <S130499AbQJ0NGI>;
+	Fri, 27 Oct 2000 09:06:08 -0400
+Message-ID: <39F97DAE.36659B35@dce.bg>
+Date: Fri, 27 Oct 2000 16:05:50 +0300
+From: Petko Manolov <petkan@dce.bg>
+Organization: Deltacom Electronics
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en, bg
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4.0-test9 + LFS
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <B2447A922C7@vcnet.vc.cvut.cz>
+To: David Weinehall <tao@acc.umu.se>
+CC: Tigran Aivazian <tigran@veritas.com>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Off-Topic (or maybe on-topic)
+In-Reply-To: <Pine.LNX.3.95.1001027083838.22807A-100000@chaos.analogic.com> <Pine.LNX.4.21.0010271344070.10504-100000@saturn.homenet> <20001027145650.B27262@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Oct 00 at 23:15, kernel@kvack.org wrote:
-> On Thu, 26 Oct 2000, Wakko Warner wrote:
-
-> > doing an ls -l shows:
-> > ls: x: Value too large for defined data type
-> > 
-> > NOTE: this worked in 2.4.0-test6 and I believe it stopped working around
-> > test8, but I'm not sure.  May have been around test7.
+David Weinehall wrote:
 > 
-> Previous kernels allowed up to 4gb to be returned by the old stat.
-> Upgrade your glibc and fileutils -- most recent distributions (Red Hat,
-> SuSE, ...) are LFS ready, and the only reports I've seen about this
-> concerned Slackware.
+> You're VERY wrong here. St. Petersburg was the name before the Soviet
+> Union was formed and Russia marched into the Baltics. When the takeover
+> was made, the city was renamed Leningrad (after V.I. Lenin). When the
+> Soviet Union finally fell to pieces and the Baltics retained their freedom,
+> St. Petersburg retained its old name, which it got (if I'm not all wrong)
+> from Peter the Great.
 
-And Debian :-( It is hard to get rid of such file - GNU 'rm' complains
-too, as it tries to stat that file first :-( Fortunately
 
-echo -n > x; rm x
+AFAIK Tigran is born in the Soviet Union and i thing he knows
+the history of his own country better ;-)
 
-works. I filled bugreport some time ago (when 2.1.94 come to woody), but 
-it was closed, as there are no 2.4.x headers in Debian, so it is not 
-possible to recompile glibc against them... Recompiling glibc is enough 
-for woody, BTW.
-                                            Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
+Anyway, i am bulgarian and i also am used to call St. Petersburg
+Leningrad ;-))
+
+
+best,
+Petkan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,147 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266761AbTAUBu1>; Mon, 20 Jan 2003 20:50:27 -0500
+	id <S266917AbTAUCBM>; Mon, 20 Jan 2003 21:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266938AbTAUBu0>; Mon, 20 Jan 2003 20:50:26 -0500
-Received: from web10908.mail.yahoo.com ([216.136.131.44]:64372 "HELO
-	web10908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266761AbTAUBuY>; Mon, 20 Jan 2003 20:50:24 -0500
-Message-ID: <20030121015929.74281.qmail@web10908.mail.yahoo.com>
-Date: Mon, 20 Jan 2003 17:59:29 -0800 (PST)
-From: nil <linuxdvd@yahoo.com>
-Subject: [PATCH] 2.5.58 stradis.c fixes to make it compile
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1933266226-1043114369=:73520"
+	id <S267008AbTAUCBM>; Mon, 20 Jan 2003 21:01:12 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:50881 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S266917AbTAUCBL>; Mon, 20 Jan 2003 21:01:11 -0500
+Message-ID: <2735779.1043114714658.JavaMail.nobody@web11.us.oracle.com>
+Date: Mon, 20 Jan 2003 18:05:14 -0800 (GMT-08:00)
+From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
+To: jt@hpl.hp.com
+Subject: Re: irport_net_open issue in 2.5.59
+Cc: irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1933266226-1043114369=:73520
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+> Alessandro Suardi wrote :
+> > 
+> > [crossposted to IrDA-users and l-k]
+>      Hum... This means that the IrDA mailing list archive is broken
+> again. Thanks SourceForge.
 
-I've corrected stradis.c in 2.5.58 to compile properly, and
-since Linus is out of town, I've attached it to this message
-and placed it at the following location as well:
+I misspelt 'sourceforge' on first attempt - shame on me,
+ not SF :)
 
-http://www.kernel.org/pub/linux/kernel/people/laredo/stradis-2.5.58.diff
+[snip]
 
-If you actually have this hardware (I haven't gotten any
-reports from anyone actually trying to use it with 2.5.x)
-please let me know of success or failure.   I would have had
-this done sooner but I didn't know this was broken since Alan
-never bothered to tell me he changed the video device
-interface.
+> > irport_net_open(), unable to allocate irq=0
+> > 
+> > It does load, but as expected it doesn't seem to work - irdadump
+> > doesn't come up with any line at all.
+>      Personally, I've never managed to make irport work, and I know
+> that in 2.5.X it's worse.
 
--- Nathan Laredo
-laredo at gnu dot org
+Uhm - not sure I understand. I thought both ircomm and irport
+ were needed, at least it looks like so from this 2.4.21-pre3
+ output from my live GPRS link:
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
---0-1933266226-1043114369=:73520
-Content-Type: application/octet-stream; name="stradis-2.5.58.diff"
-Content-Transfer-Encoding: base64
-Content-Description: stradis-2.5.58.diff
-Content-Disposition: attachment; filename="stradis-2.5.58.diff"
+[root@dolphin root]# lsmod
+Module                  Size  Used by    Not tainted
+ircomm-tty             22528   1  (autoclean)
+ppp_async               7744   1  (autoclean)
+ppp_generic            16060   3  (autoclean) [ppp_async]
+slhc                    5200   0  (autoclean) [ppp_generic]
+smc-ircc                7520   1  (autoclean)
+irport                  5256   1  (autoclean) [smc-ircc]
+ircomm                  8712   0  [ircomm-tty]
+irda                   94192   1  [ircomm-tty smc-ircc irport ircomm]
 
-ZGlmZiAtcnUgbGludXgtMi41LjU4L2RyaXZlcnMvbWVkaWEvdmlkZW8vYnR0
-di1kcml2ZXIuYyBpbnRlbC1saW51eC0yLjUuNTgvZHJpdmVycy9tZWRpYS92
-aWRlby9idHR2LWRyaXZlci5jCi0tLSBsaW51eC0yLjUuNTgvZHJpdmVycy9t
-ZWRpYS92aWRlby9idHR2LWRyaXZlci5jCU1vbiBKYW4gMTMgMjE6NTk6MDkg
-MjAwMworKysgaW50ZWwtbGludXgtMi41LjU4L2RyaXZlcnMvbWVkaWEvdmlk
-ZW8vYnR0di1kcml2ZXIuYwlGcmkgSmFuIDE3IDAwOjQ4OjA1IDIwMDMKQEAg
-LTI0Nyw3ICsyNDcsNyBAQAogCX0sewogCQkudjRsMl9pZCAgICAgICAgPSBW
-NEwyX1NURF9QQUxfTiwKIAkJLm5hbWUgICAgICAgICAgID0gIlBBTC1OIiwK
-LQkJLkZzYyAgICAgICAgICAgICAzNTQ2ODk1MCwKKwkJLkZzYyAgICAgICAg
-ICAgID0gMzU0Njg5NTAsCiAJCS5zd2lkdGggICAgICAgICA9IDc2OCwKIAkJ
-LnNoZWlnaHQgICAgICAgID0gNTc2LAogCQkudG90YWx3aWR0aCAgICAgPSAx
-MTM1LApkaWZmIC1ydSBsaW51eC0yLjUuNTgvZHJpdmVycy9tZWRpYS92aWRl
-by9zdHJhZGlzLmMgaW50ZWwtbGludXgtMi41LjU4L2RyaXZlcnMvbWVkaWEv
-dmlkZW8vc3RyYWRpcy5jCi0tLSBsaW51eC0yLjUuNTgvZHJpdmVycy9tZWRp
-YS92aWRlby9zdHJhZGlzLmMJTW9uIEphbiAxMyAyMTo1OToxNiAyMDAzCisr
-KyBpbnRlbC1saW51eC0yLjUuNTgvZHJpdmVycy9tZWRpYS92aWRlby9zdHJh
-ZGlzLmMJRnJpIEphbiAxNyAwMDo1NTozNSAyMDAzCkBAIC0yNDEsMTIgKzI0
-MSw2IEBACiAJfQogfQogCi1zdGF0aWMgdm9pZCBkZXRhY2hfaW5mb3JtKHN0
-cnVjdCBzYWE3MTQ2ICpzYWEsIGludCBpZCkKLXsKLQlpbnQgaTsKLQlpID0g
-c2FhLT5ucjsKLX0KLQogc3RhdGljIHZvaWQgSTJDQnVzU2NhbihzdHJ1Y3Qg
-c2FhNzE0NiAqc2FhKQogewogCWludCBpOwpAQCAtMTMyMyw5ICsxMzE3LDEy
-IEBACiAJCWNsaXBfZHJhd19yZWN0YW5nbGUoY2xpcG1hcCwgMCwgMCwgMTAy
-NCwgLShzYWEtPndpbi55KSk7CiB9CiAKLXN0YXRpYyBpbnQgc2FhX2lvY3Rs
-KHN0cnVjdCB2aWRlb19kZXZpY2UgKmRldiwgdW5zaWduZWQgaW50IGNtZCwg
-dm9pZCAqYXJnKQorc3RhdGljIGludCBzYWFfaW9jdGwoc3RydWN0IGlub2Rl
-ICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbGUsCisJCSAgICAgdW5zaWduZWQg
-aW50IGNtZCwgdW5zaWduZWQgbG9uZyBhcmdsKQogewotCXN0cnVjdCBzYWE3
-MTQ2ICpzYWEgPSAoc3RydWN0IHNhYTcxNDYgKikgZGV2OworCXN0cnVjdCBz
-YWE3MTQ2ICpzYWEgPSBmaWxlLT5wcml2YXRlX2RhdGE7CisJdm9pZCAqYXJn
-ID0gKHZvaWQgKilhcmdsOworCiAJc3dpdGNoIChjbWQpIHsKIAljYXNlIFZJ
-RElPQ0dDQVA6CiAJCXsKQEAgLTE4MDksMjQgKzE4MDYsMjMgQEAKIAlyZXR1
-cm4gMDsKIH0KIAotc3RhdGljIGludCBzYWFfbW1hcChzdHJ1Y3QgdmlkZW9f
-ZGV2aWNlICpkZXYsIGNvbnN0IGNoYXIgKmFkciwKLQkJICAgIHVuc2lnbmVk
-IGxvbmcgc2l6ZSkKK3N0YXRpYyBpbnQgc2FhX21tYXAoc3RydWN0IGZpbGUg
-KmZpbGUsIHN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hKQogewotCXN0cnVj
-dCBzYWE3MTQ2ICpzYWEgPSAoc3RydWN0IHNhYTcxNDYgKikgZGV2OworCXN0
-cnVjdCBzYWE3MTQ2ICpzYWEgPSBmaWxlLT5wcml2YXRlX2RhdGE7CiAJcHJp
-bnRrKEtFUk5fREVCVUcgInN0cmFkaXMlZDogc2FhX21tYXAgY2FsbGVkXG4i
-LCBzYWEtPm5yKTsKIAlyZXR1cm4gLUVJTlZBTDsKIH0KIAotc3RhdGljIGxv
-bmcgc2FhX3JlYWQoc3RydWN0IHZpZGVvX2RldmljZSAqZGV2LCBjaGFyICpi
-dWYsCi0JCSAgICAgdW5zaWduZWQgbG9uZyBjb3VudCwgaW50IG5vbmJsb2Nr
-KQorc3RhdGljIHNzaXplX3Qgc2FhX3JlYWQoc3RydWN0IGZpbGUgKmZpbGUs
-IGNoYXIgKmJ1ZiwKKwkJCXNpemVfdCBjb3VudCwgbG9mZl90ICpwcG9zKQog
-ewogCXJldHVybiAtRUlOVkFMOwogfQogCi1zdGF0aWMgbG9uZyBzYWFfd3Jp
-dGUoc3RydWN0IHZpZGVvX2RldmljZSAqZGV2LCBjb25zdCBjaGFyICpidWYs
-Ci0JCSAgICAgIHVuc2lnbmVkIGxvbmcgY291bnQsIGludCBub25ibG9jaykK
-K3N0YXRpYyBzc2l6ZV90IHNhYV93cml0ZShzdHJ1Y3QgZmlsZSAqZmlsZSwg
-Y29uc3QgY2hhciAqYnVmLAorCQkJIHNpemVfdCBjb3VudCwgbG9mZl90ICpw
-cG9zKQogewotCXN0cnVjdCBzYWE3MTQ2ICpzYWEgPSAoc3RydWN0IHNhYTcx
-NDYgKikgZGV2OworCXN0cnVjdCBzYWE3MTQ2ICpzYWEgPSBmaWxlLT5wcml2
-YXRlX2RhdGE7CiAJdW5zaWduZWQgbG9uZyB0b2RvID0gY291bnQ7CiAJaW50
-IGJsb2Nrc2l6ZSwgc3BsaXQ7CiAJdW5zaWduZWQgbG9uZyBmbGFnczsKQEAg
-LTE5NDUsMTEgKzE5NDEsMjMgQEAKIAlyZXR1cm4gY291bnQ7CiB9CiAKLXN0
-YXRpYyBpbnQgc2FhX29wZW4oc3RydWN0IHZpZGVvX2RldmljZSAqZGV2LCBp
-bnQgZmxhZ3MpCitzdGF0aWMgaW50IHNhYV9vcGVuKHN0cnVjdCBpbm9kZSAq
-aW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlKQogewotCXN0cnVjdCBzYWE3MTQ2
-ICpzYWEgPSAoc3RydWN0IHNhYTcxNDYgKikgZGV2OworCXN0cnVjdCBzYWE3
-MTQ2ICpzYWEgPSBOVUxMOworCXVuc2lnbmVkIGludCBtaW5vciA9IG1pbm9y
-KGlub2RlLT5pX3JkZXYpOworCWludCBpOworCisJZm9yIChpID0gMDsgaSA8
-IFNBQTcxNDZfTUFYOyBpKyspIHsKKwkJaWYgKHNhYTcxNDZzW2ldLnZpZGVv
-X2Rldi5taW5vciA9PSBtaW5vcikgeworCQkJc2FhID0gJnNhYTcxNDZzW2ld
-OworCQl9CisJfQorCWlmIChzYWEgPT0gTlVMTCkgeworCQlyZXR1cm4gLUVO
-T0RFVjsKKwl9CisJZmlsZS0+cHJpdmF0ZV9kYXRhID0gc2FhOwogCi0Jc2Fh
-LT52aWRlb19kZXYuYnVzeSA9IDA7CisJLy9zYWEtPnZpZGVvX2Rldi5idXN5
-ID0gMDsgLyogb2xkIGhhY2sgdG8gc3VwcG9ydCBtdWx0aXBsZSBvcGVuICov
-CiAJc2FhLT51c2VyKys7CiAJaWYgKHNhYS0+dXNlciA+IDEpCiAJCXJldHVy
-biAwOwkvKiBkZXZpY2Ugb3BlbiBhbHJlYWR5LCBkb24ndCByZXNldCAqLwpA
-QCAtMTk1NywyOSArMTk2NSwzNyBAQAogCXJldHVybiAwOwogfQogCi1zdGF0
-aWMgdm9pZCBzYWFfY2xvc2Uoc3RydWN0IHZpZGVvX2RldmljZSAqZGV2KQor
-c3RhdGljIGludCBzYWFfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKmlub2RlLCBz
-dHJ1Y3QgZmlsZSAqZmlsZSkKIHsKLQlzdHJ1Y3Qgc2FhNzE0NiAqc2FhID0g
-KHN0cnVjdCBzYWE3MTQ2ICopIGRldjsKKwlzdHJ1Y3Qgc2FhNzE0NiAqc2Fh
-ID0gZmlsZS0+cHJpdmF0ZV9kYXRhOwogCXNhYS0+dXNlci0tOwotCXNhYS0+
-dmlkZW9fZGV2LmJ1c3kgPSAwOworCS8vc2FhLT52aWRlb19kZXYuYnVzeSA9
-IDA7IC8qIG9sZCBoYWNrIHRvIHN1cHBvcnQgbXVsdGlwbGUgb3BlbiAqLwog
-CWlmIChzYWEtPnVzZXIgPiAwKQkvKiBzdGlsbCBzb21lb25lIHVzaW5nIGRl
-dmljZSAqLwotCQlyZXR1cm47CisJCXJldHVybiAwOwogCXNhYXdyaXRlKDB4
-MDA3ZjAwMDAsIFNBQTcxNDZfTUMxKTsJLyogc3RvcCBhbGwgb3ZlcmxheSBk
-bWEgKi8KKwlyZXR1cm4gMDsKIH0KIAotLyogdGVtcGxhdGUgZm9yIHZpZGVv
-X2RldmljZS1zdHJ1Y3R1cmUgKi8KLXN0YXRpYyBzdHJ1Y3QgdmlkZW9fZGV2
-aWNlIHNhYV90ZW1wbGF0ZSA9CitzdGF0aWMgc3RydWN0IGZpbGVfb3BlcmF0
-aW9ucyBzYWFfZm9wcyA9CiB7CiAJLm93bmVyCQk9IFRISVNfTU9EVUxFLAot
-CS5uYW1lCQk9ICJTQUE3MTQ2QSIsCi0JLnR5cGUJCT0gVklEX1RZUEVfQ0FQ
-VFVSRSB8IFZJRF9UWVBFX09WRVJMQVksCi0JLmhhcmR3YXJlCT0gVklEX0hB
-UkRXQVJFX1NBQTcxNDYsCiAJLm9wZW4JCT0gc2FhX29wZW4sCi0JLmNsb3Nl
-CQk9IHNhYV9jbG9zZSwKKwkucmVsZWFzZQk9IHNhYV9yZWxlYXNlLAorCS5p
-b2N0bAkJPSBzYWFfaW9jdGwsCiAJLnJlYWQJCT0gc2FhX3JlYWQsCisJLmxs
-c2VlawkJPSBub19sbHNlZWssCiAJLndyaXRlCQk9IHNhYV93cml0ZSwKLQku
-aW9jdGwJCT0gc2FhX2lvY3RsLAogCS5tbWFwCQk9IHNhYV9tbWFwLAorfTsK
-KworLyogdGVtcGxhdGUgZm9yIHZpZGVvX2RldmljZS1zdHJ1Y3R1cmUgKi8K
-K3N0YXRpYyBzdHJ1Y3QgdmlkZW9fZGV2aWNlIHNhYV90ZW1wbGF0ZSA9Cit7
-CisJLm5hbWUJCT0gIlNBQTcxNDZBIiwKKwkudHlwZQkJPSBWSURfVFlQRV9D
-QVBUVVJFIHwgVklEX1RZUEVfT1ZFUkxBWSwKKwkuaGFyZHdhcmUJPSBWSURf
-SEFSRFdBUkVfU0FBNzE0NiwKKwkuZm9wcwkJPSAmc2FhX2ZvcHMsCisJLm1p
-bm9yCQk9IC0xLAogfTsKIAogc3RhdGljIGludCBjb25maWd1cmVfc2FhNzE0
-NihzdHJ1Y3QgcGNpX2RldiAqZGV2LCBpbnQgbnVtKQo=
+ that is, pppd speaks on /dev/ircomm0 - but smc-ircc seems to
+ use irport.
 
---0-1933266226-1043114369=:73520--
+>      But, the message above indicate that you fed the driver with
+> improper module options. Try to set the proper irq, that would help.
+
+I would gladly oblige :) but how do I know what the proper IRQ
+ is ? findchip does tell me that on this CPx750J, but it doesn't
+ tell me anything on the C640...
+
+>      Also, Daniele did lot's of work on the new SMC driver (smsc2,
+> available on my web page). Maybe you could test this one.
+
+
+Thanks, will get back with more news soon-ish.
+
+--alessandro

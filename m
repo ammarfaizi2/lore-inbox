@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267237AbUBNBD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 20:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUBNBD5
+	id S267243AbUBNA6u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 19:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267248AbUBNA6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 20:03:57 -0500
-Received: from gate.crashing.org ([63.228.1.57]:45978 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267237AbUBNBDe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 20:03:34 -0500
-Subject: [PATCH] Fix incorrect kfree in radeonfb
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       James Simmons <jsimmons@infradead.org>
-Content-Type: text/plain
-Message-Id: <1076720526.900.146.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 14 Feb 2004 12:02:06 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Feb 2004 19:58:50 -0500
+Received: from heavymos.kumin.ne.jp ([61.114.158.133]:52467 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP id S267243AbUBNA61
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 19:58:27 -0500
+Message-Id: <200402140052.AA00016@prism.kumin.ne.jp>
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+Date: Sat, 14 Feb 2004 09:52:47 +0900
+To: linux-kernel@vger.kernel.org
+Cc: tao@acc.umu.se
+Subject: linux-2.0.40
+In-Reply-To: <200401301505.AA00013@prism.kumin.ne.jp>
+References: <200401301505.AA00013@prism.kumin.ne.jp>
+MIME-Version: 1.0
+X-Mailer: AL-Mail32 Version 1.13
+Content-Type: text/plain; charset=iso-2022-jp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Hi.
 
-I missed a kfree -> framebuffer_release() in the new radeonfb, here's
-the patch, please apply (and thanks to Luca for noticing it).
+I compile linux-2.0.40 from linux-2.0.40.tar.bz2, and work fine in my environment.
+Display on console,　Welcome to Linux 2.0.40.
 
-Ben.
-
-===== drivers/video/aty/radeon_base.c 1.2 vs edited =====
---- 1.2/drivers/video/aty/radeon_base.c	Fri Feb 13 03:10:47 2004
-+++ edited/drivers/video/aty/radeon_base.c	Sat Feb 14 12:00:22 2004
-@@ -2291,7 +2291,7 @@
- #ifdef CONFIG_FB_RADEON_I2C
- 	radeon_delete_i2c_busses(rinfo);
- #endif        
--        kfree (rinfo);
-+        framebuffer_release(info);
- }
- 
- 
-
-
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

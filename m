@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284414AbRLJV7V>; Mon, 10 Dec 2001 16:59:21 -0500
+	id <S284470AbRLJWEC>; Mon, 10 Dec 2001 17:04:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283773AbRLJV7L>; Mon, 10 Dec 2001 16:59:11 -0500
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:55266 "EHLO
-	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S281568AbRLJV7F>; Mon, 10 Dec 2001 16:59:05 -0500
-Date: Mon, 10 Dec 2001 15:57:56 -0600 (CST)
-From: <bottchen@earthlink.net>
-X-X-Sender: <adam@scully.>
-To: <linux-kernel@vger.kernel.org>
-cc: <torvalds@transmeta.com>
-Subject: Sorry to be annoying, but "PATCH for shmdt"
-Message-ID: <Pine.LNX.4.33.0112101516500.26955-100000@scully.>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284506AbRLJWDx>; Mon, 10 Dec 2001 17:03:53 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:27635 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S284470AbRLJWDk>; Mon, 10 Dec 2001 17:03:40 -0500
+Date: Mon, 10 Dec 2001 13:46:26 -0800
+From: Chris Wright <chris@wirex.com>
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+Cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on select: How big can the empty buffer space be before select returns ready-to-write?
+Message-ID: <20011210134626.A3537@figure1.int.wirex.com>
+Mail-Followup-To: Christopher Friesen <cfriesen@nortelnetworks.com>,
+	Ben Greear <greearb@candelatech.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C145359.3090401@candelatech.com> <20011209233349.C27109@figure1.int.wirex.com> <3C15077B.6AD2693E@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C15077B.6AD2693E@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Mon, Dec 10, 2001 at 02:05:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Unfortunately the patch I submitted for shmdt has been overlooked.
-It's not a very exciting patch, but it does bring the code into agreement
-with the manpage.  Here is an version of the patch updated for 2.4.16.
+* Christopher Friesen (cfriesen@nortelnetworks.com) wrote:
+> Chris Wright wrote:
+> > 
+> > * Ben Greear (greearb@candelatech.com) wrote:
+> > > For instance, it appears that select will return that a socket is
+> > > writable when there is, say 8k of buffer space in it.  However, if
+> > > I'm sending 32k UDP packets, this still causes me to drop packets
+> > > due to a lack of resources...
+> > 
+> > udp has a fixed 8k max payload. did you try breaking up your packets?
+> 
+> Are you sure about that? UDP has a 16-bit field for the length.  Thus the
+> standard technically allows for packet sizes (including header) of up to 2^16
+> (roughly 65K) bytes.
 
---- linux-2.4.16old/ipc/shm.c   Mon Dec  10 11:53:12 2001
-+++ linux-2.4.16/ipc/shm.c      Mon Dec  10 15:08:51 2001
-@@ -651,16 +651,19 @@
- {
-        struct mm_struct *mm = current->mm;
-        struct vm_area_struct *shmd, *shmdnext;
-+       int retcode=-EINVAL;
+no, you are absolutely right, it's 16 bits.  sorry for spewing
+misinformation.
 
-        down_write(&mm->mmap_sem);
-        for (shmd = mm->mmap; shmd; shmd = shmdnext) {
-                shmdnext = shmd->vm_next;
-                if (shmd->vm_ops == &shm_vm_ops
--                   && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) ==
-(ulong) shmaddr)
-+                   && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) ==
-(ulong) shmaddr) {
-                        do_munmap(mm, shmd->vm_start, shmd->vm_end -
-shmd->vm_start);
-+                       retcode=0;
-+               }
-        }
-        up_write(&mm->mmap_sem);
--       return 0;
-+       return retcode;
- }
-
- #ifdef CONFIG_PROC_FS
-
-
+cheers,
+-chris

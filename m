@@ -1,97 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbTILDGY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 23:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTILDGY
+	id S261502AbTILC7a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 22:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTILC73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 23:06:24 -0400
-Received: from mail.telpin.com.ar ([200.43.18.243]:4805 "EHLO
-	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S261343AbTILDGV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 23:06:21 -0400
-Date: Fri, 12 Sep 2003 00:06:14 -0300
-From: Alberto Bertogli <albertogli@telpin.com.ar>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: horrible usb keyboard bug with latest tests
-Message-ID: <20030912030614.GG6971@telpin.com.ar>
-Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
-	Andries Brouwer <aebr@win.tue.nl>,
-	=?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>,
-	linux-kernel@vger.kernel.org
-References: <20030911125744.89506.qmail@web60207.mail.yahoo.com> <20030911134608.GN15818@vega.digitel2002.hu> <20030911233823.A2383@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Thu, 11 Sep 2003 22:59:29 -0400
+Received: from lpz9-d9ba689f.pool.mediaWays.net ([217.186.104.159]:42142 "EHLO
+	router.abc") by vger.kernel.org with ESMTP id S261502AbTILC7Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 22:59:25 -0400
+Message-ID: <3F613680.6020200@baldauf.org>
+Date: Fri, 12 Sep 2003 04:59:12 +0200
+From: =?ISO-8859-1?Q?Xu=E2n_Baldauf?= 
+	<xuan--lkml--2003.09.12@baldauf.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030718
+X-Accept-Language: de-de, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: "busy" load counters
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030911233823.A2383@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
-X-RAVMilter-Version: 8.4.2(snapshot 20021217) (mail)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 11:38:23PM +0200, Andries Brouwer wrote:
-> On Thu, Sep 11, 2003 at 03:46:08PM +0200, Gábor Lénárt wrote:
-> > On Thu, Sep 11, 2003 at 05:57:44AM -0700, Mr. Mailing List wrote:
-> > > Ok, for the last few test kernels, there is a horribly
-> > > annoying usb keyboard bug.  after a while in X, or
-> > > just when you start putting some input, all the
-> > > keyboard lights on on my msnatpro keyboard.  after
-> > > that, the keycodes  are screwed up(like the left alt
-> > > button)
-> > > 
-> > > sometimes one key would stick, like
-> > > kkkkkkkkkkkkkkkkkkkkkkkkkk
-> > 
-> > For me too, even with a normal keyboard attached to the PS/2 keyboard port.
-> > In my case it's very rare, and not a 'constant stick' but short 'pulse' of
-> > the same character like displaying 'kkkkkkkkk' in my terminal even if I'm
-> > sure that I didn't forget my finger on the key. OK, it's not a showstopper
-> > bug, but sometimes annoying. It's 2.6.0-test3 (vanilla).
-> 
-> Yes, I see this too, but very infrequently.
-> 
-> For the 2.6 kernels key repeat is not taken from the keyboard but is
-> done via a kernel timer, and clearly the code is not quite correct.
-> I have not yet been able to detect it before I already
-> had hit the next key but maybe somebody else can answer:
+Currently, tools like "top" show stats like
 
-I hit it too on a PS/2 Siemens keyboard, but surprisingly I could only
-verify it with both windows keys on the right side of the keyboard (the
-ones between altgr and ctrl). It has never happened with a 'regular' key.
+  Cpu(s):  92.1% user,   6.9% system,   0.0% nice,   1.0% idle
 
-It's not very frequent but I get it about once per day or so.
+Unfortunately, these stats are not sufficient to determine wether the 
+system is "busy". Determining wether the system is "busy" is very useful 
+in case an interactive application (e.g. a shell or some shell command) 
+does not respond.
+Maybe it just hangs (waits for input) or does serious work (e.g. uses 
+the CPU or accesses the disk). Disk access is not visible in "top". 
+Depending on the machine, on disk accesses, there might be a slight or 
+significant rise in the "system" portion of those stats, but this is not 
+trustable.
 
-I use those keys to switch consoles, instead of using
-alt + [left|right] arrow; and sometimes one gets stucked and scrolls the
-consoles around until I press another key.
+I'd like a new stat "busy", which simply is one minus the time, when the 
+system is idle but does _not_ have outstanding IO requests. Users may 
+judge from this stat, wether their application waits for input or just 
+needs some time. This way, they know better what to do when they get 
+impatient, and they now it faster. (Yes, they can know it by looking up 
+all processes of their application, strace them and check wether the 
+actions observed involve just waiting and polling or maybe IO. But this 
+is very tedious.)
 
-I'm pretty sure it's not the keyboard as it never happened in 2.4, and
-it's been happening since 2.5.5X or .6X IIRC (in fact I think I posted
-something about it).
+How do you think about this? Would kernel hackers oppose such a 
+"feature" for any reason?
 
-
-> When does this repeat stop?
-> Does it stop because the next key has been hit?
-
-Yes, it stops on any keypress or, if I'm running X, when it hits the X
-console.
-
-
-> And: does it occur more often when the machine has high load?
-
-I have no idea, I really never thought about it but I'll put load and see
-what I can find. 
-
-Do you mean cpu load or some more complex vm load? (ie. I should "while
-true; do true ; done" or "make -j bzImage" =)
-
-
-Please let me know of anything else I can help you with.
-
-
-Thanks,
-		Alberto
+Xuân.
 
 

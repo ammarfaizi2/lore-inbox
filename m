@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVB1HsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVB1HuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVB1HsG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 02:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVB1HsG
+	id S261219AbVB1HuU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 02:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVB1HuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 02:48:06 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:9440 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261215AbVB1HsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 02:48:03 -0500
-Subject: Re: updating mtime for char/block devices?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42225CEE.1030104@gmx.net>
-References: <42225CEE.1030104@gmx.net>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 08:47:58 +0100
-Message-Id: <1109576878.6298.49.camel@laptopd505.fenrus.org>
+	Mon, 28 Feb 2005 02:50:20 -0500
+Received: from edu.joroinen.fi ([194.89.68.130]:64219 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S261219AbVB1HuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 02:50:13 -0500
+Date: Mon, 28 Feb 2005 09:50:12 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT] Preliminary w83627ehf hardware monitoring driver
+Message-ID: <20050228075012.GN25818@edu.joroinen.fi>
+References: <20050226191142.6288b2ef.khali@linux-fr.org> <20050227131027.GM25818@edu.joroinen.fi> <20050227184837.2563a454.khali@linux-fr.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050227184837.2563a454.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-28 at 00:51 +0100, Carl-Daniel Hailfinger wrote:
-> Hi,
+On Sun, Feb 27, 2005 at 06:48:37PM +0100, Jean Delvare wrote:
+> Hi Pasi,
 > 
-> is it intentional that
-> echo foo >/dev/hda1
-> doesn't update the mtime of the device node, but
-> echo foo >/dev/tty10
-> does update the mtime of the device node?
+> > Do you know about driver for W83627THF watchdog? I'm using Supermicro
+> > P8SCI motherboard, and I haven't found working driver for it..
 > 
-> And no, mounting with the noatime flag doesn't help because the
-> mtime is updated. IIRC some time ago this behaviour was different,
-> but I could easily be mistaken.
+> Have you tried w83627hf_wdt? I took a quick look at the W83627HF and
+> W83627THF datasheets and watchdog timer seems to work identically. Since
+> the driver doesn't seem to identify the chip (it probably should, BTW),
+> I'd expect it to work.
+> 
 
-devices are tricky in general in this respect, /dev may be mounted read
-only for example ;)
+Yes, I have tried it. It doesn't work. 
 
+The machine reboots always after the watchdog timeout set in the BIOS. I've
+tried with the example watchdog daemon from the watchdog.txt, and with the
+Debian "watchdog" package.
 
+When I enable the debug messages and logging in the Debian watchdog package,
+I can see that the watchdog daemon gets stuck while trying to update the
+/dev/watchdog.. so the driver hangs..
+
+-- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.

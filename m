@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbVDFXWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVDFX0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbVDFXWd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 19:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVDFXWd
+	id S262345AbVDFX0A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 19:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVDFX0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 19:22:33 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:57674 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262348AbVDFXWa (ORCPT
+	Wed, 6 Apr 2005 19:26:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19598 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262345AbVDFXZt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 19:22:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=XJS9fO4kyagOSs43kFxnCuH0T/mRoOyZJhuOFyuQVlTdjqE6fmWJFbLI49YCBWlEICuh2lHFuC39Od0DesMoQAaUfDZjacBp25eootNPKE/tYv42hNm27yx8pYU6RkXYJIKdHPSwO5ncxdC124RM0YIAfekPUx/cskOJF2I498k=
-Message-ID: <35fb2e590504061622364f72a@mail.gmail.com>
-Date: Thu, 7 Apr 2005 00:22:30 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Kernel SCM saga..
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	Wed, 6 Apr 2005 19:25:49 -0400
+Date: Wed, 6 Apr 2005 19:25:47 -0400
+From: Dave Jones <davej@redhat.com>
+To: Bob Gill <gillb4@telusplanet.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc2
+Message-ID: <20050406232547.GG9062@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Bob Gill <gillb4@telusplanet.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1112829652.8941.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112829652.8941.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 6, 2005 4:42 PM, Linus Torvalds <torvalds@osdl.org> wrote:
+On Wed, Apr 06, 2005 at 05:20:52PM -0600, Bob Gill wrote:
+ > OK.  So far so good.  I can get 2.6.12-rc2 to run fine if:
+ > 1. I do not in any way attempt to *ahem* overclock the box.
+ > --if I do, I get really ugly race errors flying around from just about
+ > everywhere (pick a device at random, have it trip, and the scheduler
+ > tripping right behind it).
 
-> as a number of people are already aware (and in some
-> cases have been aware over the last several weeks), we've
-> been trying to work out a conflict over BK usage over the last
-> month or two (and it feels like longer ;). That hasn't been
-> working out, and as a result, the kernel team is looking at
-> alternatives.
+"Doctor it hurts when I do this.."
 
-What about the 64K changeset limitation in current releases?
+ > 2. I do not attempt in any way to run any sort of Nvidia (non-GPL)
+ > driver. 
 
-Did I miss something (like the fixes promised) or is there going to be
-another interim release before the end of support?
+Totally unsurprising. They'll need serious brain surgery
+to work with the multi-gart support. I'm amazed they even
+compiled for you.
 
-Jon.
+		Dave
 
-P.S. Apologies if this already got addressed.

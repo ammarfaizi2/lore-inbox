@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266516AbRGLSt2>; Thu, 12 Jul 2001 14:49:28 -0400
+	id <S266514AbRGLSvI>; Thu, 12 Jul 2001 14:51:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266508AbRGLStJ>; Thu, 12 Jul 2001 14:49:09 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:26762
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S266507AbRGLSsx>; Thu, 12 Jul 2001 14:48:53 -0400
-Message-ID: <3B4DF114.44272B74@nortelnetworks.com>
-Date: Thu, 12 Jul 2001 14:48:52 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting?
-In-Reply-To: <200107121623.f6CGNV569053@saturn.cs.uml.edu>
+	id <S266508AbRGLSu6>; Thu, 12 Jul 2001 14:50:58 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:6152 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266507AbRGLSuh>;
+	Thu, 12 Jul 2001 14:50:37 -0400
+Date: Thu, 12 Jul 2001 11:47:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Hans Reiser <reiser@namesys.com>, LA Walsh <law@sgi.com>,
+        reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com
+Subject: Re: Security hooks, "standard linux security" & embedded use
+Message-ID: <20010712114729.B735@kroah.com>
+In-Reply-To: <3B49F602.DB39B3A@sgi.com> <3B4DDFD8.27C1C3D9@namesys.com> <5.1.0.14.2.20010712192608.0365e588@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.1.0.14.2.20010712192608.0365e588@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Thu, Jul 12, 2001 at 07:37:36PM +0100
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" wrote:
+On Thu, Jul 12, 2001 at 07:37:36PM +0100, Anton Altaparmakov wrote:
+> 
+> This seems very good in view of implementing ACL support for NTFS, too. - 
+> We have all the NTFS layout knowledge to do it now. We just lack the 
+> kernel/user space infrastructure.
+> 
+> When designing this modular security infrastructure it would be useful if 
+> it is made generic enough to allow callbacks into user space for permission 
+> checking.
 
-> The 24x7 places might be willing to pay somebody to do this.
-> It's consulting work really. The customer says "I want to go
-> from 2.4.8 to 2.4.12", you say "OK, $320405 please.", and you
-> make a custom upgrade procedure for them.
+The current model lets you do whatever you want in your kernel module.
+It imposes no policy, that's up to you.
 
-Speaking as someone who is working on what will eventually be a five 9's project
-based on linux, there is almost zero chance that we would make use of something
-like this.  Applications and kernels are tested together and verified together,
-and the likelihood of changing either one and not the other one is very low (and
-in fact they are shipped together as a single image).
+All the better to keep userspace callbacks for security out of my
+kernels, for that way is ripe for problems (for specific examples why,
+see the linux-security-module mailing list archives.)
 
-We have hardware redundancy, and upgrades are controlled by the application,
-since it knows exactly what state must be transferred and what the differences
-are between versions.  After all the state has been transferred we then do an IP
-takeover so that the rest of the system knows to talk to the new side.  At this
-point we can test the new side for a while.  If we're satisfied with how its
-performing, we can then take down the inactive side and upgrade it and then
-bring it back into sync with the active side.  If we don't like it, we can
-always abort and switch back to the old version.
+thanks,
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+greg k-h

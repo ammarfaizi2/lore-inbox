@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbSLLQKV>; Thu, 12 Dec 2002 11:10:21 -0500
+	id <S264702AbSLLQNd>; Thu, 12 Dec 2002 11:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSLLQKV>; Thu, 12 Dec 2002 11:10:21 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:51425 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S263991AbSLLQKU> convert rfc822-to-8bit; Thu, 12 Dec 2002 11:10:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: "Alexandre Pires" <linux_kernel_br@yahoo.com.br>,
-       <linux-kernel@vger.kernel.org>
+	id <S264756AbSLLQNd>; Thu, 12 Dec 2002 11:13:33 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:54149 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264702AbSLLQNc>; Thu, 12 Dec 2002 11:13:32 -0500
+Date: Thu, 12 Dec 2002 11:23:29 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alexandre Pires <linux_kernel_br@yahoo.com.br>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Modules and dll
-Date: Thu, 12 Dec 2002 10:17:56 -0600
-User-Agent: KMail/1.4.1
-References: <03d501c2a1fe$7b371dd0$6400a8c0@sawamu>
 In-Reply-To: <03d501c2a1fe$7b371dd0$6400a8c0@sawamu>
+Message-ID: <Pine.LNX.3.95.1021212112043.30483A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212121017.56923.pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 December 2002 10:49 am, Alexandre Pires wrote:
+On Thu, 12 Dec 2002, Alexandre Pires wrote:
+
 > Hi,
->
+> 
 >     We could compare the modules programs of linux with dlls of Windows ?
 > Exist many differences between them (in relation to the functioning) ?
+> 
+> Thanks
+> Alexandre R. Pires
+> Brasil
 
-no. Windows DLLs are more like shared libraries. They are easily replaced (if
-inactive), and do not directly destroy the system if missing.
+They are completely different. The only thing in common is that they
+exist as files. Under windows, DLL are like the run-time library files
+you see in /lib and /usr/lib. They have something in common with
+shared object files. Beyond that, they are very different.
 
-DLLs are connected to applications via subroutine calls (Win DLL and shared 
-libraries), modules are usually accessed via special files, or system calls. 
-There is no direct linking (by memory mapping the module code to the user 
-mode application). Shared libraries are done this way.
 
-Modules are closer to the device drivers in windows, which is what most
-modules support. They can also support extending the OS by adding
-additional capabilities - TCP/IP, IPv4, and IPv6 come to mind as some of the
-most used, followed by the loadable binary interpretation (elf vs a.out).
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-Another difference is the way they are used - modules are loaded into
-kernel mapping either by a kernel resident loader, or a userspace tool that
-does the same. Shared libraries and DLLs are just put on disk where the
-applications have been linked to expect them (or use an environment
-variable to provide a search list of places to look when the application is
-run.
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

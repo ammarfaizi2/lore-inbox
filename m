@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288013AbSABXhr>; Wed, 2 Jan 2002 18:37:47 -0500
+	id <S288018AbSABXj1>; Wed, 2 Jan 2002 18:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288027AbSABXg3>; Wed, 2 Jan 2002 18:36:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9740 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288020AbSABXf7> convert rfc822-to-8bit; Wed, 2 Jan 2002 18:35:59 -0500
-Message-ID: <3C339608.6030201@zytor.com>
-Date: Wed, 02 Jan 2002 15:21:44 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S288016AbSABXhu>; Wed, 2 Jan 2002 18:37:50 -0500
+Received: from mail.actcom.co.il ([192.114.47.13]:38794 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S287169AbSABXg2>; Wed, 2 Jan 2002 18:36:28 -0500
+Message-Id: <200201022335.g02NZaj10253@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: SCSI host numbers?
+Date: Thu, 3 Jan 2002 01:35:32 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
 MIME-Version: 1.0
-To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-CC: robert@schwebel.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Dave Jones <davej@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        Jason Sodergren <jason@mugwump.taiga.com>,
-        Anders Larsen <anders@alarsen.net>, rkaiser@sysgo.de
-Subject: Re: [PATCH][RFC] AMD Elan patch
-In-Reply-To: <Pine.LNX.4.33.0201021823210.3056-100000@callisto.local> <3C339284.3F88FE68@loewe-komp.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g02NLiS03088
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Wächtler wrote:
+On Wednesday 02 January 2002 01:32 pm, Alan Cox wrote:
+> > Under some scenarios Linux assigns the same
+> > host_no to more than one scsi device.
+> >
+> > Can someone tell me what is the intended behavior?
+>
+> A number should never be reissued.
+>
+> > The problem is that a newly registered device gets
+> > its host_no from max_scsi_host. max_scsi_host is
+> > decremented when a device driver is unregistered
+> > (see drivers/scsi/host.c) allowing a second new
+> > host to reuse the same host_no.
+>
+> I guess it needs to either only decrement the count if we are the highest
 
->>
->>Model  0ah means "enhanced Am486 SX1 write back mode"
->>Family 04h means "Am486 CPU"
->>
->>Which IMHO doesn't say that this combination means _exactly_ the SC410.
->>
-> IIRC the difference between SC410 and SC400 is an embedded PCMCIA controller
-> and perhaps a LCD controller.
-> The CPU core should be the same.
-> 
+I'll argue that it should never decrement. The host that was just
+unregisrtered already has its host_id reserved and if we decrement,
+this number will be reasigned to the next new scsi host.
 
-The problem is that we're talking about problems in the chipset portion.
+Unless if the code for reservation that causes the conflicts
+is removed (but I guess it has a reason).
 
-	-hpa
+> one (trivial hack) or scan for a free number/keep a free bitmap. The devfs
+> code has a handy little unique_id function for that
+
+That would not solve it. The problem is that one piece of code
+tries to allocate unique numbers (and get them back to the pool
+when they are not in use), another piece of code remembers the
+old number that a scsi host had and whan it re-registers gives
+it back its old host_no regardless if this number was re-assigned
+to a new host.
+
+Is there a function that given a string returns a unique number
+for this string? That would do the job.
+
+-- Itai
+
 

@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271329AbRHTQOD>; Mon, 20 Aug 2001 12:14:03 -0400
+	id <S271319AbRHTQNn>; Mon, 20 Aug 2001 12:13:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271321AbRHTQNx>; Mon, 20 Aug 2001 12:13:53 -0400
-Received: from panther.noc.ucla.edu ([169.232.10.21]:8179 "EHLO
-	panther.noc.ucla.edu") by vger.kernel.org with ESMTP
-	id <S271320AbRHTQNr>; Mon, 20 Aug 2001 12:13:47 -0400
-Message-ID: <3B813743.5080400@ucla.edu>
-Date: Mon, 20 Aug 2001 09:13:55 -0700
-From: Benjamin Redelings I <bredelin@ucla.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010813
-X-Accept-Language: en-us
+	id <S271320AbRHTQNd>; Mon, 20 Aug 2001 12:13:33 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7945 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271319AbRHTQNU>; Mon, 20 Aug 2001 12:13:20 -0400
+Subject: Re: PATCH: linux-2.4.9/drivers/i2o to new module_{init,exit} interface
+To: adam@yggdrasil.com (Adam J. Richter)
+Date: Mon, 20 Aug 2001 17:15:55 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, deepak@plexity.net, linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Adam J. Richter" at Aug 20, 2001 08:15:26 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.4.8/2.4.9 VM problems
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15YriV-0006Ih-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Could you please try this patch against 2.4.9 (patch -p0):
-> 
-> --- ../2.4.9.clean/mm/memory.c	Mon Aug 13 19:16:41 2001
-> +++ ./mm/memory.c	Sun Aug 19 21:35:26 2001
-> @@ -1119,6 +1119,7 @@
->  			 */
->  			return pte_same(*page_table, orig_pte) ? -1 : 1;
->  		}
-> +		SetPageReferenced(page);
->  	}
->  
->  	/*
-> 
+> declarations in linux/Makefile.  (If you really need i2o
+> initialization to occur earlier than do_initcalls(), then that would
+> also mean that i2o cannot be a module, right?)
 
+In certain configurations you are correct
 
-Well, I tried this, and.... WOW!  Much better  [:)]
-Was it really true, that swapped in pages didn't get marked as 
-referenced before?  It almost felt that bad, but that seems kind of 
-crazy - I don't completely understand what this fix is doing...
+> 	If you want, I can send you a new patch that changes
+> linux/Makefile to initialize i2o before just before drivers/block,
+> thereby reproducing the current initialization order, and, of course,
 
--BenRI
-P.S. I tried this on my 64Mb PPro and a 128Mb PIII, and both felt like 
-they had a lot more memory - e.g. less swapping and stuff.
--- 
-"I will begin again" - U2, 'New Year's Day'
-Benjamin Redelings I      <><     http://www.bol.ucla.edu/~bredelin/
-
+Sounds ok to me - Im not against tidying it up. Note btw the -ac i2o code
+is a little different to vanilla and is the 'current' one. I think your
+patches will apply fine however as the changes are small

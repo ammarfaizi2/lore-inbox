@@ -1,59 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267890AbUH1AZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267899AbUH1AZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267890AbUH1AZn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUH1AZj
+	id S267899AbUH1AZR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267889AbUH1AXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:25:39 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:26242
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S267890AbUH1AYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:24:24 -0400
-Date: Fri, 27 Aug 2004 17:23:37 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: ak@suse.de, akpm@osdl.org, wli@holomorphy.com, davem@redhat.com,
-       raybry@sgi.com, ak@muc.de, benh@kernel.crashing.org,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch final : i386 tested, x86_64
- support added
-Message-Id: <20040827172337.638275c3.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0408271717400.15597@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com>
-	<20040815165827.0c0c8844.davem@redhat.com>
-	<Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com>
-	<20040815185644.24ecb247.davem@redhat.com>
-	<Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
-	<20040816143903.GY11200@holomorphy.com>
-	<B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
-	<B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
-	<B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
-	<Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
-	<20040827233602.GB1024@wotan.suse.de>
-	<Pine.LNX.4.58.0408271717400.15597@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 20:23:23 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:38629 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S267869AbUH1AUy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 20:20:54 -0400
+Date: Sat, 28 Aug 2004 01:20:53 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK pull] DRM tree - fix some missing 0->NULL and __user
+Message-ID: <Pine.LNX.4.58.0408280119500.23054@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004 17:19:11 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
 
-> That is still 2^(32+12) = 2^44 = 16TB.
+Please do a
 
-It's actually:
+	bk pull bk://drm.bkbits.net/drm-2.6
 
-	2 ^ (31 + PAGE_SHIFT)
+This will include the latest DRM changes and will update the following files:
 
-'31' because atomic_t is 'signed' and PAGE_SHIFT should
-be obvious.
+ drivers/char/drm/i915_dma.c |    2 +-
+ drivers/char/drm/i915_mem.c |   18 +++++++++---------
+ drivers/char/drm/sis_mm.c   |    7 ++++---
+ 3 files changed, 14 insertions(+), 13 deletions(-)
 
-Christoph definitely has a point, this is even more virtual space
-than most of the 64-bit platforms even support.  (Sparc64 is
-2^43 and I believe ia64 is similar)  and this limit actually
-mostly comes from the 3-level page table limits.
+through these ChangeSets:
 
+<airlied@starflyer.(none)> (04/08/28 1.1876)
+   Add some missing NULL->0 and __user annotiations
+
+   Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+diff -Nru a/drivers/char/drm/i915_dma.c b/drivers/char/drm/i915_dma.c
+--- a/drivers/char/drm/i915_dma.c	Sat Aug 28 10:18:25 2004
++++ b/drivers/char/drm/i915_dma.c	Sat Aug 28 10:18:25 2004
+@@ -429,7 +429,7 @@
+ 				     drm_i915_batchbuffer_t * batch)
+ {
+ 	drm_i915_private_t *dev_priv = dev->dev_private;
+-	drm_clip_rect_t *boxes = batch->cliprects;
++	drm_clip_rect_t __user *boxes = batch->cliprects;
+ 	int nbox = batch->num_cliprects;
+ 	int i = 0, count;
+ 	RING_LOCALS;
+diff -Nru a/drivers/char/drm/i915_mem.c b/drivers/char/drm/i915_mem.c
+--- a/drivers/char/drm/i915_mem.c	Sat Aug 28 10:18:25 2004
++++ b/drivers/char/drm/i915_mem.c	Sat Aug 28 10:18:25 2004
+@@ -80,7 +80,7 @@
+ 			goto out;
+ 		newblock->start = start;
+ 		newblock->size = p->size - (start - p->start);
+-		newblock->filp = 0;
++		newblock->filp = NULL;
+ 		newblock->next = p->next;
+ 		newblock->prev = p;
+ 		p->next->prev = newblock;
+@@ -96,7 +96,7 @@
+ 			goto out;
+ 		newblock->start = start + size;
+ 		newblock->size = p->size - size;
+-		newblock->filp = 0;
++		newblock->filp = NULL;
+ 		newblock->next = p->next;
+ 		newblock->prev = p;
+ 		p->next->prev = newblock;
+@@ -118,7 +118,7 @@
+
+ 	for (p = heap->next; p != heap; p = p->next) {
+ 		int start = (p->start + mask) & ~mask;
+-		if (p->filp == 0 && start + size <= p->start + p->size)
++		if (p->filp == NULL && start + size <= p->start + p->size)
+ 			return split_block(p, start, size, filp);
+ 	}
+
+@@ -138,12 +138,12 @@
+
+ static void free_block(struct mem_block *p)
+ {
+-	p->filp = 0;
++	p->filp = NULL;
+
+ 	/* Assumes a single contiguous range.  Needs a special filp in
+ 	 * 'heap' to stop it being subsumed.
+ 	 */
+-	if (p->next->filp == 0) {
++	if (p->next->filp == NULL) {
+ 		struct mem_block *q = p->next;
+ 		p->size += q->size;
+ 		p->next = q->next;
+@@ -151,7 +151,7 @@
+ 		DRM_FREE(q, sizeof(*q));
+ 	}
+
+-	if (p->prev->filp == 0) {
++	if (p->prev->filp == NULL) {
+ 		struct mem_block *q = p->prev;
+ 		q->size += p->size;
+ 		q->next = p->next;
+@@ -177,7 +177,7 @@
+
+ 	blocks->start = start;
+ 	blocks->size = size;
+-	blocks->filp = 0;
++	blocks->filp = NULL;
+ 	blocks->next = blocks->prev = *heap;
+
+ 	memset(*heap, 0, sizeof(**heap));
+@@ -197,7 +197,7 @@
+
+ 	for (p = heap->next; p != heap; p = p->next) {
+ 		if (p->filp == filp) {
+-			p->filp = 0;
++			p->filp = NULL;
+ 			mark_block(dev, p, 0);
+ 		}
+ 	}
+@@ -206,7 +206,7 @@
+ 	 * 'heap' to stop it being subsumed.
+ 	 */
+ 	for (p = heap->next; p != heap; p = p->next) {
+-		while (p->filp == 0 && p->next->filp == 0) {
++		while (p->filp == NULL && p->next->filp == NULL) {
+ 			struct mem_block *q = p->next;
+ 			p->size += q->size;
+ 			p->next = q->next;
+diff -Nru a/drivers/char/drm/sis_mm.c b/drivers/char/drm/sis_mm.c
+--- a/drivers/char/drm/sis_mm.c	Sat Aug 28 10:18:25 2004
++++ b/drivers/char/drm/sis_mm.c	Sat Aug 28 10:18:25 2004
+@@ -90,9 +90,10 @@
+ {
+ 	drm_sis_mem_t fb;
+ 	struct sis_memreq req;
++	drm_sis_mem_t __user *argp = (void __user *)data;
+ 	int retval = 0;
+
+-	DRM_COPY_FROM_USER_IOCTL(fb, (drm_sis_mem_t *)data, sizeof(fb));
++	DRM_COPY_FROM_USER_IOCTL(fb, argp, sizeof(fb));
+
+ 	req.size = fb.size;
+ 	sis_malloc(&req);
+@@ -111,7 +112,7 @@
+ 		fb.free = 0;
+ 	}
+
+-	DRM_COPY_TO_USER_IOCTL((drm_sis_mem_t *)data, fb, sizeof(fb));
++	DRM_COPY_TO_USER_IOCTL(argp, fb, sizeof(fb));
+
+ 	DRM_DEBUG("alloc fb, size = %d, offset = %d\n", fb.size, req.offset);
+
+@@ -123,7 +124,7 @@
+ 	drm_sis_mem_t fb;
+ 	int retval = 0;
+
+-	DRM_COPY_FROM_USER_IOCTL(fb, (drm_sis_mem_t *)data, sizeof(fb));
++	DRM_COPY_FROM_USER_IOCTL(fb, (drm_sis_mem_t __user *)data, sizeof(fb));
+
+ 	if (!fb.free)
+ 		return DRM_ERR(EINVAL);

@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136399AbREDONG>; Fri, 4 May 2001 10:13:06 -0400
+	id <S136394AbREDOU5>; Fri, 4 May 2001 10:20:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136398AbREDOM4>; Fri, 4 May 2001 10:12:56 -0400
-Received: from wks79.navicsys.com ([207.180.73.79]:53211 "EHLO noop")
-	by vger.kernel.org with ESMTP id <S136395AbREDOMm>;
-	Fri, 4 May 2001 10:12:42 -0400
-To: linux-kernel@vger.kernel.org
-Subject: console=ttyS0 doesn't work 2.4.4
-From: Nick Papadonis <npapadon@yahoo.com>
-Organization: None
-X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
- <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
- !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
-Content-Type: text/plain; charset=US-ASCII
-Date: 04 May 2001 10:09:43 -0400
-Message-ID: <m3zoct9peg.fsf@yahoo.com>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Cuyahoga Valley)
+	id <S136395AbREDOUr>; Fri, 4 May 2001 10:20:47 -0400
+Received: from colorfullife.com ([216.156.138.34]:8206 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S136394AbREDOUb>;
+	Fri, 4 May 2001 10:20:31 -0400
+Message-ID: <3AF2BAA4.E3B6C6B2@colorfullife.com>
+Date: Fri, 04 May 2001 16:20:20 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: expand_stack: small race
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compiled the Linux kernel v2.4.4 and can't get 'console=ttyS0,115200
-console=tty0' to work.  This appended line works fine when I boot
-into my 2.2.x series kernel.
+expand_stack is only protected with down_read(&mmap_sem), and thus 2
+thread could grow a vma at the same time.
 
-Anyone have similar problems?  Has anyone verified serial console
-output works with the 2.4.x kernels?  Thanks.
+I think the spin_lock(&page_table_lock) should be moved up before the
+calculation of grow.
 
-- Nick
+And map_user_kiobuf() doesn't honor VM_LOCKED for VM_GROWSDOWN segments.
+Probably it should be switched to find_extend_vma instead of the
+do-it-yourself implementation.
 
-Here is my /etc/lilo.conf:
-boot=/dev/hda
-map=/boot/map
-install=/boot/boot.b
-prompt
-timeout=50
-message=/boot/message
-linear
-default=linuxold
-append="console=ttyS0,115200 console=tty0"
-
-image=/boot/vmlinuz-2.2.16-22
-        label=linuxold
-        read-only
-        root=/dev/hda6
-
-image=/boot/vmlinuz-2.4.4
-        label=linux
-        read-only
-        root=/dev/hda6
-
+--
+	Manfred

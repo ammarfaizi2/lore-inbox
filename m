@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276648AbRJQNgJ>; Wed, 17 Oct 2001 09:36:09 -0400
+	id <S276686AbRJQNhT>; Wed, 17 Oct 2001 09:37:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276642AbRJQNgA>; Wed, 17 Oct 2001 09:36:00 -0400
-Received: from sushi.toad.net ([162.33.130.105]:20636 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S276648AbRJQNfx>;
-	Wed, 17 Oct 2001 09:35:53 -0400
-Subject: Re: [PATCH] PnP BIOS -- bugfix; update devlist on setpnp
-From: Thomas Hood <jdthood@mail.com>
-To: "Steven A. DuChene" <sduchene@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011017041014.B2015@lapsony.mydomain.here>
-In-Reply-To: <1003288485.14282.100.camel@thanatos> 
-	<20011017041014.B2015@lapsony.mydomain.here>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 17 Oct 2001 09:35:34 -0400
-Message-Id: <1003325742.12542.164.camel@thanatos>
+	id <S276682AbRJQNhB>; Wed, 17 Oct 2001 09:37:01 -0400
+Received: from babel.apana.org.au ([202.12.88.4]:46596 "EHLO
+	babel.apana.org.au") by vger.kernel.org with ESMTP
+	id <S276642AbRJQNgr>; Wed, 17 Oct 2001 09:36:47 -0400
+Date: Wed, 17 Oct 2001 23:40:39 +1000
+From: John August <johna@babel.apana.org.au>
+To: linux-kernel@vger.kernel.org
+Subject: keyboard / shutdown problem on 2.4.10
+Message-ID: <20011017234039.D5068@babel.apana.org.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-17 at 04:10, Steven A. DuChene wrote:
-> OK, I tried this with the Intel STL2 motherboard I also have and I got
-> a similar error when trying to load the correct i2c bus module when the
-> PnPBIOS stuff is compiled into the kernel.
+I am using kernel 2.4.10 and am not aware of these issues being fixed
+for 2.4.12, based on jitterbug.  I'll upgrade to a 2.4.12 plus patches
+if there's a good chance of them being fixed.
 
-Understood.
+I am using a 1.2 GHZ Athlon with a K7VZA mainboard. 
 
-I'd just like to reiterate that my patch isn't the cause
-of your problem.  It's just that my patch doesn't address
-your problem.  IIUC.
+When I issue a shutdown command, the computer halts but does not turn
+itself off. This functionality was present on a 2.4.2-2 kernel, where
+the computer turned itself off.
 
-I provided a "workaround patch" before.  Can you continue
-to use that for the time being?
+When I press the alt key in order to type in three digits to get keyboard
+codes above 128, this does not work. I also have problems in remapping
+the keyboard to get these high codes, but this could be operator error.
 
-I'd like to make a promise that I'll submit a new patch
-soon that will address your problem; however I don't yet know
-exactly how to go about addressing it.
+This functionality was present on a 2.2.17 kernel. The keyboard was 
+munged by consolechars, but at least it started out working (again, this
+could be operator error).
 
---
-Thomas
+I'm not on the list, please forward any replies.
 
+Thanks,
+
+-- 
+John August
+
+There are no bad blocks.
+There are only bad users.

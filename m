@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267560AbTA3Rbn>; Thu, 30 Jan 2003 12:31:43 -0500
+	id <S267569AbTA3RiS>; Thu, 30 Jan 2003 12:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267566AbTA3Rbn>; Thu, 30 Jan 2003 12:31:43 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62159 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267560AbTA3Rbn>;
-	Thu, 30 Jan 2003 12:31:43 -0500
-Date: Thu, 30 Jan 2003 17:36:42 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Rodland <arodland@noln.com>,
-       john@grabjohn.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] 2.5.59 morse code panics
-Message-ID: <20030130173642.GB25824@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Tomas Szepe <szepe@pinerecords.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Andrew Rodland <arodland@noln.com>, john@grabjohn.com,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030130150709.GC701@louise.pinerecords.com>
+	id <S267571AbTA3RiS>; Thu, 30 Jan 2003 12:38:18 -0500
+Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:44733
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S267569AbTA3RiR>; Thu, 30 Jan 2003 12:38:17 -0500
+Subject: Re: Secure usage of netfilter hooks
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Abhishek Singh <abhi@cc.gatech.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0301301229130.22137-100000@novascotia-lnx.cc.gatech.edu>
+References: <Pine.LNX.4.44.0301301229130.22137-100000@novascotia-lnx.cc.gatech.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-5XhnoakRM5n4De64J8xs"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Jan 2003 17:47:51 +0000
+Message-Id: <1043948872.720.28.camel@lemsip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030130150709.GC701@louise.pinerecords.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 30, 2003 at 04:07:09PM +0100, Tomas Szepe wrote:
- > Here's the initial port of Andrew Rodland's morse code panics to
- > 2.5.  It's probably got a few issues that need to be sorted out:
- > at least the acquisition of the atkbd handle is a shameful hack.
- > The original regular blinking code from ac has been removed,
- > because it's no use when we've got morse about. :)
- > 
- > Any comments appreciated, patch against 2.5.59.
 
-I forwarded Linus a copy of Andi Kleens original
-'blink leds on panic' patch circa 2.5.3 or so.
-He rejected it due to not wanting PC-isms in kernel/
+--=-5XhnoakRM5n4De64J8xs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-As this patch further builds upon the previous one,
-It'd take a complete change of mind on his part to take
-this as it is.
+On Thu, 2003-01-30 at 17:33, Abhishek Singh wrote:
+> Is it possible for a netfilter hook registered during module insertion=20
+> time to be removed by a userspace application (such as iptables) without=20
+> the insertion of a new module?=20
 
-		Dave
+Yeah, remove all rules using it and rmmod the module.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+> What I am trying to do is implement a hook for secure packet processing=20
+> using netfilter. If however an attacker can remove this hook without=20
+> inserting a new module or compromising the kernel in some way then the=20
+> security level of this hook is compromised.=20
+
+You gotta be root to manipulate iptables. If a user could manipulate ANY
+iptables rules security would already be compromised because any user
+could fuck with firewall rules.
+
+HTH
+
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-5XhnoakRM5n4De64J8xs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+OWVHkbV2aYZGvn0RAm0+AJ0b/3IEyAt0ZgsZS2s/xtbcrVxfcgCeMDEm
+5RXQdXLDdYydHZpY+yLza58=
+=4N2U
+-----END PGP SIGNATURE-----
+
+--=-5XhnoakRM5n4De64J8xs--
+

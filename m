@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284464AbRLEQ0Y>; Wed, 5 Dec 2001 11:26:24 -0500
+	id <S284467AbRLEQed>; Wed, 5 Dec 2001 11:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284462AbRLEQ0P>; Wed, 5 Dec 2001 11:26:15 -0500
-Received: from speech.linux-speakup.org ([129.100.109.30]:38550 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S284488AbRLEQ0A>; Wed, 5 Dec 2001 11:26:00 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.1pre5 vt_kern.h small patch
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 05 Dec 2001 11:25:56 -0500
-In-Reply-To: <20011205155950.68336.qmail@web20207.mail.yahoo.com>
-Message-ID: <x7vgflr5uz.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S284472AbRLEQeN>; Wed, 5 Dec 2001 11:34:13 -0500
+Received: from gap.cco.caltech.edu ([131.215.139.43]:33773 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S284462AbRLEQeD>; Wed, 5 Dec 2001 11:34:03 -0500
+Message-Id: <5.0.2.1.0.20011205170157.01a7ae98@pop.mail.yahoo.fr>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Wed, 05 Dec 2001 17:05:05 +0100
+To: mlist-linux-kernel@nntp-server.caltech.edu
+From: Romain Giry <romain_giry@yahoo.fr>
+Subject: 
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux/include/linux/vt_kern.h~	Wed Dec  5 10:12:17 2001
-+++ linux/include/linux/vt_kern.h	Wed Dec  5 10:45:20 2001
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/tty.h> /* needed for MAX_NR_CONSOLES */
- #include <linux/vt.h>
- #include <linux/kd.h>
- 
+Hi
 
--- 
+i would like to know how the network layer does to know what is the upper 
+layer protocol in order to fill in correctly the protocol field in the 
+header it adds to the packet before sending it. I'm doing a ethernet device 
+that doesn't add any header to the packet but change the output device, 
+then i should say the network device that the packet is like if it has been 
+sent by the ip protocol.
 
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
+Thanks,
+
+Romain Giry
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

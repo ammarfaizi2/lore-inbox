@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265077AbUFRJZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265056AbUFRJZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265077AbUFRJZj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 05:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbUFRJZC
+	id S265056AbUFRJZk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 05:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbUFRJYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 05:25:02 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6919 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265090AbUFRJV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 05:21:26 -0400
-Date: Fri, 18 Jun 2004 10:21:20 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Proposal for new generic device API: dma_get_required_mask()
-Message-ID: <20040618102120.A29213@flint.arm.linux.org.uk>
-Mail-Followup-To: Krzysztof Halasa <khc@pm.waw.pl>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <1087481331.2210.27.camel@mulgrave> <m33c4tsnex.fsf@defiant.pm.waw.pl>
+	Fri, 18 Jun 2004 05:24:51 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:65230 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265056AbUFRJTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 05:19:07 -0400
+Date: Fri, 18 Jun 2004 11:19:06 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/11] serio allow rebinding
+Message-ID: <20040618091905.GW20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200406180335.52843.dtor_core@ameritech.net> <200406180341.39441.dtor_core@ameritech.net> <200406180342.11056.dtor_core@ameritech.net> <200406180342.41100.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3cc2EX29X/RgR76S"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m33c4tsnex.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Fri, Jun 18, 2004 at 02:46:46AM +0200
+In-Reply-To: <200406180342.41100.dtor_core@ameritech.net>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 02:46:46AM +0200, Krzysztof Halasa wrote:
-> If we fix the API we should IMHO also remove set_dma_mask() and add
-> the number of address bits to the arguments of actual mapping
-> functions.
 
-Good idea, except for the fact that we have drivers merged which have
-real masks like 0x0fefffff.  It _really is_ a mask and not a number
-of bits.
+--3cc2EX29X/RgR76S
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+On Fri, 2004-06-18 03:42:39 -0500, Dmitry Torokhov <dtor_core@ameritech.net>
+wrote in message <200406180342.41100.dtor_core@ameritech.net>:
+> ChangeSet@1.1798, 2004-06-18 02:31:47-05:00, dtor_core@ameritech.net
+>   Input: allow users manually rebind serio ports, like this:
+>          echo -n "psmouse" > /sys/bus/serio/devices/serio0/driver
+>          echo -n "atkbd" > /sys/bus/serio/devices/serio1/driver
+>          echo -n "none" > /sys/devices/serio1/driver
+>   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+I specifically like this one.
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--3cc2EX29X/RgR76S
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA0rOJHb1edYOZ4bsRAmaFAJ9qo47SAwW+o6GSIkW+hoKYUINGIACfX8oG
+v32wLHduOAZyzb99ZVGv6ws=
+=HDwI
+-----END PGP SIGNATURE-----
+
+--3cc2EX29X/RgR76S--

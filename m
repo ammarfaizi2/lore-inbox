@@ -1,100 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266448AbUBQS4w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 13:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266452AbUBQS4w
+	id S266454AbUBQTAT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 14:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266452AbUBQTAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 13:56:52 -0500
-Received: from pengo.systems.pipex.net ([62.241.160.193]:58754 "EHLO
-	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S266448AbUBQS4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 13:56:49 -0500
-Message-ID: <403263EE.9010609@emergence.uk.net>
-Date: Tue, 17 Feb 2004 18:56:46 +0000
-From: Jonathan Brown <jbrown@emergence.uk.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.3-rc4
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 14:00:19 -0500
+Received: from main.gmane.org ([80.91.224.249]:59849 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266454AbUBQTAP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 14:00:15 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+Date: Tue, 17 Feb 2004 20:00:08 +0100
+Message-ID: <yw1xr7wtcz0n.fsf@ford.guide>
+References: <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org>
+ <20040216200321.GB17015@schmorp.de>
+ <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
+ <20040216222618.GF18853@mail.shareable.org>
+ <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
+ <20040217071448.GA8846@schmorp.de>
+ <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
+ <20040217161111.GE8231@schmorp.de>
+ <Pine.LNX.4.58.0402170820070.2154@home.osdl.org>
+ <20040217164651.GB23499@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: c-95a870d5.037-69-73746f23.cust.bredbandsbolaget.se
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:KS+fKYUbewnBANVWKc/ovmhhTs8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Ok,
->  I'm planning on doing the final 2.6.3 tomorrow, so please test this 
-> final -rc.
-> 
-> Most notably, this should support ppc/ppc64 out-of-the-box, complete with
-> G5 support (64-bit). Special thanks to BenH who made sure the new radeonfb
-> driver works on a wide variety of hardware (a number of the fixes here
-> relative to -rc3 was making sure the driver works on regular x86 laptops).
+Jamie Lokier <jamie@shareable.org> writes:
 
-There are still two problems with the radeonfb on my IBM X31:
+> Linus Torvalds wrote:
+>> I think the filenames are just ways for a _program_ to look up stuff, and
+>> the human readability is a secondary thing (it's "polite", but not a
+>> fundamental part of their meaning).
+>
+> Politeness is nice.  I'm sure there's a pragmatic reason most
+> filenames are meaningful text in some human language :)
+>
+> I'd like a way to type something like "touch zöe.txt" on an ordinary
+> latin1 terminal and get a UTF-8 filename in my filesystem.  Thanks :)
 
-1) The screen is garbled when the fb kicks in at boot - its not 
-converting the text from the VGA console correctly. I have a photo of 
-this here: http://emergence.uk.net/radeonfb_corruption.jpeg
+Then hack either bash (or whatever shell you use) or touch to do just that.
 
-2) If I run X and then exit X or switch to a fb vt then the bottom line 
-doesn't clear when scrolling and running `clear` only clears the middle 
-line of pixels on each line of text.
+-- 
+Måns Rullgård
+mru@kth.se
 
-radeonfb_pci_register BEGIN
-radeonfb: probed DDR SGRAM 16384k videoram
-radeonfb: mapped 16384k videoram
-radeonfb: Invalid ROM signature 0 should be 0xaa55
-radeonfb: Retreived PLL infos from BIOS
-radeonfb: Reference=27.00 MHz (RefDiv=60) Memory=144.00 Mhz, 
-System=144.00 MHz
-1 chips in connector info
-  - chip 1 has 1 connectors
-   * connector 0 of type 2 (CRT) : 2300
-Starting monitor auto detection...
-Non-DDC laptop panel detected
-radeonfb: Monitor 1 type LCD found
-radeonfb: Monitor 2 type no found
-radeonfb: panel ID string: 1024x768
-radeonfb: detected LVDS panel size from BIOS: 1024x768
-BIOS provided panel power delay: 1000
-radeondb: BIOS provided dividers will be used
-ref_divider = 8
-post_divider = 2
-fbk_divider = 4d
-Scanning BIOS table ...
-  320 x 350
-  320 x 400
-  320 x 400
-  320 x 480
-  400 x 600
-  512 x 384
-  640 x 350
-  640 x 400
-  640 x 475
-  640 x 480
-  720 x 480
-  720 x 576
-  800 x 600
-  848 x 480
-  1024 x 768
-Found panel in BIOS table:
-   hblank: 320
-   hOver_plus: 16
-   hSync_width: 136
-   vblank: 38
-   vOver_plus: 2
-   vSync_width: 6
-   clock: 6500
-Setting up default mode based on panel info
-radeonfb: Power Management enabled for Mobility chipsets
-radeonfb: ATI Radeon LY  DDR SGRAM 16 MB
-radeonfb_pci_register END
-
-
-Jonathan Brown
-http://emergence.uk.net/

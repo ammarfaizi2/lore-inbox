@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129992AbRALS4M>; Fri, 12 Jan 2001 13:56:12 -0500
+	id <S129562AbRALS5R>; Fri, 12 Jan 2001 13:57:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbRALSzs>; Fri, 12 Jan 2001 13:55:48 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51474 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129967AbRALSzk>; Fri, 12 Jan 2001 13:55:40 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: ide.2.4.1-p3.01112001.patch
-Date: 12 Jan 2001 10:55:22 -0800
-Organization: Transmeta Corporation
-Message-ID: <93njuq$21n$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10101120949040.1858-100000@penguin.transmeta.com> <Pine.LNX.4.10.10101121009230.1147-100000@master.linux-ide.org>
+	id <S130599AbRALS5H>; Fri, 12 Jan 2001 13:57:07 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:60213 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129562AbRALS4t>; Fri, 12 Jan 2001 13:56:49 -0500
+Date: Fri, 12 Jan 2001 19:57:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+Message-ID: <20010112195715.A30496@athlon.random>
+In-Reply-To: <Pine.LNX.4.10.10101120931520.1806-100000@penguin.transmeta.com> <E14H8PC-0004hZ-00@the-village.bc.nu> <93nipc$1vp$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <93nipc$1vp$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 10:35:24AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.10.10101121009230.1147-100000@master.linux-ide.org>,
-Andre Hedrick  <andre@linux-ide.org> wrote:
->
->Well that "experimental patch" is designed to get out of the dreaded
->"DMA Timeout Hang" or deadlock that is most noted by the PIIX4 on the
->Intel 440*X Chipset groups.  Since it appears that their bug was copied
->but other chipset makers......you see the picture clearly, right?
+On Fri, Jan 12, 2001 at 10:35:24AM -0800, Linus Torvalds wrote:
+> Andreas argument was that earlier kernels weren't consistent, and as
+> such we shouldn't even bother to try to make newer kernels consistent. 
+> We would be better off reporting our internal inconsistencies the way
+> earlier kernels did - the kernel would be confusing, but at least it
+> would be consistently confusing ;)
 
-No.
+The earlier kernels were 98% consistent in providing the "cpu_has" information
+via /proc/cpuinfo that is true information too.
 
-That experimental patch is _experimental_, and has not been reported by
-anybody to fix anything at all.  Also, the DMA timeout on PIIX4 seems to
-have nothing at all to do with the very silent corruption on VIA. At
-least nobody has reported any error messages being produced on the VIA
-corruption cases.
+What I am suggesting is to fix the few places to make the /proc/cpuinfo 100%
+consistent reporting "cpu_has", and to provide the "can_I_use" information in
+another place (for example with /proc/osinfo or a new "osflags" row in
+/proc/cpuinfo).
 
-In short, let's leave it out of a stable kernel for now, and add
-blacklisting of auto-DMA. Alan has a list. We can play around with
-trying to _fix_ DMA on the VIA chipsets in 2.5.x (and possibly backport
-the thing once it has been sufficiently battletested that people believe
-it truly will work).
+This way we are 100% consistent and we don't lose the "cpu_has" information.
 
-			Linus
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

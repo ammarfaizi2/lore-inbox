@@ -1,145 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265034AbTIIXEl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbTIIXEl
+	id S265116AbTIIXOM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 19:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbTIIXOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:04:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47782 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265034AbTIIXDM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:03:12 -0400
-Date: Tue, 9 Sep 2003 16:02:45 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] video/hexium_orion warning removal
-Message-Id: <20030909160245.49e8bddd.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Tue, 9 Sep 2003 19:14:12 -0400
+Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:1248
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S265116AbTIIXOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 19:14:03 -0400
+Date: Tue, 9 Sep 2003 16:14:02 -0700
+To: Jan Ischebeck <mail@jan-ischebeck.de>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5-mm1
+Message-ID: <20030909231402.GG7314@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	Jan Ischebeck <mail@jan-ischebeck.de>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1063138439.2168.34.camel@JHome.uni-bonn.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BQPnanjtCNWHyqYD"
+Content-Disposition: inline
+In-Reply-To: <1063138439.2168.34.camel@JHome.uni-bonn.de>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The hexium_orion driver in 2.6.0-test5 gets a warning because it defines
-setup data that is never used.
 
-Builds fine if it is deleted; don't have real hardware.
+--BQPnanjtCNWHyqYD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff -Nru a/drivers/media/video/hexium_orion.h b/drivers/media/video/hexium_orion.h
---- a/drivers/media/video/hexium_orion.h	Tue Sep  9 15:56:54 2003
-+++ b/drivers/media/video/hexium_orion.h	Tue Sep  9 15:56:54 2003
-@@ -30,109 +30,4 @@
- /*30*/ 0x44,0x75,0x01,0x8C,0x03
- };
- 
--static struct {
--	struct hexium_data data[8];	
--} hexium_input_select[] = {
--{
--	{ /* input 0 */
--		{ 0x06, 0x00 },
--		{ 0x20, 0xD9 },
--		{ 0x21, 0x17 }, // 0x16,
--		{ 0x22, 0x40 },
--		{ 0x2C, 0x03 },
--		{ 0x30, 0x44 },
--		{ 0x31, 0x75 }, // ??
--		{ 0x21, 0x16 }, // 0x03,
--	}
--}, {
--	{ /* input 1 */
--		{ 0x06, 0x00 },
--		{ 0x20, 0xD8 },
--		{ 0x21, 0x17 }, // 0x16,
--		{ 0x22, 0x40 },
--		{ 0x2C, 0x03 },
--		{ 0x30, 0x44 },
--		{ 0x31, 0x75 }, // ??
--		{ 0x21, 0x16 }, // 0x03,
--	}
--}, {
--	{ /* input 2 */
--		{ 0x06, 0x00 },
--		{ 0x20, 0xBA },
--		{ 0x21, 0x07 }, // 0x05,
--		{ 0x22, 0x91 },
--		{ 0x2C, 0x03 },
--		{ 0x30, 0x60 },
--		{ 0x31, 0xB5 }, // ??
--		{ 0x21, 0x05 }, // 0x03,
--	}
--}, {
--	{ /* input 3 */
--		{ 0x06, 0x00 },
--		{ 0x20, 0xB8 },
--		{ 0x21, 0x07 }, // 0x05,
--		{ 0x22, 0x91 },
--		{ 0x2C, 0x03 },
--		{ 0x30, 0x60 },
--		{ 0x31, 0xB5 }, // ??
--		{ 0x21, 0x05 }, // 0x03,
--	}
--}, {
--	{ /* input 4 */
--		{ 0x06, 0x00 },
--		{ 0x20, 0x7C },
--		{ 0x21, 0x07 }, // 0x03
--		{ 0x22, 0xD2 },
--		{ 0x2C, 0x83 },
--		{ 0x30, 0x60 },
--		{ 0x31, 0xB5 }, // ??
--		{ 0x21, 0x03 },
--	} 
--}, {
--	{ /* input 5 */
--		{ 0x06, 0x00 },
--		{ 0x20, 0x78 },
--		{ 0x21, 0x07 }, // 0x03,
--		{ 0x22, 0xD2 },
--		{ 0x2C, 0x83 },
--		{ 0x30, 0x60 },
--		{ 0x31, 0xB5 }, // ?
--		{ 0x21, 0x03 },
--	}
--}, {
--	{ /* input 6 */
--		{ 0x06, 0x80 },
--		{ 0x20, 0x59 },
--		{ 0x21, 0x17 },
--		{ 0x22, 0x42 },
--		{ 0x2C, 0xA3 },
--		{ 0x30, 0x44 },
--		{ 0x31, 0x75 },
--		{ 0x21, 0x12 },
--	}
--}, {
--	{ /* input 7 */
--		{ 0x06, 0x80 },
--		{ 0x20, 0x9A },
--		{ 0x21, 0x17 },
--		{ 0x22, 0xB1 },
--		{ 0x2C, 0x13 },
--		{ 0x30, 0x60 },
--		{ 0x31, 0xB5 },
--		{ 0x21, 0x14 },
--	}
--}, {
--	{ /* input 8 */
--		{ 0x06, 0x80 },
--		{ 0x20, 0x3C },
--		{ 0x21, 0x27 },
--		{ 0x22, 0xC1 },
--		{ 0x2C, 0x23 },
--		{ 0x30, 0x44 },
--		{ 0x31, 0x75 },
--		{ 0x21, 0x21 },
--	}
--}	
--};
--
- #endif
+On Tue, Sep 09, 2003 at 10:14:00PM +0200, Jan Ischebeck wrote:
+> make[2]: *** [mm/slab.o] Fehler 1
+> make[1]: *** [mm] Fehler 2
+> make: *** [stamp-build] Fehler 2
+
+Try the patch I recently posted to the list Re: the original message.
+
+--=20
+Joshua Kwan
+
+--BQPnanjtCNWHyqYD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iQIVAwUBP15euKOILr94RG8mAQIk6hAA4ZRrQjDWtSD3U0eyYa9IttbNi5fZu6pH
+G4Yh4jkCz3K9BSoE0XM20zw+U1uE9qPy8N2sA301KJlOYZLRvA9Y7IFvDILldpCh
+Y0NhFGssuR7zR+XgW3QUzcY38N0SUKfAaEV8IOdYy1U3amsPF7e6aL5DVwp+06I/
+4+yXuKAM4dJ/CH2NYQnh/9Ex/voHwHRv5uC5KbFVLjYrPafGidGDnqql7Yare/Ys
+ae9cqmawteeyUvHFXAK/ZpJzMXbbBGo/xZO3ktYGvgCQ/5gvCX8KExu8N5iFPwds
+z18+mCDwh5O15gcQZbCwYK4esyEhB12UqZntL2YwEMX9gw9pF9rT4c+vuBrScoTF
+FqW5yIyaysSjb8G+2dZ1rAmHcGFoft3I39O4RDRQuBPTt1cx7ZKYF7qIjRDDHxHz
+uFEHsxK0n9irjrkD687bx84+gyh1AxjStZOnBSb5SPWBIV0s46PQJ87eY3uKyVvf
+BFF0YYqGYj4iaGSPmWRJG9E7gsEfEyDOaxInr7zZ9lfqRxBvZGOgQqeotAjMrc0u
+ijgV/0ejj15QI2mwkSsMX/JqY6qvAgnV7XYXD1Xhr6jwX4DDrmj+63R7ZlvyLrKc
+a/9sEr7Jp2wcK5hTeB7CbbCDmoW3Ee/IjVJoV02UP1sAboJmmgMs22aroeniki+a
+FBTUJvdIOU4=
+=y8gK
+-----END PGP SIGNATURE-----
+
+--BQPnanjtCNWHyqYD--

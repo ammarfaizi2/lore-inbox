@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264863AbTAEP75>; Sun, 5 Jan 2003 10:59:57 -0500
+	id <S264875AbTAEQFo>; Sun, 5 Jan 2003 11:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbTAEP74>; Sun, 5 Jan 2003 10:59:56 -0500
-Received: from smtp3.poczta.onet.pl ([213.180.130.29]:17283 "EHLO
-	smtp3.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id <S264863AbTAEP74>; Sun, 5 Jan 2003 10:59:56 -0500
-Date: Sun, 5 Jan 2003 17:07:52 +0100
-From: Piotr Wajnberg <davine@poczta.onet.pl>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: CD recording and RAID
-Message-Id: <20030105170752.500ea7b8.davine@poczta.onet.pl>
-X-Mailer: Sylpheed version 0.8.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux_from_Scratch/Slackware
-My_sister_uses: FreeBSD!
-Registered_linux_user: #250250
-LFS_ID: 7325
-Gadu-Gadu: 209197
-X-Face: #?xY:o#9:4(p4y`g(v~6gdj9&?YCSzDf+u]4`%jEX[3>4pffeYJEuf6ofF~3ym&+:~k`(2E
- ^WnV8YyFM{&!h0*m5*0FHVsQw~|Z./|o
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264877AbTAEQFo>; Sun, 5 Jan 2003 11:05:44 -0500
+Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:16137
+	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
+	id <S264875AbTAEQFn>; Sun, 5 Jan 2003 11:05:43 -0500
+Message-ID: <3E1859D9.DF6CED69@justirc.net>
+Date: Sun, 05 Jan 2003 11:14:17 -0500
+From: Mark Rutherford <mark@justirc.net>
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew McGregor <andrew@indranet.co.nz>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Gauntlet Set NOW! -if youve written something for the kerneland you  
+ dont want andres binary say no...
+References: <043d45548050513DTVMAIL10@smtp.cwctv.net> <2060720000.1041764557@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a RAID-0 setup and suppose a slowest disk io performance (like 300kb/s) during
-CD recording is due to the recorder being on the same ide controller  as
-my hard disks although md5summing is as fast as usual and can even  
-starve the recorder causing the recording to fail.
-What I'd like to know is why the system completely
-freezes for the time a CD is being fixated. Here's the output of
-vmstat for the final stages of fixation: 
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 5  0  0   6824   4508  10768 159036   0   0     0    80  172   745 100   0   0
- 2  0  0   6824   4508  10768 159036   0   0     0     0  158   741  99   1   0
- 7  0  0   6824   4508  10768 159036   0   0     0     0  158   700 100   0   0
- 2  0  0   6824   4508  10768 159036   0   0     0     0  158   736  99   1   0
- 5  0  0   6824   4484  10768 159036   0   0     0     0  151   703 100   0   0
- 3  1  1   6824   4476  10784 159036   0   0     0    12  148   691 100   0   0
- 5  1  1   6824   4476  10784 159036   0   0     0     0  151   580 100   0   0
- 2  0  1   6824   3416  10808 159036   0   0     0    40  156   639 100   0   0
- 6  0  0   6824   8864  10892 154936   0   0     0   253 9384 37130   3   0  97
+Okay, excuse me...
+here is the final, golden question..
+why is this an issue, and why is it here?
+I think its getting out of hand, fast.
 
-As you can see from the last entry as soon as the the recording ends  the system 
-catches up, as it were, with all the processes that were cut off from the processor. 
-I'm currently using 2.4.20-ck2 because I thought the patches would cure the 
-condition but they've made no difference. Could anyone, please, offer an explanation?
+Andrew McGregor wrote:
 
--- 
-PeteVine
-  5:07pm  up 22:54,  2 users,  load average: 1.11, 1.18, 1.27
-65 processes: 60 sleeping, 5 running, 0 zombie, 0 stopped
-CPU states:  3.9% user,  5.8% system, 90.1% nice,  0.0% idle
+> Maybe you could read what he wrote?  Or refrain from guessing but ask first?
+>
+> Either is both more constructive and more polite (hint: they're related)
+>
+> A
+>
+> --On Sunday, January 05, 2003 05:51:27 +0000 Hell.Surfers@cwctv.net wrote:
+>
+> > It was a guess maybe Andre, could say?
+> >
+> > Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
+> >
+> > On    Sun, 05 Jan 2003 00:44:28 -0500         Mark Rutherford <mark@justirc.net>
+> > wrote:
 
-Linux registered user #250250
-http://counter.li.org
+--
+Regards,
+Mark Rutherford
+mark@justirc.net
 
 
---------------r-e-k-l-a-m-a-----------------
+File: Mark Rutherford.ASC
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
 
-Super tanie kwatery narciarskie.
-Od 300 zl/osoba/tydzien
-http://wycieczki.onet.pl
+mQGiBDqwRnsRBADTpKKSKAcphYdcVTvBpEFFNK1eL4dQ/pBwK4NimeoAA9ISD04L
+Mv/CqH5g9D1wzXEhRBhbFZnmfoTPFEWH4Gjr4KIPdsXkTEfoJ2j55qksHWMkE10A
+K8gZlI3Ovuf8BbIabfXmjf+XtId3F4+7+og4mc7EAkatYbbl/5pR0Niy3wCg/+I/
+LUQPYGloF829jXaOW7C+tG8D/RZt8lAL/Z1NfGsQYZlE1X+Gcqf0J6HaMosnVuah
+1zAbgUHCIvNq+TOC+0KydEvbs7tAq6m+Q4zQZaqEsMwufTCWxzh+v3thRBLIuT5E
+jsTi4djkrdG3TTeAszymO/YEXQMg4Tq2hMiyeWlyTmH4C6enMu0zJMIu4OEef7+W
+KpYhBACYnukDVI8Vnw1J5KaiCZYvERhj4cr3BTk7oeYxIRH1x5S6NXK0+uVcpusa
+a8ZU4zcxvHh0k3iR8HIZcNh30eXbMF/J5pW9gorJuPwCC5Q7b+gUVaeec+1X+Wmt
+2k8RAq9RtriUdrmVN5QcPBLFd4hOHQcWDcuyhmiFp68LFvxLSLQrTWFyayBSdXRo
+ZXJmb3JkIDxNYXJrMjAwMEBiZWxsYXRsYW50aWMubmV0PokAWAQQEQIAGAUCOrBG
+ewgLAwkIBwIBCgIZAQUbAwAAAAAKCRAudCWX7QO6ULcaAJwIsYHeAp6FC5OVWSOo
+qc8O87kvBgCgz1cLgVXYcSlDWEeE32PFYb6akuy5Ag0EOrBGexAIAPZCV7cIfwgX
+cqK61qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyD
+vWXpF9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5
+u/2RXscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98
+iLMcfFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlA
+GBGNfISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqr
+ol7DVekyCzsAAgIIAO5Bt3XOgo2GPNOCuLv6A6mRxPxwwVsYEMmVAIp/c5nluBMi
+Tu4iQU5f3U9UqZMcFKyLr1Vh0bpO6RB6L/5tXWSRY2Yly9Ofg/e0Npgebkdd8GXE
++IuEDI4lr1kbO70hlxFUPKSOQRjSmmVKNhUAiXEFQ7OtB9k5GECsHrD6qxR6r/ny
+XMBK2g2UUSh17Gx/pqH+XwXJ67DEQmF8hcnyiN9E3WQ5w3bIbKwFCaHF+tJbVnUd
+XxszxQYrsb6Feo0FVdCD+VVPQGesv34CrnKuED/mF/WoI8a3eYCMiY03IQgW514X
+JX+Jnmk9RFbTg75NdXIKDqKpB3wq39n3JmWRZG+JAEwEGBECAAwFAjqwRnsFGwwA
+AAAACgkQLnQll+0DulAfjgCfbVxiUtJbpXPn6gVJlnlIzur1yvgAnjh/9bdLsSrd
+cUaN07NL7N9NjgG1
+=hpbN
+-----END PGP PUBLIC KEY BLOCK-----
+
+

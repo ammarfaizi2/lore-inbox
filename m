@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265632AbUAGUaA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 15:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266314AbUAGUaA
+	id S266338AbUAGUbO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 15:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUAGUbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 15:30:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:263 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265632AbUAGU36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 15:29:58 -0500
-Date: Wed, 7 Jan 2004 20:29:51 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@colin2.muc.de>,
-       Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
-       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-Message-ID: <20040107202951.B18708@flint.arm.linux.org.uk>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@colin2.muc.de>,
-	Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
-	David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
-References: <20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de> <Pine.LNX.4.58.0401060726450.2653@home.osdl.org> <20040106153706.GA63471@colin2.muc.de> <m1brpgn1c3.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.58.0401061554010.9166@home.osdl.org> <m13casmk28.fsf@ebiederm.dsl.xmission.com> <20040107093143.A29200@flint.arm.linux.org.uk> <m1wu83lrxf.fsf@ebiederm.dsl.xmission.com>
+	Wed, 7 Jan 2004 15:31:13 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:14095 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S266320AbUAGUbH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 15:31:07 -0500
+Date: Wed, 7 Jan 2004 21:43:45 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel buildsystem broken on RO medium
+Message-ID: <20040107204345.GA2812@mars.ravnborg.org>
+Mail-Followup-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+	linux-kernel@vger.kernel.org
+References: <200401070041.41598.arekm@pld-linux.org> <20040107061628.GA2165@mars.ravnborg.org> <200401070951.27249.arekm@pld-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m1wu83lrxf.fsf@ebiederm.dsl.xmission.com>; from ebiederm@xmission.com on Wed, Jan 07, 2004 at 08:06:04AM -0700
+In-Reply-To: <200401070951.27249.arekm@pld-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 08:06:04AM -0700, Eric W. Biederman wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> writes:
-> 
-> > On Tue, Jan 06, 2004 at 09:58:23PM -0700, Eric W. Biederman wrote:
-> > > ffff0000-ffffffff : reserved
-> > > 
-> > > That last reserved region is 64K.  Which looking at the pci registers
-> > > is technically correct at the moment.  Only 64K happen to be decoded.
-> > 
-> > We already have this distinction between in use (or busy) resources and
-> > allocated resources.  Surely the BIOS ROM region should be an allocation
-> > resource not a busy resource, so that the MTD driver can obtain a busy
-> > resource against it?
-> 
-> Nope the BIOS region is allocated as BUSY, at least as it comes
-> out of the E820 map.
-> 
-> >From arch/i386/kernel/setup.c:legacy_init_iomem_resources
-> ....
-> 		res -> start = e820.map[i].addr;
-> 		res -> end = res->start + e820.map[i].size - 1;
-> 		res -> flags = IORESOURCE_MEM | IORESOURCE_BUSY;
-> 		request_resource(&iomem_resource, res);
+> Wow now works but tell me, how to do make mrproper if /usr/src/linux-2.6.1 is really read-only?
+> I'm asking because I want to build rpms with kernel modules from non-root and root can have
+> non-mrproper state in /usr/src/linux-2.6.1.
 
-I was hoping someone was going to take my comments as a suggestion for
-a possible solution to the problem.
+There is no way to do this, other than take a copy of the SRC.
+It was not possible to let kbuild support building a kernel when the kernel
+tree contained generated files.
+I do not remember the details, but the main issue was with generated .c
+files. If a generated .c file were present in the kernel src, it would
+not be generated aging in the separate output directory.
+Usually this is not too much of a big deal, but it could result in potential
+erros later on.
+There were also problems with _shipped support and generated .h files,
+but I do not recall the details.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+In the 2.7 timeframe I plan to be a bit more restrictive on use of -I
+directive to gcc, hereby hopefully enabling more consistent behaviour
+all over the kernel.
+
+	Sam

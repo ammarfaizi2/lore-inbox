@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267269AbSKVBVB>; Thu, 21 Nov 2002 20:21:01 -0500
+	id <S267284AbSKVB1h>; Thu, 21 Nov 2002 20:27:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267271AbSKVBVB>; Thu, 21 Nov 2002 20:21:01 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:1932 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267269AbSKVBU6>; Thu, 21 Nov 2002 20:20:58 -0500
-Subject: Re: Linux 2.4.20-rc2 screwy ac97_codec.c:codec_id()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul <set@pobox.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021122011413.GA1463@squish.home.loc>
-References: <Pine.LNX.4.44L.0211151309400.11268-100000@freak.distro.conectiva> 
-	<20021122011413.GA1463@squish.home.loc>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Nov 2002 01:57:06 +0000
-Message-Id: <1037930226.10314.3.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267285AbSKVB1g>; Thu, 21 Nov 2002 20:27:36 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:24812 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267284AbSKVB1b>;
+	Thu, 21 Nov 2002 20:27:31 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 22 Nov 2002 02:34:35 +0100 (MET)
+Message-Id: <UTC200211220134.gAM1YZn19628.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
+Subject: Re: [PATCH] kill i_dev
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-22 at 01:14, Paul wrote:
-> 	Im pretty sure this is broken, but I dont know exactly
-> what it is trying to do.
-> 	The first snprintf is overwritten regardless-- missing
-> else block? And its format string should probably be "%4X:%4X",
-> because whats there wont fit in the buffer.
-> 	Then the first 3 chars in the string are filled in
-> with raw numbers (For my card, non-ascii) and then a single
-> decimal digit?? (This string is printed out during boot time--
-> which is how I noticed it because of the 'garbage' chars.)
-> 	I dont know what a PnP string is supposed to look like...
+    From torvalds@transmeta.com  Fri Nov 22 00:57:03 2002
 
-There is an else missing you are correct
+    > There is a single side effect: a stat on a socket now sees
+    > a nonzero st_dev. There is nothing against that - FreeBSD
+    > has a nonzero value as well - but there is at least one
+    > utility (fuser) that will need an update.
+
+    Looking at the patch (not testing it), as far as I can tell we'll return a 
+    basically random number that is just whatever the anonymous super-block 
+    was allocated, right?
+
+Right.
+
+    I'm not convinced that returning random numbers to user space is
+    necessarily a great idea.. That said, I think we already do it for unnamed
+    pipes anyway, so I'm more wondering if we should have some way to map
+    these numbers (in user space) to a valid thing, so that they wouldn't just
+    be random numbers.
+
+I don't know. We can try in-kernel to give these well-known services
+well-known numbers. Or we can give them essentially random
+numbers like today but publish these somewhere, e.g. under /sys.
+Both are easy, but seem too heavy for a value used by nobody.
+We have process IDs and anonymous fs IDs, and both are just what
+they happen to be.
 
 
-> +       if(id1&0x8080)
-> +               snprintf(buf, 10, "%0x4X:%0x4X", id1, id2);
+Andries
 
-else 
-{
 
-> +       buf[0] = (id1 >> 8);
-> +       buf[1] = (id1 & 0xFF);
-> +       buf[2] = (id2 >> 8);
-> +       snprintf(buf+3, 7, "%d", id2&0xFF);
-
-}
-
-> +       return buf;
-> +}
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+[If userspace wants to know the present value, then create a socket,
+stat, 3! Create a pipe, stat, 7!]

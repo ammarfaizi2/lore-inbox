@@ -1,128 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267078AbTAPN2e>; Thu, 16 Jan 2003 08:28:34 -0500
+	id <S267072AbTAPNXa>; Thu, 16 Jan 2003 08:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267079AbTAPN2e>; Thu, 16 Jan 2003 08:28:34 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:4044 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267078AbTAPN2c> convert rfc822-to-8bit;
-	Thu, 16 Jan 2003 08:28:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [BENCHMARK] 2.5.58-mm1 with contest
-Date: Fri, 17 Jan 2003 00:37:16 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>,
-       Aggelos Economopoulos <aoiko@cc.ece.ntua.gr>
-References: <200301170024.00143.conman@kolivas.net> <3E26B364.8040402@cyberone.com.au>
-In-Reply-To: <3E26B364.8040402@cyberone.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301170037.16433.conman@kolivas.net>
+	id <S267076AbTAPNXa>; Thu, 16 Jan 2003 08:23:30 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:24619 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S267072AbTAPNX2>; Thu, 16 Jan 2003 08:23:28 -0500
+Date: Thu, 16 Jan 2003 07:32:23 -0600
+From: Tim Walberg <twalberg@mindspring.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: any brand recomendation for a linux laptop ?
+Message-ID: <20030116073223.A26416@mindspring.com>
+Reply-To: Tim Walberg <twalberg@mindspring.com>
+Mail-Followup-To: Tim Walberg <twalberg@mindspring.com>,
+	linux-kernel@vger.kernel.org
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200301161100.45552.Nicolas.Turro@sophia.inria.fr> from Nicolas Turro on 01/16/2003 04:00
+X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
+X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
+X-URL: http://www.mindspring.com/~twalberg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 Jan 2003 12:28 am, Nick Piggin wrote:
-> Con Kolivas wrote:
-> >-----BEGIN PGP SIGNED MESSAGE-----
-> >Hash: SHA1
-> >
-> >Contest (0.61pre) benchmark results for 2.5.58-mm1
-> >
-> >no_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          2       78      96.2    0       0.0     1.00
-> >2.5.56          3       79      96.2    0       0.0     1.00
-> >2.5.57          3       79      96.2    0       0.0     1.00
-> >2.5.58          2       79      96.2    0       0.0     1.00
-> >2.5.58-mm1      4       79      96.2    0       0.0     1.00
-> >cacherun:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          2       76      98.7    0       0.0     0.97
-> >2.5.56          3       76      100.0   0       0.0     0.96
-> >2.5.57          3       76      100.0   0       0.0     0.96
-> >2.5.58          2       76      100.0   0       0.0     0.96
-> >2.5.58-mm1      4       77      97.4    0       0.0     0.97
-> >process_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          2       94      79.8    30      17.0    1.21
-> >2.5.56          3       93      80.6    29      16.1    1.18
-> >2.5.57          3       93      81.7    28      16.1    1.18
-> >2.5.58          2       92      81.5    27      15.2    1.16
-> >2.5.58-mm1      3       94      80.9    29      16.0    1.19
-> >ctar_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          3       133     78.9    1       3.8     1.71
-> >2.5.56          3       152     75.7    1       4.6     1.92
-> >2.5.57          3       132     79.5    1       3.8     1.67
-> >2.5.58          3       117     82.1    1       6.0     1.48
-> >2.5.58-mm1      3       109     81.7    1       4.6     1.38
-> >xtar_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          3       113     79.6    1       6.2     1.45
-> >2.5.56          3       111     78.4    1       6.3     1.41
-> >2.5.57          3       107     80.4    1       5.6     1.35
-> >2.5.58          3       122     80.3    1       6.6     1.54
-> >2.5.58-mm1      3       121     76.0    1       6.6     1.53
-> >io_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          3       126     63.5    6       12.7    1.62
-> >2.5.56          3       131     59.5    7       13.0    1.66
-> >2.5.57          5       124     64.5    5       11.3    1.57
-> >2.5.58          3       153     54.9    8       14.3    1.94
-> >2.5.58-mm1      6       156     51.3    9       14.7    1.97
-> >read_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          3       95      82.1    9       5.3     1.22
-> >2.5.56          3       99      80.8    6       6.1     1.25
-> >2.5.57          3       100     80.0    6       7.0     1.27
-> >2.5.58          3       96      82.3    9       5.2     1.22
-> >2.5.58-mm1      4       96      83.3    176189  6.2     1.22
->
-> Something seems to have gone wrong with "Loads".
 
-Thanks for the heads up. Must be falling asleep to miss that one. The run 
-seems to have progressed ok but something died in the output (Aggelos?). 
-After deleting that result (just in case) the results look like this:
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-2.5.58          3       96      82.3    9       5.2     1.22
-2.5.58-mm1      3       100     81.0    6       6.0     1.27
+www.sagernotebook.com
 
->
-> >list_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          3       91      84.6    0       8.8     1.17
-> >2.5.56          3       91      84.6    0       8.8     1.15
-> >2.5.57          3       91      84.6    0       8.8     1.15
-> >2.5.58          3       91      85.7    0       8.8     1.15
-> >2.5.58-mm1      2       92      83.7    0       9.8     1.16
-> >mem_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          3       116     73.3    66      1.7     1.49
-> >2.5.56          3       107     80.4    45      0.9     1.35
-> >2.5.57          3       110     80.0    47      0.9     1.39
-> >2.5.58          3       107     73.8    66      1.9     1.35
-> >2.5.58-mm1      3       104     75.0    50      1.0     1.32
-> >dbench_load:
-> >Kernel     [runs]       Time    CPU%    Loads   LCPU%   Ratio
-> >2.5.55          3       117     68.4    2       16.2    1.50
-> >2.5.56          2       124     62.9    3       25.8    1.57
-> >2.5.57          3       121     64.5    3       22.3    1.53
-> >2.5.58          3       122     64.8    3       24.6    1.54
-> >2.5.58-mm1      3       118     66.9    3       22.0    1.49
-> >
-> >Only statistically significant diff b/w 2.5.58 and 2.5.58-mm1 is in
-> > ctar_load which is faster in mm1. Trend towards being faster in mem_load.
-> >
-> >Con
->
-> Looks good, thanks.
+I just recently purchased one of the 5600 series, and have
+had no issues with it. You don't have to pay the Microsoft
+tax, and it mostly just plain worked out of the box. The
+only challenges were finding drivers for the softmodem (which
+works fine once I got the drivers) so that I don't have
+to occupy the single PCMCIA slot with a modem, and getting
+accelerated X - I'm using closed source drivers from ATI
+for the Radeon 9000 chipset, at least until the Radeon
+work in the kernel (and in XFree86) catches up. X worked
+fine with just the default vesa driver for most purposes,
+but DVD playback and other video intensive things was
+far from ideal. The only thing I would have even changed
+in the design of the box is to put at least one external
+serial port on, because I use it frequently as a terminal,
+but I got a USB to serial adapter for $20 that fixed that
+quite readily...
 
-No problem. 
 
-Will have to keep an eye out on the code for more bugs. So far the contest 
-code changeover is showing far less variability in the results (good job 
-Aggelos!) which should make for more meaningful results.
+				tw
 
-Con
+
+
+--=20
++--------------------------+------------------------------+
+| Tim Walberg              | twalberg@mindspring.com      |
+| 830 Carriage Dr.         | www.mindspring.com/~twalberg |
+| Algonquin, IL 60102      |                              |
++--------------------------+------------------------------+
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
+
+iQA/AwUBPia0ZcPlnI9tqyVmEQLN0QCg8OQ1McEt3jWRmYM8AOoB8cbkQDkAnjp5
+cArre/x7yYWTJxBI2IP1PQAy
+=/zJ0
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--

@@ -1,139 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266061AbUALGAk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 01:00:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUALGAj
+	id S266062AbUALGLb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 01:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266060AbUALGLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 01:00:39 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56561 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266061AbUALGAf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 01:00:35 -0500
-Message-ID: <400237F0.9020407@mvista.com>
-Date: Sun, 11 Jan 2004 22:00:16 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net, discuss@x86-64.org,
-       ak@suse.de, shivaram.upadhyayula@wipro.com,
-       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
-References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401091031.41493.amitkale@emsyssoft.com> <3FFF2851.4060501@mvista.com> <200401101611.53510.amitkale@emsyssoft.com>
-In-Reply-To: <200401101611.53510.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 12 Jan 2004 01:11:31 -0500
+Received: from h80ad24b1.async.vt.edu ([128.173.36.177]:37248 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266068AbUALGL3 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 01:11:29 -0500
+Message-Id: <200401120611.i0C6BH7c003591@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
+Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error 
+In-Reply-To: Your message of "Sun, 11 Jan 2004 21:42:59 PST."
+             <20040111214259.568cff35.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040109014003.3d925e54.akpm@osdl.org> <3FFF79E5.5010401@winischhofer.net> <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org> <200401112353.43282.gene.heskett@verizon.net>
+            <20040111214259.568cff35.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-752633002P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Jan 2004 01:11:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> George,
-> 
-> Well said!
-> 
-> I have released kgdb 2.0.1 for kernel 2.6.1:
-> http://kgdb.sourceforge.net/linux-2.6.1-kgdb-2.0.1.tar.bz2
-> 
-> It doesn't contain any assert stuff. I have split it into multiple parts to 
-> make a merge easier. Please let me know if you want me to further split them 
-> or if you want something to be changed. The README file from this tarball is 
-> pasted below.
-> 
-> Here is two possible starting points:
-> 1. SMP stuff -> Replace my old smp and nmi handling code.
-> 2. Early boot -> Change 8250.patch to make configuration of serial port either 
-> through config options or through command line.
+--==_Exmh_-752633002P
+Content-Type: text/plain; charset=us-ascii
 
-What does messing with 8250.c code buy us?  I use a completely independent UART 
-driver and only have "back off" code in the 8250 driver.  In fact, I usually 
-recommend that the serial (i.e. 8250.c) driver not even be loaded.  My code also 
-allows a more aggressive hookup to the interrupt code, to get the ^C to do its 
-thing.  I REALLY would like to keep Mr. Heisenberg out of kgdb.  By using 
-existing kernel code we are inviting him to visit.
-> 
-> I'll attempt reading your patch and merging as much stuff as possible.
-> Thanks.
+On Sun, 11 Jan 2004 21:42:59 PST, Andrew Morton said:
+> Gene Heskett <gene.heskett@verizon.net> wrote:
+> >  hubble of about 4 or 5 months back.  In any other kernel, switching 
+> >  to that window took about 12 seconds for the backdrop to be converted 
+> >  to 1600x1200x32 and drawn the first time and about 8 seconds for the 
+> >  next time.  But with this 2.6.1-mm1 kernel, that repeat window switch 
+> >  is so close to instant that I cannot see it being drawn.
 
-May I suggest reading the comments preceeding the patch itself in Andrew's 
-breakout code.  These were written by Ingo and, I think, reflect some of the 
-things he found useful.
+> There are no significant fbdev patches in 2.6.1-mm1.  There is a DRM
+> update.
 
-Also, the information found in .../Documentation/i386/kgdb/* of the patch.
+The 12 seconds coming and 8 seconds going, versus instant, sounds an *awful*
+lot like the virtual memory manager making better choices in -mm kernels, so
+the pages of pixmap are staying in memory rather than paging out.
 
+Other guess is that o21-sched.patch is DTRT, while the stock scheduler DTWT
+for his particular config.
 
-> 
-> Patch:
-> ------
-> Patch the kernel out of following patches.
-> core.patch -	KGDB architecture and interface independent code. Required.
-> i386.patch -	i386 architecture dependent part. Required only for that
-> 		architecture.
-> x86_64.patch -	x86_64 architecture dependent part. Required only for that
-> 		architecture.
-> 8250.patch -	Generic serial port (8250 and 16550) interface for kgdb. This
-> 		is the only working interface in this release. Hence required.
-> eth.patch -	Ethernet interface for kgdb. This is still under development.
-> 		Use only if you plan to contribute to its development.
-> 
-> Build:
-> ------
-> Enable following config options (in this order).
-> 
-> Kernel hacking ->
-> 	KGDB: kernel debugging with remote gdb ->
-> 		KGDB: Thread analysis
-> 		KGDB: Console messages through gdb
-> Device drivers ->
-> 	Character devices ->
-> 		Serial drivers ->
-> 			KGDB: On generic serial port (8250)
-If KGDB is on, this should not be needed.  Also the driver part of KGDB should 
-be local to the KGDB configure in the configure file.  I think we should ALWAYS 
-have the serial link.  The eth link should be backed up by the serial link.
+Gene:  Can you tell what exactly your system is doing for the 12/8 seconds?  Is it
+CPU bound, or beating on the disk while paging in/out, or just sitting idle?  Leaving
+a 'vmstat 1' running while you change backdrops should tell us something.
 
-By the way, I will be out of town on Monday, back on Tuesday.
+--==_Exmh_-752633002P
+Content-Type: application/pgp-signature
 
-George
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> 	
-> Boot:
-> -----
-> Supply command line options kgdbwait and kgdb8250 to the kernel.
-> Example:  kgdbwait kgdb8250=1,115200
-> 
-> On Saturday 10 Jan 2004 3:46 am, George Anzinger wrote:
-> 
->>Amit,
->>
->>The base line kgdb code in the mm patches was offered by me.  It derives
->>from (a long time ago) a kgdb I got from the RTIA (or was it the RTLINUX)
->>folks.  Prio to that, well, your name is on it as well as others.
->>
->>As you may have noted there have been a lot of changes, mostly for the
->>better, I hope.  I think we have slightly different objectives in our work.
->> I debug kernels, not drivers, so I am interested in getting into kgdb as
->>early as possible.  To this end the current mm patch allows one to put a
->>breakpoint() as the first line of C code in the kernel.  This required a
->>few adjustments, such as configuring the I/O port at CONFIG time, for
->>example.
->>
->>I would like for the two versions of kgdb to merge while keeping the
->>features of both.  The work on seperating the common code is something I
->>like and, while I never do modules, the automatic module stuff in gdb sound
->>good.
->>
->>May I suggest that we compare and contrast the two versions and take a look
->>at the differences and the overlaps and settle on one way of doing the
->>various things.
->>
->>George
-> 
-> 
+iD8DBQFAAjqFcC3lWbTT17ARAoQQAJ9xCT+kjdTlD71HjV39ZtnHUIS/zQCgydL9
+2bBhB3aAJTbvOkRZDeU+/uo=
+=czGy
+-----END PGP SIGNATURE-----
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+--==_Exmh_-752633002P--

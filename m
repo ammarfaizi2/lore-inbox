@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbUKUOuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbUKUOwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbUKUOuS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 09:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbUKUOuS
+	id S261214AbUKUOwn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 09:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbUKUOwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 09:50:18 -0500
-Received: from imap.gmx.net ([213.165.64.20]:35493 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261199AbUKUOuH (ORCPT
+	Sun, 21 Nov 2004 09:52:42 -0500
+Received: from mail.gmx.net ([213.165.64.20]:44188 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261310AbUKUOvj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 09:50:07 -0500
+	Sun, 21 Nov 2004 09:51:39 -0500
 X-Authenticated: #4399952
-Date: Sun, 21 Nov 2004 15:50:53 +0100
+Date: Sun, 21 Nov 2004 15:52:29 +0100
 From: Florian Schmidt <mista.tapas@gmx.net>
 To: Ingo Molnar <mingo@elte.hu>
 Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
@@ -23,8 +23,8 @@ Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
        Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
        Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-Message-ID: <20041121155053.6c0b2305@mango.fruits.de>
-In-Reply-To: <20041121125023.GC7972@elte.hu>
+Message-ID: <20041121155229.2f29046b@mango.fruits.de>
+In-Reply-To: <20041121125439.GA8224@elte.hu>
 References: <20041117124234.GA25956@elte.hu>
 	<20041118123521.GA29091@elte.hu>
 	<20041118164612.GA17040@elte.hu>
@@ -35,7 +35,7 @@ References: <20041117124234.GA25956@elte.hu>
 	<1100975745.6879.35.camel@krustophenia.net>
 	<20041120201155.6dc43c39@mango.fruits.de>
 	<20041120214035.2deceaeb@mango.fruits.de>
-	<20041121125023.GC7972@elte.hu>
+	<20041121125439.GA8224@elte.hu>
 X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -43,17 +43,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Nov 2004 13:50:23 +0100
+On Sun, 21 Nov 2004 13:54:39 +0100
 Ingo Molnar <mingo@elte.hu> wrote:
 
 > 
 > * Florian Schmidt <mista.tapas@gmx.net> wrote:
 > 
-> > So i don't really know how to go about this. [...]
+> > Hmm, the max jitter rtc_wakeup shows at 1024hz is around 150us. Which
+> > seems a tiny bit large, too, as the rtc histogram shows a max wakeup
+> > latency of 16us..
 > 
-> you could try to use user-triggered tracing to capture a trace of one
-> such longer delay.
+> yep, that's a bit too large too. What type of load does it need to
+> trigger such a 150 usec delay reliably?
 
-Ok, will do (searching relevant email).
+I cannot trigger it reliably yet. :(
 
 flo

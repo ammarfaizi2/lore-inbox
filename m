@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319093AbSIDICk>; Wed, 4 Sep 2002 04:02:40 -0400
+	id <S319099AbSIDITp>; Wed, 4 Sep 2002 04:19:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319102AbSIDICj>; Wed, 4 Sep 2002 04:02:39 -0400
-Received: from [62.40.73.125] ([62.40.73.125]:30634 "HELO Router")
-	by vger.kernel.org with SMTP id <S319093AbSIDICi>;
-	Wed, 4 Sep 2002 04:02:38 -0400
-Date: Tue, 3 Sep 2002 00:24:05 +0200
-From: Jan Hudec <bulb@cimice.maxinet.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warnkill trivia 2/2
-Message-ID: <20020902222405.GA30964@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@cimice.maxinet.cz>,
-	linux-kernel@vger.kernel.org
-References: <20020901105643.GH32122@louise.pinerecords.com> <20020901.035749.37156689.davem@redhat.com> <20020901112856.GL32122@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020901112856.GL32122@louise.pinerecords.com>
-User-Agent: Mutt/1.4i
+	id <S319100AbSIDITp>; Wed, 4 Sep 2002 04:19:45 -0400
+Received: from cs144080.pp.htv.fi ([213.243.144.80]:59661 "EHLO chip.ath.cx")
+	by vger.kernel.org with ESMTP id <S319099AbSIDITo>;
+	Wed, 4 Sep 2002 04:19:44 -0400
+Date: Wed, 4 Sep 2002 11:23:47 +0300 (EEST)
+From: Panu Matilainen <pmatilai@welho.com>
+X-X-Sender: pmatilai@chip.ath.cx
+To: urban@teststation.com
+cc: linux-kernel@vger.kernel.org
+Subject: 32bit UID wraps around with smbfs
+Message-ID: <Pine.LNX.4.44.0209041115590.7970-100000@chip.ath.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 01, 2002 at 01:28:56PM +0200, Tomas Szepe wrote:
-> >    From: Tomas Szepe <szepe@pinerecords.com>
-> >    Date: Sun, 1 Sep 2002 12:56:43 +0200
-> > 
-> >    2.4.20-pre5: prevent sparc32's atomic_read() from possibly discarding
-> >    const qualifiers from pointers passed as its argument.
-> >    
-> >    -static __inline__ int atomic_read(atomic_t *v)
-> >    +static __inline__ int atomic_read(const atomic_t *v)
-> > 
-> > So the atomic_t is const is it?  That's news to me.
-> > 
-> > I think you mean something like "atomic_t const * v" which means the
-> > pointer is constant, not the value.
-> 
-> Precisely.
-> 
+Hi,
 
-No, you don't. Having the pointer constant means the symbolic argument
-can't be changed inside the function. But it means nothing at all to the
-caller, because the caller's variable itself is never changed by the
-call. 
+Smbfs has problems with 32bit UID/GID's: when you do
+'smbmount //some/share /mnt/samba -o uid=100000' the mountpoint UID (and 
+GID) wrap around at 65535.
 
-> 
-> diff -u linux-2.4.20-pre5/include/asm-sparc/atomic.h linux-2.4.20-pre5.n/include/asm-sparc/atomic.h
-> --- linux-2.4.20-pre5/include/asm-sparc/atomic.h	2001-11-08 17:42:19.000000000 +0100
-> +++ linux-2.4.20-pre5.n/include/asm-sparc/atomic.h	2002-09-01 12:29:36.000000000 +0200
-> @@ -35,7 +35,7 @@
->  
->  #define ATOMIC_INIT(i)	{ (i << 8) }
->  
-> -static __inline__ int atomic_read(atomic_t *v)
-> +static __inline__ int atomic_read(atomic_t const *v)
->  {
->  	int ret = v->counter;
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+The attached patch, along with samba recompile against fixed headers
+apparently fixes it. This problem is present at least in all 2.4 kernels,
+I haven't looked at 2.5.
+
+	- Panu -
+
+--- linux/include/linux/smb_mount.h.uid32	Thu Aug 29 17:37:40 2002
++++ linux/include/linux/smb_mount.h	Thu Aug 29 17:39:34 2002
+@@ -15,9 +15,9 @@
+ 
+ struct smb_mount_data {
+ 	int version;
+-	__kernel_uid_t mounted_uid; /* Who may umount() this filesystem? */
+-	__kernel_uid_t uid;
+-	__kernel_gid_t gid;
++	__kernel_uid32_t mounted_uid; /* Who may umount() this filesystem? */
++	__kernel_uid32_t uid;
++	__kernel_gid32_t gid;
+ 	__kernel_mode_t file_mode;
+ 	__kernel_mode_t dir_mode;
+ };
+@@ -42,9 +42,9 @@
+ struct smb_mount_data_kernel {
+ 	int version;
+ 
+-	__kernel_uid_t mounted_uid;	/* Who may umount() this filesystem? */
+-	__kernel_uid_t uid;
+-	__kernel_gid_t gid;
++	__kernel_uid32_t mounted_uid;	/* Who may umount() this filesystem? */
++	__kernel_uid32_t uid;
++	__kernel_gid32_t gid;
+ 	__kernel_mode_t file_mode;
+ 	__kernel_mode_t dir_mode;
+ 
+
+

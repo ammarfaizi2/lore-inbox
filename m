@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286198AbRL0D2e>; Wed, 26 Dec 2001 22:28:34 -0500
+	id <S285227AbRL0Cbj>; Wed, 26 Dec 2001 21:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286197AbRL0D2Z>; Wed, 26 Dec 2001 22:28:25 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:11653 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S286196AbRL0D2K>;
-	Wed, 26 Dec 2001 22:28:10 -0500
-Date: Wed, 26 Dec 2001 22:28:09 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Alexander Viro <viro@math.psu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] [PATCH] Clean up fs.h union for ext2
-Message-ID: <20011226222809.A8233@havoc.gtf.org>
-In-Reply-To: <E16JR71-0000cU-00@starship.berlin>
+	id <S285273AbRL0Cb2>; Wed, 26 Dec 2001 21:31:28 -0500
+Received: from wantadilla.lemis.com ([192.109.197.80]:34053 "HELO
+	wantadilla.lemis.com") by vger.kernel.org with SMTP
+	id <S285227AbRL0CbQ>; Wed, 26 Dec 2001 21:31:16 -0500
+Date: Wed, 26 Dec 2001 11:39:42 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] New per-cpu patch v2.5.1
+Message-Id: <20011226113942.22bff120.rusty@rustcorp.com.au>
+In-Reply-To: <1008829509.1213.8.camel@phantasy>
+In-Reply-To: <E16GwUZ-0004xr-00@wagner.rustcorp.com.au>
+	<1008829509.1213.8.camel@phantasy>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16JR71-0000cU-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Dec 27, 2001 at 04:21:42AM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 27, 2001 at 04:21:42AM +0100, Daniel Phillips wrote:
-> --- ../2.4.17.clean/include/linux/fs.h	Fri Dec 21 12:42:03 2001
-> +++ ./include/linux/fs.h	Wed Dec 26 23:30:55 2001
-> @@ -478,7 +478,7 @@
->  	__u32			i_generation;
->  	union {
->  		struct minix_inode_info		minix_i;
-> -		struct ext2_inode_info		ext2_i;
-> +		struct ext2_inode_info		ext2_inode_info;
->  		struct ext3_inode_info		ext3_i;
->  		struct hpfs_inode_info		hpfs_i;
->  		struct ntfs_inode_info		ntfs_i;
+On 20 Dec 2001 01:24:45 -0500
+Robert Love <rml@tech9.net> wrote:
 
-Change in principle looks good except IMHO you should go ahead and
-remove the ext2 stuff from the union...  (with the additional changes
-that implies)
+> On Thu, 2001-12-20 at 01:15, Rusty Russell wrote:
+> > After some discussion, this may be a more sane (untested) per-cpu area
+> > patch.  It dynamically allocated the sections (and discards the
+> > original), which would allow (future) NUMA people to make sure their
+> > CPU area is allocated near them.
+> > 
+> > Comments welcome,
+> 
+> Would the next step be to find the various per-CPU data in the kernel
+> and convert it to your new form?  I.e., is this a general purpose
+> interface for per-CPU data structures, or am I missing something
 
-	Jeff
+Yep.  One step at a time...
 
-
+Cheers,
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

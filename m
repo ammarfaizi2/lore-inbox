@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbUAMKKU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 05:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbUAMKKU
+	id S263942AbUAMKTb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 05:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbUAMKTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 05:10:20 -0500
-Received: from pD9E56EEE.dip.t-dialin.net ([217.229.110.238]:5761 "EHLO
-	averell.firstfloor.org") by vger.kernel.org with ESMTP
-	id S263909AbUAMKKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 05:10:17 -0500
-To: Muli Ben-Yehuda <mulix@mulix.org>
-cc: demiurg@ti.com, linux-kernel@vger.kernel.org
-Subject: Re: skb fragmentation
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 13 Jan 2004 11:10:02 +0100
-In-Reply-To: <1dtvl-1w4-5@gated-at.bofh.it> (Muli Ben-Yehuda's message of
- "Tue, 13 Jan 2004 11:00:19 +0100")
-Message-ID: <m3ptdotb0l.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <1dszh-7Gs-5@gated-at.bofh.it> <1dtvl-1w4-5@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jan 2004 05:19:31 -0500
+Received: from main.gmane.org ([80.91.224.249]:23004 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263942AbUAMKTa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 05:19:30 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: Re: uml-patch-2.6.0
+Date: Tue, 13 Jan 2004 11:19:27 +0100
+Message-ID: <bu0gnf$ief$1@sea.gmane.org>
+References: <200401130505.i0D55XS4026774@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+In-Reply-To: <200401130505.i0D55XS4026774@ccure.user-mode-linux.org>
+Cc: user-mode-linux-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda <mulix@mulix.org> writes:
+> The 2.6.0 UML patch is available at
+> 	http://www.user-mode-linux.org/mirror/uml-patch-2.6.0-1.bz2
 
-> How? build a fragmented skb on the receive path and send it
-> upwards. Last I looked at the relevant code (2.4.something), however,
-> the tcp/ip stack called skb_linearize() on the skb on its way up, so
+i get this error:
 
-Actually the main protocols (TCP,UDP,RAW) work with fragmented skbs. The
-skb_linearize() users are mostly netfilter modules and some obscure
-older protocols. Most of that has been fixed in 2.6.
+gcc -Wl,-T,arch/um/uml.lds.s -static -Wl,--wrap,malloc -Wl,--wrap,free 
+-Wl,--wra
+p,calloc \
+	-o linux arch/um/main.o vmlinux -L/usr/lib -lutil
+vmlinux(.text+0x5288): In function `mem_init':
+: undefined reference to `phys_page'
+vmlinux(.init.text+0x21f3): In function `kmap_init':
+: undefined reference to `pte_offset'
+collect2: ld returned 1 exit status
 
--Andi
+i applied this patch to clean 2.6.0 sources from kernel.org.
+if you need more information just ask. i'm running gentoo 1.4 with a 
+2.6.1 host kernel. linux 2.4.19 headers are installed in /usr/include, 
+just in case it matters.
+
+

@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282205AbRK2AHn>; Wed, 28 Nov 2001 19:07:43 -0500
+	id <S282204AbRK2AHD>; Wed, 28 Nov 2001 19:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282209AbRK2AHX>; Wed, 28 Nov 2001 19:07:23 -0500
-Received: from zero.tech9.net ([209.61.188.187]:50186 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282216AbRK2AHS>;
-	Wed, 28 Nov 2001 19:07:18 -0500
-Subject: Re: Linux 2.4.17-pre1
-From: Robert Love <rml@tech9.net>
-To: Mark Hymers <markh@linuxfromscratch.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011129000509.A1362@markcomp.blaydon.hymers.org.uk>
-In-Reply-To: <E169EIY-0006UI-00@the-village.bc.nu>
-	<1006991294.813.0.camel@phantasy> 
-	<20011129000509.A1362@markcomp.blaydon.hymers.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 28 Nov 2001 19:06:57 -0500
-Message-Id: <1006992428.13159.8.camel@phantasy>
-Mime-Version: 1.0
+	id <S282205AbRK2AGx>; Wed, 28 Nov 2001 19:06:53 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:3589 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S282204AbRK2AGo>;
+	Wed, 28 Nov 2001 19:06:44 -0500
+Date: Thu, 29 Nov 2001 02:07:18 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: <ja@u.domain.uli>
+To: Adrian Daminato <adrian@tucows.com>
+cc: ZipKid <stefan@zipkid.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hiding arp for server farms
+Message-ID: <Pine.LNX.4.33.0111290148120.1111-100000@u.domain.uli>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-11-28 at 19:05, Mark Hymers wrote:
 
-> Do you know what the legal status of the rest of the *.c files in fs/nls
-> is?  There are still quite a few which have no MODULE_LICENSE tag at all
-> which causes the kernel to be tainted (IMO) incorrectly.
+	Hello,
 
-I believe all the fs/nls files are GPL or Dual GPL/something else.
+Adrian Daminato wrote:
 
-	Robert Love
+> 3) I even tried adding the 'hidden' patch available, to put the hidden
+> functionality back in the 2.4.x kernel (currently I'm testing using a 2.4.9
+> kernel).  It doesn't appear to work properly either, hosts on the local network
+> can't ping the server farm, and hosts outside the network although able to ping
+> the server farm, cannot ping the real IP of the host.  It's kind of a weird
+> problem.
+
+	As this thread becomes too large I'm appending some
+URLs. I don't know what patches you are using and what settings
+you have. If you still have problems feel free to contact me directly.
+The usage is simple: mark device "lo" as hidden and put there only
+local addresses that must not advertised.
+
+The "hidden" device's home page:
+http://www.linuxvirtualserver.org/~julian/
+
+Doc files:
+http://www.linuxvirtualserver.org/~julian/hidden.txt
+http://www.linuxvirtualserver.org/docs/arp.html
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 

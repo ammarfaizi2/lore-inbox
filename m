@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262160AbRETTW2>; Sun, 20 May 2001 15:22:28 -0400
+	id <S262163AbRETTYi>; Sun, 20 May 2001 15:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262157AbRETTWS>; Sun, 20 May 2001 15:22:18 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:63502 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S262160AbRETTWI>;
-	Sun, 20 May 2001 15:22:08 -0400
-Date: Sun, 20 May 2001 21:20:25 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Jacob Luna Lundberg <jacob@velius.chaos2.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 del_timer_sync oops in schedule_timeout
-In-Reply-To: <Pine.LNX.4.32.0105201209470.4055-100000@velius.chaos2.org>
-Message-ID: <Pine.LNX.4.33.0105202119150.32188-100000@localhost.localdomain>
+	id <S262162AbRETTY2>; Sun, 20 May 2001 15:24:28 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50904 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262157AbRETTYR>;
+	Sun, 20 May 2001 15:24:17 -0400
+Date: Sun, 20 May 2001 15:24:15 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <20010520201816.T23718@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.GSO.4.21.0105201523370.8940-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 20 May 2001, Jacob Luna Lundberg wrote:
 
-> > > Unable to handle kernel paging request at virtual address 78626970
-> > this appears to be some sort of DMA-corruption or other memory scribble
-> > problem. hexa 78626970 is ASCII "pibx", which shows in the direction of
-> > some sort of disk-related DMA corruption.
-> > we havent had any similar crash in del_timer_sync() for ages.
->
-> Ahh.  Thanks then, I'll go look hard at the disk in that box.  :)
+On Sun, 20 May 2001, Matthew Wilcox wrote:
 
-not necesserily the disk. it can be any sort of overheating or other
-thermal noise (unlikely), or SCSI/IDE cable problem (likely), or driver
-problem (likely too). Disk faults typically show very different symptoms.
+> On Sun, May 20, 2001 at 03:11:53PM -0400, Alexander Viro wrote:
+> > Pheeew... Could you spell "about megabyte of stuff in ioctl.c"?
+> 
+> No.
+> 
+> $ ls -l arch/*/kernel/ioctl32*.c
+> -rw-r--r--    1 willy    willy       22479 Jan 24 16:59 arch/mips64/kernel/ioctl32.c
+> -rw-r--r--    1 willy    willy      109475 May 18 16:39 arch/parisc/kernel/ioctl32.c
+> -rw-r--r--    1 willy    willy      117605 Feb  1 20:35 arch/sparc64/kernel/ioctl32.c
+> 
+> only about 100k.
 
-	Ingo
+You are missing all x86-only drivers.
 

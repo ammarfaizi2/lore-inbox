@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbULFJjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbULFJnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbULFJjn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 04:39:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbULFJjn
+	id S261475AbULFJnU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 04:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbULFJnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 04:39:43 -0500
-Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:45789 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261474AbULFJjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 04:39:37 -0500
-Date: Mon, 6 Dec 2004 02:38:33 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Rothwell <sfr@canb.auug.org.au>, paulmck@us.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Li Shaohua <shaohua.li@intel.com>
-Subject: Re: Fw: [RFC] Strange code in cpu_idle()
-In-Reply-To: <20041205232007.7edc4a78.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com>
-References: <20041205004557.GA2028@us.ibm.com> <20041206111634.44d6d29c.sfr@canb.auug.org.au>
- <20041205232007.7edc4a78.akpm@osdl.org>
+	Mon, 6 Dec 2004 04:43:19 -0500
+Received: from 151.adsl.as8758.net ([212.25.16.151]:58887 "EHLO
+	johnny.adanco.com") by vger.kernel.org with ESMTP id S261475AbULFJnC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 04:43:02 -0500
+From: "Adrian 'Dagurashibanipal' von Bidder" <avbidder@fortytwo.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Proposal for a userspace "architecture portability" library
+Date: Mon, 6 Dec 2004 10:42:54 +0100
+User-Agent: KMail/1.7.1
+References: <16818.23575.549824.733470@cargo.ozlabs.ibm.com>
+In-Reply-To: <16818.23575.549824.733470@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1584492.i64buGQfbE";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412061042.59549@fortytwo.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	The original intent to go with synchronize_kernel and RCU 
-protection was for simplicity's sake, as the alternative implementations 
-at the time looked like major overkill. Now in defense of this method, 
-when entering the idle thread and placing the processor in a holding state 
-(hlt) and an RCU grace period is begun, the processor in the holding state 
-will be unaware of the new RCU grace period until it exits the idle loop 
-callback (pm_idle) anyway, so the rcu_read will block the other processors 
-from making RCU grace period completion as much as the processor holding 
-state. This is true of all current pm_idle callbacks on i386, x86_64 and 
-ia64 with the exception of APM (but i'll conveniently ignore that for now 
-;). When we do take an interrupt to exit the processor holding state and 
-run through rcu_check_callbacks we will notice that we are in a hard 
-interrupt and will defer marking of the processsor as quiescent. By that 
-point we will have exited the idle thread callback therefore making it 
-safe to use synchronize_kernel to protect removal of the callback.
+--nextPart1584492.i64buGQfbE
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks,
-	Zwane "who usually doesn't condone interface abuse" Mwaikambo
+On Sunday 05 December 2004 01.53, Paul Mackerras wrote:
+> Some of our kernel headers implement generally useful abstractions
+> across all of the architectures we support.  I would like to make an
+> "architecture portability" library, based on the kernel headers but as
+> a separate project from the kernel, and intended for use in userspace.
+
+Doesn't apr cover some of this already? Should such an effort be merged int=
+o=20
+apr?
+
+Just a thought.
+=2D- vbi
+
+=2D-=20
+Beware of the FUD - know your enemies. This week
+    * The Alexis de Toqueville Institue *
+http://fortytwo.ch/opinion/adti
+
+--nextPart1584492.i64buGQfbE
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: get my key from http://fortytwo.ch/gpg/92082481
+
+iKcEABECAGcFAkG0KaNgGmh0dHA6Ly9mb3J0eXR3by5jaC9sZWdhbC9ncGcvZW1h
+aWwuMjAwMjA4MjI/dmVyc2lvbj0xLjUmbWQ1c3VtPTVkZmY4NjhkMTE4NDMyNzYw
+NzFiMjVlYjcwMDZkYTNlAAoJECqqZti935l6XzQAn0MtuAW4+UmE2FDFgU2MHpY8
+dBF8AKCwfSR+hfh7oLXGlkX174NVeYO2VQ==
+=7Fcy
+-----END PGP SIGNATURE-----
+
+--nextPart1584492.i64buGQfbE--

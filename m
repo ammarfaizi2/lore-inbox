@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286925AbSABKzb>; Wed, 2 Jan 2002 05:55:31 -0500
+	id <S286931AbSABK6b>; Wed, 2 Jan 2002 05:58:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286928AbSABKzV>; Wed, 2 Jan 2002 05:55:21 -0500
-Received: from dns.logatique.fr ([213.41.101.1]:7671 "HELO
-	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
-	id <S286925AbSABKzL>; Wed, 2 Jan 2002 05:55:11 -0500
+	id <S286936AbSABK6P>; Wed, 2 Jan 2002 05:58:15 -0500
+Received: from dsl-213-023-043-195.arcor-ip.net ([213.23.43.195]:9743 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286931AbSABK5x>;
+	Wed, 2 Jan 2002 05:57:53 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Thomas Capricelli <tcaprice@logatique.fr>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Momchil Velikov <velco@fadata.bg>,
-        Tom Rini <trini@kernel.crashing.org>
-Subject: Re: [PATCH] mesh: target 0 aborted
-Date: Wed, 2 Jan 2002 12:17:51 +0100
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: David Chow <davidchow@rcn.com.hk>
+Subject: Re: [RFC] [WIP] Unbork fs.h, 3 of 3
+Date: Wed, 2 Jan 2002 12:01:27 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
-In-Reply-To: <20020101234546.GO28513@cpe-24-221-152-185.az.sprintbbd.net> <20020102091710.14178@smtp.noos.fr>
-In-Reply-To: <20020102091710.14178@smtp.noos.fr>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@math.psu.edu>,
+        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0112311004580.1404-100000@penguin.transmeta.com> <E16L8JK-0000ao-00@starship.berlin> <3C313324.3010504@rcn.com.hk>
+In-Reply-To: <3C313324.3010504@rcn.com.hk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020102105250.8AE1323CBB@persephone.dmz.logatique.fr>
+Message-Id: <E16Lj9E-00010N-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 January 2002 10:17, Benjamin Herrenschmidt wrote:
-> The other patch for getting rid of "target 0 aborted" need some more
-> review. You seem to just remove the bus reset. That could be made a
-> driver option in case it really cause trouble, but I suppose the bug
-> is elsewhere (while beeing triggered by the bus reset).
->
-> I'll look into this around next week.
+On January 1, 2002 04:55 am, David Chow wrote:
+> Just some comments and questions about the new fs.h .. its great to hear 
+> improvements in the new year!
+> 
+> Are you people going to put this on the 2.5?
 
+It's entirely up to Linus.  There's no chance it will go in before it a) 
+works (which it doesn't at the moment) b) has been tested (a lot) c) meets 
+with general approval and d) survives the viro test.
 
-	I'm the one responsible for this patch. I can't boot my powerpc7600 whithout 
-it. I've been pushing this patch (on the linux-ppc list) for so long (several 
-years, don't remember), that I've given up last year.
+> It seems you are keeping 
+> the generic_ip pointer for compatibility. And I guess this is what other 
+> file systems (those not included in the standardkernel sources) are 
+> using, at least I am the one.
 
-	Linuxppc people are even worse than Linus. I did not even get an answer 
-about a problem with my patch or whatever. Pure 'nothing'. Not even a 'no'.
+Yes, IMHO, once people are able to use the fs-specific inode mechanism they 
+will prefer it over the generic_ip method.  However, the generic_ip will be 
+the last item of the union to go, and even then, it will just be moved into 
+private area of whatever filesystem uses it, with something like:
 
-	I'm still ready to test/discuss about the pb with anybody, anyway.
+    struct myfs_inode { struct inode; struct myfs_inode_info *private; }
 
-	Let's get clear about what I've done : I'm using linuxppc for many years, 
-and at one point, the kernel refused to boot. I've checked the difference 
-between this kernel and the last one I was using, and merely changed back the 
-mesh.c so that it works. As I was not following kernel dvpmt very closely by 
-then, I can't tell when the change that broke things came in.
+    static inline struct myfs_inode_info *myfs_i(struct inode *inode)
+    {
+            return ((struct myfs_inode *) inode)->private;
+    }
 
-	I would be very happy to change my patch so that this change is optional.
+> I am using the generic_ip to hold my fs inode data pointer. During the 
+> implementation, I tested both approaches... but it seems not sigficant 
+> in detection of inode cache allocation overheads in read_inode(). Its 
+> worth to talk about memory consumptions because it is silly to allocate 
+> the largest possible inode cache sizes. I strongly agree with the new fs 
+> declaration interface becuase of higher efficiency and less overhead, 
+> but it seems more and more fs are supported in Linux, the effort to 
+> patch all fs'es is a lot of work.
 
-happy new year,
-Thomas
+That's why it's good to do it sooner rather than later, the number of 
+filesystems will only increase.  Changing a filesystem to use the 
+xxx_i(inode)->field idea is an easy edit.
 
+> I am working on a compression file systmes, many thing varies such that 
+> I have to use dynamically link allocated structures in the inode cache.
+
+Yes, so saving one dereference would make very little difference to you, and 
+the same with saving one slab alloc.
+
+> For the remount issue, I don't think its just affect the root 
+> filesystem, for me I also reload other settings during a remount. For 
+> feature oriented filesystems, remount may be use more frequent then 
+> umount and mount. Other admins may also remount their /usr fs and other 
+> protected fs to read-only for safe after altering their fs. Why not 
+> changing the remount behaviour in VFS not to call module_exit()? I also 
+> can't see why VFS has to call module_exit() in remount if we have 
+> remount() in super_operations ... I think remount operations are fs 
+> specific and shuold pass this job to super_operations->remount . I think 
+> it is a better way to solve the root fs problem. But it would require 
+> even more work to get all fs to obey the new standard. If you want nice 
+> and clean efficient solutions, work is must anyway... good luck.
+
+I think you're on to something with the ->remount idea, however it's outside 
+the scope of this work.  For now, the goal is just get the fs.h includes 
+straightened out.
+
+--
+Daniel

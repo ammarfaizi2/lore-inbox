@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbUKITXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUKITau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbUKITXv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 14:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUKITXv
+	id S261638AbUKITau (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 14:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUKITau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 14:23:51 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:50837 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261633AbUKITXr (ORCPT
+	Tue, 9 Nov 2004 14:30:50 -0500
+Received: from soundwarez.org ([217.160.171.123]:8917 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261638AbUKITap (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 14:23:47 -0500
-Subject: Re: Externalize SLIT table
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andi Kleen <ak@suse.de>
-Cc: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, steiner@sgi.com,
-       linux-ia64@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041104040713.GC21211@wotan.suse.de>
-References: <20041103205655.GA5084@sgi.com>
-	 <20041104.105908.18574694.t-kochi@bq.jp.nec.com>
-	 <20041104040713.GC21211@wotan.suse.de>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1100028224.3980.7.camel@arrakis>
+	Tue, 9 Nov 2004 14:30:45 -0500
+Date: Tue, 9 Nov 2004 20:30:43 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>
+Subject: /sys/devices/system/timer registered twice
+Message-ID: <20041109193043.GA8767@vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 09 Nov 2004 11:23:44 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-03 at 20:07, Andi Kleen wrote:
-> On Thu, Nov 04, 2004 at 10:59:08AM +0900, Takayoshi Kochi wrote:
-> > (3) all distances in one line like /proc/<PID>/stat
-> > 
-> > % cat /sys/devices/system/node/node0/distance
-> > 10 66 46 66
-> 
-> I would prefer that. 
-> 
-> -Andi
+Hi,
+I got this on a Centrino box with the latest bk:
 
-That would be my vote as well.  One line, space delimited.  Easy to
-parse...  Plus you could easily reproduce the entire SLIT matrix by:
-
-cd /sys/devices/system/node/
-for i in `ls node*`; do cat $i/distance; done
+  [kay@pim linux.kay]$ ls -l /sys/devices/system/
+  total 0
+  drwxr-xr-x  7 root root 0 Nov  8 15:12 .
+  drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
+  drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
+  drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
+  drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
+  drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
+  ?---------  ? ?    ?    ?            ? timer
 
 
--Matt
+It is caused by registering two devices with the name "timer" from:
 
+  arch/i386/kernel/time.c
+  arch/i386/kernel/timers/timer_pit.c
+
+If I change one of the names, I get two correct looking sysfs entries.
+
+Greg, shouldn't the driver core prevent the corruption of the first
+device if another one tries to register with the same name?
+
+Thanks,
+Kay

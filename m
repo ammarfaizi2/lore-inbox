@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVC3SPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVC3STS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbVC3SPw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVC3SPg
+	id S262379AbVC3STS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:19:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVC3STR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:15:36 -0500
-Received: from graphe.net ([209.204.138.32]:54030 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262378AbVC3SOD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:14:03 -0500
-Date: Wed, 30 Mar 2005 10:13:49 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, shai@scalex86.org
-Subject: Re: API changes to the slab allocator for NUMA memory allocation
-In-Reply-To: <424AE7F7.3080508@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0503301013060.15596@server.graphe.net>
-References: <20050315204110.6664771d.akpm@osdl.org> <42387C2E.4040106@colorfullife.com>
- <273220000.1110999247@[10.10.2.4]> <4238845E.5060304@colorfullife.com>
- <Pine.LNX.4.58.0503292126050.32140@server.graphe.net> <424A3FA0.9030403@colorfullife.com>
- <Pine.LNX.4.58.0503300748320.12816@server.graphe.net> <424AE7F7.3080508@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Wed, 30 Mar 2005 13:19:17 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:23763
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262386AbVC3SQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:16:20 -0500
+Date: Wed, 30 Mar 2005 10:15:26 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: dhowells@redhat.com, spyro@f2s.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
+Message-Id: <20050330101526.3ac6de68.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0503301317370.20171@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
+	<4243A257.8070805@yahoo.com.au>
+	<20050325092312.4ae2bd32.davem@davemloft.net>
+	<20050325162926.6d28448b.davem@davemloft.net>
+	<22627.1112179577@redhat.com>
+	<Pine.LNX.4.61.0503301317370.20171@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, Manfred Spraul wrote:
+On Wed, 30 Mar 2005 13:22:53 +0100 (BST)
+Hugh Dickins <hugh@veritas.com> wrote:
 
-> Correct, I was thinking about the NUMA case.
-> You've decided to add one register load to every call of kmalloc. On
-> i386, kmalloc_node() is a 24-byte function. I'd bet that adding the node
-> parameter to every call of kmalloc causes a .text increase larger than
-> 240 bytes. And I have not yet considered that you have increased the
-> number of conditional branches in every kmalloc(32,GFP_KERNEL) call by
-> 33%, i.e. from 3 to 4 conditional branch instructions.
-> I'd add an explicit kmalloc_node function. Attached is a prototype
-> patch. You'd have to reintroduce the flags field to
-> kmem_cache_alloc_node() and update kmalloc_node.
-> The patch was manually edited, I hope it applies to a recent tree ;-)
->
-> What do you think?
+> Sounds like we should leave flush_tlb_pgtables as it is
+> (apart from the issue in its frv implementation that you noticed).
 
-Looks fine to me.
+Ok.  I may still adjust the pmd_clear() args.

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129227AbRBTSNp>; Tue, 20 Feb 2001 13:13:45 -0500
+	id <S129814AbRBTSQZ>; Tue, 20 Feb 2001 13:16:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129377AbRBTSNf>; Tue, 20 Feb 2001 13:13:35 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:12786 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129227AbRBTSNY>; Tue, 20 Feb 2001 13:13:24 -0500
-Date: Tue, 20 Feb 2001 13:12:28 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: <linux-kernel@vger.kernel.org>, <alan@redhat.com>
-Subject: Re: [PATCH] make nfsroot accept server addresses from BOOTP root
-In-Reply-To: <20010220104415.D3150@opus.bloom.county>
-Message-ID: <Pine.LNX.4.30.0102201248290.1614-100000@today.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130085AbRBTSQP>; Tue, 20 Feb 2001 13:16:15 -0500
+Received: from ptolemy.arc.nasa.gov ([128.102.112.134]:46316 "EHLO
+	ptolemy.arc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S130088AbRBTSQN>; Tue, 20 Feb 2001 13:16:13 -0500
+Date: Tue, 20 Feb 2001 10:16:22 -0800
+From: Dan Christian <dac@ptolemy.arc.nasa.gov>
+To: linux-kernel@vger.kernel.org
+Subject: hang on mount, 2.4.2-pre4, VIA
+Message-ID: <20010220101622.A18117@ptolemy.arc.nasa.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Feb 2001, Tom Rini wrote:
+Hello,
+  I just tried upgrading to 2.4.2-pre4 from 2.4.1 and get a hang when
+mounting the file systems.  I have the same problem with 2.4.1-ac18.
 
-> Er, say that again?  Right now, for bootp if you specify "sa=xxx.xxx.xxx.xxx"
-> Linux uses that as the host for the NFS server (which does have the side
-> effect of if TFTP server != NFS server, you don't boot).  Are you saying
-> your patch takes "rp=xxx.xxx.xxx.xxx:/foo/root" ?  Just curious, since I
-> don't know, whats the RFC say about this?
+The system is a single processor P3 and uses a VIA chipset (Tyan
+something-or-other).  DMA, multi-sector IO, and 32bit sync are enabled
+using hdparm (just before the hang).  There are two Ultra-66 drives
+attached to one IDE channel and a CD-RW on a second IDE channel.
 
-Yeah, that's the problem I was trying to work around, mostly because the
-docs on dhcpd are sufficiently vague and obscure.  Personally, I don't
-actually need tftp support, so I've just configured the system to now
-point at the NFS server.  For anyone who cares, the last patch was wrong,
-this one is right.
+The distribution is RH7 with recent security patches and modutils
+2.4.2.  The kernel was built with kgcc.
 
-		-ben
+Has anybody else seen this?
 
-diff -ur v2.4.1-ac18/fs/nfs/nfsroot.c work/fs/nfs/nfsroot.c
---- v2.4.1-ac18/fs/nfs/nfsroot.c	Mon Sep 25 16:13:53 2000
-+++ work/fs/nfs/nfsroot.c	Tue Feb 20 01:59:32 2001
-@@ -226,6 +226,7 @@
- 	if (name[0] && strcmp(name, "default")) {
- 		strncpy(buf, name, NFS_MAXPATHLEN-1);
- 		buf[NFS_MAXPATHLEN-1] = 0;
-+		root_nfs_parse_addr(buf);
- 	}
- }
+I'm not on the list.  Please CC me on any replies.
 
+-Dan
 
+-- 
+Dan Christian		(650) 604-4507		FAX 604-4036
+NASA Ames Research Center, Mail Stop 269-3, Moffett Field, CA 94035

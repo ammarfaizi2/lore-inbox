@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262485AbREXXC1>; Thu, 24 May 2001 19:02:27 -0400
+	id <S262490AbREXXIH>; Thu, 24 May 2001 19:08:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262500AbREXXCR>; Thu, 24 May 2001 19:02:17 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:5304 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262485AbREXXCA>;
-	Thu, 24 May 2001 19:02:00 -0400
-Date: Fri, 25 May 2001 01:01:48 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200105242301.BAA05771@harpo.it.uu.se>
-To: engler@csl.Stanford.EDU
-Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        macro@ds2.pg.gda.pl, mingo@redhat.com
+	id <S262496AbREXXH5>; Thu, 24 May 2001 19:07:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1673 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262490AbREXXHr>;
+	Thu, 24 May 2001 19:07:47 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15117.37952.537252.892498@pizda.ninka.net>
+Date: Thu, 24 May 2001 16:07:44 -0700 (PDT)
+To: Bharath Madhavan <bharath_madhavan@ivivity.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Accelerated TCP/IP support from kernel
+In-Reply-To: <25369470B6F0D41194820002B328BDD20717A0@ATLOPS>
+In-Reply-To: <25369470B6F0D41194820002B328BDD20717A0@ATLOPS>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 May 2001 14:10:00 -0700 (PDT), Dawson Engler wrote:
 
->[BUG]
->/u2/engler/mc/oses/linux/2.4.4-ac8/arch/i386/kernel/nmi.c:47:check_nmi_watchdog: ERROR:VAR:47:47: suspicious var 'tmp' = 1024 bytes:47 [nbytes=1024]
->#define P6_EVENT_CPU_CLOCKS_NOT_HALTED	0x79
->#define P6_NMI_EVENT		P6_EVENT_CPU_CLOCKS_NOT_HALTED
->
->int __init check_nmi_watchdog (void)
->{
->
->Error --->
->	irq_cpustat_t tmp[NR_CPUS];
+Bharath Madhavan writes:
+ > I guess 3c905c NIC supports HW checksumming. Is this true?
 
-Nice work, but I think this is a false positive.
+Yes.
 
-check_nmi_watchdog() is __init and we know exactly when it's called.
-The interesting cases (SMP kernel, since for UP NR_CPUS==1) are:
+ > In this case, do we have any benchmarking for this card 
+ > with and without ZERO_COPY (and HW checksumming). I am eager to
+ > know by how many times did the system throughput increase?
 
-start_kernel -> smp_init -> smp_boot_cpus -> APIC_init_uniprocessor
--> check_nmi_watchdog
+It doesn't matter with 100baseT cards, they are slow enough that even
+with the cpu doing the data copies the link may be easily saturated.
+What you will get is decreased CPU utilization.
 
-and
+You need to go to gigabit or faster link speeds to see any real
+throughput improvement.
 
-start_kernel -> smp_init -> smp_boot_cpus -> setup_IO_APIC ->
-check_timer -> check_nmi_watchdog
+Later,
+David S. Miller
+davem@redhat.com
 
-In neither case is the stack large enough that the 1KB blob in
-check_nmi_watchdog should pose a problem, I think. (Don't we have
-something like 8KB-sizeof(struct task_struct) stack to play with?)
-
-IMHO the checker tool should take call paths into consideration
-when trying to detect stack overflow problems. Does it do that?
-(I.e. is it polyvariant or monovariant?)
-
-I could write a patch to make 'tmp' __initdata instead, which would
-silence the checker tool, but I don't really want to do that unless
-someone can convince me that there is a real problem here.
-
-/Mikael

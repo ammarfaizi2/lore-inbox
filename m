@@ -1,1851 +1,1149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVDDWpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVDDWtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVDDWpm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 18:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVDDWpm
+	id S261462AbVDDWtq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 18:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVDDWtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 18:45:42 -0400
+	Mon, 4 Apr 2005 18:49:46 -0400
 Received: from webmail.topspin.com ([12.162.17.3]:9259 "EHLO
 	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261458AbVDDWeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261462AbVDDWeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 4 Apr 2005 18:34:23 -0400
-Subject: [PATCH][RFC][2/4] IB: userspace verbs main module
-In-Reply-To: <200544159.Qg0tUfQc4xGRabsc@topspin.com>
+Subject: [PATCH][RFC][3/4] IB: userspace verbs mthca changes
+In-Reply-To: <200544159.3X7p8nZ87qWqA7cv@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Mon, 4 Apr 2005 15:09:00 -0700
-Message-Id: <200544159.3X7p8nZ87qWqA7cv@topspin.com>
+Message-Id: <200544159.AzH1nqpM3uTQZaKG@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 04 Apr 2005 22:09:00.0569 (UTC) FILETIME=[E7A27890:01C53962]
+X-OriginalArrivalTime: 04 Apr 2005 22:09:00.0710 (UTC) FILETIME=[E7B7FC60:01C53962]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add device-independent userspace verbs support (ib_uverbs module).
+Add Mellanox HCA-specific userspace verbs support to mthca.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-export/drivers/infiniband/core/uverbs.h	2005-04-04 14:55:10.496227053 -0700
-@@ -0,0 +1,124 @@
-+/*
-+ * Copyright (c) 2005 Topspin Communications.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * $Id: uverbs.h 2001 2005-03-16 04:15:41Z roland $
-+ */
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_cq.c	2005-04-04 14:57:12.228756073 -0700
++++ linux-export/drivers/infiniband/hw/mthca/mthca_cq.c	2005-04-04 14:58:12.364679525 -0700
+@@ -743,6 +743,7 @@
+ }
+ 
+ int mthca_init_cq(struct mthca_dev *dev, int nent,
++		  struct mthca_ucontext *ctx, u32 pdn,
+ 		  struct mthca_cq *cq)
+ {
+ 	int size = nent * MTHCA_CQ_ENTRY_SIZE;
+@@ -754,30 +755,33 @@
+ 
+ 	might_sleep();
+ 
+-	cq->ibcq.cqe = nent - 1;
++	cq->ibcq.cqe  = nent - 1;
++	cq->is_kernel = !ctx;
+ 
+ 	cq->cqn = mthca_alloc(&dev->cq_table.alloc);
+ 	if (cq->cqn == -1)
+ 		return -ENOMEM;
+ 
+ 	if (mthca_is_memfree(dev)) {
+-		cq->arm_sn = 1;
+-
+ 		err = mthca_table_get(dev, dev->cq_table.table, cq->cqn);
+ 		if (err)
+ 			goto err_out;
+ 
+-		err = -ENOMEM;
++		if (cq->is_kernel) {
++			cq->arm_sn = 1;
 +
-+#ifndef UVERBS_H
-+#define UVERBS_H
++			err = -ENOMEM;
+ 
+-		cq->set_ci_db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_CQ_SET_CI,
+-						     cq->cqn, &cq->set_ci_db);
+-		if (cq->set_ci_db_index < 0)
+-			goto err_out_icm;
+-
+-		cq->arm_db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_CQ_ARM,
+-						  cq->cqn, &cq->arm_db);
+-		if (cq->arm_db_index < 0)
+-			goto err_out_ci;
++			cq->set_ci_db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_CQ_SET_CI,
++							     cq->cqn, &cq->set_ci_db);
++			if (cq->set_ci_db_index < 0)
++				goto err_out_icm;
 +
-+/* Include device.h and fs.h until cdev.h is self-sufficient */
-+#include <linux/fs.h>
-+#include <linux/device.h>
-+#include <linux/cdev.h>
-+#include <linux/kref.h>
-+#include <linux/idr.h>
-+
-+#include <ib_verbs.h>
-+#include <ib_user_verbs.h>
-+
-+struct ib_uverbs_device {
-+	int                 devnum;
-+	struct cdev         dev;
-+	struct class_device class_dev;
-+	struct ib_device   *ib_dev;
-+	int                 num_comp;
++			cq->arm_db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_CQ_ARM,
++							  cq->cqn, &cq->arm_db);
++			if (cq->arm_db_index < 0)
++				goto err_out_ci;
++		}
+ 	}
+ 
+ 	mailbox = kmalloc(sizeof (struct mthca_cq_context) + MTHCA_CMD_MAILBOX_EXTRA,
+@@ -787,12 +791,14 @@
+ 
+ 	cq_context = MAILBOX_ALIGN(mailbox);
+ 
+-	err = mthca_alloc_cq_buf(dev, size, cq);
+-	if (err)
+-		goto err_out_mailbox;
++	if (cq->is_kernel) {
++		err = mthca_alloc_cq_buf(dev, size, cq);
++		if (err)
++			goto err_out_mailbox;
+ 
+-	for (i = 0; i < nent; ++i)
+-		set_cqe_hw(get_cqe(cq, i));
++		for (i = 0; i < nent; ++i)
++			set_cqe_hw(get_cqe(cq, i));
++	}
+ 
+ 	spin_lock_init(&cq->lock);
+ 	atomic_set(&cq->refcount, 1);
+@@ -803,11 +809,14 @@
+ 						  MTHCA_CQ_STATE_DISARMED |
+ 						  MTHCA_CQ_FLAG_TR);
+ 	cq_context->start           = cpu_to_be64(0);
+-	cq_context->logsize_usrpage = cpu_to_be32((ffs(nent) - 1) << 24 |
+-						  dev->driver_uar.index);
++	cq_context->logsize_usrpage = cpu_to_be32((ffs(nent) - 1) << 24);
++	if (ctx)
++		cq_context->logsize_usrpage |= cpu_to_be32(ctx->uar.index);
++	else
++		cq_context->logsize_usrpage |= cpu_to_be32(dev->driver_uar.index);
+ 	cq_context->error_eqn       = cpu_to_be32(dev->eq_table.eq[MTHCA_EQ_ASYNC].eqn);
+ 	cq_context->comp_eqn        = cpu_to_be32(dev->eq_table.eq[MTHCA_EQ_COMP].eqn);
+-	cq_context->pd              = cpu_to_be32(dev->driver_pd.pd_num);
++	cq_context->pd              = cpu_to_be32(pdn);
+ 	cq_context->lkey            = cpu_to_be32(cq->mr.ibmr.lkey);
+ 	cq_context->cqn             = cpu_to_be32(cq->cqn);
+ 
+@@ -845,17 +854,19 @@
+ 	return 0;
+ 
+ err_out_free_mr:
+-	mthca_free_mr(dev, &cq->mr);
+-	mthca_free_cq_buf(dev, cq);
++	if (cq->is_kernel) {
++		mthca_free_mr(dev, &cq->mr);
++		mthca_free_cq_buf(dev, cq);
++	}
+ 
+ err_out_mailbox:
+ 	kfree(mailbox);
+ 
+-	if (mthca_is_memfree(dev))
++	if (cq->is_kernel && mthca_is_memfree(dev))
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM, cq->arm_db_index);
+ 
+ err_out_ci:
+-	if (mthca_is_memfree(dev))
++	if (cq->is_kernel)
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
+ 
+ err_out_icm:
+@@ -895,7 +906,8 @@
+ 		int j;
+ 
+ 		printk(KERN_ERR "context for CQN %x (cons index %x, next sw %d)\n",
+-		       cq->cqn, cq->cons_index, !!next_cqe_sw(cq));
++		       cq->cqn, cq->cons_index,
++		       cq->is_kernel ? !!next_cqe_sw(cq) : 0);
+ 		for (j = 0; j < 16; ++j)
+ 			printk(KERN_ERR "[%2x] %08x\n", j * 4, be32_to_cpu(ctx[j]));
+ 	}
+@@ -913,15 +925,17 @@
+ 	atomic_dec(&cq->refcount);
+ 	wait_event(cq->wait, !atomic_read(&cq->refcount));
+ 
+-	mthca_free_mr(dev, &cq->mr);
+-	mthca_free_cq_buf(dev, cq);
+-
+-	if (mthca_is_memfree(dev)) {
+-		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM,    cq->arm_db_index);
+-		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
+-		mthca_table_put(dev, dev->cq_table.table, cq->cqn);
++	if (cq->is_kernel) {
++		mthca_free_mr(dev, &cq->mr);
++		mthca_free_cq_buf(dev, cq);
++		if (mthca_is_memfree(dev)) {
++			mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM,    cq->arm_db_index);
++			mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
++		}
+ 	}
+ 
++	if (mthca_is_memfree(dev))
++		mthca_table_put(dev, dev->cq_table.table, cq->cqn);
+ 	mthca_free(&dev->cq_table.alloc, cq->cqn);
+ 	kfree(mailbox);
+ }
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-04 14:57:12.254750421 -0700
++++ linux-export/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-04 14:58:12.411669307 -0700
+@@ -49,14 +49,6 @@
+ #define DRV_VERSION	"0.06-pre"
+ #define DRV_RELDATE	"November 8, 2004"
+ 
+-/* XXX remove once SINAI defines make it into kernel.org */
+-#ifndef PCI_DEVICE_ID_MELLANOX_SINAI_OLD
+-#define PCI_DEVICE_ID_MELLANOX_SINAI_OLD 0x5e8c
+-#endif
+-#ifndef PCI_DEVICE_ID_MELLANOX_SINAI
+-#define PCI_DEVICE_ID_MELLANOX_SINAI 0x6274
+-#endif
+-
+ enum {
+ 	MTHCA_FLAG_DDR_HIDDEN = 1 << 1,
+ 	MTHCA_FLAG_SRQ        = 1 << 2,
+@@ -413,6 +405,7 @@
+ int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
+ int mthca_arbel_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
+ int mthca_init_cq(struct mthca_dev *dev, int nent,
++		  struct mthca_ucontext *ctx, u32 pdn,
+ 		  struct mthca_cq *cq);
+ void mthca_free_cq(struct mthca_dev *dev,
+ 		   struct mthca_cq *cq);
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-04 14:57:12.256749986 -0700
++++ linux-export/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-04 14:58:12.412669090 -0700
+@@ -45,6 +45,15 @@
+ 	MTHCA_TABLE_CHUNK_SIZE = 1 << 18
+ };
+ 
++struct mthca_user_db_table {
++	struct semaphore mutex;
++	struct {
++		u64                uvirt;
++		struct scatterlist mem;
++		int                refcount;
++	}                page[0];
 +};
 +
-+struct ib_uverbs_event_file {
-+	struct ib_uverbs_file *uverbs_file;
-+	spinlock_t             lock;
-+	int                    fd;
-+	int                    is_async;
-+	wait_queue_head_t      poll_wait;
-+	struct list_head       event_list;
-+};
-+
-+struct ib_uverbs_file {
-+	struct kref                 ref;
-+	struct ib_uverbs_device    *device;
-+	struct ib_ucontext         *ucontext;
-+	struct ib_event_handler     event_handler;
-+	struct ib_uverbs_event_file async_file; 
-+	struct ib_uverbs_event_file comp_file[1]; 
-+};
-+
-+struct ib_uverbs_async_event {
-+	struct ib_uverbs_async_event_desc desc;
-+	struct list_head                  list;
-+};
-+
-+struct ib_uverbs_comp_event {
-+	struct ib_uverbs_comp_event_desc desc;
-+	struct list_head                 list;
-+};
-+
-+struct ib_uobject_mr {
-+	struct ib_uobject   uobj;
-+	struct page        *page_list;
-+	struct scatterlist *sg_list;
-+};
-+
-+extern struct semaphore ib_uverbs_idr_mutex;
-+extern struct idr ib_uverbs_pd_idr;
-+extern struct idr ib_uverbs_mr_idr;
-+extern struct idr ib_uverbs_mw_idr;
-+extern struct idr ib_uverbs_ah_idr;
-+extern struct idr ib_uverbs_cq_idr;
-+extern struct idr ib_uverbs_qp_idr;
-+
-+void ib_uverbs_comp_handler(struct ib_cq *cq, void *cq_context);
-+void ib_uverbs_cq_event_handler(struct ib_event *event, void *context_ptr);
-+void ib_uverbs_qp_event_handler(struct ib_event *event, void *context_ptr);
-+
-+int ib_umem_get(struct ib_device *dev, struct ib_umem *mem,
-+		void *addr, size_t size);
-+void ib_umem_release(struct ib_device *dev, struct ib_umem *umem);
-+
-+#define IB_UVERBS_DECLARE_CMD(name)					\
-+	ssize_t ib_uverbs_##name(struct ib_uverbs_file *file,		\
-+				 const char __user *buf, int in_len,	\
-+				 int out_len)
-+
-+IB_UVERBS_DECLARE_CMD(query_params);
-+IB_UVERBS_DECLARE_CMD(get_context);
-+IB_UVERBS_DECLARE_CMD(query_port);
-+IB_UVERBS_DECLARE_CMD(alloc_pd);
-+IB_UVERBS_DECLARE_CMD(dealloc_pd);
-+IB_UVERBS_DECLARE_CMD(reg_mr);
-+IB_UVERBS_DECLARE_CMD(dereg_mr);
-+IB_UVERBS_DECLARE_CMD(create_cq);
-+IB_UVERBS_DECLARE_CMD(destroy_cq);
-+IB_UVERBS_DECLARE_CMD(create_qp);
-+IB_UVERBS_DECLARE_CMD(modify_qp);
-+IB_UVERBS_DECLARE_CMD(destroy_qp);
-+
-+#endif /* UVERBS_H */
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-export/drivers/infiniband/core/uverbs_cmd.c	2005-04-04 14:53:12.136965074 -0700
-@@ -0,0 +1,790 @@
-+/*
-+ * Copyright (c) 2005 Topspin Communications.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * $Id: uverbs_cmd.c 1995 2005-03-15 19:25:10Z roland $
-+ */
-+
-+#include <asm/uaccess.h>
-+
-+#include "uverbs.h"
-+
-+ssize_t ib_uverbs_query_params(struct ib_uverbs_file *file,
-+			       const char __user *buf,
-+			       int in_len, int out_len)
+ void mthca_free_icm(struct mthca_dev *dev, struct mthca_icm *icm)
+ {
+ 	struct mthca_icm_chunk *chunk, *tmp;
+@@ -334,13 +343,132 @@
+ 	kfree(table);
+ }
+ 
+-static u64 mthca_uarc_virt(struct mthca_dev *dev, int page)
++static u64 mthca_uarc_virt(struct mthca_dev *dev, struct mthca_uar *uar, int page)
+ {
+ 	return dev->uar_table.uarc_base +
+-		dev->driver_uar.index * dev->uar_table.uarc_size +
++		uar->index * dev->uar_table.uarc_size +
+ 		page * 4096;
+ }
+ 
++int mthca_map_user_db(struct mthca_dev *dev, struct mthca_uar *uar,
++		      struct mthca_user_db_table *db_tab, int index, u64 uaddr)
 +{
-+	struct ib_uverbs_query_params      cmd;
-+	struct ib_uverbs_query_params_resp resp;
-+
-+	if (out_len < sizeof resp)
-+		return -ENOSPC;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	resp.num_cq_events = file->device->num_comp;
-+
-+	if (copy_to_user((void __user *) (unsigned long) cmd.response, &resp, sizeof resp))
-+	    return -EFAULT;
-+
-+	return in_len;
-+}
-+
-+ssize_t ib_uverbs_get_context(struct ib_uverbs_file *file,
-+			      const char __user *buf,
-+			      int in_len, int out_len)
-+{
-+	struct ib_uverbs_get_context       cmd;
-+	struct ib_uverbs_get_context_resp *resp;
-+	struct ib_device                  *ibdev = file->device->ib_dev;
-+	int outsz;
++	int ret = 0;
++	u8 status;
 +	int i;
-+	int ret = in_len;
 +
-+	outsz = sizeof *resp + (file->device->num_comp - 1) * sizeof (__u32);
-+
-+	if (out_len < outsz)
-+		return -ENOSPC;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	resp = kmalloc(outsz, GFP_KERNEL);
-+	if (!resp)
-+		return -ENOMEM;
-+
-+	file->ucontext = ibdev->alloc_ucontext(ibdev, buf + sizeof cmd,
-+					       in_len - sizeof cmd -
-+					       sizeof (struct ib_uverbs_cmd_hdr));
-+	if (IS_ERR(file->ucontext)) {
-+		ret = PTR_ERR(file->ucontext);
-+		file->ucontext = NULL;
-+		kfree(resp);
-+		return ret;
-+	}
-+
-+	file->ucontext->device = ibdev;
-+	INIT_LIST_HEAD(&file->ucontext->pd_list);
-+	INIT_LIST_HEAD(&file->ucontext->mr_list);
-+	INIT_LIST_HEAD(&file->ucontext->mw_list);
-+	INIT_LIST_HEAD(&file->ucontext->cq_list);
-+	INIT_LIST_HEAD(&file->ucontext->qp_list);
-+	INIT_LIST_HEAD(&file->ucontext->srq_list);
-+	INIT_LIST_HEAD(&file->ucontext->ah_list);
-+	spin_lock_init(&file->ucontext->lock);
-+
-+	resp->async_fd  = file->async_file.fd;
-+	for (i = 0; i < file->device->num_comp; ++i)
-+		resp->cq_fd[i] = file->comp_file[i].fd;
-+
-+	if (copy_to_user((void __user *) (unsigned long) cmd.response, resp, outsz)) {
-+		ibdev->dealloc_ucontext(file->ucontext);
-+		file->ucontext = NULL;
-+		ret = -EFAULT;
-+	}
-+
-+	kfree(resp);
-+	return ret;
-+}
-+
-+ssize_t ib_uverbs_query_port(struct ib_uverbs_file *file,
-+			     const char __user *buf,
-+			     int in_len, int out_len)
-+{
-+	struct ib_uverbs_query_port      cmd;
-+	struct ib_uverbs_query_port_resp resp;
-+	struct ib_port_attr              attr;
-+	int                              ret;
-+
-+	if (out_len < sizeof resp)
-+		return -ENOSPC;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	ret = ib_query_port(file->device->ib_dev, cmd.port_num, &attr);
-+	if (ret)
-+		return ret;
-+
-+	resp.state 	     = attr.state;
-+	resp.max_mtu 	     = attr.max_mtu;
-+	resp.active_mtu      = attr.active_mtu;
-+	resp.gid_tbl_len     = attr.gid_tbl_len;
-+	resp.port_cap_flags  = attr.port_cap_flags;
-+	resp.max_msg_sz      = attr.max_msg_sz;
-+	resp.bad_pkey_cntr   = attr.bad_pkey_cntr;
-+	resp.qkey_viol_cntr  = attr.qkey_viol_cntr;
-+	resp.pkey_tbl_len    = attr.pkey_tbl_len;
-+	resp.lid 	     = attr.lid;
-+	resp.sm_lid 	     = attr.sm_lid;
-+	resp.lmc 	     = attr.lmc;
-+	resp.max_vl_num      = attr.max_vl_num;
-+	resp.sm_sl 	     = attr.sm_sl;
-+	resp.subnet_timeout  = attr.subnet_timeout;
-+	resp.init_type_reply = attr.init_type_reply;
-+	resp.active_width    = attr.active_width;
-+	resp.active_speed    = attr.active_speed;
-+	resp.phys_state      = attr.phys_state;
-+
-+	if (copy_to_user((void __user *) (unsigned long) cmd.response,
-+			 &resp, sizeof resp))
-+		return -EFAULT;
-+
-+	return in_len;
-+}
-+
-+ssize_t ib_uverbs_alloc_pd(struct ib_uverbs_file *file,
-+			   const char __user *buf,
-+			   int in_len, int out_len)
-+{
-+	struct ib_uverbs_alloc_pd      cmd;
-+	struct ib_uverbs_alloc_pd_resp resp;
-+	struct ib_uobject             *uobj;
-+	struct ib_pd                  *pd;
-+	int                            ret;
-+
-+	if (out_len < sizeof resp)
-+		return -ENOSPC;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	uobj = kmalloc(sizeof *uobj, GFP_KERNEL);
-+	if (!uobj)
-+		return -ENOMEM;
-+
-+	uobj->context = file->ucontext;
-+
-+	pd = file->device->ib_dev->alloc_pd(file->device->ib_dev,
-+					    file->ucontext, buf + sizeof cmd,
-+					    in_len - sizeof cmd -
-+					    sizeof (struct ib_uverbs_cmd_hdr));
-+	if (IS_ERR(pd)) {
-+		ret = PTR_ERR(pd);
-+		goto err;
-+	}
-+
-+	pd->device  = file->device->ib_dev;
-+	pd->uobject = uobj;
-+	atomic_set(&pd->usecnt, 0);
-+
-+retry:
-+	if (!idr_pre_get(&ib_uverbs_pd_idr, GFP_KERNEL)) {
-+		ret = -ENOMEM;
-+		goto err_pd;
-+	}
-+
-+	down(&ib_uverbs_idr_mutex);
-+	ret = idr_get_new(&ib_uverbs_pd_idr, pd, &uobj->id);
-+	up(&ib_uverbs_idr_mutex);
-+
-+	if (ret == -EAGAIN)
-+		goto retry;
-+	if (ret)
-+		goto err_pd;
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_add_tail(&uobj->list, &file->ucontext->pd_list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	resp.pd_handle = uobj->id;
-+
-+	if (copy_to_user((void __user *) (unsigned long) cmd.response,
-+			 &resp, sizeof resp)) {
-+		ret = -EFAULT;
-+		goto err_list;
-+	}
-+
-+	return in_len;
-+
-+err_list:
-+ 	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&uobj->list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	down(&ib_uverbs_idr_mutex);
-+	idr_remove(&ib_uverbs_pd_idr, uobj->id);
-+	up(&ib_uverbs_idr_mutex);
-+
-+err_pd:
-+	ib_dealloc_pd(pd);
-+
-+err:
-+	kfree(uobj);
-+	return ret;
-+}
-+
-+ssize_t ib_uverbs_dealloc_pd(struct ib_uverbs_file *file,
-+			     const char __user *buf,
-+			     int in_len, int out_len)
-+{
-+	struct ib_uverbs_dealloc_pd cmd;
-+	struct ib_pd               *pd;
-+	int                         ret = -EINVAL;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	down(&ib_uverbs_idr_mutex);
-+
-+	pd = idr_find(&ib_uverbs_pd_idr, cmd.pd_handle);
-+	if (!pd || pd->uobject->context != file->ucontext)
-+		goto out;
-+
-+	ret = ib_dealloc_pd(pd);
-+	if (ret)
-+		goto out;
-+
-+	idr_remove(&ib_uverbs_pd_idr, cmd.pd_handle);
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&pd->uobject->list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	kfree(pd->uobject);
-+
-+out:
-+	up(&ib_uverbs_idr_mutex);
-+
-+	return ret ? ret : in_len;
-+}
-+
-+ssize_t ib_uverbs_reg_mr(struct ib_uverbs_file *file,
-+			 const char __user *buf, int in_len,
-+			 int out_len)
-+{
-+	struct ib_uverbs_reg_mr      cmd;
-+	struct ib_uverbs_reg_mr_resp resp;
-+	struct ib_umem_object       *obj;
-+	struct ib_pd                *pd;
-+	struct ib_mr                *mr;
-+	int                          ret;
-+
-+	if (out_len < sizeof resp)
-+		return -ENOSPC;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	if ((cmd.start & ~PAGE_MASK) != (cmd.hca_va & ~PAGE_MASK))
-+		return -EINVAL;
-+
-+	obj = kmalloc(sizeof *obj, GFP_KERNEL);
-+	if (!obj)
-+		return -ENOMEM;
-+
-+	obj->uobject.context = file->ucontext;
-+
-+	ret = ib_umem_get(file->device->ib_dev, &obj->umem,
-+			  (void *) (unsigned long) cmd.start,
-+			  cmd.length);
-+	if (ret)
-+		goto err_free;
-+
-+	obj->umem.virt_base = cmd.hca_va;
-+
-+	down(&ib_uverbs_idr_mutex);
-+
-+	pd = idr_find(&ib_uverbs_pd_idr, cmd.pd_handle);
-+	if (!pd || pd->uobject->context != file->ucontext) {
-+		ret = -EINVAL;
-+		goto err_up;
-+	}
-+
-+	if (!pd->device->reg_user_mr) {
-+		ret = -ENOSYS;
-+		goto err_up;
-+	}
-+
-+	mr = pd->device->reg_user_mr(pd, &obj->umem,
-+				     cmd.access_flags,
-+				     buf + sizeof cmd,
-+				     in_len - sizeof cmd -
-+				     sizeof (struct ib_uverbs_cmd_hdr));
-+	if (IS_ERR(mr)) {
-+		ret = PTR_ERR(mr);
-+		goto err_up;
-+	}
-+
-+	mr->device  = pd->device;
-+	mr->pd      = pd;
-+	mr->uobject = &obj->uobject;
-+	atomic_inc(&pd->usecnt);
-+	atomic_set(&mr->usecnt, 0);
-+
-+	resp.lkey = mr->lkey;
-+	resp.rkey = mr->rkey;
-+
-+retry:
-+	if (!idr_pre_get(&ib_uverbs_mr_idr, GFP_KERNEL)) {
-+		ret = -ENOMEM;
-+		goto err_unreg;
-+	}
-+
-+	ret = idr_get_new(&ib_uverbs_mr_idr, mr, &obj->uobject.id);
-+
-+	if (ret == -EAGAIN)
-+		goto retry;
-+	if (ret)
-+		goto err_unreg;
-+
-+	resp.mr_handle = obj->uobject.id;
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_add_tail(&obj->uobject.list, &file->ucontext->mr_list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	if (copy_to_user((void __user *) (unsigned long) cmd.response,
-+			 &resp, sizeof resp)) {
-+		ret = -EFAULT;
-+		goto err_list;
-+	}
-+
-+	up(&ib_uverbs_idr_mutex);
-+
-+	return in_len;
-+
-+err_list:
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&obj->uobject.list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+err_unreg:
-+	ib_dereg_mr(mr);
-+
-+err_up:
-+	up(&ib_uverbs_idr_mutex);
-+
-+	ib_umem_release(file->device->ib_dev, &obj->umem);
-+
-+err_free:
-+	kfree(obj);
-+	return ret;
-+}
-+
-+ssize_t ib_uverbs_dereg_mr(struct ib_uverbs_file *file,
-+			   const char __user *buf, int in_len,
-+			   int out_len)
-+{
-+	struct ib_uverbs_dereg_mr cmd;
-+	struct ib_mr             *mr;
-+	struct ib_umem_object    *memobj;
-+	int                       ret = -EINVAL;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	down(&ib_uverbs_idr_mutex);
-+
-+	mr = idr_find(&ib_uverbs_mr_idr, cmd.mr_handle);
-+	if (!mr || mr->uobject->context != file->ucontext)
-+		goto out;
-+	
-+	ret = ib_dereg_mr(mr);
-+	if (ret)
-+		goto out;
-+
-+	idr_remove(&ib_uverbs_mr_idr, cmd.mr_handle);
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&mr->uobject->list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	memobj = container_of(mr->uobject, struct ib_umem_object, uobject);
-+	ib_umem_release(file->device->ib_dev, &memobj->umem);
-+	kfree(memobj);
-+
-+out:
-+	up(&ib_uverbs_idr_mutex);
-+
-+	return ret ? ret : in_len;
-+}
-+
-+ssize_t ib_uverbs_create_cq(struct ib_uverbs_file *file,
-+			    const char __user *buf, int in_len,
-+			    int out_len)
-+{
-+	struct ib_uverbs_create_cq      cmd;
-+	struct ib_uverbs_create_cq_resp resp;
-+	struct ib_uobject              *uobj;
-+	struct ib_cq                   *cq;
-+	int                             ret;
-+
-+	if (out_len < sizeof resp)
-+		return -ENOSPC;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	uobj = kmalloc(sizeof *uobj, GFP_KERNEL);
-+	if (!uobj)
-+		return -ENOMEM;
-+
-+	uobj->user_handle = cmd.user_handle;
-+	uobj->context     = file->ucontext;
-+
-+	cq = file->device->ib_dev->create_cq(file->device->ib_dev, cmd.cqe,
-+					     file->ucontext, buf + sizeof cmd,
-+					     in_len - sizeof cmd -
-+					     sizeof (struct ib_uverbs_cmd_hdr));
-+	if (IS_ERR(cq)) {
-+		ret = PTR_ERR(cq);
-+		goto err;
-+	}
-+
-+	cq->device        = file->device->ib_dev;
-+	cq->uobject       = uobj;
-+	cq->comp_handler  = ib_uverbs_comp_handler;
-+	cq->event_handler = ib_uverbs_cq_event_handler;
-+	cq->cq_context    = file;
-+	atomic_set(&cq->usecnt, 0);
-+
-+retry:
-+	if (!idr_pre_get(&ib_uverbs_cq_idr, GFP_KERNEL)) {
-+		ret = -ENOMEM;
-+		goto err_cq;
-+	}
-+
-+	down(&ib_uverbs_idr_mutex);
-+	ret = idr_get_new(&ib_uverbs_cq_idr, cq, &uobj->id);
-+	up(&ib_uverbs_idr_mutex);
-+
-+	if (ret == -EAGAIN)
-+		goto retry;
-+	if (ret)
-+		goto err_cq;
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_add_tail(&uobj->list, &file->ucontext->cq_list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	resp.cq_handle = uobj->id;
-+	resp.cqe       = cq->cqe;
-+
-+	if (copy_to_user((void __user *) (unsigned long) cmd.response,
-+			 &resp, sizeof resp)) {
-+		ret = -EFAULT;
-+		goto err_list;
-+	}
-+
-+	return in_len;
-+
-+err_list:
-+ 	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&uobj->list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	down(&ib_uverbs_idr_mutex);
-+	idr_remove(&ib_uverbs_cq_idr, uobj->id);
-+	up(&ib_uverbs_idr_mutex);
-+
-+err_cq:
-+	ib_destroy_cq(cq);
-+
-+err:
-+	kfree(uobj);
-+	return ret;
-+}
-+
-+ssize_t ib_uverbs_destroy_cq(struct ib_uverbs_file *file,
-+			     const char __user *buf, int in_len,
-+			     int out_len)
-+{
-+	struct ib_uverbs_destroy_cq cmd;
-+	struct ib_cq               *cq;
-+	int                         ret = -EINVAL;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	down(&ib_uverbs_idr_mutex);
-+
-+	cq = idr_find(&ib_uverbs_cq_idr, cmd.cq_handle);
-+	if (!cq || cq->uobject->context != file->ucontext)
-+		goto out;
-+
-+	ret = ib_destroy_cq(cq);
-+	if (ret)
-+		goto out;
-+
-+	idr_remove(&ib_uverbs_cq_idr, cmd.cq_handle);
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&cq->uobject->list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	kfree(cq->uobject);
-+
-+out:
-+	up(&ib_uverbs_idr_mutex);
-+
-+	return ret ? ret : in_len;
-+}
-+
-+ssize_t ib_uverbs_create_qp(struct ib_uverbs_file *file,
-+			    const char __user *buf, int in_len,
-+			    int out_len)
-+{
-+	struct ib_uverbs_create_qp      cmd;
-+	struct ib_uverbs_create_qp_resp resp;
-+	struct ib_uobject              *uobj;
-+	struct ib_pd                   *pd;
-+	struct ib_cq                   *scq, *rcq;
-+	struct ib_qp                   *qp;
-+	struct ib_qp_init_attr          attr;
-+	int ret;
-+
-+	if (out_len < sizeof resp)
-+		return -ENOSPC;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	uobj = kmalloc(sizeof *uobj, GFP_KERNEL);
-+	if (!uobj)
-+		return -ENOMEM;
-+
-+	down(&ib_uverbs_idr_mutex);
-+
-+	pd  = idr_find(&ib_uverbs_pd_idr, cmd.pd_handle);
-+	scq = idr_find(&ib_uverbs_cq_idr, cmd.send_cq_handle);
-+	rcq = idr_find(&ib_uverbs_cq_idr, cmd.recv_cq_handle);
-+
-+	if (!pd  || pd->uobject->context  != file->ucontext ||
-+	    !scq || scq->uobject->context != file->ucontext ||
-+	    !rcq || rcq->uobject->context != file->ucontext) {
-+		ret = -EINVAL;
-+		goto err_up;
-+	}
-+
-+	attr.event_handler = ib_uverbs_qp_event_handler;
-+	attr.qp_context    = file;
-+	attr.send_cq       = scq;
-+	attr.recv_cq       = rcq;
-+	attr.srq           = NULL;
-+	attr.sq_sig_type   = cmd.sq_sig_all ? IB_SIGNAL_ALL_WR : IB_SIGNAL_REQ_WR;
-+	attr.qp_type       = cmd.qp_type;
-+
-+	attr.cap.max_send_wr     = cmd.max_send_wr;
-+	attr.cap.max_recv_wr     = cmd.max_recv_wr;
-+	attr.cap.max_send_sge    = cmd.max_send_sge;
-+	attr.cap.max_recv_sge    = cmd.max_recv_sge;
-+	attr.cap.max_inline_data = cmd.max_inline_data;
-+
-+	uobj->user_handle = cmd.user_handle;
-+	uobj->context     = file->ucontext;
-+
-+	qp = pd->device->create_qp(pd, &attr, buf + sizeof cmd,
-+				   in_len - sizeof cmd -
-+				   sizeof (struct ib_uverbs_cmd_hdr));
-+	if (IS_ERR(qp)) {
-+		ret = PTR_ERR(qp);
-+		goto err_up;
-+	}
-+
-+	qp->device     	  = pd->device;
-+	qp->pd         	  = pd;
-+	qp->send_cq    	  = attr.send_cq;
-+	qp->recv_cq    	  = attr.recv_cq;
-+	qp->srq	       	  = attr.srq;
-+	qp->uobject       = uobj;
-+	qp->event_handler = attr.event_handler;
-+	qp->qp_context    = attr.qp_context;
-+	qp->qp_type	  = attr.qp_type;
-+	atomic_inc(&pd->usecnt);
-+	atomic_inc(&attr.send_cq->usecnt);
-+	atomic_inc(&attr.recv_cq->usecnt);
-+	if (attr.srq)
-+		atomic_inc(&attr.srq->usecnt);
-+
-+	resp.qpn = qp->qp_num;
-+
-+retry:
-+	if (!idr_pre_get(&ib_uverbs_qp_idr, GFP_KERNEL)) {
-+		ret = -ENOMEM;
-+		goto err_destroy;
-+	}
-+
-+	ret = idr_get_new(&ib_uverbs_qp_idr, qp, &uobj->id);
-+
-+	if (ret == -EAGAIN)
-+		goto retry;
-+	if (ret)
-+		goto err_destroy;
-+
-+	resp.qp_handle = uobj->id;
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_add_tail(&uobj->list, &file->ucontext->qp_list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	if (copy_to_user((void __user *) (unsigned long) cmd.response,
-+			 &resp, sizeof resp)) {
-+		ret = -EFAULT;
-+		goto err_list;
-+	}
-+
-+	up(&ib_uverbs_idr_mutex);
-+
-+	return in_len;
-+
-+err_list:
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&uobj->list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+err_destroy:
-+	ib_destroy_qp(qp);
-+
-+err_up:
-+	up(&ib_uverbs_idr_mutex);
-+
-+	kfree(uobj);
-+	return ret;
-+}
-+
-+ssize_t ib_uverbs_modify_qp(struct ib_uverbs_file *file,
-+			    const char __user *buf, int in_len,
-+			    int out_len)
-+{
-+	struct ib_uverbs_modify_qp cmd;
-+	struct ib_qp              *qp;
-+	struct ib_qp_attr         *attr;
-+	int                        ret;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	attr = kmalloc(sizeof *attr, GFP_KERNEL);
-+	if (!attr)
-+		return -ENOMEM;
-+
-+	down(&ib_uverbs_idr_mutex);
-+
-+	qp = idr_find(&ib_uverbs_qp_idr, cmd.qp_handle);
-+	if (!qp || qp->uobject->context != file->ucontext) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	attr->qp_state 		  = cmd.qp_state;
-+	attr->cur_qp_state 	  = cmd.cur_qp_state;
-+	attr->path_mtu 		  = cmd.path_mtu;
-+	attr->path_mig_state 	  = cmd.path_mig_state;
-+	attr->qkey 		  = cmd.qkey;
-+	attr->rq_psn 		  = cmd.rq_psn;
-+	attr->sq_psn 		  = cmd.sq_psn;
-+	attr->dest_qp_num 	  = cmd.dest_qp_num;
-+	attr->qp_access_flags 	  = cmd.qp_access_flags;
-+	attr->pkey_index 	  = cmd.pkey_index;
-+	attr->alt_pkey_index 	  = cmd.pkey_index;
-+	attr->en_sqd_async_notify = cmd.en_sqd_async_notify;
-+	attr->max_rd_atomic 	  = cmd.max_rd_atomic;
-+	attr->max_dest_rd_atomic  = cmd.max_dest_rd_atomic;
-+	attr->min_rnr_timer 	  = cmd.min_rnr_timer;
-+	attr->port_num 		  = cmd.port_num;
-+	attr->timeout 		  = cmd.timeout;
-+	attr->retry_cnt 	  = cmd.retry_cnt;
-+	attr->rnr_retry 	  = cmd.rnr_retry;
-+	attr->alt_port_num 	  = cmd.alt_port_num;
-+	attr->alt_timeout 	  = cmd.alt_timeout;
-+
-+	memcpy(attr->ah_attr.grh.dgid.raw, cmd.dest.dgid, 16);
-+	attr->ah_attr.grh.flow_label        = cmd.dest.flow_label;
-+	attr->ah_attr.grh.sgid_index        = cmd.dest.sgid_index;
-+	attr->ah_attr.grh.hop_limit         = cmd.dest.hop_limit;
-+	attr->ah_attr.grh.traffic_class     = cmd.dest.traffic_class;
-+	attr->ah_attr.dlid 	    	    = cmd.dest.dlid;
-+	attr->ah_attr.sl   	    	    = cmd.dest.sl;
-+	attr->ah_attr.src_path_bits 	    = cmd.dest.src_path_bits;
-+	attr->ah_attr.static_rate   	    = cmd.dest.static_rate;
-+	attr->ah_attr.ah_flags 	    	    = cmd.dest.is_global ? IB_AH_GRH : 0;
-+	attr->ah_attr.port_num 	    	    = cmd.dest.port_num;
-+
-+	memcpy(attr->alt_ah_attr.grh.dgid.raw, cmd.alt_dest.dgid, 16);
-+	attr->alt_ah_attr.grh.flow_label    = cmd.alt_dest.flow_label;
-+	attr->alt_ah_attr.grh.sgid_index    = cmd.alt_dest.sgid_index;
-+	attr->alt_ah_attr.grh.hop_limit     = cmd.alt_dest.hop_limit;
-+	attr->alt_ah_attr.grh.traffic_class = cmd.alt_dest.traffic_class;
-+	attr->alt_ah_attr.dlid 	    	    = cmd.alt_dest.dlid;
-+	attr->alt_ah_attr.sl   	    	    = cmd.alt_dest.sl;
-+	attr->alt_ah_attr.src_path_bits     = cmd.alt_dest.src_path_bits;
-+	attr->alt_ah_attr.static_rate       = cmd.alt_dest.static_rate;
-+	attr->alt_ah_attr.ah_flags 	    = cmd.alt_dest.is_global ? IB_AH_GRH : 0;
-+	attr->alt_ah_attr.port_num 	    = cmd.alt_dest.port_num;
-+
-+	ret = ib_modify_qp(qp, attr, cmd.attr_mask);
-+	if (ret)
-+		goto out;
-+
-+	ret = in_len;
-+
-+out:
-+	up(&ib_uverbs_idr_mutex);
-+	kfree(attr);
-+
-+	return ret;
-+}
-+
-+ssize_t ib_uverbs_destroy_qp(struct ib_uverbs_file *file,
-+			     const char __user *buf, int in_len,
-+			     int out_len)
-+{
-+	struct ib_uverbs_destroy_qp cmd;
-+	struct ib_qp               *qp;
-+	int                         ret = -EINVAL;
-+
-+	if (copy_from_user(&cmd, buf, sizeof cmd))
-+		return -EFAULT;
-+
-+	down(&ib_uverbs_idr_mutex);
-+
-+	qp = idr_find(&ib_uverbs_qp_idr, cmd.qp_handle);
-+	if (!qp || qp->uobject->context != file->ucontext)
-+		goto out;
-+
-+	ret = ib_destroy_qp(qp);
-+	if (ret)
-+		goto out;
-+
-+	idr_remove(&ib_uverbs_qp_idr, cmd.qp_handle);
-+
-+	spin_lock_irq(&file->ucontext->lock);
-+	list_del(&qp->uobject->list);
-+	spin_unlock_irq(&file->ucontext->lock);
-+
-+	kfree(qp->uobject);
-+
-+out:
-+	up(&ib_uverbs_idr_mutex);
-+
-+	return ret ? ret : in_len;
-+}
-+
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-export/drivers/infiniband/core/uverbs_main.c	2005-04-04 14:53:17.824728218 -0700
-@@ -0,0 +1,688 @@
-+/*
-+ * Copyright (c) 2005 Topspin Communications.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * $Id: uverbs_main.c 2109 2005-04-04 21:10:34Z roland $
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/fs.h>
-+#include <linux/poll.h>
-+#include <linux/file.h>
-+#include <linux/mount.h>
-+
-+#include <asm/uaccess.h>
-+
-+#include "uverbs.h"
-+
-+MODULE_AUTHOR("Roland Dreier");
-+MODULE_DESCRIPTION("InfiniBand userspace verbs access");
-+MODULE_LICENSE("Dual BSD/GPL");
-+
-+#define INFINIBANDEVENTFS_MAGIC	0x49426576	/* "IBev" */
-+
-+enum {
-+	IB_UVERBS_MAJOR       = 231,
-+	IB_UVERBS_BASE_MINOR  = 128,
-+	IB_UVERBS_MAX_DEVICES = 32
-+};
-+
-+#define IB_UVERBS_BASE_DEV	MKDEV(IB_UVERBS_MAJOR, IB_UVERBS_BASE_MINOR)
-+
-+DECLARE_MUTEX(ib_uverbs_idr_mutex);
-+DEFINE_IDR(ib_uverbs_pd_idr);
-+DEFINE_IDR(ib_uverbs_mr_idr);
-+DEFINE_IDR(ib_uverbs_mw_idr);
-+DEFINE_IDR(ib_uverbs_ah_idr);
-+DEFINE_IDR(ib_uverbs_cq_idr);
-+DEFINE_IDR(ib_uverbs_qp_idr);
-+
-+static spinlock_t map_lock;
-+static DECLARE_BITMAP(dev_map, IB_UVERBS_MAX_DEVICES);
-+
-+static ssize_t (*uverbs_cmd_table[])(struct ib_uverbs_file *file,
-+				     const char __user *buf, int in_len,
-+				     int out_len) = {
-+	[IB_USER_VERBS_CMD_QUERY_PARAMS]  = ib_uverbs_query_params,
-+	[IB_USER_VERBS_CMD_GET_CONTEXT]   = ib_uverbs_get_context,
-+	[IB_USER_VERBS_CMD_QUERY_PORT]    = ib_uverbs_query_port,
-+	[IB_USER_VERBS_CMD_ALLOC_PD]      = ib_uverbs_alloc_pd,
-+	[IB_USER_VERBS_CMD_DEALLOC_PD]    = ib_uverbs_dealloc_pd,
-+	[IB_USER_VERBS_CMD_REG_MR]        = ib_uverbs_reg_mr,
-+	[IB_USER_VERBS_CMD_DEREG_MR]      = ib_uverbs_dereg_mr,
-+	[IB_USER_VERBS_CMD_CREATE_CQ]     = ib_uverbs_create_cq,
-+	[IB_USER_VERBS_CMD_DESTROY_CQ]    = ib_uverbs_destroy_cq,
-+	[IB_USER_VERBS_CMD_CREATE_QP]     = ib_uverbs_create_qp,
-+	[IB_USER_VERBS_CMD_MODIFY_QP]     = ib_uverbs_modify_qp,
-+	[IB_USER_VERBS_CMD_DESTROY_QP]    = ib_uverbs_destroy_qp,
-+};
-+
-+static struct vfsmount *uverbs_event_mnt;
-+
-+static void ib_uverbs_add_one(struct ib_device *device);
-+static void ib_uverbs_remove_one(struct ib_device *device);
-+
-+static int ib_dealloc_ucontext(struct ib_ucontext *context)
-+{
-+	struct ib_uobject *uobj, *tmp;
-+
-+	if (!context)
++	if (!mthca_is_memfree(dev))
 +		return 0;
 +
-+	/* Free AHs */
-+
-+	list_for_each_entry_safe(uobj, tmp, &context->qp_list, list) {
-+		struct ib_qp *qp = idr_find(&ib_uverbs_qp_idr, uobj->id);
-+		idr_remove(&ib_uverbs_qp_idr, uobj->id);
-+		ib_destroy_qp(qp);
-+		list_del(&uobj->list);
-+		kfree(uobj);
-+	}
-+
-+	list_for_each_entry_safe(uobj, tmp, &context->cq_list, list) {
-+		struct ib_cq *cq = idr_find(&ib_uverbs_cq_idr, uobj->id);
-+		idr_remove(&ib_uverbs_cq_idr, uobj->id);
-+		ib_destroy_cq(cq);
-+		list_del(&uobj->list);
-+		kfree(uobj);
-+	}
-+
-+	/* XXX Free SRQs */
-+	/* XXX Free MWs */
-+
-+	list_for_each_entry_safe(uobj, tmp, &context->mr_list, list) {
-+		struct ib_mr *mr = idr_find(&ib_uverbs_mr_idr, uobj->id);
-+		struct ib_umem_object *memobj;
-+
-+		memobj = container_of(uobj, struct ib_umem_object, uobject);
-+		ib_umem_release(mr->device, &memobj->umem);
-+
-+		idr_remove(&ib_uverbs_mr_idr, uobj->id);
-+		ib_dereg_mr(mr);
-+		list_del(&uobj->list);
-+		kfree(memobj);
-+	}
-+
-+	list_for_each_entry_safe(uobj, tmp, &context->pd_list, list) {
-+		struct ib_pd *pd = idr_find(&ib_uverbs_pd_idr, uobj->id);
-+		idr_remove(&ib_uverbs_pd_idr, uobj->id);
-+		ib_dealloc_pd(pd);
-+		list_del(&uobj->list);
-+		kfree(uobj);
-+	}
-+
-+	return context->device->dealloc_ucontext(context);
-+}
-+
-+static void ib_uverbs_release_file(struct kref *ref)
-+{
-+	struct ib_uverbs_file *file = 
-+		container_of(ref, struct ib_uverbs_file, ref);
-+
-+	module_put(file->device->ib_dev->owner);
-+	kfree(file);
-+}
-+
-+static ssize_t ib_uverbs_event_read(struct file *filp, char __user *buf,
-+				    size_t count, loff_t *pos)
-+{
-+	struct ib_uverbs_event_file *file = filp->private_data;
-+	void *event;
-+	int eventsz;
-+	int ret = 0;
-+
-+	spin_lock_irq(&file->lock);
-+
-+	while (list_empty(&file->event_list) && file->fd >= 0) {
-+		spin_unlock_irq(&file->lock);
-+
-+		if (filp->f_flags & O_NONBLOCK)
-+			return -EAGAIN;
-+
-+		if (wait_event_interruptible(file->poll_wait,
-+					     !list_empty(&file->event_list) ||
-+					     file->fd < 0))
-+			return -ERESTARTSYS;
-+
-+		spin_lock_irq(&file->lock);
-+	}
-+
-+	if (file->fd < 0) {
-+		spin_unlock_irq(&file->lock);
-+		return -ENODEV;
-+	}
-+
-+	if (file->is_async) {
-+		event   = list_entry(file->event_list.next,
-+				     struct ib_uverbs_async_event, list);
-+		eventsz = sizeof (struct ib_uverbs_async_event_desc);
-+	} else {
-+		event   = list_entry(file->event_list.next,
-+				     struct ib_uverbs_comp_event, list);
-+		eventsz = sizeof (struct ib_uverbs_comp_event_desc);
-+	}
-+
-+	if (eventsz > count) {
-+		ret   = -EINVAL;
-+		event = NULL;
-+	} else
-+		list_del(file->event_list.next);
-+
-+	spin_unlock_irq(&file->lock);
-+
-+	if (event) {
-+		if (copy_to_user(buf, event, eventsz))
-+			ret = -EFAULT;
-+		else
-+			ret = eventsz;
-+	}
-+
-+	kfree(event);
-+
-+	return ret;
-+}
-+
-+static unsigned int ib_uverbs_event_poll(struct file *filp,
-+					 struct poll_table_struct *wait)
-+{
-+	unsigned int pollflags = 0;
-+	struct ib_uverbs_event_file *file = filp->private_data;
-+
-+	poll_wait(filp, &file->poll_wait, wait);
-+
-+	spin_lock_irq(&file->lock);
-+	if (file->fd < 0)
-+		pollflags = POLLERR;
-+	else if (!list_empty(&file->event_list))
-+		pollflags = POLLIN | POLLRDNORM;
-+	spin_unlock_irq(&file->lock);
-+
-+	return pollflags;
-+}
-+
-+static void ib_uverbs_event_release(struct ib_uverbs_event_file *file)
-+{
-+	struct list_head *entry, *tmp;
-+	int put = 0;
-+
-+	spin_lock_irq(&file->lock);
-+	if (file->fd != -1) {
-+		put      = 1;
-+		file->fd = -1;
-+		list_for_each_safe(entry, tmp, &file->event_list)
-+			if (file->is_async)
-+				kfree(list_entry(entry, struct ib_uverbs_async_event, list));
-+			else
-+				kfree(list_entry(entry, struct ib_uverbs_comp_event, list));
-+	}
-+	spin_unlock_irq(&file->lock);
-+
-+	if (put)
-+		kref_put(&file->uverbs_file->ref, ib_uverbs_release_file);
-+
-+}
-+
-+static int ib_uverbs_event_close(struct inode *inode, struct file *filp)
-+{
-+	struct ib_uverbs_event_file *file = filp->private_data;
-+
-+	ib_uverbs_event_release(file);
-+
-+	return 0;
-+}
-+
-+static struct file_operations uverbs_event_fops = {
-+	/*
-+	 * No .owner field since we artificially create event files,
-+	 * so there is no increment to the module reference count in
-+	 * the open path.  All event files come from a uverbs command
-+	 * file, which already takes a module reference, so this is OK.
-+	 */
-+	.read 	 = ib_uverbs_event_read,
-+	.poll    = ib_uverbs_event_poll,
-+	.release = ib_uverbs_event_close
-+};
-+
-+void ib_uverbs_comp_handler(struct ib_cq *cq, void *cq_context)
-+{
-+	struct ib_uverbs_file       *file = cq_context;
-+	struct ib_uverbs_comp_event *entry;
-+	unsigned long                flags;
-+
-+	entry = kmalloc(sizeof *entry, GFP_ATOMIC);
-+	if (!entry)
-+		return;
-+
-+	entry->desc.cq_handle = cq->uobject->user_handle;
-+
-+	spin_lock_irqsave(&file->comp_file[0].lock, flags);
-+	list_add_tail(&entry->list, &file->comp_file[0].event_list);
-+	spin_unlock_irqrestore(&file->comp_file[0].lock, flags);
-+
-+	wake_up_interruptible(&file->comp_file[0].poll_wait);
-+}
-+
-+void ib_uverbs_cq_event_handler(struct ib_event *event, void *context_ptr)
-+{
-+
-+}
-+
-+void ib_uverbs_qp_event_handler(struct ib_event *event, void *context_ptr)
-+{
-+
-+}
-+
-+static void ib_uverbs_event_handler(struct ib_event_handler *handler,
-+				    struct ib_event *event)
-+{
-+	struct ib_uverbs_file *file =
-+		container_of(handler, struct ib_uverbs_file, event_handler);
-+	struct ib_uverbs_async_event *entry;
-+	unsigned long flags;
-+
-+	entry = kmalloc(sizeof *entry, GFP_ATOMIC);
-+	if (!entry)
-+		return;
-+
-+	entry->desc.event_type = event->event;
-+	entry->desc.element    = event->element.port_num;
-+
-+	spin_lock_irqsave(&file->async_file.lock, flags);
-+	list_add_tail(&entry->list, &file->async_file.event_list);
-+	spin_unlock_irqrestore(&file->async_file.lock, flags);
-+
-+	wake_up_interruptible(&file->async_file.poll_wait);
-+}
-+
-+static int ib_uverbs_event_init(struct ib_uverbs_event_file *file,
-+				struct ib_uverbs_file *uverbs_file)
-+{
-+	struct file *filp;
-+
-+	spin_lock_init(&file->lock);
-+	INIT_LIST_HEAD(&file->event_list);
-+	init_waitqueue_head(&file->poll_wait);
-+	file->uverbs_file = uverbs_file;
-+
-+	file->fd = get_unused_fd();
-+	if (file->fd < 0)
-+		return file->fd;
-+
-+	filp = get_empty_filp();
-+	if (!filp) {
-+		put_unused_fd(file->fd);
-+		return -ENFILE;
-+	}
-+
-+	filp->f_op 	   = &uverbs_event_fops;
-+	filp->f_vfsmnt 	   = mntget(uverbs_event_mnt);
-+	filp->f_dentry 	   = dget(uverbs_event_mnt->mnt_root);
-+	filp->f_mapping    = filp->f_dentry->d_inode->i_mapping;
-+	filp->f_flags      = O_RDONLY;
-+	filp->f_mode       = FMODE_READ;
-+	filp->private_data = file;
-+
-+	fd_install(file->fd, filp);
-+
-+	return 0;
-+}
-+
-+static ssize_t ib_uverbs_write(struct file *filp, const char __user *buf,
-+			     size_t count, loff_t *pos)
-+{
-+	struct ib_uverbs_file *file = filp->private_data;
-+	struct ib_uverbs_cmd_hdr hdr;
-+
-+	if (count < sizeof hdr)
++	if (index < 0 || index > dev->uar_table.uarc_size / 8)
 +		return -EINVAL;
 +
-+	if (copy_from_user(&hdr, buf, sizeof hdr))
-+		return -EFAULT;
++	down(&db_tab->mutex);
 +
-+	if (hdr.in_words * 4 != count)
-+		return -EINVAL;
++	i = index / MTHCA_DB_REC_PER_PAGE;
 +
-+	if (hdr.command < 0 || hdr.command >= ARRAY_SIZE(uverbs_cmd_table))
-+		return -EINVAL;
-+
-+	if (!file->ucontext                               &&
-+	    hdr.command != IB_USER_VERBS_CMD_QUERY_PARAMS &&
-+	    hdr.command != IB_USER_VERBS_CMD_GET_CONTEXT)
-+		return -EINVAL;
-+
-+	return uverbs_cmd_table[hdr.command](file, buf + sizeof hdr,
-+					     hdr.in_words * 4, hdr.out_words * 4);
-+}
-+
-+static int ib_uverbs_mmap(struct file *filp, struct vm_area_struct *vma)
-+{
-+	struct ib_uverbs_file *file = filp->private_data;
-+
-+	return file->device->ib_dev->mmap(file->ucontext, vma);
-+}
-+
-+static int ib_uverbs_open(struct inode *inode, struct file *filp)
-+{
-+	struct ib_uverbs_device *dev =
-+		container_of(inode->i_cdev, struct ib_uverbs_device, dev);
-+	struct ib_uverbs_file *file;
-+	int i = 0;
-+	int ret;
-+
-+	if (!try_module_get(dev->ib_dev->owner))
-+		return -ENODEV;
-+
-+	file = kmalloc(sizeof *file +
-+		       (dev->num_comp - 1) * sizeof (struct ib_uverbs_event_file),
-+		       GFP_KERNEL);
-+	if (!file)
-+		return -ENOMEM;
-+
-+	file->device = dev;
-+	kref_init(&file->ref);
-+
-+	file->ucontext = NULL;
-+
-+	ret = ib_uverbs_event_init(&file->async_file, file);
-+	if (ret)
-+		goto err;
-+
-+	file->async_file.is_async = 1;
-+
-+	kref_get(&file->ref);
-+
-+	for (i = 0; i < dev->num_comp; ++i) {
-+		ret = ib_uverbs_event_init(&file->comp_file[i], file);
-+		if (ret)
-+			goto err_async;
-+		kref_get(&file->ref);
-+		file->comp_file[i].is_async = 0;
-+	}
-+
-+
-+	filp->private_data = file;
-+
-+	INIT_IB_EVENT_HANDLER(&file->event_handler, dev->ib_dev,
-+			      ib_uverbs_event_handler);
-+	if (ib_register_event_handler(&file->event_handler))
-+		goto err_async;
-+
-+	return 0;
-+
-+err_async:
-+	while (i--)
-+		ib_uverbs_event_release(&file->comp_file[i]);
-+
-+	ib_uverbs_event_release(&file->async_file);
-+
-+err:
-+	kref_put(&file->ref, ib_uverbs_release_file);
-+
-+	return ret;
-+}
-+
-+static int ib_uverbs_close(struct inode *inode, struct file *filp)
-+{
-+	struct ib_uverbs_file *file = filp->private_data;
-+	int i;
-+
-+	ib_unregister_event_handler(&file->event_handler);
-+	ib_uverbs_event_release(&file->async_file);
-+	ib_dealloc_ucontext(file->ucontext);
-+
-+	for (i = 0; i < file->device->num_comp; ++i)
-+		ib_uverbs_event_release(&file->comp_file[i]);
-+
-+	kref_put(&file->ref, ib_uverbs_release_file);
-+
-+	return 0;
-+}
-+
-+static struct file_operations uverbs_fops = {
-+	.owner 	 = THIS_MODULE,
-+	.write 	 = ib_uverbs_write,
-+	.open 	 = ib_uverbs_open,
-+	.release = ib_uverbs_close
-+};
-+
-+static struct file_operations uverbs_mmap_fops = {
-+	.owner 	 = THIS_MODULE,
-+	.write 	 = ib_uverbs_write,
-+	.mmap    = ib_uverbs_mmap,
-+	.open 	 = ib_uverbs_open,
-+	.release = ib_uverbs_close
-+};
-+
-+static struct ib_client uverbs_client = {
-+	.name   = "uverbs",
-+	.add    = ib_uverbs_add_one,
-+	.remove = ib_uverbs_remove_one
-+};
-+
-+static ssize_t show_dev(struct class_device *class_dev, char *buf)
-+{
-+	struct ib_uverbs_device *dev =
-+		container_of(class_dev, struct ib_uverbs_device, class_dev);
-+
-+	return print_dev_t(buf, dev->dev.dev);
-+}
-+static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
-+
-+static ssize_t show_ibdev(struct class_device *class_dev, char *buf)
-+{
-+	struct ib_uverbs_device *dev =
-+		container_of(class_dev, struct ib_uverbs_device, class_dev);
-+
-+	return sprintf(buf, "%s\n", dev->ib_dev->name);
-+}
-+static CLASS_DEVICE_ATTR(ibdev, S_IRUGO, show_ibdev, NULL);
-+
-+static void ib_uverbs_release_class_dev(struct class_device *class_dev)
-+{
-+	struct ib_uverbs_device *dev =
-+		container_of(class_dev, struct ib_uverbs_device, class_dev);
-+
-+	cdev_del(&dev->dev);
-+	clear_bit(dev->devnum, dev_map);
-+	kfree(dev);
-+}
-+
-+static struct class uverbs_class = {
-+	.name    = "infiniband_verbs",
-+	.release = ib_uverbs_release_class_dev
-+};
-+
-+static ssize_t show_abi_version(struct class *class, char *buf)
-+{
-+	return sprintf(buf, "%d\n", IB_USER_VERBS_ABI_VERSION);
-+}
-+static CLASS_ATTR(abi_version, S_IRUGO, show_abi_version, NULL);
-+
-+static void ib_uverbs_add_one(struct ib_device *device)
-+{
-+	struct ib_uverbs_device *uverbs_dev;
-+
-+	if (!device->alloc_ucontext)
-+		return;
-+
-+	uverbs_dev = kmalloc(sizeof *uverbs_dev, GFP_KERNEL);
-+	if (!uverbs_dev)
-+		return;
-+
-+	memset(uverbs_dev, 0, sizeof *uverbs_dev);
-+
-+	spin_lock(&map_lock);
-+	uverbs_dev->devnum = find_first_zero_bit(dev_map, IB_UVERBS_MAX_DEVICES);
-+	if (uverbs_dev->devnum >= IB_UVERBS_MAX_DEVICES) {
-+		spin_unlock(&map_lock);
-+		goto err;
-+	}
-+	set_bit(uverbs_dev->devnum, dev_map);
-+	spin_unlock(&map_lock);
-+
-+	uverbs_dev->ib_dev   = device;
-+	uverbs_dev->num_comp = 1;
-+
-+	if (device->mmap)
-+		cdev_init(&uverbs_dev->dev, &uverbs_mmap_fops);
-+	else
-+		cdev_init(&uverbs_dev->dev, &uverbs_fops);
-+	uverbs_dev->dev.owner = THIS_MODULE;
-+	kobject_set_name(&uverbs_dev->dev.kobj, "uverbs%d", uverbs_dev->devnum);
-+	if (cdev_add(&uverbs_dev->dev, IB_UVERBS_BASE_DEV + uverbs_dev->devnum, 1))
-+		goto err;
-+
-+	uverbs_dev->class_dev.class = &uverbs_class;
-+	uverbs_dev->class_dev.dev   = device->dma_device;
-+	snprintf(uverbs_dev->class_dev.class_id, BUS_ID_SIZE, "uverbs%d", uverbs_dev->devnum);
-+	if (class_device_register(&uverbs_dev->class_dev))
-+		goto err_cdev;
-+
-+	if (class_device_create_file(&uverbs_dev->class_dev, &class_device_attr_dev))
-+		goto err_class;
-+	if (class_device_create_file(&uverbs_dev->class_dev, &class_device_attr_ibdev))
-+		goto err_class;
-+
-+	ib_set_client_data(device, &uverbs_client, uverbs_dev);
-+
-+	return;
-+
-+err_class:
-+	class_device_unregister(&uverbs_dev->class_dev);
-+
-+err_cdev:
-+	cdev_del(&uverbs_dev->dev);
-+	clear_bit(uverbs_dev->devnum, dev_map);
-+
-+err:
-+	kfree(uverbs_dev);
-+	return;
-+}
-+
-+static void ib_uverbs_remove_one(struct ib_device *device)
-+{
-+	struct ib_uverbs_device *uverbs_dev = ib_get_client_data(device, &uverbs_client);
-+
-+	if (!uverbs_dev)
-+		return;
-+
-+	class_device_unregister(&uverbs_dev->class_dev);
-+}
-+
-+static struct super_block *uverbs_event_get_sb(struct file_system_type *fs_type, int flags,
-+					       const char *dev_name, void *data)
-+{
-+	return get_sb_pseudo(fs_type, "infinibandevent:", NULL,
-+			     INFINIBANDEVENTFS_MAGIC);
-+}
-+
-+static struct file_system_type uverbs_event_fs = {
-+	/* No owner field so module can be unloaded */
-+	.name    = "infinibandeventfs",
-+	.get_sb  = uverbs_event_get_sb,
-+	.kill_sb = kill_litter_super
-+};
-+
-+static int __init ib_uverbs_init(void)
-+{
-+	int ret;
-+
-+	spin_lock_init(&map_lock);
-+
-+	ret = register_chrdev_region(IB_UVERBS_BASE_DEV, IB_UVERBS_MAX_DEVICES,
-+				     "infiniband_verbs");
-+	if (ret) {
-+		printk(KERN_ERR "user_verbs: couldn't register device number\n");
++	if ((db_tab->page[i].refcount >= MTHCA_DB_REC_PER_PAGE)       ||
++	    (db_tab->page[i].uvirt && db_tab->page[i].uvirt != uaddr) ||
++	    (uaddr & 4095)) {
++		ret = -EINVAL;
 +		goto out;
 +	}
 +
-+	ret = class_register(&uverbs_class);
-+	if (ret) {
-+		printk(KERN_ERR "user_verbs: couldn't create class infiniband_verbs\n");
-+		goto out_chrdev;
++	if (db_tab->page[i].refcount) {
++		++db_tab->page[i].refcount;
++		goto out;
 +	}
 +
-+	ret = class_create_file(&uverbs_class, &class_attr_abi_version);
-+	if (ret) {
-+		printk(KERN_ERR "user_verbs: couldn't create abi_version attribute\n");
-+		goto out_class;
++	ret = get_user_pages(current, current->mm, uaddr & PAGE_MASK, 1, 1, 0,
++			     &db_tab->page[i].mem.page, NULL);
++	if (ret < 0)
++		goto out;
++
++	db_tab->page[i].mem.offset = uaddr & ~PAGE_MASK;
++
++	ret = pci_map_sg(dev->pdev, &db_tab->page[i].mem, 1, PCI_DMA_TODEVICE);
++	if (ret < 0) {
++		put_page(db_tab->page[i].mem.page);
++		goto out;
 +	}
 +
-+	ret = register_filesystem(&uverbs_event_fs);
++	ret = mthca_MAP_ICM_page(dev, sg_dma_address(&db_tab->page[i].mem),
++				 mthca_uarc_virt(dev, uar, i), &status);
++	if (!ret && status)
++		ret = -EINVAL;
 +	if (ret) {
-+		printk(KERN_ERR "user_verbs: couldn't register infinibandeventfs\n");
-+		goto out_class;
++		pci_unmap_sg(dev->pdev, &db_tab->page[i].mem, 1, PCI_DMA_TODEVICE);
++		put_page(db_tab->page[i].mem.page);
++		goto out;
 +	}
 +
-+	uverbs_event_mnt = kern_mount(&uverbs_event_fs);
-+	if (IS_ERR(uverbs_event_mnt)) {
-+		ret = PTR_ERR(uverbs_event_mnt);
-+		printk(KERN_ERR "user_verbs: couldn't mount infinibandeventfs\n");
-+		goto out_fs;
++	db_tab->page[i].uvirt    = uaddr;
++	db_tab->page[i].refcount = 1;
++
++out:
++	up(&db_tab->mutex);
++	return ret;
++}
++
++void mthca_unmap_user_db(struct mthca_dev *dev, struct mthca_uar *uar,
++			 struct mthca_user_db_table *db_tab, int index)
++{
++	if (!mthca_is_memfree(dev))
++		return;
++
++	/*
++	 * To make our bookkeeping simpler, we don't unmap DB
++	 * pages until we clean up the whole db table.
++	 */
++
++	down(&db_tab->mutex);
++
++	--db_tab->page[index / MTHCA_DB_REC_PER_PAGE].refcount;
++
++	up(&db_tab->mutex);
++}
++
++struct mthca_user_db_table *mthca_init_user_db_tab(struct mthca_dev *dev)
++{
++	struct mthca_user_db_table *db_tab;
++	int npages;
++	int i;
++
++	if (!mthca_is_memfree(dev))
++		return NULL;
++
++	npages = dev->uar_table.uarc_size / 4096;
++	db_tab = kmalloc(sizeof *db_tab + npages * sizeof *db_tab->page, GFP_KERNEL);
++	if (!db_tab)
++		return ERR_PTR(-ENOMEM);
++
++	init_MUTEX(&db_tab->mutex);
++	for (i = 0; i < npages; ++i) {
++		db_tab->page[i].refcount = 0;
++		db_tab->page[i].uvirt    = 0;
 +	}
 +
-+	ret = ib_register_client(&uverbs_client);
-+	if (ret) {
-+		printk(KERN_ERR "user_verbs: couldn't register client\n");
-+		goto out_mnt;
++	return db_tab;
++}
++
++void mthca_cleanup_user_db_tab(struct mthca_dev *dev, struct mthca_uar *uar,
++			       struct mthca_user_db_table *db_tab)
++{
++	int i;
++	u8 status;
++
++	if (!mthca_is_memfree(dev))
++		return;
++
++	for (i = 0; i < dev->uar_table.uarc_size / 4096; ++i) {
++		if (db_tab->page[i].uvirt) {
++			mthca_UNMAP_ICM(dev, mthca_uarc_virt(dev, uar, i), 1, &status);
++			pci_unmap_sg(dev->pdev, &db_tab->page[i].mem, 1, PCI_DMA_TODEVICE);
++			put_page(db_tab->page[i].mem.page);
++		}
 +	}
++}
++
+ int mthca_alloc_db(struct mthca_dev *dev, int type, u32 qn, u32 **db)
+ {
+ 	int group;
+@@ -397,7 +525,8 @@
+ 	}
+ 	memset(page->db_rec, 0, 4096);
+ 
+-	ret = mthca_MAP_ICM_page(dev, page->mapping, mthca_uarc_virt(dev, i), &status);
++	ret = mthca_MAP_ICM_page(dev, page->mapping,
++				 mthca_uarc_virt(dev, &dev->driver_uar, i), &status);
+ 	if (!ret && status)
+ 		ret = -EINVAL;
+ 	if (ret) {
+@@ -451,7 +580,7 @@
+ 
+ 	if (bitmap_empty(page->used, MTHCA_DB_REC_PER_PAGE) &&
+ 	    i >= dev->db_tab->max_group1 - 1) {
+-		mthca_UNMAP_ICM(dev, mthca_uarc_virt(dev, i), 1, &status);
++		mthca_UNMAP_ICM(dev, mthca_uarc_virt(dev, &dev->driver_uar, i), 1, &status);
+ 		
+ 		dma_free_coherent(&dev->pdev->dev, 4096,
+ 				  page->db_rec, page->mapping);
+@@ -520,7 +649,7 @@
+ 		if (!bitmap_empty(dev->db_tab->page[i].used, MTHCA_DB_REC_PER_PAGE))
+ 			mthca_warn(dev, "Kernel UARC page %d not empty\n", i);
+ 
+-		mthca_UNMAP_ICM(dev, mthca_uarc_virt(dev, i), 1, &status);
++		mthca_UNMAP_ICM(dev, mthca_uarc_virt(dev, &dev->driver_uar, i), 1, &status);
+ 		
+ 		dma_free_coherent(&dev->pdev->dev, 4096,
+ 				  dev->db_tab->page[i].db_rec,
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_memfree.h	2005-04-04 14:57:12.256749986 -0700
++++ linux-export/drivers/infiniband/hw/mthca/mthca_memfree.h	2005-04-04 14:58:12.413668872 -0700
+@@ -148,7 +148,7 @@
+ 	struct semaphore      mutex;
+ };
+ 
+-enum {
++enum mthca_db_type {
+ 	MTHCA_DB_TYPE_INVALID   = 0x0,
+ 	MTHCA_DB_TYPE_CQ_SET_CI = 0x1,
+ 	MTHCA_DB_TYPE_CQ_ARM    = 0x2,
+@@ -158,6 +158,17 @@
+ 	MTHCA_DB_TYPE_GROUP_SEP = 0x7
+ };
+ 
++struct mthca_user_db_table;
++struct mthca_uar;
++
++int mthca_map_user_db(struct mthca_dev *dev, struct mthca_uar *uar,
++		      struct mthca_user_db_table *db_tab, int index, u64 uaddr);
++void mthca_unmap_user_db(struct mthca_dev *dev, struct mthca_uar *uar,
++			 struct mthca_user_db_table *db_tab, int index);
++struct mthca_user_db_table *mthca_init_user_db_tab(struct mthca_dev *dev);
++void mthca_cleanup_user_db_tab(struct mthca_dev *dev, struct mthca_uar *uar,
++			       struct mthca_user_db_table *db_tab);
++
+ int mthca_init_db_tab(struct mthca_dev *dev);
+ void mthca_cleanup_db_tab(struct mthca_dev *dev);
+ int mthca_alloc_db(struct mthca_dev *dev, int type, u32 qn, u32 **db);
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-04 14:57:12.286743464 -0700
++++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-04 14:58:12.444662133 -0700
+@@ -29,13 +29,17 @@
+  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
+  *
+- * $Id: mthca_provider.c 2100 2005-03-31 20:43:01Z roland $
++ * $Id: mthca_provider.c 2109 2005-04-04 21:10:34Z roland $
+  */
+ 
++#include <asm/uaccess.h>
++
+ #include <ib_smi.h>
+ 
+ #include "mthca_dev.h"
+ #include "mthca_cmd.h"
++#include "mthca_user.h"
++#include "mthca_memfree.h"
+ 
+ static int mthca_query_device(struct ib_device *ibdev,
+ 			      struct ib_device_attr *props)
+@@ -283,11 +287,78 @@
+ 	return err;
+ }
+ 
+-static struct ib_pd *mthca_alloc_pd(struct ib_device *ibdev)
++static struct ib_ucontext *mthca_alloc_ucontext(struct ib_device *ibdev,
++						const void __user *udata, int udatalen)
++{
++	struct mthca_alloc_ucontext      ucmd;
++	struct mthca_alloc_ucontext_resp uresp;
++	struct mthca_ucontext           *context;
++	int                              err;
++
++	if (copy_from_user(&ucmd, udata, sizeof ucmd))
++		return ERR_PTR(-EFAULT);
++
++	uresp.qp_tab_size = to_mdev(ibdev)->limits.num_qps;
++	if (mthca_is_memfree(to_mdev(ibdev)))
++		uresp.uarc_size = to_mdev(ibdev)->uar_table.uarc_size;
++	else
++		uresp.uarc_size = 0;
++
++	context = kmalloc(sizeof *context, GFP_KERNEL);
++	if (!context)
++		return ERR_PTR(-ENOMEM);
++
++	err = mthca_uar_alloc(to_mdev(ibdev), &context->uar);
++	if (err) {
++		kfree(context);
++		return ERR_PTR(err);
++	}
++
++	context->db_tab = mthca_init_user_db_tab(to_mdev(ibdev));
++	if (IS_ERR(context->db_tab)) {
++		err = PTR_ERR(context->db_tab);
++		mthca_uar_free(to_mdev(ibdev), &context->uar);
++		kfree(context);
++		return ERR_PTR(err);
++	}
++
++	if (copy_to_user((void __user *) (unsigned long) ucmd.respbuf,
++			 &uresp, sizeof uresp)) {
++		mthca_cleanup_user_db_tab(to_mdev(ibdev), &context->uar, context->db_tab);
++		mthca_uar_free(to_mdev(ibdev), &context->uar);
++		kfree(context);
++		return ERR_PTR(-EFAULT);
++	}
++
++	return &context->ibucontext;
++}
++
++static int mthca_dealloc_ucontext(struct ib_ucontext *context)
+ {
++	mthca_cleanup_user_db_tab(to_mdev(context->device), &to_mucontext(context)->uar,
++				  to_mucontext(context)->db_tab);
++	mthca_uar_free(to_mdev(context->device), &to_mucontext(context)->uar);
++	kfree(to_mucontext(context));
 +
 +	return 0;
-+
-+out_mnt:
-+	mntput(uverbs_event_mnt);
-+
-+out_fs:
-+	unregister_filesystem(&uverbs_event_fs);
-+
-+out_class:
-+	class_unregister(&uverbs_class);
-+
-+out_chrdev:
-+	unregister_chrdev_region(IB_UVERBS_BASE_DEV, IB_UVERBS_MAX_DEVICES);
-+
-+out:
-+	return ret;
 +}
 +
-+static void __exit ib_uverbs_cleanup(void)
++static struct ib_pd *mthca_alloc_pd(struct ib_device *ibdev,
++				    struct ib_ucontext *context,
++				    const void __user *udata, int udatalen)
 +{
-+	ib_unregister_client(&uverbs_client);
-+	unregister_filesystem(&uverbs_event_fs);
-+	mntput(uverbs_event_mnt);
-+	class_unregister(&uverbs_class);
-+	unregister_chrdev_region(IB_UVERBS_BASE_DEV, IB_UVERBS_MAX_DEVICES);
-+}
++	struct mthca_alloc_pd ucmd;
+ 	struct mthca_pd *pd;
+ 	int err;
+ 
++	if (context) {
++		if (udatalen != sizeof ucmd)
++			return ERR_PTR(-EINVAL);
 +
-+module_init(ib_uverbs_init);
-+module_exit(ib_uverbs_cleanup);
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-export/drivers/infiniband/core/uverbs_mem.c	2005-04-04 14:53:17.825728001 -0700
-@@ -0,0 +1,202 @@
-+/*
-+ * Copyright (c) 2005 Topspin Communications.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * $Id: uverbs_mem.c 1979 2005-03-11 21:17:00Z roland $
-+ */
++		if (copy_from_user(&ucmd, udata, sizeof ucmd))
++			return ERR_PTR(-EFAULT);
++	}
 +
-+#include <linux/mm.h>
-+#include <linux/dma-mapping.h>
+ 	pd = kmalloc(sizeof *pd, GFP_KERNEL);
+ 	if (!pd)
+ 		return ERR_PTR(-ENOMEM);
+@@ -298,6 +369,14 @@
+ 		return ERR_PTR(err);
+ 	}
+ 
++	if (context) {
++		if (put_user(pd->pd_num, (u32 __user *) (unsigned long) ucmd.pdnbuf)) {
++			mthca_pd_free(to_mdev(ibdev), pd);
++			kfree(pd);
++			return ERR_PTR(-EFAULT);
++		}
++	}
 +
-+#include "uverbs.h"
+ 	return &pd->ibpd;
+ }
+ 
+@@ -337,8 +416,10 @@
+ }
+ 
+ static struct ib_qp *mthca_create_qp(struct ib_pd *pd,
+-				     struct ib_qp_init_attr *init_attr)
++				     struct ib_qp_init_attr *init_attr,
++				     const void __user *udata, int udatalen)
+ {
++	struct mthca_create_qp ucmd;
+ 	struct mthca_qp *qp;
+ 	int err;
+ 
+@@ -347,10 +428,48 @@
+ 	case IB_QPT_UC:
+ 	case IB_QPT_UD:
+ 	{
++		struct mthca_ucontext *context;
 +
-+static void __ib_umem_release(struct ib_device *dev, struct ib_umem *umem)
-+{
-+	struct ib_umem_chunk *chunk, *tmp;
-+	int i;
+ 		qp = kmalloc(sizeof *qp, GFP_KERNEL);
+ 		if (!qp)
+ 			return ERR_PTR(-ENOMEM);
+ 
++		if (pd->uobject) {
++			context = to_mucontext(pd->uobject->context);
 +
-+	list_for_each_entry_safe(chunk, tmp, &umem->chunk_list, list) {
-+		dma_unmap_sg(dev->dma_device, chunk->page_list,
-+			     chunk->nents, DMA_BIDIRECTIONAL);
-+		for (i = 0; i < chunk->nents; ++i) {
-+			set_page_dirty_lock(chunk->page_list[i].page);
-+			put_page(chunk->page_list[i].page);
++			if (udatalen != sizeof ucmd)
++				return ERR_PTR(-EINVAL);
++
++			if (copy_from_user(&ucmd, udata, sizeof ucmd))
++				return ERR_PTR(-EFAULT);
++
++			err = mthca_map_user_db(to_mdev(pd->device), &context->uar,
++						context->db_tab,
++						ucmd.sq_db_index, ucmd.sq_db_page);
++			if (err) {
++				kfree(qp);
++				return ERR_PTR(err);
++			}
++
++			err = mthca_map_user_db(to_mdev(pd->device), &context->uar,
++						context->db_tab,
++						ucmd.rq_db_index, ucmd.rq_db_page);
++			if (err) {
++				mthca_unmap_user_db(to_mdev(pd->device),
++						    &context->uar,
++						    context->db_tab,
++						    ucmd.sq_db_index);
++				kfree(qp);
++				return ERR_PTR(err);
++			}
 +		}
 +
-+		kfree(chunk);
++		if (pd->uobject) {
++			qp->mr.ibmr.lkey = ucmd.lkey;
++			qp->sq.db_index  = ucmd.sq_db_index;
++			qp->rq.db_index  = ucmd.rq_db_index;
++		}
++
+ 		qp->sq.max    = init_attr->cap.max_send_wr;
+ 		qp->rq.max    = init_attr->cap.max_recv_wr;
+ 		qp->sq.max_gs = init_attr->cap.max_send_sge;
+@@ -361,12 +480,30 @@
+ 				     to_mcq(init_attr->recv_cq),
+ 				     init_attr->qp_type, init_attr->sq_sig_type,
+ 				     qp);
++
++		if (err && pd->uobject) {
++			context = to_mucontext(pd->uobject->context);
++
++			mthca_unmap_user_db(to_mdev(pd->device),
++					    &context->uar,
++					    context->db_tab,
++					    ucmd.sq_db_index);
++			mthca_unmap_user_db(to_mdev(pd->device),
++					    &context->uar,
++					    context->db_tab,
++					    ucmd.rq_db_index);
++		}
++
+ 		qp->ibqp.qp_num = qp->qpn;
+ 		break;
+ 	}
+ 	case IB_QPT_SMI:
+ 	case IB_QPT_GSI:
+ 	{
++		/* Don't allow userspace to create special QPs */
++		if (pd->uobject)
++			return ERR_PTR(-EINVAL);
++
+ 		qp = kmalloc(sizeof (struct mthca_sqp), GFP_KERNEL);
+ 		if (!qp)
+ 			return ERR_PTR(-ENOMEM);
+@@ -396,42 +533,116 @@
+ 		return ERR_PTR(err);
+ 	}
+ 
+-        init_attr->cap.max_inline_data = 0;
++	init_attr->cap.max_inline_data = 0;
++	init_attr->cap.max_send_wr     = qp->sq.max;
++	init_attr->cap.max_recv_wr     = qp->rq.max;
+ 
+ 	return &qp->ibqp;
+ }
+ 
+ static int mthca_destroy_qp(struct ib_qp *qp)
+ {
++	if (qp->uobject) {
++		mthca_unmap_user_db(to_mdev(qp->device),
++				    &to_mucontext(qp->uobject->context)->uar,
++				    to_mucontext(qp->uobject->context)->db_tab,
++				    to_mqp(qp)->sq.db_index);
++		mthca_unmap_user_db(to_mdev(qp->device),
++				    &to_mucontext(qp->uobject->context)->uar,
++				    to_mucontext(qp->uobject->context)->db_tab,
++				    to_mqp(qp)->rq.db_index);
 +	}
+ 	mthca_free_qp(to_mdev(qp->device), to_mqp(qp));
+ 	kfree(qp);
+ 	return 0;
+ }
+ 
+-static struct ib_cq *mthca_create_cq(struct ib_device *ibdev, int entries)
++static struct ib_cq *mthca_create_cq(struct ib_device *ibdev, int entries,
++				     struct ib_ucontext *context,
++				     const void __user *udata, int udatalen)
+ {
++	struct mthca_create_cq ucmd;
+ 	struct mthca_cq *cq;
+ 	int nent;
+ 	int err;
+ 
++	if (context) {
++		if (udatalen != sizeof ucmd)
++			return ERR_PTR(-EINVAL);
++
++		if (copy_from_user(&ucmd, udata, sizeof ucmd))
++			return ERR_PTR(-EFAULT);
++
++		err = mthca_map_user_db(to_mdev(ibdev), &to_mucontext(context)->uar,
++					to_mucontext(context)->db_tab,
++					ucmd.set_db_index, ucmd.set_db_page);
++		if (err)
++			return ERR_PTR(err);
++
++		err = mthca_map_user_db(to_mdev(ibdev), &to_mucontext(context)->uar,
++					to_mucontext(context)->db_tab,
++					ucmd.arm_db_index, ucmd.arm_db_page);
++		if (err)
++			goto err_unmap_set;
++	}
++
+ 	cq = kmalloc(sizeof *cq, GFP_KERNEL);
+-	if (!cq)
+-		return ERR_PTR(-ENOMEM);
++	if (!cq) {
++		err = -ENOMEM;
++		goto err_unmap_arm;
++	}
++
++	if (context) {
++		cq->mr.ibmr.lkey    = ucmd.lkey;
++		cq->set_ci_db_index = ucmd.set_db_index;
++		cq->arm_db_index    = ucmd.arm_db_index;
++	}
+ 
+ 	for (nent = 1; nent <= entries; nent <<= 1)
+ 		; /* nothing */
+ 
+-	err = mthca_init_cq(to_mdev(ibdev), nent, cq);
+-	if (err) {
+-		kfree(cq);
+-		cq = ERR_PTR(err);
++	err = mthca_init_cq(to_mdev(ibdev), nent, 
++			    context ? to_mucontext(context) : NULL,
++			    context ? ucmd.pdn : to_mdev(ibdev)->driver_pd.pd_num,
++			    cq);
++	if (err)
++		goto err_free;
++
++	if (context && put_user(cq->cqn, (u32 __user *) (unsigned long) ucmd.cqnbuf)) {
++		mthca_free_cq(to_mdev(ibdev), cq);
++		goto err_free;
+ 	}
+ 
+ 	return &cq->ibcq;
++
++err_free:
++	kfree(cq);
++
++err_unmap_arm:
++	if (context)
++		mthca_unmap_user_db(to_mdev(ibdev), &to_mucontext(context)->uar,
++				    to_mucontext(context)->db_tab, ucmd.arm_db_index);
++
++err_unmap_set:
++	if (context)
++		mthca_unmap_user_db(to_mdev(ibdev), &to_mucontext(context)->uar,
++				    to_mucontext(context)->db_tab, ucmd.set_db_index);
++
++	return ERR_PTR(err);
+ }
+ 
+ static int mthca_destroy_cq(struct ib_cq *cq)
+ {
++	if (cq->uobject) {
++		mthca_unmap_user_db(to_mdev(cq->device),
++				    &to_mucontext(cq->uobject->context)->uar,
++				    to_mucontext(cq->uobject->context)->db_tab,
++				    to_mcq(cq)->arm_db_index);
++		mthca_unmap_user_db(to_mdev(cq->device),
++				    &to_mucontext(cq->uobject->context)->uar,
++				    to_mucontext(cq->uobject->context)->db_tab,
++				    to_mcq(cq)->set_ci_db_index);
++	}
+ 	mthca_free_cq(to_mdev(cq->device), to_mcq(cq));
+ 	kfree(cq);
+ 
+@@ -558,6 +769,57 @@
+ 				  convert_access(acc), mr);
+ 
+ 	if (err) {
++		kfree(page_list);
++		kfree(mr);
++		return ERR_PTR(err);
++	}
++
++	kfree(page_list);
++	return &mr->ibmr;
 +}
 +
-+static void __ib_umem_unmark(struct ib_umem *umem, struct mm_struct *mm)
++static struct ib_mr *mthca_reg_user_mr(struct ib_pd *pd, struct ib_umem *region,
++				       int acc, const void __user *udata, int udatalen)
 +{
-+	struct vm_area_struct *vma;
-+	unsigned long cur_base;
-+
-+	vma = find_vma(mm, umem->user_base);
-+
-+	for (cur_base = umem->user_base;
-+	     cur_base < umem->user_base + umem->length;
-+	     cur_base = vma->vm_end) {
-+		if (!vma || vma->vm_start > umem->user_base + umem->length)
-+			break;
-+
-+		if (!(vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_MAYWRITE))
-+			vma->vm_flags &= ~VM_DONTCOPY;
-+
-+		vma = vma->vm_next;
-+	}
-+}
-+
-+int ib_umem_get(struct ib_device *dev, struct ib_umem *mem,
-+		void *addr, size_t size)
-+{
-+	struct page **page_list;
-+	struct vm_area_struct *vma;
 +	struct ib_umem_chunk *chunk;
-+	unsigned long cur_base;
-+	int npages;
-+	int ret = 0;
-+	int off;
++	int npages = 0;
++	u64 *page_list;
++	struct mthca_mr *mr;
++	int shift;
++	int i, j, k;
++	int err;
++
++	shift = ffs(region->page_size) - 1;
++
++	mr = kmalloc(sizeof *mr, GFP_KERNEL);
++	if (!mr)
++		return ERR_PTR(-ENOMEM);
++	
++	list_for_each_entry(chunk, &region->chunk_list, list)
++		npages += chunk->nents;
++
++	page_list = kmalloc(npages * sizeof *page_list, GFP_KERNEL);
++	if (!page_list) {
++		kfree(mr);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	i = 0;
++
++	list_for_each_entry(chunk, &region->chunk_list, list)
++		for (j = 0; j < chunk->nmap; ++j)
++			for (k = 0; k < sg_dma_len(&chunk->page_list[j]) >> shift; ++k)
++				page_list[i++] = sg_dma_address(&chunk->page_list[j]) +
++					region->page_size * k;
++
++	err = mthca_mr_alloc_phys(to_mdev(pd->device),
++				  to_mpd(pd)->pd_num,
++				  page_list, shift, npages,
++				  region->virt_base, region->length,
++				  convert_access(acc), mr);
++
++	if (err) {
++		kfree(page_list);
+ 		kfree(mr);
+ 		return ERR_PTR(err);
+ 	}
+@@ -574,6 +836,22 @@
+ 	return 0;
+ }
+ 
++static int mthca_mmap_uar(struct ib_ucontext *context,
++			  struct vm_area_struct *vma)
++{
++	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
++		return -EINVAL;
++
++	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++
++	if (remap_pfn_range(vma, vma->vm_start,
++			    to_mucontext(context)->uar.pfn,
++			    PAGE_SIZE, vma->vm_page_prot))
++		return -EAGAIN;
++
++	return 0;
++}
++
+ static struct ib_fmr *mthca_alloc_fmr(struct ib_pd *pd, int mr_access_flags,
+ 				      struct ib_fmr_attr *fmr_attr)
+ {
+@@ -690,6 +968,8 @@
+ 	int i;
+ 
+ 	strlcpy(dev->ib_dev.name, "mthca%d", IB_DEVICE_NAME_MAX);
++	dev->ib_dev.owner                = THIS_MODULE;
++
+ 	dev->ib_dev.node_type            = IB_NODE_CA;
+ 	dev->ib_dev.phys_port_cnt        = dev->limits.num_ports;
+ 	dev->ib_dev.dma_device           = &dev->pdev->dev;
+@@ -699,6 +979,8 @@
+ 	dev->ib_dev.modify_port          = mthca_modify_port;
+ 	dev->ib_dev.query_pkey           = mthca_query_pkey;
+ 	dev->ib_dev.query_gid            = mthca_query_gid;
++	dev->ib_dev.alloc_ucontext       = mthca_alloc_ucontext;
++	dev->ib_dev.dealloc_ucontext     = mthca_dealloc_ucontext;
+ 	dev->ib_dev.alloc_pd             = mthca_alloc_pd;
+ 	dev->ib_dev.dealloc_pd           = mthca_dealloc_pd;
+ 	dev->ib_dev.create_ah            = mthca_ah_create;
+@@ -711,6 +993,7 @@
+ 	dev->ib_dev.poll_cq              = mthca_poll_cq;
+ 	dev->ib_dev.get_dma_mr           = mthca_get_dma_mr;
+ 	dev->ib_dev.reg_phys_mr          = mthca_reg_phys_mr;
++	dev->ib_dev.reg_user_mr          = mthca_reg_user_mr;
+ 	dev->ib_dev.dereg_mr             = mthca_dereg_mr;
+ 
+ 	if (dev->mthca_flags & MTHCA_FLAG_FMR) {
+@@ -726,6 +1009,7 @@
+ 	dev->ib_dev.attach_mcast         = mthca_multicast_attach;
+ 	dev->ib_dev.detach_mcast         = mthca_multicast_detach;
+ 	dev->ib_dev.process_mad          = mthca_process_mad;
++	dev->ib_dev.mmap                 = mthca_mmap_uar;
+ 
+ 	if (mthca_is_memfree(dev)) {
+ 		dev->ib_dev.req_notify_cq = mthca_arbel_arm_cq;
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.h	2005-04-04 14:57:12.287743246 -0700
++++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.h	2005-04-04 14:58:12.445661916 -0700
+@@ -54,6 +54,14 @@
+ 	int           index;
+ };
+ 
++struct mthca_user_db_table;
++
++struct mthca_ucontext {
++	struct ib_ucontext          ibucontext;
++	struct mthca_uar            uar;
++	struct mthca_user_db_table *db_tab;
++};
++
+ struct mthca_mr {
+ 	struct ib_mr ibmr;
+ 	int order;
+@@ -167,6 +175,7 @@
+ 	int                    cqn;
+ 	u32                    cons_index;
+ 	int                    is_direct;
++	int                    is_kernel;
+ 
+ 	/* Next fields are Arbel only */
+ 	int                    set_ci_db_index;
+@@ -236,6 +245,11 @@
+ 	dma_addr_t      header_dma;
+ };
+ 
++static inline struct mthca_ucontext *to_mucontext(struct ib_ucontext *ibucontext)
++{
++	return container_of(ibucontext, struct mthca_ucontext, ibucontext);
++}
++
+ static inline struct mthca_fmr *to_mfmr(struct ib_fmr *ibmr)
+ {
+ 	return container_of(ibmr, struct mthca_fmr, ibmr);
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-04 14:57:12.320736072 -0700
++++ linux-export/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-04 14:58:12.491651915 -0700
+@@ -652,7 +652,11 @@
+ 
+ 	/* leave arbel_sched_queue as 0 */
+ 
+-	qp_context->usr_page   = cpu_to_be32(dev->driver_uar.index);
++	if (qp->ibqp.uobject)
++		qp_context->usr_page =
++			cpu_to_be32(to_mucontext(qp->ibqp.uobject->context)->uar.index);
++	else
++		qp_context->usr_page = cpu_to_be32(dev->driver_uar.index);
+ 	qp_context->local_qpn  = cpu_to_be32(qp->qpn);
+ 	if (attr_mask & IB_QP_DEST_QPN) {
+ 		qp_context->remote_qpn = cpu_to_be32(attr->dest_qp_num);
+@@ -917,6 +921,15 @@
+ 
+ 	qp->send_wqe_offset = ALIGN(qp->rq.max << qp->rq.wqe_shift,
+ 				    1 << qp->sq.wqe_shift);
++
++	/*
++	 * If this is a userspace QP, we don't actually have to
++	 * allocate anything.  All we need is to calculate the WQE
++	 * sizes and the send_wqe_offset, so we're done now.
++	 */
++	if (pd->ibpd.uobject)
++		return 0;
++
+ 	size = PAGE_ALIGN(qp->send_wqe_offset +
+ 			  (qp->sq.max << qp->sq.wqe_shift));
+ 
+@@ -1015,10 +1028,33 @@
+ 	return err;
+ }
+ 
+-static int mthca_alloc_memfree(struct mthca_dev *dev,
++static void mthca_free_wqe_buf(struct mthca_dev *dev,
+ 			       struct mthca_qp *qp)
+ {
+-	int ret = 0;
 +	int i;
++	int size = PAGE_ALIGN(qp->send_wqe_offset +
++			      (qp->sq.max << qp->sq.wqe_shift));
 +
-+	page_list = (struct page **) __get_free_page(GFP_KERNEL);
-+	if (!page_list)
-+		return -ENOMEM;
-+
-+	mem->user_base = (unsigned long) addr;
-+	mem->length    = size;
-+	mem->offset    = (unsigned long) addr & ~PAGE_MASK;
-+	mem->page_size = PAGE_SIZE;
-+
-+	INIT_LIST_HEAD(&mem->chunk_list);
-+
-+	npages   = PAGE_ALIGN(size + mem->offset) >> PAGE_SHIFT;
-+
-+	down_write(&current->mm->mmap_sem);
-+
-+	vma = find_vma(current->mm, mem->user_base);
-+
-+	for (cur_base = mem->user_base;
-+	     cur_base < mem->user_base + size;
-+	     cur_base = vma->vm_end) {
-+		if (!vma || vma->vm_start > cur_base) {
-+			ret = -ENOMEM;
-+			goto out;
++	if (qp->is_direct) {
++		pci_free_consistent(dev->pdev, size,
++				    qp->queue.direct.buf,
++				    pci_unmap_addr(&qp->queue.direct, mapping));
++	} else {
++		for (i = 0; i < size / PAGE_SIZE; ++i) {
++			pci_free_consistent(dev->pdev, PAGE_SIZE,
++					    qp->queue.page_list[i].buf,
++					    pci_unmap_addr(&qp->queue.page_list[i],
++							   mapping));
 +		}
-+
-+		if (!(vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_MAYWRITE))
-+			vma->vm_flags |= VM_DONTCOPY;
-+
-+		vma = vma->vm_next;
 +	}
 +
-+	cur_base = (unsigned long) addr & PAGE_MASK;
++	kfree(qp->wrid);
++}
 +
-+	while (npages) {
-+		ret = get_user_pages(current, current->mm, cur_base,
-+				     min_t(int, npages,
-+					   PAGE_SIZE / sizeof (struct page *)),
-+				     1, 0, page_list, NULL);
-+
-+		if (ret < 0)
-+			goto out;
-+
-+		cur_base += ret * PAGE_SIZE;
-+		npages   -= ret;
-+
-+		off = 0;
-+
-+		while (ret) {
-+			chunk = kmalloc(sizeof *chunk + sizeof (struct scatterlist) *
-+					min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK),
-+					GFP_KERNEL);
-+			if (!chunk) {
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+
-+			chunk->nents = min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK);
-+			for (i = 0; i < chunk->nents; ++i) {
-+				chunk->page_list[i].page   = page_list[i + off];
-+				chunk->page_list[i].offset = 0;
-+				chunk->page_list[i].length = PAGE_SIZE;
-+			}
-+
-+			chunk->nmap = dma_map_sg(dev->dma_device,
-+						 &chunk->page_list[0],
-+						 chunk->nents,
-+						 DMA_BIDIRECTIONAL);
-+			if (chunk->nmap <= 0) {
-+				for (i = 0; i < chunk->nents; ++i)
-+					put_page(chunk->page_list[i].page);
-+				kfree(chunk);
-+
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+
-+			ret -= chunk->nents;
-+			off += chunk->nents;
-+			list_add_tail(&chunk->list, &mem->chunk_list);
-+		}
-+
-+		ret = 0;
++static int mthca_map_memfree(struct mthca_dev *dev,
++			     struct mthca_qp *qp)
++{
++	int ret;
+ 
+ 	if (mthca_is_memfree(dev)) {
+ 		ret = mthca_table_get(dev, dev->qp_table.qp_table, qp->qpn);
+@@ -1029,35 +1065,15 @@
+ 		if (ret)
+ 			goto err_qpc;
+ 
+-		ret = mthca_table_get(dev, dev->qp_table.rdb_table,
+-				      qp->qpn << dev->qp_table.rdb_shift);
+-		if (ret)
+-			goto err_eqpc;
+-
+-		qp->rq.db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_RQ,
+-						 qp->qpn, &qp->rq.db);
+-		if (qp->rq.db_index < 0) {
+-			ret = -ENOMEM;
+-			goto err_rdb;
+-		}
++ 		ret = mthca_table_get(dev, dev->qp_table.rdb_table,
++ 				      qp->qpn << dev->qp_table.rdb_shift);
++ 		if (ret)
++ 			goto err_eqpc;
+ 
+-		qp->sq.db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_SQ,
+-						 qp->qpn, &qp->sq.db);
+-		if (qp->sq.db_index < 0) {
+-			ret = -ENOMEM;
+-			goto err_rq_db;
+-		}
+ 	}
+ 
+ 	return 0;
+ 
+-err_rq_db:
+-	mthca_free_db(dev, MTHCA_DB_TYPE_RQ, qp->rq.db_index);
+-
+-err_rdb:
+-	mthca_table_put(dev, dev->qp_table.rdb_table,
+-			qp->qpn << dev->qp_table.rdb_shift);
+-
+ err_eqpc:
+ 	mthca_table_put(dev, dev->qp_table.eqp_table, qp->qpn);
+ 
+@@ -1067,16 +1083,43 @@
+ 	return ret;
+ }
+ 
++static void mthca_unmap_memfree(struct mthca_dev *dev,
++				struct mthca_qp *qp)
++{
++	if (mthca_is_memfree(dev)) {
++ 		mthca_table_put(dev, dev->qp_table.rdb_table,
++ 				qp->qpn << dev->qp_table.rdb_shift);
++		mthca_table_put(dev, dev->qp_table.eqp_table, qp->qpn);
++		mthca_table_put(dev, dev->qp_table.qp_table, qp->qpn);
 +	}
++}
 +
-+out:
-+	if (ret < 0) {
-+		__ib_umem_unmark(mem, current->mm);
-+		__ib_umem_release(dev, mem);
++static int mthca_alloc_memfree(struct mthca_dev *dev,
++			       struct mthca_qp *qp)
++{
++	int ret = 0;
++
++	if (mthca_is_memfree(dev)) {
++		qp->rq.db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_RQ,
++						 qp->qpn, &qp->rq.db);
++		if (qp->rq.db_index < 0)
++			return ret;
++
++		qp->sq.db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_SQ,
++						 qp->qpn, &qp->sq.db);
++		if (qp->sq.db_index < 0)
++			mthca_free_db(dev, MTHCA_DB_TYPE_RQ, qp->rq.db_index);
 +	}
-+
-+	up_write(&current->mm->mmap_sem);
-+	free_page((unsigned long) page_list);
 +
 +	return ret;
 +}
 +
-+void ib_umem_release(struct ib_device *dev, struct ib_umem *umem)
-+{
-+	struct mm_struct *mm;
-+
-+	mm = get_task_mm(current);
-+
-+	if (mm) {
-+		down_write(&mm->mmap_sem);
-+		__ib_umem_unmark(umem, mm);
+ static void mthca_free_memfree(struct mthca_dev *dev,
+ 			       struct mthca_qp *qp)
+ {
+ 	if (mthca_is_memfree(dev)) {
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_SQ, qp->sq.db_index);
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_RQ, qp->rq.db_index);
+-		mthca_table_put(dev, dev->qp_table.rdb_table,
+-				qp->qpn << dev->qp_table.rdb_shift);
+-		mthca_table_put(dev, dev->qp_table.eqp_table, qp->qpn);
+-		mthca_table_put(dev, dev->qp_table.qp_table, qp->qpn);
+ 	}
+ }
+ 
+@@ -1108,13 +1151,28 @@
+ 	mthca_wq_init(&qp->sq);
+ 	mthca_wq_init(&qp->rq);
+ 
+-	ret = mthca_alloc_memfree(dev, qp);
++	ret = mthca_map_memfree(dev, qp);
+ 	if (ret)
+ 		return ret;
+ 
+ 	ret = mthca_alloc_wqe_buf(dev, pd, qp);
+ 	if (ret) {
+-		mthca_free_memfree(dev, qp);
++		mthca_unmap_memfree(dev, qp);
++		return ret;
 +	}
 +
-+	__ib_umem_release(dev, umem);
++	/*
++	 * If this is a userspace QP, we're done now.  The doorbells
++	 * will be allocated and buffers will be initialized in
++	 * userspace.
++	 */
++	if (pd->ibpd.uobject)
++		return 0;
 +
-+	if (mm) {
-+		up_write(&current->mm->mmap_sem);
-+		mmput(mm);
-+	}
-+}
++	ret = mthca_alloc_memfree(dev, qp);
++	if (ret) {
++		mthca_free_wqe_buf(dev, qp);
++		mthca_unmap_memfree(dev, qp);
+ 		return ret;
+ 	}
+ 
+@@ -1274,8 +1332,6 @@
+ 		   struct mthca_qp *qp)
+ {
+ 	u8 status;
+-	int size;
+-	int i;
+ 	struct mthca_cq *send_cq;
+ 	struct mthca_cq *recv_cq;
+ 
+@@ -1305,31 +1361,22 @@
+ 	if (qp->state != IB_QPS_RESET)
+ 		mthca_MODIFY_QP(dev, MTHCA_TRANS_ANY2RST, qp->qpn, 0, NULL, 0, &status);
+ 
+-	mthca_cq_clean(dev, to_mcq(qp->ibqp.send_cq)->cqn, qp->qpn);
+-	if (qp->ibqp.send_cq != qp->ibqp.recv_cq)
+-		mthca_cq_clean(dev, to_mcq(qp->ibqp.recv_cq)->cqn, qp->qpn);
+-
+-	mthca_free_mr(dev, &qp->mr);
+-
+-	size = PAGE_ALIGN(qp->send_wqe_offset +
+-			  (qp->sq.max << qp->sq.wqe_shift));
++	/*
++	 * If this is a userspace QP, the buffers, MR, CQs and so on
++	 * will be cleaned up in userspace, so all we have to do is
++	 * unref the mem-free tables and free the QPN in our table.
++	 */
++	if (!qp->ibqp.uobject) {
++		mthca_cq_clean(dev, to_mcq(qp->ibqp.send_cq)->cqn, qp->qpn);
++		if (qp->ibqp.send_cq != qp->ibqp.recv_cq)
++			mthca_cq_clean(dev, to_mcq(qp->ibqp.recv_cq)->cqn, qp->qpn);
+ 
+-	if (qp->is_direct) {
+-		pci_free_consistent(dev->pdev, size,
+-				    qp->queue.direct.buf,
+-				    pci_unmap_addr(&qp->queue.direct, mapping));
+-	} else {
+-		for (i = 0; i < size / PAGE_SIZE; ++i) {
+-			pci_free_consistent(dev->pdev, PAGE_SIZE,
+-					    qp->queue.page_list[i].buf,
+-					    pci_unmap_addr(&qp->queue.page_list[i],
+-							   mapping));
+-		}
++		mthca_free_mr(dev, &qp->mr);
++		mthca_free_memfree(dev, qp);
++		mthca_free_wqe_buf(dev, qp);
+ 	}
+ 
+-	kfree(qp->wrid);
+-
+-	mthca_free_memfree(dev, qp);
++	mthca_unmap_memfree(dev, qp);
+ 
+ 	if (is_sqp(dev, qp)) {
+ 		atomic_dec(&(to_mpd(qp->ibqp.pd)->sqp_count));
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-export/drivers/infiniband/include/ib_user_verbs.h	2005-04-04 14:55:47.946083444 -0700
-@@ -0,0 +1,275 @@
++++ linux-export/drivers/infiniband/hw/mthca/mthca_user.h	2005-04-04 14:58:12.491651915 -0700
+@@ -0,0 +1,89 @@
 +/*
 + * Copyright (c) 2005 Topspin Communications.  All rights reserved.
 + *
@@ -1877,34 +1175,12 @@ Signed-off-by: Roland Dreier <roland@topspin.com>
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + *
-+ * $Id: ib_user_verbs.h 2001 2005-03-16 04:15:41Z roland $
 + */
 +
-+#ifndef IB_USER_VERBS_H
-+#define IB_USER_VERBS_H
++#ifndef MTHCA_USER_H
++#define MTHCA_USER_H
 +
 +#include <linux/types.h>
-+
-+/*
-+ * Increment this value if any changes that break userspace ABI
-+ * compatibility are made.
-+ */
-+#define IB_USER_VERBS_ABI_VERSION	1
-+
-+enum {
-+	IB_USER_VERBS_CMD_QUERY_PARAMS,
-+	IB_USER_VERBS_CMD_GET_CONTEXT,
-+	IB_USER_VERBS_CMD_QUERY_PORT,
-+	IB_USER_VERBS_CMD_ALLOC_PD,
-+	IB_USER_VERBS_CMD_DEALLOC_PD,
-+	IB_USER_VERBS_CMD_REG_MR,
-+	IB_USER_VERBS_CMD_DEREG_MR,
-+	IB_USER_VERBS_CMD_CREATE_CQ,
-+	IB_USER_VERBS_CMD_DESTROY_CQ,
-+	IB_USER_VERBS_CMD_CREATE_QP,
-+	IB_USER_VERBS_CMD_MODIFY_QP,
-+	IB_USER_VERBS_CMD_DESTROY_QP,
-+};
 +
 +/*
 + * Make sure that all structs defined in this file remain laid out so
@@ -1914,211 +1190,47 @@ Signed-off-by: Roland Dreier <roland@topspin.com>
 + * instead.
 + */
 +
-+struct ib_uverbs_async_event_desc {
-+	__u64 element;
-+	__u32 event_type;	/* enum ib_event_type */
++struct mthca_alloc_ucontext {
++	__u64 respbuf;
++};
++
++struct mthca_alloc_ucontext_resp {
++	__u32 qp_tab_size;
++	__u32 uarc_size;
++};
++
++struct mthca_alloc_pd {
++	__u64 pdnbuf;
++};
++
++struct mthca_alloc_pd_resp {
++	__u32 pdn;
 +	__u32 reserved;
 +};
 +
-+struct ib_uverbs_comp_event_desc {
-+	__u64 cq_handle;
-+};
-+
-+/*
-+ * All commands from userspace should start with a __u32 command field
-+ * followed by __u16 in_words and out_words fields (which give the
-+ * length of the command block and response buffer if any in 32-bit
-+ * words).  The kernel driver will read these fields first and read
-+ * the rest of the command struct based on these value.
-+ */
-+
-+struct ib_uverbs_cmd_hdr {
-+	__u32 command;
-+	__u16 in_words;
-+	__u16 out_words;
-+};
-+
-+/*
-+ * No driver_data for "query params" command, since this is intended
-+ * to be a core function with no possible device dependence.
-+ */
-+struct ib_uverbs_query_params {
-+	__u64 response;
-+};
-+
-+struct ib_uverbs_query_params_resp {
-+	__u32 num_cq_events;
-+};
-+
-+struct ib_uverbs_get_context {
-+	__u64 response;
-+	__u64 driver_data[0];
-+};
-+
-+struct ib_uverbs_get_context_resp {
-+	__u32 async_fd;
-+	__u32 cq_fd[1];
-+};
-+
-+struct ib_uverbs_query_port {
-+	__u64 response;
-+	__u8  port_num;
-+	__u8  reserved[7];
-+	__u64 driver_data[0];
-+};
-+
-+struct ib_uverbs_query_port_resp {
-+	__u32 port_cap_flags;
-+	__u32 max_msg_sz;
-+	__u32 bad_pkey_cntr;
-+	__u32 qkey_viol_cntr;
-+	__u32 gid_tbl_len;
-+	__u16 pkey_tbl_len;
-+	__u16 lid;
-+	__u16 sm_lid;
-+	__u8  state;
-+	__u8  max_mtu;
-+	__u8  active_mtu;
-+	__u8  lmc;
-+	__u8  max_vl_num;
-+	__u8  sm_sl;
-+	__u8  subnet_timeout;
-+	__u8  init_type_reply;
-+	__u8  active_width;
-+	__u8  active_speed;
-+	__u8  phys_state;
-+	__u8  reserved[3];
-+};
-+
-+struct ib_uverbs_alloc_pd {
-+	__u64 response;
-+	__u64 driver_data[0];
-+};
-+
-+struct ib_uverbs_alloc_pd_resp {
-+	__u32 pd_handle;
-+};
-+
-+struct ib_uverbs_dealloc_pd {
-+	__u32 pd_handle;
-+};
-+
-+struct ib_uverbs_reg_mr {
-+	__u64 response;
-+	__u64 start;
-+	__u64 length;
-+	__u64 hca_va;
-+	__u32 pd_handle;
-+	__u32 access_flags;
-+	__u64 driver_data[0];
-+};
-+
-+struct ib_uverbs_reg_mr_resp {
-+	__u32 mr_handle;
++struct mthca_create_cq {
++	__u64 cqnbuf;
 +	__u32 lkey;
-+	__u32 rkey;
++	__u32 pdn;
++	__u64 arm_db_page;
++	__u64 set_db_page;
++	__u32 arm_db_index;
++	__u32 set_db_index;
 +};
 +
-+struct ib_uverbs_dereg_mr {
-+	__u32 mr_handle;
-+};
-+
-+struct ib_uverbs_create_cq {
-+	__u64 response;
-+	__u64 user_handle;
-+	__u32 cqe;
++struct mthca_create_cq_resp {
++	__u32 cqn;
 +	__u32 reserved;
-+	__u64 driver_data[0];
 +};
 +
-+struct ib_uverbs_create_cq_resp {
-+	__u32 cq_handle;
-+	__u32 cqe;
++struct mthca_create_qp {
++	__u32 lkey;
++	__u32 reserved;
++	__u64 sq_db_page;
++	__u64 rq_db_page;
++	__u32 sq_db_index;
++	__u32 rq_db_index;
 +};
 +
-+struct ib_uverbs_destroy_cq {
-+	__u32 cq_handle;
-+};
-+
-+struct ib_uverbs_create_qp {
-+	__u64 response;
-+	__u64 user_handle;
-+	__u32 pd_handle;
-+	__u32 send_cq_handle;
-+	__u32 recv_cq_handle;
-+	__u32 srq_handle;
-+	__u32 max_send_wr;
-+	__u32 max_recv_wr;
-+	__u32 max_send_sge;
-+	__u32 max_recv_sge;
-+	__u32 max_inline_data;
-+	__u8  sq_sig_all;
-+	__u8  qp_type;
-+	__u8  is_srq;
-+	__u8  reserved;
-+	__u64 driver_data[0];
-+};
-+
-+struct ib_uverbs_create_qp_resp {
-+	__u32 qp_handle;
-+	__u32 qpn;
-+};
-+
-+/*
-+ * This struct needs to remain a multiple of 8 bytes to keep the
-+ * alignment of the modify QP parameters.
-+ */
-+struct ib_uverbs_qp_dest {
-+	__u8  dgid[16];
-+	__u32 flow_label;
-+	__u16 dlid;
-+	__u16 reserved;
-+	__u8  sgid_index;
-+	__u8  hop_limit;
-+	__u8  traffic_class;
-+	__u8  sl;
-+	__u8  src_path_bits;
-+	__u8  static_rate;
-+	__u8  is_global;
-+	__u8  port_num;
-+};
-+
-+struct ib_uverbs_modify_qp {
-+	struct ib_uverbs_qp_dest dest;
-+	struct ib_uverbs_qp_dest alt_dest;
-+	__u32 qp_handle;
-+	__u32 attr_mask;
-+	__u32 qkey;
-+	__u32 rq_psn;
-+	__u32 sq_psn;
-+	__u32 dest_qp_num;
-+	__u32 qp_access_flags;
-+	__u16 pkey_index;
-+	__u16 alt_pkey_index;
-+	__u8  qp_state;
-+	__u8  cur_qp_state;
-+	__u8  path_mtu;
-+	__u8  path_mig_state;
-+	__u8  en_sqd_async_notify;
-+	__u8  max_rd_atomic;
-+	__u8  max_dest_rd_atomic;
-+	__u8  min_rnr_timer;
-+	__u8  port_num;
-+	__u8  timeout;
-+	__u8  retry_cnt;
-+	__u8  rnr_retry;
-+	__u8  alt_port_num;
-+	__u8  alt_timeout;
-+	__u8  reserved[2];
-+	__u64 driver_data[0];
-+};
-+
-+struct ib_uverbs_modify_qp_resp {
-+};
-+
-+struct ib_uverbs_destroy_qp {
-+	__u32 qp_handle;
-+};
-+
-+#endif /* IB_USER_VERBS_H */
++#endif /* MTHCA_USER_H */
 

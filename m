@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267179AbSKMLuW>; Wed, 13 Nov 2002 06:50:22 -0500
+	id <S267182AbSKML51>; Wed, 13 Nov 2002 06:57:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267181AbSKMLuV>; Wed, 13 Nov 2002 06:50:21 -0500
-Received: from [195.110.114.159] ([195.110.114.159]:27175 "EHLO trinityteam.it")
-	by vger.kernel.org with ESMTP id <S267179AbSKMLuV>;
-	Wed, 13 Nov 2002 06:50:21 -0500
-Date: Wed, 13 Nov 2002 13:03:20 +0100 (CET)
-From: <ricci@esentar.trinityteam.it>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GA-7VRXP is a bad motherboard [was Re: PDC20276 Linux driver]
-In-Reply-To: <1037133511.7047.12.camel@plokta.s8.com>
-Message-ID: <Pine.LNX.4.21.0211131259260.10691-100000@esentar.trinityteam.it>
+	id <S267184AbSKML51>; Wed, 13 Nov 2002 06:57:27 -0500
+Received: from mta01ps.bigpond.com ([144.135.25.133]:60120 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S267182AbSKML50>; Wed, 13 Nov 2002 06:57:26 -0500
+Date: Wed, 13 Nov 2002 23:03:56 +1100
+From: Michael Still <mikal@stillhq.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+Subject: Re: Linux v2.5.47
+In-Reply-To: <20021113002222.B323@infradead.org>
+Message-ID: <Pine.LNX.4.30.0211132302050.6360-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Nov 2002, Christoph Hellwig wrote:
 
+> You can convert it easily into a new-style pci driver with the following
+> probe routine:
 
-On 12 Nov 2002, Bryan O'Sullivan wrote:
+Remembering of course that a scsi_register() can fail...
 
-> The GA-7VRXP is a known bad motherboard.
-> 
-> Either drop your video card back to not using AGP, or buy a replacement
-> motherboard.
+> 	[do basic setup]
+> 	sdev = scsi_register();
 
-Good!
-I have another gigabyte motherboard, but I have it at home, so I don't
-remember the name: do u know if are there some other bugged gigabyte
-motherboards?
+        if(sdev == NULL){
+          /* Handle error */
+          }
+
+> 	[do more setup]
+> 	return scsi_add_host();
+
+Cheers,
+Mikal
+
+-- 
+
+Michael Still (mikal@stillhq.com)     UTC +10 hours
 

@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbUJXRtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbUJXRwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbUJXRtY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 13:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbUJXRtY
+	id S261570AbUJXRwt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 13:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbUJXRwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 13:49:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54695 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261570AbUJXRtF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 13:49:05 -0400
-Date: Sun, 24 Oct 2004 10:48:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: BK kernel workflow
-In-Reply-To: <Pine.LNX.4.58.0410241027320.13209@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0410241045090.13209@ppc970.osdl.org>
-References: <41752E53.8060103@pobox.com>  <20041019153126.GG18939@work.bitmover.com>
-  <41753B99.5090003@pobox.com>  <4d8e3fd304101914332979f86a@mail.gmail.com>
-  <20041019213803.GA6994@havoc.gtf.org>  <4d8e3fd3041019145469f03527@mail.gmail.com>
-  <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>  <20041023161253.GA17537@work.bitmover.com>
- <4d8e3fd304102403241e5a69a5@mail.gmail.com> <Pine.LNX.4.58.0410241027320.13209@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Oct 2004 13:52:49 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:44423 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261570AbUJXRuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 13:50:01 -0400
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041022234508.GA28380@kroah.com>
+References: <10982257353682@kroah.com> <10982257352301@kroah.com>
+	 <20041020091045.D1047@flint.arm.linux.org.uk>
+	 <20041022234508.GA28380@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098636436.24301.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 24 Oct 2004 17:47:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 24 Oct 2004, Linus Torvalds wrote:
+On Sad, 2004-10-23 at 00:45, Greg KH wrote:
+> > It's not that the driver is buggy.  It's that the driver has far
+> > more information than the PCI layer could ever have.
 > 
->    So BK helps this model, because the distributed nature of BK means that 
->    you can have several pseudo-official trees _and_ totally unofficial
->    ones, and merging is automatic and basically impossible to avoid, so 
->    the "official" tree never gets to drown out the unofficial work. But 
->    despite that, I want to make people _aware_ that maintainership does
->    not imply total ownership, and that we don't have a "hierarchy" of 
->    developers but a *network* of developers.
+> Ugh, I hate broken hardware.  I'll revert this in my next round of pci
+> changes (sometime next week.)
 
-Btw, I've tried in the past to express why I think the BK model is so
-good, and why CVS ans Subversion totally suck, and I think the previous
-email perhaps explains it best.
+It isnt always broken hardware either. You have no idea at the core
+level how the internals are configured. Thus for example if a device
+provides both legacy and non-legacy ports disabling it can do horrible
+things on pci unregister (eg soundcards with legacy joystick mappings)
 
-It really is a very important conceptual thing, that "network" vs 
-"hierarchy" difference.  And I know we all love bashing Larry, but give 
-the guy a pat on the back for really making that difference visible.
+As to video, well we don't always have an owner for video but unloading
+frame buffers doesn't want to turn the video card off either..
 
-[ Larry removed from the cc, because he's got ego enough as it is ;]
-
-		Linus

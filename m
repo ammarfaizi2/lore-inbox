@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbVAPUjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVAPUrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbVAPUjm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 15:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVAPUjl
+	id S262587AbVAPUrW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 15:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVAPUrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 15:39:41 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:36812 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262587AbVAPUjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 15:39:21 -0500
-Date: Sun, 16 Jan 2005 20:39:14 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Robert Wisniewski <bob@watson.ibm.com>
-Cc: karim@opersys.com, Christoph Hellwig <hch@infradead.org>,
-       tglx@linutronix.de, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc1-mm1
-Message-ID: <20050116203914.GA29959@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Robert Wisniewski <bob@watson.ibm.com>, karim@opersys.com,
-	tglx@linutronix.de, Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050114002352.5a038710.akpm@osdl.org> <1105740276.8604.83.camel@tglx.tec.linutronix.de> <41E85123.7080005@opersys.com> <20050116162127.GC26144@infradead.org> <41EAC560.30202@opersys.com> <16874.50688.68959.36156@kix.watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16874.50688.68959.36156@kix.watson.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 16 Jan 2005 15:47:22 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:61846 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262587AbVAPUrS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 15:47:18 -0500
+Message-ID: <037701c4fc0c$87abd910$0f01a8c0@max>
+From: "Richard Purdie" <rpurdie@rpsys.net>
+To: "Rusty Russell" <rusty@rustcorp.com.au>, "Christoph Hellwig" <hch@lst.de>
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+       <adaplas@pol.net>,
+       "lkml - Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <dwmw2@infradead.org>
+References: <20050112203136.GA3150@lst.de> <1105575573.12794.27.camel@localhost.localdomain> <20050113170528.GA24590@lst.de> <1105685810.7311.96.camel@localhost.localdomain>
+Subject: Re: [PATCH] kill symbol_get & friends
+Date: Sun, 16 Jan 2005 20:46:07 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 03:11:00PM -0500, Robert Wisniewski wrote:
-> int global_val;
-> 
-> modify_val_spin()
-> {
-> 	acquire_spin_lock()
-> 	// calculate some_value based on global_val
-> 	// for example c=global_val; if (c%0) some_value=10; else some_value=20;
-> 	global_val = global_val + some_value
-> 	release_spin_lock()
-> }
-> 
-> modify_val_atomic()
-> {
-> 	do
-> 	// calculate some_value based on global_val
-> 	// for example c=global_val; if (c%0) some_value=10; else some_value=20;
-> 	global_val = global_val + some_value
-> 	while (compare_and_store(global_val, , ))
-> }
-> 
-> What's the difference.  The deal is if two processes execute this code
-> simultaneously and one gets interrupted in the middle of modify_val_spin,
-> then the other wastes its entire quantum spinning for the lock.  In the
-> modify_val_atomic if one process gets interrupted, no problem, the other
-> process can proceed through, then when the first one runs again the CAS
-> will fail, and it will go around the loop again.  Now imagine it was the
-> kernel involved...
+Rusty Russell:
+> If it really wants dynamic symbol lookup, that's damn well what's going
+> to happen.  intermodule must die.  If David doesn't want that feature
+> any more, then sure, remove it.
 
-Just prevent that with spin_lock_irq.  But anyway this example doesn't
-fit the ltt code.  cmpxchg loops can make lots of sense for such simple
-loops, but as soon as you need to do significant work in the loop it
-starts to get problematic.  Your example would btw be better off using
-atomic_t and it's primitives so you abstract away the actual implementation
-and the architecture can chose the most efficient implementation.
+I can see one scenario where symbol_get would appear to be useful. Say you 
+have two modules A and B. Both can run independently of the other. If and 
+only if both are loaded at the same time they need to exchange data.
+
+Without symbol_get, you can only have hard dependencies between the modules 
+and hence you would be forced into loading both modules even if you only 
+want one of them.
+
+I came across this function when trying to solve this exact problem. If the 
+function is going to be removed, what is the alternative? Apologies if I've 
+missed something obvious...
+
+Richard 
 

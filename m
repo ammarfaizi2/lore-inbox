@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130844AbRA2OmA>; Mon, 29 Jan 2001 09:42:00 -0500
+	id <S131378AbRA2Omu>; Mon, 29 Jan 2001 09:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131378AbRA2Olw>; Mon, 29 Jan 2001 09:41:52 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:4100 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130844AbRA2Oll>;
-	Mon, 29 Jan 2001 09:41:41 -0500
-Message-ID: <20010128225530.A1300@bug.ucw.cz>
-Date: Sun, 28 Jan 2001 22:55:30 +0100
+	id <S132093AbRA2Omk>; Mon, 29 Jan 2001 09:42:40 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:5380 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131378AbRA2OmW>;
+	Mon, 29 Jan 2001 09:42:22 -0500
+Message-ID: <20010128232943.D1300@bug.ucw.cz>
+Date: Sun, 28 Jan 2001 23:29:43 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: jamal <hadi@cyberus.ca>, Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: ECN: Clearing the air
-In-Reply-To: <20010128150813.A1595@metastasis.f00f.org> <Pine.GSO.4.30.0101272110470.24762-100000@shell.cyberus.ca>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        "H. Peter Anvin" <hpa@transmeta.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Post codes during runtime, possibly OT
+In-Reply-To: <3A7333FF.AA813685@transmeta.com> <200101272101.WAA27234@cave.bitwizard.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.GSO.4.30.0101272110470.24762-100000@shell.cyberus.ca>; from jamal on Sat, Jan 27, 2001 at 09:15:48PM -0500
+In-Reply-To: <200101272101.WAA27234@cave.bitwizard.nl>; from Rogier Wolff on Sat, Jan 27, 2001 at 10:01:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >     suggested blocking ECN. Article at:
-> >
-> >     http://www.securityfocus.com/frames/?focus=ids&content=/focus/ids/articles/portscan.html
-> >
-> > the site is now ATM -- can someone briefly explain the logic in
-> > blocking it?
+> > > > It output garbage to the 80h port in order to enforce I/O delays.
+> > > > It's one of the safe ports to issue outs to.
 > 
-> It is Queso they quoted not nmap, sorry -- same thing.
-> The idea is to "detect" port scanners.
-> Queso sets the two TCP reserved bits in the SYN (now allocated for ECN).
-> Some OSes reflect that back in the SYN-ACK (Linux < 2.0.2? for example
-> was such a culprit).
+> > > Yes, because it is reserved for POST codes. You can get "POST
+> > > debugging cards" that simply have a BIN -> 7segement encoder and two 7
+> > > segment displays on them. They decode 0x80. That's what it's for.
+> 
+> > Again, if you want to change it, find another safe port, test the hell
+> > out of it, an *PUBLICIZE IT* so noone will use it in the future.
+> 
+> I may have missed too much of the discussion, but I thought that the
+> idea was that some people noted that their POST-code-cards don't
+> really work all that well when Linux is running because Linux keeps on
+> sending garbage to port 0x80. 
+> 
+> You seem to state that if you want POST codes, you should find a
+> different port, modify the code, test the hell out of it, and then
+> submit the patch.
+> 
+> That is NOT the right way to go about this: Port 0x80 is RESERVED for
+> POST usage, that's why it's always free. If people want to use it for
+> the original purpose then that is a pretty damn good reason to bump
+> the non-intended users of that port somewhere else. 
+> 
+> Now, we've found that small delays are reasonably well generated with
+> an "outb" to 0x80. So, indeed changing that to something else is going
+> to be tricky. 
+> 
+> All that I can think of right now is:
+>  - Find a register that can be written without side effects in 
+>   "standard" hardware like a keyboard controller, or interrupt 
+>    controller. Especially good are ones that already require us to keep
+>    a shadow value. Write the shadow variable to the register.
+>   (Tricky: not interrupt safe!)
 
-Does not that mean that Linux 2.0.10 mistakenly announces it is ECN
-capable when offered ECN connection?
+What about just remembering shadow of 0x80 and always writing shadow
+to 0x80? Interrupt unsafety hopefully does not matter much....
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

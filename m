@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131394AbQKCTiL>; Fri, 3 Nov 2000 14:38:11 -0500
+	id <S131447AbQKCTiV>; Fri, 3 Nov 2000 14:38:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131492AbQKCTiB>; Fri, 3 Nov 2000 14:38:01 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:21776 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131394AbQKCThr>; Fri, 3 Nov 2000 14:37:47 -0500
-Date: Fri, 3 Nov 2000 20:37:43 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Value of TASK_UNMAPPED_SIZE on 2.4
-Message-ID: <20001103203743.E15284@athlon.random>
-In-Reply-To: <3A030EE2.92DC3F2@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A030EE2.92DC3F2@oracle.com>; from Josue.Amaro@oracle.com on Fri, Nov 03, 2000 at 11:15:46AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131492AbQKCTiL>; Fri, 3 Nov 2000 14:38:11 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:36102 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S131447AbQKCTiC>;
+	Fri, 3 Nov 2000 14:38:02 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011031937.WAA10753@ms2.inr.ac.ru>
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+To: ak@suse.de (Andi Kleen)
+Date: Fri, 3 Nov 2000 22:37:45 +0300 (MSK)
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20001103202911.A2979@gruyere.muc.suse.de> from "Andi Kleen" at Nov 3, 0 08:29:11 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2000 at 11:15:46AM -0800, Josue Emmanuel Amaro wrote:
-> (page.h).  This works out to be a value of 0x4000000.
-						      ^ one more zero here
-> Are there any negative side effects in defining TASK_UNMAPPED_SIZE to 0x1000000?
+Hello!
 
-I guess you mean 0x10000000. There's no risk in doing that. I also did another
-patch that moves the kernel away and allows 3.5G per process on IA32 via plain
-mmap or shmat, but it has the downside of reducing a lot the ZONE_NORMAL where
-on IA32 buffercache and skb still lives.
+> that does hardware register access without protecting against interrupts
+> or checking if the interface is up.
 
-Andrea
+This issue is not that issue. It is separate issue and in fact
+it is private problem of driver and its author, what is safe,
+what is not safe.
+
+F.e. I see no cathastrophe even if MII registers are accessed without
+any protections. Diag utilities do this from user space. 8)8)
+
+
+> de4x5 is probably also buggy in regard to this.
+
+de4x5 is hopeless. I added nice comment in softnet to it.
+Unfortunately it was lost. 8)
+
+Andi, neither you nor me nor Alan nor anyone are able to audit
+all this unnevessarily overcomplicated code. It was buggy, is buggy
+and will be buggy. It is inavoidable, as soon as you have hundreds
+of drivers.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270783AbRHSVLP>; Sun, 19 Aug 2001 17:11:15 -0400
+	id <S270787AbRHSVOE>; Sun, 19 Aug 2001 17:14:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270784AbRHSVLF>; Sun, 19 Aug 2001 17:11:05 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:63503 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S270783AbRHSVKu>; Sun, 19 Aug 2001 17:10:50 -0400
-Message-ID: <3B802B68.ADA545DB@bluewin.ch>
-Date: Sun, 19 Aug 2001 23:11:02 +0200
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Why don't have bits the same rights as humans! (flushing to disk waiting 
- time)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270795AbRHSVNy>; Sun, 19 Aug 2001 17:13:54 -0400
+Received: from mail.spylog.com ([194.67.35.220]:11480 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S270787AbRHSVNr>;
+	Sun, 19 Aug 2001 17:13:47 -0400
+Date: Mon, 20 Aug 2001 01:13:56 +0400
+From: Andrey Nekrasov <andy@spylog.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8/2.4.9 problem
+Message-ID: <20010820011356.A6667@spylog.ru>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be> <20010819205452Z16128-32383+429@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20010819205452Z16128-32383+429@humbolt.nl.linux.org>
+User-Agent: Mutt/1.3.20i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently wrote some small files to the floppy disk and noticed almost nothing
-happened immediately but after a certain time the floppy actually started
-writing. So this action took more than 30 seconds instead just a few. This
-remembered me of the elevator problem in the kernel. To transfer this example
-into real live: A person who wants to take the elevator has to wait 8 hours
-before the elevator even starts. While probably everyone agrees this is
-ridiculous in real live astonishingly nobody complains about it in case of a disk.
+Hello.
 
-Why don't have bits the same rights as humans! ;-) 
+I am have problem with "kernel: __alloc_pages: 0-order allocation failed."
 
-I know this waiting period should help the elevator algorithm to choose a better
-service. But is this really true? Lets assume the following situations:
+1. syslog kern.*
 
-1. Just a few persons/time period wants to use the elevator. The elevator just
-service each person since no other is waiting for its service.
+   ...
+	 Aug 19 12:28:16 sol kernel: __alloc_pages: 0-order allocation failed.
+	 Aug 19 12:28:37 sol last message repeated 364 times
+	 Aug 19 12:29:17 sol last message repeated 47 times
+	 Aug 19 12:29:25 sol kernel: s: 0-order allocation failed.
+	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+	 Aug 19 12:29:25 sol last message repeated 291 times
+	 Aug 19 12:29:25 sol kernel: eth0: can't fill rx buffer (force 0)!
+	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+	 Aug 19 12:29:25 sol kernel: eth0: Tx ring dump,  Tx queue 2928321 /
+	 2928321:
+	 Aug 19 12:29:25 sol kernel: eth0:     0 600ca000.
+	 Aug 19 12:29:25 sol kernel: eth0:  *= 1 000ca000.
+	 Aug 19 12:29:25 sol kernel: eth0:     2 000ca000.
+   ...
+   Aug 19 12:29:25 sol kernel: eth0:     8 200ca000.
+	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+	 Aug 19 12:29:25 sol kernel: eth0:     9 000ca000.
+   ...
+	 Aug 19 12:29:25 sol kernel: eth0:  * 31 00000000.
+	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
+	 Aug 19 12:29:59 sol last message repeated 75 times
+	 Aug 19 12:31:10 sol last message repeated 32 times
+	 Aug 19 12:32:07 sol last message repeated 153 times
+	 Aug 19 12:32:35 sol last message repeated 131 times
 
-2. A rather lot of persons/time period wants to use the elevator, of course the
-elevator can't now service all immediately. But now since accumulation starts
-the elevator can improve its service which of course reduces the accumulation
-which decreases its service and so on.
+2. my configuration:
 
-3. More persons/time period than the elevator can service wants to use it, the
-accumulation always gets higher. Now the elevator works as if it has been given
-a large accumulation time. Hopefully this situations doesn't persist or the
-system itself gets broke.
+	2CPU/1.5Gb RAM/Mylex Acceleraid 250/Intel PRO100/ Linux kernel 2.4.8/9-xfs /file system   is  xfs or ext2.
 
-Now of course a waiting time helps to push the elevator service into situation 3
-even if service request are still in situation 2 or 1. Also real elevators have
-this waiting time, it's starts when the first person enters and choose his
-destination until it has missed the next person (either direction or already
-passed). A rough estimate gives a waiting time in the range of about an average
-service time.
+3. NFS/NFSD kernel v3, and use nfs-root file system.
 
-If I assume an average service time for bits (disk access) of about 10ms around
-3000 service requests could be accumulated before any service starts. Now I dare
-to question that even the best elevator algorithm is able to optimize more than
-20 service requests on a usefull base, so any waiting time above 200ms is simply useless.
+4. Test 1: simple copy from/to another nfs-computer. _big_ file - up-to 4Gb
 
-Lets go back to situation 2. As we see accumulation happens on a "natural" way
-which imposes a certain waiting time. I guess this alone gives a service which
-is at least as good as halve of the best service.
+   Test 2: tiobench-0.3.1  on _local_ disk (Mylex RAID5) with support
+	         "LARGEFILES" (>2Gb).
 
-Could anybody produce any real figures to prove/disprove my theory? Could
-anybody benchmark the disk access for the 3 waiting times (0, 200ms 30sec) with
-different loads?
 
-O. Wyss
+Can your help me? 
 
-Please CC, thanks.
+
+-- 
+bye.
+Andrey Nekrasov, SpyLOG.

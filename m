@@ -1,698 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264666AbSJWKwo>; Wed, 23 Oct 2002 06:52:44 -0400
+	id <S262812AbSJWLEt>; Wed, 23 Oct 2002 07:04:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264708AbSJWKwn>; Wed, 23 Oct 2002 06:52:43 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:23190 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S264666AbSJWKwf> convert rfc822-to-8bit;
-	Wed, 23 Oct 2002 06:52:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: netdev@oss.sgi.com
-Subject: [RESEND] tuning linux for high network performance?
-Date: Wed, 23 Oct 2002 13:06:18 +0200
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200210231218.18733.roy@karlsbakk.net>
-In-Reply-To: <200210231218.18733.roy@karlsbakk.net>
+	id <S263293AbSJWLEt>; Wed, 23 Oct 2002 07:04:49 -0400
+Received: from gateway.cinet.co.jp ([210.166.75.129]:52290 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S262812AbSJWLEr>; Wed, 23 Oct 2002 07:04:47 -0400
+Message-ID: <3DB5706A.9D3915F0@cinet.co.jp>
+Date: Wed, 23 Oct 2002 00:36:10 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.44-pc98smp i686)
+X-Accept-Language: ja, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210231306.18422.roy@karlsbakk.net>
+To: Andrey Panin <pazke@orbita1.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCHSET] PC-9800 architecture (CORE only)
+References: <20021022065028.GA304@pazke.ipt>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've got this video server serving video for VoD. problem is the P4 1.8
-> seems to be maxed out by a few system calls. The below output is for ~50
-> clients streaming at ~4.5Mbps. if trying to increase this to ~70, the CPU
-> maxes out.
->
-> Does anyone have an idea?
+Thanks for comment.
 
-...adding the whole profile output - sorted by the first column this time...
+Andrey Panin wrote:
+> 
+> On Mon, Oct 21, 2002 at 10:49:19PM +0900, Osamu Tomita wrote:
+> > This is a part of big patchset for support PC-9800 architecture, one
+> of i386
+> > sub architectures.
+> > Core part cleanup has done. (But device drivers are still working.)
+> > Many "#if" are killed by using "mach-xxx" framework.
+> > If someone pick up this, we are very happy.
+> > Comments are always welcome. Please tell me.
+> 
+> Ok, you asked for it :))
+> 
+> >       if (boot_cpu_data.hard_math && !cpu_has_fpu)
+> > -             setup_irq(13, &irq13);
+> > +#ifndef CONFIG_PC9800
+> > +             setup_irq(13, &fpu_irq);
+> > +#else
+> > +             setup_irq(8, &fpu_irq);
+> > +#endif
+> >  }
+> 
+> May be this should be done this way (with FPU_IRQ_NUMBER hidden in the
+> arch specific header):
+> 
+> -               setup_irq(13, &irq13);
+> +               setup_irq(FPU_IRQ_NUMBER, &fpu_irq);
+Thanks. I'll rewrite this way.
+ 
+> > diff -urN linux/arch/i386/kernel/pc9800_debug.c
+> linux98/arch/i386/kernel/pc9800_debug.c
+> 
+> Why this file is not in mach-pc9800 directory ?
+This module provides new feature.
+We can write debugging messages to PC-9800's NVRAM.
+I don't know PC's CMOS can be used for this purpose, or not.
+But, if other subarchtecture has usable space in NVRAM,
+I assume scenario as follows.
+rewrite some codes in pc9800_debug.c and put them mach-xxx directory,
+then split out codes for PC-9800 and move them into mach-pc9800 direcory.
 
-905182 total                                      0.4741
-121426 csum_partial_copy_generic                474.3203
- 93633 default_idle                             1800.6346
- 74665 do_wp_page                               111.1086
- 65857 ide_intr                                 184.9916
- 53636 handle_IRQ_event                         432.5484
- 21973 do_softirq                               107.7108
- 20498 e1000_intr                               244.0238
- 19800 do_page_fault                             16.8081
- 19395 skb_clone                                 45.7429
- 14564 system_call                              260.0714
- 13592 kfree                                     89.4211
- 13557 skb_release_data                         116.8707
- 13025 ide_do_request                            17.6970
- 12988 do_rw_disk                                 8.4557
- 11841 tcp_sendmsg                                2.6814
- 11720 nf_hook_slow                              29.0099
- 11712 tcp_poll                                  34.0465
- 10688 schedule                                   7.8588
- 10386 __kfree_skb                               34.1645
- 10052 ipt_do_table                              10.1741
-  8286 fget                                     115.0833
-  7436 tcp_v4_send_check                         44.2619
-  7191 e1000_clean_tx_irq                        16.6458
-  7031 kmalloc                                   18.1211
-  6610 tcp_write_xmit                             9.3892
-  6241 tcp_clean_rtx_queue                        8.0425
-  6232 ip_conntrack_find_get                     51.9333
-  6140 ide_dmaproc                                8.4341
-  6125 tcp_packet                                14.0482
-  5858 qdisc_restart                             15.4158
-  5734 e1000_xmit_frame                           5.6660
-  5709 tcp_v4_rcv                                 3.7363
-  5703 sys_rt_sigprocmask                        11.4060
-  5445 tcp_transmit_skb                           3.7500
-  5273 alloc_skb                                 11.8761
-  4961 ide_wait_stat                             18.7917
-  4790 ip_ct_find_proto                          44.3519
-  4782 add_timer                                 18.3923
-  4760 ip_ct_refresh                             29.7500
-  4729 do_anonymous_page                         17.6455
-  4616 e1000_clean_rx_irq                         4.9106
-  4464 do_gettimeofday                           37.2000
-  4359 flush_tlb_page                            38.9196
-  4209 ip_finish_output2                         16.4414
-  3731 get_hash_table                            23.3188
-  3714 eth_type_trans                            21.1023
-  3712 __make_request                             2.3375
-  3680 __ip_conntrack_find                       12.7778
-  3480 ip_route_input                             9.1579
-  3363 kfree_skbmem                              32.3365
-  3295 __switch_to                               15.2546
-  3205 fput                                      13.1352
-  3143 rmqueue                                    5.3452
-  3137 ip_conntrack_in                            5.0272
-  3008 sync_timers                              250.6667
-  2861 sock_wfree                                47.6833
-  2580 ip_queue_xmit                              2.0347
-  2578 process_timeout                           26.8542
-  2577 netif_rx                                   6.1357
-  2555 get_user_pages                             6.2623
-  2504 sock_poll                                 62.6000
-  2346 ide_build_sglist                           5.6394
-  2316 brw_kiovec                                 2.5619
-  2256 csum_partial                               7.8333
-  2251 ip_queue_xmit2                             4.2958
-  2198 start_request                              4.0404
-  2186 dev_queue_xmit                             2.7462
-  2167 timer_bh                                   2.2203
-  2162 __free_pages_ok                            3.1608
-  2157 zap_page_range                             2.4400
-  1942 mark_dirty_kiobuf                         21.1087
-  1733 process_backlog                            5.9349
-  1719 tcp_rcv_established                        0.8493
-  1689 add_wait_queue                            32.4808
-  1650 mod_timer                                  6.1567
-  1603 wait_kio                                  17.4239
-  1575 net_rx_action                              4.8611
-  1554 get_pid                                    4.0052
-  1434 lru_cache_add                             12.8036
-  1429 handle_mm_fault                            7.7663
-  1397 ip_local_deliver_finish                    4.5357
-  1357 nf_iterate                                10.2803
-  1350 e1000_alloc_rx_buffers                     5.2734
-  1298 do_select                                  2.5155
-  1268 unlock_page                               12.1923
-  1209 submit_bh                                 10.7946
-  1184 add_entropy_words                          5.9200
-  1175 __brelse                                  36.7188
-  1125 __pollwait                                 7.8125
-  1108 shrink_list                                5.7708
-  1099 generic_make_request                       3.6151
-  1080 __free_pages                              33.7500
-  1052 tcp_ack                                    1.2524
-  1020 ip_rcv                                     1.0851
-   986 raid0_make_request                         2.9345
-   898 ext3_direct_io_get_block                   4.7766
-   883 pfifo_fast_dequeue                        11.6184
-   863 sys_gettimeofday                           5.5321
-   828 tcp_ack_update_window                      3.9808
-   813 ipt_local_out_hook                         7.8173
-   761 __lru_cache_del                            6.5603
-   756 sys_write                                  2.9531
-   742 __rdtsc_delay                             26.5000
-   730 uhci_interrupt                             3.3182
-   718 net_tx_action                              2.5643
-   710 batch_entropy_store                        3.9444
-   701 add_timer_randomness                       3.3066
-   666 tasklet_hi_action                          4.1625
-   662 sys_nanosleep                              1.7796
-   635 set_page_dirty                             5.4741
-   627 __tcp_data_snd_check                       3.1350
-   611 netif_receive_skb                          1.9094
-   601 pfifo_fast_enqueue                         5.3661
-   590 del_timer_sync                             4.3382
-   587 lru_cache_del                             26.6818
-   574 get_unmapped_area                          2.1103
-   561 wait_for_tcp_memory                        0.7835
-   557 ip_refrag                                  5.8021
-   546 ip_conntrack_local                         6.2045
-   515 sys_select                                 0.4486
-   507 __tcp_select_window                        2.2634
-   481 ext3_get_branch                            2.2689
-   433 ip_output                                  1.2301
-   389 ip_confirm                                 9.7250
-   384 find_vma                                   4.5714
-   379 set_bh_page                                9.4750
-   376 tcp_v4_do_rcv                              1.0108
-   370 tcp_ack_no_tstamp                          1.4453
-   368 batch_entropy_process                      2.0000
-   365 ide_build_dmatable                         1.1551
-   364 ip_rcv_finish                              0.7696
-   363 kmem_cache_free                            2.8359
-   362 __wake_up                                  1.8854
-   338 ext3_get_block_handle                      0.5152
-   336 inet_sendmsg                               5.2500
-   318 bh_action                                  2.3382
-   298 tcp_data_queue                             0.1064
-   272 md_make_request                            2.6154
-   272 ext3_block_to_path                         0.9714
-   248 sock_sendmsg                               1.8235
-   244 __alloc_pages                              0.6932
-   238 kmem_cache_alloc                           0.7532
-   226 __free_pte                                 3.1389
-   225 tcp_ack_probe                              1.3720
-   224 __run_task_queue                           2.0741
-   213 ide_get_queue                              5.3250
-   209 __ip_ct_find_proto                         4.3542
-   202 get_sample_stats                           1.7414
-   195 tcp_write_space                            1.6810
-   185 schedule_timeout                           1.1859
-   184 do_signal                                  0.2992
-   182 ipt_hook                                   4.5500
-   171 generic_direct_IO                          0.5552
-   168 can_share_swap_page                        1.8261
-   157 ip_local_deliver                           0.3965
-   155 get_conntrack_index                        2.7679
-   145 tcp_push_one                               0.5664
-   145 ide_set_handler                            1.2500
-   144 pipe_poll                                  1.4400
-   143 max_select_fd                              0.8938
-   139 pte_alloc                                  0.5792
-   138 del_timer                                  1.6429
-   136 sock_write                                 0.7234
-   131 poll_freewait                              1.9265
-   131 getblk                                     1.7237
-   130 send_sig_info                              0.8553
-   128 __release_sock                             1.4545
-   125 ret_from_sys_call                          7.3529
-   120 ext3_direct_IO                             0.1807
-   118 tcp_pkt_to_tuple                           3.6875
-   117 find_vma_prev                              0.6648
-   114 do_no_page                                 0.2298
-   112 tqueue_bh                                  4.0000
-   112 follow_page                                1.0769
-   110 bread                                      1.1000
-   108 e1000_rx_checksum                          1.2273
-   107 generic_file_direct_IO                     0.1938
-   102 add_interrupt_randomness                   2.5500
-    97 remove_wait_queue                          1.7321
-    96 mark_page_accessed                         2.0000
-    91 kill_something_info                        0.2645
-    85 invert_tuple                               1.9318
-    81 exit_notify                                0.1151
-    81 cpu_idle                                   0.9643
-    80 tcp_new_space                              0.6061
-    79 nf_register_queue_handler                  0.5197
-    75 uhci_remove_pending_qhs                    0.3906
-    69 pdc202xx_dmaproc                           0.1250
-    68 sys_read                                   0.2656
-    68 nf_reinject                                0.1491
-    66 map_user_kiobuf                            0.2619
-    65 find_vma_prepare                           0.6500
-    64 generic_file_read                          0.2353
-    61 check_pgt_cache                            2.5417
-    60 free_pages                                 1.8750
-    58 error_code                                 0.9667
-    57 vm_enough_memory                           0.5481
-    56 __delay                                    1.4000
-    55 __const_udelay                             1.0577
-    53 tcp_ioctl                                  0.0908
-    53 journal_commit_transaction                 0.0132
-    53 do_munmap                                  0.0901
-    52 _alloc_pages                               2.1667
-    51 uhci_finish_completion                     0.4554
-    51 credit_entropy_store                       1.1591
-    50 rh_report_status                           0.1953
-    50 free_page_and_swap_cache                   0.8929
-    49 sys_rt_sigsuspend                          0.1750
-    49 nr_free_pages                              0.6125
-    49 do_mmap_pgoff                              0.0394
-    48 e1000_update_stats                         0.0307
-    48 do_get_write_access                        0.0366
-    48 __journal_file_buffer                      0.0916
-    48 __get_free_pages                           2.0000
-    48 .text.lock.e1000_main                      1.7143
-    47 expand_kiobuf                              0.3092
-    46 uhci_free_pending_qhs                      0.4600
-    46 tcp_parse_options                          0.0833
-    46 kmem_cache_size                            5.7500
-    45 rb_erase                                   0.2083
-    44 unmap_kiobuf                               0.6111
-    41 tcp_cwnd_application_limited               0.3106
-    41 rh_int_timer_do                            0.1165
-    41 init_or_cleanup                            0.1424
-    40 sync_unlocked_inodes                       0.0901
-    40 init_buffer                                1.4286
-    39 .text.lock.ip_input                        1.0000
-    38 vma_merge                                  0.1301
-    38 pfifo_fast_requeue                         0.6786
-    38 ip_conntrack_get                           0.9500
-    38 dev_watchdog                               0.2209
-    37 .text.lock.ip_output                       0.2803
-    36 do_check_pgt_cache                         0.1731
-    35 tcp_retrans_try_collapse                   0.0576
-    35 journal_add_journal_head                   0.1306
-    34 ext3_get_inode_loc                         0.0914
-    33 journal_write_revoke_records               0.1964
-    32 fsync_buffers_list                         0.0860
-    31 filemap_fdatasync                          0.1615
-    31 __pmd_alloc                                1.5500
-    30 sys_wait4                                  0.0305
-    30 restore_sigcontext                         0.0949
-    29 sys_sigreturn                              0.1169
-    28 tcp_fastretrans_alert                      0.0224
-    28 do_settimeofday                            0.1628
-    28 do_ide_request                             1.4000
-    27 unmap_fixup                                0.0785
-    27 find_extend_vma                            0.1350
-    27 eth_header_parse                           0.8438
-    27 current_capacity                           0.6750
-    26 save_i387                                  0.0478
-    26 __journal_clean_checkpoint_list            0.2407
-    25 update_atime                               0.3125
-    25 tcp_v4_destroy_sock                        0.0718
-    25 link_path_walk                             0.0102
-    25 buffer_insert_inode_queue                  0.2841
-    25 __journal_unfile_buffer                    0.0665
-    24 sys_mmap2                                  0.1622
-    24 rh_send_irq                                0.0896
-    24 rb_insert_color                            0.1224
-    24 ext3_do_update_inode                       0.0261
-    24 balance_dirty_state                        0.3158
-    24 add_wait_queue_exclusive                   0.4615
-    24 __try_to_free_cp_buf                       0.4000
-    23 free_kiobuf_bhs                            0.2396
-    22 tcp_rcv_synsent_state_process              0.0169
-    22 sys_munmap                                 0.2619
-    22 start_this_handle                          0.0598
-    22 sock_rfree                                 1.3750
-    22 setup_sigcontext                           0.0743
-    22 flush_tlb_mm                               0.1964
-    22 do_exit                                    0.0301
-    22 alloc_kiobuf_bhs                           0.1170
-    22 __rb_erase_color                           0.0567
-    21 tcp_mem_schedule                           0.0477
-    21 setup_frame                                0.0482
-    21 __generic_copy_to_user                     0.3500
-    20 unlock_buffer                              0.3125
-    20 journal_write_metadata_buffer              0.0240
-    20 d_lookup                                   0.0704
-    20 copy_skb_header                            0.0980
-    19 sync_old_buffers                           0.1218
-    19 sock_mmap                                  0.4750
-    19 skb_split                                  0.0344
-    19 select_bits_alloc                          0.7917
-    19 get_info_ptr                               0.2065
-    17 tcp_write_wakeup                           0.0363
-    17 ret_from_exception                         0.6800
-    17 kiobuf_wait_for_io                         0.1062
-    17 journal_unlock_journal_head                0.1518
-    17 bad_signal                                 0.1250
-    16 tcp_probe_timer                            0.0952
-    16 tcp_close                                  0.0083
-    16 ip_route_output_slow                       0.0099
-    16 __mark_inode_dirty                         0.0952
-    16 .text.lock.timer                           0.1250
-    16 .text.lock.tcp                             0.0152
-    15 journal_cancel_revoke                      0.0765
-    15 ext3_bmap                                  0.1500
-    15 do_fork                                    0.0074
-    15 blk_grow_request_list                      0.0833
-    14 tcp_v4_conn_request                        0.0145
-    14 sync_supers                                0.0507
-    14 log_start_commit                           0.0946
-    14 lock_vma_mappings                          0.3500
-    14 journal_dirty_metadata                     0.0354
-    14 file_read_actor                            0.0625
-    14 __insert_vm_struct                         0.1400
-    13 tcp_time_to_recover                        0.0290
-    13 sys_ioctl                                  0.0259
-    13 lookup_swap_cache                          0.1625
-    13 ip_build_xmit_slow                         0.0099
-    13 invalidate_inode_pages                     0.0739
-    13 ext3_dirty_inode                           0.0478
-    13 bmap                                       0.2955
-    12 tcp_collapse                               0.0143
-    12 sys_socketcall                             0.0234
-    12 put_filp                                   0.1364
-    12 make_pages_present                         0.0968
-    12 journal_get_write_access                   0.1304
-    12 generic_file_write                         0.0061
-    12 e1000_ioctl                                0.3333
-    11 uhci_transfer_result                       0.0316
-    11 tcp_try_to_open                            0.0348
-    11 tcp_recvmsg                                0.0045
-    11 tcp_create_openreq_child                   0.0092
-    11 sys_kill                                   0.1250
-    11 schedule_tail                              0.0786
-    11 osync_buffers_list                         0.0859
-    11 journal_stop                               0.0255
-    11 do_sigpending                              0.0887
-    10 tcp_unhash                                 0.0397
-    10 tcp_send_probe0                            0.0424
-    10 tcp_rcv_state_process                      0.0040
-    10 sys_poll                                   0.0138
-    10 inet_shutdown                              0.0208
-    10 execute_drive_cmd                          0.0221
-    10 __put_unused_buffer_head                   0.1136
-     9 tcp_write_timer                            0.0395
-     9 tcp_send_skb                               0.0191
-     9 tcp_make_synack                            0.0082
-     9 set_buffer_flushtime                       0.4500
-     9 raid0_status                               0.2045
-     9 copy_page_range                            0.0205
-     8 kupdate                                    0.0274
-     8 journal_get_descriptor_buffer              0.0741
-     8 get_empty_filp                             0.0253
-     8 ext3_write_super                           0.0741
-     8 count_active_tasks                         0.1111
-     8 atomic_dec_and_lock                        0.1111
-     8 __lock_page                                0.0400
-     8 __journal_remove_journal_head              0.0250
-     8 __ip_conntrack_confirm                     0.0115
-     8 __block_prepare_write                      0.0105
-     7 tcp_invert_tuple                           0.2188
-     7 ports_active                               0.1346
-     7 pipe_write                                 0.0112
-     7 kjournald                                  0.0130
-     7 handle_signal                              0.0273
-     7 grow_buffers                               0.0254
-     7 ext3_get_block                             0.0700
-     7 balance_classzone                          0.0151
-     7 __jbd_kmalloc                              0.0625
-     7 .text.lock.swap                            0.1296
-     6 vsnprintf                                  0.0057
-     6 tcp_v4_send_reset                          0.0176
-     6 tcp_accept                                 0.0105
-     6 sleep_on                                   0.0500
-     6 select_bits_free                           0.3750
-     6 pipe_read                                  0.0118
-     6 number                                     0.0055
-     6 ip_route_output_key                        0.0165
-     6 inet_accept                                0.0136
-     6 get_unused_buffer_head                     0.0375
-     6 dput                                       0.0176
-     6 cleanup_rbuf                               0.0273
-     6 __journal_remove_checkpoint                0.0556
-     6 __journal_drop_transaction                 0.0087
-     6 __find_get_page                            0.0938
-     6 .text.lock.netfilter                       0.0260
-     5 vmtruncate_list                            0.0625
-     5 vfs_permission                             0.0208
-     5 tcp_v4_hnd_req                             0.0147
-     5 tcp_init_cwnd                              0.0500
-     5 tcp_check_urg                              0.0158
-     5 tcp_check_sack_reneging                    0.0240
-     5 sys_fork                                   0.1786
-     5 sock_setsockopt                            0.0034
-     5 sock_init_data                             0.0161
-     5 sock_def_readable                          0.0521
-     5 release_x86_irqs                           0.0595
-     5 release_task                               0.0109
-     5 refile_buffer                              0.1389
-     5 pipe_release                               0.0368
-     5 path_init                                  0.0129
-     5 nr_free_buffer_pages                       0.0625
-     5 mprotect_fixup                             0.0043
-     5 log_space_left                             0.1562
-     5 ll_rw_block                                0.0119
-     5 journal_start                              0.0272
-     5 init_bh                                    0.2083
-     5 get_zeroed_page                            0.1389
-     5 ext3_commit_write                          0.0078
-     5 e1000_tx_timeout                           0.2500
-     5 do_poll                                    0.0227
-     5 bdfind                                     0.1389
-     5 add_keyboard_randomness                    0.1250
-     5 __wait_on_buffer                           0.0338
-     5 __vma_link                                 0.0284
-     5 __tcp_mem_reclaim                          0.0595
-     5 __rb_rotate_left                           0.0781
-     4 write_profile                              0.0244
-     4 tcp_v4_syn_recv_sock                       0.0064
-     4 tcp_v4_search_req                          0.0278
-     4 tcp_v4_route_req                           0.0192
-     4 tcp_v4_init_sock                           0.0169
-     4 tcp_cwnd_restart                           0.0263
-     4 tcp_check_req                              0.0043
-     4 tcp_check_reno_reordering                  0.0500
-     4 sys_mprotect                               0.0078
-     4 strncpy_from_user                          0.0500
-     4 sock_def_wakeup                            0.0625
-     4 sock_alloc                                 0.0208
-     4 skb_copy_datagram_iovec                    0.0071
-     4 lookup_mnt                                 0.0476
-     4 locks_remove_posix                         0.0096
-     4 invalidate_inode_buffers                   0.0370
-     4 init_conntrack                             0.0043
-     4 halfMD4Transform                           0.0068
-     4 find_or_create_page                        0.0164
-     4 filp_close                                 0.0238
-     4 ext3_reserve_inode_write                   0.0233
-     4 ext3_find_goal                             0.0213
-     4 do_fcntl                                   0.0059
-     4 dnotify_flush                              0.0345
-     4 d_alloc                                    0.0105
-     4 add_blkdev_randomness                      0.0526
-     4 _stext                                     0.0500
-     4 __journal_insert_checkpoint                0.0167
-     4 __find_lock_page_helper                    0.0323
-     4 .text.lock.inode                           0.0086
-     3 wait_for_tcp_connect                       0.0054
-     3 tcp_v4_get_port                            0.0045
-     3 tcp_put_port                               0.0150
-     3 tcp_init_xmit_timers                       0.0221
-     3 tcp_clear_xmit_timers                      0.0234
-     3 tcp_add_reno_sack                          0.0357
-     3 sys_sched_getscheduler                     0.0288
-     3 sys_fcntl64                                0.0221
-     3 sys_accept                                 0.0119
-     3 sock_ioctl                                 0.0268
-     3 sock_fasync                                0.0038
-     3 sock_def_error_report                      0.0312
-     3 rt_check_expire__thr                       0.0077
-     3 rh_init_int_timer                          0.0278
-     3 reset_hc                                   0.0167
-     3 register_gifconf                           0.0938
-     3 read_chan                                  0.0016
-     3 put_unused_buffer_head                     0.0833
-     3 pipe_ioctl                                 0.0375
-     3 permission                                 0.0227
-     3 open_namei                                 0.0024
-     3 mm_release                                 0.0833
-     3 locks_remove_flock                         0.0163
-     3 ksoftirqd                                  0.0153
-     3 journal_file_buffer                        0.0682
-     3 iput                                       0.0060
-     3 ip_build_and_send_pkt                      0.0067
-     3 interruptible_sleep_on                     0.0250
-     3 inet_sock_destruct                         0.0080
-     3 inet_ioctl                                 0.0079
-     3 inet_create                                0.0048
-     3 immediate_bh                               0.1071
-     3 get_unused_fd                              0.0077
-     3 get_empty_inode                            0.0179
-     3 flush_tlb_all_ipi                          0.0395
-     3 filemap_fdatawait                          0.0214
-     3 fd_install                                 0.0441
-     3 ext3_prepare_write                         0.0056
-     3 ext3_mark_iloc_dirty                       0.0357
-     3 e1000_watchdog                             0.0064
-     3 e1000_read_phy_reg                         0.0179
-     3 d_invalidate                               0.0214
-     3 create_buffers                             0.0125
-     3 cp_new_stat64                              0.0095
-     3 copy_mm                                    0.0040
-     3 copy_files                                 0.0043
-     3 bdget                                      0.0078
-     3 __insert_into_lru_list                     0.0300
-     3 __global_restore_flags                     0.0417
-     3 __get_user_4                               0.1250
-     2 write_ldt                                  0.0037
-     2 walk_page_buffers                          0.0161
-     2 tcp_try_undo_partial                       0.0093
-     2 tcp_try_undo_dsack                         0.0294
-     2 tcp_send_ack                               0.0100
-     2 tcp_retransmit_skb                         0.0034
-     2 tcp_new                                    0.0333
-     2 tcp_init_metrics                           0.0063
-     2 tcp_fragment                               0.0029
-     2 tcp_fixup_sndbuf                           0.0455
-     2 tcp_enter_loss                             0.0051
-     2 tcp_destroy_sock                           0.0043
-     2 tcp_close_state                            0.0104
-     2 tcp_child_process                          0.0134
-     2 tcp_bucket_create                          0.0263
-     2 tasklet_init                               0.0500
-     2 sys_close                                  0.0179
-     2 sock_recvmsg                               0.0116
-     2 sock_map_fd                                0.0052
-     2 sk_free                                    0.0172
-     2 sk_alloc                                   0.0208
-     2 sem_exit                                   0.0038
-     2 reschedule                                 0.1667
-     2 put_files_struct                           0.0109
-     2 path_release                               0.0417
-     2 path_lookup                                0.0556
-     2 mmput                                      0.0172
-     2 kiobuf_init                                0.0238
-     2 journal_unfile_buffer                      0.0556
-     2 journal_get_undo_access                    0.0070
-     2 journal_dirty_data                         0.0047
-     2 ip_mc_drop_socket                          0.0156
-     2 idedisk_open                               0.0156
-     2 grow_dev_page                              0.0122
-     2 getname                                    0.0128
-     2 generic_unplug_device                      0.0333
-     2 generic_file_llseek                        0.0135
-     2 free_kiovec                                0.0200
-     2 flush_signal_handlers                      0.0333
-     2 filemap_nopage                             0.0040
-     2 ext3_writepage_trans_blocks                0.0152
-     2 ext3_getblk                                0.0030
-     2 do_generic_file_read                       0.0017
-     2 destroy_inode                              0.0455
-     2 deliver_to_old_ones                        0.0114
-     2 copy_namespace                             0.0023
-     2 clear_inode                                0.0122
-     2 clean_inode                                0.0109
-     2 block_prepare_write                        0.0179
-     2 alloc_kiovec                               0.0161
-     2 add_page_to_hash_queue                     0.0455
-     2 activate_page                              0.0139
-     2 __tcp_v4_lookup_listener                   0.0208
-     2 __journal_refile_buffer                    0.0088
-     2 __generic_copy_from_user                   0.0227
-     2 __find_lock_page                           0.0500
-     2 __down_trylock                             0.0263
-     2 __down_failed_trylock                      0.1667
-     2 __block_commit_write                       0.0098
-     2 .text.lock.sched                           0.0042
-     1 vt_console_device                          0.0250
-     1 vgacon_save_screen                         0.0114
-     1 udp_sendmsg                                0.0010
-     1 tty_write                                  0.0015
-     1 tty_ioctl                                  0.0011
-     1 tcp_xmit_retransmit_queue                  0.0010
-     1 tcp_xmit_probe_skb                         0.0086
-     1 tcp_v4_synq_add                            0.0063
-     1 tcp_v4_rebuild_header                      0.0028
-     1 tcp_timewait_kill                          0.0045
-     1 tcp_sync_mss                               0.0081
-     1 tcp_reset_keepalive_timer                  0.0250
-     1 tcp_reset                                  0.0039
-     1 tcp_recv_urg                               0.0044
-     1 tcp_incr_quickack                          0.0167
-     1 tcp_error                                  0.0139
-     1 sys_time                                   0.0119
-     1 sys_stat64                                 0.0086
-     1 sys_modify_ldt                             0.0106
-     1 sys_lstat64                                0.0089
-     1 sys_llseek                                 0.0034
-     1 sys_getppid                                0.0250
-     1 sys_getpeername                            0.0081
-     1 sys_fstat64                                0.0104
-     1 sys_clone                                  0.0250
-     1 sys_brk                                    0.0042
-     1 sys_access                                 0.0034
-     1 svc_udp_recvfrom                           0.0014
-     1 sock_wmalloc                               0.0125
-     1 sock_release                               0.0104
-     1 sock_read                                  0.0064
-     1 sock_create                                0.0036
-     1 skb_recv_datagram                          0.0042
-     1 show_mem                                   0.0033
-     1 setup_rt_frame                             0.0015
-     1 setscheduler                               0.0024
-     1 secure_tcp_sequence_number                 0.0051
-     1 restart_request                            0.0132
-     1 remove_inode_page                          0.0192
-     1 remove_expectations                        0.0208
-     1 proc_pid_lookup                            0.0020
-     1 proc_lookup                                0.0068
-     1 pdc202xx_reset                             0.0074
-     1 path_walk                                  0.0357
-     1 opost                                      0.0023
-     1 old_mmap                                   0.0033
-     1 normal_poll                                0.0035
-     1 nfs3svc_encode_attrstat                    0.0020
-     1 n_tty_receive_buf                          0.0002
-     1 move_addr_to_user                          0.0119
-     1 mm_init                                    0.0051
-     1 memory_open                                0.0050
-     1 kmem_cache_grow                            0.0018
-     1 kill_fasync                                0.0172
-     1 journal_free_journal_head                  0.0500
-     1 journal_bmap                               0.0089
-     1 journal_blocks_per_page                    0.0312
-     1 journal_alloc_journal_head                 0.0096
-     1 is_read_only                               0.0147
-     1 ip_ct_gather_frags                         0.0031
-     1 init_private_file                          0.0093
-     1 init_once                                  0.0038
-     1 init_buffer_head                           0.0182
-     1 inet_release                               0.0125
-     1 inet_getname                               0.0083
-     1 inet_autobind                              0.0023
-     1 get_pipe_inode                             0.0057
-     1 free_pgtables                              0.0071
-     1 fn_hash_lookup                             0.0045
-     1 find_inlist_lock                           0.0035
-     1 file_move                                  0.0139
-     1 fcntl_dirnotify                            0.0032
-     1 ext3_write_inode                           0.0192
-     1 ext3_test_allocatable                      0.0156
-     1 ext3_release_file                          0.0357
-     1 ext3_read_inode                            0.0014
-     1 ext3_open_file                             0.0250
-     1 ext3_group_sparse                          0.0104
-     1 ext3_file_write                            0.0053
-     1 exit_sighand                               0.0100
-     1 e1000_tbi_adjust_stats                     0.0021
-     1 e1000_check_for_link                       0.0020
-     1 do_timer                                   0.0125
-     1 do_tcp_sendpages                           0.0004
-     1 do_sys_settimeofday                        0.0064
-     1 do_readv_writev                            0.0016
-     1 do_pollfd                                  0.0074
-     1 death_by_timeout                           0.0068
-     1 d_instantiate                              0.0139
-     1 cpu_raise_softirq                          0.0154
-     1 copy_thread                                0.0071
-     1 clear_page_tables                          0.0046
-     1 clean_from_lists                           0.0139
-     1 check_unthrottle                           0.0208
-     1 change_protection                          0.0027
-     1 cached_lookup                              0.0119
-     1 add_to_page_cache_locked                   0.0081
-     1 __user_walk                                0.0156
-     1 __remove_inode_page                        0.0104
-     1 __remove_from_lru_list                     0.0119
-     1 __refile_buffer                            0.0109
-     1 __rb_rotate_right                          0.0156
-     1 __loop_delay                               0.0250
-     1 .text.lock.super                           0.0071
+> And what is IORESOURCE98_SPARSE flag in mach-pc9800/mach_resources.h
+> file ?
+IORESOURCE98_SPARSE flag means odd or even only addressing.
+We modify check_region(), request_region() and release_region().
+If length parameter has negative value, addressing is sparse.
+For example,
+ request_region(0x100, -5, "xxx"); gets 0x100, 0x102 and 0x104.
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Regards
+Osamu Tomita  tomita@cinet.co.jp

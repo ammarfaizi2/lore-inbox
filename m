@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUHAMUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265038AbUHAMdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUHAMUW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 08:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUHAMUW
+	id S265038AbUHAMdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 08:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUHAMdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 08:20:22 -0400
-Received: from vsmtp4alice-fr.tin.it ([212.216.176.150]:9100 "EHLO
-	vsmtp4.tin.it") by vger.kernel.org with ESMTP id S261474AbUHAMUT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 08:20:19 -0400
-Date: Sun, 1 Aug 2004 14:19:31 +0200
-From: Giuliano Pochini <pochini@shiny.it>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SCSI removable devices problem
-Message-Id: <20040801141931.6e026422.pochini@shiny.it>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Sun, 1 Aug 2004 08:33:44 -0400
+Received: from holomorphy.com ([207.189.100.168]:63141 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265038AbUHAMdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 08:33:43 -0400
+Date: Sun, 1 Aug 2004 05:33:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm1
+Message-ID: <20040801123334.GR2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040728020444.4dca7e23.akpm@osdl.org> <20040801023655.GN2334@holomorphy.com> <20040801010532.37966eda.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040801010532.37966eda.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> There's trouble here with the link checking; it pukes all over
+>> sparc32's btfixup stuff. Not entirely sure what the proper form of a
+>> solution is.
 
+On Sun, Aug 01, 2004 at 01:05:32AM -0700, Andrew Morton wrote:
+> Do you mean the "check vmlinux for undefined symbols" thing?
+> That's proving to be a royal pain, although rmk's arguments for needing it
+> are good.  Could you find a way of fixing it up?
 
-It seems that 2.6.7 reads the partition table only once: when the scsi unit
-is added to the list during boot or when I send the "add-single-device"
-command. This is a problem with removable devices because if the drive
-hasn't a disk inserted at boot time, attempting to mount a partitioned disk
-always results in:
+I may need core help. The executable is postprocessed by a program in
+arch/sparc/boot/ and so some kind of hook to give it a chance to
+properly fix up the symbol table (which I'll have to add afresh), for
+instance, an extra stage of .tmp_vmlinux*, seems to be needed.
 
-mount: /dev/sdb1 is not a valid block device
+It treats vmlinux as a throwaway, and does the real linking pass in
+arch/sparc/boot/; exchanging the roles of the top-level and arch
+linking phases in the makefiles is all that's needed to fix this up.
 
-Also, bad things may happen (not tested) if a disk was in during boot and I
-replace it with another one with a different partitioning.
+Once an optional extra pass is okayed, it's a SMOP to deal with the
+rest (i.e. the real undefined symbol).
 
-As a workaround I have to send the "remove-single-device" command after
-having unmounted a volume and "add-single-device" after I have inserted a
-new one. I don't know when this problem was introduced, sorry.
-
-
-
---
-Giuliano.
+-- wli

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129373AbRBQTNC>; Sat, 17 Feb 2001 14:13:02 -0500
+	id <S130443AbRBQTOw>; Sat, 17 Feb 2001 14:14:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129580AbRBQTMw>; Sat, 17 Feb 2001 14:12:52 -0500
-Received: from et-gw.etinc.com ([207.252.1.2]:13 "EHLO etinc.com")
-	by vger.kernel.org with ESMTP id <S129373AbRBQTMu>;
-	Sat, 17 Feb 2001 14:12:50 -0500
-Message-Id: <5.0.0.25.0.20010217142352.0390aad0@mail.etinc.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Sat, 17 Feb 2001 14:24:42 -0500
-To: Dan Hollis <goemon@anime.net>
-From: Dennis <dennis@etinc.com>
-Subject: Re: Linux stifles innovation...
-Cc: <jesse@cats-chateau.net>, Andrew Scott <A.J.Scott@casdn.neu.edu>,
-        Andrew Scott <A.J.Scott@casdn.neu.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0102161430320.10829-100000@anime.net>
-In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130239AbRBQTOm>; Sat, 17 Feb 2001 14:14:42 -0500
+Received: from c1123685-a.crvlls1.or.home.com ([65.12.164.15]:53002 "EHLO
+	inbetween.blorf.net") by vger.kernel.org with ESMTP
+	id <S129580AbRBQTOc>; Sat, 17 Feb 2001 14:14:32 -0500
+Date: Sat, 17 Feb 2001 11:20:23 -0800 (PST)
+From: Jacob Luna Lundberg <kernel@gnifty.net>
+Reply-To: jacob@chaos2.org
+To: linux-kernel@vger.kernel.org
+Subject: Re: [LONG RANT] Re: Linux stifles innovation...
+In-Reply-To: <200102171337.f1HDbwh13232@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0102171112370.31130-100000@inbetween.blorf.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:31 PM 02/16/2001, Dan Hollis wrote:
->On Fri, 16 Feb 2001, Dennis wrote:
-> > The biggest thing that the linux community does to stifle innovation is to
-> > bash commercial vendors trying to make a profit by whining endlessly about
-> > "sourceless" distributions and recommending "open-source" solutions even
-> > when they are wholly inferior. You're only hurting yourselves in the long
-> > run. In that respect MS is correct, because those with the dollars to
-> > innovate will stay away.
->
->So I take it you support M$ on the legislation bit also...
 
+> Speaking as a Linux _USER_, if this happens, can I get said print
+> engine working on my ARM machines with these closed source drivers?
+> Can Alpha users get this print system working?  Can Sparc uses
+> get it working?  What?  I can't?  They can't?  Well, its no good to
+> me nor them.  You've just made the system x86 specific.  Well done,
+> thats a step backwards, not forwards.
 
-No. You conveniently snipped the part where I said that Microsoft is not 
-one to talk. They "stifle the market" in other ways, like not completely 
-documenting the OS for their own advantage.
+Just out of curiosity, why can't the specification be along the lines of a
+vendor data file saying ``if you want the printer to do x then say y'' and
+``if the printer says x then it means y''.  That ought to add a lot of
+functionality right there.  Sure there are evil winprinters that this
+wouldn't be enough for but it would be hardware independant, yes?
 
-DB
+Or alternatively what about getting vendors to release their source to a
+middleman as a trade secret?  The middleman could then release binaries
+for the various arches...  Distasteful, but I'd love to be able to use
+*all* the features of my Lexmark OptraColor 45...  ;)
 
-
->-Dan
+-Jacob
 

@@ -1,87 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312752AbSCVQeC>; Fri, 22 Mar 2002 11:34:02 -0500
+	id <S312750AbSCVQcl>; Fri, 22 Mar 2002 11:32:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312753AbSCVQdp>; Fri, 22 Mar 2002 11:33:45 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:7651 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S312752AbSCVQd0>; Fri, 22 Mar 2002 11:33:26 -0500
-Date: Fri, 22 Mar 2002 22:06:34 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.7] smp_call_function trivial change
-Message-ID: <20020322220634.A26077@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312751AbSCVQcb>; Fri, 22 Mar 2002 11:32:31 -0500
+Received: from firewall.oeone.com ([216.191.248.101]:35844 "HELO
+	mail.oeone.com") by vger.kernel.org with SMTP id <S312750AbSCVQcV>;
+	Fri, 22 Mar 2002 11:32:21 -0500
+Message-ID: <3C9B5C94.9020200@oeone.com>
+Date: Fri, 22 Mar 2002 11:32:20 -0500
+From: Masoud Sharbiani <masouds@oeone.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Abdij Bhat <Abdij.Bhat@kshema.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Upgrade Hangs!
+In-Reply-To: <91A7E7FABAF3D511824900B0D0F95D10136FA4@BHISHMA>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I discussed this with Andrea long ago, but never got around
-to send the patch. Better late than never.
+Abdij Bhat wrote:
 
-Going by the documentation and use of _bh version of spin_lock(),
-smp_call_function() is allowed to be called from BH context,
-We can run into a deadlock with some locks if we do so. 
-This because reader-writer locks can sometimes be used optimally
-by not disabling irqs while taking the reader side if only the 
-reader side of the lock is taken from irq context.
+>Hi,
+> I am trying to build the 2.4.17 Kernel and upgrade my existing 2.4.7-10 Red
+>Hat Linux System. Here is the procedure I followed ( based on Red Hat
+>Documentation on the same ):
+>
+>1. tar -xvzf linux-2.4.17.tar.gz
+>2. cd linux
+>3. make mkproper
+>4. make menuconfig
+>5.make dep 
+>6. make clean 
+>7. make bzImage 
+>8. make modules 
+>9. make modules_install 
+>10. cp /usr/src/linux-2.4.17/arch/i386/boot/bzImage /boot/vmlinuz-2.4.17 
+>11. cp /usr/src/linux-2.4.17/System.map /boot/System.map-2.4.17 
+>12. cd /boot rm System.map ln -s System.map-2.4.17 System.map 
+>13. mkinitrd /boot/initrd-2.4.17.img 2.4.17 
+>14. Modify the /etc/lilo.conf to add
+>		image=/boot/vmlinuz-2.4.17
+>		label=linux-Mine
+>		root=/dev/hda1
+>		initrd=/boot/initrd-2.4.17
+>		read-only
+>
+> Now when i reboot and select the linux-Mine option the screen displays
+>		Loading vmlinuz-2.4.7
+>		Uncompressing Linux... Ok, booting the kernel
+>
+> and then HANGS!!!!!!
+>
+> What might be the problem. I have followed the instruction to the T. I
+>tried without the initrd option too. I have enabled the RAM diak
+>option/disabled it....
+> 
+> Please help me out on the issue.
+>
+>Thanks and Regards,
+>Abdij
+>
+Have you tried checking what CPU type is configured on your kernel? it 
+should be the same as your system's cpu.
+Masoud
 
-      CPU #0                                CPU #1
-
-      read_lock(&tasklist_lock)
-                                       write_lock_irq(&tasklist_lock)
-                                       [spins with interrupt disabled]
-      [Interrupted by BH]
-      smp_call_function() for BH
-           handler
-                                       [ doesn't take the IPI]
-    
-So, cpu #1 doesn't take the IPI and cpu #0 spinwaits
-for the IPI handler to start, resulting in a deadlock.
-
-The last time I looked, I couldn't see smp_call_function() being
-called from BH context anywhere. So, there is no immediate problem.
-However it seems right to correct the documentation and also not 
-disable BH while taking the call lock since it isn't necessary.
-
-Patch for 2.5.7 included.
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
-
-diff -uN arch/i386/kernel/smp.c /tmp/smp.c
---- arch/i386/kernel/smp.c	Tue Mar 19 02:07:05 2002
-+++ /tmp/smp.c	Fri Mar 22 21:48:02 2002
-@@ -539,7 +539,7 @@
-  * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-  *
-  * You must not call this function with disabled interrupts or from a
-- * hardware interrupt handler, you may call it from a bottom half handler.
-+ * hardware interrupt handler or from a bottom half handler.
-  */
- {
- 	struct call_data_struct data;
-@@ -555,7 +555,7 @@
- 	if (wait)
- 		atomic_set(&data.finished, 0);
- 
--	spin_lock_bh(&call_lock);
-+	spin_lock(&call_lock);
- 	call_data = &data;
- 	wmb();
- 	/* Send a message to all other CPUs and wait for them to respond */
-@@ -568,7 +568,7 @@
- 	if (wait)
- 		while (atomic_read(&data.finished) != cpus)
- 			barrier();
--	spin_unlock_bh(&call_lock);
-+	spin_unlock(&call_lock);
- 
- 	return 0;
- }
 

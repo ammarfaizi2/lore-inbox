@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264941AbUBOPEH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbUBOPEH
+	id S264933AbUBOPC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbUBOPC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:04:07 -0500
-Received: from colossus.systems.pipex.net ([62.241.160.73]:32977 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S264941AbUBOPEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:04:02 -0500
-Message-ID: <402F8A5F.5060902@emergence.uk.net>
-Date: Sun, 15 Feb 2004 15:03:59 +0000
-From: Jonathan Brown <jbrown@emergence.uk.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
+	Sun, 15 Feb 2004 10:02:27 -0500
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:6500 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264933AbUBOPC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:02:26 -0500
+Message-ID: <402F8A00.8030501@uchicago.edu>
+Date: Sun, 15 Feb 2004 09:02:24 -0600
+From: Ryan Reich <ryanr@uchicago.edu>
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040211)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.3-rc3
-References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org> <m2znbk4s8j.fsf@p4.localdomain>
-In-Reply-To: <m2znbk4s8j.fsf@p4.localdomain>
+To: Harald Dunkel <harald.dunkel@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2: "-" or "_", thats the question
+References: <1o903-5d8-7@gated-at.bofh.it> <1pkw6-3BU-3@gated-at.bofh.it> <1prnS-4x8-1@gated-at.bofh.it>
+In-Reply-To: <1prnS-4x8-1@gated-at.bofh.it>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund wrote:
->>Benjamin Herrenschmidt:
->>  o New radeonfb
->>  o Fix a link conflict between radeonfb and the radeon DRI
->>  o Fix incorrect kfree in radeonfb
+Harald Dunkel wrote:
+> Coywolf Qi Hunt wrote:
 > 
+>> Harald Dunkel wrote:
+>>
+>>>
+>>> What would be the correct way to get the filename of a
+>>> loaded module? The basename would be sufficient.
+>>>
+>>>
+>> The symbole names used in source code, like function names tend to use 
+>> "_", while the file names use "-" IMHO.
+>>
 > 
-> It doesn't seem to work on my x86 laptop. The screen goes black when
-> the framebuffer is enabled early in the boot sequence. The machine
-> boots normally anyway and I can log in from the network or log in
-> blindly at the console. I can then start the X server which appears to
-> work correctly, but switching back to a console still gives me a black
-> screen. Running "setfont" doesn't fix it. Here is what dmesg reports
-> when running 2.6.3-rc3:
+> Naturally the symbols in the code use '_', cause for C '-'
+> is not allowed within symbol names.
+> 
+> I am interested in the module file names. 'cat /proc/modules'
+> should return the correct module names, but for some modules
+> (like uhci_hcd vs uhci-hcd.ko) '_' and '-' are messed up.
 
-I also get a black screen on boot on my IBM X31, but pressing Fn+F7 a 
-couple of times brings it up. Fn+F7 switches between LCD, monitor and 
-both. Here is my dmesg:
+According to the modprobe man page, the two symbols are interchangeable.
 
-radeonfb: Invalid ROM signature 0 should be 0xaa55
-radeonfb: Retreived PLL infos from BIOS
-radeonfb: Reference=27.00 MHz (RefDiv=60) Memory=144.00 Mhz, 
-System=144.00 MHz
-Non-DDC laptop panel detected
-radeonfb: Monitor 1 type LCD found
-radeonfb: Monitor 2 type no found
-radeonfb: panel ID string: 1024x768
-radeonfb: detected LVDS panel size from BIOS: 1024x768
-radeondb: BIOS provided dividers will be used
-radeonfb: Power Management enabled for Mobility chipsets
-radeonfb: ATI Radeon LY  DDR SGRAM 16 MB
+-- 
+Ryan Reich
+ryanr@uchicago.edu

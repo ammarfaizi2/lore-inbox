@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318993AbSIJGDo>; Tue, 10 Sep 2002 02:03:44 -0400
+	id <S319040AbSIJGFF>; Tue, 10 Sep 2002 02:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319040AbSIJGDo>; Tue, 10 Sep 2002 02:03:44 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:54007 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S318993AbSIJGDo>; Tue, 10 Sep 2002 02:03:44 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E17oYth-0006wD-00@starship> 
-References: <E17oYth-0006wD-00@starship>  <2653.1031563253@redhat.com> 
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC] On paging of kernel VM. 
+	id <S319042AbSIJGFF>; Tue, 10 Sep 2002 02:05:05 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:12979 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319040AbSIJGFE>;
+	Tue, 10 Sep 2002 02:05:04 -0400
+Date: Tue, 10 Sep 2002 08:09:41 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USER_HZ & NTP problems
+Message-ID: <20020910080941.A6298@ucw.cz>
+References: <200209092314.g89NEnA05992@fokkensr.vertis.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 10 Sep 2002 07:08:27 +0100
-Message-ID: <16751.1031638107@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200209092314.g89NEnA05992@fokkensr.vertis.nl>; from fokkensr@fokkensr.vertis.nl on Tue, Sep 10, 2002 at 01:14:49AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 10, 2002 at 01:14:49AM +0200, Rolf Fokkens wrote:
 
-phillips@arcor.de said:
->  Why can't you go per-architecture and fall back to the slow way of
-> doing it for architectures that don't have the new functionality yet? 
+> I've been playing with different HZ values in the 2.4 kernel for a while now,
+> and apparantly Linus also has decided to introduce a USER_HZ constant (I used
+> CLOCKS_PER_SEC) while raising the HZ value on x86 to 1000.
+> 
+> On x86 timekeeping has shown to be relative fragile when raising HZ (OK, I
+> tried HZ=2048 which is quite high) because of the way the interrupt timer is
+> configured to fire HZ times each second. This is done by configuring a divisor
+> in the timer chip (LATCH) which divides a certain clock (1193180) and
 
-No. We can't make this kind of change to the way the vmalloc region works on
-some architectures only. It has to remain uniform.
+Actually, the clock true frequency is 1193181.8 Hz, although most
+manuals say 1.19318 MHz, which, because truncating more digits, also
+correct. But 1193180 Hz isn't. If you're trying to count the time
+correctly, you should better use 1193182 Hz if staying in integers.
 
-Either it's worth doing for all, or it's not. It's a fairly trivial change
-in the slow path, after all. I suspect it's worth it -- I'll ask the same 
-question again with a patch attached as soon as I get time, in order to 
-elicit more responses.
-
---
-dwmw2
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

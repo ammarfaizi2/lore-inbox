@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbULMM3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbULMMc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbULMM3b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 07:29:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbULMM3b
+	id S262243AbULMMc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 07:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbULMMc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 07:29:31 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:57017 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S262241AbULMM33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 07:29:29 -0500
-Date: Mon, 13 Dec 2004 13:29:25 +0100
-From: David Weinehall <tao@debian.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3 vs clock
-Message-ID: <20041213122925.GT27718@khan.acc.umu.se>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <200412041111.16055.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412041111.16055.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+	Mon, 13 Dec 2004 07:32:28 -0500
+Received: from alog0083.analogic.com ([208.224.220.98]:14464 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262243AbULMMcY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 07:32:24 -0500
+Date: Mon, 13 Dec 2004 07:31:07 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Zhenyu Wu <y030729@njupt.edu.cn>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: about kernel_thread!
+In-Reply-To: <302943559.21891@njupt.edu.cn>
+Message-ID: <Pine.LNX.4.61.0412130726060.30037@chaos.analogic.com>
+References: <302943559.21891@njupt.edu.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 04, 2004 at 11:11:16AM -0500, Gene Heskett wrote:
-> At -rc2 my clock kept fairly decent time, but -rc3 is running fast, 
-> about 30 seconds an hour fast.
+On Mon, 13 Dec 2004, Zhenyu Wu wrote:
 
-Lucky you. Each time I suspend my laptop the clock speeds up
-approximately x2...  Usually, the time it takes me to get from home to
-work means that the computer tells me I arrived half an hour late...
+> Hello,
+>
+> I have some confusions on kernel_thread, so I want to get help.
+>
+> I want to create a thread in a loadable module, then I used the function
+> kernel_thread() in init_module(). Of course, the thread was created, but when I
+> remove the module there are errors. I think it is because of the thread I have
+> created that have not been killed. So, how can I kill this thread when I remove
+> the module?
+>
+> Thanks,
+>
 
-> I've been using ntpdate, is that now officially deprecated?
+You copy the method used in other kernel modules. This involves
+a semaphore and having the module removing routine send the task
+a signal. FYI, there is a wait_for_completion() routine and a
+complete_and_exit() routine already defined.
 
-I kind of doubt that...
 
-
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

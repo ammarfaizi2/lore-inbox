@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbULWRE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbULWRZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbULWRE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 12:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbULWRE5
+	id S261273AbULWRZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 12:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbULWRZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 12:04:57 -0500
-Received: from siaag1aa.compuserve.com ([149.174.40.3]:19146 "EHLO
-	siaag1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S261268AbULWREt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 12:04:49 -0500
-Date: Thu, 23 Dec 2004 11:59:47 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.x BUGs at boot time (APIC related)
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Ingo Molnar <mingo@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <200412231203_MC3-1-919F-4F48@compuserve.com>
-MIME-Version: 1.0
+	Thu, 23 Dec 2004 12:25:57 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:39537 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261273AbULWRZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 12:25:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=rYk3GZGh6LQ1Rwv5Ftzm+Yd2iHHmHOi7m10Gk6nmURuDMzU1+FEcSJWfS9u2uwZcsVUhM5IqlMxxhIqfND7icLcGNxJGp1oND0YKFblacOZ+nCc8Qey+UzKluyylIw+PwpQ9OiMLnVVRRcaNRFn06I6nYTNPhw9fhCM56VmTcMA=
+Message-ID: <58cb370e0412230925548c0701@mail.gmail.com>
+Date: Thu, 23 Dec 2004 18:25:49 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Fred Emmott <mail@fredemmott.co.uk>
+Subject: Re: [PATCH] SATA DVD Writer on SiI 3114 controller
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200412231548.31080.mail@fredemmott.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+References: <200412231548.31080.mail@fredemmott.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda wrote:
+On Thu, 23 Dec 2004 15:48:30 +0000, Fred Emmott <mail@fredemmott.co.uk> wrote:
+> The sata-sil driver supports the controller, however it doesn't support ATAPI
+> devices. Here's patches for the siimage controller (needs sata support in ide
+> config enabled) to use this controller with the siimage module and atapi
+> devices, against 2.6.9.
 
-> --- linux-2.6.10-rc3.src/arch/i386/kernel/apic.c.old  Mon Dec 20 14:13:59 2004
-> +++ linux-2.6.10-rc3.src/arch/i386/kernel/apic.c      Thu Dec 23 08:54:13 2004
-> @@ -1250,8 +1250,10 @@
->   */
->  int __init APIC_init_uniprocessor (void)
->  {
-> -     if (enable_local_apic < 0)
-> +     if (enable_local_apic < 0) {
->               clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-> +             return -1;
-> +     }
->  
->       if (!smp_found_config && !cpu_has_apic)
->               return -1;
+Have you tried some recent kernel (say 2.6.10-rc3) with sata_sil
+and ATA_ENABLE_ATAPI defined in <linux/libata.h>?
 
+[ ATAPI support was added to libata driver in 2.6.10-rc1. ]
 
-Mikael Pettersson wrote:
+> include/linux/pci_ids_h:
+> 
+> 923a924
+> > #define PCI_DEVICE_ID_SII_3114                0x3114
+> 
+> drivers/ide/pci/siimage.c:
+> 
+> 48a49
+> >               case PCI_DEVICE_ID_SII_3114:
+> 1109c1110,1111
+> <       /* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA")
+> ---
+> >       /* 2 */ DECLARE_SII_DEV("SiI3114 Serial ATA"),
+> >       /* 3 */ DECLARE_SII_DEV("Adaptec AAR-1210SA")
+> 1131c1133,1134
+> <       { PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_1210SA, PCI_ANY_ID, PCI_ANY_ID,
+> 0, 0, 2},
+> ---
+> >       { PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_3114, PCI_ANY_ID, PCI_ANY_ID,
+> 0,0, 2},
+> >       { PCI_VENDOR_ID_CMD, PCI_DEVICE_ID_SII_1210SA, PCI_ANY_ID, PCI_ANY_ID,
+> 0, 0, 3},
 
-> The early return just hides the real bug, whatever it is.
+Please send unified diffs ('-u' option).
 
-
-How about this:
-
--       if (!smp_found_config && !cpu_has_apic)
-+       if (!smp_found_config || !cpu_has_apic)
-
---
-Please take it as a sign of my infinite respect for you,
-that I insist on you doing all the work.
-                                        -- Rusty Russell
+Bartlomiej

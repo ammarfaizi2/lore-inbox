@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130762AbRAaSDk>; Wed, 31 Jan 2001 13:03:40 -0500
+	id <S130570AbRAaSGU>; Wed, 31 Jan 2001 13:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130335AbRAaSDU>; Wed, 31 Jan 2001 13:03:20 -0500
-Received: from mirasta.antefacto.net ([193.120.245.10]:3084 "EHLO
-	nt1.antefacto.com") by vger.kernel.org with ESMTP
-	id <S129990AbRAaSDK>; Wed, 31 Jan 2001 13:03:10 -0500
-Message-ID: <3A7852A9.1060600@AnteFacto.com>
-Date: Wed, 31 Jan 2001 18:00:09 +0000
-From: Padraig Brady <Padraig@AnteFacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S129990AbRAaSGK>; Wed, 31 Jan 2001 13:06:10 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16649 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130211AbRAaSF6>; Wed, 31 Jan 2001 13:05:58 -0500
+Subject: Re: [PATCH] doc update/fixes for sysrq.txt
+To: jmd@foozle.turbogeek.org (Jeremy M. Dolan)
+Date: Wed, 31 Jan 2001 18:06:20 +0000 (GMT)
+Cc: david@linux.com (David Ford), linux-kernel@vger.kernel.org
+In-Reply-To: <20010128152156.A406@foozle.turbogeek.org> from "Jeremy M. Dolan" at Jan 28, 2001 03:21:56 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Chris Hanson <cph@zurich.ai.mit.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre10 -> 2.4.1 klogd at 100% CPU ; 2.4.0 OK
-In-Reply-To: <E14O1Qe-00021Z-00@qiwi.ai.mit.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14O1eB-0002nv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Hanson wrote:
-
->    Date: Wed, 31 Jan 2001 17:48:50 +0000
->    From: Padraig Brady <Padraig@AnteFacto.com>
+> > AFAIK, this hasn't ever been true.  I have never had to specifically
+> > enable it at run time.
 > 
->    Are you using the 3c59x driver?
+> I was suspicious of that in the old doc but thought I'd leave it in...
+> Should have asked for feedback on it, but you caught it anyway, thanks!
 > 
-> Yes.
+> Here's a patch against the first that simply removes the lines.
 
-Can we sort this out once and for all? There are a few emails
-everyday relating to this bug.
-
-The following patch posted by "Troels Walsted Hansen" <troels@thule.no>
-on Jan 11th fixes this. The problem is that when 2 consequtive
-NULLs are sent to klogd it goes into a busy loop. Andrew Mortons
-3c59x driver does this, but also on Jan 11th he replied that he had
-fixed it. I'm using 2.4ac4 with no problems, so I presume some
-of these patches have been lost along the way?
-
---- sysklogd-1.4.orig/klogd.c    Mon Sep 18 09:34:11 2000
-+++ sysklogd-1.4/klogd.c    Thu Jan 11 09:26:10 2001
-@@ -739,6 +758,13 @@
-            break;  /* full line_buff or end of input buffer */
-                 }
-
-+               if( *ptr == '\0' ) /* zero byte */
-+               {
-+                  ptr++;    /* skip zero byte */
-+                  space -= 1;
-+                  len   -= 1;
-+                  break;
-+               }
-                 if( *ptr == '\n' )  /* newline */
-                 {
-                    ptr++;    /* skip newline */
+Its true in 2.2
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbUL2PMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUL2PXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbUL2PMV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 10:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUL2PMV
+	id S261354AbUL2PXs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 10:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUL2PXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 10:12:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:10733 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261356AbUL2PLx (ORCPT
+	Wed, 29 Dec 2004 10:23:48 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:50820 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261354AbUL2PXr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 10:11:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=IL+iCiSH4wqe+FeF6lYNkWCAgR7U8q/NlFkkJwIvvS+W5QtEqqECkaQ4C25Y3L/c0k4bV2Y3QH4efWI0MiFbqna8tCKHVwJTgwedGoYgaiiajwyHyv20+8SgeUaj2Zlk+OA1eCrK8wdJpyJGvaBmdvQjykyOR71K0lTa7r5IRZE=
-Message-ID: <105c793f04122907116b571ebf@mail.gmail.com>
-Date: Wed, 29 Dec 2004 10:11:52 -0500
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Dec 2004 10:23:47 -0500
+Date: Wed, 29 Dec 2004 16:23:26 +0100 (CET)
+From: Manfred Spraul <manfred@colorfullife.com>
+X-X-Sender: manfred@dbl.q-ag.de
+To: akpm@osdl.org
+cc: bunk@susta.de, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/2 2.6.10] rcu: make two internal structs static
+Message-ID: <Pine.LNX.4.44.0412291621090.7011-100000@dbl.q-ag.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+The patch below makes two needlessly global structs static.
 
-I recently installed Linux 2.6.10 on my Gateway Solo 2500 notebook
-after using it happily with 2.4.27 (aside from some ACPI sleeping
-issues). Since installing the new kernel, I've noticed an odd problem
-with the Toshiba PS/2 touchpad which is used as a cursor. If I move my
-finger left and right along the 'bottom' portion of the touchpad or up
-and down along the right side, there is no movement from the mouse
-cursor at all. This behavior shows up using gdm and XFree86. Running
-'xev' produces no output when these sides are used. However, if I move
-my finger left-right along the top side or up-down along the left
-side, the cursor moves just fine. Tapping the pad to click in the
-non-working areas and moving the finger from outside of these areas
-and then into them, however, works fine.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-It's almost as if the portion of the pad that is sensitive to movement
-has been shifted up and to the left (except that clicking in and
-dragging into this area works).
+Tested with 2.6.10, no rediff required.
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
 
-I think this might have something to do with the drag-lock function
-because if I move the cursor from, say, the center of the pad and down
-to the lower side, the cursor will begin to move downward when my
-finger gets into the portion of the pad that does not function 100%.
-(This is really only a wild-ass guess, though.)
+--- linux-2.6.10-rc2-mm4-full/kernel/rcupdate.c.old	2004-12-12 03:13:54.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/kernel/rcupdate.c	2004-12-12 03:14:15.000000000 +0100
+@@ -60,9 +60,9 @@
+ 	                              /* for current batch to proceed.        */
+ };
 
-I've tried killing gdm and loading up my old 2.4 kernels to be sure
-it's not something else. I've also tried kernels 2.6.5.and 2.6.0 and a
-clean 2.6.10 tree (without the acpi and swsusp2 patches that I want)
-to be sure that this isn't likely to be something that just cropped up
-recently. The old (good, working) behavior is found in a 2.4 kernel
-and some new (bad, faulty) behavior is found in the 2.6 kernels that
-I've tried. I've also tried booting with acpi=off to no avail.
+-struct rcu_state rcu_state ____cacheline_maxaligned_in_smp =
++static struct rcu_state rcu_state ____cacheline_maxaligned_in_smp =
+ 	  {.lock = SPIN_LOCK_UNLOCKED, .cpumask = CPU_MASK_NONE };
+-struct rcu_state rcu_bh_state ____cacheline_maxaligned_in_smp =
++static struct rcu_state rcu_bh_state ____cacheline_maxaligned_in_smp =
+ 	  {.lock = SPIN_LOCK_UNLOCKED, .cpumask = CPU_MASK_NONE };
 
-I realize this problem may seem odd, but I've described it as best I
-can. I also realize that other people are having issues with pointing
-devices and keyboards, so this could just be a related problem that
-will be fixed when those others are fixed as well.
+ DEFINE_PER_CPU(struct rcu_data, rcu_data) = { 0L };
 
-Thanks.
--- 
-                         -Andy

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbTISX2t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 19:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTISX2t
+	id S261836AbTISXb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 19:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTISXb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 19:28:49 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:36062 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261793AbTISX2s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 19:28:48 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: livewire@gentoo.org
-Subject: Re: Changes in siimage driver?
-Date: Sat, 20 Sep 2003 01:31:24 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200309191814.38667.livewire@gentoo.org>
-In-Reply-To: <200309191814.38667.livewire@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Sep 2003 19:31:58 -0400
+Received: from mail.kroah.org ([65.200.24.183]:46984 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261836AbTISXb5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 19:31:57 -0400
+Date: Fri, 19 Sep 2003 16:32:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] RFC: Attributes in /sys/cdev
+Message-ID: <20030919233218.GF7808@kroah.com>
+References: <20030919231046.4626.qmail@lwn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309200131.24361.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20030919231046.4626.qmail@lwn.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 of September 2003 01:14, Bob Johnson wrote:
-> >You are the first person reporting problems after syncing siimage driver
-> > with 2.4.x ;-). It's unlikely that corruption is caused by siimage driver
-> > update, we should have seen similar problems with 2.4.x, but...
->
-> All my drives on the siimage controller recieved massive corruption
-> after 2 days of running 2.6.0-test5-bk5, just now getting it back together
-> to even look at mail :)
+On Fri, Sep 19, 2003 at 05:10:46PM -0600, Jonathan Corbet wrote:
+> +static ssize_t cdev_dev_read(struct cdev *cd, char *page)
+> +{
+> +	return sprintf(page, "%d:%d\n", MAJOR(cd->firstdev),
+> +			MINOR(cd->firstdev));
+> +}
 
-What kernel version were you using before 2.6.0-test5-bk5 ?
+You should use the print_dev_t() call here instead of doing it by hand.
 
-siimage changes happend in 2.6.0-test4-bk5
-and driver is now almost identical to the one in 2.4.x.
+thanks,
 
---bartlomiej
-
+greg k-h

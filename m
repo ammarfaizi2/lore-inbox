@@ -1,41 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVAPQDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVAPQHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVAPQDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVAPQDV
+	id S261267AbVAPQHS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVAPQHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:03:21 -0500
-Received: from smtp.golden.net ([199.166.210.31]:16913 "EHLO smtp.golden.net")
-	by vger.kernel.org with ESMTP id S261691AbVAPQDS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:03:18 -0500
-From: Chris Bruner <cryst@golden.net>
-To: linux-kernel@vger.kernel.org
-Subject: Die after BIOS Data Check Successful
-Date: Sun, 16 Jan 2005 11:03:14 -0500
-User-Agent: KMail/1.7.2
+	Sun, 16 Jan 2005 11:07:18 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:44256 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP id S261267AbVAPQHP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 11:07:15 -0500
+Message-ID: <41EA9140.7050008@xmission.com>
+Date: Sun, 16 Jan 2005 09:07:28 -0700
+From: maxer <maxer@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Syskonnect sk98lin
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501161103.14706.cryst@golden.net>
+X-SA-Exim-Connect-IP: 166.70.55.125
+X-SA-Exim-Mail-From: maxer@xmission.com
+X-SA-Exim-Version: 4.0 (built Sat, 24 Apr 2004 12:31:30 +0200)
+X-SA-Exim-Scanned: Yes (on mgr1.xmission.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anyone seen any movement by Sysconnect to re-write their driver sk98lin 
+for use with 2.6.10?
 
-linux-2.6.11-rc1-mm1
-dual athlon, with smp enabled
-
-After booting I get the message that "BIOS Data Check Successful" and then it 
-just sits there. 
-
-Has anyone seen this before? Or does anyone have an idea of how to find out 
-where it's heading south?
-
-Chris Bruner
-
-
--- 
-   I have plenty of common sense, I just choose to ignore it.
-              --- Calvin
+RaXeT

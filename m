@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272334AbSISTKV>; Thu, 19 Sep 2002 15:10:21 -0400
+	id <S272400AbSISTKx>; Thu, 19 Sep 2002 15:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272400AbSISTKV>; Thu, 19 Sep 2002 15:10:21 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15746 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S272334AbSISTKU>; Thu, 19 Sep 2002 15:10:20 -0400
-Date: Thu, 19 Sep 2002 15:18:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Brian Gerst <bgerst@didntduck.org>
-cc: Richard Henderson <rth@twiddle.net>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-In-Reply-To: <3D8A1CC0.8070407@didntduck.org>
-Message-ID: <Pine.LNX.3.95.1020919151622.15882A-100000@chaos.analogic.com>
+	id <S272427AbSISTKx>; Thu, 19 Sep 2002 15:10:53 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:42252 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S272400AbSISTKr> convert rfc822-to-8bit; Thu, 19 Sep 2002 15:10:47 -0400
+x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: TPC-C benchmark used standard RH kernel
+Date: Thu, 19 Sep 2002 14:15:34 -0500
+Message-ID: <45B36A38D959B44CB032DA427A6E1064038A4698@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: TPC-C benchmark used standard RH kernel
+Thread-Index: AcJgD9XDm2XVzqJ4TAK0thG3qKJOLAAAHTVg
+From: "Bond, Andrew" <Andrew.Bond@hp.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 19 Sep 2002 19:15:38.0164 (UTC) FILETIME=[EFF96F40:01C26010]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Brian Gerst wrote:
+I am actually moving in that direction.  I don't know if I will be able to use the same setup or not, but I will post once I get some data.  I can post that I saw X% delta going from 2.4 to 2.5.  I can't help it if anyone extrapolates data from there ;-)
 
-> Richard Henderson wrote:
-> > On Thu, Sep 19, 2002 at 02:04:43PM -0400, Brian Gerst wrote:
-> > 
-> >>Now that I've thought about it more, I think the best solution is to go 
-> >>through all the syscalls (a big job, I know), and declare the parameters 
-> >>as const, so that gcc knows it can't modify them, and will throw a 
-> >>warning if we try.
-> > 
-> > 
-> > The parameter area belongs to the callee, and it may *always* be modified.
-> > 
-> > 
-> > r~
-> > 
+Andy
+
+> -----Original Message-----
+> From: Martin J. Bligh [mailto:mbligh@aracnet.com]
+> Sent: Thursday, September 19, 2002 3:06 PM
+> To: Bond, Andrew; linux-kernel@vger.kernel.org
+> Subject: Re: TPC-C benchmark used standard RH kernel
 > 
-> The parameters can not be modified if they are declared const though, 
-> that's my point.
-
-Yes. A temporary declaration change to compile the kernel and
-see where it complains.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+> 
+> > Could we have gotten better performance by patching the 
+> kernel?  Sure.  There are many new features in 2.5 that would 
+> enhance database performance.  However, the fairly strict 
+> support requirements of TPC benchmarking mean that we need to 
+> benchmark a kernel that a Linux distributor ships and can support.  
+> > Modifications could also be taken to the extreme, and we 
+> could have built a screamer kernel that runs Oracle TPC-C's 
+> and nothing else.  However, that doesn't really tell us 
+> anything useful and doesn't help those customers thinking 
+> about running Linux.  The question also becomes "Who would 
+> provide customer support for that kernel?" 
+> 
+> Unofficial results for 2.5 vs 2.4 (or 2.4-redhatAS) would be most
+> interesting if you're able to gather them, and still have the
+> machine. Most times you can avoid their draconian rules by saying
+> "on a large benchmark test that I can't name but you all know what
+> it is ..." instead of naming it ... ;-)
+> 
+> M.
+> 
+> 

@@ -1,87 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286381AbRLJU7c>; Mon, 10 Dec 2001 15:59:32 -0500
+	id <S286386AbRLJVEu>; Mon, 10 Dec 2001 16:04:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286380AbRLJU7U>; Mon, 10 Dec 2001 15:59:20 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:33551 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286384AbRLJU7J>; Mon, 10 Dec 2001 15:59:09 -0500
-Date: Mon, 10 Dec 2001 17:42:38 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16 & OOM killer screw up (fwd)
-In-Reply-To: <3C151F7B.44125B1@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0112101741430.25397-100000@freak.distro.conectiva>
+	id <S286385AbRLJVEk>; Mon, 10 Dec 2001 16:04:40 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:56594 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S286383AbRLJVET>; Mon, 10 Dec 2001 16:04:19 -0500
+Date: Mon, 10 Dec 2001 16:04:28 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@marabou.research.att.com>
+To: <linux-kernel@vger.kernel.org>
+cc: Alan Cox <alan@redhat.com>
+Subject: [PATCH] 2.4.17-pre7: fdomain_16x0_release undeclared
+Message-ID: <Pine.LNX.4.33.0112101546260.1647-100000@marabou.research.att.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, Alan and all!
 
+File drivers/scsi/fdomain.h declares a data structure FDOMAIN_16X0 using
+an undeclared function fdomain_16x0_release() in Linux 2.4.17-pre7.
 
-On Mon, 10 Dec 2001, Andrew Morton wrote:
+This is not a problem for the kernel itself, but it breaks compilation of
+pcmcia-cs-3.1.30 because the later uses structure FDOMAIN_16X0.
 
-> Marcelo Tosatti wrote:
-> > 
-> > Andrea,
-> > 
-> > Could you please start looking at any 2.4 VM issues which show up ?
-> > 
-> 
-> Just fwiw, I did some testing on this yesterday.
-> 
-> Buffers and cache data are sitting on the active list, and shrink_caches()
-> is *not* getting them off the active list, and onto the inactive list
-> where they can be freed.
-> 
-> So we end up with enormous amounts of anon memory on the inactive
-> list, so this code:
-> 
->         /* try to keep the active list 2/3 of the size of the cache */
->         ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);
->         refill_inactive(ratio);
-> 
-> just calls refill_inactive(0) all the time.  Nothing gets moved
-> onto the inactive list - it remains full of unfreeable anon
-> allocations.  And with no swap, there's nowhere to go.
-> 
-> I think a little fix is to add
-> 
->         if (ratio < nr_pages)
->                 ratio = nr_pages;
-> 
-> so we at least move *something* onto the inactive list.
-> 
-> Also refill_inactive needs to be changed so that it counts
-> the number of pages which it actually moved, rather than
-> the number of pages which it inspected.
-> 
-> In my swapless testing, I burnt HUGE amounts of CPU in flush_tlb_others().
-> So we're madly trying to swap pages out and finding that there's no swap
-> space.  I beleive that when we find there's no swap left we should move
-> the page onto the active list so we don't keep rescanning it pointlessly.
-> 
-> A fix may be to just remove the use-once stuff.  It is one of the
-> sources of this problem, because it's overpopulating the inactive list.
-> 
-> In my testing last night, I tried to allocate 650 megs on a 768 meg
-> swapless box.  Got oom-killed when there was almost 100 megs of freeable
-> memory: half buffercache, half filecache.  Presumably, all of it was
-> stuck on the active list with no way to get off.
-> 
-> We also need to do something about shrink_[di]cache_memory(),
-> which seem to be called in the wrong place.
-> 
-> There's also the report concerning modify_ldt() failure in a
-> similar situation.  I'm not sure why this one occurred.  It
-> vmallocs 64k of memory and that seems to fail.
+The fix is trivial - declare fdomain_16x0_release() the same way as other
+non-static functions from fdomain.c.
 
-I haven't applied the modify_ldt() patch because I want to make sure its
-needed: It may just be a bad effect of this one bug. 
+Another partly related problem is a warning in fdomain.c:
 
-> I did some similar testing a week or so ago, also tested
-> the -aa patches.  They seemed to maybe help a tiny bit,
-> but not significantly.
+fdomain.c: In function `fdomain_16x0_release':
+fdomain.c:2045: warning: control reaches end of non-void function
 
+I wonder if the patches that introduce warnings should be allowed in the 
+stable branch?  Anyway, comparing with other SCSI drivers I see that 0 
+should be returned and scsi_unregister(shpnt) should be called before 
+that.
+
+Here's the patch.  The part for fdomain.h is 100% safe and should be
+applied ASAP.  The part for fdomain.c should be safe too but I'll
+appreciate if somebody tests it on a real Future Domain controller.
+
+------------------------------
+--- linux.orig/drivers/scsi/fdomain.c
++++ linux/drivers/scsi/fdomain.c
+@@ -2042,6 +2042,8 @@ int fdomain_16x0_release(struct Scsi_Hos
+ 	if (shpnt->io_port && shpnt->n_io_port)
+ 		release_region(shpnt->io_port, shpnt->n_io_port);
+ 
++	scsi_unregister(shpnt);
++	return 0;
+ }
+ 
+ MODULE_LICENSE("GPL");
+--- linux.orig/drivers/scsi/fdomain.h
++++ linux/drivers/scsi/fdomain.h
+@@ -34,6 +34,7 @@
+ int        fdomain_16x0_biosparam( Disk *, kdev_t, int * );
+ int        fdomain_16x0_proc_info( char *buffer, char **start, off_t offset,
+ 				   int length, int hostno, int inout );
++int        fdomain_16x0_release(struct Scsi_Host *shpnt);
+ 
+ #define FDOMAIN_16X0 { proc_info:      fdomain_16x0_proc_info,           \
+ 		       detect:         fdomain_16x0_detect,              \
+------------------------------
+
+-- 
+Regards,
+Pavel Roskin
 

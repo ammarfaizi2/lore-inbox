@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131168AbRCGUJo>; Wed, 7 Mar 2001 15:09:44 -0500
+	id <S131174AbRCGUJd>; Wed, 7 Mar 2001 15:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131179AbRCGUJe>; Wed, 7 Mar 2001 15:09:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39949 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131168AbRCGUJS>;
-	Wed, 7 Mar 2001 15:09:18 -0500
-Date: Wed, 7 Mar 2001 21:08:48 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: can't read DVD (under 2.4.[12] & 2.2.17)
-Message-ID: <20010307210848.E4653@suse.de>
-In-Reply-To: <Pine.GSO.4.30.0103072059180.29959-100000@balu>
-Mime-Version: 1.0
+	id <S131179AbRCGUJS>; Wed, 7 Mar 2001 15:09:18 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:53129 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131168AbRCGUIp>;
+	Wed, 7 Mar 2001 15:08:45 -0500
+Message-ID: <3AA6951B.45FDBC1B@mandrakesoft.com>
+Date: Wed, 07 Mar 2001 15:07:55 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Fremlin <chief@bandits.org>
+Cc: linux-kernel@vger.kernel.org, thood@excite.com
+Subject: Re: Forcible removal of modules
+In-Reply-To: <9038100.983917051702.JavaMail.imail@digger.excite.com> <m2vgpltkrh.fsf@boreas.yi.org.>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.30.0103072059180.29959-100000@balu>; from pozsy@sch.bme.hu on Wed, Mar 07, 2001 at 09:03:49PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07 2001, Pozsar Balazs wrote:
-> 
-> hi all,
-> 
-> Whatever I tried, I couldn't get my DVDs read. I get:
->  sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
-> or, I don't use ide-scsi, i get the ATAPI equivalent.
-> I have udf support compiled in, i have successfully authenticated the
-> disk(s), but lo luck.
-> 
-> The drive is:
->    Vendor: PIONEER   Model: DVD-ROM DVD-105   Rev: 1.22
-> 
-> I tried 2.2.17, 2.4.1 & 2.4.2 (and a few different compiled versions of
-> them)
-> 
-> What might be the problem?
+John Fremlin wrote:
+> Why not set up the device driver to handle PM events itself. See
+> Documentation/pm.txt under Driver Interface.
 
-I don't know, you provide virtually no information. Use the ATAPI
-driver, and dump dmesg info when this happens. Then send that along.
+For PCI drivers, you implement the ::suspend and ::remove hooks.
+
+> I have a race free version of pm_send_all if you want it.
+
+Is this the same thing that is in 2.4.3-pre3?
 
 -- 
-Jens Axboe
-
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

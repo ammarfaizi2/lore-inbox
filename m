@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130113AbRA0NaI>; Sat, 27 Jan 2001 08:30:08 -0500
+	id <S130950AbRA0NeK>; Sat, 27 Jan 2001 08:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130950AbRA0N37>; Sat, 27 Jan 2001 08:29:59 -0500
-Received: from gw-enternet.enternet.se ([193.13.79.17]:15490 "HELO
-	mail.ornskoldsvik.com") by vger.kernel.org with SMTP
-	id <S130113AbRA0N3s>; Sat, 27 Jan 2001 08:29:48 -0500
-Message-ID: <3A72CD7B.62402916@sorliden.ornskoldsvik.com>
-Date: Sat, 27 Jan 2001 14:30:35 +0100
-From: Matti Långvall 
+	id <S131613AbRA0NeA>; Sat, 27 Jan 2001 08:34:00 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:44550 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130950AbRA0Ndy>;
+	Sat, 27 Jan 2001 08:33:54 -0500
+Date: Sat, 27 Jan 2001 14:33:48 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Matti Långvall 
 	<matti.langvall@sorliden.ornskoldsvik.com>
-Reply-To: matti.langvall@sorliden.ornskoldsvik.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
-X-Accept-Language: sv, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Running 2.4.0-ac11
-In-Reply-To: <3A720485.58D656A4@sorliden.ornskoldsvik.com> <20010127015122.E23160@suse.de> <3A72921C.D013F074@sorliden.ornskoldsvik.com> <20010127121742.A27553@suse.de>
+Message-ID: <20010127143348.D27929@suse.de>
+In-Reply-To: <3A720485.58D656A4@sorliden.ornskoldsvik.com> <20010127015122.E23160@suse.de> <3A72921C.D013F074@sorliden.ornskoldsvik.com> <20010127121742.A27553@suse.de> <3A72CD7B.62402916@sorliden.ornskoldsvik.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <3A72CD7B.62402916@sorliden.ornskoldsvik.com>; from matti.langvall@sorliden.ornskoldsvik.com on Sat, Jan 27, 2001 at 02:30:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Sat, Jan 27 2001, Matti Långvall wrote:
+> You're right, no more Busy inodes.
 
-> On Sat, Jan 27 2001, Matti Långvall wrote:
-> > > > Jan 26 23:44:57 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
-> > > > Jan 26 23:45:29 h-10-26-17-2 last message repeated 32 times
-> > > > Jan 26 23:46:31 h-10-26-17-2 last message repeated 62 times
-> > > > Jan 26 23:47:32 h-10-26-17-2 last message repeated 60 times
-> > > > Jan 26 23:48:34 h-10-26-17-2 last message repeated 62 times
-> > > > Jan 26 23:49:36 h-10-26-17-2 last message repeated 62 times
-> > >
-> > > Running magicdev by any chance?
-> > >
-> > > rpm -e magicdev
-> > >
-> >
-> > YES
-> >
-> > magicdev -0.2.7-1
-> >
-> > That's it?
->
-> You tell me, do the errors disappear if you remove this package?
->
-> --
-> * Jens Axboe <axboe@suse.de>
-> * SuSE Labs
+Good, so that was the cause.
 
-You're right, no more Busy inodes.
-But magicdev is nice for us lazy people..
-Thanks
+> But magicdev is nice for us lazy people..
 
-Matti L
+No, the _concept_ is nice for lazy people but the current magicdev is
+not worth much. I know Alan has tinkered with a new version, hopefully
+that will be much better. Most newer drives have real (but polled)
+media notification event classes, which is a much better way to
+accomplish what magicdev is trying to do.
 
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

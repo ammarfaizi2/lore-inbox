@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUBIIOG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 03:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUBIIOG
+	id S263571AbUBIIYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 03:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUBIIYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 03:14:06 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:31672 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S263185AbUBIIOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 03:14:04 -0500
-Date: Mon, 9 Feb 2004 03:12:11 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Does anyone still care about BSD ptys?
-In-Reply-To: <402736D6.4000502@zytor.com>
-Message-ID: <Pine.GSO.4.33.0402090309000.28488-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Feb 2004 03:24:00 -0500
+Received: from outbound03.telus.net ([199.185.220.222]:45493 "EHLO
+	priv-edtnes11-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id S263571AbUBIIX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 03:23:59 -0500
+Subject: [patch] Re: psmouse.c, throwing 3 bytes away
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1076315101.5070.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 09 Feb 2004 01:25:02 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Feb 2004, H. Peter Anvin wrote:
->Right, this is basically for 2.6/2.7 depending on if there are any
->stragglers who still use these things...
+Hi.  I rebuilt with your patch and ran while running Fedora Prelink
+(actually Fedora was running that on its own) and an FPS (graphics and
+mouse intensive).  Did not have any problems even though system load was
+over 200%.  Thanks for the good work!  
 
-nettty (whatever you may find it named) uses the BSD pty interface.  I don't
-know how much work it would be to get it to use /dev/pts.  I've not used it
-for many years, so I cannot say anyone would care if it stopped working.
-
-The code is at least 7 years old (originally written by Livingston.)
-
---Ricky
-
+Bob
 

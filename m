@@ -1,92 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286647AbSBTHCT>; Wed, 20 Feb 2002 02:02:19 -0500
+	id <S287425AbSBTH44>; Wed, 20 Feb 2002 02:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290550AbSBTHCK>; Wed, 20 Feb 2002 02:02:10 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:41660 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S286647AbSBTHBz>;
-	Wed, 20 Feb 2002 02:01:55 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] HDLC patch for 2.5.5 (0/3)
-In-Reply-To: <20020217193005.B14629@se1.cogenit.fr>
-	<m3zo27outs.fsf@defiant.pm.waw.pl>
-	<20020218143448.B7530@fafner.intra.cogenit.fr>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 19 Feb 2002 12:02:08 +0100
-In-Reply-To: <20020218143448.B7530@fafner.intra.cogenit.fr>
-Message-ID: <m34rkdohu7.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	id <S290285AbSBTH4q>; Wed, 20 Feb 2002 02:56:46 -0500
+Received: from jubjub.wizard.com ([209.170.216.9]:4871 "EHLO jubjub.wizard.com")
+	by vger.kernel.org with ESMTP id <S287425AbSBTH41>;
+	Wed, 20 Feb 2002 02:56:27 -0500
+Date: Tue, 19 Feb 2002 23:55:53 -0800
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: NyQuist <NyQuist@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: opengl-nvidia not compiling
+Message-ID: <20020220075553.GA25006@wizard.com>
+In-Reply-To: <20020220015358.A26765@suse.de> <1014182978.21280.14.camel@imyourhandiman> <1014186943.1387.2.camel@stinky.pussy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1014186943.1387.2.camel@stinky.pussy>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux/2.5.2 (i686)
+X-uptime: 11:42pm  up 2 days, 23:26,  2 users,  load average: 0.34, 0.34, 0.20
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@cogenit.fr> writes:
-
-> I agree there's a way for an application to cause binary incompatibility if
-> it does:
+On Wed, Feb 20, 2002 at 06:35:42AM +0000, NyQuist wrote:
+> On Wed, 2002-02-20 at 05:29, lee johnson wrote:
+> > hi..
+> > 
+> >    hope i'm not repeating a message here if so sorry,- but by any chance
+> > does anyone know that nvidia opengl isn't compiling with 2.5.5pre1..
+> > 
+> > thx :-)
+> > lee
+> > -==
+> > 
+> don't wanna sound nasty, but you are :)
+> I wouldn't use an nvidia card with 2.5, this is cut from a previous
+> message on the lkml.
 > 
-> struct userspace_foo {
->         struct if_settings frob;
->         int nitz;
-> } bar;
+> <----->
+>  > nv.c:1438: incompatible type for argument 4 of
+> `remap_page_range_Reb32c755'
+>  > nv.c:1438: too few arguments to function `remap_page_range_Reb32c755'
+>  > make[2]: *** [nv.o] Error 1
 > 
-> If size of struct if_settings changes (increases OR decreases), access to 
-> bar.nitz doesn't work as expected.
-
-I assumed it's union and not a struct, you're right.
-
-> But:
-> in hdlc_xxx_ioctl, only knowledge of the protocol-related member of the
-> union 
-> hdlcs_hdlcu is required. Nowhere does the code depend on size of if_settings.
-
-I see now, t seems I haven't read the patches carefully enough.
-
-Now... You just want to introduce an artificial struct which contains
-only the union... Why? We could use just the union instead (?).
-
-struct hdlc_settings {
-     union {
-             /* sync_serial_settings removed */
-             raw_hdlc_proto          raw_hdlc;
-             cisco_proto             cisco;
-             fr_proto                fr;
-             fr_proto_pvc            fr_pvc;
-             te1_settings            te1;
-     } hdlcs_hdlcu;
-};
-
-Still, te1_settings are interface-related :-) Ok, I assume it goes
-to the following:
-
-> include/linux/whatever/ioctl.h:
-> [...]
-> struct whatever_settings {
->         union {
-> 		/* sync_serial_settings is back */
->                 sync_serial_settings    sync;
->                 fancy_settings          fancy;
->         }
-> };
+>  Assuming you get lucky, and manage to fix up all the compile
+>  errors in the source you have, chances are that the same
+>  interface changes will break the binary only part too.
+>  So it'll compile, link, and likely explode as soon as you
+>  try to use it.
 > 
-> include/linux/if.h:
-> [...]
-> struct if_settings
-> {
->         unsigned int type;      /* Type of physical device or protocol */
->         union {
->                 struct hdlc_settings ifsu_hdlc;
->                 struct whatever_settings ifsu_whatever;
->         } ifs_ifsu;
-> };
-> 
-> As long as the application only accesses its data and doesn't try to embed 
-> the variable sized kernel structure into its own, it won't break here either.
+>  It's likely that only nvidia can help you here.
 
-Yes, the compiler would compile that. Anyway, don't you think it's
-a little messy? Void * pointers are IMHO not that evil.
+        Just to add something related, but unrelated to the NVIDIA problem 
+above, this is the same exact error I received when I compiled any kernel > 
+2.5.2 with ALSA 0.5.* and ALSA 0.9.*. Hopefully with ALSA being in 2.5.5pre1, 
+this will be taken care of.
 
-Not sure about that, I have to think on it...
+                                                        BL.
 -- 
-Krzysztof Halasa
-Network Administrator
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+

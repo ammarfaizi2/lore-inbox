@@ -1,157 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271347AbRHZRgs>; Sun, 26 Aug 2001 13:36:48 -0400
+	id <S271368AbRHZSDw>; Sun, 26 Aug 2001 14:03:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271364AbRHZRgi>; Sun, 26 Aug 2001 13:36:38 -0400
-Received: from ns2.cih.com ([204.69.206.3]:54536 "HELO cih.com")
-	by vger.kernel.org with SMTP id <S271347AbRHZRg2>;
-	Sun, 26 Aug 2001 13:36:28 -0400
-Date: Sun, 26 Aug 2001 10:37:39 -0700 (PDT)
-From: "Craig I. Hagan" <hagan@cih.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: <pcg@goof.com>, Rik van Riel <riel@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010826172310Z16216-32383+1477@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.30.0108261037050.31849-100000@svr.cih.com>
+	id <S271399AbRHZSDd>; Sun, 26 Aug 2001 14:03:33 -0400
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:14285 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S271368AbRHZSDZ>; Sun, 26 Aug 2001 14:03:25 -0400
+To: Brad Chapman <kakadu_croc@yahoo.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010825005302.34876.qmail@web10901.mail.yahoo.com>
+From: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: 26 Aug 2001 13:59:01 -0400
+In-Reply-To: Brad Chapman's message of "Fri, 24 Aug 2001 17:53:02 -0700 (PDT)"
+Message-ID: <m2n14mn1ne.fsf@sympatico.ca>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> live load (you're a brave man) but let's try a bringing the -ac max-readahead
-> patch across and try it in 2.4.9.
+>>>>> "Brad" == Brad Chapman <kakadu_croc@yahoo.com> writes:
 
-here it is, pardon the fuzz in some spots (where i just left it alone)
+ Brad> 	OK. The existing API is wrong and the new min()/max() macros
+ Brad> are the right way to properly compare values. However, we could
+ Brad> always add a config option to enable a compatibility macro,
+ Brad> which would use typeof() on one of the two variables and then
+ Brad> call the real min()/max(). Something like this (just an
+ Brad> example):
 
-diff -ur linux-clean/drivers/md/md.c linux/drivers/md/md.c
---- linux-clean/drivers/md/md.c	Fri May 25 09:48:49 2001
-+++ linux/drivers/md/md.c	Fri Jun 15 02:30:48 2001
-@@ -3291,7 +3291,7 @@
- 	/*
- 	 * Tune reconstruction:
- 	 */
--	window = MAX_READAHEAD*(PAGE_SIZE/512);
-+	window = vm_max_readahead*(PAGE_SIZE/512);
- 	printk(KERN_INFO "md: using %dk window, over a total of %d blocks.\n",window/2,max_sectors/2);
+       #ifdef CONFIG_ALLOW_COMPAT_MINMAX
+       #define proper_min(t, a, b)	((t)(a) < (t)(b) ? (a) : (b))
+       #define proper_max(t, a, b)	((t)(a) > (t)(b) ? (a) : (b))
+       #define min(a, b)		proper_min(typeof(a), a, b)
+       #define max(a, b)		proper_max(typeof(a), a, b)
+       #else
+       #define min(t, a, b)		((t)(a) < (t)(b) ? (a) : (b))
+       #define max(t, a, b)		((t)(a) < (t)(b) ? (a) : (b))
+       #endif
 
- 	atomic_set(&mddev->recovery_active, 0);
-diff -ur linux-clean/include/linux/blkdev.h linux/include/linux/blkdev.h
---- linux-clean/include/linux/blkdev.h	Fri May 25 18:01:40 2001
-+++ linux/include/linux/blkdev.h	Fri Jun 15 02:23:22 2001
-@@ -183,10 +183,6 @@
+Conditionals are bad.  Casting is bad.  In my opinion the only
+semantically correct version would be something like this,
 
- #define PageAlignSize(size) (((size) + PAGE_SIZE -1) & PAGE_MASK)
+#define min(x,y)                                       \
+                                                       \
+  ({typeof(x) _x = 0; typeof(y) _y = 0;                \
+    if ((_x-1>0 && _y-1<0) || (_x-1<0 && _y-1>0)) {    \
+         if((x) < 0 ||  (y) < 0)                       \
+                exit(SIGNED_UNSIGNED_CONFLICT);        \
+    }                                                  \
+        _x = (x), _y = (y); (_x>_y)?_y:_x;             \
+   }) 
 
--/* read-ahead in pages.. */
--#define MAX_READAHEAD	31
--#define MIN_READAHEAD	3
--
- #define blkdev_entry_to_request(entry) list_entry((entry), struct request, queue)
- #define blkdev_entry_next_request(entry) blkdev_entry_to_request((entry)->next)
- #define blkdev_entry_prev_request(entry) blkdev_entry_to_request((entry)->prev)
-diff -ur linux-clean/include/linux/mm.h linux/include/linux/mm.h
---- linux-clean/include/linux/mm.h	Fri Jun 15 02:20:24 2001
-+++ linux/include/linux/mm.h	Fri Jun 15 02:26:12 2001
-@@ -105,6 +105,10 @@
- #define VM_SequentialReadHint(v)	((v)->vm_flags & VM_SEQ_READ)
- #define VM_RandomReadHint(v)		((v)->vm_flags & VM_RAND_READ)
+I think that if you are mixing signed and unsigned you should have had
+a check before hand to gaurentee that any casting away of the sign is
+ok.  It is ok if the variable is in range, it is not if they are out
+of range.  However, this incurs a runtime check which is not
+appropriate for kernel level code.
 
-+/* read ahead limits */
-+extern int vm_min_readahead;
-+extern int vm_max_readahead;
-+
- /*
-  * mapping from the currently active vm_flags protection bits (the
-  * low four bits) to a page protection mask..
-diff -ur linux-clean/include/linux/raid/md_k.h linux/include/linux/raid/md_k.h
---- linux-clean/include/linux/raid/md_k.h	Sun May 20 12:11:39 2001
-+++ linux/include/linux/raid/md_k.h	Fri Jun 15 02:31:24 2001
-@@ -89,7 +89,7 @@
- /*
-  * default readahead
-  */
--#define MD_READAHEAD	MAX_READAHEAD
-+#define MD_READAHEAD	vm_max_readahead
+As several other people have noted, the casting is bad from a
+maintainability prospective.  This is slapping your best friend in the
+face; the compiler.  Also, the three arg macro breaks compatibility
+with a long standing `C' min/max macro convention.
 
- static inline int disk_faulty(mdp_disk_t * d)
- {
-diff -ur linux-clean/include/linux/sysctl.h linux/include/linux/sysctl.h
---- linux-clean/include/linux/sysctl.h	Fri May 25 18:01:27 2001
-+++ linux/include/linux/sysctl.h	Fri Jun 15 02:24:33 2001
-@@ -134,7 +134,9 @@
- 	VM_PAGECACHE=7,		/* struct: Set cache memory thresholds */
- 	VM_PAGERDAEMON=8,	/* struct: Control kswapd behaviour */
- 	VM_PGT_CACHE=9,		/* struct: Set page table cache parameters */
--	VM_PAGE_CLUSTER=10	/* int: set number of pages to swap together */
-+	VM_PAGE_CLUSTER=10,	/* int: set number of pages to swap together */
-+        VM_MIN_READAHEAD=12,    /* Min file readahead */
-+        VM_MAX_READAHEAD=13     /* Max file readahead */
- };
+Probably we should just shutup for now until Linus can clarify what it
+is that he wants to achieve and avoid.  Since there is probably no way
+to make a universally correct min/max macro in `C', you need to have
+some sort of goal to achieve.
+
+regards,
+Bill Pringlemeir.
 
 
-diff -ur linux-clean/kernel/sysctl.c linux/kernel/sysctl.c
---- linux-clean/kernel/sysctl.c	Thu Apr 12 12:20:31 2001
-+++ linux/kernel/sysctl.c	Fri Jun 15 02:28:02 2001
-@@ -270,6 +270,10 @@
- 	 &pgt_cache_water, 2*sizeof(int), 0644, NULL, &proc_dointvec},
- 	{VM_PAGE_CLUSTER, "page-cluster",
- 	 &page_cluster, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{VM_MIN_READAHEAD, "min-readahead",
-+	&vm_min_readahead,sizeof(int), 0644, NULL, &proc_dointvec},
-+	{VM_MAX_READAHEAD, "max-readahead",
-+	&vm_max_readahead,sizeof(int), 0644, NULL, &proc_dointvec},
- 	{0}
- };
 
-Only in linux/kernel: sysctl.c~
-diff -ur linux-clean/mm/filemap.c linux/mm/filemap.c
---- linux-clean/mm/filemap.c	Thu Aug 16 13:12:07 2001
-+++ linux/mm/filemap.c	Fri Aug 24 14:08:20 2001
-@@ -45,6 +45,12 @@
- unsigned int page_hash_bits;
- struct page **page_hash_table;
 
-+int vm_max_readahead = 31;
-+int vm_min_readahead = 3;
-+EXPORT_SYMBOL(vm_max_readahead);
-+EXPORT_SYMBOL(vm_min_readahead);
-+
-+
- spinlock_t __cacheline_aligned pagecache_lock = SPIN_LOCK_UNLOCKED;
- /*
-  * NOTE: to avoid deadlocking you must never acquire the pagecache_lock with
-@@ -870,7 +876,7 @@
- static inline int get_max_readahead(struct inode * inode)
- {
- 	if (!inode->i_dev || !max_readahead[MAJOR(inode->i_dev)])
--		return MAX_READAHEAD;
-+		return vm_max_readahead;
- 	return max_readahead[MAJOR(inode->i_dev)][MINOR(inode->i_dev)];
- }
 
-@@ -1044,8 +1050,8 @@
- 		if (filp->f_ramax < needed)
- 			filp->f_ramax = needed;
 
--		if (reada_ok && filp->f_ramax < MIN_READAHEAD)
--				filp->f_ramax = MIN_READAHEAD;
-+		if (reada_ok && filp->f_ramax < vm_min_readahead)
-+				filp->f_ramax = vm_min_readahead;
- 		if (filp->f_ramax > max_readahead)
- 			filp->f_ramax = max_readahead;
- 	}
---- linux-clean/drivers/ide/ide-probe.c	Sun Mar 18 09:25:02 2001
-+++ linux/drivers/ide/ide-probe.c	Fri Jun 15 03:09:49 2001
-@@ -779,7 +779,7 @@
- 		/* IDE can do up to 128K per request. */
- 		*max_sect++ = 255;
- #endif
--		*max_ra++ = MAX_READAHEAD;
-+		*max_ra++ = vm_max_readahead;
- 	}
-
- 	for (unit = 0; unit < units; ++unit)
 

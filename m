@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290843AbSCGWai>; Thu, 7 Mar 2002 17:30:38 -0500
+	id <S310560AbSCGWe6>; Thu, 7 Mar 2002 17:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292899AbSCGWa2>; Thu, 7 Mar 2002 17:30:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62212 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290843AbSCGWaJ>;
-	Thu, 7 Mar 2002 17:30:09 -0500
-Message-ID: <3C87E986.50A6F3C4@zip.com.au>
-Date: Thu, 07 Mar 2002 14:28:22 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Cort Dougan <cort@fsmlabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by 
- LinuxMaintainers
-In-Reply-To: <20020307135043.K9231@host110.fsmlabs.com> <Pine.LNX.4.44L.0203071810460.2181-100000@imladris.surriel.com>
+	id <S310559AbSCGWet>; Thu, 7 Mar 2002 17:34:49 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:14839 "EHLO
+	wierzbowski.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S310553AbSCGWee>; Thu, 7 Mar 2002 17:34:34 -0500
+Date: Thu, 7 Mar 2002 17:34:27 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: Ed Vance <EdV@macrolink.com>
+Cc: "'linux-serial'" <linux-serial@vger.kernel.org>,
+        "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+        "'Russell King'" <rmk@arm.linux.org.uk>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] serial.c procfs kudzu - discussion
+Message-ID: <20020307173427.A19609@wierzbowski.devel.redhat.com>
+Mail-Followup-To: Ed Vance <EdV@macrolink.com>,
+	'linux-serial' <linux-serial@vger.kernel.org>,
+	'linux-kernel' <linux-kernel@vger.kernel.org>,
+	'Russell King' <rmk@arm.linux.org.uk>,
+	'Alan Cox' <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76E3@EXCHANGE>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76E3@EXCHANGE>; from EdV@macrolink.com on Thu, Mar 07, 2002 at 02:23:48PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> The development speed and code quality of -rmap have also gone
-> up as a consequence of moving over to bitkeeper.
+Ed Vance (EdV@macrolink.com) said: 
+> 4. Should a bug be turned in against kudzu for the weak parser? 
 
-heh.  Now learn kgdb.  You ain't seen nothing yet.
+Absolutely. When did the serial change go in?
 
-Ever tried to use a computer with the monitor turned off?
-Kernel development without kgdb is like that.
-
-http://www.zip.com.au/~akpm/linux/kgdb.patch,v.gz contains
-kgdb patches against every kernel since 2.4.0-test-mumble.
-
-
--
+Bill

@@ -1,93 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287176AbRL2Ktt>; Sat, 29 Dec 2001 05:49:49 -0500
+	id <S287177AbRL2LAV>; Sat, 29 Dec 2001 06:00:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287174AbRL2Ktj>; Sat, 29 Dec 2001 05:49:39 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:15755 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S287179AbRL2Kt0>;
-	Sat, 29 Dec 2001 05:49:26 -0500
-Date: Sat, 29 Dec 2001 11:49:19 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: Sym53c8xx tape corruption squashed! (was: Re: SCSI Tape corruption
- - update)
-In-Reply-To: <20011229004430.Y1507-100000@gerard>
-Message-ID: <Pine.GSO.4.21.0112291132270.277-100000@vervain.sonytel.be>
+	id <S287178AbRL2LAL>; Sat, 29 Dec 2001 06:00:11 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:17190 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S287177AbRL2K76>;
+	Sat, 29 Dec 2001 05:59:58 -0500
+Message-ID: <009701c19058$02a9f8a0$d500a8c0@mshome.net>
+From: "Astinus" <Astinus@netcabo.pt>
+To: <linux@horizon.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Fw: WHICH MACHINE?????
+Date: Sat, 29 Dec 2001 11:00:21 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 29 Dec 2001 10:58:18.0052 (UTC) FILETIME=[B8D3B040:01C19057]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
-> On Fri, 28 Dec 2001, Geert Uytterhoeven wrote:
-> > The problem is introduced in 1.5pre-g2 by the following change:
 
-  [...]
+----- Original Message -----
+From: Astinus
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org
+Sent: Friday, December 28, 2001 9:46 PM
+Subject: WHICH MACHINE?????
 
-> > This change causes the PCI latency timer to be changed from 0 to 80.
-> >
-> > The sym-2 driver has a define for modifying the PCI latency timer
-> > (SYM_SETUP_PCI_FIX_UP), but it is never used, so I see no corruption.
-> 
-> By default sym-2 use value 3 for the pci_fix_up (cache line size + memory
-> write and invalidate). The latency timer fix-up has been removed, since it
-> is rather up to the generic PCI driver to tune latency timers.
-> 
-> > Is this a hardware bug in my SCSI host adapter (53c875 rev 04) or my host
-> > bridge (VLSI VAS96011/12 Golden Gate II for PPC), or a software bug in the
-> > driver (wrong burst_max)?
-> 
-> Great bug hunting!
-> 
-> It is about certainly not a software bug in the driver. Any latency timer
-> value should not give any trouble if hardware was flawless. Just the PCI
-> performances could be affected.
-> 
-> Anyway, value 0 looks way stupid for devices capable of bursting more than
-> 1 data phase, thus the improvement above. :)
 
-OK.
+, once again tks for your compreention and time.
 
-> > To recapitulate, the bug causes error bursts of (almost always) 32 bytes long.
-> > The incorrect bytes are always a copy of previous data, at a fixed offset (10
-> > kiB on my (now dead) DDS-1 tape drive, 32 kiB on my Plexwriter).
-> 
-> Unfortunately, I haven't the errata listing for teh 53c875 rev 4. I have
-> the DEL for 875 rev. 3 and for 876 rev. 5.
+All the guys that took there time to reply me, say Athlon is very good and
+cheeper than P4 especially for the Rims Issue.
 
-And I'm afraid I won't be able to get errata for the VLSI VAS96011/12 :-( Of
-course I can always give it a try...
+Well i would like to follow your leads and buy an Athlon BUT and this is my
+big BUT: Which main board to choose.
 
-> If we assume that rev 4 hasn't more bugs than rev 3, then you may try to
-> disable MEMORY WRITE and INVALIDATE (and not tell the driver to fix this
-> up) but allow the driver to fix the bogus zero latency timer. The 875 rev
-> 3 may, under certain conditions, execute unaligned PCI MEMORY WRITE and
-> INVALIDATE transactions. Note that this may explain data corruptions
-> occurring for SCSI READ commands not WRITE commands. No other items can
-> explain, on paper, data corruptions of the form you describe due to 875
-> chip misbehaviour.
+With the pentium i was all safe because ii know intel boards are veryu
+stable and reliable as well as the great support they provide. My brother
+has a p4 for gaming loaded with ram and geforce 3 and stuff and the DB850Gb
+looks great... And we had a problem with a short circuit ( before i bought a
+ups system cause its when all happens ) and they changed the boad right a
+way. I was quite impressed... no winning nor nothing like that, just gave my
+board and recieved a brand new one.
 
-I'll give that a try...
+I wanna have a scsi Hard Drive and so i will probably go to cheeta will
+spend some money but i think it will worth it.
+Though i am thinking about the raid advices.... I will have to study more
+stuf about that as that was a solution i never thougth of.
 
-> Btw, latency timer zero should not change the likelyhood of this item.
-> This let me think that the host bridge is likely to be the culprit.
+The video card its gonna be a matrox g450 / g550 have to check out the
+differences.
 
-Hmmm... I'm still wondering why I see the problem when writing to tape or
-CD-R(W), while I can't provoke it when writing to disk (Quantum Viking II U2W).
+won't buy modem  because i connect to internet thru lan.
 
-What's so special about tape and CD-R?
+So the main question about the Athlon is the main board...
+I don't want to load a good machine with a second class motherboard.....
 
-Gr{oetje,eeting}s,
 
-						Geert
+About the ram SOME ONE told me this: "Ram => 1000 mb ram 2x 512 rims
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+That is an unfortunate amount of RAM. Rather than forcing everyone
+to run their OS the same way, Linux lets people with smaller amounts
+of memory avoid the overhead needed to handle large amounts of memory.
+There are 3 configs:
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+2 MB to 896 MB  (fastest)
+up to 2 or 4 GB (upper limit depends on your motherboard)
+up to nearly 64 GB (slowest)
+
+As you can see, 1 GB is just barely into the second config.
+You might consider instead 512 MB, 768 MB, 1.5 GB, or 2 GB."
+
+
+And about the vias shipset ANOTHER GUY TOLD ME THISS : "Don't get a VIA
+motherboard. Linux 2.4.17 has workarounds for
+the two most serious problems, but still... VIA tried very hard
+to hide the problems, even blaming Creative Labs for a while"
+
+If i was to change my current options to AMD, the price to pay for the same
+amount of ram with be half of the price i am suppose to pay now.
+So this option really calls my name....
+
+Please show m some lights on this topics AH and one more thing... direct
+both simgle and dual Athlon Boards.... with the money ill save if u change
+for AMD who knows,
+
+
+Tks a  lot.
+
+Regards Astinus
+
 

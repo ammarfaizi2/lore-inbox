@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbTJWMlF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 08:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTJWMlF
+	id S263571AbTJWMoE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 08:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263572AbTJWMoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 08:41:05 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:14867 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S263568AbTJWMlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 08:41:01 -0400
-Message-ID: <3F97CEE3.2050700@superbug.demon.co.uk>
-Date: Thu, 23 Oct 2003 13:51:47 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031019 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Thu, 23 Oct 2003 08:44:04 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:53149 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263571AbTJWMoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 08:44:01 -0400
+From: Fedor Karpelevitch <fedor@karpelevitch.net>
+To: "Toshio Spoor" <t_spoor@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Compaq Evo N1020v lockups.
+Date: Wed, 22 Oct 2003 16:24:27 -0700
+User-Agent: KMail/1.5.4
+References: <Sea2-F19eS8IANIlk1W0000da00@hotmail.com>
+In-Reply-To: <Sea2-F19eS8IANIlk1W0000da00@hotmail.com>
 MIME-Version: 1.0
-To: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
-CC: linux-kernel@vger.kernel.org,
-       Vitez Gabor <gabor@swszl.szkp.uni-miskolc.hu>,
-       ivtv-devel@lists.sourceforge.net
-Subject: Re: nforce2 random lockups - still no solution ?
-References: <3F95748E.8020202@tuwien.ac.at> <200310211113.00326.lkml@lpbproductions.com> <20031022085449.GA21393@swszl.szkp.uni-miskolc.hu> <3F96847C.4000506@tuwien.ac.at> <20031022133327.GA25283@swszl.szkp.uni-miskolc.hu> <3F97AACB.2020609@tuwien.ac.at>
-In-Reply-To: <3F97AACB.2020609@tuwien.ac.at>
-X-Enigmail-Version: 0.81.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310221624.28221.fedor@karpelevitch.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Kvasnica wrote:
-> Dear Gabor,
-> 
-> thantks a lot, indeed you are right ! I've been confused by some nforce 
-> FAQs where 'nolapic' option was recommended. In fact I did never check 
-> whether this option
-> really exists. Now, after recompiling the kernel the framegrabber works 
-> with uncompressed stream for almost 24h and it is rock-solid.
-> 
-> So, a workaround recommendation for all using ivtv driver on nforce2 
-> chipsets and kernels up to 2.4.22:
-> 
-> *** RECOMPILE YOUR KERNEL WITH LOCAL APIC DISABLED ***,
-> 
-> otherwise you'll experience very rare random lockups while watching the 
-> compressed stream and lockups within 10 minutes when watching the 
-> uncompressed
-> yuv stream.
-> 
-> What I'd like to know is whether this bug is AMD processor or chipset 
-> related. Is there a patch available ? I tried 2.6.0-test8 and it wasn't 
-> stable. I'd prefer to use APIC instead of XT-PIC because some drivers 
-> e.g. kernel DRM don't support shared interrupts and I can't get own 
-> interrupt for the video card.
-> 
-> Sam
-> 
-> 
-> Vitez Gabor wrote:
-> 
->> Hi,
->>
->> On Wed, Oct 22, 2003 at 03:22:04PM +0200, Samuel Kvasnica wrote:
->>  
->>
->>> I'm booting the kernel with acpi=off, noapic and nolapic options and   
->>
->>
->> nolapic? That's not a valid kernel command line parameter I'm afraid.
->> fgrep -ri nolapic $KERNEL_SOURCE_DIR
->>
->> gives nothing. ???
->>
->>
->>     Gabor
->>  
+Toshio Spoor wrote:
+> Hi,
+>
+> Here is a (very vague) bug report: (sorry for that)
+>
+> [1.] One line summary of the problem:
+>
+> Compaq Evo N1020v lockups. (notebook)
+>
+> [2.] Full description of the problem/report:
+>
+> Since 2.4.23-pre3 I experience lockups the same goes for (estimate)
+> 2.6.0-test3 => (Looks some code has merged in test3 too from
+> 2.4.23-pre3). Unfortunately I can't pin point the  problem because
+> this lame Compaq laptop doesn't have a serial port. For now I am
+> using 2.4.22 that kernel seems stable. Also I have tried to disable
+> ACPI that didn't work either. So I suspect the cause of the problem
+> is somewhere in the changes of 2.4.23-pre3. (By the way, it still
+> crashes with higher pre versions e.g. pre7)
+>
 
-Extract fron linux-2.6test8 Documentation/kernel-parameters.txt
-nolapic   [IA-32,APIC] Do not enable or use the local APIC.
+This looks like network lockup many (including me) were experiencing. 
+Apparently problem is with (or around) 8139cp driver. The solution 
+which worked for me and others was to stop using 8139cp module and 
+use 8139too instead. See if it works for you.
 
-So, It is supported in the kernel 2.6.x
-
-Cheers
-James
-
+Fedor.

@@ -1,220 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263633AbUJ3IRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263642AbUJ3ITb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbUJ3IRA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 04:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUJ3IQ7
+	id S263642AbUJ3ITb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 04:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUJ3ITb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 04:16:59 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:7360 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263633AbUJ3IPV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 04:15:21 -0400
-Date: Sat, 30 Oct 2004 10:13:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] some cdrom/mcdx.c cleanups
-Message-ID: <20041030081347.GJ4374@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 30 Oct 2004 04:19:31 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:45440 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S263642AbUJ3ITZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 04:19:25 -0400
+Date: Sat, 30 Oct 2004 17:25:11 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+In-reply-to: <41824760.7010703@tebibyte.org>
+To: Chris Ross <chris@tebibyte.org>, Andrew Morton <akpm@osdl.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Rik van Riel <riel@redhat.com>, javier@marcet.info,
+       linux-kernel@vger.kernel.org, kernel@kolivas.org,
+       barry <barry@disus.com>
+Message-id: <41834FE7.5060705@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3)
+ Gecko/20040910
+References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com>
+ <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com>
+ <20041028120650.GD5741@logos.cnet> <41824760.7010703@tebibyte.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below does some cleanups in cdrom/mcdx.c
+Hi,
+ > Oct 29 15:25:19 sleepy protections[]: 0 0 0
+ > Oct 29 15:25:19 sleepy DMA: 4294567735*4kB 4294792863*8kB
+ > 4294895642*16kB 4294943555*32kB 4294962724*64kB 4294966891*128kB
+ > 4294967255*256kB 4294967283*512kB
+ >  4294967290*1024kB 4294967293*2048kB 4294967294*4096kB = 4289685332kB
+ > Oct 29 15:25:19 sleepy Normal: 4293893066*4kB 4294583823*8kB
+ > 4294849819*16kB 4294950038*32kB 4294966291*64kB 4294966753*128kB
+ > 4294967182*256kB 4294967238*51
+ > 2kB 4294967265*1024kB 4294967278*2048kB 4294967281*4096kB = 4284847952kB
+ > Oct 29 15:25:19 sleepy HighMem: empty
+ > Oct 29 15:25:19 sleepy Swap cache: add 9372, delete 7530, find
 
-The main changes are:
-- make some constants and functions static
-- remove some ancient version tags
-- merge the two init functions into one
+This looks odd.
+
+How about this fix ?
+I don't know why this is missng ....
+
+Kame <kamezawa.hiroyu@jp.fujitsu.com>
+--
 
 
-diffstat output:
- drivers/cdrom/mcdx.c |  114 ++++++++++++-------------------------------
- 1 files changed, 34 insertions(+), 80 deletions(-)
 
+---
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+  linux-2.6.10-rc1-mm2-kamezawa/mm/page_alloc.c |    4 +++-
+  1 files changed, 3 insertions(+), 1 deletion(-)
 
---- linux-2.6.10-rc1-mm2-full/drivers/cdrom/mcdx.c.old	2004-10-30 09:30:21.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/drivers/cdrom/mcdx.c	2004-10-30 09:49:27.000000000 +0200
-@@ -51,11 +51,6 @@
-  */
- 
- 
--#if RCS
--static const char *mcdx_c_version
--    = "$Id: mcdx.c,v 1.21 1997/01/26 07:12:59 davem Exp $";
--#endif
--
- #include <linux/version.h>
- #include <linux/module.h>
- 
-@@ -108,20 +103,20 @@
-    The _direct_ size is the number of sectors we're allowed to skip
-    directly (performing a read instead of requesting the new sector
-    needed */
--const int REQUEST_SIZE = 800;	/* should be less then 255 * 4 */
--const int DIRECT_SIZE = 400;	/* should be less then REQUEST_SIZE */
-+static const int REQUEST_SIZE = 800;	/* should be less then 255 * 4 */
-+static const int DIRECT_SIZE = 400;	/* should be less then REQUEST_SIZE */
- 
- enum drivemodes { TOC, DATA, RAW, COOKED };
- enum datamodes { MODE0, MODE1, MODE2 };
- enum resetmodes { SOFT, HARD };
- 
--const int SINGLE = 0x01;	/* single speed drive (FX001S, LU) */
--const int DOUBLE = 0x02;	/* double speed drive (FX001D, ..? */
--const int DOOR = 0x04;		/* door locking capability */
--const int MULTI = 0x08;		/* multi session capability */
-+static const int SINGLE = 0x01;		/* single speed drive (FX001S, LU) */
-+static const int DOUBLE = 0x02;		/* double speed drive (FX001D, ..? */
-+static const int DOOR = 0x04;		/* door locking capability */
-+static const int MULTI = 0x08;		/* multi session capability */
- 
--const unsigned char READ1X = 0xc0;
--const unsigned char READ2X = 0xc1;
-+static const unsigned char READ1X = 0xc0;
-+static const unsigned char READ2X = 0xc1;
- 
- 
- /* DECLARATIONS ****************************************************/
-@@ -205,16 +200,6 @@
- };
- 
- 
--/* Prototypes ******************************************************/
--
--/*	The following prototypes are already declared elsewhere.  They are
-- 	repeated here to show what's going on.  And to sense, if they're
--	changed elsewhere. */
--
--/* declared in blk.h */
--int mcdx_init(void);
--void do_mcdx_request(request_queue_t * q);
--
- static int mcdx_block_open(struct inode *inode, struct file *file)
- {
- 	struct s_drive_stuff *p = inode->i_bdev->bd_disk->private_data;
-@@ -570,7 +555,7 @@
- 	}
- }
- 
--void do_mcdx_request(request_queue_t * q)
-+static void do_mcdx_request(request_queue_t * q)
- {
- 	struct s_drive_stuff *stuffp;
- 	struct request *req;
-@@ -1007,29 +992,7 @@
- 	return st;
- }
- 
--/* MODULE STUFF ***********************************************************/
--
--int __mcdx_init(void)
--{
--	int i;
--	int drives = 0;
--
--	mcdx_init();
--	for (i = 0; i < MCDX_NDRIVES; i++) {
--		if (mcdx_stuffp[i]) {
--			xtrace(INIT, "init_module() drive %d stuff @ %p\n",
--			       i, mcdx_stuffp[i]);
--			drives++;
--		}
--	}
--
--	if (!drives)
--		return -EIO;
--
--	return 0;
--}
--
--void __exit mcdx_exit(void)
-+static void __exit mcdx_exit(void)
- {
- 	int i;
- 
-@@ -1062,21 +1025,9 @@
- 		xwarn("cleanup() unregister_blkdev() failed\n");
- 	}
- 	blk_cleanup_queue(mcdx_queue);
--#if !MCDX_QUIET
--	else
--	xinfo("cleanup() succeeded\n");
--#endif
- }
- 
--#ifdef MODULE
--module_init(__mcdx_init);
--#endif
--module_exit(mcdx_exit);
--
--
--/* Support functions ************************************************/
--
--int __init mcdx_init_drive(int drive)
-+static int __init mcdx_init_drive(int drive)
- {
- 	struct s_version version;
- 	struct gendisk *disk;
-@@ -1262,30 +1213,30 @@
- 	return 0;
- }
- 
--int __init mcdx_init(void)
--{
--	int drive;
--#ifdef MODULE
--	xwarn("Version 2.14(hs) for " UTS_RELEASE "\n");
--#else
--	xwarn("Version 2.14(hs) \n");
--#endif
- 
--	xwarn("$Id: mcdx.c,v 1.21 1997/01/26 07:12:59 davem Exp $\n");
-+static int mcdx_init(void)
-+{
-+	int i;
-+	int drives = 0;
- 
--	/* zero the pointer array */
--	for (drive = 0; drive < MCDX_NDRIVES; drive++)
--		mcdx_stuffp[drive] = NULL;
--
--	/* do the initialisation */
--	for (drive = 0; drive < MCDX_NDRIVES; drive++) {
--		switch (mcdx_init_drive(drive)) {
--		case 2:
--			return -EIO;
--		case 1:
--			break;
-+	for (i = 0; i < MCDX_NDRIVES; i++) {
-+		mcdx_stuffp[i] = NULL;
-+		switch (mcdx_init_drive(i)) {
-+			case 2:
-+				return -EIO;
-+			case 1:
-+				break;
-+			}
-+		if (mcdx_stuffp[i]) {
-+			xtrace(INIT, "init_module() drive %d stuff @ %p\n",
-+			       i, mcdx_stuffp[i]);
-+			drives++;
- 		}
- 	}
-+
-+	if (!drives)
-+		return -EIO;
-+
- 	return 0;
- }
- 
-@@ -1955,3 +1906,6 @@
- 
- MODULE_LICENSE("GPL");
- MODULE_ALIAS_BLOCKDEV_MAJOR(MITSUMI_X_CDROM_MAJOR);
-+
-+module_init(mcdx_init);
-+module_exit(mcdx_exit);
+diff -puN mm/page_alloc.c~clean-up mm/page_alloc.c
+--- linux-2.6.10-rc1-mm2/mm/page_alloc.c~clean-up	2004-10-30 17:07:01.918419104 +0900
++++ linux-2.6.10-rc1-mm2-kamezawa/mm/page_alloc.c	2004-10-30 17:08:25.904651256 +0900
+@@ -261,7 +261,9 @@ static inline void __free_pages_bulk (st
+  	}
+  	coalesced = base + page_idx;
+  	set_page_order(coalesced, order);
+-	list_add(&coalesced->lru, &zone->free_area[order].free_list);
++	area = zone->free_area + order;
++	list_add(&coalesced->lru, &area->free_list);
++	area->nr_free++;
+  }
 
+  static inline void free_pages_check(const char *function, struct page *page)
+
+_

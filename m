@@ -1,29 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264291AbTCXRPR>; Mon, 24 Mar 2003 12:15:17 -0500
+	id <S264280AbTCXRUk>; Mon, 24 Mar 2003 12:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264290AbTCXQtc>; Mon, 24 Mar 2003 11:49:32 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:52970 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S264289AbTCXQbA>; Mon, 24 Mar 2003 11:31:00 -0500
-Message-Id: <200303241642.h2OGgA35008324@deviant.impure.org.uk>
-Date: Mon, 24 Mar 2003 16:41:57 +0000
-To: torvalds@transmeta.com
-From: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: mark context switch wrmsr path unlikely
+	id <S264318AbTCXRUc>; Mon, 24 Mar 2003 12:20:32 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:62644 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264422AbTCXRTV>; Mon, 24 Mar 2003 12:19:21 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200303241730.h2OHURb15849@devserv.devel.redhat.com>
+Subject: Re: ide-scsi quirk.
+To: davej@codemonkey.org.uk
+Date: Mon, 24 Mar 2003 12:30:27 -0500 (EST)
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200303241642.h2OGg535008290@deviant.impure.org.uk> from "davej@codemonkey.org.uk" at Mar 24, 2003 04:41:53 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/include/asm-i386/processor.h linux-2.5/include/asm-i386/processor.h
---- bk-linus/include/asm-i386/processor.h	2003-03-21 12:53:30.000000000 +0000
-+++ linux-2.5/include/asm-i386/processor.h	2003-03-21 13:45:20.000000000 +0000
-@@ -419,7 +419,7 @@ static inline void load_esp0(struct tss_
- {
- 	tss->esp0 = esp0;
- 	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
--	if (tss->ss1 != __KERNEL_CS) {
-+	if ((unlikely(tss->ss1 != __KERNEL_CS))) {
- 		tss->ss1 = __KERNEL_CS;
- 		wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
- 	}
+> as mentioned a few weeks back, something similar to
+> this went into 2.4 (I munged this one a bit).
+> 
+> It deals with the issue of DMA starting before the
+> drive is ready iirc.
+
+Thats the least of the 2.5 ide-scsi problems, but yes its
+probably one to add

@@ -1,42 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263763AbTK2Nkn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 08:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTK2Nkn
+	id S263769AbTK2Noc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 08:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTK2Noc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 08:40:43 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54288 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263763AbTK2Nkm
+	Sat, 29 Nov 2003 08:44:32 -0500
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:57742 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S263769AbTK2Noa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 08:40:42 -0500
-Date: Sat, 29 Nov 2003 08:29:35 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: AlberT@SuperAlberT.it
-cc: lgb@lgb.hu, linux-kernel@vger.kernel.org
-Subject: Re: hyperthreading
-In-Reply-To: <200311251048.53046.AlberT_NOSPAM_@SuperAlberT.it>
-Message-ID: <Pine.LNX.3.96.1031129082435.26461B-100000@gatekeeper.tmr.com>
+	Sat, 29 Nov 2003 08:44:30 -0500
+Date: Sat, 29 Nov 2003 14:42:20 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-rc5-pac1 released
+In-Reply-To: <1070053162.12656.180.camel@pegasus>
+Message-ID: <Pine.LNX.4.58.0311291431320.29214@dot.kde.org>
+References: <Pine.LNX.4.58.0311281912290.20775@dot.kde.org>
+ <1070053162.12656.180.camel@pegasus>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003, Emiliano 'AlberT' Gabrielli wrote:
+On Fri, 28 Nov 2003, Marcel Holtmann wrote:
 
-
-> P4 does not support HT ... only Xeon and new generation P4-HT does.
-
-Not quite right, the 3.06GHz has HT enabled.
+> Hi Bernhard,
 > 
-> moreover you need olso a MB with HT support
+> > - Increase timeout in firmware_class.c [several people reported timeout
+> >   related problems with Netgear WG511 cards]
+> 
+> please tell me more about it.
 
-IIRC there's a pin which must be powered to enable HT at boot, but I
-believe Powerleap does make an adaptor to do that. AFAIK all P4's have HT,
-but most have only one sibling, so there's no use or benefit from the
-feature.
+Extract from the syslog of a user trying to use a Netgear WG511 with the 
+prism54.org drivers in a Dell SmartStep 250N:
+
+Nov 18 15:14:52 rumsfeldsux kernel: cs: cb_alloc(bus 4): vendor 0x1260, device 0x3890
+Nov 18 15:14:52 rumsfeldsux kernel: PCI: Enabling device 04:00.0 (0000 -> 0002)
+Nov 18 15:14:52 rumsfeldsux cardmgr[1098]: socket 1: CardBus hotplug device
+Nov 18 15:14:52 rumsfeldsux default.hotplug[1837]: ======= START HOTPLUG FOR PID 1837 =======
+Nov 18 15:14:53 rumsfeldsux kernel: Loaded prism54 driver, version 1.0.2.2
+Nov 18 15:14:53 rumsfeldsux default.hotplug[1862]: ======= START HOTPLUG FOR PID 1862 =======
+Nov 18 15:14:53 rumsfeldsux default.hotplug[1870]: ======= START HOTPLUG FOR PID 1870 =======
+Nov 18 15:15:03 rumsfeldsux kernel: prism54: request_firmware() failed for 'isl3890'
+Nov 18 15:15:03 rumsfeldsux kernel: eth1: could not upload firmware ('isl3890')
+
+We got a similar report from someone using the same card in an Asus 
+Pundit, and another from someone using a D-Link DWL-g650 A1 in a 
+Gericom notebook.
+
+Telling the users to
+
+echo 100 >/proc/driver/firmware/timeout
+
+and try again fixed it for all of them.
+
+All 3 are using Ark Linux Dockyard, meaning 2.4.23-rcsomething-pacwhatever 
+with a couple of extra patches and a fairly recent userland hotplug.
+
+Due to lack of hardware I haven't yet figured out what the exact problem 
+is (I'm suspecting either the prism54 driver takes forever to handle the 
+firmware, or the hotplug scripts cause delays where they shouldn't), but 
+increasing the timeout definitely solves the problem for our users.
+
+LLaP
+bero
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
 
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php

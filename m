@@ -1,54 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUFXD2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUFXDiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbUFXD2c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 23:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUFXD2c
+	id S263772AbUFXDiM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 23:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUFXDiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 23:28:32 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:32439 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263761AbUFXD2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 23:28:30 -0400
-Date: Wed, 23 Jun 2004 20:28:25 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: slow performance w/patch-2.6.7-mjb1
-Message-ID: <1952580000.1088047703@[10.10.2.4]>
-In-Reply-To: <20040624004429.76093.qmail@web51806.mail.yahoo.com>
-References: <20040624004429.76093.qmail@web51806.mail.yahoo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 23 Jun 2004 23:38:12 -0400
+Received: from [210.22.146.172] ([210.22.146.172]:64175 "EHLO
+	asbmx.sbell.com.cn") by vger.kernel.org with ESMTP id S263772AbUFXDiL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 23:38:11 -0400
+content-class: urn:content-classes:message
+Subject: Which factors affect linux context switch time?
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 24 Jun 2004 11:37:55 +0800
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
+Message-ID: <8519CCCD09C9FD409F4CF310566CB4D2010BFC8F@sdcmail.sbell.com.cn>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Which factors affect linux context switch time?
+Thread-Index: AcRZnKuQtTMC+VHrQjOo+TT2y/2fIg==
+From: "MCG LU Fengcheng" <Fengcheng.LU@alcatel-sbell.com.cn>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Jun 2004 03:37:56.0289 (UTC) FILETIME=[A34F9B10:01C4599C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here is a litle bit more information:
-> 2.6.7-mjb1 w/4G split enabled:
-> 44.91user 56.95system 1:46.30elapsed 95%CPU
-> (0avgtext+0avgdata 0maxresident)k
-> 0inputs+0outputs (0major+6907875minor)pagefaults
-> 0swaps
-> 
-> 
-> 2.6.7-mjb1 w/4G disabled enabled:
-> 30.71user 34.56system 1:11.29elapsed 91%CPU
-> (0avgtext+0avgdata 0maxresident)k
-> 0inputs+0outputs (21major+6907525minor)pagefaults
-> 0swaps
-> 
-> Clearly something is wrong.  This is making headers
-> which does a lot of spawning of bash shells and ln -s
-> different files and some minor dependancy makes.
-> 
-> Any help understanding what is happending here would
-> be greatly appreciated!
+kernel Scheduler, cpu cache, process code segment size, process data
+segment size, process RSS, or other?
 
-Mmmm. Try grabbing a kernel profile of both, and it might
-be easier to see what the overhead is, exactly. See 
-Documentation/basic_profiling.txt for instructions if you haven't
-done it before.
-
-M.
-
+thx!

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264833AbSJOWMy>; Tue, 15 Oct 2002 18:12:54 -0400
+	id <S264775AbSJOWNk>; Tue, 15 Oct 2002 18:13:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264812AbSJOWMw>; Tue, 15 Oct 2002 18:12:52 -0400
-Received: from dsl-213-023-038-160.arcor-ip.net ([213.23.38.160]:54167 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S264775AbSJOWMs>;
-	Tue, 15 Oct 2002 18:12:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andries Brouwer <aebr@win.tue.nl>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: [bk/patch] driver model update: device_unregister()
-Date: Wed, 16 Oct 2002 00:18:14 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, Patrick Mochel <mochel@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210091050330.7355-100000@home.transmeta.com> <Pine.GSO.4.21.0210091358100.8980-100000@weyl.math.psu.edu> <20021009204248.GA22001@win.tue.nl>
-In-Reply-To: <20021009204248.GA22001@win.tue.nl>
+	id <S264868AbSJOWNk>; Tue, 15 Oct 2002 18:13:40 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:12692 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264775AbSJOWNL>; Tue, 15 Oct 2002 18:13:11 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 15 Oct 2002 15:27:10 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Gardiner Myers <jgmyers@netscape.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+In-Reply-To: <3DAC9035.2010208@netscape.com>
+Message-ID: <Pine.LNX.4.44.0210151521090.1554-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E181a10-0003xJ-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 October 2002 22:42, Andries Brouwer wrote:
-> On Wed, Oct 09, 2002 at 02:00:05PM -0400, Alexander Viro wrote:
-> 
-> > OK, call me dense, but what things are associated with partition aside of the
-> > fact that it exists?
-> 
-> A partition has an underlying device, a start and a length.
+On Tue, 15 Oct 2002, John Gardiner Myers wrote:
 
-Subtle distinction: a partition has underlying media, and the media is
-associated with a device.
+> Davide Libenzi wrote:
+>
+> >Why would you need to use threads with a multiplex-like interface like
+> >/dev/epoll ?
+> >
+> Because in some applications processing an event can cause the thread to
+> block, potentially for a long time.  Multiple threads are needed to
+> isolate that block to the context associated with the event.
 
-> It may have a label or volume id.
-> It has a partition number (the 7 of hda7) that can be assigned.
-> It may have substructure on the partition level, like a
-> DOS-type partition (BSD slice) with BSD subpartitions.
+I don't want this to become the latest pro/against threads but if your
+processing thread block for a long time you should consider handling the
+blocking condition asynchronously. If your procesing thread blocks, your
+application model should very likely be redesigned, or you just go with
+threads ( and you do not need any multiplex interface ).
 
--- 
-Daniel
+
+
+> >	while (read() == EGAIN)
+> >		wait(POLLIN);
+> >
+> >
+> Assuming registration of interest is inside wait(), this has a race.  If
+> the file becomes readable between the time that read() returns and the
+> time that wait() can register interest, the connection will hang.
+
+Your assumption is wrong, the registration is done as soon as the fd
+"born" ( socket() or accept() for example ) and is typically removed when
+it dies.
+
+
+
+- Davide
+
+

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131213AbQKVBMh>; Tue, 21 Nov 2000 20:12:37 -0500
+	id <S131433AbQKVBNr>; Tue, 21 Nov 2000 20:13:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132008AbQKVBM1>; Tue, 21 Nov 2000 20:12:27 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:50951 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131213AbQKVBMT>; Tue, 21 Nov 2000 20:12:19 -0500
-Message-ID: <3A1B1565.F6CD1810@timpanogas.org>
-Date: Tue, 21 Nov 2000 17:37:57 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S131139AbQKVBNh>; Tue, 21 Nov 2000 20:13:37 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:11277 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130891AbQKVBNY>; Tue, 21 Nov 2000 20:13:24 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux 2.4.0test11-ac1
+Date: 21 Nov 2000 16:19:13 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8vf3e1$192$1@hpa-p95.transmeta.com>
+In-Reply-To: <8vf2oo$338$1@cesium.transmeta.com> <E13yNmg-0005QD-00@the-village.bc.nu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: CMA <cma@mclink.it>, tytso@mit.edu, card@masi.ibp.fr,
-        linux-kernel@vger.kernel.org
-Subject: Re: e2fs performance as function of block size
-In-Reply-To: <E13yNlM-0005Q3-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Alan Cox wrote:
+Followup to:  <E13yNmg-0005QD-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+> > 
+> > Nononono... the 82489DX is an *external* APIC, which should be usable
+> > on any Socket 5/7 CPU...
 > 
-> > It's as though the disk drivers are optimized for this case (1024).  I
+> I know of no socket 7 board with an 82489DX, and no board on the planet which
+> has 82489DX and works SMP with a non intel processor. I accept its a heuristic
+> but so is the current behaviour, and the current heuristic isnt working for
+> as many cases.
 > 
-> The disk drivers are not, and they normally see merged runs of blocks so they
-> will see big chunks rather than 1K then 1K then 1K etc.
-> 
-> > behavior, but there is clearly some optimization relative to this size
-> > inherent in the design of Linux -- and it may be a pure accident.  This
-> > person may be mixing and matching block sizes in the buffer cache, which
-> > would satisfy your explanation.
-> 
-> I see higher performance with 4K block sizes. I should see higher latency too
-                                                            
-^^^^^^^^^^^^^^^^^
-Since buffer heads are chained, this would make sense.
 
+Fair enough.
 
-> but have never been able to measure it. Maybe it depends on the file system.
-> It certainly depends on the nature of requests
-
-Could be.  NWFS likes 4K block sizes -- this is it's default.  On linux,
-I've been emulating other block sizes beneath it.  I see best
-performance at 1024 byte blocks, worst at 512.  The overhead of buffer
-chaining is clearly the culprit.
-
-On the TCPIP oops on 2.2.18-22, I have not been able to reproduce it
-reliably.  It appears to be in the ppp code, however, and not the TCPIP
-code.  The problem only shows up after several pppd connections have
-accessed the box then terminated the connections (which is why I think
-it's pp related).  I would rate this as a level IV bug due to the
-difficulty in creating it, and the fact that you have to deliberately
-misconfigure a TCPIP network to make it show up.
-
-Jeff
-
-Jeff
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

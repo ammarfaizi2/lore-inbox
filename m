@@ -1,79 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292318AbSBBQe6>; Sat, 2 Feb 2002 11:34:58 -0500
+	id <S292320AbSBBQjz>; Sat, 2 Feb 2002 11:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292319AbSBBQep>; Sat, 2 Feb 2002 11:34:45 -0500
-Received: from smtp02.web.de ([217.72.192.151]:43802 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S292318AbSBBQeg>;
-	Sat, 2 Feb 2002 11:34:36 -0500
-Message-ID: <3C5C2136.5020202@web.de>
-Date: Sat, 02 Feb 2002 17:26:14 +0000
-From: Todor Todorov <ttodorov@web.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020201
-X-Accept-Language: en-us
+	id <S292321AbSBBQjp>; Sat, 2 Feb 2002 11:39:45 -0500
+Received: from mustard.heime.net ([194.234.65.222]:48300 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S292320AbSBBQjf>; Sat, 2 Feb 2002 11:39:35 -0500
+Date: Sat, 2 Feb 2002 17:39:22 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Roger Larsson <roger.larsson@norran.net>
+cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Errors in the VM - detailed (or is it Tux? or rmap? or those
+ together...)
+In-Reply-To: <200202021627.g12GRhM12101@mailf.telia.com>
+Message-ID: <Pine.LNX.4.30.0202021736520.11143-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.3-dj1: zisofs compile fix
-Content-Type: multipart/mixed;
- boundary="------------060701080403040502070403"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060701080403040502070403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> How do you know that it gets into this at RAMx2? Have you added 'bi' from
+> vmstat?
 
-Hello there,
+yes
 
-I had the problem compiling 2.5.3-dj1 with zisofs included as other 
-people on that list - same problem, undefined reference in fs/fs.o . I 
-tried to use the EXPORTS_SYMBOL macro from modules.h and export the 
-zisofs_cleanup in fs/isofs/compress.c and also added export-objs := 
-compress.o in the Makefile. Didn't help. Searching for hints in other 
-Makefiles which list objects exporting symbols, i noticed that all such 
-objects are linked first into the target obj, which is not the case with 
-compress.o. When I moved compress.o first in the obj-y list, the compile 
-error was gone and this even without EXPORT_SYMBOL(zisofs_cleanup); in 
-compress.c
+> One interesting thing to notice from vmstat is...
+>
+> r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy id
+> When performing nicely:
+> 0 200  1   1676   3200   3012 786004   0 292 42034   298  791   745   4  29 67
+> 0 200  1   1676   3308   3136 785760   0   0 44304     0  748   758   3  15 82
+> 0 200  1   1676   3296   3232 785676   0   0 44236     0  756   710   2  23 75
+> Later when being slow:
+> 0 200  0  3468   3316  4060 784668  0   0  1018    0  613   631   1   2 97
+> 0 200  0  3468   3292  4060 784688  0   0  1034    0  617   638   0   3 97
+> 0 200  0  3468   3200  4068 784772  0   0  1066    6  694   727   2   4 94
+>
+> No swap activity (si + so == 0), mostly idle (id > 90).
+> So it is waiting - on what??? timer? disk?
 
-Next to say is: I don't know anything about the linux kernel, so I'm not 
-sure if this is the correct way to fix this issue. It just seems to 
-work. So use at your own risk until the maintainer fixes it properly.
+I don't know. All I know is that with rmap-11c, it works
 
-Cheers,
-       Todor
+> Roy, did you notice the mail from Andrew Morton:
+> > heh.  Yep, Roger finally nailed it, I think.
+> >
+> > Roy says the bug was fixed in rmap11c.  Changelog says:
+> >
+> >
+> > rmap 11c:
+> >   ...
+> >   - elevator improvement                                  (Andrew Morton)
+> >
+> > Which includes:
+> >
+> > -       queue_nr_requests = 64;
+> > -       if (total_ram > MB(32))
+> > -               queue_nr_requests = 128;
+> >                              +       queue_nr_requests = (total_ram >> 9) &
+> > ~15;     /* One per half-megabyte */
+> > +       if (queue_nr_requests < 32)
+> > +               queue_nr_requests = 32;
+> > +       if (queue_nr_requests > 1024)
+> > +               queue_nr_requests = 1024;
+>
+> rmap11c changed the queue_nr_requests, that problem went away.
+> But another one showed its ugly head...
+>
+> Could you please try this part of rmap11c only? Or the very simple one
+> setting queue_nr_request to = 2048 for a test drive...
 
+u mean - on a 2.4.1[18](-pre.)? kernel?
 
+I'll try
 
---------------060701080403040502070403
-Content-Type: text/plain;
- name="zisofs-compilefix-2.5.3-dj1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="zisofs-compilefix-2.5.3-dj1.patch"
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
---- linux-2.5.3-dj1/fs/isofs/Makefile	Sat Feb  2 10:59:07 2002
-+++ linux/fs/isofs/Makefile	Sat Feb  2 16:52:59 2002
-@@ -9,9 +9,16 @@
- 
- O_TARGET := isofs.o
- 
--obj-y  := namei.o inode.o dir.o util.o rock.o
-+ifeq ( $(CONFIG_ZISOFS), y )
-+	obj-y  := compress.o namei.o inode.o dir.o util.o rock.o
-+endif
-+
-+ifeq ( $(CONFIG_ZISOFS), n )
-+	obj-y  := namei.o inode.o dir.o util.o rock.o
-+endif
-+
- obj-$(CONFIG_JOLIET) += joliet.o
--obj-$(CONFIG_ZISOFS) += compress.o
-+#obj-$(CONFIG_ZISOFS) += compress.o
- 
- obj-m  := $(O_TARGET)
- 
-
---------------060701080403040502070403--
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTEIPFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 11:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTEIPFg
+	id S263280AbTEIPNs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 11:13:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTEIPNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 11:05:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:8210 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262164AbTEIPFf (ORCPT
+	Fri, 9 May 2003 11:13:48 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:56021 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S263280AbTEIPNp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 11:05:35 -0400
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, gibbs@scsiguy.com,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes
-X-Yow: NOW, I'm supposed to SCRAMBLE two, and HOLD th' MAYO!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Fri, 09 May 2003 17:18:12 +0200
-In-Reply-To: <20030509145621.GA17581@alpha.home.local> (Willy Tarreau's
- message of "Fri, 9 May 2003 16:56:21 +0200")
-Message-ID: <jeof2ctah7.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3.50 (gnu/linux)
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<2804790000.1052441142@aslan.scsiguy.com>
-	<20030509120648.1e0af0c8.skraw@ithnet.com>
-	<20030509120659.GA15754@alpha.home.local>
-	<20030509150207.3ff9cd64.skraw@ithnet.com>
-	<20030509132757.GA16649@alpha.home.local>
-	<20030509154637.5cf14c8d.skraw@ithnet.com>
-	<20030509145621.GA17581@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 9 May 2003 11:13:45 -0400
+Date: Fri, 9 May 2003 17:24:36 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ioctl32_unregister_conversion & modules
+Message-ID: <20030509152436.GA762@elf.ucw.cz>
+References: <20030509100039$6904@gated-at.bofh.it> <200305091213.h49CDuO4029947@post.webmailer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305091213.h49CDuO4029947@post.webmailer.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> writes:
+Hi!
 
-|> On Fri, May 09, 2003 at 03:46:37PM +0200, Stephan von Krawczynski wrote:
-|> > On Fri, 9 May 2003 15:27:57 +0200
-|> > Willy Tarreau <willy@w.ods.org> wrote:
-|> > 
-|> > > On Fri, May 09, 2003 at 03:02:07PM +0200, Stephan von Krawczynski wrote:
-|> > >  
-|> > > > I cannot say which version of the driver it was, the only thing I can tell
-|> > > > you is that the archive was called aic79xx-linux-2.4-20030410-tar.gz.
-|> > > 
-|> > > That's really interesting, because I got the bug since around this version
-|> > > (20030417 IIRC), and it locked up only on SMP, sometimes during boot, or
-|> > > during heavy disk accesses caused by "updatedb" and "make -j dep". It's
-|> > > fixed in 20030502 from http://people.freebsd.org/~gibbs/linux/SRC/
-|> > 
-|> > I tried to merge the latest aic archive into 2.4.21-rc2, besides the "usual"
-|> > signed/unsigned warnings I got this one:
-|> > 
-|> > aic7xxx_osm.c: In function `ahc_linux_map_seg':
-|> > aic7xxx_osm.c:770: warning: integer constant is too large for "long" type
-|> 
-|> Good catch, but in fact, it's more this line which worries me :
-|> 
-|> 758:                if ((addr ^ (addr + len - 1)) & ~0xFFFFFFFF) {
-|> 
-|> I don't see how ~0xFFFFFFFF can be non-null on 32 bits archs
+> > ...what is the problem?
+> > 
+> > It seems that function pointers into modules do not need any special
+> > treatmeant [I *know* there was talk about this on l-k; but I can't
+> > find anything in Documentation/]:
+> > 
+> >                 if (!capable(CAP_SYS_ADMIN))
+> >                         return -EACCES;
+> >                 if (disk->fops->ioctl) {
+> >                         ret = disk->fops->ioctl(inode, file, cmd, arg);
+> >                         if (ret != -EINVAL)
+> >                                 return ret;
+> >                 }
+> 
+> This is protected against unload by the reference counting done in 
+> open()/release(). ->ioctl() can be called only for open devices,
+> so you know the ioctl handler is not getting unloaded while it
+> is running.
+>  
+> > So... what's the problem with {un}register_ioctl32_conversion being
+> > called from module_init/module_exit? Drivers in the tree do it
+> > already...
+> 
+> The problem is that when the conversion handler is called, the reference
+> counting is only done for the module listed as ->owner in the
+> file operations. For example in the patch you submitted to add 
+> register_ioctl32_conversion() to drivers/serial/core.c I see nothing
+> stopping you from unloading core.ko while the handler is running
+> on a device owned by drivers/char/cyclades.c or any other serial driver.
+> It does not even have to be run on a serial driver, a user might try
+> to do ioctl(TIOCGSERIAL, ...) on a regular file...
 
-It will always be zero even on 64 bit archs, because ~0xFFFFFFFF is of
-type unsigned int.  The context doesn't matter.
+Oh.... Yep, that's pretty clear.
 
-Andreas.
+So what you are saying is that all existing
+register_ioctl32_conversion-s that are in unloadable module are
+broken. Ouch.
 
+Fixing that would require resgister_ioctl32_conversion() to have 3-rd
+parameter "this module" and some magic inside fs/compat_ioctl.c,
+right?
+
+								Pavel
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293095AbSCGOe2>; Thu, 7 Mar 2002 09:34:28 -0500
+	id <S310201AbSCGOi2>; Thu, 7 Mar 2002 09:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292978AbSCGOeR>; Thu, 7 Mar 2002 09:34:17 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:23294 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S292955AbSCGOeM>;
-	Thu, 7 Mar 2002 09:34:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Rusty Russell <rusty@rustcorp.com.au>, rajancr@us.ibm.com
-Subject: Re: Fwd: [Lse-tech] get_pid() performance fix
-Date: Thu, 7 Mar 2002 09:35:09 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-In-Reply-To: <20020305145004.BFA503FE06@smtp.linux.ibm.com> <20020307145630.7d4aed95.rusty@rustcorp.com.au>
-In-Reply-To: <20020307145630.7d4aed95.rusty@rustcorp.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020307143404.A8FFF3FE06@smtp.linux.ibm.com>
+	id <S310170AbSCGOiI>; Thu, 7 Mar 2002 09:38:08 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:44298 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S293515AbSCGOiA>;
+	Thu, 7 Mar 2002 09:38:00 -0500
+Date: Thu, 7 Mar 2002 07:38:05 -0700
+From: yodaiken@fsmlabs.com
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: yodaiken@fsmlabs.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Message-ID: <20020307073805.C27151@hq.fsmlabs.com>
+In-Reply-To: <E16iyGp-0002IL-00@the-village.bc.nu> <E16iy41-00037z-00@starship.berlin> <20020307070442.A26987@hq.fsmlabs.com> <E16iylp-00038V-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E16iylp-00038V-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Mar 07, 2002 at 03:21:24PM +0100
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 March 2002 10:56 pm, Rusty Russell wrote:
-> On Mon, 4 Mar 2002 20:57:49 -0500
->
-> Hubertus Franke <frankeh@watson.ibm.com> wrote:
-> > Can somebody post why this patch shouldn't be picked up ?
-> > The attached program shows the problem in user space
-> > and the patch is almost trivial ..
->
-> At a cursory glance, this seems to be three patches:
-> 	1) Fix the get_pid() hang.
-> 	2) Speed up get_pid().
->
-> 	3) And this piece I'm not sure about:
-> > +                 if(p->tgid > last_pid && next_safe > p->tgid)
-> > +                       next_safe = p->tgid;
->
-> Please split, and send the fix get_pid() hang to trivial patch monkey,
-> and push optimization to Linus.
->
-> Cheers!
-> Rusty.
+On Thu, Mar 07, 2002 at 03:21:24PM +0100, Daniel Phillips wrote:
+> On March 7, 2002 03:04 pm, yodaiken@fsmlabs.com wrote:
+> > On Thu, Mar 07, 2002 at 02:36:08PM +0100, Daniel Phillips wrote:
+> > > On March 7, 2002 02:49 pm, Alan Cox wrote:
+> > > > Jeff Dike Apparently wrote
+> > > > > caller.  This is actually wrong because in this failure case, it effectively
+> > > > > changes the semantics of GFP_USER, GFP_KERNEL, and the other blocking GFP_* 
+> > > > > allocations to GFP_ATOMIC.  And that's what forced UML to segfault the 
+> > > > > compilations.
+> > > > 
+> > > > GFP_KERNEL will sometimes return NULL.
+> > > 
+> > > Sad but true.  IMHO we are on track to fix that in this kernel cycle, with
+> > > better locked/dirty accounting and rmap to forcibly unmap pages when necessary.
+> > 
+> > Why is that a fix? And how can it work?
+> 
+> Since there is always at least one freeable page in the system (or we're oom) then
+> we just have to find it and we know we can forcibly unmap it.  We do need to know
+> the total of pinned pages, I should have said locked/dirty/pinned.
 
-Thanks, patch was bad and not properly functioning as pointed out to us.
-We are rewriting right now (actually <rajancr@us.ibm.com> 
-is doing the coding. I am just there for idea bouncing
-easy if the office is 2 doors away.
 
-1) was done by Greg Larson and was already submitted
-2) once properly done, we will circulate before bothering Linus again
-3) this must have come in because of a wrong patch generation.
+What if we are oom?
+What if we are on our way to deadlock?
+What if the caller of kmalloc will make less good use of the page
+than the current owner of the page?
+
+page_t *x,*p;
+for(i = 0; i < SOME_MADE_UP_NUMBER_THAT_SEEMS_GOOD;i++)
+	if( p = kmalloc(..)){
+		copyfromuser(x++,p);
+        	dispatch_to_output(p);
+	    }
+	else {//do the rest later
+            ...
+          }
+
+
+
+
+	
+> 
+> Since GFP_KERNEL includes __GFP_WAIT, we are even allowed to wait for dirty page
+> writeout.
+> 
+> -- 
+> Daniel
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+

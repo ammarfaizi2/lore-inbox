@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268713AbUJPMco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268714AbUJPMkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268713AbUJPMco (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 08:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268714AbUJPMco
+	id S268714AbUJPMkW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 08:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268716AbUJPMkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 08:32:44 -0400
-Received: from relay.pair.com ([209.68.1.20]:46094 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S268713AbUJPMcm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 08:32:42 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <417114E6.9090700@cybsft.com>
-Date: Sat, 16 Oct 2004 07:32:38 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
-       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Andrew Rodland <arodland@entermail.net>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <1097888438.6737.63.camel@krustophenia.net> <1097894120.31747.1.camel@krustophenia.net> <20041016064205.GA30371@elte.hu> <1097917325.1424.13.camel@krustophenia.net> <20041016103608.GA3548@elte.hu>
-In-Reply-To: <20041016103608.GA3548@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Oct 2004 08:40:22 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:1251 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S268714AbUJPMkU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 08:40:20 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Sat, 16 Oct 2004 14:21:57 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, KendallB@scitechsoft.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041016122156.GA7968@bytesex>
+References: <1ewKr-2Kh-41@gated-at.bofh.it> <CebL.O9.13@gated-at.bofh.it> <1bucs-57R-33@gated-at.bofh.it> <2PncW-6j9-23@gated-at.bofh.it> <20030423094012$4166@gated-at.bofh.it> <2PncW-6j9-17@gated-at.bofh.it> <2PAMY-7Ir-21@gated-at.bofh.it> <m3655cjc1r.fsf@averell.firstfloor.org> <87u0swouvu.fsf@bytesex.org> <20041016005544.GA75049@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041016005544.GA75049@muc.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+On Sat, Oct 16, 2004 at 02:55:44AM +0200, Andi Kleen wrote:
+> On Fri, Oct 15, 2004 at 05:37:09PM +0200, Gerd Knorr wrote:
+> > Andi Kleen <ak@muc.de> writes:
+> > 
+> > > The problem is that this would imply that the console would only
+> > > work after user space is running. Even with initrd that's quite late.
+> > 
+> > klibc + initramfs + early userspace?
 > 
-> 
->>>i regularly test it on UP. Do you have SPINLOCK_DEBUG enabled perhaps? 
->>>That doesnt work right now. You can enable DEBUG_SPINLOCK_SLEEP and
->>>DEBUG_PREEMPT.
->>
->>Sorry, I did have that enabled.  This caused a build failure with a UP
->>build and a boot failure with CONFIG_SMP.
-> 
-> 
-> not your fault at all - i cleaned this up in my tree so that only valid
-> combinations can be selected, these fixes will show up in -U4.
-> 
-> it seems that SMP + PREEMPT_TIMING is not stable though, somehow the
-> latency printk's cause a crash sooner or later. I'm still debugging this
-> problem. Without PREEMPT_TIMING the SMP kernel is stable.
-> 
-> 	Ingo
-> 
+> That's still quite late in my book (by my perspective may be skewed
+> a bit from low level architecture hacking) 
 
-On my SMP system here at home I have not seen this instability. It's 
-been rock solid since yesterday morning and I already posted the worst 
-latencies that have been generated. My SMP system at work was up and 
-doing fine until I shut it down when I left last night. And posted the 
-high latencies from that yesterday as well. All in all it doesn't look 
-too bad to me.
+Framebuffer console _is_ quite late compared vgacon or even
+early_printk, all the basic stuff is already up+running at that point.
 
-kr
+I think initialization in early userspace can be done in a way that
+it wouldn't delay the initial console display compared to todays vesafb
+(or any other framebuffer).  Of course you need some way to turn it off
+and use vgacon instead ...
 
-Home SMP system:
-[root@porky latencies]# uptime
-  07:23:55 up 19:42,  3 users,  load average: 67.22, 83.69, 57.23
+  Gerd
 
-Current time: Sat Oct 16 06:37:08 CDT 2004
-Exiting test run..
-Displaying report...
-Total test time: 18h46m6s
-Tests passed:
-TTCP ran 1024 times in 8h32m50s, failed on 0 attempts.
-FS ran 64 times in 18h46m3s, failed on 0 attempts.
-CRASHME ran 256 times in 2h31m42s, failed on 0 attempts.
-FIFOS_MMAP ran 256 times in 11h23m41s, failed on 0 attempts.
-P3-FPU ran 256 times in 6h41m44s, failed on 0 attempts.
-SAVE-STATE ran 1 times in 1m2s, failed on 0 attempts.
-**** Test run completed successfully ****
-
-
+-- 
+return -ENOSIG;

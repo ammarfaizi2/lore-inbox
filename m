@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQJ3SSP>; Mon, 30 Oct 2000 13:18:15 -0500
+	id <S129062AbQJ3SVZ>; Mon, 30 Oct 2000 13:21:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129466AbQJ3SSF>; Mon, 30 Oct 2000 13:18:05 -0500
-Received: from ns.caldera.de ([212.34.180.1]:40453 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129408AbQJ3SRy>;
-	Mon, 30 Oct 2000 13:17:54 -0500
-Date: Mon, 30 Oct 2000 19:17:12 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        sct@redhat.com
-Subject: Re: [PATCH] kiobuf/rawio fixes for 2.4.0-test10-pre6
-Message-ID: <20001030191712.B27664@caldera.de>
-Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, sct@redhat.com
-In-Reply-To: <20001027222143.A8059@caldera.de> <200010272123.OAA21478@penguin.transmeta.com> <20001030124513.A28667@caldera.de> <39FDAD99.47FA6A54@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S129042AbQJ3SVP>; Mon, 30 Oct 2000 13:21:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8011 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129090AbQJ3SU6>; Mon, 30 Oct 2000 13:20:58 -0500
+Subject: Re: kmalloc() allocation.
+To: root@chaos.analogic.com
+Date: Mon, 30 Oct 2000 18:22:02 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux kernel)
+In-Reply-To: <Pine.LNX.3.95.1001030104956.735A-100000@chaos.analogic.com> from "Richard B. Johnson" at Oct 30, 2000 10:57:32 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <39FDAD99.47FA6A54@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Oct 30, 2000 at 12:19:21PM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13qJZL-00076K-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 12:19:21PM -0500, Jeff Garzik wrote:
-> Christoph Hellwig wrote:
-> > +Locking down user memory and doing mass storage device IO with it is not
-> > +the only purpose of kiobufs.  Another use for kiobufs is allowing
-> > +user-space mmaping dma memory, e.g in sound drivers.  To do so you
-> > +need to lock-down kernel virtual memory and refernece it using kiobufs.
-> > +The code that does exactly this is not yet in the kernel - get Stephen
-> > +Tweedie's kiobuf patchset if you want to use this.
-> 
-> Take a look at drivers/sound/via82cxxx_audio.c.  How can that mmap be
-> improved by using kiobufs?
+> How much memory would it be reasonable for kmalloc() to be able
+> to allocate to a module?
 
-I think so - but you need Stephen's kvmap patch, that is in the same
-patchset the forward-ported fixes are
-(at ftp://ftp.linux.org.uk/pub/linux/sct/fs/raw-io/)
+64K probably less. kmalloc allocates physically linear spaces. vmalloc will
+happily grab you 2Mb of space but it will not be physically linear
 
-An very nice example is included.
-
-	Christoph
-
--- 
-Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263659AbUJ3J3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUJ3JcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263659AbUJ3J3F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 05:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbUJ3J3F
+	id S263664AbUJ3JcE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 05:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbUJ3JcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 05:29:05 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:2573 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S263659AbUJ3J3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 05:29:02 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Semaphore assembly-code bug
-Date: Sat, 30 Oct 2004 12:28:42 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <Pine.LNX.4.58.0410291133220.28839@ppc970.osdl.org.suse.lists.linux.kernel> <p73sm7xymvd.fsf@verdi.suse.de>
-In-Reply-To: <p73sm7xymvd.fsf@verdi.suse.de>
+	Sat, 30 Oct 2004 05:32:04 -0400
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:4103 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S263664AbUJ3Jaz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 05:30:55 -0400
+Message-ID: <41835F4D.2060508@tebibyte.org>
+Date: Sat, 30 Oct 2004 11:30:53 +0200
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: pt-br, pt
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       kernel@kolivas.org
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com> <20041028120650.GD5741@logos.cnet> <41824760.7010703@tebibyte.org> <41834FE7.5060705@jp.fujitsu.com> <418354C0.3060207@tebibyte.org> <418357C5.4070304@jp.fujitsu.com>
+In-Reply-To: <418357C5.4070304@jp.fujitsu.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410301228.42561.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 October 2004 05:13, Andi Kleen wrote:
-> Linus Torvalds <torvalds@osdl.org> writes:
+
+
+Hiroyuki KAMEZAWA escreveu:
+> zone->free_area[order]->nr_free is corrupted, this patch fix it.
 > 
-> > Anyway, it's quite likely that for several CPU's the fastest sequence ends 
-> > up actually being 
-> > 
-> > 	movl 4(%esp),%ecx
-> > 	movl 8(%esp),%edx
-> > 	movl 12(%esp),%eax
-> > 	addl $16,%esp
-> > 
-> > which is also one of the biggest alternatives.
-> 
-> For K8 it should be the fastest way. K7 probably too.
+> It looks there is no area->nr_free++ code during freeing pages, now.
 
-Pity. I always loved 1 byte insns :)
+It's corrupt because area is out of scope at that point - it's declared 
+within the for loop above.
 
-/me hopes that K8 rev E or K9 will have optimized pop.
---
-vda
+Should I move your fix into the loop or move the declaration of area to 
+function scope?
 
+Regards,
+Chris R.

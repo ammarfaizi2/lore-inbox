@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271762AbRHRCNy>; Fri, 17 Aug 2001 22:13:54 -0400
+	id <S271764AbRHRDIA>; Fri, 17 Aug 2001 23:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271763AbRHRCNo>; Fri, 17 Aug 2001 22:13:44 -0400
-Received: from www.ccsi.com ([216.236.168.10]:49395 "EHLO ccsi.com")
-	by vger.kernel.org with ESMTP id <S271762AbRHRCNc>;
-	Fri, 17 Aug 2001 22:13:32 -0400
-Message-Id: <200108180208.f7I28tO12324@ccsi.com>
-Content-Type: text/plain; charset=US-ASCII
-From: leroyljr <leroyljr@ccsi.com>
-Reply-To: leroyljr@ccsi.com
+	id <S271766AbRHRDHu>; Fri, 17 Aug 2001 23:07:50 -0400
+Received: from mail.intrex.net ([209.42.192.246]:3334 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S271764AbRHRDHe>;
+	Fri, 17 Aug 2001 23:07:34 -0400
+Date: Fri, 17 Aug 2001 23:09:01 -0400
+From: jlnance@intrex.net
 To: linux-kernel@vger.kernel.org
-Subject: More Driver Troubles
-Date: Fri, 17 Aug 2001 21:11:01 -0500
-X-Mailer: KMail [version 1.3]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Re: more kernel .01
+Message-ID: <20010817230901.A15033@bessie.localdomain>
+In-Reply-To: <20010817204358.38BAB501D7@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010817204358.38BAB501D7@localhost.localdomain>; from fattymikefx@yahoo.com on Fri, Aug 17, 2001 at 04:43:57PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I reported a problem with compiling the AIC7xxx deal the other day.
+On Fri, Aug 17, 2001 at 04:43:57PM -0400, tristan wrote:
+> The reason i was hoping to run an old version of the kernel,
+> .01 or .02(as someone proposed), is so i can use it as a basis
+> for learning to add on to, compile, and change an os's kernel.
+> I know i can do this with all kernels, but the .01 kernel is very small
+> and the very beginning of the kernel so i can build on it. i am 
+> open to installing say red hat 5.2 and then running .01 on a 
+> VM, but i only have it on a cd, and the 386 has no cdrom drive.
+> Does anyone know of a place i can get an old version of red hat
+> ive been searching for awhile, or a way to copy the cd to 
+> multiple floppies that are able to be install. 
+> Id really rather have away of just installing it over the DOS partition
+> but it seems everyone thinks it would be best to install minix of red
+> hat first, and im fine with that. 
+> So if anyone has information on old red hat version i would
+> be very greatful
 
-You suggested,"If you manually go into drivers/scsi/aic7xxx/aicasm and do a 
-make clean, the error should go away."
+Long long ago, before Red Hat or any other distributions, people installed
+Linux using a pair of floppies called the boot disk and the root disk.  This
+was how I first installed Linux, using the 0.11 or 0.12 kernel.  It was
+pretty easy to install a minimal self hosting Linux system using these disks.
+If you can find someone with a set of these disk images for 0.11 and the
+associated gcc disks, you can probably get a very early linux system up
+fairly quickly.  I dont know who might have a set laying around, but I
+hope this mail generates some comments from people who do.
 
-OK, that worked.  But now I have undefined symbols in the driver which causes
-a kernel panic when I boot up because it's my root device.
+Thanks,
 
-Here are the ones I was able to write down:
-
-(undefined symbols in):
-scsi_unregister_Rsmp_8dcd2990
-scsi_register_Rsmp_5f04f644
-scsi_unregister_module_Rsmp_81d85a75
-scsi_report_bus_reset_Rsmp_5024965f
-scsi_block_requests_Rsmp_43878139
-scsi_partsize_Rsmp_276f0d01
-scsi_register_module_Rsmp_fa20b7b0
-
-Yeah, it's SMP. Hope this helps.
+Jim

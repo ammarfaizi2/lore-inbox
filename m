@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266986AbRGMJJt>; Fri, 13 Jul 2001 05:09:49 -0400
+	id <S266989AbRGMJKT>; Fri, 13 Jul 2001 05:10:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbRGMJJk>; Fri, 13 Jul 2001 05:09:40 -0400
-Received: from sunu422.rz.ruhr-uni-bochum.de ([134.147.64.14]:18675 "HELO
-	sunu422.rz.ruhr-uni-bochum.de") by vger.kernel.org with SMTP
-	id <S266986AbRGMJJV>; Fri, 13 Jul 2001 05:09:21 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Joerg Schmitz-Linneweber <jsl@sth.ruhr-uni-bochum.de>
-Organization: Ruhr-Universitaet Bochum, Lehrstuhl fuer Signaltheorie
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Gunther Mayer <Gunther.Mayer@t-online.de>
-Subject: Re: Patch(2.4.6):serial unmaintained (bugfix pci timedia/sunix/exsys pci cards)
-Date: Fri, 13 Jul 2001 11:09:16 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>, <tytso@mit.edu>
-In-Reply-To: <Pine.LNX.4.33.0107120929500.6595-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0107120929500.6595-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Message-Id: <01071311091603.25182@p14>
+	id <S266988AbRGMJKM>; Fri, 13 Jul 2001 05:10:12 -0400
+Received: from alb-66-24-215-176.nycap.rr.com ([66.24.215.176]:25358 "EHLO
+	swamijr.dyndns.org") by vger.kernel.org with ESMTP
+	id <S266987AbRGMJKC>; Fri, 13 Jul 2001 05:10:02 -0400
+Message-ID: <XFMail.010713051004.n2por@amsat.org>
+X-Mailer: XFMail 1.3 [p0] on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3b512f43.30115420@mail.mbay.net>
+Date: Fri, 13 Jul 2001 05:10:04 -0400 (EDT)
+From: Chuck Hemker <n2por@amsat.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Switching Kernels without Rebooting?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Am Donnerstag, 12. Juli 2001 18:31 schrieb Linus Torvalds:
-> This should already be fixed in 2.4.7-pre6, can you verify that it works
-> for you?
-There are a lot more bugs (and "send-in" patches to Ted) which fix a lot of 
-problems even in the 2.4.7-x driver.
-I know about a guy "Ian Abbott" (abbotti at mev.co.uk) which is active on the 
-serial.sf.net bug-list and has done a lot good to the serial driver. Perhaps 
-he should be heard regarding this.
+On 12-Jul-01 John Alvord wrote:
+> On Thu, 12 Jul 2001 00:48:15 -0400 (EDT), Frank Davis
+> <fdavis@andrew.cmu.edu> wrote:
+> 
+>>Hello all,
+>>  I believe that if such a project is to be undertaken, it first
+>>needs to be designed, then coded. I agree that is a difficult problem...As
+>>for its feasiblity, I'm unsure. Maybe the reason this topic comes up
+>>here from time to time is because it hasn't been shown to be a bad
+>>idea. It might be be, but if we don't start somewhere, then we'll never
+>>really know, and the debate will continue. Just my .02 cents.
+>>Regards,
+> 
+> This topic comes up once a twice a year.
+> 
+> Usually this topic comes to a grinding halt when someone points out
+> that drivers can be created modular. They can be loaded and unloaded
+> without rebooting Linux. One project used that technique to
+> load/unload different schedulers. While this satisfies only part of
+> the need, it is usually enough to satisfy the tinker-er.
 
-Personally I found a (h/w) timinig problem in the inititalisation code which 
-hangs the "sunix" chips (and freezes the complete box). But since I couldn't 
-get my hands on a datasheet of these chips, I've until now only solved this 
-problem through a hand full of delays after "critical" I/O operations (very 
-ugly).
+One problem with this is many of the modules may be difficult to replace
+because they are in use.
 
-Salut, Jörg
+If someone did want to spend time on a project like this, one place they could
+start would be to try to make some of the modules hot replaceable.
+
+As an example that pops to mind would be a scsi driver:
+
+1. Tell the kernel to stop sending it commands.
+2. wait for things in progress to complete.
+3. save whatever state you need to.
+4. remove old.
+5. start up new.
+6. start restoring state.
+6. reset scsi bus.
+7. reprobe for devices?
+8. finish restore state.
+9. tell the kernel we are available.
+
+This example was chosen not because I think the scsi drivers are buggy. :)
+It was chosen type of module that someone might want to replace, but couldn't
+because it was in use (a file system mounted on it).  
+Maybe a network card would be easier to start with, with similar requirements.  
+Then you could hope all the patches will be for modules. :)
+
+I also haven't looked at the code to see if it was possible. :)
+

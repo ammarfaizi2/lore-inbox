@@ -1,68 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTDHWYX (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbTDHWYX (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:24:23 -0400
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:19617 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262120AbTDHWYW (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 18:24:22 -0400
-Date: Tue, 8 Apr 2003 18:31:44 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH]  menu fix: move # CPUs option to better location
-Message-ID: <Pine.LNX.4.44.0304081828430.15140-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S262174AbTDHWeP (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 18:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbTDHWeP (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 18:34:15 -0400
+Received: from lists.asu.edu ([129.219.13.98]:24024 "EHLO lists.asu.edu")
+	by vger.kernel.org with ESMTP id S262174AbTDHWeO (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 18:34:14 -0400
+Date: Tue, 08 Apr 2003 15:41:50 -0700 (MST)
+From: Shesha@asu.edu
+Subject: readprofile: 0 total     nan
+To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Message-id: <Pine.GSO.4.21.0304081503130.17450-100000@general3.asu.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am running 2.4.18 kernel for ARM. I have one of the boot parameters
+"profile=2". The size of the /proc/profile file is shown as 16MB. But when I
+execute "readprofile" the output is ...  
+0 total                                         nan
 
-  strictly an aesthetic fix, to move a sub-option directly underneath
-its parent option, where it belongs.
-
-
-
-diff -Nru linux-2.5.67/arch/i386/Kconfig rday-2.5.67/arch/i386/Kconfig
---- linux-2.5.67/arch/i386/Kconfig	2003-03-24 17:00:07.000000000 -0500
-+++ rday-2.5.67/arch/i386/Kconfig	2003-04-05 14:20:36.000000000 -0500
-@@ -413,6 +413,18 @@
- 
- 	  If you don't know what to do here, say N.
- 
-+config NR_CPUS
-+	int "Maximum number of CPUs (2-32)"
-+	depends on SMP
-+	default "32"
-+	help
-+	  This allows you to specify the maximum number of CPUs which this
-+	  kernel will support.  The maximum supported value is 32 and the
-+	  minimum value which makes sense is 2.
-+
-+	  This is purely to save memory - each supported CPU adds
-+	  approximately eight kilobytes to the kernel image.
-+
- config PREEMPT
- 	bool "Preemptible Kernel"
- 	help
-@@ -464,18 +476,6 @@
- 	depends on !SMP && X86_UP_IOAPIC
- 	default y
- 
--config NR_CPUS
--	int "Maximum number of CPUs (2-32)"
--	depends on SMP
--	default "32"
--	help
--	  This allows you to specify the maximum number of CPUs which this
--	  kernel will support.  The maximum supported value is 32 and the
--	  minimum value which makes sense is 2.
--
--	  This is purely to save memory - each supported CPU adds
--	  approximately eight kilobytes to the kernel image.
--
- config X86_TSC
- 	bool
- 	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
+If I cat the file it just give me a ".". Can anyone suggest what i am doing
+wrong?
 
 
 

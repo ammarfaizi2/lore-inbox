@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266450AbUFUUWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUFUUYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266450AbUFUUWk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 16:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266451AbUFUUWk
+	id S266454AbUFUUYf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 16:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUFUUYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 16:22:40 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:3045 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S266450AbUFUUWi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 16:22:38 -0400
-Date: Mon, 21 Jun 2004 22:22:37 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch-kj] printk fix drivers/char/istallion.c
-Message-ID: <20040621202237.GK1545@sputnik.stro.at>
+	Mon, 21 Jun 2004 16:24:35 -0400
+Received: from prosun.first.gmd.de ([194.95.168.2]:37005 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266454AbUFUUYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 16:24:24 -0400
+Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, davem@redhat.com,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, netdev@oss.sgi.com,
+       jgarzik@pobox.com
+In-Reply-To: <20040621130316.GA2661@gondor.apana.org.au>
+References: <1087568322.4455.22.camel@localhost>
+	 <E1BcNzi-0000eh-00@gondolin.me.apana.org.au>
+	 <20040621130316.GA2661@gondor.apana.org.au>
+Content-Type: text/plain
+Message-Id: <1087849459.4146.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+Date: Mon, 21 Jun 2004 22:24:20 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-06-21 at 15:03, Herbert Xu wrote:
+> On Mon, Jun 21, 2004 at 10:33:50PM +1000, Herbert Xu wrote:
+> > 
+> > Does this patch fix your problems?
+> 
+> Oops, I had a thinko about min vs. max.  I've also decided to make the
+> bigger MTU useful by adjusting the arguments to skb_put() as well.
+> Please try this one instead.
+> 
+> Cheers,
 
-please apply that small janitorial fix.
+yes that one works nicely... I tested several mtu's ranging from 1000 to
+1500 while the interface was up... no oops.
 
-
-From: <WHarms@bfs.de>(Walter Harms)
-this is a quick fix for the istallion driver.
-it has one %d to much.
-
-regards,
-walter
-ps: calling returncodes something like 'i' should be forbidden 
-
- Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
----
-
- linux-2.6.7-max/drivers/char/istallion.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN drivers/char/istallion.c~printk-fix-istallion drivers/char/istallion.c
---- linux-2.6.7/drivers/char/istallion.c~printk-fix-istallion	2004-06-18 10:33:41.000000000 +0200
-+++ linux-2.6.7-max/drivers/char/istallion.c	2004-06-18 10:33:41.000000000 +0200
-@@ -851,7 +851,7 @@ static void __exit istallion_module_exit
- 	i = tty_unregister_driver(stli_serial);
- 	if (i) {
- 		printk("STALLION: failed to un-register tty driver, "
--			"errno=%d,%d\n", -i);
-+			"errno=%d\n", -i);
- 		restore_flags(flags);
- 		return;
- 	}
-
+thanks,
+Soeren.
 

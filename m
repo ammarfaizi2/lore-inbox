@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbVCDVXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVCEGBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbVCDVXr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 16:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbVCDVOO
+	id S261534AbVCEGBO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 01:01:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVCEFyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 16:14:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62881 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263151AbVCDUy2 convert rfc822-to-8bit
+	Sat, 5 Mar 2005 00:54:41 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:23975 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262782AbVCEFwg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:54:28 -0500
-Cc: davej@redhat.com
-Subject: [PATCH] Remove pci_dev->slot_name
-In-Reply-To: <11099696352086@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 4 Mar 2005 12:53:55 -0800
-Message-Id: <1109969635941@kroah.com>
+	Sat, 5 Mar 2005 00:52:36 -0500
+Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Ian Pilcher <i.pilcher@comcast.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <d0bejc$r11$1@sea.gmane.org>
+References: <20050304222146.GA1686@kroah.com>  <d0bejc$r11$1@sea.gmane.org>
+Content-Type: text/plain
+Date: Fri, 04 Mar 2005 23:52:32 -0600
+Message-Id: <1110001952.8498.10.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1998.11.7, 2005/02/07 14:37:01-08:00, davej@redhat.com
+On Fri, 2005-03-04 at 23:08 -0600, Ian Pilcher wrote:
+> Greg KH wrote:
+> > Anything else anyone can think of?  Any objections to any of these?
+> > I based them off of Linus's original list.
+> 
+> Must already be in Linus tree (i.e. 2.6.X+1)?
 
-[PATCH] Remove pci_dev->slot_name
+No, it's cleaner in bitkeeper terms for the patches to be pulled into
+the linux-releases tree first, and then Linus pulls from that.  Linus
+has said that that is what he intends to do.
 
-This is a pointer to dev.bus_id, which is properly accessed through the
-pci_name() function.
-
-Signed-off-by: Dave Jones <davej@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- include/linux/pci.h |    2 --
- 1 files changed, 2 deletions(-)
-
-
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2005-03-04 12:43:26 -08:00
-+++ b/include/linux/pci.h	2005-03-04 12:43:26 -08:00
-@@ -549,8 +549,6 @@
- 	unsigned int	irq;
- 	struct resource resource[DEVICE_COUNT_RESOURCE]; /* I/O and memory regions + expansion ROMs */
- 
--	char *		slot_name;	/* pointer to dev.bus_id */
--
- 	/* These fields are used by common fixups */
- 	unsigned int	transparent:1;	/* Transparent PCI bridge */
- 	unsigned int	multifunction:1;/* Part of multi-function device */
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

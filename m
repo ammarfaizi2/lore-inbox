@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282288AbRKWXgZ>; Fri, 23 Nov 2001 18:36:25 -0500
+	id <S282291AbRKWXgF>; Fri, 23 Nov 2001 18:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282287AbRKWXgQ>; Fri, 23 Nov 2001 18:36:16 -0500
-Received: from ns0.ipal.net ([206.97.148.120]:29614 "HELO vega.ipal.net")
-	by vger.kernel.org with SMTP id <S282288AbRKWXgD>;
-	Fri, 23 Nov 2001 18:36:03 -0500
-Date: Fri, 23 Nov 2001 17:36:02 -0600
-From: Phil Howard <phil-linux-kernel@ipal.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.15: undefined reference to `show_trace_task'
-Message-ID: <20011123173602.A14759@vega.ipal.net>
+	id <S282287AbRKWXfz>; Fri, 23 Nov 2001 18:35:55 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:51461 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282288AbRKWXfl>; Fri, 23 Nov 2001 18:35:41 -0500
+Date: Fri, 23 Nov 2001 23:35:02 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH][CFT] Re: 2.4.15-pre9 breakage (inode.c)
+Message-ID: <20011123233502.C3141@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.GSO.4.21.0111231634310.2422-100000@weyl.math.psu.edu> <Pine.GSO.4.21.0111231701440.2422-100000@weyl.math.psu.edu> <20011123160536.D1308@lynx.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011123160536.D1308@lynx.no>; from adilger@turbolabs.com on Fri, Nov 23, 2001 at 04:05:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While compiling 2.4.15 for sparc (32-bit) platform I encounted:
+On Fri, Nov 23, 2001 at 04:05:36PM -0700, Andreas Dilger wrote:
+> Hey, this gives Linus a good reason to make another 2.4.15 release,
+> and silence all of the people complaining about -greased-turkey (which,
+> as we all know, was Linus' prerelease for testing that everything was
+> working OK before he made an _official_ 2.4.15 release, and a good thing
+> he did or this bug wouldn't have shown up until the _official_ 2.4.15
+> release which would have been embarassing ;-).
 
-=============================================================================
-ld -m elf32_sparc -T arch/sparc/vmlinux.lds arch/sparc/kernel/head.o arch/sparc/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/sparc/kernel/kernel.o arch/sparc/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/sparc/math-emu/math-emu.o arch/sparc/boot/btfix.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sbus/sbus_all.o drivers/video/video.o \
-        net/network.o \
-        /home/root/kernel-2.4.15/linux/lib/lib.a /home/root/kernel-2.4.15/linux/lib/lib.a /home/root/kernel-2.4.15/linux/arch/sparc/prom/promlib.a /home/root/kernel-2.4.15/linux/arch/sparc/lib/lib.a \
-        --end-group \
-        -o vmlinux
-kernel/kernel.o: In function `show_task':
-kernel/kernel.o(.text+0x16a4): undefined reference to `show_trace_task'
-make: *** [vmlinux] Error 1
-=============================================================================
+Actually, had Linus have waited until tonight before doing the 2.4.15
+release, I would've been running 2.4.15-pre9 on the machine which showed
+the problem.
 
-I scanned all source files for "show_trace_task" and found:
+>From pre7, pre8 came out, didn't even get to build that before pre9 came
+out.  Built pre9, slept.  Woke up and 2.4.15-dead-duck was out.  Had I
+not immediately grabbed the dead-duck release, I would've been running
+pre9 on the machine, which I understand contains the problem as well.
 
-=============================================================================
-arch/alpha/kernel/traps.c:132:void show_trace_task(struct task_struct * tsk)
-arch/arm/kernel/traps.c:154:void show_trace_task(struct task_struct *tsk)
-arch/i386/kernel/traps.c:156:void show_trace_task(struct task_struct *tsk)
-arch/sparc64/kernel/traps.c:1406:void show_trace_task(struct task_struct *tsk)
-kernel/sched.c:1160:            extern void show_trace_task(struct task_struct *tsk);
-kernel/sched.c:1161:            show_trace_task(p);
-=============================================================================
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-It looks like this didn't get implement across all platforms.
-
-Can the call to show_trace_task() in kernel/sched.c be safely commented
-out for now?
-
--- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------
-
-
-
--- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------

@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVBOOJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVBOOIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVBOOJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 09:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVBOOJo
+	id S261735AbVBOOIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 09:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVBOOIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 09:09:44 -0500
-Received: from mx2.perftech.si ([195.246.0.30]:36870 "EHLO mx2.perftech.si")
-	by vger.kernel.org with ESMTP id S261727AbVBOOJQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 09:09:16 -0500
-Date: Tue, 15 Feb 2005 15:09:04 +0100
-From: "xerces8" <xerces8@butn.net>
-To: "Helge Hafting" <helge.hafting@aitel.hist.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Dummy vt for XFree86 ?
-MIME-Version: 1.0
+	Tue, 15 Feb 2005 09:08:46 -0500
+Received: from smtpout16.mailhost.ntl.com ([212.250.162.16]:30540 "EHLO
+	mta08-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S261727AbVBOOIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 09:08:38 -0500
+Subject: Re: What is the purpose of a GPIO controller
+From: Ian Campbell <ijc@hellion.org.uk>
+To: krishna <krishna.c@globaledgesoft.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4211FDFC.3040905@globaledgesoft.com>
+References: <4211FDFC.3040905@globaledgesoft.com>
 Content-Type: text/plain
-Message-ID: <WorldClient-F200502151509.AA09040206@butn.net>
-X-Mailer: WorldClient 8.0.0f
-In-Reply-To: <4211FD5A.9020705@aitel.hist.no>
-References: <WorldClient-F200502151033.AA33440074@butn.net> <4211FD5A.9020705@aitel.hist.no>
-X-Authenticated-Sender: xerces8@butn.net
-X-Spam-Processed: butn.net, Tue, 15 Feb 2005 15:09:06 +0100
-	(not processed: message from valid local sender)
-X-Return-Path: xerces8@butn.net
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: butn.net, Tue, 15 Feb 2005 15:09:12 +0100
+Date: Tue, 15 Feb 2005 14:08:33 +0000
+Message-Id: <1108476513.3324.10.camel@icampbell-debian>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Helge Hafting <helge.hafting@aitel.hist.no>
+On Tue, 2005-02-15 at 19:19 +0530, krishna wrote:
+>     Can any one tell me what is the purpose of GPIO controllers.
 
-> The keyboard is very much the issue - your typing either goes into
+I'm not sure what question you are asking... GPIO controllers are
+clearly for the purpose of controlling GPIO pins. GPIO stands for
+general purpose i/o, so they are used for all sorts of things.
 
-No, it isn't. I have the keyboard under control. Forget that keyboards
-even exist ;-) Trust me.
+For example, hardware designers hook up all sorts of things to GPIO
+lines: input switches, reset lines to other chips on the board, leds,
+relays. I have boards where an i2c bus has been constructed using 2 gpio
+lines, another gpio is used to control the LCD backlight, etc, etc.
 
-I know the ruby patch, but I'm trying to make this work with an unpatched
-kernel. And the VT switching is the only remaining problem.
+Ian.
 
-At the end I will run 2 X servers ( yes, I am doing a multi-head (or is
-it multi-seat ?) system).
-Currently when I start the second one, it will perform a VT switch and thereby
-"turn off" the first one (it is still running, just not visible).
+-- 
+Ian Campbell
+Current Noise: Opeth - To Rid the Disease
 
-What if I recompile the kernel with no VT support ?
-(that is my next try anyway)
-
-> the VT on the primary card - or into the X session.  There is no other way
-> the computer can know what you mean.  I guess you're going to
-> run an X session that won't use kbd input at all, given the question you 
-> ask?
-> 
-> The stock 2.6.x can't do it, but take a look at the ruby patch.
-> Ruby is really meant for hooking up several keybaords, so you can have one
-> keboard for the VT's on your first card and another kbd for the X session.
-> This lets several users work at the same time, using only one pc.
-> 
-> If you don't need the scondary keyboard - don't plug one in.  Ruby can still
-> give you a dummy VT where no input or output happens, and X can use that VT.
-> 
-> Boot the ruby-patched 2.6.x kernel with the "dumbcon=1" parameter to get one
-> dummy console, and let X use VT17 which will be that dummy.
-> 
-> Helge Hafting
-
+The pollution's at that awkward stage.  Too thick to navigate and too
+thin to cultivate.
+		-- Doug Sneyd
 

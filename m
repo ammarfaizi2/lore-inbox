@@ -1,83 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTK1DWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 22:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTK1DWg
+	id S261953AbTK1EQF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 23:16:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTK1EQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 22:22:36 -0500
-Received: from h80ad24b3.async.vt.edu ([128.173.36.179]:6533 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261947AbTK1DWe (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 22:22:34 -0500
-Message-Id: <200311280322.hAS3M602016305@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Tonnerre Anklin <thunder@keepsake.ch>
-Cc: Kai Germaschewski <kai.germaschewski@gmx.de>,
-       Werner Cornelius <werner@isdn4linux.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [I4L] hfcpci missing MODULE_LICENSE 
-In-Reply-To: Your message of "Fri, 28 Nov 2003 03:00:03 +0100."
-             <20031128020003.GG1635@dbintra.dmz.lightweight.ods.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031128020003.GG1635@dbintra.dmz.lightweight.ods.org>
+	Thu, 27 Nov 2003 23:16:05 -0500
+Received: from holomorphy.com ([199.26.172.102]:32706 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261953AbTK1EQC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 23:16:02 -0500
+Date: Thu, 27 Nov 2003 20:15:58 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: pgcl-2.6.0-test5-bk3-17
+Message-ID: <20031128041558.GW19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_273047486P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Nov 2003 22:22:05 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_273047486P
-Content-Type: text/plain; charset=us-ascii
+This is a forward port of Hugh Dickins' patch to implement ABI-
+preserving large software PAGE_SIZE support, effectively "large VM
+blocksize". It's also been called "subpages". "pgcl" is an abbreviation
+for "page clustering", after the historical but different BSD notion.
 
-On Fri, 28 Nov 2003 03:00:03 +0100, Tonnerre Anklin <thunder@keepsake.ch>  said:
+This is meant to make memory management more efficient by reducing the
+number of objects to manage, as well as establishing more physical
+contiguity of memory by keeping it pieces larger than what individual
+ptes map. This very noticeably reduces the space requirements for
+mem_map[]. I hope to eventually demonstrate further advantages like
+larger fs blocksize support and reduced sglist length requirements.
 
-> If this is compiled as a module and then loaded, the kernel is tainted
-> because of a missing module license.
+This release features a rewrite of all the fault handling logic, done
+to incorporate a forward port of hugh's original fault handlers. This
+should perform much better than prior releases as they efficiently
+implement COW unsharing's trivial case and have bounded search overhead,
+though there is clearly a lot of room for further optimization.
 
-True.  However..
+Tested for basic userspace functionality on a 256MB Thinkpad T21 and a
+32GB NUMA-Q with 32KB PAGE_SIZE. It does break when you push it, though
+it does run init scripts, most programs, and some benchmarks here.
 
-> Also,  according to  many european  laws, software  which  is released
-> under no license must not be used.
+Available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
 
-No way to verify this.  I mostly understand the US copyright code as
-it impacts my work, but have no idea what the other side of that puddle
-does legally (and for that matter, I don't claim to know what the other
-side of the other, even bigger, puddle is)...
+Incremental patches for all stages of the rewrite as well as cumulative
+diffs vs. 2.6.0-test5-bk3 and 2.6.0-test5 are also available there.
 
-> <URL:http://keepsake.keepsake.ch/~thunder/noyau/2.6.0-test11-ta1/hfcpci_license.xml>
+Errata:
+(1) the CONFIG_PAGE_CLUSTER==0/PAGE_MMUCOUNT==1 case is nonfunctional
+(2) some oopsen zwane found while running KDE
+(3) some mysterious preempt imbalance(s)
+(4) drivers and fs's are essentially totally unaudited, probably broken
+(5) non-i386 are all broken
+(6) CONFIG_DEBUG_HIGHMEM is nonfunctional
+(7) CONFIG_DEBUG_PAGEALLOC is nonfunctional
+(8) many, many more
 
-which says: "I guess the license is meant to be GPL."  And so it was almost
-certainly intended to be.
-
-> +MODULE_LICENSE("GPL");
->  MODULE_AUTHOR("Kai Germaschewski <kai.germaschewski@gmx.de>/Werner Cornelius <werner@isdn4linux.de>");
-
-
-Unfortunately, neither you nor I nor anybody but Kai or Werner (or their
-assignees) can do this, as I understand the law.  The only proper resolutions
-here are to get one of them to make some sort of statement (I suspect even a
-"Yea, it's GPL, we just forgot the macro" e-mail from one of them would be good
-enough), or to pull the code out of the 2.6.0 tree till it *is* resolved.
-
-(Sorry to be a stickler, but this is the sort of thing that Darl and
-company would love to make a point about - we *do* need to keep careful
-track of the actual source and license status of every line....)
-
-Kai? Werner? You out there?
+TODO:
+(1) merge to current
+(2) sweep drivers/fs's
+(3) optimize and rework kmap_atomic_sg() API to not impact CONFIG_NOHIGHMEM
+(4) clean up potentially-removable code impacts (e.g. debug code)
+(5) rework pagetable allocation
+(6) rework/optimize rmap interaction
+(7) rework TLB invalidations
+(8) fix all bugs (as usual)
+(9) eventually play with ia64's 32-bit emulation
 
 
---==_Exmh_273047486P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/xr9dcC3lWbTT17ARAp16AKCGGvouy/xVvvJAK3OOnHh7yq1LEACePFV/
-/SWhElc+e+cnpYWpsxkhs9M=
-=UuEB
------END PGP SIGNATURE-----
-
---==_Exmh_273047486P--
+-- wli

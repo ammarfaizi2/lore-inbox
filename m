@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263029AbTDYF3m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 01:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbTDYF3m
+	id S263025AbTDYFf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 01:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbTDYFf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 01:29:42 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:34833 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263029AbTDYF3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 01:29:39 -0400
-Date: Fri, 25 Apr 2003 07:41:19 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: softdog.c doesn't compile in 2.5.68-bk5
-Message-ID: <20030425054119.GA3034@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
+	Fri, 25 Apr 2003 01:35:59 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:37256 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263025AbTDYFf6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 01:35:58 -0400
+Date: Fri, 25 Apr 2003 06:47:59 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Shawn <core@enodev.com>
+Cc: John Bradford <john@grabjohn.com>, Timothy Miller <miller@techsource.com>,
+       Daniel Phillips <phillips@arcor.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030425054759.GA32431@mail.jlokier.co.uk>
+References: <200304242138.h3OLc824000522@81-2-122-30.bradfords.org.uk> <1051240827.17021.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1051240827.17021.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/char/watchdog/softdog.c doesn't compile in 2.5.68-bk5.
+Shawn wrote:
+> I'd like to see an x86 completely in perf board. I thought my high
+> school digital electronics type stuff looked bad...
 
-struct inode isn't defined, so it needs an #include <linux/fs.h> at the
-top.
+You could do it nowadays using dynamic binary translation, and an
+absurdly simple CPU capable of accessing a large memory.  You'd need a
+DIMM for the large memory, but get away with discrete logic for the
+CPU if you really wanted to.
 
-HTH,
-Jurriaan
--- 
-Midnight Oil, cyber troubadours, busking in a hall near you. When the
-economy dries up, you'll find us on the back of a flatback truck
-playing for cans of food.
-        Peter Garett, Midnight Oil
-Debian (Unstable) GNU/Linux 2.5.68 3940 bogomips 4 users load av: 1.33 0.69 0.45
+At perf board sizes using discrete logic, expect it run run quite slow :)
+
+-- Jamie

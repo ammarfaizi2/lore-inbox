@@ -1,141 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265938AbTGAEo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 00:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbTGAEo6
+	id S265967AbTGAEuj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 00:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbTGAEuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 00:44:58 -0400
-Received: from dp.samba.org ([66.70.73.150]:58860 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265938AbTGAEoz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 00:44:55 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
-Subject: Re: [PATCH] fix for kallsyms module symbol resolution problem 
-In-reply-to: Your message of "30 Jun 2003 21:24:35 EST."
-             <1057026277.2069.80.camel@mulgrave> 
-Date: Tue, 01 Jul 2003 14:58:21 +1000
-Message-Id: <20030701045917.CED532C0B1@lists.samba.org>
+	Tue, 1 Jul 2003 00:50:39 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:7591 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265967AbTGAEuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 00:50:37 -0400
+Reply-To: <vlad@lrsehosting.com>
+From: <vlad@lrsehosting.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>
+Cc: "Lkml \(E-mail\)" <linux-kernel@vger.kernel.org>
+Subject: RE: Dell vs. GPL 
+Date: Tue, 1 Jul 2003 00:03:02 -0500
+Message-ID: <000b01c33f8e$0d1dab60$0200a8c0@wsl3>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1057026277.2069.80.camel@mulgrave> you write:
-> OK, how about the attached.  I think it solves the module_text_address()
-> problem too.
+In the US, you cannot be made complicit by such an instrument.  If you sign
+an NDA, and your boss murders someone and this murder is, strictly speaking,
+covered by the NDA, you're still guilty of being an accessory if you don't
+report it.  It's one of those little annoying differences between civil and
+criminal law...
 
-Excellent: tested on bk8.  Linus, please apply (subsumes previous
-patch: if you get a couple of rej's ignore them).
-
-James: I changed the names to s/code/text/ since that's more expected
-for toolchain-type people.  I frobbed the NOTE: comment a bit, and
-moved the m == 0 tests outside the section loop.
-
-Thanks!
-Rusty.
-
-================
-Name: Identify Code Section Of Modules for kallsyms
-Author: James Bottomley
-Status: Tested on 2.5.73-bk8
-
-D: Remember the size of the SHF_EXECINSTR sections, which are conveniently
-D: at the start of the modules, and use that to more reliably implement
-D: module_text_address().
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5304-linux-2.5.73-bk8/include/linux/module.h .5304-linux-2.5.73-bk8.updated/include/linux/module.h
---- .5304-linux-2.5.73-bk8/include/linux/module.h	2003-06-15 11:30:08.000000000 +1000
-+++ .5304-linux-2.5.73-bk8.updated/include/linux/module.h	2003-07-01 14:15:16.000000000 +1000
-@@ -217,6 +217,9 @@ struct module
- 	/* Here are the sizes of the init and core sections */
- 	unsigned long init_size, core_size;
- 
-+	/* The size of the executable code in each section.  */
-+	unsigned long init_text_size, core_text_size;
-+
- 	/* Arch-specific module values */
- 	struct mod_arch_specific arch;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5304-linux-2.5.73-bk8/kernel/module.c .5304-linux-2.5.73-bk8.updated/kernel/module.c
---- .5304-linux-2.5.73-bk8/kernel/module.c	2003-06-15 11:30:11.000000000 +1000
-+++ .5304-linux-2.5.73-bk8.updated/kernel/module.c	2003-07-01 14:37:18.000000000 +1000
-@@ -1176,6 +1176,9 @@ static void layout_sections(struct modul
- 			    const char *secstrings)
- {
- 	static unsigned long const masks[][2] = {
-+		/* NOTE: all executable code must be the first section
-+		 * in this array; otherwise modify the text_size
-+		 * finder in the two loops below */
- 		{ SHF_EXECINSTR | SHF_ALLOC, ARCH_SHF_SMALL },
- 		{ SHF_ALLOC, SHF_WRITE | ARCH_SHF_SMALL },
- 		{ SHF_WRITE | SHF_ALLOC, ARCH_SHF_SMALL },
-@@ -1199,6 +1202,8 @@ static void layout_sections(struct modul
- 			s->sh_entsize = get_offset(&mod->core_size, s);
- 			DEBUGP("\t%s\n", secstrings + s->sh_name);
- 		}
-+		if (m == 0)
-+			mod->core_text_size = mod->core_size;
- 	}
- 
- 	DEBUGP("Init section allocation order:\n");
-@@ -1215,6 +1220,8 @@ static void layout_sections(struct modul
- 					 | INIT_OFFSET_MASK);
- 			DEBUGP("\t%s\n", secstrings + s->sh_name);
- 		}
-+		if (m == 0)
-+			mod->init_text_size = mod->init_size;
- 	}
- }
- 
-@@ -1726,6 +1733,7 @@ sys_init_module(void __user *umod,
- 	module_free(mod, mod->module_init);
- 	mod->module_init = NULL;
- 	mod->init_size = 0;
-+	mod->init_text_size = 0;
- 	up(&module_mutex);
- 
- 	return 0;
-@@ -1747,9 +1755,9 @@ static const char *get_ksymbol(struct mo
- 
- 	/* At worse, next value is at end of module */
- 	if (within(addr, mod->module_init, mod->init_size))
--		nextval = (unsigned long)mod->module_init + mod->init_size;
-+		nextval = (unsigned long)mod->module_init+mod->init_text_size;
- 	else 
--		nextval = (unsigned long)mod->module_core + mod->core_size;
-+		nextval = (unsigned long)mod->module_core+mod->core_text_size;
- 
- 	/* Scan for closest preceeding symbol, and next symbol. (ELF
-            starts real symbols at 1). */
-@@ -1757,11 +1765,15 @@ static const char *get_ksymbol(struct mo
- 		if (mod->symtab[i].st_shndx == SHN_UNDEF)
- 			continue;
- 
-+		/* We ignore unnamed symbols: they're uninformative
-+		 * and inserted at a whim. */
- 		if (mod->symtab[i].st_value <= addr
--		    && mod->symtab[i].st_value > mod->symtab[best].st_value)
-+		    && mod->symtab[i].st_value > mod->symtab[best].st_value
-+		    && *(mod->strtab + mod->symtab[i].st_name) != '\0' )
- 			best = i;
- 		if (mod->symtab[i].st_value > addr
--		    && mod->symtab[i].st_value < nextval)
-+		    && mod->symtab[i].st_value < nextval
-+		    && *(mod->strtab + mod->symtab[i].st_name) != '\0')
- 			nextval = mod->symtab[i].st_value;
- 	}
- 
-@@ -1910,8 +1924,8 @@ struct module *module_text_address(unsig
- 	struct module *mod;
- 
- 	list_for_each_entry(mod, &modules, list)
--		if (within(addr, mod->module_init, mod->init_size)
--		    || within(addr, mod->module_core, mod->core_size))
-+		if (within(addr, mod->module_init, mod->init_text_size)
-+		    || within(addr, mod->module_core, mod->core_text_size))
- 			return mod;
- 	return NULL;
- }
 --
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+ /"\                         / For information and quotes, email us at
+ \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
+  X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
+ / \  AND POSTINGS        / vlad@lrsehosting.com
+-------------------------------------------------------------------------
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Andre Hedrick
+Sent: Monday, June 30, 2003 3:44 PM
+To: Valdis.Kletnieks@vt.edu
+Cc: Linux Kernel Mailing List
+Subject: Re: Dell vs. GPL
+
+
+
+Now you are being silly, and I have to stop because your lack of
+seriousness.
+
+You can not talk about what you see or hear.
+
+What is not clear?
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Mon, 30 Jun 2003 Valdis.Kletnieks@vt.edu wrote:
+
+> On Mon, 30 Jun 2003 11:28:15 PDT, Andre Hedrick said:
+> > Try leaving the ivory towers of academics for the real world.
+> > I did and it was a rude slap in the face.  Most academics don't get the
+> > real world of business, they can teach it but generally can not do it.
+> > If they could do it, they would not be in academics.  Except for the few
+> > cases of people who just get off on teaching and that is wonderful.
+> > Maybe you are different, and do not fit under the brush.  However your
+> > comments about NDA's leaves me little faith in your knowledge base.
+>
+> Well.. I prefer to think of it as working at a large corporate data center
+with
+> a 10,000 square foot server room that provides central computing services
+for a
+> $400M/year organization that just happens to be in the business sector of
+> "higher education".
+>
+> And does your NDA *REALLY* say "Thou shalt not go to the cops if
+> you find out about illegal activity"?
+>
+>
+>
+>
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

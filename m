@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267424AbUIOU4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267495AbUIPApL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267424AbUIOU4a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUIOUzV
+	id S267495AbUIPApL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 20:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUIPAll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:55:21 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:46399 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S267433AbUIOUxf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:53:35 -0400
-Subject: Re: PATCH: tty locking for 2.6.9rc2
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040915204028.GA25740@devserv.devel.redhat.com>
-References: <20040914163426.GA29253@devserv.devel.redhat.com>
-	 <1095265595.2924.27.camel@deimos.microgate.com>
-	 <20040915163051.GA9096@devserv.devel.redhat.com>
-	 <1095274482.2686.16.camel@deimos.microgate.com>
-	 <20040915200856.GA8000@devserv.devel.redhat.com>
-	 <1095279799.2958.11.camel@deimos.microgate.com>
-	 <20040915204028.GA25740@devserv.devel.redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095281599.2958.21.camel@deimos.microgate.com>
+	Wed, 15 Sep 2004 20:41:41 -0400
+Received: from holomorphy.com ([207.189.100.168]:21920 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267563AbUIPAi1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 20:38:27 -0400
+Date: Wed, 15 Sep 2004 17:38:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5
+Message-ID: <20040916003819.GG9106@holomorphy.com>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040915113635.GO9106@holomorphy.com> <20040915113833.GA4111@suse.de> <20040915122852.GQ9106@holomorphy.com> <20040915124124.GC4111@suse.de> <20040915125056.GD4111@suse.de> <20040915125355.GS9106@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Sep 2004 15:53:19 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915125355.GS9106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 15:40, Alan Cox wrote:
-> What do you think about
-> 
-> 	tty_ldisc_get(tty, ldisc_num)
-> 
-> That seems to remove the whole mess ?
+On Wed, Sep 15 2004, Jens Axboe wrote:
+>>> Hmm, I can only see this happening if rq->flags has its direction bit
+>>> changed between the allocation time and the time of freeing. I'll look
+>>> over scsi and see if I can find any traces of that, don't see any
+>>> immediately.
 
-Seems reasonable.
-It's more compact and less error prone.
+On Wed, Sep 15, 2004 at 02:50:57PM +0200, Jens Axboe wrote:
+>> Can you try if this works?
 
-It will require some reordering/reworking
-of tty_set_ldisc().
+On Wed, Sep 15, 2004 at 05:53:55AM -0700, William Lee Irwin III wrote:
+> Booting it ASAP.
 
- 
---
-Paul Fulghum
-paulkf@microgate.com
+It appears to have lasted enough hours to call it an improvement. I'll
+leave it running for a while longer just in case.
 
 
+-- wli

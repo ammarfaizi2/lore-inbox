@@ -1,101 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVCNSUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVCNSTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVCNSUa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVCNSU3
+	id S261677AbVCNSTk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVCNSQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 13:20:29 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:62429 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261661AbVCNSSa convert rfc822-to-8bit (ORCPT
+	Mon, 14 Mar 2005 13:16:59 -0500
+Received: from everest.2mbit.com ([24.123.221.2]:18120 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S261661AbVCNSOn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 13:18:30 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2/6] PCI Express Advanced Error Reporting Driver
-Date: Mon, 14 Mar 2005 10:18:22 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408070B47@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2/6] PCI Express Advanced Error Reporting Driver
-Thread-Index: AcUm2jQo26N+bjpLQ1myqV7ue6gnwQB5q3yg
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Greg KH" <greg@kroah.com>, "long" <tlnguyen@snoqualmie.dp.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 14 Mar 2005 18:18:24.0691 (UTC) FILETIME=[36224830:01C528C2]
+	Mon, 14 Mar 2005 13:14:43 -0500
+Date: Mon, 14 Mar 2005 13:14:42 -0500
+From: Coywolf Qi Hunt <coywolf@sosdg.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] oom_kill fix
+Message-ID: <20050314181442.GA31020@everest.sosdg.org>
+Reply-To: coywolf@gmail.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, March 11, 2005 11:25 PM Greg KH wrote:
->> +static ssize_t aer_sysfs_consume_show(struct device_driver *dev,
-char >>*buf)
->> +{
->> +	return aer_fsprint_record(buf);
->> +}
->> +                  	
->> +static ssize_t aer_sysfs_status_show(struct device_driver *dev, char
->>*buf)
->> +{
->> +	return aer_fsprint_devices(buf);
->> +}
->> +                  	
->
->Why call wrapper functions that only do one thing?  Why have this extra
->layer of indirection that is not needed from what I can tell?
 
-Agree, will make changes appropriately. Thanks for your comment.
+Hello,
 
->> +static ssize_t aer_sysfs_verbose_show(struct device_driver *dev,
-char >>*buf)
->> +{
->> +	return sprintf(buf, "Verbose display set to %d\n", 
->> +		aer_get_verbose());				
->> +}
->>
->Just echo the value, don't print out pretty strings :)
+This oom_kill fix is to do mmput(mm) a bit earlier and returning 0 or 1
+to indicate success or failure instead of returning mm_struct pointer. 
 
-Agree, will make changes appropriately.
+	Coywolf
 
->> +static ssize_t aer_sysfs_verbose_store(struct device_driver *drv, 	
->> +					const char *buf, size_t count)  
->> +{                            
->> +	aer_set_verbose(buf[0] - 0x30);			
->> +	return count;							
->> +}
->>
->Oh, that's a problem waiting to happen... Please validate the user
->provided value before acting on it.
 
-Agree, will make changes appropriately.
-
->> +static ssize_t aer_sysfs_auto_show(struct device_driver *dev, char
-*buf)
->> +{
->> +	return sprintf(buf, "Automatic reporting is %s\n", 		
->> +		(aer_get_auto_mode()) ? "on" : "off");
-
->> +}
->>
->Again, just print on/off.
-
-Agree, will make changes appropriately.
-
->> +static ssize_t aer_sysfs_auto_store(struct device_driver *drv, 	
->> +					const char *buf, size_t count)
-
->> +{                            
->> +	aer_set_auto_mode(buf[0] - 0x30);			
->> +	return count;							
->> +}
->>
->Also validate this.
-
-Agree, will make changes appropriately.
-
-Thanks for all comments,
-Long
+Signed-off-by: Coywolf Qi Hunt <coywolf@gmail.com>
+ oom_kill.c |   23 +++++++++--------------
+ 1 files changed, 9 insertions(+), 14 deletions(-)
+diff -Nrup 2.6.11/mm/oom_kill.c 2.6.11-cy/mm/oom_kill.c
+--- 2.6.11/mm/oom_kill.c	2005-03-03 17:12:18.000000000 +0800
++++ 2.6.11-cy/mm/oom_kill.c	2005-03-15 00:28:32.000000000 +0800
+@@ -202,16 +202,16 @@ static void __oom_kill_task(task_t *p)
+ 	force_sig(SIGKILL, p);
+ }
+ 
+-static struct mm_struct *oom_kill_task(task_t *p)
++static int oom_kill_task(task_t *p)
+ {
+ 	struct mm_struct *mm = get_task_mm(p);
+ 	task_t * g, * q;
+ 
+ 	if (!mm)
+-		return NULL;
++		return 0;
+ 	if (mm == &init_mm) {
+ 		mmput(mm);
+-		return NULL;
++		return 0;
+ 	}
+ 
+ 	__oom_kill_task(p);
+@@ -224,12 +224,12 @@ static struct mm_struct *oom_kill_task(t
+ 			__oom_kill_task(q);
+ 	while_each_thread(g, q);
+ 
+-	return mm;
++	mmput(mm);
++	return 1;
+ }
+ 
+-static struct mm_struct *oom_kill_process(struct task_struct *p)
++static int oom_kill_process(struct task_struct *p)
+ {
+- 	struct mm_struct *mm;
+ 	struct task_struct *c;
+ 	struct list_head *tsk;
+ 
+@@ -238,9 +238,8 @@ static struct mm_struct *oom_kill_proces
+ 		c = list_entry(tsk, struct task_struct, sibling);
+ 		if (c->mm == p->mm)
+ 			continue;
+-		mm = oom_kill_task(c);
+-		if (mm)
+-			return mm;
++		if (oom_kill_task(c))
++			return 1;
+ 	}
+ 	return oom_kill_task(p);
+ }
+@@ -255,7 +254,6 @@ static struct mm_struct *oom_kill_proces
+  */
+ void out_of_memory(int gfp_mask)
+ {
+-	struct mm_struct *mm = NULL;
+ 	task_t * p;
+ 
+ 	read_lock(&tasklist_lock);
+@@ -274,14 +272,11 @@ retry:
+ 
+ 	printk("oom-killer: gfp_mask=0x%x\n", gfp_mask);
+ 	show_free_areas();
+-	mm = oom_kill_process(p);
+-	if (!mm)
++	if (!oom_kill_process(p))
+ 		goto retry;
+ 
+  out:
+ 	read_unlock(&tasklist_lock);
+-	if (mm)
+-		mmput(mm);
+ 
+ 	/*
+ 	 * Give "p" a good chance of killing itself before we

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUHIV3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUHIVcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUHIV3o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHIV27
+	id S267232AbUHIVcM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUHIV2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:28:59 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:28352 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267278AbUHIV12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:27:28 -0400
-Date: Mon, 9 Aug 2004 17:31:19 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mpm@selenic.com
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / x86_64
-In-Reply-To: <20040809132308.7312656b.ak@suse.de>
-Message-ID: <Pine.LNX.4.58.0408091726520.21726@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408072217170.19619@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0408080156550.19619@montezuma.fsmlabs.com>
- <20040809132308.7312656b.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Aug 2004 17:28:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28843 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267287AbUHIV2F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 17:28:05 -0400
+Date: Mon, 9 Aug 2004 17:26:03 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] select FW_LOADER -> depends HOTPLUG
+Message-ID: <20040809202603.GA7776@logos.cnet>
+References: <20040809195656.GX26174@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040809195656.GX26174@fs.tum.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Aug 2004, Andi Kleen wrote:
+On Mon, Aug 09, 2004 at 09:56:56PM +0200, Adrian Bunk wrote:
+> 
+> The contract is easy:
+> If you select something, you have to ensure the depenencies of the 
+> selected option are met.
+> 
+> This is simple.
+> 
+> And most people get it wrong.
+> 
+> The patch below adds dependencies on HOTPLUG for all options that select 
+> FW_LOADER.
 
-> I think the 50k number is wrong. I took a look at it and the big
-> difference is only seen when you enable interrupts during spinning, which
-> we didn't do before.  If you compare it to the old implementation the
-> difference is much less.
-
-Yes agreed the increase wouldn't be of as high a magnitude if compared to
-the original code, but it's still a decent saving.
-
-> I don't really like the config option. Either it's a good idea
-> then it should be done by default without option or it should not be done at all.
->
-> Did you do any lock intensive benchmarks that could show a slowdown?
-
-I went for a file IO type benchmark, the differences looked like
-statistical noise, possibly the best bet would be to check for cache
-hits/misses.
-
-> You should make this file assembly only.
-
-Ok you're the second person to mention that, i don't have a problem with
-switching to assembly only and dumping the exports in x8664_ksyms.c
-
-Thanks,
-	Zwane
-
+BTW last time I tried to turn CONFIG_FW_LOADER off on 2.6.8-rc3 I was not able
+to do so... Is that expected?

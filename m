@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269380AbRGaRkL>; Tue, 31 Jul 2001 13:40:11 -0400
+	id <S269538AbRGaXpD>; Tue, 31 Jul 2001 19:45:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269386AbRGaRkB>; Tue, 31 Jul 2001 13:40:01 -0400
-Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:32014
-	"EHLO ns1.serialhacker.net") by vger.kernel.org with ESMTP
-	id <S269379AbRGaRjo>; Tue, 31 Jul 2001 13:39:44 -0400
-Date: Tue, 31 Jul 2001 17:39:43 -0700
-From: Drew Bertola <drew@drewb.com>
-To: linux-kernel@vger.kernel.org
-Subject: [Party!] Linux 10th Anniversary Picnic/BBQ
-Message-ID: <20010731173943.A18682@drewb.com>
-Reply-To: drew@linux10.org
+	id <S269539AbRGaXot>; Tue, 31 Jul 2001 19:44:49 -0400
+Received: from weta.f00f.org ([203.167.249.89]:21390 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269538AbRGaXoc>;
+	Tue, 31 Jul 2001 19:44:32 -0400
+Date: Wed, 1 Aug 2001 11:45:13 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Dan Hollis <goemon@anime.net>
+Cc: Jussi Laako <jlaako@pp.htv.fi>, linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+Message-ID: <20010801114513.B8839@weta.f00f.org>
+In-Reply-To: <Pine.LNX.4.30.0107311526360.13810-100000@anime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0107311526360.13810-100000@anime.net>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Sorry for the distraction...
+On Tue, Jul 31, 2001 at 03:32:39PM -0700, Dan Hollis wrote:
 
-To celebrate the 10 years since Linus posted the first announcement
-about his "hobby", svlug and sbay.org are hosting a Picnic/BBQ on
-Saturday, Aug. 25th in Sunnyvale, CA, USA.
+    How about an idea I proposed a while back, 'integrity loopback'?
 
-I'm posting because many of you may be in the Bay Area that weekend
-for Linux World or IDC (both the following week) and we don't want you
-to miss out.  Everyone is welcome to attend.  Their will be free food
-and drinks* for everyone who RSVPs.
+    A loopback device which writes a CRC with each block and checks
+    the CRC when read back.
 
-T-shirts are being sold to fund the event.  Email me at
-drew@linux10.org if you'd like to purchase one.
+    So if you have a flaky DMA controller, bad cables, etc you will
+    know instantly. It would at least help catch the 'silent
+    corruption' cases.
 
-(see:  http://linux10.org/images/frontshirt.jpg ).
+It still doesn't help with block-reordering, the fs needs some way to
+communication write-barriers or relative block write ordering to the
+lower-levels.
 
-If you are in the area that weekend, please rsvp as soon as possible
-at:
+To implement the device, I would hack loopback to take no only the
+loopback file, but also another 'checksum' file of 160-bits or
+whatever for each 4096 (or whatever) block.  This file might initially
+be of zero-length, in which case the bind is responsible for
+checksumming the blocks and writing the checksums out on attach.
 
-http://linux10.org/rsvp/  
+I say 160-bits (or whatever) so you can use something like SHA1 for
+the checksums, this way you can use a small application to resync the
+entire fs at the block level over a network without having to read
+every block (ie. you compared checksums and then xmit the blocks).
+The latter is something I needed a while ago.
 
-and if you need transportation, check out the ride-board at:
 
-http://linux10.org/ride_board/
 
-Any questions?  Please email me off-list at drew@linux10.org.
-
-Hope to see some of you there,
-
--- 
-Drew Bertola
-
-Linux 10th Anniversary Picnic/BBQ - visit http://linux10.org
-
-* Beer and wine are "BYO"
+  --cw

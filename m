@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265961AbUBBTsz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 14:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbUBBTrk
+	id S265959AbUBBTr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 14:47:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUBBTq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:47:40 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:51313 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265961AbUBBTrS
+	Mon, 2 Feb 2004 14:46:27 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:29034 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265931AbUBBToW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:47:18 -0500
-Date: Mon, 2 Feb 2004 20:47:16 +0100
+	Mon, 2 Feb 2004 14:44:22 -0500
+Date: Mon, 2 Feb 2004 20:44:22 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 17/42]
-Message-ID: <20040202194716.GQ6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 10/42]
+Message-ID: <20040202194422.GJ6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -26,36 +26,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-g_NCR5380.c:212: warning: `do_NCR5380_setup' defined but not used
-g_NCR5380.c:230: warning: `do_NCR53C400_setup' defined but not used
-g_NCR5380.c:248: warning: `do_NCR53C400A_setup' defined but not used
-g_NCR5380.c:266: warning: `do_DTC3181E_setup' defined but not used
+csr.c:120: warning: long unsigned int format, int arg (arg 3)
 
-These functions are used to handle boot params and are useless when the
-driver is modular.
+HZ is int, not unsigned long.
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/scsi/g_NCR5380.c linux-2.4/drivers/scsi/g_NCR5380.c
---- linux-2.4-vanilla/drivers/scsi/g_NCR5380.c	Tue Nov 11 17:51:39 2003
-+++ linux-2.4/drivers/scsi/g_NCR5380.c	Sat Jan 31 17:36:59 2004
-@@ -146,6 +146,7 @@
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/ieee1394/csr.c linux-2.4/drivers/ieee1394/csr.c
+--- linux-2.4-vanilla/drivers/ieee1394/csr.c	Tue Nov 11 17:51:38 2003
++++ linux-2.4/drivers/ieee1394/csr.c	Sat Jan 31 17:07:53 2004
+@@ -117,7 +117,7 @@
+ 	/* Just to keep from rounding low */
+ 	csr->expire++;
  
- #define NO_OVERRIDES (sizeof(overrides) / sizeof(struct override))
- 
-+#ifndef MODULE
- /**
-  *	internal_setup		-	handle lilo command string override
-  *	@board:	BOARD_* identifier for the board
-@@ -270,6 +271,7 @@
- 	internal_setup(BOARD_DTC3181E, str, ints);
- 	return 1;
+-	HPSB_VERBOSE("CSR: setting expire to %lu, HZ=%lu", csr->expire, HZ);
++	HPSB_VERBOSE("CSR: setting expire to %lu, HZ=%d", csr->expire, HZ);
  }
-+#endif
  
- /**
-  * 	generic_NCR5380_detect	-	look for NCR5380 controllers
-
+ 
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-"Su cio` di cui non si puo` parlare e` bene tacere".
- Ludwig Wittgenstein
+"Sei l'unica donna della mia vita".
+(Adamo)

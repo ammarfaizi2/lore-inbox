@@ -1,69 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271618AbRIGIfg>; Fri, 7 Sep 2001 04:35:36 -0400
+	id <S271617AbRIGIf4>; Fri, 7 Sep 2001 04:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271619AbRIGIf1>; Fri, 7 Sep 2001 04:35:27 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:40460 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S271618AbRIGIfN>;
-	Fri, 7 Sep 2001 04:35:13 -0400
-Message-ID: <20010907124220.A27338@castle.nmd.msu.ru>
-Date: Fri, 7 Sep 2001 12:42:20 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Julian Anastasov <ja@ssi.bg>
-Cc: Wietse Venema <wietse@porcupine.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip aliasbug 2.4.9 and 2.2.19]
-In-Reply-To: <20010907115416.A26786@castle.nmd.msu.ru> <Pine.LNX.4.33.0109071053390.1692-100000@u.domain.uli>
+	id <S271619AbRIGIfr>; Fri, 7 Sep 2001 04:35:47 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:23812 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271617AbRIGIff>; Fri, 7 Sep 2001 04:35:35 -0400
+Date: Fri, 7 Sep 2001 11:30:06 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1048143499.20010907113006@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: Re: K7/Athlon optimizations and Sacrifices to the Great Ones.
+In-Reply-To: <01090612513601.00171@c779218-a>
+In-Reply-To: <01090612513601.00171@c779218-a>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.4.33.0109071053390.1692-100000@u.domain.uli>; from "Julian Anastasov" on Fri, Sep 07, 2001 at 11:09:57AM
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 07, 2001 at 11:09:57AM +0000, Julian Anastasov wrote:
-> 
-> On Fri, 7 Sep 2001, Andrey Savochkin wrote:
-> 
-> > > 	It seems if connect() is called without bind() and the target
-> > > is local address the selected source is the same (the preferred address
-> > > is not used). The postfix guys simply can try this proposal (I don't
-> >
-> > I've just checked, you're right.
-> > In the mainstream 2.4 kernels for local routes setting the source to be equal
-> > to the target overrides the preferred source from the route.
-> 
-> 	I saw it in the 2.2 sources, so it is the same there.
-> 
-> > I personally consider it as a bug.
-> 
-> 	Agreed. OTOH, nobody plays with the preferred source in the
-> local table. Now the question is whether this is a bug or a feature :)
-> In any case, if the admins don't play with the prefsrc in table local
-> the above assumption about connecting to local address still works
-> for IP/32 (but not for targets in the 127/8 range different from
+Thursday, September 06, 2001, 10:51:36 PM, Nicholas Knight <tegeran@home.com> wrote:
+NK> 133Mhz FSB + KT133A chipset theory has been officially shot to hell.
+NK> Not only that, but 6-4-4 (family/model/stepping) processors don't seem to 
+NK> be the culprit. I've now had reports of 6-4-2 experiencing problems, and 
+NK> 6-4-4 NOT experiencing problems, even on KT133A @ 133Mhz.
+NK> At this point, I can't even isolate a MOTHERBOARD that could be the 
+NK> culprit, and I don't think it's the power supply.
+...
+NK> At this point, I'm giving up on collecting data, as I just don't see a
+NK> definitive pattern, all I can say for sure is that the "majority" 
+NK> KT133A-based motherboards seem to have problems, but not ALL. I don't 
+NK> know of a single report outside of the KT133A chipset of these problems.
 
-In my opinion, the priorities in address selection should be the following:
- 1. always use prefsrc if it is specified
- 2. then for local routes, use destination
- 3. as a last resort, call that function guessing the address...
+Well, why can't guys with Athlons and KT133As who did enable K7
+optimizations just open their boxes and report to Nicholas:
+* processor and chipset markings
+* bus speed
+* CPUcore/bus multiplier
+* Motherboard model
+* BIOS manufacturer, version, date
+  This is important. BIOS might fix/mask chipset bugs
+  by programming it to stable but slow cfg
+* do they see K7 related oops
+  ("I don't see oops" is a valuable report too!)
+* did oops go away with 100MHz FSB
+* did oops go away with different CPU voltage
+* did oops go away with smaller multiplier
+* did oops go away with BIOS update
+* did oops go away with any trick with mmx.c - see below.
+  More advanced reporters might try to fiddle with
+  arch/i386/lib/mmx.c and try to make oops disappear
+* did oops go away with K7 optimization off
+* results of memtest86
+* results of running burnK7/burnMMX
 
-> 127.0.0.1). Hm, may be then a bind() call to the same IP will be required
-> before connecting? If bind fails, then the address is not local. If
-> not, connect() should succeed and getsockname should return the same
-> IP (the preferred source will not be considered in this case from
-> the kernel).
+(Last 3 *'s to make sure it is the K7 bug, not bad memory or
+something)
 
-I would say that using of bound sockets is a bit risky.
-I'm not sure whether such a connect may succeed with 2.2 kernels and
-transparent proxy support, for example.
+Need to check for oops? "Simen Thoresen" <simen-tt@online.no>:
+>I've determined that with the Athlon-optimized fast_copy_page,
+>the machine is easy to push into oopsing. Just starting
+>a dd with blocksize 128M (half available ram) provokes an oops.
+>This is repeatable, consistent and almost fun.
+  
+Since fast_copy_page() from arch/i386/lib/mmx.c has been isolated as
+a code which triggers oops, it can be instrumented to check whether page
+is indeed copied right by questionable K7 code and barf loudly if it is not.
 
-An unbound UDP connect, as autofs does, is a good solution if the mistakes are
-acceptable.
-The behavior of autofs in case of a mistake, as Peter explained, looks
-reasonable and acceptable for me.
+Since oops are not instant, looks like interrupts might interfere
+with movntq instruction... On the other hand, fast_clear_page()
+isn't triggering oops (right?) so maybe mixing normal and
+cache-bypassing instructions is triggering oops...
 
-Using GETROUTE as Andi suggested is the other good alternative.
-But it won't work without NETLINK socket support compiled in.
+Comparing K7 and MMX fast_copy_page...
 
-	Andrey
+Does replacing movntq->movq fix makes oops go avay?
+
+If no, does this (or similar) change makes oops go away?
+movq (%0), %%mm0        -> movq (%0), %%mm0
+movntq %%mm0, (%1)      -> movq 8(%0), %%mm1
+movq 8(%0), %%mm1       -> movq 16(%0), %%mm2
+movntq %%mm1, 8(%1)     -> movq 24(%0), %%mm3
+movq 16(%0), %%mm2      -> movntq %%mm0, (%1)
+movntq %%mm2, 16(%1)    -> movntq %%mm1, 8(%1)
+movq 24(%0), %%mm3      -> movntq %%mm2, 16(%1)
+movntq %%mm3, 24(%1)    -> movntq %%mm3, 24(%1)
+movq 32(%0), %%mm4      -> movq 32(%0), %%mm4
+movntq %%mm4, 32(%1)    -> movq 40(%0), %%mm5
+movq 40(%0), %%mm5      -> movq 48(%0), %%mm6
+movntq %%mm5, 40(%1)    -> movq 56(%0), %%mm7
+movq 48(%0), %%mm6      -> movntq %%mm4, 32(%1)
+movntq %%mm6, 48(%1)    -> movntq %%mm5, 40(%1)
+movq 56(%0), %%mm7      -> movntq %%mm6, 48(%1)
+movntq %%mm7, 56(%1)    -> movntq %%mm7, 56(%1)
+
+No? Changing first for() loop from
+for(i=0; i<(4096-320)/64; i++) into
+for(i=0; i<4096/64; i++) and eliminating second for() -
+does this help?
+
+One of above changes HAS to fix K7 oops, because you convert K7
+fast_copy_page to MMX fast_copy_page that way :-)
+So if you have an Athlon - try these and report. I don't have the
+hardware.
+
+David Hollister <david@digitalaudioresources.org> wrote:
+>MMX2 does not cause any problems for me.  Robert (the guy who wrote these) has
+>provided me with two more versions that mimic the Athlon optimized
+>fast_page_copy and fast_page_clear functions in mmx.c.  They aren't exact
+>copies, but are close.  One fails for me consistently, the other does not.  The
+>one that fails consistently is the one that mimics the fast_page_copy code.
+
+Robert Redelmeier: redelm@ev1.net http://users.ev1.net/~redelm/
+Although this tester is not on his page (yet?).
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
+
+

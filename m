@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317422AbSHKCVM>; Sat, 10 Aug 2002 22:21:12 -0400
+	id <S317427AbSHKCrO>; Sat, 10 Aug 2002 22:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317427AbSHKCVM>; Sat, 10 Aug 2002 22:21:12 -0400
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:49625 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S317422AbSHKCVL>; Sat, 10 Aug 2002 22:21:11 -0400
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: steveb@unix.lancs.ac.uk
-Date: Sun, 11 Aug 2002 03:24:57 +0100
-Subject: Re: 2.4.19 IDE Partition Check issue (again)
-To: linux-kernel@vger.kernel.org
-Message-Id: <E17diPZ-0004bU-00@wing1.lancs.ac.uk>
+	id <S317491AbSHKCrO>; Sat, 10 Aug 2002 22:47:14 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:39467 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S317427AbSHKCrO>;
+	Sat, 10 Aug 2002 22:47:14 -0400
+Date: Sat, 10 Aug 2002 22:50:18 -0400
+From: Tom Vier <tmv@comcast.net>
+Subject: Re: Testing of filesystems
+In-reply-to: <20020730094902.GA257@prester.freenet.de>
+To: JFS-Discussion <jfs-discussion@www-124.ibm.com>,
+       linux-kernel@vger.kernel.org
+Reply-to: Tom Vier <tmv@comcast.net>
+Message-id: <20020811025018.GE17886@zero>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.3.28i
+References: <20020730094902.GA257@prester.freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this is an old issue, but I'm still seeing this problem between
-ALI15x3 and Maxtor drives when DMA is enabled...
+On Tue, Jul 30, 2002 at 11:49:02AM +0200, Axel Siebenwirth wrote:
+> I wonder what a good way is to stress test my JFS filesystem. Is there a tool
+<snip>
 
-If I run 2.4.19 DMA is not autodetected. I get lousy performance. I can enable DMA (with hdparm) on all but my Maxtor drive, but if I manually enable DMA on the Maxtor drive disk access freezes (to both drives on the channel).
+fsx.c came up a while ago on l-k. it's an old (but still very useful) fs
+stressor(sp) from neXT. i have a copy davej modded for linux. if you can't
+find it, i can send it to you. i haven't been brave enough to run it myself,
+on my alpha's reiserfs. 8) it found some hard to find bugs in ext2 that were
+lurking for years (iirc).
 
-If I run 2.4.19-ac4 DMA is turned on automatically and the system hangs at the partition check.
-
-on 2.4.19 I see this in dmesg:
-...
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ALI15X3: IDE controller on PCI bus 00 dev 20
-PCI: No IRQ known for interrupt pin A of device 00:04.0. Please try using pci=biosirq.
-ALI15X3: chipset revision 196
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xb400-0xb407, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xb408-0xb40f, BIOS settings: hdc:DMA, hdd:DMA
-hda: ST340016A, ATA DISK drive
-hdb: Maxtor 4G120J6, ATA DISK drive
-hdc: RICOH DVD/CDRW MP9120, ATAPI CD/DVD-ROM drive
-hdd: IBM-DPTA-372050, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=77545/16/63
-hdb: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=14946/255/63
-hdd: 40088160 sectors (20525 MB) w/1961KiB Cache, CHS=39770/16/63, UDMA(66)
-ide-floppy driver 0.99.newide
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 >
- /dev/ide/host0/bus0/target1/lun0: p1
- /dev/ide/host0/bus1/target1/lun0: [PTBL] [2495/255/63] p1
-
-2.4.19-ac4 (correctly) probes hda and hdb as being UDMA(100), but it looks like hdb chokes on the DMA...
-
-Steve Bennett
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0xE6CB97DA

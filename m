@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271393AbRHOUFS>; Wed, 15 Aug 2001 16:05:18 -0400
+	id <S271399AbRHOUJr>; Wed, 15 Aug 2001 16:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271394AbRHOUFH>; Wed, 15 Aug 2001 16:05:07 -0400
-Received: from www.casdn.neu.edu ([155.33.251.101]:17935 "EHLO
-	www.casdn.neu.edu") by vger.kernel.org with ESMTP
-	id <S271393AbRHOUEs>; Wed, 15 Aug 2001 16:04:48 -0400
-From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
-Organization: Northeastern University
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Wed, 15 Aug 2001 16:04:25 -0400
+	id <S271398AbRHOUJh>; Wed, 15 Aug 2001 16:09:37 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61453 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271399AbRHOUJY>; Wed, 15 Aug 2001 16:09:24 -0400
+Subject: Re: Problems with sound in 2.4.x (.7 and .8 definitely) with CS4248
+To: vichu@digitalme.com (Trever Adams)
+Date: Wed, 15 Aug 2001 21:11:55 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010815193502Z271373-760+2100@vger.kernel.org> from "Trever Adams" at Aug 15, 2001 07:24:51 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.4.8 aic7xxx  -- continuous bus resets
-Reply-to: A.J.Scott@casdn.neu.edu
-Message-ID: <3B7A9D88.23945.BFC66BE@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15X719-0003ua-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Whether it be MP3, OGG, or whatever, I cannot play sound
+> without getting the following message in 2.4.7 and 2.4.8 (I
+> don't believe I tried any other versions).  However, I
+> believe it works (unless hardware failure has happened in
+> the past 6 mos) in 2.2.x.
+> 
+> Sound: DMA (output) timed out - IRQ/DRQ config error?
 
-I thought I'd look at the 2.4.8 kernel while I figure out what's 
-wrong with my 2.2.18 installation. The kernel loading gets stuck with 
-errors from the aic7xxx driver, which keeps timeing out querying the 
-bus looking for non-existant drives, and when it finaly tries to 
-query a drive that exists it claims to see bus errors. End result is 
-that Linux 2.4.8 never mounts any drives or finishes loading.
+This message occurs when the audio doesn't generate an interrupt for
+the completion of a block of sound. It might for example indicate that the
+irq setting passed when you configured it was wrong.
 
-The system is an IBM 704 with a built in adaptec aic-7880U 
-controller, with two drives on first scsi buss. 
-
-2.2.18 has no problems with the adaptec controllers, but has other 
-issues, which seem to be timer related.
-
-
-
-                      _
-                     / \   / ascott@casdn.neu.edu
-                    / \ \ /
-                   /   \_/
+Alan

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129231AbQKXOwz>; Fri, 24 Nov 2000 09:52:55 -0500
+        id <S129325AbQKXOwz>; Fri, 24 Nov 2000 09:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129091AbQKXOwp>; Fri, 24 Nov 2000 09:52:45 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:29530 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S129325AbQKXOwc>; Fri, 24 Nov 2000 09:52:32 -0500
-Date: Fri, 24 Nov 2000 15:21:53 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "H . J . Lu" <hjl@valinux.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lseek patch for 2.2.18pre23
-Message-ID: <20001124152153.A23297@athlon.random>
-In-Reply-To: <20001123221524.A32154@valinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001123221524.A32154@valinux.com>; from hjl@valinux.com on Thu, Nov 23, 2000 at 10:15:24PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+        id <S129231AbQKXOwq>; Fri, 24 Nov 2000 09:52:46 -0500
+Received: from draconic.fyremoon.net ([194.159.247.49]:35599 "EHLO
+        draconic.fyremoon.net") by vger.kernel.org with ESMTP
+        id <S129145AbQKXOw3>; Fri, 24 Nov 2000 09:52:29 -0500
+Message-ID: <60916.195.11.55.51.975075740.squirrel@www.fyremoon.net>
+Date: Fri, 24 Nov 2000 14:22:20 -0000 (GMT)
+Subject: Re: About IP address
+From: "John Crowhurst" <FyreMoon@fyremoon.net>
+To: coredumping@hotmail.com
+In-Reply-To: <F198IZv0R1Cm7yvgffu00003ac1@hotmail.com>
+In-Reply-To: <F198IZv0R1Cm7yvgffu00003ac1@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: FyreMoon@fyremoon.net
+X-Mailer: SquirrelMail (version 1.0pre1 (cvs))
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2000 at 10:15:24PM -0800, H . J . Lu wrote:
-> 2.2.18pre23 allows lseek to negative offsets in ext2 and has no checks
-> for proc. Here is a patch.
+> For example, Class B address range is 128.1.0.0 ~ 191.254.0.0
+> 
+> Why 128.0.0.0 and 191.255.0.0 can't use ?
+> 
+> I can't understand it
 
-As just said your patch is wrong for vanilla 2.2.18pre23.
+This is because its the network and broadcast addresses of a Class A address
+range. Simple answer :)
 
-The right fix for that problem in 2.2.18pre23 (2.2.x vanilla doesn't include
-LFS) is here:
+-- 
+FyreMoon
+Under the moon, the dragon flies.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre22/lseek-2g-ext2-1
-
-I also uploaded separately your right fix for /dev/mem:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre22/lseek-2g-mem-hjl-1 (this one is 
-
-and this the right fix for the largefile handling in ext2:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre22/notify-change-2g-ext2-1
-
-All three should be applied to 2.2.18pre-latest.
-
-And in LFS (that means also 2.4.x) the >> 32 doesn't make any sense in lseek
-and should be removed:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test11-pre6/ext2-lseek-cleanup-1
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

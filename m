@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317564AbSGEUmY>; Fri, 5 Jul 2002 16:42:24 -0400
+	id <S317567AbSGEUqe>; Fri, 5 Jul 2002 16:46:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317566AbSGEUmX>; Fri, 5 Jul 2002 16:42:23 -0400
-Received: from mnh-1-16.mv.com ([207.22.10.48]:25861 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S317564AbSGEUmW>;
-	Fri, 5 Jul 2002 16:42:22 -0400
-Message-Id: <200207052148.QAA03113@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Ville Herva <vherva@niksula.hut.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: prevent breaking a chroot() jail? 
-In-Reply-To: Your message of "Fri, 05 Jul 2002 21:45:03 +0300."
-             <20020705184503.GQ1548@niksula.cs.hut.fi> 
-Mime-Version: 1.0
+	id <S317568AbSGEUqd>; Fri, 5 Jul 2002 16:46:33 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13060 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317567AbSGEUqc>; Fri, 5 Jul 2002 16:46:32 -0400
+Subject: Re: StackPages errors (CALLTRACE)
+To: jalvo@mbay.net (John Alvord)
+Date: Fri, 5 Jul 2002 22:12:08 +0100 (BST)
+Cc: thunder@ngforever.de (Thunder from the hill),
+       exilion@yifan.net (Pablo Fischer), hahn@physics.mcmaster.ca (Mark Hahn),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <83ubiu433pkcf41ev9ihl7mgo0tn1kokcc@4ax.com> from "John Alvord" at Jul 05, 2002 12:50:57 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Jul 2002 16:48:43 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17QaN6-0004Ci-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vherva@niksula.hut.fi said:
-> ISTR UML had some security problems (guest processes being able to
-> disrupt host processes or just guest processes being able to disrupt
-> other guest processes). Have those been resolved yet?  
+> There has also been a patch on L-K which implments CMOV on prior-PPro
+> processors. john
 
-Can you be more specific?  That's not ringing any bells with me.
-
-As far as I know, there's nothing that needs to be resolved.
-
-				Jeff
-
+It has a hideous overhead. Just dont use cmov blindly in kernels. The kernel 
+stuff will take care not to let the compiler stick cmov instructions into
+a non ppro+ kernel

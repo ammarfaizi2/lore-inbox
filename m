@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268379AbUJDUbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268458AbUJDUhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268379AbUJDUbv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUJDUbv
+	id S268458AbUJDUhn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 16:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUJDUhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:31:51 -0400
-Received: from mail.dif.dk ([193.138.115.101]:38614 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268379AbUJDUbs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:31:48 -0400
-Date: Mon, 4 Oct 2004 22:39:10 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Larry Ewing <lewing@isc.tamu.edu>,
+	Mon, 4 Oct 2004 16:37:43 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:10633 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268458AbUJDUhl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 16:37:41 -0400
+Date: Mon, 4 Oct 2004 22:35:21 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Larry Ewing <lewing@isc.tamu.edu>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] How about making Tux official - it's about time...
-Message-ID: <Pine.LNX.4.61.0410042223200.2925@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] How about making Tux official - it's about time...
+Message-ID: <20041004203521.GE30858@thundrix.ch>
+References: <Pine.LNX.4.61.0410042223200.2925@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BI5RvnYi6R4T2M87"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0410042223200.2925@dragon.hygekrogen.localhost>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Linus,
+--BI5RvnYi6R4T2M87
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-By now it's been an ~8 year relationship between Linux and Tux, but 
-Documentation/logo.txt still proclaim the poor bird as the unofficial 
-logo. Isn't it about time Tux gained official status? I mean, the bird is 
-practically everywhere, and there's no doubt that it's considered the 
-Linux logo where ever you go.
+Salut,
 
-You can hardly claim that you have "not really announced it yet" any more. 
-I don't know about the paperwork bit, but if that's really something that 
-should be done, then how about now for a good time to get it done so we 
-can finally proclaim Tux as official? 
+On Mon, Oct 04, 2004 at 10:39:10PM +0200, Jesper Juhl wrote:
+> Also, on a related note; how about a PNG version instead of a GIF in the=
+=20
+> kernel source? PNG is a nice open format, GIF has this unpleasant patent=
+=20
+> smell...?
 
-I propose the following patch :
+The LZW  patent from Unisys has  timed out some monthes  ago. The only
+point that's left against GIF is that it's terribly ugly.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+				Tonnerre
 
-diff -u linux-2.6.9-rc3-mm2-orig/Documentation/logo.txt linux-2.6.9-rc3-mm2/Documentation/logo.txt
---- linux-2.6.9-rc3-mm2-orig/Documentation/logo.txt	2004-09-30 05:04:23.000000000 +0200
-+++ linux-2.6.9-rc3-mm2/Documentation/logo.txt	2004-10-04 22:28:44.000000000 +0200
-@@ -1,8 +1,7 @@
--This is the full-colour version of the currently unofficial Linux logo
--("currently unofficial" just means that there has been no paperwork and
--that I have not really announced it yet).  It was created by Larry Ewing,
--and is freely usable as long as you acknowledge Larry as the original
--artist. 
-+
-+This is the full-colour version of the official Linux logo (Tux).
-+It was created by Larry Ewing, and is freely usable as long as you 
-+acknowledge Larry as the original artist. 
- 
- Note that there are black-and-white versions of this available that
- scale down to smaller sizes and are better for letterheads or whatever
+--BI5RvnYi6R4T2M87
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
 
+iD4DBQFBYbQI/4bL7ovhw40RAqhTAJY9C5D5cU2jK3ppt+xv6dyJ1wSEAKCMWvej
+t/+r+r4HpUITifCvM2xuhw==
+=EBp2
+-----END PGP SIGNATURE-----
 
-Also, on a related note; how about a PNG version instead of a GIF in the 
-kernel source? PNG is a nice open format, GIF has this unpleasant patent 
-smell...?
-
-
---
-Jesper Juhl
-
-
+--BI5RvnYi6R4T2M87--

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTFJVgo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 17:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTFJVgM
+	id S263765AbTFJVp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 17:45:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbTFJVoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 17:36:12 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:53422 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262528AbTFJShG convert rfc822-to-8bit
+	Tue, 10 Jun 2003 17:44:38 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:11416 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S264030AbTFJVnf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:37:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10552709674152@kroah.com>
-Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
-In-Reply-To: <1055270967899@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 10 Jun 2003 11:49:27 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	Tue, 10 Jun 2003 17:43:35 -0400
+Subject: Re: Wrong number of cpus detected/reported
+From: Steven Cole <elenstev@mesatop.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Samuel Flory <sflory@rackable.com>, John Appleby <john@dnsworld.co.uk>,
+       xyko_ig@ig.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055280955.32661.35.camel@dhcp22.swansea.linux.org.uk>
+References: <434747C01D5AC443809D5FC540501131569E@bobcat.unickz.com>
+	 <3EE64161.5010102@rackable.com>
+	 <1055279041.2270.42.camel@spc9.esa.lanl.gov>
+	 <1055280955.32661.35.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055281927.2269.47.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 10 Jun 2003 15:52:07 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1346, 2003/06/09 15:53:52-07:00, greg@kroah.com
+On Tue, 2003-06-10 at 15:35, Alan Cox wrote:
+> > wp		: yes
+> > flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+> > bogomips	: 2798.38
+> > 
+> > See that ht flag near the end?
+> 
+> The ht flag means the ht facilities (mtrr etc) are present, doesnt mean
+> HT necessarily is
 
-PCI: remove pci_present() from drivers/net/wan/sbni.c
+Is there a reliable method, apart from knowing 'a priori' the mapping
+from CPU models and stepping to hyperthreading capability?
 
-
- drivers/net/wan/sbni.c |    3 ---
- 1 files changed, 3 deletions(-)
-
-
-diff -Nru a/drivers/net/wan/sbni.c b/drivers/net/wan/sbni.c
---- a/drivers/net/wan/sbni.c	Tue Jun 10 11:20:14 2003
-+++ b/drivers/net/wan/sbni.c	Tue Jun 10 11:20:14 2003
-@@ -263,9 +263,6 @@
- {
- 	struct pci_dev  *pdev = NULL;
- 
--	if( !pci_present( ) )
--		return  -ENODEV;
--
- 	while( (pdev = pci_find_class( PCI_CLASS_NETWORK_OTHER << 8, pdev ))
- 	       != NULL ) {
- 		int  pci_irq_line;
+Steven
 

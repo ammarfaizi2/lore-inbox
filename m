@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbTHYOEL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 10:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTHYOEL
+	id S261829AbTHYNzt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 09:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbTHYNzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 10:04:11 -0400
-Received: from verein.lst.de ([212.34.189.10]:31133 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261922AbTHYOEG (ORCPT
+	Mon, 25 Aug 2003 09:55:48 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:38852 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S261829AbTHYNvl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 10:04:06 -0400
-Date: Mon, 25 Aug 2003 16:03:16 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: marcelo@hera.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] reserve a sysctl number for XFS (pagebuf)
-Message-ID: <20030825140316.GA17269@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, marcelo@hera.kernel.org,
-	linux-kernel@vger.kernel.org
+	Mon, 25 Aug 2003 09:51:41 -0400
+Date: Mon, 25 Aug 2003 15:51:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: paul.devriendt@amd.com
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org, aj@suse.de,
+       mark.langsdorf@amd.com, richard.brunner@amd.com
+Subject: Re: Cpufreq for opteron
+Message-ID: <20030825135126.GC740@elf.ucw.cz>
+References: <99F2150714F93F448942F9A9F112634C080EF010@txexmtae.amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -3 () PATCH_UNIFIED_DIFF,USER_AGENT_MUTT
+In-Reply-To: <99F2150714F93F448942F9A9F112634C080EF010@txexmtae.amd.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reserve the 2.5 number for VM_PAGEBUF in 2.4 aswell.
+Hi!
 
+> > 4) given good hardware and debugged driver, will any of those
+> > BUG_ON()s ever trigger?
+> 
+> Only if there are BIOS problems. 
 
---- 1.27/include/linux/sysctl.h	Tue Jun 24 17:11:29 2003
-+++ edited/include/linux/sysctl.h	Mon Aug 25 14:06:01 2003
-@@ -146,6 +146,7 @@
- 	VM_MAX_MAP_COUNT=11,	/* int: Maximum number of active map areas */
- 	VM_MIN_READAHEAD=12,    /* Min file readahead */
- 	VM_MAX_READAHEAD=13,    /* Max file readahead */
-+	VM_PAGEBUF=17,		/* struct: Control pagebuf parameters */
- };
- 
- 
+In such case, I believe best idea is to leave them in as BUG_ON(). On
+broken BIOS, it will kill machine cleanly, and hopefully bios is going
+to be fixed.
+
+If broken BIOS is seen in retail, we'll need to solve this other way.
+
+Does this seem okay to you?
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263908AbRFIXNW>; Sat, 9 Jun 2001 19:13:22 -0400
+	id <S263910AbRFIXPm>; Sat, 9 Jun 2001 19:15:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263916AbRFIXNM>; Sat, 9 Jun 2001 19:13:12 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:17288 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263908AbRFIXM4>;
-	Sat, 9 Jun 2001 19:12:56 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263916AbRFIXPc>; Sat, 9 Jun 2001 19:15:32 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:28063 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263910AbRFIXP3>;
+	Sat, 9 Jun 2001 19:15:29 -0400
+Date: Sat, 9 Jun 2001 19:15:27 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: watermodem <aquamodem@ameritech.net>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregistertable
+In-Reply-To: <3B229E95.F7E85C90@ameritech.net>
+Message-ID: <Pine.GSO.4.21.0106091850440.19361-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15138.44403.815959.756121@pizda.ninka.net>
-Date: Sat, 9 Jun 2001 16:12:51 -0700 (PDT)
-To: Riley Williams <rhw@MemAlpha.CX>
-Cc: Adrian Cox <adrian@humboldt.co.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Probable endianess problem in TLAN driver
-In-Reply-To: <Pine.LNX.4.33.0106092356360.23184-100000@infradead.org>
-In-Reply-To: <15138.42357.146305.892652@pizda.ninka.net>
-	<Pine.LNX.4.33.0106092356360.23184-100000@infradead.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Riley Williams writes:
- > Even if that wasn't true, aren't the above all self-recursive
- > definitions that would prevent anything calling them from compiling?
 
-Yes, it looks that way.
+On Sat, 9 Jun 2001, watermodem wrote:
 
-Later,
-David S. Miller
-davem@redhat.com
+> He is discussing a theme with legal implications. (Legal and Slow tended
+> to be intertwined)  I know what his position in the linux kernel
+> hierarchy is, and if he were in a corporation with that position he
+> could just say NO without any reason.  But, linux development is
+> portrayed as something "open" and "of the people" not a closed corporate
+> offering.  Now, if that is not the case, then just take out all the
+> flowery words from the license and replace it with the unstated but
+> defacto communist motto "What's mine is mine What's yours is mine!". 
+
+Pot. Kettle. Black.  You are one who tries to tell other people what
+can be done with their code.  With all my personal dislike of GPL
+(I use it if the project I'm working on does, but I won't use it
+for anything else), Dave _has_ right to choose the license he likes
+and you'd bloody better respect that.  Author has absolute right
+to set the conditions for using his thing.  If they are unacceptable
+for you - nobody forces you to use it.  Any whining about that places
+you on the level of Napster wankers.  Now, bugger off - go play with
+"social hackers" or something...
+

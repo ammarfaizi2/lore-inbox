@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271367AbRH3JKA>; Thu, 30 Aug 2001 05:10:00 -0400
+	id <S271108AbRH3JEA>; Thu, 30 Aug 2001 05:04:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271741AbRH3JJu>; Thu, 30 Aug 2001 05:09:50 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38414 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271367AbRH3JJj>; Thu, 30 Aug 2001 05:09:39 -0400
-Subject: Re: kernel compile problems
-To: alegator@aduva.com
-Date: Thu, 30 Aug 2001 10:13:24 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B8DFA63.86E13099@aduva.com> from "Alexander Gavrilov" at Aug 30, 2001 11:33:39 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271841AbRH3JDu>; Thu, 30 Aug 2001 05:03:50 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:37864 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S271791AbRH3JDn>;
+	Thu, 30 Aug 2001 05:03:43 -0400
+Date: Thu, 30 Aug 2001 05:03:59 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Kip Macy <kmacy@netapp.com>, Elan Feingold <efeingold@mn.rr.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Multithreaded core dumps
+In-Reply-To: <E15cN7L-0000gX-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0108300457270.9879-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15cNt6-0000mE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am trying to compile kernel 2.2.16-20
-> with kgcc :
-> kgcc-1.1.2-40
-> 
-> make[1]: Entering directory `/usr/src/linux-2.2.16/arch/i386/boot'
-> kgcc -D__KERNEL__ -I/usr/src/linux/include -E -D__BIG_KERNEL__
-> -traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
-> as86 -0 -a -o bbootsect.o bbootsect.s
-> make[1]: as86: Command not found
 
-You need dev86 installed too
+
+On Thu, 30 Aug 2001, Alan Cox wrote:
+
+> > I am inclined to believe that that is the case. Unfortunately, I have no
+> > advice to give - but I am writing because I think that it would be neat if
+> > you have the time and the inclination for you to document your findings as
+> > you progress and put them on the web. 
+> 
+> The 2.4-ac tree supports dumping core.$pid for the threads that actually
+> died
+
+... and these dumps are not reliable.  Living thread may modify the
+contents of dump as it's being written out.  I.e. you are getting
+false alarms - inconsistent data that was never there.
+
+Think of a linked list protected by a mutex.  Half of its entries are
+already written out.  Surviving thread removes an element.  It updates
+the in-core structures correctly.  The problem being, in the dump
+we get part of memory from before that change and part - after.  If
+you notice that when you are looking at the dump - welcome to a nice
+chase after the bug that never existed.
+

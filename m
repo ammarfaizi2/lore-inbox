@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292279AbSBBNbN>; Sat, 2 Feb 2002 08:31:13 -0500
+	id <S292278AbSBBNhe>; Sat, 2 Feb 2002 08:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292277AbSBBNbD>; Sat, 2 Feb 2002 08:31:03 -0500
-Received: from hermes.toad.net ([162.33.130.251]:54762 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S292278AbSBBNax>;
-	Sat, 2 Feb 2002 08:30:53 -0500
-Subject: Re: apm.c and multiple battery slots
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stevie O <stevie@qrpff.net>, Stephen Rothwell <sfr@canb.auug.org.au>
-Content-Type: text/plain
+	id <S292277AbSBBNhY>; Sat, 2 Feb 2002 08:37:24 -0500
+Received: from mail.gmx.net ([213.165.64.20]:268 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S292278AbSBBNhH>;
+	Sat, 2 Feb 2002 08:37:07 -0500
+Message-ID: <03ba01c1abee$b1a45e70$564b2e3e@angband>
+Reply-To: "Andreas Happe" <andreashappe@subdimension.com>
+From: "Andreas Happe" <andreashappe@gmx.net>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: Issues with 2.5.3-dj1
+Date: Sat, 2 Feb 2002 14:36:02 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 02 Feb 2002 08:30:59 -0500
-Message-Id: <1012656665.1379.15.camel@thanatos>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I went to apm.c to look into patching it to support
-> multiple batteries.
-> I found this function:
->   static int apm_get_battery_status(which, status, bat,
->                                     life, nbat <- battery #)
-> but it's #if 0'd out, and isn't referred to anywhere in the code.
-> I looked at the changelog in the file to try to determine when
-> it stopped being used, and why, but I found no useful information,
-> and I can't even ask the person who did it, since they didn't
-> tell me they did...
+i'm using linux  2.5.3-dj1 (with driverfs) on a hp omnibook 6100.
 
-I am not the author, so the following is speculation.
-My guess is that apm_get_battery_status() was written to
-support multiple batteries (supported by APM 1.2 only) but
-that the authors never got around to providing a user
-interface to this functionality; so it remains ifdeffed out.
-(Hence the function never "stopped" being used.)
+After booting the system the alternative keyboard input mode is enabled.
+I've got to enable and disable it manually to use the keyboard.
 
-The current official maintainer of the driver is Stephen Rothwell.
+I've also got the USB - OOPS at system shutdown (compiled as kernel module,
+only occurs sometimes...)
 
-Stephen: How do you think the info about the second battery
-might be furnished to the user?
-
---
-Thomas
-
-
-
-
-
+TIA
+Andreas Happe
 
 

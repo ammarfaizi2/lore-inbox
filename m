@@ -1,86 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265457AbTBLCxX>; Tue, 11 Feb 2003 21:53:23 -0500
+	id <S266069AbTBLC4D>; Tue, 11 Feb 2003 21:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbTBLCxX>; Tue, 11 Feb 2003 21:53:23 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:57223 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265457AbTBLCxW>;
-	Tue, 11 Feb 2003 21:53:22 -0500
-Date: Wed, 12 Feb 2003 02:59:02 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, ak@suse.de
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Message-ID: <20030212025902.GA14092@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, ak@suse.de,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <629040000.1045013743@flay>
+	id <S266384AbTBLC4C>; Tue, 11 Feb 2003 21:56:02 -0500
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:9737 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S266069AbTBLCzo>; Tue, 11 Feb 2003 21:55:44 -0500
+Date: Tue, 11 Feb 2003 20:41:27 -0600
+From: Art Haas <ahaas@airmail.net>
+To: Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Convert fs/nfsctl.c to use C99 named initiailzers
+Message-ID: <20030212024127.GA914@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <629040000.1045013743@flay>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11, 2003 at 05:35:43PM -0800, Martin J. Bligh wrote:
+Hi.
 
- > The reason it rewrites SYSENTER_CS is non obviously vm86 which
- > doesn't guarantee the MSR stays constant (sigh). I think this would 
- > be better handled by having a global flag or process flag when any process
- > uses vm86 and not do it when this flag is not set (as in 99% of all 
- > normal use cases)
+The following patch converts the file to use C99 named initializers.
+These change make the file compile with fewer warnings if '-W' is added
+to the compile flags, and may enhance code readability. Let me know if
+you think this should be sent to Linus.
 
-I feel I'm missing something obvious here, but is this part the
-low-hanging fruit that it seems ?
+Art Haas
 
-		Dave
-
---- bk-linus/arch/i386/kernel/sysenter.c	2003-02-12 00:10:15.000000000 -0100
-+++ linux-2.5/arch/i386/kernel/sysenter.c	2003-02-12 01:53:58.000000000 -0100
-@@ -20,6 +20,8 @@
+===== fs/nfsctl.c 1.5 vs edited =====
+--- 1.5/fs/nfsctl.c	Sun Jan  5 17:19:30 2003
++++ edited/fs/nfsctl.c	Tue Feb 11 09:38:42 2003
+@@ -54,13 +54,36 @@
+ static struct {
+ 	char *name; int wsize; int rsize;
+ } map[] = {
+-	[NFSCTL_SVC]={".svc", sizeof(struct nfsctl_svc)},
+-	[NFSCTL_ADDCLIENT]={".add", sizeof(struct nfsctl_client)},
+-	[NFSCTL_DELCLIENT]={".del", sizeof(struct nfsctl_client)},
+-	[NFSCTL_EXPORT]={".export", sizeof(struct nfsctl_export)},
+-	[NFSCTL_UNEXPORT]={".unexport", sizeof(struct nfsctl_export)},
+-	[NFSCTL_GETFD]={".getfd", sizeof(struct nfsctl_fdparm), NFS_FHSIZE},
+-	[NFSCTL_GETFS]={".getfs", sizeof(struct nfsctl_fsparm), sizeof(struct knfsd_fh)},
++	[NFSCTL_SVC] = {
++		.name	= ".svc",
++		.wsize	= sizeof(struct nfsctl_svc)
++	},
++	[NFSCTL_ADDCLIENT] = {
++		.name	= ".add",
++		.wsize	= sizeof(struct nfsctl_client)
++	},
++	[NFSCTL_DELCLIENT] = {
++		.name	= ".del",
++		.wsize	= sizeof(struct nfsctl_client)
++	},
++	[NFSCTL_EXPORT] = {
++		.name	= ".export",
++		.wsize	= sizeof(struct nfsctl_export)
++	},
++	[NFSCTL_UNEXPORT] = {
++		.name	= ".unexport",
++		.wsize	= sizeof(struct nfsctl_export)
++	},
++	[NFSCTL_GETFD] = {
++		.name	= ".getfd",
++		.wsize	= sizeof(struct nfsctl_fdparm),
++		.rsize	= NFS_FHSIZE
++	},
++	[NFSCTL_GETFS] = {
++		.name	= ".getfs",
++		.wsize	= sizeof(struct nfsctl_fsparm),
++		.rsize	= sizeof(struct knfsd_fh)
++	},
+ };
  
- extern asmlinkage void sysenter_entry(void);
- 
-+int trashed_sysenter_cs;
-+
- /*
-  * Create a per-cpu fake "SEP thread" stack, so that we can
-  * enter the kernel without having to worry about things like
---- bk-linus/include/asm-i386/processor.h	2003-02-12 00:15:23.000000000 -0100
-+++ linux-2.5/include/asm-i386/processor.h	2003-02-12 01:53:43.000000000 -0100
-@@ -408,19 +408,26 @@ struct thread_struct {
- 	.io_bitmap	= { [ 0 ... IO_BITMAP_SIZE ] = ~0 },		\
- }
- 
-+extern int trashed_sysenter_cs;
-+
- static inline void load_esp0(struct tss_struct *tss, unsigned long esp0)
- {
- 	tss->esp0 = esp0;
- 	if (cpu_has_sep) {
--		wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
-+		if (trashed_sysenter_cs==1) {
-+			wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
-+			trashed_sysenter_cs = 0;
-+		}
- 		wrmsr(MSR_IA32_SYSENTER_ESP, esp0, 0);
- 	}
- }
- 
- static inline void disable_sysenter(void)
- {
--	if (cpu_has_sep)  
-+	if (cpu_has_sep) {
- 		wrmsr(MSR_IA32_SYSENTER_CS, 0, 0);
-+		trashed_sysenter_cs = 1;
-+	}
- }
- 
- #define start_thread(regs, new_eip, new_esp) do {		\
-
-
+ long
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

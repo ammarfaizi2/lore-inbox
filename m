@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130485AbRATVbk>; Sat, 20 Jan 2001 16:31:40 -0500
+	id <S132439AbRATVdK>; Sat, 20 Jan 2001 16:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbRATVba>; Sat, 20 Jan 2001 16:31:30 -0500
-Received: from warande3094.warande.uu.nl ([131.211.123.94]:8824 "EHLO
-	xar.sliepen.oi") by vger.kernel.org with ESMTP id <S130485AbRATVbT>;
-	Sat, 20 Jan 2001 16:31:19 -0500
-Date: Sat, 20 Jan 2001 22:31:11 +0100
-From: Guus Sliepen <guus@warande3094.warande.uu.nl>
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-Message-ID: <20010120223110.C8950@sliepen.warande.net>
-Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
-	kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-In-Reply-To: <20010120203023.A5274@athlon.random> <200101201939.WAA05326@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8NvZYKFJsRX2Djef"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200101201939.WAA05326@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Sat, Jan 20, 2001 at 10:39:36PM +0300
-X-oi: oi
+	id <S132422AbRATVdA>; Sat, 20 Jan 2001 16:33:00 -0500
+Received: from mail08.voicenet.com ([207.103.0.34]:11435 "HELO mail08")
+	by vger.kernel.org with SMTP id <S130673AbRATVck>;
+	Sat, 20 Jan 2001 16:32:40 -0500
+Message-ID: <3A6A03F4.DB6C0362@voicenet.com>
+Date: Sat, 20 Jan 2001 16:32:36 -0500
+From: safemode <safemode@voicenet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Horton <pdh@colonel-panic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Via apollo KX133 ide bug in 2.4.x
+In-Reply-To: <3A68DCD1.FACB4135@voicenet.com> <20000120083812.A945@colonel-panic.com> <20010120205608.C2838@colonel-panic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Horton wrote:
 
---8NvZYKFJsRX2Djef
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Thu, Jan 20, 2000 at 08:38:12AM +0000, Peter Horton wrote:
+> >
+> > I think I'm suffering the same thing on my new Asus A7V. Yesterday I got a
+> > single "error in bitmap, remounting read only" type error, and today I got
+> > some files in /tmp that returned I/O error when stat()ed. I do have DMA
+> > enabled, but only UDMA33. I've done several kernel compiles with no
+> > problems at all so looks like something is on the edge. Think I might go
+> > back to 2.2.x for a bit and see what happens, or maybe just remove the VIA
+> > driver :-((.
+> >
+>
+> I apologise for following up my own E-mail, but there is something I'm
+> missing here (maybe a whole lot of something). Anyone know how come we're
+> seeing silent corruption ... I thought this UDMA stuff was all checksummed
+> ? If there error is outside the data I assume the driver would notice ?
+>
+> P.
 
-On Sat, Jan 20, 2001 at 10:39:36PM +0300, Alexey Kuznetsov wrote:
+The thing is, even with UDMA disabled in the kernel, I still see the corruption
+with 2.4.x (release) and above.  Anything written while using the kernel is
+corrupted.   Much of the stuff will read fine (files) ... but I believe
+directories get the IO error immediately and some files do also.  Everything is
+seen as corrupted when you fsck a partition where this kernel has been run and
+created files on.   This is a silent corruption without any errors reported and
+I've only tested it on ext2.  You cannot create FS's with these kernels (at
+least on the VIA chipsets) since they too are corrupted (note, only tested ext2
+fs).   I did disable UDMA everywhere and still saw it happen, this problem is
+not present in older 2.4.0-test kernels so it's something in the late
+pre-release stage and into the release stage.
 
-> Yes. It is cost, which we have to pay. Look into Minshall's draft,
-> by the way (draft-minshall-nagle-*), it discusses pros and contras.
-
-What kind of draft is that? I can't find it on the IETF site. Could you
-provide me with a link?
-
--------------------------------------------
-Met vriendelijke groet / with kind regards,
-  Guus Sliepen <guus@sliepen.warande.net>
--------------------------------------------
-See also: http://tinc.nl.linux.org/
-          http://www.kernelbench.org/
--------------------------------------------
-
---8NvZYKFJsRX2Djef
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6agOeAxLow12M2nsRApBQAJ44DjlRb9mUsWQy77FGUW9GYm2OjwCfU7I2
-8kzm6+/fKORShjkJRtcBjWI=
-=QGr/
------END PGP SIGNATURE-----
-
---8NvZYKFJsRX2Djef--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

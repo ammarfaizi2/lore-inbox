@@ -1,89 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275878AbSIUECC>; Sat, 21 Sep 2002 00:02:02 -0400
+	id <S275879AbSIUEOf>; Sat, 21 Sep 2002 00:14:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275879AbSIUECC>; Sat, 21 Sep 2002 00:02:02 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:19339 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S275878AbSIUECB>;
-	Sat, 21 Sep 2002 00:02:01 -0400
-Message-ID: <1032581221.3d8bf065e57ab@kolivas.net>
-Date: Sat, 21 Sep 2002 14:07:01 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>
-Subject: [BENCHMARK] 2.5.37 and 2.4.19-ac4 tested with contest 0.35
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S275880AbSIUEOf>; Sat, 21 Sep 2002 00:14:35 -0400
+Received: from dp.samba.org ([66.70.73.150]:48825 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S275879AbSIUEOe>;
+	Sat, 21 Sep 2002 00:14:34 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] In-kernel module loader 1/7 
+In-reply-to: Your message of "Fri, 20 Sep 2002 11:32:42 +0200."
+             <Pine.LNX.4.44.0209201105330.338-100000@serv> 
+Date: Sat, 21 Sep 2002 14:17:58 +1000
+Message-Id: <20020921041941.8A9482C135@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are the latest benchmarks with contest 0.35 (http://contest.kolivas.net)
+In message <Pine.LNX.4.44.0209201105330.338-100000@serv> you write:
+> Hi,
+> 
+> On Fri, 20 Sep 2002, Rusty Russell wrote:
+> 
+> > 1) You keep ignoring the load race problem.  Your solution does not
+> >    solve that, so you will need something else as well.
+> 
+> Could you please explain, why you think I'm ignoring this problem?
+> (I think I don't, but I want to be sure we talk about the same problem.)
 
-NoLoad:
-Kernel                  Time            CPU
-2.4.19                  66.56           99%
-2.4.19-ck7              65.77           99%
-2.4.19-ac4              66.31           99%
-2.5.36                  67.45           99%
-2.5.36-mm1              67.39           99%
-2.5.37                  67.25           99%
+initfn()
+{
+	register_notifier(some_notifier); /* Entry point one */
+	if (register_filesystem(some_notifier2) != 0) {
+		unregister_notifier(some_notifier); /* This fails! */
+		return -EBUSY;
+	}
 
-Process Load:
-Kernel                  Time            CPU
-2.4.19                  81.29           80%
-2.4.19-ck7              70.14           93%
-2.4.19-ac4              71.10           92%
-2.5.36                  71.04           94%
-2.5.36-mm1              70.68           95%
-2.5.37                  70.51           95%
+How does your solution of failing the unregister_notifier in this case
+stop the race?  I probably missed something here?
 
-IO Half Load:
-Kernel                  Time            CPU
-2.4.19                  101.39          69%
-2.4.19-ck7              75.96           88%
-2.4.19-ac4              97.56           73%
-2.5.36                  79.30           91%
-2.5.36-mm1              100.05          74%
-2.5.37                  77.69           93%
+> > 2) Several places in the kernel do *not* keep reference counts, for
+> >    example net/core/dev.c's dev_add_pack and dev_remove_pack.  You
+> >    want to add reference counts to all of them, but the only reason
+> >    for the reference counts is for module unload: you are penalizing
+> >    everyone just *in case* one is a module.
+> 
+> For an alternative solution:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103246649130126&w=2
 
-IO Full Load:
-Kernel                  Time            CPU
-2.4.19                  170.70          41%
-2.4.19-ck7              90.95           74%
-2.4.19-ac4              105.53          68%
-2.5.36                  197.08          36%
-2.5.36-mm1              220.14          33%
-2.5.37                  209.75          33%
+Yes, two stage remove.  I liked it, except for the fact that you want
+to be able to re-init the module in the case where you lose the race
+between between I and II.  Then you also need two-stage init (or a
+re-init function), whereas the try_module_get solution makes this easy
+(ie. no requirement on the module author).
 
-Mem Load:
-Kernel                  Time            CPU
-2.4.19                  93.33           77%
-2.4.19-ck7              123.15          57%
-2.4.19-ac4              117.09          61%
-2.5.36                  121.02          59%
-2.5.36-mm1              100.47          73%
-2.5.37                  104.75          70%
+> > 3) The cost of doing atomic_incs and decs on eg. our network performance
+> >    is simply unacceptable.  The only way to avoid hitting the same
+> >    cacheline all the time is to use bigrefs, and the kernel bloat will
+> >    kill us (and they're still not free for the 99% of people who don't
+> >    have IPv4 and TCP as modules).
+> 
+> Even your bigref is still overkill. When packets come in, you already have
+> to take _some_ lock, under the protection of this lock you can implement
+> cheap, simple, portable and cache friendly counts, which can be used for
+> synchronization.
 
-As you can see, kernel compile time difference from .36 is negligible for no
-load and process load. All the O(1) based kernels have similar performance with
-process load. The trend for good performance under half IO load is still
-improving, but the performance under full sized IO load is worse again. Memory
-load performance is now improving to the levels of 2.5.36-mm1.
+No: networking uses the network brlock for exactly this reason 8(
 
-The only change in config between the 2.5 kernels was having to disable APIC on
-uniprocessors with 2.5.37 - it would not compile with it. Preempt=N for all 2.5
-kernels.
+> > 4) Your solution does not allow implementation of "rmmod -f" which
+> >    prevents module count from increasing, and removes it when it is
+> >    done.  This is very nice when your usage count is controlled by an
+> >    external source (eg. your network).
+> 
+> Multiple possible solutions:
+> - Separate stop/exit is probably the most elegant solution.
+> - A call to exit does in any case start the removal of the module, that
+> means it starts removing interface (and which won't get reinstalled).
+> If there is still any user, exit will fail, you can try it later again
+> after you killed that user.
 
-I am unable to test IO loading on same and different disks (as requested by
-akpm) as I simply don't have the hardware to do it. I'm looking for someone to
-help me with this.
+If the exit fails and you fail the rmmod, you need to reinit the
+module.  Otherwise noone can use it, but it cannot be replaced (say
+it's holding some io region or other resource).
 
-The latest version of contest produces different numbers because of priming
-before each load run with an unloaded kernel compile. This makes for very
-consistent results between repeat load tests, and "washing away" the effect of
-previous loads. I believe I have fully addressed this concern (of mine). The
-only way to eliminate it entirely would be to cold boot for each load test.
+If you want to wait, that may be OK, but if you want to abort the
+unload, the module needs to give you a *third* function, and that's
+where my "too much work for every module author" line gets crossed 8(
 
-Con Kolivas
+> Anyway, almost any access to a driver goes through the filesystem and
+> there it's a well known problem of unlinked but still open files. Driver
+> access is pretty much the same problem to which you can apply the same
+> well known solutions.
+
+Not sure what you mean here.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

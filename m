@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbRAYW1K>; Thu, 25 Jan 2001 17:27:10 -0500
+	id <S135459AbRAYW3M>; Thu, 25 Jan 2001 17:29:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130282AbRAYW1A>; Thu, 25 Jan 2001 17:27:00 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53516 "EHLO
+	id <S135466AbRAYW3C>; Thu, 25 Jan 2001 17:29:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:59148 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129874AbRAYW0v>; Thu, 25 Jan 2001 17:26:51 -0500
+	id <S135459AbRAYW2v>; Thu, 25 Jan 2001 17:28:51 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux Post codes during runtime, possibly OT
-Date: 25 Jan 2001 14:26:36 -0800
+Subject: Re: x86 PAT errata
+Date: 25 Jan 2001 14:28:32 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <94q96s$9b2$1@cesium.transmeta.com>
-In-Reply-To: <3A709E99.25ADE5F6@echostar.com>
+Message-ID: <94q9ag$9bs$1@cesium.transmeta.com>
+In-Reply-To: <200101251745.SAA07063@harpo.it.uu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,19 +21,20 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A709E99.25ADE5F6@echostar.com>
-By author:    "Ian S. Nelson" <ian.nelson@echostar.com>
+Followup to:  <200101251745.SAA07063@harpo.it.uu.se>
+By author:    Mikael Pettersson <mikpe@csd.uu.se>
 In newsgroup: linux.dev.kernel
 >
-> I'm curious.  Why does Linux make that friendly 98/9a/88 looking
-> postcode pattern when it's running?  DOS and DOS95 don't do that.
-> 
-> I'm begining to feel like I can tell the system health by observing it,
-> kind of like "seeing the matrix."
+> Before people get too exited about the x86 Page Attribute Table ...
+> Does Linux use mode B (CR4.PSE=1) or mode C (CR4.PAE=1) paging?
+> If so, known P6 errata must be taken into account.
+> In particular, Pentium III errata E27 and Pentium II errata A56
+> imply that only the low four PAT entries are working for 4KB
+> pages, if CR4.PSE or CR4.PAE is enabled.
 > 
 
-It output garbage to the 80h port in order to enforce I/O delays.
-It's one of the safe ports to issue outs to.
+All of the above.  Sounds like PAT should be declared broken on these
+chips.
 
 	-hpa
 -- 

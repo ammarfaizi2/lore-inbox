@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264777AbTBTXam>; Thu, 20 Feb 2003 18:30:42 -0500
+	id <S267030AbTBTXcX>; Thu, 20 Feb 2003 18:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265687AbTBTXam>; Thu, 20 Feb 2003 18:30:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7686 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264777AbTBTXal>; Thu, 20 Feb 2003 18:30:41 -0500
-Date: Thu, 20 Feb 2003 15:36:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302210020490.6298-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0302201536010.1304-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267035AbTBTXcX>; Thu, 20 Feb 2003 18:32:23 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28429
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267030AbTBTXcV>; Thu, 20 Feb 2003 18:32:21 -0500
+Subject: [patch] task_prio() fix
+From: Robert Love <rml@tech9.net>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045784559.781.26.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 20 Feb 2003 18:42:40 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Looks like task_prio() should do:
 
-On Fri, 21 Feb 2003, Ingo Molnar wrote:
-> 
-> if possible i'd avoid putting more overhead into the scheduler - it's
-> clearly more performance-sensitive than the task create/exit path.
+        int task_prio(task_t *p)
+        {
+        	return p->prio - MAX_RT_PRIO;
+        }
 
-This is a single non-serializing bit test, and if it means that the task 
-counters are _right_, that's definitely the right thing to do.
+Instead of subtracting MAX_USER_RT_PRIO, since the maximum _user_ value
+has nothing to do with the maximum that may be stored.  The effect is if
+MAX_RT_PRIO != MAX_USER_RT_PRIO, then all priorities are skewed by
+(MAX_RT_PRIO - MAX_USER_RT_PRIO).
 
-		Linus
+Ingo, this looks trivial to me... but I swear it _used_ to work and this
+function has always been like this.  Comments?
+
+Patch is against 2.5.62.
+
+	Robert Love
+
+
+ kernel/sched.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -urN linux-2.5.62/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.62/kernel/sched.c	2003-02-20 18:30:08.232619488 -0500
++++ linux/kernel/sched.c	2003-02-20 18:30:15.585501680 -0500
+@@ -1552,7 +1552,7 @@
+  */
+ int task_prio(task_t *p)
+ {
+-	return p->prio - MAX_USER_RT_PRIO;
++	return p->prio - MAX_RT_PRIO;
+ }
+ 
+ /**
+
+
 

@@ -1,91 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137025AbRAHGFE>; Mon, 8 Jan 2001 01:05:04 -0500
+	id <S136944AbRAHGK6>; Mon, 8 Jan 2001 01:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137024AbRAHGE7>; Mon, 8 Jan 2001 01:04:59 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:13691 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S136929AbRAHGEq>; Mon, 8 Jan 2001 01:04:46 -0500
-Date: Sun, 7 Jan 2001 22:04:43 -0800 (PST)
-From: David Ford <david@linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Broken tty handling
-Message-ID: <Pine.LNX.4.10.10101072145070.12242-100000@Huntington-Beach.Blue-Labs.org>
+	id <S136929AbRAHGKr>; Mon, 8 Jan 2001 01:10:47 -0500
+Received: from m11.boston.juno.com ([63.211.172.74]:43442 "EHLO
+	m11.boston.juno.com") by vger.kernel.org with ESMTP
+	id <S136890AbRAHGKc>; Mon, 8 Jan 2001 01:10:32 -0500
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 8 Jan 2001 01:03:46 -0500
+Subject: [PATCH] 2.4.0-ac4 : fs/qnx4/inode.c
+Message-ID: <20010108.010347.-134485.3.fdavis112@juno.com>
+X-Mailer: Juno 5.0.15
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative; boundary=--__JNP_000_5efd.1f15.5f2e
+X-Juno-Line-Breaks: 9-6,7,9-32,33-32767
+From: Frank Davis <fdavis112@juno.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every once in a while I have a very frustrating problem develop.  All tty
-handling stops.  Packets flow in and out of the machine fine, but anything
-with a tty halts.  I don't know exactly what is happening but I have found
-that killing the last user that logged in (all his processes) usually fixes
-everything.
+This message is in MIME format.  Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-It just happened to me and I realize this is vague but there's nothing I
-have been able to attribute it to other than a problem in tty handling.  I
-know it isn't ssh v.s. telnet v.s. xyz because it doesn't matter, they all
-stall.
+----__JNP_000_5efd.1f15.5f2e
+Content-Type: text/plain; charset=us-ascii  
+Content-Transfer-Encoding: 7bit
 
-Here's the data I had.  Aaron was the last person to log in when it broke, I
-was the first after it broke.
+Hello,
+    While compiling 2.4.0-ac4, I receivied the following..Looks like a
+typo...Patch is also below.
+Regards,
+Frank
+ 
+inode.c: In function `qnx4_read_super':
+inode.c:372: `sb' undeclared (first use in this function)
+inode.c:372: (Each undeclared identifier is reported only once
+inode.c:372: for each function it appears in.)
+make[2]: *** [inode.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/fs/qnx4'
+make[1]: *** [_modsubdir_qnx4] Error 2
+make[1]: Leaving directory `/usr/src/linux/fs'
+make: *** [_mod_fs] Error 2
+ 
+--- fs/qnx4/inode.c.old      Mon Jan  8 00:00:35 2001
++++ fs/qnx4/inode.c   Mon Jan  8 00:38:51 2001
+@@ -369,7 +369,7 @@
+      }
+      s->s_op = &qnx4_sops;
+      s->s_magic = QNX4_SUPER_MAGIC;
+-     sb->s_maxbytes = 0x7FFFFFFF;
++     s->s_maxbytes = 0x7FFFFFFF;
+ #ifndef CONFIG_QNX4FS_RW
+      s->s_flags |= MS_RDONLY;      /* Yup, read-only yet */
+ #endif
+----__JNP_000_5efd.1f15.5f2e
+Content-Type: text/html; charset=us-ascii  
+Content-Transfer-Encoding: quoted-printable
 
-# grep aaron brokettyspseo
-aaron    22843 do_adj -bash
-aaron    22865 write_ pine
-aaron    23211 do_adj -bash
-aaron    23228 tty_wa stty icanon echo
-aaron    23277 read_c -bash
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META content=3D"text/html; charset=3Dwindows-1252" http-equiv=3DContent-=
+Type>
+<META content=3D"MSHTML 5.00.2314.1000" name=3DGENERATOR></HEAD>
+<BODY bottomMargin=3D0 leftMargin=3D3 rightMargin=3D3 topMargin=3D0>
+<DIV>Hello,</DIV>
+<DIV>&nbsp;&nbsp;&nbsp; While compiling 2.4.0-ac4, I receivied the=20
+following..Looks like a typo...Patch is also below.</DIV>
+<DIV>Regards,</DIV>
+<DIV>Frank</DIV>
+<DIV><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'"></SPAN>&nbsp;</=
+DIV>
+<DIV><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'">inode.c: In =
+function=20
+`qnx4_read_super':<BR>inode.c:372: `sb' undeclared (first use in this=20
+function)<BR>inode.c:372: (Each undeclared identifier is reported only=20
+once<BR>inode.c:372: for each function it appears in.)<BR>make[2]: *** [=
+inode.o]=20
+Error 1<BR>make[2]: Leaving directory `/usr/src/linux/fs/qnx4'<BR>make[1]: =
+***=20
+[_modsubdir_qnx4] Error 2<BR>make[1]: Leaving directory=20
+`/usr/src/linux/fs'<BR>make: *** [_mod_fs] Error 2</SPAN><SPAN=20
+style=3D"mso-fareast-font-family: 'MS Mincho'"><SPAN=20
+style=3D"mso-fareast-font-family: 'MS Mincho'"></SPAN></SPAN></DIV>
+<DIV><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'"><SPAN=20
+style=3D"mso-fareast-font-family: 'MS Mincho'"></SPAN></SPAN>&nbsp;</DIV>
+<DIV><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'"><SPAN=20
+style=3D"mso-fareast-font-family: 'MS Mincho'">--- fs/qnx4/inode.c.old<SPAN=
+=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN><=
+SPAN=20
+lang=3DFR style=3D"mso-fareast-font-family: 'MS Mincho'; mso-ansi-language:=
+ FR">Mon=20
+Jan<SPAN style=3D"mso-spacerun: yes">&nbsp; </SPAN>8 00:00:35 2001<BR>+++=20
+fs/qnx4/inode.c<SPAN style=3D"mso-tab-count: 1">&nbsp;&nbsp; </SPAN>Mon Jan=
+<SPAN=20
+style=3D"mso-spacerun: yes">&nbsp; </SPAN>8 00:38:51 2001<BR></SPAN><SPAN=20
+style=3D"mso-fareast-font-family: 'MS Mincho'">@@ -369,7 +369,7 @@<BR><SPAN=
+=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>}<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>s-&gt;s_op =3D=20
+&amp;qnx4_sops;<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>s-&gt;s_magic =
+=3D=20
+QNX4_SUPER_MAGIC;<BR>-<SPAN style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&=
+nbsp;=20
+</SPAN>sb-&gt;s_maxbytes =3D 0x7FFFFFFF;<BR>+<SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>s-&gt;s_maxbytes=
+ =3D=20
+0x7FFFFFFF;<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>#ifndef=20
+CONFIG_QNX4FS_RW<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>s-&gt;s_flags |=
+=3D=20
+MS_RDONLY;<SPAN style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>/* Yup, read-only yet */<BR></SPAN><SPAN=20
+style=3D"FONT-FAMILY: 'Times New Roman'; mso-fareast-font-family: 'MS =
+Mincho'"><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN>#endif</SPAN><BR></DIV></SPAN></=
+BODY></HTML>
 
-# w|grep aaron
-.aaron    pts/13  dur-cas1-cs-26.d  9:12pm 26:44   0.14s  0.10s  pine 
-.aaron    pts/14  dur-cas1-cs-26.d  9:28pm 15:09   0.01s  0.01s  -bash 
-.aaron    pts/15  dur-cas1-cs-26.d  9:29pm 14:26   0.06s  0.06s  -bash 
-
-An 'skill aaron' didn't solve it but 'skill -9 aaron' did.
-
-Here's a snippet from my /etc/profile which the stty from above comes into
-play:
-
-# does the user want his titlebar set?
-if [ "x$TITLEBAR" = "xyes" ]; then
-  echo -ne Checking for titlebar capability
-  stty -icanon -echo min 0 time 20
-  echo -ne '\033[7n'
-  read term_id
-  display=$(echo $term_id|sed '/.*:0/!d')
-  if [ x$display != x ]; then
-    PS1='\[\033]2; ($(date +%l:%M%p)) \u@\h \w\007\033]1;\u@\h\007\]\$ '
-  else
-    PS1='\h:\w\$ '
-  fi
-  echo -ne '\033[2K\r'
-  stty icanon echo
-else
-  PS1='\h:\w\$ '
-fi
-
-
-# uname -r
-2.4.0-test11
-
-# sed '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' /lib/libc.so.6
-2.1.3
-
-# mount|grep pts
-none on /dev/pts type devpts (rw,gid=5,mode=640)
-
-
-Any suggestions?  Should this be addressed elsewhere?  The reason I bring it
-up here is because ALL ttys halt except those on the console.
-
--d
-
---
----NOTICE--- fwd: fwd: fwd: type emails will be deleted automatically.
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
-
+----__JNP_000_5efd.1f15.5f2e--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

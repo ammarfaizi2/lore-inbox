@@ -1,93 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261379AbSIPLMg>; Mon, 16 Sep 2002 07:12:36 -0400
+	id <S261348AbSIPLLw>; Mon, 16 Sep 2002 07:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261355AbSIPLMg>; Mon, 16 Sep 2002 07:12:36 -0400
-Received: from b114225.adsl.hansenet.de ([62.109.114.225]:3076 "EHLO
-	smaug.lan.local") by vger.kernel.org with ESMTP id <S261351AbSIPLMR>;
-	Mon, 16 Sep 2002 07:12:17 -0400
-Message-ID: <XFMail.20020916131706.f.hinzmann@hamburg.de>
-X-Mailer: XFMail 1.5.2 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.10.10209141539550.6925-100000@master.linux-ide.org>
-Date: Mon, 16 Sep 2002 13:17:06 +0200 (CEST)
-From: Florian Hinzmann <f.hinzmann@hamburg.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: DMA problems w/ PIIX3 IDE, 2.4.20-pre4-ac2
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-       Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
+	id <S261350AbSIPLLw>; Mon, 16 Sep 2002 07:11:52 -0400
+Received: from mail.hometree.net ([212.34.181.120]:3265 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S261348AbSIPLLv>; Mon, 16 Sep 2002 07:11:51 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+Date: Mon, 16 Sep 2002 11:16:49 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <am4ej1$9sr$1@forge.intermeta.de>
+References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com> <E17qRfU-0001qz-00@starship> <20020915020739.A22101@devserv.devel.redhat.com> <200209160236.g8G2a6Qn022070@pimout3-ext.prodigy.net> <20020915200002.B23345@work.bitmover.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1032175009 439 212.34.181.4 (16 Sep 2002 11:16:49 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 16 Sep 2002 11:16:49 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy <lm@bitmover.com> writes:
 
-On 14-Sep-2002 Andre Hedrick wrote:
+>It's a sign of a naive programmer when you hear "this code is all shit"
+>and it's useful code.  That means the programmer would rather rewrite
+>working code than understand it enough to fix it.  Extremely common.
+>And extremely wrong in almost all cases.  It's *hard* to understand code.
+>Get over it.  Read the code, think, read again, think some more, keep
+>it up.  Always always always assume the guy who came before you *did*
+>know what they were doing.  Otherwise all you do is replace mostly working
+>code with brand new code that works for the *one* case in front of the
+>new programmer and none of the 100's of cases that the old code handled.
 
-> Yep I had that problem too and fixed it.
-> Please try a newer pre5-acX
+Once again. BS. 99% of the cases where I had to work on foreign code,
+it was a codebase where someone with a clue wrote something nice, and
+then lots of people without clue "improved" that code. Then I start to
+work on it and have to clean up the mess. First thing is that you want
+to everytime is, to _understand_ what the original author wanted to do
+with the code and what the clueless did to this idea. A debugger is a
+decent toy for this. commons-logging another.
 
-Problem is still there with 2.4.20-pre5-ac6:
+Code which was written like you describe is never hard to
+understand. Clueful people know that they have to comment their
+"tricks".
 
-kernel: hdd: dma_timer_expiry: dma status == 0x60
-kernel: hdd: timeout waiting for DMA
-kernel: hdd: timeout waiting for DMA
-kernel: hdd: (__ide_dma_test_irq) called while not waiting
-kernel: hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-kernel: 
-kernel: hdd: drive not ready for command
-kernel: blk: queue c02e50e0, I/O limit 4095Mb (mask 0xffffffff)
+Ask me about Bean-Setters with a return value. Now that's clever. =:-(
 
+	Regards
+		Henning
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-No high load (wether cpu or disk io) is needed for this to happen.
-
-
-In my initial mail I said the machine is running stable with DMA turned off.
-This is not true for latest 2.4.20pre5 kernels. When I start one or two bigger 
-file copy operations it usually takes less than one minute and I get errors 
-like these (running 2.4.20-pre5-ac6 for this output):
-
-kernel: hdb: status timeout: status=0xd0 { Busy }
-kernel: 
-kernel: hdb: no DRQ after issuing WRITE
-kernel: ide0: reset: success
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: ide0: reset: success
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: ide0: reset: success
-kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-kernel: end_request: I/O error, dev 03:41 (hdb), sector 97567008
-
-
-2.4.20-pre5-ac6 does not work for me with or without DMA. Using 2.4.19 that
-machine is running stable with DMA turned off. Would it be interesting to hear
-wich 2.4.20-preX-acY kernel was first to break pio mode at my machine?
-
-
-  Regards
-      Florian
-
-
-
---
-  Florian Hinzmann                         private: f.hinzmann@hamburg.de
-                                            Debian: fh@debian.org
-PGP Key / ID: 1024D/B4071A65
-Fingerprint : F9AB 00C1 3E3A 8125 DD3F  DF1C DF79 A374 B407 1A65
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

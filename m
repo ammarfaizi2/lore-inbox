@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318047AbSGWMo6>; Tue, 23 Jul 2002 08:44:58 -0400
+	id <S317924AbSGWMzM>; Tue, 23 Jul 2002 08:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318049AbSGWMo5>; Tue, 23 Jul 2002 08:44:57 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:41665 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S318047AbSGWMoy>; Tue, 23 Jul 2002 08:44:54 -0400
-Date: Tue, 23 Jul 2002 14:47:39 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Morten Helgesen <morten.helgesen@nextframe.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: please DON'T run 2.5.27 with IDE!
-In-Reply-To: <20020723100332.A103@sexything>
-Message-ID: <Pine.SOL.4.30.0207231437360.14042-100000@mion.elka.pw.edu.pl>
+	id <S317928AbSGWMzM>; Tue, 23 Jul 2002 08:55:12 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:45000 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317924AbSGWMzL>; Tue, 23 Jul 2002 08:55:11 -0400
+Date: Tue, 23 Jul 2002 14:58:15 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Witek Krecicki <adasi@kernel.pl>
+cc: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Build Errors] kernel version 2.5.27
+In-Reply-To: <018c01c23245$c8434820$0201a8c0@witek>
+Message-ID: <Pine.NEB.4.44.0207231451050.10993-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 23 Jul 2002, Witek Krecicki wrote:
 
-On Tue, 23 Jul 2002, Morten Helgesen wrote:
-
-> On Mon, Jul 22, 2002 at 09:37:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > Don't know if this can be helpful at all, but having a "powerful" (AMD XP
+> > 1700+, 256 MB DDR and 7200 rpm IDE disk) PC doing nothing most of the
+> > time, I thought it could be doing something useful for the ongoing
+> > development of the linux kernel. So I decided to do a full kernel compile
+> > (that is, a compile of the linux kernel with _all_ options enabled to be
+> > compiled built-in, just a few as modules, those that can't be built
+> > otherwise). And report errors that can happen, in the hope to unveil
+> > them and make maintainers aware of them, should they still aren't.
 > >
-> > IDE 99 which is included in 2.5.27 introduced really nasty bug.
-> > Possible lockups and data corruption. Please do not.
->
-> Could you please elaborate a bit ?
+> > .config file was created the "easy" way: going to all options shown in a
+> > "make menuconfig" session, enabling everything to be built-in (when
+> > possible), and making a second pass to check if some options were
+> > activated by enabling some others. The file is 2206 lines long, but is
+> > NOT attached, to help save bandwidth.
+> IMHO building everything as a module is much better in this case. Some
+> things are working built-in but not working as modules (eg.
+> probably-still-not-fixed 2.5 IDE with 2 symbols not exported properly). It
+> would be better to build everything as a module and then check it with
+> depmod so any unresolved deps could be shown
 
-Bug is a result of Martin being careless and not sending patches for
-public review. It is easy to fix, but I won't, please excuse me.
-Also I wont go in technical details, lets see how quick it will be fixed.
+Why not try both? I do currently use three .configs:
+- everything modular
+- everything but no module support at all
+- everything and no module support at all but without hotplug support
 
-Regards
---
-Bartlomiej
+For 2.5 I use similar .configs but without all the things that don't
+compile for a longer time.
 
-> >
-> > Regards
-> > --
-> > Bartlomiej
->
-> --
->
-> "Livet er ikke for nybegynnere" - sitat fra en klok person.
->
-> mvh
-> Morten Helgesen
-> UNIX System Administrator & C Developer
-> Nextframe AS
-> admin@nextframe.net / 93445641
-> http://www.nextframe.net
->
+Trying to compile kernels with these three .configs helps to avoid that my
+fast 500 MHz K6-2 is nearly always idle.  ;-)
+
+> WK
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

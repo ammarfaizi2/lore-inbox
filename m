@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUFWFvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265716AbUFWGAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264909AbUFWFvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 01:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265716AbUFWFvQ
+	id S265716AbUFWGAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 02:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUFWGAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 01:51:16 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:20841 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264909AbUFWFpm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 01:45:42 -0400
-Date: Wed, 23 Jun 2004 07:57:57 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kbuild: Improve Kernel build with separated output
-Message-ID: <20040623055757.GA2848@mars.ravnborg.org>
-Mail-Followup-To: Ricky Beam <jfbeam@bluetronic.net>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-References: <20040622212100.GA9346@mars.ravnborg.org> <Pine.GSO.4.33.0406221749270.25702-100000@sweetums.bluetronic.net>
+	Wed, 23 Jun 2004 02:00:35 -0400
+Received: from [63.193.79.19] ([63.193.79.19]:6016 "HELO mwg.inxservices.lan")
+	by vger.kernel.org with SMTP id S265716AbUFWGAe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 02:00:34 -0400
+Date: Tue, 22 Jun 2004 23:00:13 -0700
+From: George Garvey <tmwg-linuxknl@inxservices.com>
+To: Len Brown <len.brown@intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7 NULL pointer dereference during boot
+Message-ID: <20040623060013.GA3568@inxservices.com>
+Mail-Followup-To: Len Brown <len.brown@intel.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <A6974D8E5F98D511BB910002A50A6647615FE6B4@hdsmsx403.hd.intel.com> <1087651896.4486.220.camel@dhcppc4>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0406221749270.25702-100000@sweetums.bluetronic.net>
+In-Reply-To: <1087651896.4486.220.camel@dhcppc4>
 User-Agent: Mutt/1.4.1i
+Organization: inX Services, Los Angeles, CA, USA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 06:04:28PM -0400, Ricky Beam wrote:
-> On Tue, 22 Jun 2004, Sam Ravnborg wrote:
-> >1) A Makefile is generated in the output directory allowing
-> >   one to execute make in both the source and the output directory.
+On Sat, Jun 19, 2004 at 09:31:36AM -0400, Len Brown wrote:
+> On Fri, 2004-06-18 at 20:29, George Garvey wrote:
 > 
-> I would vote against doing that.  Or at the very least don't overwrite one
-> that might already be there.  I, for one, have a very specific makefile in
-> my build (object) directories.  Anyone sufficiently skilled to be building
-> kernels outside the source tree, and/or those with the specific need to be
-> doing so will already have makefiles and/or shell scripts to suit their
-> needs.  Making the option a user specified target ala "make makefiles"
-> would be a better/safer choice; if the user wants or needs a makefile in
-> their object directory, then they have a simple option to make themselves
-> one -- no knowledge of GNU Make necessary.
+> > ACPI: Subsystem revision 20040326
+> > Unable to handle kernel NULL pointer dereference
+> 
+> Probably it is this failure:
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=125841
+> 
+> known workarounds:
+> 
+> CONFIG_SCHED_SMT=n
+> "acpi=off"
+> "acpi=ht"
+> "maxcpus=1"
 
-You cold just rename your Makefile to makefile. Then GNU Make will select that one
-as first choice.
-
-Today kbuild unconditionally overwrite the Makefile, because it depends on the following:
-- Top level Makefile (VERSION)
-- scripts/mkmakefile script
-- Source directory
-- Output directory
-
-In total too many factors to check for so the more brutal approach used.
-
-Do you use your specific Makefile for something others could benefit from?
-
-	Sam
+   Thanks. That did indeed allow a boot.

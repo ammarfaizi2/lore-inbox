@@ -1,98 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267636AbTBYEz7>; Mon, 24 Feb 2003 23:55:59 -0500
+	id <S267050AbTBYFDY>; Tue, 25 Feb 2003 00:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267637AbTBYEz7>; Mon, 24 Feb 2003 23:55:59 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:12492 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267636AbTBYEz5>;
-	Mon, 24 Feb 2003 23:55:57 -0500
-Subject: [PATCH] linux-2.5.63_notsc-panic_A1
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Dave H <haveblue@us.ibm.com>,
-       Andrew Morton <akpm@digeo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JbBGMX/l0WVt+9k+1DyJ"
-Organization: 
-Message-Id: <1046149232.18311.337.camel@w-jstultz2.beaverton.ibm.com>
+	id <S267368AbTBYFDY>; Tue, 25 Feb 2003 00:03:24 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:23824 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S267050AbTBYFDX>; Tue, 25 Feb 2003 00:03:23 -0500
+Subject: Re: Minutes from Feb 21 LSE Call
+From: Steven Cole <elenstev@mesatop.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>
+In-Reply-To: <10580000.1046144972@[10.10.2.4]>
+References: <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmast er.ca>
+	<3E5AD2BA.1010608@namesys.com>  <10580000.1046144972@[10.10.2.4]>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 24 Feb 2003 22:12:50 -0700
+Message-Id: <1046149973.2544.186.camel@spc1.mesatop.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 24 Feb 2003 21:00:33 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-02-24 at 20:49, Martin J. Bligh wrote:
+> > I expect to have 16-32 CPUs in my $3000 desktop in 5 years .  If you all
+> > start planning for that now, you might get it debugged before it happens
+> > to me.;-)
+> 
+> Thank you ... some sanity amongst the crowd
+> 
+> > I don't expect to connect the 16-32 CPUs with ethernet.... but it won't
+> > surprise me if they have non-uniform memory.
+> 
+> Indeed. Just look at AMD hammer for NUMA effects, and SMT and multiple
+> chip on die technologies for the way things are going.
+> 
+> M.
 
---=-JbBGMX/l0WVt+9k+1DyJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hans may have 32 CPUs in his $3000 box, and I expect to have 8 CPUs in
+my $500 Walmart special 5 or 6 years hence.  And multiple chip on die
+along with HT is what will make it possible.
 
-Linus, all
+What concerns me is that this will make it possible to put insane
+numbers of CPUs in those $250,000 and higher boxes.  If Martin et al can
+scale Linux to 64 CPUs, can they make it scale several binary orders of
+magnitude higher? Why do this?  NUMA memory is much faster than even
+very fast network connections any day.   
 
-	In my exuberance to remove #ifdef CONFIG_X86_TSC, I accidentally yanked
-one that is needed as long as the symbol itself exists. I've actually
-been sitting on this patch for a while, thinking I would get around to
-killing off the remaining uses of _X86_TSC, but I've just been too
-swamped to get around to it.
+Is there a market for such a thing?  I won't pretend to know that
+answer.  But the capability to do it will be there, and in 5 years the
+3.2 kernel probably won't be quite stable yet, so decisions made in the
+next year for 2.9/3.0 may have to last until then.
 
-This patch ensures that the "notsc" boot parameter is ignored (with a
-warning) if the option is passed to a kernel that has been compiled with
-CONFIG_X86_TSC. Currently the code will unreasonably panic when this
-occurs.=20
+Please listen to Larry.  When he says you can't scale endlessly, I have
+a feeling he knows what he's talking about.  The Nirvana machine has 48
+SGI boxes with 128 CPUs in each.  I don't hear about many 128 CPU
+machines nowadays.  Perhaps Irix just wasn't quite up to the job.  But
+new technologies will make this kind of machine affordable (by the
+government and financial institutions) in the not too distant future.  
 
-And since this patch does add an #ifdef _X86_TSC, as a show of goodwill,
-I'll follow this patch with another that removes one instance of
-_X86_TSC.=20
+Just my two cents.  Enough ranting for today.
 
-Please apply,
-
-thanks
--john
-
-PS: If anyone is looking for a little project, the usage in pkt_sched.h
-and profile.h (include/net) could use some attention :)
-
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/t=
-imer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Mon Feb 24 20:57:33 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Mon Feb 24 20:57:33 2003
-@@ -299,6 +299,7 @@
- 	return -ENODEV;
- }
-=20
-+#ifndef CONFIG_X86_TSC
- /* disable flag for tsc.  Takes effect by clearing the TSC cpu flag
-  * in cpu/common.c */
- static int __init tsc_setup(char *str)
-@@ -306,7 +307,14 @@
- 	tsc_disable =3D 1;
- 	return 1;
- }
--
-+#else
-+static int __init tsc_setup(char *str)
-+{
-+	printk(KERN_WARNING "notsc: Kernel compiled with CONFIG_X86_TSC, "
-+				"cannot disable TSC.\n");
-+	return 1;
-+}
-+#endif
- __setup("notsc", tsc_setup);
-=20
-=20
-
-
-
---=-JbBGMX/l0WVt+9k+1DyJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA+WvhwMDAZ/OmgHwwRAkEtAKCj7W+9+34w+OrB29ds6T7N1d4jBACfQ8jv
-UeBClySppICazCVN5L3eHEE=
-=7cq5
------END PGP SIGNATURE-----
-
---=-JbBGMX/l0WVt+9k+1DyJ--
+Steven
 

@@ -1,36 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUIMQYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268401AbUIMPRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267648AbUIMQYO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 12:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266748AbUIMQXT
+	id S268401AbUIMPRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268304AbUIMPMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 12:23:19 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:23295 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267648AbUIMQVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 12:21:40 -0400
-Date: Mon, 13 Sep 2004 17:20:53 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Alex Zarochentsev <zam@namesys.com>, Paul Jackson <pj@sgi.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined
-    atomic_sub_and_test
-In-Reply-To: <Pine.LNX.4.61.0409131731400.877@scrub.home>
-Message-ID: <Pine.LNX.4.44.0409131719400.18915-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 13 Sep 2004 11:12:50 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:42454 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S268092AbUIMO5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 10:57:17 -0400
+Subject: Re: /proc/sys/kernel/pid_max issues
+From: Albert Cahalan <albert@users.sf.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>, cw@f00f.org,
+       anton@samba.org
+In-Reply-To: <20040913142437.GB9106@holomorphy.com>
+References: <1095045628.1173.637.camel@cube>
+	 <20040913075743.GA15722@elte.hu> <1095083649.1174.1293.camel@cube>
+	 <20040913142437.GB9106@holomorphy.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095087244.2191.1383.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Sep 2004 10:54:04 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Sep 2004, Roman Zippel wrote:
-> I'm still curious what's up with this portability argument...
+On Mon, 2004-09-13 at 10:24, William Lee Irwin III wrote:
+> On Mon, 2004-09-13 at 03:57, Ingo Molnar wrote:
+> >> this is a pretty sweeping assertion. Would you
+> >> care to mention a few examples of such hazards?
+> 
+> On Mon, Sep 13, 2004 at 09:54:09AM -0400, Albert Cahalan wrote:
+> > kill(12345,9)
+> > setpriority(PRIO_PROCESS,12345,-20)
+> > sched_setscheduler(12345, SCHED_FIFO, &sp)
+> > Prior to the call being handled, the process may
+> > die and be replaced. Some random innocent process,
+> > or a not-so-innocent one, will get acted upon by
+> > mistake. This is broken and dangerous.
+> > Well, it's in the UNIX standard. The best one can
+> > do is to make the race window hard to hit, with LRU.
+> 
+> How do you propose to queue pid's? This is space constrained. I don't
+> believe it's feasible and/or desirable to attempt this, as there are
+> 4 million objects to track independent of machine size.
 
-What portability argument?
+As we've seen elsewhere in this thread, things break
+when you go above 0xffff anyway. So 128 KiB of RAM
+should do the job. With a 4-digit PID, 20000 bytes
+would be enough.
 
-Hugh
+Supposing you fix rwsem counts and /proc inodes and so on,
+a large machine could handle 4 million objects easily.
+A small machine has far, far, less need to support that.
+
+> The general
+> tactic of cyclic order allocation is oriented toward making this rare
+> and/or hard to trigger by having a reuse period long enough that what
+> processes there are after a pid wrap are likely to have near-indefinite
+> lifetimes. i.e. it's the closest feasible approximation of LRU. If you
+> truly want/need reuse to be gone, 64-bit+ pid's are likely best.
+
+That's too unwieldy for the users, it breaks glibc,
+and you'll still hit the problems after wrap-around.
+Besides, Linus vetoed this a year or two ago.
+
+Reducing the dangers of a small PID space allows for
+just the opposite size change, which is much nicer for
+the users.
+
 

@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264569AbSIVWLR>; Sun, 22 Sep 2002 18:11:17 -0400
+	id <S264568AbSIVWIe>; Sun, 22 Sep 2002 18:08:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264571AbSIVWLR>; Sun, 22 Sep 2002 18:11:17 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43470 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S264569AbSIVWLQ>;
-	Sun, 22 Sep 2002 18:11:16 -0400
-Date: Mon, 23 Sep 2002 00:24:39 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-In-Reply-To: <3D8E3FA9.7389A61F@opersys.com>
-Message-ID: <Pine.LNX.4.44.0209230021260.28641-100000@localhost.localdomain>
+	id <S264569AbSIVWIe>; Sun, 22 Sep 2002 18:08:34 -0400
+Received: from twinlark.arctic.org ([208.44.199.239]:22184 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S264568AbSIVWId>; Sun, 22 Sep 2002 18:08:33 -0400
+Date: Sun, 22 Sep 2002 15:13:44 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Bill Davidsen <davidsen@tmr.com>, Bill Huey <billh@gnuppy.monkey.org>,
+       Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+In-Reply-To: <m1u1khkgt7.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.44.0209221459040.20541-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 22 Sep 2002, Eric W. Biederman wrote:
 
-On Sun, 22 Sep 2002, Karim Yaghmour wrote:
+> I fail to see why:
+>
+> /* This is a safe point ... */
+> if (needs to be suspended) {
+>         save_all_registers_on_the_stack()
+>         flag_gc_thread()
+>         wait_until_gc_thread_has_what_it_needs()
+> }
+>
+> Needs kernel support.
 
-> > (this is in essence a moving spinlock at the tail of the trace buffer -
-> > same problem.)
-> 
-> Hmm. No offense, but I think you ought to take a better look at the
-> code.
+given that the existing code uses self-modifying-code for the safe-points
+i'm guessing there are so many safe-points that the above if statement
+would be excessive overhead (and the save/flag/wait stuff would probably
+cause a huge amount of code bloat -- but could probably be a subroutine).
 
-i have, and i see stuff like this:
+there was some really interesting GC work i heard about years ago where
+the compiler generated GC code along-side the normal executable code.
+the GC code understood the structure of the function and could make much
+better choices of GC targets than a generic routine could.  when GC needs
+to occur, a walk up the stack in each thread executing the
+routine-specific GC stubs would be performed.  (given just the stack
+frames you can index into a lookup table for the GC stubs... so there's no
+overhead when GC isn't occuring.)  i don't have a reference handy though.
 
-+       TRACE_PROCESS(TRACE_EV_PROCESS_WAKEUP, p->pid, p->state);
+anyhow, this is probably getting off-topic :)
 
-+static inline void TRACE_PROCESS(u8 ev_id, u32 data1, u32 data2)
-+{
-+       trace_process proc_event;
-+
-+       proc_event.event_sub_id = ev_id;
-+       proc_event.event_data1 = data1;
-+       proc_event.event_data2 = data2;
-+
-+       trace_event(TRACE_EV_PROCESS, &proc_event);
-+}
+-dean
 
-where trace_event() is defined as:
 
-+int trace_event(u8 pm_event_id,
-+               void *pm_event_struct)
-[...]
-+       read_lock(&tracer_register_lock);
 
-ie. it's using a global spinlock. (sure, it can be made lockless, as other
-tracers have done it.)
-
-	Ingo
 

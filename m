@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319028AbSHFJOc>; Tue, 6 Aug 2002 05:14:32 -0400
+	id <S319026AbSHFJPP>; Tue, 6 Aug 2002 05:15:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319029AbSHFJOc>; Tue, 6 Aug 2002 05:14:32 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:21000 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S319028AbSHFJOb>; Tue, 6 Aug 2002 05:14:31 -0400
-Date: Tue, 6 Aug 2002 10:18:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Aron Zeh <ARZEH@de.ibm.com>
-Subject: Re: [PATCH] 18/18 scsi core changes
-Message-ID: <20020806101807.A16350@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>, Aron Zeh <ARZEH@de.ibm.com>
-References: <200208051830.50713.arndb@de.ibm.com> <200208052008.35187.arndb@de.ibm.com> <20020805181234.B16035@infradead.org> <200208061306.03627.arnd@bergmann-dalldorf.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208061306.03627.arnd@bergmann-dalldorf.de>; from arnd@bergmann-dalldorf.de on Tue, Aug 06, 2002 at 01:06:03PM +0200
+	id <S319027AbSHFJPP>; Tue, 6 Aug 2002 05:15:15 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:56295 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S319026AbSHFJPM>;
+	Tue, 6 Aug 2002 05:15:12 -0400
+Message-ID: <3D4F942D.7020100@colorfullife.com>
+Date: Tue, 06 Aug 2002 11:17:33 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rusty Trivial Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06, 2002 at 01:06:03PM +0200, Arnd Bergmann wrote:
-> Still, it's the stuff IBM recommends for use and it's not going
-> away (at least not in 2.4), so I guess it might just as well be 
-> included.
+> -		printk("No.\n");
+> +		printk("No (that's security hole).\n");
+>  #ifdef CONFIG_X86_WP_WORKS_OK
 
-Following that argumentation we could also include the broken qlogic driver
-and the nvidia glue..
+Could you explain the hole?
+WP works for user space apps, only ring0 (or ring 0-2?) code ignores the WP bit on i386.
+
+--
+	Manfred
+
 

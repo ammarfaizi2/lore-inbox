@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbULYWSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbULYWYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbULYWSV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 17:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbULYWSV
+	id S261581AbULYWYo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 17:24:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbULYWYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 17:18:21 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:28271 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261580AbULYWSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 17:18:18 -0500
-Message-ID: <41CDE70E.8090109@yahoo.com>
-Date: Sat, 25 Dec 2004 14:17:50 -0800
-From: Lars <lhofhansl@yahoo.com>
-Organization: What? Organized??
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041121
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10 breaks xconsole
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Dec 2004 17:24:44 -0500
+Received: from gprs212-19.eurotel.cz ([160.218.212.19]:62850 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261581AbULYWYn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 17:24:43 -0500
+Date: Sat, 25 Dec 2004 23:24:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][CFT] time sliced cfq ver18
+Message-ID: <20041225222431.GA27315@elf.ucw.cz>
+References: <20041221144046.GN2773@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041221144046.GN2773@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running kernel 2.6.10, xconsole always displays: Couldn't open console.
-xconsole works fine in the identical setup with 2.6.9 and 2.4.28.
+Hi!
 
-The permissions are set correctly:
-crw-rw-r--  1 lars tty 5, 1 2004-12-25 13:17 /dev/console
+> I've finished version 18 of the time sliced cfq io scheduler. The
+> highlights of this io scheduler are (in no particular order):
+> 
+> - It gives each process doing io access to the disk exclusively for a
+>   defined period of time. This is known as the disk slice, hence the
+>   name time sliced cfq. Most processes have at least some locality
+> on
 
-xconsole won't work when run as either lars, a tty member, and even 
-root. In all cases the message above is shown.
+Wow, nice. Now that we have nice and ionice, can we have netnice too?
+netnice rsync .... would  be very usefull :-).
+								Pavel
 
-If I change permission to:
-crw-rw-r--  1 root tty 5, 1 2004-12-25 13:17 /dev/console
-
-xconsole can at least be run as root.
-
-I guess this is related to this patch:
-<od@suse.de>
-	[PATCH] TIOCCONS security
-
-Forcing xconsole to be run as root is not a good idea, IMHO.
-
--- Lars
-
-ps. Please CC me directly as I'm not subscribed to the list.
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

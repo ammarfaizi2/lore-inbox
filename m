@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262991AbRE1Go2>; Mon, 28 May 2001 02:44:28 -0400
+	id <S262078AbRE1HAw>; Mon, 28 May 2001 03:00:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbRE1GoS>; Mon, 28 May 2001 02:44:18 -0400
-Received: from [62.225.179.11] ([62.225.179.11]:14608 "EHLO mail.pol.degrp.de")
-	by vger.kernel.org with ESMTP id <S262991AbRE1GoF> convert rfc822-to-8bit;
-	Mon, 28 May 2001 02:44:05 -0400
-Message-ID: <9DD550E9A9B0D411A16700D0B7E38BA438385A@mail.degrp.org>
-From: "Antwerpen, Oliver" <Antwerpen@netsquare.org>
-To: linux-kernel@vger.kernel.org
-Subject: Dual Athlon Performance
-Date: Mon, 28 May 2001 08:44:22 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S262582AbRE1HAn>; Mon, 28 May 2001 03:00:43 -0400
+Received: from [62.231.2.151] ([62.231.2.151]:49417 "EHLO mail.ixcelerator.com")
+	by vger.kernel.org with ESMTP id <S262078AbRE1HAa>;
+	Mon, 28 May 2001 03:00:30 -0400
+Date: Mon, 28 May 2001 11:01:09 +0400
+Message-Id: <200105280701.f4S719d03797@morgoth.ixcelerator.com>
+From: green@linuxhacker.ru
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-ac1 hard disk corruption... acpi responsible?
+In-Reply-To: <E1544AG-00026i-00@the-village.bc.nu>
+X-Newsgroups: linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.4 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moin,
+In article <E1544AG-00026i-00@the-village.bc.nu> you wrote:
+> Bad idea. The kernel ACPI is not the most debugged, the ACPI in many BIOSes
+> is complete garbage and there isnt a lot you can do to debug them either.
+> APM is a definite better choice, at least in the shorter term
+Too bad, we cannot get much of APM in SMP, only power-off if one gets lucky.
 
-I have a DualAthlon System here (2xAthlon 1.2GHz, 256MB RAM, icp-vortex
-6513RS/128MB, 3*9.1GB/10k HD, Dual 3com980 NIC) which runs really fine with
-kernel 2.4.4 and as far as I can see now with 2.4.5.
-Now I am interested in comparing this system's performance to others. Can
-someone here give me a hand on how to do this best?
-
-And, if there are any special things (compilers, tools, ?) that I should
-use, please point me to...
-
-Olli
-
--- 
-Die Wahrheit liegt irgendwo da drauﬂen...
+Bye,
+    Oleg

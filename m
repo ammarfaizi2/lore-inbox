@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318169AbSIJV7c>; Tue, 10 Sep 2002 17:59:32 -0400
+	id <S318168AbSIJV6X>; Tue, 10 Sep 2002 17:58:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318170AbSIJV7b>; Tue, 10 Sep 2002 17:59:31 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36873 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318169AbSIJV73>; Tue, 10 Sep 2002 17:59:29 -0400
-Date: Tue, 10 Sep 2002 17:52:56 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-       david-b@pacbell.net, mdharm-kernel@one-eyed-alien.net, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <20020910193228.GL31597@waste.org>
-Message-ID: <Pine.LNX.3.96.1020910173301.8675A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318169AbSIJV6X>; Tue, 10 Sep 2002 17:58:23 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20240 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318168AbSIJV6V>; Tue, 10 Sep 2002 17:58:21 -0400
+Date: Tue, 10 Sep 2002 23:03:01 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] undo 2.5.34 ftape damage
+Message-ID: <20020910230301.A15349@flint.arm.linux.org.uk>
+References: <15742.2206.709234.102259@kim.it.uu.se> <Pine.LNX.4.44.0209101430090.10048-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209101430090.10048-100000@hawkeye.luckynet.adm>; from thunder@lightweight.ods.org on Tue, Sep 10, 2002 at 02:31:17PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Sep 2002, Oliver Xymoron wrote:
+On Tue, Sep 10, 2002 at 02:31:17PM -0600, Thunder from the hill wrote:
+> This is the expsyms output. Draw your own conclusions on what should be 
+> done.
 
-> Which still leaves the question, does it really make sense for
-> FATAL/BUG to forcibly kill the machine? If the bug is truly fatal,
-> presumably the machine kills itself in short order anyway, otherwise
-> we might have a shot at recording the situation. A more useful
-> distinction might be in terms of risk of damaging filesystems (or perhaps
-> hardware) if we continue, something like BROKEN/DANGEROUSLY_BROKEN.
+We've been through this before.  I'd have thought you'd have learnt by
+now, but you've obviously got some bug bear here that you can't get
+over.
 
-And that's the heart of the thing, if continuing is likely to trash
-filesystem or (unlikely) damage hardware, then the system should go down
-RIGHT NOW.
+This is getting worse than ESR.
 
-I've often wondered if it wouldn't be better to allow the user to provide
-a partition for oops use, where the kernel could write kmen and a few
-chosen other bit of information. Get all the oops output formatting code
-out of the kernel. Then the user could run tools like ksymoops against the
-oops after reboot, and a small utility could wrap and compress the oops,
-symbols table, config, etc, for future use by the user or developer. 
-
-I've sent a fair number of crash dumps of AIX to IBM, seems a good idea.
-And developers could have personal tools, archetecture dependent tools,
-ksysoops could be enhanced after the fact.
-
-If it would help with a nasty bug I'd put all that and the kernel source I
-used, the module tree, etc, on a CD and send it. Whatever helps solve the
-problem. Too often the output is lost on the console and not written
-anywhere recoverable.
+> Remove arch/arm/kernel/apm.o.
+> Remove arch/arm/mach-clps711x/leds-p720t.o.
+> Remove arch/arm/mach-integrator/leds.o.
+> Add arch/arm/mach-ftvpci/leds.o.
+> Remove arch/arm/mach-pxa/irq.o.
+> Remove arch/arm/mach-pxa/sa1111.o.
+> Remove arch/arm/mach-sa1100/irq.o.
+> Remove arch/arm/mach-sa1100/usb_ctl.o.
+> Remove arch/arm/mach-sa1100/usb_recv.o.
+> Remove arch/arm/mach-sa1100/usb_send.o.
+> Remove arch/ppc/amiga/amiga_ksyms.o.
+> Remove drivers/char/ftape/zftape/zftape_syms.o. <-- Bugger?
+> Remove drivers/char/pty.o.
+> Add drivers/usb/class/usb-midi.o.
+> 
+> 			Thunder
+> -- 
+> --./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+> --/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+> .- -/---/--/---/.-./.-./---/.--/.-.-.-
+> --./.-/-.../.-./.././.-../.-.-.-
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261713AbSJMWgt>; Sun, 13 Oct 2002 18:36:49 -0400
+	id <S261784AbSJMWqd>; Sun, 13 Oct 2002 18:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261738AbSJMWgt>; Sun, 13 Oct 2002 18:36:49 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:22440 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S261713AbSJMWgs>; Sun, 13 Oct 2002 18:36:48 -0400
-Message-Id: <200210132242.g9DMgVng334662@pimout3-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
-Date: Sun, 13 Oct 2002 13:32:34 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <20021012012807.1BB5B635@merlin.webofficenow.com> <3DA7F385.3040409@namesys.com>
-In-Reply-To: <3DA7F385.3040409@namesys.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S261785AbSJMWqd>; Sun, 13 Oct 2002 18:46:33 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:37622 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S261784AbSJMWqc>;
+	Sun, 13 Oct 2002 18:46:32 -0400
+Date: Mon, 14 Oct 2002 00:52:22 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+Message-ID: <20021013225222.GA23518@win.tue.nl>
+References: <200210131924.MAA00308@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210131924.MAA00308@baldur.yggdrasil.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 October 2002 06:03 am, Hans Reiser wrote:
-> Rob Landley wrote:
-> >I'm also looking for an "unmount --force" option that works on something
-> >other than NFS.  Close all active filehandles (the programs using it can
-> > just deal with EBADF or whatever), flush the buffers to disk, and
-> > unmount.  None of this "oh I can't do that, you have a zombie process
-> > with an open file...", I want  "guillotine this filesystem pronto,
-> > capice?" behavior.
->
-> This sounds useful.  It would be nice if umount prompted you rather than
-> refusing.
+On Sun, Oct 13, 2002 at 12:24:26PM -0700, Adam J. Richter wrote:
 
-The problem here is that umount(2) doesn't take a flag.  I'd be happy to have 
-it fail unless called with the WITH_EXTREME_PREJUDICE flag or some such, but 
-that's an API change.
+> 	linux-2.5.42 had an annoying new behavior.  When I would
+> try to do a warm reboot, it would spin down the hard drives, which
+> just made the reboot take longer and gave the impression that a
+> halt or poweroff was in progress.
 
-Of course I haven't gotten that far yet, but eventually this will have to be 
-dealt with...
+Yes. In my case worse than annoying:
+The drives spin down, but have not yet completed spindown when
+the machine is started again. LILO fails (prints a single 's'
+where I would have expected "uncompressing kernel" and dies).
+Pressing reset results in a strange garbled BIOS screen, and a hang.
+After a power cycle all is well again.
 
-Rob
+So, my hardware is very unhappy with the new 2.5.42 behaviour.
+
+Andries
+
+
+[2.5.33 works for me, but no later kernel does.]

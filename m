@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbULCK7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbULCLO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbULCK7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 05:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbULCK7S
+	id S262154AbULCLO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 06:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbULCLO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 05:59:18 -0500
-Received: from gate.corvil.net ([213.94.219.177]:32017 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S262152AbULCK7F (ORCPT
+	Fri, 3 Dec 2004 06:14:57 -0500
+Received: from [61.149.23.123] ([61.149.23.123]:7145 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S262154AbULCLO4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 05:59:05 -0500
-Message-ID: <41B046BA.1030703@draigBrady.com>
-Date: Fri, 03 Dec 2004 10:58:02 +0000
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, ganesh.venkatesan@intel.com
-CC: Lukas Hejtmanek <xhejtman@mail.muni.cz>, zaphodb@zaphods.net,
-       marcelo.tosatti@cyclades.com, piggin@cyberone.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-References: <20041109203348.GD8414@logos.cnet>	<20041110212818.GC25410@mail.muni.cz>	<20041110181148.GA12867@logos.cnet>	<20041111214435.GB29112@mail.muni.cz>	<4194A7F9.5080503@cyberone.com.au>	<20041113144743.GL20754@zaphods.net>	<20041116093311.GD11482@logos.cnet>	<20041116170527.GA3525@mail.muni.cz>	<20041121014350.GJ4999@zaphods.net>	<20041121024226.GK4999@zaphods.net>	<20041202195422.GA20771@mail.muni.cz> <20041202122546.59ff814f.akpm@osdl.org>
-In-Reply-To: <20041202122546.59ff814f.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Dec 2004 06:14:56 -0500
+Date: Fri, 3 Dec 2004 03:05:20 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412031105.iB3B5Kd05959@adam.yggdrasil.com>
+To: chrisw@osdl.org
+Subject: Re: [PATCH 2.6.10-rc2-bk15] sysfs_dir_close memory leak
+Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       maneesh@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
-> 
->>I found out that 2.6.6-bk4 kernel is OK. 
-> 
-> 
-> That kernel didn't have the TSO thing.  Pretty much all of these reports
-> have been against e1000_alloc_rx_buffers() since the TSO changes went in.
+Chris Wright wrote:
+>* Adam J. Richter (adam@yggdrasil.com) wrote:
+>> 	sysfs_dir_close did not free the "cursor" sysfs_dirent
+>> used for keeping track of position in the list of sysfs_dirent nodes.
+>> Consequently, doing a "find /sys" would leak a sysfs_dirent for
+>> each of the 1140 directories in my /sys tree, or about 36kB
+>> each time.
 
-This possibly related patch went into 2.6 and it bugged me
-as Ganesh didn't address the reservations mentioned in the thread:
-http://oss.sgi.com/projects/netdev/archive/2004-07/msg00704.html
+>Yeah, I noticed this as well.  Why the BUGON()?
 
-Pa'draig.
+	My thinking was that the preconditions in my tree for
+calling release_sysfs_dirent are dirent->s_dentry == NULL and
+list_empty(&dirent->s_sibling).  The latter should be apparent
+from two lines above, but the former is less obvious, although
+it is also theoretically always true.
+
+	I'm OK with deleting the BUG_ON().  It was not verifying
+anything passed in by an outside caller.
+
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

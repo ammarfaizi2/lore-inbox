@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282916AbRL0Wlb>; Thu, 27 Dec 2001 17:41:31 -0500
+	id <S282904AbRL0Wob>; Thu, 27 Dec 2001 17:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282904AbRL0WlV>; Thu, 27 Dec 2001 17:41:21 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:1887 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S282916AbRL0WlI>;
-	Thu, 27 Dec 2001 17:41:08 -0500
-Message-ID: <20011227234104.B4528@win.tue.nl>
-Date: Thu, 27 Dec 2001 23:41:04 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-        "James Stevenson" <mistral@stev.org>
-Cc: jlladono@pie.xtec.es, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x kernels, big ide disks and old bios
-In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org> <001a01c18d77$a9e92ca0$0801a8c0@Stev.org> <20011226173307.34e25fe6.skraw@ithnet.com> <000701c18ed8$73f2b2d0$0801a8c0@Stev.org> <20011227195101.5bf120f9.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20011227195101.5bf120f9.skraw@ithnet.com>; from Stephan von Krawczynski on Thu, Dec 27, 2001 at 07:51:01PM +0100
+	id <S282962AbRL0WoW>; Thu, 27 Dec 2001 17:44:22 -0500
+Received: from ns.suse.de ([213.95.15.193]:2567 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282904AbRL0WoN>;
+	Thu, 27 Dec 2001 17:44:13 -0500
+Date: Thu, 27 Dec 2001 23:44:12 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+In-Reply-To: <20011227202345.B30930@conectiva.com.br>
+Message-ID: <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 27, 2001 at 07:51:01PM +0100, Stephan von Krawczynski wrote:
+On Thu, 27 Dec 2001, Arnaldo Carvalho de Melo wrote:
 
-> I don't know. I tried once with
-> 
-> 00:01.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
-> 
-> and it did not work. I could definitely not write beyond the 32 GB border. I
-> replaced the mobo then.
+> > Patch is against kernel 2.4.17, should apply to 2.5 as well.
+> Good job! But please consider splitting the patch per driver and sending it
+> to the respective maintainers.
 
-Did you try setmax?
+Someone with far too much time on their hands would be my personal
+hero[*] if they were to write a script (in language of their choice) to
+parse a diff, extract filename, and do lookup in a flat text file
+to find a list of maintainers/interested parties.
+
+Imagine a patch against devfs..
+
+$ cclist my.devfs.patch.diff
+Richard Gooch <rgooch@atnf.csiro.au>
+Alexander Viro <viro@math.psu.edu>
+
+SCNR 8-)
+
+This 'little black book of addresses' doesn't have to be anything
+wonderful, but its tedious work for someone to make the textfile
+mapping the various source files to email addresses.
+
+Someone (Alan?) suggested having something like a web interface
+allowing anyone interested in any particular file to register
+their interest, and get added to the cclist for that file.
+Which is also a cool idea.
+
+Dave.
+
+[*] At least for a while. I'm fickle.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

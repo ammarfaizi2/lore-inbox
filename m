@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286751AbRLVJgg>; Sat, 22 Dec 2001 04:36:36 -0500
+	id <S285070AbRLVKKy>; Sat, 22 Dec 2001 05:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286749AbRLVJgT>; Sat, 22 Dec 2001 04:36:19 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:32937 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S286748AbRLVJgA>;
-	Sat, 22 Dec 2001 04:36:00 -0500
-Date: Sat, 22 Dec 2001 12:33:33 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: [patch] irqrate-2.4.17-A0
-Message-ID: <Pine.LNX.4.33.0112221227540.4953-100000@localhost.localdomain>
+	id <S286752AbRLVKKo>; Sat, 22 Dec 2001 05:10:44 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:60056 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S285070AbRLVKKe>; Sat, 22 Dec 2001 05:10:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Keys <akeys@post.cis.smu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: IDE Harddrive Performance
+Date: Sat, 22 Dec 2001 04:10:38 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: thomas@deselaers.de (Thomas Deselaers), linux-kernel@vger.kernel.org
+In-Reply-To: <E16Hhws-0003Rj-00@the-village.bc.nu>
+In-Reply-To: <E16Hhws-0003Rj-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011222101028.DCPB6450.rwcrmhc52.attbi.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On December 22, 2001 02:56, Alan Cox wrote:
+> > # hdparm -t /dev/hda
+> >
+> > /dev/hda:
+> >  Timing buffered disk reads:  64 MB in 86.98 seconds =753.46 kB/sec
+>
+> Do you get sane numbers if you use 2.4.9 for the hdparm test ?
 
-i've uploaded the latest, 2.4.17-A0 IRQ-rate-limiting patch to:
+Just tried 2.4.9 and 2.4.10, both with ext3 patches.  Both had the same 
+abysmal numbers (791.48 KB/sec for 2.4.9).
 
-        http://redhat.com/~mingo/irqrate-patches/
-
-this is just a straightforward port to 2.4.17. The patch, while it adds
-the dynamic hard-IRQ-limiting feature and fixes softirq performance, it
-also removes more lines of code than it adds.
-
-comments, bug reports and suggestions are welcome,
-
-	Ingo
+Any other combinations I should try?
+-- 
+akk~
 

@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292848AbSCJFmk>; Sun, 10 Mar 2002 00:42:40 -0500
+	id <S292874AbSCJGHZ>; Sun, 10 Mar 2002 01:07:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292866AbSCJFmb>; Sun, 10 Mar 2002 00:42:31 -0500
-Received: from gear.torque.net ([204.138.244.1]:35844 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S292848AbSCJFmM>;
-	Sun, 10 Mar 2002 00:42:12 -0500
-Message-ID: <3C8AEDFC.502CAD04@torque.net>
-Date: Sun, 10 Mar 2002 00:24:12 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.6-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Jeremy Higdon <jeremy@classic.engr.sgi.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <E16heCm-0000Q5-00@starship.berlin> <10203032021.ZM443706@classic.engr.sgi.com> <E16hl4R-0000Zx-00@starship.berlin> <phillips@bonn-fries.net> <10203032209.ZM424559@classic.engr.sgi.com> <20020304165216.A1444@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S292878AbSCJGHQ>; Sun, 10 Mar 2002 01:07:16 -0500
+Received: from zero.tech9.net ([209.61.188.187]:57351 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292874AbSCJGHH>;
+	Sun, 10 Mar 2002 01:07:07 -0500
+Subject: Re: Kernel 2.5.6 Interactive performance
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: charles-heselton@cox.net, Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Dan Mann <mainlylinux@attbi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        "J.A. Magallon" <jamagallon@able.es>
+In-Reply-To: <20020310043854.GA311@matchmail.com>
+In-Reply-To: <NFBBKFIFGLNJKLMMGGFPKEPDCFAA.charles-heselton@cox.net>
+	<1015734229.858.4.camel@phantasy>  <20020310043854.GA311@matchmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 10 Mar 2002 01:05:55 -0500
+Message-Id: <1015740391.858.44.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
-> 
-> Hi,
-> 
-> On Sun, Mar 03, 2002 at 10:09:35PM -0800, Jeremy Higdon wrote:
-> 
-> > > WCE is per-command?  And 0 means no caching, so the command must complete
-> > > when the data is on the media?
-> >
-> > My reading is that WCE==1 means that the command is complete when the
-> > data is in the drive buffer.
-> 
-> Even if WCE is enabled in the caching mode page, we can still set FUA
-> (Force Unit Access) in individual write commands to force platter
-> completion before commands complete.
-> 
-> Of course, it's a good question whether this is honoured properly on
-> all drives.
-> 
-> FUA is not available on WRITE6, only WRITE10 or WRITE12 commands.
+On Sat, 2002-03-09 at 23:38, Mike Fedyk wrote:
 
-Stephen,
-FUA is also available on WRITE16. The same FUA support pattern
-applies to the READ6,10,12 and 16 series. Interestingly if a
-WRITE10 is called with FUA==0 followed by a READ10 with FUA=1
-on the same block(s) then the READ causes the a flush from the
-cache to the platter (if it hasn't already been done). [It
-would be pretty ugly otherwise :-)]
+> On Sat, Mar 09, 2002 at 11:23:48PM -0500, Robert Love wrote:
+> > The 2.5 tree also has most of these toys, and is a better place for this
+> > development IMO.  Personally, I'd stay away from these all-in-one silly
+> > patches that are floating around these days.  Your safest bet is just
+> > stock 2.4.18 or whatever is latest, although the above addons are all at
+> > varying levels of "stable" and "safe".
+> > 
+> 
+> Then what do you call -aa and -ac? ;)
+> 
+> These "all-in-one" patches do make it harder to debug specific patches, but
+> it does create a wider audience for many patches that wouldn't be used
+> otherwise.
 
-Also SYNCHRONIZE CACHE(10) allows a range of blocks to be sent
-to the platter but the size of the range is limited to 2**16 - 1
-blocks which is probably too small to be useful. If the
-"number of blocks" field is set to 0 then the whole disk cache
-is flushed to the platter. There is a SYNCHRONIZE CACHE(16)
-defined in recent sbc2 drafts that allows a 32 bit range
-but it is unlikely to appear on any disk any time soon. There
-is also an "Immed"-iate bit on these sync_cache commands
-that may be of interest. When set this bit instructs the
-target to respond with a good status immediately on receipt
-of the command (and thus before the dirty blocks of the disk 
-cache are flushed to the platter).
+I don't put -aa nor -ac in the same category as what I refer to above. 
+Alan and Andrea's trees both contain an intelligent combination of
+useful patches, bug fixes, and code from Alan and Andrea themselves.
 
-Doug Gilbert
+The plethora of all-in-one every-patch-under-the-sun patchsets don't
+fall into the above category, in my opinion.  They just mix various new
+feature patches.  They do offer one benefit: much wider exposure for
+some potentially very useful patches.  I have found, however, that they
+don't help the actual patch authors much since (a) they are mixed in
+with many other patches and possibly even erroneously merged and (b) the
+bug reports never make it upstream to the actual patch maintainers.
+
+Maybe I'm just annoyed by the even greater signal-to-noise ratio on lkml
+:-)
+
+	Robert Love
 

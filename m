@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273909AbTHPPvh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 11:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274788AbTHPPvg
+	id S274896AbTHPP5A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 11:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274897AbTHPP5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 11:51:36 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:16092 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S273909AbTHPPvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 11:51:35 -0400
-Date: Sat, 16 Aug 2003 11:50:23 -0400
-From: Chris Heath <chris@heathens.co.nz>
-To: jsimmons@infradead.org
-Subject: Re:FBDEV updates.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: Pine.LNX.4.44.0308142052440.15200-100000@phoenix.infradead.org
-Message-Id: <20030816114422.1E63.CHRIS@heathens.co.nz>
+	Sat, 16 Aug 2003 11:57:00 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:42209 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S274896AbTHPP46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 11:56:58 -0400
+Message-ID: <3F3E38AE.1040902@cornell.edu>
+Date: Sat, 16 Aug 2003 09:59:10 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: walt <wa1ter@myrealbox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3 current - compile error - no member named 'name'
+References: <3F3E288B.3010105@cornell.edu> <3F3DD93E.7090706@myrealbox.com>
+In-Reply-To: <3F3DD93E.7090706@myrealbox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.06.02
-X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+walt wrote:
+> Ivan Gyurdiev wrote:
+> 
+>> Hopefully, this is not a duplicate post:
+>> ===========================================
+>>
+>> drivers/ieee1394/nodemgr.c: In function `nodemgr_update_ud_names':
+>> drivers/ieee1394/nodemgr.c:471: error: structure has no member named 
+>> `name'
+> 
+> 
+> I got a similar error starting with last night's bk pull:
+> 
+> drivers/pnp/core.c: In function `pnp_register_protocol':
+> drivers/pnp/core.c:72: structure has no member named `name'
+> 
+> -
 
-I am still seeing a lot of cursors being left behind.  It is not a race
-condition or anything -- in the TTY line editor, it happens about 50% of
-the time when you press backspace.
-
-What appears to be happening is the cursor is flashing twice as slowly
-as the driver thinks it is, so of course it's wrong half the time when
-it comes to erase the cursor.
-
-The patch below fixes it for me.
-
-Chris
+And I just got another one of those trying to compile the nvidia driver 
+for this kernel. So apparently this is not firewire or pnp specific.
 
 
---- a/drivers/video/softcursor.c	2003-08-16 11:39:51.000000000 -0400
-+++ b/drivers/video/softcursor.c	2003-08-16 11:29:43.000000000 -0400
-@@ -74,6 +74,12 @@
- 		
- 	if (info->cursor.image.data)
- 		info->fbops->fb_imageblit(info, &info->cursor.image);
-+
-+	if (!info->cursor.enable) {
-+		for (i = 0; i < size; i++)
-+			dst[i] ^= info->cursor.mask[i]; 
-+	}
-+
- 	return 0;
- }
- 
+
 

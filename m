@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268031AbUHXPyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUHXPzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268031AbUHXPyL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 11:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUHXPyL
+	id S268053AbUHXPzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 11:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUHXPza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 11:54:11 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:59600 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S268031AbUHXPyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 11:54:04 -0400
-Date: Tue, 24 Aug 2004 17:54:00 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Rik van Riel <riel@redhat.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] make oom killer points unsigned long
-Message-ID: <Pine.LNX.4.53.0408241745020.6266@gockel.physik3.uni-rostock.de>
+	Tue, 24 Aug 2004 11:55:30 -0400
+Received: from penguin.cohaesio.net ([212.97.129.34]:27057 "EHLO
+	mail.cohaesio.net") by vger.kernel.org with ESMTP id S268053AbUHXPzF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 11:55:05 -0400
+From: Anders Saaby <as@cohaesio.com>
+Organization: Cohaesio A/S
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: oom-killer 2.6.8.1
+Date: Tue, 24 Aug 2004 17:55:04 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org, joe@unthought.net,
+       Gene Heskett <gene.heskett@verizon.net>,
+       Hugh Dickins <hugh@veritas.com>
+References: <200408181455.42279.as@cohaesio.com> <200408241130.15577.as@cohaesio.com> <20040824154131.GM2793@holomorphy.com>
+In-Reply-To: <20040824154131.GM2793@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408241755.05149.as@cohaesio.com>
+X-OriginalArrivalTime: 24 Aug 2004 15:55:04.0044 (UTC) FILETIME=[B84E32C0:01C489F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
+On Tuesday 24 August 2004 17:41, William Lee Irwin III wrote:
+> On Tue, Aug 24, 2004 at 11:30:15AM +0200, Anders Saaby wrote:
+> > OK - I now have some additional info regarding the slapinfo/oom-killer
+> > issue.
+> > As I wrote earlier this server is a storage server providing NFS storage
+> > to a number of webservers - ondisk filesystem is xfs, kernel = 2.6.8.1.
+> > At 03:00 some logrotate scripts runs throug a lot of files. It appears
+> > that this is what is using the slabs (see this graph, K = M, so max used
+> > slab is approx. 700M)
+> > http://saaby.com/slabused.gif (values are from /proc/meminfo)
+> > These are the values (from slabinfo, active_objs), which changed
+> > remarkably from 03:00 to 06:00:
+> > 03:00:        06:00:
+> > xfs_chashlist  91297    xfs_chashlist     151994
+> > xfs_inode     243791    xfs_inode         586780
+> > linvfs_icache 243791    linvfs_icache     586807
+> > dentry_cache  196033    dentry_cache      430609
+>
+> xfs has some known bad slab behavior. I think punting this in the
+> direction of xfs mailing lists may be useful.
+>
+OK, interesting! - I will do that.
 
-it seems a little unsafe to me to have oom killer badness points of type
-int, when all the underlying objects are unsigned long.
+> On Tue, Aug 24, 2004 at 11:30:15AM +0200, Anders Saaby wrote:
+> > The server crashed every night at approx. 03:00 to 04:00 - until last
+> > night where we changed:
+> > vm.min_free_kbytes from default (approx. 900K) to
+> > vm.min_free_kbytes=32768 (32M)
+> > This seems to solve the problem - Does this make any sense to you? - Or
+> > just pure luck?
+>
+> I guess it makes some sense since it refuses to let slab cut into the
+> very last bits of RAM. If you're getting temporarily heavily fragmented
+> with active references it may mean the difference between the box
+> livelocking/deadlocking and making forward progress.
+>
+Sounds right.
 
-I can't immediately think of a case where this matters much, but e.g. a
-long-running job or daemon on a 64 bit machine might lose it's bonus
-because of that.
+Thanks for your help! :-)
 
-Tim
+/Saaby
 
-
-Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
-
---- linux-2.6.8.1/mm/oom_kill.c		2004-08-17 21:38:55.000000000 +0200
-+++ linux-2.6.8.1-oom/mm/oom_kill.c	2004-08-24 17:40:58.000000000 +0200
-@@ -41,9 +41,9 @@
-  *    of least surprise ... (be careful when you change it)
-  */
- 
--static int badness(struct task_struct *p)
-+static unsigned long badness(struct task_struct *p)
- {
--	int points, cpu_time, run_time, s;
-+	unsigned long points, cpu_time, run_time, s;
- 
- 	if (!p->mm)
- 		return 0;
-@@ -108,13 +108,13 @@ static int badness(struct task_struct *p
-  */
- static struct task_struct * select_bad_process(void)
- {
--	int maxpoints = 0;
-+	unsigned long maxpoints = 0;
- 	struct task_struct *g, *p;
- 	struct task_struct *chosen = NULL;
- 
- 	do_each_thread(g, p)
- 		if (p->pid) {
--			int points = badness(p);
-+			unsigned long points = badness(p);
- 			if (points > maxpoints) {
- 				chosen = p;
- 				maxpoints = points;
+>
+> -- wli

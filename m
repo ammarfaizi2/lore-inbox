@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSGVHHW>; Mon, 22 Jul 2002 03:07:22 -0400
+	id <S316825AbSGVLoa>; Mon, 22 Jul 2002 07:44:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSGVHHW>; Mon, 22 Jul 2002 03:07:22 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:30341 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S316569AbSGVHHP>; Mon, 22 Jul 2002 03:07:15 -0400
-Date: Mon, 22 Jul 2002 00:08:00 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
-Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
-In-Reply-To: <20020721213131.GA919@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0207212340530.13407-100000@loke.as.arizona.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316835AbSGVLo3>; Mon, 22 Jul 2002 07:44:29 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:53757 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316825AbSGVLo3>; Mon, 22 Jul 2002 07:44:29 -0400
+Subject: Re: [PATCH] strict VM overcommit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0207220937570.614-100000@divine.city.tvnet.hu>
+References: <Pine.LNX.4.30.0207220937570.614-100000@divine.city.tvnet.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 14:00:09 +0100
+Message-Id: <1027342809.31782.28.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-07-22 at 09:08, Szakacsits Szabolcs wrote:
+> > > kill can't kill processes in uninterruptible sleep, etc, etc)? Why the
+> > In these cases the kernel infrastructure doesn't support the ability to
+> > recover from such a state,
+> 
+> You again anwered else but ironically you just rebute yourself that
+> there are cases when the system knows better then the admin.
 
-On Sun, 21 Jul 2002, William Lee Irwin III wrote:
+And purists consider those flaws
 
-> Can you test this to verify that reclamation is actually done? 
+> What the patch claims is no OOM. In the swapoff case potentially there
+> are OOM's. This is called bug (the feature not follows the behavior
+> what it specified when admin turned it on). Why do you call this bug
+> perfectly handled case? What differentiate this case from all other
+> when the system knows better not to destroy your data without at least
+> a "force" operation for example?
 
-Looks like it is.  I have a script that does slocate, loads monstrous 
-blank images into gimp, manipulates it to drive the machine to swap, 
-performs a 'find' to test and make sure we haven't evicted slab pages too 
-readily, loads some addn'l applications and performs a few dbench runs. 
-The apps are killed in lifo order to see if the page aging works.  
-Afterwards, the find is performed again to see if any of the slabs are 
-still cached. 
+Lets put this bluntly. Your swapdisk is losing sectors left right and
+centre. You propose a system where the kernel says "sorry might cause an
+OOM" and I lose everything as the disk goes down. Letting the admin set
+policy means I can swapoff, maybe lose a program or two to OOM but not
+lose the entire system in the process.
 
-vmstat is running through the entire test, and /proc/[mem,slab]info are 
-saved very occasionally. 
-
-I ran the test on 2.5.27-rmap and 2.5.27-rmap-slablru to test 
-pte_chain reclaim and to see if the slablru patch causes measurable 
-slowdowns due to more LRU list traffic.  It apparently doesn't:
-
-Time to completion:
-2.5.27:			203 sec
-2.5.27-rmap: 		205 sec
-2.5.27-rmap-slablru:	205 sec
-
-Swapouts during test:
-2.5.27: 		30092 kB
-2.5.27-rmap: 		43520 kB
-2.5.27-rmap-slablru:	40948 kB
-
-Swapins during test:
-2.5.27: 		13364 kB
-2.5.27-rmap: 		8616 kB
-2.5.27-rmap-slablru: 	8452 kB
-
-Slab reclaim looks sane for the slablru kernel throughout the test.  In 
-particular, here's the pte_chain pool entries through the test from 
-/proc/slabinfo:
-
-pte_chain          20061  21294      8   60   63    1
-pte_chain          20061  21294      8   60   63    1
-pte_chain          20822  24336      8   65   72    1
-pte_chain          21563  24336      8   65   72    1
-pte_chain          19921  23660      8   70   70    1
-pte_chain          18501  23660      8   63   70    1
-pte_chain          18483  22984      8   63   68    1
-
-
-Not very dramatic in this example since this was a pretty mild load, but 
-it does seem to work.
-
-Craig Kulesa
-Steward Obs.
-Univ. of Arizona
+Its quite clear that being able to override the kernels assumptions
+about what is right are sensible. It always has been
 

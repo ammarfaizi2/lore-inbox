@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267222AbTAUUvZ>; Tue, 21 Jan 2003 15:51:25 -0500
+	id <S267235AbTAUVII>; Tue, 21 Jan 2003 16:08:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267224AbTAUUvZ>; Tue, 21 Jan 2003 15:51:25 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:35208 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267222AbTAUUvY>;
-	Tue, 21 Jan 2003 15:51:24 -0500
-Date: Tue, 21 Jan 2003 16:02:28 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Daniel Ritz <daniel.ritz@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [alsa, pnp] more on opl3sa2
-Message-ID: <20030121160228.GH26108@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Jaroslav Kysela <perex@suse.cz>, Daniel Ritz <daniel.ritz@gmx.ch>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200301212006.01107.daniel.ritz@gmx.ch> <Pine.LNX.4.44.0301212101130.6355-100000@pnote.perex-int.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301212101130.6355-100000@pnote.perex-int.cz>
-User-Agent: Mutt/1.4i
+	id <S267244AbTAUVII>; Tue, 21 Jan 2003 16:08:08 -0500
+Received: from quechua.inka.de ([193.197.184.2]:61134 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S267235AbTAUVIH>;
+	Tue, 21 Jan 2003 16:08:07 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
+References: <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de> <1042930522.15782.12.camel@laptop.fenrus.com> <E18ai8O-00032u-00@bigred.inka.de> <1043098758.27074.2.camel@laptop.fenrus.com>
+Organization: private Linux site, southern Germany
+Date: Tue, 21 Jan 2003 22:16:06 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E18b5kc-0003BB-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 21, 2003 at 09:09:14PM +0100, Jaroslav Kysela wrote:
+> back then the argument (not mine btw) was that /usr on a lot of machines
+> is RO (I think debian has an option for that) so that sysadmins there
 
-> > the card is not detected by pnp, that problem stays. is that a problem of the pnp layer or is
-> > my toshiba laptop just so damn stupid??
-> 
-> Nope. It's fault of the driver. It scans for a card. Actually, the
-> structure card -> devices is created only by the ISA PnP driver.
-> 
-> I don't see any reason to not group the PnP BIOS devices into one "card", 
-> too. Adam, do you have any comments?
-> 
+and because of that (among other reasons) my other report about
+compiling outside of the source directory...
 
-I have considered this approach several times.  However, there are the following
-problems with representing the pnpbios devices under one card:
+> compile stuff in /root. /lib/modules however IS standardized and needs
+> to be writable to install a new kernel so making a symlink to the real
 
-1.) If a driver attaches to the pnpbios card all other card-based drivers will
-be unable to use the pnpbios.  One will attach and cause the others to fail.  It
-is possible for the user to have more than one pnpbios sound card but with this
-approach such a user would only be able to use one sound device from the entire
-pnpbios.
+Only while installing a new kernel. And you install the kernel on the
+box it needs to run on, which is not necessarily the box it's compiled
+on.
 
-2.) Doing so would misrepresent the pnpbios topology because it physically
-doesn't have any cards.
+> place there isn't too bad. In addition it already is the only directory
+> with per kernel files.. adding a second one was judged not needed. It
 
-3.) The opl3sa2 driver doesn't need a card because it is only asking for one
-device anyway.  Using the card interface puts unnecessary overhead on both the
-driver and the pnp layer.
+Only for stand-alone machines which only ever compile and run one
+kernel. You don't need a data center to violate that, you just need
+the fairly usual three-boxes home network (one of which is mainly a
+router/firewall which has no development environment if only for
+security reasons, or because it's a scavenged '486).
 
-4.) The PnP Card Services were designed to support older hardware (pre-pnpbios).
-Eventually vendors realized how stupid it was to use more than one device to
-perform a single function.  Therefore the opl3sa2 and others do not use several
-devices and do not need a card interface.
+> has to be somewhere. /lib/modules/ or /usr/src.. who cares. Linus made
+> the final call and everybody complies with it since then, just because
+> it doesn't matter THAT much. It just needs to be SOMEWHERE standard and
+> /lib/modules suffices so far it seems.
 
-I propose that we use a different solution...
+Frankly, I think the main reason is that Linus doesn't care at all
+about the kernel build process. We've had a _much_ better solution
+already in the 2.5 cycle which was rejected for completely bogus
+formal reasons coupled with an explicit "why do we need this at all",
+even though it was pointed out over and over again what is broken
+currently (or was back then, granted it has improved but not as much
+as is desirable and possible).
 
-What if we have the opl3sa2 driver along with the other one device drivers 
-use the pnp_driver interface instead of the pnpc_driver.  Jaroslav, Do you
-agree with this or would you suggest something else?  If you agree, I'll get
-to work on a patch.
+This blatantly erroneous decision[1] just smells of a blind spot or
+carelessness more than careful consideration.
 
-Regards,
-Adam
+Olaf
+
+[1] it's about of the same category as the original Unix' designers
+putting utmp and wtmp in /etc. Linus would never have approved _that_.
+

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132838AbRDDPO3>; Wed, 4 Apr 2001 11:14:29 -0400
+	id <S132836AbRDDPZb>; Wed, 4 Apr 2001 11:25:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132836AbRDDPOI>; Wed, 4 Apr 2001 11:14:08 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:29301 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132838AbRDDPNe>; Wed, 4 Apr 2001 11:13:34 -0400
-Date: Wed, 4 Apr 2001 17:12:27 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hubertus Franke <frankeh@us.ibm.com>
-Cc: mingo@elte.hu, Mike Kravetz <mkravetz@sequent.com>,
-        Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: a quest for a better scheduler
-Message-ID: <20010404171227.W20911@athlon.random>
-In-Reply-To: <OFB30A8B18.2E3AD16C-ON85256A24.004BD696@pok.ibm.com>
-Mime-Version: 1.0
+	id <S132839AbRDDPZV>; Wed, 4 Apr 2001 11:25:21 -0400
+Received: from staffnet.com ([207.226.80.14]:60170 "EHLO staffnet.com")
+	by vger.kernel.org with ESMTP id <S132836AbRDDPZM>;
+	Wed, 4 Apr 2001 11:25:12 -0400
+Message-ID: <3ACB3CA5.D978EF41@staffnet.com>
+Date: Wed, 04 Apr 2001 11:24:21 -0400
+From: Wade Hampton <whampton@staffnet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Carsten Langgaard <carstenl@mips.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pcnet32 (maybe more) hosed in 2.4.3
+In-Reply-To: <20010330190137.A426@indiana.edu> <Pine.LNX.4.30.0103311541300.406-100000@fs131-224.f-secure.com> <20010403202127.A316@bacchus.dhis.org> <3ACB2323.C1653236@mips.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFB30A8B18.2E3AD16C-ON85256A24.004BD696@pok.ibm.com>; from frankeh@us.ibm.com on Wed, Apr 04, 2001 at 10:03:10AM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 04, 2001 at 10:03:10AM -0400, Hubertus Franke wrote:
-> I understand the dilemma that the Linux scheduler is in, namely satisfy
-> the low end at all cost. [..]
+Carsten Langgaard wrote:
+> 
+> I'm not sure what the problem is, but the whole deal about checking whether the
+> controller runs in 16 bit or 32 bit mode, is a little bit tricky.
+>[snip]
+Without the changes listed in this thread, 2.4.3 crashed vmware 2.0.3 
+Linux. It did not OOPS the kernel, it caused vmware to go down in
+flames....  Changing the code per the previous mail fixed it and
+my VM now works fine.  THANKS!
 
-We can satisfy the low end by making the numa scheduler at compile time (that's
-what I did in my patch at least).
+Is this list non-causal?  The answer was posted to the list as I
+was getting ready to build 2.4.3 on my VM, before I found the 
+problem or even had to ask the question!
 
-Andrea
+Cheers,
+-- 
+W. Wade, Hampton  <whampton@staffnet.com>  
+If Microsoft Built Cars:  Every time they repainted the 
+lines on the road, you'd have to buy a new car.
+Occasionally your car would just die for no reason, and 
+you'd have to restart it, but you'd just accept this.

@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUKDPQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbUKDPR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUKDPQA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 10:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbUKDPQA
+	id S262254AbUKDPR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 10:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKDPQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 10:16:00 -0500
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:23460 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262256AbUKDPPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 10:16:12 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:61408 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262257AbUKDPPm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 4 Nov 2004 10:15:42 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-user@lists.sourceforge.net
-Subject: Re: [uml-user] Harddisk Shutdown while UML Guest Shutdown
-Date: Thu, 4 Nov 2004 16:14:46 +0100
-User-Agent: KMail/1.7.1
-Cc: Roland Kaeser <roli8200@yahoo.de>, LKML <linux-kernel@vger.kernel.org>
-References: <20041104094130.15928.qmail@web26103.mail.ukl.yahoo.com>
-In-Reply-To: <20041104094130.15928.qmail@web26103.mail.ukl.yahoo.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2318629.PtsUeb18tE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411041614.57091.blaisorblade_spam@yahoo.it>
+Date: Thu, 4 Nov 2004 16:16:31 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+Message-ID: <20041104151631.GA24056@elte.hu>
+References: <OF4142E065.5AF4099C-ON86256F42.00513CF0@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF4142E065.5AF4099C-ON86256F42.00513CF0@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2318629.PtsUeb18tE
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Thursday 04 November 2004 10:41, Roland Kaeser wrote:
-> Hello
->
-> Here comes the Test report for the UML SKAS and User run Tests
->
-> If I run the UML Kernel without the HOSTS SKAS Patch, it works normally, =
-no
-> hd shutdown!
->
-> If i run the UML Kernel with the HOSTS SKAS Patch but as "normal" user, it
-> works also normally, without any harddisk shutdown!
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-> It seems more and more to be a kind of bug in the UML Patch which allows
-> the uml kernel to call kernel functions on the host kernel.
+> Let me follow up briefly on the regression I noticed yesterday on ping
+> responses from an SMP system with one real time task running. [...]
 
-Also, there is a host kernel bug which causes the host to crash. Maybe (it =
-is=20
-just a random try, actually, but there should not be a lot of bugs in 2.6=20
-kernels), you could try this: would you please read this thread and tell if=
-=20
-you can reproduce the described panic and if it is anyhow similar to the=20
-other one.
+icmp/ping replies are handled by ksoftirqd. Once a networking request
+has been handed to ksoftirqd it cannot be redirected to another CPU,
+because softirq processing is fundamentally per-CPU. So if the network
+interrupt hits the CPU where the RT-task is running then the RT task
+will starve that ksoftirq instance (and hence the reply) even if another
+CPU in the system is idle.
 
-http://groups.google.com/groups?hl=3Den&lr=3D&threadm=3D2WG11-2iJ-1%40gated=
-=2Dat.bofh.it&prev=3D/groups%3Fnum%3D25%26hl%3Den%26lr%3D%26group%3Dlinux.k=
-ernel%26start%3D50
+i agree that this is an SMP/RT artifact that should be fixed. hardirq
+workload can be redirected to other CPUs because it's single-threaded,
+but it's not that easy for softirq workload.
 
-> Roland
+i suspect the same phenomenon causes some of the other scheduling
+artifacts ('frozen' X) you've noticed.
 
-
-=2D-=20
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-
---nextPart2318629.PtsUeb18tE
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBikdxqH9OHC+5NscRAhIIAJ9nne1PgaYgeuKV088B/fwYq7JGNwCfcTmh
-fkhF5HnJ0wtmNK8yxOuMShM=
-=tgYz
------END PGP SIGNATURE-----
-
---nextPart2318629.PtsUeb18tE--
-
+	Ingo

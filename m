@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264153AbTKSW3f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 17:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264162AbTKSW3f
+	id S264165AbTKSWkT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 17:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbTKSWkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 17:29:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17878 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264153AbTKSW3d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 17:29:33 -0500
-Date: Wed, 19 Nov 2003 14:30:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: leif <leif@gci.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: error in Sparc64 rwlock.S
-Message-Id: <20031119143000.7815cb9d.akpm@osdl.org>
-In-Reply-To: <014401c3aee5$587aea20$31828ad0@internet.gci.net>
-References: <20031118130956.1edd4a24.akpm@osdl.org>
-	<014401c3aee5$587aea20$31828ad0@internet.gci.net>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 19 Nov 2003 17:40:19 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:60903 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264165AbTKSWkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 17:40:16 -0500
+Message-ID: <3FBBF148.20203@nortelnetworks.com>
+Date: Wed, 19 Nov 2003 17:40:08 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: high res timestamps and SMP
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-leif <leif@gci.net> wrote:
->
-> Now there's a different problem...
-> 
-> Error: local label '"100" (instance number 1 of a fb label)'
->   is not defined
 
-Ah, sorry.   This incremental patch should fix that up.
+We have a requirement to have high-res timestamps available on SMP systems.
 
---- 25/arch/sparc64/lib/rwlock.S~lockmeter-sparc64-fix-fix	Wed Nov 19 14:29:11 2003
-+++ 25-akpm/arch/sparc64/lib/rwlock.S	Wed Nov 19 14:29:18 2003
-@@ -90,13 +90,15 @@ __write_trylock_fail:
- __read_trylock: /* %o0 = lock_ptr */
- 	ldsw		[%o0], %g5
- 	brlz,pn		%g5, 100f
--	 add		%g5, 1, %g7
-+	add		%g5, 1, %g7
- 	cas		[%o0], %g5, %g7
- 	cmp		%g5, %g7
- 	bne,pn		%icc, __read_trylock
- 	 membar		#StoreLoad | #StoreStore
- 	retl
--	 mov		1, %o0
-+	mov		1, %o0
-+100:	retl
-+	mov		0, %o0
- 
- rwlock_impl_end:
- 
+Assuming that we are running identical cpus, is a sync-up at boot time 
+enough to give usable time values, or do I need to do force periodic 
+re-syncs?
 
-_
+We're currently looking at MIPS, x86 (Xeons), and PPC.
+
+Thanks,
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

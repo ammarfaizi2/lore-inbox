@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130777AbRCMCpx>; Mon, 12 Mar 2001 21:45:53 -0500
+	id <S130793AbRCMDDp>; Mon, 12 Mar 2001 22:03:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130793AbRCMCpo>; Mon, 12 Mar 2001 21:45:44 -0500
-Received: from moore.degeorge.org ([216.254.116.78]:61447 "EHLO
-	moore.degeorge.org") by vger.kernel.org with ESMTP
-	id <S130775AbRCMCp2>; Mon, 12 Mar 2001 21:45:28 -0500
-Message-Id: <200103130245.f2D2j2J01057@janus.local.degeorge.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: APIC  usb MPS 1.4 and the 2.4.2 kernel
-Mime-Version: 1.0
+	id <S130794AbRCMDDf>; Mon, 12 Mar 2001 22:03:35 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:55680 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S130793AbRCMDDQ>;
+	Mon, 12 Mar 2001 22:03:16 -0500
+Message-ID: <3AAD8DB4.9DAC348C@mandrakesoft.com>
+Date: Mon, 12 Mar 2001 22:02:12 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Modular versus non-modular ISAPNP (was Re: PATCH - compile fix for 
+ 3c509.c in 2.4.3-pre3)
+In-Reply-To: <15021.30069.381855.886337@notabene.cse.unsw.edu.au>
+		<Pine.LNX.3.96.1010312194658.4742A-100000@mandrakesoft.mandrakesoft.com> <15021.36013.606715.731130@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Mar 2001 21:45:02 -0500
-From: David DeGeorge <dld@degeorge.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running 2.4.2 as obtained from redhat, but I have experienced the same 
-problems with a kernel compiled from the 2.4.2 sources at kernel.org.
-I am experiencing troubles with enabling MPS 1.4 and USB. I have an ABIT VP6 
-motherboard with two stock 733MHz PIIIs.
-If I set MPS1.1 in the bios then my IOmega Photoshow usb zip drive works, the 
-usb interrupt appears on irq 9 and after a day or two I experience  a hard 
-(sysreq doesn't work) lock. It seems usb related since doing usb things i.e. 
-mounting the drive sometimes cause the lock.
-If I set MPS1.4 in the bios  then the usb interrupt appears on irq 19, whose 
-count is alway zero, and the zip drive doesn't get registered. If give the 
-noapic command line then things appear to work, irq=9,don't know about the 
-hard locks, but booting seems much slower. Of course I can provide much more 
-information but I wonder is this a common problem and what are the 
-consequences of the noapic command?
-David
+Neil Brown wrote:
+> On Monday March 12, jgarzik@mandrakesoft.com wrote:
+> > On Tue, 13 Mar 2001, Neil Brown wrote:
+> > >  in 2.4.3-pre3, drivers/net/3c509.c will not compile ifdef CONFIG_ISAPNP.
+> > >
+> > >  The following patches fixes the error.  I suspect that 3c515.c has
+> > >  the same problem, but I didn't need to fix that to get my kernel to
+> > >  build... so I didn't.
 
+> > 3c509 and 3c515 fixes already sent to him, twice no less :)
 
+> Drat... I didn't remember seeing it go by on linux-kernel, but maybe I
+> didn't pay enough attention.... next time I'll wait till the same
+> problem appears in two pre releases before patching...
+
+(re cc'd to lkml...)
+
+My fault on that one, I didn't send it to lkml...
+
+BTW if you noticed, this problem was undetected initially due to
+differences between CONFIG_ISAPNP and CONFIG_ISAPNP_MODULE in the
+source.
+
+It is highly recommended to always compile with CONFIG_ISAPNP=y due to
+these differences.  If you grep around for CONFIG_ISAPNP versus
+CONFIG_ISAPNP_MODULE, you'll see that many drivers are woefully
+unprepared for isapnp support compiled as a module.
+
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full mooon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

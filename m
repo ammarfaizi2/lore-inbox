@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbSJJWpL>; Thu, 10 Oct 2002 18:45:11 -0400
+	id <S262152AbSJJWrA>; Thu, 10 Oct 2002 18:47:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262325AbSJJWpL>; Thu, 10 Oct 2002 18:45:11 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11539
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S262324AbSJJWpK>; Thu, 10 Oct 2002 18:45:10 -0400
-Date: Thu, 10 Oct 2002 15:50:50 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
-       Mark Mielke <mark@mark.mielke.cc>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>, andersen@codepoet.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Message-ID: <20021010225050.GC2673@matchmail.com>
-Mail-Followup-To: Giuliano Pochini <pochini@shiny.it>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
-	Mark Mielke <mark@mark.mielke.cc>,
-	Jamie Lokier <lk@tantalophile.demon.co.uk>, andersen@codepoet.org
-References: <1034221067.794.505.camel@phantasy> <XFMail.20021010153919.pochini@shiny.it>
+	id <S262248AbSJJWrA>; Thu, 10 Oct 2002 18:47:00 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:2495 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262152AbSJJWqz>; Thu, 10 Oct 2002 18:46:55 -0400
+Date: Fri, 11 Oct 2002 00:52:21 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: weird semantics of cpu/*/msr
+Message-ID: <20021010225221.GA1552@admingilde.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
 Content-Disposition: inline
-In-Reply-To: <XFMail.20021010153919.pochini@shiny.it>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 03:39:19PM +0200, Giuliano Pochini wrote:
-> 
-> > Look, the pagecache is already smart.  New stuff will replace unusued
-> > old stuff.  On VM pressure, the pagecache will be pruned.  Streaming I/O
-> > is a fundamentally different problem in that the data is so large it
-> > _continually_ thrashes the pagecache.  Such I/O is sequential and
-> > use-once.  You end up with a permanent waste of memory (the cached
-> > I/O).
-> 
-> When a process opens a file with O_STREAMING, it tells the kernel
-> it will use the data only once, but it tells nothing about other
-> tasks. If that process reads something which is already cached,
-> then it must not drop it because someone other used it recently
-> and IMHO pagecache only should be allowed to drop it.
->
 
-You are missing the point.  If the app thinks that might happen, it
-shouldn't use O_STREAMING.
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Though, how do you get around some binary app using O_STREAMING when it
-shouldn't?
+hi :)
+
+the i386 msr driver is a bit strange:
+
+* when reading/writing, it does not update the file position/msr register
+* file position is used directly as msr register
+
+that is, reads with count>8 do read from the same register multiple
+times, and writes overwrite themselves.
+
+i would expect the following semantics:
+* file position is (msr register * 8). position%8!=3D0 is invalid
+* read/write updating file position.
+
+that would make it possible to write/read multiple MSRs with one
+syscall, which is very handy when initializing P4 performance counters.
+
+should i implement that behaviour?
+of course it would break binary compatibility with existing
+uses of that drivers.
+perhaps we would need a new location for the new api.
+
+comments?
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9pgSkj/Eaxd/oD7IRAk2GAJ0UoEGq8XH7d7Bo9bvemoXc8WLF+QCeMKVO
+LFyItz+7lBE8D2D0bmSVczE=
+=Ucsa
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--

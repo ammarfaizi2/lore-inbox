@@ -1,119 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131820AbRCXVqR>; Sat, 24 Mar 2001 16:46:17 -0500
+	id <S131831AbRCXVwr>; Sat, 24 Mar 2001 16:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131831AbRCXVqI>; Sat, 24 Mar 2001 16:46:08 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:17166 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S131820AbRCXVp5>; Sat, 24 Mar 2001 16:45:57 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200103242145.WAA24380@green.mif.pg.gda.pl>
-Subject: [BUG] problem with pci=biosirq
-To: linux-kernel@vger.kernel.org (kernel list)
-Date: Sat, 24 Mar 2001 22:45:50 +0100 (CET)
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131832AbRCXVw1>; Sat, 24 Mar 2001 16:52:27 -0500
+Received: from t2.redhat.com ([199.183.24.243]:5368 "EHLO
+	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
+	id <S131831AbRCXVwT>; Sat, 24 Mar 2001 16:52:19 -0500
+Date: Sat, 24 Mar 2001 21:51:02 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Andrew Morton <andrewm@uow.edu.au>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] gcc-3.0 warnings
+Message-ID: <20010324215102.R1469@redhat.com>
+In-Reply-To: <20010323162956.A27066@ganymede.isdn.uiuc.edu> <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>, <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>; <20010323235909.C3098@werewolf.able.es> <3ABBED86.3B7ED60B@uow.edu.au> <20010324015515.C10781@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="sxKBPtypMsgSHGIi"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010324015515.C10781@werewolf.able.es>; from jamagallon@able.es on Sat, Mar 24, 2001 at 01:55:15AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-   While attempting to use pci=biosirq kernel parameter in 2.4.3pre6 (same
-observed with ac20) I've got the following oops (manually rewritten) during
-3c59x network adapter (compiled into kernel) initialization:
+--sxKBPtypMsgSHGIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Unable to handle kernel paging request at virtual address 0000dde5
- printing eip:
-c00fde03
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c00fde03>]
-EFLAGS: 00010292
-eax: 00000009   ebx: 0000dde5   ecx: 00000c0a   edx: c1170cc9
-esi: c02964f0   edi: 00000000   ebp: 00000000   esp: c1177e92
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 1, stackpage=c1177000)
-Stack: 00000cc9 64f00000 0000c029 7eb40000 0030c117 def80000 0c0ac117 0cc90000
-       deba0000 0000c00f 64f00000 0000c029 7ed80000 0030c117 0c010000 0c0ac117
-       b10c0000 dd410000 b10fc00f 0c0a0c00 c00fdba2 eecc0206 0010c010 000c0000
-Call Trace: [<def80000>] [<deba0000>] [<dd410000>] [<eecc0206>] [<f32f0000>] [<f523c117>] [<def8c029>]
+On Sat, Mar 24, 2001 at 01:55:15AM +0100, J . A . Magallon wrote:
 
-          [and long, probably infinite trace here...]
+>=20
+> On 03.24 Andrew Morton wrote:
+> > "J . A . Magallon" wrote:
+> > >=20
+> > >  The same is with that ugly out: at the end
+> > > of the function. Just change all that 'goto out' for a return.
+> >=20
+> > Oh no, no, no.  Please, no.
+> >=20
+> > Multiple return statements are a maintenance nightmare.
+> >=20
+>=20
+> Well, I do not want this to restart a religion war.
+>=20
+> The real thing is: gcc 3.0 (ISO C 99) does not like that practice
+> (let useless things there for someday using them ?).
 
-Unfortunately ksymoops tracing gives no effect as the problem seems to
-appear in a BIOS call. Some printk() debugging shows trace:
+The GCC warning has nothing to do with the (good) practice of having a
+single exit point.  It is the difference between this:
 
-vortex_init()
-  ...
-    vortex_init_one()            [ drivers/net/3c59x.c ]
-      pci_enable_device()        [ drivers/pci/pci.c ]
-        pcibios_enable_device()  [ arch/i386/kernel/pci-pc.c ]
-          pcibios_enable_irq()   [ arch/i386/kernel/pci-irq.c ]
-            pcibios_lookup_irq() [ arch/i386/kernel/pci-irq.c ]
-              [ pci-irq.c:555:   r->set(pirq_router_dev, dev, pirq, newirq) ]
-              pirq_bios_set()    [ arch/i386/kernel/pci-irq.c ]
-                pcibios_set_irq_routing(..., 0, 12)
-                                 [ arch/i386/kernel/pci-pc.c ]
+=2E..
+out:
+}
 
-What is the reason of this situation:
-1. pci=biosirq option is generally broken,
-2. my BIOS is not compatible with pci=biosirq kernel parameter,
-3. pcibios_set_irq_routing() call with pin=0 is incorrect,
-4. ... another problem ?
+and this:
 
+=2E..
+out:
+	return;
+}
 
-My PCI bus works at 30MHz and its configuration:
+I think that the latter looks better, and the C standard says that
+it's also the only one that's correct.
 
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1531 [Aladdin IV] (rev b3)
-	Subsystem: Acer Laboratories Inc. [ALi]: Unknown device 1531
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 32 set
+You are the one arguing about coding religion, by saying that
+_neither_ of them is any good.
 
-00:02.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev b4)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort+ <MAbort+ >SERR- <PERR-
-	Latency: 0 set
+Tim.
+*/
 
-00:05.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W [Millennium II] (prog-if 00 [VGA])
-	Subsystem: Matrox Graphics, Inc.: Unknown device 1100
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 set
-	Interrupt: pin A routed to IRQ 0
-	Region 0: Memory at ed000000 (32-bit, prefetchable)
-	Region 1: Memory at efffc000 (32-bit, non-prefetchable)
-	Region 2: Memory at ef000000 (32-bit, non-prefetchable)
-	Expansion ROM at effe0000 [disabled]
+--sxKBPtypMsgSHGIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-00:06.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 3 min, 8 max, 64 set
-	Interrupt: pin A routed to IRQ 12
-	Region 0: I/O ports at ee80
-	Expansion ROM at effd0000 [disabled]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-00:0b.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20) (prog-if fa)
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 2 min, 4 max, 32 set
-	Interrupt: pin A routed to IRQ 0
-	Region 4: I/O ports at ffa0
+iD8DBQE6vRbFONXnILZ4yVIRAi+FAKCe7UzzwcZeULwbQpRFE6enpyCnigCeKQMw
+gbiqb3CgtHT6HgiI4ZS00Cs=
+=4OC7
+-----END PGP SIGNATURE-----
 
-00:0f.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03) (prog-if 10 [OHCI])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 set
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at efffb000 (32-bit, non-prefetchable)
-
-
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+--sxKBPtypMsgSHGIi--

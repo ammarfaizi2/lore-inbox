@@ -1,99 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270299AbRIHU02>; Sat, 8 Sep 2001 16:26:28 -0400
+	id <S271138AbRIHVDC>; Sat, 8 Sep 2001 17:03:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270773AbRIHU0T>; Sat, 8 Sep 2001 16:26:19 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:44814 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S270299AbRIHU0L>; Sat, 8 Sep 2001 16:26:11 -0400
-Message-ID: <3B9A7EBB.E73115AC@t-online.de>
-Date: Sat, 08 Sep 2001 22:25:31 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S271147AbRIHVCx>; Sat, 8 Sep 2001 17:02:53 -0400
+Received: from mailb.telia.com ([194.22.194.6]:62214 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S271138AbRIHVCp>;
+	Sat, 8 Sep 2001 17:02:45 -0400
+Message-Id: <200109082102.f88L2vo18714@mailb.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Arjan Filius <iafilius@xs4all.nl>, Robert Love <rml@tech9.net>
+Subject: [SMP lock BUG?] Re: Feedback on preemptible kernel patch
+Date: Sat, 8 Sep 2001 22:58:18 +0200
+X-Mailer: KMail [version 1.3]
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.33.0109081920540.3542-100000@sjoerd.sjoerdnet>
+In-Reply-To: <Pine.LNX.4.33.0109081920540.3542-100000@sjoerd.sjoerdnet>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
-In-Reply-To: <200109050621.f856LAK00824@ambassador.mathewson.int> <3B95DB22.866EDCA3@mediascape.de> <3B992EC4.ED1F82CB@web.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Zaplinski schrieb:
-> 
-> Olaf Zaplinski wrote:
-> >
-> > Joseph Mathewson wrote:
-> > >
-> > > I've just woken up this morning to find my internet gateway machine only
-> > > responding to pings, and on giving it a keyboard & monitor, a load of
-> > >
-> > > scsi0:0:1:0: Attempting to queue an ABORT message
-> > > scsi0:0:1:0: Cmd aborted from QINFIFO
-> > > aic7xxx_abort returns 8194
-> > >
-> > > errors.
-> > [...]
-> >
-> > /me too. I had this while booting 2.4.9 with a fresh installed SCSI card
-> > (AHA2940) + harddisk. What worked for me was to compile the kernel with the
-> > old Adaptec driver, so it's a driver issue.
-> 
+Hi,
 
-Hello...
+This is interesting. [Assumes UP Athlon - correct]
+Note that all BUGs out in highmem.h:95 (kmap_atomic)
+and that test is only on if you have enabled HIGHMEM_DEBUG
+[my analyze is done with a 2.4.10-pre2 kernel, but I checked with
+later patches and I do not think they fix it either...]
 
-I encounter a likely similar problem at the moment with aic7xxx and
-RAID5:
+The preemptive kernel puts more SMP stress on the kernel than
+running with multiple CPUs.
 
-I run a RAID5-Array on three SCSI-Disks, all IBM, all LVD on the
-AIC7xxx-Controller on the Mobo (ASUS-P2B-DS)...and from time to time
-(usually about once per week) always the same partition of the RAID5
-gets a readerror and falls out of the array:
+So this might be a potential bug in the kernel proper, running with
+a SMP computer.
 
--------------------------
-Sep  8 20:49:31 falcon kernel: SCSI disk error : host 0 channel 0 id 0
-lun 0 return code = 8000002
-Sep  8 20:49:31 falcon kernel: [valid=0] Info fld=0x0, Current sd08:04:
-sense key Hardware Error
-Sep  8 20:49:31 falcon kernel: Additional sense indicates Internal
-target failure
-Sep  8 20:49:31 falcon kernel:  I/O error: dev 08:04, sector 8545688
-Sep  8 20:49:31 falcon kernel: raid5: Disk failure on sda4, disabling
-device. Operation continuing on 2 devices
-Sep  8 20:49:31 falcon kernel: md: recovery thread got woken up ...
-Sep  8 20:49:31 falcon kernel: md0: no spare disk to reconstruct array!
--- continuing in degraded mode
-Sep  8 20:49:31 falcon kernel: md: recovery thread finished ...
-Sep  8 20:49:31 falcon kernel: md: updating md0 RAID superblock on
-device
-Sep  8 20:49:31 falcon kernel: sdc1 [events: 000000be](write) sdc1's sb
-offset:
-8707072
-Sep  8 20:49:32 falcon kernel: sdb1 [events: 000000be](write) sdb1's sb
-offset:
-8707072
-Sep  8 20:49:32 falcon kernel: (skipping faulty sda4 )
-Sep  8 20:49:32 falcon kernel: .
-----------------------------
+If I understand the bug correctly, a process gets a page fault.
+Starts to map in the page. But before the final part it checks -
+and the page is already there!!! Correct?
 
-Ok, i also thought: "Bad disk" and to verify this (i have still
-guarantee on the drive) i formated it, let the AIC-BIOS do a "remap of
-bad blocks" and ran "badblocks" about 5 times on it with the
-"-w"-option...last but not least i copied over 160GB from and to the
-drive over two days...nothing, not a single failure of the drive...today
-i re-integrated the disk in my array, and got already the first
-fall-off.
+On Saturday den 8 September 2001 19:33, Arjan Filius wrote:
+> Hello Robert,
+>
+>
+> I tried 2.4.10-pre4 with patch-rml-2.4.10-pre4-preempt-kernel-1.
+> But it seems to hit highmem (see below) (i do have 1.5GB ram)
+> 2.4.10-pre4 plain runs just fine.
+>
+> With the kernel option mem=850M the patched kernel boots an seems to run
+> fine. However i didn't do any stress testing yet, but i still notice
+> hickups while playing mp3 files at -10 nice level with mpg123 on a 1.1GHz
+> Athlon, and removing for example a _large_ file (reiser-on-lvm).
+>
+> My syslog output with highmem:
+>
+> Sep  8 18:10:16 sjoerd kernel: kernel BUG at
+> /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95! Sep  8 18:10:16 sjoerd
+> kernel: invalid operand: 0000
+> Sep  8 18:10:16 sjoerd kernel: CPU:    0
+> Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_wp_page+636/1088]
+> [- - -]
+> sjoerd kernel: Call Trace: [handle_mm_fault+141/224]
+> [do_page_fault+375/1136] [do_page_fault+0/1136] [__mmdrop+58/64]
+> [do_exit+595/640] Sep  8 18:10:16 sjoerd kernel:    [error_code+52/64]
 
-I now switched also to the old aic7xxx driver, only to get an idea where
-to seek the problem...in the raid-code, in the driver or somewhere
-else...
+Lets look at this example. You need to add some inline functions...
 
-Solong..
-Frank.
+handle_mm_fault
+	takes the mm->page_table_lock [this should prevent reschedules]
+	allocs pmd
+	allocs pte
+	handle_pte_fault(...)
+handle_pte_fault [inline, most likely path]
+	pte is present
+	it is a write access
+	but the pte is not writeable  - call do_wp_page
+do_wp_page
+	plays some games with the lock...
+	finally calls copy_cow_page [inline] with the page_table_lock
+	UNLOCKED!
+copy_cow_page
+	calls clear_user_highpage or copy_user_highpage
+both clear_user_highpage and copy_user_highpage
+	calls kmap_atomic
+kmap_atomic
+	page is a highmem page
+	but during the time this process was unlocked some other
+	thread has allocated the page in question... BUG out.
 
---
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-
+So somewere between the UNLOCK (might be a lot later) and the
+BUG test in kmap_atomic the process running in kernel got preempted.
+(most likely during the page copy since it will take some time)
+
+Another process (thread) started to run - hit the same page fault
+but succeeded in its alloc.
+
+Back to the first process it continues, finally checks - the page
+is there... and BUGS.
+
+Note that this can happen in a pure SMP kernel.
+
+But let the processes (threads) run on two CPUs. And let the
+first get an interrupt/bh after unlock - the other can pass
+and add the page before the first one can continue - same
+result!
+
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden

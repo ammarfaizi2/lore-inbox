@@ -1,114 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVAJTvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVAJTsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbVAJTvs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 14:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVAJTvQ
+	id S262512AbVAJTsG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 14:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVAJTrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 14:51:16 -0500
-Received: from mail108.messagelabs.com ([216.82.255.115]:19132 "HELO
-	mail108.messagelabs.com") by vger.kernel.org with SMTP
-	id S262481AbVAJTte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 14:49:34 -0500
-X-VirusChecked: Checked
-X-Env-Sender: AAnthony@sbs.com
-X-Msg-Ref: server-7.tower-108.messagelabs.com!1105386571!7045362!1
-X-StarScan-Version: 5.4.5; banners=sbs.com,-,-
-X-Originating-IP: [204.255.71.6]
-Message-ID: <4F23E557A0317D45864097982DE907941A3383@pilotmail.sbscorp.sbs.com>
-From: Adam Anthony <AAnthony@sbs.com>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       Alexey Dobriyan <adobriyan@mail.ru>
-Cc: Adam Anthony <AAnthony@sbs.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] /driver/net/wan/sbs520
-Date: Mon, 10 Jan 2005 12:49:23 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
+	Mon, 10 Jan 2005 14:47:42 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:3533 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262286AbVAJTcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 14:32:21 -0500
+Subject: Re: starting with 2.7
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Airlie <airlied@gmail.com>
+Cc: John Richard Moser <nigelenki@comcast.net>, znmeb@cesmail.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <21d7e99705010917281c6634b8@mail.gmail.com>
+References: <1697129508.20050102210332@dns.toxicfilms.tv>
+	 <41DD9968.7070004@comcast.net>
+	 <1105045853.17176.273.camel@localhost.localdomain>
+	 <1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net>
+	 <1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net>
+	 <1105278618.12054.37.camel@localhost.localdomain>
+	 <41E1CCB7.4030302@comcast.net>  <21d7e99705010917281c6634b8@mail.gmail.com>
 Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105361337.12054.66.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 10 Jan 2005 18:27:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for the heads up A&M.  I have destroyed the evil [^M]'s, and
-updated the package.
-http://prdownloads.sourceforge.net/sbs520lnxdrv/sbs520patch.bz2?download
--AA
+On Llu, 2005-01-10 at 01:28, Dave Airlie wrote:
+> I do wonder would open source kernel drivers to work with a closed
+> source user space application be accepted into the mainline kernel...
+> say for example Nvidia or VMware GPL'ed their lower layer kernel
 
+It isnt about whether they are "accepted" but whether they are
+derivative works. The license is quite clear on this with the specific
+clarification included for the syscall interface. For the most part the
+interfaces people need are pretty generic so the problems don't arise.
 
------Original Message-----
-From: Matthias-Christian Ott [mailto:matthias.christian@tiscali.de] 
-Sent: Monday, January 10, 2005 12:26 PM
-To: Alexey Dobriyan
-Cc: Adam Anthony; netdev@oss.sgi.com; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /driver/net/wan/sbs520
+We've seen that with the proposed 1Gb DMA area on x86-64 - Nvidia wanted
+a 4Gb one to fix their hardware needs and various other drivers want a
+1Gb DMA area. That happens to also sort Nvidia's problems.
 
-Alexey Dobriyan wrote:
+>From DRI experience I'd say that a mostly user space nvidia driver would
+probably be almost as problematic as a binary kernel module. It would
+make reverse engineering a lot easier though 8)
 
->On Mon, 10 Jan 2005 07:46:52 -0700, Adam Anthony wrote:
->
->  
->
->>With the permission of my employer, SBS Technologies, Inc., I have
->>released a patch for 2.4 kernels that supports the 520 Series of WAN
->>adapters.
->>    
->>
->
->My editor shows ^M at the end of every line of new
-Documentation/Configure.help,
->MAINTAINERS (add ~63400 bogus lines!). Please, look at the patch _after_
->generating it.
->
->  
->
->>+obj-$(CONFIG_LANMEDIA)		+=		syncppp.o^M
->>    
->>
->
->  
->
->>+subdir-$(CONFIG_LANMEDIA) += lmc^M
->>    
->>
->
->Also random ^M's.
-> 
->--- linux-2.4.28-virgin/drivers/net/wan/sbs520/lnxosl.c
->+++ /usr/src/linux-2.4.28/drivers/net/wan/sbs520/lnxosl.c
->
->  
->
->>+// Programming Language:	C^M
->>+// Target Processor:		Any^M
->>+// Target Operating System: Linux^M
->>    
->>
->
->Well, this is pretty obvious to everyone here. :-)
->
->  
->
->>+// This software may be used and distributed according to the terms^M
->>+// of the GNU General Public License, incorporated herein by reference.^M
->>    
->>
->
->Stupid question: do you mean GPL version 2 or something else?
->
->	Alexey
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-That's ugly, that are Microsoft line endings.
-
-Matthias-Christian Ott
-
-***This message has been scanned for virus, spam, and undesirable
-content.***
-***For further information, contact your mail administrator.***
-
-For limitations on the use and distribution of this message, please visit www.sbs.com/emaildisclaimer.

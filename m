@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316300AbSETTuw>; Mon, 20 May 2002 15:50:52 -0400
+	id <S316309AbSETTzM>; Mon, 20 May 2002 15:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316305AbSETTuv>; Mon, 20 May 2002 15:50:51 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:24040 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316300AbSETTuv>; Mon, 20 May 2002 15:50:51 -0400
-Date: Mon, 20 May 2002 15:42:44 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: Jan Hudec <bulb@ucw.cz>
-Subject: Re: Planning on a new system
-Message-Id: <20020520154244.2bfb882e.arodland@noln.com>
-In-Reply-To: <20020520192136.GC25125@artax.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 0.7.5claws25 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="_wYTFc=.5t?xITcA"
+	id <S316316AbSETTzL>; Mon, 20 May 2002 15:55:11 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:47013 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316309AbSETTzK>; Mon, 20 May 2002 15:55:10 -0400
+Date: Mon, 20 May 2002 14:55:10 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Mike Ramsey <mramsey@ansivirus.mine.nu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.4.18 kernel downloaded from kernel.org
+In-Reply-To: <1021923468.22591.7.camel@ansivirus.mine.nu>
+Message-ID: <Pine.LNX.4.44.0205201450010.31691-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---_wYTFc=.5t?xITcA
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On 20 May 2002, Mike Ramsey wrote:
 
-On Mon, 20 May 2002 21:21:36 +0200
-Jan Hudec <bulb@ucw.cz> wrote:
+> make[1]: Entering directory `/usr/src/linux-2.4.18-6mdk/drivers'
+> make -C atm modules
+> make[2]: Entering directory `/usr/src/linux-2.4.18-6mdk/drivers/atm'
+> make[2]: *** No rule to make target
+> `/home/quintela/rpm/2418/BUILD/linux/include/linux/module.h', needed by
+> `eni.o'.  Stop.
+> make[2]: Leaving directory `/usr/src/linux-2.4.18-6mdk/drivers/atm'
+> make[1]: *** [_modsubdir_atm] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.18-6mdk/drivers'
+> make: *** [_mod_drivers] Error 2
 
-> On Sun, May 19, 2002 at 09:07:58PM -0400, Louis Garcia wrote:
-> > Graphics adapter 32MB NVIDIA ? GeForce2? MX200 AGP Graphics
-> 
-> AFAIK there some binary-only driver for this card, that causes trouble
-> time to time and as it's binary only, no one can debug them.
-> I am not sure what really requres the driver, that is how much X can
-> do without it.
+Hmmh, 2.4.18 from kernel.org would not be in a directory called 
+linux-2.4.18-6mdk, would it?
 
-You get 2d, semi-accelerated (that is, XAA only) graphics, at whatever
-resolution you want, with X's "nv" driver.
+I don't know what you did, but you seemed to have messed something up 
+between your tree and the tree your distribution provided.
 
-Installing the NVidia kernel stuff + other libraries gets you better
-acceleration on X, Render, Xv, and of course hardware-accelerated GLX.
+Anyway, you can probably solve your problem by running "make dep". If that
+does not help, try
 
-It's actually not a bad card, lots of speed and decent quality... but
-the module is occasionally flaky, and, of course, undebuggable. :)
+	http://www.tux.org/lkml/#s8-8
 
---hobbs
+--Kai
 
---_wYTFc=.5t?xITcA
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE86VG4Q3MWXxdwvVwRAm6RAKCEtwwWR0S0IG3FPyBplZeZVERFrQCdHlXp
-We0KnhbMKUMfOm0Yg+NpeVA=
-=Go8v
------END PGP SIGNATURE-----
-
---_wYTFc=.5t?xITcA--

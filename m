@@ -1,108 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUJRRQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUJRRWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266820AbUJRRQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 13:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUJRRQ5
+	id S267165AbUJRRWT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 13:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUJRRWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 13:16:57 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266820AbUJRRQx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 13:16:53 -0400
-Date: Mon, 18 Oct 2004 13:14:32 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Greg KH <greg@kroah.com>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
-       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
-Subject: Re: Fw: signed kernel modules?
-In-Reply-To: <20041018163346.GB18169@kroah.com>
-Message-ID: <Pine.LNX.4.61.0410181306030.4196@chaos.analogic.com>
-References: <200410151153.08527.gene.heskett@verizon.net>
- <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
- <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
- <1097860121.13633.358.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
- <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
- <4170426E.5070108@nortelnetworks.com> <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com>
- <Pine.LNX.4.61.0410180845040.3512@chaos.analogic.com> <20041018163346.GB18169@kroah.com>
+	Mon, 18 Oct 2004 13:22:19 -0400
+Received: from fire.osdl.org ([65.172.181.4]:46521 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S267165AbUJRRWO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 13:22:14 -0400
+Message-ID: <4173F9A7.2090504@osdl.org>
+Date: Mon, 18 Oct 2004 10:13:11 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Marc Bevand <bevand_m@epita.fr>
+CC: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: NMI watchdog detected lockup
+References: <4172F91D.8090109@osdl.org> <ckv123$pcs$1@sea.gmane.org>
+In-Reply-To: <ckv123$pcs$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Greg KH wrote:
+Marc Bevand wrote:
+> On 2004-10-17, Randy.Dunlap <rddunlap@osdl.org> wrote:
+> | 
+> |  I'm seeing this often during a kernel build on AIC79xx.
+> |  I did one kernel build on SATA without seeing this.
+> |  This is on a dual-Opteron IBM Workstation A with
+> |  2 GB RAM, SATA, & SCSI.
+> |  [...]
+> |  NMI Watchdog detected LOCKUP on CPU0, registers:
+> |  [...]
+> 
+> You are not the first one to observe frequent watchdog timeout
+> lockup on dual Opteron systems during intense I/O operations,
+> see this thread:
+> 
+>   http://thread.gmane.org/gmane.linux.ide/1933
+> 
+> Note: this does *not* seem to be SATA-related.
 
-> On Mon, Oct 18, 2004 at 08:53:46AM -0400, Richard B. Johnson wrote:
->> +/*
->> + *  List of acceptable module-license strings.
->> + */
->> +static const char *licok[]= {
->> +    "GPL",
->> +    "GPL v2",
->> +    "CPL and additional rights",
->
-> The CPL is very different from the GPL and the two are not compatible,
-> so this isn't an acceptable patch.
->
-> thanks,
->
-> greg k-h
+Hi,
 
-Right and it wasn't that way when the patch was generated and
-C and G are so far apart it couldn't be a typo so I don't
-know why it shows up that way.
+Zwane suspected NMI spikes and advised me to disable nmi_watchdog
+(nmi_watchdog=0).  After doing that, a kernel build completes
+successfully, although with many messages like these:
 
-
-Script started on Mon 18 Oct 2004 01:10:46 PM EDT
-# grep GPL sent-mail
-> MODULE_LICENSE("GPL");
-> If you can reproduce the same problem with some GPL version of
-iriUIyCrAzt70kZPD/T3qtlHKJ+UwCGrMj1c6GPLs/J0VFvR2NEqY369qAC7
->>  *   lawyer, and require that a GPL License exist for every kernel
-> GPL licensing. It provides help in understanding what symbols are
-> source or GPL information.
-a bug report. This whole GPL thing has taken a real stupid
-> MODULE_LICENSE("GPL");
-iriUIyCrAzt70kZPD/T3qtlHKJ+UwCGrMj1c6GPLs/J0VFvR2NEqY369qAC7
-+    "GPL",
-+    "GPL v2",
-+    "GPL and additional rights",
-+    "Dual BSD/GPL",
-+    "Dual MPL/GPL",
--	return (strcmp(license, "GPL") == 0
--		|| strcmp(license, "GPL v2") == 0
--		|| strcmp(license, "GPL and additional rights") == 0
--		|| strcmp(license, "Dual BSD/GPL") == 0
--		|| strcmp(license, "Dual MPL/GPL") == 0);
-+    "GPL",
-+    "GPL v2",
-+    "GPL and additional rights",
-+    "Dual BSD/GPL",
-+    "Dual MPL/GPL",
--	return (strcmp(license, "GPL") == 0
--		|| strcmp(license, "GPL v2") == 0
--		|| strcmp(license, "GPL and additional rights") == 0
--		|| strcmp(license, "Dual BSD/GPL") == 0
--		|| strcmp(license, "Dual MPL/GPL") == 0);
->> +    "GPL",
->> +    "GPL v2",
->        ^^^  GPL
-# bye
-bash: bye: command not found
-# exit
-
-Script done on Mon 18 Oct 2004 01:11:05 PM EDT
+Uhhuh. NMI received for unknown reason 21.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Uhhuh. NMI received for unknown reason 31.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Uhhuh. NMI received for unknown reason 31.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Uhhuh. NMI received for unknown reason 31.
+Uhhuh. NMI received for unknown reason 31.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Uhhuh. NMI received for unknown reason 21.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Uhhuh. NMI received for unknown reason 21.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+Uhhuh. NMI received for unknown reason 21.
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+I've also seen reason == 20.
+
+This is on 2.6.9-rc4.
+
+Andi, any ideas?
+
+I've had several hundred of these messages, with only 1 dazed &
+confused that did not continue OK.
+
+Adding show_registers(regs); in the NMI handler points to
+default_idle():
+
+Dazed and confused, but trying to continue
+Do you have a strange power saving mode enabled?
+CPU 0
+Modules linked in: aic79xx usbserial aic7xxx ohci1394 ieee1394
+Pid: 0, comm: swapper Not tainted 2.6.9-rc4
+RIP: 0010:[<ffffffff8010f5f0>] <ffffffff8010f5f0>{default_idle+32}
+RSP: 0018:ffffffff805e3fb8  EFLAGS: 00000246
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000018
+RDX: ffffffff8010f5d0 RSI: ffffffff80472b00 RDI: 0000010001e11b20
+RBP: 0000000000000000 R08: 00000000ffffffff R09: 0000000000000001
+R10: 0000000000000080 R11: ffffffff80562ae0 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000002a95b2e4c0(0000) GS:ffffffff805de800(0000) 
+knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000002a955a6000 CR3: 0000000000101000 CR4: 00000000000006e0
+Process swapper (pid: 0, threadinfo ffffffff805e2000, task 
+ffffffff80472b00)
+Stack: ffffffff8010f9fd 0000000000000000 ffffffff805e56e5 0000000000000000
+        ffffffff8055fbe0 0000000000000800 ffffffff805e51e0 
+0000000000000404
+        0000000000000000
+Call Trace:<ffffffff8010f9fd>{cpu_idle+29} 
+<ffffffff805e56e5>{start_kernel+421}
+        <ffffffff805e51e0>{_sinittext+480}
+
+Code: c3 fb f3 c3 66 66 66 90 66 66 66 90 66 66 66 90 48 83 ec 38
+
+-- 
+~Randy
 

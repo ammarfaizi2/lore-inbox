@@ -1,60 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbUDPT16 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 15:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUDPT15
+	id S263591AbUDPT1k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 15:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbUDPT1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 15:27:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13738 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263624AbUDPT1p (ORCPT
+	Fri, 16 Apr 2004 15:27:39 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:47040 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S263591AbUDPTZ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 15:27:45 -0400
-Date: Fri, 16 Apr 2004 12:27:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Ken Ashcraft <ken@coverity.com>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, rusty@rustcorp.com.au
-Subject: Re: [CHECKER] Probable security holes in 2.6.5
-Message-ID: <20040416122733.Z22989@build.pdx.osdl.net>
-References: <1082134916.19301.7.camel@dns.coverity.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1082134916.19301.7.camel@dns.coverity.int>; from ken@coverity.com on Fri, Apr 16, 2004 at 10:01:57AM -0700
+	Fri, 16 Apr 2004 15:25:27 -0400
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BC53E@exa-atlanta.se.lsil.com>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'Jord Tanner'" <jord@indygecko.com>, "Mukker, Atul" <Atulm@lsil.com>
+Cc: linux-kernel@vger.kernel.org, brad_mssw@gentoo.org
+Subject: RE: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
+Date: Fri, 16 Apr 2004 15:24:47 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [BUG]
-> /home/kash/linux/linux-2.6.5/kernel/module.c:1303:load_module:
-> ERROR:TAINT: 1283:1303:Using user value "((*hdr).e_shstrndx * 0)"
-> without first performing bounds checks
-> [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [PATH=]    
-> 
-> 	/* Suck in entire file: we'll want most of it. */
-> 	/* vmalloc barfs on "unusual" numbers.  Check here */
-> 	if (len > 64 * 1024 * 1024 || (hdr = vmalloc(len)) == NULL)
-> 		return ERR_PTR(-ENOMEM);
-> Start --->
-> 	if (copy_from_user(hdr, umod, len) != 0) {
-> 
-> 	... DELETED 14 lines ...
-> 
-> 	if (len < hdr->e_shoff + hdr->e_shnum * sizeof(Elf_Shdr))
-> 		goto truncated;
-> 
-> 	/* Convenience variables */
-> 	sechdrs = (void *)hdr + hdr->e_shoff;
-> Error --->
-> 	secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
-> 	sechdrs[0].sh_addr = 0;
-> 
-> 	/* And these should exist, but gcc whinges if we don't init them */
+It is 64-bit safe and tested, to some degree, on 64-bit platforms as well.
 
-Loading modules is inherently risky.  I'm not sure how much we want to
-worry about malicious elf headers when loading a module...you've already
-given away the family jewels ;-)
+Thanks
+-Atul Mukker
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> -----Original Message-----
+> From: Jord Tanner [mailto:jord@indygecko.com]
+> Sent: Friday, April 16, 2004 3:22 PM
+> To: Mukker, Atul
+> Cc: linux-kernel@vger.kernel.org; brad_mssw@gentoo.org
+> Subject: RE: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
+> 
+> 
+> 
+> Thanks Atul!
+> 
+> After patching for 2.6.5 the 2.20.0.B2 driver compiled clean and the
+> machine in now running with that driver. We are about to run 
+> some stress
+> tests to see if we can duplicate the previous problems. 
+> 
+> Given that we are running a 64bit compile, and the previous 
+> attempts by
+> Brad House to make amd64 modifications were abandonded, could you
+> comment on whether you think the newest megaraid code
+> (ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-unified
+> -2.20.0.B2.04.14.2004)
+> is 64bit safe?  
+> 
+> TIA
+> 
+> Jord Tanner
+> Independent Gecko Consultants
+> 
+> On Fri, 2004-04-16 at 09:35, Mukker, Atul wrote:
+> > Please use the latest driver 2.20.0.B2, about to be 
+> released today. Please
+> > provide a feedback if you see the same issues.
+> > 
+> > -Atul Mukker
+> > LSI Logic
+> > 
+> > > -----Original Message-----
+> > > From: Jord Tanner [mailto:jord@indygecko.com]
+> > > Sent: Friday, April 16, 2004 9:57 AM
+> > > To: linux-kernel@vger.kernel.org
+> > > Cc: brad_mssw@gentoo.org; Atulm@lsil.com
+> > > Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
+> > > 
+> > > 
+> > > 
+> > > On Tue Dec 30 2003 - 16:11:40 EST Brad House wrote:
+> > > 
+> > >         Ok, I just ported the 2.00.9 driver to 2.6.0.
+> > >         It still has these warnings during compilation as 
+> I did not
+> > >         attempt to apply my 64bit fixes from before as 
+> I've been told
+> > >         they are just plain wrong :/
+> > >         
+> > >         But, I suppose this should work fine in 32bit 
+> mode, I would
+> > >         greatly appreciate any help in porting it for 
+> 64bit platforms.
+> > >         
+> > >         The patch can be downloaded here :
+> > >         
+> > > http://dev.gentoo.org/~brad_mssw/kernel_patches/megaraid/megar
+> > > aid-v2.00.9-linux2.6.patch
+> > >         And only applies to the source from ftp.lsil.com, 
+> it's not a
+> > >         kernel-patch
+> > >         per-se, but copying the result over to the 
+> drivers/scsi will
+> > >         compile inplace
+> > >         of the current versions.
+> > >         
+> > >         Please CC me on any replies!
+> > >         -Brad House <brad_mssw@xxxxxxxxxx>
+> > > 
+> > > 
+> > > 
+> > > This thread has been inactive for a while, but I've not 
+> found anything
+> > > more relevant to my situation. 
+> > > 
+> > > I'm running 2.6.3-gentoo (and 2.6.5-gentoo) with a LSILogic SATA
+> > > Megaraid 150-6 raid controller on a dual Opteron system. 
+> The entire
+> > > system is compiled in 64bit. We are seeing random 
+> database corruption
+> > > when access very large Postgres tables (more than 10 
+> million rows).
+> > > Other than that, the system runs beautifully.
+> > > 
+> > > As far as I can tell, no amd64 specific patches have been 
+> > > applied to the
+> > > megaraid driver in 2.6.3 (version 2.00.3). Brad House has 
+> posted a 2.6
+> > > patch for megaraid 2.00.9, but his previous amd64 patches 
+> > > were removed.
+> > > LSI tech support has suggested I upgrade to 2.00.9, but 
+> the LSI source
+> > > is for 2.4.
+> > > 
+> > > So my questions are:
+> > > 
+> > >         - Could the 2.00.3 driver be responsible for random data
+> > >         corruption when running on 2.6.3 in 64bit?
+> > >         - Is it safe to run Brad House's 2.6 megaraid 2.00.9 
+> > > patches in
+> > >         64 bit mode on amd64?
+> > >         - Are there any patches for megaraid 2.00.9 (or 
+> higher, I see
+> > >         2.00.10-3 has just been released) that combine 
+> patches for 2.6
+> > >         and amd64?
+> > >         
+> > > TIA,
+> > > 
+> > > 
+> > > -- 
+> > > Jord Tanner <jord@indygecko.com>
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe 
+> > > linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> -- 
+> Jord Tanner <jord@indygecko.com>
+> 

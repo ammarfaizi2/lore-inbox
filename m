@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264190AbTDWVYd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 17:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264230AbTDWVYd
+	id S264227AbTDWVWq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 17:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264230AbTDWVWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 17:24:33 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:35232 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S264190AbTDWVYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 17:24:32 -0400
-Message-ID: <3EA70761.5090306@google.com>
-Date: Wed, 23 Apr 2003 14:36:33 -0700
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BUG 2.4.18-2.4.21-pre5 at least]: MM vmscan doesn't free buffer
- heads under memory pressure
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Apr 2003 17:22:46 -0400
+Received: from almesberger.net ([63.105.73.239]:3334 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S264227AbTDWVWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 17:22:45 -0400
+Date: Wed, 23 Apr 2003 18:34:13 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <20030423183413.C1425@almesberger.net>
+References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1508310000.1051116963@flay>; from mbligh@aracnet.com on Wed, Apr 23, 2003 at 09:56:03AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin J. Bligh wrote:
+> Actually, I agree with the submitter. Having the volume default to 0
+> is stupid - userspace tools are all very well, but no substitute for
+> sensible kernel defaults.
 
-I reproduced this problem in 2.4.18 and visually verified it in 
-2.4.21-pre5.  I haven't look at any other kernels.
+You've obviously never been to a meeting/conference and booted
+a Linux notebook with a kernel that sets things to a non-zero
+default :-)
 
-Buffer Heads tend to be allocated in low memory (SLAB_NOFS) but point to 
-pages in high memory.  If low memory is under heavy pressure, but high 
-memory is not, then buffer heads in low memory that point to buffers in 
-high memory are never freed.  This can cause OOM errors when there is 
-still plenty of memory and plenty of buffer heads that could be easily 
-freed.
+If the default is to turn up also the microphone (and to enable
+it in the first place), you might notice that even apparently
+weak speakers are perfectly capable of producing a very LOUD
+alarm-like sound. And you'll have to sit through this until
+your user-mode utility loads and turns the mess off, while
+everybody is turning to stare at you.
 
-Addint the following while loop to 
-try_to_free_pages/try_to_free_pages_zone and trying to free pages again 
-seems to alleviate the problem.
+0 is the only safe default setting.
 
-    Ross
+- Werner
 
-
-
-                /* Problem, we couldn't free up the memory we want.
-                   Currently buffer heads all end up in lowmem, so
-                   we may be able to free up some low mem by freeing
-                   up some highmem.  Try to do that. */
-                while (pgdat) {
-                        for (zone = pgdat->node_zones + MAX_NR_ZONES-1;
-                             zone > classzone &&
-                             zone >= pgdat->node_zones ;
-                             zone--) {
-                                shrink_caches(zone, priority, gfp_mask,
-                                              nr_pages *
-                                              (PAGE_SIZE /
-                                               sizeof(struct 
-buffer_head) + 1)
-                                              * 8);
-                        }
-                        pgdat = pgdat->node_next;
-                }
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,47 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbUCWK0A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 05:26:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbUCWK0A
+	id S262441AbUCWK2F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 05:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUCWK2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 05:26:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26764 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262438AbUCWKZs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 05:25:48 -0500
-Date: Tue, 23 Mar 2004 02:25:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: dipankar@in.ibm.com
-Cc: tiwai@suse.de, andrea@suse.de, rml@ximian.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RCU for low latency (experimental)
-Message-Id: <20040323022540.2c0c7154.akpm@osdl.org>
-In-Reply-To: <20040323101755.GC3676@in.ibm.com>
-References: <20040323101755.GC3676@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 23 Mar 2004 05:28:05 -0500
+Received: from zux164-011.adsl.green.ch ([80.254.164.11]:51828 "EHLO
+	iris.bluesaturn.com") by vger.kernel.org with ESMTP id S262441AbUCWK1z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 05:27:55 -0500
+Subject: cannot compile
+From: Mauro Stettler <kernel-list@bluesaturn.com>
+Reply-To: kernel-list@bluesaturn.com
+To: kernel-list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080048426.6447.6.camel@twinmos.bluesaturn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 23 Mar 2004 14:27:06 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma <dipankar@in.ibm.com> wrote:
->
-> Here is the RCU patch for low scheduling latency Andrew was talking
-> about in the other thread. I had done some measurements with
-> amlat on a 2.4 GHz P4 xeon box with 256MB memory running dbench
-> and it reduced worst case scheduling latencies from 800 microseconds
-> to about 400 microseconds.
-> 
-> It uses per-cpu kernel threads to execute excess callbacks and
-> pretty much relies on preemption.
+hy
 
-Is simple enough.  Do you expect this will help with the route cache
-reaping problem?  I do think it's a bit hard to justify purely on the basis
-of the scheduling latency goodness.
+I got an error by compiling a kernel. I tried 2.4.x and 2.6.x, but it's
+no difference, because of that I thought it must be a problem with gcc
+or glibc and I recompiled them.
 
-> +			list_splice(&RCU_rcudlist(cpu), &list);
-> +			INIT_LIST_HEAD(&RCU_rcudlist(cpu));
+that's one try with 2.6.4:
+  CLEAN   scripts
+  RM  $(CLEAN_FILES)
+  HOSTCC  scripts/fixdep
+  HOSTCC  scripts/split-include
+  HOSTCC  scripts/conmakehash
+  HOSTCC  scripts/docproc
+  HOSTCC  scripts/kallsyms
+  CC      scripts/empty.o
+  HOSTCC  scripts/mk_elfconfig
+  MKELF   scripts/elfconfig.h
+  HOSTCC  scripts/file2alias.o
+  HOSTCC  scripts/modpost.o
+  HOSTCC  scripts/sumversion.o
+  HOSTLD  scripts/modpost
+  HOSTCC  scripts/pnmtologo
+  HOSTCC  scripts/bin2c
+  SPLIT   include/linux/autoconf.h -> include/config/*
+  CC      arch/i386/kernel/asm-offsets.s
+In file included from include/asm/system.h:5,
+                 from include/asm/processor.h:18,
+                 from include/linux/prefetch.h:13,
+                 from include/linux/list.h:7,
+                 from include/linux/signal.h:4,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/linux/kernel.h:10:20: stdarg.h: No such file or directory
+In file included from include/asm/system.h:5,
+                 from include/asm/processor.h:18,
+                 from include/linux/prefetch.h:13,
+                 from include/linux/list.h:7,
+                 from include/linux/signal.h:4,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/linux/kernel.h:71: error: syntax error before "va_list"
+include/linux/kernel.h:71: warning: function declaration isn't a
+prototype
+include/linux/kernel.h:74: error: syntax error before "va_list"
+include/linux/kernel.h:74: warning: function declaration isn't a
+prototype
+include/linux/kernel.h:77: error: syntax error before "va_list"
+include/linux/kernel.h:77: warning: function declaration isn't a
+prototype
+include/linux/kernel.h:81: error: syntax error before "va_list"
+include/linux/kernel.h:81: warning: function declaration isn't a
+prototype
+make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
+make: *** [arch/i386/kernel/asm-offsets.s] Error 2
 
-We have list_splice_init().
+
+thanks for help
 

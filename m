@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263415AbUERO37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263444AbUEROix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUERO37 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 10:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUERO37
+	id S263444AbUEROix (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 10:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUEROix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 10:29:59 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5034 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263415AbUERO3z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 10:29:55 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "O.Sezer" <sezero@superonline.com>
-Subject: Re: [PATCH 2.4] decrypt/update ide help entries
-Date: Tue, 18 May 2004 16:31:16 +0200
-User-Agent: KMail/1.5.3
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-References: <40A8F0E7.4000807@superonline.com> <200405181609.04045.bzolnier@elka.pw.edu.pl> <40AA1B20.3010205@superonline.com>
-In-Reply-To: <40AA1B20.3010205@superonline.com>
+	Tue, 18 May 2004 10:38:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17794 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263444AbUEROiw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 10:38:52 -0400
+Date: Tue, 18 May 2004 07:38:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Steven Cole <elenstev@mesatop.com>
+cc: Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       mason@suse.com, wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com,
+       support@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
+ s->tree' failed: The saga continues.)
+In-Reply-To: <200405172319.38853.elenstev@mesatop.com>
+Message-ID: <Pine.LNX.4.58.0405180728510.25502@ppc970.osdl.org>
+References: <200405132232.01484.elenstev@mesatop.com> <200405172142.52780.elenstev@mesatop.com>
+ <Pine.LNX.4.58.0405172056480.25502@ppc970.osdl.org> <200405172319.38853.elenstev@mesatop.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-9"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200405181631.16308.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 of May 2004 16:18, O.Sezer wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> [...]
-> Thanks for your patience.
+
+
+On Mon, 17 May 2004, Steven Cole wrote:
 >
-> > BTW it needs to be split-up for old and new driver (hint, hint!).
->
-> Why? Do you think that an admin may want to enable/disable it for
-> Chipset-A/pdc-old and disable/enable it for chipset-B/pdc-new ?
+> No problems, and with PREEMPT of course.
 
-dunno but it is easier to add help entries for *_OLD and *_NEW ;-)
-or we can remove FIXME from Kconfig (2.6) instead
+Ok. Good. It's a small data-set, but the bug made sense, and so did the 
+fix.
 
-> Thanks;
-> Özkan Sezer
+> > If you see a failure on ext3, please try to analyze the corruption pattern 
+> > again. It might be something different.
+> 
+> So, I take it that I should revert that one-liner if I want to get any failure data?
+> With it, ext3 was pretty solid for this testing.
 
+Yes. That one-liner is bogus. It was a good way to test a hypothesis for
+the common case of a filesystem that uses the block_write_full_page thing
+(and reiser is one of the few that doesn't), but it wasn't the real fix.
+The reiser patch was the real fix for the problem on reiser, but ext3
+should have been ok already. It uses (through a lot of other functions)
+generic_file_aio_write_nolock() as the real write engine, and that one
+calls "commit_write()" with the page lock held.
+
+		Linus

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263643AbTETIrf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 04:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTETIrf
+	id S263645AbTETIzc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 04:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTETIzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 04:47:35 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46033 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263633AbTETIrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 04:47:24 -0400
-Date: Tue, 20 May 2003 09:00:18 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       "David S. Miller" <davem@redhat.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, Gerrit Huizenga <gh@us.ibm.com>,
-       John Stultz <johnstul@us.ibm.com>,
-       James Cleverdon <jamesclv@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       Keith Mannthey <mannthey@us.ibm.com>
-Subject: Re: userspace irq balancer
-Message-ID: <20030520090017.D17268@devserv.devel.redhat.com>
-References: <200305191314.06216.pbadari@us.ibm.com> <1053382055.5959.346.camel@nighthawk> <20030519221111.P7061@devserv.devel.redhat.com> <1053382943.4827.358.camel@nighthawk> <1053401130.6830.3.camel@rth.ninka.net> <20030520034622.GK8978@holomorphy.com> <1053407030.13207.253.camel@nighthawk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1053407030.13207.253.camel@nighthawk>; from haveblue@us.ibm.com on Mon, May 19, 2003 at 10:03:50PM -0700
+	Tue, 20 May 2003 04:55:32 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:59580 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id S263645AbTETIzb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 04:55:31 -0400
+Date: Tue, 20 May 2003 11:03:36 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christoph Hellwig <hch@infradead.org>, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3 
+In-Reply-To: <20030520085911.90EE72C232@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0305201100390.6448-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2003 at 10:03:50PM -0700, Dave Hansen wrote:
-> Does anyone have a patch to tear it out already?  Is the current proc
-> interface acceptable, or do we want a syscall interface like wli
-> suggests?
 
-I have no problems with the proc interface; it's ascii so reasonably
-extendible in the future for, say, when 64 cpus on
-32 bit linux get supported. It's also not THAT inefficient since my code
-only uses it when some binding changes, not all the time.
+On Tue, 20 May 2003, Rusty Russell wrote:
+
+> > Actually it should go away before 2.6.0.  sys_futex never was part of a
+> > released stable kernel so having the old_ version around is silly.
+> 
+> Hmm, in that case I'd say "just break it", and I'd be all in favour of
+> demuxing the syscall.
+
+have you all gone nuts??? It's not an option to break perfectly working
+binaries out there. Hell, we didnt even reorder the new NPTL
+syscalls/extensions 1-2 kernel releases after the fact. Please grow up!
+
+the interface should have been gotten right initially. We are all guilty
+of it - now lets face the consequences. It's only a couple of lines of
+code in a well isolated place of the file so i dont know what the fuss is
+about. I havent even added FUTEX_REQUEUE to the old API.
+
+> But I think vendors have backported and released futexes, which is why
+> Ingo did this...
+
+of course. And which brought the productization of futexes in the first
+place.
+
+	Ingo
+

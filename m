@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVCPSji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVCPSmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbVCPSji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 13:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVCPShs
+	id S262749AbVCPSmo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 13:42:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVCPSjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 13:37:48 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:28510
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S262738AbVCPShI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 13:37:08 -0500
-Date: Wed, 16 Mar 2005 19:37:01 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: noahm@csail.mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: OOM problems with 2.6.11-rc4
-Message-ID: <20050316183701.GB21597@opteron.random>
-References: <20050315204413.GF20253@csail.mit.edu> <20050316003134.GY7699@opteron.random> <20050316040435.39533675.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050316040435.39533675.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.6i
+	Wed, 16 Mar 2005 13:39:51 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32965 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262734AbVCPSib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 13:38:31 -0500
+Message-ID: <42387D1A.1030309@pobox.com>
+Date: Wed, 16 Mar 2005 13:38:18 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11.4
+References: <20050316002222.GA30602@kroah.com> <m3u0nbybu8.fsf@defiant.localdomain> <20050316181644.GG20576@kroah.com>
+In-Reply-To: <20050316181644.GG20576@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 04:04:35AM -0800, Andrew Morton wrote:
-> > +			if (!reclaim_state->reclaimed_slab &&
-> > +			    zone->pages_scanned >= (zone->nr_active +
-> > +						    zone->nr_inactive) * 4)
-> >  				zone->all_unreclaimable = 1;
+Greg KH wrote:
+> On Wed, Mar 16, 2005 at 02:11:43PM +0100, Krzysztof Halasa wrote:
 > 
-> That might not change anything because we clear ->all_unreclaimable in
-> free_page_bulk().  [..]
+>>Greg KH <greg@kroah.com> writes:
+>>
+>>
+>>>I've release 2.6.11.4 with two security fixes in it.  It can be found at
+>>>the normal kernel.org places.
+>>
+>>How about the N2/C101/PCI200SYN WAN driver fix (kernel panic on receive)?
+>>
+>>Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
+> 
+> 
+> It's queued up for the "normal" review process (will probably start
+> tomorrow, or later today.)  This release was due to the ppp issue being
+> public.
 
-Really? free_page_bulk is called inside shrink_slab, and so it's overwritten
-later by all_unreclaimable. Otherwise how could all_unreclaimable be set
-in the first place if a single page freed by shrink_slab would be enough
-to clear it?
+Krzysztof's patch is already ACK'd by me, FWIW (and its in upstream).
 
-	shrink_slab
-	all_unreclaimable = 0
-	zone->pages_scanned >= (zone->nr_active [..]
-	all_unreclaimable = 1
+	Jeff
 
-							try_to_free_pages
-							all_unreclaimable == 1
-							oom
 
-I also considering changing shrink_slab to return a progress retval, but
-then I noticed I could get away with a one liner fix ;).
 
-Your fix is better but it should be mostly equivalent in pratcie. I
-liked the dontrylock not risking to go oom, the one liner couldn't
-handle that ;).
-
-thanks!

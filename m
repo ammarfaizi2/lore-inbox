@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318867AbSHWPzM>; Fri, 23 Aug 2002 11:55:12 -0400
+	id <S318861AbSHWP5d>; Fri, 23 Aug 2002 11:57:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318869AbSHWPzM>; Fri, 23 Aug 2002 11:55:12 -0400
-Received: from smtp01.web.de ([194.45.170.210]:1297 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S318867AbSHWPzM>;
-	Fri, 23 Aug 2002 11:55:12 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre4-ac1
-References: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-From: Markus Plail <plail@web.de>
-Date: Fri, 23 Aug 2002 17:57:53 +0200
-In-Reply-To: <200208231046.g7NAk2914276@devserv.devel.redhat.com> (Alan
- Cox's message of "Fri, 23 Aug 2002 06:46:02 -0400 (EDT)")
-Message-ID: <87d6s9a7pa.fsf@plailis.homelinux.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i686-pc-linux-gnu)
-MIME-Version: 1.0
+	id <S318866AbSHWP5d>; Fri, 23 Aug 2002 11:57:33 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:17156 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318861AbSHWP5c>; Fri, 23 Aug 2002 11:57:32 -0400
+Date: Fri, 23 Aug 2002 17:01:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Federico Di Gregorio <fog@initd.org>, faith@valinux.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Intel 830m backport (2.5 -> 2.4)
+Message-ID: <20020823170132.A21711@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Federico Di Gregorio <fog@initd.org>, faith@valinux.com,
+	linux-kernel@vger.kernel.org
+References: <1030109549.1120.86.camel@momo> <20020823153057.A18848@infradead.org> <1030116185.5911.17.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1030116185.5911.17.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Aug 23, 2002 at 04:23:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan!
+On Fri, Aug 23, 2002 at 04:23:05PM +0100, Alan Cox wrote:
+> On Fri, 2002-08-23 at 15:30, Christoph Hellwig wrote:
+> 
+> > Alan, is there any chance you could send marcelo the -ac drm code?
+> 
+> It needs untangling from any rmap macro dependancies. Go ahead 
 
-* Alan Cox writes:
->The HP merge is now down to 3503 lines pending
->IDE status
->	Chasing two reports of strange ide-scsi crashes
+There are no -rmap depencies, just on a few -ac features (new scheduler,
+strict overcommit).
 
-As the problem still exists with this version, I fiddled a bit with
-different kernel option. I realized that the problem only occurs, when
-I have DMA enabled. As soon as I disable it, I can mount CD-ROM/DVDs
-without the formerly reported kernel oops.
+I've uploaded a patch that updates the mainline drm code to -ac, fixes
+all compiler warnings and removes the remaining LINUX_VERSION_CODE checks
+after most have already been removed in -ac.
 
-Hope it helps
-regards
-Markus
-
+It's at http://verein.lst.de/~hch/misc/linux-2.4.20-pre4-drm.patch

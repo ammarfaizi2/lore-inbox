@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262936AbREWBRS>; Tue, 22 May 2001 21:17:18 -0400
+	id <S262945AbREWBwi>; Tue, 22 May 2001 21:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbREWBRI>; Tue, 22 May 2001 21:17:08 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:10509 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S262935AbREWBQ6>;
-	Tue, 22 May 2001 21:16:58 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105230115.f4N1Flb164635@saturn.cs.uml.edu>
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 22 May 2001 21:15:46 -0400 (EDT)
-Cc: mingo@elte.hu (Ingo Molnar), viro@math.psu.edu (Alexander Viro),
-        rmk@arm.linux.org.uk (Russell King),
-        rgooch@ras.ucalgary.ca (Richard Gooch),
-        matthew@wil.cx (Matthew Wilcox), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        clausen@gnu.org (Andrew Clausen), bcrl@redhat.com (Ben LaHaise),
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105202005070.8426-100000@penguin.transmeta.com> from "Linus Torvalds" at May 20, 2001 08:12:04 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S262946AbREWBw2>; Tue, 22 May 2001 21:52:28 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:41826 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S262945AbREWBwW>; Tue, 22 May 2001 21:52:22 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: John Stoffel <stoffel@casc.com>, linux-kernel@vger.kernel.org
+Subject: Re: Background to the argument about CML2 design philosophy 
+In-Reply-To: Your message of "Tue, 22 May 2001 11:24:54 +0200."
+             <01052211245404.06233@starship> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 23 May 2001 11:51:31 +1000
+Message-ID: <5810.990582691@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-
-> The problem is that if you expect to get nice code, you have to have nice
-> interfaces and infratructure. And ioctl's aren't it.
-...
-> But that absolutely _requires_ that the driver writers should never see
-> the silly "pass a random number and a random argument type" kind of
-> interface with no structure or infrastructure in place.
+On Tue, 22 May 2001 11:24:54 +0200, 
+Daniel Phillips <phillips@bonn-fries.net> wrote:
+>On Tuesday 22 May 2001 02:59, Keith Owens wrote:
+>> # Not a real dependency, this checks for hand editing of .config.
+>> $(KBUILD_OBJTREE)include/linux/autoconf.h: $(KBUILD_OBJTREE).config
+>>         @echo Your .config is newer than include/linux/autoconf.h,
+>> this should not happen. @echo Always run make one of
+>> "{menu,old,x}config" after manually updating .config. @/bin/false
 >
-> Because right now even _good_ programmers make a mess of the fact that
-> they get passed a bad interface.
->
-> Think of it this way: the user interface to opening a file is
-> "open()" with pathnames and magic flags. But a filesystem never even
-> _sees_ that interface, it sees a very nicely structured setup where all
-> the argument parsing and locking has already been done for it, and the
-> magic flags don't even exist any more as far as the low-level FS is
-> concerned. Which is why filesystems _can_ be clean.
->
-> In contrast, ioctl's are passed through directly, with no help to make
-> them clean.
+>Ahem.  What is wrong with revalidating it automatically?  *Then* if there's a
+>problem, bother the user.
 
-You want a well-defined interface, allowing over-network use?
-Well, here you go, the CORBA ORB patch for Linux 2.4 kernels:
-http://korbit.sourceforge.net/
-
-Do you want that against 2.4.5-pre5 or what? Plain ASCII email?
-
-:-)
-
-The really sick thing is that I could actually use this too.
-It handles the DSP problem well.
-
+Revalidate using which tool?  Did the user even mean to edit .config?
+This is a case where the user has to decide what to do.
 

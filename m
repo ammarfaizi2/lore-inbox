@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbULDCKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbULDCMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbULDCKy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 21:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbULDCKy
+	id S262521AbULDCMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 21:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbULDCMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 21:10:54 -0500
-Received: from 209-128-68-124.bayarea.net ([209.128.68.124]:64979 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262520AbULDCKu
+	Fri, 3 Dec 2004 21:12:16 -0500
+Received: from 209-128-68-124.bayarea.net ([209.128.68.124]:8660 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262521AbULDCMK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 21:10:50 -0500
-Message-ID: <41B11C92.30007@zytor.com>
-Date: Fri, 03 Dec 2004 18:10:26 -0800
+	Fri, 3 Dec 2004 21:12:10 -0500
+Message-ID: <41B11CEB.30103@zytor.com>
+Date: Fri, 03 Dec 2004 18:11:55 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Milton Miller <miltonm@bga.com>
-CC: klibc@zytor.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [klibc] INITRAMFS: allow no trailer
+CC: klibc@zytor.com, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org
+Subject: Re: INITRAMFS: allow no trailer
 References: <200412040147.iB41lIlK031974@sullivan.realtime.net>
 In-Reply-To: <200412040147.iB41lIlK031974@sullivan.realtime.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -34,7 +34,9 @@ Milton Miller wrote:
 > sequence as the last files loaded.
 > 
 
-You still need unique inode numbers, though; just 1, 2, 3, ... is 
-sufficient.
+Correction.  I just remembered we wrote the spec so that a file with a 
+link count of 1 is not entered in the hash table and therefore is never 
+hardlinked.  This should do what you need.  (This was obviously done for 
+exactly this reason.)
 
 	-hpa

@@ -1,95 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbULMUGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbULMTyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbULMUGO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 15:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbULMT6H
+	id S261329AbULMTyC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 14:54:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbULMTwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 14:58:07 -0500
-Received: from smtp.zipmail.com.br ([200.221.11.147]:39070 "EHLO
-	www.zipmail.com.br") by vger.kernel.org with ESMTP id S262290AbULMTzW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 14:55:22 -0500
-Message-ID: <41BD3DF500001505@www.zipmail.com.br>
-Date: Mon, 13 Dec 2004 20:18:22 +0100
-From: mredmondhaziem1@zipmail.com.br
-Subject: =?iso-8859-1?Q?Please=20reply=20quickly=2E?=
-MIME-Version: 1.0
+	Mon, 13 Dec 2004 14:52:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54955 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262290AbULMTeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 14:34:11 -0500
+Date: Mon, 13 Dec 2004 11:33:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: marado@student.dei.uc.pt, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc3-mm1
+Message-Id: <20041213113336.02a0abfd.akpm@osdl.org>
+In-Reply-To: <200412131910.24255.rudmer@legolas.dynup.net>
+References: <20041213020319.661b1ad9.akpm@osdl.org>
+	<Pine.LNX.4.61.0412131603370.14874@student.dei.uc.pt>
+	<200412131910.24255.rudmer@legolas.dynup.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-To: unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr.Edmond Haziem.
-Republic of Benin 
+Rudmer van Dijk <rudmer@legolas.dynup.net> wrote:
+>
+> > OTOH, while I had no problems with the previous mm's or with 2.6.10-rc3,
+>  > with -rc3-mm1 kdm has an weird function: with kdm/unstable uptodate
+>  > 4:3.3.1-3 from Debian it just restarts X when it's going to show the
+>  > login/password form, restarting over and over.
+> 
+>  saw it too with gdm on Gentoo,
 
-Good day, 
-
-With warm heart i offer my friendship and my greetings and i hope this letter
-meets you in good time. It will be surprising for you to receive this proposal
-from me since you do not know me personally.However, i am sincerely seeking
-your confidence in this transaction, which i, propose with my free mind
-and as a person of integrity. 
-
-A) It is practically impossible for me to carry out this business alone.
+It's probably the ioctl screwup.
 
 
-B) You live in a foreign land far away from mine. This should normally not
-be a requirement, but when you understand the transaction then you will
-understand why it is important that you live far away from me. 
+From: Mikael Pettersson <mikpe@csd.uu.se>
 
-C) The amount of money involved in this transaction is Fifteen Million one
-hundred thousand united states dollars (US$15,100,000.00) which is too much
-for a man of modest means like myself to handle in my country. 
+The ioctl-cleanup.patch in 2.6.10-rc3-mm1 broke the file ioctls: FIONREAD
+etc.  These ioctls have inline code for S_ISREG() cases, but should be
+redirected to ->ioctl() for other cases.  ioctl-cleanup.patch removed that
+redirection.
 
-I believe from my few points above, you can begin to get an idea why i need
-your participation.I am writing you in respect of a foreign customer who
-has a Domicilliary account in my bank. His name was Engineer Frank oliver.
-He was among those who died in a plane crash, Since the demise of this our
-customer, Engineer Frank oliver, who was an oil merchant/import & exporter,
-i have kept a close watch of the deposit records and accounts and since
-then nobody has come to claim the money in this a/c as next of kin to the
-late Engineer.He had only Fifteen Million one hundred thousand united states
-dollars (S$15,100,000.00) in his account and the account is coded. 
+For me, both emacs and X refused to start from a console with ENOTTY
+errors; at least emacs got the ENOTTY from FIONREAD.
 
-It is only an insider that could produce the code of the deposit particulars.
-As it stands now, there is nobody in that position to produce the needed
-information other than my very self considering my position in the bank.
-Based on the reason that nobody has come forward to claim the deposit as
-next of kin, i hereby ask you to send an application to the bank as the
-next of kin to the deceased and get this fund transfered into your foreign
-bank a/c for mutual sharing between myself and you, 5% for expences we will
-incure 35% for you and 60% for me. 
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-All i need is for you to follow my instructions closely because i am experienced
-in inheritance matters here and i am on ground here to advice you on every
-step until you receive the fund. What is required of you is to send an application
-to the bank as next of kin to this late Engineer and i promise you that
-everything will go smoothly. 
+ 25-akpm/fs/ioctl.c |   18 ++++++------------
+ 1 files changed, 6 insertions(+), 12 deletions(-)
 
-I also indulge you not to make undo use of the information given to you,
-i need also to trust that you will not tell people or your bank about this
-business.You will collect the money first, then I get my share, then you
-can tell anybody what you chose thereafter. I shall need your help to invest
-in your country therefore, any experience you have in this area will be
-beneficial. 
-
-Please feel free to ask any question and seek for explanations if required
-and upon the receipt of your favourable esponses,you should including your
-telephone number for easy communication. 
-
-Yours treuly, 
-Mr.Edmond Haziem.
-Phone:+229-844986.
-
-
-
-
-
-
-------------------------------------------
-Use o melhor sistema de busca da Internet
-Radar UOL - http://www.radaruol.com.br
-
-
+diff -puN fs/ioctl.c~ioctl-cleanups-broke-fionread-et-al fs/ioctl.c
+--- 25/fs/ioctl.c~ioctl-cleanups-broke-fionread-et-al	2004-12-13 11:12:37.687951760 -0800
++++ 25-akpm/fs/ioctl.c	2004-12-13 11:12:37.690951304 -0800
+@@ -91,10 +91,8 @@ asmlinkage long sys_ioctl(unsigned int f
+ 			int block;
+ 			int res;
+ 
+-			if (!S_ISREG(inode->i_mode)) {
+-				error = -ENOTTY;
+-				goto done;
+-			}
++			if (!S_ISREG(inode->i_mode))
++				break;
+ 			/* do we support this mess? */
+ 			if (!mapping->a_ops->bmap) {
+ 				error = -EINVAL;
+@@ -112,19 +110,15 @@ asmlinkage long sys_ioctl(unsigned int f
+ 			goto done;
+ 		}
+ 	case FIGETBSZ:
+-		if (!S_ISREG(inode->i_mode)) {
+-			error = -ENOTTY;
+-			goto done;
+-		}
++		if (!S_ISREG(inode->i_mode))
++			break;
+ 		error = -EBADF;
+ 		if (inode->i_sb)
+ 			error = put_user(inode->i_sb->s_blocksize, p);
+ 		goto done;
+ 	case FIONREAD:
+-		if (!S_ISREG(inode->i_mode)) {
+-			error = -ENOTTY;
+-			goto done;
+-		}
++		if (!S_ISREG(inode->i_mode))
++			break;
+ 		error = put_user(i_size_read(inode) - filp->f_pos, p);
+ 		goto done;
+ 	}
+_
 

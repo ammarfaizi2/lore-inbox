@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287148AbSAPSwa>; Wed, 16 Jan 2002 13:52:30 -0500
+	id <S290737AbSARQqX>; Fri, 18 Jan 2002 11:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287155AbSAPSvF>; Wed, 16 Jan 2002 13:51:05 -0500
-Received: from [66.89.142.2] ([66.89.142.2]:43579 "EHLO starship.berlin")
-	by vger.kernel.org with ESMTP id <S287145AbSAPSuR>;
-	Wed, 16 Jan 2002 13:50:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 10:08:19 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Q3MS-0000lx-00@starship.berlin>
+	id <S290738AbSARQqL>; Fri, 18 Jan 2002 11:46:11 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:50442 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290737AbSARQqH>;
+	Fri, 18 Jan 2002 11:46:07 -0500
+Date: Sat, 12 Jan 2002 06:08:25 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] KernelConf
+Message-ID: <20020112060824.C511@toy.ucw.cz>
+In-Reply-To: <20020110124242.A8921@lklug.pdn.ac.lk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020110124242.A8921@lklug.pdn.ac.lk>; from anuradha@gnu.org on Thu, Jan 10, 2002 at 12:42:42PM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 14, 2002 01:46 am, Bill Davidsen wrote:
-> Finally, I doubt that any of this will address my biggest problem with
-> Linux, which is that as memory gets cheap a program doing significant disk
-> writing can get buffers VERY full (perhaps a while CD worth) before the
-> kernel decides to do the write, at which point the system becomes
-> non-responsive for seconds at a time while the disk light comes on and
-> stays on.  That's another problem, and I did play with some patches this
-> weekend without making myself really happy :-( Another topic,
-> unfortunately.
+Hi!
 
-Patience, this is understood, a solution is known and a fix is in the 
-pipeline.
+> I have just uploaded a (very pre alpha) snapshot of my new
+> kernel configuration system to
+> 
+>     http://www.bee.lk/people/anuradha/kernelconf/kernelconf.tar.gz
+>     http://www.lklug.pdn.ac.lk/~anuradha/kernelconf/kernelconf.tar.gz
+> 
+> Ttyconfig is just beginning to get functional.
 
---
-Daniel
+How is it related to CML2?
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

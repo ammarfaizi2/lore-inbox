@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311135AbSCLNWV>; Tue, 12 Mar 2002 08:22:21 -0500
+	id <S311043AbSCLNXl>; Tue, 12 Mar 2002 08:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311043AbSCLNWM>; Tue, 12 Mar 2002 08:22:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55301 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311166AbSCLNWG>; Tue, 12 Mar 2002 08:22:06 -0500
-Subject: Re: Linux 2.4.19-pre3
-To: knweiss@gmx.de (Karsten Weiss)
-Date: Tue, 12 Mar 2002 13:37:40 +0000 (GMT)
-Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <Pine.LNX.4.44.0203121351070.3320-100000@addx.localnet> from "Karsten Weiss" at Mar 12, 2002 02:01:28 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311166AbSCLNXc>; Tue, 12 Mar 2002 08:23:32 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:16141 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S311043AbSCLNXU>;
+	Tue, 12 Mar 2002 08:23:20 -0500
+Date: Tue, 12 Mar 2002 10:20:39 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: wli@holomorphy.com, <wli@parcelfarce.linux.theplanet.co.uk>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        <linux-kernel@vger.kernel.org>, <hch@infradead.org>,
+        <phillips@bonn-fries.net>
+Subject: Re: 2.4.19pre2aa1
+In-Reply-To: <20020312135605.P25226@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0203121019500.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16kmTE-0003gn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I=B4m surprised that there are no descriptions for the following
-> config options (after months of fights for inclusion of this
-> patch):
-> 
-> CONFIG_IDEDISK_STROKE
-> CONFIG_IDE_TASK_IOCTL
-> CONFIG_BLK_DEV_IDEDMA_FORCED
-> CONFIG_IDEDMA_ONLYDISK
-> CONFIG_BLK_DEV_ELEVATOR_NOOP
-> 
-> Or did you simply forget to merge them?
+On Tue, 12 Mar 2002, Andrea Arcangeli wrote:
 
-I haven't extracted them and sent them yet - blame me not Marcelo
+> I know about the scattering properties of some number (that is been
+> measured empirically if I remeber well what I read). I was asking for
+> something else, I was asking if this magical number can scatter better a
+> random input as well or not. My answer is no.
+
+> I mean, start reading from /dev/random and see how the distribution goes
+> with and without mul, it will be the same I think.
+
+I think it's time we introduce a CS theory equivalent
+of Godwin's Law.
+
+You've just outknuthed yourself ;)
+
+Rik
+-- 
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

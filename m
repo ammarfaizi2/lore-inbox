@@ -1,70 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbTHWFqz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 01:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTHWFqy
+	id S263358AbTHWFtD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 01:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTHWFtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 01:46:54 -0400
-Received: from adsl-67-121-155-84.dsl.pltn13.pacbell.net ([67.121.155.84]:40111
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S261462AbTHWFqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 01:46:53 -0400
-Date: Fri, 22 Aug 2003 22:46:51 -0700
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: Synaptics TouchPad and GPM (GPM patches)
-Message-ID: <20030823054651.GA21729@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200308222146.56381.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-In-Reply-To: <200308222146.56381.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	Sat, 23 Aug 2003 01:49:03 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:37795
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S263358AbTHWFs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 01:48:56 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH]O18.1int
+Date: Sat, 23 Aug 2003 15:55:14 +1000
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_CHwR/7W16E8wd3A"
+Message-Id: <200308231555.24530.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Boundary-00=_CHwR/7W16E8wd3A
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-
-On Fri, Aug 22, 2003 at 09:46:56PM -0500, Dmitry Torokhov wrote:
-> You will find the patches at:
-> http://www.geocities.com/dt_or/gpm/patches/
-
-Could you put a cumulative patch up as well?
-
-Thanks,
-
---=20
-Joshua Kwan
-
---BOKacYhQ+x31HxR3
-Content-Type: application/pgp-signature
+Content-Description: clearsigned data
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Some high credit tasks were being missed due to their prolonged cpu burn at=
+=20
+startup flagging them as low credit tasks.
+
+Low credit tasks can now recover to become high credit.
+
+Con
+=2D----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iQIVAwUBP0b/yqOILr94RG8mAQJxYg//d+TDx1cCI/UCdEGUx2mZXGqP26ywsJkZ
-6eHe10tAd/K+7ZtcgCb65JvnXzXGjsb22MKrq+6Tv6KVG9l69UzU65EN5bJR+25Z
-6GhizFYnnJZd7TwzNppnvRjcn2R68EkEjyqinAtAyNIKCTZaK7MgCBWYG/RVMSFZ
-R7aWMtQ512bSptbLk7wZz23e9JDEjT/30zu6TTFJGf+hic8GUCWjU7+UXWstOPEY
-rfa2wJ5K8t/RnXuuTKtjXs8FNcfpgMMHcRkSCac06Ac6EAYK4K1ZEEV0oFKzLBDO
-Knz1Bhmgw00YaVKEPfDsvM8MwepzdTdNWjeu/mAqkQfNzNS9UdSx8LUQLOfZ06v+
-gzEWd5FUhMeP7azC8I7rxSjayfNFIDw9oIlTZ6n4WPXNVrzjQJDeE2LX0ZVwfepZ
-cTDi1aP7TkOqC52OruInNDvWFnqZ9moSC2WKi9O2aCGBbJ1JkNjqDThxTXeFFLCt
-cwxxT4EyIWMo3WcD30UK+PKJGk2rSGJTLZbBi8xv+wVXuJbwT5HfvfUa33CP/q0y
-a3rZlyKPDNNSZOLQJKHsX3qRlH8d6rQ3eEPVra4e87gtkt4k6ftbYozt8Y/Sv3o8
-Tx618/zxwrbt6LuD35RJ+lZpSIlYrky82fD0/VqY8SY8crpip1y9dBnXoGSDt/GZ
-oXZ6krpZu80=
-=mvzY
------END PGP SIGNATURE-----
+iD8DBQE/RwHDZUg7+tp6mRURAie7AJ43egdTeSapoX1D0aJQcEksBTkKdwCfcyHZ
+cD1TMt7oFNXvmSrqnJe7Z+E=3D
+=3D41zp
+=2D----END PGP SIGNATURE-----
 
---BOKacYhQ+x31HxR3--
+--Boundary-00=_CHwR/7W16E8wd3A
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-O18-O18.1int"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="patch-O18-O18.1int"
+
+--- linux-2.6.0-test3-mm3-O18/kernel/sched.c	2003-08-23 15:28:47.000000000 +1000
++++ linux-2.6.0-test3-mm3/kernel/sched.c	2003-08-23 15:30:16.000000000 +1000
+@@ -140,9 +140,6 @@
+ #define LOW_CREDIT(p) \
+ 	((p)->interactive_credit < -MAX_SLEEP_AVG)
+ 
+-#define VARYING_CREDIT(p) \
+-	(!(HIGH_CREDIT(p) || LOW_CREDIT(p)))
+-
+ #define TASK_PREEMPTS_CURR(p, rq) \
+ 	((p)->prio < (rq)->curr->prio)
+ 
+@@ -434,7 +431,7 @@ static void recalc_task_prio(task_t *p, 
+ 
+ 			if (p->sleep_avg > NS_MAX_SLEEP_AVG){
+ 				p->sleep_avg = NS_MAX_SLEEP_AVG;
+-				p->interactive_credit += VARYING_CREDIT(p);
++				p->interactive_credit += !(HIGH_CREDIT(p));
+ 			}
+ 		}
+ 	}
+@@ -1548,7 +1545,8 @@ switch_tasks:
+ 	prev->sleep_avg -= run_time;
+ 	if ((long)prev->sleep_avg <= 0){
+ 		prev->sleep_avg = 0;
+-		prev->interactive_credit -= VARYING_CREDIT(prev);
++		prev->interactive_credit -=
++			!(HIGH_CREDIT(prev) || LOW_CREDIT(prev));
+ 	}
+ 	prev->timestamp = now;
+ 
+
+--Boundary-00=_CHwR/7W16E8wd3A--
+

@@ -1,137 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbUB2HDq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 02:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUB2HDq
+	id S261995AbUB2HFY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 02:05:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUB2HDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 02:03:46 -0500
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:16300 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261992AbUB2HDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 02:03:52 -0500
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:30640 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261994AbUB2HDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 29 Feb 2004 02:03:36 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 1/9] atkbd whitespace fixes
-Date: Sun, 29 Feb 2004 01:55:02 -0500
+Subject: [PATCH 0/9] New set of input patches
+Date: Sun, 29 Feb 2004 01:53:58 -0500
 User-Agent: KMail/1.6
 Cc: linux-kernel@vger.kernel.org
-References: <200402290153.08798.dtor_core@ameritech.net>
-In-Reply-To: <200402290153.08798.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
+Message-Id: <200402290153.08798.dtor_core@ameritech.net>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402290155.04825.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Vojtech,
 
-===================================================================
+Here is the new set of input patches that I have. You have seen some of
+them, buit this time they are rediffed against 2.6.4-rc1 and in nice order.
 
+01-atkbd-whitespace-fixes.patch
+	simple whitespace fixes
 
-ChangeSet@1.1685, 2004-02-27 23:41:11-05:00, dtor_core@ameritech.net
-  Atkbd: whitespace fixes
+02-atkbd-bad-merge.patch
+	clean up bad merge in atkbd module (get rid of MODULE_PARMs,
+        atkbd_softrepeat was declared twice)
 
+03-synaptics-relaxed-proto.patch
+	some hardware (PowerBook) require relaxed Synaptics protocol checks,
+        but relaxed checks hurt hardware implementing proper protocol when
+        device looses sync. With the patch synaptics driver analyzes first
+        full data packet and either staus in relaxed mode or switches into
+        strict mode.
 
- atkbd.c |   20 ++++++++++----------
- 1 files changed, 10 insertions(+), 10 deletions(-)
+04-psmouse-whitespace-fixes.patch
+	simple whitespace fixes
 
+05-psmouse-workaround-noack.patch
+	some mice do not ACK "disable streaming mode" command causing psmouse
+        driver abort initialization without any indication to the user. This
+        is a regression compared to 2.4. Have kernel complain but continue
+        with prbing hardware (after all we got valid responce from GET ID
+	command).
 
-===================================================================
+06-module-param-array-named.patch
+	introduce module_param_array_named() modeled after module_param_named
+	that allows mapping array module option to
 
+07-joystick-module-param.patch
+	complete moving input drivers to the new way of handling module
+	parameters using module_param()
 
+08-obsolete-setup.patch
+	introduce __obsolete_setup(). This is a drop-in replacement for
+        __setup() for truly obsolete options. Kernel will complain when sees
+        such an option.
 
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Sun Feb 29 01:14:59 2004
-+++ b/drivers/input/keyboard/atkbd.c	Sun Feb 29 01:14:59 2004
-@@ -202,7 +202,7 @@
- 		atkbd->resend = 1;
- 		goto out;
- 	}
--	
-+
- 	if (!flags && data == ATKBD_RET_ACK)
- 		atkbd->resend = 0;
- #endif
-@@ -276,7 +276,7 @@
- 		case ATKBD_KEY_UNKNOWN:
- 			printk(KERN_WARNING "atkbd.c: Unknown key %s (%s set %d, code %#x on %s).\n",
- 				atkbd->release ? "released" : "pressed",
--				atkbd->translated ? "translated" : "raw", 
-+				atkbd->translated ? "translated" : "raw",
- 				atkbd->set, code, serio->phys);
- 			if (atkbd->translated && atkbd->set == 2 && code == 0x7a)
- 				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access"
-@@ -353,7 +353,7 @@
- 	if (receive && param)
- 		for (i = 0; i < receive; i++)
- 			atkbd->cmdbuf[(receive - 1) - i] = param[i];
--	
-+
- 	if (command & 0xff)
- 		if (atkbd_sendbyte(atkbd, command & 0xff))
- 			return (atkbd->cmdcnt = 0) - 1;
-@@ -373,7 +373,7 @@
- 			atkbd->cmdcnt = 0;
- 			break;
- 		}
--	
-+
- 		udelay(1);
- 	}
- 
-@@ -466,7 +466,7 @@
-  */
- 
- 	if (atkbd_reset)
--		if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT)) 
-+		if (atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT))
- 			printk(KERN_WARNING "atkbd.c: keyboard reset failed on %s\n", atkbd->serio->phys);
- 
- /*
-@@ -529,7 +529,7 @@
- 		return 3;
- 	}
- 
--	if (atkbd_set != 2) 
-+	if (atkbd_set != 2)
- 		if (!atkbd_command(atkbd, param, ATKBD_CMD_OK_GETID)) {
- 			atkbd->id = param[0] << 8 | param[1];
- 			return 2;
-@@ -541,7 +541,7 @@
- 			return 4;
- 	}
- 
--	if (atkbd_set != 3) 
-+	if (atkbd_set != 3)
- 		return 2;
- 
- 	param[0] = 3;
-@@ -637,7 +637,7 @@
- 
- 	switch (serio->type & SERIO_TYPE) {
- 
--		case SERIO_8042_XL: 
-+		case SERIO_8042_XL:
- 			atkbd->translated = 1;
- 		case SERIO_8042:
- 			if (serio->write)
-@@ -650,7 +650,7 @@
- 			kfree(atkbd);
- 			return;
- 	}
--			
-+
- 	if (atkbd->write) {
- 		atkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_REP);
- 		atkbd->dev.ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_SCROLLL);
-@@ -687,7 +687,7 @@
- 			kfree(atkbd);
- 			return;
- 		}
--		
-+
- 		atkbd->set = atkbd_set_3(atkbd);
- 		atkbd_enable(atkbd);
- 
+09-input-obsolete-setup.patch
+	document removed or renamed options in input drivers using
+	__obsolete_setup() so users will have some clue why old options
+        stopped having any effect.
+
+-- 
+Dmitry

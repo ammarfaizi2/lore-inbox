@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264648AbSJ3KAu>; Wed, 30 Oct 2002 05:00:50 -0500
+	id <S264642AbSJ3J7m>; Wed, 30 Oct 2002 04:59:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264650AbSJ3KAu>; Wed, 30 Oct 2002 05:00:50 -0500
-Received: from c-66-176-164-150.se.client2.attbi.com ([66.176.164.150]:55708
-	"EHLO schizo.psychosis.com") by vger.kernel.org with ESMTP
-	id <S264648AbSJ3KAt>; Wed, 30 Oct 2002 05:00:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Russell King <rmk@arm.linux.org.uk>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
-Date: Wed, 30 Oct 2002 05:07:07 -0500
-User-Agent: KMail/1.4.2
-Cc: Miles Bader <miles@gnu.org>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-References: <200210272017.56147.landley@trommello.org> <3DBFA0F8.9000408@pobox.com> <20021030093437.A27726@flint.arm.linux.org.uk>
-In-Reply-To: <20021030093437.A27726@flint.arm.linux.org.uk>
+	id <S264645AbSJ3J7m>; Wed, 30 Oct 2002 04:59:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1028 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264642AbSJ3J7l>;
+	Wed, 30 Oct 2002 04:59:41 -0500
+Message-ID: <3DBFAEEE.6090209@pobox.com>
+Date: Wed, 30 Oct 2002 05:05:34 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210300507.07593.dcinege@psychosis.com>
+To: dcinege@psychosis.com
+CC: Miles Bader <miles@gnu.org>, Miles Bader <miles@lsi.nec.co.jp>,
+       andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge
+ candidate list.
+References: <200210272017.56147.landley@trommello.org> <20021030085149.GA7919@codepoet.org> <buofzuogv31.fsf@mcspd15.ucom.lsi.nec.co.jp> <200210300455.20883.dcinege@psychosis.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 October 2002 4:34, Russell King wrote:
+Dave Cinege wrote:
 
-> - there's no need to mount a ramfs filesystem,
+>#2 My main bitch at jeff was he said if initramfs goes in
+>initrd comes out. initrd shodul not come out.
+>  
+>
 
-An implementation flaw I think I pointed out to Al a year ago.
-You can not set a size limit on your root othewise.
-That's why I mount a '/dev/tmpfs/'.
+What part of "kernel's behavior is 100% unchanged" did you not understand?
 
-My patch will cometh later today. I need some sleep right now.
+Stop spreading FUD.
 
-Dave
-
--- 
-The time is now 22:48 (Totalitarian)  -  http://www.ccops.org/
 

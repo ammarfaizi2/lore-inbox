@@ -1,64 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbUKJVk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbUKJVqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbUKJVk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 16:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbUKJVhL
+	id S262047AbUKJVqO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 16:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUKJVp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 16:37:11 -0500
-Received: from ozlabs.org ([203.10.76.45]:5267 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262122AbUKJVfj (ORCPT
+	Wed, 10 Nov 2004 16:45:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16311 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262122AbUKJVnx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 16:35:39 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Nov 2004 16:43:53 -0500
+Date: Wed, 10 Nov 2004 13:47:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: marcelo.tosatti@cyclades.com, zaphodb@zaphods.net,
+       linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-Id: <20041110134753.4fc07d70.akpm@osdl.org>
+In-Reply-To: <20041110212447.GB25410@mail.muni.cz>
+References: <20041103222447.GD28163@zaphods.net>
+	<20041104121722.GB8537@logos.cnet>
+	<20041104181856.GE28163@zaphods.net>
+	<20041109164113.GD7632@logos.cnet>
+	<20041109223558.GR1309@mail.muni.cz>
+	<20041109144607.2950a41a.akpm@osdl.org>
+	<20041109224423.GC18366@mail.muni.cz>
+	<20041109203348.GD8414@logos.cnet>
+	<20041110203547.GA25410@mail.muni.cz>
+	<20041110130943.32918c69.akpm@osdl.org>
+	<20041110212447.GB25410@mail.muni.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16786.35271.622222.193502@cargo.ozlabs.ibm.com>
-Date: Thu, 11 Nov 2004 08:36:07 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-In-Reply-To: <20041110083629.A17555@flint.arm.linux.org.uk>
-References: <1099346276148@kroah.com>
-	<10993462773570@kroah.com>
-	<20041102223229.A10969@flint.arm.linux.org.uk>
-	<20041107152805.B4009@flint.arm.linux.org.uk>
-	<20041110013700.GF9496@kroah.com>
-	<16785.33677.704803.889900@cargo.ozlabs.ibm.com>
-	<20041110083629.A17555@flint.arm.linux.org.uk>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-
-> On Wed, Nov 10, 2004 at 01:57:17PM +1100, Paul Mackerras wrote:
-> > So we can get a driver's probe method called concurrently with its
-> > bus's suspend or resume method.
+Lukas Hejtmanek <xhejtman@mail.muni.cz> wrote:
+>
+> > I don't think there's really a bug here.  It's a tiny bit racy, but that
+> > will merely cause a small inaccuracy in the stats.
+> > 
+> > I think I'll just drop the debug patch.  You can disable
+> > CONFIG_DEBUG_PREEMPT to shut things up.
 > 
-> If correct, we probably have rather a lot of buggy drivers, because
-> I certainly was not aware that this could happen.  I suspect the
-> average driver writer also would not be aware of that.
+> It did not help :( I had to disable CONFIG_PREEMPT to shut it up.
+> 
+> I had:
+> CONFIG_PREEMPT=y
+> CONFIG_PREEMPT_BKL=y
+> CONFIG_DEBUG_PREEMPT=y
+> 
+> It did what I wrote.
+> Then I had:
+> CONFIG_PREEMPT=y
+> #CONFIG_PREEMPT_BKL=y
+> #CONFIG_DEBUG_PREEMPT=y
+> 
+> and I had the same (or similar messages)
 
-No doubt.  I'd still like to hear from Greg or Pat about what the
-concurrency rules are supposed to be, or were intended to be.
+Confused.  Disabling CONFIG_DEBUG_PREEMPT should make those messages go
+away.  lib/kernel_lock.c has:
 
-Note also that I said the *bus's* suspend/resume method.  For PCI, we
-have some protection since the PCI suspend/resume methods won't call
-the individual pci driver's suspend/resume until pci_dev->driver is
-set, which happens after the pci driver's probe routine has returned
-(but of course the store to pci_dev->driver can get reordered on
-some architectures since there is no barrier).
 
-However, pci_dev->driver only gets cleared *after* the driver's remove
-method returns.  Thus it would be quite possible for a PCI device to
-have its suspend/resume methods called while another CPU is in its
-remove method.
+#if defined(CONFIG_PREEMPT) && defined(__smp_processor_id) && \
+		defined(CONFIG_DEBUG_PREEMPT)
 
-I think that what has saved us to some extent is that we only do
-suspend/resume on UP machines so far.
+/*
+ * Debugging check.
+ */
+unsigned int smp_processor_id(void)
+{
+	...
 
-Regards,
-Paul.
+	printk(KERN_ERR "BUG: using smp_processor_id() in preemptible [%08x] code: %s/%d\n", preempt_count(), current->comm, current->pid);
+	print_symbol("caller is %s\n", (long)__builtin_return_address(0));
+	dump_stack();
 

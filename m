@@ -1,85 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264485AbTLQR2A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 12:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTLQR2A
+	id S264480AbTLQRfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 12:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTLQRfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 12:28:00 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:21898 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264485AbTLQR16
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 12:27:58 -0500
-Subject: scsi_id segfault with udev-009
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Fa+eAiN8DkV+y1XvrDxh"
-Message-Id: <1071682198.5067.17.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Dec 2003 19:29:58 +0200
+	Wed, 17 Dec 2003 12:35:44 -0500
+Received: from needs-no.brain.uni-freiburg.de ([132.230.63.23]:10009 "EHLO
+	needs-no.brain.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S264480AbTLQRfn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 12:35:43 -0500
+Date: Wed, 17 Dec 2003 18:35:37 +0100 (MET)
+From: Thomas Voegtle <thomas@voegtle-clan.de>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: no atapi cdrecord burning with 2.6.0-test11-bk10 / bk13
+In-Reply-To: <20031217164832.GA2495@suse.de>
+Message-ID: <Pine.LNX.4.21.0312171832120.32429-100000@needs-no.brain.uni-freiburg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Dec 2003, Jens Axboe wrote:
 
---=-Fa+eAiN8DkV+y1XvrDxh
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> 
+> Apply this to test11-bkLATEST
+> 
+> ===== drivers/block/scsi_ioctl.c 1.38 vs edited =====
+> --- 1.38/drivers/block/scsi_ioctl.c	Thu Dec 11 18:55:17 2003
 
-Hi
+Yes, this fixes the problem.
+I have now 2.6.0-test11-bk13 + patch.
 
-Getting this with scsi_id and udev-009:
+Thank you,
 
---
-Starting program:
-/space/var/tmp/portage/udev-009/work/udev-009/extras/scsi_id/scsi_id -p
-0x80 -s /block/sdb
-=20
-Program received signal SIGSEGV, Segmentation fault.
-0x080499c5 in sysfs_get_attr (dev=3D0x80d2d68, attr=3D0x80b559c "dev") at
-scsi_id.h:45
-45              return
-sysfs_get_value_from_attributes(dev->directory->attributes,
-(gdb) k
-Kill the program being debugged? (y or n) y
-(gdb) run -p 0x83 -s /block/sdb
-Starting program:
-/space/var/tmp/portage/udev-009/work/udev-009/extras/scsi_id/scsi_id -p
-0x83 -s /block/sdb
-=20
-Program received signal SIGSEGV, Segmentation fault.
-0x080499c5 in sysfs_get_attr (dev=3D0x80d2d68, attr=3D0x80b559c "dev") at
-scsi_id.h:45
-45              return
-sysfs_get_value_from_attributes(dev->directory->attributes,
-(gdb) q
---
+Thomas
 
-I cannot see why to be honest.
+-- 
+ Thomas Vögtle    email: thomas@voegtle-clan.de
+ ----- http://www.voegtle-clan.de/thomas ------
 
-
-Thanks,
-
---=20
-
-Martin Schlemmer
-Gentoo Linux Developer, Desktop/System Team Developer
-Cape Town, South Africa
-
-
-
---=-Fa+eAiN8DkV+y1XvrDxh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/4JKWqburzKaJYLYRAqGYAJwMisn6kVTXvPprmLZmh8tiYk0jBQCcCrWO
-GACixJqZ/avPZ8ELBJvL7vo=
-=zrBv
------END PGP SIGNATURE-----
-
---=-Fa+eAiN8DkV+y1XvrDxh--
 

@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268902AbUJKMqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUJKMqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268902AbUJKMqg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 08:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUJKMp0
+	id S268914AbUJKMqf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 08:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268902AbUJKMpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 08:45:26 -0400
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:64935 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S268902AbUJKMm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 08:42:57 -0400
-Date: Mon, 11 Oct 2004 08:42:52 -0400 (EDT)
-From: Cal Peake <cp@absolutedigital.net>
-To: David Gibson <hermes@gibson.dropbear.id.au>
-cc: Ricky lloyd <ricky.lloyd@gmail.com>, Jan Dittmer <j.dittmer@portrix.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org
-Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
-In-Reply-To: <20041011123137.GB28100@zax>
-Message-ID: <Pine.LNX.4.61.0410110835330.8480@linaeum.absolutedigital.net>
-References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
- <416A7484.1030703@portrix.net> <1a50bd3704101105046e66538c@mail.gmail.com>
- <20041011123137.GB28100@zax>
+	Mon, 11 Oct 2004 08:45:43 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:53218 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S268894AbUJKMnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 08:43:18 -0400
+Message-ID: <416A7FE3.8090106@kolivas.org>
+Date: Mon, 11 Oct 2004 22:43:15 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Ankit Jain <ankitjain1580@yahoo.com>, linux <linux-kernel@vger.kernel.org>
+Subject: Re: Difference in priority
+References: <20041011121726.10979.qmail@web52903.mail.yahoo.com> <416A7E25.8050101@kolivas.org>
+In-Reply-To: <416A7E25.8050101@kolivas.org>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Oct 2004, David Gibson wrote:
-
-> On Mon, Oct 11, 2004 at 05:34:20PM +0530, Ricky lloyd wrote:
-> > > Isn't the correct fix to declare iobase as (void __iomem *) ?
-> > > 
-> > 
-> > Earlier today i had posted a patch which mainly fixes this same
-> > problem with lotsa scsi
-> > drivers and tulip drivers. I wondered the same "shouldnt all the addrs
-> > be declared as
-> > void __iomem* ??". 
+Con Kolivas wrote:
+> Ankit Jain wrote:
 > 
-> The trouble with that is that for some versions of the orinoco card,
-> the iobase refers to a legacy ISA IO address, not a memory-mapped IO
-> address (that's the inw()/outw() path in the macro).  That needs an
-> integer, rather than a pointer.
+>> hi
+>>
+>> if somebody knows the difference b/w /PRI of both
+>> these commands because both give different results
+>>
+>> ps -Al
+>> & top
+>>
+>> as per priority rule we can set priority upto 0-99
+>> but top never shows this high priority
 > 
-> It's not clear to me which way around the cast is less ugly.
+> 
+> Priority values 0-99 are real time ones and 100-139 are normal 
+> scheduling ones. RT scheduling does not change dynamic priority while 
+> running wheras normal scheduling does (between 100-139). top shows the 
+> value of the current dynamic priority in the PRI column as the current 
+> dynamic priority-100. If you have a real time task in top it shows as a 
+> -ve value. ps -Al seems to show the current dynamic priority+60.
 
-I guess the cast is kludgy. I just wanted to shut the warnings up, it 
-prints 68 of 'em I believe.
+That should read dynamic priority-60 in the PRI column.
 
--- Cal
-
+Cheers,
+Con

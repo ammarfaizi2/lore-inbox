@@ -1,102 +1,478 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263405AbRFNRNR>; Thu, 14 Jun 2001 13:13:17 -0400
+	id <S263409AbRFNRM5>; Thu, 14 Jun 2001 13:12:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263407AbRFNRNI>; Thu, 14 Jun 2001 13:13:08 -0400
-Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:24960 "EHLO
-	Backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S263405AbRFNRMy>; Thu, 14 Jun 2001 13:12:54 -0400
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ"
-From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Organization: Netzwerkadministrator WH8/DD
-To: linux-kernel@vger.kernel.org
-Subject: Oops at NFS unmounting
-Date: Thu, 14 Jun 2001 19:12:52 +0200
-X-Mailer: KMail [version 1.2]
-X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
-X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
-MIME-Version: 1.0
-Message-Id: <01061419125200.01840@backfire>
+	id <S263407AbRFNRMs>; Thu, 14 Jun 2001 13:12:48 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:12333 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263405AbRFNRMb>; Thu, 14 Jun 2001 13:12:31 -0400
+Date: Thu, 14 Jun 2001 19:12:19 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@redhat.com>
+Subject: unregistered changes to the user<->kernel API
+Message-ID: <20010614191219.A30567@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There are a number of changes in kernel API visisble to userspace that
+are unregistered in 2.4 mainline. I recommend to merge them ASAP to
+avoid generating collisions across different versions of the kernel.
 
---------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+I'll attach here a number of patches that should make us to return in
+sync. They must be applied incrementally. (really the very last one is
+mostly here for comments, not intendeted for merging in mainline)
 
-Hi *!
+here the first that defines O_DIRECT (NOTE: the O_DIRECT value for alpha
+is not definitive yet, O_DIRECTIO of tru64 is our O_NOFOLLOW so we're
+just screwed as we just need a wrapper anyways to make complex programs like
+dbms to run correctly without having to natively port them to linux,
+02000000 in tru64 is O_DSYNC, maybe I should move it to 010000000
+instead which maybe unused in tru64, but still we would have no
+guarantee that it won't be used in the future, I was waiting Richard's
+comment about it).
 
-I got this Oops at unmounting a already renamed NFS source.
-The umount got a SEGFAULT.
+The sparc64 values are approved by Dave.
 
-I compiled my 2.4.5 with 2.95.4 20010319 (Debian prerelease).
+diff -urN 2.4.6pre3/include/asm-alpha/fcntl.h o_direct/include/asm-alpha/fcntl.h
+--- 2.4.6pre3/include/asm-alpha/fcntl.h	Thu Nov 16 15:37:42 2000
++++ o_direct/include/asm-alpha/fcntl.h	Thu Jun 14 17:34:56 2001
+@@ -17,10 +17,10 @@
+ #define O_NDELAY	O_NONBLOCK
+ #define O_SYNC		040000
+ #define FASYNC		020000	/* fcntl, for BSD compatibility */
+-#define O_DIRECT	040000	/* direct disk access - should check with OSF/1 */
+ #define O_DIRECTORY	0100000	/* must be a directory */
+ #define O_NOFOLLOW	0200000 /* don't follow links */
+ #define O_LARGEFILE	0400000 /* will be set by the kernel on every open */
++#define O_DIRECT	02000000 /* direct disk access - should check with OSF/1 */
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+diff -urN 2.4.6pre3/include/asm-i386/fcntl.h o_direct/include/asm-i386/fcntl.h
+--- 2.4.6pre3/include/asm-i386/fcntl.h	Thu Nov 16 15:37:33 2000
++++ o_direct/include/asm-i386/fcntl.h	Thu Jun 14 17:33:41 2001
+@@ -16,7 +16,7 @@
+ #define O_NDELAY	O_NONBLOCK
+ #define O_SYNC		 010000
+ #define FASYNC		 020000	/* fcntl, for BSD compatibility */
+-#define O_DIRECT	 040000	/* direct disk access hint - currently ignored */
++#define O_DIRECT	 040000	/* direct disk access hint */
+ #define O_LARGEFILE	0100000
+ #define O_DIRECTORY	0200000	/* must be a directory */
+ #define O_NOFOLLOW	0400000 /* don't follow links */
+diff -urN 2.4.6pre3/include/asm-sparc/fcntl.h o_direct/include/asm-sparc/fcntl.h
+--- 2.4.6pre3/include/asm-sparc/fcntl.h	Thu Nov 16 15:37:42 2000
++++ o_direct/include/asm-sparc/fcntl.h	Thu Jun 14 17:33:41 2001
+@@ -20,6 +20,7 @@
+ #define O_DIRECTORY	0x10000	/* must be a directory */
+ #define O_NOFOLLOW	0x20000	/* don't follow links */
+ #define O_LARGEFILE	0x40000
++#define O_DIRECT        0x100000 /* direct disk access hint */
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+diff -urN 2.4.6pre3/include/asm-sparc64/fcntl.h o_direct/include/asm-sparc64/fcntl.h
+--- 2.4.6pre3/include/asm-sparc64/fcntl.h	Thu Nov 16 15:37:42 2000
++++ o_direct/include/asm-sparc64/fcntl.h	Thu Jun 14 17:33:41 2001
+@@ -20,6 +20,8 @@
+ #define O_DIRECTORY	0x10000	/* must be a directory */
+ #define O_NOFOLLOW	0x20000	/* don't follow links */
+ #define O_LARGEFILE	0x40000
++#define O_DIRECT        0x100000 /* direct disk access hint */
++
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
 
-Regards,
 
--Gregor
---------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="oops.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="oops.txt"
+Here the second patch that defines the PF_ATOMICALLOC (strictly speaking
+this is not visible from userspace but it also cleanups a bit the
+definitions).
 
-a3N5bW9vcHMgMi40LjEgb24gaTY4NiAyLjQuNS4gIE9wdGlvbnMgdXNlZAogICAgIC1WIChkZWZh
-dWx0KQogICAgIC1rIC9wcm9jL2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMg
-KGRlZmF1bHQpCiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuNC41LyAoZGVmYXVsdCkKICAgICAtbSAv
-Ym9vdC9TeXN0ZW0ubWFwLTIuNC41IChkZWZhdWx0KQoKV2FybmluZzogWW91IGRpZCBub3QgdGVs
-bCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbAphc3N1bWUgdGhh
-dCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9kdWxlcyB0aGF0IGFyZSBydW5uaW5n
-CnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Igc3lt
-Ym9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBu
-b3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBnZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkgdGVs
-bGluZyBtZSB0aGUga2VybmVsIHZlcnNpb24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1bGVz
-LCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KCldhcm5pbmcg
-KGNvbXBhcmVfbWFwcyk6IHNuZCBzeW1ib2wgcG1fcmVnaXN0ZXIgbm90IGZvdW5kIGluIC91c3Iv
-bGliL2Fsc2EtbW9kdWxlcy8yLjQuNS8wLjUvc25kLm8uICBJZ25vcmluZyAvdXNyL2xpYi9hbHNh
-LW1vZHVsZXMvMi40LjUvMC41L3NuZC5vIGVudHJ5Cldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IHNu
-ZCBzeW1ib2wgcG1fc2VuZCBub3QgZm91bmQgaW4gL3Vzci9saWIvYWxzYS1tb2R1bGVzLzIuNC41
-LzAuNS9zbmQuby4gIElnbm9yaW5nIC91c3IvbGliL2Fsc2EtbW9kdWxlcy8yLjQuNS8wLjUvc25k
-Lm8gZW50cnkKV2FybmluZyAoY29tcGFyZV9tYXBzKTogc25kIHN5bWJvbCBwbV91bnJlZ2lzdGVy
-IG5vdCBmb3VuZCBpbiAvdXNyL2xpYi9hbHNhLW1vZHVsZXMvMi40LjUvMC41L3NuZC5vLiAgSWdu
-b3JpbmcgL3Vzci9saWIvYWxzYS1tb2R1bGVzLzIuNC41LzAuNS9zbmQubyBlbnRyeQpXQVJOSU5H
-OiBVU0IgTWFzcyBTdG9yYWdlIGRhdGEgaW50ZWdyaXR5IG5vdCBhc3N1cmVkCmtlcm5lbCBCVUcg
-YXQgaW5vZGUuYzo0ODYhCmludmFsaWQgb3BlcmFuZDogMDAwMApDUFU6ICAgIDAKRUlQOiAgICAw
-MDEwOls8YzAxM2Y5YmI+XQpVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkz
-ODYgLWEgaTM4NgpFRkxBR1M6IDAwMDEwMjg2CmVheDogMDAwMDAwMWIgICBlYng6IGRkM2RmODIw
-ICAgZWN4OiBkOTQwNjAwMCAgIGVkeDogZGRkM2U1NjAKZXNpOiBjMDIyZjI4MCAgIGVkaTogYzAy
-MmYyODAgICBlYnA6IDA4MDU0MDA4ICAgZXNwOiBkOTQwN2YwNApkczogMDAxOCAgIGVzOiAwMDE4
-ICAgc3M6IDAwMTgKUHJvY2VzcyB1bW91bnQgKHBpZDogMTU1MSwgc3RhY2twYWdlPWQ5NDA3MDAw
-KQpTdGFjazogYzAxZjc5YWMgYzAxZjdhMGIgMDAwMDAxZTYgZGQzZGY4MjAgYzAxNDAzODcgZGQz
-ZGY4MjAgYzMyNmE3YzAgZGQzZGY4MjAgCiAgICAgICBjMDE1Mzk5YSBkZDNkZjgyMCBjMDEzZGY5
-NiBjMzI2YTdjMCBkZDNkZjgyMCBkZTI2MGMwMCBjMzI2YTdjMCBjMDEzMjI3YyAKICAgICAgIGMz
-MjZhN2MwIGMzMjZhN2MwIGMzMjY0ZTIwIGRlMjYwYzAwIGMwMjJlMDQwIDA4MDU0MDA4IGRlMjYw
-YzM0IGMwMjJmMzBjIApDYWxsIFRyYWNlOiBbPGMwMTQwMzg3Pl0gWzxjMDE1Mzk5YT5dIFs8YzAx
-M2RmOTY+XSBbPGMwMTMyMjdjPl0gWzxjMDEzMTZkND5dIFs8YzAxMzZiYWY+XSBbPGMwMTMyNmE4
-Pl0gCiAgICAgICBbPGMwMTMyNmUwPl0gWzxjMDEwNmE3Yj5dIFs8YzAxMDAwMmI+XSAKQ29kZTog
-MGYgMGIgODMgYzQgMGMgZjYgODMgZjQgMDAgMDAgMDAgMTAgNzUgMTkgNjggZTggMDEgMDAgMDAg
-NjggCgo+PkVJUDsgYzAxM2Y5YmIgPGNsZWFyX2lub2RlKzMzL2Y0PiAgIDw9PT09PQpUcmFjZTsg
-YzAxNDAzODcgPGlwdXQrMTM3LzE0Yz4KVHJhY2U7IGMwMTUzOTlhIDxuZnNfZGVudHJ5X2lwdXQr
-MjIvMjg+ClRyYWNlOyBjMDEzZGY5NiA8ZHB1dCtkNi8xNDQ+ClRyYWNlOyBjMDEzMjI3YyA8a2ls
-bF9zdXBlcis2NC8xMmM+ClRyYWNlOyBjMDEzMTZkNCA8X19tbnRwdXQrM2MvNDQ+ClRyYWNlOyBj
-MDEzNmJhZiA8cGF0aF9yZWxlYXNlKzI3LzJjPgpUcmFjZTsgYzAxMzI2YTggPHN5c191bW91bnQr
-YzAvZWM+ClRyYWNlOyBjMDEzMjZlMCA8c3lzX29sZHVtb3VudCtjLzEwPgpUcmFjZTsgYzAxMDZh
-N2IgPHN5c3RlbV9jYWxsKzMzLzM4PgpUcmFjZTsgYzAxMDAwMmIgPHN0YXJ0dXBfMzIrMmIvYTU+
-CkNvZGU7ICBjMDEzZjliYiA8Y2xlYXJfaW5vZGUrMzMvZjQ+CjAwMDAwMDAwIDxfRUlQPjoKQ29k
-ZTsgIGMwMTNmOWJiIDxjbGVhcl9pbm9kZSszMy9mND4gICA8PT09PT0KICAgMDogICAwZiAwYiAg
-ICAgICAgICAgICAgICAgICAgIHVkMmEgICAgICA8PT09PT0KQ29kZTsgIGMwMTNmOWJkIDxjbGVh
-cl9pbm9kZSszNS9mND4KICAgMjogICA4MyBjNCAwYyAgICAgICAgICAgICAgICAgIGFkZCAgICAk
-MHhjLCVlc3AKQ29kZTsgIGMwMTNmOWMwIDxjbGVhcl9pbm9kZSszOC9mND4KICAgNTogICBmNiA4
-MyBmNCAwMCAwMCAwMCAxMCAgICAgIHRlc3RiICAkMHgxMCwweGY0KCVlYngpCkNvZGU7ICBjMDEz
-ZjljNyA8Y2xlYXJfaW5vZGUrM2YvZjQ+CiAgIGM6ICAgNzUgMTkgICAgICAgICAgICAgICAgICAg
-ICBqbmUgICAgMjcgPF9FSVArMHgyNz4gYzAxM2Y5ZTIgPGNsZWFyX2lub2RlKzVhL2Y0PgpDb2Rl
-OyAgYzAxM2Y5YzkgPGNsZWFyX2lub2RlKzQxL2Y0PgogICBlOiAgIDY4IGU4IDAxIDAwIDAwICAg
-ICAgICAgICAgcHVzaCAgICQweDFlOApDb2RlOyAgYzAxM2Y5Y2UgPGNsZWFyX2lub2RlKzQ2L2Y0
-PgogIDEzOiAgIDY4IDAwIDAwIDAwIDAwICAgICAgICAgICAgcHVzaCAgICQweDAKCgo0IHdhcm5p
-bmdzIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4K
+--- atomicalloc/include/linux/sched.h.~1~	Thu Apr 26 02:04:44 2001
++++ atomicalloc/include/linux/sched.h	Thu Apr 26 04:05:28 2001
+@@ -403,18 +403,15 @@
+ /*
+  * Per process flags
+  */
+-#define PF_ALIGNWARN	0x00000001	/* Print alignment warning msgs */
+-					/* Not implemented yet, only for 486*/
+-#define PF_STARTING	0x00000002	/* being created */
+-#define PF_EXITING	0x00000004	/* getting shut down */
+-#define PF_FORKNOEXEC	0x00000040	/* forked but didn't exec */
+-#define PF_SUPERPRIV	0x00000100	/* used super-user privileges */
+-#define PF_DUMPCORE	0x00000200	/* dumped core */
+-#define PF_SIGNALED	0x00000400	/* killed by a signal */
+-#define PF_MEMALLOC	0x00000800	/* Allocating memory */
+-#define PF_VFORK	0x00001000	/* Wake up parent in mm_release */
+-
+-#define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
++#define PF_EXITING	(1UL<<0)	/* getting shut down */
++#define PF_FORKNOEXEC	(1UL<<1)	/* forked but didn't exec */
++#define PF_SUPERPRIV	(1UL<<2)	/* used super-user privileges */
++#define PF_DUMPCORE	(1UL<<3)	/* dumped core */
++#define PF_SIGNALED	(1UL<<4)	/* killed by a signal */
++#define PF_MEMALLOC	(1UL<<5)	/* Allocating memory */
++#define PF_VFORK	(1UL<<6)	/* Wake up parent in mm_release */
++#define PF_USEDFPU	(1UL<<7)	/* task used FPU this quantum (SMP) */
++#define PF_ATOMICALLOC	(1UL<<8)	/* do not block during memalloc */
+ 
+ /*
+  * Ptrace flags
 
---------------Boundary-00=_GTJXKHLOH3TTY8CDL6XZ--
+
+Here the third, it registers the tux syscall at for the alpha so other
+people won't use such same syscall for something else (I didn't remove
+the #ifdefs since they don't hurt as they're undefined in mainline).
+
+diff -urN ref/arch/alpha/kernel/entry.S tuxsys/arch/alpha/kernel/entry.S
+--- ref/arch/alpha/kernel/entry.S	Sat Apr 28 18:37:45 2001
++++ tuxsys/arch/alpha/kernel/entry.S	Sun Apr 29 17:52:44 2001
+@@ -1004,7 +1004,15 @@
+ 	.quad alpha_ni_syscall
+ 	.quad alpha_ni_syscall			/* 220 */
+ 	.quad alpha_ni_syscall
++#ifdef CONFIG_TUX
++	.quad __sys_tux
++#else
++# ifdef CONFIG_TUX_MODULE
++	.quad sys_tux
++# else
+ 	.quad alpha_ni_syscall
++# endif
++#endif
+ 	.quad alpha_ni_syscall
+ 	.quad alpha_ni_syscall
+ 	.quad alpha_ni_syscall			/* 225 */
+diff -urN ref/arch/i386/kernel/entry.S tuxsys/arch/i386/kernel/entry.S
+--- ref/arch/i386/kernel/entry.S	Sun Apr 29 17:00:20 2001
++++ tuxsys/arch/i386/kernel/entry.S	Sun Apr 29 17:53:36 2001
+@@ -645,7 +645,15 @@
+ 	.long SYMBOL_NAME(sys_madvise)
+ 	.long SYMBOL_NAME(sys_getdents64)	/* 220 */
+ 	.long SYMBOL_NAME(sys_fcntl64)
++#ifdef CONFIG_TUX
++	.long SYMBOL_NAME(__sys_tux)
++#else
++# ifdef CONFIG_TUX_MODULE
++	.long SYMBOL_NAME(sys_tux)
++# else
+ 	.long SYMBOL_NAME(sys_ni_syscall)	/* reserved for TUX */
++# endif
++#endif
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long SYMBOL_NAME(sys_ni_syscall)
+
+
+Here the forth, this defines the O_ATOMICLOOKUP and EWOULDBLOCKIO for the
+non blocking dcache and pagecache lookups (the LOOKUP_ATOMIC isn't
+visible from userspace but I defined it since I was there, if you want
+you can drop the include/linux/fs.h part of the patch):
+
+diff -urN ref/include/asm-alpha/fcntl.h atomiclookup/include/asm-alpha/fcntl.h
+--- ref/include/asm-alpha/fcntl.h	Thu Jun 14 17:46:45 2001
++++ atomiclookup/include/asm-alpha/fcntl.h	Thu Jun 14 17:47:18 2001
+@@ -20,6 +20,7 @@
+ #define O_DIRECTORY	0100000	/* must be a directory */
+ #define O_NOFOLLOW	0200000 /* don't follow links */
+ #define O_LARGEFILE	0400000 /* will be set by the kernel on every open */
++#define O_ATOMICLOOKUP  01000000 /* do atomic file lookup */
+ #define O_DIRECT	02000000 /* direct disk access - should check with OSF/1 */
+ 
+ #define F_DUPFD		0	/* dup */
+diff -urN ref/include/asm-i386/fcntl.h atomiclookup/include/asm-i386/fcntl.h
+--- ref/include/asm-i386/fcntl.h	Thu Jun 14 17:46:45 2001
++++ atomiclookup/include/asm-i386/fcntl.h	Thu Jun 14 17:47:01 2001
+@@ -20,6 +20,7 @@
+ #define O_LARGEFILE	0100000
+ #define O_DIRECTORY	0200000	/* must be a directory */
+ #define O_NOFOLLOW	0400000 /* don't follow links */
++#define O_ATOMICLOOKUP	01000000 /* do atomic file lookup */
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+diff -urN ref/include/asm-ia64/fcntl.h atomiclookup/include/asm-ia64/fcntl.h
+--- ref/include/asm-ia64/fcntl.h	Thu Nov 16 15:37:42 2000
++++ atomiclookup/include/asm-ia64/fcntl.h	Thu Jun 14 17:47:01 2001
+@@ -28,6 +28,7 @@
+ #define O_LARGEFILE	0100000
+ #define O_DIRECTORY	0200000	/* must be a directory */
+ #define O_NOFOLLOW	0400000 /* don't follow links */
++#define O_ATOMICLOOKUP  01000000 /* do atomic file lookup */
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+diff -urN ref/include/asm-sparc/fcntl.h atomiclookup/include/asm-sparc/fcntl.h
+--- ref/include/asm-sparc/fcntl.h	Thu Jun 14 17:46:45 2001
++++ atomiclookup/include/asm-sparc/fcntl.h	Thu Jun 14 17:47:01 2001
+@@ -20,6 +20,7 @@
+ #define O_DIRECTORY	0x10000	/* must be a directory */
+ #define O_NOFOLLOW	0x20000	/* don't follow links */
+ #define O_LARGEFILE	0x40000
++#define O_ATOMICLOOKUP  0x80000 /* do atomic file lookup */
+ #define O_DIRECT        0x100000 /* direct disk access hint */
+ 
+ #define F_DUPFD		0	/* dup */
+diff -urN ref/include/asm-sparc64/fcntl.h atomiclookup/include/asm-sparc64/fcntl.h
+--- ref/include/asm-sparc64/fcntl.h	Thu Jun 14 17:46:45 2001
++++ atomiclookup/include/asm-sparc64/fcntl.h	Thu Jun 14 17:47:01 2001
+@@ -20,6 +20,7 @@
+ #define O_DIRECTORY	0x10000	/* must be a directory */
+ #define O_NOFOLLOW	0x20000	/* don't follow links */
+ #define O_LARGEFILE	0x40000
++#define O_ATOMICLOOKUP  0x80000 /* do atomic file lookup */
+ #define O_DIRECT        0x100000 /* direct disk access hint */
+ 
+ 
+diff -urN ref/include/linux/errno.h atomiclookup/include/linux/errno.h
+--- ref/include/linux/errno.h	Fri Feb 23 21:20:14 2001
++++ atomiclookup/include/linux/errno.h	Thu Jun 14 17:47:01 2001
+@@ -21,6 +21,9 @@
+ #define EBADTYPE	527	/* Type not supported by server */
+ #define EJUKEBOX	528	/* Request initiated, but will not complete before timeout */
+ 
++/* Defined for TUX async IO */
++#define EWOULDBLOCKIO	530	/* Would block due to block-IO */
++
+ #endif
+ 
+ #endif
+diff -urN ref/include/linux/fs.h atomiclookup/include/linux/fs.h
+--- ref/include/linux/fs.h	Thu Jun 14 17:46:45 2001
++++ atomiclookup/include/linux/fs.h	Thu Jun 14 17:47:01 2001
+@@ -1227,6 +1227,7 @@
+ #define LOOKUP_POSITIVE		(8)
+ #define LOOKUP_PARENT		(16)
+ #define LOOKUP_NOALT		(32)
++#define LOOKUP_ATOMIC		(64)
+ /*
+  * Type of the last component on LOOKUP_PARENT
+  */
+
+Here the fifth, this defines the tux sysctl numbers (OTOH the sysctl by
+number gets broken all the time and nobody should use sysctl by number
+with new sysctls anyways).
+
+diff -urN 2.4.5pre5/include/linux/sysctl.h tux-sysctl/include/linux/sysctl.h
+--- 2.4.5pre5/include/linux/sysctl.h	Tue May 22 22:04:27 2001
++++ tux-sysctl/include/linux/sysctl.h	Wed May 23 19:20:48 2001
+@@ -157,7 +157,8 @@
+ 	NET_TR=14,
+ 	NET_DECNET=15,
+ 	NET_ECONET=16,
+-	NET_KHTTPD=17
++	NET_KHTTPD=17,
++	NET_TUX=18
+ };
+ 
+ /* /proc/sys/kernel/random */
+@@ -471,6 +472,55 @@
+ 	NET_DECNET_DST_GC_INTERVAL = 9,
+ 	NET_DECNET_CONF = 10,
+ 	NET_DECNET_DEBUG_LEVEL = 255
++};
++
++/* /proc/sys/net/tux/ */
++enum {
++	NET_TUX_DOCROOT			=  1,
++	NET_TUX_LOGFILE			=  2,
++	NET_TUX_EXTCGI			=  3,
++	NET_TUX_STOP			=  4,
++	NET_TUX_CLIENTPORT		=  5,
++	NET_TUX_LOGGING			=  6,
++	NET_TUX_SERVERPORT		=  7,
++	NET_TUX_THREADS			=  8,
++	NET_TUX_KEEPALIVE_TIMEOUT	=  9,
++	NET_TUX_MAX_KEEPALIVE_BW	= 10,
++	NET_TUX_DEFER_ACCEPT		= 11,
++	NET_TUX_MAX_FREE_REQUESTS	= 12,
++	NET_TUX_MAX_CONNECT		= 13,
++	NET_TUX_MAX_BACKLOG		= 14,
++	NET_TUX_MODE_FORBIDDEN		= 15,
++	NET_TUX_MODE_ALLOWED		= 16,
++	NET_TUX_MODE_USERSPACE		= 17,
++	NET_TUX_MODE_CGI		= 18,
++	NET_TUX_CGI_UID			= 19,
++	NET_TUX_CGI_GID			= 20,
++	NET_TUX_CGIROOT			= 21,
++	NET_TUX_LOGENTRY_ALIGN_ORDER	= 22,
++	NET_TUX_NONAGLE			= 23,
++	NET_TUX_ACK_PINGPONG		= 24,
++	NET_TUX_PUSH_ALL		= 25,
++	NET_TUX_ZEROCOPY_PARSE		= 26,
++	NET_CONFIG_TUX_DEBUG_BLOCKING	= 27,
++	NET_TUX_PAGE_AGE_START		= 28,
++	NET_TUX_PAGE_AGE_ADV		= 29,
++	NET_TUX_PAGE_AGE_MAX		= 30,
++	NET_TUX_VIRTUAL_SERVER		= 31,
++	NET_TUX_MAX_OBJECT_SIZE		= 32,
++	NET_TUX_COMPRESSION		= 33,
++	NET_TUX_NOID			= 34,
++	NET_TUX_CGI_INHERIT_CPU		= 35,
++	NET_TUX_CGI_CPU_MASK		= 36,
++	NET_TUX_ZEROCOPY_HEADER		= 37,
++	NET_TUX_ZEROCOPY_SENDFILE	= 38,
++	NET_TUX_ALL_USERSPACE		= 39,
++	NET_TUX_REDIRECT_LOGGING	= 40,
++	NET_TUX_REFERER_LOGGING		= 41,
++	NET_TUX_MAX_HEADER_LEN		= 42,
++	NET_TUX_404_PAGE		= 43,
++	NET_TUX_APPLICATION_PROTOCOL	= 44,
++	NET_TUX_MAX_KEEPALIVES		= 45,
+ };
+ 
+ /* /proc/sys/net/khttpd/ */
+
+
+This last one gets visible in /proc/stat and I definitely hate it, it
+should be really put somewhere else, it doesn't belong to /proc/stat, so
+I'd vote to change tux to put it in a directory specific to tux that is
+just present of course (but for now I'll keep it in my tree to avoid
+generating userspace incompatibilities).
+
+diff -urN 2.4.5pre5/fs/proc/proc_misc.c tux-kstat/fs/proc/proc_misc.c
+--- 2.4.5pre5/fs/proc/proc_misc.c	Tue May  1 19:35:29 2001
++++ tux-kstat/fs/proc/proc_misc.c	Wed May 23 19:07:26 2001
+@@ -259,6 +259,66 @@
+ }
+ #endif
+ 
++
++/*
++ * print out TUX internal statistics into /proc/stat.
++ * (Most of them are not maintained if CONFIG_TUX_DEBUG is off.)
++ */
++
++static int print_tux_procinfo (char *page)
++{
++	unsigned int len = 0, i;
++
++#define P(x) \
++	do { len += sprintf(page + len, #x ": %u\n", x); } while(0)
++
++	P(kstat.input_fastpath);
++	P(kstat.input_slowpath);
++	P(kstat.inputqueue_got_packet);
++	P(kstat.inputqueue_no_packet);
++	P(kstat.nr_keepalive_optimized);
++	P(kstat.parse_static_incomplete);
++	P(kstat.parse_static_redirect);
++	P(kstat.parse_static_cachemiss);
++	P(kstat.parse_static_nooutput);
++	P(kstat.parse_static_normal);
++	P(kstat.parse_dynamic_incomplete);
++	P(kstat.parse_dynamic_redirect);
++	P(kstat.parse_dynamic_cachemiss);
++	P(kstat.parse_dynamic_nooutput);
++	P(kstat.parse_dynamic_normal);
++	P(kstat.complete_parsing);
++	P(kstat.nr_free_pending);
++	P(kstat.nr_allocated);
++	P(kstat.nr_idle_input_pending);
++	P(kstat.nr_output_space_pending);
++	P(kstat.nr_input_pending);
++	P(kstat.nr_cachemiss_pending);
++	P(kstat.nr_secondary_pending);
++	P(kstat.nr_output_pending);
++	P(kstat.nr_redirect_pending);
++	P(kstat.nr_finish_pending);
++	P(kstat.nr_userspace_pending);
++	P(kstat.nr_postpone_pending);
++	P(kstat.static_lookup_cachemisses);
++	P(kstat.static_sendfile_cachemisses);
++	P(kstat.user_lookup_cachemisses);
++	P(kstat.user_fetch_cachemisses);
++	P(kstat.user_sendobject_cachemisses);
++	P(kstat.user_sendobject_write_misses);
++	P(kstat.nr_keepalive_reqs);
++	P(kstat.nr_nonkeepalive_reqs);
++
++	len += sprintf(page + len, "keephist: ");
++	for (i = 0; i < KEEPALIVE_HIST_SIZE; i++)
++		if (kstat.keepalive_hist[i])
++			len += sprintf(page + len, "%d(%d) ",
++					i, kstat.keepalive_hist[i]);
++	len += sprintf(page + len, "\n");
++#undef P
++
++	return len;
++}
+ static int kstat_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+ {
+@@ -333,6 +393,8 @@
+ 		kstat.context_swtch,
+ 		xtime.tv_sec - jif / HZ,
+ 		total_forks);
++
++	len += print_tux_procinfo(page+len);
+ 
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+diff -urN 2.4.5pre5/include/linux/kernel_stat.h tux-kstat/include/linux/kernel_stat.h
+--- 2.4.5pre5/include/linux/kernel_stat.h	Tue May 15 21:40:17 2001
++++ tux-kstat/include/linux/kernel_stat.h	Wed May 23 19:06:38 2001
+@@ -33,6 +33,53 @@
+ 	unsigned int ierrors, oerrors;
+ 	unsigned int collisions;
+ 	unsigned int context_swtch;
++	unsigned int context_swtch_cross;
++	unsigned int nr_free_pending;
++	unsigned int nr_allocated;
++	unsigned int nr_idle_input_pending;
++	unsigned int nr_output_space_pending;
++	unsigned int nr_work_pending;
++	unsigned int nr_input_pending;
++	unsigned int nr_cachemiss_pending;
++	unsigned int nr_secondary_pending;
++	unsigned int nr_output_pending;
++	unsigned int nr_redirect_pending;
++	unsigned int nr_postpone_pending;
++	unsigned int nr_finish_pending;
++	unsigned int nr_userspace_pending;
++	unsigned int static_lookup_cachemisses;
++	unsigned int static_sendfile_cachemisses;
++	unsigned int user_lookup_cachemisses;
++	unsigned int user_fetch_cachemisses;
++	unsigned int user_sendobject_cachemisses;
++	unsigned int user_sendobject_write_misses;
++	unsigned int user_sendbuf_cachemisses;
++	unsigned int user_sendbuf_write_misses;
++#define URL_HIST_SIZE 1000
++	unsigned int url_hist_hits[URL_HIST_SIZE];
++	unsigned int url_hist_misses[URL_HIST_SIZE];
++	unsigned int input_fastpath;
++	unsigned int input_slowpath;
++	unsigned int inputqueue_got_packet;
++	unsigned int inputqueue_no_packet;
++	unsigned int nr_keepalive_optimized;
++
++	unsigned int parse_static_incomplete;
++	unsigned int parse_static_redirect;
++	unsigned int parse_static_cachemiss;
++	unsigned int parse_static_nooutput;
++	unsigned int parse_static_normal;
++	unsigned int parse_dynamic_incomplete;
++	unsigned int parse_dynamic_redirect;
++	unsigned int parse_dynamic_cachemiss;
++	unsigned int parse_dynamic_nooutput;
++	unsigned int parse_dynamic_normal;
++	unsigned int complete_parsing;
++
++	unsigned int nr_keepalive_reqs;
++	unsigned int nr_nonkeepalive_reqs;
++#define KEEPALIVE_HIST_SIZE 100
++	unsigned int keepalive_hist[KEEPALIVE_HIST_SIZE];
+ };
+ 
+ extern struct kernel_stat kstat;
+
+
+Andrea

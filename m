@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290776AbSARTGF>; Fri, 18 Jan 2002 14:06:05 -0500
+	id <S290633AbSARTNp>; Fri, 18 Jan 2002 14:13:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290668AbSARTF4>; Fri, 18 Jan 2002 14:05:56 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5901 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S290633AbSARTFj>;
-	Fri, 18 Jan 2002 14:05:39 -0500
-Date: Fri, 18 Jan 2002 20:05:23 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-Message-ID: <20020118200523.F27835@suse.de>
-In-Reply-To: <5.1.0.14.2.20020118021222.04e4caa0@pop.cus.cam.ac.uk> <Pine.LNX.4.40.0201180928500.934-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
+	id <S290780AbSARTNf>; Fri, 18 Jan 2002 14:13:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30985 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290633AbSARTNV>; Fri, 18 Jan 2002 14:13:21 -0500
+Subject: Re: vm philosophising
+To: oxymoron@waste.org (Oliver Xymoron)
+Date: Fri, 18 Jan 2002 19:23:47 +0000 (GMT)
+Cc: riel@conectiva.com.br (Rik van Riel),
+        bole@falcon.etf.bg.ac.yu (Bosko Radivojevic),
+        J.A.K.Mouw@its.tudelft.nl (Erik Mouw),
+        andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0201181225090.31074-100000@waste.org> from "Oliver Xymoron" at Jan 18, 2002 12:39:54 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0201180928500.934-100000@blue1.dev.mcafeelabs.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Rec7-0007fg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 18 2002, Davide Libenzi wrote:
-> On Fri, 18 Jan 2002, Anton Altaparmakov wrote:
-> 
-> > Since the new IDE core from Andre is now solid as reported by various
-> > people on IRC, here is my local patch (stable for me) which you can apply
-> > to play with the shiny new IDE core (IDE core fix is same as
-> > ata-253p1-2.bz2 from Jens). (-:
-> 
-> I would like to say the same. I worked with the fixed kernel
-> 2.5.3-pre1+ata-253p1-2 yesterday w/out problems. I rebootedt the machine
-> before leaving the office yesterday night and this morning it had a full
-> screen :
-> 
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
+> There is another VM that has a property that people would like:
+> deterministically handling memory exhaustion. Unfortunately, that VM
+> probably can't co-exist with over-commit and the performance gains that
+> affords.
 
-What mode? PIO and no multi mode, or?
-
--- 
-Jens Axboe
-
+It can definitely co-exist. Overcommit control is just a book keeping
+exercise on address space commits.

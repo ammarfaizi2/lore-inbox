@@ -1,40 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbTIXCDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 22:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbTIXCDq
+	id S261249AbTIXChg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 22:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTIXChg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 22:03:46 -0400
-Received: from web14905.mail.yahoo.com ([216.136.225.57]:29959 "HELO
-	web14905.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261271AbTIXCDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 22:03:46 -0400
-Message-ID: <20030924020344.55460.qmail@web14905.mail.yahoo.com>
-Date: Tue, 23 Sep 2003 19:03:44 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: sysfs - which driver for a device?
-To: lkml <linux-kernel@vger.kernel.org>
+	Tue, 23 Sep 2003 22:37:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49801 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261249AbTIXChe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 22:37:34 -0400
+Date: Tue, 23 Sep 2003 19:36:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: andrea@kernel.org
+cc: Larry McVoy <lm@work.bitmover.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+In-Reply-To: <20030924020409.GL16314@velociraptor.random>
+Message-ID: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In sysfs it is easy to see which devices a driver is supporting.
-For example /sys/bus/pci/drivers/e1000 links to 0000:02:0c.0 in my system.
 
-But how do you go the other way; starting from 0000:02:0c.0 to determine the
-driver? Is the best solution to loop though the drivers directories searching
-for the device? Or would it be better to change sysfs to add an attribute to
-each device containing the driver name?
+On Wed, 24 Sep 2003 andrea@kernel.org wrote:
+> 
+> It's because I grow up that I can actually better understand the deals
+> it's in my own (again speaking only for myself and not for anybody else)
+> interest to avoid.
 
-In /proc/bus/pci/devices the driver name is the last field.
+You've claimed this now twice. 
 
+However, that only explains why you don't use BitKeeper. And everybody
+accepts that. When I started to use BK, I made it _very_ clear that
+service for non-BK users will be _at_least_ as good as it ever was before
+I started using BK.
 
-=====
-Jon Smirl
-jonsmirl@yahoo.com
+And I think everybody agrees that is true. ChangeLogs, CVS exports, daily 
+snapshots. And that's just the advantages to _others_. 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+But your lack of interest in BK does _not_ explain why you whine about it,
+and try to goad Larry, and just generally are nasty about it. 
+
+You remind me of how some of the BSD people complaining about me using the
+GPL. They whined and whined about how the GPL is not as free as the BSD
+license. 
+
+In other words:
+
+ - you don't have to agree with another persons choice of license, and 
+   you don't have to to use the software using it. That is _your_ choice.
+
+ - But you also don't have the moral right to whine about another persons
+   choice of license (or choice of using software under that license). 
+   That was _their_ choice.
+
+See? You're not just being impolite; your complaints are actually morally 
+offensive. The same way I found it morally offensive when people 
+complained about my choice of GPL. They didn't have the right. And _you_ 
+don't have the right.
+
+It's the old 
+
+	"I disapprove of what you say, but I will defend to the death your 
+	 right to say it"
+
+approach: even if you disapprove of Larry's license, you should defend his 
+_right_ to that license. Instead of whining about it.
+
+			Linus
+

@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132862AbQL3EKw>; Fri, 29 Dec 2000 23:10:52 -0500
+	id <S131023AbQL3Ej7>; Fri, 29 Dec 2000 23:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132885AbQL3EKm>; Fri, 29 Dec 2000 23:10:42 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:26119 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132862AbQL3EK0>; Fri, 29 Dec 2000 23:10:26 -0500
-Date: Fri, 29 Dec 2000 19:36:21 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Byron Stanoszek <gandalf@winds.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>, "Marco d'Itri" <md@Linux.IT>,
-        Jeff Lightfoot <jeffml@pobox.com>, Dan Aloni <karrde@callisto.yi.org>,
-        Anton Blanchard <anton@linuxcare.com.au>
-Subject: Re: test13-pre6 (Fork Bug with Athlons? Temporary Fix)
-In-Reply-To: <Pine.LNX.4.21.0012292156200.11714-200000@winds.org>
-Message-ID: <Pine.LNX.4.10.10012291929250.1722-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131055AbQL3Ejt>; Fri, 29 Dec 2000 23:39:49 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:55237 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S131023AbQL3Ejo>; Fri, 29 Dec 2000 23:39:44 -0500
+Date: Fri, 29 Dec 2000 20:09:16 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: PATCH: test13-pre5/drivers/sound/via82cxxx_audio.c did not compile
+Message-ID: <20001229200916.A2645@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, 29 Dec 2000, Byron Stanoszek wrote:
-> 
-> I narrowed the problem down to a subset of patches from the MM set in
-> test13-pre2. Reversing the attached 'context.patch' fixes the problem (only for
-> i386), but I'm not yet sure why. test13-pre2 and up work without any problems
-> on an Intel cpu (Pentium 180 & P3 800 tested).
+	linux-2.4.0-test13-pre5 eliminated vm_operations_struct->swapout,
+but this change was not reflected in drivers/sound/via82cxxx_audio.c,
+causing that file to fail to compile.  I have attached what I believe
+is the correct fix below.
 
-Cool.
+	via82cxxx_audio.c has Jeff Garzik's name on it, but I understand
+that he is taking a break for a few weeks to recover from typing strain.
+(Hope you recover soon, Jeff.)  Consequently, I am not sure whom I should
+ask to "bless" this change.  So, I'll just send this to linux-kernel
+and Linus and will leave it to linux-kernel readers to sound the alarm
+if I botched the patch.
 
-Maybe your libc is different on the different machines? Normal programs
-shouldn't use segments at all, so I really do not see how this patch could
-matter in the least, even if it was completely and utterly buggy (which is
-not obvious at first glance).
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-I wonder why you seem to have an LDT at all..
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sound.diffs"
 
-> Anyways, I can't seem to find out what really changes with the patch except for
-> the obvious 'void *segment' changing into a typedef-struct.
+--- linux-2.4.0-test13-pre5/drivers/sound/via82cxxx_audio.c	Mon Oct 30 12:24:22 2000
++++ linux/drivers/sound/via82cxxx_audio.c	Fri Dec 29 16:53:22 2000
+@@ -1727,20 +1727,8 @@
+ }
+ 
+ 
+-#ifndef VM_RESERVE
+-static int via_mm_swapout (struct page *page, struct file *filp)
+-{
+-	return 0;
+-}
+-#endif /* VM_RESERVE */
+-
+-
+ struct vm_operations_struct via_mm_ops = {
+ 	nopage:		via_mm_nopage,
+-
+-#ifndef VM_RESERVE
+-	swapout:	via_mm_swapout,
+-#endif
+ };
+ 
+ 
 
-Would you mind trying to hunt this down a bit more? In particular, it
-would be good to see if the behaviour is the same if you do the typedef
-change but leave the other logic alone. That would also cut down on the
-purely syntactic changes of the patch.
-
-I'll take a look at the code here.
-
-	Thanks,
-
-		Linus
-
+--IS0zKkzwUGydFO0o--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

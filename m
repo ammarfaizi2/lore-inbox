@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262461AbVA0AIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVA0AMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262461AbVA0AIt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVA0AIM
+	id S262531AbVA0AMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:12:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVA0AHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:08:12 -0500
-Received: from gizmo05ps.bigpond.com ([144.140.71.40]:60579 "HELO
-	gizmo05ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262461AbVAZVoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 16:44:37 -0500
-Message-ID: <41F80F41.5040106@bigpond.net.au>
-Date: Thu, 27 Jan 2005 08:44:33 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Wed, 26 Jan 2005 19:07:17 -0500
+Received: from outmx001.isp.belgacom.be ([195.238.3.51]:57529 "EHLO
+	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S262463AbVAZVdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 16:33:16 -0500
+Message-ID: <41F80CA2.2080603@246tNt.com>
+Date: Wed, 26 Jan 2005 22:33:22 +0100
+From: Sylvain Munaut <tnt@246tNt.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040816)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
-References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au> <20050126100846.GB8720@elte.hu>
-In-Reply-To: <20050126100846.GB8720@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: 2.6.11-rc2 and -rc1 hang during boot on PowerMacs
+References: <200501221723.j0MHN6eD000684@harpo.it.uu.se>	<1106441036.5387.41.camel@gaston> <1106529935.5587.9.camel@gaston>
+In-Reply-To: <1106529935.5587.9.camel@gaston>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Peter Williams <pwil3058@bigpond.net.au> wrote:
-> 
-> 
->>Oops, after rereading the patch, a task that set its RT_CPU_RATIO
->>rlimit to zero wouldn't be escaping the mechanism at all.  It would be
->>suffering maximum throttling. [...]
-> 
-> 
-> my intention was to let 'limit 0' mean 'old RT semantics' - i.e. 'no RT
-> CPU time for unprivileged tasks at all', and only privileged tasks may
-> do it and then they'll get full CPU time with no throttling.
-> 
-> so in that context your observation highlights another bug, which i
-> fixed in the -D7 patch available from the usual place:
-> 
->   http://redhat.com/~mingo/rt-limit-patches/
-> 
-> not doing the '0' exception would make it harder to introduce the rlimit
-> in a compatible fashion. (My current thinking is that the default RT_CPU
-> rlimit should be 0.)
+Benjamin Herrenschmidt wrote:
 
-One solution to this dilemma might be to set a PF_FLAG on a task 
-whenever it gains RT status via this privilege bypass and only apply the 
-limit to tasks that have that flag set.
+>On Sun, 2005-01-23 at 11:43 +1100, Benjamin Herrenschmidt wrote:
+>
+>  
+>
+>>I know about this problem, I'm working on a proper fix. Thanks for your
+>>report.
+>>    
+>>
+>
+>Can you send me the PVR value for both of these CPUs
+>(cat /proc/cpuinfo) ? I can't find right now why they would lock up
+>unless the default idle loop is _not_ run properly, that is for some
+>reason, NAP or DOZE mode end up not beeing enabled. Can you send me
+>your .config as well ?
+>  
+>
+Note that when CONFIG_BDI_SWITCH is set, they both end up disabled
+because nap & doze seems to perturb the BDI on some cores.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+So there is a problem in that case ....
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+>Finally, try that patch and tell me if it makes a difference. 
+>
+Yup
+ - Without it hangs (not really, it's still half running but serial 
+output is stuck
+due to no interrupts)
+ - With it it works
+
+
+    Sylvain
+

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131276AbRCHFsk>; Thu, 8 Mar 2001 00:48:40 -0500
+	id <S131279AbRCHGBU>; Thu, 8 Mar 2001 01:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131277AbRCHFs3>; Thu, 8 Mar 2001 00:48:29 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:46852 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S131276AbRCHFsR>;
-	Thu, 8 Mar 2001 00:48:17 -0500
-Date: Thu, 8 Mar 2001 02:47:47 -0300
-From: Rogerio Brito <rbrito@iname.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac12 (vt82c686 info)
-Message-ID: <20010308024747.E788@iname.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010306050546.C948@inxservices.com> <20010307201437.A5030@suse.cz>
-Mime-Version: 1.0
+	id <S131281AbRCHGBK>; Thu, 8 Mar 2001 01:01:10 -0500
+Received: from dfw-smtpout1.email.verio.net ([129.250.36.41]:35991 "EHLO
+	dfw-smtpout1.email.verio.net") by vger.kernel.org with ESMTP
+	id <S131279AbRCHGA4>; Thu, 8 Mar 2001 01:00:56 -0500
+Message-ID: <3AA71FFD.717F56CE@bigfoot.com>
+Date: Wed, 07 Mar 2001 22:00:29 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre8+IDE i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tom Sightler <ttsig@tuxyturvy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Questions about Enterprise Storage with Linux
+In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu> <20010307164052.B788@wirex.com> <006301c0a765$3ca118e0$1601a8c0@zeusinc.com> <01030720460701.06635@tabby> <000f01c0a778$6ef862e0$1601a8c0@zeusinc.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010307201437.A5030@suse.cz>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 07 2001, Vojtech Pavlik wrote:
-> Also, the vt82c686 will work just fine with Linux, but will be limited
-> to UDMA33, because UDMA66 on this chip does reliably fail.
+Tom Sightler wrote:
+> ...
+> For example if we purchase a NetApp Filer, or EMC Celerra with 1TB of
+> storage, and elect to export that entire amount as a single NFS mount, and
+> then use that storage to allow several Linux boxes to share 100GB
+> (admittedly temporary) files, will Linux handle that, at least in theory?
 
-	How do I know which one I have? Using the revision of the
-	chip?
+Linux/NFS works very well with Filers.  I did a lot of throughput
+testing at Netapp circa 2.2.10-12 with Gigabit Ethernet (AceNIC).  Why
+would you need to put 1TB on a single mount point?
 
-	lspci only shows that I have a vt82c686 (revision 22 --
-	perhaps this is the clue), but I have been using UDMA66 drives
-	here with *no* corruption so far (or I haven't stressed my
-	system enough to notice it).
+Filers are also blessed by Oracle and can take care of the volume
+management and backup issues.  The principle advantage is avalibility
+(balanced against cost of course).  If you do talk to Netapp, ask for
+someone that has linux/Filer experience.
 
-	Here are the lines from my lspci which I think are relevant
-	here:
+rgds,
+tim.
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
-00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
-00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10)
-00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10)
-00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                                                                      
-	Any hints are more than welcome.
-
-	[]s, Roger...
-
-P.S.: This is an ASUS A7V mobo.
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+--

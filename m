@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318165AbSGQAWx>; Tue, 16 Jul 2002 20:22:53 -0400
+	id <S318174AbSGQA2Z>; Tue, 16 Jul 2002 20:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318166AbSGQAWw>; Tue, 16 Jul 2002 20:22:52 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:27636 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318165AbSGQAWw>; Tue, 16 Jul 2002 20:22:52 -0400
-Subject: Re: close return value
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: zack@codesourcery.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020716.165241.123987278.davem@redhat.com>
-References: <20020716232225.GH358@codesourcery.com>
-	<1026867782.1688.108.camel@irongate.swansea.linux.org.uk> 
-	<20020716.165241.123987278.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 Jul 2002 02:35:41 +0100
-Message-Id: <1026869741.2119.112.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318176AbSGQA2Y>; Tue, 16 Jul 2002 20:28:24 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:32445 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318174AbSGQA2C>;
+	Tue, 16 Jul 2002 20:28:02 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: torvalds@transmeta.com, pmenage@ensim.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Rearranging struct dentry for cache affinity 
+In-reply-to: Your message of "Tue, 16 Jul 2002 00:40:42 -0400."
+             <Pine.GSO.4.21.0207160036460.24417-100000@weyl.math.psu.edu> 
+Date: Wed, 17 Jul 2002 10:04:44 +1000
+Message-Id: <20020717003135.ACB2D4503@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-17 at 00:52, David S. Miller wrote:
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: 17 Jul 2002 02:03:02 +0100
->    
->    close() checking is not about physical disk guarantees. It's about more
->    basic "I/O completed". In some future Linux only close() might tell you
->    about some kinds of I/O error. The fact it doesn't do it now is no
->    excuse for sloppy programming
+In message <Pine.GSO.4.21.0207160036460.24417-100000@weyl.math.psu.edu> you wri
+te:
+> On Tue, 16 Jul 2002, Rusty Russell wrote:
 > 
-> Practice dictates that if you make close() return error values
-> your whole system will blow up.  Try it out for yourself.
-> I can tell you of at least 1 app that is going to explode :-)
+> > Really?  Other than changing over to get_sb_psuedo(), what does your patch
+> > fix?  As the filesystem should never be unmounted, what am I missing?
+> > >  	filp->f_op = &futex_fops;
+> > > -	filp->f_dentry = dget(futex_dentry);
+> > > +	filp->f_vfsmnt = mntget(futex_mnt);
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > > +	filp->f_dentry = dget(futex_mnt->mnt_root);
 > 
-> I believe Linus mentioned way back when that this is a "shall not"
-> when we had similar problems with NFS returning errors from close().
+> Uninitialized ->f_vfsmnt == quite a few places in the tree very unhappy.
+> E.g. any access to /proc/<pid>/fd/<n>.
 
-Our NFS can return errors from close(). So I'd get fixing the
-applications.
+I figured out which ones I needed to set by rough inspection, always a
+dangerous practice.
 
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

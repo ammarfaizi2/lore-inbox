@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266777AbUH1Nvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUH1N5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266777AbUH1Nvu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 09:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUH1Nvu
+	id S264286AbUH1N5J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 09:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUH1N5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 09:51:50 -0400
-Received: from cantor.suse.de ([195.135.220.2]:22482 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266825AbUH1Nvn (ORCPT
+	Sat, 28 Aug 2004 09:57:09 -0400
+Received: from verein.lst.de ([213.95.11.210]:52892 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S264286AbUH1N5D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 09:51:43 -0400
-Date: Sat, 28 Aug 2004 15:48:33 +0200
-From: Andi Kleen <ak@suse.de>
-To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86-64 compile error in 2.6.9-rc1-bk1
-Message-Id: <20040828154833.3d9aa7d7.ak@suse.de>
-In-Reply-To: <1093460094.23633.18.camel@duffman>
-References: <1093460094.23633.18.camel@duffman>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 28 Aug 2004 09:57:03 -0400
+Date: Sat, 28 Aug 2004 15:56:55 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: flx@msu.ru, Christoph Hellwig <hch@lst.de>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
+Message-ID: <20040828135655.GA13380@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, flx@msu.ru,
+	Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+References: <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <20040828111233.GA11339@lst.de> <20040828120502.GE6746@alias>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040828120502.GE6746@alias>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Aug 2004 11:54:54 -0700
-Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu> wrote:
-
-> If you have CONFIG_SWIOTLB=y (GART_IOMMU=y), you get:
+On Sat, Aug 28, 2004 at 04:05:02PM +0400, Alexander Lyamin wrote:
+> > But one could even say VFS is integral part of a linux filesystem as
+> > it does most of the work a filesystem driver does in other operating
+> > systems.
 > 
-> ld: BFD 2.15.90.0.3 20040415 assertion fail ../../bfd/linker.c:619
-> arch/x86_64/mm/built-in.o(.init.text+0x52a): In function `mem_init':
-> : undefined reference to `swiotlb_force'
-> make[1]: *** [.tmp_vmlinux1] Error 1
-> make: *** [_all] Error 2
+> theres no "linux filesystem". there are "linux filesystems".
+> thanks god.
+
+a linux filesystem, not the linux filesystem, please read again.
+
+> But I it would be really grate if you'll elaborate your sentence with
+> example of VFS functionality (lack of it) on said "other operating systems"
+> and if you'll define "most of work".
+
+most trivial example is namespace locking, in *BSD, Windows, SVR4 and
+derivates it's done in the lowlevel filesystem.  In plan9, Linux and
+soon DragonlyBSD it's done in the VFS. 
+
+> > > P.S. I imagine, how much flamed it would be if reiser4 made any intensive
+> > > changes in linux VFS code...
+> > 
+> > It really depends on how you sent them.  If you had a big patch without
+> > explanations - sure.
+> It would work with small tweaks, but you just can take a look at reiser4
+> code and you'll understand that it just could not be chopped in
+> "set of small patches" altough it could be documented better ofcourse,
+> but its really well commented already.
 > 
-> This was added in Linus's tree.  But I cannot find where swiotlb_force is defined...
+> some times, some approaches to  some problems  just would not work.
 
-It is defined in a ia64 specific file (believe it or not) The change should 
-go in as soon as Linus pulls the IA64 update from Tony Luck. 
+You still haven't even bother explaining what you want to do.  It's hard
+to argue against vague uncertainity.
 
-For now you can just comment out the if. 
-
--Andi

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVCAMNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVCAMgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbVCAMNp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 07:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVCAMNp
+	id S261891AbVCAMgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 07:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVCAMgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 07:13:45 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:57997 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261886AbVCAMNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 07:13:41 -0500
-Message-Id: <200503010153.j211rGXB006246@laptop11.inf.utfsm.cl>
-To: "David S. Miller" <davem@davemloft.net>
-cc: linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
-Subject: Re: SPARC64: Modular floppy? 
-In-Reply-To: Message from "David S. Miller" <davem@davemloft.net> 
-   of "Mon, 28 Feb 2005 15:51:42 -0800." <20050228155142.12ae31a7.davem@davemloft.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Mon, 28 Feb 2005 22:53:11 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 01 Mar 2005 09:13:08 -0300 (CLST)
+	Tue, 1 Mar 2005 07:36:23 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:7104 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261887AbVCAMgT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 07:36:19 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [2.6 patch] SCSI: possible cleanups
+Date: Tue, 1 Mar 2005 07:36:15 -0500
+Message-ID: <60807403EABEB443939A5A7AA8A7458BD63E10@otce2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] SCSI: possible cleanups
+Thread-Index: AcUd5KS5mtbsAL4OQ3i6XZbN+IgeAgAdDlnA
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Christoph Hellwig" <hch@infradead.org>, "Adrian Bunk" <bunk@stusta.de>
+Cc: <James.Bottomley@SteelEye.com>, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, "Mark Haverkamp" <markh@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> said:
-> On Mon, 28 Feb 2005 17:07:43 -0300
-> Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+Christoph Hellwig writes:
+>>   - scsi_scan.c: scsi_rescan_device
+>aacraid was going to use that one, Mark, any chance to get a patch
+anytime soon?
+>>   - scsi_scan.c: scsi_scan_single_target
+>as mentioned above we'll need this one soon.
 
-[...]
+Yup, we use both of them in our branch of the driver. I submit a patch
+to MarkH for the Hot-Add calls soon.
 
-> > So, either the dependencies have to get fixed so floppy can't be modular
-> > for this architecture, or the relevant functions have to move from entry.S
-> > to the module.
-
-> I think the former is the best solution.  The assembler code really
-> needs to get at floppy.c symbols.
-
->From my cursory look the stuff depending on the floppy.c symbols is just
-in the floppy-related code. Can't that be just included in floppy.c?
-(Could be quite a mess, but it looks like short stretches).
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Sincerely -- Mark Salyzyn
 

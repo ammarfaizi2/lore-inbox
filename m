@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbUDQDOp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 23:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUDQDOp
+	id S263613AbUDQD3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 23:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUDQD3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 23:14:45 -0400
-Received: from ozlabs.org ([203.10.76.45]:27832 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262027AbUDQDOo (ORCPT
+	Fri, 16 Apr 2004 23:29:16 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:61853 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263613AbUDQD3O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 23:14:44 -0400
-Subject: Re: module_param() doesn't seem to work in 2.6.6-rc1
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pavel Roskin <proski@gnu.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0404161735560.5025@marabou.research.att.com>
-References: <Pine.LNX.4.58.0404161735560.5025@marabou.research.att.com>
-Content-Type: text/plain
-Message-Id: <1082171676.1390.2.camel@bach>
+	Fri, 16 Apr 2004 23:29:14 -0400
+Date: Sat, 17 Apr 2004 05:29:12 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5+BK compile error: binfmt_elf on sparc64
+Message-ID: <20040417032912.GA23888@MAIL.13thfloor.at>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.44.0404141104370.28974-100000@math.ut.ee> <20040414115301.37145997.davem@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 17 Apr 2004 13:14:37 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040414115301.37145997.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-04-17 at 08:24, Pavel Roskin wrote:
-> Hello!
+On Wed, Apr 14, 2004 at 11:53:01AM -0700, David S. Miller wrote:
+> On Wed, 14 Apr 2004 11:33:00 +0300 (EEST)
+> Meelis Roos <mroos@linux.ee> wrote:
 > 
-> I know that module_param is supposed to obsolete MODULE_PARM in 2.6
-> kernels.  However, module_param doesn't seem to work in Linux 2.6.6-rc1 (I
-> didn't test older kernels, so I don't know if it's a new bug).
+> > Because of -Werror, it bails out:
+> > 
+> > In file included from arch/sparc64/kernel/binfmt_elf32.c:154:
+> > fs/binfmt_elf.c: In function `load_elf_interp':
+> > fs/binfmt_elf.c:369: warning: comparison is always false due to limited range of data type
+> > fs/binfmt_elf.c: In function `load_elf_binary':
+> > fs/binfmt_elf.c:780: warning: comparison is always false due to limited range of data type
+> > 
+> > It's the comparision "elf_ppnt->p_memsz > TASK_SIZE".
+> > 
+> > p_memsz is Elf32_Word, TASK_SIZE is defined as
+> > #define TASK_SIZE       ((unsigned long)-VPTE_SIZE)
+> > 
+> > At the first glance I can't see what's wrong here.
+> 
+> The compiler is telling us that the condition is always false because a 32-bit
+> value can never have the codition being tested against a 64-bit one (TASK_SIZE).
+> I've tried everything to kill this warning, even casting both sides of the
+> conparison to 64-bit, but gcc can still see things clearly.
+> 
+> So just comment out the -Werror line in arch/sparc64/kernel/Makefile which is
+> how I'm (unfortunately) solving this for now.
 
-You can't mix old and new: only the old will work in that case.
+what about the good old
 
-Sorry for the confusion,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+	eppnt->p_memsz - TASK_SIZE > 0
 
+HTH,
+Herbert
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

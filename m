@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbUCXVaG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 16:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUCXVaG
+	id S261980AbUCXVct (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 16:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUCXVct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 16:30:06 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:35773 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261952AbUCXVaA convert rfc822-to-8bit (ORCPT
+	Wed, 24 Mar 2004 16:32:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:50622 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261980AbUCXVcr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 16:30:00 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: Export cpu_up & cpu_down functions
-Date: Wed, 24 Mar 2004 13:29:40 -0800
-Message-ID: <33561BB7A415E04FBDC339D5E149C6E2ACC209@orsmsx405.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Export cpu_up & cpu_down functions
-Thread-Index: AcQR5x0V4E8SQBgsSrqZ+6vm2dRs/g==
-From: "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-To: <lhcs-devel@lists.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 24 Mar 2004 21:29:40.0740 (UTC) FILETIME=[1DBF2440:01C411E7]
+	Wed, 24 Mar 2004 16:32:47 -0500
+Date: Wed, 24 Mar 2004 22:32:45 +0100
+From: Olaf Hering <olh@suse.de>
+To: Andreas Happe <news_0403@flatline.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm2
+Message-ID: <20040324213245.GA11608@suse.de>
+References: <20040323232511.1346842a.akpm@osdl.org> <slrnc63mc2.18m.news_0403@flatline.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <slrnc63mc2.18m.news_0403@flatline.ath.cx>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
-	When acpi processor driver capable of handling cpu hotplug
-notifications is compiled as module then this driver expects cpu_up()
-and cpu_down() to be an exported functions. Attached patch exports those
-functions. Please include this patch.
+ On Wed, Mar 24, Andreas Happe wrote:
 
-Thanks,
-Anil Keshavamurthy 
+> On 2004-03-24, Andrew Morton <akpm@osdl.org> wrote:
+> > -initramfs-search-for-init.patch
+> > -initramfs-search-for-init-zombie-fix.patch
+> > +initramfs-search-for-init-orig.patch
+> >
+> >  Go back to the original, simple version of this patch.
+> 
+> 2.6.5-rc2-mm2 still hangs after:
+> | VFS: mounted root (ext3 filesystem) readonly
+> | Freeing unused kernel memory: 140kB
+> 
+> SysRq still works, what information would you need to solve that
+> problem?
 
---------------------------------
+you really have this code now?
 
- linux-2.6.3-root/kernel/cpu.c |    2 ++
- 1 files changed, 2 insertions(+)
++       if (sys_access("/init", 0) == 0)
++               execute_command = "/init";
++       else
+        prepare_namespace();
 
-diff -puN kernel/cpu.c~export_cpu_up_cpu_down kernel/cpu.c
---- linux-2.6.3/kernel/cpu.c~export_cpu_up_cpu_down     2004-03-24
-21:18:38.418764404 -0800
-+++ linux-2.6.3-root/kernel/cpu.c       2004-03-24 21:20:04.449081889
--0800
-@@ -154,6 +154,7 @@ out:
-        unlock_cpu_hotplug();
-        return err;
- }
-+EXPORT_SYMBOL(cpu_down);
- #else
- static inline int cpu_run_sbin_hotplug(unsigned int cpu, const char
-*action)
- {
-@@ -198,3 +199,4 @@ out:
-        unlock_cpu_hotplug();
-        return ret;
- }
-+EXPORT_SYMBOL(cpu_up);
+sysrq t would help.
 
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

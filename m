@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269504AbUHZUJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269616AbUHZUcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269504AbUHZUJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269554AbUHZUGk
+	id S269616AbUHZUcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269593AbUHZUbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:06:40 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:51302 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S269551AbUHZUAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:00:51 -0400
-Date: Thu, 26 Aug 2004 21:00:41 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Len Brown <len.brown@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc1 Latitude APM suspend freeze
-Message-ID: <Pine.LNX.4.44.0408261949110.3367-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 26 Aug 2004 16:31:43 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:53414 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S269595AbUHZU0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:26:13 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Christophe Saout <christophe@saout.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Jonathan Abbey <jonabbey@arlut.utexas.edu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Diego Calleja <diegocg@teleline.es>, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+In-Reply-To: <20040826201639.GA5733@mail.shareable.org>
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
+	 <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <20040826193617.GA21248@arlut.utexas.edu>
+	 <20040826201639.GA5733@mail.shareable.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/lH6kvm1JVZkuxIJ+gc8"
+Date: Thu, 26 Aug 2004 22:25:56 +0200
+Message-Id: <1093551956.13881.34.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Been suffering APM suspend freezes with 2.6.9-rc1 on Dell Latitude C610.
-Now found that you have removed local_apic_kills_bios(),
-which existed precisely to protect against that.
 
-Perhaps my UP .config, inherited down four years of oldconfig,
-was silly to be saying (APIC and ACPI mentions only):
+--=-/lH6kvm1JVZkuxIJ+gc8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-# CONFIG_ACPI is not set
+Am Donnerstag, den 26.08.2004, 21:16 +0100 schrieb Jamie Lokier:
 
-for this machine.  I've updated it to:
+> > | Will it work out if "dir inside file" will only be visible when
+> > referred as "file/."?
+> >=20
+> > I'm used to using ls symlink/. to get ls to show me the directory on
+> > the far side of a symbolic link.  That's a pretty analagous case to
+> > the one we're discussing here, I think?
+>=20
+> By the way, do symlinks have metadata?  Where do you find it? :)
 
-CONFIG_X86_GOOD_APIC=y
-# CONFIG_X86_UP_APIC is not set
-# CONFIG_ACPI is not set
+Oops. :)
 
-and it looks like the laptop can now do APM suspend safely again [*].
+At least in reiser4 they don't have, or at least you can't access them.
+ln -s foo bar; cd bar/metas shows me the content of foo/metas.
 
-I'm open-minded as to whether you've done a good cleanup and I had
-a stupid .config; or you've changed things around (perhaps assuming
-CONFIG_ACPI=y?), liable to cause lots of APM suspend grief in 2.6.9.
+symlinks are special anyway. Their rights are 777. The only thing they
+can have is an owner. No chance to do a symlink/metas/uid then. Hmm.
 
-Hugh
 
-[*] Well, only its first APM suspend has been safe with a vanilla
-kernel, ever since the vsyscall page was introduced: later resumes often
-wiping the vital sysenter MSRs.  Seemed to come down to prior resume not
-seeing its resume event, and I've patched apm.c to deal with that ever
-since (resume doesn't need an event to know it's resuming).
+--=-/lH6kvm1JVZkuxIJ+gc8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-So far, since running without CONFIG_X86_UP_APIC, I've not seen my
-warning message of that case: so it's possible the config change will
-prove to fix that issue too, which would strengthen the case in your
-favour.  Too soon to tell: somehow it rarely happened when trying to
-test for it, only when doing real-life suspend and resume.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBLkdUZCYBcts5dM0RApi+AKCJO51/3aeYsKTo1mqaGneW7AsmVgCeJfFY
+4tBtGpcs1InekspFwxpl42w=
+=RuGd
+-----END PGP SIGNATURE-----
+
+--=-/lH6kvm1JVZkuxIJ+gc8--
 

@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272668AbTG1Gqx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 02:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272678AbTG1Gqx
+	id S272679AbTG1GvO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 02:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272682AbTG1GvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 02:46:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14264 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S272668AbTG1Gqo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 02:46:44 -0400
-Date: Mon, 28 Jul 2003 09:01:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lou Langholtz <ldl@aros.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>, NeilBrown <neilb@cse.unsw.edu.au>,
-       Steven Whitehouse <steve@chygwyn.com>
-Subject: Re: blk_stop_queue/blk_start_queue confusion, problem, or bug???
-Message-ID: <20030728070150.GA25356@suse.de>
-References: <3F2418D9.1020703@aros.net>
+	Mon, 28 Jul 2003 02:51:14 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:2257 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S272679AbTG1GvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 02:51:09 -0400
+Date: Mon, 28 Jul 2003 09:06:20 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test2: IDE TCQ locks up on Promise chip.
+Message-ID: <20030728070620.GA3037@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F2418D9.1020703@aros.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 27 2003, Lou Langholtz wrote:
-> I've been trying to use the blk_start_queue and blk_stop_queue functions 
-> in the network block device driver branch I'm working on. The stop works 
-> as expected, but the start doesn't. Processes that have tried to read or 
-> write to the device (after the queue was stopped) stay blocked in 
-> io_schedule instead of getting woken up (after blk_start_queue was 
-> called). Do I need to follow the call to blk_start_queue() with a call 
-> to wake_up() on the correct wait queues? Why not have that functionality 
-> be part of blk_start_queue()? Or was this an oversight/bug?
+Hi,
 
-blk_start_queue() should be enough. What kind of behaviour are you
-seeing? Is the request_fn() never called again?
+I have a board with VIA KT133 and Promise 20265(R) jumpered for UATA/100
+(rather than ATA/RAID), an IBM DTLA-307045 drive is attached to the
+Promise controller (/dev/hde). On boot-up, the kernel tries to enable
+tagged command queueing for that drive, but the completion interrupt
+never occurs, so the kernel resets the ATA channel. fdisk -l /dev/hde hangs.
 
-> The reason I'm using blk_stop_queue and blk_start_queue is to stop the 
-> request handling function (installed from blk_init_queue), from being 
-> re-invoked and to return when the network block device server goes down. 
-> That way, the driver doesn't need to block indefinately within the 
-> request handling function - which seems like it'd likely block other 
-> block drivers if it did this - and doesn't need to be handled by 
+I haven't yet tried the drive with the VIA chip, so I cannot say whether
+-test2 TCQ is hosed altogether or just on the Promise chip.
 
-It will, you should never block in your request function/
+Note: FreeBSD-4 (FreeBSD-5 doesn't support ATA TCQ at the moment) has
+blacklisted this Promise chip for ATA TCQ:
 
-> yet-another seperate kernel thread. Anyways... the stop is called from 
-> either the request handling function context or from an ioctl call 
-> context. If then a process tries to read or write to the device it 
-> blocks - just as I'd like (more like NFS behavior that way). When my 
-> code detects that the server has come back up again from the ioctl call 
-> context it calls blk_start_queue(). But the I/O blocked process stays 
-> blocked.
+http://www.freebsd.org/cgi/cvsweb.cgi/src/sys/dev/ata/ata-disk.c?rev=1.60.2.24&content-type=text/x-cvsweb-markup&only_with_tag=RELENG_4
 
-aaaaand what happens? You are not giving a lot of info. What kernel?
-It's pretty trivial to put printks in stop/start_queue and start doing
-some tracking, since none of the core drivers use it yet.
+Check the function ad_tagsupported(), it blacklists my chip (the third /case/ applies):
 
-> Am I using these calls incorrectly or is something else going on? 
-> Insights, examples, very much appreciated.
+    switch (adp->device->channel->chiptype) {
+    case 0x4d33105a: /* Promises before TX2 doesn't work with tagged queuing */
+    case 0x4d38105a:
+    case 0x0d30105a:
+    case 0x4d30105a:
+        return 0;
+    }
 
-Hard to say, as you didn't post the code. But it sounds correct.
+lspci excerpts:
 
-> BTW: LKML has had a related thread on this some years ago in discussing 
-> how the block layer system handles request functions that must drop the 
-> spinlock and may block indefinately. That never seemed to get resolved 
-> though and makes me believe that's why Steven Whitehouse opted to use a 
-> multi-threaded approach to the NBD driver at one point.
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 02)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 10)
+...
+00:10.0 Unknown mass storage controller: Promise Technology, Inc. 20265 (rev 02)
+01:00.0 VGA compatible controller: nVidia Corporation NV4 [Riva TnT] (rev 04)
 
-That has never really been allowed, in that it is a Bad Thing to do
-something like that.
+00:00.0 Class 0600: 1106:0305 (rev 02)
+00:01.0 Class 0604: 1106:8305
+00:07.0 Class 0601: 1106:0686 (rev 22)
+00:07.1 Class 0101: 1106:0571 (rev 10)
+...
+00:10.0 Class 0180: 105a:0d30 (rev 02)
+01:00.0 Class 0300: 10de:0020 (rev 04)
 
 -- 
-Jens Axboe
-
+Matthias Andree

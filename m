@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbUKDOZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbUKDO0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbUKDOZs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 09:25:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbUKDOZr
+	id S262233AbUKDO0f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 09:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbUKDO0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 09:25:47 -0500
-Received: from mail9.messagelabs.com ([194.205.110.133]:50891 "HELO
-	mail9.messagelabs.com") by vger.kernel.org with SMTP
-	id S262235AbUKDOYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 09:24:04 -0500
-X-VirusChecked: Checked
-X-Env-Sender: icampbell@arcom.com
-X-Msg-Ref: server-15.tower-9.messagelabs.com!1099578242!13504300!1
-X-StarScan-Version: 5.4.2; banners=arcom.com,-,-
-X-Originating-IP: [194.200.159.164]
+	Thu, 4 Nov 2004 09:26:21 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:46767 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262233AbUKDOX4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 09:23:56 -0500
+Date: Thu, 4 Nov 2004 15:26:20 +0100
+From: DervishD <lkml@dervishd.net>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Ian Campbell <icampbell@arcom.com>,
+       Jan Knutar <jk-lkml@sci.fi>, Tom Felker <tfelker2@uiuc.edu>
 Subject: Re: is killing zombies possible w/o a reboot?
-From: Ian Campbell <icampbell@arcom.com>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org, Jan Knutar <jk-lkml@sci.fi>,
-       Tom Felker <tfelker2@uiuc.edu>
-In-Reply-To: <200411040907.22684.gene.heskett@verizon.net>
-References: <200411030751.39578.gene.heskett@verizon.net>
-	 <200411040739.01699.gene.heskett@verizon.net>
-	 <1099573266.2856.40.camel@icampbell-debian>
-	 <200411040907.22684.gene.heskett@verizon.net>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Date: Thu, 04 Nov 2004 14:24:00 +0000
-Message-Id: <1099578240.2856.51.camel@icampbell-debian>
+Message-ID: <20041104142620.GA23973@DervishD>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org, Ian Campbell <icampbell@arcom.com>,
+	Jan Knutar <jk-lkml@sci.fi>, Tom Felker <tfelker2@uiuc.edu>
+References: <200411030751.39578.gene.heskett@verizon.net> <200411040739.01699.gene.heskett@verizon.net> <1099573266.2856.40.camel@icampbell-debian> <200411040907.22684.gene.heskett@verizon.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
-X-IMAIL-SPAM-VALHELO: (584253662)
-X-IMAIL-SPAM-VALREVDNS: (584253662)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200411040907.22684.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 09:07 -0500, Gene Heskett wrote:
+    Hi Gene :)
+
+ * Gene Heskett <gene.heskett@verizon.net> dixit:
+> Possibly, but OTOH,
 > [root@coyote root]#  cat /proc/sys/kernel/sysrq
 > 0
+> 
+> And no, I'm not turning it off anyplace in the boot proceedure.  An
+> 'echo 1 >/proc/sys/kernel/sysrq', and repeating the keypresses now
+> gets a boatload of stuff in the logs, but nothing on the console.
 
-Aha :-)
+    Well, the stuff goes to the logs and not the console because of
+the console log level. You can change that using proc, too. Look in
+/proc/sys/kernel/printk (well, at least under 2.4.x). You'll see
+four numbers. The first one is the console loglevel. Any message
+directed to syslog with a priority higher than this number will be
+printed in the console. Otherwise they won't.
 
-> And no, I'm not turning it off anyplace in the boot proceedure.
+    The second number is the default message level. Any message
+without a priority will get this priority.
 
-Something must be -- you can see in drivers/char/sysrq.c that
-sysrq_enabled is set to 1 by default and according to bkbits.net it has
-been that way since at least 2.4.0.
+    The third number is the highest value you can assign to the first
+number (the console loglevel).
 
-does the following not come up with any culprits?
-	# grep -r sysrq /etc
+    The fourth number is the default value for the first number.
 
-Ian.
+    The interesting number for you is the first one. Set it to a
+correct value for you (see syslog(2) to see what the numbers mean).
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
-
-
-_____________________________________________________________________
-The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
-
-This message has been virus scanned by MessageLabs.
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbUCVJMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 04:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbUCVJMP
+	id S261824AbUCVJP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 04:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUCVJP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 04:12:15 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:11685 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261809AbUCVJMN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 04:12:13 -0500
-Date: Mon, 22 Mar 2004 10:12:12 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: root@chaos.analogic.com, Jamie Lokier <jamie@shareable.org>,
-       Robert_Hentosh@Dell.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spurious 8259A interrupt
-In-Reply-To: <200403211858.07445.hpj@urpla.net>
-Message-ID: <Pine.LNX.4.55.0403221003040.6539@jurand.ds.pg.gda.pl>
-References: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com>
- <20040319130609.GE2650@mail.shareable.org> <Pine.LNX.4.53.0403190825070.929@chaos>
- <200403211858.07445.hpj@urpla.net>
-Organization: Technical University of Gdansk
+	Mon, 22 Mar 2004 04:15:57 -0500
+Received: from shark.pro-futura.com ([161.58.178.219]:58530 "EHLO
+	shark.pro-futura.com") by vger.kernel.org with ESMTP
+	id S261815AbUCVJPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 04:15:55 -0500
+From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
+Organization: Croadria Internet usluge
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH,RFT] VIA SATA driver update
+Date: Mon, 22 Mar 2004 10:21:01 +0100
+User-Agent: KMail/1.6.1
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <405828DB.7060005@pobox.com> <200403171236.21145.tvrtko@croadria.com> <405B21FE.4010609@pobox.com>
+In-Reply-To: <405B21FE.4010609@pobox.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403221021.01679.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Mar 2004, Hans-Peter Jansen wrote:
+On Friday 19 March 2004 17:38, Jeff Garzik wrote:
+> > This is the same behavior I get ever since 2.6.1 when I started testing
+> > 2.6 seried. It also doesn't work under 2.6 with IDE generic support for
+> > VIA8237SATA (irq timeout, dma timeout)
+>
+> Ok...
+>
+> Does enabling SMP (CONFIG_SMP) fix things for you?
+> (Note, this should work fine even on a uniprocessor machine)
 
-> > The IRQ7 spurious is usually an artifact of a crappy motherboard
-> > design where the CPU "thinks" it was interrupted, but the
-> > controller didn't wiggle the CPUs INT line.
-> 
-> Thanks for the nice explanation, Richard. 
+Nope. :(
 
- Unfortunately this needs not be the reason.  Another possibility is a
-crappy driver -- if a device generates a level-triggered interrupt which
-does not deassert immediately after getting acked (perhaps because the IRQ
-line is firmware-driven) and the handler in the driver doesn't ack it soon
-enough, it's possible for the interrupt line to be still asserted after
-exiting the handler.  The processor may have enough time to accept the
-interrupt again and with the right timing, the line may go inactive right
-in a middle of the processor's interrupt acknowledge sequence.  The 8259A
-PIC will signal a spurious interrupt in this case.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Regards,
+Tvrtko

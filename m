@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTELLqw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 07:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTELLqw
+	id S261907AbTELLwx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 07:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbTELLwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 07:46:52 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:53839 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S262063AbTELLqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 07:46:51 -0400
-Date: Mon, 12 May 2003 04:59:29 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: MPPE in kernel?
-Message-ID: <20030512045929.C29781@google.com>
+	Mon, 12 May 2003 07:52:53 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41367
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261907AbTELLww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 07:52:52 -0400
+Subject: Re: Which one should I contact about linux-kernel's NLS support
+	such as codepage 936?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: zhangtao <zhangtao@zhangtao.org>
+Cc: LinuxKernel MailList <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030512100534.1ba6ecd6.zhangtao@zhangtao.org>
+References: <20030512100534.1ba6ecd6.zhangtao@zhangtao.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052737621.31246.7.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 May 2003 12:07:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What are the chances of getting MPPE (PPP encryption) into the 2.4.21
-and/or 2.5.x kernels?
+On Llu, 2003-05-12 at 03:05, zhangtao wrote:
+> Hi, Everyone,
+> 
+>   I have some patch about kernel's NLS, such as Codepage 936, 932, 949, 950. 
+> 
+>   How can I contact the owner or public my patch ?
 
-For 2.4.21, sha1 and arcfour code needs to be added, so I don't have
-too much hope :-) even though the code is trivial to integrate.
+I saw then and while they look ok I've been trying to find someone
+familiar with these code pages to review them
 
-For 2.5.x, just the arcfour code is needed (since sha1 is already there).
-I've written a public domain implementation, which I'd be willing to
-relicense under GPL (although I don't see the point), but in any case
-the algorithm is easy and could be written by anyone.
-
-In addition to the crypto, the mppe compressor module is required.
-
-I'm not so concerned about getting any of that included though; what
-I really want is for the changes to ppp_generic.c to be included.
-It's not so much fun to have to maintain patches.  The changes required
-are generic, don't require crypto, and are generally uneventful.  Getting
-the crypto bits and the mppe compressor itself included would just be
-a bonus.
-
-/fc

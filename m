@@ -1,221 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278683AbRJXRsf>; Wed, 24 Oct 2001 13:48:35 -0400
+	id <S278668AbRJXRxZ>; Wed, 24 Oct 2001 13:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278682AbRJXRsR>; Wed, 24 Oct 2001 13:48:17 -0400
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:28337 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S278680AbRJXRsA>; Wed, 24 Oct 2001 13:48:00 -0400
-Date: Wed, 24 Oct 2001 18:49:39 +0100
-From: Dave Jones <davej@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Cachesize detection & MCA cleanup.
-Message-ID: <20011024184939.A5980@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S278680AbRJXRxT>; Wed, 24 Oct 2001 13:53:19 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:22960 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S278668AbRJXRxI>; Wed, 24 Oct 2001 13:53:08 -0400
+Date: Wed, 24 Oct 2001 19:53:42 +0200
+From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+To: Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: 2.4.13: some compilerwarnings...
+Message-ID: <20011024195342.A464@Zenith.starcenter>
+Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.13
+X-Telephone: +32 486 460306
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+No fatal errors or anything, kernel runs fine, but some compilerwarnings...
+they could be in other kernelversions too, I only noticed them this time.
 
- Patch below adds boottime argument for cachesize detection
-fixup for buggy Intel P3 Tualatins. (More info available at
-http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=53736 )
+~$ make dep
+[...]
+make -C eicon fastdep
+make[6]: Entering directory `/home/nitro/src/linux/drivers/isdn/eicon'
+/home/nitro/src/linux/scripts/mkdep -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -- Divas_mod.c adapter.h bri.c common.c constant.h divalog.h divas.h dsp_defs.h dspdids.h eicon.h eicon_dsp.h eicon_idi.c eicon_idi.h eicon_io.c eicon_isa.c eicon_isa.h eicon_mod.c eicon_pci.c eicon_pci.h fourbri.c fpga.c idi.c idi.h kprintf.c lincfg.c linchr.c linio.c linsys.c log.c pc.h pc_maint.h pr_pc.h pri.c sys.h uxio.h xlog.c > .depend
+make[6]: Leaving directory `/home/nitro/src/linux/drivers/isdn/eicon'
+make -C hisax fastdep
+md5sum: WARNING: 13 of 13 computed checksums did NOT match
+[...]
 
-Also cleans up the machine check architecture initialisation,
-and makes some extra functions static/__init
+~$ make bzImage
+[...]
+gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o pci-i386.o pci-i386.c
+gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o pci-pc.o pci-pc.c
+{standard input}: Assembler messages:
+{standard input}:1040: Warning: indirect lcall without `*'
+{standard input}:1125: Warning: indirect lcall without `*'
+{standard input}:1208: Warning: indirect lcall without `*'
+{standard input}:1282: Warning: indirect lcall without `*'
+{standard input}:1293: Warning: indirect lcall without `*'
+{standard input}:1304: Warning: indirect lcall without `*'
+{standard input}:1378: Warning: indirect lcall without `*'
+{standard input}:1389: Warning: indirect lcall without `*'
+{standard input}:1400: Warning: indirect lcall without `*'
+{standard input}:1862: Warning: indirect lcall without `*'
+{standard input}:1951: Warning: indirect lcall without `*'
+[...]
+gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o msr.o msr.c
+gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o apm.o apm.c
+{standard input}: Assembler messages:
+{standard input}:187: Warning: indirect lcall without `*'
+{standard input}:282: Warning: indirect lcall without `*'
+[...]
+gcc -E -D__KERNEL__ -I/home/nitro/src/linux/include -D__BIG_KERNEL__ -traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
+as -o bbootsect.o bbootsect.s
+bbootsect.s: Assembler messages:
+bbootsect.s:256: Warning: indirect lcall without `*'
+[...]
+gcc -E -D__KERNEL__ -I/home/nitro/src/linux/include -D__BIG_KERNEL__ -D__ASSEMBLY__ -traditional -DSVGA_MODE=NORMAL_VGA  setup.S -o bsetup.s
+as -o bsetup.o bsetup.s
+bsetup.s: Assembler messages:
+bsetup.s:1459: Warning: indirect lcall without `*'
+[...]
 
-regards,
 
-Dave.
+btw: gcc-version is 2.96, as-version is 2.11.90.0.8
 
+Keep up the good work!
 
---- linux/arch/i386/kernel/setup.c	Mon Oct 15 21:43:24 2001
-+++ linux-dj/arch/i386/kernel/setup.c	Tue Oct 23 19:06:49 2001
-@@ -67,6 +67,10 @@
-  *
-  *  AMD Athlon/Duron/Thunderbird bluesmoke support.
-  *  Dave Jones <davej@suse.de>, April 2001.
-+ *
-+ *  CacheSize bug workaround updates for AMD, Intel & VIA Cyrix.
-+ *  Dave Jones <davej@suse.de>, September, October 2001.
-+ *
-  */
- 
- /*
--void __init add_memory_region(unsigned long long start,
-+static void __init add_memory_region(unsigned long long start,
-                                   unsigned long long size, int type)
- {
- 	int x = e820.nr_map;
-@@ -667,7 +549,7 @@
-  */
- #define LOWMEMSIZE()	(0x9f000)
- 
--void __init setup_memory_region(void)
-+static void __init setup_memory_region(void)
- {
- 	char *who = "BIOS-e820";
- 
-@@ -699,7 +581,7 @@
- } /* setup_memory_region */
- 
- 
--static inline void parse_mem_cmdline (char ** cmdline_p)
-+static void __init parse_mem_cmdline (char ** cmdline_p)
- {
- 	char c = ' ', *to = command_line, *from = COMMAND_LINE;
- 	int len = 0;
-@@ -1036,6 +922,15 @@
- #endif
- }
- 
-+static int cachesize_override __initdata = -1;
-+static int __init cachesize_setup(char *str)
-+{
-+	get_option (&str, &cachesize_override);
-+	return 1;
-+}
-+__setup("cachesize=", cachesize_setup);
-+
-+
- #ifndef CONFIG_X86_TSC
- static int tsc_disable __initdata = 0;
- 
-@@ -1106,12 +1027,25 @@
- 			l2size = 256;
- 	}
- 
-+	/* Intel PIII Tualatin. This comes in two flavours.
-+	 * One has 256kb of cache, the other 512. We have no way
-+	 * to determine which, so we use a boottime override
-+	 * for the 512kb model, and assume 256 otherwise.
-+	 */
-+	if ((c->x86_vendor == X86_VENDOR_INTEL) && (c->x86 == 6) &&
-+		(c->x86_model == 11) && (l2size == 0))
-+		l2size = 256;
-+
- 	/* VIA C3 CPUs (670-68F) need further shifting. */
- 	if (c->x86_vendor == X86_VENDOR_CENTAUR && (c->x86 == 6) &&
- 		((c->x86_model == 7) || (c->x86_model == 8))) {
- 		l2size = l2size >> 8;
- 	}
- 
-+	/* Allow user to override all this if necessary. */
-+	if (cachesize_override != -1)
-+		l2size = cachesize_override;
-+
- 	if ( l2size == 0 )
- 		return;		/* Again, no L2 cache is possible */
- 
-@@ -1252,7 +1186,6 @@
- 			break;
- 
- 		case 6:	/* An Athlon/Duron. We can trust the BIOS probably */
--			mcheck_init(c);
- 			break;		
- 	}
- 
-@@ -1263,11 +1196,11 @@
- /*
-  * Read Cyrix DEVID registers (DIR) to get more detailed info. about the CPU
-  */
--static void do_cyrix_devid(unsigned char *dir0, unsigned char *dir1)
-+static void __init do_cyrix_devid(unsigned char *dir0, unsigned char *dir1)
- {
- 	unsigned char ccr2, ccr3;
- 	unsigned long flags;
--
-+	
- 	/* we test for DEVID by checking whether CCR3 is writable */
- 	local_irq_save(flags);
- 	ccr3 = getCx86(CX86_CCR3);
-@@ -1303,7 +1236,7 @@
-  * Actually since bugs.h doesnt even reference this perhaps someone should
-  * fix the documentation ???
-  */
--unsigned char Cx86_dir0_msb __initdata = 0;
-+static unsigned char Cx86_dir0_msb __initdata = 0;
- 
- static char Cx86_model[][9] __initdata = {
- 	"Cx486", "Cx486", "5x86 ", "6x86", "MediaGX ", "6x86MX ",
-@@ -1336,7 +1269,7 @@
- static void __init check_cx686_slop(struct cpuinfo_x86 *c)
- {
- 	unsigned long flags;
--
-+	
- 	if (Cx86_dir0_msb == 3) {
- 		unsigned char ccr3, ccr5;
- 
-@@ -1599,7 +1813,6 @@
- 				c->x86_cache_size = (cc>>24)+(dd>>24);
- 			}
- 			sprintf( c->x86_model_id, "WinChip %s", name );
--			mcheck_init(c);
- 			break;
- 
- 		case 6:
-@@ -1885,7 +2108,6 @@
- 		strcpy(c->x86_model_id, p);
- 
- 	/* Enable MCA if available */
--	mcheck_init(c);
- }
- 
- void __init get_cpu_vendor(struct cpuinfo_x86 *c)
-@@ -2021,14 +2243,14 @@
- }
- 
- 
--int __init x86_serial_nr_setup(char *s)
-+static int __init x86_serial_nr_setup(char *s)
- {
- 	disable_x86_serial_nr = 0;
- 	return 1;
- }
- __setup("serialnumber", x86_serial_nr_setup);
- 
--int __init x86_fxsr_setup(char * s)
-+static int __init x86_fxsr_setup(char * s)
- {
- 	disable_x86_fxsr = 1;
- 	return 1;
-@@ -2123,7 +2345,6 @@
-    	        {
- 			unsigned char ccr3, ccr4;
- 			unsigned long flags;
--
- 			printk(KERN_INFO "Enabling CPUID on Cyrix processor.\n");
- 			local_irq_save(flags);
- 			ccr3 = getCx86(CX86_CCR3);
-@@ -2266,7 +2487,7 @@
- 		init_rise(c);
- 		break;
- 	}
--	
-+
- 	printk(KERN_DEBUG "CPU: After vendor init, caps: %08x %08x %08x %08x\n",
- 	       c->x86_capability[0],
- 	       c->x86_capability[1],
-@@ -2293,6 +2514,9 @@
- 	/* Disable the PN if appropriate */
- 	squash_the_stupid_serial_number(c);
- 
-+	/* Init Machine Check Exception if available. */
-+	mcheck_init(c);
-+
- 	/* If the model name is still unset, do table lookup. */
- 	if ( !c->x86_model_id[0] ) {
- 		char *p;
-
+	Sven Vermeulen
 
 -- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+Unix, MS-DOS and Windows NT (also known as the Good, the Bad and the
+Ugly). ~(Matt Welsh)

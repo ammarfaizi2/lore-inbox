@@ -1,50 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbTGFQRx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 12:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTGFQRx
+	id S262578AbTGFQT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 12:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbTGFQT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 12:17:53 -0400
-Received: from dp.samba.org ([66.70.73.150]:46487 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262489AbTGFQRw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 12:17:52 -0400
-Date: Mon, 7 Jul 2003 02:31:37 +1000
-From: Anton Blanchard <anton@samba.org>
-To: rwhron@earthlink.net
+	Sun, 6 Jul 2003 12:19:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48870 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262578AbTGFQTW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 12:19:22 -0400
+Date: Sun, 6 Jul 2003 17:33:53 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Patrick Mochel <mochel@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix return of compat_sys_sched_getaffinity
-Message-ID: <20030706163137.GK13308@krispykreme>
-References: <20030706162400.GA15526@rushmore>
+Subject: kobjects, sysfs and the driver model make my head hurt
+Message-ID: <20030706163353.GU23597@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030706162400.GA15526@rushmore>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> -EFAULT return got buggered when compat_sys_sched_getaffinity
-> was added in 2.5.68.
+It's just all too complex.  There's just too many levels of indirection
+and structures which do almost the same thing and misleading functions.
+It needs to be thoroughly simplified.  Here's one particularly misleading
+function:
 
-but getaffinity returns sizeof(compat_ulong_t) on success...
+/**
+ *      kobject_get - increment refcount for object.
+ *      @kobj:  object.
+ */
 
-Anton
+struct kobject * kobject_get(struct kobject * kobj)
+{
+        struct kobject * ret = kobj;
 
-> --- linux-2.5.74/kernel/compat.c.orig	2003-06-22 15:54:17.000000000 -0400
-> +++ linux-2.5.74/kernel/compat.c	2003-07-06 11:29:33.000000000 -0400
-> @@ -425,11 +425,9 @@
->  				    &kernel_mask);
->  	set_fs(old_fs);
->  
-> -	if (ret > 0) {
-> +	if (ret > 0)
->  		if (put_user(kernel_mask, user_mask_ptr))
-> -			ret = -EFAULT;
-> -		ret = sizeof(compat_ulong_t);
-> -	}
-> +			return -EFAULT;
->  
->  	return ret;
->  }
+        if (kobj) {
+                WARN_ON(!atomic_read(&kobj->refcount));
+                atomic_inc(&kobj->refcount);
+        } else
+                ret = NULL;
+        return ret;
+}
+
+Why on earth does it return the value of its argument?  And why's it
+written in such a convoluted way?  Here's a simpler form which retains
+all the existing semantics:
+
+struct kobject * kobject_get(struct kobject * kobj)
+{
+	if (kobj) {
+		WARN_ON(!atomic_read(&kobj->refcount));
+		atomic_inc(&kobj->refcount);
+	}
+	return kobj;
+}
+
+or maybe better:
+
+{
+	if (!kobj)
+		return NULL;
+	WARN_ON(!atomic_read(&kobj->refcount));
+	atomic_inc(&kobj->refcount);
+	return kobj;
+}
+
+But why return anything?  Which looks clearer?
+
+(a)	kobj = kobject_get(kobj);
+
+(b)	kobject_get(kobj);
+
+The first one makes me think that kobject_get might return a different
+kobject than the one I passed in.  That doesn't make much sense.
+
+There's much more in this vein, but this email is long enough already.
+
+<rmk> "you are in a maze of structures, all alike.  There is a kset here."
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

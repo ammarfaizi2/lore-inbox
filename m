@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266093AbTFWSm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 14:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266095AbTFWSm2
+	id S266096AbTFWSnh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 14:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266097AbTFWSng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 14:42:28 -0400
-Received: from [203.149.0.18] ([203.149.0.18]:40947 "EHLO
-	krungthong.samart.co.th") by vger.kernel.org with ESMTP
-	id S266093AbTFWSm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 14:42:27 -0400
-Message-ID: <3EF74DBF.6000703@thai.com>
-Date: Tue, 24 Jun 2003 01:58:07 +0700
-From: Samphan Raruenrom <samphan@thai.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030320
-X-Accept-Language: th,en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Crusoe's performance on linux?
-References: <3EF1E6CD.4040800@thai.com> <20030619200308.A2135@ucw.cz> <3EF2144D.5060902@thai.com> <20030619221126.B3287@ucw.cz> <3EF67AD4.4040601@thai.com> <20030623102623.A18000@ucw.cz>
-In-Reply-To: <20030623102623.A18000@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 23 Jun 2003 14:43:36 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34703 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266096AbTFWSna (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 14:43:30 -0400
+Subject: Re: My 2.5.73 kernel is losing time
+From: john stultz <johnstul@us.ibm.com>
+To: Pierre Machard <pmachard@tuxfamily.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030623132803.GC3774@twinette.migus.eu.org>
+References: <20030623132803.GC3774@twinette.migus.eu.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056394207.1027.37.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Jun 2003 11:50:07 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Mon, Jun 23, 2003 at 10:58:12AM +0700, Samphan Raruenrom wrote:
->>Desktop - Pentium III 1 G Hz 754 MB	->	10.x min.
->>Tablet PC - Crusoe TM5800 1 GHz 731 MB	->	17.x min.
->> From freshdiagnos benchmack, the TPC has about 2x faster RAM.
->>I use tmpfs for the whole process so disk speed didn't count.
->>Both test run without X or any foreground process using
->>2.4.21-ac1 and RedHat kernel.
-> Desktop - 1.1 GHz Athlon Tbird 512M RAM, using disk -> 3.7 min
-> This is with gcc 2.95.2, which may give it an unfair advantage, though.
-> Or is something else wrong here?
+On Mon, 2003-06-23 at 06:28, Pierre Machard wrote:
 
-Both use gcc 3.2.  The desktop pentium III is very old. Slow ram/bus may 
-be the
-reason. Or this may be the fastest a pentium iii 1 MHz can perform?.
-Large RAM don't help pentium III. It doesn't need them here.
-Large RAM should help Cursoe a lot. CMS should use those RAM as traslation
-cache and put the entire processes (make, gcc, as) in it.
-I guess 17.x min kernel compile time result from CMS still taking time 
-interpreting x86
-code (because it decide to do so to conserve translation cache space?).
-I wish the linux kernel could hint CMS to do a better job, if possible, like
-when to interpret, translate or fully optimize and save-to-disk for 
-later use.
+> I am sorry but I cannot find the origin of the problem. Since 2.5.70, my
+> kernel has a lot of problems with its clock.
+[snip]
+> I am running an AuthenticAMD  mobile AMD Duron(tm) Processor with an ALi
+> Corporation M1647 Northbridge 
 
 
+Boot w/ "clock=pit" for now as a workaround. 
+
+If you're interested, check out bugme bug 827
+http://bugme.osdl.org/show_bug.cgi?id=827 for more details and if you're
+feeling adventurous you could help test the patch I'm working on to fix
+this. 
+
+thanks
+-john
 
 

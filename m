@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282483AbRLRNRg>; Tue, 18 Dec 2001 08:17:36 -0500
+	id <S282418AbRLRNO4>; Tue, 18 Dec 2001 08:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282705AbRLRNR0>; Tue, 18 Dec 2001 08:17:26 -0500
-Received: from rdu57-8-218.nc.rr.com ([66.57.8.218]:39808 "EHLO joe.krahn")
-	by vger.kernel.org with ESMTP id <S282483AbRLRNRL>;
-	Tue, 18 Dec 2001 08:17:11 -0500
-Message-ID: <3C1F41D6.43A16F80@nc.rr.com>
-Date: Tue, 18 Dec 2001 08:17:10 -0500
-From: Joe Krahn <jkrahn@nc.rr.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13j1 i686)
-X-Accept-Language: en
+	id <S282483AbRLRNOg>; Tue, 18 Dec 2001 08:14:36 -0500
+Received: from ns.suse.de ([213.95.15.193]:52238 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282418AbRLRNOd>;
+	Tue, 18 Dec 2001 08:14:33 -0500
+Date: Tue, 18 Dec 2001 14:14:32 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Christian Thalinger <e9625286@student.tuwien.ac.at>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: cpuid on SMP
+In-Reply-To: <1008675995.13737.2.camel@twisti.home.at>
+Message-ID: <Pine.LNX.4.33.0112181413510.29077-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Common removable media interface?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think Linux could use a common removable
-media interface, sort of like cdrom.c adds
-a common interface to all CD/DVD. But, cdrom.c
-does such a good job, it almost seems like the
-thing to do is to just add acces to other
-devices to cdrom.c, and maybe rename it to
-media.c. Other media includes IDE floppies,
-regular floppies (if they live much longer),
-solid state media. Maybe even include some
-access to all media (not to replace the real
-drivers) like tapes, non-removable disks, etc.
+On 18 Dec 2001, Christian Thalinger wrote:
 
-Is anyone working on or thinking about
-such a thing?
-Do other people think this would be useful?
-Would it be 'bad' to just add IDE floppy
-access (not well developed) to cdrom.c,
-(which is already mislabelled now that it
-handles DVD)?
+> Just wanted to try Dave Jones' x86info. It complained about missing
+> /dev/cpu/0/... So i inserted cpuid and started it again. Now it
+> complains about /dev/cpu/1/...
+> And there is no /dev/cpu/1/.
 
-Joe Krahn
+mkdir /dev/cpu/1
+mknod /dev/cpu/1/cpuid c 203 1
+mknod /dev/cpu/1/msr c 202 1
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

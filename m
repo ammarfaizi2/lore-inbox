@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbUJXXHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbUJXX1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbUJXXHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 19:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUJXXFp
+	id S261624AbUJXX1U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 19:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUJXX1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 19:05:45 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28548 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261621AbUJXXEq (ORCPT
+	Sun, 24 Oct 2004 19:27:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64719 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261624AbUJXX1R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 19:04:46 -0400
-Date: Mon, 25 Oct 2004 01:06:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: tglx@linutronix.de, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] SCSI: Replace semaphores with wait_even
-Message-ID: <20041024230601.GA14956@elte.hu>
-References: <1098300579.20821.65.camel@thomas> <1098647869.10824.247.camel@mulgrave> <1098648414.22387.46.camel@thomas> <1098658889.10906.361.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098658889.10906.361.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 24 Oct 2004 19:27:17 -0400
+Date: Sun, 24 Oct 2004 16:27:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Daniel Jacobowitz <dan@debian.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: Unwind information fix for the vsyscall DSO
+In-Reply-To: <20041024230138.GA22543@nevyn.them.org>
+Message-ID: <Pine.LNX.4.58.0410241626400.3016@ppc970.osdl.org>
+References: <20041024230138.GA22543@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-> On Sun, 2004-10-24 at 16:06, Thomas Gleixner wrote:
-> > Hmm, strange. It works on two systems here and others using this
-> > modification had no problem either. 
-> > I will check again.
+On Sun, 24 Oct 2004, Daniel Jacobowitz wrote:
+>
+> When working on GDB support I found a typo.  I assume the comment is
+> correct.  If you step to this particular instruction and backtrace, GDB gets
+> lost.
 > 
-> Yes, very strange given what the mistake is:
-> 
-> -               down_interruptible(&sem);
-> +               wait_event_interruptible(eh_wait, shost->eh_kill ||
-> +                               (shost->host_busy ==
-> shost->host_failed));
-> 
-> This condition is always true when the eh thread first starts because
-> the default quiescent state of a scsi host is
-> 
-> shost->host_busy = shost->host_failed = 0
-> 
-> so your change makes the eh_thread spin forever locking everything
-> else off the CPU.  On a UP system, this is a complete hang.
+> I haven't tested the fixed version yet, but I'm pretty confident in this
+> patch :-)  Please apply.
 
-i think i fixed this in my PREEMPT_REALTIME tree (having seen spinning
-eh_threads) - maybe Thomas forgot to merge those fixes back?
+The patch looks obvious, but I'd still like to see a "yeah, I tested it 
+now, and yes, gdb DTRT after the fix.."
 
-(in a PREEMPT_REALTIME kernel a spinning thread is just a thread eating
-up CPU power, it doesnt cause a hang.)
-
-	Ingo
+		Linus

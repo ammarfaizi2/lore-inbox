@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270271AbTHSKvb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 06:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270248AbTHSKvb
+	id S270142AbTHSKxb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 06:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270230AbTHSKxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 06:51:31 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:38665 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270271AbTHSKv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 06:51:29 -0400
-Date: Tue, 19 Aug 2003 06:51:27 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Flameeyes <daps_mls@libero.it>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm3
-In-Reply-To: <1061289265.5993.11.camel@defiant.flameeyes>
-Message-ID: <Pine.LNX.4.53.0308190651010.25386@montezuma.mastecende.com>
-References: <20030819013834.1fa487dc.akpm@osdl.org>  <1061287775.5995.7.camel@defiant.flameeyes>
-  <20030819032350.55339908.akpm@osdl.org> <1061289265.5993.11.camel@defiant.flameeyes>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Aug 2003 06:53:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24026 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270142AbTHSKxa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 06:53:30 -0400
+Date: Tue, 19 Aug 2003 03:55:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: chrisl@vmware.com
+Cc: azarah@gentoo.org, linux-kernel@vger.kernel.org, adilger@clusterfs.com,
+       ext3-users@redhat.com, x86-kernel@gentoo.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] fix for htree corruption. Was: [2.6] Perl weirdness
+ with ext3 and HTREE
+Message-Id: <20030819035506.28f72a6a.akpm@osdl.org>
+In-Reply-To: <20030819104026.GA25402@vmware.com>
+References: <68F326C497FDB743B5F844B776C9B146097700@pa-exch4.vmware.com>
+	<1060208887.12477.31.camel@nosferatu.lan>
+	<20030819104026.GA25402@vmware.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003, Flameeyes wrote:
+chrisl@vmware.com wrote:
+>
+> Martin,
+> 
+> The first patch should fix it. The bug is trigger by creating the index.
+> Coping out the index we assume the dirents start with the first entry
+> after "." "..".
+> 
+> It can make the first previous deleted entry reappear.
+> In the past we set inode to zero for empty entry so this is not
+> a problem. That is not true any more.
 
-> On Tue, 2003-08-19 at 12:23, Andrew Morton wrote:
-> > You'll need to enable CONFIG_X86_LOCAL_APIC to work around this.
-> I can't, if I enable it, my system freezes at boot time (before activate
-> the framebuffer), disabling framebuffer to see the output, the last
-> message is "Calibrating APIC timer", also if I pass noapic to the kernel
-> boot params, the system freezes at the same point.
+whee, neat, thanks.
 
-Boot with nolapic
+> Andrew, I assume touch inode->i_ctime after
+> ext3_mark_inode_dirty is a bug? The second patch is for that.
+
+That's correct.
+
+Could you please regenerate a full, single diff against a known kernel
+version?  That patch generated 100% rejects for me...
+

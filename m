@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131925AbRAAPrk>; Mon, 1 Jan 2001 10:47:40 -0500
+	id <S129602AbRAAP6Q>; Mon, 1 Jan 2001 10:58:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131862AbRAAPra>; Mon, 1 Jan 2001 10:47:30 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23486 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131925AbRAAPrV>;
-	Mon, 1 Jan 2001 10:47:21 -0500
-Date: Mon, 1 Jan 2001 10:16:46 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Roman Zippel <zippel@fh-brandenburg.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generic deferred file writing
-In-Reply-To: <Pine.GSO.4.10.10101011119240.10093-100000@zeus.fh-brandenburg.de>
-Message-ID: <Pine.GSO.4.21.0101011006300.10106-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129415AbRAAP6H>; Mon, 1 Jan 2001 10:58:07 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30218 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129627AbRAAP6C>;
+	Mon, 1 Jan 2001 10:58:02 -0500
+Date: Mon, 1 Jan 2001 16:27:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Chipsets, DVD-RAM, and timeouts....
+Message-ID: <20010101162718.B567@suse.de>
+In-Reply-To: <Pine.LNX.4.10.10012312252220.21836-300000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10012312252220.21836-300000@master.linux-ide.org>; from andre@linux-ide.org on Mon, Jan 01, 2001 at 12:07:34AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 01 2001, Andre Hedrick wrote:
+> ide.2.4.0-prerelease.cd.1231.patch :
+> 
+> 	./drivers/ide/ide-cd.c
+> 	./drivers/ide/ide-cd.h
+> 
+> 	Adds ATAPI DVD-RAM native read/write mode for any FS.
+> 	mke2fs -b 2048 /dev/hdc
+> 	You must format to 2048 size blocks.
 
+Any >= 2KB block size will work, using -b 2048 is not necessary.
 
-On Mon, 1 Jan 2001, Roman Zippel wrote:
+> 	UDF is an unknown.
 
-> The other reason for the question is that I'm currently overwork the block
-> handling in affs, especially the extended block handling, where I'm
-> implementing a new extended block cache, where I would pretty much prefer
-> to use a semaphore to protect it. Although I could do it probably without
-> the semaphore and use a spinlock+rechecking, but it would keep it so much
-> simpler. (I can post more details about this part on fsdevel if needed /
-> wanted.)
+Barring strange (new) UDF bugs, it will work. And it's the preferred
+way of using the DVD-RAM, both from a portability and media stability
+standpoint.
 
-But... But with AFFS you _have_ exclusion between block-allocation and
-truncate(). It has no sparse files, so pageout will never allocate
-anything. I.e. all allocations come from write(2). And both write(2) and
-truncate(2) hold i_sem.
-
-Problem with AFFS is on the directory side of that business and there it's
-really scary. Block allocation is trivial...
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135328AbRDLVVJ>; Thu, 12 Apr 2001 17:21:09 -0400
+	id <S135333AbRDLVZ7>; Thu, 12 Apr 2001 17:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135330AbRDLVVA>; Thu, 12 Apr 2001 17:21:00 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:14090 "EHLO se1.cogenit.fr")
-	by vger.kernel.org with ESMTP id <S135328AbRDLVUj>;
-	Thu, 12 Apr 2001 17:20:39 -0400
-Date: Thu, 12 Apr 2001 23:20:36 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Cc: kernel-janitor-discuss@lists.sourceforge.net
-Subject: [upatch #11] 2.4.3-ac5 - static const char *foo to static char foo[]
-Message-ID: <20010412232036.K16102@se1.cogenit.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S135334AbRDLVZu>; Thu, 12 Apr 2001 17:25:50 -0400
+Received: from dystopia.lab43.org ([209.217.122.210]:54206 "EHLO
+	dystopia.lab43.org") by vger.kernel.org with ESMTP
+	id <S135333AbRDLVZi>; Thu, 12 Apr 2001 17:25:38 -0400
+Date: Thu, 12 Apr 2001 17:23:44 -0400 (EDT)
+From: Rod Stewart <stewart@dystopia.lab43.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: 8139too: defunct threads
+In-Reply-To: <3AD61258.4E8567D8@uow.edu.au>
+Message-ID: <Pine.LNX.4.33.0104121713490.32117-100000@dystopia.lab43.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 12 Apr 2001, Andrew Morton wrote:
+> Rod Stewart wrote:
+> >
+> > On Thu, 12 Apr 2001, Andrew Morton wrote:
+> > > Rod Stewart wrote:
+> > > >
+> > > > Hello,
+> > > >
+> > > > Using the 8139too driver, 0.9.15c, we have noticed that we get a defunct
+> > > > thread for each device we have; if the driver is built into the kernel.
+> > > > If the driver is built as a module, no defunct threads appear.
+> > >
+> > > What is the parent PID for the defunct tasks?  zero?
+> >
+> > According to ps, 1
+>
+> Ah.  Of course.  All (or most) kernel initialisation is
+> done by PID 1.  Search for "kernel_thread" in init/main.c
+>
+> So it seems that in your setup, process 1 is not reaping
+> children, which is why this hasn't been reported before.
+> Is there something unusual about your setup?
 
-  it compiles fine and there is no MAINTAINER entry for it nor specific
-email address in the source file.
+One box is standard PIII with RH 7.0, the other is a custom Crusoe TM5400
+board.  But from further investigation it appears to be a kernel config
+option.  As I've got a 2.4.0 kernel which has very little compiled in and
+not showing the problem and another kernel which has many more networking
+options built in and showing the problem.  I've seen this problem
+since 2.4.0.test11.
 
-diff -u --recursive linux-2.4.3-ac5.orig/drivers/char/keyboard.c linux-2.4.3-ac5/drivers/char/keyboard.c
---- linux-2.4.3-ac5.orig/drivers/char/keyboard.c	Thu Apr 12 20:23:06 2001
-+++ linux-2.4.3-ac5/drivers/char/keyboard.c	Thu Apr 12 21:10:37 2001
-@@ -632,8 +632,8 @@
- 
- static void do_pad(unsigned char value, char up_flag)
- {
--	static const char *pad_chars = "0123456789+-*/\015,.?()";
--	static const char *app_map = "pqrstuvwxylSRQMnnmPQ";
-+	static char pad_chars[] = "0123456789+-*/\015,.?()";
-+	static char app_map[] = "pqrstuvwxylSRQMnnmPQ";
- 
- 	if (up_flag)
- 		return;		/* no action, if this is a key release */
-@@ -689,7 +689,7 @@
- 
- static void do_cur(unsigned char value, char up_flag)
- {
--	static const char *cur_chars = "BDCA";
-+	static char cur_chars[] = "BDCA";
- 	if (up_flag)
- 		return;
- 
+I'll send a note once I find the config option which is causing this,
+probably tomorrow.
 
--- 
-Ueimor
+Thanks,
+-Rms
+

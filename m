@@ -1,81 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUFDIHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265761AbUFDITb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264656AbUFDIHi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 04:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUFDIHi
+	id S265761AbUFDITb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 04:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265747AbUFDITb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 04:07:38 -0400
-Received: from pop.gmx.de ([213.165.64.20]:15263 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264656AbUFDIHe (ORCPT
+	Fri, 4 Jun 2004 04:19:31 -0400
+Received: from xs4all.vs19.net ([213.84.236.198]:23465 "EHLO spaans.vs19.net")
+	by vger.kernel.org with ESMTP id S265761AbUFDIT2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 04:07:34 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-rc2-mm2
-Date: Fri, 4 Jun 2004 10:17:40 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040603015356.709813e9.akpm@osdl.org> <200406031703.38722.dominik.karall@gmx.net> <20040603161813.32ea0b84.akpm@osdl.org>
-In-Reply-To: <20040603161813.32ea0b84.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 4 Jun 2004 04:19:28 -0400
+Date: Fri, 4 Jun 2004 10:19:26 +0200
+From: Jasper Spaans <jasper@vs19.net>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: how to fix timestamps in bk repo?
+Message-ID: <20040604081926.GA24427@spaans.vs19.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406041017.44213.dominik.karall@gmx.net>
+X-Copyright: Copyright 2004 Jasper Spaans, unauthorised distribution prohibited
+User-Agent: Mutt/1.5.6i
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: spaans@spaans.vs19.net
+X-SA-Exim-Scanned: No (on spaans.vs19.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 June 2004 01:18, Andrew Morton wrote:
-> Dominik Karall <dominik.karall@gmx.net> wrote:
-> > On Thursday 03 June 2004 10:53, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc2
-> > >/2.6 .7-rc2-mm2/
-> >
-> > SiS framebuffer works here. But my kernel does not boot, it stops at
-> >
-> > Starting hotplug subsystem:
-> >    input
-> >    net
-> >    pci
-> >      sis900: already loaded
-> >      8139too: already loaded
-> >      ignore pci display device on 01:00.0
-> >    usb
-> >
-> > and right here it stops.
-> >
-> > Normally it looks this way:
-> >
-> > Starting hotplug subsystem:
-> >    input
-> >    net
-> >    pci
-> >      sis900: already loaded
-> >      8139too: already loaded
-> >      ignore pci display device on 01:00.0
-> >    usb
-> > done
->
-> Can you get sysrq-T output?
+Hi Larry,
 
-As I didn't know whats that command, I googled for it and found that I must 
-hit Alt+SysRq+t and then debug information should be printed out, am I right? 
-But I tried that, and nothing happens. SYSCTL is enabled in the kernel 
-config.
-If you really need this output, I would be pleased if anybody can inform me 
-how I can get it. Thanks in advance!
+Is it possible to reset the (BK-)timestamps on the following files in the
+http://linus.bkbits.net:8080/linux-2.5 repository? Somehow, they've gotten a
+timestamp which lies in the future, causing lots of warnings when I use a bk
+exported tree.
 
->
-> Can you please grab
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc2/2.6
->.7-rc2-mm2/broken-out/bk-usb.patch and do
->
-> 	patch -p1 -R -i ~/bk-usb.patch
->
-> and retest?
+./drivers/base/class.c
+./drivers/pci/hotplug/rpaphp_pci.c
+./drivers/pci/hotplug/rpaphp_slot.c
+./drivers/pci/hotplug/rpaphp_vio.c
+./include/linux/kobject.h
+./lib/kobject.c
 
-I reverted the bk-usb.patch and it works now.
-
-greets dominik
+Regards,
+-- 
+Jasper Spaans                                       http://jsp.vs19.net/
+ 10:06:49 up 9970 days, 53 min, 0 users, load average: 6.76 6.14 5.69
+  -... .- -.. --. . .-. -... .- -.. --. . .-. -... .- -.. --. . .-.

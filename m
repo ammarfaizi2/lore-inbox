@@ -1,86 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbTIKQi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbTIKQi7
+	id S261398AbTIKRFY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 13:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbTIKRFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:38:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33672 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261371AbTIKQiy (ORCPT
+	Thu, 11 Sep 2003 13:05:23 -0400
+Received: from ns.suse.de ([195.135.220.2]:20447 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261398AbTIKRFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:38:54 -0400
-Date: Thu, 11 Sep 2003 09:36:10 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sysfs & dput.
-In-Reply-To: <20030911115957.GA4312@mschwid3.boeblingen.de.ibm.com>
-Message-ID: <Pine.LNX.4.33.0309110933021.984-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Sep 2003 13:05:19 -0400
+Date: Thu, 11 Sep 2003 19:05:16 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-Id: <20030911190516.64128fe9.ak@suse.de>
+In-Reply-To: <20030911165845.GE29532@mail.jlokier.co.uk>
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
+	<20030911012708.GD3134@wotan.suse.de>
+	<20030911165845.GE29532@mail.jlokier.co.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Sep 2003 17:58:45 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
 
-> there is another, small bug in sysfs. In sysfs_create_bin_file 
-> dentry gets assigned the error value of the call to sysfs_create
-> if the call failed. The subsequent call to dput will crash. The
-> solution is to remove the assignment of the error to dentry.
+> Andi Kleen wrote:
+> > +static int is_prefetch(struct pt_regs *regs, unsigned long addr)
+> 
+> Do I understand that certain values of "addr" can't be due to the
+> erratum?
+> 
+> In which case, could you skip most of the is_prefetch() instruction
+> decoder with a test like this?:
+> 
+> 	if ((addr & 3) == 0)
+> 		return 0;
 
-Thanks for the catch; Andrew Morton also posted a patch yesterday. 
-However, your patch drops the error value, and his adds another variable. 
-The patch below should be equivalent (and fixes the same problem for 
-directories, too). 
+Maybe. But gcc generates quite good code (binary decision tree) code for
+the switch() statement already so I don't think it is worth it to go 
+through complications just to avoid that.
 
-Please test it, if you get a chance. 
+The decoder looks big in C, but when you take a look at its hot path in 
+assembly it is quite fast.
 
-> blue skies,
-
-Heh, not today. :)
-
-
-Thanks,
-
-
-	Pat
-
-
-===== fs/sysfs/dir.c 1.11 vs edited =====
---- 1.11/fs/sysfs/dir.c	Fri Aug 29 14:17:37 2003
-+++ edited/fs/sysfs/dir.c	Thu Sep 11 09:32:12 2003
-@@ -32,12 +32,12 @@
- 		int error = sysfs_create(dentry,
- 					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
- 					 init_dir);
-+		dput(dentry);
- 		if (!error) {
- 			dentry->d_fsdata = k;
- 			p->d_inode->i_nlink++;
- 		} else
- 			dentry = ERR_PTR(error);
--		dput(dentry);
- 	}
- 	up(&p->d_inode->i_sem);
- 	return dentry;
-===== fs/sysfs/file.c 1.11 vs edited =====
---- 1.11/fs/sysfs/file.c	Fri Aug 29 09:40:51 2003
-+++ edited/fs/sysfs/file.c	Thu Sep 11 09:32:19 2003
-@@ -353,12 +353,14 @@
- 	down(&dir->d_inode->i_sem);
- 	dentry = sysfs_get_dentry(dir,attr->name);
- 	if (!IS_ERR(dentry)) {
--		error = sysfs_create(dentry,(attr->mode & S_IALLUGO) | S_IFREG,init_file);
-+		error = sysfs_create(dentry,
-+				     (attr->mode & S_IALLUGO) | S_IFREG,
-+				     init_file);
-+		dput(dentry);
- 		if (!error)
- 			dentry->d_fsdata = (void *)attr;
- 		else
- 			dentry = ERR_PTR(error);
--		dput(dentry);
- 	} else
- 		error = PTR_ERR(dentry);
- 	up(&dir->d_inode->i_sem);
-
+-Andi

@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbUKHXik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbUKHXqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbUKHXik (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 18:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbUKHXik
+	id S261302AbUKHXqr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 18:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbUKHXqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 18:38:40 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4869 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261202AbUKHXii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 18:38:38 -0500
-Date: Tue, 9 Nov 2004 00:38:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
+	Mon, 8 Nov 2004 18:46:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54990 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261302AbUKHXqp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 18:46:45 -0500
+Date: Mon, 8 Nov 2004 15:50:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Patrick Mau <mau@oscar.ping.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Use -ffreestanding?
-Message-ID: <20041108233806.GM15077@stusta.de>
-References: <20041107142445.GH14308@stusta.de> <20041108134448.GA2456@wotan.suse.de> <20041108153436.GB9783@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <20041108175120.GB27525@wotan.suse.de> <20041108183449.GC15077@stusta.de> <20041108190130.GA2564@wotan.suse.de>
+Subject: Re: Workaround for wrapping loadaverage
+Message-Id: <20041108155051.53c11fff.akpm@osdl.org>
+In-Reply-To: <20041108102553.GA31980@oscar.prima.de>
+References: <20041108001932.GA16641@oscar.prima.de>
+	<20041108012707.1e141772.akpm@osdl.org>
+	<20041108102553.GA31980@oscar.prima.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108190130.GA2564@wotan.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 08:01:30PM +0100, Andi Kleen wrote:
-> On Mon, Nov 08, 2004 at 07:34:49PM +0100, Adrian Bunk wrote:
-> > On Mon, Nov 08, 2004 at 06:51:20PM +0100, Andi Kleen wrote:
-> > > On Mon, Nov 08, 2004 at 05:31:01PM +0100, Adrian Bunk wrote:
-> > > > On Mon, Nov 08, 2004 at 05:19:35PM +0100, Andi Kleen wrote:
-> > > > > > Rethinking it, I don't even understand the sprintf example in your 
-> > > > > > changelog entry - shouldn't an inclusion of kernel.h always get it 
-> > > > > > right?
-> > > > > 
-> > > > > Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
-> > > > 
-> > > > Which gcc is "Newer"?
-> > > 
-> > > I saw it with 3.3-hammer, which had additional optimizations in this 
-> > > area at some point. Note that 3.3-hammer is widely used. I don't 
-> > > know if 3.4 does it in the same way.
+
+(PLease don't remove people from Cc:.  Just do reply-to-all).
+
+Patrick Mau <mau@oscar.ping.de> wrote:
+>
+> On Mon, Nov 08, 2004 at 01:27:07AM -0800, Andrew Morton wrote:
+> > Patrick Mau <mau@oscar.ping.de> wrote:
+> > >
+> > >  We can only account for 1024 runnable processes, since we have 22 bits
+> > >  precision, I would like to suggest a patch to calc_load in kernel/timer.c
 > > 
-> > Is this a -hammer specific problem?
+> > It's better than wrapping to zero...
+> > 
+> > Why do we need 11 bits after the binary point?
 > 
-> No, I just checked a 4.0 mainline gcc and it does it too.
+> I tried various other combinations, the most interesting alternative was
+> 8 bits precision. The exponential values would be:
 > 
-> Note I saw it on x86-64, don't know if it occurs on i386 too.
+> 1 / e (5/60) * 256
+> 235.53
+> 
+> 1 / e (5/300) * 256
+> 251.76
+> 
+> 1 / e (5/900) * 256
+> 254.58
+> 
+> If you would use 236, 252 and 255 the last to load calculations would
+> get optimized into register shifts during calculation. The precision
+> would be bad, but I personally don't mind loosing the fraction.
 
-OK, I see the difference:
-After removing -fno-unit-at-a-time, I see this problem, too.
+What would be the impact on the precision if we were to use 8 bits of
+fraction?
 
-Why doesn't the kernel use -ffreestanding which should prevent all such 
-problems?
-
-> -Andi
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+An upper limit of 1024 tasks sounds a bit squeezy.  Even 8192 is a bit
+uncomfortable.  Maybe we should just reimplement the whole thing, perhaps
+in terms of tuples of 32-bit values: 32 bits each side of the binary point?

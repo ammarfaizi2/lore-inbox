@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287293AbSAUQTV>; Mon, 21 Jan 2002 11:19:21 -0500
+	id <S287306AbSAUQZM>; Mon, 21 Jan 2002 11:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287306AbSAUQTL>; Mon, 21 Jan 2002 11:19:11 -0500
-Received: from dsl-213-023-039-080.arcor-ip.net ([213.23.39.80]:31369 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287303AbSAUQTA>;
-	Mon, 21 Jan 2002 11:19:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rob Landley <landley@trommello.org>, Russell King <rmk@arm.linux.org.uk>,
-        "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available
-Date: Mon, 21 Jan 2002 17:22:35 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020115145324.A5772@thyrsus.com> <20020115202518.G1822@flint.arm.linux.org.uk> <20020116034150.CRKF26021.femail12.sdc1.sfba.home.com@there>
-In-Reply-To: <20020116034150.CRKF26021.femail12.sdc1.sfba.home.com@there>
+	id <S287344AbSAUQZD>; Mon, 21 Jan 2002 11:25:03 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:16089 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S287306AbSAUQYu>; Mon, 21 Jan 2002 11:24:50 -0500
+Date: Mon, 21 Jan 2002 17:24:16 +0100 (CET)
+From: Pascal Lengard <pascal.lengard@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+cc: rml@tech9.net
+Subject: preemption and pccard ?
+In-Reply-To: <Pine.LNX.4.33.0110301145500.22376-100000@h2o.chezmoi.fr>
+Message-ID: <Pine.LNX.4.44.0201211712220.14037-100000@fw.chezmoi.fr>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ShDP-0001ic-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 15, 2002 08:37 pm, Rob Landley wrote:
-> On Tuesday 15 January 2002 03:25 pm, Russell King wrote:
-> > On Tue, Jan 15, 2002 at 02:53:24PM -0500, Eric S. Raymond wrote:
-> > > 	* The `vitality' flag is gone from the language.  Instead, the
-> > > 	  autoprober detects the type of your root filesystem and forces
-> > > 	  its symbol to Y.
-> >
-> > This seems like a backwards step.  What's the reasoning for breaking the
-> > ability to configure the kernel for a completely different machine to the
-> > one that you're running the configuration/build on?
-> 
-> He didn't.  If you want to do that, run "make menuconfig" instead of "make 
-> autoconfigure".
+Hello,
 
-I detect a slight lack of symmetry here, shouldn't it be "make autoconfig"?
-Pardon me if this has been beaten to^W^W discussed above.
+I have a problem running kernel 2.4.17 patched with 
+http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.17-1.patch
 
---
-Daniel
+First I must say that I run 2.4.17 + international patches (crypto fs)
+and freeswan. I know I should test with just preempt to see what happens,
+but I have to find time ... and 2.4.17+crypto+freeswan works correctly.
+
+the story:
+I patched in this order:
+2.4.17+preempt+crypto+freeswan
+The symptom is: only slot 00 of pccard works. inserting a card in slot 01
+does nothing although yenta_socket reports 2 slots found in /var/log/messages
+(I see no difference in logs between working kernel and broken one).
+
+Now I am using a kernel patched in this order:
+2.4.17+crypto+freeswan and both slots (00 and 01) behave correctly.
+
+Hardware is dell latitude C600 (with apm problem on standard kernel by the way ...)
+
+Does anyone see some light there ?
+Could the symptom really be linked to preempt patch ?
+I'd love to see if preempt really is interesting on a laptop ...
+If it does interest someone, I could test just 2.4.17+preempt just to see ...
+
+
+Pascal
+

@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbTEDSDr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 14:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTEDSDr
+	id S261309AbTEDSNL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 14:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTEDSNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 14:03:47 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:21765 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261308AbTEDSDq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 14:03:46 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Felix von Leitner <felix-kernel@fefe.de>
-Subject: Re: [2.5.68] Scalability issues
-Date: Sun, 4 May 2003 20:16:03 +0200
-User-Agent: KMail/1.5.1
-References: <20030504173956.GA28370@codeblau.de>
-In-Reply-To: <20030504173956.GA28370@codeblau.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305042016.13982.fsdeveloper@yahoo.de>
+	Sun, 4 May 2003 14:13:11 -0400
+Received: from AMarseille-201-1-1-131.abo.wanadoo.fr ([193.252.38.131]:44841
+	"EHLO gaston") by vger.kernel.org with ESMTP id S261309AbTEDSNK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 14:13:10 -0400
+Subject: Re: [PATCH] Workaround bogus CF cards
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052064504.1240.12.camel@dhcp22.swansea.linux.org.uk>
+References: <1052043277.4107.76.camel@gaston>
+	 <1052064504.1240.12.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052068208.12384.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 May 2003 19:10:08 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 2003-05-04 at 18:08, Alan Cox wrote:
+> On Sul, 2003-05-04 at 11:14, Benjamin Herrenschmidt wrote:
+> > Hi !
+> > 
+> > I had a problem with an "APACER" Compact Flash card. It seems that
+> > beast is allergic to WIN_READ_NATIVE_MAX.
+> 
+> Thats probably a drive->flash check you need looking at the docs I have
+> I don't see where any CF supports READ_NATIVE_MAX (of course it shouldnt
+> die either)
 
-On Sunday 04 May 2003 19:39, Felix von Leitner wrote:
->   Unable to handle kernel NULL pointer dereference at virtual address
-> 00000017 printing eip:
->   c014c95b
->   *pde = 00000000
->   Oops: 0000 [#1]
->   CPU:    0
->   EIP:    0060:[<c014c95b>]    Tainted: P
->   EFLAGS: 00010286
->   eax: d241b000   ebx: 00000003   ecx: c037c450   edx: 00000003
->   esi: 00000405   edi: c3194620   ebp: 00000021   esp: c379bf60
->   ds: 007b   es: 007b   ss: 0068
->   Process artillery-fork (pid: 6966, threadinfo=c379a000 task=c37bad80)
->   Stack: c0341e60 c3194620 07ffffff 00000405 c3194620 00000021 c011e21c
-> 00000003 c3194620 c3194620 00000000 4003c904 c37bad80 c011edc4 c319d780
-> c319d780 c379a000 c014d557 00000000 00200001 4003c904 c379a000 c011f0b3
-> 00000000 Call Trace: [<c011e21c>]  [<c011edc4>]  [<c014d557>]  [<c011f0b3>]
->  [<c0109279>] Code: 8b 43 14 85 c0 0f 84 9a 00 00 00 8b 43 10 31 ed 85 c0
-> 74 45
+It doesn't really die in fact, I was wrong here, but behaves a bit
+strangely. I get an interrupt timeout, and a drive not ready for
+command on the next command, that takes several seconds but it _seems_
+it recovers.
 
-Could you please run ksymoops on these oopses?
+Still, it's quite bad, so a workaround is welcome.
 
->   EIP:    0060:[<c014c95b>]    Tainted: P
-What tainted the kernel?
+Ben.
 
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 20:14:28 up  3:44,  4 users,  load average: 1.01, 1.05, 1.01
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+tVjtoxoigfggmSgRAlPeAJ4im7EzpQjk2ZRHk3TS1rECLFcB3wCeNhUy
-A3yhshZJpMURwsLgX7hVzrY=
-=5IoZ
------END PGP SIGNATURE-----
 

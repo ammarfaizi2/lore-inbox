@@ -1,139 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269662AbUJABXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269665AbUJABYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269662AbUJABXB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 21:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269660AbUJABXB
+	id S269665AbUJABYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 21:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269663AbUJABYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 21:23:01 -0400
-Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:20693 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id S269662AbUJABWi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 21:22:38 -0400
-Subject: Re: [RFC][PATCH] inotify 0.10.0
-From: Ray Lee <ray-lk@madrabbit.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: rml@novell.com, akpm@osdl.org, ttb@tentacle.dhs.org,
-       cfriesen@nortelnetworks.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>, gamin-list@gnome.org,
-       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
-In-Reply-To: <20040930104808.291d9ddc.pj@sgi.com>
-References: <1096250524.18505.2.camel@vertex>
-	 <20040926211758.5566d48a.akpm@osdl.org>
-	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
-	 <1096350328.26742.52.camel@orca.madrabbit.org>
-	 <20040928120830.7c5c10be.akpm@osdl.org>
-	 <41599456.6040102@nortelnetworks.com>
-	 <1096390398.4911.30.camel@betsy.boston.ximian.com>
-	 <1096392771.26742.96.camel@orca.madrabbit.org>
-	 <1096403685.30123.14.camel@vertex> <20040929211533.5e62988a.akpm@osdl.org>
-	 <1096508073.16832.17.camel@localhost> <20040929200525.4e7bb489.pj@sgi.com>
-	 <1096558180.26742.133.camel@orca.madrabbit.org>
-	 <20040930092744.5eb5ea10.pj@sgi.com>
-	 <1096563193.26742.152.camel@orca.madrabbit.org>
-	 <20040930104808.291d9ddc.pj@sgi.com>
-Content-Type: text/plain
-Organization: http://madrabbit.org/
-Date: Thu, 30 Sep 2004 18:22:35 -0700
-Message-Id: <1096593755.26742.168.camel@orca.madrabbit.org>
+	Thu, 30 Sep 2004 21:24:06 -0400
+Received: from sol.linkinnovations.com ([203.94.173.142]:29826 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S269660AbUJABXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 21:23:39 -0400
+Date: Fri, 1 Oct 2004 11:23:37 +1000
+From: CaT <cat@zip.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: promise controller resource alloc problems with ~2.6.8
+Message-ID: <20041001012337.GF7162@zip.com.au>
+References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org> <20040930233048.GC7162@zip.com.au> <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="dc+cDN39EJAMEtIO"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, now I'm sure I'm not communicating well. Please let me try again,
-and I'll see if I can do better this time.
 
-On Thu, 2004-09-30 at 10:48 -0700, Paul Jackson wrote:
-> Ray wrote:
-> > However, dnotify has shown that forcing userspace to cache the
-> > entire contents of all the directories it wishes to watch doesn't scale
-> > well.
+--dc+cDN39EJAMEtIO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Thu, Sep 30, 2004 at 04:56:21PM -0700, Linus Torvalds wrote:
+> On Fri, 1 Oct 2004, CaT wrote:
+> > 
+> > I have the one from 2.6.9-rc2-bk8 available to me (last time I booted I
+> > had time to grab lots of things) so I've attached that and the current
+> > one. If you need the rc3 it'll need to wait another 8 hours or so as I'm
+> > currently away from the PC.
 > 
-> The dnotify cache isn't just an optional performance tweak, caching
-> inode to name.  It's an essential tracking of much of the stat
-> information of any file of interest, in order to have _any_ way of
-> detecting which file changed.
+> This is enough, I think, although I'd also like to get the output from 
+> /sbin/lspci just to clarify what the devices are.
 
-Agreed.
+Ok. I've got lspci -vvv for both bk8 and 8-rc2. They are slightly
+different so I'm including them both.
 
-> The inotify cache could just have the last few most recently used
-> entries or some such - it's just a space vs time performance tradeoff.
-
-Not the case.
-
-> So passing back an inode number doesn't come close to reintroducing
-> the forced tracking of all the interesting stat data of every file.
-
-It certainly forces userspace to track all file names and inodes, at
-least. Userspace wishes to know about deletes and renames. Unless it
-caches everything, it won't know what was deleted, or what got renamed.
-For that matter, passing back the inode number might also cause
-confusion for hardlinked files in the same directory, though I'd have to
-think about that for a bit to be sure.
-
-Perhaps I'm missing something. I haven't missed anything yet today,
-which means I'm overdue.
-
-> > dnotify already forces an O(N) workload per directory onto
-> > userspace, and that has shown itself to not work well.
+> Now, the reason for using "insert_resource()" in arch/i386/pci/i386.c 
+> should go away with Shaohua Li's patch, so I'd love to hear if applying 
+> Li's patch _and_ making the "insert_resource()" be a "request_resource()" 
+> fixes the problem for you.
 > 
-> Just because there exists an O(N) solution that has been shown to fail
-> doesn't mean all O(N) solutions fail.
+> I bet it will.
 
-<shrug> Okay, I'll agree with you in theory. This is in fact true for
-several classes of multiplication algorithms, for example. (Who's gonna
-do an FFT multiply of two two-digit numbers, I ask; no one.) So, yeah, I
-get your point. Honest.
+No problem. 7hrs to go. :)
 
-> If the constants change enough,
-> then the actual numbers (how many changes per minute, how many compute
-> cycles and memory bytes, what's the likely cache hit rate for a given
-> size cache, ...) need to be re-examined.  I see no evidence of that
-> re-examination -- am I missing something?
+-- 
+    Red herrings strewn hither and yon.
 
-This is one of the parts I'm not communicating well. For any 'event'
-that inotify wants to relay, the kernel knows the inode and the name.
-You're saying pass the inode number, as it's smaller and makes for an
-easier and higher speed interface to get changes to userspace (if I
-understand you correctly).
+--dc+cDN39EJAMEtIO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="lspci-2.6.8-rc2"
 
-I'm saying, sure, if you look at that corner of the problem, you're
-right. That's ignoring how this gets used, however, where userspace
-ultimately wants to know the name of the file that's changed. So, by
-your method, we scan the entire directory, looking for the inode that
-matches via the getdents call.
+2.6.8-rc2:
 
-So, the kernel ended up sending the name of the changed file *anyway*,
-but userspace had to ask for it. And, oh, the kernel sent the name of
-every other file in that directory too. (Okay, maybe half, but then
-again maybe not if you want to catch hardlinked files.)
+0000:00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+	Latency: 64
+	Region 0: Memory at 44000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
 
-> > the kernel *has* that information already, ...
-> 
-> Frustrating, isn't it.  The information is right there, and we're trying
-> to keep you from getting to it.
-> 
-> Whatever ...
+0000:00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	Memory behind bridge: 40000000-408fffff
+	Prefetchable memory behind bridge: 41000000-41ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B+
 
-No, that's not my point at all. I'm not saying Big Bad Kernel Developers
-won't let me have my candy. I'm saying that if the kernel has the
-information already, and we're not passing it to userspace, and
-userspace *needs* that information, then all we've done is guarantee
-another long set of syscalls while it tries to pull the directory
-contents to match up item for item against its cache of previously known
-file states.
+0000:00:0d.0 Unknown mass storage controller: Promise Technology, Inc. PDC20267 (FastTrak100/Ultra100) (rev 02)
+	Subsystem: Promise Technology, Inc. Ultra100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at 10f0 [size=8]
+	Region 1: I/O ports at 1800 [size=4]
+	Region 2: I/O ports at 10f8 [size=8]
+	Region 3: I/O ports at 1804 [size=4]
+	Region 4: I/O ports at 1080 [size=64]
+	Region 5: Memory at 42000000 (32-bit, non-prefetchable) [size=128K]
+	Capabilities: [58] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Or, in other words, I don't see how tossing away needed information is
-going to make anything more efficient in this case. Userspace, like a
-bulldog, will be coming back knocking on the kernel's door to get that
-information one way or another.
+0000:00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30)
+	Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2500ns min, 2500ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at 1000 [size=128]
+	Region 1: Memory at 40900000 (32-bit, non-prefetchable) [size=128]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
- ~ ~
+0000:00:0f.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+	Subsystem: Netgear FA310TX
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 66
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at 1400 [size=256]
+	Region 1: Memory at 42100000 (32-bit, non-prefetchable) [size=256]
 
-I've been avoiding saying this, as this really will be a bit more
-complex than even my suggestions, but perhaps everyone would be happier
-if we crammed all this through a netlink socket instead. Got me.
+0000:00:14.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
 
-Ray
+0000:00:14.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Region 4: I/O ports at 10a0 [size=16]
 
+0000:00:14.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin D routed to IRQ 0
+	Region 4: I/O ports at 10c0 [disabled] [size=32]
+
+0000:00:14.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+
+0000:01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01) (prog-if 00 [VGA])
+	Subsystem: Matrox Graphics, Inc. Millennium G200 AGP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (4000ns min, 8000ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at 41000000 (32-bit, prefetchable) [size=16M]
+	Region 1: Memory at 40800000 (32-bit, non-prefetchable) [size=16K]
+	Region 2: Memory at 40000000 (32-bit, non-prefetchable) [size=8M]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [f0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+
+
+--dc+cDN39EJAMEtIO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="lspci-2.6.9-rc2-bk8"
+
+2.6.9-rc2-bk8:
+
+0000:00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+	Latency: 64
+	Region 0: Memory at 44000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+
+0000:00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	Memory behind bridge: 40000000-408fffff
+	Prefetchable memory behind bridge: 41000000-41ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B+
+
+0000:00:0d.0 Unknown mass storage controller: Promise Technology, Inc. PDC20267 (FastTrak100/Ultra100) (rev 02)
+	Subsystem: Promise Technology, Inc. Ultra100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at 10f0 [size=8]
+	Region 1: I/O ports at 1800 [size=4]
+	Region 2: I/O ports at 10f8 [size=8]
+	Region 3: I/O ports at 1804 [size=4]
+	Region 4: I/O ports at 1080 [size=64]
+	Region 5: Memory at 42000000 (32-bit, non-prefetchable) [size=128K]
+	Capabilities: [58] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30)
+	Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2500ns min, 2500ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at 1000 [size=128]
+	Region 1: Memory at 40900000 (32-bit, non-prefetchable) [size=128]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:00:0f.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+	Subsystem: Netgear FA310TX
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 66
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at 1400 [size=256]
+	Region 1: Memory at 42100000 (32-bit, non-prefetchable) [size=256]
+
+0000:00:14.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:14.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Region 4: I/O ports at 10a0 [size=16]
+
+0000:00:14.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin D routed to IRQ 0
+	Region 4: I/O ports at 10c0 [disabled] [size=32]
+
+0000:00:14.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+
+0000:01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01) (prog-if 00 [VGA])
+	Subsystem: Matrox Graphics, Inc. Millennium G200 AGP
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (4000ns min, 8000ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at 41000000 (32-bit, prefetchable) [size=16M]
+	Region 1: Memory at 40800000 (32-bit, non-prefetchable) [size=16K]
+	Region 2: Memory at 40000000 (32-bit, non-prefetchable) [size=8M]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [f0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+
+
+--dc+cDN39EJAMEtIO--

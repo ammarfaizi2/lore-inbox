@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272323AbTHSREi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:04:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272321AbTHSREi
+	id S270984AbTHSRBj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270730AbTHSRBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:04:38 -0400
-Received: from main.gmane.org ([80.91.224.249]:25300 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S272323AbTHSQjY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:39:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PATCH] O17int
-Date: Tue, 19 Aug 2003 18:39:22 +0200
-Message-ID: <yw1xn0e5lhz9.fsf@users.sourceforge.net>
-References: <200308200102.04155.kernel@kolivas.org>
+	Tue, 19 Aug 2003 13:01:39 -0400
+Received: from 66-65-113-21.nyc.rr.com ([66.65.113.21]:57526 "EHLO
+	siri.morinfr.org") by vger.kernel.org with ESMTP id S272367AbTHSQdh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 12:33:37 -0400
+Date: Tue, 19 Aug 2003 12:32:59 -0400
+From: Guillaume Morin <guillaume@morinfr.org>
+To: torvalds@osdl.org
+Cc: arndb@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix cu3088 group write
+Message-ID: <20030819163257.GA3316@siri.morinfr.org>
+Mail-Followup-To: torvalds@osdl.org, arndb@de.ibm.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:FccMHiDV1aTvkyljwK+RyGc2SZE=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
+Hi Linus,
 
-> Food for the starving masses.
->
-> This patch prevents any single task from being able to starve the
-> runqueue that it's on. This minimises the impact a poorly behaved
-> application or a malicious one has on the rest of the system. If an
+The current cu3088 ccwgroup write code overwrite the last char of the
+given arguments. This patch fixes the problem :
 
-I have to disagree.  Open a file of a few hundred lines in XEmacs and
-do a regexp search for "^[> ]*-*\n\\([> ]*.*\n\\)*[> ]*foo".  The
-system will more or less freeze.  It's a very nasty regexp, and it's
-an error to try to use it, but it still shouldn't freeze the system.
+--- linux-2.6.0-test3-bk6.orig/drivers/s390/net/cu3088.c	2003-08-19 16:19:32.000000000 +0000
++++ linux-2.6.0-test3-bk6/drivers/s390/net/cu3088.c	2003-08-19 16:22:46.000000000 +0000
+@@ -64,7 +64,7 @@
+ group_write(struct device_driver *drv, const char *buf, size_t count)
+ {
+ 	const char *start, *end;
+-	char bus_ids[2][BUS_ID_SIZE], *argv[2];
++	char bus_ids[2][BUS_ID_SIZE+1], *argv[2];
+ 	int i;
+ 	int ret;
+ 	struct ccwgroup_driver *cdrv;
+@@ -79,7 +79,7 @@
+ 
+ 		if (!(end = strchr(start, delim[i])))
+ 			return count;
+-		len = min_t(ptrdiff_t, BUS_ID_SIZE, end - start);
++		len = min_t(ptrdiff_t, BUS_ID_SIZE, end - start)+1;
+ 		strlcpy (bus_ids[i], start, len);
+ 		argv[i] = bus_ids[i];
+ 		start = end + 1;
+
+
+memcpy is not an option since the string will be used with strncmp with
+a length > BUS_ID_SIZE.
+
+Please apply.
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+Guillaume Morin <guillaume@morinfr.org>
 
+     Build a man a fire, and he'll be warm for a day.  Set a man on fire,
+         and he'll be warm for the rest of his life. (Terry Pratchett)

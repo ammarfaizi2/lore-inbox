@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262286AbUCSKR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 05:17:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbUCSKR4
+	id S262556AbUCSKbo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 05:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbUCSKbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 05:17:56 -0500
-Received: from dwdmx2.dwd.de ([141.38.3.197]:44360 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id S262286AbUCSKRz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 05:17:55 -0500
-Date: Fri, 19 Mar 2004 10:17:53 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@praktifix.dwd.de
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: IPMI does not work under 2.6.4-mm2 and 2.6.5-rc1-mm2
-Message-Id: <Pine.LNX.4.58.0403191012120.18369@praktifix.dwd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Mar 2004 05:31:44 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44302 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262556AbUCSKbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 05:31:43 -0500
+Date: Fri, 19 Mar 2004 10:31:26 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Tom Rini <trini@kernel.crashing.org>
+Subject: Re: [CFT] inflate.c rework arch testing needed
+Message-ID: <20040319103126.A12519@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+	Tom Rini <trini@kernel.crashing.org>
+References: <20040318231006.GK11010@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040318231006.GK11010@waste.org>; from mpm@selenic.com on Thu, Mar 18, 2004 at 05:10:06PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Thu, Mar 18, 2004 at 05:10:06PM -0600, Matt Mackall wrote:
+> I've reworked the mess that is lib/inflate.c, including:
 
-When booting one of these kernels and IPMI is compiled in (CONFIG_IPMI_HANDLER,
-CONFIG_IPMI_DEVICE_INTERFACE and CONFIG_IPMI_SI) it will just hang solid
-during boot. 2.6.3 and 2.6.4 both work.
+Please don't - this will probably break the PIC decompressor on ARM.
 
-My hardware is a Intel SE7501HG2 with the newes bios updates.
+There are un-merged patches in the pipeline which make this all work
+correctly with todays toolchains - which mostly means getting rid of
+all static data to make the compiler produce the right relocations.
 
-Holger
+Yes its stupid, but there seems to be no other way to do this with
+the ELF toolchains we have available to us now.
 
-PS: Please cc me since I am not subscript.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbTI2SqX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbTI2SqX
+	id S264186AbTI2SMO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264185AbTI2SIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:46:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44225 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264443AbTI2SqW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:46:22 -0400
-Date: Mon, 29 Sep 2003 11:46:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Brian Gerst <bgerst@didntduck.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 do_machine_check() is redundant.
-In-Reply-To: <1064775868.5045.4.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.44.0309291142430.3626-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Sep 2003 14:08:05 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:46990 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264161AbTI2SGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 14:06:41 -0400
+Date: Mon, 29 Sep 2003 20:06:29 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 3C59x module doesn't work in 2.6.0-test6
+Message-ID: <20030929180629.GA23925@louise.pinerecords.com>
+References: <200309281502.38370.cijoml@volny.cz> <20030929101453.18c804dd.rddunlap@osdl.org> <200309291930.57987.cijoml@volny.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309291930.57987.cijoml@volny.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 28 Sep 2003, Arjan van de Ven wrote:
-> > 
-> > And yes, asmlinkage _can_ matter, even on x86. It disasbles regparm, for
-> > one thing, so it makes a huge difference if the kernel is compiled with
-> > -mregparm=3 (which used to work, and which I'd love to do, but gcc has
-> > often been a tad fragile).
+> [cijoml@volny.cz]
 > 
-> gcc 3.2 and later are supposed to be ok (eg during 3.2 development a
-> long standing bug with regparm was fixed and now is believed to work)...
-> since our makefiles check gcc version already... this can be made gcc
-> version dependent as well for sure..
+> Hi,
+> 
+> I call simply "modprobe 3c59x" as always.
+> In all previous kernels before 2.6.0-test6 it worked (2.4,2.2)
+> 
+> /etc/modprobe.conf
+> alias eth0 3c59x
+> options 3c59x 3c509x debug=0 options=4,8
+> 
+> It's generated from /etc/modules.conf in 2.4
+> alias eth0 3c59x
+> options 3c59x 3c509x debug=0 options=4,8
 
-Has anybody checked out whether the kernel works with -mregparm=3? I
-forget who did a lot of the work on it originally, and it certainly _used_
-to work fine. The improvements to both code size and performance were, if 
-I remember correctly, measurable but not huge.
+Just make these
+options 3c59x options=4,8
 
-One worry (apart from just broken compilers and missing "asmlinkage" 
-annotations) is that having compiler-version-dependent calling conventions 
-makes for another variable to take into account when chasing down bugs and 
-worrying about things like the Nvidia module etc. So it's probably not 
-worth doing unless the advantages are clear.
+and don't forget to rerun depmod.
 
-		Linus
+AFAIK the 3c59x driver recognizes no such option as '3c509x'.
 
+-- 
+Tomas Szepe <szepe@pinerecords.com>

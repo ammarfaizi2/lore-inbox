@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129835AbRAIURx>; Tue, 9 Jan 2001 15:17:53 -0500
+	id <S129998AbRAIU1f>; Tue, 9 Jan 2001 15:27:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131945AbRAIURn>; Tue, 9 Jan 2001 15:17:43 -0500
-Received: from borg.denalics.net ([209.112.170.15]:34822 "HELO
-	borg.denalics.net") by vger.kernel.org with SMTP id <S129835AbRAIURf>;
-	Tue, 9 Jan 2001 15:17:35 -0500
-Date: Tue, 9 Jan 2001 11:25:14 -0900 (AKST)
-From: "Christopher E. Brown" <cbrown@denalics.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ben Greear <greearb@candelatech.com>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
-In-Reply-To: <E14FKDI-00033e-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10101091114590.15451-100000@borg.denalics.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129982AbRAIU10>; Tue, 9 Jan 2001 15:27:26 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:43257 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129774AbRAIU1M>; Tue, 9 Jan 2001 15:27:12 -0500
+Date: Tue, 9 Jan 2001 16:39:30 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Bosko Radivojevic <bole@falcon.etf.bg.ac.yu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: suser checks in 2.2.x
+Message-ID: <20010109163930.C24523@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Bosko Radivojevic <bole@falcon.etf.bg.ac.yu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.0.25.0.20010109145610.03b02090@mail.etinc.com> <Pine.LNX.4.20.0101092100320.15661-100000@falcon.etf.bg.ac.yu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.20.0101092100320.15661-100000@falcon.etf.bg.ac.yu>; from bole@falcon.etf.bg.ac.yu on Tue, Jan 09, 2001 at 09:13:46PM +0100
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Alan Cox wrote:
+Em Tue, Jan 09, 2001 at 09:13:46PM +0100, Bosko Radivojevic escreveu:
+> I can see there are a lot of suser() checks. When they will be changed
+> with appropriate capable(..) checks? Or, will they be changed, at all some
+> days?
 
-> > Um, what about people running their box as just a VLAN router/firewall?
-> > That seems to be one of the principle uses so far.  Actually, in that case
-> > both VLAN and IP traffic would come through, so it would be a tie if VLAN
-> > came first, but non-vlan traffic would suffer worse.
-> 
-> Why would someone filter between vlans when any node on each vlan can happily
-> ignore the vlan partitioning
-
-
-	Think VLANing switch clusters.  Say 4 switches connected by
-GigE on 4 floors or in 4 separate building.  Now, across these
-switches 20 VLANS are running, with the switches enforcing VLAN
-partitioning.  The client PCs know nothing about it, as each one
-resides within a single VLAN.
-
-	Now we have our Linux box with 2 x 100Mbit FD links to the
-switch cluster running 10 VLANS per interface, and an external
-DS1/SDSL/whatever connection.  We now have 20 separate zones with
-different security controls per zone, with per switchport control over
-who resided in what group.  Or even forget the routing and just
-plugging a Linux box to a companies 200VLAN setup to provide
-DHCP/whatever.
-
-	I must say, I *hate* VLANs for this use, it is a horrible
-thing to do that wastes massive amounts of bandwidth on simulating a
-local broadcast domain across a much larger area, but oh well.  As
-long as we have stupid managers and brain dead sales persons not much
-will change.  Are there better things to do than VLAN?  YES!  Will we
-get stuck with needing VLANs in the real world?  YES!
-
-
----
-        The roaches seem to have survived, but they are not routing packets
-correctly.
-        --About the Internet and nuclear war.
-
-
+I assume: as soon as people send patches, I've send two, IIRC, related
+to this today. 8)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318766AbSHQXBr>; Sat, 17 Aug 2002 19:01:47 -0400
+	id <S318774AbSHQXPX>; Sat, 17 Aug 2002 19:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318767AbSHQXBr>; Sat, 17 Aug 2002 19:01:47 -0400
-Received: from wotug.org ([194.106.52.201]:62266 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S318766AbSHQXBq>;
-	Sat, 17 Aug 2002 19:01:46 -0400
-Date: Sun, 18 Aug 2002 00:03:24 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Dax Kelson <dax@gurulabs.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Does Solaris really scale this well?
-In-Reply-To: <20020817182715.GC32427@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.44.0208172358460.3111-100000@sharra.ivimey.org>
+	id <S318775AbSHQXPX>; Sat, 17 Aug 2002 19:15:23 -0400
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:27841 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S318774AbSHQXPW>; Sat, 17 Aug 2002 19:15:22 -0400
+Message-ID: <3D5ED96F.50805@linux.org>
+Date: Sat, 17 Aug 2002 19:17:03 -0400
+From: John Weber <john.weber@linux.org>
+Organization: Linux Online
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020702
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+CC: Anton Altaparmakov <aia21@cantab.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Andre Hedrick <andre@linux-ide.org>, axboe@suse.de, vojtech@suse.cz,
+       bkz@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+References: <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com> <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com> <5.1.0.14.2.20020817225323.021796b0@pop.cus.cam.ac.uk> <20020817221704.GA2478@conectiva.com.br>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Aug 2002, Matti Aarnio wrote:
+Arnaldo Carvalho de Melo wrote:
+> Em Sat, Aug 17, 2002 at 11:11:14PM +0100, Anton Altaparmakov escreveu:
+> 
+>>At 20:56 17/08/02, Alan Cox wrote:
+>>
+>>>Volunteers willing to run Cerberus test sets on 2.4 boxes with IDE
+>>>controllers would also be much appreciated. That way we can get good
+>>>coverage tests and catch badness immediately
+>>
+> 
+>>If you tell me the kernel version and patches to apply which you want 
+>>tested, and what options to run cerberus with (never used it before...), I 
+>>have control over a currently idle dual Athlon MP 2000+ with an AMD-768 
+>>(rev 04) IDE controller and 3G of RAM. It has only one HD, a ST340810A 
+>>(ATA-100, 37G) attached.
+> 
+> 
+> I have a dual p100 with a CMD640 so I'll test 2.4-ac or whatever you name it,
+> as soon as I get back from vacation (in two weeks) and I get another old disk
+> for this test machine. It behaves with 2.4 but loses a lot of interrupts with
+> 2.5-MD (haven't tested after Jens got 2.4 forward port into 2.5).
+> 
 
->On Sat, Aug 17, 2002 at 11:53:16AM -0600, Dax Kelson wrote:
->> From:
->>   http://www.itworld.com/Man/3828/020816mcnealy/
->> 
->> Scott McNealy:
->> 
->> "When you take a 99-way UltraSPARC III machine and add a 100th processor, 
->> you get 94 percent linear scalability. You can't get 94 percent linear 
->> scalability on your first Intel chip. It's very, very hard to do, and they 
->> have not done it."
->
->  Conditionally...  I would like to know the exact architecture,
->and the problem set running in the system to say.
->
->When you have noncc-NUMA, you have a Beowulf-like setup.
->when you have cc-NUMA ("cc" = cache coherent), things get
->truly hairy...
+I have a dual Ppro200 with a PIIX ide chip, and a PIII 866 with a VIA 
+686B.  I'll test anything you want on these boxes.
 
-I've seen scientific reports of scalability that good in non-shared memory
-computers (mostly in transputer arrays) where (with a scalable algorithm)
-unless you got >90% you were doing something wrong.  However, if you insist on
-sharing main memory, I still don't believe you can get anywhere near that...
-IMO 30% is doing very well once past the first few CPUs.
-
-Regards,
-
-Ruth
-
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
 

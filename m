@@ -1,37 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136082AbRD0PSD>; Fri, 27 Apr 2001 11:18:03 -0400
+	id <S136084AbRD0PVo>; Fri, 27 Apr 2001 11:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136085AbRD0PRy>; Fri, 27 Apr 2001 11:17:54 -0400
-Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:65277
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S136082AbRD0PRk>; Fri, 27 Apr 2001 11:17:40 -0400
-Subject: Re: Can the kernel access /?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Matt <madmatt@bits.bris.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104271521540.21006-100000@bits.bris.ac.uk>
-In-Reply-To: <Pine.LNX.4.21.0104271521540.21006-100000@bits.bris.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 27 Apr 2001 17:15:03 +0200
-Message-Id: <988384505.4081.1.camel@nomade>
+	id <S136088AbRD0PVe>; Fri, 27 Apr 2001 11:21:34 -0400
+Received: from sigint.cs.purdue.edu ([128.10.2.82]:23564 "HELO
+	sigint.cs.purdue.edu") by vger.kernel.org with SMTP
+	id <S136084AbRD0PV3>; Fri, 27 Apr 2001 11:21:29 -0400
+From: sigint@sigint.cs.purdue.edu
+Date: Fri, 27 Apr 2001 10:22:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: agenda & vtech helio [was Re: [PATCH] Single user linux]
+Message-ID: <20010427102254.A5813@sigint.cs.purdue.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 27 Apr 2001 15:28:04 +0100, Matt a écrit :
-> I'm writing a device driver for a DSP card that requires some software
-> loaded onto the card for it to function, currently I'm copying the
-> software to the /dev node and the driver is doing the magic in it's
-> write() handler.
-> 
-> Can the driver pull the file from the filesystem if I were to pass the
-> path of the file as an argument on loading the module?
+Pavel Machek <pavel@suse.cz> sez:
 
-It's generally considered a better idea to load your firmware with a
-userspace app doing an ioctl or a mmap on your driver - no nasty races
-to take care of, only proven codepaths used.
+> available for download? [Besides, anyone knows of vtech helio emulator
+> for linux? Only version I saw was windows...]
 
-Xav
+http://www.kernelconcepts.de/helio/helio-emulator-1.0.6b.tar.gz
 
+Works slowly, but okay.  Your X server must be set to 15 or 16bpp.

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265126AbTLCUAP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbTLCUAO
+	id S265149AbTLCUFI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:05:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbTLCUFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:00:14 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:55006 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265126AbTLCT76 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 14:59:58 -0500
-Date: Wed, 3 Dec 2003 20:59:57 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Raj <raju@mailandnews.com>, linux-kernel@vger.kernel.org,
-       lhcs-devel@lists.sourceforge.net,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: kernel BUG at kernel/exit.c:792!
-In-Reply-To: <20031203182319.D14999@in.ibm.com>
-Message-ID: <Pine.LNX.4.58.0312032059040.4438@earth>
-References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com>
- <20031203182319.D14999@in.ibm.com>
+	Wed, 3 Dec 2003 15:05:08 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:3216 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S265149AbTLCUFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 15:05:01 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jens Axboe <axboe@suse.de>
+Date: Thu, 4 Dec 2003 07:04:43 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16334.16859.886609.956641@notabene.cse.unsw.edu.au>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       David =?iso-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clubinfo.servers@adi.uam.es, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Errors and later panics in 2.6.0-test11.
+In-Reply-To: message from Jens Axboe on Wednesday December 3
+References: <200312031417.18462.ender@debian.org>
+	<Pine.LNX.4.58.0312030757120.5258@home.osdl.org>
+	<20031203162045.GA27964@suse.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 3 Dec 2003, Srivatsa Vaddagiri wrote:
-
-> > maybe i am wrong, but wouldnt a 'break' in the do-while suffice rather 
-> > than a goto ?
+On Wednesday December 3, axboe@suse.de wrote:
+> > 
+> > Interesting. Another RAID 0 problem report..
 > 
-> I was not sure if the pid_alive check inside the do-while loop is for
-> leader_task only or for non-leader tasks also.  If that check is for
-> non-leader tasks also, then we would like to retain it still ..
+> Hmm did _all_ reports include raid-0, or just "some" raid? I'm looking
+> at the bio_pair stuff which raid-0 is the only user of, something looks
+> fishy there.
 
-only the starting point should be checked. If the starting point is wrong
-then we have no access to the 'thread list' anymore. If the starting point
-is alive then all the thread-list walking within the tasklist_lock is
-safe.
+I think this is the first raid0 related problem I have seen for a
+while.  Others were raid1 and raid5.
 
-	Ingo
+Once an array is set up and running there is minimal common code
+between the different levels so it is very unlikely to be the same
+problem in all three cases.
+
+xfs seems to figure almost as prominantly as raid (the raid1 bug was
+ext3), but maybe it's just that xfs over raid is a popular
+configuration. 
+
+NeilBrown

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265523AbTFRUfE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 16:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265524AbTFRUfE
+	id S265520AbTFRUgC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 16:36:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265482AbTFRUgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 16:35:04 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:17424 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S265523AbTFRUfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 16:35:00 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler starvation
-Date: Wed, 18 Jun 2003 22:48:31 +0200
-User-Agent: KMail/1.5.2
-References: <200306182244.56920.gallir@uib.es>
-In-Reply-To: <200306182244.56920.gallir@uib.es>
+	Wed, 18 Jun 2003 16:36:02 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:30696 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S265520AbTFRUf6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 16:35:58 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306182248.31308.m.c.p@wolk-project.de>
+Message-ID: <16112.53360.599744.11117@napali.hpl.hp.com>
+Date: Wed, 18 Jun 2003 13:49:52 -0700
+To: torvalds@transmeta.com
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: re-enable the building of 8250_hcdp and 8250_acpi
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 June 2003 22:44, Ricardo Galli wrote:
+This adds back the ability to configure and build the HCDP and ACPI
+support for the 8250 driver (there was some confusion in the earlier
+patch due to renaming of files and options).
 
-Hi Ricardo,
+Thanks,
 
-> > Have you seen this email I just posted to lkml?
-> > [PATCH] 2.5.72 O(1) interactivity bugfix
-> > It may be affecting the scheduler in all sorts of ways.
->
-> I've applied the patch you posted in your web page for 2.4.21-ck1. It feels
-> more reactive but has an annoying collateral effect, it seems to slow down
-> to new processes forked from an interactive program.
-> I see it when selecting a PGP signed message in kmail, it takes up to two
-> seconds to show the message body. The lag wasn't so noticeable before.
-Robert already told so.
+	--david
 
-ciao, Marc
-
+diff -Nru a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+--- a/drivers/serial/Kconfig	Wed Jun 18 13:32:51 2003
++++ b/drivers/serial/Kconfig	Wed Jun 18 13:32:51 2003
+@@ -77,7 +77,7 @@
+ 	  a module, say M here and read <file:Documentation/modules.txt>.
+ 	  If unsure, say N.
+ 
+-config SERIAL_HCDP
++config SERIAL_8250_HCDP
+ 	bool "8250/16550 device discovery support via EFI HCDP table"
+ 	depends on IA64
+ 	---help---
+diff -Nru a/drivers/serial/Makefile b/drivers/serial/Makefile
+--- a/drivers/serial/Makefile	Wed Jun 18 13:32:49 2003
++++ b/drivers/serial/Makefile	Wed Jun 18 13:32:49 2003
+@@ -8,7 +8,8 @@
+ serial-8250-$(CONFIG_GSC) += 8250_gsc.o
+ serial-8250-$(CONFIG_PCI) += 8250_pci.o
+ serial-8250-$(CONFIG_PNP) += 8250_pnp.o
+-serial-8250-$(CONFIG_SERIAL_HCDP) += 8250_hcdp.o
++serial-8250-$(CONFIG_SERIAL_8250_HCDP) += 8250_hcdp.o
++serial-8250-$(CONFIG_ACPI) += 8250_acpi.o
+ 
+ obj-$(CONFIG_SERIAL_CORE) += core.o
+ obj-$(CONFIG_SERIAL_21285) += 21285.o

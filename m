@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265672AbTFSAO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265671AbTFSAO3
+	id S265651AbTFSAL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbTFSAJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:14:29 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:37048 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S265654AbTFSANL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:13:11 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 18 Jun 2003 20:09:16 -0400
+Received: from dsl-217-155-128-73.zen.co.uk ([217.155.128.73]:34985 "EHLO
+	heart.pulsesol.com") by vger.kernel.org with ESMTP id S265648AbTFSAI1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:08:27 -0400
+Message-ID: <009a01c335f8$da220510$4c809bd9@PULSEDESKTOP>
+From: "Antony Gelberg" <antony@antgel.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: Promise RAID driver
+Date: Thu, 19 Jun 2003 01:22:22 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16113.851.854673.480758@napali.hpl.hp.com>
-Date: Wed, 18 Jun 2003 17:26:59 -0700
-To: torvalds@transmeta.com
-Cc: davidm@hpl.hp.com, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: re-enable the building of 8250_hcdp and 8250_acpi (v2)
-In-Reply-To: <16112.53360.599744.11117@napali.hpl.hp.com>
-References: <16112.53360.599744.11117@napali.hpl.hp.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Hi all,
 
-Here is a better version of the previous patch.  As per your
-suggestion, it adds a separate SERIAL_8250_ACPI config option and
-makes the 8250_acpi.c code dependent on ACPI_BUS (since
-acpi_bus_register_driver() is a prerequisite).
+Apologies if this is a little OT but I was hoping someone in here might be
+able to give me a hand.
 
-Thanks,
+I'm doing a new Debian install on a PC with a Promise 20376 onboard SATA
+RAID controller.  Promise have sent me a driver, which I built.
 
-	--david
+During the install, there is a point where it asks for any floppy-based
+modules of this nature.  I've successfully loaded scsi_mod.o then the
+Promise ft3xx.o.  (Also done it from the ash prompt to confirm that they
+link ok.)  The message comes up from the driver recognising my controller
+and drives.
 
-diff -Nru a/drivers/serial/Kconfig b/drivers/serial/Kconfig
---- a/drivers/serial/Kconfig	Wed Jun 18 17:23:47 2003
-+++ b/drivers/serial/Kconfig	Wed Jun 18 17:23:47 2003
-@@ -77,7 +77,15 @@
- 	  a module, say M here and read <file:Documentation/modules.txt>.
- 	  If unsure, say N.
- 
--config SERIAL_HCDP
-+config SERIAL_8250_ACPI
-+	bool "8250/16550 device discovery via ACPI namespace"
-+	default y if IA64
-+	depends on ACPI_BUS
-+	---help---
-+	  If you wish to enable serial port discovery via the ACPI
-+	  namespace, say Y here.  If unsure, say N.
-+
-+config SERIAL_8250_HCDP
- 	bool "8250/16550 device discovery support via EFI HCDP table"
- 	depends on IA64
- 	---help---
-diff -Nru a/drivers/serial/Makefile b/drivers/serial/Makefile
---- a/drivers/serial/Makefile	Wed Jun 18 17:23:46 2003
-+++ b/drivers/serial/Makefile	Wed Jun 18 17:23:46 2003
-@@ -8,7 +8,8 @@
- serial-8250-$(CONFIG_GSC) += 8250_gsc.o
- serial-8250-$(CONFIG_PCI) += 8250_pci.o
- serial-8250-$(CONFIG_PNP) += 8250_pnp.o
--serial-8250-$(CONFIG_SERIAL_HCDP) += 8250_hcdp.o
-+serial-8250-$(CONFIG_SERIAL_8250_HCDP) += 8250_hcdp.o
-+serial-8250-$(CONFIG_SERIAL_8250_ACPI) += 8250_acpi.o
- 
- obj-$(CONFIG_SERIAL_CORE) += core.o
- obj-$(CONFIG_SERIAL_21285) += 21285.o
+Problem is, Debian still can't see the array, and the documentation for the
+driver is pants.  I've had a look through the source but am at my limit of
+comprehension.  There is a call to scsi_register(), but then I lose the
+plot.
+
+I've tried fdisk on
+/dev/hda
+/dev/sda (even though this has a major number 8)
+/dev/ataraid/d0 (major number 114)
+
+Each time I get: Unable to open /dev/whatever.
+
+FWIW, I have noted the following: cat /proc/devices shows that the ft3xx
+device registers itself as 254 (it's dynamic - I assume that they go down
+from 254).  But an ls -l /dev/* shows no node with a major number of 254.
+
+When I created one (/dev/raid) with mknod, I got messages complaining about
+ioctl then a hang.  So this seems to confirm that it uses a SCSI device.  In
+addition, it does call scsi_register.  It then sets (in the returned struct)
+max_channel=0, max_id=1, max_lun=1.  I've tried poking about in the kernel
+to see what this actually does but I'm out of my depth.
+
+If anyone could give me a pointer (no pun intended), I'd be ever so
+grateful.
+
+(There is a driver in the kernel - this is for the earlier series (20276 not
+20376), and will not work with this controller.)
+
+Antony
+
+

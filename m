@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279338AbRJWJ7Z>; Tue, 23 Oct 2001 05:59:25 -0400
+	id <S279341AbRJWKAp>; Tue, 23 Oct 2001 06:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279342AbRJWJ7Q>; Tue, 23 Oct 2001 05:59:16 -0400
-Received: from zmamail03.zma.compaq.com ([161.114.64.103]:5391 "EHLO
-	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S279338AbRJWJ7J>; Tue, 23 Oct 2001 05:59:09 -0400
-Reply-To: <frey@scs.ch>
-From: "Martin Frey" <frey@scs.ch>
-To: "'Jens Axboe'" <axboe@suse.de>, "'Shailabh Nagar'" <nagar@us.ibm.com>
-Cc: "'Reto Baettig'" <baettig@scs.ch>, <lse-tech@lists.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: [Lse-tech] Re: Preliminary results of using multiblock raw I/O
-Date: Tue, 23 Oct 2001 05:59:03 -0400
-Message-ID: <000b01c15ba9$58ba4e90$e6c02f10@SCHLEPPDOWN>
+	id <S279345AbRJWKAg>; Tue, 23 Oct 2001 06:00:36 -0400
+Received: from Morgoth.esiway.net ([193.194.16.157]:43528 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S279341AbRJWKAV>; Tue, 23 Oct 2001 06:00:21 -0400
+Date: Tue, 23 Oct 2001 12:00:53 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <Pine.LNX.4.33.0110230203320.31211-100000@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.33.0110231158310.9786-100000@Megathlon.ESI>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-In-Reply-To: <20011023084238.C638@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I haven't seen the SGI rawio patch, but I'm assuming it used kiobufs to
->pass a single unit of 1 meg down at the time. Yes currently we do incur
->significant overhead compared to that approach.
->
-Yes, it used kiobufs to get a gatherlist, setup a gather DMA out
-of that list and submitted it to the SCSI layer. Depending on
-the controller 1 MB could be transfered with 0 memcopies, 1 DMA,
-1 interrupt. 200 MB/s with 10% CPU load was really impressive.
+On Tue, 23 Oct 2001, Luigi Genoni wrote:
 
-Regards, Martin
+>
+> Ohh, our prime minister declared USA the main defensor of liberty.
+> Of course he was thinking also to this law. You know he has three
+> television, a couple of newspapers and so on...
+> His natural attitude brings him to agree in every case with USA
+> government. He is a good vendor. Apart of this. In Italy we are making a
+> lot of pressure against a stupid law about copyrights, but
+> when the prime minister is the owner of the biggest television and most
+> important newspapers, and when the statal television and newspaper are
+> a little assentive with the government (oh... just a little),
+> we are under censure. And anyway we publish articles and public mails
+> about that, we open web sites. We try to inform, and belive me, italians
+> are not so interested is a soccer team is not involved.
+>
+> USA citizens should have less dificoulties to do something similar,
+> but I am not informed of a real effort from them.
+>
+> Luigi
+>
+> p.s.
+> of course, please, tell me I am wrong
+
+Of course you are: move this to soc.*, please.
+
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
+

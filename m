@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264456AbSIVSeq>; Sun, 22 Sep 2002 14:34:46 -0400
+	id <S264471AbSIVSwh>; Sun, 22 Sep 2002 14:52:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264457AbSIVSeq>; Sun, 22 Sep 2002 14:34:46 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:3200 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S264456AbSIVSep>;
-	Sun, 22 Sep 2002 14:34:45 -0400
-Date: Sun, 22 Sep 2002 13:37:55 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.37 broke the floppy driver
-In-Reply-To: <200209212301.BAA08451@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0209221334170.829-100000@dad.molina>
+	id <S264472AbSIVSwh>; Sun, 22 Sep 2002 14:52:37 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59990 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S264471AbSIVSwg>; Sun, 22 Sep 2002 14:52:36 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Bill Huey <billh@gnuppy.monkey.org>, Ingo Molnar <mingo@elte.hu>,
+       Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+References: <Pine.LNX.3.96.1020922093417.6569A-100000@gatekeeper.tmr.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Sep 2002 12:41:40 -0600
+In-Reply-To: <Pine.LNX.3.96.1020922093417.6569A-100000@gatekeeper.tmr.com>
+Message-ID: <m1u1khkgt7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Sep 2002, Mikael Pettersson wrote:
+Bill Davidsen <davidsen@tmr.com> writes:
 
-> With 2.5.37, doing a write to floppy makes the kernel print
-> "blk: request botched" and a few seconds later instantly reboot
-> the machine (w/o any further messages). 2.5.36 works fine.
+> On Fri, 20 Sep 2002, Bill Huey wrote:
 > 
-> "dd bs=8k if=bzImage of=/dev/fd0" triggers this every time.
+> 
+> > Don't remember off hand, but it's like to be several times a second which is
+> > often enough to be a problem especially on large systems with high load.
+> > 
+> > The JVM with incremental GC is being targetted for media oriented tasks
+> > using the new NIO, 3d library, etc... slowness in safepoints would cripple it
+> > for these tasks. It's a critical item and not easily address by the current
+> > 1:1 model.
+> 
+> Could you comment on how whell this works (or not) with linuxthreads,
+> Solaris, and NGPT? I realize you probably haven't had time to look at NPTL
+> yet. If an N:M model is really better for your application you might be
+> able to just run NGPT.
+> 
+> Since preempt threads seem a problem, cound a dedicated machine run w/o
+> preempt? I assume when you say "high load" that you would be talking a
+> server, where performance is critical.
 
-I duplicated this on 2.5.37-bk as well as 2.5.38-bk.  Maybe we have an 
-off-by-one error?  I see the following under 2.5.38-bk:
+>From 10,000 feet out I have one comment.  If the VM has safe points. It sounds
+like the problem is more that the safepoints don't provide the register
+dumps more than anything else.
 
-[tmolina@dad boot]$ dd if=bzImage of=/dev/fd0
-dd: writing to `/dev/fd0': No space left on device
-5+0 records in
-4+0 records out
+They are talking about an incremental GC routine so it does not need to stop
+all threads simultaneously.  Threads only need to be stopped when the GC is gather
+a root set.  This is what the safe points are for right?  And it does
+not need to be 100% accurate in finding all of the garbage.  The
+collector just needs to not make mistakes in the other direction.
 
-If I repeate the command I get lines of the 
-blk: request botched messages with the following flashed briefly on the 
-screen (I wouldn't have seen it if I weren't looking for it):
+I fail to see why:
 
-dd: writing to `/dev/fd0': No space left on device
-1441+0 records in
-1440+0 records out
+/* This is a safe point ... */
+if (needs to be suspended) {
+        save_all_registers_on_the_stack()
+        flag_gc_thread()
+        wait_until_gc_thread_has_what_it_needs()
+}
 
+Needs kernel support.
 
+Eric

@@ -1,77 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUJWQRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbUJWQ50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUJWQRL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 12:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUJWQRK
+	id S261240AbUJWQ50 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 12:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUJWQ50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 12:17:10 -0400
-Received: from main.gmane.org ([80.91.229.2]:30090 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261229AbUJWQO5 (ORCPT
+	Sat, 23 Oct 2004 12:57:26 -0400
+Received: from nysv.org ([213.157.66.145]:22920 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S261240AbUJWQ5Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 12:14:57 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 23 Oct 2004 12:57:24 -0400
+Date: Sat, 23 Oct 2004 19:57:12 +0300
 To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Date: Sat, 23 Oct 2004 18:13:58 +0200
-Message-ID: <MPG.1be487616126c11f989701@news.gmane.org>
-References: <1098480691.8033.8.camel@wombat.educ.indiana.edu> <41797B49.5020809@drdos.com> <35fb2e5904102216038257cb1@mail.gmail.com> <417990AE.5050806@drdos.com> <1098521032.3306.142.camel@thomas>
+Cc: reiserfs-list@namesys.com
+Subject: Re: 2.6.9-mm1
+Message-ID: <20041023165712.GR26192@nysv.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-121-141.29-151.libero.it
-User-Agent: MicroPlanet-Gravity/2.70.2067
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417A7EF9.70007@namesys.com>
+User-Agent: Mutt/1.5.6i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Fri, 2004-10-22 at 16:58 -0600, Jeff V. Merkey wrote:
-> > Yes. I can do even better.
-> > I met with Darl McBride this afternoon regarding the GrokSmear postings 
-> > (First time I've ever met him) at SCO's request
-> 
-> Jeff, 
-> 
-> the world is watching breathlessly your selfless and devotional efforts
-> to rescue Linux.
-> 
-> I'm answering late because I was requested to meet a couple of people to
-> report about your invaluable efforts for freedom, justice and the world.
-> 
-> The Pope told me tonight in a private conversation, that he's
-> considering to beatify you as soon as possible.
-> 
-> The Nobel Peace Prize Committee called for an unscheduled emergency
-> meeting to replace the already choosen candidate by you and Darl.
-> 
-> The International Law Association want's you to be their honorary member
-> along with a PhD honoris causae to honour your unmatched ability to
-> analyse a number of complex lawsuits during a coffee talk at SCO.
-> 
-> Finally I met Santa Claus and he asked me, if it's really a good idea to
-> bring you more of the Peyote stuff as you asked for on your wish list.
-> 
-> I'm awestruck.
-> 
-> Yours sincerely,
-> 
-> tglx, member of the IPTTA (International Psychodelic Tale Teller
-> Association)
+Hans Reiser wrote:
 
-Do we have some "Best of LKML" repository somewhere? This one 
-would surely get my vote to enter it :)
+>Please make large keys the default, and hide the ability to 
+>choose small keys by taking it out of the configuration menu and burying 
+>it in a .h file.
 
-(Now, if only Jeff would spare us dial-uppers all this wasted 
-bandwidth, *that*'d be something I would show gratitude for 
-...)
+Stupid question, why have small keys at all?
+
+Someone said once that he didn't want to use large keys because they added
+no value to him and small keys wasted less space. If there are people like
+this around, burying it is not cool, but if there aren't, maybe small keys
+should be ripped out?
 
 -- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
+mjt
 

@@ -1,91 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264943AbUEKW1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264951AbUEKWh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264943AbUEKW1K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 18:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265015AbUEKW1K
+	id S264951AbUEKWh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 18:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264988AbUEKWh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 18:27:10 -0400
-Received: from mail.tmr.com ([216.238.38.203]:31238 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S264943AbUEKWYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 18:24:40 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Random file I/O regressions in 2.6
-Date: Tue, 11 May 2004 18:26:37 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c7rjla$i7b$1@gatekeeper.tmr.com>
-References: <1084228767.6140.832.camel@localhost.localdomain> <20040510160740.5db8c62c.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 11 May 2004 18:37:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17073 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264951AbUEKWhr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 18:37:47 -0400
+Message-ID: <40A155AC.5090009@pobox.com>
+Date: Tue, 11 May 2004 18:37:32 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dsaxena@plexity.net
+CC: Andrew Morton <akpm@osdl.org>, wim@iguana.be, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Watchdog timer for Intel IXP4xx CPUs
+References: <20040511212235.GA7729@plexity.net> <20040511143352.096bc071.akpm@osdl.org> <20040511215008.GA8063@plexity.net>
+In-Reply-To: <20040511215008.GA8063@plexity.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1084314090 18667 192.168.12.100 (11 May 2004 22:21:30 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040510160740.5db8c62c.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Ram Pai <linuxram@us.ibm.com> wrote:
-> 
->>I am nervous about this change. You are totally getting rid of
->>lazy-readahead and that was the optimization which gave the best
->>possible boost in performance. 
-> 
-> 
-> Because it disabled the large readahead outside the area which the app is
-> reading.  But it's still reading too much.
-> 
-> 
->>Let me see how this patch does with a DSS benchmark.
-> 
-> 
-> That was not a real patch.  More work is surely needed to get that right.
-> 
-> 
->>In the normal large random workload this extra page would have
->>compesated for all the wasted readaheads.
-> 
-> 
-> I disagree that 64k is "normal"!
-> 
-> 
->> However in the case of
->>sysbench with Andrew's ra-copy patch the readahead calculation is not
->>happening quiet right. Is it worth trying to get a marginal gain 
->>with sysbench at the cost of getting a big hit on DSS benchmarks,
->>aio-tests,iozone and probably others. Or am I making an unsubstantiated
->>claim? I will get back with results.
-> 
-> 
-> It shouldn't hurt at all - the app does a seek, we perform the
-> correctly-sized read.
-> 
-> As I say, my main concern is that we correctly transition from seeky access
-> to linear access and resume readahead.
+Deepak Saxena wrote:
+> On May 11 2004, at 14:33, Andrew Morton was caught saying:
+> +#ifdef CONFIG_WATCHDOG_NOWAYOUT
+> +static int nowayout = 1;
+> +#else
+> +static int nowayout = 0;
+> +#endif
+> +static int heartbeat = 60;	/* (secs) Default is 1 minute */
+> +static unsigned long wdt_status = 0;	
+> +static unsigned long boot_status = 0;
 
-One real problem is that you are trying to do in the kernel what would 
-be best done in the application and better done in glibc... Because the 
-benefit of readahead varies based on fd rather than device. Consider a 
-program reading data from a file and putting it in a database. The 
-benefit of readahead for the sequential access data file is higher than 
-seek-read combinations. The library could do readahead based on the 
-bytes read since the last seek on a by-file basis, something the kernel 
-can't.
+Wastes bss(?) space to explicitly zero statics.
 
-This is not to say the kernel work hasn't been a benefit, but note that 
-with all the patches 2.4 still seems to outperform 2.6. And that's a 
-problem since other parts of 2.6 scale so well. I do see that 2.4 seems 
-to outperform 2.6 for usenet news, where you have small reads against a 
-modest database, a few TB or so, and 400-2000 processes doing random 
-reads against the data. Settings and schedulers seem to have only modest 
-effect there.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> +#define WDT_TICK_RATE (IXP4XX_PERIPHERAL_BUS_CLOCK * 1000000UL)
+> +
+> +#define	WDT_IN_USE		0
+> +#define	WDT_OK_TO_CLOSE		1
+> +
+> +static void
+> +wdt_enable(void)
+> +{
+> +	*IXP4XX_OSWK = IXP4XX_WDT_KEY;
+> +	*IXP4XX_OSWE = 0;
+> +	*IXP4XX_OSWT = WDT_TICK_RATE * heartbeat;
+> +	*IXP4XX_OSWE = IXP4XX_WDT_COUNT_ENABLE | IXP4XX_WDT_RESET_ENABLE;
+> +	*IXP4XX_OSWK = 0;
+> +}
+> +
+> +static void 
+> +wdt_disable(void)
+> +{
+> +	*IXP4XX_OSWK = IXP4XX_WDT_KEY;
+> +	*IXP4XX_OSWE = 0;
+> +	*IXP4XX_OSWK = 0;
+> +}
+
+Are these magic CPU addresses you're writing to?  Normally one uses bus 
+macros to read/write to devices.  But SoC and embedded stuff is often 
+special...
+
+
+> +static int
+> +ixp4xx_wdt_open(struct inode *inode, struct file *file)
+> +{
+> +	if (test_and_set_bit(WDT_IN_USE, &wdt_status))
+> +		return -EBUSY;
+> +
+> +	clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
+> +
+> +	wdt_enable();
+> +
+> +	return 0;
+> +}
+
+You typically want semaphores rather than bit tests.
+
+And what about blocking on multiple openers?
+
+
+> +static ssize_t 
+> +ixp4xx_wdt_write(struct file *file, const char *data, size_t len, loff_t *ppos)
+> +{
+> +	/* Can't seek (pwrite) on this device  */
+> +	if (ppos != &file->f_pos)
+> +		return -ESPIPE;
+> +
+> +	if (len) {
+> +		if (!nowayout) {
+> +			size_t i;
+> +
+> +			clear_bit(WDT_OK_TO_CLOSE, &wdt_status);
+> +
+> +			for (i = 0; i != len; i++) {
+> +				char c;
+> +
+> +				if (get_user(c, data + i))
+> +					return -EFAULT;
+> +				if (c == 'V')
+> +					set_bit(WDT_OK_TO_CLOSE, &wdt_status);
+> +			}
+> +		}
+> +		wdt_enable();
+> +	}
+
+do other watchdog drivers really twiddle a bit like this on each write?
+
+Otherwise looks OK.
+
+	Jeff
+
+
+

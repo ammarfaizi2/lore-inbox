@@ -1,76 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266692AbUBMDNU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 22:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266693AbUBMDNU
+	id S266695AbUBMDRk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 22:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266700AbUBMDRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 22:13:20 -0500
-Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:3972 "EHLO
-	mail.jg555.com") by vger.kernel.org with ESMTP id S266692AbUBMDNS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 22:13:18 -0500
-Message-ID: <015501c3f1df$42cd7cf0$d300a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Initrd Question
-Date: Thu, 12 Feb 2004 19:12:48 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 12 Feb 2004 22:17:39 -0500
+Received: from [220.249.10.10] ([220.249.10.10]:4546 "EHLO
+	mail.goldenhope.com.cn") by vger.kernel.org with ESMTP
+	id S266695AbUBMDRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 22:17:34 -0500
+Date: Fri, 13 Feb 2004 11:16:53 +0800
+From: lepton <lepton@mail.goldenhope.com.cn>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG]kmalloc memory in reiserfs code failed on a dual amd64/4G linux 2.6.2 box
+Message-ID: <20040213031653.GA25623@lepton.goldenhope.com.cn>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote the initrd hint for the Linux from Scratch. I have followed the
-initrd.txt exactly to the letter. The problem I have noticed is with one of
-the commands, and I checked other mkinitrd scripts and they have the
-workaround in it.
+I seen such dmesg in mu dual amd64/4G memory box.
 
-According to initrd.txt the  echo 0x301 >/proc/sys/kernel/real-root-dev is
-for the old change root mechanism, but I have tried to elminate that from my
-script and it fails everytime saying it can't find the root, the infamous
-Kernel panic: VFS: Unable to mount root fs on xx:xx. Here is my linuxrc
-script that is built from my mkinitrd script which can be viewed at
-http://cvs.jg555.com/viewcvs.cgi/scripts/system/mkinitrd.
+I am running kernel 2.6.2
 
-I use busybox for my script so I can keep the size down. My current size is
-only 387k.
-
-#!/bin/sh
-
-echo "Initial RAMDISK Loading Starting..."
-insmod /lib/megaraid.ko
-insmod /lib/aic7xxx.ko
-insmod /lib/uhci-hcd.ko
-echo "Mounting proc..."
-mount -n -t proc none /proc
-echo 0x0100 > /proc/sys/kernel/real-root-dev
-echo "Mounting real root dev..."
-mount -n -o ro /dev/sda2 /new_root
-echo "Running pivot_root..."
-pivot_root /new_root /new_root/initrd
-if [ -c initrd/dev/.devfsd ]
-  then
-          echo "Mounting devfs..."
-          mount -n -t devfs none dev
-fi
-if [ $$ = 1 ]
-  then
-          echo "Running init..."
-          exec chroot . sbin/init dev/console 2>&1
-  else
-          echo "Using bug circumvention for busybox..."
-          exec chroot . sbin/linuxrc dev/console 2>&1
-fi
-echo "Initial RAMDISK Loading Completed..."
+This is the second time I saw some problems about __alloc_pages on this
+amd 64 box...
 
 
+sort: page allocation failure. order:1, mode:0x20
 
-----
-Jim Gifford
-maillist@jg555.com
+Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
+       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
+       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
+       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
+       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
+       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
+       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
+       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
+       
+sort: page allocation failure. order:1, mode:0x20
 
+Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
+       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
+       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
+       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
+       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
+       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
+       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
+       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
+       
+sort: page allocation failure. order:1, mode:0x20
+
+Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
+       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
+       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
+       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
+       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
+       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
+       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
+       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
+       
+sort: page allocation failure. order:1, mode:0x20
+
+Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
+       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
+       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
+       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
+       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff801bd6a8>{pathrelse+40} 
+       <ffffffff801a834b>{reiserfs_create+171} <ffffffff8017690c>{vfs_create+140} 
+       <ffffffff80176ca8>{open_namei+424} <ffffffff801675a7>{filp_open+39} 
+       <ffffffff801210a8>{sys32_open+56} <ffffffff8011e25e>{ia32_do_syscall+30} 
+       
+sort: page allocation failure. order:1, mode:0x20
+
+Call Trace:<ffffffff8014e5f0>{__alloc_pages+816} <ffffffff8014e65e>{__get_free_pages+78} 
+       <ffffffff80151921>{cache_grow+177} <ffffffff80151e78>{cache_alloc_refill+440} 
+       <ffffffff801521c6>{__kmalloc+102} <ffffffff801b44f6>{get_mem_for_virtual_node+102} 
+       <ffffffff801b49a8>{fix_nodes+232} <ffffffff801c08c5>{reiserfs_insert_item+149} 
+       <ffffffff801acf2c>{reiserfs_new_inode+892} <ffffffff8014e2a5>{buffered_rmqueue+325} 
+       <ffffffff801bd6a8>{pathrelse+40} <ffffffff801a834b>{reiserfs_create+171} 
+       <ffffffff8017690c>{vfs_create+140} <ffffffff80176ca8>{open_namei+424} 
+       <ffffffff801675a7>{filp_open+39} <ffffffff801210a8>{sys32_open+56} 
+       <ffffffff8011e25e>{ia32_do_syscall+30} 

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131100AbQKVCPs>; Tue, 21 Nov 2000 21:15:48 -0500
+	id <S132129AbQKVCV2>; Tue, 21 Nov 2000 21:21:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132129AbQKVCPi>; Tue, 21 Nov 2000 21:15:38 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:23556 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S131100AbQKVCPV>;
-	Tue, 21 Nov 2000 21:15:21 -0500
-Message-Id: <200011220144.eAM1iUf08680@sleipnir.valparaiso.cl>
-To: David Hinds <dhinds@lahmed.stanford.edu>
-cc: Tobias Ringstrom <tori@tellus.mine.nu>,
+	id <S132207AbQKVCVT>; Tue, 21 Nov 2000 21:21:19 -0500
+Received: from lahmed.Stanford.EDU ([171.65.76.205]:54423 "EHLO
+	lahmed.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S132129AbQKVCVG>; Tue, 21 Nov 2000 21:21:06 -0500
+From: David Hinds <dhinds@lahmed.stanford.edu>
+Date: Tue, 21 Nov 2000 17:50:11 -0800
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Cc: Tobias Ringstrom <tori@tellus.mine.nu>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules 
-In-Reply-To: Message from David Hinds <dhinds@lahmed.stanford.edu> 
-   of "Tue, 21 Nov 2000 16:04:44 -0800." <20001121160443.B18150@lahmed.stanford.edu> 
-Date: Tue, 21 Nov 2000 22:44:30 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules
+Message-ID: <20001121175011.C18265@lahmed.stanford.edu>
+In-Reply-To: <dhinds@lahmed.stanford.edu> <200011220144.eAM1iUf08680@sleipnir.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <200011220144.eAM1iUf08680@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Tue, Nov 21, 2000 at 10:44:30PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Hinds <dhinds@lahmed.stanford.edu> said:
+On Tue, Nov 21, 2000 at 10:44:30PM -0300, Horst von Brand wrote:
+> 
+> If you have a laptop with an assortment of cards, you might want to have
+> the generic builtin and the cards themselves as modules.
 
-[...]
+No, that's ok, and that's supported with the current config scripts.
 
-> Is there a technical reason for this?  Not that I know of; but then I
-> also cannot think of a good reason for wanting, say, the generic code
-> built in but the controller support as modules.  I do see reasonable
-> arguments for all-builtin or all-modules.
+The original question was about having the generic code built in, but
+the socket driver (yenta) as a module.  The socket driver needs to be
+loaded regardless of what cards you're using.  So I think having one
+in the kernel and the other as a module is of limited utility.
 
-If you have a laptop with an assortment of cards, you might want to have
-the generic builtin and the cards themselves as modules.
-
-Pretty weak, I know.
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

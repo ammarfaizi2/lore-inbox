@@ -1,45 +1,48 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVC2Puq (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 29 Mar 2005 10:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVC2Pup
+	id S261256AbVC2RJ0 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 29 Mar 2005 12:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVC2RJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 10:50:45 -0500
-Received: from [220.122.62.250] ([220.122.62.250]:30219 "HELO wrongmail.com")
-	by vger.kernel.org with SMTP id S261170AbVC2Pul (ORCPT
+	Tue, 29 Mar 2005 12:09:04 -0500
+Received: from [211.36.37.22] ([211.36.37.22]:48310 "HELO mail.qsv20.com")
+	by vger.kernel.org with SMTP id S261256AbVC2RH4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 10:50:41 -0500
-Message-ID: <413001c5343c$aa5b4f00$37f13f4e@omega>
-From: <omega@wrongmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: horloges uitverkoop
-Date: Tue, 29 Mar 2005 08:52:41 +0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+	Tue, 29 Mar 2005 12:07:56 -0500
+Date: 29 Mar 2005 23:12:15 +0900
+Message-ID: <20050329141215.1719.qmail@mail.qsv20.com>
+From: info@qsv19.com
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20=1B$B!~=3DP2q$$7OI,>?= =?ISO-8859-1?Q?!>pJs!~=1B(B?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261170AbVC2Puq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261256AbVC2RJ0@vger.kernel.org>
 
-Wij hebben geheel nieuw in ons aanbod edel horloges opgenomen.
-Wij hebben bijna alle fantastische modelle voor u, die u zich maar wensen
-kunt.
-Alles van Bulgari, Cartier tot Chopard en Omega en Gucci uurwerken is te
-verkrijgen.
-Gesorteerd naar mannen en vrouwen uurwerken, of als geschenkbox is er ook
-voor u de juist.
- 
-Wat is beter als geschenk dan een uurwerk dat lang mee gaat?
-Het is niet alleen een teken van goede smaak, maar ook een geheel
-persoonlijk geschenk voor uw geliefde.
- 
-Direct naar de uurwerken hier.
-http://fdpxrbfv.jmbeheldgm.ws/?KwMgMjLiEOlSJKeweqell
- 
-Veel winkelplezier gewenst door uw uurwerk team.
- 
-Uw Albert Schmitz
- 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          ┏━┓  ┏━┓  ┏━┓  ┏━┓  
+          ┃出┣━┫い┣━┫必┣━┫情┣━┓
+          ┗━┫会┣━┫系┣━┫勝┣━┫報┃
+              ┗━┛  ┗━┛  ┗━┛  ┗━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□■―――――――――――――――――――――――――――――――――□■
+
+
+知ってますか？実に会員様の３０％が、登録して１週間以内に出会っているのを！
+
+日本最大のネットコミュニティー！！　その名も「出会いＰＣ」
+
+　　　　　　　　　　　　http://com.deai-pc.com/?num=30010
+
+□■―――――――――――――――――――――――――――――――――□■
+
+      ┌─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┐
+      │最│強│出│会│サ│イ│ト│が│リ│ニ│ュ│ー│ア│ル│      
+      └─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┘
+          │こ│れ│で│貴│方│も│モ│テ│モ│テ│に│！│
+          └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘
+
+　　　　　　　　　　　　http://com.deai-pc.com/?num=40010
+
+□■―――――――――――――――――――――――――――――――――□■
 

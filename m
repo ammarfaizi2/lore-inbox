@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTA2AIj>; Tue, 28 Jan 2003 19:08:39 -0500
+	id <S262449AbTA2AK2>; Tue, 28 Jan 2003 19:10:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262449AbTA2AIj>; Tue, 28 Jan 2003 19:08:39 -0500
-Received: from packet.digeo.com ([12.110.80.53]:58859 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262425AbTA2AIj>;
-	Tue, 28 Jan 2003 19:08:39 -0500
-Message-ID: <3E371DB1.F365D2CB@digeo.com>
-Date: Tue, 28 Jan 2003 16:17:53 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.59-dcl2
-References: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net> <1043798822.10150.318.camel@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Jan 2003 00:17:53.0369 (UTC) FILETIME=[DD835C90:01C2C72B]
+	id <S262500AbTA2AK2>; Tue, 28 Jan 2003 19:10:28 -0500
+Received: from dp.samba.org ([66.70.73.150]:12169 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262449AbTA2AK1>;
+	Tue, 28 Jan 2003 19:10:27 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: ookhoi@humilis.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 oops with modprobe lp 
+In-reply-to: Your message of "Tue, 28 Jan 2003 15:12:19 BST."
+             <20030128151219.A953@humilis> 
+Date: Wed, 29 Jan 2003 10:41:19 +1100
+Message-Id: <20030129001948.5DAF52C07D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
+In message <20030128151219.A953@humilis> you write:
+> Hi all,
 > 
-> Missed one item in the credits.
-> 
-> Also, added the Nick Piggin's anticipaatory i/o scheduler (via -mm5)
-> to 2.5.59-dcl2 to evaluate the performance impact under different loads.
-> 
+> Just booted my fresh compiled 2.5.59 (patched with reiser4 and kexec),
+> and did a 'modprobe lp'. It segfaulted. lsmod hangs.
 
-It caused regression in David Mansfield's database test.  That was
-recovered in -mm6.
+Yep.  This is due to a small bug in Kai's vmlinux.lds.h cleanup:
+
+Hope this helps!
+Rusty.
+
+diff -Nru a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+--- a/include/asm-generic/vmlinux.lds.h	Sat Jan 25 12:24:59 2003
++++ b/include/asm-generic/vmlinux.lds.h	Sat Jan 25 12:24:59 2003
+@@ -13,18 +13,18 @@
+ 	}								\
+ 									\
+ 	/* Kernel symbol table: Normal symbols */			\
+-	__start___ksymtab = .;						\
+ 	__ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {		\
++		__start___ksymtab = .;					\
+ 		*(__ksymtab)						\
++		__stop___ksymtab = .;					\
+ 	}								\
+-	__stop___ksymtab = .;						\
+ 									\
+ 	/* Kernel symbol table: GPL-only symbols */			\
+-	__start___gpl_ksymtab = .;					\
+ 	__gpl_ksymtab     : AT(ADDR(__gpl_ksymtab) - LOAD_OFFSET) {	\
++		__start___gpl_ksymtab = .;				\
+ 		*(__gpl_ksymtab)					\
++		__stop___gpl_ksymtab = .;				\
+ 	}								\
+-	__stop___gpl_ksymtab = .;					\
+ 									\
+ 	/* Kernel symbol table: strings */				\
+         __ksymtab_strings : AT(ADDR(__ksymtab_strings) - LOAD_OFFSET) {	\
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

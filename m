@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUGCKvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUGCLm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264482AbUGCKvF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 06:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264798AbUGCKvF
+	id S264931AbUGCLm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 07:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbUGCLm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 06:51:05 -0400
-Received: from lucidpixels.com ([66.45.37.187]:55523 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S264482AbUGCKvD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 06:51:03 -0400
-Date: Sat, 3 Jul 2004 06:50:58 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: linux-kernel@vger.kernel.org
-cc: ap@solarrain.com
-Subject: 4K vs 8K stacks- Which to use?
-Message-ID: <Pine.LNX.4.60.0407030649120.13543@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 3 Jul 2004 07:42:58 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:40377 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S264931AbUGCLm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 07:42:57 -0400
+Date: Sat, 3 Jul 2004 12:39:01 +0100
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, limaunion@fibertel.com.ar,
+       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk,
+       water modem <lundby@ameritech.net>
+Subject: Re: [patch] Re: 2.6.7-mm2 build errors...
+Message-ID: <20040703113901.GO7101@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@fs.tum.de>, "Randy.Dunlap" <rddunlap@osdl.org>,
+	limaunion@fibertel.com.ar, linux-kernel@vger.kernel.org,
+	cpufreq@www.linux.org.uk, water modem <lundby@ameritech.net>
+References: <40DCEFFB.5020605@fibertel.com.ar> <20040702205129.GK28324@fs.tum.de> <20040702140322.2ab47867.rddunlap@osdl.org> <20040702215024.GL28324@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040702215024.GL28324@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use an array of machines with all sorts of CPU's (but no 64bit CPU's 
-yet):
+On Fri, Jul 02, 2004 at 11:50:24PM +0200, Adrian Bunk wrote:
 
-Which should I use for each CPU?
-Which is better and why?
+ > > but my patch was insufficient:
+ > > http://marc.theaimsgroup.com/?l=linux-kernel&m=108753512102539&w=2
+ > > 
+ > > See reply from Dave Jones.  And I see what he means, but I don't
+ > > see how to express it in Kconfig language.
+ > 
+ > What about the patch below?
 
-Pentium 1 CPU's
-Cyrix P150 (120MHZ)
-Pentium 2 CPU's
-Pentium 3 CPU's
-Pentium 4 W/HT
-Pentium 4 W/OUT HT
+Looks good, I'll give it a test later, and roll it into cpufreq-bk
+and let it simmer in -mm for a few days.  (There's a bunch of other
+cpufreq bits that have backlogged which I also need to get some
+testing of).
+
+		Dave
 

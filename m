@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbULDRk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbULDRuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbULDRk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 12:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbULDRk7
+	id S262565AbULDRuR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 12:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbULDRuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 12:40:59 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:58572 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S262562AbULDRkx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 12:40:53 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-rc3
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
-	<pan.2004.12.04.09.06.09.707940@nn7.de>
-	<87oeha6lj1.fsf@sycorax.lbl.gov> <cosrt1$j67$1@sea.gmane.org>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: Sat, 04 Dec 2004 09:40:51 -0800
-In-Reply-To: <cosrt1$j67$1@sea.gmane.org> (message from Ari Pollak on Sat,
- 04 Dec 2004 12:24:57 -0500)
-Message-ID: <87eki66jx8.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Dec 2004 12:50:17 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:24713 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S262565AbULDRuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 12:50:10 -0500
+Date: Sat, 4 Dec 2004 18:50:09 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: =?iso-8859-1?Q?H=E5vard_Kv=E5len?= <havardk@kvaalen.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel CVS is malfunctioning
+Message-ID: <20041204175009.GD13244@dualathlon.random>
+References: <20041204032723.GX32635@dualathlon.random> <m3is7iezcu.fsf@athlon.kvaalen.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m3is7iezcu.fsf@athlon.kvaalen.no>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ari Pollak <aripollak@gmail.com> writes:
+On Sat, Dec 04, 2004 at 06:40:17PM +0100, Håvard Kvålen wrote:
+> Andrea Arcangeli <andrea@suse.de> writes:
+> 
+> > The kernel CVS seems screwed. cvsps -x --bkcvs tells there are 2
+> > checkins.
+> 
+> This has already been reported to linux-kernel:
 
-> Alex Romosan wrote:
->> well, it's still more than my thinkpad which doesn't want to wake up
->> from sleep anymore.
->
-> My thinkpad will resume fine if I remove the intel8x0 and intel8x0m
-> ALSA modules before going into suspend - works with both APM and ACPI,
-> though I don't really use ACPI suspend because the battery drains like
-> crazy.
-
-i saw there were some changes to alsa cvs having to do with the new
-pci device handling. i'll reconfigure the kernel with alsa as modules
-and try alsa cvs to see if that makes any difference. thanks.
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+Andrew posted it to me privately too, thanks. (it's not urgent, I just
+wanted to be sure somebody was aware about it ;)

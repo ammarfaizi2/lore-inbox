@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281542AbRKMGkF>; Tue, 13 Nov 2001 01:40:05 -0500
+	id <S281543AbRKMGpp>; Tue, 13 Nov 2001 01:45:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281544AbRKMGjz>; Tue, 13 Nov 2001 01:39:55 -0500
-Received: from 24-168-215-96.he.cox.rr.com ([24.168.215.96]:14740 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S281542AbRKMGjj>;
-	Tue, 13 Nov 2001 01:39:39 -0500
-Date: Tue, 13 Nov 2001 01:39:33 -0500
-Subject: Re: Changed message for GPLONLY symbols
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v472)
-Cc: linux-kernel@vger.kernel.org
-To: Keith Owens <kaos@ocs.com.au>
-From: Anthony DeRobertis <asd@suespammers.org>
-In-Reply-To: <10444.1005619809@kao2.melbourne.sgi.com>
-Message-Id: <32B7627D-D801-11D5-A2FE-00039355CFA6@suespammers.org>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.472)
+	id <S281544AbRKMGph>; Tue, 13 Nov 2001 01:45:37 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:27590 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S281543AbRKMGpU>; Tue, 13 Nov 2001 01:45:20 -0500
+Date: Tue, 13 Nov 2001 07:45:14 +0100 (CET)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.hbh.net
+To: Frank de Lange <lkml-frank@unternet.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Abysmal interactive performance on 2.4.linus
+In-Reply-To: <20011112235642.A17544@unternet.org>
+Message-ID: <Pine.LNX.4.40.0111130740230.10017-100000@omega.hbh.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: OK (checked by AntiVir Version 6.10.0.27)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> Seems that reiserfs is the common factor here, at least on my box. This is a 35
+> GB reiserfs filesystem, app 80% used, both large and small files.
+>
+> As said in my previous message, the numbers themselves don't mean squat. It is
+> the large delays (the fact that user+sys <<< real) which are the problem here.
 
-On Monday, November 12, 2001, at 09:50 , Keith Owens wrote:
+This was also reported as
 
-> Does anyone think that this message can be misunderstood by anybody
-> with the "intelligence" of the normal Windoze user?
+Suspected bug - System slowdown under unexplained excessive disk I/O - 2.4.13
+with huge delays during compiles (sasha Pachev) or mysql-benchmarks (me).
+But today I do not find this reiser-specific, this also seems to happen
+with ext3.
+But as you wrote, not with ext2. I see that there is more disk-activity
+due to journaling in both cases, but waiting 30 seconds for simple tasks
+or waking from screen-apm seems not to be right.
 
-Make something idiot-proof and the universe will create a better idiot.
+
+Oktay Akbal
 

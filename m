@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbSJLTqd>; Sat, 12 Oct 2002 15:46:33 -0400
+	id <S261341AbSJLTrl>; Sat, 12 Oct 2002 15:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261340AbSJLTqd>; Sat, 12 Oct 2002 15:46:33 -0400
-Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:39151 "EHLO
-	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S261339AbSJLTqc>; Sat, 12 Oct 2002 15:46:32 -0400
-Message-ID: <XFMail.20021012155110.f.duncan.m.haldane@worldnet.att.net>
-X-Mailer: XFMail 1.5.3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Date: Sat, 12 Oct 2002 15:51:10 -0400 (EDT)
-From: Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20pre10 compile fails to link  init_rootfs if CONFIG_RAMFS != y
+	id <S261340AbSJLTrl>; Sat, 12 Oct 2002 15:47:41 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:43442 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261341AbSJLTrj>; Sat, 12 Oct 2002 15:47:39 -0400
+Subject: Re: [PATCH] 2.5 version of device mapper submission
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-lvm@sistina.com
+In-Reply-To: <20021009181259.GA25050@fib011235813.fsnet.co.uk>
+References: <20021009181259.GA25050@fib011235813.fsnet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Oct 2002 21:05:26 +0100
+Message-Id: <1034453126.15067.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject line says it all:
+On Wed, 2002-10-09 at 19:12, Joe Thornber wrote:
+> The 2.5 port of device-mapper is available from:
+> 
+>    bk://device-mapper.bkbits.net/2.5-stable
+> 
+> There are 6 changesets in here that are summarised at the end of this
+> email.
 
-This needs fixing in linux-2.4.20pre*: 
+Until I get it in patch form I can't merge it...
 
---   a function in fs/namespace.c calls init_rootfs(),
-
---   This is declared as "extern void init_rootfs(void)" in fs/namespace.c,
-     But " __init int init_rootfs(void)" *only* occurs
-     in fs/ramfs/inode.c, and is not compiled unless CONFIG_RAMFS=y.
-     If CONFIG_RAMFS !=y, "make fs" fails (can't link init_rootfs).
-
-
-Who should this report go to?
-(I found that this was already briefly alluded to
-on this list a few months ago, but seems to have been ignored....)
-
-----------------------------------
-E-Mail: Duncan Haldane <duncan_haldane@users.sourceforge.net>
-Date: 12-Oct-2002
-Time: 15:13:22
-
-This message was sent by XFMail
-----------------------------------

@@ -1,39 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263437AbRFNRs1>; Thu, 14 Jun 2001 13:48:27 -0400
+	id <S263441AbRFNRxr>; Thu, 14 Jun 2001 13:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263485AbRFNRsS>; Thu, 14 Jun 2001 13:48:18 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:30002 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263437AbRFNRsF>; Thu, 14 Jun 2001 13:48:05 -0400
-Date: Thu, 14 Jun 2001 19:47:57 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Richard Henderson <rth@redhat.com>
+	id <S263443AbRFNRxi>; Thu, 14 Jun 2001 13:53:38 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:26513 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263441AbRFNRxX>;
+	Thu, 14 Jun 2001 13:53:23 -0400
+Message-ID: <3B28F9EC.D08D3D52@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 13:52:44 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
 Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-        linux-kernel@vger.kernel.org
+        linux-kernel@vger.kernel.org, Richard Henderson <rth@redhat.com>
 Subject: Re: unregistered changes to the user<->kernel API
-Message-ID: <20010614194757.B715@athlon.random>
-In-Reply-To: <20010614191219.A30567@athlon.random> <20010614191634.B30567@athlon.random> <20010614192122.C30567@athlon.random> <20010614103249.A28852@redhat.com>
-Mime-Version: 1.0
+In-Reply-To: <20010614191219.A30567@athlon.random> <3B28F376.1F528D5A@mandrakesoft.com> <20010614194419.A715@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010614103249.A28852@redhat.com>; from rth@redhat.com on Thu, Jun 14, 2001 at 10:32:49AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 14, 2001 at 10:32:49AM -0700, Richard Henderson wrote:
-> within glibc, and (2) making these accesses slower since they
-> will be considered O_DIRECT after the change.
+Andrea Arcangeli wrote:
+> 
+> On Thu, Jun 14, 2001 at 01:25:10PM -0400, Jeff Garzik wrote:
+> > They don't hurt but it's also a bad precedent - you don't want to add a
+> > ton of CONFIG_xxx to the Linus tree for stuff outside the Linus tree.
+> > disagree with this patch.
+> 
+> If tux will ever be merged into mainline eventually I don't think
+> there's a value in defer such bit. Of course if tux will never get
+> merged then I totally agree with you.
 
-and then read/write will return -EINVAL which is life-threatening.
-O_DIRECT like rawio via /dev/raw imposes special buffer size and
-alignment (size multiple of softblocksize of the fs and softblocksize
-alignment, at max I can turn it down to hardblocksize without intensive
-changes and guaranteeing zerocopy [modulo bounce buffers on x86 of
-course]).
+You're missing the point -- it's a bad precedent.
 
-So in short at least glibc would need to be replaced...
+How many kernel forks and patches exist out there on the net?
 
-Andrea
+Many of these patches will get merged eventually.  But it is a bad idea
+to include bits of such into the Linus tree, when they are not used in
+the Linus tree.
+
+-Exceptions- to this policy should be carefully considered...  reserving
+syscall and sysctl numbers certainly makes sense.  Bloating kernel_stat
+with tons of unused numbers, some specific to web servers AFAICS, does
+not make sense.
+
+Tangent:  Why is this webserver-specific crap in kernel_stat anyway?  It
+looks like there should be a separate per-cpu structure for webserver
+statistics.
+
+> +       unsigned int parse_static_incomplete;
+> +       unsigned int parse_static_redirect;
+> +       unsigned int parse_static_cachemiss;
+> +       unsigned int parse_static_nooutput;
+> +       unsigned int parse_static_normal;
+> +       unsigned int parse_dynamic_incomplete;
+> +       unsigned int parse_dynamic_redirect;
+> +       unsigned int parse_dynamic_cachemiss;
+> +       unsigned int parse_dynamic_nooutput;
+> +       unsigned int parse_dynamic_normal;
+> +       unsigned int complete_parsing;
+> +
+> +       unsigned int nr_keepalive_reqs;
+> +       unsigned int nr_nonkeepalive_reqs;
+> +#define KEEPALIVE_HIST_SIZE 100
+> +       unsigned int keepalive_hist[KEEPALIVE_HIST_SIZE];
+
+Even when merging Tux, I would hope Linus would not apply this
+particular change.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

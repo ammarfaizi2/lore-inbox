@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVBDCFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263376AbVBDCK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVBDCFS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 21:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVBDCFQ
+	id S263376AbVBDCK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 21:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263044AbVBDCBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 21:05:16 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:54520 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S261771AbVBDCEf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 21:04:35 -0500
-Date: Fri, 04 Feb 2005 02:04:28 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: Strange problem with sensors: 0 RPMs ?
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <1107479698l.5691l.0l@werewolf.able.es>
-In-Reply-To: <1107479698l.5691l.0l@werewolf.able.es> (from
-	jamagallon@able.es on Fri Feb  4 02:14:58 2005)
-X-Mailer: Balsa ..
-Message-Id: <1107482668l.6500l.0l@werewolf.able.es>
+	Thu, 3 Feb 2005 21:01:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48260 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261629AbVBDB5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 20:57:41 -0500
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: Koichi Suzuki <koichi@intellilink.co.jp>, Vivek Goyal <vgoyal@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>,
+       suparna bhattacharya <suparna@in.ibm.com>
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+References: <20050202161108.18D7.ODA@valinux.co.jp>
+	<m1fz0f9g20.fsf@ebiederm.dsl.xmission.com>
+	<20050204090151.18F0.ODA@valinux.co.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Feb 2005 18:55:30 -0700
+In-Reply-To: <20050204090151.18F0.ODA@valinux.co.jp>
+Message-ID: <m1brb19jhp.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
-	protocol="application/pgp-signature"; boundary="=-cI67PFytYy7dgQuxChzi"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-cI67PFytYy7dgQuxChzi
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Itsuro Oda <oda@valinux.co.jp> writes:
 
+> Hi,
+> 
+> On 02 Feb 2005 07:45:11 -0700
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> 
+> > 
+> > And the feedback begins :)
+> > 
+> > Itsuro Oda <oda@valinux.co.jp> writes:
+> > 
+> > > Hi,
+> > > 
+> > > I don't like calling crash_kexec() directly in (ex.) panic().
+> > > It should be call_dump_hook() (or something like this).
+> > > 
+> > > I think the necessary modifications of the kernel is only:
+> > > - insert the hooks that calls a dump function when crash occur
+> > crash_kexec()
+> > > - binding interface that binds a dump function to the hook
+> > >   (like register_dump_hook())
+> > sys_kexec_load(...);
+> 
+> For example there are pepole who want to execute a built in kernel
+> debugger when the system is crashed. or there are pepole who
+> believe the diskdump is the best dump tool :-)
+> 
+> So I think a sort of hook is better than calling crash_kexec 
+> directly. (May I make a patch ?)
 
-On 2005.02.04, J.A. Magallon wrote:
-> Hi all...
->=20
-> I have a dual Xeon box. I got tired of the noise of the Intel boxed
-> fans and bought a couple of Swiftech 'hedegehogs' and two ThemalTake
-> fans.
-> Board is an Asus PCDL and sensors chip is a w83627hf (heavily modified by
-> Asus, I suppose, because it has 5! fan sensors). With the Intel fans,
-> I got both rpm measures OK. With the new fans, the CPU0 fan insists
-> it is stopped at 0 RPM. And I see it spinning. It is correctly plugged
-> and the Xeon temperature stays nicely at 32=BA C.
-> And the more strange thing is that the hardware monitor in the BIOS
-> tells me it is spinning at about 2500 RPM !!! And the own BIOS says
-> at boot that my CPU FAN IS STOPPED.
->=20
+The prevalent feeling I have heard from kernel developers and 
+and my personal feeling as well is that after a kernel has called
+panic you can't trust it.  Which means anything running in the kernel
+itself is suspect.
 
-Sorry for the noise. Some google results I have not found before and
-fanN_div did the trick.
+The crash_kexec() hooks enables everything that does not get linked into
+the kernel.   So I don't feel a hook in the panic path is necessary
+nor do I feel that it is wise, especially with no in-kernel users.
 
-Thanks.
+Plus the worst part about a hook in the panic path is that it is
+inherently racy.  Keeping the crash_kexec() code from blocking or
+being racy has been a challenge.  And I still think that entire code
+path needs a review and some more code tweaks to remove races.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam7 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #3
+If someone else wants a hook in the panic path they can add their own
+hook, and make their own case for why it is needed.
 
-
---=-cI67PFytYy7dgQuxChzi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCAtgsRlIHNEGnKMMRAkujAKCMqHduLdogP0pARFRI1sSzCBa3MwCfXmXA
-NvXnSmLunT9lKV3WVmWYKY0=
-=zPkX
------END PGP SIGNATURE-----
-
---=-cI67PFytYy7dgQuxChzi--
-
+Eric

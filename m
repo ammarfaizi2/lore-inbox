@@ -1,259 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129352AbQK0Vwc>; Mon, 27 Nov 2000 16:52:32 -0500
+        id <S129406AbQK0V5d>; Mon, 27 Nov 2000 16:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129406AbQK0VwW>; Mon, 27 Nov 2000 16:52:22 -0500
-Received: from mhaaksma-3.dsl.speakeasy.net ([64.81.17.226]:526 "EHLO
-        mail.neruo.com") by vger.kernel.org with ESMTP id <S129352AbQK0VwH>;
-        Mon, 27 Nov 2000 16:52:07 -0500
-Subject: Dell 5000e APM (fixed!)
-From: Brad Douglas <brad@neruo.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed ; boundary="=-D8K33t+j+s1jHam1B9Vw"
-X-Mailer: Evolution 0.6 (Developer Preview)
-Date: 28 Nov 2000 05:20:47 +0800
-Mime-Version: 1.0
-Message-Id: <20001127215218Z129352-8303+1190@vger.kernel.org>
+        id <S129689AbQK0V5Y>; Mon, 27 Nov 2000 16:57:24 -0500
+Received: from lipta.cendio.se ([193.180.23.53]:31246 "EHLO lipta.cendio.se")
+        by vger.kernel.org with ESMTP id <S129406AbQK0V5I>;
+        Mon, 27 Nov 2000 16:57:08 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net> <200011270839.AAA28672@pizda.ninka.net> <20001127182113.A15029@athlon.random> <20001127182113.A15029@athlon.random> <20001127123655.A16930@munchkin.spectacle-pond.org>
+From: Marcus Sundberg <marcus@cendio.se>
+Date: 27 Nov 2000 22:27:00 +0100
+In-Reply-To: meissner@spectacle-pond.org's message of "Mon, 27 Nov 2000 12:36:55 -0500"
+Message-ID: <vey9y5umvv.fsf@lipta.cendio.se>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+meissner@spectacle-pond.org (Michael Meissner) writes:
 
---=-D8K33t+j+s1jHam1B9Vw
-Content-Type: text/plain
+> On Mon, Nov 27, 2000 at 06:21:13PM +0100, Andrea Arcangeli wrote:
+> > On Mon, Nov 27, 2000 at 12:39:55AM -0800, David S. Miller wrote:
+> > > Also I believe linkers are allowed to arbitrarily reorder members in
+> > > the data and bss sections.  I could be wrong on this one though.
+> > 
+> > I'm not sure either, but we certainly rely on that behaviour somewhere.
+> > Just to make an example fs/dquot.c:
+> > 
+> > 	int nr_dquots, nr_free_dquots;
+> > 
+> > kernel/sysctl.c:
+> > 
+> > 	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
+> > 
+> > The above is ok also on mips in practice though.
+> 
+> That needs to be fixed ASAP to use an array (not a structure).  It is simply
+> wrong to depend on two variables winding up in at adjacent offsets.
 
-Alan, here's the DMI info you requested.  Sorry about the delay.
+This reminded me of an old bug which apparently still hasn't been
+fixed (not in 2.2 at least). In init/main.c we have:
 
-The BIOS listed is a new test BIOS that has a *corrected* APM that I
-received this morning.  I really want to take a second to thank the
-people at Compal (BizCom) for the short turnaround once we figured out
-who the right people were to talk to.
+extern int rd_image_start;	/* starting block # of image */
+#ifdef CONFIG_BLK_DEV_INITRD
+kdev_t real_root_dev;
+#endif
+#endif
 
-Once I get the OK from Compal (and finish testing), I'll post it to the
-Tuxtops support site for all to download.
+int root_mountflags = MS_RDONLY;
 
-Brad Douglas
-brad@neruo.com
-brad@tuxtops.com
+and then in kernel/sysctl.c:
 
+#ifdef CONFIG_BLK_DEV_INITRD
+	{KERN_REALROOTDEV, "real-root-dev", &real_root_dev, sizeof(int),
+	 0644, NULL, &proc_dointvec},
+#endif
 
---=-D8K33t+j+s1jHam1B9Vw
-Content-Type: text/plain
-Content-Disposition: attachment ; filename="38W2.txt"
-Content-Transfer-Encoding: quoted-printable
+Because rd_image_start and root_mountflags are both int-aligned,
+this happens to work on little endian platforms. On big endian
+platforms however writing a value in the range 0-65535 to 
+/proc/sys/kernel/real-root-dev will place 0 in real_root_dev,
+and the actual value in the two padding bytes...
 
-DMI 2.3 present.
-50 structures occupying 1477 bytes.
-DMI table at 0x000EC230.
-Handle 0x0000
-	DMI type 0, 20 bytes.
-	BIOS Information Block
-		Vendor Phoenix Technologies LTD
-		Version 106
-		Release 134527017
-		BIOS base 0xE68A0
-		ROM size 192K
-		Capabilities:
-			Flags: 0x0000000000001F90
-Handle 0x0001
-	DMI type 1, 25 bytes.
-	System Information Block
-		Vendor Compal Electronics, Inc.
-		Product N30W
-		Version Revision B0
-		Serial Number 123456789
-Handle 0x0002
-	DMI type 2, 8 bytes.
-	Board Information Block
-		Vendor Compal Electronics, Inc.
-		Product 440BX Desktop Reference Platform
-		Version None
-		Serial Number None
-Handle 0x0003
-	DMI type 3, 17 bytes.
-	Chassis Information Block
-		Vendor Compal Electronics, Inc.
-		Product Compal Electronics, Inc.
-		Version N/A
-		Serial Number 9516=FA=FF=FF=FF=FF=FFNo Asset Tag
-		Asset Tag=20
-Handle 0x0004
-	DMI type 4, 32 bytes.
-Handle 0x0005
-	DMI type 5, 20 bytes.
-Handle 0x0006
-	DMI type 6, 12 bytes.
-	Memory Bank
-		Socket: U5
-		Banks: 0 1
-		Type:=20
-		Installed Size: Not Installed
-		Enabled Size: Not Installed
-Handle 0x0007
-	DMI type 6, 12 bytes.
-	Memory Bank
-		Socket: U6
-		Banks: 2 3
-		Type:=20
-		Installed Size: 64Mbyte
-		Enabled Size: 64Mbyte
-Handle 0x0008
-	DMI type 7, 19 bytes.
-	Cache
-		Socket: L1 Cache
-		L1 socketed Internal Cache: write-back
-		L1 Cache Size: 16K
-		L1 Cache Maximum: 16K
-		L1 Cache Type: Asynchronous=20
-Handle 0x0009
-	DMI type 7, 19 bytes.
-	Cache
-		Socket: L2 Cache
-		L2 socketed External Cache: write-back
-		L2 Cache Size: 512K
-		L2 Cache Maximum: 256K
-		L2 Cache Type: Unknown=20
-Handle 0x000A
-	DMI type 8, 9 bytes.
-	Connector
-		Name: COM 1
-		Type: DB9 male - 16550A Serial
-Handle 0x000B
-	DMI type 8, 9 bytes.
-	Connector
-		Name: Parallel
-		Type: DB25 female - ECP/EPP Parallel
-Handle 0x000C
-	DMI type 8, 9 bytes.
-	Connector
-		Name: Keyboard
-		Type: Circular DIN-8 male - Keyboard
-Handle 0x000D
-	DMI type 8, 9 bytes.
-	Connector
-		Name: PS/2 Mouse
-		Type: Circular DIN-8 male - Keyboard
-Handle 0x000E
-	DMI type 9, 13 bytes.
-	Card Slot
-		Slot: ISA Slot J8
-		Type: 16bit Long ISA=20
-		Slot Features: 5v=20
-Handle 0x000F
-	DMI type 9, 13 bytes.
-	Card Slot
-		Slot: ISA Slot J9
-		Type: 16bit Long ISA=20
-		Slot Features: 5v=20
-Handle 0x0010
-	DMI type 9, 13 bytes.
-	Card Slot
-		Slot: ISA Slot J10
-		Type: 16bit Long ISA=20
-		Slot Features: 5v=20
-Handle 0x0011
-	DMI type 9, 13 bytes.
-	Card Slot
-		Slot: PCI Slot J11
-		Type: 32bit PCI=20
-		Status: Available.
-		Slot Features: 5v 3.3v=20
-Handle 0x0012
-	DMI type 9, 13 bytes.
-	Card Slot
-		Slot: PCI Slot J12
-		Type: 32bit PCI=20
-		Status: Available.
-		Slot Features: 5v 3.3v=20
-Handle 0x0013
-	DMI type 9, 13 bytes.
-	Card Slot
-		Slot: PCI Slot J13
-		Type: 32bit PCI=20
-		Status: Available.
-		Slot Features: 5v 3.3v=20
-Handle 0x0014
-	DMI type 9, 13 bytes.
-	Card Slot
-		Slot: PCI Slot J14
-		Type: 32bit PCI=20
-		Status: Available.
-		Slot Features: 5v 3.3v=20
-Handle 0x0015
-	DMI type 10, 8 bytes.
-Handle 0x0016
-	DMI type 11, 5 bytes.
-	OEM Data
-	=09
-		Compal System
-		1[9F]
-		2[4.05.1]
-		3[1.0]
-Handle 0x0017
-	DMI type 12, 5 bytes.
-	Configuration Information
-		$=10/
-Handle 0x0018
-	DMI type 15, 29 bytes.
-	Event Log
-		Log Area: 16 bytes.
-		Log Header At: 0.
-		Log Data At: 16.
-		Log Type: 4.
-Handle 0x0019
-	DMI type 16, 15 bytes.
-Handle 0x001A
-	DMI type 17, 23 bytes.
-Handle 0x001B
-	DMI type 17, 23 bytes.
-Handle 0x001C
-	DMI type 18, 23 bytes.
-Handle 0x001D
-	DMI type 19, 15 bytes.
-Handle 0x001E
-	DMI type 20, 19 bytes.
-Handle 0x001F
-	DMI type 20, 19 bytes.
-Handle 0x0020
-	DMI type 22, 26 bytes.
-Handle 0x0021
-	DMI type 23, 13 bytes.
-Handle 0x0022
-	DMI type 24, 5 bytes.
-Handle 0x0023
-	DMI type 25, 9 bytes.
-Handle 0x0024
-	DMI type 26, 22 bytes.
-Handle 0x0025
-	DMI type 26, 20 bytes.
-Handle 0x0026
-	DMI type 27, 14 bytes.
-Handle 0x0027
-	DMI type 27, 12 bytes.
-Handle 0x0028
-	DMI type 28, 22 bytes.
-Handle 0x0029
-	DMI type 28, 20 bytes.
-Handle 0x002A
-	DMI type 30, 6 bytes.
-Handle 0x002B
-	DMI type 31, 28 bytes.
-Handle 0x002C
-	DMI type 32, 20 bytes.
-Handle 0x002D
-	DMI type 33, 31 bytes.
-Handle 0x002E
-	DMI type 36, 16 bytes.
-Handle 0x002F
-	DMI type 36, 16 bytes.
-Handle 0x0030
-	DMI type 126, 4 bytes.
-Handle 0x0031
-	DMI type 127, 4 bytes.
+(Yes, I'm one of the few that have actually used this feature. ;-)
 
+Unfortunately proc_dointvec() doesn't support shorts, so what is
+the correct fix? Changing:
+kdev_t real_root_dev;
+into
+int real_root-dev;
+is a perfectly working solution, but is it acceptable?
 
---=-D8K33t+j+s1jHam1B9Vw--
-
+//Marcus
+-- 
+-------------------------------+-----------------------------------
+        Marcus Sundberg        |       Phone: +46 707 452062
+  Embedded Systems Consultant  |      Email: marcus@cendio.se
+       Cendio Systems AB       |       http://www.cendio.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

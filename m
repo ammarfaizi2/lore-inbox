@@ -1,77 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUDJPlK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 11:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbUDJPlK
+	id S262043AbUDJQSH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 12:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUDJQSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 11:41:10 -0400
-Received: from smtp-out-1.tiscali.it ([212.123.84.26]:23209 "EHLO
-	rlx-1-3-5.tiscali.it") by vger.kernel.org with ESMTP
-	id S262052AbUDJPlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 11:41:05 -0400
-Date: Sat, 10 Apr 2004 17:41:07 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: Greg KH <greg@kroah.com>
+	Sat, 10 Apr 2004 12:18:06 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:52485 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S262043AbUDJQSD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 12:18:03 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Kitt Tientanopajai <kitt@gear.kku.ac.th>
+Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
+Date: Sat, 10 Apr 2004 18:14:41 +0200
+User-Agent: KMail/1.5.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] New ID for ftdi_sio
-Message-ID: <20040410154107.GA3983@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040408165123.GA11376@dreamland.darkstar.lan> <20040409191450.GB17546@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200404060227.58325.daniel.ritz@gmx.ch> <200404091941.20444.daniel.ritz@gmx.ch> <20040410101825.59158e43.kitt@gear.kku.ac.th>
+In-Reply-To: <20040410101825.59158e43.kitt@gear.kku.ac.th>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040409191450.GB17546@kroah.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200404101814.41955.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Fri, Apr 09, 2004 at 12:14:50PM -0700, Greg KH ha scritto: 
-> On Thu, Apr 08, 2004 at 06:51:23PM +0200, Kronos wrote:
-> > Hi,
-> > I have an USB contactless reader which uses a FTDI chip. It works well with the
-> > current ftdi_sio driver, it's just a matter of adding an ID:
+On Saturday 10 April 2004 05:18, Kitt Tientanopajai wrote:
+> Hi
 > 
-> Ick, this patch doesn't apply due to all of the recent ids being added
-> to this driver.  Can you re-diff it against the latest -mm tree and
-> resend it to me?
+> > > > you're welcome. but i now have the feeling that it's wrong. so another question:
+> > > > my patch also changes the interrupt assignment for the USB controller at 00:1d.1
+> > > > so the question is: does this one work ok? or is there an interrupt storm as soon
+> > > > as you use the device? (like with yenta_socket before)
+> > > 
+> > > Ah, right, TM361 has two USB ports, one of them has usb mouse attached and seem to be okay.
+> > > Another one does not work after applying your patch. This is dmesg when I connect Sony Clie to
+> > > sync data through the USB port, the pilot-xfer cannot sync any data and then exit without any
+> > > crash/freeze. 
+> > 
+> > with my first patch applied, does the mouse work on the second port?
+> 
+> Yes, usb mouse works. And when I discovered that clie sync did not work on on one port, I just replace mouse with clie sync cable, and sync data through it successfully.
+> 
 
-Here it is:
+so you say with my first patch both USB ports are working then? so clie sync only
+works on one of the ports but the mouse on both?
 
---- linux-2.6/drivers/usb/serial/ftdi_sio.h.orig	2004-04-10 17:35:27.000000000 +0200
-+++ linux-2.6/drivers/usb/serial/ftdi_sio.h	2004-04-10 17:36:47.000000000 +0200
-@@ -191,6 +191,9 @@
- #define LINX_FUTURE_1_PID   0xF44B   /* Linx future device */
- #define LINX_FUTURE_2_PID   0xF44C   /* Linx future device */
- 
-+/* Inside Accesso contactless reader (http://www.insidefr.com) */
-+#define INSIDE_ACCESSO		0xFAD0
-+
- /* Commands */
- #define FTDI_SIO_RESET 		0 /* Reset the port */
- #define FTDI_SIO_MODEM_CTRL 	1 /* Set the modem control register */
---- linux-2.6/drivers/usb/serial/ftdi_sio.c.orig	2004-04-10 17:36:52.000000000 +0200
-+++ linux-2.6/drivers/usb/serial/ftdi_sio.c	2004-04-10 17:38:07.000000000 +0200
-@@ -354,6 +354,7 @@
- 	{ USB_DEVICE_VER(FTDI_VID, PROTEGO_SPECIAL_3, 0, 0x3ff) },
- 	{ USB_DEVICE_VER(FTDI_VID, PROTEGO_SPECIAL_4, 0, 0x3ff) },
- 	{ USB_DEVICE_VER(FTDI_VID, FTDI_ELV_UO100_PID, 0, 0x3ff) },
-+	{ USB_DEVICE_VER(FTDI_VID, INSIDE_ACCESSO, 0, 0x3ff) },
- 	{ }						/* Terminating entry */
- };
- 
-@@ -558,6 +559,7 @@
-  	{ USB_DEVICE_VER(FTDI_VID, LINX_FUTURE_0_PID, 0x400, 0xffff) },
-  	{ USB_DEVICE_VER(FTDI_VID, LINX_FUTURE_1_PID, 0x400, 0xffff) },
-  	{ USB_DEVICE_VER(FTDI_VID, LINX_FUTURE_2_PID, 0x400, 0xffff) },
-+	{ USB_DEVICE(FTDI_VID, INSIDE_ACCESSO) },
- 	{ }						/* Terminating entry */
- };
- 
+> > could you try to replace the function o2micro_override() in drivers/pcmcia/o2micro.h
+> > with this one?
+> 
+> replaced, and here is the dmesg.
+> 
 
+ok, it's the interrupt routing, not the chip config. i think the first patch that
+adds the tm361 to the dmi_scan problem table is correct then. real good
+QA from acer: hack the BIOS, boot it with windows and if it works, ship it...
+it works with windows because it assigned all the devices to the same irq
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-Al termine di un pranzo di nozze mi hanno dato un
-amaro alle erbe cosi' schifoso che perfino sull'etichetta
-c'era un frate che vomitava.
+i'll submit it later to andrew morton.
+
+rgds
+-daniel
+

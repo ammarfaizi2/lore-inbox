@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266627AbUBQVkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUBQVhe
+	id S266640AbUBQVon (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:44:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266637AbUBQVky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:37:34 -0500
-Received: from mail.shareable.org ([81.29.64.88]:10885 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266637AbUBQVhS
+	Tue, 17 Feb 2004 16:40:54 -0500
+Received: from user-12l28nl.cable.mindspring.com ([69.81.34.245]:29847 "EHLO
+	mail.pelennor.net") by vger.kernel.org with ESMTP id S266651AbUBQVi7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:37:18 -0500
-Date: Tue, 17 Feb 2004 21:37:14 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior
-Message-ID: <20040217213714.GI24311@mail.shareable.org>
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040216062152.GB5192@pegasys.ws> <20040216155534.GA17323@mail.shareable.org> <20040217064755.GC9466@pegasys.ws>
+	Tue, 17 Feb 2004 16:38:59 -0500
+Date: Tue, 17 Feb 2004 15:38:58 -0600
+From: Matthew Rench <lists@pelennor.net>
+To: linux-kernel@vger.kernel.org
+Subject: problem rmmod'ing module
+Message-ID: <20040217153858.A11859@pelennor.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040217064755.GC9466@pegasys.ws>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz wrote:
-> Your concrete example is a good one.  Where did that
-> filename come from?  It would seem to have come from the
-> keyboard via a tty (or simulator) which also had to display
-> it.  I'd say this is an argument for the terminal to display
-> UTF-8 and convert intput into UTF-8.  That is something that
-> seems to be not consistantly done as yet.  Ultimately it
-> seems to be a responsiblity of the user interface, whether
-> tty or GUI.  Until that happens the shells might be able to
-> fill the gap, however poorly.
+Hello,
 
-Many terminals will not ever display UTF-8.  Think: all the serial terminals.
+I'm getting some strange behavior while trying to rmmod a module from my
+2.4.21 kernel. Each call to "rmmod" segfaults, leaving the module usage count
+incremented. This doesn't seem like something that is supposed to happen,
+but I can't understand what the problem is.
 
-This is why I think "stty utf8" or something along those lines would
-be useful.  The terminal itself doesn't have to talk UTF-8; however,
-the applications talking with /dev/tty would always see UTF-8.
+When I strace rmmod, the last few lines are:
 
-That seems to solve most of the practical user interface problems of
-the command line, in one single clean place.
+  query_module(NULL, QM_MODULES, { /* 5 entries */ }, 5) = 0
+  query_module("serial", QM_INFO, {address=0xd8816000, size=43620, flags=MOD_RUNNING, usecount=14}, 16) = 0
+  query_module( <unfinished ...>
+  +++ killed by SIGSEGV +++
 
--- Jamie
+
+I haven't wanted to reboot yet, so I don't know how reproducible this is. (In
+fact, I've used this module often on this kernel in the past, and haven't
+seen this problem before.) Is there something obvious I am missing?
+
+Thanks,
+mdr

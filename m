@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270036AbUJTL1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270027AbUJTKsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270036AbUJTL1k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 07:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270113AbUJTL05
+	id S270027AbUJTKsL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 06:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269945AbUJTKnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 07:26:57 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:36225 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S270036AbUJTLSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 07:18:04 -0400
-Date: Wed, 20 Oct 2004 13:18:00 +0200
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Instances of visor us devices are not deleted (2.6.9-rc4-mm1)
-Message-ID: <20041020111800.GA6569@gamma.logic.tuwien.ac.at>
-References: <20041020061647.GA20692@gamma.logic.tuwien.ac.at> <20041020070056.GA15620@kroah.com>
+	Wed, 20 Oct 2004 06:43:23 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:51841 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267683AbUJTKiq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 06:38:46 -0400
+Date: Wed, 20 Oct 2004 12:40:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041020104005.GA1813@elte.hu>
+References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041020100424.GA32396@elte.hu> <11742.195.245.190.93.1098268363.squirrel@195.245.190.93>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041020070056.GA15620@kroah.com>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+In-Reply-To: <11742.195.245.190.93.1098268363.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg!
 
-On Mit, 20 Okt 2004, Greg KH wrote:
-> Hm, no it isn't.  Are you sure that userspace doesn't still have the
-> device nodes open?  If they do, the ttyUSB number will not be released
-> until that happens.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-Ah, ok. So the culprit is gnome-pilot listening for HotSync events. 
+> Ingo Molnar wrote:
+> >
+> >> Changes since -U7:
+> >>
+> >
+> > - fix block-loopback assert reported by Mark H Johnson, Matthew L
+> >   Foster and Rui Nuno Capela. (usually triggers during 'make install'
+> >   of a kernel compile.)
+> >
+> 
+> Is this fix already on U8 ? I don't seem to get out of mkinitrd (which
+> is triggered by kernel make install).
 
-I thought that as soon as the unit/usb device is disconnected, also the
-device numbers are released.
+please re-download -U8, i've updated it a couple of minutes after
+uploading it, but apparently not fast enough :-| Sorry!
 
-But then: How to cope with problems like this? REcurring plugging and
-unplugging and a program listening to this?
+> OTOH, still on my laptop (P4/UP) I'm getting this very often:
+> 
+> RTNL: assertion failed at net/ipv4/devinet.c (1049)
 
-Is it possible to have
-	/dev/pilot	->	/dev/ttyUSB1
-and gnome-pilot opens /dev/pilot. Will then every new hot sync also
-create other devices?
+yeah - this too was an oversight i fixed in the latest upload.
 
-Best wishes
+> ------------[ cut here ]------------
+> kernel BUG at lib/rwsem-generic.c:598!
 
-Norbert
+>  [<c0104b0d>] error_code+0x2d/0x38 (100)
+>  [<e003f9c8>] loop_thread+0x61/0x11b [loop] (32)
+>  [<c0102305>] kernel_thread_helper+0x5/0xb (722608148)
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-Yesterday it worked.
-Today it is not working.
-Windows is like that.
-                       --- Windows Error Haiku
+yes, this is the loopback fix. Please-retry with the latest patch.
+
+	Ingo

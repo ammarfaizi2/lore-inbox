@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262991AbTLDBrw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 20:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTLDBrw
+	id S262913AbTLDBmL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 20:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbTLDBmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 20:47:52 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:60053 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262991AbTLDBru (ORCPT
+	Wed, 3 Dec 2003 20:42:11 -0500
+Received: from mail.netzentry.com ([157.22.10.66]:62981 "EHLO netzentry.com")
+	by vger.kernel.org with ESMTP id S262913AbTLDBmG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 20:47:50 -0500
-Date: Wed, 3 Dec 2003 17:47:43 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031204014743.GF29119@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-References: <20031202135423.GB13388@conectiva.com.br> <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz> <bql9kk$iq1$1@gatekeeper.tmr.com> <20031204012420.GE4420@pegasys.ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031204012420.GE4420@pegasys.ws>
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Dec 2003 20:42:06 -0500
+Message-ID: <3FCE90CD.6060501@netzentry.com>
+Date: Wed, 03 Dec 2003 17:41:33 -0800
+From: "b@netzentry.com" <b@netzentry.com>
+Reply-To: b@netzentry.com
+Organization: b@netzentry.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: wa1ter@myrealbox.com
+CC: linux-kernel@vger.kernel.org
+Subject: RE: NForce2 pseudoscience stability testing (2.6.0-test11)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03, 2003 at 05:24:20PM -0800, jw schultz wrote:
-> <OT>
-> As a datapoint i'm running ext2, reiserfs, JFS and XFS each
-> for different reasons.
-> 
-> 	ext2 -- boot (i'm stodgy) and 2kb blocks for archive CDs
-> 
-> 	reiserfs3 -- filesystems not exported nfs (no
-> 	historical version level that i can confirm whether
-> 	i have or not will namesys assert is reliable over
-> 	nfs)
-> 
+ >Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
+ >>Josh McKinney wrote:
+ >> To me the strangest thing is that when I first got this
+ >>board a month or
+ >> so ago it would hang with APIC or LAPIC enabled.  Now it works
+ >>fine
+ >> without disabling APIC.  All I did was update the BIOS and
+ >>use it for a
+ >> while with APIC disabled...
+ >
+ >Does the new BIOS use different defaults for memory timing,
+ >bus speed, etc?
+ >Did you change any of the default settings in the BIOS?
+ >
+-- I don't think this issue has anything to do with motherboard
+maker or BIOS rev. Most of the people with this problem are
+not overclocking and have stable machines with other OSes or
+under certain conditions namely:
 
-Maybe you should just try it?  I've used reiserfs on an NFS/samba server,
-and it didn't give me trouble.
+* In general NForce2 boards are stable under windows 2000
+- a far as I can tell
 
-> 	jfs -- most nfs exported filesystems, decent
-> 	performance and solid but i don't use if for home
-> 	because in SuSE's 2.4.18 (i know it is ancient but
-> 	solid for me) jfs doesn't update mtime of
-> 	directories unless the block allocation changes
-> 	breaking maildir update detection.
+* The boards are stable under certain conditions. The final
+test for this (Proposed by Allen Martin
+[AMartin at nvidia ! com] is to get a stable well supported
+PCI-IDE add in card and ignore the "AMD/NVIDIA" IDE onboard.
+(First pointed out by Ian Kumlien I believe)
+"If we all have that, and deadlock when using the amd/nvidia
+driver.. then we know that that might be the fault. The
+machine still locks for a while so, it's not just the ide,
+  but it might be a good place to start."
 
-This has been fixed in newer versions of JFS though, right?
+* NForce2 boards are stable when using APIC and using generic
+IDE driver. This is painfully slow but is stable.
 
-> 	xfs -- home (because of the jfs bug) Earlier tests
-> 	of xfs gave me horrible performance and i haven't
-> 	gotten around to testing since then.  If this is
-> 	fixed without tuning i might drop jfs.  Then again i
-> 	may drop xfs in the next upgrade if i change distros
-> 	and xfs isn't in-kernel.
+-- In general: I dont think it should be so easy to blame
+the BIOS. If one isnt overclocking and using the SPD on the
+memory and using conservative settings, what difference
+should that make? And if the board is stable with another
+OS I take this "BIOS blaming" and basically throw it out. BIOS
+is a deprecated arcane ridiculous thing and should never be
+trusted. I have seen on several nicer dual SCSI based
+machines messages on boot about certain values being changed
+or fixed up.
 
-What about ext3?  I tend to prefer ext3 since I know how it works more than
-the others, and it puts data integrity ahead of performance, which is the
-way things should be (TM).
+-- Fixing this for 2.4.x too is important so be sure to try
+and find out if 2.4.23 hangs if you get a stable 2.6 thing
+going.
+
+Thanks everyone for your continued interest in this, I'll
+try and test the no-onboard-PATA + UP LAPIC and IOAPIC and
+add-in-card-PATA with no onboard PATA + + UP LAPIC and IOAPIC
+when I get a spare moment which is rare.
+
+
+PS: If you are being CCed and dont want to be, let me know
+Some people arent on the list.
+
 

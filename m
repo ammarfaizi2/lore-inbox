@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282501AbRKZUnC>; Mon, 26 Nov 2001 15:43:02 -0500
+	id <S282491AbRKZUqB>; Mon, 26 Nov 2001 15:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282499AbRKZUmA>; Mon, 26 Nov 2001 15:42:00 -0500
-Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:23027 "EHLO
-	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
-	id <S282500AbRKZUkJ>; Mon, 26 Nov 2001 15:40:09 -0500
-From: junio@siamese.dhis.twinsun.com
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Weinehall <tao@acc.umu.se>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>
-Date: 26 Nov 2001 12:39:34 -0800
-In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>
-Message-ID: <7v1yil1d2x.fsf@siamese.dhis.twinsun.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S282500AbRKZUoq>; Mon, 26 Nov 2001 15:44:46 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41230 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282491AbRKZUni>; Mon, 26 Nov 2001 15:43:38 -0500
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Mon, 26 Nov 2001 12:37:47 -0800
+Message-Id: <200111262037.fAQKblt10496@penguin.transmeta.com>
+To: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Scalable page cache
+Newsgroups: linux.dev.kernel
+In-Reply-To: <3C02A00B.B9948342@zip.com.au>
+In-Reply-To: <3C029BE0.2BEA2264@zip.com.au>,
+		<Pine.LNX.4.33.0111262201420.18923-100000@localhost.localdomain>
+		<20011126.111854.102567147.davem@redhat.com>
+		<3C029BE0.2BEA2264@zip.com.au> <20011126.115723.41632923.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "MT" == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+In article <3C02A00B.B9948342@zip.com.au> you write:
+>
+>Here's the current rolled-up ext3 diff which I've been using.
+>It needs to be resynced with pestiferous ext3 CVS, changelogged
+>and pushed out this week.
+>
+>--- linux-2.4.15-pre9/fs/ext3/inode.c	Thu Nov 22 10:56:33 2001
+>+++ linux-akpm/fs/ext3/inode.c	Thu Nov 22 11:07:03 2001
+>@@ -1026,9 +1026,20 @@ static int ext3_prepare_write(struct fil
+> 	if (ret != 0)
+> 		goto prepare_write_failed;
+> 
+>-	if (ext3_should_journal_data(inode))
+>+	if (ext3_should_journal_data(inode)) {
+> 		ret = walk_page_buffers(handle, page->buffers,
+> 				from, to, NULL, do_journal_get_write_access);
+>+		if (ret) {
+>+			/*
+>+			 * We're going to fail this prepare_write(),
+>+			 * so commit_write() will not be called.
+>+			 * We need to undo block_prepare_write()'s kmap().
+>+			 * AKPM: Do we need to clear PageUptodate?  I don't
+>+			 * think so.
+>+			 */
+>+			kunmap(page);
+>+		}
+>+	}
 
-MT> On Mon, 26 Nov 2001, H. Peter Anvin wrote:
->> Consistency is a Very Good Thing[TM] (says the one who tries to teach
->> scripts to understand the naming.)  The advantage with the -rc naming is
->> that it avoids the -pre5, -pre6, -pre-final, -pre-final-really,
->> -pre-final-really-i-mean-it-this-time phenomenon when the release
->> candidate wasn't quite worthy, you just go -rc1, -rc2, -rc3.  There is no
->> shame in needing more than one release candidate.
+This is wrong.
 
-MT> Agreed. I stick with the -rc naming convention for 2.4+... 
+The generic VM layer does the kmap/kunmap itself these days (it really
+always should have - it needs the page mapped itself for the memcpy
+anyway, and depending on the low-level FS to do kmap/kunmap was an ugly
+layering violation). 
 
-(This is a request to maintainers of three stable trees).
+So you should just remove all the kmap/kunmap stuff in
+prepare/commit_write instead of adding more of them to handle the
+brokenness. 
 
-While we are on the topic, could you also coordinate to keep the
-EXTRAVERSION strings consistent?  2.4.X-preN uses "-preN" but
-2.2.X-preN uses "preN" without leading "-".
+		Linus

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbTDKTBN (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTDKTBM (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 15:01:12 -0400
-Received: from smtp03.web.de ([217.72.192.158]:52491 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261489AbTDKTBL (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 15:01:11 -0400
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: "Steve Lee" <steve@tuxsoft.com>
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Date: Fri, 11 Apr 2003 21:09:30 +0200
-User-Agent: KMail/1.5
-References: <001f01c3005b$362a1f60$0201a8c0@pluto>
-In-Reply-To: <001f01c3005b$362a1f60$0201a8c0@pluto>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S261537AbTDKTGW (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbTDKTGV (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 15:06:21 -0400
+Received: from inet-mail1.oracle.com ([148.87.2.201]:5791 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id S261528AbTDKTGT (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 15:06:19 -0400
+Date: Fri, 11 Apr 2003 11:35:43 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, Giuliano Pochini <pochini@shiny.it>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Mike Anderson <andmike@us.ibm.com>
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain
+Message-ID: <20030411183543.GA31739@ca-server1.us.oracle.com>
+References: <200304101339.49895.pbadari@us.ibm.com> <XFMail.20030411100430.pochini@shiny.it> <20030411154450.GW31739@ca-server1.us.oracle.com> <200304110928.32978.pbadari@us.ibm.com> <20030411175736.GY31739@ca-server1.us.oracle.com> <20030411111232.A7756@beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304112109.30318.freesoftwaredeveloper@web.de>
+In-Reply-To: <20030411111232.A7756@beaverton.ibm.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 April 2003 20:50, Steve Lee wrote:
-> Yes, 1998 3 into 1 splitters would be needed.
+On Fri, Apr 11, 2003 at 11:12:32AM -0700, Patrick Mansfield wrote:
+> I'm trying to pull the current multi-path patch up to 2.5.66 (ouch). 
 
-Yes, I think this is correct. :)
-My previously posted 400 ment "400 to each
-powersupply cable" (but I wasn't correct with it,
-because as you said to some are only 399 connected.
+	I wasn't aware of this work.  This is very interesting.  Two
+questions:
 
-PS: We should do something more productive than this. :)
+1) When does it failover?  Meaning, if I I/O to a disk, but someone
+yanks the fibrechannel plug.  Does your multipath wait for a SCSI
+timeout to redirect the I/O?
 
-Regards
-Michael Buesch.
+2) If so, have you considered trapping loop up/down events to handle
+such a case?  Real users of multipath tech do not want to wait 90s for
+failover.
+
+Joel
 
 -- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
 
+"Win95 file and print sharing are for relatively friendly nets."
+        - Paul Leach, Microsoft
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

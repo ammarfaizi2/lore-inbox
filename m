@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbTL2Iga (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 03:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbTL2Iga
+	id S262960AbTL2Iqg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 03:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbTL2Iqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 03:36:30 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:34178 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262888AbTL2Ig3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 03:36:29 -0500
-Date: Mon, 29 Dec 2003 09:36:10 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: akmiller@nzol.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide: "lost interrupt" with 2.6.0
-Message-ID: <20031229093610.A8892@electric-eye.fr.zoreil.com>
-References: <1072657930.3fef760a50062@webmail.nzol.net>
-Mime-Version: 1.0
+	Mon, 29 Dec 2003 03:46:36 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:11436 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262960AbTL2Iqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 03:46:34 -0500
+Date: Mon, 29 Dec 2003 00:11:08 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: robe@amd.co.at
+Subject: [Bug 1760] New: GPF when using fusion mpt with amd64	and 64bit kernel 
+Message-ID: <6260000.1072685468@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1072657930.3fef760a50062@webmail.nzol.net>; from akmiller@nzol.net on Mon, Dec 29, 2003 at 01:32:10PM +1300
-X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akmiller@nzol.net <akmiller@nzol.net> :
-[accusys acs7500 lost interrupt]
-> Has anyone else seen this sort of problem? (Sorry if this is a known issue, I
+http://bugme.osdl.org/show_bug.cgi?id=1760
 
-Probably but with a slightly different model:
-        Model Number:       Accusys ACS7500 A2X1
-        Serial Number:      A75X000881
-I saw some interesting things where an ACS7500 was smart enough to pass the
-announced lba48 capability of the disk whereas it could not really handle it.
-Do you notice the same issue with a non-lba48 capable disk ?
+           Summary: GPF when using fusion mpt with amd64 and 64bit kernel
+    Kernel Version: 2.6.0
+            Status: NEW
+          Severity: blocking
+             Owner: andmike@us.ibm.com
+         Submitter: robe@amd.co.at
 
---
-Ueimor
+
+Distribution: gentoo, debian testing
+
+Hardware Environment: Tyan Transport GX28 Dual Opteron Barebone 
+(http://www.tyan.com/products/html/gx28b2880t1s.html)
+
+Problem Description: 
+
+It seems as if the Fusion MPT driver has problems when being used in a 64-Bit 
+environments. Please see the following "screen shots" for the bug outputs:
+
+Gentoo-Livecd from 21.12.03:
+http://amd.co.at/images/kernelstuff/gentoo.jpg
+
+Vanilla 2.6.0 compiled in debian amd64 environment:
+http://amd.co.at/images/kernelstuff/vanilla.jpg
+
+Steps to reproduce:
+Boot amd64 64bit kernel, access device which is attached to fusion mpt based 
+scsi controller.
+
+

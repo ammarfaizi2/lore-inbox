@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbTJMVVf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 17:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTJMVVf
+	id S261966AbTJMV0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 17:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTJMV0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 17:21:35 -0400
-Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:48397 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP id S261930AbTJMVVe
+	Mon, 13 Oct 2003 17:26:25 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:18816 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261966AbTJMV0X
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 17:21:34 -0400
-Message-ID: <3F8B146E.2020407@ixiacom.com>
-Date: Mon, 13 Oct 2003 14:09:02 -0700
-From: Dan Kegel <dkegel@ixiacom.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: module oops tracking [Re: [PATCH] cheap lookup of symbol names
- on oops()]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Oct 2003 17:26:23 -0400
+Date: Mon, 13 Oct 2003 17:26:23 -0400
+From: Yaroslav Halchenko <kernel@onerussian.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: oops early at the boot time
+Message-ID: <20031013212622.GA1221@washoe.rutgers.edu>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In July of 2002, Andrea Arcangeli posted a patch
-(see thread http://marc.theaimsgroup.com/?l=linux-kernel&m=102772338115172&w=2)
-to dump module names and address ranges during oops logging,
-and said that there should eventually be a "module tracking aware ksymoops":
+Dear Developers,
 
-> I implemented what I need to track down oopses with modules. ksymoops
-> should learn about it too. This will also allow us to recognize
-> immediatly the kernel image used.
-> 
-> here an example of oops in a module with the patch applied (only 1
-> module is affected so only 1 module is listed). I checked that
-> 0xca40306e-0xca403060 gives the exact offset to lookup in the objdump -d
-> of the module object.
- >
-> this patch will solve all the issues in being able to track down module
-> oopses and kernel image without introducing any waste of ram (nitpick:
-> except 40 bytes of ram). For user compiled kernels, if the user isn't
-> capable of saving System.map and vmlinux kksymoops remains a viable
-> alternative, but I don't feel it needed for pre-compiled kernel images
-> provided a compile-time database exists ...
+My desktop/server has been running 2.6.0-test1 kernel for a while and
+recently I decided to try new ones but it crashes early on boot giving
+me dump on test7-bk5 (as well I've tried test6-bk9 before with the same
+crash). pci=noacpi and then acpi=off didn't help - problem persisted
 
-He has carried that patch forward, and it's e.g. in his current 2.4 tree:
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23pre6aa3/90_module-oops-tracking-3
 
-Looking at ksymoops' source and Changelog, it isn't obvious whether
-ksymoops-2.4.9 is "module tracking aware" yet.  Has anyone worked
-on this?
+Oops: 0000 [#1]
+CPU : 0
+EIP: 0060:[<c02312a0>] Not tainted
+EFLAGS: 00010286
+EIP is at acpi_pci_register_driver+0x30/0x5c
+eax: c05432d8 ebx: 00000000 ecx:c045d934   edx: 000000000
+esi: c0494514 edi: 00000000 ....
+......
+acpi_glue_init+0x1b/0x30
+init_acpi+0x6/0x30
+acpiphp_init+0x27/0x40
+do_initcalls+0x2c/0xa0
+....
 
-Thanks,
-Dan
+Configuration and some system details are on 
 
+http://www.onerussian.com/Linux/bugs/washoe.test7
+
+Please give me any idea how I can help?
+
+Thank you in advance  
+                                  .-.
+=------------------------------   /v\  ----------------------------=
+Keep in touch                    // \\     (yoh@|www.)onerussian.com
+Yaroslav Halchenko              /(   )\               ICQ#: 60653192
+                   Linux User    ^^-^^    [175555]

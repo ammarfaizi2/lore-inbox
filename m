@@ -1,52 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbUCVSiq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 13:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUCVSiq
+	id S262225AbUCVSvU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 13:51:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbUCVSvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 13:38:46 -0500
-Received: from waste.org ([209.173.204.2]:62669 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262217AbUCVSip (ORCPT
+	Mon, 22 Mar 2004 13:51:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4553 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262225AbUCVSvR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 13:38:45 -0500
-Date: Mon, 22 Mar 2004 12:38:36 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Alexander Simon <Al.Simon@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Changing kernel uncompressing address
-Message-ID: <20040322183836.GB8366@waste.org>
-References: <405D73D7.70905@t-online.de>
+	Mon, 22 Mar 2004 13:51:17 -0500
+Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
+From: Daniel McNeil <daniel@osdl.org>
+To: Chris Mason <mason@suse.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <1079980512.11058.524.camel@watt.suse.com>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
+	 <1079474312.4186.927.camel@watt.suse.com>
+	 <20040316152106.22053934.akpm@osdl.org>
+	 <20040316152843.667a623d.akpm@osdl.org>
+	 <20040316153900.1e845ba2.akpm@osdl.org>
+	 <1079485055.4181.1115.camel@watt.suse.com>
+	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
+	 <20040316180043.441e8150.akpm@osdl.org>
+	 <1079554288.4183.1938.camel@watt.suse.com>
+	 <20040317123324.46411197.akpm@osdl.org>
+	 <1079563568.4185.1947.camel@watt.suse.com>
+	 <20040317150909.7fd121bd.akpm@osdl.org>
+	 <1079566076.4186.1959.camel@watt.suse.com>
+	 <20040317155111.49d09a87.akpm@osdl.org>
+	 <1079568387.4186.1964.camel@watt.suse.com>
+	 <20040317161338.28b21c35.akpm@osdl.org>
+	 <1079569870.4186.1967.camel@watt.suse.com>
+	 <20040317163332.0385d665.akpm@osdl.org>
+	 <1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
+	 <1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
+	 <1079635678.4185.2100.camel@watt.suse.com>
+	 <1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
+	 <1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
+	 <1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
+	 <1079879799.11062.348.camel@watt.suse.com>
+	 <1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
+	 <1079980512.11058.524.camel@watt.suse.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1079981473.6930.71.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <405D73D7.70905@t-online.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Mar 2004 10:51:13 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 21, 2004 at 11:52:07AM +0100, Alexander Simon wrote:
-> Hi!
-> 
-> I have an old Toshiba Satellie Pro Laptop with broken RAM.
-> I thought it could be no problem getting it to work with the BadRAM patch.
-> But first RAM Errors occur at 2M and last until 32M
-> Unfornately, the RAM Chips are on board, so no chance of replacing them.
-> When I try to load a kernel image from diskette, it unpacks the kernel 
-> image without errors. But when it tries to start that kernel it stops or 
-> reboots.
-> If I keep the kernel very very small, it starts, but I would have to 
-> exclude TCP/IP code, causing the system unusable.
-> 
-> After studying arch/i386/boot/compressed/head.S and misc.c of 2.4.24 for 
-> a long time, i found out that the kernel is uncompressed to 0x100000.
-> Stupidly, I'm not familiar with assembler code. So I just changed the 
-> 0x100000 to 0xF00000 (should be 16M?!? memtest86 reported the range 
-> 15M-18M OK, however...) in line 77 in head.S and line 309 in misc.c.
-> Of couse it did NOT work :[.
-> I would need to high loaded kernel anyway, again because of TCP/IP.
+I was thinking about this also, since this is included in the patch.
+As long as the page stays dirty in radix tree so the sync writer
+can find it, then the sync writer can wait on the locked buffers.
 
-That's part of it, you'll also need to tweak the boot-time page tables
-and whatnot to cover all of the space you need.
+I am giving it a try and will let you know.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Daniel
+
+
+On Mon, 2004-03-22 at 10:35, Chris Mason wrote:
+> On Mon, 2004-03-22 at 13:10, Daniel McNeil wrote:
+> > Andrew and Chris,
+> > 
+> > I re-ran the direct_read_under tests over the weekend on ext3 with
+> > the attached wb_rwsema patch and ran without errors.
+> > 
+> > It looks like the same thing as before -- async writebacks are causing
+> > the sync writebacks to miss pages.
+> > 
+> > Thoughts?
+> > 
+> This hunk alone should be enough to force the sync writers to find a
+> page with locked but clean buffers.
+> 
+> diff -rup linux-2.6.5-rc1-mm2.orig/fs/buffer.c linux-2.6.5-rc1-mm2/fs/buffer.c
+> --- linux-2.6.5-rc1-mm2.orig/fs/buffer.c        2004-03-22 09:51:08.780141187 -0800
+> +++ linux-2.6.5-rc1-mm2/fs/buffer.c     2004-03-19 16:24:57.000000000 -0800
+> @@ -1814,8 +1814,7 @@ static int __block_write_full_page(struc
+>                         lock_buffer(bh);
+>                 } else {
+>                         if (test_set_buffer_locked(bh)) {
+> -                               if (buffer_dirty(bh))
+> -                                       __set_page_dirty_nobuffers(page);
+> +                               __set_page_dirty_nobuffers(page);
+>                                 continue;
+>                         }
+>                 }
+> 
+> 
+> -chris
+

@@ -1,71 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264486AbTGHRJn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 13:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbTGHRJn
+	id S265027AbTGHRM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 13:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbTGHRM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 13:09:43 -0400
-Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:9226 "EHLO
-	light-brigade.mit.edu") by vger.kernel.org with ESMTP
-	id S264486AbTGHRJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 13:09:40 -0400
-Date: Tue, 8 Jul 2003 13:24:17 -0400
-From: Gerald Britton <gbritton@alum.mit.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Gerald Britton <gbritton@alum.mit.edu>, emperor@EmperorLinux.com,
-       LKML <linux-kernel@vger.kernel.org>,
-       EmperorLinux Research <research@EmperorLinux.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : Cisco mpi350 _way_ sub-optimal
-Message-ID: <20030708132417.B10882@light-brigade.mit.edu>
-References: <1054658974.2382.4279.camel@tori> <20030610233519.GA2054@think> <200307071412.00625.durey@EmperorLinux.com> <1057672948.4358.20.camel@dhcp22.swansea.linux.org.uk> <20030708112016.A10882@light-brigade.mit.edu> <1057678950.4358.53.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1057678950.4358.53.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Jul 08, 2003 at 04:42:30PM +0100
+	Tue, 8 Jul 2003 13:12:27 -0400
+Received: from mpls-qmqp-01.inet.qwest.net ([63.231.195.112]:17166 "HELO
+	mpls-qmqp-01.inet.qwest.net") by vger.kernel.org with SMTP
+	id S265027AbTGHRMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 13:12:19 -0400
+Date: Tue, 8 Jul 2003 12:23:37 -0700
+Message-ID: <001401c34586$6f955e20$6801a8c0@oemcomputer>
+From: "Paul Albrecht" <palbrecht@qwest.net>
+To: "Andi Kleen" <ak@suse.de>
+Cc: niv@us.ibm.com, linux-kernel@vger.kernel.org,
+       "netdev" <netdev@oss.sgi.com>
+References: <3F08858E.8000907@us.ibm.com.suse.lists.linux.kernel><001a01c3441c$6fe111a0$6801a8c0@oemcomputer.suse.lists.linux.kernel><3F08B7E2.7040208@us.ibm.com.suse.lists.linux.kernel><000d01c3444f$e6439600$6801a8c0@oemcomputer.suse.lists.linux.kernel><3F090A4F.10004@us.ibm.com.suse.lists.linux.kernel><001401c344df$ccbc63c0$6801a8c0@oemcomputer.suse.lists.linux.kernel> <p73fzliqa91.fsf@oldwotan.suse.de>
+Subject: Re: question about linux tcp request queue handling
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0011_01C3454B.C1D79260"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 04:42:30PM +0100, Alan Cox wrote:
-> On Maw, 2003-07-08 at 16:20, Gerald Britton wrote:
-> > Some of them have issues with PCI resource allocation though.  Their BIOSes
-> > don't allocate resources to Cardbus bridges so insertted devices can't get
-> > resources and last i checked, we didn't handle this fixup.
-> 
-> Thats actually a Linux bug.
-> 
-> > On the notebooks I worked with it required relocating the AGP bridge and
-> > several other devices to make all the resources work out (quick hack is to
-> > just shove new resources into the config registers prior to the kernel's
-> > initial pci scan).
-> 
-> Interesting. I wonder why our fixup would have failed - its not something I've
-> seen but we should fixup cardbus resource blocks (2.4 isnt smart enough to
-> handle multidevice cardbus but Rmk has 2.5 code that is), but for the normal
-> case it ought to have worked.
+This is a multi-part message in MIME format.
 
-Is it smart enough to handle a case like this:
+------=_NextPart_000_0011_01C3454B.C1D79260
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-[device resource 00-01]
-[bridge resource 01-04]
-   [device resource 01-02]
-   [cardbus bridge no resources]
-   [cardbus bridge no resources]
-   [device resource 02-04]
-[bridge resoruce 04-06]
-   [device resource 04-06]
-[device resource 06-07]
+Andi Kleen writes:
 
-Numbers simplified for example purposes.  The cardbus bridges are behind a
-PCI-PCI bridge, and in this case, that bridge's resources need to be expanded
-to allow the cardbus cards to have any resources since it's already full.
-and the top level devices will need to be moved to allow space for the bridge
-to expand.  Glancing through the 2.5 pci init for i386 it doesn't look like it
-does things differently from 2.4.  IIRC, it's smart enough to handle things
-if the cardbus bridge is at the top level (we allocate when the cardbus bridge
-driver is loaded), but this will fail if it cannot allocate it (as is the case
-when it's behind a full bridge).
+>
+> The 4.4BSD-Lite code described in Stevens is long outdated. All modern
+> BSDs (and probably most other Unixes too) do it in a similar way to what
+> Nivedita described. The keywords are "syn flood attack" and "DoS".
+>
 
-				-- Gerald
+I have attached a copy of tcpdump output for two linux systems connected
+over ether replaying the scenario for incoming request queue handling given
+in Stevens's TCP/IP Illustrated Volume 1: The Protocols.  What I don't
+understand about the third handshake is if the server is going to send the
+syn/ack in response the client's initial syn then why does server repeatly
+ignore the subsequent ack from the client?
+
+------=_NextPart_000_0011_01C3454B.C1D79260
+Content-Type: text/plain;
+	name="trace.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="trace.txt"
+
+01:12:09.622208 client.acme.net.1024 > server.acme.net.7777: S =
+2730884988:2730884988(0) win 5840 <mss 1460,sackOK,timestamp 133507 =
+0,nop,wscale 0> (DF)
+01:12:09.623457 server.acme.net.7777 > client.acme.net.1024: S =
+1682786145:1682786145(0) ack 2730884989 win 5792 <mss =
+1460,sackOK,timestamp 42960 133507,nop,wscale 0> (DF)
+01:12:09.623963 client.acme.net.1024 > server.acme.net.7777: . ack =
+1682786146 win 5840 <nop,nop,timestamp 133508 42960> (DF)
+01:12:11.858191 client.acme.net.1025 > server.acme.net.7777: S =
+2743503110:2743503110(0) win 5840 <mss 1460,sackOK,timestamp 134652 =
+0,nop,wscale 0> (DF)
+01:12:11.858991 server.acme.net.7777 > client.acme.net.1025: S =
+1690738882:1690738882(0) ack 2743503111 win 5792 <mss =
+1460,sackOK,timestamp 43183 134652,nop,wscale 0> (DF)
+01:12:11.859535 client.acme.net.1025 > server.acme.net.7777: . ack =
+1690738883 win 5840 <nop,nop,timestamp 134653 43183> (DF)
+01:12:13.909895 client.acme.net.1026 > server.acme.net.7777: S =
+2736891141:2736891141(0) win 5840 <mss 1460,sackOK,timestamp 135702 =
+0,nop,wscale 0> (DF)
+01:12:13.910636 server.acme.net.7777 > client.acme.net.1026: S =
+1692403887:1692403887(0) ack 2736891142 win 5792 <mss =
+1460,sackOK,timestamp 43388 135702,nop,wscale 0> (DF)
+01:12:13.911144 client.acme.net.1026 > server.acme.net.7777: . ack =
+1692403888 win 5840 <nop,nop,timestamp 135703 43388> (DF)
+01:12:17.502319 server.acme.net.7777 > client.acme.net.1026: S =
+1692403887:1692403887(0) ack 2736891142 win 5792 <mss =
+1460,sackOK,timestamp 43748 135703,nop,wscale 0> (DF)
+01:12:17.502909 client.acme.net.1026 > server.acme.net.7777: . ack =
+1692403888 win 5840 <nop,nop,timestamp 137542 43748,nop,nop,sack sack 1 =
+{1692403887:1692403888} > (DF)
+01:12:23.502350 server.acme.net.7777 > client.acme.net.1026: S =
+1692403887:1692403887(0) ack 2736891142 win 5792 <mss =
+1460,sackOK,timestamp 44348 137542,nop,wscale 0> (DF)
+01:12:23.502969 client.acme.net.1026 > server.acme.net.7777: . ack =
+1692403888 win 5840 <nop,nop,timestamp 140614 44348,nop,nop,sack sack 1 =
+{1692403887:1692403888} > (DF)
+01:12:35.702302 server.acme.net.7777 > client.acme.net.1026: S =
+1692403887:1692403887(0) ack 2736891142 win 5792 <mss =
+1460,sackOK,timestamp 45568 140614,nop,wscale 0> (DF)
+01:12:35.702840 client.acme.net.1026 > server.acme.net.7777: . ack =
+1692403888 win 5840 <nop,nop,timestamp 146859 45568,nop,nop,sack sack 1 =
+{1692403887:1692403888} > (DF)
+01:12:59.702343 server.acme.net.7777 > client.acme.net.1026: S =
+1692403887:1692403887(0) ack 2736891142 win 5792 <mss =
+1460,sackOK,timestamp 47968 146859,nop,wscale 0> (DF)
+01:12:59.702994 client.acme.net.1026 > server.acme.net.7777: . ack =
+1692403888 win 5840 <nop,nop,timestamp 159147 47968,nop,nop,sack sack 1 =
+{1692403887:1692403888} > (DF)
+------=_NextPart_000_0011_01C3454B.C1D79260--
 

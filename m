@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263007AbUDYJnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbUDYKTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbUDYJnj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 05:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUDYJnj
+	id S261969AbUDYKTW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 06:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUDYKTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 05:43:39 -0400
-Received: from 117.38.150.220.ap.yournet.ne.jp ([220.150.38.117]:43023 "EHLO
-	fan-oph0hcijvrk") by vger.kernel.org with ESMTP id S263007AbUDYJni
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 05:43:38 -0400
-To: linux-kernel@vger.kernel.org
-X-Mailer: Eudora 5.12 
-Message-ID: <20040425.0942470437@copyletterjp-yahoo.co.jp>
-Date: Sun, 25 Apr 2004 18:42:47 +0900
-From: netbuisiness <copyletterjp@yahoo.co.jp>
-Subject: =?ISO-2022-JP?B?GyRCTCQ+NUJ6OS05cCIoQUc/TSRHJGI0SkMxJEs9UE1oGyhC?=
- =?ISO-2022-JP?B?GyRCJF4kOSEqGyhC?=
+	Sun, 25 Apr 2004 06:19:22 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:40580 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261969AbUDYKTT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 06:19:19 -0400
+Date: Sun, 25 Apr 2004 12:19:11 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, netdev@oss.sgi.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH] pktgen dependency (was: Re: Linux 2.4.27-pre1)
+In-Reply-To: <20040423163938.013f362f.davem@redhat.com>
+Message-ID: <Pine.GSO.4.58.0404251218430.11039@waterleaf.sonytel.be>
+References: <20040422130651.GB18358@logos.cnet>
+ <Pine.GSO.4.58.0404231644470.15793@waterleaf.sonytel.be>
+ <20040423163938.013f362f.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
-X-OriginalArrivalTime: 25 Apr 2004 09:42:47.0625 (UTC) FILETIME=[AAC76390:01C42AA9]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 Apr 2004, David S. Miller wrote:
+> On Fri, 23 Apr 2004 16:58:58 +0200 (MEST)
+> Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+>
+> > The packet generator doesn't compile if procfs is disabled.
+> > IIRC, there was an agreement that this dependency is needed:
+>
+> Applied, thanks Geert.  Can you cook up a 2.6.x variant as well
+> if that is needed too?
 
- 販売者　　　　ネットビジネス　
- 代表者　　　　鈴木　沙世
- 所在地　　　　京都市西京区下津林番条１００−１
- 電話          0774-52-5633        
-未承諾広告※　　　　　　　　
-　このメールを受信拒否の方は次のメール宛に受信拒否として
-  ご送信ください　gomennasai79@yahoo.co.jp
-　
-    購入された方から感謝されています！
-  現代は情報の時代です。
-　大量販売で価格が超安値です！時価15万円以上はします！　
-　貴方も大飛躍してみませんか！
-　その気になれば足元にお金が落ちていますよ！！
-   　　http://practicallady.dynsite.net/
-     
+2.6.6-rc2 already has
+
+    config NET_PKTGEN
+	    tristate "Packet Generator (USE WITH CAUTION)"
+	    depends on PROC_FS
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

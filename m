@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKCX7q>; Fri, 3 Nov 2000 18:59:46 -0500
+	id <S129066AbQKDAB4>; Fri, 3 Nov 2000 19:01:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129066AbQKCX7g>; Fri, 3 Nov 2000 18:59:36 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:6150 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S129033AbQKCX7V>;
-	Fri, 3 Nov 2000 18:59:21 -0500
-Message-ID: <3A0350EC.8B1A3B4D@mandrakesoft.com>
-Date: Fri, 03 Nov 2000 18:57:32 -0500
+	id <S132017AbQKDABq>; Fri, 3 Nov 2000 19:01:46 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:9222 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S129066AbQKDABk>;
+	Fri, 3 Nov 2000 19:01:40 -0500
+Message-ID: <3A0351D7.39F0FB14@mandrakesoft.com>
+Date: Fri, 03 Nov 2000 19:01:27 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>, kuznet@ms2.inr.ac.ru,
-        linux-kernel@vger.kernel.org, davies@maniac.ultranet.com
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-In-Reply-To: <20001103202911.A2979@gruyere.muc.suse.de> <200011031937.WAA10753@ms2.inr.ac.ru> <20001103160108.D16644@ganymede.isdn.uiuc.edu> <3A033C82.114016A0@mandrakesoft.com> <20001104004129.C5173@gruyere.muc.suse.de>
+To: sunol_handa@non.agilent.com
+CC: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: linux support for TCP/IP Task Offload ....
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971A3D977@xsj02.sjs.agilent.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> de4x5 is stable, but tends to perform badly under load, mostly because
-> it doesn't use rx_copybreak and overflows standard socket buffers with its
-> always MTU sized skbuffs.
+sunol_handa@non.agilent.com wrote:
+> 
+> thanx for the information
+> 
+> this ftp site
+> ftp://ftp.inr.ac.ru/ip-routing/zerocopy-sendfile-*.dif
+> is password protected.
+> 
+> do you know what the password is ? or is there a site with same patch which
+> is not password protected.
 
-One of the reasons that de4x5 isn't gone already is that I get reports
-that de4x5 performs better than the tulip driver for their card.
+This site is not password-protected, I just downloaded the referenced
+diff.  Are you trying to download the above URL directly?  You cannot...
+URLs do not have wildcards in them.  Download the following files:
 
-	Jeff
-
+ftp://ftp.inr.ac.ru/ip-routing/README.zerocopy-sendfile
+ftp://ftp.inr.ac.ru/ip-routing/zerocopy-sendfile-001102.dif.gz
 
 -- 
 Jeff Garzik             | Dinner is ready when

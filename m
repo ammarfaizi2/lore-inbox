@@ -1,108 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264189AbUDOOrW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 10:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264253AbUDOOrV
+	id S264214AbUDOOwP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 10:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbUDOOwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 10:47:21 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:65183 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264189AbUDOOrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 10:47:08 -0400
-Date: Thu, 15 Apr 2004 16:47:06 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Niclas Gustafsson <niclas.gustafsson@codesense.com>
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Failing back to INSANE timesource :) Time stopped today.
-In-Reply-To: <1081932857.17234.37.camel@gmg.codesense.com>
-Message-ID: <Pine.LNX.4.55.0404151633100.17365@jurand.ds.pg.gda.pl>
-References: <1081416100.6425.45.camel@gmg.codesense.com> 
- <1081465114.4705.4.camel@cog.beaverton.ibm.com> <1081932857.17234.37.camel@gmg.codesense.com>
-Organization: Technical University of Gdansk
+	Thu, 15 Apr 2004 10:52:15 -0400
+Received: from pop.gmx.de ([213.165.64.20]:41131 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264257AbUDOOwI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 10:52:08 -0400
+X-Authenticated: #4512188
+Message-ID: <407EA194.20904@gmx.de>
+Date: Thu, 15 Apr 2004 16:52:04 +0200
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040413)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Konstantin Sobolev <kos@supportwizard.com>
+CC: Justin Cormack <justin@street-vision.com>,
+       Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: poor sata performance on 2.6
+References: <200404150236.05894.kos@supportwizard.com> <200404151826.54488.kos@supportwizard.com> <1082039593.19568.75.camel@lotte.street-vision.com> <200404151848.05857.kos@supportwizard.com>
+In-Reply-To: <200404151848.05857.kos@supportwizard.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Apr 2004, Niclas Gustafsson wrote:
-
-> Watching the /proc/interrupts with 10s apart after the "stop".
+Konstantin Sobolev wrote:
+> On Thursday 15 April 2004 18:33, Justin Cormack wrote:
 > 
-> [root@s151 root]# more /proc/interrupts
->            CPU0
->   0:   66413955  local-APIC-edge  timer
-[...]
-> LOC:   67355837
-> ERR:          0
-> MIS:          0
-> [root@s151 root]# more /proc/interrupts
->            CPU0
->   0:   66413955  local-APIC-edge  timer
-[...]
-> LOC:   67379568
-> ERR:          0
-> MIS:          0
+>>On Thu, 2004-04-15 at 15:26, Konstantin Sobolev wrote:
+>>
+>>>On Thursday 15 April 2004 18:00, Justin Cormack wrote:
+>>>
+>>>>hmm, odd. I get 50MB/s or so from normal (7200, 8MB cache) WD disks,
+>>>>and Seagate from the same controller. Can you send lspci,
+>>>>/proc/interrupts and dmesg...
+>>>
+>>>Attached are files for 2.6.5-mm5 with highmem, ACPI and APIC turned off.
+>>
+>>ah. Make a filesystem on it and mount it and try again. I see you have
+>>no partition table and so probably no filesystem. This means the block
+>>size is set to default 512byte not 4k which makes disk operations slow.
+>>Any filesystem should default to block size of 4k, eg ext2.
+> 
+> 
+> Very interesting!
+> created partition table,
+> kos sata # mkfs.ext2 /dev/sda1
+> [..skipped..]
+> kos mnt # cd /
+> kos / # mkdir wd
+> kos / # mount /dev/sda1 /wd
+> kos / # hdparm -t -a8192 /dev/sda
 
- This may be because buggy SMM firmware messes with the 8259A (configured
-for a transparent mode -- yes that rare "local-APIC-edge" mode is tricky
-;-) ) insanely.  You've written this is an IBM box previously -- this 
-would be no surprise.  The following patch should help -- I think it's 
-already included in the -mm series.
+[snip]
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+> So first time it gave the same loosy 27 MB/s and subsequent tests give pretty 
+> good 68 MB/s! Why?
 
-patch-2.6.5-timer_ack-2
---- linux.macro/arch/i386/kernel/io_apic.c	Wed Apr 14 03:57:24 2004
-+++ linux/arch/i386/kernel/io_apic.c	Thu Apr 15 14:41:10 2004
-@@ -2152,6 +2152,10 @@ static inline void check_timer(void)
- {
- 	int pin1, pin2;
- 	int vector;
-+	unsigned int ver;
-+
-+	ver = apic_read(APIC_LVR);
-+	ver = GET_APIC_VERSION(ver);
- 
- 	/*
- 	 * get/set the timer IRQ vector:
-@@ -2165,11 +2169,15 @@ static inline void check_timer(void)
- 	 * mode for the 8259A whenever interrupts are routed
- 	 * through I/O APICs.  Also IRQ0 has to be enabled in
- 	 * the 8259A which implies the virtual wire has to be
--	 * disabled in the local APIC.
-+	 * disabled in the local APIC.  Finally timer interrupts
-+	 * need to be acknowledged manually in the 8259A for
-+	 * do_slow_timeoffset() and for the i82489DX when using
-+	 * the NMI watchdog.
- 	 */
- 	apic_write_around(APIC_LVT0, APIC_LVT_MASKED | APIC_DM_EXTINT);
- 	init_8259A(1);
--	timer_ack = 1;
-+	timer_ack = !cpu_has_tsc;
-+	timer_ack |= nmi_watchdog == NMI_IO_APIC && !APIC_INTEGRATED(ver);
- 	enable_8259A_irq(0);
- 
- 	pin1 = find_isa_irq_pin(0, mp_INT);
-@@ -2187,7 +2195,8 @@ static inline void check_timer(void)
- 				disable_8259A_irq(0);
- 				setup_nmi();
- 				enable_8259A_irq(0);
--				check_nmi_watchdog();
-+				if (check_nmi_watchdog() < 0)
-+					timer_ack = !cpu_has_tsc;
- 			}
- 			return;
- 		}
-@@ -2210,7 +2219,8 @@ static inline void check_timer(void)
- 				add_pin_to_irq(0, 0, pin2);
- 			if (nmi_watchdog == NMI_IO_APIC) {
- 				setup_nmi();
--				check_nmi_watchdog();
-+				if (check_nmi_watchdog() < 0)
-+					timer_ack = !cpu_has_tsc;
- 			}
- 			return;
- 		}
+I once reported that to lkml but got no reaction. siimage.c doesn't show 
+this behaviour.
+
+Prakash

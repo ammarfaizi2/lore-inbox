@@ -1,422 +1,326 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261805AbTEQUGX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 16:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEQUGX
+	id S261807AbTEQUSB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 16:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbTEQUSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 16:06:23 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:6154 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261805AbTEQUGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 16:06:15 -0400
-Date: Sat, 17 May 2003 21:19:04 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Framebuffer console optimizations.
-Message-ID: <Pine.LNX.4.44.0305172117210.17458-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 May 2003 16:18:01 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19884
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261807AbTEQURz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 16:17:55 -0400
+Date: Sat, 17 May 2003 22:30:45 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: dak@gnu.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scheduling problem with 2.4?
+Message-ID: <20030517203045.GZ1429@dualathlon.random>
+References: <x54r3tddhs.fsf@lola.goethe.zz> <20030517174100.GT1429@dualathlon.random> <x5r86x74ci.fsf@lola.goethe.zz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <x5r86x74ci.fsf@lola.goethe.zz>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 17, 2003 at 09:36:29PM +0200, David Kastrup wrote:
+> Andrea Arcangeli <andrea@suse.de> writes:
+> 
+> > On Sat, May 17, 2003 at 01:22:23PM +0200, David Kastrup wrote:
+> > > 
+> > > I have a problem with Emacs which crawls when used as a shell.  If I
+> > > call M-x shell RET and then do something like
+> > > hexdump -v /dev/null|dd count=100k bs=1
+> > 
+> > this certainly can't be it
+> > 
+> > andrea@dualathlon:~> hexdump -v /dev/null|dd count=100k bs=1
+> > 0+0 records in
+> > 0+0 records out
+> 
+> Argl.  Substitute /dev/zero in the obvious place.  My stupidity.
+> 
+> Here is a test file for generating further stats from within Emacs.
+> You can call it interactively from within Emacs with
+> M-x load-library RET testio.el RET
+> M-x make-test RET
+> 
+> and you can use it from the command line (if you really must) with
+> emacs -batch -q -no-site-file -l testio.el -eval "(progn(make-test t
+>   'kill-emacs)(sit-for 100000))"
+> 
 
-This patch optimizates the font drawing code. Its been in the -mm tree for 
-awhile. Please apply.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1042.34.1 -> 1.1042.34.2
-#	  include/linux/fb.h	1.51    -> 1.52   
-#	drivers/video/console/fbcon.c	1.100   -> 1.101  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/04/22	jsimmons@kozmo.(none)	1.1042.34.2
-# [FBDEV] Moved pixmap to the kernel side of the header. Will not be needed for ioctl calls at the present time.
-# 
-# [FBCON] Lots more optimizations.
-# --------------------------------------------
-#
-diff -Nru a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
---- a/drivers/video/console/fbcon.c	Mon May 12 13:39:09 2003
-+++ b/drivers/video/console/fbcon.c	Mon May 12 13:39:09 2003
-@@ -304,97 +304,6 @@
- }
- 
- /*
-- * drawing helpers
-- */
--static void putcs_unaligned(struct vc_data *vc, struct fb_info *info,
--			    struct fb_image *image, int count,
--			    const unsigned short *s)
--{
--	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
--	unsigned int width = (vc->vc_font.width + 7) >> 3;
--	unsigned int cellsize = vc->vc_font.height * width;
--	unsigned int maxcnt = info->pixmap.size/cellsize;
--	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
--	unsigned int shift_high = 8, size, pitch, cnt, k;
--	unsigned int buf_align = info->pixmap.buf_align - 1;
--	unsigned int scan_align = info->pixmap.scan_align - 1;
--	unsigned int idx = vc->vc_font.width >> 3;
--	u8 mask, *src, *dst, *dst0;
--
--	while (count) {
--		if (count > maxcnt)
--			cnt = k = maxcnt;
--		else
--			cnt = k = count;
--
--		image->width = vc->vc_font.width * cnt;
--		pitch = ((image->width + 7) >> 3) + scan_align;
--		pitch &= ~scan_align;
--		size = pitch * vc->vc_font.height + buf_align;
--		size &= ~buf_align;
--		dst0 = info->pixmap.addr + fb_get_buffer_offset(info, size);
--		image->data = dst0;
--		while (k--) {
--			src = vc->vc_font.data + (scr_readw(s++) & charmask)*
--			cellsize;
--			dst = dst0;
--			mask = (u8) (0xfff << shift_high);
--			move_buf_unaligned(info, dst, src, pitch, image->height,
--					mask, shift_high, shift_low, mod, idx);
--			shift_low += mod;
--			dst0 += (shift_low >= 8) ? width : width - 1;
--			shift_low &= 7;
--			shift_high = 8 - shift_low;
--		}
--		info->fbops->fb_imageblit(info, image);
--		image->dx += cnt * vc->vc_font.width;
--		count -= cnt;
--		atomic_dec(&info->pixmap.count);
--		smp_mb__after_atomic_dec();
--	}
--}
--
--static void putcs_aligned(struct vc_data *vc, struct fb_info *info,
--			  struct fb_image *image, int count,
--			  const unsigned short *s)
--{
--	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
--	unsigned int width = vc->vc_font.width >> 3;
--	unsigned int cellsize = vc->vc_font.height * width;
--	unsigned int maxcnt = info->pixmap.size/cellsize;
--	unsigned int scan_align = info->pixmap.scan_align - 1;
--	unsigned int buf_align = info->pixmap.buf_align - 1;
--	unsigned int pitch, cnt, size, k;
--	u8 *src, *dst, *dst0;
--
--	while (count) {
--		if (count > maxcnt)
--			cnt = k = maxcnt;
--		else
--			cnt = k = count;
--		
--		pitch = width * cnt + scan_align;
--		pitch &= ~scan_align;
--		size = pitch * vc->vc_font.height + buf_align;
--		size &= ~buf_align;
--		image->width = vc->vc_font.width * cnt;
--		dst0 = info->pixmap.addr + fb_get_buffer_offset(info, size);
--		image->data = dst0;
--		while (k--) {
--			src = vc->vc_font.data + (scr_readw(s++)&charmask)*cellsize;
--			dst = dst0;
--			move_buf_aligned(info, dst, src, pitch, width, image->height);
--			dst0 += width;
--		}
--		info->fbops->fb_imageblit(info, image);
--		image->dx += cnt * vc->vc_font.width;
--		count -= cnt;
--		atomic_dec(&info->pixmap.count);
--		smp_mb__after_atomic_dec();
--	}
--}
--
--/*
-  * Accelerated handlers.
-  */
- void accel_bmove(struct vc_data *vc, struct fb_info *info, int sy, 
-@@ -428,48 +337,21 @@
- 	info->fbops->fb_fillrect(info, &region);
- }	
- 
--static void accel_putc(struct vc_data *vc, struct fb_info *info,
--                      int c, int ypos, int xpos)
-+void accel_putcs(struct vc_data *vc, struct fb_info *info,
-+			const unsigned short *s, int count, int yy, int xx)
- {
- 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
- 	unsigned int width = (vc->vc_font.width + 7) >> 3;
-+	unsigned int cellsize = vc->vc_font.height * width;
-+	unsigned int maxcnt = info->pixmap.size/cellsize;
- 	unsigned int scan_align = info->pixmap.scan_align - 1;
- 	unsigned int buf_align = info->pixmap.buf_align - 1;
-+	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
-+	unsigned int shift_high = 8, pitch, cnt, size, k;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
- 	int fgshift = (vc->vc_hi_font_mask) ? 9 : 8;
--	unsigned int size, pitch;
--	struct fb_image image;
--	u8 *src, *dst;
--
--	image.dx = xpos * vc->vc_font.width;
--	image.dy = ypos * vc->vc_font.height;
--	image.width = vc->vc_font.width;
--	image.height = vc->vc_font.height;
--	image.fg_color = attr_fgcol(fgshift, c);
--	image.bg_color = attr_bgcol(bgshift, c);
--	image.depth = 1;
--
--	pitch = width + scan_align;
--	pitch &= ~scan_align;
--	size = pitch * vc->vc_font.height;
--	size += buf_align;
--	size &= ~buf_align;
--	dst = info->pixmap.addr + fb_get_buffer_offset(info, size);
--	image.data = dst;
--	src = vc->vc_font.data + (c & charmask) * vc->vc_font.height * width;
--
--	move_buf_aligned(info, dst, src, pitch, width, image.height);
--
--	info->fbops->fb_imageblit(info, &image);
--	atomic_dec(&info->pixmap.count);
--	smp_mb__after_atomic_dec();
--}
--
--void accel_putcs(struct vc_data *vc, struct fb_info *info,
--			const unsigned short *s, int count, int yy, int xx)
--{
--	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	int fgshift = (vc->vc_hi_font_mask) ? 9 : 8;
-+	unsigned int idx = vc->vc_font.width >> 3;
-+	u8 *src, *dst, *dst0, mask;
- 	struct fb_image image;
- 	u16 c = scr_readw(s);
- 
-@@ -480,10 +362,44 @@
- 	image.height = vc->vc_font.height;
- 	image.depth = 1;
- 
--	if (!(vc->vc_font.width & 7))
--               putcs_aligned(vc, info, &image, count, s);
--        else
--               putcs_unaligned(vc, info, &image, count, s);
-+	while (count) {
-+		if (count > maxcnt)
-+			cnt = k = maxcnt;
-+		else
-+			cnt = k = count;
-+
-+		image.width = vc->vc_font.width * cnt;
-+		pitch = ((image.width + 7) >> 3) + scan_align;
-+		pitch &= ~scan_align;
-+		size = pitch * vc->vc_font.height + buf_align;
-+		size &= ~buf_align;
-+		dst0 = info->pixmap.addr + fb_get_buffer_offset(info, size);
-+		image.data = dst0;
-+		while (k--) {
-+			src = vc->vc_font.data + (scr_readw(s++) & charmask)*cellsize;
-+			dst = dst0;
-+		
-+			if (mod) {
-+				mask = (u8) (0xfff << shift_high);
-+				move_buf_unaligned(info, dst, src, pitch,
-+						   image.height, mask, shift_high, 
-+						   shift_low, mod, idx);
-+				shift_low += mod;
-+				dst0 += (shift_low >= 8) ? width : width - 1;
-+				shift_low &= 7;
-+				shift_high = 8 - shift_low;
-+			} else {
-+				move_buf_aligned(info, dst, src, pitch, idx, 
-+						 image.height);
-+				dst0 += width;
-+			}	
-+		}
-+		info->fbops->fb_imageblit(info, &image);
-+		image.dx += cnt * vc->vc_font.width;
-+		count -= cnt;
-+		atomic_dec(&info->pixmap.count);
-+		smp_mb__after_atomic_dec();
-+	}
- }
- 
- void accel_clear_margins(struct vc_data *vc, struct fb_info *info,
-@@ -724,15 +640,13 @@
- static void fbcon_set_display(struct vc_data *vc, int init, int logo)
- {
- 	struct fb_info *info = registered_fb[(int) con2fb_map[vc->vc_num]];
-+	int nr_rows, nr_cols, old_rows, old_cols, i, charcnt = 256;
- 	struct display *p = &fb_display[vc->vc_num];
--	int nr_rows, nr_cols;
--	int old_rows, old_cols;
- 	unsigned short *save = NULL, *r, *q;
--	int i, charcnt = 256;
- 	struct font_desc *font;
- 
- 	if (vc->vc_num != fg_console || (info->flags & FBINFO_FLAG_MODULE) ||
--	    info->fix.type == FB_TYPE_TEXT)
-+	    (info->fix.type == FB_TYPE_TEXT))
- 		logo = 0;
- 
- 	info->var.xoffset = info->var.yoffset = p->yscroll = 0;	/* reset wrap/pan */
-@@ -956,19 +870,50 @@
- 		accel_clear(vc, info, real_y(p, sy), sx, height, width);
- }
- 
--
- static void fbcon_putc(struct vc_data *vc, int c, int ypos, int xpos)
- {
- 	struct fb_info *info = registered_fb[(int) con2fb_map[vc->vc_num]];
-+	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
-+	unsigned int scan_align = info->pixmap.scan_align - 1;
-+	unsigned int buf_align = info->pixmap.buf_align - 1;
-+	unsigned int width = (vc->vc_font.width + 7) >> 3;
-+	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
-+	int fgshift = (vc->vc_hi_font_mask) ? 9 : 8;
- 	struct display *p = &fb_display[vc->vc_num];
--
-+	unsigned int size, pitch;
-+	struct fb_image image;
-+	u8 *src, *dst;
-+	
- 	if (!info->fbops->fb_blank && console_blanked)
- 		return;
- 
- 	if (vt_cons[vc->vc_num]->vc_mode != KD_TEXT)
- 		return;
- 
--	accel_putc(vc, info, c, real_y(p, ypos), xpos);
-+	image.dx = xpos * vc->vc_font.width;
-+	image.dy = real_y(p, ypos) * vc->vc_font.height;
-+	image.width = vc->vc_font.width;
-+	image.height = vc->vc_font.height;
-+	image.fg_color = attr_fgcol(fgshift, c);
-+	image.bg_color = attr_bgcol(bgshift, c);
-+	image.depth = 1;
-+
-+	src = vc->vc_font.data + (c & charmask) * vc->vc_font.height * width;
-+
-+	pitch = width + scan_align;
-+	pitch &= ~scan_align;
-+	size = pitch * vc->vc_font.height;
-+	size += buf_align;
-+	size &= ~buf_align;
-+
-+	dst = info->pixmap.addr + fb_get_buffer_offset(info, size);
-+	image.data = dst;
-+	
-+	move_buf_aligned(info, dst, src, pitch, width, image.height);
-+
-+	info->fbops->fb_imageblit(info, &image);
-+	atomic_dec(&info->pixmap.count);
-+	smp_mb__after_atomic_dec();
- }
- 
- static void fbcon_putcs(struct vc_data *vc, const unsigned short *s,
-diff -Nru a/include/linux/fb.h b/include/linux/fb.h
---- a/include/linux/fb.h	Mon May 12 13:39:09 2003
-+++ b/include/linux/fb.h	Mon May 12 13:39:09 2003
-@@ -2,7 +2,6 @@
- #define _LINUX_FB_H
- 
- #include <linux/tty.h>
--#include <linux/workqueue.h>
- #include <asm/types.h>
- #include <asm/io.h>
- 
-@@ -326,29 +325,31 @@
- 	struct fb_image	image;	/* Cursor image */
- };
- 
-+#ifdef __KERNEL__
-+
-+#include <linux/fs.h>
-+#include <linux/init.h>
-+#include <linux/workqueue.h>
-+#include <linux/devfs_fs_kernel.h>
-+
- #define FB_PIXMAP_DEFAULT 1     /* used internally by fbcon */
- #define FB_PIXMAP_SYSTEM  2     /* memory is in system RAM  */
- #define FB_PIXMAP_IO      4     /* memory is iomapped       */
- #define FB_PIXMAP_SYNC    256   /* set if GPU can DMA       */
- 
- struct fb_pixmap {
--        __u8  *addr;                      /* pointer to memory             */  
--	__u32 size;                       /* size of buffer in bytes       */
--	__u32 offset;                     /* current offset to buffer      */
--	__u32 buf_align;                  /* byte alignment of each bitmap */
--	__u32 scan_align;                 /* alignment per scanline        */
--	__u32 flags;                      /* see FB_PIXMAP_*               */
--					  /* access methods                */
-+	u8  *addr;		/* pointer to memory 			*/
-+	u32 size;		/* size of buffer in bytes 		*/
-+	u32 offset;		/* current offset to buffer 		*/
-+	u32 buf_align;		/* byte alignment of each bitmap 	*/
-+	u32 scan_align;		/* alignment per scanline 		*/
-+	u32 flags;		/* see FB_PIXMAP_* 			*/
-+	spinlock_t lock;	/* spinlock 				*/
-+	atomic_t count;
-+	/* access methods */
- 	void (*outbuf)(u8 *dst, u8 *addr, unsigned int size); 
- 	u8   (*inbuf) (u8 *addr);
--	spinlock_t lock;                  /* spinlock                      */
--	atomic_t count;
- };
--#ifdef __KERNEL__
--
--#include <linux/fs.h>
--#include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- 
- struct fb_info;
- struct vm_area_struct;
-@@ -397,24 +398,23 @@
- };
- 
- struct fb_info {
--   kdev_t node;
--   int flags;
--   int open;                            /* Has this been open already ? */
-+	kdev_t node;
-+	int flags;
- #define FBINFO_FLAG_MODULE	1	/* Low-level driver is a module */
--   struct fb_var_screeninfo var;        /* Current var */
--   struct fb_fix_screeninfo fix;        /* Current fix */
--   struct fb_monspecs monspecs;         /* Current Monitor specs */
--   struct fb_cursor cursor;		/* Current cursor */	
--   struct work_struct queue;		/* Framebuffer event queue */
--   struct fb_pixmap pixmap;	        /* Current pixmap */
--   struct fb_cmap cmap;                 /* Current cmap */
--   struct fb_ops *fbops;
--   char *screen_base;                   /* Virtual address */
--   struct vc_data *display_fg;		/* Console visible on this display */
--   int currcon;				/* Current VC. */	
--   void *pseudo_palette;                /* Fake palette of 16 colors */ 
--   /* From here on everything is device dependent */
--   void *par;	
-+	struct fb_var_screeninfo var;	/* Current var */
-+	struct fb_fix_screeninfo fix;	/* Current fix */
-+	struct fb_monspecs monspecs;	/* Current Monitor specs */
-+	struct fb_cursor cursor;	/* Current cursor */	
-+	struct work_struct queue;	/* Framebuffer event queue */
-+	struct fb_pixmap pixmap;	/* Current pixmap */
-+	struct fb_cmap cmap;		/* Current cmap */
-+	struct fb_ops *fbops;
-+	char *screen_base;		/* Virtual address */
-+	struct vc_data *display_fg;	/* Console visible on this display */
-+	void *pseudo_palette;		/* Fake palette of 16 colors */ 
-+	int currcon;			/* Current VC. */	
-+	/* From here on everything is device dependent */
-+	void *par;	
- };
- 
- #ifdef MODULE
+> 
+> 
+> It will then output the read stuff from the process followed by
+> statistics of block sizes over each second it ran.
+> 
+> The interactive session tends to be somewhat worse, but the command
+> line version is bad enough for a demonstration.
 
+this is within emacs:
+
+   1 blocks with size   95
+   1 blocks with size  146
+   1 blocks with size  175
+   1 blocks with size  189
+   1 blocks with size  199
+   2 blocks with size  231
+   2 blocks with size  232
+   1 blocks with size  233
+   1 blocks with size  238
+   1 blocks with size  241
+   1 blocks with size  242
+   1 blocks with size  243
+   1 blocks with size  244
+   1 blocks with size  245
+   1 blocks with size  247
+   1 blocks with size  252
+   2 blocks with size  257
+   1 blocks with size  260
+   2 blocks with size  261
+   2 blocks with size  262
+   1 blocks with size  263
+   1 blocks with size  266
+   1 blocks with size  271
+   1 blocks with size  276
+   1 blocks with size  282
+   1 blocks with size  283
+   1 blocks with size  289
+   1 blocks with size  296
+   1 blocks with size  297
+   1 blocks with size  299
+   1 blocks with size  300
+   2 blocks with size  302
+   1 blocks with size  304
+   1 blocks with size  306
+   2 blocks with size  307
+   1 blocks with size  308
+   1 blocks with size  310
+   1 blocks with size  311
+   3 blocks with size  312
+   1 blocks with size  313
+   2 blocks with size  315
+   1 blocks with size  316
+   1 blocks with size  317
+   1 blocks with size  322
+   1 blocks with size  324
+   1 blocks with size  330
+   1 blocks with size  345
+   1 blocks with size  347
+   2 blocks with size  355
+   2 blocks with size  359
+   2 blocks with size  363
+   1 blocks with size  368
+   1 blocks with size  369
+   2 blocks with size  373
+   1 blocks with size  374
+   2 blocks with size  375
+   1 blocks with size  383
+   1 blocks with size  384
+   2 blocks with size  385
+   1 blocks with size  386
+   2 blocks with size  387
+   1 blocks with size  389
+   1 blocks with size  391
+   1 blocks with size  392
+   2 blocks with size  393
+   3 blocks with size  394
+   1 blocks with size  397
+   2 blocks with size  398
+   4 blocks with size  400
+   1 blocks with size  402
+   1 blocks with size  405
+   1 blocks with size  409
+   1 blocks with size  414
+   1 blocks with size  418
+   1 blocks with size  420
+   4 blocks with size  423
+   1 blocks with size  424
+   1 blocks with size  428
+   1 blocks with size  429
+   1 blocks with size  430
+   1 blocks with size  432
+   1 blocks with size  433
+   1 blocks with size  436
+   1 blocks with size  437
+   1 blocks with size  443
+   2 blocks with size  445
+   1 blocks with size  448
+   2 blocks with size  451
+   1 blocks with size  453
+   1 blocks with size  455
+   1 blocks with size  472
+   2 blocks with size  485
+   1 blocks with size  490
+   1 blocks with size  498
+   1 blocks with size  504
+   1 blocks with size  505
+   1 blocks with size  510
+   1 blocks with size  512
+   2 blocks with size  533
+   2 blocks with size  537
+   1 blocks with size  540
+   1 blocks with size  545
+   1 blocks with size  551
+   1 blocks with size  557
+   2 blocks with size  562
+   1 blocks with size  571
+   1 blocks with size  572
+   1 blocks with size  573
+   1 blocks with size  578
+   1 blocks with size  579
+   1 blocks with size  582
+   1 blocks with size  588
+   2 blocks with size  596
+   1 blocks with size  598
+   1 blocks with size  599
+   1 blocks with size  600
+   1 blocks with size  602
+   2 blocks with size  610
+   1 blocks with size  616
+   1 blocks with size  620
+   2 blocks with size  623
+   1 blocks with size  628
+   1 blocks with size  629
+   1 blocks with size  630
+   2 blocks with size  638
+   1 blocks with size  639
+   2 blocks with size  640
+   1 blocks with size  641
+   1 blocks with size  642
+   1 blocks with size  644
+   1 blocks with size  648
+   1 blocks with size  650
+   1 blocks with size  651
+   1 blocks with size  652
+   1 blocks with size  654
+   1 blocks with size  656
+   1 blocks with size  657
+   1 blocks with size  659
+   1 blocks with size  662
+   1 blocks with size  665
+   1 blocks with size  667
+   2 blocks with size  670
+   1 blocks with size  672
+   1 blocks with size  679
+   1 blocks with size  687
+   1 blocks with size  720
+   1 blocks with size  735
+   1 blocks with size  746
+   1 blocks with size  754
+   1 blocks with size  775
+   1 blocks with size  834
+   1 blocks with size  844
+   1 blocks with size  894
+   1 blocks with size  896
+   1 blocks with size  906
+   1 blocks with size  928
+   1 blocks with size  980
+   2 blocks with size  987
+   1 blocks with size  991
+   1 blocks with size  998
+   1 blocks with size 1023
+   8 blocks with size 1024
+
+from the shell prompt:
+
+   6 blocks with size   26
+   5 blocks with size   27
+  14 blocks with size   28
+  10 blocks with size   29
+   4 blocks with size   30
+   2 blocks with size   31
+   2 blocks with size   32
+   2 blocks with size   33
+   4 blocks with size   34
+   1 blocks with size   35
+   1 blocks with size   36
+   2 blocks with size   38
+   2 blocks with size   39
+   1 blocks with size   41
+   1 blocks with size   45
+   1 blocks with size   46
+   3 blocks with size   48
+   1 blocks with size   49
+   1 blocks with size   52
+   3 blocks with size   55
+   1 blocks with size   57
+   1 blocks with size   58
+   2 blocks with size   60
+   1 blocks with size   61
+   1 blocks with size   62
+   1 blocks with size   63
+   1 blocks with size   65
+   1 blocks with size   71
+   2 blocks with size   75
+   1 blocks with size   79
+   1 blocks with size   86
+   1 blocks with size  120
+   1 blocks with size  128
+   2 blocks with size  147
+   1 blocks with size  190
+   1 blocks with size  233
+   1 blocks with size  241
+   1 blocks with size  250
+   1 blocks with size  269
+   1 blocks with size  273
+   1 blocks with size  407
+   1 blocks with size  564
+   1 blocks with size  614
+   2 blocks with size  626
+   1 blocks with size  667
+   1 blocks with size  680
+   1 blocks with size  709
+   1 blocks with size  711
+   1 blocks with size  712
+   1 blocks with size  719
+   1 blocks with size  722
+   1 blocks with size  729
+   1 blocks with size  732
+   2 blocks with size  737
+   1 blocks with size  759
+   1 blocks with size  772
+   1 blocks with size 1014
+   5 blocks with size 1023
+  31 blocks with size 1024
+
+
+my emacs is:
+
+GNU Emacs 21.2.1
+Copyright (C) 2001 Free Software Foundation, Inc.
+GNU Emacs comes with ABSOLUTELY NO WARRANTY.
+You may redistribute copies of Emacs
+under the terms of the GNU General Public License.
+For more information about these matters, see the file named COPYING.
+
+> 
+> It is obvious that during most of the time, the pipe only receives
+> single characters.
+> 
+> Again, I am pretty sure that Emacs is at fault too, but I don't
+> understand the implications of what scheduling behavior causes the
+> pipes to remain mostly empty, with an occasional full filling.  It
+> would be better if Emacs would not be context-switched into the
+> moment something appears in the pipe, but if the writer to the pipe
+> would keep the opportunity to fill'er'up until it is either preempted
+> or needs to wait.  If there was some possibility to force this
+> behavior from within Emacs, this would be good to know.
+
+I don't see any slowdown here.
+
+As said the 100k bs will lead to just 1 syscall for lots of I/O, this
+made me think the lowlatency fixes can be related. So I would suggest
+you to try to reproduce with my 2.4 tree or with 2.5 + -preempt enabled.
+
+Just for the record, this is the patch I'm talking about (you can apply
+it easily to other 2.4, this should really be merged into mainline too):
+
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/kernels/v2.4/2.4.21rc2aa1/9998_lowlatency-fixes-12
+
+Andrea

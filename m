@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264132AbTDOW2d (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 18:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbTDOW2d 
+	id S264136AbTDOWdB (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 18:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbTDOWdB 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 18:28:33 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:23730 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264132AbTDOW2c 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 18:28:32 -0400
-Date: Tue, 15 Apr 2003 15:35:48 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: rml@tech9.net, gert.vervoort@hccnet.nl, tconnors@astro.swin.edu.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.5.67: ppa driver & preempt == oops
-Message-ID: <20030415153548.A32370@beaverton.ibm.com>
-References: <3E982AAC.3060606@hccnet.nl> <1050172083.2291.459.camel@localhost> <3E993C54.40805@hccnet.nl> <1050255133.733.6.camel@localhost> <3E99A1E4.30904@hccnet.nl> <20030415120000.A30422@beaverton.ibm.com> <1050442676.3664.162.camel@localhost> <20030415145155.49df44c7.rddunlap@osdl.org> <20030415150746.A32019@beaverton.ibm.com> <20030415152932.23c830a9.rddunlap@osdl.org>
+	Tue, 15 Apr 2003 18:33:01 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:16805 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264136AbTDOWdA (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 18:33:00 -0400
+Date: Tue, 15 Apr 2003 15:43:55 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: florin@iucha.net (Florin Iucha)
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server
+ terminates
+Message-Id: <20030415154355.08ef6672.akpm@digeo.com>
+In-Reply-To: <20030415182057.GC29143@iucha.net>
+References: <20030415133608.A1447@cuculus.switch.gts.cz>
+	<20030415125507.GA29143@iucha.net>
+	<3E9C03DD.3040200@oracle.com>
+	<20030415164435.GA6389@rivenstone.net>
+	<20030415182057.GC29143@iucha.net>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030415152932.23c830a9.rddunlap@osdl.org>; from rddunlap@osdl.org on Tue, Apr 15, 2003 at 03:29:32PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Apr 2003 22:44:45.0659 (UTC) FILETIME=[9CC93AB0:01C303A0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 03:29:32PM -0700, Randy.Dunlap wrote:
-> On Tue, 15 Apr 2003 15:07:46 -0700 Patrick Mansfield <patmans@us.ibm.com> wrote:
+florin@iucha.net (Florin Iucha) wrote:
+>
+> I think it has to do with the interaction between XFree86 4.3.0 and
+> the AGP code.
 
-> So I should test (and fix) 2.5.67-k.o and PREEMPT=y ??
+Has anyone tried disabling kernel AGP support and retesting?
 
-I think it's independent of preempt.
-
-> Maybe you'll have to walk across the street tomorrow.
-
-I can do that :)
-
--- Patrick Mansfield

@@ -1,27 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311330AbSCLUYj>; Tue, 12 Mar 2002 15:24:39 -0500
+	id <S311329AbSCLUVj>; Tue, 12 Mar 2002 15:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311332AbSCLUYb>; Tue, 12 Mar 2002 15:24:31 -0500
-Received: from mta13n.bluewin.ch ([195.186.1.206]:9760 "EHLO mta13n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S311330AbSCLUYP>;
-	Tue, 12 Mar 2002 15:24:15 -0500
-Message-ID: <3C8E63C1.4090400@linkvest.com>
-Date: Tue, 12 Mar 2002 21:23:29 +0100
-From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S311330AbSCLUV3>; Tue, 12 Mar 2002 15:21:29 -0500
+Received: from pop.gmx.net ([213.165.64.20]:41346 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S311329AbSCLUVT>;
+	Tue, 12 Mar 2002 15:21:19 -0500
+Message-ID: <3C8E6333.A8B36DDC@gmx.net>
+Date: Tue, 12 Mar 2002 21:21:07 +0100
+From: Gunther Mayer <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: /proc/partitions in -ac kernel
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <Pine.LNX.4.33.0203111638290.26250-100000@home.transmeta.com> <3C8D5CCD.3050208@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've 2.4.19-pre2-ac4 with new /proc/partitions IO stats.
-But MD or LVM are not there. Is it normal?
--jec
+Jeff Garzik wrote:
+
+> Linus, would it be acceptable to you to include an -optional- filter for
+> ATA commands?  There is definitely a segment of users that would like to
+> firewall their devices, and I think (as crazy as it may sound) that
+> notion is a valid one.
+
+A perfect filter exists already: it's called "non-root user" :-)
 
 

@@ -1,219 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbUDNRY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 13:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbUDNRY6
+	id S261317AbUDNRYT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 13:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbUDNRYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 13:24:58 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:48007 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263354AbUDNRYn (ORCPT
+	Wed, 14 Apr 2004 13:24:19 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:32218 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261317AbUDNRYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 13:24:43 -0400
-Subject: Re: 2.6.5-rc3-mm4 x86_64 sched domains patch
-From: Darren Hart <dvhltc@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, piggin@cyberone.com.au,
-       Martin J Bligh <mjbligh@us.ibm.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, akpm@osdl.org
-In-Reply-To: <20040414154456.78893f3f.ak@suse.de>
-References: <1081466480.10774.0.camel@farah>
-	 <20040414154456.78893f3f.ak@suse.de>
+	Wed, 14 Apr 2004 13:24:10 -0400
+Subject: Re: [PATCH 0/4] ext3 block reservation patch set
+From: Mingming Cao <cmm@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tytso@mit.edu, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <20040413194734.3a08c80f.akpm@osdl.org>
+References: <200403190846.56955.pbadari@us.ibm.com>
+	<20040321015746.14b3c0dc.akpm@osdl.org>
+	<1080636930.3548.4549.camel@localhost.localdomain>
+	<20040330014523.6a368a69.akpm@osdl.org>
+	<1080956712.15980.6505.camel@localhost.localdomain>
+	<20040402175049.20b10864.akpm@osdl.org>
+	<1080959870.3548.6555.camel@localhost.localdomain>
+	<20040402185007.7d41e1a2.akpm@osdl.org>
+	<1081903949.3548.6837.camel@localhost.localdomain> 
+	<20040413194734.3a08c80f.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1081963459.2171.11.camel@farah>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Apr 2004 10:24:19 -0700
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Apr 2004 10:30:47 -0700
+Message-Id: <1081963850.4714.6888.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-14 at 06:44, Andi Kleen wrote:
-> On Thu, 08 Apr 2004 16:22:09 -0700
-> Darren Hart <dvhltc@us.ibm.com> wrote:
-> > This patch is intended as a quick fix for the x86_64 problem, and
+On Tue, 2004-04-13 at 19:47, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > Here is a set of patches which implement the in-memory ext3 block
+> >  reservation (previously called reservation based ext3 preallocation). 
 > 
-> Ingo's latest tweaks seemed to already cure STREAM, but some more
-> tuning is probably a good idea agreed.
-> ...
-> The patch doesn't apply against 2.6.5-mm5 anymore. Can you generate a new patch? 
-> I will test it then.
-
-Find below the patch updated for akpm's 2.6.5-mm5-1.bz2 patch.  As with
-the previous patch I verified it works properly on a 4 node, 16 CPU
-NUMA-Q.  Please test both CONFIG_SCHED_NUMA=n (the improved case,
-default) and CONFIG_SCHED_NUMA=y (pre-patch equivalent) on x86_64, and
-thanks!
-
+> Great, thanks.  Let's get these in the pipeline.
 > 
-> Also it will need merging with the patch that adds SMT support for IA32e machines
-> on x86-64.
+> A few thoughts, from a five-minute read:
+> 
+> 
+> - The majority of in-core inodes are not open for reading, and we've
+>   added 24 bytes to the inode just for inodes which are open for writing.
+Yes, The structure is getting bigger when we add more stuff into it. It
+may not worth to put it inside the ext3_inode_info structure just for
+files for write....I agree!
+> 
+>   At some stage we should stop aggregating struct reserve_window into the
+>   inode and dynamically allocate it.  We can move i_next_alloc_block,
+>   i_next_alloc_goal and possibly other fields in there too.
+> 
+>   At which point it has the wrong name ;) Should be `write_state' or
+>   something.
+> 
+>   It's not clear when we should free up the write_state.  I guess we
+>   could leave it around for the remaining lifetime of the inode - that'd
+>   still be a net win.
+We could free up the write_state at the time of ext3_discard_allocation(), (not at the time when we allocate a new reservation window)
 
-Where is this patch?
+or later if we preserve reservation for slow growing files, we release the write_state at the time the inode is released.
 
--- Darren
+>   Is this something you can look at as a low-priority activity?
+> 
+Sure!
+> - You're performing ext3_discard_reservation() in ext3_release_file(). 
+>   Note that the file may still have pending allocations at this stage: say,
+>   open a file, map it MAP_SHARED, dirty some pages which lie over file
+>   holes then close the file again.
+> 
+>   Later, the VM will come along and write those dirty pages into the
+>   file, at which point allocations need to be performed.  But we have no
+>   reservation data and, later, we may have no inode->write_state at all.
+> 
+>   What will happen?
+> 
+In this case, we will allocation a new reservation window for it.
+Nothing bad will happen. We probably just waste a previously allocated
+reservation window...but I am not sure.
 
+My question is, if the file is first time opened, mapped, and we dirty
+pages in the file hole, will there any really disk block allocation
+involved there? If not, we do not have a reservation window at at all,
+and ext3_discard_reservation will detect that and will do nothing.
 
+> - Have you tested and profiled this with a huge number of open files?  At
+>   what stage do we get into search complexity problems?
+> 
+Not yet. The current search complexity is O(n), if you don't have a
+reservation, you need O(n) to move the search head to the place where
+you want to search for a new reservation, finding the hole size between
+two reservation window is just O(1) for sorted double linked list, we
+need O(n) to look for a reservable window after that, so the complex is:
+		O(n) +O(1) * 0(n) = O(n); 
+if you already have a old reservation, we will remember where to start
+the search, so the complex is O(1) + O(n);
 
+The current implementation is more than O(n): every time it does not
+have a reservation window, it search from the head of per filesystem
+reservation window list head. If it failed within the group, it will
+move to the next group and start the search from the head of the list
+again.
 
+This could be fixed by forget about the block group boundary at
+all,(remove the for loop in ext3_new_block), make it searchs for a block
+in a filesystem wide:)
 
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/arch/alpha/Kconfig linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/alpha/Kconfig
---- linux-2.6.5-mm5/arch/alpha/Kconfig	2004-04-03 19:37:40.000000000 -0800
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/alpha/Kconfig	2004-04-14 09:39:40.000000000 -0700
-@@ -519,6 +519,14 @@ config NUMA
- 	  Access).  This option is for configuring high-end multiprocessor
- 	  server machines.  If in doubt, say N.
- 
-+config SCHED_NUMA
-+       bool "Two level sched domains"
-+       depends on NUMA
-+       default y
-+       help
-+         Enable two level sched domains hierarchy.
-+         Say Y if unsure.
-+
- # LARGE_VMALLOC is racy, if you *really* need it then fix it first
- config ALPHA_LARGE_VMALLOC
- 	bool
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/arch/i386/Kconfig linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/i386/Kconfig
---- linux-2.6.5-mm5/arch/i386/Kconfig	2004-04-14 09:37:40.000000000 -0700
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/i386/Kconfig	2004-04-14 09:39:40.000000000 -0700
-@@ -724,6 +724,14 @@ config NUMA
- 	default n if X86_PC
- 	default y if (X86_NUMAQ || X86_SUMMIT)
- 
-+config SCHED_NUMA
-+       bool "Two level sched domains"
-+       depends on NUMA
-+       default y
-+       help
-+         Enable two level sched domains hierarchy.
-+         Say Y if unsure.
-+
- # Need comments to help the hapless user trying to turn on NUMA support
- comment "NUMA (NUMA-Q) requires SMP, 64GB highmem support"
- 	depends on X86_NUMAQ && (!HIGHMEM64G || !SMP)
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/arch/ia64/Kconfig linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/ia64/Kconfig
---- linux-2.6.5-mm5/arch/ia64/Kconfig	2004-04-14 09:37:41.000000000 -0700
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/ia64/Kconfig	2004-04-14 09:39:40.000000000 -0700
-@@ -172,6 +172,14 @@ config NUMA
- 	  Access).  This option is for configuring high-end multiprocessor
- 	  server systems.  If in doubt, say N.
- 
-+config SCHED_NUMA
-+       bool "Two level sched domains"
-+       depends on NUMA
-+       default y
-+       help
-+         Enable two level sched domains hierarchy.
-+         Say Y if unsure.
-+
- config VIRTUAL_MEM_MAP
- 	bool "Virtual mem map"
- 	default y if !IA64_HP_SIM
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/arch/mips/Kconfig linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/mips/Kconfig
---- linux-2.6.5-mm5/arch/mips/Kconfig	2004-04-03 19:37:06.000000000 -0800
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/mips/Kconfig	2004-04-14 09:39:40.000000000 -0700
-@@ -337,6 +337,14 @@ config NUMA
- 	  Access).  This option is for configuring high-end multiprocessor
- 	  server machines.  If in doubt, say N.
- 
-+config SCHED_NUMA
-+       bool "Two level sched domains"
-+       depends on NUMA
-+       default y
-+       help
-+         Enable two level sched domains hierarchy.
-+         Say Y if unsure.
-+
- config MAPPED_KERNEL
- 	bool "Mapped kernel support"
- 	depends on SGI_IP27
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/arch/ppc64/Kconfig linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/ppc64/Kconfig
---- linux-2.6.5-mm5/arch/ppc64/Kconfig	2004-04-14 09:37:43.000000000 -0700
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/ppc64/Kconfig	2004-04-14 09:39:40.000000000 -0700
-@@ -173,6 +173,14 @@ config NUMA
- 	bool "NUMA support"
- 	depends on DISCONTIGMEM
- 
-+config SCHED_NUMA
-+       bool "Two level sched domains"
-+       depends on NUMA
-+       default y
-+       help
-+         Enable two level sched domains hierarchy.
-+         Say Y if unsure.
-+
- config SCHED_SMT
- 	bool "SMT (Hyperthreading) scheduler support"
- 	depends on SMP
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/arch/x86_64/Kconfig linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/x86_64/Kconfig
---- linux-2.6.5-mm5/arch/x86_64/Kconfig	2004-04-14 09:37:46.000000000 -0700
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/arch/x86_64/Kconfig	2004-04-14 09:39:40.000000000 -0700
-@@ -261,6 +261,14 @@ config NUMA
-        depends on K8_NUMA
-        default y
- 
-+config SCHED_NUMA
-+       bool "Two level sched domains"
-+       depends on NUMA
-+       default n
-+       help
-+         Enable two level sched domains hierarchy.
-+         Say N if unsure.
-+
- config HAVE_DEC_LOCK
- 	bool
- 	depends on SMP
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/include/linux/sched.h linux-2.6.5-mm5-x86_64_arch_sched_domain/include/linux/sched.h
---- linux-2.6.5-mm5/include/linux/sched.h	2004-04-14 09:38:08.000000000 -0700
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/include/linux/sched.h	2004-04-14 09:41:35.000000000 -0700
-@@ -670,7 +670,7 @@ struct sched_domain {
- 	.nr_balance_failed	= 0,			\
- }
- 
--#ifdef CONFIG_NUMA
-+#ifdef CONFIG_SCHED_NUMA
- /* Common values for NUMA nodes */
- #define SD_NODE_INIT (struct sched_domain) {		\
- 	.span			= CPU_MASK_NONE,	\
-diff -aurpN -X /home/dvhart/.diff.exclude linux-2.6.5-mm5/kernel/sched.c linux-2.6.5-mm5-x86_64_arch_sched_domain/kernel/sched.c
---- linux-2.6.5-mm5/kernel/sched.c	2004-04-14 09:38:09.000000000 -0700
-+++ linux-2.6.5-mm5-x86_64_arch_sched_domain/kernel/sched.c	2004-04-14 09:45:34.000000000 -0700
-@@ -45,7 +45,7 @@
- #include <linux/seq_file.h>
- #include <linux/times.h>
- 
--#ifdef CONFIG_NUMA
-+#ifdef CONFIG_SCHED_NUMA
- #define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
- #else
- #define cpu_to_node_mask(cpu) (cpu_online_map)
-@@ -3735,7 +3735,7 @@ extern void __init arch_init_sched_domai
- #else
- static struct sched_group sched_group_cpus[NR_CPUS];
- static DEFINE_PER_CPU(struct sched_domain, cpu_domains);
--#ifdef CONFIG_NUMA
-+#ifdef CONFIG_SCHED_NUMA
- static struct sched_group sched_group_nodes[MAX_NUMNODES];
- static DEFINE_PER_CPU(struct sched_domain, node_domains);
- static void __init arch_init_sched_domains(void)
-@@ -3806,7 +3806,7 @@ static void __init arch_init_sched_domai
- 	}
- }
- 
--#else /* !CONFIG_NUMA */
-+#else /* !CONFIG_SCHED_NUMA */
- static void __init arch_init_sched_domains(void)
- {
- 	int i;
-@@ -3845,7 +3845,7 @@ static void __init arch_init_sched_domai
- 	}
- }
- 
--#endif /* CONFIG_NUMA */
-+#endif /* CONFIG_SCHED_NUMA */
- #endif /* ARCH_HAS_SCHED_DOMAIN */
- 
- #define SCHED_DOMAIN_DEBUG
+I have concern about red black tree: it takes O(log(n)) to get where you
+want to start, but it need also takes O(log(n)) compare to find the hole
+size between two windows next to each other. And to find a reservable
+window, we need to browse the whole red black tree in the worse case, so
+the complexity is
+	O(log(n)) + O(log(n)) *O(n)) = O(n)*O(log(n))
 
+Am I right?
+
+> - Why do we discard the file's reservation on every iput()?  iput's are
+>   relatively common operations. (see fs/fs-writeback.c)
+> 
+Yes..you are right! I was intent to call ext3_discard_allocation only
+when the usage count of the inode is 0.  I looked at ext2 preallocation
+code, it called ext2_discard_preallocation in ext2_put_inode(), so I
+thought that's the place.  But it seems ext3_put_inode() being called
+every time iput() is called.  We should call ext3_discard_reservation in
+iput_final(). Should fix this in ext2.
+
+> - What locking protects rsv_alloc_hit?  i_sem is not held during
+>   VM-initiated writeout.  Maybe an atomic_t there, or just say that if we
+>   race and the number is a bit inaccurate, we don't care?
+> 
+Currently no lock is protect rsv_alloc_hit.  The reason is it is just a
+heuristics indicator of whether we should enlarge the reservation window
+size next time. Even the hit ratio(50%) is just a rough guess, so, a
+little bit inaccurate would not hurt much, adding another lock probably
+not worth it. 
+
+Thanks,
+
+Mingming
 

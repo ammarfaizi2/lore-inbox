@@ -1,85 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVCCFEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVCCFND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVCCFEd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 00:04:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVCCEnU
+	id S261436AbVCCFND (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 00:13:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVCCFIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:43:20 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:17294 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261436AbVCCE1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:27:45 -0500
-Date: Wed, 2 Mar 2005 20:27:33 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-In-Reply-To: <20050302201425.2b994195.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
- <20050302174507.7991af94.akpm@osdl.org> <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
- <20050302185508.4cd2f618.akpm@osdl.org> <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
- <20050302201425.2b994195.akpm@osdl.org>
+	Thu, 3 Mar 2005 00:08:41 -0500
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:62387 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261445AbVCCFHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 00:07:00 -0500
+From: Russell Miller <rmiller@duskglow.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: RFD: Kernel release numbering
+Date: Wed, 2 Mar 2005 21:08:07 -0800
+User-Agent: KMail/1.7
+Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net>
+In-Reply-To: <20050302205826.523b9144.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503022108.07117.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005, Andrew Morton wrote:
+On Wednesday 02 March 2005 20:58, David S. Miller wrote:
 
-> > There have been extensive discussions on all aspects of this patch.
-> > This issue was discussed in
-> > http://marc.theaimsgroup.com/?t=110694497200004&r=1&w=2
+> That's one of the major things the -rc's don't get.  Maybe it gets
+> a reference in lwn.net's weekly kernel article, but mostly kernel
+> geeks read those and that's not who we want testing -rc's (such
+> geeks already are doing so).
 >
-> This is a difficult, intrusive and controversial patch.  Things like the
-> above should be done in a separate patch.  Not only does this aid
-> maintainability, it also allows the change to be performance tested in
-> isolation.
+How do you know that they won't stop the announcements if this change is made?
 
-Well it would have been great if this was mentioned in the actual
-discussion at the time.
+--Russell
 
-> > The cmpxchg will fail if that happens.
->
-> How about if someone does remap_file_pages() against that virtual address
-> and that syscalls happens to pick the same physical page?  We have the same
-> physical page at the same pte slot with different contents, and the cmpxchg
-> will succeed.
+-- 
 
-Any mmap changes requires the mmapsem.
-
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110272296503539&w=2
->
-> Those are different cases.  I still don't see why the change is justified in
-> do_swap_page().
-
-Lets undo that then.
-
-> > These architectures have the atomic pte's not enable.  It would require
-> > them to submit a patch to activate atomic pte's for these architectures.
->
->
-> But if the approach which these patches take is not suitable for these
-> architectures then they have no solution to the scalability problem.  The
-> machines will perform suboptimally and more (perhaps conflicting)
-> development will be needed.
-
-They can implement their own approach with the provided hooks. You could
-for example use SSE / MMX for atomic 64 bit ops on i386 with PAE mode by
-using the start/stop macros to deal with the floatingh point issues.
-
-> > One
-> > would have to check for the lock being active leading to significant code
-> > changes.
->
-> Why?
-
-Because if a pte is locked it should not be used.
-
-Look this is an endless discussion with new things brought up at every
-corner and I have reworked the patches numerous times. Could you tell me
-some step by step way that we can finally deal with this? Specify a
-sequence of patches and I will submit them to you step by step.
-
+Russell Miller - rmiller@duskglow.com - Agoura, CA

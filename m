@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261280AbREOTXz>; Tue, 15 May 2001 15:23:55 -0400
+	id <S261281AbREOT1F>; Tue, 15 May 2001 15:27:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261281AbREOTXp>; Tue, 15 May 2001 15:23:45 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:33285 "EHLO
+	id <S261284AbREOT0z>; Tue, 15 May 2001 15:26:55 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:42245 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261280AbREOTXk>; Tue, 15 May 2001 15:23:40 -0400
-Message-ID: <3B018231.7D2D503A@transmeta.com>
-Date: Tue, 15 May 2001 12:23:29 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S261281AbREOT0o>; Tue, 15 May 2001 15:26:44 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Getting FS access events
+Date: 15 May 2001 12:26:20 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9drvss$7pc$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.31.0105150058370.22938-100000@p4.transmeta.com> <Pine.GSO.4.21.0105150424310.19333-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Johannes Erdfelt <johannes@erdfelt.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Followup to:  <Pine.GSO.4.21.0105150424310.19333-100000@weyl.math.psu.edu>
+By author:    Alexander Viro <viro@math.psu.edu>
+In newsgroup: linux.dev.kernel
 > 
-> But no, I don't actually like sockets all that much myself. They are hard
-> to use from scripts, and many more people are familiar with open/close and
-> read/write.
+> UNIX-like ones (and that includes QNX) are easy. HFS is hopeless - it won't
+> be fixed unless authors will do it. Tigran will probably fix BFS just as a
+> learning experience ;-) ADFS looks tolerably easy to fix. AFFS... directories
+> will be pure hell - blocks jump from directory to directory at zero notice.
+> NTFS and HPFS will win from switch (esp. NTFS). FAT is not a problem, if we
+> are willing to break CVF and let author fix it. Reiserfs... Dunno. They've
+> got a private (slightly mutated) copy of ~60% of fs/buffer.c. UDF should be
+> OK. ISOFS... ask Peter. JFFS - dunno.
 > 
 
-I always thought it was really strange that I couldn't open() a AF_UNIX
-socket in order to write() to it (as a stream socket, of course.)  It
-really makes a lot of things harder to do than it needs to be, and I
-would still like to see this generalization done.
-
-That being said, if USB exported a filesystem I don't see any good reason
-why you shouldn't be able to advertise "socket" (S_ISSOCK()) objects and
-simply have them accept open("/dev/usb/blah/blah") instead of
-connect(AF_USB, ...) -- and still use send() and recv() where it is more
-appropriate to do so than using read() and write().
+isofs wouldn't be too bad as long as struct mapping:struct inode is a
+many-to-one mapping.
 
 	-hpa
-
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274520AbRIZLfc>; Wed, 26 Sep 2001 07:35:32 -0400
+	id <S275021AbRIZLsn>; Wed, 26 Sep 2001 07:48:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274626AbRIZLfX>; Wed, 26 Sep 2001 07:35:23 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:56781 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S274520AbRIZLfD>; Wed, 26 Sep 2001 07:35:03 -0400
-Message-ID: <3BB1BC51.4070102@antefacto.com>
-Date: Wed, 26 Sep 2001 12:30:25 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S275026AbRIZLse>; Wed, 26 Sep 2001 07:48:34 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:56327 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S275021AbRIZLsY>;
+	Wed, 26 Sep 2001 07:48:24 -0400
+Date: Wed, 26 Sep 2001 13:48:37 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
+ in prison
+In-Reply-To: <E15lfGM-00046c-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0109261341130.29158-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: Eli Carter <eli.carter@inet.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] core file naming option
-In-Reply-To: <3BB104A9.3AD512A5@inet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter wrote:
 
->Alan et. all,
->
->The attached patch adds an option to the build to have core files named
->core.processname, but defaulting to the current behaviour of course. 
->For most people the single 'core' file is sufficient, but when the sky
->is falling, it's nice to have more places for it to land.  :)
->So, is this something that might go into the kernel, or are their
->philisophical reasons against it?  (The patch is against 2.2.19.  I
->haven't looked at 2.4.x yet.  Let me know if you want a 2.4 or if I
->should send it to Linus, or...)
->
->Questions, comments, etc. welcome,
->
-Other Unix' have used core.pid as the name. Wouldn't this be better?
-Especially when the process name is already stored in a core file
-(`file core` will give you this). Hmm I wonder could we use this
-core.pid format to dump the core for each thread (probably a bad idea).
 
-Padraig.
+On Tue, 25 Sep 2001, Alan Cox wrote:
+
+> > > If this passes, everyone working in computer security can be arrested and thrown in prison for life. In addition, people such as Kevin Mitnick can be thrown
+> > > back in prison even though they have already paid for their crime (double jeopardy?).
+> > >
+> > > http://www.securityfocus.com/news/257
+>
+> Cuba is within small boat distance. I thought it was going to be twenty
+> years before the direction changed, now Im not so sure
+> -
+I have been told of people covering this destance by swin, I do not know
+if it is true, but a seawolf told me that from USA to cuba should
+be easier to go. :).
+
+I was thinking to  Richelieau princip:
+Fare una legge e non farla rispettare significa
+autorizzare il contrario.
+(sorry, unable to translate in english, it is something like if you say a
+law, and you are not
+forcing people to respect it, people are allowed by law to do the
+countrary).
+Do you think Americans are considering this moral aspect?
+
+Luigi
+
 

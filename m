@@ -1,160 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbUKJD6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbUKJEPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbUKJD6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 22:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUKJD6h
+	id S261872AbUKJEPE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 23:15:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUKJEPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 22:58:37 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:42169 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261851AbUKJD6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 22:58:30 -0500
-Date: Tue, 9 Nov 2004 19:54:00 -0800
-From: Fenghua Yu <fenghua.yu@intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] add cpu_relax() in spin loops & clean up barrier() for 2.6.9
-Message-ID: <20041109195400.B4895@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="JP+T4n/bALQSJXh8"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Tue, 9 Nov 2004 23:15:04 -0500
+Received: from sanosuke.troilus.org ([66.92.173.88]:11237 "EHLO
+	sanosuke.troilus.org") by vger.kernel.org with ESMTP
+	id S261872AbUKJEO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 23:14:59 -0500
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: =?iso-8859-1?q?=3D=3Fiso-8859-1=3Fq=3F_Rapha=EBl_Rigo_LKML=3F=3D?= 
+	<lkml@twilight-hall.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, davids@webmaster.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
+References: <MDEHLPKNGKAHNMBLJOLKAEKLPKAA.davids@webmaster.com>
+	<1100042579.16729.7.camel@localhost.localdomain>
+	<AF8A1638-32B8-11D9-857E-000393ACC76E@mac.com>
+	<87ekj2fomv.fsf@sanosuke.troilus.org>
+	<053C3394-32C5-11D9-857E-000393ACC76E@mac.com>
+From: Michael Poole <mdpoole@troilus.org>
+Date: 09 Nov 2004 23:14:55 -0500
+In-Reply-To: <053C3394-32C5-11D9-857E-000393ACC76E@mac.com>
+Message-ID: <87actqfigw.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kyle Moffett writes:
 
---JP+T4n/bALQSJXh8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> > You can fully exercise your rights under the GPL; they are not
+> > restricted.  However, you cannot expect future support from Sveasoft.
+> But if I paid $20 for one year of said support?
 
-The patch adds cpu_relax() in the body of some spin loops
-for 2.6.9. The patch also removes redundant
-barrier() code after cpu_relax() on ia32.
+The contract might have a termination clause triggered if you do a
+handstand or file a patent lawsuit against Sveasoft.  By your
+argument, that would make the contract breach the GPL, since you could
+not use the GPLed software while doing those things -- which is
+ridiculous on its face.
 
-In the PAUSE instruction section, IA32 SDM claims "it is
-recommended that a PASUE instruction be placed in all
-spin-wait loops". And x86_64 SDM says that PAUSE instruction
-is same as legacy mode in IA-32e mode operation.
+> > Only your contract entitles you to that support, and if you do
+> > something to terminate your contract, it is outside the GPL's scope.
+> What _is_ inside the GPL's scope is that no contract may require me
+> to abstain from my GPL rights.  If I use my full GPL rights, then they
+> are telling me that I break the contract and lose my $20 support.
 
-This patch is against 2.6.9 (kernel.org). It was tested on
-ia32 and x86_64.
+That depends greatly on the wording of the contract.
 
-Thanks.
+Interestingly, the only description I can find on Sveasoft's web page
+says this:
 
--Fenghua 
+    Sveasoft firmware and support is available for a yearly $20 USD
+    subscription fee. A subscription includes unlimited access to
+    firmware upgrades and unlimited access to priority support.
 
---JP+T4n/bALQSJXh8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="spin_loops.patch"
+If Sveasoft terminates someone's "unlimited" access before the year
+expires, Sveasoft may be in breach of contract, since there are no
+disclaimers about termination -- but that still does not translate to
+copyright infringement.
 
---- a/arch/x86_64/kernel/smp.c	2004-10-26 11:52:46.000000000 -0700
-+++ b/arch/x86_64/kernel/smp.c	2004-10-28 14:37:56.000000000 -0700
-@@ -405,11 +405,11 @@ static void __smp_call_function (void (*
- 
- 	/* Wait for response */
- 	while (atomic_read(&data.started) != cpus)
--		barrier();
-+		cpu_relax();
- 
- 	if (wait)
- 		while (atomic_read(&data.finished) != cpus)
--			barrier();
-+			cpu_relax();
- }
- 
- /*
---- a/arch/i386/kernel/smp.c	2004-10-26 11:52:42.000000000 -0700
-+++ b/arch/i386/kernel/smp.c	2004-10-28 14:29:22.000000000 -0700
-@@ -538,11 +538,11 @@ int smp_call_function (void (*func) (voi
- 
- 	/* Wait for response */
- 	while (atomic_read(&data.started) != cpus)
--		barrier();
-+		cpu_relax();
- 
- 	if (wait)
- 		while (atomic_read(&data.finished) != cpus)
--			barrier();
-+			cpu_relax();
- 	spin_unlock(&call_lock);
- 
- 	return 0;
---- a/include/asm-i386/apic.h	2004-10-26 11:53:32.000000000 -0700
-+++ b/include/asm-i386/apic.h	2004-10-28 14:31:58.000000000 -0700
-@@ -53,7 +53,8 @@ static __inline unsigned long apic_read(
- 
- static __inline__ void apic_wait_icr_idle(void)
- {
--	do { } while ( apic_read( APIC_ICR ) & APIC_ICR_BUSY );
-+	while ( apic_read( APIC_ICR ) & APIC_ICR_BUSY )
-+		cpu_relax();
- }
- 
- int get_physical_broadcast(void);
---- a/arch/i386/kernel/cpu/mtrr/main.c	2004-10-26 11:52:42.000000000 -0700
-+++ b/arch/i386/kernel/cpu/mtrr/main.c	2004-10-28 14:27:49.000000000 -0700
-@@ -147,10 +147,8 @@ static void ipi_handler(void *info)
- 	local_irq_save(flags);
- 
- 	atomic_dec(&data->count);
--	while(!atomic_read(&data->gate)) {
-+	while(!atomic_read(&data->gate))
- 		cpu_relax();
--		barrier();
--	}
- 
- 	/*  The master has cleared me to execute  */
- 	if (data->smp_reg != ~0U) 
-@@ -160,10 +158,9 @@ static void ipi_handler(void *info)
- 		mtrr_if->set_all();
- 
- 	atomic_dec(&data->count);
--	while(atomic_read(&data->gate)) {
-+	while(atomic_read(&data->gate))
- 		cpu_relax();
--		barrier();
--	}
-+
- 	atomic_dec(&data->count);
- 	local_irq_restore(flags);
- }
-@@ -228,10 +225,9 @@ static void set_mtrr(unsigned int reg, u
- 
- 	local_irq_save(flags);
- 
--	while(atomic_read(&data.count)) {
-+	while(atomic_read(&data.count))
- 		cpu_relax();
--		barrier();
--	}
-+
- 	/* ok, reset count and toggle gate */
- 	atomic_set(&data.count, num_booting_cpus() - 1);
- 	atomic_set(&data.gate,1);
-@@ -248,10 +244,9 @@ static void set_mtrr(unsigned int reg, u
- 		mtrr_if->set(reg,base,size,type);
- 
- 	/* wait for the others */
--	while(atomic_read(&data.count)) {
-+	while(atomic_read(&data.count))
- 		cpu_relax();
--		barrier();
--	}
-+
- 	atomic_set(&data.count, num_booting_cpus() - 1);
- 	atomic_set(&data.gate,0);
- 
-@@ -259,10 +254,9 @@ static void set_mtrr(unsigned int reg, u
- 	 * Wait here for everyone to have seen the gate change
- 	 * So we're the last ones to touch 'data'
- 	 */
--	while(atomic_read(&data.count)) {
-+	while(atomic_read(&data.count))
- 		cpu_relax();
--		barrier();
--	}
-+
- 	local_irq_restore(flags);
- }
- 
+> > This is unpleasant for a lot of people.  It is probably suboptimal for
+> > the free software community.  Life can be hard like that.  Any
+> > competent lawyer could have a copyright infringement claim dismissed
+> > if the claim were based on your theory of the GPL.
+> As I said, IANAL, but I do feel strongly about this issue (though I've
+> never paid for their software).  In any case, I think this point will be
+> moot if SveaSoft continues with their announced plan to require an
+> activation key.  That would _definitely_ be against the GPL.
 
---JP+T4n/bALQSJXh8--
+I suspect that an activation key would violate the GPL, but that is a
+different question than the support contract.
+
+Michael Poole

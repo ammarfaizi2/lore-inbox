@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290033AbSA3QhK>; Wed, 30 Jan 2002 11:37:10 -0500
+	id <S290075AbSA3QiT>; Wed, 30 Jan 2002 11:38:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290015AbSA3Qfr>; Wed, 30 Jan 2002 11:35:47 -0500
-Received: from mail.scram.de ([195.226.127.117]:62921 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S290025AbSA3Qew>;
-	Wed, 30 Jan 2002 11:34:52 -0500
-Date: Wed, 30 Jan 2002 17:34:12 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-To: Larry McVoy <lm@bitmover.com>
-cc: Roman Zippel <zippel@linux-m68k.org>, Jeff Garzik <garzik@havoc.gtf.org>,
-        Rob Landley <landley@trommello.org>,
-        Miles Lane <miles@megapathdsl.net>, Chris Ricker <kaboom@gatech.edu>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <20020130080642.E18381@work.bitmover.com>
-Message-ID: <Pine.NEB.4.33.0201301731530.16245-100000@www2.scram.de>
+	id <S290059AbSA3QhL>; Wed, 30 Jan 2002 11:37:11 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54802 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290018AbSA3QgG>; Wed, 30 Jan 2002 11:36:06 -0500
+Subject: Re: Oops with 2.4.18-pre3-ac2 with Intel ServerRAID Controller
+To: zwane@linux.realnet.co.sz (Zwane Mwaikambo)
+Date: Wed, 30 Jan 2002 16:48:46 +0000 (GMT)
+Cc: michelpereira@uol.com.br (Michel Angelo da Silva Pereira),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0201301756530.5518-100000@netfinity.realnet.co.sz> from "Zwane Mwaikambo" at Jan 30, 2002 05:57:51 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Vxug-0007lP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry,
+> Could you please try without the adaptec i2o driver compiled in and only 
+> the generic i2o drivers. Also which kernel last worked for you?
 
-> with the difference being that BK has an optional way of wrapping
-> them up in uuencode (or whatever) so that mailers don't stomp on them.
+The adaptec driver won't touch the IBM ServeRAID - that side is ok. The
+generic i2o will see it as it claims to be an I2O device but the right
+driver is the IBM ips driver
 
-isn't that just the same as sending them as attchment? And isn't that
-discouraged?
-
-Cheers,
---jochen
-
+Alan

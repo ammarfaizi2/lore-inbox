@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbUCGTZL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 14:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbUCGTZK
+	id S262310AbUCGTng (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 14:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUCGTng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 14:25:10 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:28062 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S261738AbUCGTZG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 14:25:06 -0500
-Date: Sun, 7 Mar 2004 20:25:04 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
+	Sun, 7 Mar 2004 14:43:36 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:31648 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S262310AbUCGTne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 14:43:34 -0500
+Date: Mon, 08 Mar 2004 03:42:59 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Roland Dreier" <roland@topspin.com>,
+       "Horst von Brand" <vonbrand@inf.utfsm.cl>
 Subject: Re: Linux 2.4.26-pre2
-Message-ID: <20040307192504.GS19111@khan.acc.umu.se>
-Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
-References: <404AB6C7.7010803@eyal.emu.id.au> <200403071619.i27GJkOZ003480@eeyore.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403071619.i27GJkOZ003480@eeyore.valparaiso.cl>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Cc: "Eyal Lebedinsky" <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
+References: <200403071619.i27GJkOZ003480@eeyore.valparaiso.cl> <52y8qcv6fy.fsf@topspin.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr4ibpxlt4evsfm@smtp.pacific.net.th>
+In-Reply-To: <52y8qcv6fy.fsf@topspin.com>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 07, 2004 at 01:19:46PM -0300, Horst von Brand wrote:
-> Eyal Lebedinsky <eyal@eyal.emu.id.au> said:
-> > Marcelo Tosatti wrote:
-> > > 
-> > > Hi, 
-> > > 
-> > > Here goes -pre2 -- it contains networking updates, network drivers 
-> > > updates, an XFS update, amongst others.
-> >  >
-> > > <jon:focalhost.com>:
-> > >   o [CRYPTO]: Add ARC4 module
-> > 
-> > In standard C we declare all variables at the top of a function. While
-> > some compilers allow extension, it is not a good idea to get used to
-> > them if we want portable code.
-> 
-> Oh, come on. This is _kernel_ code, it won't ever be compiled with anything
-> not GCC-compatible.
+On 07 Mar 2004 10:49:05 -0800, Roland Dreier <roland@topspin.com> wrote:
 
-Ugly warts don't become any less ugly just because gcc accepts them...
+>     Eyal> In standard C we declare all variables at the top of a
+>     Eyal> function. While some compilers allow extension, it is not a
+>     Eyal> good idea to get used to them if we want portable code.
+>
+>     Horst> Oh, come on. This is _kernel_ code, it won't ever be
+>     Horst> compiled with anything not GCC-compatible.
+>
+> gcc 2.95 rejects declarations after code.  The kernel, especially
+> kernel 2.4, shouldn't use this particular extension, even if gcc 3
+> accepts it.
+>
 
+I also use gcc 2.95 and have no intention to change compilers
+for 2.4 at all as this compiler is most dependable and never
+screwed up unlike 3.1.x and 3.2.2.
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Documentation/Codingstyle also refers to K&R who historically
+declare variables at the top of a function.
+
+Excerpt:
+	"all right-thinking people know that
+	(a) K&R are _right_ and (b) K&R are right"
+
+Regards
+Michael

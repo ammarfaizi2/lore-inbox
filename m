@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265569AbSKFCnb>; Tue, 5 Nov 2002 21:43:31 -0500
+	id <S265604AbSKFC23>; Tue, 5 Nov 2002 21:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbSKFCnb>; Tue, 5 Nov 2002 21:43:31 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13241 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265569AbSKFCna>;
-	Tue, 5 Nov 2002 21:43:30 -0500
-Date: Tue, 5 Nov 2002 21:50:01 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Eff Norwood <enorwood@effrem.com>
-cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       Kevin Corry <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net,
-       evms-announce@lists.sourceforge.net
-Subject: RE: [Evms-devel] EVMS announcement
-In-Reply-To: <CFEAJJEGMGECBCJFLGDBIEEBCHAA.enorwood@effrem.com>
-Message-ID: <Pine.GSO.4.21.0211052054160.6521-100000@steklov.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265599AbSKFC2Y>; Tue, 5 Nov 2002 21:28:24 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:4030 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265540AbSKFC1D>;
+	Tue, 5 Nov 2002 21:27:03 -0500
+Subject: Re: Voyager subarchitecture for 2.5.46
+From: john stultz <johnstul@us.ibm.com>
+To: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200211052045.gA5KjCW04537@localhost.localdomain>
+References: <200211052045.gA5KjCW04537@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 05 Nov 2002 18:31:04 -0800
+Message-Id: <1036549864.6098.76.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-11-05 at 16:35, J.E.J. Bottomley wrote:
+> It includes the boot GDT stuff, added configuration options for the 
+> kernel/timers directory so that things which can't maintain a TSC can turn it 
+> off at compile time.
+
+Just a few comments on the CONFIG_X86_TSC changes:
+
+> diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+> --- a/arch/i386/Kconfig	Tue Nov  5 15:35:01 2002
+> +++ b/arch/i386/Kconfig	Tue Nov  5 15:35:01 2002
+> @@ -1636,17 +1649,32 @@
+>  
+>  source "lib/Kconfig"
+>  
+> +config X86_TSC
+> +	bool
+> +	depends on  !VOYAGER && (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || M686 || M586MMX || M586TSC)
+> +	default y
+> +
+> +config X86_PIT
+> +	bool
+> +	depends on M386 || M486 || M586 || M586TSC || VOYAGER
+> +	default y
+> +
+
+I'm fine w/ the X86_TSC change, but I'd drop the X86_PIT for now. 
+
+Then make the arch/i386/timers/Makefile change to be something like:
+
+obj-y := timer.o timer_tsc.o timer_pit.o
+obj-$(CONFIG_X86_TSC)		-= timer_pit.o #does this(-=) work?
+obj-$(CONFIG_X86_CYCYLONE)	+= timer_cyclone.o
 
 
-On Tue, 5 Nov 2002, Eff Norwood wrote:
+Then when you boot, boot w/ notsc and you should be fine. 
 
-> > So, you're volunteering to maintain the EVMS subsystem for 2.5 ?
-> >
-> > If not, I propose you let Kevin and the other EVMS developers
-> > make the decision.
-> 
-> So, having EVMS not included in the kernel was the decision they wanted to
-> make?
-> 
-> If not, then I propose you be a little more reasonable and think about what
-> this decision does to all the work thus far put into EVMS.
+I do want to add some sort of TSC blacklisting so one doesn't always
+have to boot w/ notsc if your machine is
+detectable/compiled-exclusively= for. But I've got a few other issues in
+the queue first. 
 
-This decision (to move the bulk of EVMS code to userland and isolate the
-changes needed in the kernel) *definitely* means less work in the long
-run - for EVMS people in the first place.
-
-Userland code is easier to write.  There one has full runtime environment
-and that alone means a lot.  There one has no 8Kb limit on the stack size.
-There one has memory protection.  And there code doesn't have to do anything
-about the changes of kernel internals.  It's also easier to debug - for very
-obvious reasons.
-
-The goal is to provide functionality, not to put it in the kernel - the
-latter always means harder life.  It is the last resort measure ("we have
-no way to do that in userland with acceptable performance and correctness,
-damn, time to deal with the kernel side") and finding a way to make do
-with more compact kernel part (ideally - already maintained by somebody
-else ;-) is always good news.
-
-And I seriously doubt that work thus far put into EVMS goes down the drain
-from move to userland - they would have to be absolutely incompetent for
-that to be the case and I don't see what allows you to accuse them in that.
-
-What that decision does mean is serious one-time effort that makes life
-easier once it's done.  And that had taken real courage - my applause to
-them (and not only mine, while we are at).  What they had done was pretty
-amazing and my respect to the team that had chosen to do the right thing,
-had been able to defend that decision and to their management that had allowed
-that has just gone _way_ up.  Bravo, folks.  And best luck - seriously.
-
-I respect very few people.  These I _do_ respect.  A lot.
+thanks
+-john
 

@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310666AbSCWSDB>; Sat, 23 Mar 2002 13:03:01 -0500
+	id <S310749AbSCWSTy>; Sat, 23 Mar 2002 13:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310681AbSCWSCv>; Sat, 23 Mar 2002 13:02:51 -0500
-Received: from [195.145.236.227] ([195.145.236.227]:52718 "EHLO
-	notus.mii.dynalabs.de") by vger.kernel.org with ESMTP
-	id <S310666AbSCWSCg>; Sat, 23 Mar 2002 13:02:36 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] dmi_scan.c, kernel 2.4.18: Another Sony Vaio needing
- swab_apm_power_in_minutes
-From: Michael Piotrowski <mxp@dynalabs.de>
-Date: Sat, 23 Mar 2002 19:03:44 +0100
-Message-ID: <x6663nrwjj.fsf@notus.mii.dynalabs.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley)
-X-Operating-System: Linux
-X-Face: %OvAx]kKl`N,i?yQ+$^p9w2oy)Yg|O}a_~6wtRQ@UTZ*(jSPubbonT]m++M>YBtJqkZZa!W
- "y5`aI.FoKO%$JHz=ws|<S'l>i?y^o2bds(+pcp>gcX]H}?-tCzL^ABzJUWYzS{<Pb.+6b>"!_hFg:
- JD)`kxRKLsNp
-MIME-Version: 1.0
+	id <S310695AbSCWSTp>; Sat, 23 Mar 2002 13:19:45 -0500
+Received: from ns1.pebbles.net ([209.49.196.21]:23309 "HELO pebbles.net")
+	by vger.kernel.org with SMTP id <S310749AbSCWSTg>;
+	Sat, 23 Mar 2002 13:19:36 -0500
+Date: Sat, 23 Mar 2002 13:19:39 -0500
+From: Kelly French <kfrench@pebbles.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: make rpm is not documented
+Message-ID: <20020323131939.A9293@pebbles.net>
+In-Reply-To: <20020320154100.D21789@pcmaftoul.esrf.fr> <E16nhv9-0002XX-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 20, 2002 at 03:22:35PM +0000, Alan Cox wrote:
+> > Second stuff, make rpm don't work for me on suse's kernel.
+> 
+> Ask SuSE 8)
+> 
+> > Didn't yet watched what is the problem, but seems to be related with
+> > EXTRAVERSION or something like this.
+> 
+> At least some versions of the script didnt like multiple '-' symbols. 
+> Gerald Britton fixed this for 2.4.18
+> 
+> > I will have further look and will try to say as much as I can with my
+> > poor knowledge.
+> 
+> Basically the thing works with
+> 
+> make config/menuconfig/xconfig
+> if you use make menu/xconfig then run make oldconfig (I dont trust xconfig..)
+> make rpm
+> 
+> [wait.. wait.. wait.. ]
+> 
+> rpm --install
+> 
+> add to lilo.conf
+> 
+> enjoy
 
-My Sony Vaio PCG-Z600LEK(DE) has the same APM problem as many other
-Vaio models.
+Any chance we can copy the .config to /boot/config-$version?
 
-Here's the patch, against 2.4.18:
+--- scripts/mkspec.orig	Sat Mar 23 13:13:19 2002
++++ scripts/mkspec	Sat Mar 23 13:13:37 2002
+@@ -35,6 +35,7 @@
+ echo 'INSTALL_MOD_PATH=$RPM_BUILD_ROOT make modules_install'
+ echo 'cp arch/i386/boot/bzImage $RPM_BUILD_ROOT'"/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
+ echo 'cp System.map $RPM_BUILD_ROOT'"/boot/System.map-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
++echo 'cp .config $RPM_BUILD_ROOT'"/boot/config-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
+ echo ""
+ echo "%clean"
+ echo '#echo -rf $RPM_BUILD_ROOT'
 
-
---- arch/i386/kernel/dmi_scan.c.orig	Sat Mar 23 17:05:30 2002
-+++ arch/i386/kernel/dmi_scan.c	Sat Mar 23 18:33:14 2002
-@@ -534,6 +534,12 @@
- 			MATCH(DMI_BIOS_DATE, "08/11/00"), NO_MATCH
- 			} },
- 
-+	{ swab_apm_power_in_minutes, "Sony VAIO", {	/* Handle problems with APM on Sony Vaio PCG-Z600LEK(DE) */
-+			MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
-+			MATCH(DMI_BIOS_VERSION, "R0206Z3"),
-+			MATCH(DMI_BIOS_DATE, "12/25/00"), NO_MATCH
-+			} },
-+
- 	{ swab_apm_power_in_minutes, "Sony VAIO", {	/* Handle problems with APM on Sony Vaio PCG-Z505LS */
- 			MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
- 			MATCH(DMI_BIOS_VERSION, "R0203D0"),
-
-
--- 
-Michael Piotrowski, M.A.                                  <mxp@dynalabs.de>
+	-kf

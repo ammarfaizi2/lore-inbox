@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266546AbUBGDEr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 22:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUBGDEr
+	id S266557AbUBGDLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 22:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUBGDLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 22:04:47 -0500
-Received: from bay1-f23.bay1.hotmail.com ([65.54.245.23]:57095 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S266546AbUBGDEl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 22:04:41 -0500
-X-Originating-IP: [65.25.165.241]
-X-Originating-Email: [jw2357@hotmail.com]
-From: "John William" <jw2357@hotmail.com>
+	Fri, 6 Feb 2004 22:11:09 -0500
+Received: from main.gmane.org ([80.91.224.249]:48102 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266557AbUBGDLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 22:11:07 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] killing the AMD53C974 and mac_NCR5380 drivers
-Date: Sat, 07 Feb 2004 03:04:39 +0000
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Linux 2.6.3-rc1
+Date: Sat, 07 Feb 2004 04:11:02 +0100
+Message-ID: <yw1x4qu38tyx.fsf@kth.se>
+References: <Pine.LNX.4.58.0402061823040.30672@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY1-F23xAHXBejKV010001f615@hotmail.com>
-X-OriginalArrivalTime: 07 Feb 2004 03:04:40.0046 (UTC) FILETIME=[207398E0:01C3ED27]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti200710a080-3281.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:zTmH5QpqOInDWln7JLU6cw27BOY=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removing the AM53C974 driver sounds like a good idea, but be aware that the 
-tmscsim driver included on the RedHat driver disks (for people who have to 
-boot by floppy) causes a panic on boot ever since 7.3 on XU 5/90 machines. 
-The AM53C974 driver is very minimalistic, but seems to work. Once the system 
-is installed, the AM53C974 driver isn't stable long-term and I have to use 
-tmscsim.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-So before deleting the driver, keep in mind that without it, there would be 
-no way to install RedHat's distros on the older Vectra's. Of course the 
-tmscsim driver included on the RedHat driver disk could be broken...
+> James Simmons:
+>   o [FBDEV] Add syfs support
 
-- John
+Is this the patch some say is broken?
 
-_________________________________________________________________
-Choose now from 4 levels of MSN Hotmail Extra Storage - no more account 
-overload! http://click.atdmt.com/AVE/go/onm00200362ave/direct/01/
+-- 
+Måns Rullgård
+mru@kth.se
 

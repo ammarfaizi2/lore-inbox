@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263799AbUEXB2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUEXBdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263799AbUEXB2o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 21:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbUEXB2o
+	id S263802AbUEXBdM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 21:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUEXBdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 21:28:44 -0400
-Received: from holomorphy.com ([207.189.100.168]:17542 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263799AbUEXB2n (ORCPT
+	Sun, 23 May 2004 21:33:11 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:47021 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263802AbUEXBdI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 21:28:43 -0400
-Date: Sun, 23 May 2004 18:28:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jakob Oestergaard <jakob@unthought.net>, Phy Prabab <phyprabab@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Help understanding slow down
-Message-ID: <20040524012828.GK1833@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jakob Oestergaard <jakob@unthought.net>,
-	Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20040524003200.14639.qmail@web90007.mail.scd.yahoo.com> <20040524005751.62303.qmail@web90006.mail.scd.yahoo.com> <20040524010455.GJ1833@holomorphy.com> <20040524012553.GG30687@unthought.net>
-Mime-Version: 1.0
+	Sun, 23 May 2004 21:33:08 -0400
+Date: Sun, 23 May 2004 18:33:04 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 4g/4g for 2.6.6
+Message-ID: <331270000.1085362383@[10.10.2.4]>
+In-Reply-To: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com>
+References: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040524012553.GG30687@unthought.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2004 at 03:25:53AM +0200, Jakob Oestergaard wrote:
-> Eh, not if I read the numbers right:
-> 2.6.7-p1: 24.86user 51.77system 2:58.87elapsed 42%CPU
-> 24.86 + 51.77 = 76.63 seconds on CPU, 102.24 seconds of waiting
-> 2.4.21: 28.68user 34.98system 1:12.34elapsed 87%CPU
-> 28.68 + 34.98 = 63.66 seconds on CPU, 8.68 seconds of waiting
-> So, 2.6.7-p1 spends 16.79 seconds more in the kernel as you observed,
-> but it spends 93.56 seconds more waiting for I/O (or whatever).
-> Unless I'm totally missing something, the wait seems to be the
-> regression.
+> I have been researching the 4g patches for kernels. 
+> Seems there was a rift between people over this.  Is
+> there any plan to resume publishing 4g patches for
+> developing kernels?
+> 
+> I am currently trying to get 4g to work with 2.6.6-mm5
+> but of course running into issues,so any help on this
+> would be great!
 
-I'm sorry, you're right. Let's start by looking into IO activity.
-Phy, could you log the output of vmstat(1) during the runs?
+It's in -mjb tree - the update from 2.6.6-rc3 to 2.6.6 should be trivial.
 
+M.
 
--- wli

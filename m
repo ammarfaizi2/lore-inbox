@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283552AbRK3IGX>; Fri, 30 Nov 2001 03:06:23 -0500
+	id <S283557AbRK3IUn>; Fri, 30 Nov 2001 03:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283554AbRK3IGN>; Fri, 30 Nov 2001 03:06:13 -0500
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:45070 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S283552AbRK3IF6>; Fri, 30 Nov 2001 03:05:58 -0500
-Message-ID: <3758.10.119.8.1.1007107604.squirrel@extranet.jtrix.com>
-Date: Fri, 30 Nov 2001 08:06:44 -0000 (GMT)
-Subject: 2.5.1-pre4 compile error - pd.c
-From: "Martin A. Brooks" <martin@jtrix.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.0 [rc2])
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S283559AbRK3IUe>; Fri, 30 Nov 2001 03:20:34 -0500
+Received: from f05s15.cac.psu.edu ([128.118.141.58]:762 "EHLO
+	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
+	id <S283558AbRK3IUR>; Fri, 30 Nov 2001 03:20:17 -0500
+Subject: preempt on sparc64
+From: Phil Sorber <aafes@psu.edu>
+To: Robert Love <rml@tech9.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-nt4DMh6AnoJI3HIZ9Oks"
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 30 Nov 2001 03:20:16 -0500
+Message-Id: <1007108416.8043.11.camel@praetorian>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/home/martin/kernel-a-day-club/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686    -c -o pd.o pd.c
-pd.c: In function `do_pd_request':
-pd.c:856: structure has no member named `bh'
-pd.c: In function `pd_next_buf':
-pd.c:881: `io_request_lock' undeclared (first use in this function)
-pd.c:881: (Each undeclared identifier is reported only once
-pd.c:881: for each function it appears in.)
-pd.c: In function `do_pd_read_start':
 
+--=-nt4DMh6AnoJI3HIZ9Oks
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---
-Martin A. Brooks   Systems Administrator
-Jtrix Ltd          t: +44 7395 4990
-57-59 Neal Street  f: +44 7395 4991
-London, WC2H 9PP   e: martin@jtrix.com
+Does the preemption patch work on sparc64? I just downloaded the 2.4.16
+kernel and appropriate patches, patched, then make menucondig'd. however
+i didn't find a place to turn that on. then entire menuconfig is
+re-organized under the sparc64 tree, maybe this has something to do with
+it?
 
+this is my first time compiling on sparc64.
+
+--=20
+Phil Sorber
+AIM: PSUdaemon
+IRC: irc.openprojects.net #psulug PSUdaemon
+GnuPG: keyserver - pgp.mit.edu
+
+--=-nt4DMh6AnoJI3HIZ9Oks
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8B0FAXm6Gwek+iaQRAsQVAJ9VzaYnyZ6pDD3swrd4MRfFjEDe5ACgjKQg
+L68W1BKVDv85pMXZywOIq88=
+=TVO1
+-----END PGP SIGNATURE-----
+
+--=-nt4DMh6AnoJI3HIZ9Oks--
 

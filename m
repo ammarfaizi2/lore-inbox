@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbUKXC0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUKXCeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbUKXC0i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 21:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUKXC0i
+	id S261677AbUKXCeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 21:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUKXCeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 21:26:38 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:13970 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261687AbUKXCZv (ORCPT
+	Tue, 23 Nov 2004 21:34:25 -0500
+Received: from 65-75.sh.cgocable.ca ([205.151.65.75]:60394 "EHLO mail.pixel.ca")
+	by vger.kernel.org with ESMTP id S261677AbUKXCeX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 21:25:51 -0500
-Date: Wed, 24 Nov 2004 04:27:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Steven Rostedt <rostedt@kihontech.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0, and 30-9
-Message-ID: <20041124032757.GB12028@elte.hu>
-References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com> <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com> <20041123115201.GA26714@elte.hu> <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com> <Pine.LNX.4.58.0411231316300.2242@gradall.private.brainfood.com> <1101244924.32068.6.camel@localhost.localdomain> <1101246438.1594.3.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101246438.1594.3.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 23 Nov 2004 21:34:23 -0500
+From: "Mario Gaucher" <zadiglist@zadig.ca>
+To: linux-kernel@vger.kernel.org
+Subject: framebuffer problem on a PowerMac 7300
+Date: Tue, 23 Nov 2004 21:34:20 -0500
+Message-Id: <20041124021824.M80598@zadig.ca>
+X-Mailer: Open WebMail 2.41 20040926
+X-OriginatingIP: 192.168.25.10 (zadig)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a PowerMac 7300
+kernel 2.6.8 works fine on this computer
+kernel 2.6.9 does not work
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+I have the same problem that John Mock has with his PowerMac 8500...
+framebuffer does not work with 2.6.9 (everything is black with a few thin
+diagonal lines of dots and dashes)... this is with the onboard video
+(controlfb driver).
+With a Matrox Millenium PCI card (matroxfb driver), I get something on the
+screen but except for the little Tux in the corner, all characters on the
+screen are corrupted... 
 
-> On Tue, 2004-11-23 at 16:22 -0500, Steven Rostedt wrote:
-> > Just curious to why you scale the interrupts from 49 down to 25.  What
-> > would be wrong with keeping all of them at 49 (or whatever). Being a
-> > FIFO, no interrupt would preempt another. Why would you want the first
-> > IRQs to be registered have higher priority than (and thus will preempt)
-> > irqs registered later.
-> 
-> I raised this issue before.  I agree that all interrupts should get
-> the same RT prio by default.  Otherwise the default behavior is
-> arbitrary.
+it works fine with 2.6.8 kernel with both drivers
 
-i agree that it's arbitrary. There are two reasons for the ordering:
+I tried with 2.6.10-rc2-bk8 (that I got on kernel.org) and I have the same
+problem...
 
-1) _usually_ the IRQs that get registered first are the 'more important'
-    ones. E.g. timer and keyboard interrupts will preempt the IDE
-    interrupt.  This is in no way a generic thing though.
+Because frame buffer does not work, I can not boot this computer... it
+does not respond to ping when I have this problem...
 
-2) testing: if all IRQs are at the same priority level then alot less 
-   inter-IRQ preemption occurs, and testing coverage is lower. With all 
-   irqs on different levels the bugs will trigger sooner.
+I did not try any pre-2.6.9 kernel, so I do not know where it stops to work.
 
-To solve this cleanly some userspace policy code is needed that would
-take some settings (e.g. sound_highprio) through which the priority
-setup could be configured. It's not a simple task as that could would
-have to discover the type of devices that are in the system and their
-irqs - possibly a component of udev could do this?
 
-	Ingo
+I am not a programmer, so I can not offer any code to fix this problem...
+but if can test some kernel patches to get this problem fixed, I will be
+happy to do it.
+
+
+sorry, I did not reply to the original message sent by John Mock, because
+I was not subscribed to this mailing list when he sent his message...
+
+
+- - - - - - - - - - - - - - - - - - - -
+Excuse my bad english :-)

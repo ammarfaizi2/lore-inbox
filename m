@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129811AbRALVxx>; Fri, 12 Jan 2001 16:53:53 -0500
+	id <S129538AbRALV4X>; Fri, 12 Jan 2001 16:56:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131487AbRALVxn>; Fri, 12 Jan 2001 16:53:43 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:8378 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129811AbRALVxd>; Fri, 12 Jan 2001 16:53:33 -0500
-Date: Fri, 12 Jan 2001 13:53:31 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: Patch(?): linux-2.4.1-pre3/include/asm-i386/xor.h referenced undefined HAVE_XMM
-Message-ID: <20010112135331.A18858@baldur.yggdrasil.com>
+	id <S129886AbRALV4N>; Fri, 12 Jan 2001 16:56:13 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:4612 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129595AbRALV4H>;
+	Fri, 12 Jan 2001 16:56:07 -0500
+Message-ID: <20010112192706.A618@bug.ucw.cz>
+Date: Fri, 12 Jan 2001 19:27:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+In-Reply-To: <20010108180857.A26776@athlon.random> <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu>; from Alexander Viro on Mon, Jan 08, 2001 at 12:58:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> The bottom line: rmdir(".") is gone. Replace it with portable equivalent,
+> namely
+> 	p = getcwd(pwd, sizeof(pwd));
+> 	if (!p)
+> 		/* handle error - ERANGE or ENOENT */
+> 	rmdir(p);
+> Shell equivalent is rmdir `pwd`. Also portable.
 
-
-	linux-2.4.1-pre2 changed cpu_has_xmm references in
-include/asm-i386/xor.h into HAVE_XMM references, which it that
-patch also defined.  linux-2.4.1-pre3 removed the definition of
-HAVE_XMM but did not revert the references in include/asm-i386/xor.h.
-My guess is that cpu_has_xmm is the prefered name, so here is a patch
-fixing include/asm-i386/xor.h.
-
+...when you are lucky and all directories up to your path are
+readable... Which is not always so. With old glibc, it will fail.
+								Pavel
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="xor.patch"
-
---- linux-2.4.1-pre3/include/asm-i386/xor.h	Fri Jan 12 05:29:00 2001
-+++ linux/include/asm-i386/xor.h	Fri Jan 12 13:46:23 2001
-@@ -843,7 +843,7 @@
- 	do {						\
- 		xor_speed(&xor_block_8regs);		\
- 		xor_speed(&xor_block_32regs);		\
--	        if (HAVE_XMM)				\
-+	        if (cpu_has_xmm)			\
- 			xor_speed(&xor_block_pIII_sse);	\
- 	        if (md_cpu_has_mmx()) {			\
- 	                xor_speed(&xor_block_pII_mmx);	\
-@@ -855,4 +855,4 @@
-    We may also be able to load into the L1 only depending on how the cpu
-    deals with a load to a line that is being prefetched.  */
- #define XOR_SELECT_TEMPLATE(FASTEST) \
--	(HAVE_XMM ? &xor_block_pIII_sse : FASTEST)
-+	(cpu_has_xmm ? &xor_block_pIII_sse : FASTEST)
-
---PEIAKu/WMn1b1Hv9--
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287563AbSANQWh>; Mon, 14 Jan 2002 11:22:37 -0500
+	id <S287578AbSANQZh>; Mon, 14 Jan 2002 11:25:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287578AbSANQW3>; Mon, 14 Jan 2002 11:22:29 -0500
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:14343 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S287612AbSANQWP>; Mon, 14 Jan 2002 11:22:15 -0500
-Message-ID: <3C430580.90309@zk3.dec.com>
-Date: Mon, 14 Jan 2002 11:21:20 -0500
-From: Peter Rival <frival@zk3.dec.com>
-Organization: Tru64 QMG Performance Engineering
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S287615AbSANQZ1>; Mon, 14 Jan 2002 11:25:27 -0500
+Received: from [62.245.135.174] ([62.245.135.174]:12732 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S287578AbSANQZN>;
+	Mon, 14 Jan 2002 11:25:13 -0500
+Message-ID: <3C430662.71C4F3D8@TeraPort.de>
+Date: Mon, 14 Jan 2002 17:25:06 +0100
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Reply-To: m.knoblauch@TeraPort.de
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Mario Mikocevic <mozgy@hinet.hr>, linux-kernel@vger.kernel.org
-Subject: Re: FC & MULTIPATH !? (any hope?)
-In-Reply-To: <20020114123301.B30997@danielle.hinet.hr> <20020114130720.J917@marowsky-bree.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: vanl@megsinet.net
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 01/14/2002 05:25:06 PM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 01/14/2002 05:25:13 PM,
+	Serialize complete at 01/14/2002 05:25:13 PM
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Marowsky-Bree wrote:
+> Re: [2.4.17/18pre] VM and swap - it's really unusable
+> 
+> 
+> Ken,
+> 
+> Attached is an update to my previous vmscan.patch.2.4.17.c
+> 
+> Version "d" fixes a BUG due to a race in the old code _and_
+> is much less agressive at cache_shrinkage or conversely more
+> willing to swap out but not as much as the stock kernel.
+> 
+> It continues to work well wrt to high vm pressure.
+> 
+> Give it a whirl to see if it changes your "-j" symptoms.
+> 
+> If you like you can change the one line in the patch
+> from "DEF_PRIORITY" which is "6" to progressively smaller
+> values to "tune" whatever kind of swap_out behaviour you
+> like.
+> 
+> Martin
+> 
+Martin,
 
- > On 2002-01-14T12:33:01, Mario Mikocevic <mozgy@hinet.hr> said:
- >
- >
- >> is there any hope of working combination of MULTIPATH with FC !?
- >>
- >
- > Yes. QLogic's newest 2200 HBA can do that. I don't know whether that
- >  is a possible solution for your problem though.
- >
-The real question is when will Linux fully support multipath at the 
-CAM/block layer? I'd really like to be able to throw, say, four HBAs 
-into my system and have it use all of them simultaneously and not have 
-to spend all sorts of time trying to set up all 200+ LUNs that I have 
-available to me by hand.  Think 200 LUNs presented * 4 HBAs * 4 paths at 
-the controller end per LUN.  That's quite a bit of setup to me.
+ looking at the "d" version, I have one question on the piece that calls
+swap_out:
 
-  - Pete
+@@ -521,6 +524,9 @@
+        }
+        spin_unlock(&pagemap_lru_lock);
+
++       if (max_mapped <= 0 && (nr_pages > 0 || priority <
+DEF_PRIORITY))
++               swap_out(priority, gfp_mask, classzone);
++
+        return nr_pages;
+ }
 
 
+ Curious on the conditions where swap_out is actually called, I added a
+printk and found actaully cases where you call swap_out when nr_pages is
+already 0. What sense does that make? I would have thought that
+shrink_cache had done its job in that case.
 
+shrink_cache: 24 page-request, 0 pages-to swap, max_mapped=-1599,
+max_scan=4350, priority=5
+shrink_cache: 24 page-request, 0 pages-to swap, max_mapped=-487,
+max_scan=4052, priority=5
+shrink_cache: 29 page-request, 0 pages-to swap, max_mapped=-1076,
+max_scan=1655, priority=5
+shrink_cache: 2 page-request, 0 pages-to swap, max_mapped=-859,
+max_scan=820, priority=5
+
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

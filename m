@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290839AbSBLJP3>; Tue, 12 Feb 2002 04:15:29 -0500
+	id <S290862AbSBLJSt>; Tue, 12 Feb 2002 04:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290878AbSBLJOZ>; Tue, 12 Feb 2002 04:14:25 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:32018 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S290839AbSBLJMa>; Tue, 12 Feb 2002 04:12:30 -0500
-Date: Tue, 12 Feb 2002 10:12:16 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: "David S. Miller" <davem@redhat.com>
-cc: <davidm@hpl.hp.com>, <anton@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: thread_info implementation
-In-Reply-To: <20020211.185100.68039940.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0202120947270.11317-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290852AbSBLJSh>; Tue, 12 Feb 2002 04:18:37 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:62729 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290851AbSBLJIR>;
+	Tue, 12 Feb 2002 04:08:17 -0500
+Date: Mon, 11 Feb 2002 23:09:37 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+Subject: small IDE cleanup: void * should not be used unless neccessary
+Message-ID: <20020211220937.GA121@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Mon, 11 Feb 2002, David S. Miller wrote:
+This is really easy, please apply. (It will allow me to kill few casts
+in future).
+								Pavel
 
-> It keeps your platform the same, and it does help other platforms.
-> It is the nature of any abstraction change we make in the kernel
-> that platforms have to deal with.
+--- linux/include/linux/ide.h	Mon Feb 11 21:15:04 2002
++++ linux-dm/include/linux/ide.h	Mon Feb 11 22:36:12 2002
+@@ -529,7 +531,7 @@
+ 
+ typedef struct hwif_s {
+ 	struct hwif_s	*next;		/* for linked-list in ide_hwgroup_t */
+-	void		*hwgroup;	/* actually (ide_hwgroup_t *) */
++	struct hwgroup_s *hwgroup;	/* actually (ide_hwgroup_t *) */
+ 	ide_ioreg_t	io_ports[IDE_NR_PORTS];	/* task file registers */
+ 	hw_regs_t	hw;		/* Hardware info */
+ 	ide_drive_t	drives[MAX_DRIVES];	/* drive info */
 
-Of what "abstraction change" are you talking about?
-Any change should usually help most architectures and so far the
-thread_info change has only be done a few.
-
-> 2) pointer dereference causes performance problems
->
->    ummm no, not really, go test it for yourself if you don't
->    believe me
->
-> This only leaves "I don't want to do the conversion because it has
-> no benefit to ia64."  Well, it doesn't hurt your platform either,
-> so just cope :-)
-
-That's simply not true. An extra load might be cheap, maybe on sparc it's
-even free, but on most architectures it has a cost. Additionally every
-access to current requires an extra load, so every function which uses
-current will be larger, all embedded targets will thank you for that.
-Where is the problem to allow these two implementations:
-1.
-#define current_thread_info() asm(...)
-#define current current_thread_info()->task
-2.
-#define current asm(...)
-#define current_thread_info() &current->thread_info
-
-If you're unable to properly compute your structure offsets, you're free
-to use the first version, I prefer the second.
-
-bye, Roman
-
-
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

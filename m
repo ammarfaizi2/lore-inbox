@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbUCLGCH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 01:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUCLGBt
+	id S261976AbUCLGOi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 01:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbUCLGOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 01:01:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30083 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261983AbUCLGBr (ORCPT
+	Fri, 12 Mar 2004 01:14:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:51101 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261979AbUCLGOg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 01:01:47 -0500
-Date: Fri, 12 Mar 2004 01:02:32 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Rik Faith <faith@redhat.com>, <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [PATCH] Light-weight Auditing Framework
-In-Reply-To: <20040311112132.6970a70c.akpm@osdl.org>
-Message-ID: <Xine.LNX.4.44.0403120057230.5307-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Mar 2004 01:14:36 -0500
+Subject: [TRIVIAL] Clean up
+From: Trivial Patch Monkey <trivial@rustcorp.com.au>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1079072011.23776.461.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Mar 2004 17:13:31 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Mar 2004, Andrew Morton wrote:
+ From:  Josef 'Jeff' Sipek <jeffpc@optonline.net>(by way of Jeff Sipek <jeffpc@optonline.net>)
 
-> This is not my area, but based on the earlier discussions, and on RH's
-> intent to distribute and support the code and on its overall footprint and
-> upon Stephen's words I shall proceed with this.
+---
+  I just noticed the nested ifdefs, and made it little more readable.
+  
+  Josef 'Jeff' Sipek
+  
+  
 
-Do we know whether this code is a good fit for most people who want audit
-support?
-
-I would have expected more feedback on this, e.g. from other
-companies/people/projects who have been working towards similar goals.
-
-
-
-- James
+--- trivial-2.6.4/arch/i386/kernel/irq.c.orig	2004-03-12 16:56:07.000000000 +1100
++++ trivial-2.6.4/arch/i386/kernel/irq.c	2004-03-12 16:56:07.000000000 +1100
+@@ -126,11 +126,9 @@
+ };
+ 
+ atomic_t irq_err_count;
+-#ifdef CONFIG_X86_IO_APIC
+-#ifdef APIC_MISMATCH_DEBUG
++#if defined(CONFIG_X86_IO_APIC) && defined(APIC_MISMATCH_DEBUG)
+ atomic_t irq_mis_count;
+ #endif
+-#endif
+ 
+ /*
+  * Generic, controller-independent functions:
+@@ -186,11 +184,9 @@
+ 		seq_putc(p, '\n');
+ #endif
+ 		seq_printf(p, "ERR: %10u\n", atomic_read(&irq_err_count));
+-#ifdef CONFIG_X86_IO_APIC
+-#ifdef APIC_MISMATCH_DEBUG
++#if defined(CONFIG_X86_IO_APIC) && defined(APIC_MISMATCH_DEBUG)
+ 		seq_printf(p, "MIS: %10u\n", atomic_read(&irq_mis_count));
+ #endif
+-#endif
+ 	}
+ 	return 0;
+ }
 -- 
-James Morris
-<jmorris@redhat.com>
-
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Josef 'Jeff' Sipek <jeffpc@optonline.net>(by way of Jeff Sipek <jeffpc@optonline.net>): [PATCH] Clean up
 

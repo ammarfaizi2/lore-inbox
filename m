@@ -1,46 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277803AbRJ1ITf>; Sun, 28 Oct 2001 03:19:35 -0500
+	id <S277782AbRJ1IZZ>; Sun, 28 Oct 2001 03:25:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277798AbRJ1ITP>; Sun, 28 Oct 2001 03:19:15 -0500
-Received: from jalon.able.es ([212.97.163.2]:1011 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S277782AbRJ1ITM>;
-	Sun, 28 Oct 2001 03:19:12 -0500
-Date: Sun, 28 Oct 2001 09:19:41 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Alan Cox <laughing@shared-source.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: i2c CONFIG bug in 2.4.13
-Message-ID: <20011028091941.A10819@werewolf.able.es>
-Mime-Version: 1.0
+	id <S277804AbRJ1IZQ>; Sun, 28 Oct 2001 03:25:16 -0500
+Received: from pasuuna.fmi.fi ([193.166.211.17]:53266 "EHLO pasuuna.fmi.fi")
+	by vger.kernel.org with ESMTP id <S277782AbRJ1IY4>;
+	Sun, 28 Oct 2001 03:24:56 -0500
+From: Kari Hurtta <hurtta@leija.mh.fmi.fi>
+Message-Id: <200110280825.f9S8PROO004923@leija.fmi.fi>
+Subject: Re: Virtual(?) kernel root
+In-Reply-To: <20011026215939.A13222@polynum.org>
+To: Thierry Laronde <tlaronde@polynum.com>
+Date: Sun, 28 Oct 2001 10:25:27 +0200 (EET)
+CC: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL95a (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.1
+X-Filter: pasuuna: 2 received headers rewritten with id 20011028/09015/01
+X-Filter: pasuuna: ID 4118, 1 parts scanned for known viruses
+X-Filter: leija.fmi.fi: ID 23594, 1 parts scanned for known viruses
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+<...>
+> The key point is in fact that there is the idea of a virtual kernel
+> root, with some pseudo fs already set:
+> 
+> /
+> |
+> --/dev
+> |
+> --/kbin
+> |
+> --/proc
+> 
+> The "kernel" can be used via an interface that could be, for example, a
+> simple interface for debugging purpose, or a simple interface to change
+> the boot parameters.
+> 
+> Supplementary resources can be mounted on the kernel root (what is
+> called "root fs") with the difference that the kernel root virtual fs
+> stays always _on top_ : non kernel root fs don't mask the only root (the
+> kernel one), they just add resources to the root directory.
+> 
+> The advantages? 
+> 
+> There is no more root problem for kernel threads, since
+> kernel threads run with the reference of the inchanged kernel root, the
+> common "root fs" being simply mounted or unmounted. No more "sliding
+> carpet" problem.
+> 
+> One can test or question the kernel via a simple interface for debugging
+> purposes. Not mounting supplementary resources doesn't create a panic,
+> but leave a bare bones kernel, giving for example the choice to the user
+> to give boot parameters.
+> 
+> The /dev (this is already the case with devfs) doesn't prevent from
+> mounting the "root" ro (for example when syslog tries to access a device
+> file created at run time).
+> 
+> Has an equivalent scheme being already discussed?
 
-I"C has a bug in config options. An option is misnamed in 2.4.13, so I
-suppose it applies both to -pre3 and -ac3. Patch follows:
+On linux/fs/namespace.c there is following comment: (from linux 2.4.12)
 
---- linux-2.4.13-ac3/drivers/i2c/i2c-core.c.orig	Sun Oct 28 09:11:07 2001
-+++ linux-2.4.13-ac3/drivers/i2c/i2c-core.c	Sun Oct 28 09:11:23 2001
-@@ -1284,7 +1284,7 @@
- #ifdef CONFIG_I2C_ALGOBIT
- 	extern int i2c_algo_bit_init(void);
- #endif
--#ifdef CONFIG_I2C_CONFIG_I2C_PHILIPSPAR
-+#ifdef CONFIG_I2C_PHILIPSPAR
- 	extern int i2c_bitlp_init(void);
- #endif
- #ifdef CONFIG_I2C_ELV
+/*
+ * Absolutely minimal fake fs - only empty root directory and nothing else.
+ * In 2.5 we'll use ramfs or tmpfs, but for now it's all we need - just
+ * something to go with root vfsmount.
+ */
+<...>
+static DECLARE_FSTYPE(root_fs_type, "rootfs", rootfs_read_super, FS_NOMOUNT);
+ 
 
-
+But I do not think that that comment refers to equivalent scheme
+than what you are proposing.
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.14-pre3-beo #2 SMP Sun Oct 28 01:07:36 CEST 2001 i686
+          /"\                           |  Kari 
+          \ /     ASCII Ribbon Campaign |    Hurtta
+           X      Against HTML Mail     |
+          / \                           |

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288272AbSACRdc>; Thu, 3 Jan 2002 12:33:32 -0500
+	id <S288270AbSACRmn>; Thu, 3 Jan 2002 12:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288273AbSACRdW>; Thu, 3 Jan 2002 12:33:22 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:65288 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S288272AbSACRdN>; Thu, 3 Jan 2002 12:33:13 -0500
-Date: Thu, 3 Jan 2002 09:36:56 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Peter Osterlund <petero2@telia.com>, lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] scheduler fixups ...
-In-Reply-To: <Pine.LNX.4.33L.0201031053460.24031-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.40.0201030930010.1489-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288275AbSACRme>; Thu, 3 Jan 2002 12:42:34 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:62089
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288279AbSACRm1>; Thu, 3 Jan 2002 12:42:27 -0500
+Date: Thu, 3 Jan 2002 12:27:59 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020103122759.A14081@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lionel Bouton <Lionel.Bouton@free.fr>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0201031452170.24031-100000@imladris.surriel.com> <Pine.LNX.4.33.0201031800480.7309-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201031800480.7309-100000@Appserv.suse.de>; from davej@suse.de on Thu, Jan 03, 2002 at 06:01:31PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Rik van Riel wrote:
+Dave Jones <davej@suse.de>:
+> > > You have my intentions backwards. What I'd like to be able to do is
+> > > suppress ISA_SLOTS when there are detectably *no* ISA cards.
+> > So you want to make it impossible to compile kernels for
+> > old machines on the new fast machine standing next to it ?
+> 
+> I assumed ESR proposed a 'configure for this box' button,
+> not the default case.
 
-> On Wed, 2 Jan 2002, Davide Libenzi wrote:
-> > On 2 Jan 2002, Peter Osterlund wrote:
-> > > Davide Libenzi <davidel@xmailserver.org> writes:
-> > >
-> > > > a still lower ts
-> > >
-> > > This also lowers the effectiveness of nice values. In 2.5.2-pre6, if I
-> > > run two cpu hogs at nice values 0 and 19 respectively, the niced task
-> > > will get approximately 20% cpu time (on x86 with HZ=100) and this
-> > > patch will give even more cpu time to the niced task. Isn't 20% too
-> > > much?
-> >
-> > The problem is that with HZ == 100 you don't have enough granularity
-> > to correctly scale down nice time slices. Shorter time slices helps
-> > the interactive feel that's why i'm pushing for this.
->
-> So don't give the niced task a new timeslice each time,
-> but only once in a while.
+Exactly.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Rik, this is part of the new architecture where tasks can spend the
-virtual time they accumulated ( if any, dyn_prio > 0 ) one extra slice at
-a time. This help in separating the time slice from the dynamic priority.
-
-
-
-
-- Davide
-
-
+The two pillars of `political correctness' are, 
+  a) willful ignorance, and
+  b) a steadfast refusal to face the truth
+	-- George MacDonald Fraser

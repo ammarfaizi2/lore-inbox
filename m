@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281116AbRKYVpa>; Sun, 25 Nov 2001 16:45:30 -0500
+	id <S281124AbRKYVuA>; Sun, 25 Nov 2001 16:50:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281105AbRKYVpV>; Sun, 25 Nov 2001 16:45:21 -0500
-Received: from ids.big.univali.br ([200.169.51.11]:29313 "HELO
-	mail.big.univali.br") by vger.kernel.org with SMTP
-	id <S281103AbRKYVpA>; Sun, 25 Nov 2001 16:45:00 -0500
-Date: Sun, 25 Nov 2001 19:44:55 -0200 (BRST)
-From: Marcus Grando <marcus@big.univali.br>
+	id <S281128AbRKYVtu>; Sun, 25 Nov 2001 16:49:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33037 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281105AbRKYVtp>; Sun, 25 Nov 2001 16:49:45 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Idea for next kernels stables
-Message-ID: <Pine.LNX.4.42.0111251928240.3571-100000@ids.big.univali.br>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.4.15-final drivers/net/bonding.c includes user space headers
+Date: 25 Nov 2001 13:49:33 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9trp1d$ppg$1@cesium.transmeta.com>
+In-Reply-To: <18133.1006497103@kao2.melbourne.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <18133.1006497103@kao2.melbourne.sgi.com>
+By author:    Keith Owens <kaos@ocs.com.au>
+In newsgroup: linux.dev.kernel
+>
+> 2.4.15-final/drivers/net/bonding.c:188: #include <limits.h>
+> 
+> Kernel code must not include use space headers.  I thought this had
+> been fixed.  It will not compile in 2.5.
+> 
 
-Hi,
+<limits.h> is one of the compiler-provided headers, i.e. from
+/usr/lib/gcc-lib/*/*/include -- if your kbuild harness don't
+allow those headers to be included, it's broken.
 
-I have an idea for next kernels stables.
-
-Before pre´s releases a release -rc it would have the paper of final test, 
-not to have problem of a stable version to leave with problems.
-
-The finality of -rc release it would be only test, and any alteration 
-would be created new - rc.
-
-As knows some people place the steady versions in its systems without if 
-worrying about instability of it.
-
-But an idea.
-
-Regards,
-
+	-hpa
 -- 
-Marcus Grando
-UNIVALI
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,97 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261557AbSJZVyq>; Sat, 26 Oct 2002 17:54:46 -0400
+	id <S261558AbSJZV6E>; Sat, 26 Oct 2002 17:58:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbSJZVyq>; Sat, 26 Oct 2002 17:54:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30214 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261557AbSJZVyp>;
-	Sat, 26 Oct 2002 17:54:45 -0400
-Message-ID: <3DBB108A.2050803@pobox.com>
-Date: Sat, 26 Oct 2002 18:00:42 -0400
+	id <S261574AbSJZV6E>; Sat, 26 Oct 2002 17:58:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37382 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261558AbSJZV6D>;
+	Sat, 26 Oct 2002 17:58:03 -0400
+Message-ID: <3DBB1150.2030800@pobox.com>
+Date: Sat, 26 Oct 2002 18:04:00 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Switching from IOCTLs to a RAMFS
-References: <Pine.LNX.4.44.0210241525560.983-100000@cherise.pdx.osdl.net>
+To: "H. J. Lu" <hjl@lucon.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Support PCI device sorting (Re: PCI device order problem)
+References: <20021024163945.A21961@lucon.org> <3DB88715.7070203@pobox.com> <20021024165631.A22676@lucon.org> <1035540031.13032.3.camel@irongate.swansea.linux.org.uk> <20021025091102.A15082@lucon.org> <20021025202600.A3293@lucon.org> <3DBB0553.5070805@pobox.com> <20021026142704.A13207@lucon.org> <3DBB0A81.6060909@pobox.com> <20021026144441.A13479@lucon.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
+H. J. Lu wrote:
 
->>Is there a namespace doc or guideline we can look at?
->>(for existing nodes, sure, but more guidelines for future nodes)
+>On Sat, Oct 26, 2002 at 05:34:57PM -0400, Jeff Garzik wrote:
+>  
+>
+>>H. J. Lu wrote:
+>>
+>>    
+>>
+>>>On Sat, Oct 26, 2002 at 05:12:51PM -0400, Jeff Garzik wrote:
+>>> 
+>>>
+>>>      
+>>>
+>>>>Well, WRT your implementation, the function you add is dead code if your 
+>>>>new config variable is not set, which is not desireable at all.
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>I am not sure if I understand what you were trying to say. If
+>>>CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC is not set, you should be able to 
+>>>pass "pci=bussort" to kernel to sort the PCI device by bus, slot and
+>>>function. Did I miss something?
+>>> 
+>>>
+>>>      
+>>>
+>>The sorting function you add should be covered by the ifdef you add.
 >>    
 >>
 >
->There's nothing official, at least not yet. I know that's a pretty crappy 
->thing to say, but I've been this -><- close to doing for some time now..
+>Have you tried? If I did that, the kernel wouldn't even compile. As I
+>said, when CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC isn't defined, my sorting
+>function is still available, just not called by default.
 >
-hehe, that's cool :)
+Which is the entire problem.  The kernel compiles and builds just fine 
+right now, without your function.
 
-I'll just continue to point people to mochel@osdl.org when they ask 
-about a procfs alternative :)
+If it is "just not called by default" then it clearly can be removed at 
+compile time when a certain CONFIG_xxx is not defined.
 
 
->But, then we border on what exactly we want in sysfs. The original intent 
->was to provide a simple ASCII-based interface, and _not_ provide device 
->nodes.
+>>>>WRT the overall idea, I would prefer to see what Linus and Martin Mares 
+>>>>(and Ivan K) thought about it, before merging it.  The x86 PCI code is 
+>>>>very touchy, and your patch has the potential to change driver probe 
+>>>>order for little gain.
+>>>>
+>>>>        
+>>>>
+>>>The whole purpose of my patch is to change PCI driver probe order in
+>>>such a way that is BIOS independent.
+>>>
+>>>      
+>>>
+>>The purpose is irrelevant to the effect on existing drivers and systems 
+>>-- which is unknown.  Making the probe order independent of BIOS 
+>>ordering may very well break drivers and systems that are dependent on 
+>>BIOS ordering.  IOW what looks nice on your system could _likely_ suck 
+>>for others.  That's what I meant by "x86 PCI code is very touchy."
+>>    
+>>
 >
->As things have matured, and more people want to move stuff out of procfs
->and replace ioctls with custom filesystem interfaces, I've questioned the
->original intent. In the end, I'm really ambivalent about whether to use
->sysfs or a custom filesystem for custom interfaces beyond the simple
->ASCII-based one. I'm not trying to either save or conquer the world with 
->sysfs, and it would make my life a whole lot easier if no one at all used 
->it. ;)
->
->But, I have arguments for both sides: 
->
->If sysfs is used, there are the arguments I presented last time: once fs
->to mount, one API to create files in different subsystems, easier
->association between objects.
->
->While it's easy to create your own filesystem, either using fs/libfs.c 
->helpers and/or fs/nfsd/nfsctl.c as your based, you still end up with a lot 
->of replicated code. There will be copy-n-paste no matter what. I know it's 
->not a really solid argument, but how much overhead is it going to incur if 
->every subsystem and/or every object that belongs to each subsystem is 
->exporting a filesystem instance? 
+>That is why CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC is off by default and
+>even if it is on, you can still override it by passing "pci=nosort"
+>or "pci=nobussort" to kernel.
 >  
 >
 
-Like I touched on in IRC, there is room for both sysfs and per-driver 
-filesystems.
-
-I think just about everyone agrees that ioctls are a bad idea and a huge 
-maintenance annoyance.  So, what is the alternate solution?  IMO your 
-choices are presenting a device node for control via read(2), write(2), 
-and poll(2), or exporting a bunch of ASCII-controlled interfaces.  While 
-I certainly agree with the overall strategy of sysfs, I can't see it as 
-being the best interface for wholesale replacement of groups of ioctls. 
- So that leaves per-driver filesystems, which have a bunch of benefits...
-* allows for implementation of true character devices (chardevs), 
-something which sysfs was never intended to do
-* solves module unloading problem, because filesystems must be mounted 
-before accessing and umounted before removal, which implies that there 
-will be no races at the open(2) level
-* we all admit that sysfs doesn't attempt to solve similar problems as 
-devfs.  so if one wants to do a sane device filesystem, a custom fs is 
-needed
-* mount options are the current best solution for providing decent 
-default file permissions for dynamically instantiated file nodes.  It 
-keeps policy in userspace while still providing dynamic file nodes in 
-the kernel.  per-driver filesystems give you the granularity needed to 
-accomplish this.
-* as fs/nfsd/nfsctl.c and libfs.c shows, you don't have to worry about 
-code bloat, so the only real overhead is the structures that are 
-involved in superblock/vfsmount operations
-
-There were a couple other benefits I have forgotten by now :)
+Sigh.  Repeating, the kernel is still bloated by your sorting function 
+if CONFIG_PCI_SORT_BY_BUS_SLOT is not defined.  The function should go 
+away if CONFIG_PCI_SORT_BY_BUS_SLOT is not defined.
 
     Jeff
 

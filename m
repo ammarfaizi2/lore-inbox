@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUG2SMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUG2SMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267505AbUG2SMR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 14:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUG2SJY
+	id S267565AbUG2SMO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 14:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267505AbUG2SJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 14:09:24 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:37567 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264936AbUG2SEy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 14:04:54 -0400
-Date: Thu, 29 Jul 2004 20:04:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
-Message-ID: <20040729180411.GA16323@elte.hu>
-References: <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040727162759.GA32548@elte.hu> <1090968457.743.3.camel@mindpipe> <20040728050535.GA14742@elte.hu> <1091051452.791.52.camel@mindpipe> <1091063295.18598.2.camel@mindpipe>
+	Thu, 29 Jul 2004 14:09:11 -0400
+Received: from omx1-ext.SGI.COM ([192.48.179.11]:6338 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267474AbUG2SHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 14:07:41 -0400
+Date: Thu, 29 Jul 2004 13:07:32 -0500
+From: Greg Edwards <edwardsg@sgi.com>
+To: kai@germaschewski.name, sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] add ia64 support to rpm Makefile target
+Message-ID: <20040729180732.GA15920@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091063295.18598.2.camel@mindpipe>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On ia64, only the EFI (fat) partition is available to boot from.  The rpm
+needs to install the kernel under /boot/efi to be useable on ia64.
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Signed-off-by: Greg Edwards <edwardsg@sgi.com>
 
-> Here are some more results.  I am up to 56 million interrupts and I
-> have yet to trigger a latency higher than 46 usecs.  It looks like
-> this is a hard upper limit.
 
-nice - what is the average (and minimum?) latency reported by jackd? 
-I'd say 46 usecs on a 600 MHz box is quite close to what it takes to
-handle an interrupt and schedule to the cache-cold jackd task. It should
-definitely be well below the latency required for jackd to do its job
-reliably.
-
-	Ingo
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/29 13:00:54-05:00 edwardsg@attica.americas.sgi.com 
+#   Add ia64 support to the rpm Makefile target.
+# 
+# scripts/package/mkspec
+#   2004/07/29 13:00:41-05:00 edwardsg@attica.americas.sgi.com +13 -2
+#   On ia64, only the EFI (fat) partition is available to boot from.  The
+#   rpm needs to install the kernel under /boot/efi to be useable on ia64.
+# 
+diff -Nru a/scripts/package/mkspec b/scripts/package/mkspec
+--- a/scripts/package/mkspec	2004-07-29 13:04:34 -05:00
++++ b/scripts/package/mkspec	2004-07-29 13:04:34 -05:00
+@@ -43,10 +43,21 @@
+ echo "make clean && make"
+ echo ""
+ echo "%install"
+-echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
++
++if [[ "$ARCH" != "ia64" ]]; then
++	echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
++else
++	echo 'mkdir -p $RPM_BUILD_ROOT/boot/efi $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
++fi
+ 
+ echo 'INSTALL_MOD_PATH=$RPM_BUILD_ROOT make modules_install'
+-echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
++
++if [[ "$ARCH" != "ia64" ]]; then
++	echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
++else
++	echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/efi/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
++	echo 'ln -s '"efi/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION" '$RPM_BUILD_ROOT'"/boot/"
++fi
+ 
+ echo 'cp System.map $RPM_BUILD_ROOT'"/boot/System.map-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
+ 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284823AbRL2NcQ>; Sat, 29 Dec 2001 08:32:16 -0500
+	id <S287189AbRL2NdQ>; Sat, 29 Dec 2001 08:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287191AbRL2NcG>; Sat, 29 Dec 2001 08:32:06 -0500
-Received: from maild.telia.com ([194.22.190.101]:64249 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S284823AbRL2Nb4>;
-	Sat, 29 Dec 2001 08:31:56 -0500
-Date: Sat, 29 Dec 2001 14:36:42 +0100
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Sound stops while playing DVD with via82cxxx_audio driver
-Message-ID: <20011229133642.GA679@telia.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011228192700.GA7346@telia.com> <E16K6Q9-0002Db-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E16K6Q9-0002Db-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.24i
+	id <S287200AbRL2NdH>; Sat, 29 Dec 2001 08:33:07 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53512 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287191AbRL2Nct>;
+	Sat, 29 Dec 2001 08:32:49 -0500
+Date: Sat, 29 Dec 2001 11:32:32 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Legacy Fishtank <garzik@havoc.gtf.org>, <linux-kernel@vger.kernel.org>,
+        Larry McVoy <lm@bitmover.com>, "Eric S. Raymond" <esr@thyrsus.com>,
+        Dave Jones <davej@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: State of the new config & build system 
+In-Reply-To: <7861.1009589244@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.33L.0112291132070.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Sat, 29 Dec 2001, Keith Owens wrote:
 
-> Random guess of the week. Disable ACPI support and turn off APM in the BIOS
-> then repeat the test. If that stops it then it sounds like some kind of
-> power management is turning off the codec.
-> 
-> Let us know what it shows 
+> ps. I don't want mail discussing individual bug fixes to mkdep.  Code
+>     that does not fix _all_ 9 bugs listed in makefile-2.5_make_dep.html
+>     is pointless.
 
-Sadly that didn't help. ACPI was not enabled, but APM was. I disabled
-Power Management altogether in the kernel, and set all power management
-features in the bios to disabled, but still the same thing happens. I'm
-starting to think that someting has gone wrong with the DVD-drive,
-especially since the same thing happens in that other OS.
+I guess you presented a good point to not ignore bug number
+10 (the speed one) either. ;)
 
-Thanks for the tip though Alan,
+Rik
 -- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+http://www.surriel.com/		http://distro.conectiva.com/
 

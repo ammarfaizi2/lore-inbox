@@ -1,38 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVCBWJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVCCH0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVCBWJc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCBWIZ
+	id S261458AbVCCH0R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 02:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVCCH0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:08:25 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:49071 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262485AbVCBWEd (ORCPT
+	Thu, 3 Mar 2005 02:26:17 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:23825 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261458AbVCCH0O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 17:04:33 -0500
+	Thu, 3 Mar 2005 02:26:14 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=o3C/5XKLIGp70WkBSmO/lS97Szc9yyUeUP7YwTangDtf//IDVJ8kaCXwIl00AkXrzAAn3nELAxQQDpqt+PukBO3J1Mma6eCDtIWmDjKNpcmUkJN944O7fpZ+BBkTSSrJr3F88BBedFH6NtCeYWCVCEg8/RG5+RYD4XP/G6/MW6o=
-Message-ID: <d120d5000503021404187c5629@mail.gmail.com>
-Date: Wed, 2 Mar 2005 17:04:30 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Joshua Hudson <jwhudson@hornet.csc.calpoly.edu>
-Subject: Re: Bug report -- keyboard not working Linux 2.6.11 on Inspiron 1150
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.44.0503021324200.25652-100000@hornet>
+        b=J4ZgXn9goVmx195k5D2DPcgpdlGgjq/B4JqXRbNFOIGc4tW/gmOHYH0rF9EQXgu6h1ZmlxUvaoZ7T6THmbzegqJyJZl1kBMS33++tPogCIST2PPLFRebcOcqYqiw06P/cH3JxGkdsplxXgvuBpiJrXv0y0+/o8iF0dWOj+gGGos=
+Message-ID: <3f250c710503022325af22974@mail.gmail.com>
+Date: Thu, 3 Mar 2005 03:25:16 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] A new entry for /proc
+Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, rrebel@whenu.com,
+       marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
+In-Reply-To: <Pine.LNX.4.61.0503021858330.5183@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <Pine.GSO.4.44.0503021324200.25652-100000@hornet>
+References: <20050106202339.4f9ba479.akpm@osdl.org>
+	 <3f250c7105022507146b4794f1@mail.gmail.com>
+	 <3f250c71050228014355797bd8@mail.gmail.com>
+	 <3f250c7105022801564a0d0e13@mail.gmail.com>
+	 <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
+	 <3f250c7105030100085ab86bd2@mail.gmail.com>
+	 <3f250c710503010617537a3ca@mail.gmail.com>
+	 <3f250c710503010744390391e2@mail.gmail.com>
+	 <3f250c71050302042059f36525@mail.gmail.com>
+	 <Pine.LNX.4.61.0503021858330.5183@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005 13:26:18 -0800 (PST), Joshua Hudson
-<jwhudson@hornet.csc.calpoly.edu> wrote:
-> No obvous reason. Works fine with kernel 2.6.10
+Hi Hugh,
 
-Does it work with i8042.noacpi kernel boot parameter?
+How about map an unmap each pte?
 
--- 
-Dmitry
+I mean remove the pte++ and use pte_offset_map for each incremented
+address and then pte_unmap. So each incremented address is an index to
+get the next pte via pte_offset_map.
+
+BR,
+
+Mauricio Lin.
+
+On Wed, 2 Mar 2005 19:07:15 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
+> On Wed, 2 Mar 2005, Mauricio Lin wrote:
+> > Does anyone know if the place I put pte_unmap is logical and safe
+> > after several pte increments?
+> 
+> The place is logical and safe, but it's still not quite right.
+> You should have found several examples of loops having the same
+> problem, and what do they do? ....
+> 
+> >       pte = pte_offset_map(pmd, address);
+> >       address &= ~PMD_MASK;
+> >       end = address + size;
+> >       if (end > PMD_SIZE)
+> >               end = PMD_SIZE;
+> >       do {
+> >               pte_t page = *pte;
+> >
+> >               address += PAGE_SIZE;
+> >               pte++;
+> >               if (pte_none(page) || (!pte_present(page)))
+> >                       continue;
+> >               *rss += PAGE_SIZE;
+> >       } while (address < end);
+> >       pte_unmap(pte);
+> 
+>         pte_unmap(pte - 1);
+> 
+> which works because it's a do {} while () loop which has certainly
+> incremented pte at least once.  But some people probably loathe that
+> style, and would prefer to save orig_pte then pte_unmap(orig_pte).
+> 
+> Hugh
+>

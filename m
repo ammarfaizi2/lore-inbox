@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266879AbUBMKD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 05:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUBMKD2
+	id S266892AbUBMKOF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 05:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUBMKOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 05:03:28 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:51462 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266879AbUBMKDM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 05:03:12 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Date: Fri, 13 Feb 2004 11:03:10 +0100
-User-Agent: KMail/1.6.1
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-References: <20040209115852.GB877@schottelius.org> <200402130216.53434.robin.rosenberg.lists@dewire.com> <20040213022934.GA8858@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040213022934.GA8858@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
+	Fri, 13 Feb 2004 05:14:05 -0500
+Received: from ss1000-dmz.ms.mff.cuni.cz ([195.113.20.8]:12526 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266892AbUBMKOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 05:14:03 -0500
+Date: Fri, 13 Feb 2004 11:13:51 +0100
+From: Rudo Thomas <rudo@matfyz.cz>
+To: linux-kernel@vger.kernel.org
+Cc: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: bug, or is it? - SCHED_RR and futex related
+Message-ID: <20040213101351.GB19072@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Nick Piggin <piggin@cyberone.com.au>
+References: <20040212205708.GA1679@ss1000.ms.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402131103.10366.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <20040212205708.GA1679@ss1000.ms.mff.cuni.cz>
+User-Agent: Mutt/1.5.4i-ja.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 February 2004 03.29, you wrote:
-> On Fri, Feb 13, 2004 at 02:16:53AM +0100, Robin Rosenberg wrote:
-> > Yes, so ext3&co. should be equipped with charset options just the other so
-> > it can be fixed by the user or in some cases the mount tools. 
-> > 
-> > Is there a place to store character set information in these file systems?
-> 
-> Bullshit.  Just as there is no timezone common for all users, there is no
-> charset common for all of them.  Charset of _machine_ doesn't make any sense
-> at all - toy operating systems nonwithstanding.
+Last question.
 
-For us using toy languages, we see characters in filenames, not byte sequences, and
-if whenever possible users should see the same name regardless of locale.
+I tracked it down to an infinite waiting in futex( ..., FUTEX_WAIT, 2, NULL).
+Can THIS hang the machine hard when running with SCHED_RR policy?
 
--- robin
+Thanks.
+
+Rudo.

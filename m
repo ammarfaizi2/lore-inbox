@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbTIZLou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 07:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTIZLou
+	id S262061AbTIZL5S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 07:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTIZL5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 07:44:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45324 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262060AbTIZLos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 07:44:48 -0400
-Date: Fri, 26 Sep 2003 12:44:42 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Yoshinori Sato <ysato@users.sourceforge.jp>
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <20030926124442.B23211@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Yoshinori Sato <ysato@users.sourceforge.jp>
-References: <20030914121655.GS27368@fs.tum.de> <20030914133349.A27870@flint.arm.linux.org.uk> <20030914132143.GT27368@fs.tum.de> <20030914155245.A675@flint.arm.linux.org.uk> <20030925143844.GY15696@fs.tum.de> <20030925181127.GB2089@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 Sep 2003 07:57:18 -0400
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:45306 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S262061AbTIZL5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 07:57:17 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: s390 patches: descriptions.
+Date: Fri, 26 Sep 2003 13:51:38 +0200
+User-Agent: KMail/1.5.3
+Cc: Pete Zaitcev <zaitcev@redhat.com>
+X-PRIORITY: 2 (High)
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030925181127.GB2089@mars.ravnborg.org>; from sam@ravnborg.org on Thu, Sep 25, 2003 at 08:11:27PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Message-Id: <200309261347.25861.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 08:11:27PM +0200, Sam Ravnborg wrote:
-> On Thu, Sep 25, 2003 at 04:38:45PM +0200, Adrian Bunk wrote:
-> > --- linux-2.6.0-test5-mm4/init/Kconfig.old	2003-09-25 14:38:18.000000000 +0200
-> > +++ linux-2.6.0-test5-mm4/init/Kconfig	2003-09-25 14:47:12.000000000 +0200
-> > @@ -65,6 +65,16 @@
-> >  
-> >  menu "General setup"
-> >  
-> > +config OPTIMIZE_FOR_SIZE
-> > +	bool "Optimize for size" if EXPERIMENTAL
-> > +	default y if ARM || H8300
-> > +	default n
-> > +	help
-> > +	  Enabling this option will pass "-Os" instead of "-O2" to gcc
-> > +	  resulting in a smaller kernel.
-> > +
-> > +	  If unsure, say N.
-> > +
+> Hi Pete,
 > 
-> This is a general file, and it is wrong to include architecture specific
-> knowledge here.
+> > Are you going to submit zfcp and zcrypt and if yes, when?
+> 
+> The zfcp rework is going well but isn't quite finished yet.
+> It's up to Heiko when he consideres the driver to be in state
+> for inclusion into 2.6. For the zcrypt driver the news aren't
+> so good. It very likely won't make it for 2.6.0.
 
-In which case we need to replicate the option in each of the per-
-architecture files.  That seems a bit wasteful though.
+Actually, the latest z90crypt driver for 2.4.21 compiles on 2.6
+with only one trivial patch (see below). The chances are good
+that it works just as much as on older kernels. It's mostly
+just a matter of style and the fact that there is no standard
+API for linux hardware crypto driver yet that keeps us from
+submitting the driver.
 
-I don't think "select" will hack it in this case though.
+	Arnd <><
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+diff -u ../linux-2.3/drivers/s390/misc/z90main.c drivers/s390/misc/z90main.c
+--- ../linux-2.3/drivers/s390/misc/z90main.c	2003-08-18 18:51:14.000000000 +0200
++++ drivers/s390/misc/z90main.c	2003-09-26 13:15:49.000000000 +0200
+@@ -567,7 +567,6 @@
+ 	int result,nresult;
+ 	struct proc_dir_entry * entry;
+ 
+-	EXPORT_NO_SYMBOLS;
+ 	PDEBUG("init_module -> PID %d\n", PID());
+ 
+ 	//
+

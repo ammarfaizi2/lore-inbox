@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261380AbTCYCt0>; Mon, 24 Mar 2003 21:49:26 -0500
+	id <S261379AbTCYDBQ>; Mon, 24 Mar 2003 22:01:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261376AbTCYCrj>; Mon, 24 Mar 2003 21:47:39 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:50859 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S261362AbTCYCrH>; Mon, 24 Mar 2003 21:47:07 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][v850]  Always call schedule_tail on the v850
+	id <S261401AbTCYDBQ>; Mon, 24 Mar 2003 22:01:16 -0500
+Received: from osiris.silug.org ([64.240.156.225]:2794 "EHLO osiris.silug.org")
+	by vger.kernel.org with ESMTP id <S261379AbTCYDBP>;
+	Mon, 24 Mar 2003 22:01:15 -0500
+Date: Mon, 24 Mar 2003 21:12:25 -0600
+From: Steven Pritchard <steve@silug.org>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030325025659.12E4637CC@mcspd15.ucom.lsi.nec.co.jp>
-Date: Tue, 25 Mar 2003 11:56:59 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+Subject: Re: 3ware driver errors
+Message-ID: <20030325031225.GA6851@osiris.silug.org>
+References: <20030324212813.GA6310@osiris.silug.org> <20030324180107.A14746@vger.timpanogas.org> <20030324234410.GB10520@work.bitmover.com> <20030324182508.A15039@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030324182508.A15039@vger.timpanogas.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The scheduler apparently now requires this.
+On Mon, Mar 24, 2003 at 06:25:08PM -0700, Jeff V. Merkey wrote:
+> The person at WD to contact with specifics is listed below.
 
-diff -ruN -X../cludes linux-2.5.66-moo.orig/arch/v850/kernel/entry.S linux-2.5.66-moo/arch/v850/kernel/entry.S
---- linux-2.5.66-moo.orig/arch/v850/kernel/entry.S	2003-02-25 10:44:59.000000000 +0900
-+++ linux-2.5.66-moo/arch/v850/kernel/entry.S	2003-03-25 10:37:52.000000000 +0900
-@@ -511,10 +511,8 @@
-    (copy_thread makes ret_from_fork the return address in each new thread's
-    saved context).  */
- C_ENTRY(ret_from_fork):
--#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
- 	mov	r10, r6			// switch_thread returns the prev task.
- 	jarl	CSYM(schedule_tail), lp	// ...which is schedule_tail's arg
--#endif
- 	mov	r0, r10			// Child's fork call should return 0.
- 	br	ret_from_trap		// Do normal trap return.
- C_END(ret_from_fork)
+Thanks for the pointer.  I have a lot of these WD drives...
+
+> We have seen it on the 180GB drives, but the 200GB are also affected.
+
+I don't suppose you've heard if the 160GB drives are affected, have
+you?  The page on support.wdc.com that someone else referred to
+specifically mentions the 200s and the 180s, but I see no mention of
+the 160s.
+
+Steve
+-- 
+steve@silug.org           | Southern Illinois Linux Users Group
+(618)398-7360             | See web site for meeting details.
+Steven Pritchard          | http://www.silug.org/

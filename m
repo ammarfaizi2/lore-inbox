@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267057AbSL3Saa>; Mon, 30 Dec 2002 13:30:30 -0500
+	id <S267048AbSL3Sfy>; Mon, 30 Dec 2002 13:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267059AbSL3Saa>; Mon, 30 Dec 2002 13:30:30 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:5826 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267057AbSL3Sa2>; Mon, 30 Dec 2002 13:30:28 -0500
-Date: Mon, 30 Dec 2002 13:35:14 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: PDA USB hotplug activates eth1 instead of usb0 in 2.4.21-pre2
-Message-ID: <Pine.LNX.4.44.0212301331440.27562-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267049AbSL3Sfy>; Mon, 30 Dec 2002 13:35:54 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:33800 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S267048AbSL3Sfx>; Mon, 30 Dec 2002 13:35:53 -0500
+Date: Mon, 30 Dec 2002 16:43:42 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: John Bradford <john@grabjohn.com>
+Cc: Markus Pfeiffer <profmakx@profmakx.org>, sam@ravnborg.org,
+       lm@work.bitmover.com, mail@hannes-reinecke.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Sparc port still maintained in 2.5
+Message-ID: <20021230184342.GE3143@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	John Bradford <john@grabjohn.com>,
+	Markus Pfeiffer <profmakx@profmakx.org>, sam@ravnborg.org,
+	lm@work.bitmover.com, mail@hannes-reinecke.de,
+	linux-kernel@vger.kernel.org
+References: <200212301913.28503.profmakx@profmakx.org> <200212301827.gBUIRgPH002681@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212301827.gBUIRgPH002681@darkstar.example.net>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Mon, Dec 30, 2002 at 06:27:42PM +0000, John Bradford escreveu:
+> > > > I have a spare Alpha box (in theory I made need it some day if we ever
+> > > > decide to support Tru64 but that seems like a small market).  I don't
+> > > > know how useful it is but I could put it up outside our firewall if
+> > > > that helped.  I'd have to install Linux on it and I'm booked up until
+> > > > Jan 9th but if you still need it then let me know.
+> > >
+> > > Hi Larry, nice offer. But I personally would not have time hacking on
+> > > Alpha. Others may find it usefull though.
+> > >
+> > 
+> > Well, I have an Alpha System here myself and am also "hacking" on
+> > it. But one has also to ask oneself if there is any demand (apart
+> > from my personal demand) for a maintained Linux/Alpha >= 2.5...
+ 
+> I'm certainly going to be interested in Linux/Sparc >= 2.5 when I can get a
+> Sparc machine, (I'm hoping to help work on the 'Splack' distribution, which
+> is basically an un-official Slackware-like distribution for Sparcs), with the
 
-  again, with 2.4.21-pre2, i plugged in my sharp zaurus 5500 into
-a USB port and, while /var/log/messages and /proc/bus/usb/devices
-both recognized it right away (yippee!), the interface that was
-associated with this was not usb0 (as i expected), but eth1
-instead:
+I'm doing the same for Conectiva Linux, the package recompilation is almost
+done :-) But for now I'm using 2.4.20, with some oopses (similar to some
+already reported on the sparclinux@vger.kernel.org mailing list that I already
+reported to Uzi). 2.5-bk compiles and boots, but I couldn't access the machine
+as serial console is not working and I only have a SS10 headless machine, I
+plan to look into some of these issues when (if) I find time.
 
-Dec 30 13:31:07 dell kernel: hub.c: new USB device 00:1f.2-1, assigned address 5
-Dec 30 13:31:07 dell kernel: CDCEther.c: eth1: Sharp SL Series 
-Dec 30 13:31:07 dell /etc/hotplug/net.agent: invoke ifup eth1
-Dec 30 13:31:10 dell /etc/hotplug/usb.agent: Setup acm CDCEther usbnet for USB product 4dd/8004/0
+> eventual aim of moving from X86 to Sparc as my default architechture, but I'm
+> not really interested in Alpha.
+ 
+> What's the status of the 2.5 Sparc tree?
 
+Zaitcev has sent an status some time ago:
 
-  should i have expected this?
+http://marc.theaimsgroup.com/?l=linux-sparc&m=103895559102210&w=2
 
-rday
-
+- Arnaldo

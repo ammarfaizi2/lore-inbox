@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbVAUVWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVAUVXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262516AbVAUVWU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVAUVWT
+	id S262527AbVAUVXv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 16:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVAUVXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:22:19 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:49918 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262519AbVAUVVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:21:25 -0500
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>,
-       Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: device-mapper: fix TB stripe data corruption
-X-Message-Flag: Warning: May contain useful information
-References: <20050121181203.GI10195@agk.surrey.redhat.com>
-	<20050121203354.GC2265@kvack.org>
-	<200501211512.45524.kevcorry@us.ibm.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 21 Jan 2005 13:20:31 -0800
-In-Reply-To: <200501211512.45524.kevcorry@us.ibm.com> (Kevin Corry's message
- of "Fri, 21 Jan 2005 15:12:45 -0600")
-Message-ID: <52651qqy1s.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Fri, 21 Jan 2005 16:23:51 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:710 "EHLO webmail.tiscali.de")
+	by vger.kernel.org with ESMTP id S262519AbVAUVWi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 16:22:38 -0500
+Message-ID: <41F1729A.6000709@tiscali.de>
+Date: Fri, 21 Jan 2005 22:22:34 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Jan 2005 21:20:32.0113 (UTC) FILETIME=[09E78E10:01C4FFFF]
+To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: modules strip
+References: <5F106036E3D97448B673ED7AA8B2B6B301ACD8F7@scl-exch2k.phoenix.com>
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B301ACD8F7@scl-exch2k.phoenix.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Kevin> We have to take a mod of the chunk value and the number of
-    Kevin> stripes (which can be a non-power-of-2, so a shift won't
-    Kevin> work). It's been my understanding that you couldn't mod a
-    Kevin> 64-bit value with a 32-bit value in the kernel.
+Aleksey Gorelov wrote:
 
-If I understand you correctly, do_div() (defined in <asm/div64.h>)
-does what you need.  Look at asm-generic/div64.h for a good
-description of the precise semantics of do_div().
+>Hi,
+>
+>  I'm trying to strip modules a bit (2.6, x86) using
+>
+>strip -R .not -R .comment --strip-unneeded module.ko
+>
+>  It seems to keep intact relocation & ksymtab symbols, tested on my
+>configuration and seems to reduce the overall size for about 10-15%
+>(usefull for embedded). Does anybody know if there is any pitfalls with
+>that ?
+>
+>Thanks,
+>Aleks.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hi!
+Why should there be a pitfall, you just strip some usualy not needed 
+information. But maybe this causes problems with functions or parts of 
+the Kernel which need this information.
 
- - Roland
+Matthias-Christian Ott

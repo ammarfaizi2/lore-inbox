@@ -1,152 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268896AbRG0Q6j>; Fri, 27 Jul 2001 12:58:39 -0400
+	id <S268902AbRG0RCK>; Fri, 27 Jul 2001 13:02:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268894AbRG0Q6d>; Fri, 27 Jul 2001 12:58:33 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:64271 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268896AbRG0Q6U>; Fri, 27 Jul 2001 12:58:20 -0400
-Message-ID: <3B619D63.9989F9F@namesys.com>
-Date: Fri, 27 Jul 2001 20:57:07 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S268042AbRG0RB7>; Fri, 27 Jul 2001 13:01:59 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:56328 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S267943AbRG0RBz>;
+	Fri, 27 Jul 2001 13:01:55 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107271701.VAA19367@ms2.inr.ac.ru>
+Subject: Re: 2.4.7 softirq incorrectness.
+To: davem@redhat.com (David S. Miller)
+Date: Fri, 27 Jul 2001 21:01:48 +0400 (MSK DST)
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <15201.13760.734675.989919@pizda.ninka.net> from "David S. Miller" at Jul 27, 1 02:34:56 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
-        kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>,
-        "Gryaznova E." <grev@namesys.botik.ru>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl>,
-				<Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107270818120A.06707@widmers.oce.srci.oce.int> <3B619956.6AA072F9@zip.com.au>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Andrew, can you do this such that there is no disruption of our disk format, and make a mount option
-out of it, and probably we should use this patch....
+Hello!
 
-After you make a mount option out of it, grev will benchmark it for us using the usual suite of
-benchmarks.
+> Do you mean "user context" when you say normal? 
 
-Comments Chris?  
+Why "user" then? :-)
 
-Thanks,
+Well, after some digging in brains I find that I use home-made terminology.
+non-interrupt/non-bh context is called "process context" here. :-)
+"Normal context" is process context with enabled BHs and irqs.
 
-Hans
 
-Andrew Morton wrote:
-> 
-> Joshua Schmidlkofer wrote:
-> >
-> > I've almost quit using reiser, because everytime I have a power outage, the
-> > last 2 or three files that I've editted, even ones that I haven't touched in
-> > a while, will usually be hopelessly corrupted.  The '<file>~' that Emacs
-> > makes is usually fine though.
-> 
-> It's a matter of timing.  There is a lengthy window where the metadata
-> is written, but its data is not.  If you crash in this window, the files
-> contain old data.
-> 
-> You can narrow the window of exposure by fiddling with the
-> parameters in /proc/sys/vm/bdflush - force a full flush every
-> five seconds, say.
-> 
-> >   It seems to be that any open file is
-> > in danger.  I don't know if this is normal, or not, but I switched to XFS on
-> > several machines.  I have nothing against reiser.  I assumed that these
-> > problems were due to immaturity....
-> 
-> I'm under the impression that XFS also leaves data in the hands
-> of the kernel's normal writeback mechanisms and will thus be
-> exposed to the same problem.  I may be wrong about this.
-> 
-> Here's a ten-minute hack which gives reiserfs a simple `ordered data'
-> mode.  It simply pushes all the dirty buffers and pages out to disk
-> before running a commit.  Performance is still OK.
-> 
-> I hit reset partway through a massive file tree copy and every
-> file which had been copied came up peachy - which is very different
-> from the behaviour without the patch.  Interestingly, there were
-> zero truncated files as well.  hmmm...
-> 
-> --- linux-2.4.7/include/linux/fs.h      Sat Jul 21 12:37:14 2001
-> +++ lk-ext3/include/linux/fs.h  Sat Jul 28 02:37:43 2001
-> @@ -1061,6 +1061,7 @@ extern int fs_may_remount_ro(struct supe
->  extern int try_to_free_buffers(struct page *, unsigned int);
->  extern void refile_buffer(struct buffer_head * buf);
->  extern void end_buffer_io_sync(struct buffer_head *bh, int uptodate);
-> +extern int flush_all_but_supers(kdev_t dev);
-> 
->  /* reiserfs_writepage needs this */
->  extern void set_buffer_async_io(struct buffer_head *bh) ;
-> --- linux-2.4.7/include/linux/reiserfs_fs_sb.h  Sat Jul 21 12:37:14 2001
-> +++ lk-ext3/include/linux/reiserfs_fs_sb.h      Sat Jul 28 02:37:43 2001
-> @@ -289,6 +289,8 @@ struct reiserfs_sb_info
->                                 /* To be obsoleted soon by per buffer seals.. -Hans */
->      atomic_t s_generation_counter; // increased by one every time the
->      // tree gets re-balanced
-> +
-> +    int no_sync;
-> 
->      /* session statistics */
->      int s_kmallocs;
-> --- linux-2.4.7/fs/reiserfs/journal.c   Sat Jul 21 12:37:14 2001
-> +++ lk-ext3/fs/reiserfs/journal.c       Sat Jul 28 02:37:43 2001
-> @@ -2719,6 +2719,9 @@ static int do_journal_end(struct reiserf
->    reiserfs_discard_all_prealloc(th); /* it should not involve new blocks into
->                                       * the transaction */
->  #endif
-> +
-> +  if (!p_s_sb->u.reiserfs_sb.no_sync)
-> +       flush_all_but_supers(p_s_sb->s_dev);
-> 
->    rs = SB_DISK_SUPER_BLOCK(p_s_sb) ;
->    /* setup description block */
-> --- linux-2.4.7/fs/reiserfs/super.c     Wed Jul  4 18:21:31 2001
-> +++ lk-ext3/fs/reiserfs/super.c Sat Jul 28 02:37:43 2001
-> @@ -116,7 +116,9 @@ void reiserfs_put_super (struct super_bl
->    /* note, journal_release checks for readonly mount, and can decide not
->    ** to do a journal_end
->    */
-> +  s->u.reiserfs_sb.no_sync = 1;
->    journal_release(&th, s) ;
-> +  s->u.reiserfs_sb.no_sync = 0;
-> 
->    for (i = 0; i < SB_BMAP_NR (s); i ++)
->      brelse (SB_AP_BITMAP (s)[i]);
-> --- linux-2.4.7/fs/buffer.c     Sat Jul 21 12:37:14 2001
-> +++ lk-ext3/fs/buffer.c Sat Jul 28 02:37:43 2001
-> @@ -333,6 +333,18 @@ int fsync_dev(kdev_t dev)
->         return sync_buffers(dev, 1);
->  }
-> 
-> +int flush_all_but_supers(kdev_t dev)
-> +{
-> +       sync_buffers(dev, 0);
-> +
-> +       lock_kernel();
-> +       sync_inodes(dev);
-> +       DQUOT_SYNC(dev);
-> +       unlock_kernel();
-> +
-> +       return sync_buffers(dev, 1);
-> +}
-> +
->  /*
->   * There's no real reason to pretend we should
->   * ever do anything differently
-> --- linux-2.4.7/kernel/ksyms.c  Sat Jul 21 12:37:14 2001
-> +++ lk-ext3/kernel/ksyms.c      Sat Jul 28 02:37:43 2001
-> @@ -161,6 +161,7 @@ EXPORT_SYMBOL(d_lookup);
->  EXPORT_SYMBOL(__d_path);
->  EXPORT_SYMBOL(mark_buffer_dirty);
->  EXPORT_SYMBOL(set_buffer_async_io); /* for reiserfs_writepage */
-> +EXPORT_SYMBOL(flush_all_but_supers);
->  EXPORT_SYMBOL(__mark_buffer_dirty);
->  EXPORT_SYMBOL(__mark_inode_dirty);
->  EXPORT_SYMBOL(get_empty_filp);
+> The reason I pushed to have netif_FOO use __cpu_raise_softirq() was
+> that I felt sick to my stomache when I saw a new whole function call
+> added to that spot. 
+
+I experience even more unpleasant feelings, when thinking what would happen
+if netif_rx() without these __ is called from under irq protected spinlock.
+
+> Let us just fix the odd places that aren't calling things in the
+> correct environment.
+
+I caught you! :-) Each "context" is normal, but "environment" still can
+be wrong. 
+
+Yes, I agreed. It is the simplest solution. In any case, all the instances
+of netif_rx are to be checked for spinlock-safeness.
+
+Alexey

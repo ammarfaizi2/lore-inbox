@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280902AbRKCAzg>; Fri, 2 Nov 2001 19:55:36 -0500
+	id <S280904AbRKCBB5>; Fri, 2 Nov 2001 20:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280904AbRKCAz0>; Fri, 2 Nov 2001 19:55:26 -0500
-Received: from [216.234.199.96] ([216.234.199.96]:7177 "EHLO lego.zianet.com")
-	by vger.kernel.org with ESMTP id <S280902AbRKCAzS>;
-	Fri, 2 Nov 2001 19:55:18 -0500
-Message-ID: <3BE33E8D.9090405@zianet.com>
-Date: Fri, 02 Nov 2001 17:47:09 -0700
-From: Steven Spence <kwijibo@zianet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S280906AbRKCBBk>; Fri, 2 Nov 2001 20:01:40 -0500
+Received: from gk.cyberbills.com ([64.41.210.81]:8203 "EHLO gk.cyberbills.com")
+	by vger.kernel.org with ESMTP id <S280904AbRKCBB1>;
+	Fri, 2 Nov 2001 20:01:27 -0500
+Date: Fri, 2 Nov 2001 17:01:15 -0800 (PST)
+From: "Sergey Kubushin" <ksi@cyberbills.com>
+To: Ivan Passos <lists@cyclades.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Annoying msgs about hda
+In-Reply-To: <Pine.LNX.4.30.0111021629480.742-100000@intra.cyclades.com>
+Message-ID: <Pine.LNX.4.31ksi3.0111021658110.9736-100000@nomad.cyberbills.com>
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: emu10k emits buzzing and crackling
-In-Reply-To: <20011101200955.A1913@redhat.com> <3BE25511.3080708@zianet.com> <004f01c163ad$ef8705a0$0c00a8c0@diemos> <20011102095727.D3662@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is my startup:
+On Fri, 2 Nov 2001, Ivan Passos wrote:
 
-Creative EMU10K1 PCI Audio Driver, version 0.16, 14:36:54 Oct 27 2001
-emu10k1: EMU10K1 rev 4 model 0x21 found, IO at 0x1c00-0x1c1f, IRQ 16
-ac97_codec: AC97  codec, id: 0x5452:0x4103 (TriTech TR28023)
-
-I should also mention this is kernel 2.4.13 with the latest cvs emu10k1 
-driver.
-I have no problems with it.
-
-Benjamin LaHaise wrote:
-
->On Fri, Nov 02, 2001 at 08:52:03AM -0600, Paul Fulghum wrote:
 >
->>I'm seeing something similar on RH7.2 with the emu10K driver.
->>Except XMMS and the cd player result in nothing but noise, but
->>the window manager events sound fine. The volume of noise
->>from XMMS/CD player can be controlled by the mixer.
->>
+> Hello,
 >
->That's very interesting as the driver shipped with rh7.2 works fine on 
->my card.  Are they different revisions of the card?  Could you post your 
->startup logs for the driver -- perhaps we can find some pattern to this 
->and make some kind of quirks mapping.
+> [*** Please CC your answer to me directly, as I'm currently not
+> subscribed
+> to lkml ***]
 >
->		-ben
+> I'm building a tiny Linux system of my own (no distro, although I'm
+> using
+> Debian as a "sample"), which boots from a CompactFlash and uncompresses
+> a
+> RAMDisk into RAM. The CompactFlash remains usually unmounted (except
+> during boot, when I want to save the system's configuration, upgrade
+> the
+> RAMDIsk image, etc.). I'm using kernel 2.4.9.
 >
+> I've noticed that every time I mount, fsck, or do any other "low-level"
+> access to the CompactFlash (which is seen as a HD, /dev/hda), I get the
+> following msgs:
+>
+> # mount /flash/config
+>  hda: hda1 hda2 hda3  <--+---- These msgs (yes, they always show up
+> twice)
+>  hda: hda1 hda2 hda3  <--+
+> #
+>
+>
+> If I place the _same_ CF in a Debian Potato system using the same
+> kernel,
+> I don't get these msgs when mounting the CF. I'm pretty sure these msgs
+> come from the kernel (I believe from the check_partition() function on
+> linux/fs/partitions/check.c), but it's really annoying to get these
+> msgs
+> every time I mount the device!!
+>
+> Is there a way to prevent this?!?! Or ... why doesn't it happen on a
+> "regular" distro (like my Debian system)??
+>
+> TIA for any advice/comment/insight.
 
+This is because "regular" distro is running klogd.
 
+---
+Sergey Kubushin				Sr. Unix Administrator
+Metavante, Inc.				Phone:	702-567-8857
+874 American Pacific Dr,		Fax:	702-567-8808
+Henderson, NV 89014
 

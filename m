@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271104AbUJUXWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271135AbUJVA1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271104AbUJUXWV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 19:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271093AbUJUXSU
+	id S271135AbUJVA1r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 20:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271157AbUJVA0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:18:20 -0400
-Received: from smtp1.sloane.cz ([62.240.161.228]:2785 "EHLO smtp1.sloane.cz")
-	by vger.kernel.org with ESMTP id S271036AbUJUXN1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:13:27 -0400
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Hibernation and time and dhcp
-Date: Fri, 22 Oct 2004 01:13:16 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200410202045.24388.cijoml@volny.cz> <200410211531.50238.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200410211531.50238.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
+	Thu, 21 Oct 2004 20:26:25 -0400
+Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:29647
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S271165AbUJVAQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 20:16:23 -0400
+Date: Thu, 21 Oct 2004 20:22:37 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.9-rc?] long pause after IDE detection
+Message-ID: <20041022002237.GA1948@kurtwerks.com>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <20041021220438.GA13864@zombie.inka.de> <58cb370e0410211523416be4a8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200410220113.16593.cijoml@volny.cz>
+In-Reply-To: <58cb370e0410211523416be4a8@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.9
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dne èt 21. øíjna 2004 14:31 Denis Vlasenko napsal(a):
-> On Wednesday 20 October 2004 21:45, Michal Semler wrote:
-> > Hi guys,
-> >
-> > with 2.6.9 hibernation to disk finally works! Thanks
-> > To ram it still don't work, system starts with lcd disabled - but it is
-> > another story.
-> >
-> > I have now this problem - when I hibernate and then system is started up
-> > in other company, it don't update time and shows still for example 14:00
-> > - when I rehibernate for example in 20:00 - could you ask bios for
-> > current time? It's better to have bad time about few seconds instead of
-> > hours.
-> >
-> > Same problem with dhcp - it should ask for IP when rehibernate.
->
-> These should be handled in userspace. You can put together
-> some simple shell script to do it with (hwclock or ntpdate) and [u]dhcp*
-> --
-> vda
+On Fri, Oct 22, 2004 at 12:23:34AM +0200, Bartlomiej Zolnierkiewicz took 8 lines to write:
+> > CONFIG_IDE_GENERIC=y
+> 
+> Does disabling this option help?
 
-Yes, it's possible, but many programs crashes when time is moved about hours 
-or days. And till time they will be repaired, we should ask for time BIOS to 
-have little time difference.
+Yes.
 
-Michal
+Kurt
+-- 
+It's no surprise that things are so screwed up: everyone that knows how
+to run a government is either driving taxicabs or cutting hair.
+	-- George Burns

@@ -1,68 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286173AbRLJG5T>; Mon, 10 Dec 2001 01:57:19 -0500
+	id <S286176AbRLJG5J>; Mon, 10 Dec 2001 01:57:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286174AbRLJG5K>; Mon, 10 Dec 2001 01:57:10 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:7955 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S286173AbRLJG44>; Mon, 10 Dec 2001 01:56:56 -0500
-Date: Mon, 10 Dec 2001 00:56:41 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S286174AbRLJG5A>; Mon, 10 Dec 2001 01:57:00 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:12041 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S286172AbRLJG4k>; Mon, 10 Dec 2001 01:56:40 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Samium Gromoff <_deepfire@mail.ru>,
+        gandalf@wlug.westbo.se (Martin Josefsson)
+Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
+Date: Mon, 10 Dec 2001 08:54:56 -0200
+X-Mailer: KMail [version 1.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Slight Return (was Re: [VM] 2.4.14/15-pre4 too "swap-happy"?)
-Message-ID: <20011210005641.A11697@asooo.flowerfire.com>
-In-Reply-To: <20011208071259.C24098@asooo.flowerfire.com> <Pine.LNX.4.21.0112091650410.24337-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0112091650410.24337-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Sun, Dec 09, 2001 at 04:51:14PM -0200
+In-Reply-To: <200112082158.fB8Lw4012155@vegae.deep.net>
+In-Reply-To: <200112082158.fB8Lw4012155@vegae.deep.net>
+MIME-Version: 1.0
+Message-Id: <01121008545601.01013@manta>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, any kind of fairly heavy, spread-out I/O combined with updatedb
-will do the trick, like samba.  NFS isn't required, it just seems to be
-a particularly good trigger.
+Unfortunately, this will most likely fall under
+'almost nobody interested in fiddling with old hw' category...
 
-It seems like anything that hits the inode/dentry caches hard, actually,
-and doesn't always happen when freepages (or its 2.4.x equivalent) has
-been hit.  I had a little applet that malloc'ed and memcpy'ed 1GB of RAM
-and exited, which doesn't really help like it did before 2.4.15-pre[56].
-
-It also happens for me a lot more with my 4GB machines, though I have
-seen it on my 1GB HIGHMEM boxes as well.  If the problem is related to
-scanning the cache, perhaps more RAM simply makes it worse.
-
-I'm planning on trying Andrew Morton's patches as soon as I'm able.
-
-Thanks,
--- 
-Ken.
-brownfld@irridia.com
-
-
-On Sun, Dec 09, 2001 at 04:51:14PM -0200, Marcelo Tosatti wrote:
-| 
-| 
-| On Sat, 8 Dec 2001, Ken Brownfield wrote:
-| 
-| > Just a quick followup to this, which is still a near show-stopper issue
-| > for me.
-| > 
-| > This is easy to reproduce for me if I run updatedb locally, and then run
-| > updatedb on a remote machine that's scanning an NFS-mounted filesystem
-| > from the original local machine.  Instant kswapd saturation, especially
-| > on large filesystems.
-| > 
-| > Doing updatedb on NFS-mounted filesystems also seems to cause kswapd to
-| > peg on the NFS-client side as well.
-| 
-| Can you reproduce the problem without the over NFS updatedb? 
-| 
-| Thanks 
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
+On Saturday 08 December 2001 19:58, Samium Gromoff wrote:
+> "  Martin Josefsson wrote:"
+> > I had an AMD K6 200 with an ISA NE2K card whan I started using Linux...
+> > I started using kernel 2.0 and that card worked very nice.
+> > I could even play quake while sending out data at 10Mbit/s, I didn't even
+> > notice that the transfer had started.
+> >
+> > Then I upgraded to kernel 2.2 and I was no longer able to play quake
+> > while tranmitting at 10Mbit/s with the exact same hardware. Sometimes I
+> > could hardly even play mp3's :(
+> >
+> > Then a friend of mine that also upgraded to kernel 2.2 began complaining
+> > that his machine also became extremely slow and unresponsive while
+> > transitting at 10Mbit/s, in fact that machine was even slower than mine
+> > during the transfers and his cpu was a bit faster than mine (also AMD).
+> >
+> > Then I upgraded that machine to pIII 700 and even that machine slows to a
+> > crawl while transmitting with that bloody ISA NE2K. It's the same thing
+> > in kernel 2.4 too. These days I simply don't use that card anymore...
+> >
+> > So something seems to have taken a wrong turn between 2.0 and 2.2
+> > I don't think this is a problem intruduced in 2.4.
+>
+>     The question is whether anybody is interesting in investigation of
+>   such broken behaviour.
+>     i`ve made a further research and discovered the fact that
+> 	ping -l 99999999 		- does not corrupt the sound
+> 	ping -l 99999999 -s 256		- does not corrupt the sound
+> 	ping -l 99999999 -s 512		- significantly corrupts the sound
+> 	ping -l 99999999 -s 16384 	- heavily corrupts the sound with stalls
+>
+>     as a reminder -l xxxx option forces ping to spit out data as fast as
+> possible making it a great bandwidth loader...
+>
+>     Initial look at the result makes me think that at certain level the
+>    interrupt handler just takes too long time and preempts the sound driver
+>    or whatever.
+>     My thinking is that if 2.0 was better than 2.4 in this case, we
+> definitely need to find out why was it so and use its strong side.
+--
+vda

@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbSJIX6Q>; Wed, 9 Oct 2002 19:58:16 -0400
+	id <S262604AbSJIX70>; Wed, 9 Oct 2002 19:59:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbSJIX6P>; Wed, 9 Oct 2002 19:58:15 -0400
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:63873 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262602AbSJIX6J>;
-	Wed, 9 Oct 2002 19:58:09 -0400
-Date: Thu, 10 Oct 2002 01:03:55 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
-Message-ID: <20021010000355.GD2654@bjl1.asuk.net>
-References: <20021005112552.A9032@work.bitmover.com> <20021007001137.A6352@elf.ucw.cz> <5.1.0.14.2.20021007204830.00b8b460@pop.gmx.net> <20021007143134.V14596@work.bitmover.com> <ao2ee1$l0c$1@forge.intermeta.de>
+	id <S262617AbSJIX70>; Wed, 9 Oct 2002 19:59:26 -0400
+Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:43142 "EHLO
+	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S262604AbSJIX7X>; Wed, 9 Oct 2002 19:59:23 -0400
+Date: Thu, 10 Oct 2002 01:04:39 +0100
+From: Derek Fawcus <dfawcus@cisco.com>
+To: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
+Message-ID: <20021010010439.C8102@edi-view1.cisco.com>
+References: <20021010002902.A3803@edi-view1.cisco.com> <20021009.162438.82081593.davem@redhat.com> <uu1jv9o3j.wl@sfc.wide.ad.jp> <20021009.164504.28085695.davem@redhat.com> <ur8ez9n8d.wl@sfc.wide.ad.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ao2ee1$l0c$1@forge.intermeta.de>
-User-Agent: Mutt/1.4i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <ur8ez9n8d.wl@sfc.wide.ad.jp>; from sekiya@sfc.wide.ad.jp on Thu, Oct 10, 2002 at 09:00:34AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henning P. Schmiedehausen wrote:
-> bk might be interesting for larger companies with software budgets in
-> the six figure range and for open source. For the vast number of three
-> to five developers enterprises, it's simply unreasonably priced. For
-> 25k$ I get about six man months from a really good developer to work
-> on <insert your SCM here>.
+On Thu, Oct 10, 2002 at 09:00:34AM +0900, Yuji Sekiya wrote:
+> At Wed, 09 Oct 2002 16:45:04 -0700 (PDT),
+> ** David S. Miller <davem@redhat.com> wrote:
+> 
+> >    The reason we change the prefix length  from /10 to /64 is
+> >    following spec and adapting other imprementations.
+> > 
+> > I think Derek's explanation shows that the specification
+> > allows the /10 behavior.
+> 
+> Hmm... we interpret the spec as /64 prefix.
+> 
+> > Also, I suspect that since Derek works for Cisco, some "other
+> > implementations" behave how he describes. :-)
+> 
+> I have cisco box which installed IPv6 IOS.
+> But it defines no prefix length at an interface,
+> 
+> FastEthernet4/1 is up, line protocol is up
+>   IPv6 is enabled, link-local address is FE80::201:64FF:FEA3:ED55
+> 
+> and outgoing interface of routing table is NULL ? :-)
+> 
+> L   FE80::/10 [0/0]
+>      via ::, Null0, 7w0d
 
-Larry's point is that six man months won't get you anywhere near as
-good as BK.  I'm not sure how much effort Larry and his team put in,
-but a hand waving guess puts it at 200 or so man months (5 years times
-3 developers, I am just guessing), minus the overhead of running a
-business (need to hunt for sales, follow the market etc.) which you
-wouldn't have.  Let's call that 80% overhead, another hand waving
-guesstimate from my experience with working in a company.
+Turn on 'debug ipv6 nd',  'debug ipv6 icmp',  'debug ipv6 pack d'
 
-Assuming you miraculously would have no developer overhead, not even
-the cost of office space, admin, accountants etc. for employing
-someone, then at your really good developer rates, the correct price
-is 166k$ :-)
+Then do 'ping ipv6' specify a link local of say fe80:1910::10 and
+an egress interface,  and watch what happens.
 
-For a small enterprise both prices are unreasonable.  Which is
-precisely why you cannot afford to develop something like BK yourself
-from scratch -- and unfortunately you can't afford to buy it either.
-
-Oh you can probably _clone_ BK in 6 months though; programming's much
-less work than developing the concepts behind the program.  Good luck,
-btw I'd appreciate if you GPL it, thanks :)
-
--- Jamie
-
-
-ps. From my limited experience, the hard part in writing a program
-like BK isn't quantifiable in $$.  One talented and motivated
-programmer probably _could_ develop BK in 6 months given all the right
-environment, input, skills, motivations and history.  But their salary
-is the smallest part of that.  How likely are you to _find_ a person
-who's specifically interested and skilled in developing high quality
-SCM systems, and who's been refining the ideas for the last 10 years?
-If it's the right person, you probably don't even need to pay them,
-just keep them fed and housed for the time it takes :-)
-
+DF

@@ -1,98 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVBIUwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVBIVGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVBIUwk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 15:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVBIUwj
+	id S261917AbVBIVGb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 16:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVBIVGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 15:52:39 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:39813 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261914AbVBIUwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 15:52:05 -0500
-Message-ID: <420A77DF.6040108@grupopie.com>
-Date: Wed, 09 Feb 2005 20:51:43 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
-References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz> <20050209171438.GI10594@lug-owl.de> <20050209173026.GA17797@ucw.cz> <420A518A.9040500@grupopie.com> <20050209195854.GJ10594@lug-owl.de>
-In-Reply-To: <20050209195854.GJ10594@lug-owl.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 9 Feb 2005 16:06:31 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:54997 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S261917AbVBIVG1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 16:06:27 -0500
+Subject: Re: [PATCH] [SERIAL] add TP560 data/fax/modem support
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <Pine.LNX.4.61.0502080710230.27765@chaos.analogic.com>
+References: <1107805182.8074.35.camel@piglet>
+	 <Pine.LNX.4.61.0502071508130.24378@chaos.analogic.com>
+	 <1107809856.8074.50.camel@piglet>
+	 <Pine.LNX.4.61.0502080710230.27765@chaos.analogic.com>
+Content-Type: text/plain
+Date: Wed, 09 Feb 2005 14:06:19 -0700
+Message-Id: <1107983179.27371.79.camel@eeyore>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> On Wed, 2005-02-09 18:08:10 +0000, Paulo Marques <pmarques@grupopie.com>
-> wrote in message <420A518A.9040500@grupopie.com>:
+On Tue, 2005-02-08 at 07:25 -0500, linux-os wrote:
+> On Mon, 7 Feb 2005, Bjorn Helgaas wrote:
 > 
->[...]
->>Touch screens doing this are severely brain-damaged. And yes, I've come 
->>across a few of them, but not lately.
+> > On Mon, 2005-02-07 at 15:12 -0500, linux-os wrote:
+> >> I thought somebody promised to add a pci_route_irq(dev) or some
+> >> such so that the device didn't have to be enabled before
+> >> the IRQ was correct.
+> >>
+> >> I first reported this bad IRQ problem back in December of 2004.
+> >> Has the new function been added?
+> >
+> > That's a completely different problem.  The point here is that
+> > the serial driver currently doesn't do anything with the TP560
+> > (no pci_enable_device(), no pci_route_irq(), no nothing).  Then
+> > when setserial comes along and force-feeds the driver with the
+> > IO and IRQ info, there's nothing at that point that does anything
+> > to enable the device or route its interrupt either.
+> >
+> > I did raise the idea of adding a pci_route_irq() interface, but
+> > to be honest, I was never convinced of its general usefulness.
 > 
-> 
-> That's IMHO not brain-damaged, but pure physics: just consider scratches
-> or dust (or other substances) applied to the touch foil. This happens
-> all the time, so the touch screen gets out of calibration. This won't
-> happen on a screen used only twice a day. But think about a touch screen
-> that's tortured all the day with pencils, finger rings, dirty fingers,
+> There  have been two PCI drivers in the past three days where
+> users have reported that the IRQ was wrong.
 
-The brain-damaged part wasn't the calibration. It was the calibration 
-being done in the touchscreen itself, instead of letting the PC handle 
-it for them. We will always need calibration, of course.
+If you've got pointers to these two reports, please provide them.
 
-> ...
->>I would say that a tool to recover the touch screen into a "usable" 
->>state, by talking directly to the serial port, and "calibrating" it to 
->>max possible / min possible values would be the best way to deal with this.
-> 
-> 
-> Min/Max values (as of protocol theory) is possibly not the very best you
-> can do with the hardware. I more thing about submitting these (after
-> physical calibration) to the kernel driver to supply them to it's users.
+> One patch was
+> provided to enable the device before requesting the IRQ, this
+> being inherently dangerous. So, if you are the one who
+> re-wrote the PCI stuff so that the IRQ is wrong when the
+> device is claimed, then I think you have a duty to fix the
+> code that you have broken.
 
-You're missing my point completely... :(
+Most drivers in the tree call pci_enable_device() before
+request_irq().  That was the case even before my changes.
+Dangerous?  Maybe, but I didn't make it more so.
 
-What I was suggesting was that we don't use physical calibration *at all*.
+> The correct way to fix the broken code is to make sure that
+> the IRQ, reported in the structure, is correct. Alternate
+> methods might be a pci_route_irq() function.
 
-We let the touch screen send the widest range it can muster, so that we 
-don't have quantization errors. We then calibrate in software as for any 
-other touch screen, using the coordinates sent as "raw data".
+Or perhaps, the IRQ could be routed in pci_setup_device().
+But, by the principle of "if you don't use it, don't touch
+it", there *is* something to be said for the fact that the
+current code doesn't touch IRQ routing unless a driver
+actually claims the device.
 
->>Modern touchscreens just send the A/D data to the PC, and let the real 
->>processor do the math (it can even do more complex calculations, like 
->>compensate for rotation, etc.). IMHO calibration should be handled by 
->>software.
-> 
-> Is this done eg. by Elo, Mutouch, Fujitsu, T-Sharc (to only name the
-> most common)? I don't think so...
+> The existing PCI code is broken. The fact that an invalid
+> IRQ is reported in the structure is PROOF that it is broken
+> and requires no further discussion.
 
-If you don't try to configure the "physical calibration" of a Elo, 
-MuTouch, etc, they send coordinates in a nice 0..2^N-1 format. That is 
-the best approach IMHO.
+Then I'm sure your patch to fix it will be accepted without
+much dissent.
 
->[...]
-> This only happens if you don't configurethe MSR properly :-) Most of
-> them can be configured to send quite complex (as in: structured) init
-> sequences that cannot be generated by a keyboard (ie multiple break
-> codes without make codes and the like). 
+> Many of us have to
+> use this stuff in a professional environment, we can't
+> enable devices without an interrupt handler in place
+> because it is not allowed in code that is subject to
+> peer review. We also can't use code when such problems
+> as invalid values in returned data are discovered.
 
-Even if they can not be generated by a keyboard, if you don't handle 
-them in special way, you'll get a lot of rubbish. We do handle the 
-special sequences when available, but there still barcode scanners that 
-don't generate a nice sequence.
+Nobody's forcing you to use "this stuff."
 
-There are even barcode scanners that generate things like <press 
-Alt>+<numeric X>+<numeric Y>+<numeric Z>+<release Alt> without even 
-bothering to release the numeric keys, to generate ASCII code XYZ :P
+> Two months ago I discovered this problem and reported it, hoping
+> that the person who broke existing code would fix it. It has
+> not been fixed.
 
--- 
-Paulo Marques - www.grupopie.com
+The fact is, yours is the only report of an issue with the
+structure of the new code.  And it apparently only concerns
+an out-of-tree driver.  Still, I agree that it might be good
+to do something about it.  But you haven't provided pointers
+to the hardware specs or driver involved.  So I'm not going to
+go too much out of my way to fix it.
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)

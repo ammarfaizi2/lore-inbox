@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263308AbTCNI57>; Fri, 14 Mar 2003 03:57:59 -0500
+	id <S263287AbTCNJC5>; Fri, 14 Mar 2003 04:02:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263300AbTCNI57>; Fri, 14 Mar 2003 03:57:59 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:53004 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263308AbTCNI55>;
-	Fri, 14 Mar 2003 03:57:57 -0500
-Date: Fri, 14 Mar 2003 00:57:32 -0800
-From: Greg KH <greg@kroah.com>
-To: =?iso-8859-1?Q?Bj=F6rn?= Fahller <bjorn@netinsight.se>
-Cc: Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
-       linux-kernel@vger.kernel.org, zubarev@us.ibm.com
-Subject: Re: [2.4] Multiple memleaks in IBM Hot Plug Controller Driver
-Message-ID: <20030314085731.GE3084@kroah.com>
-References: <20030313204556.GA3475@linuxhacker.ru> <200303140934.44245.bjorn@netinsight.se>
+	id <S263288AbTCNJC5>; Fri, 14 Mar 2003 04:02:57 -0500
+Received: from h88n1fls35o887.telia.com ([217.211.94.88]:64510 "EHLO
+	filippan.pdc.kth.se") by vger.kernel.org with ESMTP
+	id <S263287AbTCNJCz>; Fri, 14 Mar 2003 04:02:55 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+Reply-To: smeds@pdc.kth.se
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Mikael Pettersson <mikpe@user.it.uu.se>,
+       perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       smeds@filippan.pdc.kth.se
+Subject: Re: [Perfctr-devel] Re: perfctr-2.5.0 released 
+In-Reply-To: Message from "J.A. Magallon" <jamagallon@able.es> 
+   of "Fri, 14 Mar 2003 02:25:02 +0100." <20030314012502.GA20357@werewolf.able.es> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200303140934.44245.bjorn@netinsight.se>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 14 Mar 2003 10:10:50 +0100
+Message-ID: <10132.1047633050@filippan.pdc.kth.se>
+From: Nils Smeds <smeds@pdc.kth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 09:34:44AM +0100, Björn Fahller wrote:
-> On Thursday 13 March 2003 21.45, Oleg Drokin wrote:
 > 
-> Below, why allocating 2 bytes on heap (str1,) only to non-conditionally free 
-> it a few lines further down? Why not keep the two bytes on stack instead? It 
-> also seems like a bad idea to strncopy/strcat 1 byte long strings.
+> Perhaps this has been asked for a million times, but I'm new to 
+> perfctrs...
+> Is there any tool available to profile a program based on this ?
+> I have seen perfex, but that gives total counts. I would like something
+> like gprof... We are now optimizing some software and I would like to
+> make my colleagues leave Windows (they use Intel's VTune) and go to
+> Linux.
+> Or at least compare the same kind of things between VTune on win and
+> 'something' in Linux that also uses the counters. They don't seem to
+> trust gprof. And, looking at the results, I'm beginning to untrust
+> VTune...
+> 
 
-Like I previously said, this whole function is a bad dream.  Look at
-what is now in 2.5, all of this nonsense is now gone.
+Take a look at HPCView from Rice unversity. It might do what you are
+looking for?
 
-thanks,
+http://www.cs.rice.edu/~dsystem/hpcview/index.html
 
-greg k-h
+/Nils
+-- 
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Nils Smeds                        http://www.pdc.kth.se/
+   Center for Parallel Computers     e-mail: smeds@pdc.kth.se
+   Royal Institute of Technology     Voice:  +46-8-7909115
+   KTH                               Fax:    +46-8-247784 
+   S-100 44 Stockholm, Sweden        Office: OB2, room 1546
+-----------------------------------------------------------------------
+

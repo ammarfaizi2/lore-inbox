@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261432AbREUPrc>; Mon, 21 May 2001 11:47:32 -0400
+	id <S261454AbREUPtM>; Mon, 21 May 2001 11:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261444AbREUPrW>; Mon, 21 May 2001 11:47:22 -0400
-Received: from fe070.worldonline.dk ([212.54.64.208]:8463 "HELO
-	fe070.worldonline.dk") by vger.kernel.org with SMTP
-	id <S261432AbREUPrG>; Mon, 21 May 2001 11:47:06 -0400
-Date: Mon, 21 May 2001 17:47:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Adam Schrotenboer <schrotaj@river.it.gvsu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DVD blockdevice buffers
-Message-ID: <20010521174721.A8020@suse.de>
-In-Reply-To: <20010520005638.A18155@suse.de> <Pine.HPP.3.95.1010521114211.16648A-100000@river.it.gvsu.edu>
+	id <S261458AbREUPtC>; Mon, 21 May 2001 11:49:02 -0400
+Received: from geos.coastside.net ([207.213.212.4]:12027 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S261454AbREUPsp>; Mon, 21 May 2001 11:48:45 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.HPP.3.95.1010521114211.16648A-100000@river.it.gvsu.edu>; from schrotaj@river.it.gvsu.edu on Mon, May 21, 2001 at 11:44:01AM -0400
+Message-Id: <p05100314b72ee5e52330@[207.213.214.37]>
+In-Reply-To: <20010521181709.A15029@jurassic.park.msu.ru>
+In-Reply-To: <20010520163323.G18119@athlon.random>
+ <15112.26868.5999.368209@pizda.ninka.net>
+ <20010521034726.G30738@athlon.random>
+ <15112.48708.639090.348990@pizda.ninka.net>
+ <20010521105944.H30738@athlon.random>
+ <15112.55709.565823.676709@pizda.ninka.net>
+ <20010521115631.I30738@athlon.random>
+ <15112.59880.127047.315855@pizda.ninka.net>
+ <15112.60362.447922.780857@pizda.ninka.net>
+ <p05100311b72ecde57fcd@[207.213.214.37]>
+ <20010521181709.A15029@jurassic.park.msu.ru>
+Date: Mon, 21 May 2001 08:47:38 -0700
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: alpha iommu fixes
+Cc: "David S. Miller" <davem@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 21 2001, Adam Schrotenboer wrote:
-> On Sun, 20 May 2001, Jens Axboe wrote:
-> 
-> > On Sat, May 19 2001, Adam Schrotenboer wrote:
-> > > /dev/raw*  Where? I can't find it in my .config (grep RAW .config). I am 
-> > > using 2.4.4-ac11 and playing w/ 2.4.5-pre3.
-> > 
-> > It's automagically included, no config options necessary
-> > (drivers/char/raw.c)
-> 
-> Then where is /dev/raw* ? I'm using devfs, if that helps any.
+At 6:17 PM +0400 2001-05-21, Ivan Kokshaysky wrote:
+>On Mon, May 21, 2001 at 06:55:29AM -0700, Jonathan Lundell wrote:
+>>  8 slots (and  you're right, 6 is a practical upper limit, fewer for
+>>  66 MHz) *per bus*. Buses can proliferate like crazy, so the slot
+>>  limit becomes largely irrelevant.
+>
+>True, but the bandwidth limit is highly relevant. That's why modern
+>systems have multiple root buses, not a bridged ones.
 
-Apparently raw doesn't setup using the devfs_reg functions, someone need
-to fix that. So either fix it (look at other drivers) or don't use
-devfs.
-
+Sure, there are systems with multiple root buses (I'm a bit fuzzy on 
+how well Linux handles that), and bandwidth is important, but it's 
+simply wrong to assume that a particular root bus will never have 
+more than 6 or 8 devices. There are legitimate cases (firewalls 
+spring to mind) where port count is driven by other considerations 
+than aggregate bandwidth.
 -- 
-Jens Axboe
-
+/Jonathan Lundell.

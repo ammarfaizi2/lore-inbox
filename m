@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbTFCH1X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 03:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTFCH1X
+	id S263865AbTFCHrR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 03:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTFCHrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 03:27:23 -0400
-Received: from verein.lst.de ([212.34.189.10]:43169 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262366AbTFCH1W (ORCPT
+	Tue, 3 Jun 2003 03:47:16 -0400
+Received: from denise.shiny.it ([194.20.232.1]:29824 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S263865AbTFCHrQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 03:27:22 -0400
-Date: Tue, 3 Jun 2003 09:37:53 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kerfnel.org
-Subject: [PATCH] fix signal.h compilation
-Message-ID: <20030603073753.GA21473@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, torvalds@transmeta.com,
-	linux-kernel@vger.kerfnel.org
-Mime-Version: 1.0
+	Tue, 3 Jun 2003 03:47:16 -0400
+Message-ID: <XFMail.20030603100038.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -3.2 () PATCH_UNIFIED_DIFF,RESENT_TO,USER_AGENT_MUTT
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <200306031322.01389.kernel@kolivas.org>
+Date: Tue, 03 Jun 2003 10:00:38 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: RE: [BENCHMARK] 100Hz v 1000Hz with contest
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-signal.h uses spinlock_t now so it needs to include spinlock.h.
-Without this compilation failes on PPC.
+
+On 03-Jun-2003 Con Kolivas wrote:
+> I've attempted to answer the question does 1000Hz hurt responsiveness in 2.5
+> as much as I've found in 2.4; since subjectively the difference wasn't there
+> in 2.5. Using the same config with preempt enabled here are results from
+> 2.5.70-mm3 set at default 1000Hz and at 100Hz (mm31):
+
+Is there any problem using a frequency other than 100 and 1000Hz ?
 
 
---- 1.12/include/linux/signal.h	Mon Jun  2 14:45:36 2003
-+++ edited/include/linux/signal.h	Mon Jun  2 11:13:33 2003
-@@ -1,9 +1,10 @@
- #ifndef _LINUX_SIGNAL_H
- #define _LINUX_SIGNAL_H
- 
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
- #include <asm/signal.h>
- #include <asm/siginfo.h>
--#include <linux/list.h>
- 
- #ifdef __KERNEL__
- /*
+Bye.
+

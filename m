@@ -1,163 +1,242 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319358AbSIKWQc>; Wed, 11 Sep 2002 18:16:32 -0400
+	id <S319362AbSIKWRV>; Wed, 11 Sep 2002 18:17:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319361AbSIKWQc>; Wed, 11 Sep 2002 18:16:32 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:20490
+	id <S319363AbSIKWRH>; Wed, 11 Sep 2002 18:17:07 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:25098
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319358AbSIKWQa>; Wed, 11 Sep 2002 18:16:30 -0400
-Subject: [PATCH] 2.4-ac: sched_yield()
+	with ESMTP id <S319362AbSIKWQ6>; Wed, 11 Sep 2002 18:16:58 -0400
+Subject: [PATCH] 2.4-ac task->cpu abstraction and optimization
 From: Robert Love <rml@tech9.net>
 To: alan@redhat.com
 Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-J3SVbYOMY6tt+Ll2GktB"
+Content-Type: multipart/mixed; boundary="=-AYUtQjtlaoZx4Eb9QB7e"
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Sep 2002 18:21:18 -0400
-Message-Id: <1031782879.937.29.camel@phantasy>
+Date: 11 Sep 2002 18:21:46 -0400
+Message-Id: <1031782906.982.33.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-J3SVbYOMY6tt+Ll2GktB
+--=-AYUtQjtlaoZx4Eb9QB7e
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Hi Alan,
+Alan,
 
-Following is a set of scheduler updates from 2.5.  All should be sane
-and safe.  I would prefer to toss you obviously correct/tested bits in
-pieces than a large single update.  You can also get all of these at:
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/sched/for_alan
+Implement "task_cpu()" and "set_task_cpu()" as wrappers for reading and
+writing task->cpu, respectively.
 
-Anyhow...
-
-Attached patch gets sched_yield() right, fixing all outstanding issues.
-Really. (from Ingo)
-
-Also implement 2.5's yield() which sets task->state to be safe. (from
-akpm)
+Additionally, introduce a nice optimization: on UP, task_cpu() can
+hard-code to "0" and set_task_cpu() can be a no-op.
 
 Patch is against 2.4.20-pre5-ac4, please apply.
 
 	Robert Love
 
 
---=-J3SVbYOMY6tt+Ll2GktB
-Content-Disposition: attachment; filename=200-sched-yield.patch
+--=-AYUtQjtlaoZx4Eb9QB7e
+Content-Disposition: attachment; filename=220-task_cpu.patch
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=200-sched-yield.patch; charset=ISO-8859-1
+Content-Type: text/x-patch; name=220-task_cpu.patch; charset=ISO-8859-1
 
-diff -urN linux-2.4.20-pre5-ac4/include/linux/sched.h linux/include/linux/s=
-ched.h
---- linux-2.4.20-pre5-ac4/include/linux/sched.h	Mon Sep  9 19:27:59 2002
-+++ linux/include/linux/sched.h	Wed Sep 11 16:13:21 2002
-@@ -486,9 +486,7 @@
- extern int task_prio(task_t *p);
- extern int task_nice(task_t *p);
- extern int idle_cpu(int cpu);
--
--asmlinkage long sys_sched_yield(void);
--#define yield() sys_sched_yield()
-+extern void yield(void);
+diff -urN linux-2.4.20-pre5-ac4-rml/Documentation/sched-coding.txt linux/Do=
+cumentation/sched-coding.txt
+--- linux-2.4.20-pre5-ac4-rml/Documentation/sched-coding.txt	Wed Sep 11 17:=
+39:05 2002
++++ linux/Documentation/sched-coding.txt	Wed Sep 11 17:39:25 2002
+@@ -88,12 +88,13 @@
+ 	Returns the runqueue of the specified cpu.
+ this_rq()
+ 	Returns the runqueue of the current cpu.
+-task_rq(pid)
+-	Returns the runqueue which holds the specified pid.
++task_rq(task)
++	Returns the runqueue which holds the specified task.
+ cpu_curr(cpu)
+ 	Returns the task currently running on the given cpu.
+-rt_task(pid)
+-	Returns true if pid is real-time, false if not.
++rt_task(task)
++	Returns true if task is real-time, false if not.
++task_cpu(task)
 =20
- /*
-  * The default (Linux) execution domain.
-diff -urN linux-2.4.20-pre5-ac4/kernel/ksyms.c linux/kernel/ksyms.c
---- linux-2.4.20-pre5-ac4/kernel/ksyms.c	Mon Sep  9 19:27:58 2002
-+++ linux/kernel/ksyms.c	Wed Sep 11 16:23:02 2002
-@@ -455,7 +455,7 @@
- EXPORT_SYMBOL(interruptible_sleep_on_timeout);
- EXPORT_SYMBOL(schedule);
- EXPORT_SYMBOL(schedule_timeout);
--EXPORT_SYMBOL(sys_sched_yield);
-+EXPORT_SYMBOL(yield);
- EXPORT_SYMBOL(set_user_nice);
- EXPORT_SYMBOL(task_nice);
- EXPORT_SYMBOL_GPL(idle_cpu);
-diff -urN linux-2.4.20-pre5-ac4/kernel/sched.c linux/kernel/sched.c
---- linux-2.4.20-pre5-ac4/kernel/sched.c	Mon Sep  9 19:27:58 2002
-+++ linux/kernel/sched.c	Wed Sep 11 16:13:31 2002
-@@ -1366,46 +1366,31 @@
- 	return real_len;
+=20
+ Process Control Methods
+@@ -117,6 +118,8 @@
+ 	Clears need_resched in the given task.
+ void set_need_resched()
+ 	Sets need_resched in the current task.
++void set_task_cpu(task, cpu)
++	Sets task->cpu to cpu on SMP.  Noop on UP.
+ void clear_need_resched()
+ 	Clears need_resched in the current task.
+ int need_resched()
+diff -urN linux-2.4.20-pre5-ac4-rml/fs/proc/array.c linux/fs/proc/array.c
+--- linux-2.4.20-pre5-ac4-rml/fs/proc/array.c	Wed Sep 11 17:38:21 2002
++++ linux/fs/proc/array.c	Wed Sep 11 17:39:25 2002
+@@ -389,7 +389,7 @@
+ 		task->nswap,
+ 		task->cnswap,
+ 		task->exit_signal,
+-		task->cpu);
++		task_cpu(task));
+ 	if(mm)
+ 		mmput(mm);
+ 	return res;
+diff -urN linux-2.4.20-pre5-ac4-rml/include/linux/sched.h linux/include/lin=
+ux/sched.h
+--- linux-2.4.20-pre5-ac4-rml/include/linux/sched.h	Wed Sep 11 17:40:52 200=
+2
++++ linux/include/linux/sched.h	Wed Sep 11 17:39:25 2002
+@@ -976,6 +976,34 @@
+ 	return unlikely(current->need_resched);
  }
 =20
-+/**
-+ * sys_sched_yield - yield the current processor to other threads.
-+ *
-+ * this function yields the current CPU by moving the calling thread
-+ * to the expired array. If there are no other threads running on this
-+ * CPU then this function will return.
++/*
++ * Wrappers for p->cpu access. No-op on UP.
 + */
- asmlinkage long sys_sched_yield(void)
- {
- 	runqueue_t *rq =3D this_rq_lock();
- 	prio_array_t *array =3D current->array;
-=20
- 	/*
--	 * There are three levels of how a yielding task will give up
--	 * the current CPU:
-+	 * We implement yielding by moving the task into the expired
-+	 * queue.
- 	 *
--	 *  #1 - it decreases its priority by one. This priority loss is
--	 *       temporary, it's recovered once the current timeslice
--	 *       expires.
--	 *
--	 *  #2 - once it has reached the lowest priority level,
--	 *       it will give up timeslices one by one. (We do not
--	 *       want to give them up all at once, it's gradual,
--	 *       to protect the casual yield()er.)
--	 *
--	 *  #3 - once all timeslices are gone we put the process into
--	 *       the expired array.
--	 *
--	 *  (special rule: RT tasks do not lose any priority, they just
--	 *  roundrobin on their current priority level.)
-+	 * (special rule: RT tasks will just roundrobin in the active
-+	 *  array.)
- 	 */
--	if (likely(current->prio =3D=3D MAX_PRIO-1)) {
--		if (current->time_slice <=3D 1) {
--			dequeue_task(current, rq->active);
--			enqueue_task(current, rq->expired);
--		} else
--			current->time_slice--;
--	} else if (unlikely(rt_task(current))) {
--		list_del(&current->run_list);
--		list_add_tail(&current->run_list, array->queue + current->prio);
-+	if (likely(!rt_task(current))) {
-+		dequeue_task(current, array);
-+		enqueue_task(current, rq->expired);
- 	} else {
- 		list_del(&current->run_list);
--		if (list_empty(array->queue + current->prio))
--			__clear_bit(current->prio, array->bitmap);
--		current->prio++;
- 		list_add_tail(&current->run_list, array->queue + current->prio);
--		__set_bit(current->prio, array->bitmap);
- 	}
- 	spin_unlock(&rq->lock);
-=20
-@@ -1414,6 +1399,18 @@
- 	return 0;
- }
-=20
-+/**
-+ * yield - yield the current processor to other threads.
-+ *
-+ * this is a shortcut for kernel-space yielding - it marks the
-+ * thread runnable and calls sys_sched_yield().
-+ */
-+void yield(void)
++#ifdef CONFIG_SMP
++
++static inline unsigned int task_cpu(struct task_struct *p)
 +{
-+	set_current_state(TASK_RUNNING);
-+	sys_sched_yield();
++	return p->cpu;
 +}
 +
- asmlinkage long sys_sched_get_priority_max(int policy)
++static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
++{
++	p->cpu =3D cpu;
++}
++
++#else
++
++static inline unsigned int task_cpu(struct task_struct *p)
++{
++	return 0;
++}
++
++static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
++{
++}
++
++#endif /* CONFIG_SMP */
++
+ #endif /* __KERNEL__ */
+=20
+ #endif
+diff -urN linux-2.4.20-pre5-ac4-rml/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.20-pre5-ac4-rml/kernel/sched.c	Wed Sep 11 17:40:57 2002
++++ linux/kernel/sched.c	Wed Sep 11 17:40:33 2002
+@@ -148,7 +148,7 @@
+=20
+ #define cpu_rq(cpu)		(runqueues + (cpu))
+ #define this_rq()		cpu_rq(smp_processor_id())
+-#define task_rq(p)		cpu_rq((p)->cpu)
++#define task_rq(p)		cpu_rq(task_cpu(p))
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+ #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
+=20
+@@ -311,8 +311,8 @@
+ 	need_resched =3D p->need_resched;
+ 	wmb();
+ 	set_tsk_need_resched(p);
+-	if (!need_resched && (p->cpu !=3D smp_processor_id()))
+-		smp_send_reschedule(p->cpu);
++	if (!need_resched && (task_cpu(p) !=3D smp_processor_id()))
++		smp_send_reschedule(task_cpu(p));
+ #else
+ 	set_tsk_need_resched(p);
+ #endif
+@@ -391,10 +391,10 @@
+ 		 * currently. Do not violate hard affinity.
+ 		 */
+ 		if (unlikely(sync && (rq->curr !=3D p) &&
+-			(p->cpu !=3D smp_processor_id()) &&
++			(task_cpu(p) !=3D smp_processor_id()) &&
+ 			(p->cpus_allowed & (1UL << smp_processor_id())))) {
+=20
+-			p->cpu =3D smp_processor_id();
++			set_task_cpu(p, smp_processor_id());
+ 			task_rq_unlock(rq, &flags);
+ 			goto repeat_lock_task;
+ 		}
+@@ -437,7 +437,7 @@
+ 		p->sleep_avg =3D p->sleep_avg * CHILD_PENALTY / 100;
+ 		p->prio =3D effective_prio(p);
+ 	}
+-	p->cpu =3D smp_processor_id();
++	set_task_cpu(p, smp_processor_id());
+ 	activate_task(p, rq);
+=20
+ 	rq_unlock(rq);
+@@ -727,7 +727,7 @@
+ 	 */
+ 	dequeue_task(next, array);
+ 	busiest->nr_running--;
+-	next->cpu =3D this_cpu;
++	set_task_cpu(next, this_cpu);
+ 	this_rq->nr_running++;
+ 	enqueue_task(next, this_rq->active);
+ 	if (next->prio < current->prio)
+@@ -1718,7 +1718,7 @@
+=20
+ void __init init_idle(task_t *idle, int cpu)
  {
- 	int ret =3D -EINVAL;
+-	runqueue_t *idle_rq =3D cpu_rq(cpu), *rq =3D cpu_rq(idle->cpu);
++	runqueue_t *idle_rq =3D cpu_rq(cpu), *rq =3D cpu_rq(task_cpu(idle));
+ 	unsigned long flags;
+=20
+ 	__save_flags(flags);
+@@ -1730,7 +1730,7 @@
+ 	idle->array =3D NULL;
+ 	idle->prio =3D MAX_PRIO;
+ 	idle->state =3D TASK_RUNNING;
+-	idle->cpu =3D cpu;
++	set_task_cpu(idle, cpu);
+ 	double_rq_unlock(idle_rq, rq);
+ 	set_tsk_need_resched(idle);
+ 	__restore_flags(flags);
+@@ -1835,7 +1835,7 @@
+ 	 * Can the task run on the task's current CPU? If not then
+ 	 * migrate the process off to a proper CPU.
+ 	 */
+-	if (new_mask & (1UL << p->cpu)) {
++	if (new_mask & (1UL << task_cpu(p))) {
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+ 	}
+@@ -1844,7 +1844,7 @@
+ 	 * it is sufficient to simply update the task's cpu field.
+ 	 */
+ 	if (!p->array && (p !=3D rq->curr)) {
+-		p->cpu =3D __ffs(p->cpus_allowed);
++		set_task_cpu(p, __ffs(p->cpus_allowed));
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+ 	}
+@@ -1914,18 +1914,18 @@
+ 		cpu_dest =3D __ffs(p->cpus_allowed);
+ 		rq_dest =3D cpu_rq(cpu_dest);
+ repeat:
+-		cpu_src =3D p->cpu;
++		cpu_src =3D task_cpu(p);
+ 		rq_src =3D cpu_rq(cpu_src);
+=20
+ 		local_irq_save(flags);
+ 		double_rq_lock(rq_src, rq_dest);
+-		if (p->cpu !=3D cpu_src) {
++		if (task_cpu(p) !=3D cpu_src) {
+ 			double_rq_unlock(rq_src, rq_dest);
+ 			local_irq_restore(flags);
+ 			goto repeat;
+ 		}
+ 		if (rq_src =3D=3D rq) {
+-			p->cpu =3D cpu_dest;
++			set_task_cpu(p, cpu_dest);
+ 			if (p->array) {
+ 				deactivate_task(p, rq_src);
+ 				activate_task(p, rq_dest);
 
---=-J3SVbYOMY6tt+Ll2GktB--
+--=-AYUtQjtlaoZx4Eb9QB7e--
 

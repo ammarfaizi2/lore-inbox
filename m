@@ -1,88 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261679AbTCKXt7>; Tue, 11 Mar 2003 18:49:59 -0500
+	id <S261713AbTCLAHg>; Tue, 11 Mar 2003 19:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261690AbTCKXt7>; Tue, 11 Mar 2003 18:49:59 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25239 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261679AbTCKXt6>; Tue, 11 Mar 2003 18:49:58 -0500
-Date: Tue, 11 Mar 2003 15:49:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in tty_open
-Message-ID: <45750000.1047426594@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261691AbTCLAHc>; Tue, 11 Mar 2003 19:07:32 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:14218 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261683AbTCLAD6>;
+	Tue, 11 Mar 2003 19:03:58 -0500
+Subject: [PATCH] (2/8) Eliminate brlock for packet_type
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>, David Miller <davem@redhat.com>
+Cc: linux-net@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1047428080.15872.99.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 11 Mar 2003 16:14:40 -0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting lots of these messages whilst running big SDET runs on
-an 16-way machine ... anyone recognize them?
-(64-bk3 + a few patches).
+Replace linked list for packet_type with brlock with list macros and RCU.
 
-dev (pts(136,0)) tty->count(4) != #fd's(3) in release_dev
-Warning: dev (pts(136,0)) tty->count(4) != #fd's(3) in tty_open
-Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in tty_open
-Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in release_dev
-Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in tty_open
-Warning: dev (pts(136,0)) tty->count(6) != #fd's(5) in tty_open
-Warning: dev (pts(136,0)) tty->count(7) != #fd's(6) in tty_open
-Warning: dev (pts(136,0)) tty->count(8) != #fd's(7) in tty_open
-Warning: dev (pts(136,0)) tty->count(9) != #fd's(8) in tty_open
-Warning: dev (pts(136,0)) tty->count(10) != #fd's(9) in tty_open
-Warning: dev (pts(136,0)) tty->count(11) != #fd's(10) in tty_open
-Warning: dev (pts(136,0)) tty->count(12) != #fd's(11) in tty_open
-Warning: dev (pts(136,0)) tty->count(13) != #fd's(12) in tty_open
-Warning: dev (pts(136,0)) tty->count(14) != #fd's(13) in tty_open
-Warning: dev (pts(136,0)) tty->count(15) != #fd's(14) in tty_open
-Warning: dev (pts(136,0)) tty->count(16) != #fd's(15) in tty_open
-Warning: dev (pts(136,0)) tty->count(17) != #fd's(16) in tty_open
-Warning: dev (pts(136,0)) tty->count(18) != #fd's(17) in tty_open
-Warning: dev (pts(136,0)) tty->count(18) != #fd's(17) in release_dev
-Warning: dev (pts(136,0)) tty->count(18) != #fd's(17) in tty_open
-Warning: dev (pts(136,0)) tty->count(19) != #fd's(18) in tty_open
-Warning: dev (pts(136,0)) tty->count(20) != #fd's(19) in tty_open
-Warning: dev (pts(136,0)) tty->count(21) != #fd's(20) in tty_open
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in tty_open
-Warning: dev (pts(136,0)) tty->count(23) != #fd's(22) in tty_open
-Warning: dev (pts(136,0)) tty->count(23) != #fd's(22) in release_dev
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in release_dev
-Warning: dev (pts(136,0)) tty->count(21) != #fd's(20) in release_dev
-Warning: dev (pts(136,0)) tty->count(21) != #fd's(20) in tty_open
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in tty_open
-Warning: dev (pts(136,0)) tty->count(23) != #fd's(22) in tty_open
-Warning: dev (pts(136,0)) tty->count(23) != #fd's(22) in release_dev
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in release_dev
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in tty_open
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in release_dev
-Warning: dev (pts(136,0)) tty->count(21) != #fd's(20) in release_dev
-Warning: dev (pts(136,0)) tty->count(20) != #fd's(19) in release_dev
-Warning: dev (pts(136,0)) tty->count(20) != #fd's(19) in tty_open
-Warning: dev (pts(136,0)) tty->count(21) != #fd's(20) in tty_open
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in tty_open
-Warning: dev (pts(136,0)) tty->count(22) != #fd's(21) in release_dev
-Warning: dev (pts(136,0)) tty->count(21) != #fd's(20) in release_dev
-Warning: dev (pts(136,0)) tty->count(20) != #fd's(19) in release_dev
-Warning: dev (pts(136,0)) tty->count(19) != #fd's(18) in release_dev
-Warning: dev (pts(136,0)) tty->count(18) != #fd's(17) in release_dev
-Warning: dev (pts(136,0)) tty->count(17) != #fd's(16) in release_dev
-Warning: dev (pts(136,0)) tty->count(16) != #fd's(15) in release_dev
-Warning: dev (pts(136,0)) tty->count(15) != #fd's(14) in release_dev
-Warning: dev (pts(136,0)) tty->count(14) != #fd's(13) in release_dev
-Warning: dev (pts(136,0)) tty->count(13) != #fd's(12) in release_dev
-Warning: dev (pts(136,0)) tty->count(12) != #fd's(11) in release_dev
-Warning: dev (pts(136,0)) tty->count(12) != #fd's(11) in tty_open
-Warning: dev (pts(136,0)) tty->count(12) != #fd's(11) in release_dev
-Warning: dev (pts(136,0)) tty->count(11) != #fd's(3) in release_dev
-Warning: dev (pts(136,0)) tty->count(10) != #fd's(3) in release_dev
-Warning: dev (pts(136,0)) tty->count(9) != #fd's(3) in release_dev
-Warning: dev (pts(136,0)) tty->count(9) != #fd's(4) in tty_open
-Warning: dev (pts(136,0)) tty->count(9) != #fd's(4) in release_dev
-Warning: dev (pts(136,0)) tty->count(9) != #fd's(5) in tty_open
-Warning: dev (pts(136,0)) tty->count(10) != #fd's(6) in tty_open
-Warning: dev (pts(136,0)) tty->count(11) != #fd's(7) in tty_open
+diff -urN -X dontdiff linux-2.5.64/net/8021q/vlan.c linux-2.5-nobrlock/net/8021q/vlan.c
+--- linux-2.5.64/net/8021q/vlan.c	2003-03-11 09:08:01.000000000 -0800
++++ linux-2.5-nobrlock/net/8021q/vlan.c	2003-03-11 14:31:28.000000000 -0800
+@@ -29,7 +29,6 @@
+ #include <net/p8022.h>
+ #include <net/arp.h>
+ #include <linux/rtnetlink.h>
+-#include <linux/brlock.h>
+ #include <linux/notifier.h>
+ 
+ #include <linux/if_vlan.h>
+@@ -68,7 +67,6 @@
+ 	.dev =NULL,
+ 	.func = vlan_skb_recv, /* VLAN receive method */
+ 	.data = (void *)(-1),  /* Set here '(void *)1' when this code can SHARE SKBs */
+-	.next = NULL
+ };
+ 
+ /* End of global variables definitions. */
+@@ -231,9 +229,10 @@
+ 				real_dev->vlan_rx_kill_vid(real_dev, vlan_id);
+ 			}
+ 
+-			br_write_lock(BR_NETPROTO_LOCK);
+ 			grp->vlan_devices[vlan_id] = NULL;
+-			br_write_unlock(BR_NETPROTO_LOCK);
++
++			/* wait for RCU in network receive */
++			synchronize_kernel();
+ 
+ 
+ 			/* Caller unregisters (and if necessary, puts)
+diff -urN -X dontdiff linux-2.5.64/net/8021q/vlan_dev.c linux-2.5-nobrlock/net/8021q/vlan_dev.c
+--- linux-2.5.64/net/8021q/vlan_dev.c	2003-03-11 09:08:01.000000000 -0800
++++ linux-2.5-nobrlock/net/8021q/vlan_dev.c	2003-03-10 15:49:52.000000000 -0800
+@@ -31,7 +31,6 @@
+ #include <net/datalink.h>
+ #include <net/p8022.h>
+ #include <net/arp.h>
+-#include <linux/brlock.h>
+ 
+ #include "vlan.h"
+ #include "vlanproc.h"
+
 
 

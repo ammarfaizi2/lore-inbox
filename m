@@ -1,84 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267435AbSLSAzH>; Wed, 18 Dec 2002 19:55:07 -0500
+	id <S267504AbSLSA5H>; Wed, 18 Dec 2002 19:57:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267436AbSLSAzH>; Wed, 18 Dec 2002 19:55:07 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59909
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267435AbSLSAzG>; Wed, 18 Dec 2002 19:55:06 -0500
-Subject: RE: [PATCH 2.5.52] Use __set_current_state() instead of current->
-	state = (take 1)
-From: Robert Love <rml@tech9.net>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: torvalds@transmeta.org, linux-kernel@vger.kernel.org
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CACA2A@orsmsx116.jf.intel.com>
-References: <A46BBDB345A7D5118EC90002A5072C7806CACA2A@orsmsx116.jf.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040259792.6857.93.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 18 Dec 2002 20:03:13 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267506AbSLSA5H>; Wed, 18 Dec 2002 19:57:07 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:39626 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267504AbSLSA5E> convert rfc822-to-8bit; Wed, 18 Dec 2002 19:57:04 -0500
+content-class: urn:content-classes:message
+Subject: RE: [PATCH][2.4]  generic cluster APIC support for systems with more than 8 CPUs
+Date: Wed, 18 Dec 2002 17:05:01 -0800
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1912E190@fmsmsx405.fm.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.4]  generic cluster APIC support for systems with more than 8 CPUs
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+Thread-Index: AcKm7PHZc68YWRLfEdes/wBQi+Bv6wAAomUg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Christoph Hellwig" <hch@infradead.org>
+Cc: "Martin Bligh" <mbligh@us.ibm.com>, "John Stultz" <johnstul@us.ibm.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, <jamesclv@us.ibm.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+X-OriginalArrivalTime: 19 Dec 2002 01:05:02.0715 (UTC) FILETIME=[A8FF8CB0:01C2A6FA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-18 at 19:46, Perez-Gonzalez, Inaky wrote:
 
-> > Some of these should probably be set_current_state().  I 
-> > realize the current code is equivalent to __set_current_state()
-> > but it might as well be done right.
+I have started working on a similar patch for 2.5. Other thing in my todo list is to
+split this patch up into chunks.
+
+Other comments inlined below.
+
+> From: Christoph Hellwig [mailto:hch@infradead.org]
+> On Wed, Dec 18, 2002 at 02:36:20PM -0800, Pallipadi, Venkatesh wrote:
+> >   xAPIC support can actually  be determined from the LAPIC version.
 > 
-> Agreed; however, I also don't want to introduce unnecessary
-> bloat, so I need to understand first what cases need it - it
-> is kind of hard for me. Care to let me know some gotchas?
+> Are you sure?  IIRC some of the early summit boxens didn't report the
+> right versions..
+> does this really not break anything in the fragile summit setups?
 
-set_current_state() includes a write barrier to ensure the setting of
-the state is flushed before any further instructions.  This is to
-provide a memory barrier for weak-ordering processors that can and will
-rearrange the writes.
+I am not really sure about the local APIC versions in summit. What I remember seeing on
+lkml was summit has older IOAPIC version. Can someone clarify this?
 
-Not all processors like those made by your employer are strongly-ordered
-:)
+> Okay, this was wrong before, but any chance you could use proper
+> style here (i.e. if () 
+> Again.
 
-Anyhow, the problem is when the setting of the state is set to
-TASK_INTERRUPTIBLE or TASK_UNINTERRUPTIBLE.  In those cases, it may be
-possible for the state to actually be flushed to memory AFTER the wake
-up event has occurred.
+oops.. I somehow missed these 'if' coding style stuff. changing it immediately.
 
-So you have code like this:
+> > +      define_bool CONFIG_X86_CLUSTERED_APIC y
+> Do we really need CONFIG_X86_APIC_CLUSTER _and_ CONFIG_X86_CLUSTERED_APIC?
 
-	__set_current_state(TASK_INTERRUPTIBLE);
-	add_waitqueue(...);
+I will also eliminate CONFIG_X86_APIC_CLUSTER and use CONFIG_X86_CLUSTERED_APIC directly.
 
-but the processor ends up storing the current->state write after the
-task is added to the waitqueue.  In between those events, the wake up
-event occurs and the task is woken up.  Then the write to current->state
-is flushed.  So you end up with:
+> 
+> -	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ) {
+> +	if (clustered_apic_mode &&
+> +		(configured_platform_type == 
+> CONFIGURED_PLATFORM_NUMA) ) {
+> 
+> Doesn;t configured_platform_type == CONFIGURED_PLATFORM_NUMA imply
+> clustered_apic_mode?  and it should be at least 
+> CONFIGURED_PLATFORM_NUMAQ,
+> btw.  Probably better something short like SUBARCH_NUMAQ..
 
-	add_waitqueue(...);
-	interrupt or whatever occurs and wakes up the wait queue
-	task is now woken up and running
-	current->state = TASK_INTERRUPTIBLE /* BOOM! */
+Yes, right now CONFIGURED_PLATFORM_NUMA implies clustered_apic_mode, and one of the 
+checks in the above 'if' is redundant. Will do a search and replace of NUMA by NUMAQ.
 
-the task is marked sleeping now, but its wait event has already occurred
--- its in for a long sleep...
 
-So to ensure the write is flushed then and there, and that the processor
-(or compile, but we do not really worry about it because the call to
-add_waitqueue will act as a compiler barrier, for example) does not move
-the write to after the potential wake up, we use the write barrier.
-
-In short, set_current_state() uses a memory barrier to ensure the state
-setting occurs before any potential wake up activity, eliminating a
-potential race and process deadlock.
-
-It sounds complicated but its pretty simple... my explanation was
-probably way too long - better than any I have seen here before on why
-we have these things, at least.  Hope it helps.
-
-If in doubt, just make all of them set_current_state().  That is the
-standard API, and its at least safe.
-
-	Robert Love
-
+Thanks,
+Venkatesh

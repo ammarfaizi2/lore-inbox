@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264043AbTDWNwv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 09:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbTDWNwv
+	id S264045AbTDWN4X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 09:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTDWN4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 09:52:51 -0400
-Received: from USAMAIL2.conoco.com ([12.31.208.227]:36366 "EHLO
-	usamail2.conoco.com") by vger.kernel.org with ESMTP id S264043AbTDWNwt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 09:52:49 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: 2.4.21-pre5 : hw tcp v4 csum failed
-Date: Wed, 23 Apr 2003 09:04:50 -0500
-Message-ID: <5CA6F03EF05E0046AC5594562398B916D32EB6@POEXMB3.conoco.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.21-pre5 : hw tcp v4 csum failed
-Thread-Index: AcMI7BkXXYWGEJ95RASEpAiAfCcA0gADKUYQ
-From: "Heflin, Roger A." <Roger.A.Heflin@conocophillips.com>
-To: =?iso-8859-1?Q?Philippe_Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-Cc: <linux-poweredge@dell.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Apr 2003 14:04:51.0454 (UTC) FILETIME=[4EE549E0:01C309A1]
+	Wed, 23 Apr 2003 09:56:23 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:45277 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264045AbTDWN4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 09:56:21 -0400
+Date: Wed, 23 Apr 2003 09:54:48 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+Message-ID: <20030423135448.GI354@phunnypharm.org>
+References: <20030423122940.51011.qmail@web14002.mail.yahoo.com> <20030423125315.GH820@hottah.alcove-fr> <20030423130139.GD354@phunnypharm.org> <20030423132227.GI820@hottah.alcove-fr> <20030423133256.GG354@phunnypharm.org> <20030423135814.GJ820@hottah.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030423135814.GJ820@hottah.alcove-fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 23, 2003 at 03:58:14PM +0200, Stelian Pop wrote:
+> On Wed, Apr 23, 2003 at 09:32:56AM -0400, Ben Collins wrote:
+> 
+> > > Can we see it please ?
+> > 
+> > Stelia,
+> > 
+> > http://www.linux1394.org/viewcvs/ieee1394/branches/linux-2.4
+> > 
+> > Click the "Download tarball" link and replace drivers/ieee1394 with what
+> > you get.
+> 
+> Hey, that's a whole new version of ieee1394 subsystem, see below the
+> diffstat.
+> 
+> There is *NO WAY* Marcelo will accept such a patch in the -rc stage.
+> 
+> >From a quick reading, your version seem to do exactly the same thing
+> that my patch suggested (removing the spinlock around kernel_thread()),
+> possibly with the locking being moved to the upper layer.
+> 
+> Do you have a stripped down patch correcting only the outstanding issues ?
+> If you haven't, the choice will be either accepting my patch or 
+> reverting your entire ieee1394 changes for the time being.
+> 
 
-We have a number of 2650's running 2.4.21pre4 and don't appear to be
-getting that error, we have not tried pre5 as of yet.
+Your patch leaves a race condition open. And no, I don't have a stripped
+down patch. It's impossible for me to syncronize layers of linux1394
+development with the timing of 2.4/2.5 development. The size of the
+current 2.4 diff is only because of the amount of stuff merged from our
+2.5 tree and a serious code cleanup (fixing locking problems like you saw
+here).
 
-Our tg3 version is 1.2a.
+Fixing your particular locking problem required removal of some shared
+data, which required an additional API in the lowlevel subsystem. It's
+not trivial to extrapolate just this from the patch.
 
-			Roger
-
-> -----Original Message-----
-> From:	Philippe Gramoullé [SMTP:philippe.gramoulle@mmania.com]
-> Sent:	Tuesday, April 22, 2003 11:13 AM
-> To:	jgarzik@pobox.com
-> Cc:	linux-poweredge@dell.com; linux-kernel@vger.kernel.org
-> Subject:	2.4.21-pre5 : hw tcp v4 csum failed
-> 
-> 
-> Hello,
-> 
-> I just saw that we've been having those messages on at least 4 DELL 2650 ( running tg3 driver version 1.4c)
-> running busy FTP servers ( all in the same load balanced FTP farm )
-> 
-> ftp1 # egrep -c "hw tcp v4 csum failed" /var/log/kern.log
-> 1846
-> 
-> for the last 3 days.
-> 
-> The box is running 2.4.21-pre5.
-> 
-> Is this a known problem ? ( i've seen that driver 1.5 is available BTW)
-> or more likely a network issue ?
-> 
-> Thanks,
-> 
-> Philippe
-> 
-> _______________________________________________
-> Linux-PowerEdge mailing list
-> Linux-PowerEdge@dell.com
-> http://lists.us.dell.com/mailman/listinfo/linux-poweredge
-> Please read the FAQ at http://lists.us.dell.com/faq or search the list archives at http://lists.us.dell.com/htdig/
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

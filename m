@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbUKLQ4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbUKLQvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbUKLQ4o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 11:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbUKLQyr
+	id S262578AbUKLQvR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 11:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbUKLQtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 11:54:47 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:61203 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262569AbUKLQwX
+	Fri, 12 Nov 2004 11:49:17 -0500
+Received: from alog0333.analogic.com ([208.224.222.109]:1664 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262579AbUKLQri
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 11:52:23 -0500
-Message-ID: <4194EA45.90800@tebibyte.org>
-Date: Fri, 12 Nov 2004 17:52:21 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: pt-br, pt
+	Fri, 12 Nov 2004 11:47:38 -0500
+Date: Fri, 12 Nov 2004 11:47:10 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RTC Chip and IRQ8 on 2.6.9
+Message-ID: <Pine.LNX.4.61.0411121145520.14827@chaos.analogic.com>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Nick Piggin <piggin@cyberone.com.au>, Rik van Riel <riel@redhat.com>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org>
-In-Reply-To: <4193E056.6070100@tebibyte.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I must use the RTC and IRQ8 in a driver being ported from
+2.4.20 to 2.6.9. When I attempt request_irq(8,...), it
+returns -EBUSY. I have disabled everything in .config
+that has "RTC" in it.
 
-Chris Ross escreveu:
-> It seems good.
+The RTC interrupt is used to precisely time the sequencing
+of a precision A/D converter. It is mandatory that I use
+it because the precise interval is essential for its
+IIR filter that produces 20 bits of resolution from a
+16 bit A/D.
 
-Sorry Marcelo, I spoke to soon. The oom killer still goes haywire even 
-with your new patch. I even got this one whilst the machine was booting!
+            CPU0
+   0:   60563767    IO-APIC-edge  timer
+   1:      57096    IO-APIC-edge  i8042
+   8:          1    IO-APIC-edge  rtc
+   9:          0   IO-APIC-level  acpi
+  12:         66    IO-APIC-edge  i8042
+  14:     112322    IO-APIC-edge  ide0
+  16:          0   IO-APIC-level  uhci_hcd, uhci_hcd
+  18:        640   IO-APIC-level  libata, uhci_hcd, Analogic Corp DLB
+  19:          0   IO-APIC-level  uhci_hcd
+  20:    4894484   IO-APIC-level  eth0
+  21:     110543   IO-APIC-level  aic7xxx
+  23:          0   IO-APIC-level  ehci_hcd
+NMI:          0 
+LOC:   60565403 
+ERR:          0
+MIS:          0
 
-Ignore the big numbers, they are cured by Kame's patch. I haven't 
-applied that to this kernel. This tree is pure 2.6.10-rc1-mm2 with only 
-your recent oom patch applied.
+This stuff works fine in 2.4.22 and, in fact, I'm the guy
+that added the global rtc_lock so that this very driver
+could run without interfering with anybody. Now, some code,
+somewhere (not in a module), has allocated the interrupt
+and generated exactly 1 interrupt. The kernel won't let
+me use that interrupt!
 
-Regards,
-Chris R.
+How do I undo this so I can use my hardware on my machine?
 
-
-Nov 12 17:32:21 sleepy Free pages:         268kB (0kB HighMem)
-Nov 12 17:32:21 sleepy Active:7853 inactive:4921 dirty:0 writeback:0 
-unstable:0
-free:67 slab:1243 mapped:5773 pagetables:103
-Nov 12 17:32:21 sleepy DMA free:60kB min:60kB low:120kB high:180kB 
-active:6436kB
-  inactive:5624kB present:16384kB pages_scanned:7108 all_unreclaimable? no
-Nov 12 17:32:21 sleepy protections[]: 0 0 0
-Nov 12 17:32:21 sleepy Normal free:208kB min:188kB low:376kB high:564kB 
-active:2
-4976kB inactive:14060kB present:49144kB pages_scanned:19668 
-all_unreclaimable? n
-o
-Nov 12 17:32:21 sleepy protections[]: 0 0 0
-Nov 12 17:32:21 sleepy HighMem free:0kB min:128kB low:256kB high:384kB 
-active:0k
-B inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 12 17:32:21 sleepy protections[]: 0 0 0
-Nov 12 17:32:21 sleepy DMA: 4294944789*4kB 4294964727*8kB 
-4294966668*16kB 429496
-7076*32kB 4294967238*64kB 4294967233*128kB 4294967253*256kB 
-4294967284*512kB 429
-4967290*1024kB 4294967293*2048kB 4294967294*4096kB = 4294790220kB
-Nov 12 17:32:21 sleepy Normal: 4294803738*4kB 4294928464*8kB 
-4294957447*16kB 429
-4964898*32kB 4294966867*64kB 4294967050*128kB 4294967186*256kB 
-4294967246*512kB
-4294967268*1024kB 4294967283*2048kB 4294967286*4096kB = 4293559128kB
-Nov 12 17:32:21 sleepy HighMem: empty
-Nov 12 17:32:21 sleepy Swap cache: add 13796, delete 10099, find 
-2839/3488, race
-  0+0
-Nov 12 17:32:21 sleepy Out of Memory: Killed process 6806 (qmgr).
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

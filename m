@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281848AbRKRDSK>; Sat, 17 Nov 2001 22:18:10 -0500
+	id <S281849AbRKRD7U>; Sat, 17 Nov 2001 22:59:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281849AbRKRDSB>; Sat, 17 Nov 2001 22:18:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1541 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281848AbRKRDRt>; Sat, 17 Nov 2001 22:17:49 -0500
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Sat, 17 Nov 2001 19:12:51 -0800
-Message-Id: <200111180312.fAI3CpG01076@penguin.transmeta.com>
-To: ehrhardt@mathematik.uni-ulm.de, linux-kernel@vger.kernel.org
-Subject: Re: VM-related Oops: 2.4.15pre1
-Newsgroups: linux.dev.kernel
-In-Reply-To: <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de>
-In-Reply-To: <20011116142344.A7316@netnation.com>
+	id <S281850AbRKRD7J>; Sat, 17 Nov 2001 22:59:09 -0500
+Received: from mta3.fibertel.com.ar ([24.232.0.163]:58285 "EHLO
+	mail.fibertel.com.ar") by vger.kernel.org with ESMTP
+	id <S281849AbRKRD7F>; Sat, 17 Nov 2001 22:59:05 -0500
+Message-ID: <003a01c16fe5$088ae9c0$0200000a@home>
+From: "Norberto Bensa" <nbensa@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: tmpfs?
+Date: Sun, 18 Nov 2001 00:56:37 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de> you write:
->
->I think this one liner (diffed against 2.4.14) could fix this Oops:
+Hello,
 
-It really shouldn't matter - at that point we have the page locked, and
-we know the page has buffers, so the page cannot go away from under us:
-we can delay the "increment page count" simply because we know somebody
-else (the buffers) hold on to the page.
+I've configured my kernel (2.4.13-ac8) to use tmpfs, but it seems that it
+only uses half my physical memory (64 of 128MB).
 
-Which is not to say that I disagree with the patch itself: it tends to
-be good practice to not depend on quite-so-subtle locking rules. It just
-really shouldn't make any difference to the problem.
+>From Configure/help
+/*
+    Tmpfs is a file system which keeps all files in virtual memory.
 
-		Linus
+    In contrast to RAM disks, which get allocated a ficed aount of physical
+RAM, tmps grows and shrinks to accommodate the files it contains and is able
+to swap unneeded pages out to swap space.
+*/
+
+Well, it doesn't grows, neither shrinks, but maybe it's only me because I'm
+a newbie with this. How does tmpfs works, and how do I configure it
+correctly.
+
+Thank you in advance,
+Norberto
+
 

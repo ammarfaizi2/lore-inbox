@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVC3I6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVC3JGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVC3I6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 03:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVC3I6L
+	id S261816AbVC3JGi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 04:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVC3JGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 03:58:11 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:58069 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261549AbVC3I6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 03:58:09 -0500
-Subject: Re: Network Performance Ingo's RT-Preempt
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Christensen Tom <paveraware@hotmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050330084209.GF25554@waste.org>
-References: <BAY104-F21CE6F100043D58186803FDF430@phx.gbl>
-	 <20050330084209.GF25554@waste.org>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 03:58:07 -0500
-Message-Id: <1112173087.5598.62.camel@mindpipe>
+	Wed, 30 Mar 2005 04:06:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32187 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261816AbVC3JGg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 04:06:36 -0500
+Date: Wed, 30 Mar 2005 11:06:24 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jim Carter <jimc@math.ucla.edu>
+Cc: linux-kernel@vger.kernel.org, hare@suse.de, seife@suse.de
+Subject: Re: Disc driver is module, software suspend fails
+Message-ID: <20050330090624.GA572@elf.ucw.cz>
+References: <Pine.LNX.4.61.0503242248530.7785@xena.cft.ca.us> <20050325081438.GA17245@elf.ucw.cz> <Pine.LNX.4.61.0503271623150.5513@xena.cft.ca.us> <20050328221922.GD1389@elf.ucw.cz> <Pine.LNX.4.61.0503291724030.7677@xena.cft.ca.us>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0503291724030.7677@xena.cft.ca.us>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-30 at 00:42 -0800, Matt Mackall wrote:
-> On Sun, Mar 27, 2005 at 10:27:40PM +0000, Christensen Tom wrote:
-> > I'm running 2.6.11 with Ingo's Preempt patch 
-> > (realtime-preempt-2.6.11-final-V0.7.40-04).  The system is SMP with a 
-> > broadcom NIC (tg3 driver).  I am seeing truly appalling network performance 
-> > (2-4kbps on a 1gbps network).  Is this a known issue?  I know this patch is 
-> > not production ready, what traces/logs do you need/want to be able to 
-> > debug/fix this?
-> 
-> What is your test app and what protocol does it use?
-> 
-> What performance do you get with mainline?
-> 
-> A tcpdump log is probably a good place to start. You might consider
-> cc:ing Ingo and possibly netdev.
-> 
+Hi!
 
-Before you even bother, try the latest version.  That version is too old
-to be useful for debugging.
+> > You insmod driver for your swap device, then you echo device numbers
+> > to /sys... then initiate resume.
+> 
+> So you're saying, let the machine come all the way up, log in as root, 
+> "echo 8:5 > /sys/power/resume" (I think that was the name), then "echo 
+> resume > /sys/power/state"?  Hmm, you would have to bypass "swapon -a",
+> e.g. boot with the -b kernel parameter.  
 
-Lee
+Well, basically yes, but do that without any writing to filesystem, or
+it is "bye bye data".
 
+> Or I'll bet one could do something equivalent in the initrd -- much more 
+> user friendly.  But the friendliest of all would be if the swsusp resume 
+> call were not a late_initcall but rather were called just before the root 
+> was mounted, after the initrd (if any) had loaded whatever modules.  I 
+> think you're confirming that that approach would not blow up the kernel -- 
+> if it will work with the root mounted and user space in full roar (well, 
+> skimpy roar with the -b switch), then it's got to be OK at the earlier 
+> time.
+
+You do not want to mount journaling filesystems; they tend to write to
+disks even during read-only mounts... But doing it from initrd should
+be okay. ext2 and init=/bin/bash should do the trick, too.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317683AbSGJXrd>; Wed, 10 Jul 2002 19:47:33 -0400
+	id <S317685AbSGJX7S>; Wed, 10 Jul 2002 19:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317685AbSGJXrd>; Wed, 10 Jul 2002 19:47:33 -0400
-Received: from ns1.system-techniques.com ([199.33.245.254]:21656 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S317683AbSGJXrb>; Wed, 10 Jul 2002 19:47:31 -0400
-Date: Wed, 10 Jul 2002 19:49:33 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Mukesh Rajan <mrajan@ics.uci.edu>
-cc: kobras@tat.physik.uni-tuebingen.de,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HDD test bench
-In-Reply-To: <Pine.SOL.4.20.0207101636590.10900-100000@hobbit.ics.uci.edu>
-Message-ID: <Pine.LNX.4.44.0207101948100.5583-100000@filesrv1.baby-dragons.com>
+	id <S317687AbSGJX7R>; Wed, 10 Jul 2002 19:59:17 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:51469 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317685AbSGJX7Q>; Wed, 10 Jul 2002 19:59:16 -0400
+Date: Wed, 10 Jul 2002 21:01:51 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Karthikeyan Nathillvar <ntkarthik@ittc.ku.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Process Memory Usage
+In-Reply-To: <Pine.LNX.4.33.0207101811550.4626-100000@plato.ittc.ku.edu>
+Message-ID: <Pine.LNX.4.44L.0207102101100.14432-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Jul 2002, Karthikeyan Nathillvar wrote:
 
-	Hello Mukesh ,  This is one that Benno Senoner <sbenno@gardena.net>
-	announced to the linux-fsdevel list some time back .  Hth ,  JimL
+>  2) I tried to read from /proc/<pid>/statm file. But, the process memory
+> usage seems to be always in an increasing trend, even though lot of
+> freeing is going on inside. All the values, size, resident, are always
+> increasing.
 
-http://www.linuxdj.com/hdrbench
+Remember that when you call free() glibc may decide to just
+keep the memory for itself and not give it back to the OS,
+so the memory is still in use by the process...
 
-On Wed, 10 Jul 2002, Mukesh Rajan wrote:
+regards,
 
-> hi,
->
-> i am currently exploring some power optimization algorithm for HDs
-> exploiting multiple power states.
->
-> i am looking for suggestions to generate a test bench simulating user
-> activity. i will have to open and read/write to files on the basis of a
-> trace file. currently i'm doing it in a very ad hoc fashion. i have some
-> 100 dummy files of varying sizes and generating random read/write
-> requests. any better way would be appreciated.
->
-> thanks,
-> mukesh
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

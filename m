@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUJFEfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUJFExP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267195AbUJFEfK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 00:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUJFEfK
+	id S267254AbUJFExP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 00:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUJFExP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 00:35:10 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:50193 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S267184AbUJFEfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 00:35:02 -0400
-Date: Wed, 6 Oct 2004 06:34:58 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Message-ID: <20041006043458.GB19761@alpha.home.local>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <200410060058.57244.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 6 Oct 2004 00:53:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50647 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267254AbUJFExN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 00:53:13 -0400
+Date: Tue, 5 Oct 2004 21:51:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kenneth.w.chen@intel.com, mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Default cache_hot_time value back to 10ms
+Message-Id: <20041005215116.3b0bd028.akpm@osdl.org>
+In-Reply-To: <416374D5.50200@yahoo.com.au>
+References: <200410060042.i960gn631637@unix-os.sc.intel.com>
+	<20041005205511.7746625f.akpm@osdl.org>
+	<416374D5.50200@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410060058.57244.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 12:58:57AM +0300, Denis Vlasenko wrote:
-> > +		if (open("/dev/null", O_RDWR, 0) == 0)
-> > +			printk("         Falling back to /dev/null.\n");
-> > +	}
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+>  Andrew Morton wrote:
+>  > "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>  > 
+>  >>This value was default to 10ms before domain scheduler, why does domain
+>  >> scheduler need to change it to 2.5ms? And on what bases does that decision
+>  >> take place?  We are proposing change that number back to 10ms.
+>  > 
+>  > 
+>  > It sounds like this needs to be runtime tunable?
+>  > 
 > 
-> What will happen if /dev is totally empty?
+>  I'd say it is probably too low level to be a useful tunable (although
+>  for testing I guess so... but then you could have *lots* of parameters
+>  tunable).
 
-... Which is the most probable reason causing this trouble.
-I've long wondered why the kernel could not open the /dev/console fds itself
-since they are character devices, so handled by the kernel internally. It
-should be possible to bypass the file-system access and get the fds anyway.
-Or we might need some tricks such as populate rootfs with 'console' before
-mounting root, open it, remove the entry while keeping the fd for use after
-the real root is mounted. This way, it would not be the real /dev/console
-which would be passed to init, so it would never even have to exist.
+This tunable caused an 11% performance difference in (I assume) TPCx. 
+That's a big deal, and people will want to diddle it.
 
-Comments ?
+If one number works optimally for all machines and workloads then fine.
 
-Willy
+But yes, avoiding a tunable would be nice, but we need a tunable to work
+out whether we can avoid making it tunable ;)
 
+Not that I'm soliciting patches or anything.  I'll duck this one for now.

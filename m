@@ -1,68 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUBDQPi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 11:15:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbUBDQPi
+	id S263125AbUBDQLW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 11:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUBDQLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 11:15:38 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:18586 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263475AbUBDQPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 11:15:24 -0500
-Date: Wed, 04 Feb 2004 08:15:18 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Martin Hicks <mort@bork.org>, Uher Marek <Marek.Uher@t-mobile.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with NUMA kernel on IBM xSeries 455 server
-Message-ID: <34760000.1075911317@[10.10.2.4]>
-In-Reply-To: <20040204132157.GA3387@localhost>
-References: <6D2F48AA9477864682B4078EFF1BEAF1057F0B7D@RDMKSPE02.rdm.cz> <20040204132157.GA3387@localhost>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Feb 2004 11:11:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:188 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263125AbUBDQLU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 11:11:20 -0500
+Date: Wed, 4 Feb 2004 08:05:15 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Stelian Pop <stelian@popies.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] meye: correct printk of dma_addr_t
+Message-Id: <20040204080515.63eb4b96.rddunlap@osdl.org>
+In-Reply-To: <20040204084437.GA13455@deep-space-9.dsnet>
+References: <20040203153606.76442b9c.rddunlap@osdl.org>
+	<20040203155752.17a8e274.akpm@osdl.org>
+	<20040203162822.64ee18e1.rddunlap@osdl.org>
+	<20040204084437.GA13455@deep-space-9.dsnet>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Feb 04, 2004 at 01:46:33PM +0100, Uher Marek wrote:
->> 
->> 	Hi all,
->> 
->> I have a problem with running Linux on my IBM xSeries 455 server (4 x Intel 
->> Xeon MP CPU 2.80GHz, 8 GB RAM). I have tried to compile kernel 2.6.2 with
->> Summit/EXA (IBM x440) NUMA support, high memory support (64GB), NUMA memory
->> allocation support, ACPI and ACPI NUMA support. When I have tried to make
->> bzImage I have got this messages:
->> 
->> drivers/built-in.o(.init.text+0x1751): In function `acpi_parse_slit': 
->> : undefined reference to `acpi_numa_slit_init'
->> drivers/built-in.o(.init.text+0x176d): In function `acpi_parse_processor_affinit
->> y':
->> : undefined reference to `acpi_numa_processor_affinity_init'
->> drivers/built-in.o(.init.text+0x1791): In function `acpi_parse_memory_affinity':
->> : undefined reference to `acpi_numa_memory_affinity_init'
->> drivers/built-in.o(.init.text+0x1850): In function `acpi_numa_init':
->> : undefined reference to `acpi_numa_arch_fixup'
->> make: *** [.tmp_vmlinux1] Error 1
->> 
->> Do you have any idea? I don't know what is wrong.
-> 
-> According to include/linux/acpi.h these functions are platform
-> dependent.  There are ia64 versions, but I don't see them for non-ia64
-> arches.
-> 
-> This is the problem.  I don't know anything about Summit, so maybe
-> someone else can better help you.  Perhaps there is an extra summit
-> patch somewhere?  Or maybe you must turn off ACPI for this machine,
-> although that seems unlikely.
+On Wed, 4 Feb 2004 09:44:37 +0100 Stelian Pop <stelian@popies.net> wrote:
 
-I think you want to disable CONFIG_ACPI_NUMA, but leave on CONFIG_ACPI
-and CONFIG_NUMA. Summit has it's own versions, which are automatically
-linked in by turning on X440 support. 
+| On Tue, Feb 03, 2004 at 04:28:22PM -0800, Randy.Dunlap wrote:
+| 
+| > | mchip_ptable[] just contains pointers to kernel memory.  It doesn't seem
+| > | appropriate to be casting these to dma_addr_t's
+| > 
+| > 
+| > Ugh... if I am reading this correcly, what I see is that
+| > mchip_table[] is mostly used for kernel pointers, like you say.
+| 
+| Yep. The meye driver uses 256 PAGE_SIZE buffers. The kernel virtual
+| pointers to these buffers are stored in mchip_ptable[]. The
+| "toc" containing the dma pointers to these buffers must be given
+| to the device as a table having 256 entries, each being 32 bits in length.
+| 
+| In the code I used the last entry of mchip_ptable to store the toc,
+| but I could as well construct a different data structure.
+| 
+| Anyway, the device expects a dma_addr to be 32 bits in length, so this
+| will not work anyway with HIGHMEM32 (moreover, this is a driver for the
+| motion eye camera which is found only in C1 Vaio Sony laptops, which
+| motherboard is limited to 384 MB...).
+| 
+| I can see only two solutions:
+| 	*) put the toc in a different, dma_addr_t[] structure, so the
+| 	   driver will compile even with HIGHMEM32 (but won't work...)
+| 
+| 	*) exclude meye from kernel config when HIGHMEM32 is set.
 
-Please let me know if that fixes it ... I'll remove the beartrap by 
-disabling that config option for x86 if so.
+  for (HIGHMEM64G=y)
 
-M.
+| Which one do you prefer ?
 
+
+Well, both.  :)
+
+The toc of dma_addr_t's should be in its own array/structure.
+
+Adding some comments or help text about the highmem limitation
+would also be good.
+
+--
+~Randy

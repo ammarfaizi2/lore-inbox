@@ -1,43 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132496AbRANMKn>; Sun, 14 Jan 2001 07:10:43 -0500
+	id <S132430AbRANMNn>; Sun, 14 Jan 2001 07:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132430AbRANMKX>; Sun, 14 Jan 2001 07:10:23 -0500
-Received: from kamov.deltanet.ro ([193.226.175.3]:18194 "HELO
-	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S132496AbRANMKO>;
-	Sun, 14 Jan 2001 07:10:14 -0500
-Date: Sun, 14 Jan 2001 14:10:03 +0200
-From: Petru Paler <ppetru@ppetru.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-pre3+zerocopy: weird messages
-Message-ID: <20010114141003.G1394@ppetru.net>
-In-Reply-To: <20010114121105.B1394@ppetru.net> <14945.32886.671619.99921@pizda.ninka.net> <20010114124549.D1394@ppetru.net> <14945.34414.185794.396720@pizda.ninka.net> <20010114132845.F1394@ppetru.net> <14945.36440.59585.376942@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13i
-In-Reply-To: <14945.36440.59585.376942@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 14, 2001 at 03:32:40AM -0800
+	id <S132477AbRANMNd>; Sun, 14 Jan 2001 07:13:33 -0500
+Received: from jdi.jdimedia.nl ([212.204.192.51]:25873 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S132430AbRANMNY>;
+	Sun, 14 Jan 2001 07:13:24 -0500
+Date: Sun, 14 Jan 2001 13:13:16 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+To: Andi Kleen <ak@suse.de>
+cc: "David S. Miller" <davem@redhat.com>,
+        Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
+        Harald Welte <laforge@gnumonks.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 + iproute2
+In-Reply-To: <20010114124659.A23188@gruyere.muc.suse.de>
+Message-ID: <Pine.LNX.4.30.0101141309160.16758-100000@jdi.jdimedia.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 03:32:40AM -0800, David S. Miller wrote:
-> Petru Paler writes:
->  > > Oh, I think I know why this happens.  Can you add this patch, and next
->  > > time the UDP bad csum message appears, tell me if it says "UDP packet
->  > > with bad csum was fragmented." in the next line of your syslog
->  > > messages?  Thanks.
+On Sun, 14 Jan 2001, Andi Kleen wrote:
 
-Jan 14 06:54:08 grey kernel: Undo loss 193.230.129.57/34342 c2 l0 ss2/2 p0
-Jan 14 06:56:40 grey kernel: udp v4 hw csum failure.
-Jan 14 06:57:05 grey kernel: Undo partial loss 193.230.129.57/34342 c1 l5 ss2/3 p5        
+> On Sun, Jan 14, 2001 at 03:36:55AM -0800, David S. Miller wrote:
+> >
+> > Andi Kleen writes:
+> >  > How would you pass the extended errors? As strings or as to be
+> >  > defined new numbers? I would prefer strings, because the number
+> >  > namespace could turn out to be as nasty to maintain as the current
+> >  > sysctl one.
+> >
+> > Textual error messages for system calls never belong in the kernel.
+> > Put it in glibc or wherever.
+>
+> This just means that a table needs to be kept in sync between glibc and
+> netlink, and if someone e.g. gets a new CBQ module he would need to update
+> glibc. It's also bad for maintainers, because patches for tables of number
+> tend to always reject ;)
 
-So no "UDP packet with bad csum was fragmented" line. This is the first
-one though, will let you know if the fragmented thing occurs.
+Agree, but textual strings are bad. I want to say :
+
+if (error) {
+	perror("RTNETLINK");
+	return -1;
+	}
+
+Using textual strings means you can't use standard functions. An option
+would be to extend the call so that if the userspace app wants to know
+what really went wrong he can ask the kernel.
+
+In that case you can keep the -EINVAL, the namespace won't be polluted,
+and you can see what goes wrong. Agains this is that you need another
+interface, which isn't portable.
+
+>
+> Textual error messages are e.g. used by plan9 and would be somewhat similar
+> to /proc. It would probably waste a few bytes in the kernel, but that's not
+> too bad, given the work it saves. e.g. rusty's code usually has a debug option
+> that you can set and where each EINVAL outputs a error message; i always found
+> that very useful and sometimes hacked that into other subsystems in my
+> private tree.
+
+Still means that all standard functions won't work.
+
+> -Andi
+
+
+	Igmar
+
+-- 
 
 --
-Petru Paler, mailto:ppetru@ppetru.net
-http://www.ppetru.net - ICQ: 41817235
+Igmar Palsenberg
+JDI Media Solutions
+
+Jansplaats 11
+6811 GB Arnhem
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

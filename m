@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311641AbSCXSCu>; Sun, 24 Mar 2002 13:02:50 -0500
+	id <S311701AbSCXSEu>; Sun, 24 Mar 2002 13:04:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311642AbSCXSCb>; Sun, 24 Mar 2002 13:02:31 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:30738 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S311641AbSCXSCR>;
-	Sun, 24 Mar 2002 13:02:17 -0500
-Date: Sun, 24 Mar 2002 15:01:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, andreas <andihartmann@freenet.de>,
-        Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
-In-Reply-To: <200203241757.SAA20700@piggy.rz.tu-ilmenau.de>
-Message-ID: <Pine.LNX.4.44L.0203241501120.18660-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S311661AbSCXSEc>; Sun, 24 Mar 2002 13:04:32 -0500
+Received: from [64.66.228.215] ([64.66.228.215]:48651 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S311642AbSCXSEO>; Sun, 24 Mar 2002 13:04:14 -0500
+Date: Sun, 24 Mar 2002 12:03:37 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Screen corruption in 2.4.18
+Message-ID: <20020324180337.GA925@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020324155930.GA20926@hapablap.dyn.dhs.org> <E16pBAL-0006f2-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Uptime: 12:01:59 up 3 days, 10:59,  0 users,  load average: 1.38, 1.13, 1.04
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Mar 2002, Christian Bornträger wrote:
-> Rik van Riel wrote:
-> > On Sun, 24 Mar 2002, Roy Sigurd Karlsbakk wrote:
-> > > Would it hard to do some memory allocation statistics, so if some
-> > > process at one point (as rsync did) goes crazy eating all memory, that
-> > > would be detected?
-> >
-> > No.  What I doubt however is whether it would be worth it,
-> > since most machines never run OOM.
->
-> Well, I think could be worth in terms of security, because a local user
-> could use a bad memory-eating program to produce an Denial of Service of
-> other processes.
+On Sun, Mar 24, 2002 at 04:48:20PM +0000, Alan Cox wrote:
+> > Here is a patch which should apply cleanly to everyone's tree, which
+> > only clears bit 7 on all chips except the KT266.  No problems have been
+> > reported there, so I'm leaving well enough alone.  Please apply.
+> 
+> No. Not until someone explains to me why VIA specifically told me I must
+> clear the 3 bits. If you get that wrong you get slow and insidious disk
+> corruption. Its hard to test and I'm not going to use other people's
+> hardware as target practice for a hunch.
 
-If you don't trust your users you should do some editing
-of /etc/security/limits.conf instead of relying on the
-safety net in the kernel.
-
-regards,
-
-Rik
+I've contacted someone at VIA about it, but have yet to hear back.
+You'll be the first to know when I do.
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?
+			-- Montgomery C. Burns

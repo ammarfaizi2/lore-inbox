@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314551AbSEVVVy>; Wed, 22 May 2002 17:21:54 -0400
+	id <S314657AbSEVVYj>; Wed, 22 May 2002 17:24:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSEVVVq>; Wed, 22 May 2002 17:21:46 -0400
-Received: from h-64-105-35-18.SNVACAID.covad.net ([64.105.35.18]:58760 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S314458AbSEVVUU>; Wed, 22 May 2002 17:20:20 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 22 May 2002 14:20:15 -0700
-Message-Id: <200205222120.OAA06088@baldur.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Floppy corruption under Linux 2.5.15 - 2.5.17
+	id <S313189AbSEVVYi>; Wed, 22 May 2002 17:24:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61702 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314657AbSEVVYg>; Wed, 22 May 2002 17:24:36 -0400
+Date: Wed, 22 May 2002 14:23:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "M. Edward Borasky" <znmeb@aracnet.com>,
+        <linux-kernel@vger.kernel.org>, <andrea@suse.de>, <riel@surriel.com>,
+        <akpm@zip.com.au>
+Subject: Re: Have the 2.4 kernel memory management problems on large machines
+ been fixed?
+In-Reply-To: <384590000.1022102334@flay>
+Message-ID: <Pine.LNX.4.33.0205221421180.1531-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Under Linux 2.5.17, if I do
 
-		dd if=a_1.44mb_floppy_image of=/dev/floppy/0
+On Wed, 22 May 2002, Martin J. Bligh wrote:
+> 
+> If we could get the apps (well, Oracle) to co-operate, we could just use
+> clone ;-) Having this transparent for shmem segments would be really nice.
 
-	on a newly inserted floppy, I will get "read only filesystem"
-error (the write protect tab is not open).  If I then read some data from
-the floppy and try the command again, the dd succeeds the second time
-with no errors, and there is enough floppy disk activity to convince
-me that a full disk image may have been written, but the image is
-incorrect.  I have also reproduced this problem under 2.5.15.  I have
-tried on two different floppy drives.  I have tried booting from the
-floppy using the same drive with which I wrote the floppy, and booting
-from a different floppy drive.  It does not appear to be a hardware
-problem with the drive.  I will probably get to the bottom of this
-in a few days in nobody beats me to it, but I thought I ought to
-pass this information along in the meantime.
+The thing is, we won't get Oracle to rewrite a lot for a completely
+threaded system. And clone does _not_ come with a way to share only parts
+of the VM, and never will - that's fundamentally against the way "struct 
+mm_struct" works. 
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Oracle is apparently already used to magic shmem-like things, so doing 
+that is probably acceptable to them.
+
+		Linus
+

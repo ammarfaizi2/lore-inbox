@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbSLWT5y>; Mon, 23 Dec 2002 14:57:54 -0500
+	id <S266964AbSLWUOT>; Mon, 23 Dec 2002 15:14:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266961AbSLWT5y>; Mon, 23 Dec 2002 14:57:54 -0500
-Received: from B5645.pppool.de ([213.7.86.69]:5327 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S266959AbSLWT5x>; Mon, 23 Dec 2002 14:57:53 -0500
-Subject: Re: OT: Which Gigabit ethernet card?
-From: Daniel Egger <degger@fhm.edu>
-To: Justin Cormack <justin@street-vision.com>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1040664496.7156.112.camel@lotte>
-References: <Pine.LNX.4.21.0212230949270.22216-100000@ns.snowman.net>
-	 <1040664496.7156.112.camel@lotte>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gQ+g9DtP+B+aoovtm/V9"
-Organization: 
-Message-Id: <1040669837.4144.3.camel@sonja>
+	id <S266965AbSLWUOT>; Mon, 23 Dec 2002 15:14:19 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:37504 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266964AbSLWUOS>;
+	Mon, 23 Dec 2002 15:14:18 -0500
+Date: Mon, 23 Dec 2002 12:16:32 -0800 (PST)
+Message-Id: <20021223.121632.105420794.davem@redhat.com>
+To: kiran@in.ibm.com
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Convert sockets_in_use to use per_cpu areas
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021223190847.G23413@in.ibm.com>
+References: <20021223190847.G23413@in.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 23 Dec 2002 19:57:17 +0100
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+   Date: Mon, 23 Dec 2002 19:08:48 +0530
 
---=-gQ+g9DtP+B+aoovtm/V9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+    
+   -static union {
+   -	int	counter;
+   -	char	__pad[SMP_CACHE_BYTES];
+   -} sockets_in_use[NR_CPUS] __cacheline_aligned = {{0}};
+   +static DEFINE_PER_CPU(int, sockets_in_use);
 
-Am Mon, 2002-12-23 um 18.28 schrieb Justin Cormack:
-
-> er, no. GigE over copper autodetects crossovers, so a standard cable
-> will work anyway. Actually this has been backported to some 100MB
-> switches now (presumably use same io interfaces) so crossover cables are
-> fast disappearing. You can even stick a non crossover cable between a
-> 100MB pci card and a GigE one and it will work.
-
-Woah, new (actually useful) features; can you say "Apple"?
-
---=20
-Servus,
-       Daniel
-
---=-gQ+g9DtP+B+aoovtm/V9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+B1yMchlzsq9KoIYRAtMxAJ9z/ew1gSfYlV31umdC66D6ZY3R9gCgpsHu
-KR/tzToINlRWYynYs7huPAM=
-=zvNW
------END PGP SIGNATURE-----
-
---=-gQ+g9DtP+B+aoovtm/V9--
+You have to provide an explicit initializer for DEFINE_PER_CPU
+declarations or you break some platforms with older GCC's which
+otherwise won't put it into the proper section.
 

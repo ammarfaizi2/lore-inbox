@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266883AbUHSRzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUHSR5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266883AbUHSRzf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 13:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUHSRzf
+	id S266901AbUHSR5x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 13:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUHSR5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 13:55:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13755 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266883AbUHSRuc
+	Thu, 19 Aug 2004 13:57:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26043 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266901AbUHSR5Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 13:50:32 -0400
-Message-ID: <4124E859.5090303@pobox.com>
-Date: Thu, 19 Aug 2004 13:50:17 -0400
+	Thu, 19 Aug 2004 13:57:25 -0400
+Message-ID: <4124E9F6.6030000@pobox.com>
+Date: Thu, 19 Aug 2004 13:57:10 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
@@ -28,26 +28,30 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Mark Lord wrote:
-> But there'll need to be some overlap between the old and new,
-> and currently the libata driver has no way for smartmontools
-> or hdparm to communicate and control drive features like
-> the cache/readahead settings, and the various SMART capabilities.
+> Simply dropping HDIO_DRIVE_CMD/HDIO_DRIVE_TASK into there would
+> immediately gain full compatibility with the existing toolsets,
+> and give some time for a newer scheme to be rolled out in the
+> kernel, the tools, and ultimately all of the various distros.
 
+Addendum:  don't misunderstand my other emails, I do agree with what 
+you're saying above.  But random thoughts (some of which conflict with 
+each other):
 
-Supporting the ATA Pass-through CDB in libata will enable support for 
-all of those things.  I think we all agree that there needs to be _some_ 
-way of letting userspace control these attributes via direct ATA command 
-submission.
+* In Linux we want to keep ancient userland binaries working for as long 
+as possible.
 
-As an aside, although libata _will_ support some sort of user ATA 
-command execution method, some of these attributes are (or will be soon) 
-available through standard SCSI methods.
+* I don't mind HDIO_DRIVE_TASK nearly as much as HDIO_DRIVE_CMD, since 
+the command protocol is available.  But if I give in and decide that a 
+command opcode->protocol lookup table is inevitable for supporting 
+legacy interface, then I might as well implement both HDIO_DRIVE_TASK 
+and HDIO_DRIVE_CMD.
 
-For example, MODE SENSE/MODE SELECT on the caching mode page allows one 
-to toggle read-ahead and writeback caching.
+* OTOH, this is an excellent opportunity to _not_ implement these 
+ioctls, if an obviously-better interface is available.  Since libata and 
+SATA are new drivers using new interfaces, it's not difficult to move 
+things to new interfaces.
 
-blktool supports both methods :)
-
-	Jeff
-
+* And it's not a big deal to update blktool and hdparm to use <new 
+method X> to send ATA taskfiles, rather than existing HDIO_DRIVE_xxx. 
+(that leaves only existing applications)
 

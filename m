@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVBPVsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVBPVub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVBPVsd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 16:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVBPVsd
+	id S262082AbVBPVub (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 16:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBPVub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 16:48:33 -0500
-Received: from [64.4.37.34] ([64.4.37.34]:56495 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262090AbVBPVsa (ORCPT
+	Wed, 16 Feb 2005 16:50:31 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:52470 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262082AbVBPVuW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 16:48:30 -0500
-Message-ID: <BAY10-F340B43C6A61C2D47ECC913D66C0@phx.gbl>
-X-Originating-IP: [61.247.245.18]
-X-Originating-Email: [agovinda04@hotmail.com]
-In-Reply-To: <52vf8sw6no.fsf@topspin.com>
-From: "govind raj" <agovinda04@hotmail.com>
-To: roland@topspin.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Customized 2.6.10 kernel on a Compact Flash
-Date: Thu, 17 Feb 2005 03:17:56 +0530
+	Wed, 16 Feb 2005 16:50:22 -0500
+Date: Wed, 16 Feb 2005 22:49:58 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Jirka Bohac <jbohac@suse.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, vojtech@suse.cz,
+       roman@augan.com, hch@nl.linux.org
+Subject: Re: [rfc] keytables - the new keycode->keysym mapping
+Message-ID: <20050216214958.GA7682@apps.cwi.nl>
+References: <20050209132654.GB8343@dwarf.suse.cz> <20050209152740.GD12100@apps.cwi.nl> <20050209171921.GB11359@dwarf.suse.cz> <20050209200330.GB15005@apps.cwi.nl> <20050210125344.GA5196@dwarf.suse.cz> <20050216182035.GA7094@dwarf.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 16 Feb 2005 21:48:01.0753 (UTC) FILETIME=[2FE82490:01C51471]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050216182035.GA7094@dwarf.suse.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for all the pointers.
+On Wed, Feb 16, 2005 at 07:20:35PM +0100, Jirka Bohac wrote:
 
-We had taken the /sbin/init from the existing Linux installation from where 
-we had created the customized image. We need to have a inittab and we 
-believe that we have set it correctly. The GRUB detects the CF hard disk as 
-hda0 when we boot the embedded board and so in both the kernel parameter in 
-grub.conf as well as in the inittab file we have / (root) marked as 
-/dev/hda0. But we are perplexed by the message that the kernel prints out on 
-being booted from the flash and just before panic'ing...
+> Now ... are there any more suggestions for any of the patches?
 
-------------
+For the time being I look only at the diacr for unicode part.
+The fragment below looks like a strange kludge.
 
-hda: max request size: 128KiB
+> -	if (diacr)
+> -		value = handle_diacr(vc, value);
+> +	if (diacr) {
+> +		v = handle_diacr(vc, value);
+> +
+> +		if (kbd->kbdmode == VC_UNICODE) {
+> +			to_utf8(vc, v & 0xFFFF);
+> +			return;
+> +		}
+> +
+> +		/* 
+> +		 * this makes at least latin-1 compose chars work 
+> +		 * even when using unicode keymap in non-unicode mode
+> +		 */
+> +		value = v & 0xFF; 
+> +	}
+>  
+>  	if (dead_key_next) {
+>  		dead_key_next = 0;
+> @@ -637,7 +652,7 @@
+>  {
+>  	if (up_flag)
+>  		return;
+> -	diacr = (diacr ? handle_diacr(vc, value) : value);
+> +	diacr = (diacr ? handle_diacr(vc, value) & 0xff : value);
 
-hda: 250368 sectors (128 MB) w/2KiB Cache, CHS=978/8/32
+I see twice "& 0xff" but why?
+I think this is broken.
 
-hda: hda1
+Maybe the above "return" is broken as well. The original code
+was good, so the only change should be to transport more than 8 bits.
 
------------
-
-in which it prints out hda1 instead of it printing it out as hda0
-
-Also, the same customized image is getting successfully booted from the PC 
-from where we are building this image. This panic comes out only when we 
-boot this image from the CF on the embedded board.
-
-Regards
-
-Govind
-
->From: Roland Dreier <roland@topspin.com>
->To: "govind raj" <agovinda04@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: Customized 2.6.10 kernel on a Compact Flash
->Date: Wed, 16 Feb 2005 13:12:43 -0800
->
->     govind> Thanks for your immediate response. We are just having a
->     govind> single partition (hda0) in Compact Flash. We are using
->     govind> /sbin/init as our init process (We have /linuxrc as a soft
->     govind> link to /sbin/init).
->
->OK, but where do you get your /sbin/init executable from?  Do you have
->your inittab set up correctly (if you need one)?  Can you think of
->some reason why your init process is exiting?
->
->  - Roland
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-_________________________________________________________________
-MSN Spaces! Your space, your time. http://www.msn.co.in/spaces Your personal 
-haven online.
-
+Andries

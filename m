@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129103AbQKDTna>; Sat, 4 Nov 2000 14:43:30 -0500
+	id <S129057AbQKDUC2>; Sat, 4 Nov 2000 15:02:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129313AbQKDTnU>; Sat, 4 Nov 2000 14:43:20 -0500
-Received: from madjfppp.jazztel.es ([212.106.224.15]:2820 "HELO
-	roku.redroom.com") by vger.kernel.org with SMTP id <S129103AbQKDTnI> convert rfc822-to-8bit;
-	Sat, 4 Nov 2000 14:43:08 -0500
-From: davidge@jazzfree.com
-Date: Sat, 4 Nov 2000 20:43:04 +0100 (CET)
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: trying to read cd info
-Message-ID: <Pine.LNX.4.10.10011042022460.3881-100000@roku.redroom.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S129093AbQKDUCS>; Sat, 4 Nov 2000 15:02:18 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:48007 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129057AbQKDUCB>;
+	Sat, 4 Nov 2000 15:02:01 -0500
+Date: Sat, 4 Nov 2000 21:01:58 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: aprasad@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: processes> 2^15
+Message-ID: <20001104210158.A13496@veritas.com>
+In-Reply-To: <CA25698D.00608C13.00@d73mta05.au.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <CA25698D.00608C13.00@d73mta05.au.ibm.com>; from aprasad@in.ibm.com on Sat, Nov 04, 2000 at 07:27:58PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 04, 2000 at 07:27:58PM +0530, aprasad@in.ibm.com wrote:
 
-Hi all,
+> after reaching process count something around 30568, processes start
+> getting pid from start, which ever is the first free entry slot in process
+> table. that means we can't have simultaneously more than roughly 2^15
+> processes?
+> am i correct?
 
-I'm trying to read application id, volume id and stuff from cds, but 
-don't figure out how to do it. It looks like ioctls CDROMREADMODE1 /
-CDROMREADMODE2 may be the way to do it, but the kernel show a read error
-when i try to read the data. What is needed in the struct cdrom_read to
-make the ioctl works? And if i'm wrong, and that's very likely ;), what's
-it the way to obtain these data from the cd?
+Yes.
+(If that displeases you I can give you the trivial patch.
+However, you really need some awesome machine before it
+becomes reasonable to run that many processes.)
 
-tia
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
-
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,159 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266647AbUF3MLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266640AbUF3ML5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266647AbUF3MLu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 08:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266644AbUF3MLh
+	id S266640AbUF3ML5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 08:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUF3ML5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 08:11:37 -0400
-Received: from ozlabs.org ([203.10.76.45]:2529 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266630AbUF3ML2 (ORCPT
+	Wed, 30 Jun 2004 08:11:57 -0400
+Received: from ozlabs.org ([203.10.76.45]:3297 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266640AbUF3ML2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Jun 2004 08:11:28 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16610.43843.674814.312740@cargo.ozlabs.ibm.com>
-Date: Wed, 30 Jun 2004 22:00:03 +1000
+Message-ID: <16610.44533.113909.519100@cargo.ozlabs.ibm.com>
+Date: Wed, 30 Jun 2004 22:11:33 +1000
 From: Paul Mackerras <paulus@samba.org>
 To: akpm@osdl.org
 Cc: linas@austin.ibm.com, linuxppc64-dev@lists.linuxppc.org,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64: Janitor rtas_call() return variables
+Subject: [PATCH] PPC64: Janitor log_rtas_error() call arguments
 X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently I changed the return value of rtas_call() from an unsigned
-long to an int.  That patch missed a few places where we declare a
-variable to store the result from rtas_call().  This new patch changes
-those places to use an int variable instead of a long or unsigned long
-variable.  Linas Vepstas pointed this out.
+This patch from Linas Vepstas (rediffed by me) fixes the confusing
+argument aliasing of the log_rtas_error() subroutine.
 
+This patch makes no functional changes, it just cleans up some 
+strange usage.
+
+The rtas_args used to communicate with firmware are always taken
+from the paca struct, so as to keep the args at a fixed, low-memory 
+location.  But the log_rtas_error() routine also took an rtas_args
+pointer, which it assumed was aliased to the paca struct.  This
+aliasing is both un-neccessary, and confusing; this patch eliminates
+this confusion.
+
+Signed-off-by: Linas Vepstas <linas@linas.org>
 Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-diff -urN linux-2.5/arch/ppc64/kernel/chrp_setup.c ppc64-2.5-pseries/arch/ppc64/kernel/chrp_setup.c
---- linux-2.5/arch/ppc64/kernel/chrp_setup.c	2004-06-30 22:01:50.030973712 +1000
-+++ ppc64-2.5-pseries/arch/ppc64/kernel/chrp_setup.c	2004-06-30 21:36:26.000000000 +1000
-@@ -189,7 +189,7 @@
-  */
- void __init fwnmi_init(void)
+diff -urN linux-2.5/arch/ppc64/kernel/rtas.c ppc64-2.5-pseries/arch/ppc64/kernel/rtas.c
+--- linux-2.5/arch/ppc64/kernel/rtas.c	2004-06-30 22:00:43.437979400 +1000
++++ ppc64-2.5-pseries/arch/ppc64/kernel/rtas.c	2004-06-30 21:55:51.000000000 +1000
+@@ -75,9 +75,9 @@
+ 
+ 
+ static int
+-__log_rtas_error(struct rtas_args *rtas_args)
++__log_rtas_error(void)
  {
--	long ret;
-+	int ret;
- 	int ibm_nmi_register = rtas_token("ibm,nmi-register");
- 	if (ibm_nmi_register == RTAS_UNKNOWN_SERVICE)
- 		return;
-diff -urN linux-2.5/arch/ppc64/kernel/eeh.c ppc64-2.5-pseries/arch/ppc64/kernel/eeh.c
---- linux-2.5/arch/ppc64/kernel/eeh.c	2004-06-30 22:01:50.031973560 +1000
-+++ ppc64-2.5-pseries/arch/ppc64/kernel/eeh.c	2004-06-30 21:42:50.000000000 +1000
-@@ -366,7 +366,7 @@
- 	unsigned long addr;
- 	struct pci_dev *dev;
- 	struct device_node *dn;
--	unsigned long ret;
-+	int ret;
- 	int rets[2];
- 	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
- 	/* dont want this on the stack */
-@@ -420,7 +420,7 @@
- 			BUID_LO(dn->phb->buid));
+-	struct rtas_args err_args, temp_args;
++	struct rtas_args err_args, save_args;
  
- 	if (ret == 0 && rets[1] == 1 && rets[0] >= 2) {
--		unsigned long slot_err_ret;
-+		int slot_err_ret;
+ 	err_args.token = rtas_token("rtas-last-error");
+ 	err_args.nargs = 2;
+@@ -88,7 +88,7 @@
+ 	err_args.args[1] = RTAS_ERROR_LOG_MAX;
+ 	err_args.args[2] = 0;
  
- 		spin_lock_irqsave(&lock, flags);
- 		memset(slot_err_buf, 0, RTAS_ERROR_LOG_MAX);
-@@ -471,7 +471,7 @@
- static void *early_enable_eeh(struct device_node *dn, void *data)
+-	temp_args = *rtas_args;
++	save_args = rtas.args;
+ 	rtas.args = err_args;
+ 
+ 	PPCDBG(PPCDBG_RTAS, "\tentering rtas with 0x%lx\n",
+@@ -97,19 +97,19 @@
+ 	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");
+ 
+ 	err_args = rtas.args;
+-	rtas.args = temp_args;
++	rtas.args = save_args;
+ 
+ 	return err_args.rets[0];
+ }
+ 
+ void
+-log_rtas_error(struct rtas_args	*rtas_args)
++log_rtas_error(void)
  {
- 	struct eeh_early_enable_info *info = data;
--	long ret;
-+	int ret;
- 	char *status = get_property(dn, "status", 0);
- 	u32 *class_code = (u32 *)get_property(dn, "class-code", 0);
- 	u32 *vendor_id = (u32 *)get_property(dn, "vendor-id", 0);
-diff -urN linux-2.5/arch/ppc64/kernel/lparcfg.c ppc64-2.5-pseries/arch/ppc64/kernel/lparcfg.c
---- linux-2.5/arch/ppc64/kernel/lparcfg.c	2004-06-30 22:01:50.032973408 +1000
-+++ ppc64-2.5-pseries/arch/ppc64/kernel/lparcfg.c	2004-06-30 21:42:50.000000000 +1000
-@@ -245,7 +245,7 @@
- 	/* return 0 for now.  Underlying rtas functionality is not yet complete. 12/01/2003*/
- 	return 0; 
- #if 0 
--	long call_status;
-+	int call_status;
- 	unsigned long ret[2];
+ 	unsigned long s;
+ 	int rc;
  
- 	char * buffer = kmalloc(SPLPAR_MAXLENGTH, GFP_KERNEL);
-diff -urN linux-2.5/arch/ppc64/kernel/ras.c ppc64-2.5-pseries/arch/ppc64/kernel/ras.c
---- linux-2.5/arch/ppc64/kernel/ras.c	2004-06-30 22:01:50.033973256 +1000
-+++ ppc64-2.5-pseries/arch/ppc64/kernel/ras.c	2004-06-30 21:37:00.349007216 +1000
-@@ -124,7 +124,7 @@
- {
- 	struct rtas_error_log log_entry;
- 	unsigned int size = sizeof(log_entry);
--	long status = 0xdeadbeef;
-+	int status = 0xdeadbeef;
+ 	spin_lock_irqsave(&rtas.lock, s);
+-	rc = __log_rtas_error(rtas_args);
++	rc = __log_rtas_error();
+ 	spin_unlock_irqrestore(&rtas.lock, s);
+ 	if (rc == 0)
+ 		log_error(rtas_err_buf, ERR_TYPE_RTAS_LOG, 0);
+@@ -155,7 +155,7 @@
+ 	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");
  
- 	spin_lock(&log_lock);
+ 	if (rtas_args->rets[0] == -1)
+-		logit = (__log_rtas_error(rtas_args) == 0);
++		logit = (__log_rtas_error() == 0);
  
-@@ -138,10 +138,10 @@
+ 	ifppcdebug(PPCDBG_RTAS) {
+ 		for(i=0; i < nret ;i++)
+@@ -447,7 +447,7 @@
  
- 	spin_unlock(&log_lock);
+ 	args.rets  = (rtas_arg_t *)&(args.args[nargs]);
+ 	if (args.rets[0] == -1)
+-		log_rtas_error(&args);
++		log_rtas_error();
  
--	udbg_printf("EPOW <0x%lx 0x%lx>\n", 
-+	udbg_printf("EPOW <0x%lx 0x%x>\n", 
- 		    *((unsigned long *)&log_entry), status); 
- 	printk(KERN_WARNING 
--		"EPOW <0x%lx 0x%lx>\n",*((unsigned long *)&log_entry), status);
-+		"EPOW <0x%lx 0x%x>\n",*((unsigned long *)&log_entry), status);
- 
- 	/* format and print the extended information */
- 	log_error((char *)&log_entry, ERR_TYPE_RTAS_LOG, 0);
-@@ -162,7 +162,7 @@
- {
- 	struct rtas_error_log log_entry;
- 	unsigned int size = sizeof(log_entry);
--	long status = 0xdeadbeef;
-+	int status = 0xdeadbeef;
- 	int fatal;
- 
- 	spin_lock(&log_lock);
-@@ -186,10 +186,10 @@
- 	log_error((char *)&log_entry, ERR_TYPE_RTAS_LOG, fatal); 
- 
- 	if (fatal) {
--		udbg_printf("HW Error <0x%lx 0x%lx>\n",
-+		udbg_printf("HW Error <0x%lx 0x%x>\n",
- 			    *((unsigned long *)&log_entry), status);
- 		printk(KERN_EMERG 
--		       "Error: Fatal hardware error <0x%lx 0x%lx>\n",
-+		       "Error: Fatal hardware error <0x%lx 0x%x>\n",
- 		       *((unsigned long *)&log_entry), status);
- 
- #ifndef DEBUG
-@@ -200,10 +200,10 @@
- 		ppc_md.power_off();
- #endif
- 	} else {
--		udbg_printf("Recoverable HW Error <0x%lx 0x%lx>\n",
-+		udbg_printf("Recoverable HW Error <0x%lx 0x%x>\n",
- 			    *((unsigned long *)&log_entry), status); 
- 		printk(KERN_WARNING 
--		       "Warning: Recoverable hardware error <0x%lx 0x%lx>\n",
-+		       "Warning: Recoverable hardware error <0x%lx 0x%x>\n",
- 		       *((unsigned long *)&log_entry), status);
- 	}
- 	return IRQ_HANDLED;
-diff -urN linux-2.5/arch/ppc64/kernel/scanlog.c ppc64-2.5-pseries/arch/ppc64/kernel/scanlog.c
---- linux-2.5/arch/ppc64/kernel/scanlog.c	2004-06-30 22:01:50.034973104 +1000
-+++ ppc64-2.5-pseries/arch/ppc64/kernel/scanlog.c	2004-06-30 21:36:26.000000000 +1000
-@@ -118,7 +118,7 @@
- 				wait_time = ms / (1000000/HZ); /* round down is fine */
- 				/* Fall through to sleep */
- 			} else {
--				printk(KERN_ERR "scanlog: unknown error from rtas: %ld\n", status);
-+				printk(KERN_ERR "scanlog: unknown error from rtas: %d\n", status);
- 				return -EIO;
- 			}
- 		}
+ 	/* Copy out args. */
+ 	if (copy_to_user(uargs->args + nargs,

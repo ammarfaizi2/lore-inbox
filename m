@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUBRDCc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 22:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUBRDCc
+	id S262603AbUBRDIW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 22:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBRDIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 22:02:32 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:37792 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261606AbUBRDC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 22:02:29 -0500
-Date: Wed, 18 Feb 2004 02:59:38 +0000
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: greg@kroah.com
-Subject: 2.6.3rc4 compaq hotplug driver go bang on rmmod.
-Message-ID: <20040218025938.GA26304@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com
+	Tue, 17 Feb 2004 22:08:22 -0500
+Received: from hera.kernel.org ([63.209.29.2]:43144 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262603AbUBRDIR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 22:08:17 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
+Date: Wed, 18 Feb 2004 03:07:48 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c0uku4$43t$1@terminus.zytor.com>
+References: <200402150107.26277.robin.rosenberg.lists@dewire.com> <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217163613.GA23499@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1077073668 4222 63.209.29.3 (18 Feb 2004 03:07:48 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 18 Feb 2004 03:07:48 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I notice this driver has got its pci_driver remove: method commented out.
-Greg, whats the thinking behind that? Surely we can do something
-better than the current ...
+Followup to:  <20040217163613.GA23499@mail.shareable.org>
+By author:    Jamie Lokier <jamie@shareable.org>
+In newsgroup: linux.dev.kernel
+>
+> Linus Torvalds wrote:
+> > Which flies in the face of "Be strict in what you generate, be liberal in 
+> > what you accept". A lot of the functions are _not_ willing to be liberal 
+> > in what they accept. Which sometimes just makes the problem worse, for no 
+> > good reason.
+> 
+> Unicode specifies that a program claiming to read UTF-8 _must_ reject
+> malformed UTF-8.
+> 
+> Ok, we can just ignore Unicode. :)
+> 
+> But the reason they cite is security: when applications allow
+> malformed UTF-8 through, there's plenty of scope for security holes
+> due to multiple encodings of "/" and "." and "\0".
+> 
+> This is a real problem: plenty of those Windows worms that attack web
+> servers get in by using multiple-escaped funny characters and
+> malformed UTF-8 to get past security checks for ".." and such.
+> 
 
-		Dave
+Actually, the kernel is 100% compliant in that respect.
 
-cpqphp: Compaq Hot Plug PCI Controller Driver version: 0.9.7
-eip: c010a286
-------------[ cut here ]------------
-kernel BUG at include/asm/spinlock.h:120!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c010a2d8>]    Not tainted
-EFLAGS: 00010082
-EIP is at __down+0x52/0x165
-eax: 0000000e   ebx: c7a08bcc   ecx: c02d2517   edx: 00000000
-esi: 00000246   edi: c010a286   ebp: c2ccd2f0   esp: c2c8bf04
-ds: 007b   es: 007b   ss: 0068
-Process rmmod (pid: 1349, threadinfo=c2c8a000 task=c2ccd2f0)
-Stack: c111acc0 c2c8bf20 c2c8bf58 00000000 c2ccd2f0 c01217e4 00000000 00000000
-       c01c7089 00010000 00000000 c7a08bcc 00000000 00000100 00000000 c010a624
-       c7a08bcc 00000077 00000000 c7a00a5d c7a08100 c79f996d c7a08100 00000000
-Call Trace:
- [<c01217e4>] default_wake_function+0x0/0xc
- [<c01c7089>] task_has_capability+0x4c/0x54
- [<c010a624>] __down_failed+0x8/0xc
- [<c7a00a5d>] .text.lock.cpqphp_ctrl+0x119/0x148 [cpqphp]
- [<c79f996d>] unload_cpqphpd+0x190/0x1b3 [cpqphp]
- [<c7a02ccb>] cpqhpc_cleanup+0x1f/0x43 [cpqphp]
- [<c013a805>] sys_delete_module+0x168/0x18a
- [<c014ff4d>] unmap_vma_list+0xe/0x17
- [<c01503f9>] do_munmap+0x17d/0x189
- [<c010b697>] syscall_call+0x7/0xb
- 
-Code: 0f 0b 78 00 00 25 2d c0 f0 fe 4b 08 0f 88 96 03 00 00 83 4c
+The only byte sequences the kernel interpret:
 
+00
+2E
+2E 2E
+2F
+
+.. and it correctly rejects (in the sense that it doesn't alias) any
+other possible byte stream that could be interpreted as the same
+sequences by a naïvely incorrect UTF-8 encoder.
+
+	-hpa

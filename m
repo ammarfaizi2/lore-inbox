@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUHEOSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267744AbUHEOXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267725AbUHEOSs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 10:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267726AbUHEOQv
+	id S267744AbUHEOXU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 10:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUHEOXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 10:16:51 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:15493 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S267725AbUHEOOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 10:14:39 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible dcache BUG
-Date: Thu, 5 Aug 2004 10:14:38 -0400
-User-Agent: KMail/1.6.82
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <20040805004402.GA6304@cox.net> <200408051135.58125.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200408051135.58125.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 5 Aug 2004 10:23:09 -0400
+Received: from cantor.suse.de ([195.135.220.2]:44991 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267744AbUHEOT5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 10:19:57 -0400
+Date: Thu, 5 Aug 2004 16:19:54 +0200
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Automatically enable bigsmp on big HP machines
+Message-Id: <20040805161954.74c2f371.ak@suse.de>
+In-Reply-To: <20040805141400.GB21161@devserv.devel.redhat.com>
+References: <20040805143837.4a6dce7e.ak@suse.de>
+	<1091711039.2790.1.camel@laptop.fenrus.com>
+	<20040805153443.106c8915.ak@suse.de>
+	<20040805141400.GB21161@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408051014.38202.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.11.172] at Thu, 5 Aug 2004 09:14:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 August 2004 04:35, Denis Vlasenko wrote:
->
->Let's rule out PREEMPT first
->
->> 	Sorry I can't be more helpful.  Good luck.
->
->Maybe turn PREEMPT back on?
+On Thu, 5 Aug 2004 16:14:00 +0200
+Arjan van de Ven <arjanv@redhat.com> wrote:
 
-I found it was on when I checked last night, and turned it off for 
-this build.  About 9 hours uptime now.
+> On Thu, Aug 05, 2004 at 03:34:43PM +0200, Andi Kleen wrote:
+> > On Thu, 05 Aug 2004 15:03:59 +0200
+> > Arjan van de Ven <arjanv@redhat.com> wrote:
+> > 
+> > > On Thu, 2004-08-05 at 14:38, Andi Kleen wrote:
+> > > > This enables apic=bigsmp automatically on some big HP machines that need it. 
+> > > > This makes them boot without kernel parameters on a generic arch kernel.
+> > > 
+> > > is it possible for this to use the new dmi infrastructure, eg not add it
+> > > to dmi_scan.c but to the place where it's used ?
+> > 
+> > Certainly. Feel free to post a patch for that.
+> 
+> like this:
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Looks good, thanks. Andrew, please merge Arjan's patch instead of mine.
+
+-Andi

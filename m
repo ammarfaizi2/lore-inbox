@@ -1,106 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbSJ3P0j>; Wed, 30 Oct 2002 10:26:39 -0500
+	id <S264708AbSJ3Pf1>; Wed, 30 Oct 2002 10:35:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264708AbSJ3P0j>; Wed, 30 Oct 2002 10:26:39 -0500
-Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:25608 "HELO
-	babylon.d2dc.net") by vger.kernel.org with SMTP id <S264699AbSJ3P0i>;
-	Wed, 30 Oct 2002 10:26:38 -0500
-Date: Wed, 30 Oct 2002 10:32:57 -0500
-From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Problem with mousedev.c
-Message-ID: <20021030153257.GA27585@babylon.d2dc.net>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	linux-kernel@vger.kernel.org
-References: <20021027010538.GA1690@babylon.d2dc.net> <20021028184008.B32183@ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
-Content-Disposition: inline
-In-Reply-To: <20021028184008.B32183@ucw.cz>
-User-Agent: Mutt/1.4i
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
+	id <S264709AbSJ3Pf1>; Wed, 30 Oct 2002 10:35:27 -0500
+Received: from mail106.mail.bellsouth.net ([205.152.58.46]:53629 "EHLO
+	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S264708AbSJ3PfZ>; Wed, 30 Oct 2002 10:35:25 -0500
+Date: Wed, 30 Oct 2002 10:41:43 -0500 (EST)
+From: Burton Windle <bwindle@fint.org>
+X-X-Sender: bwindle@morpheus
+To: linux-kernel@vger.kernel.org
+cc: johannes@erdfelt.com, <linux-usb-devel@lists.sourceforge.net>,
+       <greg@kroah.com>
+Subject: [2.5.44] USB Devices register twice
+Message-ID: <Pine.LNX.4.43.0210301033480.317-100000@morpheus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As of 2.5.44 (and in 44-bk2), if I unplug a USB device, then plug it in
+again, it registers itself twice. This does not happen in 2.5.43.
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 28, 2002 at 06:40:08PM +0100, Vojtech Pavlik wrote:
-> On Sat, Oct 26, 2002 at 09:05:38PM -0400, Zephaniah E. Hull wrote:
-> > To make a long story short, mousedev.c does not properly implement the
-> > EXPS/2 protocol, specificly dealing with the wheel.
-> >=20
-> > The lower 8 bits of the 4th byte are supposed to be 0x1 or 0xf to
-> > indicate movement of the first wheel, and 0x2 or 0xe for the second
-> > wheel.
->=20
-> No, see microsoft documentation. They're expected to be a 4-bit signed
-> binary complement value that indicates the amount of movement.
+drivers/usb/core/hcd-pci.c: uhci-hcd @ 00:07.2, Intel Corp. 82371AB/EB/MB PIIX4 USB
+drivers/usb/core/hcd-pci.c: irq 11, io base 0000cce0
+drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 1
+drivers/usb/host/uhci-hcd.c: detected 2 ports
+drivers/usb/core/hub.c: USB hub found at 0
+drivers/usb/core/hub.c: 2 ports detected
+drivers/usb/core/usb.c: registered new driver hid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+drivers/usb/core/hub.c: new USB device 00:07.2-1, assigned address 2
+Manufacturer: Logitech
+input: USB HID v1.00 Mouse [Logitech] on usb-00:07.2-1
+drivers/usb/core/usb.c: USB disconnect on device 2
+<unplug mouse here, then plug it back in>
+drivers/usb/core/hub.c: new USB device 00:07.2-1, assigned address 3
+Manufacturer: Logitech
+drivers/usb/core/hub.c: new USB device 00:07.2-1, assigned address 4
+Manufacturer: Logitech
 
-After some poking, two questions.
 
-The first is the URL for the documentation in question? This seems
-inconsistent with what I remember reading in the past, but can't seem to
-find anymore.
+This causes the following oops on reboot:
 
-The second is if you have actually seen hardware which /actually/
-generates the wheel data described while speaking exps2?
->=20
-> > Attached is a patch to correct this.
-> >=20
-> > This does not get my two wheel mouse working perfectly yet, sadly that
-> > will take a bit of a hack, and I'm not sure where the best place to put
-> > it is yet, but this gets it back to generating correct data.
->=20
-> PS/2 A4-Tech mouse do the ugly trick you describe above to stuff two
-> wheel information into a single-wheel oriented ImExPS/2 protocol. USB
-> A4-Tech mouse do another ugly trick (additional button which specifies
-> which wheel is rotating). I'm not interested in supporting these ugly
-> tricks.
 
-Sadly, if PS/2 mice are any indication, mouse makers /will/ manage to
-fuck things up on enough popular mice under USB as well, and there needs
-to be a place to shove the dirty hacks needed to make things Just Work
-for users..
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+ printing eip:
+c01b9765
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c01b9765>]    Not tainted
+EFLAGS: 00010246
+EIP is at device_shutdown+0x75/0x8c
+eax: 00000001   ebx: 00000000   ecx: 00000000   edx: ffffffff
+esi: c0346ad0   edi: fee1dead   ebp: bffffd8c   esp: c90c3ea0
+ds: 0068   es: 0068   ss: 0068
+Process reboot (pid: 302, threadinfo=c90c2000 task=c9c0c6c0)
+Stack: c90c2000 01234567 c011b10d c03a12e8 00000001 00000000 c90c2000 08049960
+       c90a6400 400deb60 c0121a9d c90c2000 c90a6400 c9f40000 c13c9000 000013c9
+       c13c9740 00031768 00000005 c0128523 c119f930 c13c9000 00000246 c13c976c
+Call Trace:
+ [<c011b10d>] sys_reboot+0xdd/0x2a0
+ [<c0121a9d>] do_no_page+0x219/0x288
+ [<c0128523>] kmem_cache_free+0x19b/0x244
+ [<c0128523>] kmem_cache_free+0x19b/0x244
+ [<c0147ec9>] dput+0x19/0x184
+ [<c0136a96>] __fput+0xba/0xdc
+ [<c01369db>] fput+0x13/0x14
+ [<c01351e5>] filp_close+0x99/0xa4
+ [<c0135248>] sys_close+0x58/0x80
+ [<c0106eb3>] syscall_call+0x7/0xb
 
-At least with USB stuff we can /identify/ the damn things, which means
-that we are leaps and bounds ahead of where we are for PS2 stuff.
->=20
-> If you want to support the H-Wheel in GPM, then please add
-> /dev/input/event support into GPM. (simple patch attached, you may need
-> to do more changes, namely for h-wheel).
+Code: 8b 1b 81 fb c0 6a 34 c0 75 c1 89 f1 ff 05 d0 6a 34 c0 7e 35
 
-Thanks, my next gpm upload should include it, now to get support for the
-same for X.. (Arrgh, X hacking is even lower on my list of things to do
-then kernel hacking is. Probably because I've done more of it.)
 
---=20
-	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
 
-Has anyone got a reference cynic? I think I need to recalibrate myself.
-  -- James Riden in the SDM.
+Here is the verbose USB Debugging messages:
 
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/core/hub.c: port 1, portstatus 301, change 1, 1.5 Mb/s
+drivers/usb/core/hub.c: hub 0 port 1 connection change
+drivers/usb/core/hub.c: hub 0 port 1, portstatus 301, change 1, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 303, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: new USB device 00:07.2-1, assigned address 2
+drivers/usb/core/usb.c: new device strings: Mfr=1, Product=0, SerialNumber=0
+Manufacturer: Logitech
+drivers/usb/core/usb.c: usb_new_device - registering 1-1:0
+drivers/usb/core/usb.c: usb_device_probe
+drivers/usb/core/usb.c: usb_device_probe - got id
+input: USB HID v1.00 Mouse [Logitech] on usb-00:07.2-1
+drivers/usb/core/hub.c: port 2, portstatus 100, change 0, 12 Mb/s
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/core/hub.c: port 1, portstatus 100, change 3, 12 Mb/s
+drivers/usb/core/hub.c: hub 0 port 1 connection change
+drivers/usb/core/hub.c: hub 0 port 1, portstatus 100, change 3, 12 Mb/s
+drivers/usb/core/usb.c: USB disconnect on device 2
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/core/usb.c: unregistering interfaces on device 2
+drivers/usb/core/hcd.c: (no bus?): hcd_unlink_urb fail -22
+drivers/usb/core/hcd.c: (no bus?): hcd_unlink_urb fail -22
+drivers/usb/core/usb.c: unregistering the device 2
+drivers/usb/core/hub.c: port 2, portstatus 100, change 0, 12 Mb/s
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/core/hub.c: port 1, portstatus 100, change 2, 12 Mb/s
+drivers/usb/core/hub.c: hub 0 port 1 enable change, status 100
+drivers/usb/core/hub.c: port 2, portstatus 100, change 0, 12 Mb/s
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/core/hub.c: port 1, portstatus 301, change 1, 1.5 Mb/s
+drivers/usb/core/hub.c: hub 0 port 1 connection change
+drivers/usb/core/hub.c: hub 0 port 1, portstatus 301, change 1, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: port 1, portstatus 301, change 0, 1.5 Mb/s
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/core/hub.c: port 1, portstatus 303, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: new USB device 00:07.2-1, assigned address 3
+drivers/usb/core/usb.c: new device strings: Mfr=1, Product=0, SerialNumber=0
+Manufacturer: Logitech
+drivers/usb/host/uhci-hcd.c: cce0: suspend_hc
+drivers/usb/host/uhci-hcd.c: cce0: wakeup_hc
+drivers/usb/core/hub.c: port 1, portstatus 303, change 0, 1.5 Mb/s
+drivers/usb/core/hub.c: new USB device 00:07.2-1, assigned address 4
+drivers/usb/core/usb.c: new device strings: Mfr=1, Product=0, SerialNumber=0
+Manufacturer: Logitech
+drivers/usb/core/hub.c: port 2, portstatus 100, change 0, 12 Mb/s
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE9v/upRFMAi+ZaeAERAiG/AKDwJSHi0yM8NYbbm1KUUycNXWq2VwCdHFdU
-99MiE/tBDLUJIdgS4kSSuVc=
-=fmm1
------END PGP SIGNATURE-----
+--
+Burton Windle                           burton@fint.org
+Linux: the "grim reaper of innocent orphaned children."
+          from /usr/src/linux-2.4.18/init/main.c:461
 
---zYM0uCDKw75PZbzx--
+
+

@@ -1,61 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129806AbRABCcF>; Mon, 1 Jan 2001 21:32:05 -0500
+	id <S129823AbRABDEx>; Mon, 1 Jan 2001 22:04:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbRABCbz>; Mon, 1 Jan 2001 21:31:55 -0500
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:22266 "EHLO
-	tytlal.z.streaker.org") by vger.kernel.org with ESMTP
-	id <S129806AbRABCbr>; Mon, 1 Jan 2001 21:31:47 -0500
-Date: Mon, 1 Jan 2001 18:00:53 -0800
-From: Chip Salzenberg <chip@valinux.com>
-To: "Theodore Ts'o" <tytso@valinux.com>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: [PATCH] Re: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
-Message-ID: <20010101180053.D6010@valinux.com>
-In-Reply-To: <20001222154757.A1167@emma1.emma.line.org>
+	id <S129849AbRABDEo>; Mon, 1 Jan 2001 22:04:44 -0500
+Received: from cd168990-a.ctjams1.mb.wave.home.com ([24.108.112.42]:1920 "EHLO
+	cd168990-a.ctjams1.mb.wave.home.com") by vger.kernel.org with ESMTP
+	id <S129823AbRABDEg>; Mon, 1 Jan 2001 22:04:36 -0500
+Date: Mon, 1 Jan 2001 20:34:09 -0600
+From: Evan Thompson <evaner@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Additional info. for PCI VIA IDE crazyness.  Please read.
+Message-ID: <20010101203409.A335@evaner.penguinpowered.com>
+Reply-To: evaner@bigfoot.com
+Mail-Followup-To: Evan Thompson <evaner@bigfoot.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20001222154757.A1167@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Fri, Dec 22, 2000 at 03:47:57PM +0100
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Matthias Andree:
-> I have a vanilla 2.2.18 that I patch Andrea Arcangeli's VM-global-7
-> patch (for 2.2.18pre25) on top, as well as I²C 2.5.4, the current
-> --12-09 IDE.2.2.18 patch and ReiserFS 3.5.28. So far, so good. If I now
-> patch serial 5.05 on top of that, the kernel itself detects devices, but
-> does nothing if it's to boot /sbin/init. ctrl-alt-del and Magic SysRq
-> are both functional and can reboot the machine.
+IN ADVANCE:  I'm sorry for this being so long, but I'm just trying to
+make sure people understand what my problem is.  If you need more info,
+I'll be happy to give as much as I can, just give me a reply.
 
-VA's current kernel includes VM-global and serial-5.05 (and lots of
-other stuff :-)).  The only problem we had with serial-5.05 was its
-2.2/2.4 compatibility code getting confused because 2.2.18 has more
-of 2.4's init macros available.  Try this:
+Okay.  Many of you already know the problems I'm having with my PCI VIA
+IDE controller.  I've done a bit of additional testing and I think I
+have found out what the problem is.  The only problem is that I'm not
+too versed in kernel programming (I'm getting there, but still don't
+understand some more complex C ideas), and therefore cannot fix this.
 
-Index: tty_io.c
-===================================================================
-RCS file: /cvs/valinux/kernel/linux/drivers/char/tty_io.c,v
-retrieving revision 1.2
-retrieving revision 1.2.12.1
-diff -u -2 -p -r1.2 -r1.2.12.1
---- tty_io.c	2000/08/30 21:33:27	1.2
-+++ tty_io.c	2000/09/28 08:21:34	1.2.12.1
-@@ -2185,7 +2185,4 @@ __initfunc(int tty_init(void))
- 	espserial_init();
- #endif
--#ifdef CONFIG_SERIAL
--	rs_init();
--#endif
- #ifdef CONFIG_COMPUTONE
- 	ip2_init();
+-- THE PROBLEM --
 
+I know that any kernel version in the 2.2, 2.3, 2.3.99pre series and
+2.4.0-test kernels =<2.4.0-test11, I need to append
+'ide1=0x170,0x376,15' to get my (so called) PCI VIA IDE controller to
+put the secondary channel on IRQ 15 (otherwise, it'd put it on IRQ 14,
+causing hdc/hdd: lost interrupt errors and would take 5 or so minutes
+too boot).
+
+--
+
+WHAT I HAVE FOUND NOW, is that something has changed from 2.4.0-test11
+to 2.4.0-test12 in either the ide implimentation or with IRQ handling
+(although there was only one change in irq.c -- something going from
+and int to a long) that has caused my system to complain about hdb:
+lost interrupt, and refuses to boot.
+
+I used the EXACT SAME configuration for both -test11 and -test12, and
+11 worked properly, and 12 causes problems (see above).  I was clever
+enough to add printer console support to my kernel, and was able to
+print out the kernel messages for -test12 (I didn't need to print out
+-test11's messages, but the support was still in the kernel).  After
+comparing the output, the only relavent change I found was the addition
+of this line in the kernel message:
+
+2.4.0-test11:
+
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 6
+VP_IDE: 100% native mode on irq 14
+
+TO 2.4.0-test12:
+
+ Uniform Multi-Platform E-IDE driver Revision: 6.31
+ ide: Assuming 33MHz system bus speed for PIO modes; override with
+     idebus=xx
+ VP_IDE: IDE controller on PCI bus 00 dev 39
++PCI: Assigned IRQ 14 for device 00:07.1 
+ VP_IDE: chipset revision 6
+ VP_IDE: 100% native mode on irq 14
+
+(notice the new line idicated with the '+').
+
+--
+
+If I haven't given enough information, don't hesitate to ask for more.
+I'd like some reply to this situation because it just seems odd for
+this to happen.  Like I said eariler, if I knew what to do, I'd be
+happy to submit a patch, but I'm still learning C, so I'm not capable
+to do that yet.  Thanks in advance,
 -- 
-Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
-   "Give me immortality, or give me death!"  // Firesign Theatre
+| Evan Thompson                    | ICQ:    2233067   |
+| Freelance Computer Nerd          | AIM:    Evaner517 |
+| evaner@bigfoot.com               | Yahoo!: evanat    |
+| http://evaner.penguinpowered.com | MSN:    evaner517 |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

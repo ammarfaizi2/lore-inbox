@@ -1,1668 +1,1007 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265199AbSKEU3t>; Tue, 5 Nov 2002 15:29:49 -0500
+	id <S265210AbSKEUjK>; Tue, 5 Nov 2002 15:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265200AbSKEU3t>; Tue, 5 Nov 2002 15:29:49 -0500
-Received: from mx6.airmail.net ([209.196.77.103]:32005 "EHLO mx6.airmail.net")
-	by vger.kernel.org with ESMTP id <S265199AbSKEU25>;
-	Tue, 5 Nov 2002 15:28:57 -0500
-Date: Tue, 5 Nov 2002 14:35:23 -0600
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 designated initializers for drivers/char
-Message-ID: <20021105203523.GB32444@debian>
+	id <S265212AbSKEUjK>; Tue, 5 Nov 2002 15:39:10 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:43785 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S265210AbSKEUio>; Tue, 5 Nov 2002 15:38:44 -0500
+Message-Id: <200211052045.gA5KjCW04537@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: torvalds@transmeta.com
+cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org
+Subject: Voyager subarchitecture for 2.5.46
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-5802565100"
+Date: Tue, 05 Nov 2002 15:45:12 -0500
+From: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+This is a multipart MIME message.
 
-Here's a big patch that switches drivers/char to use C99 designated
-initializers. The patch is against 2.5.46.
+--==_Exmh_-5802565100
+Content-Type: text/plain; charset=us-ascii
 
-Art Haas
+I got it all cleaned up and moved over to the new Kconfig.  I've also removed 
+the irq stack pieces that leaked from Alan's tree.
 
---- linux-2.5.46/drivers/char/acquirewdt.c.old	2002-07-05 18:42:03.000000000 -0500
-+++ linux-2.5.46/drivers/char/acquirewdt.c	2002-11-05 09:39:50.000000000 -0600
-@@ -186,12 +186,12 @@
-  
-  
- static struct file_operations acq_fops = {
--	owner:		THIS_MODULE,
--	read:		acq_read,
--	write:		acq_write,
--	ioctl:		acq_ioctl,
--	open:		acq_open,
--	release:	acq_close,
-+	.owner		= THIS_MODULE,
-+	.read		= acq_read,
-+	.write		= acq_write,
-+	.ioctl		= acq_ioctl,
-+	.open		= acq_open,
-+	.release	= acq_close,
- };
+It includes the boot GDT stuff, added configuration options for the 
+kernel/timers directory so that things which can't maintain a TSC can turn it 
+off at compile time.
+
+This is the diffstat over 2.5.46:
+
+ arch/i386/Kconfig                      |   52 +++++++++++++++++++++++-------
+ arch/i386/Makefile                     |    4 ++
+ arch/i386/boot/compressed/head.S       |    8 ++--
+ arch/i386/boot/compressed/misc.c       |    2 -
+ arch/i386/boot/setup.S                 |   56 +++++++++++++++++++++++++++-----
+ arch/i386/kernel/Makefile              |    3 +
+ arch/i386/kernel/head.S                |   22 +++++++++---
+ arch/i386/kernel/irq.c                 |    2 -
+ arch/i386/kernel/timers/Makefile       |    6 +--
+ arch/i386/kernel/timers/timer.c        |    4 +-
+ arch/i386/kernel/timers/timer_pit.c    |    2 +
+ arch/i386/kernel/trampoline.S          |    6 +--
+ arch/i386/mach-voyager/voyager_basic.c |   28 +++++++++++-----
+ arch/i386/mach-voyager/voyager_smp.c   |   57 +++++++++-----------------------
+-
+ drivers/char/sysrq.c                   |   18 ----------
+ include/asm-i386/desc.h                |    1 
+ include/asm-i386/hw_irq.h              |    2 -
+ include/asm-i386/segment.h             |    8 ++++
+ include/asm-i386/smp.h                 |   21 ++++++++----
+ include/asm-i386/voyager.h             |    1 
+ 20 files changed, 188 insertions(+), 115 deletions(-)
+
+The changes to smp.h are to introduce a new macro to loop efficiently over a 
+sparse CPU bitmap, and a bit of rearrangement for some functions voyager needs.
+
+This compiles and boots correctly for me.
+
+It's all uploaded to
+
+http://linux-voyager.bkbits.net/voyager-2.5
+
+James
+
+
+--==_Exmh_-5802565100
+Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
+Content-Description: tmp.diff
+Content-Disposition: attachment; filename="tmp.diff"
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.808.1.94 -> 1.824  
+#	arch/i386/kernel/process.c	1.19.1.15 -> 1.35   
+#	include/asm-i386/desc.h	1.9.1.1 -> 1.11   
+#	arch/i386/kernel/timers/Makefile	1.2     -> 1.3    
+#	arch/i386/boot/setup.S	1.8.2.3 -> 1.16   
+#	arch/i386/kernel/irq.c	1.8.1.16 -> 1.21   
+#	arch/i386/kernel/head.S	1.15.1.2 -> 1.18   
+#	include/asm-i386/irq.h	1.3.1.4 -> 1.8    
+#	arch/i386/mach-voyager/Makefile	1.1     ->         (deleted)      
+#	   arch/i386/Kconfig	1.2.2.2 -> 1.8    
+#	arch/i386/kernel/traps.c	1.20.1.12 -> 1.34   
+#	arch/i386/kernel/Makefile	1.4.1.22 -> 1.32   
+#	arch/i386/mach-voyager/irq_vectors.h	1.1     ->         (deleted)      
+#	include/asm-i386/segment.h	1.2     -> 1.3    
+#	arch/i386/kernel/entry.S	1.33.1.7 -> 1.41   
+#	arch/i386/mach-voyager/voyager_basic.c	1.1     ->         (deleted)      
+#	arch/i386/mach-generic/Makefile	1.1.1.5 -> 1.7    
+#	arch/i386/kernel/mpparse.c	1.9.1.16 -> 1.27   
+#	  arch/i386/Makefile	1.4.1.24 -> 1.24   
+#	arch/i386/mach-voyager/setup_arch_post.h	1.1     ->         (deleted)      
+#	arch/i386/mach-voyager/voyager_smp.c	1.1     ->         (deleted)      
+#	arch/i386/kernel/trampoline.S	1.4.1.1 -> 1.6    
+#	arch/i386/pci/common.c	1.21.1.12 -> 1.35   
+#	arch/i386/mach-voyager/setup_arch_pre.h	1.1     ->         (deleted)      
+#	     fs/binfmt_elf.c	1.25.1.6 -> 1.31   
+#	arch/i386/kernel/setup.c	1.40.1.23 -> 1.67   
+#	arch/i386/kernel/smpboot.c	1.15.1.23 -> 1.40   
+#	arch/i386/kernel/time.c	1.5.1.16 -> 1.21   
+#	include/asm-i386/vic.h	1.1     ->         (deleted)      
+#	include/asm-i386/smp.h	1.9.1.8 -> 1.19   
+#	arch/i386/boot/compressed/misc.c	1.7.1.2 -> 1.10   
+#	         MAINTAINERS	1.68.1.49 -> 1.97   
+#	Documentation/voyager.txt	1.1     ->         (deleted)      
+#	arch/i386/mach-voyager/voyager_thread.c	1.1     ->         (deleted)      
+#	include/asm-i386/hardirq.h	1.5.1.10 -> 1.15   
+#	arch/i386/kernel/mca.c	1.4.1.5 -> 1.11   
+#	arch/i386/mach-voyager/do_timer.h	1.1     ->         (deleted)      
+#	arch/i386/mach-voyager/setup.c	1.1     ->         (deleted)      
+#	arch/i386/mach-voyager/entry_arch.h	1.1     ->         (deleted)      
+#	      kernel/sched.c	1.51.1.90 -> 1.82   
+#	arch/i386/mach-voyager/voyager_cat.c	1.1     ->         (deleted)      
+#	arch/i386/kernel/timers/timer_pit.c	1.3.1.2 -> 1.7    
+#	drivers/char/sysrq.c	1.9.1.13 -> 1.22   
+#	include/asm-i386/voyager.h	1.1     ->         (deleted)      
+#	arch/i386/kernel/i8259.c	1.7.1.11 -> 1.19   
+#	arch/i386/boot/compressed/head.S	1.2     -> 1.3    
+#	arch/i386/kernel/timers/timer.c	1.3     -> 1.4    
+#	include/asm-i386/hw_irq.h	1.9.1.6 -> 1.16   
+#	arch/i386/kernel/i386_ksyms.c	1.18.1.22 -> 1.37   
+#	 arch/i386/pci/irq.c	1.12.1.8 -> 1.21   
+#	arch/i386/kernel/apic.c	1.19.1.8 -> 1.24   
+#	               (new)	        -> 1.2     arch/i386/mach-voyager/entry_arch.h
+#	               (new)	        -> 1.3     include/asm-i386/voyager.h
+#	               (new)	        -> 1.2     arch/i386/mach-voyager/irq_vectors.h
+#	               (new)	        -> 1.4     arch/i386/mach-voyager/setup_arch_post.h
+#	               (new)	        -> 1.7     arch/i386/mach-voyager/voyager_cat.c
+#	               (new)	        -> 1.4     include/asm-i386/vic.h
+#	               (new)	        -> 1.4     arch/i386/mach-voyager/do_timer.h
+#	               (new)	        -> 1.29    arch/i386/mach-voyager/voyager_smp.c
+#	               (new)	        -> 1.8     arch/i386/mach-voyager/voyager_thread.c
+#	               (new)	        -> 1.9     arch/i386/mach-voyager/Makefile
+#	               (new)	        -> 1.10    arch/i386/mach-voyager/voyager_basic.c
+#	               (new)	        -> 1.3     arch/i386/mach-voyager/setup.c
+#	               (new)	        -> 1.2     Documentation/voyager.txt
+#	               (new)	        -> 1.2     arch/i386/mach-voyager/setup_arch_pre.h
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/11/05	jejb@mulgrave.(none)	1.823
+# Merge mulgrave.(none):/home/jejb/BK/voyager-2.5
+# into mulgrave.(none):/home/jejb/BK/voyager-new-2.5
+# --------------------------------------------
+# 02/11/05	jejb@mulgrave.(none)	1.824
+# [VOYAGER] remove other voyager code remnants from sysrq.c
+# --------------------------------------------
+#
+diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/Kconfig	Tue Nov  5 15:35:01 2002
+@@ -253,11 +253,6 @@
+ 	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MELAN || MK6 || M586MMX || M586TSC || M586 || M486
+ 	default y
  
- static struct miscdevice acq_miscdev=
---- linux-2.5.46/drivers/char/advantechwdt.c.old	2002-07-05 18:42:21.000000000 -0500
-+++ linux-2.5.46/drivers/char/advantechwdt.c	2002-11-05 09:39:53.000000000 -0600
-@@ -200,12 +200,12 @@
-  */
-  
- static struct file_operations advwdt_fops = {
--	owner:		THIS_MODULE,
--	read:		advwdt_read,
--	write:		advwdt_write,
--	ioctl:		advwdt_ioctl,
--	open:		advwdt_open,
--	release:	advwdt_close,
-+	.owner		= THIS_MODULE,
-+	.read		= advwdt_read,
-+	.write		= advwdt_write,
-+	.ioctl		= advwdt_ioctl,
-+	.open		= advwdt_open,
-+	.release	= advwdt_close,
- };
+-config X86_TSC
+-	bool
+-	depends on MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || M686 || M586MMX || M586TSC
+-	default y
+-
+ config X86_GOOD_APIC
+ 	bool
+ 	depends on MK7 || MPENTIUM4 || MPENTIUMIII || M686 || M586MMX
+@@ -335,8 +330,21 @@
+ 	  Say Y here if you are building a kernel for a desktop, embedded
+ 	  or real-time system.  Say N if you are unsure.
  
- static struct miscdevice advwdt_miscdev = {
---- linux-2.5.46/drivers/char/amd768_rng.c.old	2002-10-31 16:19:38.000000000 -0600
-+++ linux-2.5.46/drivers/char/amd768_rng.c	2002-11-05 09:39:53.000000000 -0600
-@@ -167,10 +167,10 @@
- 
- 
- static struct file_operations rng_chrdev_ops = {
--	owner:		THIS_MODULE,
--	open:		rng_dev_open,
--	release:	rng_dev_release,
--	read:		rng_dev_read,
-+	.owner		= THIS_MODULE,
-+	.open		= rng_dev_open,
-+	.release	= rng_dev_release,
-+	.read		= rng_dev_read,
- };
- 
- 
---- linux-2.5.46/drivers/char/applicom.c.old	2002-07-05 18:42:37.000000000 -0500
-+++ linux-2.5.46/drivers/char/applicom.c	2002-11-05 09:39:55.000000000 -0600
-@@ -119,11 +119,11 @@
- static void ac_interrupt(int, void *, struct pt_regs *);
- 
- static struct file_operations ac_fops = {
--	owner:THIS_MODULE,
--	llseek:no_llseek,
--	read:ac_read,
--	write:ac_write,
--	ioctl:ac_ioctl,
-+	.owner = THIS_MODULE,
-+	.llseek = no_llseek,
-+	.read = ac_read,
-+	.write = ac_write,
-+	.ioctl = ac_ioctl,
- };
- 
- static struct miscdevice ac_miscdev = {
---- linux-2.5.46/drivers/char/busmouse.c.old	2002-07-05 18:42:19.000000000 -0500
-+++ linux-2.5.46/drivers/char/busmouse.c	2002-11-05 09:39:52.000000000 -0600
-@@ -336,13 +336,13 @@
- 
- struct file_operations busmouse_fops=
- {
--	owner:		THIS_MODULE,
--	read:		busmouse_read,
--	write:		busmouse_write,
--	poll:		busmouse_poll,
--	open:		busmouse_open,
--	release:	busmouse_release,
--	fasync:		busmouse_fasync,
-+	.owner		= THIS_MODULE,
-+	.read		= busmouse_read,
-+	.write		= busmouse_write,
-+	.poll		= busmouse_poll,
-+	.open		= busmouse_open,
-+	.release	= busmouse_release,
-+	.fasync		= busmouse_fasync,
- };
- 
- /**
---- linux-2.5.46/drivers/char/cyclades.c.old	2002-10-12 09:46:43.000000000 -0500
-+++ linux-2.5.46/drivers/char/cyclades.c	2002-11-05 09:39:51.000000000 -0600
-@@ -884,7 +884,7 @@
- 
- static int cyz_timeron = 0;
- static struct timer_list cyz_timerlist = {
--    function: cyz_poll
-+    .function = cyz_poll
- };
- #else /* CONFIG_CYZ_INTR */
- static void cyz_rx_restart(unsigned long);
---- linux-2.5.46/drivers/char/ds1620.c.old	2002-07-05 18:42:04.000000000 -0500
-+++ linux-2.5.46/drivers/char/ds1620.c	2002-11-05 09:39:50.000000000 -0600
-@@ -337,9 +337,9 @@
- #endif
- 
- static struct file_operations ds1620_fops = {
--	owner:		THIS_MODULE,
--	read:		ds1620_read,
--	ioctl:		ds1620_ioctl,
-+	.owner		= THIS_MODULE,
-+	.read		= ds1620_read,
-+	.ioctl		= ds1620_ioctl,
- };
- 
- static struct miscdevice ds1620_miscdev = {
---- linux-2.5.46/drivers/char/dsp56k.c.old	2002-08-02 08:16:18.000000000 -0500
-+++ linux-2.5.46/drivers/char/dsp56k.c	2002-11-05 09:39:53.000000000 -0600
-@@ -488,12 +488,12 @@
- }
- 
- static struct file_operations dsp56k_fops = {
--	owner:		THIS_MODULE,
--	read:		dsp56k_read,
--	write:		dsp56k_write,
--	ioctl:		dsp56k_ioctl,
--	open:		dsp56k_open,
--	release:	dsp56k_release,
-+	.owner		= THIS_MODULE,
-+	.read		= dsp56k_read,
-+	.write		= dsp56k_write,
-+	.ioctl		= dsp56k_ioctl,
-+	.open		= dsp56k_open,
-+	.release	= dsp56k_release,
- };
- 
- 
---- linux-2.5.46/drivers/char/dtlk.c.old	2002-08-02 08:16:18.000000000 -0500
-+++ linux-2.5.46/drivers/char/dtlk.c	2002-11-05 09:39:53.000000000 -0600
-@@ -98,13 +98,13 @@
- 
- static struct file_operations dtlk_fops =
- {
--	owner:		THIS_MODULE,
--	read:		dtlk_read,
--	write:		dtlk_write,
--	poll:		dtlk_poll,
--	ioctl:		dtlk_ioctl,
--	open:		dtlk_open,
--	release:	dtlk_release,
-+	.owner		= THIS_MODULE,
-+	.read		= dtlk_read,
-+	.write		= dtlk_write,
-+	.poll		= dtlk_poll,
-+	.ioctl		= dtlk_ioctl,
-+	.open		= dtlk_open,
-+	.release	= dtlk_release,
- };
- 
- /* local prototypes */
---- linux-2.5.46/drivers/char/dz.c.old	2002-10-31 16:19:38.000000000 -0600
-+++ linux-2.5.46/drivers/char/dz.c	2002-11-05 09:39:50.000000000 -0600
-@@ -1601,12 +1601,12 @@
- }
- 
- static struct console dz_sercons = {
--    name:	"ttyS",
--    write:	dz_console_print,
--    device:	dz_console_device,
--    setup:	dz_console_setup,
--    flags:	CON_CONSDEV | CON_PRINTBUFFER,
--    index:	CONSOLE_LINE,
-+    .name	= "ttyS",
-+    .write	= dz_console_print,
-+    .device	= dz_console_device,
-+    .setup	= dz_console_setup,
-+    .flags	= CON_CONSDEV | CON_PRINTBUFFER,
-+    .index	= CONSOLE_LINE,
- };
- 
- void __init dz_serial_console_init(void)
---- linux-2.5.46/drivers/char/efirtc.c.old	2002-08-31 21:57:21.000000000 -0500
-+++ linux-2.5.46/drivers/char/efirtc.c	2002-11-05 09:39:52.000000000 -0600
-@@ -282,10 +282,10 @@
-  */
- 
- static struct file_operations efi_rtc_fops = {
--	owner:		THIS_MODULE,
--	ioctl:		efi_rtc_ioctl,
--	open:		efi_rtc_open,
--	release:	efi_rtc_close,
-+	.owner		= THIS_MODULE,
-+	.ioctl		= efi_rtc_ioctl,
-+	.open		= efi_rtc_open,
-+	.release	= efi_rtc_close,
- };
- 
- static struct miscdevice efi_rtc_dev=
---- linux-2.5.46/drivers/char/eurotechwdt.c.old	2002-09-20 12:36:41.000000000 -0500
-+++ linux-2.5.46/drivers/char/eurotechwdt.c	2002-11-05 09:39:50.000000000 -0600
-@@ -388,12 +388,12 @@
-  
-  
- static struct file_operations eurwdt_fops = {
--        owner:          THIS_MODULE,
--        llseek:         no_llseek,
--        write:          eurwdt_write,
--        ioctl:          eurwdt_ioctl,
--        open:           eurwdt_open,
--        release:        eurwdt_release,
-+        .owner          = THIS_MODULE,
-+        .llseek         = no_llseek,
-+        .write          = eurwdt_write,
-+        .ioctl          = eurwdt_ioctl,
-+        .open           = eurwdt_open,
-+        .release        = eurwdt_release,
- };
- 
- static struct miscdevice eurwdt_miscdev =
---- linux-2.5.46/drivers/char/hp_psaux.c.old	2002-07-05 18:42:37.000000000 -0500
-+++ linux-2.5.46/drivers/char/hp_psaux.c	2002-11-05 09:39:55.000000000 -0600
-@@ -370,18 +370,18 @@
- }
- 
- static struct file_operations psaux_fops = {
--	read:		read_aux,
--	write:		write_aux,
--	poll:		aux_poll,
--	open:		open_aux,
--	release:	release_aux,
--	fasync:		fasync_aux,
-+	.read		= read_aux,
-+	.write		= write_aux,
-+	.poll		= aux_poll,
-+	.open		= open_aux,
-+	.release	= release_aux,
-+	.fasync		= fasync_aux,
- };
- 
- static struct miscdevice psaux_mouse = {
--	minor:		PSMOUSE_MINOR,
--	name:		"psaux",
--	fops:		&psaux_fops,
-+	.minor		= PSMOUSE_MINOR,
-+	.name		= "psaux",
-+	.fops		= &psaux_fops,
- };
- 
- #endif /* CONFIG_PSMOUSE */
-@@ -452,12 +452,12 @@
- extern int pckbd_translate(unsigned char, unsigned char *, char);
- 
- static struct kbd_ops gsc_ps2_kbd_ops = {
--	translate:	pckbd_translate,
--	init_hw:	lasi_ps2_init_hw,
--	leds:		lasikbd_leds,
-+	.translate	= pckbd_translate,
-+	.init_hw	= lasi_ps2_init_hw,
-+	.leds		= lasikbd_leds,
- #ifdef CONFIG_MAGIC_SYSRQ
--	sysrq_key:	0x54,
--	sysrq_xlate:	hp_ps2kbd_sysrq_xlate,
-+	.sysrq_key	= 0x54,
-+	.sysrq_xlate	= hp_ps2kbd_sysrq_xlate,
- #endif
- };
- 
---- linux-2.5.46/drivers/char/hvc_console.c.old	2002-09-16 09:33:54.000000000 -0500
-+++ linux-2.5.46/drivers/char/hvc_console.c	2002-11-05 09:39:55.000000000 -0600
-@@ -340,12 +340,12 @@
- }
- 
- struct console hvc_con_driver = {
--	name:		"hvc",
--	write:		hvc_console_print,
--	device:		hvc_console_device,
--	setup:		hvc_console_setup,
--	flags:		CON_PRINTBUFFER,
--	index:		-1,
-+	.name		= "hvc",
-+	.write		= hvc_console_print,
-+	.device		= hvc_console_device,
-+	.setup		= hvc_console_setup,
-+	.flags		= CON_PRINTBUFFER,
-+	.index		= -1,
- };
- 
- int __init hvc_console_init(void)
---- linux-2.5.44/drivers/char/i810-tco.c.old	2002-10-01 11:45:36.000000000 -0500
-+++ linux-2.5.44/drivers/char/i810-tco.c	2002-10-19 11:25:49.000000000 -0500
-@@ -244,9 +244,9 @@
- 	int options, retval = -EINVAL;
- 
- 	static struct watchdog_info ident = {
--		options:		WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
--		firmware_version:	0,
--		identity:		"i810 TCO timer",
-+		.options		= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+		.firmware_version	= 0,
-+		.identity		= "i810 TCO timer",
- 	};
- 	switch (cmd) {
- 		default:
-@@ -371,17 +371,17 @@
- }
- 
- static struct file_operations i810tco_fops = {
--	owner:		THIS_MODULE,
--	write:		i810tco_write,
--	ioctl:		i810tco_ioctl,
--	open:		i810tco_open,
--	release:	i810tco_release,
-+	.owner		= THIS_MODULE,
-+	.write		= i810tco_write,
-+	.ioctl		= i810tco_ioctl,
-+	.open		= i810tco_open,
-+	.release	= i810tco_release,
- };
- 
- static struct miscdevice i810tco_miscdev = {
--	minor:		WATCHDOG_MINOR,
--	name:		"watchdog",
--	fops:		&i810tco_fops,
-+	.minor		= WATCHDOG_MINOR,
-+	.name		= "watchdog",
-+	.fops		= &i810tco_fops,
- };
- 
- static int __init watchdog_init (void)
---- linux-2.5.46/drivers/char/i810_rng.c.old	2002-10-31 16:19:38.000000000 -0600
-+++ linux-2.5.46/drivers/char/i810_rng.c	2002-11-05 09:39:54.000000000 -0600
-@@ -255,10 +255,10 @@
++config VOYAGER
++	bool "NCR Voyager Architecture"
++	---help---
++	  Voyager is a MCA based 32 way capable SMP architecture proprietary
++	  to NCR Corp.  Machine classes 345x/35xx/4100/51xx are voyager based.
++	  
++	  *** WARNING ***
++	
++	  If you do not specifically know you have a Voyager based machine,
++	  say N here otherwise the kernel you build will not be bootable.
++
++
+ config X86_UP_APIC
+ 	bool "Local APIC support on uniprocessors" if !SMP
++	depends on !VOYAGER
+ 	default y if SMP
+ 	---help---
+ 	  A local APIC (Advanced Programmable Interrupt Controller) is an
+@@ -789,6 +797,7 @@
  
  
- static struct file_operations rng_chrdev_ops = {
--	owner:		THIS_MODULE,
--	open:		rng_dev_open,
--	release:	rng_dev_release,
--	read:		rng_dev_read,
-+	.owner		= THIS_MODULE,
-+	.open		= rng_dev_open,
-+	.release	= rng_dev_release,
-+	.read		= rng_dev_read,
- };
+ menu "Power management options (ACPI, APM)"
++	depends on !VOYAGER
  
+ source "drivers/acpi/Kconfig"
  
---- linux-2.5.46/drivers/char/i8k.c.old	2002-07-05 18:42:18.000000000 -0500
-+++ linux-2.5.46/drivers/char/i8k.c	2002-11-05 09:39:52.000000000 -0600
-@@ -82,8 +82,8 @@
- 		     unsigned long);
+@@ -972,11 +981,12 @@
  
- static struct file_operations i8k_fops = {
--    read:	i8k_read,
--    ioctl:	i8k_ioctl,
-+    .read	= i8k_read,
-+    .ioctl	= i8k_ioctl,
- };
+ config X86_LOCAL_APIC
+ 	bool
+-	depends on !VISWS && SMP || VISWS
++	depends on ((!VISWS && SMP) || VISWS) && !VOYAGER
+ 	default y
  
- typedef struct {
---- linux-2.5.46/drivers/char/ib700wdt.c.old	2002-07-05 18:42:21.000000000 -0500
-+++ linux-2.5.46/drivers/char/ib700wdt.c	2002-11-05 09:39:53.000000000 -0600
-@@ -239,12 +239,12 @@
-  */
+ config PCI
+ 	bool "PCI support" if !VISWS
++	depends on !VOYAGER
+ 	default y if VISWS
+ 	help
+ 	  Find out whether you have a PCI motherboard. PCI is the name of a
+@@ -991,7 +1001,7 @@
  
- static struct file_operations ibwdt_fops = {
--	owner:		THIS_MODULE,
--	read:		ibwdt_read,
--	write:		ibwdt_write,
--	ioctl:		ibwdt_ioctl,
--	open:		ibwdt_open,
--	release:	ibwdt_close,
-+	.owner		= THIS_MODULE,
-+	.read		= ibwdt_read,
-+	.write		= ibwdt_write,
-+	.ioctl		= ibwdt_ioctl,
-+	.open		= ibwdt_open,
-+	.release	= ibwdt_close,
- };
+ config X86_IO_APIC
+ 	bool
+-	depends on !VISWS && SMP
++	depends on !VISWS && SMP && !VOYAGER
+ 	default y
  
- static struct miscdevice ibwdt_miscdev = {
---- linux-2.5.46/drivers/char/ip2main.c.old	2002-10-31 16:19:38.000000000 -0600
-+++ linux-2.5.46/drivers/char/ip2main.c	2002-11-05 09:39:55.000000000 -0600
-@@ -334,11 +334,11 @@
-  * download the loadware to the boards.
-  */
- static struct file_operations ip2_ipl = {
--	owner:		THIS_MODULE,
--	read:		ip2_ipl_read,
--	write:		ip2_ipl_write,
--	ioctl:		ip2_ipl_ioctl,
--	open:		ip2_ipl_open,
-+	.owner		= THIS_MODULE,
-+	.read		= ip2_ipl_read,
-+	.write		= ip2_ipl_write,
-+	.ioctl		= ip2_ipl_ioctl,
-+	.open		= ip2_ipl_open,
- }; 
+ choice
+@@ -1035,6 +1045,7 @@
  
- static unsigned long irq_counter = 0;
-@@ -352,7 +352,7 @@
-  * selected, the board is serviced periodically to see if anything needs doing.
-  */
- #define  POLL_TIMEOUT   (jiffies + 1)
--static struct timer_list PollTimer = { function: ip2_poll };
-+static struct timer_list PollTimer = { .function = ip2_poll };
- static char  TimerOn;
+ config SCx200
+ 	tristate "NatSemi SCx200 support"
++	depends on !VOYAGER
+ 	help
+ 	  This provides basic support for the National Semiconductor SCx200 
+ 	  processor.  Right now this is just a driver for the GPIO pins.
+@@ -1048,6 +1059,7 @@
  
- #ifdef IP2DEBUG_TRACE
---- linux-2.5.46/drivers/char/isicom.c.old	2002-10-19 11:21:27.000000000 -0500
-+++ linux-2.5.46/drivers/char/isicom.c	2002-11-05 09:39:50.000000000 -0600
-@@ -113,8 +113,8 @@
-  */
+ config ISA
+ 	bool "ISA support"
++	depends on !VOYAGER
+ 	help
+ 	  Find out whether you have ISA slots on your motherboard.  ISA is the
+ 	  name of a bus system, i.e. the way the CPU talks to the other stuff
+@@ -1072,8 +1084,9 @@
+ 	  Otherwise, say N.
  
- static struct file_operations ISILoad_fops = {
--	owner:		THIS_MODULE,
--	ioctl:		ISILoad_ioctl,
-+	.owner		= THIS_MODULE,
-+	.ioctl		= ISILoad_ioctl,
- };
+ config MCA
+-	bool "MCA support"
++	bool "MCA support" if !VOYAGER
+ 	depends on !VISWS
++	default y if VOYAGER
+ 	help
+ 	  MicroChannel Architecture is found in some IBM PS/2 machines and
+ 	  laptops.  It is a bus system similar to PCI or ISA. See
+@@ -1615,12 +1628,12 @@
  
- struct miscdevice isiloader_device = {
---- linux-2.5.46/drivers/char/istallion.c.old	2002-10-31 16:19:38.000000000 -0600
-+++ linux-2.5.46/drivers/char/istallion.c	2002-11-05 09:45:02.000000000 -0600
-@@ -213,8 +213,8 @@
-  *	at 9600 baud, 8 data bits, no parity, 1 stop bit.
-  */
- static struct termios		stli_deftermios = {
--	c_cflag:	(B9600 | CS8 | CREAD | HUPCL | CLOCAL),
--	c_cc:		INIT_C_CC,
-+	.c_cflag	= (B9600 | CS8 | CREAD | HUPCL | CLOCAL),
-+	.c_cc		= INIT_C_CC,
- };
+ config X86_EXTRA_IRQS
+ 	bool
+-	depends on X86_LOCAL_APIC
++	depends on X86_LOCAL_APIC || VOYAGER
+ 	default y
+ 
+ config X86_FIND_SMP_CONFIG
+ 	bool
+-	depends on X86_LOCAL_APIC
++	depends on X86_LOCAL_APIC || VOYAGER
+ 	default y
+ 
+ config X86_MPPARSE
+@@ -1636,17 +1649,32 @@
+ 
+ source "lib/Kconfig"
+ 
++config X86_TSC
++	bool
++	depends on  !VOYAGER && (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || M686 || M586MMX || M586TSC)
++	default y
++
++config X86_PIT
++	bool
++	depends on M386 || M486 || M586 || M586TSC || VOYAGER
++	default y
++
+ config X86_SMP
+ 	bool
+-	depends on SMP
++	depends on SMP && !VOYAGER
+ 	default y
+ 
+ config X86_HT
+ 	bool
+-	depends on SMP
++	depends on SMP && !VOYAGER
+ 	default y
+ 
+ config X86_BIOS_REBOOT
+ 	bool
++	depends on !VOYAGER
+ 	default y
+ 
++config X86_TRAMPOLINE
++	bool
++	depends on SMP
++	default y
+diff -Nru a/arch/i386/Makefile b/arch/i386/Makefile
+--- a/arch/i386/Makefile	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/Makefile	Tue Nov  5 15:35:01 2002
+@@ -49,7 +49,11 @@
+ ifdef CONFIG_VISWS
+ MACHINE	:= mach-visws
+ else
++ifdef CONFIG_VOYAGER
++MACHINE:= mach-voyager
++else
+ MACHINE	:= mach-generic
++endif
+ endif
+ 
+ HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
+diff -Nru a/arch/i386/boot/compressed/head.S b/arch/i386/boot/compressed/head.S
+--- a/arch/i386/boot/compressed/head.S	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/boot/compressed/head.S	Tue Nov  5 15:35:01 2002
+@@ -31,7 +31,7 @@
+ startup_32:
+ 	cld
+ 	cli
+-	movl $(__KERNEL_DS),%eax
++	movl $(__BOOT_DS),%eax
+ 	movl %eax,%ds
+ 	movl %eax,%es
+ 	movl %eax,%fs
+@@ -74,7 +74,7 @@
+ 	popl %esi	# discard address
+ 	popl %esi	# real mode pointer
+ 	xorl %ebx,%ebx
+-	ljmp $(__KERNEL_CS), $0x100000
++	ljmp $(__BOOT_CS), $0x100000
  
  /*
-@@ -783,10 +783,10 @@
-  *	board. This is also a very useful debugging tool.
-  */
- static struct file_operations	stli_fsiomem = {
--	owner:		THIS_MODULE,
--	read:		stli_memread,
--	write:		stli_memwrite,
--	ioctl:		stli_memioctl,
-+	.owner		= THIS_MODULE,
-+	.read		= stli_memread,
-+	.write		= stli_memwrite,
-+	.ioctl		= stli_memioctl,
- };
- 
- /*****************************************************************************/
-@@ -798,7 +798,7 @@
-  *	not increase character latency by much either...
-  */
- static struct timer_list	stli_timerlist = {
--	function: stli_poll
-+	.function = stli_poll
- };
- 
- static int	stli_timeron;
---- linux-2.5.46/drivers/char/ite_gpio.c.old	2002-07-05 18:42:32.000000000 -0500
-+++ linux-2.5.46/drivers/char/ite_gpio.c	2002-11-05 09:39:55.000000000 -0600
-@@ -373,10 +373,10 @@
- 
- static struct file_operations ite_gpio_fops =
- {
--	owner:		THIS_MODULE,
--	ioctl:		ite_gpio_ioctl,
--	open:		ite_gpio_open,
--	release:	ite_gpio_release,
-+	.owner		= THIS_MODULE,
-+	.ioctl		= ite_gpio_ioctl,
-+	.open		= ite_gpio_open,
-+	.release	= ite_gpio_release,
- };
- 
- /* GPIO_MINOR in include/linux/miscdevice.h */
---- linux-2.5.46/drivers/char/keyboard.c.old	2002-10-12 09:46:43.000000000 -0500
-+++ linux-2.5.46/drivers/char/keyboard.c	2002-11-05 09:39:52.000000000 -0600
-@@ -233,7 +233,7 @@
- 	}
- }
- 
--static struct timer_list kd_mksound_timer = { function: kd_nosound };
-+static struct timer_list kd_mksound_timer = { .function = kd_nosound };
- 
- void kd_mksound(unsigned int hz, unsigned int ticks)
- {
-@@ -1171,13 +1171,13 @@
- 
- static struct input_device_id kbd_ids[] = {
- 	{
--                flags: INPUT_DEVICE_ID_MATCH_EVBIT,
--                evbit: { BIT(EV_KEY) },
-+                .flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-+                .evbit = { BIT(EV_KEY) },
-         },
- 	
- 	{
--                flags: INPUT_DEVICE_ID_MATCH_EVBIT,
--                evbit: { BIT(EV_SND) },
-+                .flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-+                .evbit = { BIT(EV_SND) },
-         },	
- 
- 	{ },    /* Terminating entry */
-@@ -1186,11 +1186,11 @@
- MODULE_DEVICE_TABLE(input, kbd_ids);
- 
- static struct input_handler kbd_handler = {
--	event:		kbd_event,
--	connect:	kbd_connect,
--	disconnect:	kbd_disconnect,
--	name:		"kbd",
--	id_table:	kbd_ids,
-+	.event		= kbd_event,
-+	.connect	= kbd_connect,
-+	.disconnect	= kbd_disconnect,
-+	.name		= "kbd",
-+	.id_table	= kbd_ids,
- };
- 
- int __init kbd_init(void)
---- linux-2.5.46/drivers/char/lp.c.old	2002-09-16 09:33:55.000000000 -0500
-+++ linux-2.5.46/drivers/char/lp.c	2002-11-05 09:39:49.000000000 -0600
-@@ -660,13 +660,13 @@
- }
- 
- static struct file_operations lp_fops = {
--	owner:		THIS_MODULE,
--	write:		lp_write,
--	ioctl:		lp_ioctl,
--	open:		lp_open,
--	release:	lp_release,
-+	.owner		= THIS_MODULE,
-+	.write		= lp_write,
-+	.ioctl		= lp_ioctl,
-+	.open		= lp_open,
-+	.release	= lp_release,
- #ifdef CONFIG_PARPORT_1284
--	read:		lp_read,
-+	.read		= lp_read,
- #endif
- };
- 
-@@ -741,10 +741,10 @@
- }
- 
- static struct console lpcons = {
--	name:		"lp",
--	write:		lp_console_write,
--	device:		lp_console_device,
--	flags:		CON_PRINTBUFFER,
-+	.name		= "lp",
-+	.write		= lp_console_write,
-+	.device		= lp_console_device,
-+	.flags		= CON_PRINTBUFFER,
- };
- 
- #endif /* console on line printer */
---- linux-2.5.46/drivers/char/machzwd.c.old	2002-10-12 09:46:43.000000000 -0500
-+++ linux-2.5.46/drivers/char/machzwd.c	2002-11-05 09:39:51.000000000 -0600
-@@ -117,9 +117,9 @@
- #define PFX "machzwd"
- 
- static struct watchdog_info zf_info = {
--	options:		WDIOF_KEEPALIVEPING, 
--	firmware_version:	1, 
--	identity:		"ZF-Logic watchdog"
-+	.options		= WDIOF_KEEPALIVEPING, 
-+	.firmware_version	= 1, 
-+	.identity		= "ZF-Logic watchdog"
- };
- 
- 
-@@ -449,12 +449,12 @@
- 
- 
- static struct file_operations zf_fops = {
--	owner:          THIS_MODULE,
--	read:           zf_read,
--	write:          zf_write,
--	ioctl:          zf_ioctl,
--	open:           zf_open,
--	release:        zf_close,
-+	.owner          = THIS_MODULE,
-+	.read           = zf_read,
-+	.write          = zf_write,
-+	.ioctl          = zf_ioctl,
-+	.open           = zf_open,
-+	.release        = zf_close,
- };
- 
- static struct miscdevice zf_miscdev = {
---- linux-2.5.46/drivers/char/mem.c.old	2002-08-27 19:10:48.000000000 -0500
-+++ linux-2.5.46/drivers/char/mem.c	2002-11-05 09:39:52.000000000 -0600
-@@ -537,47 +537,47 @@
- #define open_kmem	open_mem
- 
- static struct file_operations mem_fops = {
--	llseek:		memory_lseek,
--	read:		read_mem,
--	write:		write_mem,
--	mmap:		mmap_mem,
--	open:		open_mem,
-+	.llseek		= memory_lseek,
-+	.read		= read_mem,
-+	.write		= write_mem,
-+	.mmap		= mmap_mem,
-+	.open		= open_mem,
- };
- 
- static struct file_operations kmem_fops = {
--	llseek:		memory_lseek,
--	read:		read_kmem,
--	write:		write_kmem,
--	mmap:		mmap_kmem,
--	open:		open_kmem,
-+	.llseek		= memory_lseek,
-+	.read		= read_kmem,
-+	.write		= write_kmem,
-+	.mmap		= mmap_kmem,
-+	.open		= open_kmem,
- };
- 
- static struct file_operations null_fops = {
--	llseek:		null_lseek,
--	read:		read_null,
--	write:		write_null,
-+	.llseek		= null_lseek,
-+	.read		= read_null,
-+	.write		= write_null,
- };
- 
- #if defined(CONFIG_ISA) || !defined(__mc68000__)
- static struct file_operations port_fops = {
--	llseek:		memory_lseek,
--	read:		read_port,
--	write:		write_port,
--	open:		open_port,
-+	.llseek		= memory_lseek,
-+	.read		= read_port,
-+	.write		= write_port,
-+	.open		= open_port,
- };
- #endif
- 
- static struct file_operations zero_fops = {
--	llseek:		zero_lseek,
--	read:		read_zero,
--	write:		write_zero,
--	mmap:		mmap_zero,
-+	.llseek		= zero_lseek,
-+	.read		= read_zero,
-+	.write		= write_zero,
-+	.mmap		= mmap_zero,
- };
- 
- static struct file_operations full_fops = {
--	llseek:		full_lseek,
--	read:		read_full,
--	write:		write_full,
-+	.llseek		= full_lseek,
-+	.read		= read_full,
-+	.write		= write_full,
- };
- 
- static int memory_open(struct inode * inode, struct file * filp)
-@@ -647,7 +647,7 @@
- }
- 
- static struct file_operations memory_fops = {
--	open:		memory_open,	/* just a selector for the real open */
-+	.open		= memory_open,	/* just a selector for the real open */
- };
- 
- int __init chr_dev_init(void)
---- linux-2.5.46/drivers/char/misc.c.old	2002-09-18 09:55:55.000000000 -0500
-+++ linux-2.5.46/drivers/char/misc.c	2002-11-05 09:39:49.000000000 -0600
-@@ -146,8 +146,8 @@
- }
- 
- static struct file_operations misc_fops = {
--	owner:		THIS_MODULE,
--	open:		misc_open,
-+	.owner		= THIS_MODULE,
-+	.open		= misc_open,
- };
- 
- 
---- linux-2.5.46/drivers/char/mixcomwd.c.old	2002-07-05 18:42:19.000000000 -0500
-+++ linux-2.5.46/drivers/char/mixcomwd.c	2002-11-05 09:39:52.000000000 -0600
-@@ -177,11 +177,11 @@
- 
- static struct file_operations mixcomwd_fops=
- {
--	owner:		THIS_MODULE,
--	write:		mixcomwd_write,
--	ioctl:		mixcomwd_ioctl,
--	open:		mixcomwd_open,
--	release:	mixcomwd_release,
-+	.owner		= THIS_MODULE,
-+	.write		= mixcomwd_write,
-+	.ioctl		= mixcomwd_ioctl,
-+	.open		= mixcomwd_open,
-+	.release	= mixcomwd_release,
- };
- 
- static struct miscdevice mixcomwd_miscdev=
---- linux-2.5.46/drivers/char/nvram.c.old	2002-11-05 09:33:36.000000000 -0600
-+++ linux-2.5.46/drivers/char/nvram.c	2002-11-05 09:39:53.000000000 -0600
-@@ -438,13 +438,13 @@
- #endif /* CONFIG_PROC_FS */
- 
- static struct file_operations nvram_fops = {
--	owner:		THIS_MODULE,
--	llseek:		nvram_llseek,
--	read:		nvram_read,
--	write:		nvram_write,
--	ioctl:		nvram_ioctl,
--	open:		nvram_open,
--	release:	nvram_release,
-+	.owner		= THIS_MODULE,
-+	.llseek		= nvram_llseek,
-+	.read		= nvram_read,
-+	.write		= nvram_write,
-+	.ioctl		= nvram_ioctl,
-+	.open		= nvram_open,
-+	.release	= nvram_release,
- };
- 
- static struct miscdevice nvram_dev = {
---- linux-2.5.46/drivers/char/nwbutton.c.old	2002-07-05 18:42:22.000000000 -0500
-+++ linux-2.5.46/drivers/char/nwbutton.c	2002-11-05 09:39:53.000000000 -0600
-@@ -183,8 +183,8 @@
-  */
- 
- static struct file_operations button_fops = {
--	owner:		THIS_MODULE,
--	read:		button_read,
-+	.owner		= THIS_MODULE,
-+	.read		= button_read,
- };
- 
- /* 
---- linux-2.5.46/drivers/char/nwflash.c.old	2002-07-05 18:42:24.000000000 -0500
-+++ linux-2.5.46/drivers/char/nwflash.c	2002-11-05 09:39:54.000000000 -0600
-@@ -652,11 +652,11 @@
- 
- static struct file_operations flash_fops =
- {
--	owner:		THIS_MODULE,
--	llseek:		flash_llseek,
--	read:		flash_read,
--	write:		flash_write,
--	ioctl:		flash_ioctl,
-+	.owner		= THIS_MODULE,
-+	.llseek		= flash_llseek,
-+	.read		= flash_read,
-+	.write		= flash_write,
-+	.ioctl		= flash_ioctl,
- };
- 
- static struct miscdevice flash_miscdev =
---- linux-2.5.46/drivers/char/pcwd.c.old	2002-07-05 18:42:03.000000000 -0500
-+++ linux-2.5.46/drivers/char/pcwd.c	2002-11-05 09:39:50.000000000 -0600
-@@ -540,12 +540,12 @@
- }
- 
- static struct file_operations pcwd_fops = {
--	owner:		THIS_MODULE,
--	read:		pcwd_read,
--	write:		pcwd_write,
--	ioctl:		pcwd_ioctl,
--	open:		pcwd_open,
--	release:	pcwd_close,
-+	.owner		= THIS_MODULE,
-+	.read		= pcwd_read,
-+	.write		= pcwd_write,
-+	.ioctl		= pcwd_ioctl,
-+	.open		= pcwd_open,
-+	.release	= pcwd_close,
- };
- 
- static struct miscdevice pcwd_miscdev = {
---- linux-2.5.46/drivers/char/ppdev.c.old	2002-10-12 09:46:43.000000000 -0500
-+++ linux-2.5.46/drivers/char/ppdev.c	2002-11-05 09:39:53.000000000 -0600
-@@ -739,14 +739,14 @@
- }
- 
- static struct file_operations pp_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	read:		pp_read,
--	write:		pp_write,
--	poll:		pp_poll,
--	ioctl:		pp_ioctl,
--	open:		pp_open,
--	release:	pp_release,
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= pp_read,
-+	.write		= pp_write,
-+	.poll		= pp_poll,
-+	.ioctl		= pp_ioctl,
-+	.open		= pp_open,
-+	.release	= pp_release,
- };
- 
- static devfs_handle_t devfs_handle;
---- linux-2.5.46/drivers/char/qtronix.c.old	2002-10-12 09:46:43.000000000 -0500
-+++ linux-2.5.46/drivers/char/qtronix.c	2002-11-05 09:39:53.000000000 -0600
-@@ -568,12 +568,12 @@
- }
- 
- struct file_operations psaux_fops = {
--	read:		read_aux,
--	write:		write_aux,
--	poll:		aux_poll,
--	open:		open_aux,
--	release:	release_aux,
--	fasync:		fasync_aux,
-+	.read		= read_aux,
-+	.write		= write_aux,
-+	.poll		= aux_poll,
-+	.open		= open_aux,
-+	.release	= release_aux,
-+	.fasync		= fasync_aux,
- };
+  * We come here, if we were loaded high.
+@@ -101,7 +101,7 @@
+ 	popl %eax	# hcount
+ 	movl $0x100000,%edi
+ 	cli		# make sure we don't get interrupted
+-	ljmp $(__KERNEL_CS), $0x1000 # and jump to the move routine
++	ljmp $(__BOOT_CS), $0x1000 # and jump to the move routine
  
  /*
---- linux-2.5.46/drivers/char/random.c.old	2002-10-31 16:19:38.000000000 -0600
-+++ linux-2.5.46/drivers/char/random.c	2002-11-05 09:39:50.000000000 -0600
-@@ -1674,16 +1674,16 @@
- }
+  * Routine (template) for moving the decompressed kernel in place,
+@@ -124,5 +124,5 @@
+ 	movsl
+ 	movl %ebx,%esi	# Restore setup pointer
+ 	xorl %ebx,%ebx
+-	ljmp $(__KERNEL_CS), $0x100000
++	ljmp $(__BOOT_CS), $0x100000
+ move_routine_end:
+diff -Nru a/arch/i386/boot/compressed/misc.c b/arch/i386/boot/compressed/misc.c
+--- a/arch/i386/boot/compressed/misc.c	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/boot/compressed/misc.c	Tue Nov  5 15:35:01 2002
+@@ -299,7 +299,7 @@
+ struct {
+ 	long * a;
+ 	short b;
+-	} stack_start = { & user_stack [STACK_SIZE] , __KERNEL_DS };
++	} stack_start = { & user_stack [STACK_SIZE] , __BOOT_DS };
  
- struct file_operations random_fops = {
--	read:		random_read,
--	write:		random_write,
--	poll:		random_poll,
--	ioctl:		random_ioctl,
-+	.read		= random_read,
-+	.write		= random_write,
-+	.poll		= random_poll,
-+	.ioctl		= random_ioctl,
- };
- 
- struct file_operations urandom_fops = {
--	read:		urandom_read,
--	write:		random_write,
--	ioctl:		random_ioctl,
-+	.read		= urandom_read,
-+	.write		= random_write,
-+	.ioctl		= random_ioctl,
- };
- 
- /***************************************************************
---- linux-2.5.46/drivers/char/riscom8.c.old	2002-10-12 09:46:43.000000000 -0500
-+++ linux-2.5.46/drivers/char/riscom8.c	2002-11-05 09:39:54.000000000 -0600
-@@ -102,16 +102,16 @@
- 
- static struct riscom_board rc_board[RC_NBOARD] =  {
- 	{
--		base:	RC_IOBASE1,
-+		.base	= RC_IOBASE1,
- 	},
- 	{
--		base:	RC_IOBASE2,
-+		.base	= RC_IOBASE2,
- 	},
- 	{
--		base:	RC_IOBASE3,
-+		.base	= RC_IOBASE3,
- 	},
- 	{
--		base:	RC_IOBASE4,
-+		.base	= RC_IOBASE4,
- 	},
- };
- 
---- linux-2.5.46/drivers/char/rtc.c.old	2002-10-16 12:44:19.000000000 -0500
-+++ linux-2.5.46/drivers/char/rtc.c	2002-11-05 09:39:53.000000000 -0600
-@@ -775,16 +775,16 @@
-  */
- 
- static struct file_operations rtc_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	read:		rtc_read,
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= rtc_read,
- #if RTC_IRQ
--	poll:		rtc_poll,
-+	.poll		= rtc_poll,
- #endif
--	ioctl:		rtc_ioctl,
--	open:		rtc_open,
--	release:	rtc_release,
--	fasync:		rtc_fasync,
-+	.ioctl		= rtc_ioctl,
-+	.open		= rtc_open,
-+	.release	= rtc_release,
-+	.fasync		= rtc_fasync,
- };
- 
- static struct miscdevice rtc_dev=
---- linux-2.5.46/drivers/char/sbc60xxwdt.c.old	2002-07-05 18:42:05.000000000 -0500
-+++ linux-2.5.46/drivers/char/sbc60xxwdt.c	2002-11-05 09:39:51.000000000 -0600
-@@ -262,13 +262,13 @@
- }
- 
- static struct file_operations wdt_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	read:		fop_read,
--	write:		fop_write,
--	open:		fop_open,
--	release:	fop_close,
--	ioctl:		fop_ioctl
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= fop_read,
-+	.write		= fop_write,
-+	.open		= fop_open,
-+	.release	= fop_close,
-+	.ioctl		= fop_ioctl
- };
- 
- static struct miscdevice wdt_miscdev = {
---- linux-2.5.46/drivers/char/scx200_wdt.c.old	2002-10-07 15:45:26.000000000 -0500
-+++ linux-2.5.46/drivers/char/scx200_wdt.c	2002-11-05 09:39:55.000000000 -0600
-@@ -128,7 +128,7 @@
- 
- static struct notifier_block scx200_wdt_notifier =
+ static void setup_normal_output_buffer(void)
  {
--        notifier_call: scx200_wdt_notify_sys
-+        .notifier_call = scx200_wdt_notify_sys
- };
+diff -Nru a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
+--- a/arch/i386/boot/setup.S	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/boot/setup.S	Tue Nov  5 15:35:01 2002
+@@ -476,6 +476,24 @@
+ 	movsb
+ 	popw	%ds
+ no_mca:
++#ifdef CONFIG_VOYAGER
++	movb	$0xff, 0x40	# flag on config found
++	movb	$0xc0, %al
++	mov	$0xff, %ah
++	int	$0x15		# put voyager config info at es:di
++	jc	no_voyager
++	movw	$0x40, %si	# place voyager info in apm table
++	cld
++	movw	$7, %cx
++voyager_rep:
++	movb	%es:(%di), %al
++	movb	%al,(%si)
++	incw	%di
++	incw	%si
++	decw	%cx
++	jnz	voyager_rep
++no_voyager:	
++#endif
+ # Check for PS/2 pointing device
+ 	movw	%cs, %ax			# aka SETUPSEG
+ 	subw	$DELTA_INITSEG, %ax		# aka INITSEG
+@@ -740,6 +758,7 @@
+ A20_ENABLE_LOOPS	= 255		# Total loops to try		
  
- static ssize_t scx200_wdt_write(struct file *file, const char *data, 
---- linux-2.5.46/drivers/char/serial167.c.old	2002-10-12 09:46:43.000000000 -0500
-+++ linux-2.5.46/drivers/char/serial167.c	2002-11-05 09:39:53.000000000 -0600
-@@ -2827,12 +2827,12 @@
+ 
++#ifndef CONFIG_VOYAGER
+ a20_try_loop:
+ 
+ 	# First, see if we are on a system with no A20 gate.
+@@ -758,11 +777,14 @@
+ 	jnz	a20_done
+ 
+ 	# Try enabling A20 through the keyboard controller
++#endif /* CONFIG_VOYAGER */
+ a20_kbc:
+ 	call	empty_8042
+ 
++#ifndef CONFIG_VOYAGER
+ 	call	a20_test			# Just in case the BIOS worked
+ 	jnz	a20_done			# but had a delayed reaction.
++#endif
+ 
+ 	movb	$0xD1, %al			# command write
+ 	outb	%al, $0x64
+@@ -772,6 +794,7 @@
+ 	outb	%al, $0x60
+ 	call	empty_8042
+ 
++#ifndef CONFIG_VOYAGER
+ 	# Wait until a20 really *is* enabled; it can take a fair amount of
+ 	# time on certain systems; Toshiba Tecras are known to have this
+ 	# problem.
+@@ -819,6 +842,7 @@
+ 	# If we get here, all is good
+ a20_done:
+ 
++#endif /* CONFIG_VOYAGER */
+ # set up gdt and idt
+ 	lidt	idt_48				# load idt with 0,0
+ 	xorl	%eax, %eax			# Compute gdt_base
+@@ -870,7 +894,7 @@
+ 	subw	$DELTA_INITSEG, %si
+ 	shll	$4, %esi			# Convert to 32-bit pointer
+ # NOTE: For high loaded big kernels we need a
+-#	jmpi    0x100000,__KERNEL_CS
++#	jmpi    0x100000,__BOOT_CS
+ #
+ #	but we yet haven't reloaded the CS register, so the default size 
+ #	of the target offset still is 16 bit.
+@@ -881,7 +905,7 @@
+ 	.byte 0x66, 0xea			# prefix + jmpi-opcode
+ code32:	.long	0x1000				# will be set to 0x100000
+ 						# for big kernels
+-	.word	__KERNEL_CS
++	.word	__BOOT_CS
+ 
+ # Here's a bunch of information about your current kernel..
+ kernel_version:	.ascii	UTS_RELEASE
+@@ -985,6 +1009,7 @@
+ 	.string	"INT15 refuses to access high mem, giving up."
  
  
- static struct console sercons = {
--	name:		"ttyS",
--	write:		serial167_console_write,
--	device:		serial167_console_device,
--	setup:		serial167_console_setup,
--	flags:		CON_PRINTBUFFER,
--	index:		-1,
-+	.name		= "ttyS",
-+	.write		= serial167_console_write,
-+	.device		= serial167_console_device,
-+	.setup		= serial167_console_setup,
-+	.flags		= CON_PRINTBUFFER,
-+	.index		= -1,
- };
++#ifndef CONFIG_VOYAGER
+ # This routine tests whether or not A20 is enabled.  If so, it
+ # exits with zf = 0.
+ #
+@@ -1015,6 +1040,8 @@
+ 	popw	%cx
+ 	ret	
  
++#endif /* CONFIG_VOYAGER */
++
+ # This routine checks that the keyboard command queue is empty
+ # (after emptying the output buffers)
+ #
+@@ -1075,13 +1102,19 @@
  
---- linux-2.5.46/drivers/char/serial_tx3912.c.old	2002-09-16 09:33:55.000000000 -0500
-+++ linux-2.5.46/drivers/char/serial_tx3912.c	2002-11-05 09:39:55.000000000 -0600
-@@ -48,16 +48,16 @@
-  * Used by generic serial driver to access hardware
+ # Descriptor tables
+ #
+-# NOTE: if you think the GDT is large, you can make it smaller by just
+-# defining the KERNEL_CS and KERNEL_DS entries and shifting the gdt
+-# address down by GDT_ENTRY_KERNEL_CS*8. This puts bogus entries into
+-# the GDT, but those wont be used so it's not a problem.
++# NOTE: The intel manual says gdt should be sixteen bytes aligned for
++# efficiency reasons.  However, there are machines which are known not
++# to boot with misaligned GDTs, so alter this at your peril!  If you alter
++# GDT_ENTRY_BOOT_CS (in asm/segment.h) remember to leave at least two
++# empty GDT entries (one for NULL and one reserved).
++#
++# NOTE:	On some CPUs, the GDT must be 8 byte aligned.  This is
++# true for the Voyager Quad CPU card which will not boot without
++# This directive.  16 byte aligment is recommended by intel.
+ #
++	.align 16
+ gdt:
+-	.fill GDT_ENTRY_KERNEL_CS,8,0
++	.fill GDT_ENTRY_BOOT_CS,8,0
+ 
+ 	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
+ 	.word	0				# base address = 0
+@@ -1094,12 +1127,17 @@
+ 	.word	0x9200				# data read/write
+ 	.word	0x00CF				# granularity = 4096, 386
+ 						#  (+5th nibble of limit)
++gdt_end:
++	.align	4
++	
++	.word	0				# alignment byte
+ idt_48:
+ 	.word	0				# idt limit = 0
+ 	.word	0, 0				# idt base = 0L
+-gdt_48:
+-	.word	GDT_ENTRY_KERNEL_CS*8 + 16 - 1	# gdt limit
+ 
++	.word	0				# alignment byte
++gdt_48:
++	.word	gdt_end - gdt - 1		# gdt limit
+ 	.word	0, 0				# gdt base (filled in later)
+ 
+ # Include video setup & detection code
+diff -Nru a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+--- a/arch/i386/kernel/Makefile	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/kernel/Makefile	Tue Nov  5 15:35:01 2002
+@@ -21,7 +21,8 @@
+ obj-$(CONFIG_APM)		+= apm.o
+ obj-$(CONFIG_ACPI)		+= acpi.o
+ obj-$(CONFIG_ACPI_SLEEP)	+= acpi_wakeup.o
+-obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o trampoline.o
++obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o
++obj-$(CONFIG_X86_TRAMPOLINE)	+= trampoline.o
+ obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
+diff -Nru a/arch/i386/kernel/head.S b/arch/i386/kernel/head.S
+--- a/arch/i386/kernel/head.S	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/kernel/head.S	Tue Nov  5 15:35:01 2002
+@@ -15,6 +15,7 @@
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ #include <asm/desc.h>
++#include <asm/cache.h>
+ 
+ #define OLD_CL_MAGIC_ADDR	0x90020
+ #define OLD_CL_MAGIC		0xA33F
+@@ -46,7 +47,7 @@
+  * Set segments to known values
   */
- static struct real_driver rs_real_driver = { 
--	disable_tx_interrupts: rs_disable_tx_interrupts, 
--	enable_tx_interrupts:  rs_enable_tx_interrupts, 
--	disable_rx_interrupts: rs_disable_rx_interrupts, 
--	enable_rx_interrupts:  rs_enable_rx_interrupts, 
--	get_CD:                rs_get_CD, 
--	shutdown_port:         rs_shutdown_port,  
--	set_real_termios:      rs_set_real_termios,  
--	chars_in_buffer:       rs_chars_in_buffer, 
--	close:                 rs_close, 
--	hungup:                rs_hungup,
-+	.disable_tx_interrupts = rs_disable_tx_interrupts, 
-+	.enable_tx_interrupts  = rs_enable_tx_interrupts, 
-+	.disable_rx_interrupts = rs_disable_rx_interrupts, 
-+	.enable_rx_interrupts  = rs_enable_rx_interrupts, 
-+	.get_CD                = rs_get_CD, 
-+	.shutdown_port         = rs_shutdown_port,  
-+	.set_real_termios      = rs_set_real_termios,  
-+	.chars_in_buffer       = rs_chars_in_buffer, 
-+	.close                 = rs_close, 
-+	.hungup                = rs_hungup,
- }; 
+ 	cld
+-	movl $(__KERNEL_DS),%eax
++	movl $(__BOOT_DS),%eax
+ 	movl %eax,%ds
+ 	movl %eax,%es
+ 	movl %eax,%fs
+@@ -306,7 +307,7 @@
+ 
+ ENTRY(stack_start)
+ 	.long init_thread_union+8192
+-	.long __KERNEL_DS
++	.long __BOOT_DS
+ 
+ /* This is the default interrupt "handler" :-) */
+ int_msg:
+@@ -349,12 +350,12 @@
+ 	.long idt_table
+ 
+ # boot GDT descriptor (later on used by CPU#0):
+-
++	.word 0				# 32 bit align gdt_desc.address
+ cpu_gdt_descr:
+ 	.word GDT_ENTRIES*8-1
+ 	.long cpu_gdt_table
+ 
+-	.fill NR_CPUS-1,6,0		# space for the other GDT descriptors
++	.fill NR_CPUS-1,8,0		# space for the other GDT descriptors
  
  /*
-@@ -1046,12 +1046,12 @@
- }
+  * This is initialized to create an identity-mapping at 0-8M (for bootup
+@@ -405,10 +406,21 @@
+  */
+ .data
  
- static struct console sercons = {
--	name:     "ttyS",
--	write:    serial_console_write,
--	device:   serial_console_device,
--	setup:    serial_console_setup,
--	flags:    CON_PRINTBUFFER,
--	index:    -1
-+	.name     = "ttyS",
-+	.write    = serial_console_write,
-+	.device   = serial_console_device,
-+	.setup    = serial_console_setup,
-+	.flags    = CON_PRINTBUFFER,
-+	.index    = -1
- };
- 
- void __init tx3912_console_init(void)
---- linux-2.5.46/drivers/char/sh-sci.c.old	2002-10-07 15:45:26.000000000 -0500
-+++ linux-2.5.46/drivers/char/sh-sci.c	2002-11-05 09:39:53.000000000 -0600
-@@ -1259,12 +1259,12 @@
- }
- 
- static struct console sercons = {
--	name:		"ttySC",
--	write:		serial_console_write,
--	device:		serial_console_device,
--	setup:		serial_console_setup,
--	flags:		CON_PRINTBUFFER,
--	index:		-1,
-+	.name		= "ttySC",
-+	.write		= serial_console_write,
-+	.device		= serial_console_device,
-+	.setup		= serial_console_setup,
-+	.flags		= CON_PRINTBUFFER,
-+	.index		= -1,
- };
- 
+-ALIGN
  /*
---- linux-2.5.46/drivers/char/shwdt.c.old	2002-07-05 18:42:20.000000000 -0500
-+++ linux-2.5.46/drivers/char/shwdt.c	2002-11-05 09:39:52.000000000 -0600
-@@ -325,12 +325,12 @@
- }
- 
- static struct file_operations sh_wdt_fops = {
--	owner:		THIS_MODULE,
--	read:		sh_wdt_read,
--	write:		sh_wdt_write,
--	ioctl:		sh_wdt_ioctl,
--	open:		sh_wdt_open,
--	release:	sh_wdt_close,
-+	.owner		= THIS_MODULE,
-+	.read		= sh_wdt_read,
-+	.write		= sh_wdt_write,
-+	.ioctl		= sh_wdt_ioctl,
-+	.open		= sh_wdt_open,
-+	.release	= sh_wdt_close,
- };
- 
- static struct watchdog_info sh_wdt_info = {
---- linux-2.5.46/drivers/char/softdog.c.old	2002-07-05 18:42:22.000000000 -0500
-+++ linux-2.5.46/drivers/char/softdog.c	2002-11-05 09:39:53.000000000 -0600
-@@ -68,7 +68,7 @@
- static void watchdog_fire(unsigned long);
- 
- static struct timer_list watchdog_ticktock = {
--	function:	watchdog_fire,
-+	.function	= watchdog_fire,
- };
- static int timer_alive;
- 
-@@ -140,7 +140,7 @@
- 	unsigned int cmd, unsigned long arg)
- {
- 	static struct watchdog_info ident = {
--		identity: "Software Watchdog",
-+		.identity = "Software Watchdog",
- 	};
- 	switch (cmd) {
- 		default:
-@@ -159,17 +159,17 @@
- }
- 
- static struct file_operations softdog_fops = {
--	owner:		THIS_MODULE,
--	write:		softdog_write,
--	ioctl:		softdog_ioctl,
--	open:		softdog_open,
--	release:	softdog_release,
-+	.owner		= THIS_MODULE,
-+	.write		= softdog_write,
-+	.ioctl		= softdog_ioctl,
-+	.open		= softdog_open,
-+	.release	= softdog_release,
- };
- 
- static struct miscdevice softdog_miscdev = {
--	minor:		WATCHDOG_MINOR,
--	name:		"watchdog",
--	fops:		&softdog_fops,
-+	.minor		= WATCHDOG_MINOR,
-+	.name		= "watchdog",
-+	.fops		= &softdog_fops,
- };
- 
- static char banner[] __initdata = KERN_INFO "Software Watchdog Timer: 0.06, soft_margin: %d sec, nowayout: %d\n";
---- linux-2.5.46/drivers/char/sonypi.c.old	2002-10-31 16:19:39.000000000 -0600
-+++ linux-2.5.46/drivers/char/sonypi.c	2002-11-05 09:39:51.000000000 -0600
-@@ -613,13 +613,13 @@
- }
- 
- static struct file_operations sonypi_misc_fops = {
--	owner:		THIS_MODULE,
--	read:		sonypi_misc_read,
--	poll:		sonypi_misc_poll,
--	open:		sonypi_misc_open,
--	release:	sonypi_misc_release,
--	fasync: 	sonypi_misc_fasync,
--	ioctl:		sonypi_misc_ioctl,
-+	.owner		= THIS_MODULE,
-+	.read		= sonypi_misc_read,
-+	.poll		= sonypi_misc_poll,
-+	.open		= sonypi_misc_open,
-+	.release	= sonypi_misc_release,
-+	.fasync 	= sonypi_misc_fasync,
-+	.ioctl		= sonypi_misc_ioctl,
- };
- 
- struct miscdevice sonypi_misc_device = {
---- linux-2.5.46/drivers/char/stallion.c.old	2002-10-31 16:19:39.000000000 -0600
-+++ linux-2.5.46/drivers/char/stallion.c	2002-11-05 09:46:09.000000000 -0600
-@@ -170,8 +170,8 @@
-  *	at 9600, 8 data bits, 1 stop bit.
+  * The Global Descriptor Table contains 28 quadwords, per-CPU.
   */
- static struct termios		stl_deftermios = {
--	c_cflag:	(B9600 | CS8 | CREAD | HUPCL | CLOCAL),
--	c_cc:		INIT_C_CC,
-+	.c_cflag	= (B9600 | CS8 | CREAD | HUPCL | CLOCAL),
-+	.c_cc		= INIT_C_CC,
- };
++#ifdef CONFIG_SMP
++/*
++ * The boot_gdt_table must mirror the equivalent in setup.S and is
++ * used only by the trampoline for booting other CPUs
++ */
++	.align L1_CACHE_BYTES
++ENTRY(boot_gdt_table)
++	.fill GDT_ENTRY_BOOT_CS,8,0
++	.quad 0x00cf9a000000ffff	/* kernel 4GB code at 0x00000000 */
++	.quad 0x00cf92000000ffff	/* kernel 4GB data at 0x00000000 */
++#endif
++	.align L1_CACHE_BYTES
+ ENTRY(cpu_gdt_table)
+ 	.quad 0x0000000000000000	/* NULL descriptor */
+ 	.quad 0x0000000000000000	/* 0x0b reserved */
+diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
+--- a/arch/i386/kernel/irq.c	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/kernel/irq.c	Tue Nov  5 15:35:01 2002
+@@ -167,7 +167,7 @@
+ 		if (cpu_online(j))
+ 			p += seq_printf(p, "%10u ", nmi_count(j));
+ 	seq_putc(p, '\n');
+-#if CONFIG_X86_LOCAL_APIC
++#ifdef CONFIG_X86_LOCAL_APIC
+ 	seq_printf(p, "LOC: ");
+ 	for (j = 0; j < NR_CPUS; j++)
+ 		if (cpu_online(j))
+diff -Nru a/arch/i386/kernel/timers/Makefile b/arch/i386/kernel/timers/Makefile
+--- a/arch/i386/kernel/timers/Makefile	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/kernel/timers/Makefile	Tue Nov  5 15:35:01 2002
+@@ -4,8 +4,8 @@
  
- /*
-@@ -745,8 +745,8 @@
-  *	to get at port stats - only not using the port device itself.
-  */
- static struct file_operations	stl_fsiomem = {
--	owner:		THIS_MODULE,
--	ioctl:		stl_memioctl,
-+	.owner		= THIS_MODULE,
-+	.ioctl		= stl_memioctl,
- };
+ obj-y := timer.o
  
- /*****************************************************************************/
---- linux-2.5.46/drivers/char/sx.c.old	2002-10-12 09:46:44.000000000 -0500
-+++ linux-2.5.46/drivers/char/sx.c	2002-11-05 09:39:51.000000000 -0600
-@@ -419,8 +419,8 @@
-  */
+-obj-y += timer_tsc.o
+-obj-y += timer_pit.o
+-obj-$(CONFIG_X86_CYCLONE)   += timer_cyclone.o
++obj-$(CONFIG_X86_TSC)		+= timer_tsc.o
++obj-$(CONFIG_X86_PIT)		+= timer_pit.o
++obj-$(CONFIG_X86_CYCLONE)	+= timer_cyclone.o
  
- static struct file_operations sx_fw_fops = {
--	owner:		THIS_MODULE,
--	ioctl:		sx_fw_ioctl,
-+	.owner		= THIS_MODULE,
-+	.ioctl		= sx_fw_ioctl,
- };
+ include $(TOPDIR)/Rules.make
+diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
+--- a/arch/i386/kernel/timers/timer.c	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/kernel/timers/timer.c	Tue Nov  5 15:35:01 2002
+@@ -7,8 +7,10 @@
  
- static struct miscdevice sx_fw_device = {
---- linux-2.5.46/drivers/char/synclink.c.old	2002-10-16 12:44:19.000000000 -0500
-+++ linux-2.5.46/drivers/char/synclink.c	2002-11-05 09:39:53.000000000 -0600
-@@ -932,10 +932,10 @@
- MODULE_LICENSE("GPL");
- 
- static struct pci_driver synclink_pci_driver = {
--	name:		"synclink",
--	id_table:	synclink_pci_tbl,
--	probe:		synclink_init_one,
--	remove:		__devexit_p(synclink_remove_one),
-+	.name		= "synclink",
-+	.id_table	= synclink_pci_tbl,
-+	.probe		= synclink_init_one,
-+	.remove		= __devexit_p(synclink_remove_one),
- };
- 
- static struct tty_driver serial_driver, callout_driver;
---- linux-2.5.46/drivers/char/synclinkmp.c.old	2002-10-16 12:44:19.000000000 -0500
-+++ linux-2.5.46/drivers/char/synclinkmp.c	2002-11-05 09:39:52.000000000 -0600
-@@ -517,10 +517,10 @@
- MODULE_LICENSE("GPL");
- 
- static struct pci_driver synclinkmp_pci_driver = {
--	name:		"synclinkmp",
--	id_table:	synclinkmp_pci_tbl,
--	probe:		synclinkmp_init_one,
--	remove:		__devexit_p(synclinkmp_remove_one),
-+	.name		= "synclinkmp",
-+	.id_table	= synclinkmp_pci_tbl,
-+	.probe		= synclinkmp_init_one,
-+	.remove		= __devexit_p(synclinkmp_remove_one),
- };
- 
- 
---- linux-2.5.46/drivers/char/sysrq.c.old	2002-11-05 09:33:36.000000000 -0600
-+++ linux-2.5.46/drivers/char/sysrq.c	2002-11-05 09:39:52.000000000 -0600
-@@ -59,9 +59,9 @@
- 	console_loglevel = i;
- }	
- static struct sysrq_key_op sysrq_loglevel_op = {
--	handler:	sysrq_handle_loglevel,
--	help_msg:	"loglevel0-8",
--	action_msg:	"Changing Loglevel",
-+	.handler	= sysrq_handle_loglevel,
-+	.help_msg	= "loglevel0-8",
-+	.action_msg	= "Changing Loglevel",
- };
- 
- 
-@@ -75,9 +75,9 @@
- 	reset_vc(fg_console);
- }
- static struct sysrq_key_op sysrq_SAK_op = {
--	handler:	sysrq_handle_SAK,
--	help_msg:	"saK",
--	action_msg:	"SAK",
-+	.handler	= sysrq_handle_SAK,
-+	.help_msg	= "saK",
-+	.action_msg	= "SAK",
- };
+ /* list of timers, ordered by preference, NULL terminated */
+ static struct timer_opts* timers[] = {
++#ifdef CONFIG_X86_TSC
+ 	&timer_tsc,
+-#ifndef CONFIG_X86_TSC
++#endif
++#ifdef CONFIG_X86_PIT
+ 	&timer_pit,
  #endif
+ 	NULL,
+diff -Nru a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
+--- a/arch/i386/kernel/timers/timer_pit.c	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/kernel/timers/timer_pit.c	Tue Nov  5 15:35:01 2002
+@@ -9,7 +9,9 @@
+ #include <linux/irq.h>
+ #include <asm/mpspec.h>
+ #include <asm/timer.h>
++#include <asm/smp.h>
+ #include <asm/io.h>
++#include <asm/arch_hooks.h>
  
-@@ -92,9 +92,9 @@
- 		kbd->kbdmode = VC_XLATE;
- }
- static struct sysrq_key_op sysrq_unraw_op = {
--	handler:	sysrq_handle_unraw,
--	help_msg:	"unRaw",
--	action_msg:	"Keyboard mode set to XLATE",
-+	.handler	= sysrq_handle_unraw,
-+	.help_msg	= "unRaw",
-+	.action_msg	= "Keyboard mode set to XLATE",
- };
- #endif /* CONFIG_VT */
+ extern spinlock_t i8259A_lock;
+ extern spinlock_t i8253_lock;
+diff -Nru a/arch/i386/kernel/trampoline.S b/arch/i386/kernel/trampoline.S
+--- a/arch/i386/kernel/trampoline.S	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/kernel/trampoline.S	Tue Nov  5 15:35:01 2002
+@@ -54,7 +54,7 @@
+ 	lmsw	%ax		# into protected mode
+ 	jmp	flush_instr
+ flush_instr:
+-	ljmpl	$__KERNEL_CS, $0x00100000
++	ljmpl	$__BOOT_CS, $0x00100000
+ 			# jump to startup_32 in arch/i386/kernel/head.S
  
-@@ -105,9 +105,9 @@
- 	machine_restart(NULL);
- }
- static struct sysrq_key_op sysrq_reboot_op = {
--	handler:	sysrq_handle_reboot,
--	help_msg:	"reBoot",
--	action_msg:	"Resetting",
-+	.handler	= sysrq_handle_reboot,
-+	.help_msg	= "reBoot",
-+	.action_msg	= "Resetting",
- };
+ idt_48:
+@@ -67,8 +67,8 @@
+ #
  
+ gdt_48:
+-	.word	0x0800			# gdt limit = 2048, 256 GDT entries
+-	.long	cpu_gdt_table-__PAGE_OFFSET	# gdt base = gdt (first SMP CPU)
++	.word	__BOOT_DS + 7			# gdt limit
++	.long	boot_gdt_table-__PAGE_OFFSET	# gdt base = gdt (first SMP CPU)
  
-@@ -235,9 +235,9 @@
- 	wakeup_bdflush(0);
- }
- static struct sysrq_key_op sysrq_sync_op = {
--	handler:	sysrq_handle_sync,
--	help_msg:	"Sync",
--	action_msg:	"Emergency Sync",
-+	.handler	= sysrq_handle_sync,
-+	.help_msg	= "Sync",
-+	.action_msg	= "Emergency Sync",
- };
+ .globl trampoline_end
+ trampoline_end:
+diff -Nru a/arch/i386/mach-voyager/voyager_basic.c b/arch/i386/mach-voyager/voyager_basic.c
+--- a/arch/i386/mach-voyager/voyager_basic.c	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/mach-voyager/voyager_basic.c	Tue Nov  5 15:35:01 2002
+@@ -21,6 +21,7 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ #include <linux/reboot.h>
++#include <linux/sysrq.h>
+ #include <asm/io.h>
+ #include <asm/pgalloc.h>
+ #include <asm/voyager.h>
+@@ -41,6 +42,21 @@
  
- static void sysrq_handle_mountro(int key, struct pt_regs *pt_regs,
-@@ -247,9 +247,9 @@
- 	wakeup_bdflush(0);
- }
- static struct sysrq_key_op sysrq_mountro_op = {
--	handler:	sysrq_handle_mountro,
--	help_msg:	"Unmount",
--	action_msg:	"Emergency Remount R/O",
-+	.handler	= sysrq_handle_mountro,
-+	.help_msg	= "Unmount",
-+	.action_msg	= "Emergency Remount R/O",
- };
+ struct voyager_SUS *voyager_SUS = NULL;
  
- /* END SYNC SYSRQ HANDLERS BLOCK */
-@@ -264,9 +264,9 @@
- 		show_regs(pt_regs);
- }
- static struct sysrq_key_op sysrq_showregs_op = {
--	handler:	sysrq_handle_showregs,
--	help_msg:	"showPc",
--	action_msg:	"Show Regs",
-+	.handler	= sysrq_handle_showregs,
-+	.help_msg	= "showPc",
-+	.action_msg	= "Show Regs",
- };
- 
- 
-@@ -276,9 +276,9 @@
- 	show_state();
- }
- static struct sysrq_key_op sysrq_showstate_op = {
--	handler:	sysrq_handle_showstate,
--	help_msg:	"showTasks",
--	action_msg:	"Show State",
-+	.handler	= sysrq_handle_showstate,
-+	.help_msg	= "showTasks",
-+	.action_msg	= "Show State",
- };
- 
- 
-@@ -288,9 +288,9 @@
- 	show_mem();
- }
- static struct sysrq_key_op sysrq_showmem_op = {
--	handler:	sysrq_handle_showmem,
--	help_msg:	"showMem",
--	action_msg:	"Show Memory",
-+	.handler	= sysrq_handle_showmem,
-+	.help_msg	= "showMem",
-+	.action_msg	= "Show Memory",
- };
- 
- /* SHOW SYSRQ HANDLERS BLOCK */
-@@ -318,16 +318,16 @@
- 	console_loglevel = 8;
- }
- static struct sysrq_key_op sysrq_term_op = {
--	handler:	sysrq_handle_term,
--	help_msg:	"tErm",
--	action_msg:	"Terminate All Tasks",
-+	.handler	= sysrq_handle_term,
-+	.help_msg	= "tErm",
-+	.action_msg	= "Terminate All Tasks",
- };
- 
- #ifdef CONFIG_VOYAGER
- static struct sysrq_key_op sysrq_voyager_dump_op = {
--	handler:	voyager_dump,
--	help_msg:	"voyager",
--	action_msg:	"Dump Voyager Status\n",
++#ifdef CONFIG_SMP
++static void
++voyager_dump(int dummy1, struct pt_regs *dummy2, struct tty_struct *dummy3)
++{
++	/* get here via a sysrq */
++	voyager_smp_dump();
++}
++
++static struct sysrq_key_op sysrq_voyager_dump_op = {
 +	.handler	= voyager_dump,
 +	.help_msg	= "voyager",
 +	.action_msg	= "Dump Voyager Status\n",
- };
- #endif
- 
-@@ -338,9 +338,9 @@
- 	console_loglevel = 8;
- }
- static struct sysrq_key_op sysrq_kill_op = {
--	handler:	sysrq_handle_kill,
--	help_msg:	"kIll",
--	action_msg:	"Kill All Tasks",
-+	.handler	= sysrq_handle_kill,
-+	.help_msg	= "kIll",
-+	.action_msg	= "Kill All Tasks",
- };
- 
- /* END SIGNAL SYSRQ HANDLERS BLOCK */
---- linux-2.5.46/drivers/char/tipar.c.old	2002-10-19 11:21:27.000000000 -0500
-+++ linux-2.5.46/drivers/char/tipar.c	2002-11-05 09:39:55.000000000 -0600
-@@ -381,13 +381,13 @@
- /* ----- kernel module registering ------------------------------------ */
- 
- static struct file_operations tipar_fops = {
--	owner:THIS_MODULE,
--	llseek:no_llseek,
--	read:tipar_read,
--	write:tipar_write,
--	ioctl:tipar_ioctl,
--	open:tipar_open,
--	release:tipar_close,
-+	.owner = THIS_MODULE,
-+	.llseek = no_llseek,
-+	.read = tipar_read,
-+	.write = tipar_write,
-+	.ioctl = tipar_ioctl,
-+	.open = tipar_open,
-+	.release = tipar_close,
- };
- 
- /* --- initialisation code ------------------------------------- */
---- linux-2.5.46/drivers/char/toshiba.c.old	2002-10-01 11:45:36.000000000 -0500
-+++ linux-2.5.46/drivers/char/toshiba.c	2002-11-05 09:39:55.000000000 -0600
-@@ -91,8 +91,8 @@
- 
- 
- static struct file_operations tosh_fops = {
--	owner:		THIS_MODULE,
--	ioctl:		tosh_ioctl,
-+	.owner		= THIS_MODULE,
-+	.ioctl		= tosh_ioctl,
- };
- 
- static struct miscdevice tosh_device = {
---- linux-2.5.46/drivers/char/tpqic02.c.old	2002-10-31 16:19:39.000000000 -0600
-+++ linux-2.5.46/drivers/char/tpqic02.c	2002-11-05 09:39:54.000000000 -0600
-@@ -2565,13 +2565,13 @@
- 
- /* These are (most) of the interface functions: */
- static struct file_operations qic02_tape_fops = {
--	owner:THIS_MODULE,
--	llseek:no_llseek,
--	read:qic02_do_tape_read,
--	write:qic02_do_tape_write,
--	ioctl:qic02_do_tape_ioctl,
--	open:qic02_tape_open,
--	release:qic02_tape_release,
-+	.owner = THIS_MODULE,
-+	.llseek = no_llseek,
-+	.read = qic02_do_tape_read,
-+	.write = qic02_do_tape_write,
-+	.ioctl = qic02_do_tape_ioctl,
-+	.open = qic02_tape_open,
-+	.release = qic02_tape_release,
- };
- 
- 
---- linux-2.5.46/drivers/char/tty_io.c.old	2002-10-16 12:44:19.000000000 -0500
-+++ linux-2.5.46/drivers/char/tty_io.c	2002-11-05 09:39:50.000000000 -0600
-@@ -404,23 +404,23 @@
++};
++#endif
++
+ void
+ voyager_detect(struct voyager_bios_info *bios)
+ {
+@@ -62,6 +78,9 @@
+ 			printk("\n**WARNING**: Voyager HAL only supports Levels 4 and 5 Architectures at the moment\n\n");
+ 		/* install the power off handler */
+ 		pm_power_off = voyager_power_off;
++#ifdef CONFIG_SMP
++		register_sysrq_key('c', &sysrq_voyager_dump_op);
++#endif
+ 	} else {
+ 		printk("\n\n**WARNING**: No Voyager Subsystem Found\n");
+ 	}
+@@ -141,15 +160,6 @@
+ 	pg0[0] = old;
+ 	local_flush_tlb();
+ 	return retval;
+-}
+-
+-void
+-voyager_dump()
+-{
+-	/* get here via a sysrq */
+-#ifdef CONFIG_SMP
+-	voyager_smp_dump();
+-#endif
  }
  
- static struct file_operations tty_fops = {
--	llseek:		no_llseek,
--	read:		tty_read,
--	write:		tty_write,
--	poll:		tty_poll,
--	ioctl:		tty_ioctl,
--	open:		tty_open,
--	release:	tty_release,
--	fasync:		tty_fasync,
-+	.llseek		= no_llseek,
-+	.read		= tty_read,
-+	.write		= tty_write,
-+	.poll		= tty_poll,
-+	.ioctl		= tty_ioctl,
-+	.open		= tty_open,
-+	.release	= tty_release,
-+	.fasync		= tty_fasync,
+ /* voyager specific handling code for timer interrupts.  Used to hand
+diff -Nru a/arch/i386/mach-voyager/voyager_smp.c b/arch/i386/mach-voyager/voyager_smp.c
+--- a/arch/i386/mach-voyager/voyager_smp.c	Tue Nov  5 15:35:01 2002
++++ b/arch/i386/mach-voyager/voyager_smp.c	Tue Nov  5 15:35:01 2002
+@@ -50,11 +50,6 @@
+  * indexed physically */
+ struct cpuinfo_x86 cpu_data[NR_CPUS] __cacheline_aligned;
+ 
+-/* Per CPU interrupt stacks */
+-extern union thread_union init_irq_union;
+-union thread_union *irq_stacks[NR_CPUS] __cacheline_aligned =
+-	{ &init_irq_union, };
+-
+ /* physical ID of the CPU used to boot the system */
+ unsigned char boot_cpu_id;
+ 
+@@ -450,6 +445,7 @@
+ 	struct cpuinfo_x86 *c=&cpu_data[id];
+ 
+ 	*c = boot_cpu_data;
++
+ 	identify_cpu(c);
+ }
+ 
+@@ -512,6 +508,11 @@
+ 	/* if we're a quad, we may need to bootstrap other CPUs */
+ 	do_quad_bootstrap();
+ 
++	/* FIXME: this is rather a poor hack to prevent the CPU
++	 * activating softirqs while it's supposed to be waiting for
++	 * permission to proceed.  Without this, the new per CPU stuff
++	 * in the softirqs will fail */
++	local_irq_disable();
+ 	set_bit(cpuid, &cpu_callin_map);
+ 
+ 	/* signal that we're done */
+@@ -519,6 +520,7 @@
+ 
+ 	while (!test_bit(cpuid, &smp_commenced_mask))
+ 		rep_nop();
++	local_irq_enable();
+ 
+ 	local_flush_tlb();
+ 
+@@ -537,28 +539,6 @@
+ }
+ 
+ 
+-static void __init setup_irq_stack(struct task_struct *p, int cpu)
+-{
+-	unsigned long stk;
+-
+-	stk = __get_free_pages(GFP_KERNEL, THREAD_ORDER+1);
+-	if (!stk)
+-		panic("I can't seem to allocate my irq stack.  Oh well, giving up.");
+-
+-	irq_stacks[cpu] = (void *)stk;
+-	memset(irq_stacks[cpu], 0, THREAD_SIZE);
+-	irq_stacks[cpu]->thread_info.cpu = cpu;
+-	irq_stacks[cpu]->thread_info.preempt_count = 1;
+-					/* interrupts are not preemptable */
+-	p->thread_info->irq_stack = irq_stacks[cpu];
+-
+-	/* If we want to make the irq stack more than one unit
+-	 * deep, we can chain then off of the irq_stack pointer
+-	 * here.
+-	 */
+-}
+-
+-
+ /* Routine to kick start the given CPU and wait for it to report ready
+  * (or timeout in startup).  When this routine returns, the requested
+  * CPU is either fully running and configured or known to be dead.
+@@ -617,20 +597,17 @@
+ 	if(IS_ERR(idle))
+ 		panic("failed fork for CPU%d", cpu);
+ 
+-	setup_irq_stack(idle, cpu);
+-
+ 	init_idle(idle, cpu);
+ 
+ 	idle->thread.eip = (unsigned long) start_secondary;
+ 	unhash_process(idle);
+-
+-	/* The -4 is to correct for the fact that the stack pointer
+-	 * is used to find the location of the thread_info structure
+-	 * by masking off several of the LSBs.  Without the -4, esp
+-	 * is pointing to the page after the one the stack is on.
+-	 */
+-	stack_start.esp = (void *)(THREAD_SIZE - 4 + (char *)idle->thread_info);
+-
++	/* init_tasks (in sched.c) is indexed logically */
++#if 0
++	// for AC kernels
++	stack_start.esp = (THREAD_SIZE + (__u8 *)TSK_TO_KSTACK(idle));
++#else
++	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->thread_info);
++#endif
+ 	/* Note: Don't modify initial ss override */
+ 	VDEBUG(("VOYAGER SMP: Booting CPU%d at 0x%lx[%x:%x], stack %p\n", cpu, 
+ 		(unsigned long)hijack_source.val, hijack_source.idt.Segment,
+@@ -764,6 +741,9 @@
+ 
+ 	/* enable our own CPIs */
+ 	vic_enable_cpi();
++
++	set_bit(boot_cpu_id, &cpu_online_map);
++	set_bit(boot_cpu_id, &cpu_callout_map);
+ 	
+ 	/* loop over all the extended VIC CPUs and boot them.  The 
+ 	 * Quad CPUs must be bootstrapped by their extended VIC cpu */
+@@ -1312,12 +1292,9 @@
+ static inline void
+ wrapper_smp_local_timer_interrupt(struct pt_regs *regs)
+ {
+-	__u8 cpu = smp_processor_id();
+-
+ 	irq_enter();
+ 	smp_local_timer_interrupt(regs);
+ 	irq_exit();
+-	
+ }
+ 
+ /* local (per CPU) timer interrupt.  It does both profiling and
+diff -Nru a/drivers/char/sysrq.c b/drivers/char/sysrq.c
+--- a/drivers/char/sysrq.c	Tue Nov  5 15:35:01 2002
++++ b/drivers/char/sysrq.c	Tue Nov  5 15:35:01 2002
+@@ -35,10 +35,6 @@
+ 
+ #include <asm/ptrace.h>
+ 
+-#ifdef CONFIG_VOYAGER
+-#include <asm/voyager.h>
+-#endif
+-
+ extern void reset_vc(unsigned int);
+ extern struct list_head super_blocks;
+ 
+@@ -323,14 +319,6 @@
+ 	action_msg:	"Terminate All Tasks",
  };
  
- static struct file_operations hung_up_tty_fops = {
--	llseek:		no_llseek,
--	read:		hung_up_tty_read,
--	write:		hung_up_tty_write,
--	poll:		hung_up_tty_poll,
--	ioctl:		hung_up_tty_ioctl,
--	release:	tty_release,
-+	.llseek		= no_llseek,
-+	.read		= hung_up_tty_read,
-+	.write		= hung_up_tty_write,
-+	.poll		= hung_up_tty_poll,
-+	.ioctl		= hung_up_tty_ioctl,
-+	.release	= tty_release,
- };
+-#ifdef CONFIG_VOYAGER
+-static struct sysrq_key_op sysrq_voyager_dump_op = {
+-	handler:	voyager_dump,
+-	help_msg:	"voyager",
+-	action_msg:	"Dump Voyager Status\n",
+-};
+-#endif
+-
+ static void sysrq_handle_kill(int key, struct pt_regs *pt_regs,
+ 			      struct tty_struct *tty) 
+ {
+@@ -364,11 +352,7 @@
+ 		 it is handled specially on the sparc
+ 		 and will never arrive */
+ /* b */	&sysrq_reboot_op,
+-#ifdef CONFIG_VOYAGER
+-/* c */ &sysrq_voyager_dump_op,
+-#else
+-/* c */	NULL,
+-#endif
++/* c */ NULL, /* May be assigned at init time by SMP VOYAGER */
+ /* d */	NULL,
+ /* e */	&sysrq_term_op,
+ /* f */	NULL,
+diff -Nru a/include/asm-i386/desc.h b/include/asm-i386/desc.h
+--- a/include/asm-i386/desc.h	Tue Nov  5 15:35:01 2002
++++ b/include/asm-i386/desc.h	Tue Nov  5 15:35:01 2002
+@@ -13,6 +13,7 @@
+ struct Xgt_desc_struct {
+ 	unsigned short size;
+ 	unsigned long address __attribute__((packed));
++	unsigned short pad;
+ } __attribute__ ((packed));
  
+ extern struct Xgt_desc_struct idt_descr, cpu_gdt_descr[NR_CPUS];
+diff -Nru a/include/asm-i386/hw_irq.h b/include/asm-i386/hw_irq.h
+--- a/include/asm-i386/hw_irq.h	Tue Nov  5 15:35:01 2002
++++ b/include/asm-i386/hw_irq.h	Tue Nov  5 15:35:01 2002
+@@ -131,7 +131,7 @@
+ 
+ #endif /* CONFIG_PROFILING */
+  
+-#ifdef CONFIG_SMP /*more of this file should probably be ifdefed SMP */
++#if defined(CONFIG_SMP) && !defined(CONFIG_VOYAGER) /*more of this file should probably be ifdefed SMP */
+ static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {
+ 	if (IO_APIC_IRQ(i))
+ 		send_IPI_self(IO_APIC_VECTOR(i));
+diff -Nru a/include/asm-i386/segment.h b/include/asm-i386/segment.h
+--- a/include/asm-i386/segment.h	Tue Nov  5 15:35:01 2002
++++ b/include/asm-i386/segment.h	Tue Nov  5 15:35:01 2002
+@@ -69,6 +69,14 @@
+ 
+ #define GDT_SIZE (GDT_ENTRIES * 8)
+ 
++/* Simple and small GDT entries for booting only */
++
++#define GDT_ENTRY_BOOT_CS		2
++#define __BOOT_CS	(GDT_ENTRY_BOOT_CS * 8)
++
++#define GDT_ENTRY_BOOT_DS		(GDT_ENTRY_BOOT_CS + 1)
++#define __BOOT_DS	(GDT_ENTRY_BOOT_DS * 8)
++
  /*
---- linux-2.5.46/drivers/char/vc_screen.c.old	2002-08-02 08:16:20.000000000 -0500
-+++ linux-2.5.46/drivers/char/vc_screen.c	2002-11-05 09:39:52.000000000 -0600
-@@ -464,10 +464,10 @@
- }
- 
- static struct file_operations vcs_fops = {
--	llseek:		vcs_lseek,
--	read:		vcs_read,
--	write:		vcs_write,
--	open:		vcs_open,
-+	.llseek		= vcs_lseek,
-+	.read		= vcs_read,
-+	.write		= vcs_write,
-+	.open		= vcs_open,
- };
- 
- static devfs_handle_t devfs_handle;
---- linux-2.5.46/drivers/char/vme_scc.c.old	2002-10-31 16:19:39.000000000 -0600
-+++ linux-2.5.46/drivers/char/vme_scc.c	2002-11-05 09:39:49.000000000 -0600
-@@ -1094,12 +1094,12 @@
- 
- 
- static struct console sercons = {
--	name:		"ttyS",
--	write:		scc_console_write,
--	device:		scc_console_device,
--	setup:		scc_console_setup,
--	flags:		CON_PRINTBUFFER,
--	index:		-1,
-+	.name		= "ttyS",
-+	.write		= scc_console_write,
-+	.device		= scc_console_device,
-+	.setup		= scc_console_setup,
-+	.flags		= CON_PRINTBUFFER,
-+	.index		= -1,
- };
- 
- 
---- linux-2.5.46/drivers/char/vt.c.old	2002-10-07 15:45:27.000000000 -0500
-+++ linux-2.5.46/drivers/char/vt.c	2002-11-05 09:39:51.000000000 -0600
-@@ -2172,12 +2172,12 @@
- }
- 
- struct console vt_console_driver = {
--	name:		"tty",
--	write:		vt_console_print,
--	device:		vt_console_device,
--	unblank:	unblank_screen,
--	flags:		CON_PRINTBUFFER,
--	index:		-1,
-+	.name		= "tty",
-+	.write		= vt_console_print,
-+	.device		= vt_console_device,
-+	.unblank	= unblank_screen,
-+	.flags		= CON_PRINTBUFFER,
-+	.index		= -1,
- };
+  * The interrupt descriptor table has room for 256 idt's,
+  * the global descriptor table is dependent on the number
+diff -Nru a/include/asm-i386/smp.h b/include/asm-i386/smp.h
+--- a/include/asm-i386/smp.h	Tue Nov  5 15:35:01 2002
++++ b/include/asm-i386/smp.h	Tue Nov  5 15:35:01 2002
+@@ -6,6 +6,7 @@
+  */
+ #ifndef __ASSEMBLY__
+ #include <linux/config.h>
++#include <linux/kernel.h>
+ #include <linux/threads.h>
  #endif
  
---- linux-2.5.46/drivers/char/w83877f_wdt.c.old	2002-10-12 09:46:44.000000000 -0500
-+++ linux-2.5.46/drivers/char/w83877f_wdt.c	2002-11-05 09:39:50.000000000 -0600
-@@ -269,13 +269,13 @@
+@@ -83,11 +84,22 @@
+ #define cpu_possible(cpu) (cpu_callout_map & (1<<(cpu)))
+ #define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
+ 
++#define for_each_cpu(cpu, mask) \
++	for(mask = cpu_online_map; \
++	    cpu = __ffs(mask), mask != 0; \
++	    mask &= ~(1<<cpu))
++
+ extern inline unsigned int num_online_cpus(void)
+ {
+ 	return hweight32(cpu_online_map);
  }
  
- static struct file_operations wdt_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	read:		fop_read,
--	write:		fop_write,
--	open:		fop_open,
--	release:	fop_close,
--	ioctl:		fop_ioctl
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= fop_read,
-+	.write		= fop_write,
-+	.open		= fop_open,
-+	.release	= fop_close,
-+	.ioctl		= fop_ioctl
- };
- 
- static struct miscdevice wdt_miscdev = {
---- linux-2.5.46/drivers/char/wdt.c.old	2002-07-05 18:42:27.000000000 -0500
-+++ linux-2.5.46/drivers/char/wdt.c	2002-11-05 09:39:55.000000000 -0600
-@@ -438,13 +438,13 @@
-  
-  
- static struct file_operations wdt_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	read:		wdt_read,
--	write:		wdt_write,
--	ioctl:		wdt_ioctl,
--	open:		wdt_open,
--	release:	wdt_release,
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= wdt_read,
-+	.write		= wdt_write,
-+	.ioctl		= wdt_ioctl,
-+	.open		= wdt_open,
-+	.release	= wdt_release,
- };
- 
- static struct miscdevice wdt_miscdev=
---- linux-2.5.46/drivers/char/wdt285.c.old	2002-07-05 18:42:18.000000000 -0500
-+++ linux-2.5.46/drivers/char/wdt285.c	2002-11-05 09:39:52.000000000 -0600
-@@ -150,11 +150,11 @@
- 
- static struct file_operations watchdog_fops=
++/* We don't mark CPUs online until __cpu_up(), so we need another measure */
++static inline int num_booting_cpus(void)
++{
++	return hweight32(cpu_callout_map);
++}
++
+ extern inline int any_online_cpu(unsigned int mask)
  {
--	owner:		THIS_MODULE,
--	write:		watchdog_write,
--	ioctl:		watchdog_ioctl,
--	open:		watchdog_open,
--	release:	watchdog_release,
-+	.owner		= THIS_MODULE,
-+	.write		= watchdog_write,
-+	.ioctl		= watchdog_ioctl,
-+	.open		= watchdog_open,
-+	.release	= watchdog_release,
- };
+ 	if (mask & cpu_online_map)
+@@ -95,7 +107,7 @@
  
- static struct miscdevice watchdog_miscdev=
---- linux-2.5.46/drivers/char/wdt977.c.old	2002-08-10 22:03:49.000000000 -0500
-+++ linux-2.5.46/drivers/char/wdt977.c	2002-11-05 09:39:52.000000000 -0600
-@@ -311,11 +311,11 @@
- 
- static struct file_operations wdt977_fops=
+ 	return -1;
+ }
+-
++#ifdef CONFIG_X86_LOCAL_APIC
+ static __inline int hard_smp_processor_id(void)
  {
--	owner:		THIS_MODULE,
--	write:		wdt977_write,
--	ioctl:		wdt977_ioctl,
--	open:		wdt977_open,
--	release:	wdt977_release,
-+	.owner		= THIS_MODULE,
-+	.write		= wdt977_write,
-+	.ioctl		= wdt977_ioctl,
-+	.open		= wdt977_open,
-+	.release	= wdt977_release,
- };
+ 	/* we don't want to mark this access volatile - bad code generation */
+@@ -108,12 +120,7 @@
+ 	return GET_APIC_LOGICAL_ID(*(unsigned long *)(APIC_BASE+APIC_LDR));
+ }
  
- static struct miscdevice wdt977_miscdev=
---- linux-2.5.46/drivers/char/wdt_pci.c.old	2002-10-12 09:46:44.000000000 -0500
-+++ linux-2.5.46/drivers/char/wdt_pci.c	2002-11-05 09:39:55.000000000 -0600
-@@ -472,13 +472,13 @@
-  
-  
- static struct file_operations wdtpci_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	read:		wdtpci_read,
--	write:		wdtpci_write,
--	ioctl:		wdtpci_ioctl,
--	open:		wdtpci_open,
--	release:	wdtpci_release,
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= wdtpci_read,
-+	.write		= wdtpci_write,
-+	.ioctl		= wdtpci_ioctl,
-+	.open		= wdtpci_open,
-+	.release	= wdtpci_release,
- };
+-/* We don't mark CPUs online until __cpu_up(), so we need another measure */
+-static inline int num_booting_cpus(void)
+-{
+-	return hweight32(cpu_callout_map);
+-}
+-
++#endif
+ #endif /* !__ASSEMBLY__ */
  
- static struct miscdevice wdtpci_miscdev=
-@@ -601,10 +601,10 @@
- 
- 
- static struct pci_driver wdtpci_driver = {
--	name:		"wdt-pci",
--	id_table:	wdtpci_pci_tbl,
--	probe:		wdtpci_init_one,
--	remove:		__devexit_p(wdtpci_remove_one),
-+	.name		= "wdt-pci",
-+	.id_table	= wdtpci_pci_tbl,
-+	.probe		= wdtpci_init_one,
-+	.remove		= __devexit_p(wdtpci_remove_one),
- };
- 
- 
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+diff -Nru a/include/asm-i386/voyager.h b/include/asm-i386/voyager.h
+--- a/include/asm-i386/voyager.h	Tue Nov  5 15:35:01 2002
++++ b/include/asm-i386/voyager.h	Tue Nov  5 15:35:01 2002
+@@ -504,7 +504,6 @@
+ extern int voyager_memory_detect(int region, __u32 *addr, __u32 *length);
+ extern void voyager_smp_intr_init(void);
+ extern __u8 voyager_extended_cmos_read(__u16 cmos_address);
+-extern void voyager_dump(void);
+ extern void voyager_smp_dump(void);
+ extern void voyager_timer_interrupt(struct pt_regs *regs);
+ extern void smp_local_timer_interrupt(struct pt_regs * regs);
+
+--==_Exmh_-5802565100--
+
+

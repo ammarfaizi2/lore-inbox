@@ -1,40 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317904AbSFNKPX>; Fri, 14 Jun 2002 06:15:23 -0400
+	id <S317905AbSFNK0I>; Fri, 14 Jun 2002 06:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317905AbSFNKPX>; Fri, 14 Jun 2002 06:15:23 -0400
-Received: from [213.187.195.158] ([213.187.195.158]:31728 "EHLO
-	kokeicha.ingate.se") by vger.kernel.org with ESMTP
-	id <S317904AbSFNKPW>; Fri, 14 Jun 2002 06:15:22 -0400
-To: Matthew Hall <matt@ecsc.co.uk>
-Cc: Kernel <linux-kernel@vger.kernel.org>, jgarzik@mandrakesoft.com
-Subject: Re: [PROBLEM] sundance on d-link dfe-580tx
-In-Reply-To: <1023799395.3064.49.camel@smelly.dark.lan>
-From: Marcus Sundberg <marcus@ingate.com>
-Date: 14 Jun 2002 12:15:12 +0200
-Message-ID: <vesn3q2mkv.fsf@inigo.ingate.se>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S317906AbSFNK0H>; Fri, 14 Jun 2002 06:26:07 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:26576 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317905AbSFNK0H>; Fri, 14 Jun 2002 06:26:07 -0400
+Date: Fri, 14 Jun 2002 11:40:04 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH][2.5] 2.5.21 deadlocks on UP (SMP kernel) w/ IOAPIC
+Message-ID: <Pine.LNX.4.44.0206141106330.30400-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Hall <matt@ecsc.co.uk> writes:
+Hi Ingo,
+	The balance_irq/move code in 2.5.21 currently deadlocks on my UP 
+box due to the following;
 
-> I have been testing the D-Link DFE-580TX Quad channel server card (4
-> port nic), on kernel 2.4.18 with little success. 
+balance_irq() {
+entry = irq_balance + irq;
+	[...]
+	rdtscl(random_number);
+	random_number &= 1;
+	[...]
+	entry->cpu = move(entry->cpu, allowed_mask, now, random_number);
+}
 
-[snip]
+move() {
+	do {
+		[...]
+		cpu=0x0 curr_cpu=0x1 smp_num_cpus=0x1 allowed_mask=0x1 direction=0x0
+		[...]
+	} while (!IRQ_ALLOWED(cpu,allowed_mask) ||
+		(search_idle && !IDLE_ENOUGH(cpu,now)));
 
-> I would appreciate being informed if there is a fix in a later
-> version,or if any more debugging information is required I would be
-> happy to oblige.
 
-I have to define USE_IO_OPS to get the sundance driver to work with
-the DFE-580TX. I haven't investigated why.
+}
 
-//Marcus
+Please apply
+
+Regards,
+	Zwane Mwaikambo
+
+Diffed against 2.5.21
+--- linux-2.5.19/arch/i386/kernel/io_apic.c.orig	Fri Jun 14 11:53:15 2002
++++ linux-2.5.19/arch/i386/kernel/io_apic.c	Fri Jun 14 11:55:01 2002
+@@ -248,13 +248,14 @@
+ static inline void balance_irq(int irq)
+ {
+ #if CONFIG_SMP
+-	irq_balance_t *entry = irq_balance + irq;
++	irq_balance_t *entry;
+ 	unsigned long now = jiffies;
+ 
+-	if (unlikely(entry->timestamp != now)) {
++	if ((entry->timestamp != now) && (smp_num_cpus > 1)) {
+ 		unsigned long allowed_mask;
+ 		int random_number;
+ 
++		entry = irq_balance + irq;
+ 		rdtscl(random_number);
+ 		random_number &= 1;
+ 
+
 -- 
----------------------------------------+--------------------------
-  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
- Firewall Developer, Ingate Systems AB |  http://www.ingate.com/
+http://function.linuxpower.ca
+		
+
+
+
+

@@ -1,59 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVCTXKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVCTXKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVCTXKk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVCTXIl
+	id S261362AbVCTXKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVCTXHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:08:41 -0500
-Received: from ns3.dataphone.se ([212.37.0.170]:38611 "EHLO
+	Sun, 20 Mar 2005 18:07:46 -0500
+Received: from ns3.dataphone.se ([212.37.0.170]:29139 "EHLO
 	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
-	id S261343AbVCTXGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:06:33 -0500
+	id S261334AbVCTXGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:06:17 -0500
 From: Magnus Damm <damm@opensource.se>
 To: linux-kernel@vger.kernel.org
 Cc: Magnus Damm <damm@opensource.se>
-Message-Id: <20050320223840.25305.64661.89766@clementine.local>
+Message-Id: <20050320223824.25305.94292.15135@clementine.local>
 In-Reply-To: <20050320223814.25305.52695.65404@clementine.local>
 References: <20050320223814.25305.52695.65404@clementine.local>
-Subject: [PATCH 5/5] autoparam: various fixes
-Date: Mon, 21 Mar 2005 00:06:32 +0100 (CET)
+Subject: [PATCH 2/5] autoparam: script
+Date: Mon, 21 Mar 2005 00:06:16 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some module parameter fixes, errors reported by section2text.rb. 
+The quick ruby hack that generates text from the section data. The script
+should probably be rewritten in some other languare to minimize dependencies.
+Parameters without types are the result of MODULE_PARM_DESC typos or the use of
+MODULE_PARM() instead of module_param() and are treated as errors.
 
 Signed-off-by: Magnus Damm <damm@opensource.se>
 
-diff -urN linux-2.6.12-rc1/drivers/net/8139cp.c linux-2.6.12-rc1-autoparam/drivers/net/8139cp.c
---- linux-2.6.12-rc1/drivers/net/8139cp.c	2005-03-20 18:09:14.000000000 +0100
-+++ linux-2.6.12-rc1-autoparam/drivers/net/8139cp.c	2005-03-20 22:47:41.504538496 +0100
-@@ -94,13 +94,13 @@
- MODULE_LICENSE("GPL");
- 
- static int debug = -1;
--MODULE_PARM (debug, "i");
-+module_param (debug, int, 0);
- MODULE_PARM_DESC (debug, "8139cp: bitmapped message enable number");
- 
- /* Maximum number of multicast addresses to filter (vs. Rx-all-multicast).
-    The RTL chips use a 64 element hash table based on the Ethernet CRC.  */
- static int multicast_filter_limit = 32;
--MODULE_PARM (multicast_filter_limit, "i");
-+module_param (multicast_filter_limit, int, 0);
- MODULE_PARM_DESC (multicast_filter_limit, "8139cp: maximum number of filtered multicast addresses");
- 
- #define PFX			DRV_NAME ": "
-diff -urN linux-2.6.12-rc1/drivers/net/eepro100.c linux-2.6.12-rc1-autoparam/drivers/net/eepro100.c
---- linux-2.6.12-rc1/drivers/net/eepro100.c	2005-03-20 18:20:16.000000000 +0100
-+++ linux-2.6.12-rc1-autoparam/drivers/net/eepro100.c	2005-03-20 22:46:12.176118480 +0100
-@@ -144,8 +144,8 @@
- MODULE_PARM_DESC(congenb, "Enable congestion control (1)");
- MODULE_PARM_DESC(txfifo, "Tx FIFO threshold in 4 byte units, (0-15)");
- MODULE_PARM_DESC(rxfifo, "Rx FIFO threshold in 4 byte units, (0-15)");
--MODULE_PARM_DESC(txdmaccount, "Tx DMA burst length; 128 - disable (0-128)");
--MODULE_PARM_DESC(rxdmaccount, "Rx DMA burst length; 128 - disable (0-128)");
-+MODULE_PARM_DESC(txdmacount, "Tx DMA burst length; 128 - disable (0-128)");
-+MODULE_PARM_DESC(rxdmacount, "Rx DMA burst length; 128 - disable (0-128)");
- MODULE_PARM_DESC(rx_copybreak, "copy breakpoint for copy-only-tiny-frames");
- MODULE_PARM_DESC(max_interrupt_work, "maximum events handled per interrupt");
- MODULE_PARM_DESC(multicast_filter_limit, "maximum number of filtered multicast addresses");
+diff -urN linux-2.6.12-rc1/scripts/section2text.rb linux-2.6.12-rc1-autoparam/scripts/section2text.rb
+--- linux-2.6.12-rc1/scripts/section2text.rb	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/scripts/section2text.rb	2005-03-20 22:53:10.847470760 +0100
+@@ -0,0 +1,72 @@
++#!/usr/bin/env ruby
++
++param = {}   # param[parametername] = [ type, description ]
++
++STDIN.read.split("\0").each do | x |
++  if x != ""
++    d = x.split
++    p = d.shift
++    t = d.shift
++
++    if d.length > 0
++      d = d.join(" ")
++    else
++      d = ""
++    end
++
++    if param[p]
++      if param[p][0] == "()"
++        param[p][0] = t
++      end
++      if param[p][1] == ""
++        param[p][1] = d
++      end
++    else
++      param[p] = [ t, d ]
++    end
++  end
++end
++
++bad = []
++
++param.keys.sort.each do | p |
++  t, d = param[p]
++
++  if t == "()"
++    bad << p
++  end
++end
++
++if bad != []
++  STDERR.puts "#{bad.length} error(s):"
++  bad.each do | p |
++    STDERR.puts "MODULE_PARM_DESC() on non-existing parameter \"#{p}\""
++  end
++  exit 1
++end
++
++param.keys.sort.each do | p |
++  t, d = param[p]
++
++  if not t
++    if p.index("=")
++      t = "(string)"
++    else
++      t = "(bool)"
++    end
++  end
++
++  if t == "()"
++    bad << p
++  else
++    puts "#{p} #{t}"
++    if d == ""
++      puts "  Unknown"
++    else
++      puts "  #{d}"
++    end
++    puts
++  end
++end
++
++exit 0

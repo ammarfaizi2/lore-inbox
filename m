@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbSLGWje>; Sat, 7 Dec 2002 17:39:34 -0500
+	id <S264857AbSLGWl6>; Sat, 7 Dec 2002 17:41:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264854AbSLGWje>; Sat, 7 Dec 2002 17:39:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60679 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264856AbSLGWje>;
-	Sat, 7 Dec 2002 17:39:34 -0500
-Message-ID: <3DF27A48.2090903@pobox.com>
-Date: Sat, 07 Dec 2002 17:46:32 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S264863AbSLGWl6>; Sat, 7 Dec 2002 17:41:58 -0500
+Received: from packet.digeo.com ([12.110.80.53]:9183 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264857AbSLGWl5>;
+	Sat, 7 Dec 2002 17:41:57 -0500
+Message-ID: <3DF27AF9.7BA0D1B5@digeo.com>
+Date: Sat, 07 Dec 2002 14:49:29 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [RFC][PATCH] net drivers and cache alignment
-References: <3DF2781D.3030209@pobox.com> <20021207.144004.45605764.davem@redhat.com>
-In-Reply-To: <20021207.144004.45605764.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jorg de Jong <jorg@dejong.info>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: status of HPT374 support in 2.4.20 and 2.5.50
+References: <3DF26772.8040502@dejong.info> <3DF26DF4.F1692AFA@digeo.com> <3DF2759F.1090403@dejong.info>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2002 22:49:29.0827 (UTC) FILETIME=[E6E01330:01C29E42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> Can't the cacheline_aligned attribute be applied to individual
-> struct members?  I remember doing this for thread_struct on
-> sparc ages ago.
+Jorg de Jong wrote:
+> 
+> > This patch (against 2.4.20) is the one I use when I need to
+> > use the hpt374 in 2.4 kernels.
+> >
+> >
+> >
+> Hi Andrew,
+> 
+> Thanks for your reply. I tried the patch but it gives a kernel panic
+> at file hpt366.c:1344 :-(.
+> 
 
-
-I was hoping someone who knows gcc better than me knew that, and would 
-speak up ;-)
-
-
+Well, you must have a card which is newer than the driver understands.
+That's one for the IDE guys...

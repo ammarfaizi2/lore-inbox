@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273552AbRIUOXl>; Fri, 21 Sep 2001 10:23:41 -0400
+	id <S273562AbRIUO3v>; Fri, 21 Sep 2001 10:29:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273556AbRIUOXb>; Fri, 21 Sep 2001 10:23:31 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:22797 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273552AbRIUOXT>;
-	Fri, 21 Sep 2001 10:23:19 -0400
-Date: Fri, 21 Sep 2001 11:23:29 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, <linux-kernel@vger.kernel.org>
+	id <S273561AbRIUO3m>; Fri, 21 Sep 2001 10:29:42 -0400
+Received: from vega.digitel2002.hu ([213.163.0.181]:49587 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S273557AbRIUO3e>; Fri, 21 Sep 2001 10:29:34 -0400
+Date: Fri, 21 Sep 2001 16:29:50 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <Pine.LNX.3.96.1010921095055.28645A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33L.0109211121100.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010921162950.C16173@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <m1iteegag6.fsf@frodo.biederman.org> <Pine.LNX.4.33L.0109192000050.19147-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33L.0109192000050.19147-100000@imladris.rielhome.conectiva>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: vega Linux 2.4.9 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Bill Davidsen wrote:
+On Wed, Sep 19, 2001 at 08:00:44PM -0300, Rik van Riel wrote:
+> On 19 Sep 2001, Eric W. Biederman wrote:
+> 
+> > That added to the fact that last time someone ran the numbers linux
+> > was considerably faster than the BSD for mm type operations when not
+> > swapping.  And this is the common case.
+> 
+> Optimising the VM for not swapping sounds kind of like
+> optimising your system for doing empty fork()/exec()/exit()
+> loops ;)
 
-> The list is an okay way to determine rank within a class, but I still
-> think that there is a need for some balance between text, program data,
-> pages loaded via i/o, perhaps more. My disquiet with the new
-> implementation is based on a desire to avoid swapping program data to make
-> room for i/o data (using those terms in a loose way for identification).
+Maybe not since I'm not using swap :) The rule is (well at least it was ...)
+for 2.4.x desktop systems: buy 256Mb of RAM (and disable swapping at all),
+it's cheap ... and after that you will be able to use 2.4.x instead of 2.2.x
+quite well.
 
-Preference for evicting one kind of cache is indeed a bad
-thing. It might work for 90% of the workloads, but you can
-be sure it breaks horribly for the other 10%.
-
-I'm currently busy tweaking the old 2.4 VM (in the -ac kernels)
-to try and get optimal performance from that one, without giving
-preference to one kind of cache ... except in the situation where
-the amount of cache is excessive.
-
-> I would also like to have time to investigate what happens if the pages
-> associated with a program load are handled in larger blocks, meta-pages
-> perhaps, which would at least cause many to be loaded at once on a page
-> fault, rather than faulting them in one at a time.
-
-This is an interesting thing, too. Something to look into for
-2.5 and if it turns out simple enough we may even want to
-backport it to 2.4.
-
-regards,
-
-Rik
 -- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+ --[ Gábor Lénárt ]---[ Vivendi Telecom Hungary ]---------[ lgb@lgb.hu ]--
+ U have 8 bit comp or chip of them and it's unused or to be sold? Call me!
+ -------[ +36 30 2270823 ]------> LGB <-----[ Linux/UNIX/8bit 4ever ]-----

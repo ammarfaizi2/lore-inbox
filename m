@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbTDAI4D>; Tue, 1 Apr 2003 03:56:03 -0500
+	id <S262199AbTDAJGi>; Tue, 1 Apr 2003 04:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262196AbTDAI4D>; Tue, 1 Apr 2003 03:56:03 -0500
-Received: from infa.abo.fi ([130.232.208.126]:10251 "EHLO infa.abo.fi")
-	by vger.kernel.org with ESMTP id <S262190AbTDAI4C>;
-	Tue, 1 Apr 2003 03:56:02 -0500
-Date: Tue, 1 Apr 2003 12:07:22 +0300
-From: Marcus Alanen <marcus@infa.abo.fi>
-Message-Id: <200304010907.h3197Mi20706@infa.abo.fi>
-To: ramands@indiatimes.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Compilation Error: variable has intializer but incomplete type
-In-Reply-To: <200304010401.JAA16708@WS0005.indiatimes.com>
-References: <200304010401.JAA16708@WS0005.indiatimes.com>
+	id <S262205AbTDAJGi>; Tue, 1 Apr 2003 04:06:38 -0500
+Received: from [203.199.93.15] ([203.199.93.15]:38411 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id <S262199AbTDAJGh>; Tue, 1 Apr 2003 04:06:37 -0500
+From: "ramands" <ramands@indiatimes.com>
+Message-Id: <200304010845.OAA14558@WS0005.indiatimes.com>
+To: <linux-kernel@vger.kernel.org>
+Reply-To: "ramands" <ramands@indiatimes.com>
+Subject: Error:variable has intializer but incomplete type
+Date: Tue, 01 Apr 2003 14:48:31 +0530
+X-URL: http://indiatimes.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->i am trying to learn and write device driver on linux kernel 2.4 redhat
->  distribution 
->
->iam getting compilation errors for driver code.
->struct file_operations my_ops ={NULL,my_read,my_write,NULL,NULL,NULL
->NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
->NULL };
->
->ERROR -> my_ops has intializer but incomplete type
+i am trying to learn and write device driver on linux kernel 2.4 redhat distribution 
 
-This is not a good way to do it. See e.g. fs/pipe.c#read_fifo_fops
-for an easier approach:
+iam getting compilation errors for driver code.
+struct file_operations my_ops ={NULL,my_read,my_write,NULL,NULL,NULL
+NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+NULL };
 
-struct file_operations read_fifo_fops = {
-        llseek:         no_llseek,
-        read:           pipe_read,
-        write:          bad_pipe_w,
-        poll:           fifo_poll,
-        ioctl:          pipe_ioctl,
-        open:           pipe_read_open,
-        release:        pipe_read_release,
-};
+ERROR -> my_ops has intializer but incomplete type
+
+Can anyone help me with this 
+Regards
+Raman
 
 
--- 
-Marcus Alanen
-maalanen@abo.fi
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy The Best In BOOKS at http://www.bestsellers.indiatimes.com
+
+Bid for for Air Tickets @ Re.1 on Air Sahara Flights. Just log on to http://airsahara.indiatimes.com and Bid Now !
+

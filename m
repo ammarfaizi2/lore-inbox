@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262649AbSI0X4p>; Fri, 27 Sep 2002 19:56:45 -0400
+	id <S262651AbSI1AY1>; Fri, 27 Sep 2002 20:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262651AbSI0X4p>; Fri, 27 Sep 2002 19:56:45 -0400
-Received: from jalon.able.es ([212.97.163.2]:12681 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262649AbSI0X4o>;
-	Fri, 27 Sep 2002 19:56:44 -0400
-Date: Sat, 28 Sep 2002 01:58:41 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Davidsen <davidsen@tmr.com>, "J.A. Magallon" <jamagallon@able.es>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [ANNOUNCE] [patch] kksymoops, in-kernel symbolic oopser, 2.5.38-B0
-Message-ID: <20020927235841.GA1558@werewolf.able.es>
-References: <Pine.LNX.4.44.0209272312020.21134-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S262654AbSI1AY0>; Fri, 27 Sep 2002 20:24:26 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50696 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262651AbSI1AYZ>; Fri, 27 Sep 2002 20:24:25 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: sysrq on serial console
+Date: 27 Sep 2002 17:29:42 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <an2t5m$rto$1@cesium.transmeta.com>
+References: <3D94ED88.5040407@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44.0209272312020.21134-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Sep 27, 2002 at 23:13:32 +0200
-X-Mailer: Balsa 1.4.1
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <3D94ED88.5040407@us.ibm.com>
+By author:    Dave Hansen <haveblue@us.ibm.com>
+In newsgroup: linux.dev.kernel
+>
+> Since the serial cleanups happened in 2.5, Magic Sysrq doesn't work 
+> for me on the serial console.
+> 
 
-On 2002.09.27 Ingo Molnar wrote:
->
->> > Call Trace:
->> >   [<c0112a40>] do_page_fault+0x0/0x4a2
->> >   [<c0107973>] syscall_call+0x7/0xb
->
->> I think that's a great idea.
->
->it's already in the kksymoops patch that Linus applied two days ago.
->
+It's been broken for me in several 2.4 versions as well.  This is
+highly troublesome.
 
-Any version of this for 2.4 ? I think this is going to be very, very usefull,
-so it is interesting to have it on 2.4...
-
+> It looks like the UART_LSR_BI bit needs to be set in the status 
+> variable for the break character to be interpreted as a break in the 
+> driver.
+> 
+> I doubt that it is actually broken,  but it isn't immediately obvious 
+> how that bit gets set.  Is there something that I should have set when 
+> the device was initialized to make sure that UART_LSR_BI is asserted 
+> in "status" when the interrupt occurs?
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (Cooker) for i586
-Linux 2.4.20-pre8-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

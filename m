@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264962AbUFTRQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265501AbUFTRTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264962AbUFTRQq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 13:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbUFTRQq
+	id S265501AbUFTRTH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 13:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbUFTRTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 13:16:46 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:64923 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264962AbUFTRQo (ORCPT
+	Sun, 20 Jun 2004 13:19:07 -0400
+Received: from mail.dif.dk ([193.138.115.101]:55525 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S265501AbUFTRSr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 13:16:44 -0400
-Date: Sun, 20 Jun 2004 19:16:40 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.27-rc1
-In-Reply-To: <20040620004520.GA4599@logos.cnet>
-Message-ID: <Pine.GSO.4.58.0406201910300.23356@waterleaf.sonytel.be>
-References: <20040620004520.GA4599@logos.cnet>
+	Sun, 20 Jun 2004 13:18:47 -0400
+Date: Sun, 20 Jun 2004 19:17:49 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Arun Sen <arunsen@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Restating the questions
+In-Reply-To: <02d701c456da$ee397a20$6401a8c0@waterdell>
+Message-ID: <Pine.LNX.4.56.0406201909370.20352@jjulnx.backbone.dif.dk>
+References: <02d701c456da$ee397a20$6401a8c0@waterdell>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004, Marcelo Tosatti wrote:
-> Marcelo Tosatti:
->   o journal_try_to_free_buffers(): Add debug print in case of bh list corruption
+On Sun, 20 Jun 2004, Arun Sen wrote:
 
-Which introduced 4 warnings. Here's a fix:
+> Q1.  I want to find out what the steps are for submitting and approving a
+> patch in the Linux kernel?   I know that Linus has sent out an email
+> regarding the patch approval process and I have read it.
+>
+Read Documentation/SubmittingPatches
+Read http://www.tux.org/lkml/#s1-10
 
---- linux-2.4.27-rc1/fs/jbd/transaction.c.orig	2004-06-20 13:04:20.000000000 +0200
-+++ linux-2.4.27-rc1/fs/jbd/transaction.c	2004-06-20 19:08:07.000000000 +0200
-@@ -1700,11 +1700,11 @@ void debug_page(struct page *p)
+> Q2.  I have looked into a mirror site for the kernel (in the university of
+> Wisconsin web site) for all kinds of patches for the kernel.  I am looking
+> at all patches for all versions of the kernel.  I would like to find out who
+> the authors are of these patches.  Can you help me find this info?
+>
+ftp://ftp.kernel.org/pub/linux/kernel - for most recent versions
+ChangeLogs are available, amongst other things the ChangeLogs contain info
+on who wrote or submitted the patch. For more info read the MAINTAINERS
+& CREDITS files as well as source code comments in the source files
+themselves.
 
- 	bh = p->buffers;
+Other people can probably point you at more...
 
--	printk(KERN_ERR "%s: page index:%u count:%d flags:%x\n", __FUNCTION__,
-+	printk(KERN_ERR "%s: page index:%lu count:%d flags:%lx\n", __FUNCTION__,
- 		 p->index, atomic_read(&p->count), p->flags);
-
- 	while (bh) {
--		printk(KERN_ERR "%s: bh b_next:%p blocknr:%u b_list:%u state:%x\n",
-+		printk(KERN_ERR "%s: bh b_next:%p blocknr:%lu b_list:%u state:%lx\n",
- 			__FUNCTION__, bh->b_next, bh->b_blocknr, bh->b_list,
- 				bh->b_state);
- 		bh = bh->b_this_page;
-
-
-And now I just looked at the original patch:
-
-| --- linux-2.4.26/fs/jbd/transaction.c	2004-02-18 13:36:31.000000000 +0000
-| +++ linux-2.4.27-rc1/fs/jbd/transaction.c	2004-06-19 23:37:33.000000000 +0000
-| @@ -1752,6 +1769,11 @@ int journal_try_to_free_buffers(journal_
-|  	do {
-|  		struct buffer_head *p = tmp;
-|
-| +		if (!unlikely(tmp)) {
-                    ^^^^^^^^^^^^^^
-Shouldn't this be `unlikely(!tmp))'?
-
-| +			debug_page(page);
-| +			BUG();
-| +		}
-| +
-|  		tmp = tmp->b_this_page;
-|  		if (buffer_jbd(p))
-|  			if (!__journal_try_to_free_buffer(p, &locked_or_dirty))
-
-Gr{oetje,eeting}s,
-
-						Geert
+Btw, what are you going to use this info for? I'm currious (and I'm sure
+other people are as well).
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Jesper Juhl <juhl-lkml@dif.dk>
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+

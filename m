@@ -1,217 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbUANTjj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 14:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbUANTjF
+	id S264488AbUANTiB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 14:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbUANTgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 14:39:05 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:21186 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S263803AbUANTiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 14:38:11 -0500
-Date: Wed, 14 Jan 2004 11:38:04 -0800
-To: rmk@arm.linux.org.uk,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Re: [PROBLEM] ircomm ioctls
-Message-ID: <20040114193804.GA21754@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20040113181034.GA9960@bougret.hpl.hp.com> <20040113182955.F7256@flint.arm.linux.org.uk>
+	Wed, 14 Jan 2004 14:36:36 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:13442 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264323AbUANTfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 14:35:22 -0500
+Subject: Re: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic
+	subarch UP installer kernels
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 14 Jan 2004 14:34:45 -0500
+Message-Id: <1074108886.11035.59.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040113182955.F7256@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 06:29:55PM +0000, Russell King wrote:
-> On Tue, Jan 13, 2004 at 10:10:34AM -0800, Jean Tourrilhes wrote:
-> > Russell King wrote :
-> > > On Tue, Jan 13, 2004 at 12:00:15PM +0100, Jozef Vesely wrote:
-> > > > I am gettig this error (while connecting to my mobile phone):
-> > > > ------
-> > > > # gsmctl -d /dev/ircomm0  ALL
-> > > > gsmctl[ERROR]: clearing DTR failed (errno: 22/Invalid argument)
-> > > > ------
-> > > 
-> > > ircomm needs updating to use the tiocmset/tiocmget driver calls.  Could
-> > > you see if the following patch solves your problem please?
-> > 
-> > 	Good catch. Is there any other API changes worth looking into ?
-> > 
-> > 	By the way, I would rather keep the function
-> > ircomm_tty_tiocmget() and ircomm_tty_tiocmset() in ircomm_tty_ioctl.c,
-> > because ircomm_tty.c is already big and messy.
-> > 	Check the patch below (quickly tested).
-> 
-> I think this patch is missing some of the error checking (TTY_IO_ERROR)
-> which I included in my later patch.
+I don't think this:
 
-	Gotcha. Thanks. The patch would look like attached.
++# if defined(CONFIG_X86_SUMMIT) || defined(CONFIG_X86_GENERICARCH)
 
-	By the way, are you sending this patch as part of your mega
-patch or do you want me to send it ? I just want to avoid patch
-collision ;-)
-	Thanks...
+Is a good idea.  You're contaminating the default subarch with another
+subarch specific #define.
 
-	Jean
+generic arch additions are fine here, but you should find a better way
+to abstract the summit stuff.
 
---------------------------------------------------------------
+James
 
-diff -u -p linux/include/net/irda/ircomm_tty.d5.h linux/include/net/irda/ircomm_tty.h
---- linux/include/net/irda/ircomm_tty.d5.h	Tue Jan 13 09:51:52 2004
-+++ linux/include/net/irda/ircomm_tty.h	Tue Jan 13 10:01:11 2004
-@@ -122,6 +122,9 @@ void ircomm_tty_stop(struct tty_struct *
- void ircomm_tty_check_modem_status(struct ircomm_tty_cb *self);
- 
- extern void ircomm_tty_change_speed(struct ircomm_tty_cb *self);
-+extern int ircomm_tty_tiocmget(struct tty_struct *tty, struct file *file);
-+extern int ircomm_tty_tiocmset(struct tty_struct *tty, struct file *file,
-+			       unsigned int set, unsigned int clear);
- extern int ircomm_tty_ioctl(struct tty_struct *tty, struct file *file, 
- 			    unsigned int cmd, unsigned long arg);
- extern void ircomm_tty_set_termios(struct tty_struct *tty, 
-diff -u -p linux/net/irda/ircomm/ircomm_tty.d5.c linux/net/irda/ircomm/ircomm_tty.c
---- linux/net/irda/ircomm/ircomm_tty.d5.c	Tue Jan 13 09:55:04 2004
-+++ linux/net/irda/ircomm/ircomm_tty.c	Tue Jan 13 10:02:52 2004
-@@ -86,7 +86,9 @@ static struct tty_operations ops = {
- 	.write_room      = ircomm_tty_write_room,
- 	.chars_in_buffer = ircomm_tty_chars_in_buffer,
- 	.flush_buffer    = ircomm_tty_flush_buffer,
--	.ioctl           = ircomm_tty_ioctl,
-+	.ioctl           = ircomm_tty_ioctl,	/* ircomm_tty_ioctl.c */
-+	.tiocmget        = ircomm_tty_tiocmget,	/* ircomm_tty_ioctl.c */
-+	.tiocmset        = ircomm_tty_tiocmset,	/* ircomm_tty_ioctl.c */
- 	.throttle        = ircomm_tty_throttle,
- 	.unthrottle      = ircomm_tty_unthrottle,
- 	.send_xchar      = ircomm_tty_send_xchar,
-diff -u -p linux/net/irda/ircomm/ircomm_tty_ioctl.d5.c linux/net/irda/ircomm/ircomm_tty_ioctl.c
---- linux/net/irda/ircomm/ircomm_tty_ioctl.d5.c	Tue Jan 13 09:54:53 2004
-+++ linux/net/irda/ircomm/ircomm_tty_ioctl.c	Wed Jan 14 11:27:56 2004
-@@ -190,81 +190,62 @@ void ircomm_tty_set_termios(struct tty_s
- }
- 
- /*
-- * Function ircomm_tty_get_modem_info (self, value)
-+ * Function ircomm_tty_tiocmget (tty, file)
-  *
-  *    
-  *
-  */
--static int ircomm_tty_get_modem_info(struct ircomm_tty_cb *self, 
--				     unsigned int *value)
-+int ircomm_tty_tiocmget(struct tty_struct *tty, struct file *file)
- {
-+	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
- 	unsigned int result;
- 
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
- 
-+	if (tty->flags & (1 << TTY_IO_ERROR))
-+		return -EIO;
-+
- 	result =  ((self->settings.dte & IRCOMM_RTS) ? TIOCM_RTS : 0)
- 		| ((self->settings.dte & IRCOMM_DTR) ? TIOCM_DTR : 0)
- 		| ((self->settings.dce & IRCOMM_CD)  ? TIOCM_CAR : 0)
- 		| ((self->settings.dce & IRCOMM_RI)  ? TIOCM_RNG : 0)
- 		| ((self->settings.dce & IRCOMM_DSR) ? TIOCM_DSR : 0)
- 		| ((self->settings.dce & IRCOMM_CTS) ? TIOCM_CTS : 0);
--
--	return put_user(result, value);
-+	return result;
- }
- 
- /*
-- * Function set_modem_info (driver, cmd, value)
-+ * Function ircomm_tty_tiocmset (tty, file, set, clear)
-  *
-  *    
-  *
-  */
--static int ircomm_tty_set_modem_info(struct ircomm_tty_cb *self, 
--				     unsigned int cmd, unsigned int *value)
-+int ircomm_tty_tiocmset(struct tty_struct *tty, struct file *file,
-+			unsigned int set, unsigned int clear)
- { 
--	unsigned int arg;
--	__u8 old_rts, old_dtr;
-+	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) tty->driver_data;
- 
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
- 
-+	if (tty->flags & (1 << TTY_IO_ERROR))
-+		return -EIO;
-+
- 	ASSERT(self != NULL, return -1;);
- 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
- 
--	if (get_user(arg, value))
--		return -EFAULT;
-+	if (set & TIOCM_RTS)
-+		self->settings.dte |= IRCOMM_RTS;
-+	if (set & TIOCM_DTR)
-+		self->settings.dte |= IRCOMM_DTR;
-+
-+	if (clear & TIOCM_RTS)
-+		self->settings.dte &= ~IRCOMM_RTS;
-+	if (clear & TIOCM_DTR)
-+		self->settings.dte &= ~IRCOMM_DTR;
- 
--	old_rts = self->settings.dte & IRCOMM_RTS;
--	old_dtr = self->settings.dte & IRCOMM_DTR;
--
--	switch (cmd) {
--	case TIOCMBIS: 
--		if (arg & TIOCM_RTS) 
--			self->settings.dte |= IRCOMM_RTS;
--		if (arg & TIOCM_DTR)
--			self->settings.dte |= IRCOMM_DTR;
--		break;
--		
--	case TIOCMBIC:
--		if (arg & TIOCM_RTS)
--			self->settings.dte &= ~IRCOMM_RTS;
--		if (arg & TIOCM_DTR)
-- 			self->settings.dte &= ~IRCOMM_DTR;
-- 		break;
--		
--	case TIOCMSET:
-- 		self->settings.dte = 
--			((self->settings.dte & ~(IRCOMM_RTS | IRCOMM_DTR))
--			 | ((arg & TIOCM_RTS) ? IRCOMM_RTS : 0)
--			 | ((arg & TIOCM_DTR) ? IRCOMM_DTR : 0));
--		break;
--		
--	default:
--		return -EINVAL;
--	}
--	
--	if ((self->settings.dte & IRCOMM_RTS) != old_rts)
-+	if ((set|clear) & TIOCM_RTS)
- 		self->settings.dte |= IRCOMM_DELTA_RTS;
--
--	if ((self->settings.dte & IRCOMM_DTR) != old_dtr)
-+	if ((set|clear) & TIOCM_DTR)
- 		self->settings.dte |= IRCOMM_DELTA_DTR;
- 
- 	ircomm_param_request(self, IRCOMM_DTE, TRUE);
-@@ -406,14 +387,6 @@ int ircomm_tty_ioctl(struct tty_struct *
- 	}
- 
- 	switch (cmd) {
--	case TIOCMGET:
--		ret = ircomm_tty_get_modem_info(self, (unsigned int *) arg);
--		break;
--	case TIOCMBIS:
--	case TIOCMBIC:
--	case TIOCMSET:
--		ret = ircomm_tty_set_modem_info(self, cmd, (unsigned int *) arg);
--		break;
- 	case TIOCGSERIAL:
- 		ret = ircomm_tty_get_serial_info(self, (struct serial_struct *) arg);
- 		break;
 

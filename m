@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbUBQIwc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 03:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbUBQIwc
+	id S264129AbUBQIu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 03:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUBQIu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 03:52:32 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:30157 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S264137AbUBQIw3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 03:52:29 -0500
-Subject: Re: Where to find up to date documentation
-From: "Yury V. Umanets" <umka@namesys.com>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200402161158.06060.m.watts@eris.qinetiq.com>
-References: <200402161158.06060.m.watts@eris.qinetiq.com>
-Content-Type: text/plain
-Organization: NAMESYS
-Message-Id: <1077008003.3548.4.camel@firefly>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 17 Feb 2004 10:53:23 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 03:50:56 -0500
+Received: from bart.one-2-one.net ([217.115.142.76]:32785 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S264129AbUBQIuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 03:50:54 -0500
+Date: Tue, 17 Feb 2004 09:54:52 +0100 (CET)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.3-rc4
+In-Reply-To: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0402170946140.31216-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-02-16 at 13:58, Mark Watts wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> 
-> Can someone recommend the best place to look for documentation on writing a 
-> device driver for the 2.6.x kernel? (Preferably something with a worked 
-> example)
-> 
-> I'd prefer a hardcopy book, but I can only see ones for 2.4 driver 
-> development.
-> 
-> Cheers,
-> 
-It depends on what driver type you are developing. Anyway, IMHO the best
-way to see it is to read the sources in linux/drivers directory.
-> Mark.
-> 
-> - -- 
-> Mark Watts
-> Senior Systems Engineer
-> QinetiQ TIM
-> St Andrews Road, Malvern
-> GPG Public Key ID: 455420ED
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.3 (GNU/Linux)
-> 
-> iD8DBQFAMLBOBn4EFUVUIO0RAkl6AJ0adGg7fyud/njfY2byccccmV2kcACeI+gP
-> i57VzaimePPv+VQpzxZt+Zs=
-> =NmkT
-> -----END PGP SIGNATURE-----
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-umka
+On Mon, 16 Feb 2004, Linus Torvalds wrote:
+
+> Bartlomiej Zolnierkiewicz:
+>   o make __ide_dma_off() generic and remove ide_hwif_t->ide_dma_off
+
+doesn't build for me:
+
+drivers/built-in.o(.text+0x3aa33): In function `set_using_dma':
+: undefined reference to `__ide_dma_off'
+drivers/built-in.o(.text+0x401bc): In function `check_dma_crc':
+: undefined reference to `__ide_dma_off'
+make: *** [.tmp_vmlinux1] Error 1
+
+relevant .config section below.
+
+Martin
+
+-------------------------
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECS is not set
+# CONFIG_BLK_DEV_IDECD is not set
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+# CONFIG_IDE_TASKFILE_IO is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_IDE_GENERIC=y
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_IDEPCI is not set
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_BLK_DEV_IDEDMA is not set
+# CONFIG_IDEDMA_AUTO is not set
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_BLK_DEV_HD is not set
+
 

@@ -1,53 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264237AbTEZEML (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 00:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbTEZEMK
+	id S264248AbTEZEOV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 00:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTEZEOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 00:12:10 -0400
-Received: from rth.ninka.net ([216.101.162.244]:52355 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264237AbTEZEMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 00:12:10 -0400
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-From: "David S. Miller" <davem@redhat.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, gibbs@scsiguy.com,
-       acme@conectiva.com.br
-In-Reply-To: <20030524064340.GA1451@alpha.home.local>
-References: <1053732598.1951.13.camel@mulgrave>
-	 <20030524064340.GA1451@alpha.home.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053923112.14018.16.camel@rth.ninka.net>
+	Mon, 26 May 2003 00:14:21 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:23045 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264248AbTEZEOT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 00:14:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1053923249281@movementarian.org>
+Subject: [PATCH 1/5] OProfile update
+In-Reply-To: 
+From: John Levon <levon@movementarian.org>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 26 May 2003 05:27:29 +0100
+Content-Transfer-Encoding: 7BIT
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 May 2003 21:25:13 -0700
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19K9a5-000OE2-UW*6oyxQ2Aw8SM*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-23 at 23:43, Willy Tarreau wrote:
-> As I said, I really hope that we'll have a quick 2.4.22 with bug fixes taken
-> as a priority. The current pre-releases are as frequent and as big as what
-> used to be full releases in the past.
 
-I really think 2.4.x development is becoming almost non-existent
-lately.
+The five patches here change the following files :
 
-It's 5 or 6 days of silence, nothing happening at all, then a flurry
-of 10 or 20 checkins and a -rc or -pre release.
+ Documentation/kernel-parameters.txt |    3 ++
+ drivers/oprofile/buffer_sync.c      |   49 ++++++++++++++++++++++++++----------
+ drivers/oprofile/cpu_buffer.c       |    6 +---
+ drivers/oprofile/event_buffer.h     |    1
+ drivers/oprofile/oprof.c            |   25 +++++++++++++-----
+ fs/dcookies.c                       |    6 ++++
+ 6 files changed, 67 insertions(+), 23 deletions(-)
 
-If Conectiva needs to task Marcelo to so much work that he can only
-really put 1 or 2 days a week into 2.4.x, this needs be rethought at
-either one end (Conectiva finding a way to give him more 2.4.x time) or
-another (Marcelo splits up the work with someone else or we simply find
-another 2.4.x maintainer).
+please apply
+john
 
-I really want something more -ac paced although that may be too extreme
-for some people. :-)
 
--- 
-David S. Miller <davem@redhat.com>
+My previous fix was incomplete, we could get the same thing happening
+on the init-failure path. Fix that.
+
+diff -Naur -X dontdiff linux-cvs/drivers/oprofile/buffer_sync.c linux-me/drivers/oprofile/buffer_sync.c
+--- linux-cvs/drivers/oprofile/buffer_sync.c	2003-05-26 03:20:20.000000000 +0100
++++ linux-me/drivers/oprofile/buffer_sync.c	2003-05-26 04:25:15.000000000 +0100
+@@ -127,6 +127,14 @@
+ };
+ 
+  
++static void end_sync_timer(void)
++{
++	del_timer_sync(&sync_timer);
++	/* timer might have queued work, make sure it's completed. */
++	flush_scheduled_work();
++}
++
++
+ int sync_start(void)
+ {
+ 	int err;
+@@ -158,7 +166,7 @@
+ out2:
+ 	profile_event_unregister(EXIT_TASK, &exit_task_nb);
+ out1:
+-	del_timer_sync(&sync_timer);
++	end_sync_timer();
+ 	goto out;
+ }
+ 
+@@ -169,9 +177,7 @@
+ 	profile_event_unregister(EXIT_TASK, &exit_task_nb);
+ 	profile_event_unregister(EXIT_MMAP, &exit_mmap_nb);
+ 	profile_event_unregister(EXEC_UNMAP, &exec_unmap_nb);
+-	del_timer_sync(&sync_timer);
+-	/* timer might have queued work, make sure it's completed. */
+-	flush_scheduled_work();
++	end_sync_timer();
+ }
+ 
+  
+

@@ -1,171 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUFZM0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUFZM3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266204AbUFZM0q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 08:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUFZM0q
+	id S267165AbUFZM3r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 08:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267168AbUFZM3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 08:26:46 -0400
-Received: from mail.gmx.net ([213.165.64.20]:42376 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266204AbUFZM0e (ORCPT
+	Sat, 26 Jun 2004 08:29:47 -0400
+Received: from verein.lst.de ([212.34.189.10]:46054 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S267165AbUFZM3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 08:26:34 -0400
-Date: Sat, 26 Jun 2004 14:26:33 +0200 (MEST)
-From: =?ISO-8859-1?Q?=22Fabian_LoneStar_Fr=E9d=E9rick=22?= 
-	<fabian.frederick@gmx.fr>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary209671088252793"
-Subject: [PATCH 2.6.7-mm2] New procfs feature : cpuflags
-X-Priority: 3 (Normal)
-X-Authenticated: #9223398
-Message-ID: <20967.1088252793@www46.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+	Sat, 26 Jun 2004 08:29:44 -0400
+Date: Sat, 26 Jun 2004 14:29:35 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@osdl.org, paulus@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix compilation for ppc32
+Message-ID: <20040626122935.GA15896@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org,
+	paulus@samba.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+PPC has an out of line and exported abs() that gives lots of nice and
+wierd compilation erorrs.  Also kill the duplicate cpu_online() in
+asm-ppc/smp.h.
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
 
---========GMXBoundary209671088252793
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-Hi,
-
-      This patch displays x86 flags in /proc/cpuflags :
-e.g.
-flag1   :yes
-flag2   :no
-flagx   :yes
-...
-
-PS:It works on x86 evaluating first processor flags (generic?).
-PS2:Why ? current cpuinfo displays all _available_ flags only and in queue
-mode.
-
-Regards,
-FabF
-
--- 
-"Sie haben neue Mails!" - Die GMX Toolbar informiert Sie beim Surfen!
-Jetzt aktivieren unter http://www.gmx.net/info
---========GMXBoundary209671088252793
-Content-Type: text/x-patch; name="cpuflags.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="cpuflags.diff"
-
-ZGlmZiAtTmF1ciBvcmlnfmNwdWZsYWdzL2FyY2gvaTM4Ni9rZXJuZWwvY3B1L3Byb2MuYyBlZGl0
-ZWR+Y3B1ZmxhZ3MvYXJjaC9pMzg2L2tlcm5lbC9jcHUvcHJvYy5jCi0tLSBvcmlnfmNwdWZsYWdz
-L2FyY2gvaTM4Ni9rZXJuZWwvY3B1L3Byb2MuYwkyMDA0LTA2LTI1IDAwOjUyOjI0LjAwMDAwMDAw
-MCArMDIwMAorKysgZWRpdGVkfmNwdWZsYWdzL2FyY2gvaTM4Ni9rZXJuZWwvY3B1L3Byb2MuYwky
-MDA0LTA2LTI2IDE0OjExOjMxLjAwMDAwMDAwMCArMDIwMApAQCAtNCw1NyArNCw1NyBAQAogI2lu
-Y2x1ZGUgPGFzbS9zZW1hcGhvcmUuaD4KICNpbmNsdWRlIDxsaW51eC9zZXFfZmlsZS5oPgogCisv
-KiAKKyAqIFRoZXNlIGZsYWcgYml0cyBtdXN0IG1hdGNoIHRoZSBkZWZpbml0aW9ucyBpbiA8YXNt
-L2NwdWZlYXR1cmUuaD4uCisgKiBOVUxMIG1lYW5zIHRoaXMgYml0IGlzIHVuZGVmaW5lZCBvciBy
-ZXNlcnZlZDsgZWl0aGVyIHdheSBpdCBkb2Vzbid0CisgKiBoYXZlIG1lYW5pbmcgYXMgZmFyIGFz
-IExpbnV4IGlzIGNvbmNlcm5lZC4gIE5vdGUgdGhhdCBpdCdzIGltcG9ydGFudAorICogdG8gcmVh
-bGl6ZSB0aGVyZSBpcyBhIGRpZmZlcmVuY2UgYmV0d2VlbiB0aGlzIHRhYmxlIGFuZCBDUFVJRCAt
-LSBpZgorICogYXBwbGljYXRpb25zIHdhbnQgdG8gZ2V0IHRoZSByYXcgQ1BVSUQgZGF0YSwgdGhl
-eSBzaG91bGQgYWNjZXNzCisgKiAvZGV2L2NwdS88Y3B1X25yPi9jcHVpZCBpbnN0ZWFkLgorICov
-CitzdGF0aWMgY2hhciAqeDg2X2NhcF9mbGFnc1tdID0geworCS8qIEludGVsLWRlZmluZWQgKi8K
-KyAgICAgICAgImZwdSIsICJ2bWUiLCAiZGUiLCAicHNlIiwgInRzYyIsICJtc3IiLCAicGFlIiwg
-Im1jZSIsCisgICAgICAgICJjeDgiLCAiYXBpYyIsIE5VTEwsICJzZXAiLCAibXRyciIsICJwZ2Ui
-LCAibWNhIiwgImNtb3YiLAorICAgICAgICAicGF0IiwgInBzZTM2IiwgInBuIiwgImNsZmx1c2gi
-LCBOVUxMLCAiZHRzIiwgImFjcGkiLCAibW14IiwKKyAgICAgICAgImZ4c3IiLCAic3NlIiwgInNz
-ZTIiLCAic3MiLCAiaHQiLCAidG0iLCAiaWE2NCIsICJwYmUiLAorCisJLyogQU1ELWRlZmluZWQg
-Ki8KKwlOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLAorCU5V
-TEwsIE5VTEwsIE5VTEwsICJzeXNjYWxsIiwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwKKwlOVUxM
-LCBOVUxMLCBOVUxMLCAibXAiLCAibngiLCBOVUxMLCAibW14ZXh0IiwgTlVMTCwKKwlOVUxMLCBO
-VUxMLCBOVUxMLCBOVUxMLCBOVUxMLCAibG0iLCAiM2Rub3dleHQiLCAiM2Rub3ciLAorCisJLyog
-VHJhbnNtZXRhLWRlZmluZWQgKi8KKwkicmVjb3ZlcnkiLCAibG9uZ3J1biIsIE5VTEwsICJscnRp
-IiwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwKKwlOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxM
-LCBOVUxMLCBOVUxMLCBOVUxMLAorCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEws
-IE5VTEwsIE5VTEwsCisJTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwg
-TlVMTCwKKworCS8qIE90aGVyIChMaW51eC1kZWZpbmVkKSAqLworCSJjeG1teCIsICJrNl9tdHJy
-IiwgImN5cml4X2FyciIsICJjZW50YXVyX21jciIsCisJTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwK
-KwlOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLAorCU5VTEws
-IE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCisJTlVMTCwgTlVMTCwg
-TlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwKKworCS8qIEludGVsLWRlZmluZWQg
-KCMyKSAqLworCSJwbmkiLCBOVUxMLCBOVUxMLCAibW9uaXRvciIsICJkc19jcGwiLCBOVUxMLCBO
-VUxMLCAidG0yIiwKKwkiZXN0IiwgTlVMTCwgImNpZCIsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEws
-IE5VTEwsCisJTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwK
-KwlOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLAorCisJLyog
-VklBL0N5cml4L0NlbnRhdXItZGVmaW5lZCAqLworCU5VTEwsIE5VTEwsICJybmciLCAicm5nX2Vu
-IiwgTlVMTCwgTlVMTCwgImFjZSIsICJhY2VfZW4iLAorCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEws
-IE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCisJTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwg
-TlVMTCwgTlVMTCwgTlVMTCwKKwlOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBO
-VUxMLCBOVUxMLAorfTsKIC8qCiAgKglHZXQgQ1BVIGluZm9ybWF0aW9uIGZvciB1c2UgYnkgdGhl
-IHByb2Nmcy4KICAqLwogc3RhdGljIGludCBzaG93X2NwdWluZm8oc3RydWN0IHNlcV9maWxlICpt
-LCB2b2lkICp2KQogewotCS8qIAotCSAqIFRoZXNlIGZsYWcgYml0cyBtdXN0IG1hdGNoIHRoZSBk
-ZWZpbml0aW9ucyBpbiA8YXNtL2NwdWZlYXR1cmUuaD4uCi0JICogTlVMTCBtZWFucyB0aGlzIGJp
-dCBpcyB1bmRlZmluZWQgb3IgcmVzZXJ2ZWQ7IGVpdGhlciB3YXkgaXQgZG9lc24ndAotCSAqIGhh
-dmUgbWVhbmluZyBhcyBmYXIgYXMgTGludXggaXMgY29uY2VybmVkLiAgTm90ZSB0aGF0IGl0J3Mg
-aW1wb3J0YW50Ci0JICogdG8gcmVhbGl6ZSB0aGVyZSBpcyBhIGRpZmZlcmVuY2UgYmV0d2VlbiB0
-aGlzIHRhYmxlIGFuZCBDUFVJRCAtLSBpZgotCSAqIGFwcGxpY2F0aW9ucyB3YW50IHRvIGdldCB0
-aGUgcmF3IENQVUlEIGRhdGEsIHRoZXkgc2hvdWxkIGFjY2VzcwotCSAqIC9kZXYvY3B1LzxjcHVf
-bnI+L2NwdWlkIGluc3RlYWQuCi0JICovCi0Jc3RhdGljIGNoYXIgKng4Nl9jYXBfZmxhZ3NbXSA9
-IHsKLQkJLyogSW50ZWwtZGVmaW5lZCAqLwotCSAgICAgICAgImZwdSIsICJ2bWUiLCAiZGUiLCAi
-cHNlIiwgInRzYyIsICJtc3IiLCAicGFlIiwgIm1jZSIsCi0JICAgICAgICAiY3g4IiwgImFwaWMi
-LCBOVUxMLCAic2VwIiwgIm10cnIiLCAicGdlIiwgIm1jYSIsICJjbW92IiwKLQkgICAgICAgICJw
-YXQiLCAicHNlMzYiLCAicG4iLCAiY2xmbHVzaCIsIE5VTEwsICJkdHMiLCAiYWNwaSIsICJtbXgi
-LAotCSAgICAgICAgImZ4c3IiLCAic3NlIiwgInNzZTIiLCAic3MiLCAiaHQiLCAidG0iLCAiaWE2
-NCIsICJwYmUiLAotCi0JCS8qIEFNRC1kZWZpbmVkICovCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5V
-TEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0JCU5VTEwsIE5VTEwsIE5VTEwsICJzeXNjYWxs
-IiwgTlVMTCwgTlVMTCwgTlVMTCwgTlVMTCwKLQkJTlVMTCwgTlVMTCwgTlVMTCwgIm1wIiwgIm54
-IiwgTlVMTCwgIm1teGV4dCIsIE5VTEwsCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEws
-ICJsbSIsICIzZG5vd2V4dCIsICIzZG5vdyIsCi0KLQkJLyogVHJhbnNtZXRhLWRlZmluZWQgKi8K
-LQkJInJlY292ZXJ5IiwgImxvbmdydW4iLCBOVUxMLCAibHJ0aSIsIE5VTEwsIE5VTEwsIE5VTEws
-IE5VTEwsCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEws
-Ci0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0JCU5V
-TEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0KLQkJLyogT3Ro
-ZXIgKExpbnV4LWRlZmluZWQpICovCi0JCSJjeG1teCIsICJrNl9tdHJyIiwgImN5cml4X2FyciIs
-ICJjZW50YXVyX21jciIsCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0JCU5VTEwsIE5VTEws
-IE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0JCU5VTEwsIE5VTEwsIE5VTEws
-IE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEws
-IE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0KLQkJLyogSW50ZWwtZGVmaW5lZCAoIzIpICovCi0J
-CSJwbmkiLCBOVUxMLCBOVUxMLCAibW9uaXRvciIsICJkc19jcGwiLCBOVUxMLCBOVUxMLCAidG0y
-IiwKLQkJImVzdCIsIE5VTEwsICJjaWQiLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLAot
-CQlOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLAotCQlOVUxM
-LCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLCBOVUxMLAotCi0JCS8qIFZJQS9D
-eXJpeC9DZW50YXVyLWRlZmluZWQgKi8KLQkJTlVMTCwgTlVMTCwgInJuZyIsICJybmdfZW4iLCBO
-VUxMLCBOVUxMLCAiYWNlIiwgImFjZV9lbiIsCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5V
-TEwsIE5VTEwsIE5VTEwsIE5VTEwsCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5V
-TEwsIE5VTEwsIE5VTEwsCi0JCU5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5VTEwsIE5V
-TEwsIE5VTEwsCi0JfTsKIAlzdHJ1Y3QgY3B1aW5mb194ODYgKmMgPSB2OwogCWludCBpLCBuID0g
-YyAtIGNwdV9kYXRhOwogCWludCBmcHVfZXhjZXB0aW9uOwpAQCAtMTQ0LDMgKzE0NCwxNSBAQAog
-CS5zdG9wCT0gY19zdG9wLAogCS5zaG93CT0gc2hvd19jcHVpbmZvLAogfTsKK2ludCBzaG93X2Nw
-dWZsYWdzKGNoYXIgKnBhZ2UpCit7CisJaW50IGksbGVuPTA7CisJZm9yICggaSA9IDAgOyBpIDwg
-MzIqTkNBUElOVFMgOyBpKysgKQorCQlpZiAoIHg4Nl9jYXBfZmxhZ3NbaV0gIT0gTlVMTCApewor
-CQkJbGVuKz1zcHJpbnRmKHBhZ2UrbGVuLCAiICVzXHQ6ICIsIHg4Nl9jYXBfZmxhZ3NbaV0pOwor
-CQkJaWYgKCB0ZXN0X2JpdChpLCBjcHVfZGF0YVswXS54ODZfY2FwYWJpbGl0eSkgKQorCQkJCWxl
-bis9c3ByaW50ZihwYWdlK2xlbiwgInllc1xuIik7CisJCQkgIGVsc2UgIGxlbis9c3ByaW50Zihw
-YWdlK2xlbiwgIm5vXG4iKTsJCisJCX0KKwlyZXR1cm4gbGVuOworfQpkaWZmIC1OYXVyIG9yaWd+
-Y3B1ZmxhZ3MvZnMvcHJvYy9wcm9jX21pc2MuYyBlZGl0ZWR+Y3B1ZmxhZ3MvZnMvcHJvYy9wcm9j
-X21pc2MuYwotLS0gb3JpZ35jcHVmbGFncy9mcy9wcm9jL3Byb2NfbWlzYy5jCTIwMDQtMDYtMjUg
-MDA6NTM6MjAuMDAwMDAwMDAwICswMjAwCisrKyBlZGl0ZWR+Y3B1ZmxhZ3MvZnMvcHJvYy9wcm9j
-X21pc2MuYwkyMDA0LTA2LTI2IDEzOjU0OjIyLjAwMDAwMDAwMCArMDIwMApAQCAtNjYsNiArNjYs
-NyBAQAogZXh0ZXJuIGludCBnZXRfZXhlY19kb21haW5fbGlzdChjaGFyICopOwogZXh0ZXJuIGlu
-dCBnZXRfZG1hX2xpc3QoY2hhciAqKTsKIGV4dGVybiBpbnQgZ2V0X2xvY2tzX3N0YXR1cyAoY2hh
-ciAqLCBjaGFyICoqLCBvZmZfdCwgaW50KTsKK2V4dGVybiBpbnQgc2hvd19jcHVmbGFncyAoY2hh
-ciAqKTsKIAogc3RhdGljIGludCBwcm9jX2NhbGNfbWV0cmljcyhjaGFyICpwYWdlLCBjaGFyICoq
-c3RhcnQsIG9mZl90IG9mZiwKIAkJCQkgaW50IGNvdW50LCBpbnQgKmVvZiwgaW50IGxlbikKQEAg
-LTE0OSw2ICsxNTAsMTggQEAKIAlyZXR1cm4gcHJvY19jYWxjX21ldHJpY3MocGFnZSwgc3RhcnQs
-IG9mZiwgY291bnQsIGVvZiwgbGVuKTsKIH0KIAorc3RhdGljIGludCBjcHVmbGFnc19yZWFkX3By
-b2MoY2hhciAqcGFnZSwgY2hhciAqKnN0YXJ0LCBvZmZfdCBvZmYsCisJCQkJIGludCBjb3VudCwg
-aW50ICplb2YsIHZvaWQgKmRhdGEpCit7CisJaW50IGxlbjsKKyNpZmRlZiBDT05GSUdfWDg2CisJ
-bGVuPXNob3dfY3B1ZmxhZ3MocGFnZSk7CisJcmV0dXJuIHByb2NfY2FsY19tZXRyaWNzKHBhZ2Us
-IHN0YXJ0LCBvZmYsIGNvdW50LCBlb2YsIGxlbik7CisjZW5kaWYKKwlyZXR1cm4gMDsKKworfQor
-CiBzdGF0aWMgaW50IG1lbWluZm9fcmVhZF9wcm9jKGNoYXIgKnBhZ2UsIGNoYXIgKipzdGFydCwg
-b2ZmX3Qgb2ZmLAogCQkJCSBpbnQgY291bnQsIGludCAqZW9mLCB2b2lkICpkYXRhKQogewpAQCAt
-Njc3LDYgKzY5MCw3IEBACiAJCXsibG9hZGF2ZyIsICAgICBsb2FkYXZnX3JlYWRfcHJvY30sCiAJ
-CXsidXB0aW1lIiwJdXB0aW1lX3JlYWRfcHJvY30sCiAJCXsibWVtaW5mbyIsCW1lbWluZm9fcmVh
-ZF9wcm9jfSwKKwkJeyJjcHVmbGFncyIsCWNwdWZsYWdzX3JlYWRfcHJvY30sCiAJCXsidmVyc2lv
-biIsCXZlcnNpb25fcmVhZF9wcm9jfSwKICNpZmRlZiBDT05GSUdfUFJPQ19IQVJEV0FSRQogCQl7
-ImhhcmR3YXJlIiwJaGFyZHdhcmVfcmVhZF9wcm9jfSwK
-
---========GMXBoundary209671088252793--
-
+--- 1.59/arch/ppc/kernel/ppc_ksyms.c	2004-06-18 08:41:08 +02:00
++++ edited/arch/ppc/kernel/ppc_ksyms.c	2004-06-25 14:52:53 +02:00
+@@ -68,7 +68,6 @@
+ long long __ashrdi3(long long, int);
+ long long __ashldi3(long long, int);
+ long long __lshrdi3(long long, int);
+-int abs(int);
+ 
+ extern unsigned long mm_ptov (unsigned long paddr);
+ 
+@@ -275,8 +274,6 @@
+ EXPORT_SYMBOL(memscan);
+ EXPORT_SYMBOL(memcmp);
+ EXPORT_SYMBOL(memchr);
+-
+-EXPORT_SYMBOL(abs);
+ 
+ #if defined(CONFIG_FB_VGA16_MODULE)
+ EXPORT_SYMBOL(screen_info);
+--- 1.15/include/asm-ppc/smp.h	2004-01-19 07:32:52 +01:00
++++ edited/include/asm-ppc/smp.h	2004-06-25 14:51:47 +02:00
+@@ -47,8 +47,6 @@
+ 
+ #define smp_processor_id() (current_thread_info()->cpu)
+ 
+-#define cpu_online(cpu) cpu_isset(cpu, cpu_online_map)
+-
+ extern int __cpu_up(unsigned int cpu);
+ 
+ extern int smp_hw_index[];
+--- 1.24/include/asm-ppc/system.h	2004-06-18 08:41:08 +02:00
++++ edited/include/asm-ppc/system.h	2004-06-25 14:51:29 +02:00
+@@ -82,7 +82,6 @@
+ extern void cvt_fd(float *from, double *to, unsigned long *fpscr);
+ extern void cvt_df(double *from, float *to, unsigned long *fpscr);
+ extern int call_rtas(const char *, int, int, unsigned long *, ...);
+-extern int abs(int);
+ extern void cacheable_memzero(void *p, unsigned int nb);
+ extern int do_page_fault(struct pt_regs *, unsigned long, unsigned long);
+ extern void bad_page_fault(struct pt_regs *, unsigned long, int);

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265960AbSLNVTA>; Sat, 14 Dec 2002 16:19:00 -0500
+	id <S265982AbSLNVkU>; Sat, 14 Dec 2002 16:40:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265978AbSLNVTA>; Sat, 14 Dec 2002 16:19:00 -0500
-Received: from ns1.system-techniques.com ([199.33.245.254]:61072 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S265960AbSLNVS7>; Sat, 14 Dec 2002 16:18:59 -0500
-Date: Sat, 14 Dec 2002 16:26:20 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: arun4linux <arun4linux@indiatimes.com>,
-       Michael Richardson <mcr@sandelman.ottawa.on.ca>,
-       "" <netdev@oss.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: pci-skeleton duplex check
-In-Reply-To: <20021214161446.B23020@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.50.0212141623320.1211-100000@filesrv1.baby-dragons.com>
-References: <200212141428.TAA32351@WS0005.indiatimes.com>
- <20021214161446.B23020@flint.arm.linux.org.uk>
+	id <S265987AbSLNVkU>; Sat, 14 Dec 2002 16:40:20 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:24539 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S265982AbSLNVkT>; Sat, 14 Dec 2002 16:40:19 -0500
+Date: Sun, 15 Dec 2002 10:28:12 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: James Morris <jmorris@intercode.com.au>, linux-kernel@vger.kernel.org
+cc: "David S. Miller" <davem@redhat.com>,
+       cryptoapi-devel <cryptoapi-devel@kerneli.org>
+Subject: Re: [RFC] Hardware support notes for the kernel crypto API (2.5+)
+Message-ID: <9000000.1039901292@localhost.localdomain>
+In-Reply-To: <Mutt.LNX.4.44.0212150025190.24712-100000@blackbird.intercode.com.au>
+References: <Mutt.LNX.4.44.0212150025190.24712-100000@blackbird.intercode.co
+ m.au>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>  - What will the Kernel & Userspace APIs look like?
 
+A socket family?  Most userspace crypto apps, IMO, will deal with 
+networking somewhere.
 
+>   - Asymmetric crypto?
 
-On Sat, 14 Dec 2002, Russell King wrote:
-...
-> Rubbish.
->
-> Think about what you've just said.  Patch level version changes are
-> things like 2.5.43 to 2.5.44 or 2.4.19 to 2.4.20.
->
-> You are saying that we shouldn't change any interfaces between (eg)
-> 2.5.43 and 2.5.44, but we should change every interface we want to
-> change between 2.4.15 and 2.5.0.
-	Put very simply yes .  x.odd-number.y IS for DEVELOPEMENT ,
-	x.even-number.y IS for Stability .
-	If people can not understand that I feel sorry for them .
-		JimL
--- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Yes please!  A HiFn 6500 can do a 2048-bit DH exchange in about 30ms, 
+compared with several seconds for a P3-900.  It's similarly fast for 
+everything else, and utterly astonishing for RSA (under a millisecond for a 
+signature!).
+
+>  Intel
+>    Crypto documentation for NICs unavailable.
+
+I may have some leverage here.  We'll see.
+
+>   Broadcom
+>     No response to emails.
+
+But OpenBSD has drivers, and they say that Broadcom were very good to deal 
+with.  I suggest writing the OpenBSD driver maintainer and asking who to 
+contact.
+
+Andrew

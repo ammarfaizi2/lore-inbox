@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131899AbRDWU5K>; Mon, 23 Apr 2001 16:57:10 -0400
+	id <S131949AbRDWU5B>; Mon, 23 Apr 2001 16:57:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131887AbRDWU5C>; Mon, 23 Apr 2001 16:57:02 -0400
-Received: from ns.caldera.de ([212.34.180.1]:31753 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131899AbRDWU4y>;
-	Mon, 23 Apr 2001 16:56:54 -0400
-Date: Mon, 23 Apr 2001 22:56:16 +0200
-Message-Id: <200104232056.WAA08894@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Cc: Alexander Viro <viro@math.psu.edu>, Christoph Rohland <cr@sap.com>,
-        "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010423224505.H719@nightmaster.csn.tu-chemnitz.de>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S131887AbRDWU4v>; Mon, 23 Apr 2001 16:56:51 -0400
+Received: from pppdslh37.mpls.uswest.net ([216.160.26.37]:60789 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S131899AbRDWU4k>; Mon, 23 Apr 2001 16:56:40 -0400
+Date: Mon, 23 Apr 2001 15:48:25 -0500 (CDT)
+From: Nitebirdz <nitebirdz@qwest.net>
+X-X-Sender: <nitebirdz@localhost.localdomain>
+To: <nick@snowman.net>
+cc: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>, Bram Smout <bram@ba.be>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: SGI Visual Workstation Support
+In-Reply-To: <Pine.LNX.4.21.0104231046010.9607-100000@ns>
+Message-ID: <Pine.LNX.4.33.0104231539011.32627-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010423224505.H719@nightmaster.csn.tu-chemnitz.de> you wrote:
-> Last time we suggested this, people ended up with some OS trying
-> it and getting worse performance. 
+On Mon, 23 Apr 2001 nick@snowman.net wrote:
 
-Which OS? Neither BSD nor SVR4/SVR5 (or even SVR3) do that.
+> Date: Mon, 23 Apr 2001 10:46:15 -0400 (EDT)
+> From: nick@snowman.net
+> To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+> Cc: Bram Smout <bram@ba.be>, linux-kernel@vger.kernel.org
+> Subject: Re: SGI Visual Workstation Support
+>
+> Is documantation available for the VW?
+> 	Nick
+>
 
-> Why? You need to allocate the VFS-inode (vnode in other OSs) and
-> the on-disk-inode anyway at the same time. You get better
-> performance and less fragmentation, if you allocate them both
-> together[1].
 
-Because having an union in generic code that includes filesystem-specific
-memebers is ugly? It's one of those a little more performance for a lot of
-bad style optimizations.
+There is some user documentation at SGI's TechPubs:
 
-	Christoph
+http://techpubs.sgi.com/
+
+
+Other than that, SGI releases their ProPack overlay software every now and then
+so you can install it on top of Red Hat, SuSE, TurboLinux or any of the major
+distribution.  You will find more information over here:
+
+http://www.sgi.com/linux/
+
+
+As for the 2.4 kernel, I recently installed their XFS beta on top of Red
+Hat Linux 7.1 no problem.  It installs a 2.4.2 kernel modified by the SGI
+developers to work with the XFS filesystem.  I understand it's still beta
+software, but it's been running just fine on my system for a while now.
+
+If you need _real_ in-depth information that I cannot provide due to my
+ignorance of these issue, go ahead and send a message to one of the mailing
+lists for any of their projects.  I'm pretty sure their developers will
+provide the help you need.
+
+I hope I didn't waste your time or bandwidth.  I usually keep quite and
+listen to you guys to see what I can learn.  I just thought I might have
+some helpful info in this case.   :-)
+
 
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
-Whip me.  Beat me.  Make me maintain AIX.
+------------------------------------------------------
+Nitebirdz
+------------------------------------------------------
+http://www.linuxnovice.org
+News, tips, articles, links...
+
+*** http://www.mozilla.org ***
+
+

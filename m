@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbUBWFjL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 00:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUBWFjK
+	id S261819AbUBWFne (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 00:43:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUBWFne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 00:39:10 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:44810 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S261814AbUBWFjI (ORCPT
+	Mon, 23 Feb 2004 00:43:34 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:37748 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S261819AbUBWFnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 00:39:08 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: vishwas.manral@lycos.com
-Subject: Re: Badness in pci_find_subsys
-Date: Mon, 23 Feb 2004 06:39:00 +0100
-User-Agent: KMail/1.6.1
-Cc: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>
-References: <DMOCIEPNKDKOLIAA@mailcity.com>
-In-Reply-To: <DMOCIEPNKDKOLIAA@mailcity.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 23 Feb 2004 00:43:32 -0500
+Date: Sun, 22 Feb 2004 21:44:57 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: hjlipp@web.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-Id: <20040222214457.6f8d2224.pj@sgi.com>
+In-Reply-To: <20040222225750.GA27402@mail.shareable.org>
+References: <20040216133418.GA4399@hobbes>
+	<20040222020911.2c8ea5c6.pj@sgi.com>
+	<20040222155410.GA3051@hobbes>
+	<20040222125312.11749dfd.pj@sgi.com>
+	<20040222225750.GA27402@mail.shareable.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402230639.00737.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 February 2004 05.44, vishwas manral wrote:
-> Hi Robin/Prakash,
-> 
-> I was checking the pci documentation and it said under the heading Obsolete function
-> pci_find_subsys() - Superseded by pci_get_subsys() as the former is not Hot plug safe.
-> Could this be related to the problem
+> I believe the question was "which shell expects the name in argv[2]
 
-You WHAT? Read the documentation! :-) I thought the ones calling the function should do that.
+The question is more like: examine each shell's argument parsing code to
+determine which ones will or will not be affected by this.  For a change
+like this, someone needs to actually look at the code for each major
+shell, and verify their reading of the code with a little experimentation.
 
-I dunno, I'm not hotplugging anything and it crashes anyway, The functionality is there since
-I want to hotplug a camera sometimes. but I'm not always "doing it" during uptimes that have
-the crash. Anyway I assume the crux here is PCI hotplug that my machine does not do; you
-need special support on the motherboard for that, right?
-
-I found some options to try out, but no conclusive info, at the nvidia linux discussion forum.
-
--- robin
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

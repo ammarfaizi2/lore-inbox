@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271498AbRIFRQR>; Thu, 6 Sep 2001 13:16:17 -0400
+	id <S271502AbRIFRX1>; Thu, 6 Sep 2001 13:23:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271502AbRIFRQH>; Thu, 6 Sep 2001 13:16:07 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:21769 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S271498AbRIFRPu>;
-	Thu, 6 Sep 2001 13:15:50 -0400
-Message-ID: <20010906212303.A23595@castle.nmd.msu.ru>
-Date: Thu, 6 Sep 2001 21:23:03 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Wietse Venema <wietse@porcupine.org>
-Cc: Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
+	id <S271515AbRIFRXR>; Thu, 6 Sep 2001 13:23:17 -0400
+Received: from spike.porcupine.org ([168.100.189.2]:39945 "EHLO
+	spike.porcupine.org") by vger.kernel.org with ESMTP
+	id <S271502AbRIFRW5>; Thu, 6 Sep 2001 13:22:57 -0400
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
+In-Reply-To: <E15f2WT-0008Tp-00@the-village.bc.nu> "from Alan Cox at Sep 6, 2001
+ 06:01:01 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 6 Sep 2001 13:23:16 -0400 (EDT)
+Cc: Wietse Venema <wietse@porcupine.org>, Andrey Savochkin <saw@saw.sw.com.sg>,
+        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
-In-Reply-To: <20010906204423.B23109@castle.nmd.msu.ru> <20010906165051.7EA29BC06C@spike.porcupine.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010906165051.7EA29BC06C@spike.porcupine.org>; from "Wietse Venema" on Thu, Sep 06, 2001 at 12:50:51PM
+X-Time-Zone: USA EST, 6 hours behind central European time
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010906172316.E0B74BC06C@spike.porcupine.org>
+From: wietse@porcupine.org (Wietse Venema)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 12:50:51PM -0400, Wietse Venema wrote:
-> Andrey Savochkin:
-> > > I welcome suggestions, maybe even code fragments, that will allow
-> > > an MTA to correctly recognize user@[ip.address] as local, as required
-> > > by the SMTP RFC.
-> > 
-> > The question was which ip.address in user@[ip.address] should be treated as
-> > local.
-> > My comment was that the only reasonable solution on Linux is to treat this
-> > way addresses explicitly specified in the configuration file.
-> > Postfix may show its guess at the installation time.
-> 
-> That is not practical. Surely there is an API to find out if an IP
-> address connects to the machine itself. If every UNIX system on
-> this planet can do it, then surely Linux can do it.
+Alan Cox:
+> How for example do you propose to answer the question for the case
+> Q: "is this local" A: "it depends on the sender"
+> With netfilter and transparent proxying active this is entirely possible
 
-Let me correct you: you need to recognize not addresses that result in
-connecting to the _machine_ itself, but connecting to the same _MTA_.
+Please explain the relevance for a real-world, SMTP based, MTA.
 
-Let's put it this way:
-trying to find those "local" IP addresses automatically,
-1. you have high rate of false negatives:
-   checking networking configuration by SIOCGIFCONF, you misses almost entire
-   127.0.0.0/8 network, and all routes in `local' table;
-2. you have potentially high rate of false positives:
-   you won't work in any reasonable way if someone puts more than one MTA on
-   a single system, even if he sets dedicated IP addresses for them;
-   proper recognition of local mail addresses is absolutely necessary for
-   mail traffic inside one system but across several MTAs.
+If an MTA receives a delivery request for user@[ip.address] then
+the MTA has to decide if it is the final destination. This is
+required by the SMTP RFC.
 
-You cannot always guess right automatically.
-You can walk routing tables (looking for local routes, routes without a
-gateway or whatever else) and get much better approximation.
-But you can never have it right in 100% cases.
+In order to enable SMTP RFC compliance, Linux has to provide the
+MTA with the necessary information.  Requiring the sysadmin to
+enumerate all IP addresses in a file, as suggested by some other
+poster, is impractical.
 
-My suggestion is just not to try to be too smart.
-You can't know the right configuration for everybody.
-Make a right guess in 90% cases.
-Always ask administrator what _he_ really wants.
+If an MTA receives a mail relaying request for user@domain.name
+then it would be very useful if Linux could provide the MTA with
+the necessary information to distinguish between local subnetworks
+and the rest of the world. Requiring the local sysadmin to enumerate
+all local subnetwork blocks by hand is not practical.
 
-	Andrey
+I will ignore denigrating comments about competing IP stacks.
+
+	Wietse

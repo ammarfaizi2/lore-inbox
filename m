@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbULCSXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262554AbULCSiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbULCSXp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 13:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbULCSXo
+	id S262554AbULCSiP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 13:38:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbULCSiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 13:23:44 -0500
-Received: from mail.linicks.net ([217.204.244.146]:49413 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261544AbULCSXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 13:23:42 -0500
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: newbie kernel hacking question.
-Date: Fri, 3 Dec 2004 18:23:41 +0000
-User-Agent: KMail/1.7
-References: <200412031715.15067.nick@linicks.net> <1102096955.14037.5.camel@mcmanus.datapower.com>
-In-Reply-To: <1102096955.14037.5.camel@mcmanus.datapower.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Dec 2004 13:38:15 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:22216 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262554AbULCSh4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 13:37:56 -0500
+Date: Fri, 3 Dec 2004 19:37:34 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Francois Romieu <romieu@fr.zoreil.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 - e1000 - page allocation failed
+Message-ID: <20041203183734.GA29437@mail.muni.cz>
+References: <20041021221622.GA11607@mail.muni.cz> <20041021225825.GA10844@electric-eye.fr.zoreil.com> <20041022025158.7737182c.akpm@osdl.org> <20041022120821.GA12619@mail.muni.cz> <417900D6.4030902@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Message-Id: <200412031823.41165.nick@linicks.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <417900D6.4030902@yahoo.com.au>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 December 2004 18:02, patrick mcmanus wrote:
-> maybe a helpful hint:
->
-> "lilo -R newimage" will let you boot a new kernel for just the next boot
-> without changing your default.. that way if it hangs/crashes you can
-> just punch the reset button and it will reboot into the old working
-> version..
+On Fri, Oct 22, 2004 at 10:45:10PM +1000, Nick Piggin wrote:
+> >>a back-to-back GFP_ATOMIC allocation of 256 skbs could easily exhaust the
+> >>page allocator pools.
+> >>
+> >>Probably this machine needs to increase /proc/sys/vm/min_free_kbytes.
+> >
+> >
+> >It did not help.
+> >
+> 
+> What did you increase it to? What was the allocation failure message?
 
-Excellent, excellent tip.  So much good stuff here.
-
-But it all worked anyway!  My first hack :D
-
-uname -r 2.4.28
-Nov 24 13:29:44 quake kernel: Floppy drive(s): fd0 is 1.44M
-Nov 24 13:29:44 quake kernel: keyboard: Timeout - AT keyboard not present?(ed) 
-Nov 24 13:29:44 quake kernel: keyboard: Timeout - AT keyboard not present?
-(f4)
-Nov 24 13:29:44 quake kernel: FDC 0 is a National Semiconductor PC87306
-Nov 24 13:29:44 quake kernel: loop: loaded (max 8 devices)
-
-uname -r 2.4.28.nokb
-Dec  3 18:08:47 quake kernel: Floppy drive(s): fd0 is 1.44M
-Dec  3 18:08:47 quake kernel: FDC 0 is a National Semiconductor PC87306
-Dec  3 18:08:47 quake kernel: loop: loaded (max 8 devices)
-
-Seemd to boot faster too, but reading the code I can't see why - maybe I am 
-all excited ;)
-
-Many thanks,
-
-Nick
+Sorry for late answer I missed this mail. I increased it to 10MB and failuer
+message was the same...
 
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Luká¹ Hejtmánek

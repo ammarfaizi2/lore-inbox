@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132056AbRDQLYU>; Tue, 17 Apr 2001 07:24:20 -0400
+	id <S132118AbRDQLbX>; Tue, 17 Apr 2001 07:31:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132118AbRDQLYK>; Tue, 17 Apr 2001 07:24:10 -0400
-Received: from ivanova.coker.com.au ([203.36.46.209]:36359 "HELO
-	ivanova.coker.com.au") by vger.kernel.org with SMTP
-	id <S132056AbRDQLXx> convert rfc822-to-8bit; Tue, 17 Apr 2001 07:23:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Mylex DAC vs RAM disk in 2.4.2 devfs
-Date: Tue, 17 Apr 2001 13:22:01 +0200
-X-Mailer: KMail [version 1.2]
-Cc: rgooch@atnf.csiro.au
+	id <S132147AbRDQLbM>; Tue, 17 Apr 2001 07:31:12 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11790 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132118AbRDQLbL>; Tue, 17 Apr 2001 07:31:11 -0400
+Subject: Re: PROBLEM: Slowdown for ATA/100 drive on PCI card, after 2.4.3 upgrade.
+To: bdbryant@mail.utexas.edu (Bobby D. Bryant)
+Date: Tue, 17 Apr 2001 12:33:12 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, mj@suse.cz
+In-Reply-To: <3ADAF034.C4146DB5@mail.utexas.edu> from "Bobby D. Bryant" at Apr 16, 2001 07:14:28 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Message-Id: <01041713220107.28478@lyta>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14pTjP-0002AT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just upgraded a machine with a Mylex DAC hardware RAID controller to 
-kernel 2.4.2 with devfs.
+> [1.] One line summary of the problem:
+> 
+> ATA/100 drive on PCI ATA/100 controller was very fast under 2.4.0 and
+> 2.4.2, but becomes *very* slow under 2.4.3
 
-It seems that /dev/rd is used by both the RAM disk in the kernel and the 
-Mylex controller!
+Known problem with the VIA cipset setups. We turn a lot of features off to
+try and avoid a hardware problem. VIA have finally released an 'official'
+fix which seems to be a lot less damaging to performance on the whole. That
+I hope will be in 2.4.4
 
-This is wrong of course, there are two problems, one is the situation of what 
-happens if you need both Mylex RAID and a RAM disk.  The other is the problem 
-that Mylex devices get treated as ram disks by devfsd which cause an upgrade 
-to break (the compatibility sym-links are not created correctly).
-I believe that the RAM disk should be changed as /dev/rd has been used by 
-Mylex controllers for a long time.  I am willing to submit patches to the 
-kernel and to devfsd if this suggestion is accepted and someone can suggest a 
-good directory name for ram-disks (I don't want to have the same problem 
-again).
-
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page

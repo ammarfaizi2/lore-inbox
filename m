@@ -1,69 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUCEKcK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 05:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUCEKcK
+	id S261895AbUCEKdt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 05:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUCEKdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 05:32:10 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:16066 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261786AbUCEKcH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 05:32:07 -0500
-Date: Fri, 5 Mar 2004 11:33:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zaitsev <peter@mysql.com>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de, riel@redhat.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305103308.GA5092@elte.hu>
-References: <20040228072926.GR8834@dualathlon.random> <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1078371876.3403.810.camel@abyss.local>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 5 Mar 2004 05:33:49 -0500
+Received: from mailhost.compaq.com ([161.114.1.206]:13330 "EHLO
+	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261895AbUCEKdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 05:33:46 -0500
+Message-ID: <40485803.7060102@toughguy.net>
+Date: Fri, 05 Mar 2004 16:05:47 +0530
+From: Raj <obelix123@toughguy.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, okir@monad.swb.de
+Subject: Re: [TRIVIAL][PATCH]:/proc/fs/nfsd/
+References: <404843B5.1010409@toughguy.net> <16456.20875.670811.900445@notabene.cse.unsw.edu.au>
+In-Reply-To: <16456.20875.670811.900445@notabene.cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Brown wrote:
 
-* Peter Zaitsev <peter@mysql.com> wrote:
+>On Friday March 5, obelix123@toughguy.net wrote:
+>  
+>
+>>Hi,
+>>
+>>Kernel Version: 2.6.3
+>>Even if NFSD is not selected, the proc entry /proc/fs/nfsd is getting 
+>>created.
+>>    
+>>
+>
+>Is it a problem??
+>  
+>
+Theoritically no, but behavior wise , yes.
 
-> > > For Disk Bound workloads (200 Warehouse) I got 1250TPM for "hugemem" vs
-> > > 1450TPM for "smp" kernel, which is some 14% slowdown.
-> > 
-> > Please define these terms.  What is the difference between "hugemem" and
-> > "smp"?
-> 
-> Sorry if I was unclear.  These are suffexes from RH AS 3.0 kernel
-> namings.  "SMP" corresponds to normal SMP kernel they have, "hugemem"
-> is kernel with 4G/4G split.
+>  
+>
+>>The following patch fixes it.
+>>    
+>>
+>
+>Does it need fixing??
+>
+>If you remove this, then people who compile a kernel without nfsd
+>support, and then later decide to compile an nfsd module and load it,
+>will not be able to mount the nfsd filesystem at the right place.
+>  
+>
 
-the 'hugemem' kernel also has config_highpte defined which is a bit
-redundant - that complexity one could avoid with the 4/4 split. Another
-detail: the hugemem kernel also enables PAE, which adds another 2 usecs
-to every syscall (!). So these performance numbers only hold if you are
-running mysql on x86 using more than 4GB of RAM. (which, given mysql's
-threaded design, doesnt make all that much of a sense.)
+I guess choosing nfsd either builtin or as a module will cause a rebuild 
+of some components of the main kernel and hence a
+reboot is anyway need. Pls correct me if i am wrong.
 
-But no doubt, the 4/4 split is not for free. If a workload does lots of
-high-frequency system-calls then the cost can be pretty high.
+>
+>  
+>
+>>Pls apply.
+>>
+>>/Raj
+>>--- linux-2.6.3/fs/proc/root.c	2004-02-19 09:52:32.000000000 +0530
+>>+++ linux-2.6.3-fixed/fs/proc/root.c	2004-03-05 13:48:28.448516568 +0530
+>>@@ -65,7 +65,11 @@ void __init proc_root_init(void)
+>> #endif
+>> 	proc_root_fs = proc_mkdir("fs", 0);
+>> 	proc_root_driver = proc_mkdir("driver", 0);
+>>+
+>>+#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
+>> 	proc_mkdir("fs/nfsd", 0); /* somewhere for the nfsd filesystem to be mounted */
+>>+#endif
+>>+
+>> #if defined(CONFIG_SUN_OPENPROMFS) || defined(CONFIG_SUN_OPENPROMFS_MODULE)
+>> 	/* just give it a mountpoint */
+>> 	proc_mkdir("openprom", 0);
+>>    
+>>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-vsyscall-sys_gettimeofday and vsyscall-sys_time could help quite some
-for mysql. Also, the highly threaded nature of mysql on the same MM
-which is pretty much the worst-case for the 4/4 design. If it's an
-issue, there are multiple ways to mitigate this cost.
 
-but 4/4 is mostly a life-extender for the high end of the x86 platform -
-which is dying fast. If i were to decide between some of the highly
-intrusive architectural highmem solutions (which all revolve about the
-concept of dynamically mapping back and forth) and the simplicity of
-4/4, i'd go for 4/4 unless forced otherwise.
-
-	Ingo

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbTJaNts (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 08:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbTJaNts
+	id S263282AbTJaNuz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 08:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbTJaNuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 08:49:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18134 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263088AbTJaNtq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 08:49:46 -0500
-Date: Fri, 31 Oct 2003 13:49:45 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Make fs operations const
-Message-ID: <20031031134945.GT25237@parcelfarce.linux.theplanet.co.uk>
+	Fri, 31 Oct 2003 08:50:55 -0500
+Received: from main.gmane.org ([80.91.224.249]:65243 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263282AbTJaNuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 08:50:54 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.6.0-test9 vs sound
+Date: Fri, 31 Oct 2003 14:50:51 +0100
+Message-ID: <yw1x8yn1zfb8.fsf@kth.se>
+References: <200310301008.27871.gene.heskett@verizon.net> <200310302049.45009.gene.heskett@verizon.net>
+ <yw1xr80tzs0e.fsf@kth.se> <200310310813.02970.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:GKUrVXNcAZgnVEys+dz4Mx97V2E=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gene Heskett <gene.heskett@verizon.net> writes:
 
-The 54k patch at http://ftp.linux.org.uk/pub/linux/willy/patches/fs-const.diff
-makes many file_operations, dentry_operations, address_space_operations,
-inode_operations, super_operations and dquot_operations const.
+> Some of the tutorials in those links would seem to indicate that 
+> /etc/modules.conf has been renamed, which I have not, and my modutils 
+> are still the same as I've been using for a few months with 2.4.  I 
+> saw an announcement regarding a new modutils tool set last night, do 
+> I need to install that, and does that then fubar a 2.4.23-pre8 boot?
 
-This was inspired by intermezzo doing something naughty which the
-compiler didn't know to warn about.  By making these pointers point to
-const structs, the compiler knows we shouldn't be doing that and will
-issue a warning.
-
-As a bonus for the embedded people, this enables us to move more of the
-kernel into ROMmable sections.  I've only done this for ext2 and a few
-well-known *_operations in this patch, but it could be done to many
-more filesystems.  It only saves a few hundred bytes per filesystem,
-but it all adds up.
+You need the new module-init-tools.  If you follow the instructions
+provided with them, things will continue to work with 2.4 kernels.
 
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Måns Rullgård
+mru@kth.se
+

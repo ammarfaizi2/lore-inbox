@@ -1,66 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTF3Mnf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 08:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTF3Mnf
+	id S262912AbTF3MwE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 08:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTF3MwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 08:43:35 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:9937 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262543AbTF3Mne (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 08:43:34 -0400
-Date: Mon, 30 Jun 2003 18:34:32 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.73-mm1 falling over in SDET
-Message-ID: <20030630130432.GD4065@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20030628170235.51ee2f69.akpm@digeo.com> <1056857338.2514.4.camel@mulgrave> <6620000.1056864944@[10.10.2.4]> <20030630101719.GC4065@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030630101719.GC4065@in.ibm.com>
-User-Agent: Mutt/1.4i
+	Mon, 30 Jun 2003 08:52:04 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:47868 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262912AbTF3MwB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 08:52:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: rmoser <mlmoser@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: File System conversion -- ideas
+Date: Mon, 30 Jun 2003 08:05:59 -0500
+X-Mailer: KMail [version 1.2]
+References: <200306290257420680.0109B84A@smtp.comcast.net>
+In-Reply-To: <200306290257420680.0109B84A@smtp.comcast.net>
+MIME-Version: 1.0
+Message-Id: <03063008055900.14007@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 30, 2003 at 03:47:19PM +0530, Maneesh Soni wrote:
-> On Sun, Jun 29, 2003 at 06:09:41AM +0000, Martin J. Bligh wrote:
-> > --James Bottomley <James.Bottomley@SteelEye.com> wrote (on Saturday, June 28, 2003 22:28:57 -0500):
-> > 
-> > > On Sat, 2003-06-28 at 19:02, Andrew Morton wrote:
-> > >> Yes, isplinux_queuecommand() returns non-zero and the scsi generic layer
-> > >> cheerfully goes infinitely recursive.
-> > > 
-> > > Sigh, certain persons need to be more careful when doing logic
-> > > alterations.
-> > > 
-> > > Try the attached.
-> > 
-> > OK, that gets rather further, and I strongly suspect fixes the SCSI
-> > problem. Thanks very much.
-> > 
-> > But now it just OOMs instead, which seems to be slab failing 
-> > dismally to shrink it's fat ass enough to fit in that lazy-boy.
-> > Ext2 doesn't look desparately happy either. Maybe it's really
-> > that one's fault?
-> > 
-> 
-> I tried sdet on 16-way numaq with 2.5.73-mm2. It completes the run on ext2 
-> (no OOMs), but gives following oops while running on ext3
-> 
+On Sunday 29 June 2003 01:57, rmoser wrote:
+> I know I spout a ... wtf?  HTML composing?  *attempts to eliminate*
+>
+> I know I spout a lot of crap, and wish I could just do it all (can we get
+> a "Make a small device driver for virtual hardware in Linux 2.4 and 2.5"
+> tutorial up on kernel.org?!), but I think I've got some good ideas.  At
+> any rate, the good is kept and the bad is weeded out, right?
+>
+> Anyhow, I'm thinking still about when reiser4 comes out.  I want to
+> convert to it from reiser3.6.  It came to my attention that a user-space
+> tool to convert between filesystems is NOT the best way to deal with
+> this. Seriously, you'd think it would be, right?  Wrong, IMHO.
+>
+> You have the filesystem code for every filesystem Linux supports.  It's
+> there, in the kernel.  So why maintain a kludgy userspace tool that has
+> to be rewritten to understand them all?  I have a better idea.
+>
+> How about a kernel syscall?  It's possible to do this on a running
+> filesystem but it's far too difficult for a start, so let's start with
+> unmounted filesystems mmkay?
+>
+> **** BEGIN WELL STRUCTURED MESSAGE ****
+>
+> I'm going to go over a method of building into the kernel a filesystem
+> conversion suite.  I am first going to go over a brief overrun of the
+> concept, then I will draw up a roadmap, and then I will explain why I
+> believe this is the best way to solve this problem.
+[snip]
 
-Looks like that was some one off oops.. on second iteration I could run
-sdet on ext3 also without any oops or oom.
+Whats wrong with:
 
-Maneesh
+	mount old filesystem
+	mkfs newfilesystem on different disk
+	mount new filesystem
+	cd old filesystem
+	tar -cfp - . | (cd new_filesystem; tar -xfp -)
 
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/
+Which is what I do.
+
+If I MUST do something more in-place replacement....
+
+	1. backup to tape
+	2. backup to tape (never hurts)
+	3. verify tape
+	4. umount old_filesystem
+	5. mkfs new_filesystem (same disk)
+	6. mount new_filesystem
+	7. restore from tape
+
+A lot longer. but there is no "kludgy userspace tool that has to be
+rewritten to understand them all".

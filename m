@@ -1,120 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbUBZPue (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 10:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUBZPue
+	id S261576AbUBZPyX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 10:54:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbUBZPyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 10:50:34 -0500
-Received: from chico.rediris.es ([130.206.1.3]:61835 "EHLO chico.rediris.es")
-	by vger.kernel.org with ESMTP id S261989AbUBZPua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 10:50:30 -0500
-From: David =?iso-8859-1?q?Mart=EDnez=20Moreno?= <ender@debian.org>
-Organization: Debian
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.3-mm4
-Date: Thu, 26 Feb 2004 16:50:14 +0100
-User-Agent: KMail/1.5.4
-References: <20040225185536.57b56716.akpm@osdl.org>
-In-Reply-To: <20040225185536.57b56716.akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ender@debian.org
+	Thu, 26 Feb 2004 10:54:22 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:30732 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261576AbUBZPyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 10:54:21 -0500
+Message-ID: <403E1914.5060209@techsource.com>
+Date: Thu, 26 Feb 2004 11:04:36 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_2WhPA1sxIB8ttYJ"
-Message-Id: <200402261650.15596.ender@debian.org>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Intel vs AMD x86-64
+References: <7F740D512C7C1046AB53446D37200173EA288C@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D37200173EA288C@scsmsx402.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_2WhPA1sxIB8ttYJ
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: clearsigned data
-Content-Disposition: inline
 
-=2D----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Nakajima, Jun wrote:
+> Yes, that's the very reason I said "useless for compilers." The way
+> IP/RIP is updated is different (and implementation specific) on those
+> processors if 66H is used with a near branch. For example, RIP may be
+> zero-extended to 64 bits (from IP), as you observed before.
+> 
 
-El Jueves, 26 de Febrero de 2004 03:55, Andrew Morton escribi=F3:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3=
-=2Dm
->m4/
->
-> - Big knfsd update.  Mainly for nfsv4
->
-> - DVB udpate
->
-> - Various fixes
+This is obviously an extremely minor nit-pick, because we're talking 
+about one instruction here with an interpretation that is far from 
+obvious, but given that there are now only two architectures which 
+support x86-64, did Intel choose to do it differently from AMD because 
+it was poorly defined, or because it wasn't important enough to want to 
+impact the efficiency of the design?
 
-	Hello, Andrew, I jumped from rc1-mm1 to this and found that somebody final=
-ly=20
-touched ini9100 driver, but it needs further cleaning. It doesn't compile=20
-properly, and give warnings.
-
-	Attached patch fixes compilation of ini9100u driver and cleans several=20
-unneeded definitions. It applies cleanly to 2.6.3-mm4 (I think).
-
-	Could you please review, because although simple, I'm scared, I don't real=
-ly=20
-know if my patch is doing the Right Thing (tm)? Thanks. :-)
-
-	Regards,
-
-
-		Ender.
-=2D --=20
-What was that, honey? It was bad. It had no fire, no energy, no nothing.
- So tomorrow from 5 to 7 will you PLEASE act like you have more than a
- two word vocabulary. It must be green.
-		-- DJ Ruby Rhod (The Fifth Element).
-=2D --
-Servicios de red - Network services
-RedIRIS - Spanish Academic Network for Research and Development
-Madrid (Spain)
-Tlf (+34) 91.585.51.50
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAPhW3Ws/EhA1iABsRAoqPAJ4m9/jMcJ9/W54qLwEhKn9uC9AKOACeOJ2u
-wy7M+GgPS8dWP2nR0IoeBnw=3D
-=3Dp/NV
-=2D----END PGP SIGNATURE-----
-
---Boundary-00=_2WhPA1sxIB8ttYJ
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="ini9100u-broken-patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ini9100u-broken-patch"
-
---- drivers/scsi/ini9100u.c.orig	2004-02-26 14:12:32.000000000 +0100
-+++ drivers/scsi/ini9100u.c	2004-02-26 14:13:27.000000000 +0100
-@@ -180,14 +180,7 @@
- 
- static char *setup_str = (char *) NULL;
- 
--static irqreturn_t i91u_intr0(int irq, void *dev_id, struct pt_regs *);
--static irqreturn_t i91u_intr1(int irq, void *dev_id, struct pt_regs *);
--static irqreturn_t i91u_intr2(int irq, void *dev_id, struct pt_regs *);
--static irqreturn_t i91u_intr3(int irq, void *dev_id, struct pt_regs *);
--static irqreturn_t i91u_intr4(int irq, void *dev_id, struct pt_regs *);
--static irqreturn_t i91u_intr5(int irq, void *dev_id, struct pt_regs *);
--static irqreturn_t i91u_intr6(int irq, void *dev_id, struct pt_regs *);
--static irqreturn_t i91u_intr7(int irq, void *dev_id, struct pt_regs *);
-+static struct Scsi_Host *hreg;
- 
- static void i91u_panic(char *msg);
- 
-@@ -340,7 +333,6 @@
- int i91u_detect(Scsi_Host_Template * tpnt)
- {
- 	HCS *pHCB;
--	struct Scsi_Host *hreg;
- 	unsigned long i;	/* 01/14/98                     */
- 	int ok = 0, iAdapters;
- 	ULONG dBiosAdr;
-
---Boundary-00=_2WhPA1sxIB8ttYJ--
+There are people who would go way out of their way to get a 5% 
+improvement in performance or decrease in size.  If using 66H with near 
+branches could in some way do that, they would really really want to use 
+it.  This is why I'm curious.
 

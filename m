@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266888AbTAaNrc>; Fri, 31 Jan 2003 08:47:32 -0500
+	id <S267026AbTAaNru>; Fri, 31 Jan 2003 08:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267026AbTAaNrc>; Fri, 31 Jan 2003 08:47:32 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:2745 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S266888AbTAaNrb>;
-	Fri, 31 Jan 2003 08:47:31 -0500
-Message-ID: <3E3A8077.9050409@namesys.com>
-Date: Fri, 31 Jan 2003 16:56:07 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S267158AbTAaNru>; Fri, 31 Jan 2003 08:47:50 -0500
+Received: from [198.149.18.6] ([198.149.18.6]:42721 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S267026AbTAaNrs>;
+	Fri, 31 Jan 2003 08:47:48 -0500
+Date: Fri, 31 Jan 2003 07:52:30 -0600 (CST)
+From: Eric Sandeen <sandeen@sgi.com>
+X-X-Sender: sandeen@stout.americas.sgi.com
+To: linux-kernel@vger.kernel.org
+cc: viro@math.psu.edu, <marcelo@conectiva.com.br>
+Subject: [PATCH] 2.4.21-pre4 seq_read() fix backport
+Message-ID: <Pine.LNX.4.44.0301310739560.1221-100000@stout.americas.sgi.com>
 MIME-Version: 1.0
-To: Con Kolivas <conman@kolivas.net>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
-References: <200302010020.34119.conman@kolivas.net> <3E3A7C22.1080709@namesys.com> <200302010040.49141.conman@kolivas.net>
-In-Reply-To: <200302010040.49141.conman@kolivas.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try running with the -E option for gcc, it might be less CPU intensive, 
-and thus a better FS benchmark.
+Al Viro fixed a bug in seq_read for 2.5.31, still needs to be
+backported to 2.4.x.  Allows uninitialized data to be read, I think.
 
-What do you think?
+You can observe this by adding many (75+, I think) lvm volumes
+and do a cat of "/proc/partitions" with slab debugging turned on.
 
--- 
-Hans
+http://linux.bkbits.net:8080/linux-2.5/diffs/fs/seq_file.c@1.5?nav=index.html|src/|src/fs|hist/fs/seq_file.c
+
+--- 1.4/fs/seq_file.c	Wed May 22 05:44:20 2002
++++ 1.5/fs/seq_file.c	Thu Aug  8 23:46:33 2002
+@@ -94,8 +94,10 @@
+ 		m->buf = kmalloc(m->size <<= 1, GFP_KERNEL);
+ 		if (!m->buf)
+ 			goto Enomem;
++		m->count = 0;
+ 	}
+ 	m->op->stop(m, p);
++	m->count = 0;
+ 	goto Done;
+ Fill:
+ 	/* they want more? let's try to get some more */
+
 
 

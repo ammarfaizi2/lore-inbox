@@ -1,156 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271846AbTG2QOX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 12:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271886AbTG2QOW
+	id S270040AbTG2QFd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 12:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTG2QFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 12:14:22 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:6101 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S271846AbTG2QOG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 12:14:06 -0400
-Date: Tue, 29 Jul 2003 18:14:03 +0200 (MEST)
-Message-Id: <200307291614.h6TGE3Q9010535@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][CFT][2.6.0-test2] local APIC enable fixes
+	Tue, 29 Jul 2003 12:05:33 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46798 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S270040AbTG2QE6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 12:04:58 -0400
+Subject: Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andi Kleen <ak@muc.de>, Erich Focht <efocht@hpce.nec.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>,
+       lse-tech-admin@lists.sourceforge.net, Mala Anand <manand@us.ibm.com>,
+       torvalds@osdl.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF5C1F4A86.410B2792-ON87256D72.0058341E@us.ibm.com>
+From: Mala Anand <manand@us.ibm.com>
+Date: Tue, 29 Jul 2003 11:04:24 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 6.0.1 [IBM]|June 10, 2003) at
+ 07/29/2003 10:04:26
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There has been a number of problem reports about local APIC
-interacting badly with ACPI on P4s due to the P4 local APIC
-force-enable change in 2.5.74,
 
-This patch reverts the 2.5.74 patch, so if the BIOS disables
-the local APIC on a P4, we don't enable it by default any more.
 
-The rescue the situation for those P4 systems where the local
-APIC _can_ be enabled safely, I've added two kernel parameters
-that can be used to override broken BIOSen:
-- "nolapic" prevents the kernel from enabling or using the local
-  APIC. This is stronger than listing a machine in the DMI scan
-  blacklist, since it also works for machines that boot with the
-  local APIC already enabled.
-- "lapic" tells the kernel to force-enable the P4 local APIC if
-  the BIOS disabled it. I haven't changed the logic for P6/K7
-  family processors, so we still force-enable those unless
-  "nolapic" was passed to the kernel.
 
-The patch also includes a cleanup: the dont_use_local_apic_timer
-flag variable is not set any more since 2.5.74, so it's removed.
 
-Please test.
+>Are the balances you're doing on wakeup global or node-local?
+The test is not done on NUMA systems.
 
-/Mikael
+Regards,
+    Mala
 
-diff -ruN linux-2.6.0-test2/Documentation/kernel-parameters.txt linux-2.6.0-test2.apic-fixes/Documentation/kernel-parameters.txt
---- linux-2.6.0-test2/Documentation/kernel-parameters.txt	2003-07-14 13:17:24.000000000 +0200
-+++ linux-2.6.0-test2.apic-fixes/Documentation/kernel-parameters.txt	2003-07-29 15:55:38.000000000 +0200
-@@ -436,6 +436,8 @@
- 
- 	l2cr=		[PPC]
- 
-+	lapic		[IA-32,APIC] Enable the local APIC even if BIOS disabled it.
-+
- 	lasi=		[HW,SCSI] PARISC LASI driver for the 53c700 chip
- 			Format: addr:<io>,irq:<irq>
- 
-@@ -625,6 +627,8 @@
- 
- 	nointroute	[IA-64]
- 
-+	nolapic		[IA-32,APIC] Do not enable or use the local APIC.
-+
- 	nomce		[IA-32] Machine Check Exception
- 
- 	noresume	[SWSUSP] Disables resume and restore original swap space.
-diff -ruN linux-2.6.0-test2/arch/i386/kernel/apic.c linux-2.6.0-test2.apic-fixes/arch/i386/kernel/apic.c
---- linux-2.6.0-test2/arch/i386/kernel/apic.c	2003-07-03 12:32:41.000000000 +0200
-+++ linux-2.6.0-test2.apic-fixes/arch/i386/kernel/apic.c	2003-07-29 15:55:41.000000000 +0200
-@@ -594,7 +594,26 @@
-  * Detect and enable local APICs on non-SMP boards.
-  * Original code written by Keir Fraser.
-  */
--int dont_enable_local_apic __initdata = 0;
-+
-+/*
-+ * Knob to control our willingness to enable the local APIC.
-+ */
-+int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
-+
-+static int __init lapic_disable(char *str)
-+{
-+	enable_local_apic = -1;
-+	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-+	return 0;
-+}
-+__setup("nolapic", lapic_disable);
-+
-+static int __init lapic_enable(char *str)
-+{
-+	enable_local_apic = 1;
-+	return 0;
-+}
-+__setup("lapic", lapic_enable);
- 
- static int __init detect_init_APIC (void)
- {
-@@ -602,7 +621,7 @@
- 	extern void get_cpu_vendor(struct cpuinfo_x86*);
- 
- 	/* Disabled by DMI scan or kernel option? */
--	if (dont_enable_local_apic)
-+	if (enable_local_apic < 0)
- 		return -1;
- 
- 	/* Workaround for us being called before identify_cpu(). */
-@@ -616,7 +635,7 @@
- 		goto no_apic;
- 	case X86_VENDOR_INTEL:
- 		if (boot_cpu_data.x86 == 6 ||
--		    boot_cpu_data.x86 == 15 ||
-+		    (boot_cpu_data.x86 == 15 && (cpu_has_apic || enable_local_apic > 0)) ||
- 		    (boot_cpu_data.x86 == 5 && cpu_has_apic))
- 			break;
- 		goto no_apic;
-@@ -897,14 +916,8 @@
- 
- static unsigned int calibration_result;
- 
--int dont_use_local_apic_timer __initdata = 0;
--
- void __init setup_boot_APIC_clock(void)
- {
--	/* Disabled by DMI scan or kernel option? */
--	if (dont_use_local_apic_timer)
--		return;
--
- 	printk("Using local APIC timer interrupts.\n");
- 	using_apic_timer = 1;
- 
-@@ -1121,6 +1134,9 @@
-  */
- int __init APIC_init_uniprocessor (void)
- {
-+	if (enable_local_apic < 0)
-+		clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
-+
- 	if (!smp_found_config && !cpu_has_apic)
- 		return -1;
- 
-diff -ruN linux-2.6.0-test2/arch/i386/kernel/dmi_scan.c linux-2.6.0-test2.apic-fixes/arch/i386/kernel/dmi_scan.c
---- linux-2.6.0-test2/arch/i386/kernel/dmi_scan.c	2003-06-17 12:51:19.000000000 +0200
-+++ linux-2.6.0-test2.apic-fixes/arch/i386/kernel/dmi_scan.c	2003-07-29 15:55:38.000000000 +0200
-@@ -300,9 +300,9 @@
- static int __init local_apic_kills_bios(struct dmi_blacklist *d)
- {
- #ifdef CONFIG_X86_LOCAL_APIC
--	extern int dont_enable_local_apic;
--	if (!dont_enable_local_apic) {
--		dont_enable_local_apic = 1;
-+	extern int enable_local_apic;
-+	if (enable_local_apic == 0) {
-+		enable_local_apic = -1;
- 		printk(KERN_WARNING "%s with broken BIOS detected. "
- 		       "Refusing to enable the local APIC.\n",
- 		       d->ident);
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+
+
+
+                                                                                                                                               
+                      "Martin J. Bligh"                                                                                                        
+                      <mbligh@aracnet.com>             To:       Mala Anand/Austin/IBM@IBMUS, Erich Focht <efocht@hpce.nec.com>, linux-kernel  
+                      Sent by:                          <linux-kernel@vger.kernel.org>, LSE <lse-tech@lists.sourceforge.net>                   
+                      lse-tech-admin@lists.sour        cc:       Andi Kleen <ak@muc.de>, torvalds@osdl.org                                     
+                      ceforge.net                      Subject:  Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case                   
+                                                                                                                                               
+                                                                                                                                               
+                      07/29/2003 09:29 AM                                                                                                      
+                                                                                                                                               
+                                                                                                                                               
+
+
+
+
+>>> If you want data supporting my assumptions: Ted Ts'o's talk at OLS
+>>> shows the necessity to rebalance ASAP (even in try_to_wake_up).
+>
+>> If this is the patch I am thinking of, it was the (attached) one I sent
+> them,
+>> which did a light "push" rebalance at try_to_wake_up.  Calling
+> load_balance
+>> at try_to_wake_up seems very heavy-weight.  This patch only looks for an
+> idle
+>> cpu (within the same node) to wake up on before task activation, only if
+> the
+>> task_rq(p)->nr_running is too long.  So, yes, I do believe this can be
+>> important, but I think it's only called for when we have an idle cpu.
+>
+> The patch that you sent to Rajan didn't yield any improvement on
+> specjappserver so we did not include that  in the ols paper. What
+> is described in the ols paper is "calling load-balance" from
+> try-to-wake-up. Both calling load-balance from try-to-wakeup and
+> the "light push" rebalance at try_to_wake_up are already done in
+> Andrea's 0(1) scheduler patch.
+
+Are the balances you're doing on wakeup global or node-local?
+
+M.
+
+
+
+-------------------------------------------------------
+This SF.Net email sponsored by: Free pre-built ASP.NET sites including
+Data Reports, E-commerce, Portals, and Forums are available now.
+Download today and enter to win an XBOX or Visual Studio .NET.
+http://aspnet.click-url.com/go/psa00100003ave/direct;at.aspnet_072303_01/01
+_______________________________________________
+Lse-tech mailing list
+Lse-tech@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/lse-tech
+
+
+

@@ -1,113 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbTFQBtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 21:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTFQBtP
+	id S264507AbTFQBtq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 21:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTFQBtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 21:49:15 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:7857 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264505AbTFQBtN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 21:49:13 -0400
-Date: Mon, 16 Jun 2003 19:03:07 -0700
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       irda-users@lists.sourceforge.net
-Subject: IrDA patches for 2.4.22
-Message-ID: <20030617020307.GA30944@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
+	Mon, 16 Jun 2003 21:49:46 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:54659 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S264507AbTFQBtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 21:49:42 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Date: Tue, 17 Jun 2003 09:10:48 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16110.20088.351260.156860@gargle.gargle.HOWL>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+cc: Martin Diehl <lists@mdiehl.de>
+cc: Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] Add module_kernel_thread for threads that live in modules.
+In-Reply-To: message from Rusty Russell on Monday June 16
+References: <20030616065058.D1C9E2C08A@lists.samba.org>
+X-Mailer: VM 7.16 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Marcelo,
+On Monday June 16, rusty@rustcorp.com.au wrote:
+> Hi Neil,
 
-	Here is the batch of IrDA patches for 2.4.22. I would
-appreciate if you could add them to 2.4.22-preX.
+Hi Rusty.  Thanks for the comments... I probably should have Cc:ed you
+in the first place....
 
-	Most of those patches have been on my web page and in 2.5.X
-since 2.4.20 time (an eternity), the last few are more recent but
-trivial, so it should be as smooth as usual.
-	The first patch make PPP over IrCOMM works properly when using
-chat, so pretty important in some corners. The second helps with
-interoperability, for example for people with (buggy) Ericsson
-phones. Then, a bunch of other minor fixes.
-	As far as development of IrDA in 2.4.X, this is the end of the
-road. I still plan to provide for 2.4.X essential bug fixes and maybe
-driver improvements when needed. 2.5.X is where IrDA development is
-happening and is too different from 2.4.X for easy backporting (I
-don't want to backport the big structural changes of 2.5.X).
-	Have fun...
+> 
+> 	There are several problems with this patch.  Ignoring the fact
+> that you use __module_get.  Firstly, you bump the module count
+> permentantly while the thread is running: how does it ever get
+> unloaded?  Secondly, modprobe becomes your parent.
 
-	Jean
+We seem to have very different views of the problem, as you seem to be
+calling into question aspects that I thought were obviously correct.
 
--------------------------------------------------------------
+__module_get:
+   In all the cases I am interested in (nfsd, lockd,
+   lockd-helper-thread), the thread is started by code running
+   inside the module and so there will be a reference held on the
+   module while the thread is being started, thus __module_get is the
+   correct thing to do as "we know we already have a refcount"...
 
-[FEATURE] : Add a new feature to the IrDA stack
-[CORRECT] : Fix to have the correct/expected behaviour
-[CRITICA] : Fix potential kernel crash
+module count bumped permananelt while thread is running:
+   well ofcourse, the thread runs code in the module which can only
+   be done safely while we have a ref-count.
+how does it ever get unloaded:
+   the thread exits, the refcount drops, and the module can be
+   unloaded.
+   In the case of nfsd, the threads get signalled and die gracefully.
+   For lockd, the number of users (nfs mounts or nfsd threads) drops
+   to zero, the process is signalled, and exits gracefully.
+   For the lockd helper threads, the complete there assigned task and
+   exit. 
+   The threads I am thinking of aren't running "whenever the module is
+   loaded".  They are running "whenever their service is needed".
+modprobe becomes your parent:
+   No, modprobe has nothing to do with it in my case. rpc.nfsd, or 
+   mount_nfs or lockd might be the parent.  I thought reparent_to_init
+   handled all that.  Apparently there are question marks over that
+   which I wasn't aware of.
 
-ir241_ircomm_uninit_fix-6.diff :
-------------------------------
-	o [FEATURE] Fix spelling UNITIALISED => UNINITIALISED
-	o [CORRECT] Accept data from TTY before link initialisation
-		This seems necessary to avoid chat (via pppd) dropping chars
-	o [CRITICA] Remember allocated skb size to avoid to over-write it
-	o [FEATURE] Remove  LM-IAS object once connected
-	o [CORRECT] Avoid declaring link ready when it's not true
+> 
+> 	There have been ambitious attempts to do a nice "thread
+> creation and stopping" interface before.  Given the delicate logic
+> involved in shutting threads down, I think this makes sense.  Maybe
+> something like: 
+> 
+> /* Struct which identifies a kernel thread, handed to creator and
+>    thread. */
+> struct kthread
+> {
+> 	int pid;
+> 	int should_die; /* Thread should exit when this is set. */
+> 
+> 	/* User supplied arg... */
+> 	void *arg;
+> };
+> 
+> struct kthread *create_thread(int (*fn)(struct kthread*), void *arg, 
+> 			      unsigned long flags,
+> 			      const char *namefmt, ...);
+> void cleanup_thread(struct kthread *);
+> 
+> create_thread would use keventd to start the thread, and stop_thread
+> would tell keventd to set should_die, wmb(), wake it up, and
+> sys_wait() for it.
+> 
+> Thoughts?
 
-ir241_qos_param-2.diff :
-----------------------
-	o [FEATURE] Fix some comments
-	o [FEATURE] printk warning when we detect buggy QoS from peer
-	o [CORRECT] Workaround NULL QoS bitfields
-	o [CORRECT] Workaround oversized QoS bitfields
-	o [FEATURE] Add sysctl "max_tx_window" to limit IrLAP Tx Window
+I don't want to have to call "cleanup_thread" or de-allocate the
+"struct kthread".  I want to be able to SIGKILL a process and have it
+go away and release everything, including possibly the last refernce
+to the module.
 
-ir241_lmp_timer_race-2.diff :
----------------------------
-	o [CORRECT] Start timer before sending event to fix race condition
-	o [FEATURE] Improve the IrLMP event debugging messages.
+In short, it really feels like we are trying to solve different
+problems :-)
 
-ir241_export_crc-3.diff :
------------------------
-	o [FEATURE] Export CRC16 helper so that drivers can use it
+I will have a look at keventd and see if it's services can be of
+assistance to solve my problem.
 
-ir241_secondary_rr.diff :
------------------------
-	o [CORRECT] fix the secondary function to send RR and frames without
-		the poll bit when it detect packet losses
-
-ir241_usb_cleanup-4.diff :
-------------------------
-	o [FEATURE] Update various comments to current state
-	o [CORRECT] Handle properly failure of URB with new speed
-	o [CORRECT] Don't test for (self != NULL) after using it (doh !)
-	o [FEATURE] Other minor cleanups
-	o [CORRECT] Add ID for new USB device (thanks to Sami Kyostila)
-	o [CORRECT] Fix for big endian platforms (thanks to Jacek Jakubowski)
-
-ir241_iriap_skb_leak.diff :
--------------------------
-		<Patch from Jan Kiszka>
-	o [CORRECT] Fix obvious skb leak in IrIAP state machines
-
-ir241_caddr_mask.diff :
----------------------
-		<Patch from Jan Kiszka>
-	o [CORRECT] ignore the C/R bit in the LAP connection address.
-
-ir241_static_init.diff :
-----------------------
-	o [CORRECT] fix some obvious static init bugs.
-
-
-
+Thanks,
+NeilBrown

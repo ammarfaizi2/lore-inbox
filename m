@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265056AbSKFN0D>; Wed, 6 Nov 2002 08:26:03 -0500
+	id <S265046AbSKFNkr>; Wed, 6 Nov 2002 08:40:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265058AbSKFN0C>; Wed, 6 Nov 2002 08:26:02 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:55559 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265056AbSKFN0B>; Wed, 6 Nov 2002 08:26:01 -0500
-Date: Wed, 6 Nov 2002 14:32:30 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Russell King <rmk@arm.linux.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Up silly limit on .config line length
-In-Reply-To: <20021105233844.J24606@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211061425280.6949-100000@serv>
-References: <20021105233844.J24606@flint.arm.linux.org.uk>
+	id <S265065AbSKFNkr>; Wed, 6 Nov 2002 08:40:47 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:13953 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S265046AbSKFNkq>;
+	Wed, 6 Nov 2002 08:40:46 -0500
+Date: Wed, 6 Nov 2002 14:46:38 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: busmouse support (2 of them?)
+In-Reply-To: <20021106114215.E25154@ucw.cz>
+Message-ID: <Pine.GSO.4.21.0211061445560.25960-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 6 Nov 2002, Vojtech Pavlik wrote:
+> On Tue, Nov 05, 2002 at 05:37:37PM -0800, Randy.Dunlap wrote:
+> > In (menu)config, there is
+> >   Character Devices, Mice --->, Bus mouse support
+> > and then there is
+> >   Input drivers, Mice, Inport busmouse
+> > 
+> > Are both of these needed?  I.e., can the first one be removed?
+> 
+> The first can be removed once all the drivers using the busmouse.c
+> infrastructure are removed. They were all removed on i386 and other
+> modern architectures, but I'm not 100% sure some Atari driver is not
+> using it.
 
-On Tue, 5 Nov 2002, Russell King wrote:
+Atari busmouse support was removed. However, there's no new-style input layer
+driver for it yet.
 
-> I believe that this arbitary limit should be eliminated by some method.
-> However, as a "get you working" patch with a new arbitary limit of 1024
-> characters:
+Gr{oetje,eeting}s,
 
-I was already wondering, how much I should allow. :)
-But I'd rather set an arbitrary limit (and warn) than allowing an 
-arbitrary long string.
+						Geert
 
-bye, Roman
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,37 +1,265 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVCCDYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVCCDX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVCCDYL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 22:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCCDVm
+	id S261407AbVCCDX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 22:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVCCDWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 22:21:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:9388 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261442AbVCCDSC (ORCPT
+	Wed, 2 Mar 2005 22:22:55 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:33775 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261407AbVCCCQt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 22:18:02 -0500
-Date: Wed, 2 Mar 2005 19:17:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050302191740.0d37ff4d.akpm@osdl.org>
-In-Reply-To: <200503022114.20214.gene.heskett@verizon.net>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	<42265A6F.8030609@pobox.com>
-	<20050302165830.0a74b85c.davem@davemloft.net>
-	<200503022114.20214.gene.heskett@verizon.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 2 Mar 2005 21:16:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=sHLyDhgUcxF0bWS+Wx3fk9N5wrfeNSg3r7XgaoinMk4WL0toY9jTi5QfEI0rNTEGUiH6B+1J/7G7TjvNUMlNfh8lE9HKvBRRGnnaxxt3QrpwN7RS1CUbuDXwpISezY4qsrbYVZpoModY+VyuWVMM3CuO97SB+Ahgy6H1+BeZnJs=
+Date: Thu, 3 Mar 2005 11:16:38 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] ide: hdio.txt update
+Message-ID: <20050303021638.GA24150@htj.dyndns.org>
+References: <20050302235457.GA21352@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050302235457.GA21352@htj.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> wrote:
->
-> Ditto for the 1394 fixes that have been upstream for at 
->  least a month, maybe more. 
+ Hello, again.
 
--mm always holds the latest 1394 tree.  So you can run -mm, or just snarf
-bk-ieee1394.patch from the broken-out directory.
+ I've updated descriptions regarding SELECT register.
 
+ Signed-off-by: Tejun Heo <htejun@gmail.com>
+
+Index: linux-taskfile-ng/Documentation/ioctl/hdio.txt
+===================================================================
+--- linux-taskfile-ng.orig/Documentation/ioctl/hdio.txt	2005-03-03 11:14:43.551189244 +0900
++++ linux-taskfile-ng/Documentation/ioctl/hdio.txt	2005-03-03 11:15:14.593283052 +0900
+@@ -573,26 +573,31 @@ HDIO_DRIVE_TASKFILE		execute raw taskfil
+ 	  EFAULT	req_cmd == TASKFILE_IN_OUT (not implemented as of 2.6.8)
+ 	  EPERM		req_cmd == TASKFILE_MULTI_OUT and drive
+ 	  		multi-count not yet set.
+-
++	  EIO		Drive failed the command.
+ 
+ 	notes:
+ 
+-	  [1] Currently (2.6.8), both the input and output buffers are
+-	  copied from the user and written back to the user, even when
+-	  not used.  This may be a bug.
+-
+-	  [2] The out_flags and in_flags are returned to the user after
+-	  the ioctl completes.	Currently (2.6.8) these are the same
+-	  as the input values, unchanged.  In the future, they may have
+-	  more significance.
+-
+-	  Extreme caution should be used with using this ioctl.  A
+-	  mistake can easily corrupt data or hang the system.
+-
+-	  The argument to the ioctl is a pointer to a region of memory
+-	  containing a ide_task_request_t structure, followed by an
+-	  optional buffer of data to be transmitted to the drive,
+-	  followed by an optional buffer to receive data from the drive.
++	  [1] READ THE FOLLOWING NOTES *CAREFULLY*.  THIS IOCTL IS
++	  FULL OF GOTCHAS.  Extreme caution should be used with using
++	  this ioctl.  A mistake can easily corrupt data or hang the
++	  system.
++
++	  [2] Both the input and output buffers are copied from the
++	  user and written back to the user, even when not used.  The
++	  out_flags and in_flags are written back to the user after
++	  the ioctl completes.  These are the same as the input
++	  values, unchanged.
++
++	  [3] The default value of SELECT is (0xa0|DEV_bit|LBA_bit)
++	  except for four drives per port chipsets.  For four drives
++	  per port chipsets, it's (0xa0|DEV_bit|LBA_bit) for the first
++	  pair and (0x80|DEV_bit|LBA_bit) for the second pair.
++
++	  [4] The argument to the ioctl is a pointer to a region of
++	  memory containing a ide_task_request_t structure, followed
++	  by an optional buffer of data to be transmitted to the
++	  drive, followed by an optional buffer to receive data from
++	  the drive.
+ 
+ 	  Command is passed to the disk drive via the ide_task_request_t
+ 	  structure, which contains these fields:
+@@ -611,11 +616,66 @@ HDIO_DRIVE_TASKFILE		execute raw taskfil
+ 	    out_size		output (user->drive) buffer size, bytes
+ 	    in_size		input (drive->user) buffer size, bytes
+ 
+-	  This ioctl does not necessarily respect all flags in the
+-	  out_flags and in_flags values -- some taskfile registers
+-	  may be written or read even if not requested in the flags.
+-	  Unused fields of io_ports[] and hob_ports[] should be set
+-	  to zero.
++	  When out_flags is zero, the following registers are loaded.
++
++	    HOB_FEATURE		If the drive supports LBA48
++	    HOB_NSECTOR		If the drive supports LBA48
++	    HOB_SECTOR		If the drive supports LBA48
++	    HOB_LCYL		If the drive supports LBA48
++	    HOB_HCYL		If the drive supports LBA48
++	    FEATURE
++	    NSECTOR
++	    SECTOR
++	    LCYL
++	    HCYL
++	    SELECT		First, masked with 0xE0 if LBA48, 0xEF
++				otherwise; then, or'ed with the default
++				value of SELECT.
++
++	  If any bit in out_flags is set, the following registers are loaded.
++
++	    HOB_DATA		If tf_out_flags.b.data is set.  HOB_DATA
++				will travel on DD8-DD15 on little endian
++				machines and on DD0-DD7 on big endian machines.
++	    DATA		If tf_out_flags.b.data is set.  DATA will
++				travel on DD0-DD7 on little endian machines
++				and on DD8-DD15 on big endian machines.
++	    HOB_NSECTOR		If tf_out_flags.b.nsector_hob is set
++	    HOB_SECTOR		If tf_out_flags.b.sector_hob is set
++	    HOB_LCYL		If tf_out_flags.b.lcyl_hob is set
++	    HOB_HCYL		If tf_out_flags.b.hcyl_hob is set
++	    FEATURE		If tf_out_flags.b.feature is set
++	    NSECTOR		If tf_out_flags.b.nsector is set
++	    SECTOR		If tf_out_flags.b.sector is set
++	    LCYL		If tf_out_flags.b.lcyl is set
++	    HCYL		If tf_out_flags.b.hcyl is set
++	    SELECT		Or'ed with the default value of SELECT and
++				loaded regardless of tf_out_flags.b.select.
++
++	  Taskfile registers are read back from the drive into
++	  {io|hob}_ports[] after the command completes iff one of the
++	  following conditions is met; otherwise, the original values
++	  will be written back, unchanged.
++
++	    1. The drive fails the command (EIO).
++	    2. More than one bit is set in tf_out_flags.
++	    3. The requested data_phase is TASKFILE_NO_DATA.
++
++	    HOB_DATA		If tf_in_flags.b.data is set.  It will
++				contain DD8-DD15 on little endian machines
++				and DD0-DD7 on big endian machines.
++	    DATA		If tf_in_flags.b.data is set.  It will
++				contain DD0-DD7 on little endian machines
++				and DD8-DD15 on big endian machines.
++	    HOB_FEATURE		If the drive supports LBA48
++	    HOB_NSECTOR		If the drive supports LBA48
++	    HOB_SECTOR		If the drive supports LBA48
++	    HOB_LCYL		If the drive supports LBA48
++	    HOB_HCYL		If the drive supports LBA48
++	    NSECTOR
++	    SECTOR
++	    LCYL
++	    HCYL
+ 
+ 	  The data_phase field describes the data transfer to be
+ 	  performed.  Value is one of:
+@@ -626,27 +686,30 @@ HDIO_DRIVE_TASKFILE		execute raw taskfil
+ 	    TASKFILE_MULTI_OUT
+ 	    TASKFILE_IN_OUT
+ 	    TASKFILE_IN_DMA
+-	    TASKFILE_IN_DMAQ
++	    TASKFILE_IN_DMAQ		== IN_DMA (queueing not supported)
+ 	    TASKFILE_OUT_DMA
+-	    TASKFILE_OUT_DMAQ
+-	    TASKFILE_P_IN
+-	    TASKFILE_P_IN_DMA
+-	    TASKFILE_P_IN_DMAQ
+-	    TASKFILE_P_OUT
+-	    TASKFILE_P_OUT_DMA
+-	    TASKFILE_P_OUT_DMAQ
++	    TASKFILE_OUT_DMAQ		== OUT_DMA (queueing not supported)
++	    TASKFILE_P_IN		unimplemented
++	    TASKFILE_P_IN_DMA		unimplemented
++	    TASKFILE_P_IN_DMAQ		unimplemented
++	    TASKFILE_P_OUT		unimplemented
++	    TASKFILE_P_OUT_DMA		unimplemented
++	    TASKFILE_P_OUT_DMAQ		unimplemented
+ 
+ 	  The req_cmd field classifies the command type.  It may be
+ 	  one of:
+ 
+ 	    IDE_DRIVE_TASK_NO_DATA
+-	    IDE_DRIVE_TASK_SET_XFER
++	    IDE_DRIVE_TASK_SET_XFER	unimplemented
+ 	    IDE_DRIVE_TASK_IN
+-	    IDE_DRIVE_TASK_OUT
++	    IDE_DRIVE_TASK_OUT		unimplemented
+ 	    IDE_DRIVE_TASK_RAW_WRITE
+ 
+-
+-
++	  [5] Do not access {in|out}_flags->all except for resetting
++	  all the bits.  Always access individual bit fields.  ->all
++	  value will flip depending on endianess.  For the same
++	  reason, do not use IDE_{TASKFILE|HOB}_STD_{OUT|IN}_FLAGS
++	  constants defined in hdreg.h.
+ 
+ 
+ 
+@@ -663,7 +726,13 @@ HDIO_DRIVE_CMD			execute a special drive
+ 
+ 	inputs:
+ 
+-	  Taskfile register values:
++	  Commands other than WIN_SMART
++	    args[0]	COMMAND
++	    args[1]	NSECTOR
++	    args[2]	FEATURE
++	    args[3]	NSECTOR
++
++	  WIN_SMART
+ 	    args[0]	COMMAND
+ 	    args[1]	SECTOR
+ 	    args[2]	FEATURE
+@@ -682,11 +751,28 @@ HDIO_DRIVE_CMD			execute a special drive
+ 	error returns:
+ 	  EACCES	Access denied:  requires CAP_SYS_RAWIO
+ 	  ENOMEM	Unable to allocate memory for task
++	  EIO		Drive reports error
+ 
+ 	notes:
+ 
+-	  Taskfile registers IDE_LCYL, IDE_HCYL, and IDE_SELECT are
+-	  set to zero before executing the command.
++	  [1] For commands other than WIN_SMART, args[1] should equal
++	  args[3].  SECTOR, LCYL and HCYL are undefined.  For
++	  WIN_SMART, 0x4f and 0xc2 are loaded into LCYL and HCYL
++	  respectively.  In both cases SELECT will contain the default
++	  value for the drive.  Please refer to HDIO_DRIVE_TASKFILE
++	  notes for the default value of SELECT.
++
++	  [2] If NSECTOR value is greater than zero and the drive sets
++	  DRQ when interrupting for the command, NSECTOR * 512 bytes
++	  are read from the device into the area following NSECTOR.
++	  In the above example, the area would be
++	  args[4..4+XFER_SIZE].  16bit PIO is used regardless of
++	  HDIO_SET_32BIT setting.
++
++	  [3] If COMMAND == WIN_SETFEATURES && FEATURE == SETFEATURES_XFER
++	  && NSECTOR >= XFER_SW_DMA_0 && the drive supports any DMA
++	  mode, IDE driver will try to tune the transfer mode of the
++	  drive accordingly.
+ 
+ 
+ 
+@@ -726,7 +812,14 @@ HDIO_DRIVE_TASK			execute task and speci
+ 	error returns:
+ 	  EACCES	Access denied:  requires CAP_SYS_RAWIO
+ 	  ENOMEM	Unable to allocate memory for task
++	  ENOMSG	Device is not a disk drive.
++	  EIO		Drive failed the command.
++
++	notes:
+ 
++	  [1] DEV bit (0x10) of SELECT register is ignored and the
++	  appropriate value for the drive is used.  All other bits
++	  are used unaltered.
+ 
+ 
+ 

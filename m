@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266917AbSKSRY1>; Tue, 19 Nov 2002 12:24:27 -0500
+	id <S265132AbSKSRUg>; Tue, 19 Nov 2002 12:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266968AbSKSRY1>; Tue, 19 Nov 2002 12:24:27 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:6633 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266917AbSKSRY0>;
-	Tue, 19 Nov 2002 12:24:26 -0500
-Date: Tue, 19 Nov 2002 17:29:41 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ducrot Bruno <poup@poupinou.org>
-Cc: Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20 ACPI
-Message-ID: <20021119172941.GB4176@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ducrot Bruno <poup@poupinou.org>,
-	Margit Schubert-While <margit@margit.com>,
-	linux-kernel@vger.kernel.org
-References: <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com> <20021119130728.GA28759@suse.de> <20021119142731.GF27595@poup.poupinou.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021119142731.GF27595@poup.poupinou.org>
-User-Agent: Mutt/1.4i
+	id <S266917AbSKSRUg>; Tue, 19 Nov 2002 12:20:36 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:10404 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265132AbSKSRUf> convert rfc822-to-8bit; Tue, 19 Nov 2002 12:20:35 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: "Folkert van Heusden" <folkert@vanheusden.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: local link configuration daemon?
+Date: Tue, 19 Nov 2002 18:27:10 +0100
+User-Agent: KMail/1.4.3
+References: <003b01c28fed$724a2c80$3640a8c0@boemboem>
+In-Reply-To: <003b01c28fed$724a2c80$3640a8c0@boemboem>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211191827.10622.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 03:27:31PM +0100, Ducrot Bruno wrote:
- > > The newer ACPI code also introduces problems that aren't
- > > present with the current 2.4.20rc code.
- > I disagree with you.  It introduces more enhancements,
- > and more bugfix than the current code.  I admit that tt
- > could introduce some news bugs, but in the balance it
- > should be more stable than before.
- > Really, I will be happy to see new code in mainstream.
+Am Dienstag, 19. November 2002 18:02 schrieb Folkert van Heusden:
+> Hi,
+>
+> I just read this RFC on 'local link configuration' (mirrored at
+> http://keetweej.vanheusden.com/~folkert/draft-ietf-zeroconf-ipv4-linklocal.
+>t xt ) and I was wondering: is this planned to be in the kernel? Or should
+> occur this in userspace? (and if so; does it exist? freshmeat/google say it
+> doesn't)
+> Initially I thought I just configure an ip-address in that range on an
+> adapter, but then I read that there is this whole protocol of sending and
+> receiving arp-requests etc.
 
-In fact, the problem with my Vaio happens due to the changes
-_already_ in 2.4.20pre. I'm now backing them out to try and
-isolate the exact changes that caused the problem.
+Brad Hards has done a preliminary implementation that runs in user space.
 
-This is exactly the sort of thing I meant. The ACPI stuff is
-so fragile a few tiny changes makes a box unbootable.
-Merging nearly 3MB of changes at this stage would be lunacy.
-Save it for .20pre
+	HTH
+		Oliver
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

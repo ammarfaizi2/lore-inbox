@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbTJOAd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 20:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTJOAd3
+	id S261648AbTJOAgM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 20:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTJOAgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 20:33:29 -0400
-Received: from ce.fis.unam.mx ([132.248.33.1]:39877 "EHLO ce.fis.unam.mx")
-	by vger.kernel.org with ESMTP id S261824AbTJOAd1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 20:33:27 -0400
-Subject: nvidia.o on 2.4.22/2.6.0 ??
-From: Max Valdez <maxvaldez@yahoo.com>
-To: kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-d9Gd5s/S/c0pJskslED1"
-Message-Id: <1066178010.14217.3.camel@garaged.fis.unam.mx>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 15 Oct 2003 00:33:30 +0000
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+	Tue, 14 Oct 2003 20:36:12 -0400
+Received: from dyn-ctb-210-9-246-230.webone.com.au ([210.9.246.230]:31492 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261648AbTJOAgL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 20:36:11 -0400
+Message-ID: <3F8C966F.5080109@cyberone.com.au>
+Date: Wed, 15 Oct 2003 10:35:59 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: mem=16MB laptop testing
+References: <20031014105514.GH765@holomorphy.com>
+In-Reply-To: <20031014105514.GH765@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-d9Gd5s/S/c0pJskslED1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Hi=20
+William Lee Irwin III wrote:
 
-I know this is not really liked, but since I dont have a lot of money,
-and this is the only "good" video card I have.
+>So I tried mem=16m on my laptop (stinkpad T21). I made the following
+>potentially useless observations:
+>
 
-Have anyone made a successful run of X with nvidia (closes source)
-module ??, I have a TNT2 running on a 2.4.20-gentoo-r7 kernel, but when
-I try to run X on 2.4.22* or 2.6.0* I alway get an error about my screen
-and /dev/nvidia0.
+snip
 
-Is there any work on this ??, please dont tell me to change my video
-card, because I cant.
 
-Thanks in advance
-Max
---=20
-Nunca ! Jamas !
+>
+>inode_cache               840K           840K     100.00%   
+>dentry_cache              746K           753K      99.07%   
+>ext3_inode_cache          591K           592K      99.84%   
+>size-4096                 504K           504K     100.00%   
+>size-512                  203K           204K      99.75%   
+>size-2048                 182K           204K      89.22%   
+>pgd                       188K           188K     100.00%   
+>task_struct               100K           108K      92.86%   
+>vm_area_struct             93K           101K      92.28%   
+>blkdev_requests           101K           101K     100.00%   
+>
 
---=-d9Gd5s/S/c0pJskslED1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Hmm blkdev_requests looks big. 4 struct requests are allocated for every 
+queue,
+which totals about 600 bytes. What does /sys/block and the 
+blkdev_requests line
+from /proc/slabinfo look like?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/jJXasrSE6THXcZwRAtliAJ92g77b9xYCwygKe2BfjPS2NpcZgwCgpgkg
-WiLMerx88qKQ7OKj8Erlkp0=
-=ExJ7
------END PGP SIGNATURE-----
-
---=-d9Gd5s/S/c0pJskslED1--
 

@@ -1,89 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267499AbTBJBiS>; Sun, 9 Feb 2003 20:38:18 -0500
+	id <S267529AbTBJBnS>; Sun, 9 Feb 2003 20:43:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267505AbTBJBhH>; Sun, 9 Feb 2003 20:37:07 -0500
-Received: from dp.samba.org ([66.70.73.150]:55213 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267507AbTBJBg5>;
-	Sun, 9 Feb 2003 20:36:57 -0500
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] swsusp: do not panic on bad signature with noresume
-Date: Mon, 10 Feb 2003 12:41:10 +1100
-Message-Id: <20030210014642.45B902C2AA@lists.samba.org>
+	id <S267515AbTBJBmz>; Sun, 9 Feb 2003 20:42:55 -0500
+Received: from dp.samba.org ([66.70.73.150]:14510 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267553AbTBJBlw>;
+	Sun, 9 Feb 2003 20:41:52 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: ookhoi@humilis.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 Oops with insmod aironet4500_proc 
+In-reply-to: Your message of "Mon, 10 Feb 2003 01:14:18 BST."
+             <20030210011418.O19693@humilis> 
+Date: Mon, 10 Feb 2003 12:50:50 +1100
+Message-Id: <20030210015137.4C0B82C053@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Pavel Machek <pavel@ucw.cz>
+In message <20030210011418.O19693@humilis> you write:
+> Hi,
+> 
+> When I try to insmod aironet4500_proc, I get an Oops. The driver 
+> itself is buildin (pci).
+> 
+> Kernel (2.5.59) is build with gcc (GCC) 3.2.2 20030131 (Debian prerelease)
+> 
+> module-init-tools version 0.9.9
+> 
+> Is there more info I should provide?
 
-  Hi!
-  
-  This patch makes kernel ignore bad signature on suspend device when
-  "noresume" is given, and cleans things up a little bit. Please apply,
-  
-  								Pavel
-  
+Looks like you need the following patch (or moreal equiv).
 
---- trivial-2.5.59-bk3/kernel/suspend.c.orig	2003-02-10 12:29:57.000000000 +1100
-+++ trivial-2.5.59-bk3/kernel/suspend.c	2003-02-10 12:29:57.000000000 +1100
-@@ -1084,12 +1084,12 @@
- 	else if (!memcmp("S2",cur->swh.magic.magic,2))
- 		memcpy(cur->swh.magic.magic,"SWAPSPACE2",10);
- 	else {
-+		if (noresume)
-+			return -EINVAL;
- 		panic("%sUnable to find suspended-data signature (%.10s - misspelled?\n", 
- 			name_resume, cur->swh.magic.magic);
--		/* We want to panic even with noresume -- we certainly don't want to add
--		   out signature into your ext2 filesystem ;-) */
- 	}
--	if(noresume) {
-+	if (noresume) {
- 		/* We don't do a sanity check here: we want to restore the swap
- 		   whatever version of kernel made the suspend image;
- 		   We need to write swap, but swap is *not* enabled so
-@@ -1207,11 +1207,11 @@
- 	/* We enable the possibility of machine suspend */
- 	software_suspend_enabled = 1;
- #endif
--	if(!resume_status)
-+	if (!resume_status)
- 		return;
- 
- 	printk( "%s", name_resume );
--	if(resume_status == NORESUME) {
-+	if (resume_status == NORESUME) {
- 		if(resume_file[0])
- 			read_suspend_image(resume_file, 1);
- 		printk( "disabled\n" );
-@@ -1240,7 +1240,7 @@
- 
- static int __init resume_setup(char *str)
- {
--	if(resume_status)
-+	if (resume_status == NORESUME)
- 		return 1;
- 
- 	strncpy( resume_file, str, 255 );
-@@ -1249,16 +1249,13 @@
- 	return 1;
- }
- 
--static int __init software_noresume(char *str)
-+static int __init noresume_setup(char *str)
- {
--	if(!resume_status)
--		printk(KERN_WARNING "noresume option lacks a resume= option\n");
- 	resume_status = NORESUME;
--	
- 	return 1;
- }
- 
--__setup("noresume", software_noresume);
-+__setup("noresume", noresume_setup);
- __setup("resume=", resume_setup);
- 
- EXPORT_SYMBOL(software_suspend);
--- 
-  Don't blame me: the Monkey is driving
-  File: Pavel Machek <pavel@ucw.cz>: swsusp: do not panic on bad signature with noresume
+Hope this helps!
+Rusty.
+
+diff -Nru a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+--- a/include/asm-generic/vmlinux.lds.h	Fri Feb  7 21:21:02 2003
++++ b/include/asm-generic/vmlinux.lds.h	Fri Feb  7 21:21:02 2003
+@@ -13,18 +13,18 @@
+ 	}								\
+ 									\
+ 	/* Kernel symbol table: Normal symbols */			\
+-	__start___ksymtab = .;						\
+ 	__ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {		\
++		__start___ksymtab = .;					\
+ 		*(__ksymtab)						\
++		__stop___ksymtab = .;					\
+ 	}								\
+-	__stop___ksymtab = .;						\
+ 									\
+ 	/* Kernel symbol table: GPL-only symbols */			\
+-	__start___gpl_ksymtab = .;					\
+ 	__gpl_ksymtab     : AT(ADDR(__gpl_ksymtab) - LOAD_OFFSET) {	\
++		__start___gpl_ksymtab = .;				\
+ 		*(__gpl_ksymtab)					\
++		__stop___gpl_ksymtab = .;				\
+ 	}								\
+-	__stop___gpl_ksymtab = .;					\
+ 									\
+ 	/* Kernel symbol table: strings */				\
+         __ksymtab_strings : AT(ADDR(__ksymtab_strings) - LOAD_OFFSET) {	\
+
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

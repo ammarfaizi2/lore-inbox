@@ -1,73 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbTC0CQX>; Wed, 26 Mar 2003 21:16:23 -0500
+	id <S262784AbTC0CS5>; Wed, 26 Mar 2003 21:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262784AbTC0CQX>; Wed, 26 Mar 2003 21:16:23 -0500
-Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:13280
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id <S262780AbTC0CQW>; Wed, 26 Mar 2003 21:16:22 -0500
-Date: Wed, 26 Mar 2003 18:27:32 -0800
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [REPRODUCABLE BUGS] Linux 2.5.66
-Message-ID: <20030327022732.GA2867@triplehelix.org>
-References: <1048722582.2039.11.camel@rohan.arnor.net> <Pine.LNX.4.44.0303270019050.25001-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303270019050.25001-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	id <S262785AbTC0CS5>; Wed, 26 Mar 2003 21:18:57 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:31226 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S262784AbTC0CS4>; Wed, 26 Mar 2003 21:18:56 -0500
+Date: Thu, 27 Mar 2003 14:28:18 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Annouce: Initial SWSUSP 2.4 port to 2.5 available.
+To: Swsusp <swsusp@lister.fornax.hu>, Florent Chabaud <fchabaud@free.fr>,
+       Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1048732097.1731.14.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all.
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It is with delight that I write to announce the first release of the
+port of Software Suspend for 2.4 to 2.5. This version has all the
+functionality of the 2.4 version beta19-17 - the current development
+version for 2.4.  This includes the following enhancements over the
+version currently included in the 2.5 kernel:
 
-While we're on the framebuffer bug train, James, do you know of
-this bug with radeonfb:
+- HighMem support
+- Multiple swap partiton support
+- Ability to cancel a suspend by pressing ALT.
+- Ability to save what is close a perfect image image of RAM (resulting
+in a very fast, responsive system on resume - assumes enough swap
+available to store your full image)
+- Extensive debugging capabilities
+- Fast and reliable (extensive testing done under 2.4).
 
-My 2.5 kernel boots. Some initial boot text with ACPI and such is
-scrolled on the screen, this is before radeonfb has taken over and
-switched the screen size. But this is usually instant.
+There are issues still to be dealt with, but these should not in any way
+interfere with testing at this stage. They are:
 
-Right after the switch there is a lot of random characters in
-varying colors at the top of the screen below the penguin. The
-first legible boot message I see is this:
+- 2 page flags currently used: to be converted to dynamically allocated
+bitmaps
+- Interaction with S3 support to be tested and worked on (some common
+files affected, S3 support not tested).
+- Code cleanups still to be done in some places.
 
-	"Console: switching to colour framebuffer device 128x48"
+You can find the patch against 2.5.66 on
+www.sourceforge.net/projects/swsusp. It's in the swsusp-devel section at
+the bottom of the list.
 
-(not verbatim)
+Regards,
 
-The junk quickly scrolls off into the sunset and has no adverse
-effects on the following boot messages.
+Nigel
 
-It does not help to tell lilo to use 1024x768x16 by default.
-(vga=3D791)
 
-This is a minor bug, but the same thing works fine in the 2.4
-radeonfb.
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-Regards
-Josh
+Be diligent to present yourself approved to God as a workman who does
+not need to be ashamed, handling accurately the word of truth.
+	-- 2 Timothy 2:14, NASB.
 
---=20
-New PGP public key: 0x27AFC3EE
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+gmGUT2bz5yevw+4RAofdAJ4kIdAYzxrHAjhW5IyOb411N/eFQgCgxkm6
-Vjn5XL66TYBzSe7dtOooiOQ=
-=ny+/
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--

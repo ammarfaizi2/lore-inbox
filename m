@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbULNAG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbULNAO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbULNAG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 19:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbULNAG1
+	id S261353AbULNAO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 19:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbULNAO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 19:06:27 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1038 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261352AbULNAGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 19:06:23 -0500
-Date: Tue, 14 Dec 2004 01:06:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] some XFS cleanups (fwd)
-Message-ID: <20041214000621.GO23151@stusta.de>
-References: <20041207193533.GG7250@stusta.de> <20041208050348.GI1611@frodo>
-Mime-Version: 1.0
+	Mon, 13 Dec 2004 19:14:57 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:28785 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261353AbULNAO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 19:14:56 -0500
+To: "Hal Rosenstock" <halr@voltaire.com>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
+       <openib-general@openib.org>
+X-Message-Flag: Warning: May contain useful information
+References: <5CE025EE7D88BA4599A2C8FEFCF226F5175B0C@taurus.voltaire.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 13 Dec 2004 16:14:54 -0800
+In-Reply-To: <5CE025EE7D88BA4599A2C8FEFCF226F5175B0C@taurus.voltaire.com> (Hal
+ Rosenstock's message of "Mon, 13 Dec 2004 22:19:09 +0200")
+Message-ID: <52sm694txd.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [openib-general] [PATCH][v3][17/21] Add IPoIB
+ (IP-over-InfiniBand)driver
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041208050348.GI1611@frodo>
-User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 14 Dec 2004 00:14:55.0311 (UTC) FILETIME=[F0589DF0:01C4E171]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2004 at 04:03:48PM +1100, Nathan Scott wrote:
->...
-> > The patch below makes the following cleanups in the XFS code:
-> > - remove the unused global function vfs_dmapiops
-> > - remove some unused #define's
-> 
-> These first changes aren't really useful; they make the DMAPI
-> code more difficult to integrate and manage in our trees, for
-> not-enough gain.
->...
+    Hal> The latest I-D is now
+    Hal> http://www.ietf.org/internet-drafts/draft-ietf-ipoib-ip-over-infiniband-08.txt
 
-OK, then the #define's have to stay.
+Thanks, I'll correct this.
 
-Would it be OK to make vfs_dmapiops #ifdef on the DMAPI code?
+    Hal> Also, isn't DHCP over IB
+    Hal> (http://www.ietf.org/internet-drafts/draft-ietf-ipoib-dhcp-over-infiniband-07.txt)
+    Hal> also supported ? If so, is that part of this or some other
+    Hal> patch being submitted ?
 
-> Nathan
+DHCP should work but I don't think it's a kernel issue (I don't think
+kernel DHCP for NFS root over IPoIB will work unfortunately).
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ - R.

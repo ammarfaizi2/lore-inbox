@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbTI1TEm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 15:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbTI1TEm
+	id S262681AbTI1S6W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 14:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTI1S6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 15:04:42 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:65518 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262676AbTI1TEj
+	Sun, 28 Sep 2003 14:58:22 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:37352 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S262681AbTI1S6V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 15:04:39 -0400
-Subject: Re: [PATCH] i386 do_machine_check() is redundant.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Brian Gerst <bgerst@didntduck.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GudGFSBi8dGD/4XCOygf"
-Organization: Red Hat, Inc.
-Message-Id: <1064775868.5045.4.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
-Date: Sun, 28 Sep 2003 21:04:28 +0200
+	Sun, 28 Sep 2003 14:58:21 -0400
+Date: Mon, 29 Sep 2003 06:48:58 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: pm: Revert swsusp to 2.6.0-test3
+In-reply-to: <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>, Patrick Mochel <mochel@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1064774937.18769.9.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Could you also give me some clear direction on where you want me to put
+my 2.4 port. Should it go in kernel/power, or somewhere else? (I'm
+assuming you don't want 3 versions of swsusp?!). I'd like to put it in
+the right place when I start populating swsusp25.bkbits.net, so you're
+not pulling changesets later that only move the code around (I know bk
+reduces the cost, but...).
 
---=-GudGFSBi8dGD/4XCOygf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Regards,
 
-On Sun, 2003-09-28 at 20:24, Linus Torvalds wrote:
-> On Sun, 28 Sep 2003, Brian Gerst wrote:
-> >
-> > Use machine_check_vector in the entry code instead.
->=20
-> This is wrong. You just lost the "asmlinkage" thing, which means that it=20
-> breaks when asmlinkage matters.
->=20
-> And yes, asmlinkage _can_ matter, even on x86. It disasbles regparm, for
-> one thing, so it makes a huge difference if the kernel is compiled with
-> -mregparm=3D3 (which used to work, and which I'd love to do, but gcc has
-> often been a tad fragile).
+Nigel
 
-gcc 3.2 and later are supposed to be ok (eg during 3.2 development a
-long standing bug with regparm was fixed and now is believed to work)...
-since our makefiles check gcc version already... this can be made gcc
-version dependent as well for sure..
+On Mon, 2003-09-29 at 05:40, Linus Torvalds wrote:
+> On 28 Sep 2003 pavel@ucw.cz wrote:
+> > 
+> > This should not be warring patch. Pat
+> > already has variant in his tree,
+> > feel free to pull from him - but it
+> > would be nice to have working swsusp
+> > in -test6. --p
+> 
+> Ok. In that case, can we remove the '#if 0' blocks entirely, or at least 
+> add a big comment on why they are there but disabled?
+> 
+> I'd also like to have some kind of readme or similar on the different 
+> suspend/resume issues, and why we have two different approaches. Hmm?
+> 
+> 		Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
---=-GudGFSBi8dGD/4XCOygf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/dzC8xULwo51rQBIRAkmeAJ9IBGXRTZsl20Uv8hdqp5vX1ENLuwCeOcEV
-TOKjeyIuB1YXkGRRQbGGZsE=
-=+Wjw
------END PGP SIGNATURE-----
-
---=-GudGFSBi8dGD/4XCOygf--

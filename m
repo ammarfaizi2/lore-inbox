@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUHQRyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268354AbUHQRzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266543AbUHQRyN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 13:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266544AbUHQRyN
+	id S268354AbUHQRzW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 13:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268360AbUHQRzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 13:54:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7103 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266543AbUHQRyM (ORCPT
+	Tue, 17 Aug 2004 13:55:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38339 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268354AbUHQRzL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 13:54:12 -0400
-Date: Tue, 17 Aug 2004 19:55:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paulo Marques <pmarques@grupopie.com>, Keith Owens <kaos@ocs.com.au>,
-       Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-Message-ID: <20040817175511.GA29763@elte.hu>
-References: <6450.1092747900@ocs3.ocs.com.au> <41220FEA.9050106@grupopie.com> <20040817162323.GA7689@mars.ravnborg.org>
+	Tue, 17 Aug 2004 13:55:11 -0400
+Date: Tue, 17 Aug 2004 10:53:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: nathanl@austin.ibm.com, linux-kernel@vger.kernel.org, zwane@linuxpower.ca,
+       rusty@rustcorp.com.au, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.8.1-mm1
+Message-Id: <20040817105322.6f596061.akpm@osdl.org>
+In-Reply-To: <20040817113839.GB7005@in.ibm.com>
+References: <20040816143710.1cd0bd2c.akpm@osdl.org>
+	<1092722342.3081.68.camel@booger>
+	<20040817113839.GB7005@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817162323.GA7689@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+>
+> I found this to be due to task leak in exit code. In release_task:
+> 
+>  	a. Task is removed from task-list (unhash_process)
+>  	b. More processing is done (like proc_pid_flush etc)
+>  	   before task finally dies.
+> 
+>  The problem is the task can get preempted between a and b.
 
-* Sam Ravnborg <sam@ravnborg.org> wrote:
-
-> That said do not put too much effort moving kode from the kernel to
-> kallsyms.c. kallsyms support can be deselected, and users will not
-> care about the little extra overhead (down in noise compared with the
-> symbols).
-
-distributions tend to enable it though, so saving 64K of kernel RAM is 
-good indeed. Good compression of the symbols increases the applicability 
-of kallsyms.
-
-	Ingo
+It seems wrong that a task can be preempted so late in its lifetime.  We're
+just asking for nasty bugs by permitting that.

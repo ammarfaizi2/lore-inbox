@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131873AbQKJW42>; Fri, 10 Nov 2000 17:56:28 -0500
+	id <S131956AbQKJXAj>; Fri, 10 Nov 2000 18:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132044AbQKJW4T>; Fri, 10 Nov 2000 17:56:19 -0500
-Received: from mx3out.umbc.edu ([130.85.253.53]:11707 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S131873AbQKJW4B>;
-	Fri, 10 Nov 2000 17:56:01 -0500
-Date: Fri, 10 Nov 2000 17:55:59 -0500
-From: John Jasen <jjasen1@umbc.edu>
+	id <S131982AbQKJXA2>; Fri, 10 Nov 2000 18:00:28 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13320 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131956AbQKJXAS>; Fri, 10 Nov 2000 18:00:18 -0500
 To: linux-kernel@vger.kernel.org
-Subject: compiling md/lvm on 2.4.0-test9-test11-pre2 for alpha
-Message-ID: <Pine.SGI.4.21L.01.0011101747510.502569-100000@irix2.gl.umbc.edu>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: rdtsc to mili secs?
+Date: 10 Nov 2000 15:00:08 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8uhulo$bcd$1@cesium.transmeta.com>
+In-Reply-To: <8uhps8$1tm$1@cesium.transmeta.com> <200011102223.XAA04330@cave.bitwizard.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <200011102223.XAA04330@cave.bitwizard.nl>
+By author:    R.E.Wolff@BitWizard.nl (Rogier Wolff)
+In newsgroup: linux.dev.kernel
+> > 
+> > Intel PIIX-based systems will do duty-cycle throttling, for example.
+> 
+> What's this "duty cycle throtteling"? Some people seem to think this
+> refers to changing the duty cycle on the clock, and thereby saving
+> power. I think it doesn't save any power if you do it that way. You
+> are referring to the duty cycle on a "stpclk" signal, right?
+> 
 
-I've tried this on -test9, test10, and test11-pre2, all with similar
-results.
+Yes.  The clock to the CPU isn't actually halted, but the STPCLK input
+is pulsed, usually at 4 kHz, with some specific duty cycle.
 
-I've checked the kernel mailing list archives, and didn't see anything
-pertinent.
+It saves power roughly linearly with the duty cycle, minus some
+overhead.  It tends to be used mostly for thermal protection; if all
+you have is duty cycle throttling (or frequency change without
+corresponding voltage change), you're usually better off getting
+things done as soon as possible and then go into deep sleep instead.
+However, if you are about to emit smoke, you don't really have a whole
+lot of options.
 
-I'm getting the following errors: (in this case, attempting to make them
-as a module)
-
-<snip>
-make -C md modules
-make[2]: Entering directory `/usr/src/linux-2.4.0-test11-pre2/drivers/md'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11-pre2/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6 -DMODULE   -DEXPORT_SYMTAB -c 
-xor.c
-xor.c: In function `xor_block_alpha':
-xor.c:1791: inconsistent operand constraints in an `asm'
-xor.c: In function `xor_block_alpha_prefetch':
-xor.c:2213: inconsistent operand constraints in an `asm'
-make[2]: *** [xor.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.0-test11-pre2/drivers/md'
-make[1]: *** [_modsubdir_md] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.0-test11-pre2/drivers'
-make: *** [_mod_drivers] Error 2
-</snip>
-
-This is running Redhat 6.2, with updates, compiling 2.4.0-test11-pre2,
-with gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release).
-
-Any suggestions?
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- You can have it: right; cheap; now. Pick any two.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313455AbSDLIm2>; Fri, 12 Apr 2002 04:42:28 -0400
+	id <S313461AbSDLIsj>; Fri, 12 Apr 2002 04:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313459AbSDLIm1>; Fri, 12 Apr 2002 04:42:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48910 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313455AbSDLIm1>;
-	Fri, 12 Apr 2002 04:42:27 -0400
-Date: Fri, 12 Apr 2002 10:41:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: vojtech@suse.cz, martin@dalecki.de, linux-kernel@vger.kernel.org
-Subject: Re: VIA, 32bit PIO and 2.5.x kernel
-Message-ID: <20020412084150.GE824@suse.de>
-In-Reply-To: <20020412001029.GA1172@ppc.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S313462AbSDLIsi>; Fri, 12 Apr 2002 04:48:38 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:34834 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313461AbSDLIsh>; Fri, 12 Apr 2002 04:48:37 -0400
+Message-ID: <3CB690DC.7020104@evision-ventures.com>
+Date: Fri, 12 Apr 2002 09:46:36 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: martin@dalecki.de, vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: VIA and 2.5.8-pre kernels doesn't boot!
+In-Reply-To: <5.1.0.14.2.20020412014716.01f7aec0@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 12 2002, Petr Vandrovec wrote:
-> I believe that there must be some reason for doing that... And 
-> do not ask me why it worked in 2.4.x, as it cleared io_32bit
-> in task_out_intr too.
+Anton Altaparmakov wrote:
+> For me 2.5.8-pre2 and -pre3 (-pre1 not tested) both fail to boot on my 
+> VIA chipset box. 2.5.7 works fine.
+> 
+> Best regards,
+> 
+>         Anton
+> 
+> 2.5.8-pre3 prints on serial console and then it just dies:
+> ----snip----
+> Uniform Multi-Platform E-IDE driver ver.:7.0.0
+> ide: system bus speed 33MHz
+> VIA Technologies, Inc. Bus Master IDE: IDE controller on PCI slot 00:07.1
+> VIA Technologies, Inc. Bus Master IDE: chipset revision 6
+> VIA Technologies, Inc. Bus Master IDE: not 100% native mode: will probe 
+> irqs later
+> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+>     ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
+> hda: IC35L040AVER07-0, ATA DISK drive
+> ----snip----
+>
 
-Because 2.4 doesn't use that path for fs requests. And be glad that it
-doesn't otherwise _everybody_ would have much worse problems than you
-are currently seeing.
-
--- 
-Jens Axboe
+Does it crash dump thereafter? Could be that the code around
+save_match doesn't get it right.
 

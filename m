@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282224AbRK2Ahp>; Wed, 28 Nov 2001 19:37:45 -0500
+	id <S282222AbRK2AiD>; Wed, 28 Nov 2001 19:38:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282223AbRK2Ahe>; Wed, 28 Nov 2001 19:37:34 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:18146 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S282222AbRK2AhQ>; Wed, 28 Nov 2001 19:37:16 -0500
-Subject: [PATCH] 2.5.1-pre3 fix error in drivers/block/rd.c
-To: torvalds@transmeta.com
-Date: Thu, 29 Nov 2001 00:37:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4 PL24]
+	id <S282223AbRK2Ah5>; Wed, 28 Nov 2001 19:37:57 -0500
+Received: from mail018.mail.bellsouth.net ([205.152.58.38]:59016 "EHLO
+	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S282222AbRK2Ahl>; Wed, 28 Nov 2001 19:37:41 -0500
+Message-ID: <3C05834F.13C60B0C@mandrakesoft.com>
+Date: Wed, 28 Nov 2001 19:37:35 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: "David C. Hansen" <haveblue@us.ibm.com>
+CC: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BKL from drivers' release functions
+In-Reply-To: <E169EFX-0006TA-00@the-village.bc.nu> <3C057410.3090201@us.ibm.com> <20011128234505.C2561@flint.arm.linux.org.uk> <3C0580A8.5030706@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E169FCV-0006RS-00@draco.cus.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+"David C. Hansen" wrote:
+> 
+> Russell King wrote:
+> 
+> >On Wed, Nov 28, 2001 at 03:32:32PM -0800, David C. Hansen wrote:
+> >
+> >>Nothing, because the BKL is not held for all opens anymore.  In most of
+> >>the cases that we addressed, the BKL was in release _only_, not in open
+> >>at all.  There were quite a few drivers where we added a spinlock, or
+> >>used atomic operations to keep open from racing with release.
+> >>
+> >
+> >All char and block devs are opened with the BKL held - see chrdev_open in
+> >fs/devices.c and do_open in fs/block_dev.c
+> >
+> I wrote a quick and dirty char device driver to see if this happened.
+>  If I run two tasks doing a bunch of opens and closes, the -EBUSY
+> condition in the open function does happen.  Is my driver doing
+> something wrong?
+> 
+> Here is the meat of the driver:
+> 
+> static int Device_Open = 0;
+> 
+> int testdev_open(struct inode *inode,  struct file *file)
+> {
+>   if ( test_and_set_bit(0,&Device_Open) )    {
+>       printk( "attempt to open testdev more than once\n" );
+>       return -EBUSY;
+>     }
+>   MOD_INC_USE_COUNT;
+>   return SUCCESS;
+> }
+> 
+> int testdev_release(struct inode *inode,  struct file *file)
+> {
+>   clear_bit(0,&Device_Open);
+>   MOD_DEC_USE_COUNT;
+>   return 0;
+> }
 
-I think someone made a very silly mistake which this patchlet fixes.
-Taking a spinlock and returning from a function before releasing it...
+it is still racy, that's why struct file_operations and other structs
+have an 'owner' member......
 
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 
---- linux-2.5.1-pre3-vanilla/drivers/block/rd.c.old	Thu Nov 29 00:34:17 2001
-+++ linux-2.5.1-pre3-vanilla/drivers/block/rd.c	Thu Nov 29 00:35:03 2001
-@@ -437,9 +437,9 @@
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	if (unit == INITRD_MINOR) {
-+		if (!initrd_start) return -ENODEV;
- 		spin_lock( &initrd_users_lock );
- 		initrd_users++;
--		if (!initrd_start) return -ENODEV;
- 		spin_unlock( &initrd_users_lock );
- 		filp->f_op = &initrd_fops;
- 		return 0;
